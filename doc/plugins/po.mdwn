@@ -106,17 +106,6 @@ negotiated preferred language, *i.e.* `foo/page/`.
 * if the web server does not support Content Negotiation, setting
   `po_link_to` to `negotiated` will produce a unusable website.
 
-### Links appearance
-
-When `po_translation_status_in_links` is enabled, the text of a link
-to a slave pages displays this page's translation status.
-
-When the `po_strictly_refresh_backlinks` setting is enabled, a page is
-refreshed every time a backlinked page is changed. This updates the
-translation status in links, and helps having a consistent translated
-wiki. Beware, this make every page depend on every page that links to
-it, which can slow everything down and bloat the dependency pagespecs.
-
 Server support
 ==============
 
@@ -270,13 +259,14 @@ TODO
 Better links
 ------------
 
-### Page title in links
-
-Using the fix to
+Once the fix to
 [[bugs/pagetitle_function_does_not_respect_meta_titles]] from
-[[intrigeri]]'s `meta` branch, the generated links' text is based on
-the page titles set with the [[meta|plugins/meta]] plugin. This has to
-be merged into ikiwiki upstream, though.
+[[intrigeri]]'s `meta` branch is merged into ikiwiki upstream, the
+generated links' text will be optionally based on the page titles set
+with the [[meta|plugins/meta]] plugin, and will thus be translatable.
+It will also allow displaying the translation status in links to slave
+pages. Both were implemented, and reverted in commit **FIXME**, which
+should be reverted once [[intrigeri]]'s `meta` branch is merged.
 
 Robustness tests
 ----------------

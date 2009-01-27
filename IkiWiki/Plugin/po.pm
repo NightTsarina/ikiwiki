@@ -36,7 +36,6 @@ sub import {
 	hook(type => "filter", id => "po", call => \&filter);
 	hook(type => "htmlize", id => "po", call => \&htmlize);
 	hook(type => "pagetemplate", id => "po", call => \&pagetemplate, last => 1);
-	hook(type => "postscan", id => "po", call => \&postscan);
 	hook(type => "rename", id => "po", call => \&renamepages, first => 1);
 	hook(type => "delete", id => "po", call => \&mydelete);
 	hook(type => "change", id => "po", call => \&change);
@@ -55,8 +54,6 @@ sub import {
 	inject(name => "IkiWiki::targetpage", call => \&mytargetpage);
 	$origsubs{'urlto'}=\&IkiWiki::urlto;
 	inject(name => "IkiWiki::urlto", call => \&myurlto);
-	$origsubs{'nicepagetitle'}=\&IkiWiki::nicepagetitle;
-	inject(name => "IkiWiki::nicepagetitle", call => \&mynicepagetitle);
 	$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
 	inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
 }
@@ -119,20 +116,6 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
-		po_translation_status_in_links => {
-			type => "boolean",
-			example => 1,
-			description => "display translation status in links to translations",
-			safe => 1,
-			rebuild => 1,
-		},
-		po_strictly_refresh_backlinks => {
-			type => "boolean",
-			example => 1,
-			description => "refresh a page when a backlinked page is changed (can hit performance)",
-			safe => 1,
-			rebuild => 1,
-		},
 }
 
 sub checkconfig () {
@@ -168,14 +151,6 @@ sub checkconfig () {
 	elsif ($config{po_link_to} eq "negotiated" && ! $config{usedirs}) {
 		warn(gettext('po_link_to=negotiated requires usedirs to be enabled, falling back to po_link_to=default'));
 		$config{po_link_to}='default';
-	}
-	if (! exists $config{po_translation_status_in_links} ||
-	    ! defined $config{po_translation_status_in_links}) {
-		$config{po_translation_status_in_links}=1;
-	}
-	if (! exists $config{po_strictly_refresh_backlinks} ||
-	    ! defined $config{po_strictly_refresh_backlinks}) {
-		$config{po_strictly_refresh_backlinks}=1;
 	}
 	push @{$config{wiki_file_prune_regexps}}, qr/\.pot$/;
 }
@@ -315,18 +290,6 @@ sub pagetemplate (@) {
 		$template->param('parentlinks' => []);
 	}
 } # }}}
-
-sub postscan (@) {
-	my %params = @_;
-
-	return unless $config{po_strictly_refresh_backlinks};
-
-	my $page = $params{page};
-	# backlinks involve back-dependencies, so that nicepagetitle effects,
-	# such as translation status displayed in links, are updated
-	use IkiWiki::Render;
-	map add_depends($page, $_), keys %{$IkiWiki::backlinks{$page}};
-}
 
 # Add the renamed page translations to the list of to-be-renamed pages.
 sub renamepages(@) {
@@ -634,18 +597,6 @@ sub myurlto ($$;$) {
 	else {
 		return $origsubs{'urlto'}->($to,$from,$absolute)
 	}
-}
-
-sub mynicepagetitle ($;$) {
-	my ($page, $unescaped) = (shift, shift);
-
-	my $res = $origsubs{'nicepagetitle'}->($page, $unescaped);
-	return $res unless istranslation($page);
-	return $res unless $config{po_translation_status_in_links};
-	my @caller = caller(1);
-	return $res if (exists $caller[3] && defined $caller[3]
-			&& $caller[3] eq "IkiWiki::Plugin::parentlinks::parentlinks");
-	return $res.' ('.percenttranslated($page).'&nbsp;%)';
 }
 
 sub mycgiurl (@) {
