@@ -414,16 +414,16 @@ new page.
 
 ### rename
 
-	hook(type => "rename", id => "foo", call => \&renamepages);
+	hook(type => "rename", id => "foo", call => \&rename);
 
 When a page or set of pages is renamed, the referenced function is
-called, and is passed:
+called, and is passed named parameters:
 
-* a reference to an array of hashes with keys: `src`, `srcfile`,
-  `dest`, `destfile`, `required`. Such a hook function can modify
-  the array.
-* a CGI object
-* a session object
+* `torename`: a reference to an array of hashes with keys: `src`, `srcfile`,
+  `dest`, `destfile`, `required`. Such a hook function can either return the
+  array content unchanged, or modify it and return the modified version.
+* `cgi`: a CGI object
+* `session`: a session object.
 
 ### getsetup
 

@@ -329,29 +329,30 @@ sub postscan (@) {
 }
 
 # Add the renamed page translations to the list of to-be-renamed pages.
-sub renamepages($$$) {
-	my ($torename, $cgi, $session) = (shift, shift, shift);
+sub renamepages(@) {
+	my %params = @_;
 
-	# copy the initial array, so that we can iterate on it AND
-	# modify it at the same time, without iterating on the items we
-	# pushed on it ourselves
-	my @torename=@{$torename};
+	my @torename = @{$params{torename}};
+	my $session = $params{session};
 
 	# Save the page(s) the user asked to rename, so that our
 	# canrename hook can tell the difference between:
 	#  - a translation being renamed as a consequence of its master page
 	#    being renamed
 	#  - a user trying to directly rename a translation
-	# This is why this hook has to be run first, before @torename is modified
-	# by other plugins.
-	$session->param(po_orig_torename => [ @torename ]);
+	# This is why this hook has to be run first, before the list of pages
+	# to rename is modified by other plugins.
+	$session->param(po_orig_torename => \@torename);
 	IkiWiki::cgi_savesession($session);
 
+	my @ret=@torename;
+	# iterate on @torename and push onto @ret, so that we don't iterate
+	# on the items we added ourselves
 	foreach my $rename (@torename) {
 		next unless istranslatable($rename->{src});
 		my %otherpages=%{otherlanguages($rename->{src})};
 		while (my ($lang, $otherpage) = each %otherpages) {
-			push @{$torename}, {
+			push @ret, {
 				src => $otherpage,
 				srcfile => $pagesources{$otherpage},
 				dest => otherlanguage($rename->{dest}, $lang),
@@ -360,6 +361,7 @@ sub renamepages($$$) {
 			};
 		}
 	}
+	return @ret;
 }
 
 sub mydelete(@) {
