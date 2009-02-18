@@ -38,7 +38,7 @@ sub cgi_goto ($;$) {
 	# permalink. Comments do.
 	if (IkiWiki::isinternal($page) &&
 	    defined $pagestate{$page}{meta}{permalink}) {
-	    	Ikiwiki::redirect($q, $pagestate{$page}{meta}{permalink});
+	    	IkiWiki::redirect($q, $pagestate{$page}{meta}{permalink});
 	}
 
 	my $link = bestlink("", $page);
