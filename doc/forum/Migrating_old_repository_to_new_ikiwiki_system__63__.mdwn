@@ -7,3 +7,23 @@ I copied it the repository to my new system, which is now the "master" host.
 I installed ikiwiki on the new system.
 
 How do I set up an ikiwiki system using a pre-existing repository (instead of creating a new one)? --[[JosephTurian]]
+
+> Well, if you have:
+> * A git repository of the wiki
+> * A setup file for the wiki
+>
+> Then you should
+> 1. Manually set up a bare git repository, and push
+>    your backed up repository to it.
+> 2. `git clone` from the bare git repository to 
+>    recreate the ikiwiki srcdir
+> 3. `git clone` from the bare git repository a second time,
+>    to create a checkout you can manually edit (optional)
+> 4. run `ikiwiki --getctime --setup your.setup`
+>    The getctime will ensure page creation times are accurate
+>    by putting the info out of the git history,
+>    and only needs to be done once.
+>
+> If you preserved your repository, but not the setup file,
+> the easiest way to make one is probably to run
+> `ikiwiki -dumpsetup` and edit the setup file. --[[Joey]] 
