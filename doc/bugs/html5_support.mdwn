@@ -30,6 +30,9 @@ I'm unsure how to turn off the test validation by the very old [wdg-html-validat
 > Don't run ¨make test" ... --[[Joey]] 
 >> I don't quite grok debhelper7 [rules](http://git.ikiwiki.info/?p=ikiwiki;a=blob;f=debian/rules).
 
+>>> Well, ok :-) `rm t/html.t` or, add an empty `override_dh_auto_test` rule.
+>>> --[[Joey]] 
+
 [validator.nu](http://validator.nu/) incidentally is **the** HTML5 validator, however it is almost impossible to sanely introduce as a build dependency because of its insane Java requirements. :( I test locally via [cURL](http://wiki.whatwg.org/wiki/IDE), though Debian packages cannot be built with a network dependency.
 
 # Notes
