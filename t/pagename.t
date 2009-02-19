@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 6;
+use Test::More tests => 8;
 
 BEGIN { use_ok("IkiWiki"); }
 
 # Used internally.
-$IkiWiki::hooks{htmlize}{mdwn}{call}=sub {};
+$IkiWiki::hooks{htmlize}{mdwn}={};
+$IkiWiki::hooks{htmlize}{txt}={keepextension => 1};
 
 is(pagename("foo.mdwn"), "foo");
 is(pagename("foo/bar.mdwn"), "foo/bar");
@@ -15,3 +16,7 @@ is(pagename("foo/bar.mdwn"), "foo/bar");
 is(pagename("foo.png"), "foo.png");
 is(pagename("foo/bar.png"), "foo/bar.png");
 is(pagename("foo"), "foo");
+
+# keepextension preserves the extension in the page name
+is(pagename("foo.txt"), "foo.txt");
+is(pagename("foo/bar.txt"), "foo/bar.txt");
