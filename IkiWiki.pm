@@ -627,19 +627,22 @@ sub dirname ($) {
 	return $file;
 }
 
-sub pagetype ($) {
-	my $page=shift;
-	
-	if ($page =~ /\.([^.]+)$/) {
-		return $1 if exists $hooks{htmlize}{$1};
-	}
-	return;
-}
-
 sub isinternal ($) {
 	my $page=shift;
 	return exists $pagesources{$page} &&
 		$pagesources{$page} =~ /\._([^.]+)$/;
+}
+
+sub pagetype ($) {
+	my $file=shift;
+	
+	if ($file =~ /\.([^.]+)$/) {
+		return $1 if exists $hooks{htmlize}{$1};
+	}
+	elsif ($hooks{htmlize}{basename($file)}{noextension}) {
+		return basename($file);
+	}
+	return;
 }
 
 sub pagename ($) {
@@ -647,7 +650,9 @@ sub pagename ($) {
 
 	my $type=pagetype($file);
 	my $page=$file;
-	$page=~s/\Q.$type\E*$// if defined $type && !$hooks{htmlize}{$type}{keepextension};
+ 	$page=~s/\Q.$type\E*$//
+		if defined $type && !$hooks{htmlize}{$type}{keepextension}
+			&& !$hooks{htmlize}{$type}{noextension};
 	if ($config{indexpages} && $page=~/(.*)\/index$/) {
 		$page=$1;
 	}

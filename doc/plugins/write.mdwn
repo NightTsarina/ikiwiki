@@ -189,8 +189,13 @@ The function is passed named parameters: "page" and "content" and should
 return the htmlized content.
 
 If `hook` is passed an optional "keepextension" parameter, set to a true
-value, then this extension will not be stripped from the source filename when
+value, then the extension will not be stripped from the source filename when
 generating the page.
+
+If `hook` is passed an optional "noextension" parameter, set to a true
+value, then the id parameter specifies not a filename extension, but
+a whole filename that can be htmlized. This is useful for files
+like `Makefile` that have no extension.
 
 ### pagetemplate
 
