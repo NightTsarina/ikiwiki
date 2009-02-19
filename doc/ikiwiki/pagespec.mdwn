@@ -25,6 +25,7 @@ match all pages except for Discussion pages and the SandBox:
 Some more elaborate limits can be added to what matches using these functions:
 
 * "`link(page)`" - match only pages that link to a given page (or glob)
+* "`tagged(tag)`" - match pages that are tagged or link to the given tag (or glob)
 * "`backlink(page)`" - match only pages that a given page links to
 * "`creation_month(month)`" - match only pages created on the given month
 * "`creation_day(mday)`" - or day of the month
@@ -65,7 +66,7 @@ More complex expressions can also be created, by using parentheses for
 grouping. For example, to match pages in a blog that are tagged with either
 of two tags, use:
 
-	blog/* and (link(tag/foo) or link(tag/bar))
+	blog/* and (tagged(foo) or tagged(bar))
 
 Note that page names in PageSpecs are matched against the absolute
 filenames of the pages in the wiki, so a pagespec "foo" used on page
