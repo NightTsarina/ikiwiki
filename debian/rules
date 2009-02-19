@@ -2,16 +2,16 @@
 %:
 	dh $@
 
-# keeps it out if /usr/local
 override_dh_auto_configure:
+	# keeps it out of /usr/local
 	dh_auto_configure -- PREFIX=/usr
 
-# avoid compressing files in the doc wiki
 override_dh_compress:
+	# avoid compressing files in the doc wiki
 	dh_compress -Xhtml
 
-# distclean moans about MANIFEST, this is quieter
 override_dh_auto_clean:
+	# distclean moans about MANIFEST, this is quieter
 	$(MAKE) realclean
 
 # Not intended for use by anyone except the author.
