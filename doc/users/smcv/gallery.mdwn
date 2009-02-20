@@ -89,11 +89,14 @@ could look something like this:
 
 The next/previous part this plugin overlaps with [[todo/wikitrails]].
 
-A \[[!galleryimg]] directive to assign metadata to images is probably necessary, so
+A \[[!galleryimg]] directive to assign metadata to images might be necessary, so
 the gallery page can contain something like:
 
     \[[!galleryimg p1010001.jpg title="..." caption="..." tags="foo"]]
     \[[!galleryimg p1010002.jpg title="..." caption="..." tags="foo bar"]]
+
+However, allowing other pages to push in metadata like that will make
+dependency tracking difficult.
 
 Making the viewer pages could be rather tricky. Here are some options:
 "synthesize source pages for viewers" is the one I'm leaning towards at the
@@ -105,9 +108,19 @@ One possibility is to write out the viewer pages as a side-effect of
 preprocessing the \[[!gallery]] directive. The proof-of-concept implementation
 below does this.  However, this does mean the viewer pages can't have tags or
 metadata of their own and can't be matched by [[pagespecs|ikiwiki/pagespec]] or
-[[wikilinks|ikiwiki/wikilink]]. It might be possible to implement tagging by
-using \[[!galleryimg]] to assign the metadata to the *images* instead of their
-viewers.
+[[wikilinks|ikiwiki/wikilink]].
+
+It might be possible to implement tagging by using \[[!galleryimg]] to assign
+the metadata to the *images* instead of their viewers; however, that would
+require hacking up both `IkiWiki::htmllink` and `IkiWiki::urlto` to redirect
+links to the image (e.g. from the \[[!map]] on a tag page) to become links to
+the viewer page.
+
+Modifications to the comments plugin would also be required, to make it allow
+comments written to `foo/bar/comment_1._comment` even though the page foo/bar
+does not really exist, and display comments on the viewer pages even though
+they're not real pages. (Writing comments to `foo/bar.jpg/*._comment` is not
+an option!)
 
 ### Synthesize source pages for viewers
 
