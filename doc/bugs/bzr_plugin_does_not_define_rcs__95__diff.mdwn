@@ -10,3 +10,8 @@ Grepping to verify absence of rcs_diff:
     /usr/share/perl5/IkiWiki/Plugin/git.pm:sub rcs_diff ($) {
     /usr/share/perl5/IkiWiki/Plugin/bzr.pm:	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 
+> I've added the minimal stub needed to avoid the crash, but for
+> recentchangesdiff to work, someone needs to implement `rcs_diff` for bzr.
+> This should be trivial if you know and use bzr. The function
+> is passed as a parameter the revno of interest and just needs
+> to ask bzr for the diff between that and the previous version. --[[Joey]] 
