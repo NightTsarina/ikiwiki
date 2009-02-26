@@ -605,7 +605,8 @@ sub formbuilder_setup (@) {
 	my %params=@_;
 
 	my $form=$params{form};
-	if ($form->title eq "preferences") {
+	if ($form->title eq "preferences" &&
+	    IkiWiki::is_admin($params{session}->param("name"))) {
 		push @{$params{buttons}}, "Comment Moderation";
 		if ($form->submitted && $form->submitted eq "Comment Moderation") {
 			commentmoderation($params{cgi}, $params{session});
