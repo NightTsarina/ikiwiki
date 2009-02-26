@@ -24,38 +24,4 @@ Grepping to verify absence of rcs_diff:
 >> seems to work. I am unfortunately not ready to set up a git repository that you
 >> can pull from. --liw
 
-    diff --git a/IkiWiki/Plugin/.bzr.pm.swp b/IkiWiki/Plugin/.bzr.pm.swp
-    new file mode 100644
-    index 0000000..712120c
-    Binary files /dev/null and b/IkiWiki/Plugin/.bzr.pm.swp differ
-    diff --git a/IkiWiki/Plugin/bzr.pm b/IkiWiki/Plugin/bzr.pm
-    index 783623d..f1d5854 100644
-    --- a/IkiWiki/Plugin/bzr.pm
-    +++ b/IkiWiki/Plugin/bzr.pm
-    @@ -256,7 +256,25 @@ sub rcs_recentchanges ($) {
-     }
-   
-     sub rcs_diff ($) {
-    -   # TODO
-    +        my $taintedrev=shift;
-    +   my ($rev) = $taintedrev =~ /^(\d+(\.\d+)*)$/; # untaint
-    +           print STDERR "taintedrev: $taintedrev\nrev: $rev\n";
-    +
-    +   my $prevspec = "before:" . $rev;
-    +   my $revspec = "revno:" . $rev;
-    +        my @cmdline = ("bzr", "diff", "--old", $config{srcdir},
-    +                  "--new", $config{srcdir},
-    +                  "-r", $prevspec . ".." . $revspec);
-    +   print STDERR "cmdline: @cmdline\n";
-    +        open (my $out, "@cmdline |");
-    +
-    +   my @lines = <$out>;
-    +        if (wantarray) {
-    +                return @lines;
-    +        }
-    +        else {
-    +                return join("", @lines);
-    +        }
-     }
-   
-     sub rcs_getctime ($) {
+[[done]] --[[Joey]] 
