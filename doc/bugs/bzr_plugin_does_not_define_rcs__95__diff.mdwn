@@ -15,3 +15,7 @@ Grepping to verify absence of rcs_diff:
 > This should be trivial if you know and use bzr. The function
 > is passed as a parameter the revno of interest and just needs
 > to ask bzr for the diff between that and the previous version. --[[Joey]] 
+
+>> I'll see if I can make a patch. The bzr command to get the revision would
+>> look like this: bzr diff -r revno:$PREV:/path/to/src..revno:$REVNO:/path/to/src
+>> (where $PREV would be $REVNO minus one). --liw
