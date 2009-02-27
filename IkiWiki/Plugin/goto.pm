@@ -65,7 +65,7 @@ sub cgi ($) {
 	my $do = $cgi->param('do');
 
 	if (defined $do && ($do eq 'goto' || $do eq 'commenter' ||
-	                       $do eq 'recentchanged_link')) {
+	                       $do eq 'recentchanges_link')) {
 		# goto is the preferred name for this; recentchanges_link and
 		# commenter are for compatibility with any saved URLs
 		cgi_goto($cgi);
