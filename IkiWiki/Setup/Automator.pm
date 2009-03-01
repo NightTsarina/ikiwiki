@@ -120,7 +120,7 @@ sub import (@) {
 			print "Confirm password: ";
 			chomp($password2=<STDIN>);
 
-			last if  $password2 ne $password;
+			last if $password2 eq $password;
 
 			print "Password mismatch.\n\n";
 		}
