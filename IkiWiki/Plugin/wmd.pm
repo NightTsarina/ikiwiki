@@ -17,7 +17,6 @@ sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
-			rebuild => 1,
 		},
 }
 
@@ -30,7 +29,8 @@ sub formbuilder_setup (@) {
 	return unless (($form->field("do") eq "edit") ||
 				($form->field("do") eq "create"));
 
-	$form->tmpl_param("wmd_preview", "<div class=\"wmd-preview\"></div>\n".include_javascript(undef, 1));
+	$form->tmpl_param("wmd_preview", "<div class=\"wmd-preview\"></div>\n".
+		include_javascript(undef, 1));
 }
 
 sub include_javascript ($;$) {
@@ -42,4 +42,3 @@ sub include_javascript ($;$) {
 }
 
 1
-
