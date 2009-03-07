@@ -23,6 +23,14 @@ add to ikiwiki.
 >>> editing something other than Markdown source).  I've
 >>> removed the done tag so this is visible as a patch. -- [[Will]]
 
+>>> Hmm, it would be good if it turned off for !mdwn. Although this could
+>>> be difficult for a new page, since there is a dropdown selector to
+>>> choose the markup language then. But it should be doable for editing an
+>>> existing page.
+>>>
+>>> Can I get a license statement (ie, GPL-2+) ffrom you for the plugin?
+>>> --[[Joey]] 
+
 ------
 
 ### Instructions:
@@ -33,8 +41,15 @@ find a few example html files, a readme and `wmd` directory.  Move the `wmd` dir
 ikiwiki `underlays` directory.  You should now have an `underlays/wmd/wmd.js` file as well as 
 some other javascript files and an images directory in the same place.
 
+> So, I wonder if I should add a copy of the WMD source to ikiwiki, or rely
+> on the user or distribution providing it. It does not seem to be packaged
+> for Debian yet. --[[Joey]] 
+
 Note that the WMD plugin does **not** handle directives.  For this reason the normal `preview` button
 remains.  Some CSS to clean up the display of the live WMD preview would be good.
+
+> Can you elucidate the CSS comment -- or will it be obvious what you mean
+> when I try it? --[[Joey]]
 
 Install the following patch and plugin file.  Then enable the 'wmd' plugin.
 
