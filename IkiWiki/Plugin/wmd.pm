@@ -26,8 +26,9 @@ sub formbuilder_setup (@) {
 
 	return if ! defined $form->field("do");
 	
-	return unless (($form->field("do") eq "edit") ||
-				($form->field("do") eq "create"));
+	return unless $form->field("do") eq "edit" ||
+			$form->field("do") eq "create" ||
+			$form->field("do") eq "comment";
 
 	$form->tmpl_param("wmd_preview", "<div class=\"wmd-preview\"></div>\n".
 		include_javascript(undef, 1));
