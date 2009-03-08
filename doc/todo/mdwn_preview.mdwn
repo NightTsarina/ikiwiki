@@ -23,13 +23,26 @@ add to ikiwiki.
 >>> editing something other than Markdown source).  I've
 >>> removed the done tag so this is visible as a patch. -- [[Will]]
 
->>> Hmm, it would be good if it turned off for !mdwn. Although this could
->>> be difficult for a new page, since there is a dropdown selector to
->>> choose the markup language then. But it should be doable for editing an
->>> existing page.
->>>
->>> Can I get a license statement (ie, GPL-2+) ffrom you for the plugin?
->>> --[[Joey]] 
+>>>> Hmm, it would be good if it turned off for !mdwn. Although this could
+>>>> be difficult for a new page, since there is a dropdown selector to
+>>>> choose the markup language then. But it should be doable for editing an
+>>>> existing page.
+
+>>>>> I agree.  I'm working on this for for both new pages and existing pages.
+>>>>> It shouldn't be hard once I get WMD going through the javascript API.
+>>>>> At the moment that is inexplicably failing, and I haven't had time to have a good look at why.
+>>>>> I may not get a chance to look at this again for a few weeks.
+
+>>>> Can I get a license statement (ie, GPL-2+) ffrom you for the plugin?
+>>>> --[[Joey]] 
+
+>>>>> Certainly.  You're free to use the code I posted below under the GPL-2+ license.  You'll note
+>>>>> however that I haven't said anything about the WMD code itself.  The WMD web page says:
+
+>>>>>> "I'm refactoring the code, and will be releasing WMD under the MIT license soon. For now you can download the most recent release (wmd-1.0.1.zip) and use it freely."
+
+>>>>> It might be best to contact <support@attacklab.net> to for an explicit license on that if you want to include it.
+>>>>> -- [[Will]]
 
 ------
 
@@ -45,11 +58,22 @@ some other javascript files and an images directory in the same place.
 > on the user or distribution providing it. It does not seem to be packaged
 > for Debian yet. --[[Joey]] 
 
+>> This is a good question.  My thought is that it will probably not be packaged any time soon,
+>> so you're better off adding it to IkiWiki.  I'd contact the author of WMD and ask them.  They
+>> may have more insight.  -- [[Will]]
+
 Note that the WMD plugin does **not** handle directives.  For this reason the normal `preview` button
 remains.  Some CSS to clean up the display of the live WMD preview would be good.
 
 > Can you elucidate the CSS comment -- or will it be obvious what you mean
 > when I try it? Is it what's needed for the live preview? --[[Joey]]
+
+>> In the version of the plugin below, a new `div` is added just below the form.  WMD
+>> populates this div with the HTML it generates from the Markdown source.  This is not very
+>> pretty at the moment - it appears in the same place as the preview used to, but with no
+>> header or anything.  Any standard IkiWiki preview will appear below the WMD live preview.
+>> I recommend having a look at <http://wmd-editor.com/examples/splitscreen>
+>> for what a little CSS could achieve.  -- [[Will]]
 
 Install the following patch and plugin file.  Then enable the 'wmd' plugin.
 
