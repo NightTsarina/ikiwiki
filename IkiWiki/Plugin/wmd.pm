@@ -38,7 +38,7 @@ sub include_javascript ($;$) {
 	my $page=shift;
 	my $absolute=shift;
 	
-	return '<script src="'.urlto("wmd.js", $page, $absolute).
+	return '<script src="'.urlto("wmd/wmd.js", $page, $absolute).
 		'" type="text/javascript"></script>'."\n";
 }
 
