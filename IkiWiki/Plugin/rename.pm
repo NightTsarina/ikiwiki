@@ -10,7 +10,7 @@ sub import {
 	hook(type => "formbuilder_setup", id => "rename", call => \&formbuilder_setup);
 	hook(type => "formbuilder", id => "rename", call => \&formbuilder);
 	hook(type => "sessioncgi", id => "rename", call => \&sessioncgi);
-
+	hook(type => "rename", id => "rename", call => \&rename);
 }
 
 sub getsetup () {
@@ -312,33 +312,14 @@ sub sessioncgi ($$) {
 				required => 1,
 			};
 
-			# See if any subpages need to be renamed.
-			if ($q->param("subpages") && $src ne $dest) {
-				foreach my $p (keys %pagesources) {
-					next unless $pagesources{$p}=~m/^\Q$src\E\//;
-					# If indexpages is enabled, the
-					# srcfile should not be confused
-					# with a subpage.
-					next if $pagesources{$p} eq $srcfile;
-
-					my $d=$pagesources{$p};
-					$d=~s/^\Q$src\E\//$dest\//;
-					push @torename, {
-						src => $p,
-						srcfile => $pagesources{$p},
-						dest => pagename($d),
-						destfile => $d,
-						required => 0,
-					};
-				}
-			}
-			
 			@torename=rename_hook(
 				torename => \@torename,
 				done => {},
 				cgi => $q,
 				session => $session,
 			);
+			# FIXME: remove duplicates (based on src or srcfile key)
+			# from @torename
 
 			require IkiWiki::Render;
 			IkiWiki::disable_commit_hook() if $config{rcs};
@@ -433,7 +414,40 @@ sub sessioncgi ($$) {
 		exit 0;
 	}
 }
-						
+
+# Add subpages to the list of pages to be renamed, if needed.
+sub rename(@) {
+	my %params = @_;
+
+	my %torename = %{$params{torename}};
+	my $q = $params{cgi};
+	my $src = $torename{src};
+	my $srcfile = $torename{src};
+	my $dest = $torename{dest};
+	my $destfile = $torename{dest};
+
+	return () unless ($q->param("subpages") && $src ne $dest);
+
+	my @ret;
+	foreach my $p (keys %pagesources) {
+		next unless $pagesources{$p}=~m/^\Q$src\E\//;
+		# If indexpages is enabled, the srcfile should not be confused
+		# with a subpage.
+		next if $pagesources{$p} eq $srcfile;
+
+		my $d=$pagesources{$p};
+		$d=~s/^\Q$src\E\//$dest\//;
+		push @ret, {
+			src => $p,
+			srcfile => $pagesources{$p},
+			dest => pagename($d),
+			destfile => $d,
+			required => 0,
+		};
+	}
+	return @ret;
+}
+
 sub linklist {
 	# generates a list of links in a form suitable for FormBuilder
 	my $dest=shift;
@@ -474,7 +488,6 @@ sub rename_hook (@) {
 	my $q=$params{cgi};
 	my $session=$params{session};
 
-	debug("rename_hook called with ".scalar(@torename)." args.");
 	my @nextset;
 	if (@torename) {
 		foreach my $torename (@torename) {
@@ -521,7 +534,7 @@ sub do_rename ($$$) {
 		IkiWiki::rcs_rename($rename->{srcfile}, $rename->{destfile});
 	}
 	else {
-		if (! rename($config{srcdir}."/".$rename->{srcfile},
+		if (! CORE::rename($config{srcdir}."/".$rename->{srcfile},
 		             $config{srcdir}."/".$rename->{destfile})) {
 			error("rename: $!");
 		}
