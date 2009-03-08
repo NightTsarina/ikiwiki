@@ -7,8 +7,8 @@ use strict;
 use IkiWiki;
 use Encode;
 
-our %backlinks=();
-our $backlinks_calculated=0;
+my %backlinks;
+my $backlinks_calculated=0;
 
 sub calculate_backlinks () {
 	return if $backlinks_calculated;
