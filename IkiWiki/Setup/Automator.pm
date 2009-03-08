@@ -110,11 +110,20 @@ sub import (@) {
 		next if $admin=~/^http\?:\/\//; # openid
 		
 		# Prompt for password w/o echo.
+		my ($password, $password2);
 		system('stty -echo 2>/dev/null');
 		local $|=1;
 		print "\n\nCreating wiki admin $admin ...\n";
-		print "Choose a password: ";
-		chomp(my $password=<STDIN>);
+		for (;;) {
+			print "Choose a password: ";
+			chomp($password=<STDIN>);
+			print "Confirm password: ";
+			chomp($password2=<STDIN>);
+
+			last if $password2 eq $password;
+
+			print "Password mismatch.\n\n";
+		}
 		print "\n\n\n";
 		system('stty sane 2>/dev/null');
 

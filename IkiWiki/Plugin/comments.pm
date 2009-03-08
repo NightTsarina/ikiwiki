@@ -25,8 +25,9 @@ sub import {
 	hook(type => "sessioncgi", id => 'comment', call => \&sessioncgi);
 	hook(type => "htmlize", id => "_comment", call => \&htmlize);
 	hook(type => "pagetemplate", id => "comments", call => \&pagetemplate);
-	hook(type => "cgi", id => "comments", call => \&linkcgi);
 	hook(type => "formbuilder_setup", id => "comments", call => \&formbuilder_setup);
+	# Load goto to fix up user page links for logged-in commenters
+	IkiWiki::loadplugin("goto");
 	IkiWiki::loadplugin("inline");
 }
 
@@ -167,7 +168,7 @@ sub preprocess {
 		}
 		else {
 			$commentauthorurl = IkiWiki::cgiurl(
-				do => 'commenter',
+				do => 'goto',
 				page => (length $config{userdir}
 					? "$config{userdir}/$commentuser"
 					: "$commentuser"));
@@ -233,35 +234,6 @@ sub preprocess {
 	}
 
 	return $content;
-}
-
-# This is exactly the same as recentchanges_link :-(
-sub linkcgi ($) {
-	my $cgi=shift;
-	if (defined $cgi->param('do') && $cgi->param('do') eq "commenter") {
-
-		my $page=decode_utf8($cgi->param("page"));
-		if (! defined $page) {
-			error("missing page parameter");
-		}
-
-		IkiWiki::loadindex();
-
-		my $link=bestlink("", $page);
-		if (! length $link) {
-			print "Content-type: text/html\n\n";
-			print IkiWiki::misctemplate(gettext(gettext("missing page")),
-				"<p>".
-				sprintf(gettext("The page %s does not exist."),
-					htmllink("", "", $page)).
-				"</p>");
-		}
-		else {
-			IkiWiki::redirect($cgi, urlto($link, undef, 1));
-		}
-
-		exit;
-	}
 }
 
 sub sessioncgi ($$) {
@@ -477,7 +449,7 @@ sub editcomment ($$) {
 			IkiWiki::printheader($session);
 			print IkiWiki::misctemplate(gettext(gettext("comment stored for moderation")),
 				"<p>".
-				gettext("Your comment will be posted after moderator review"),
+				gettext("Your comment will be posted after moderator review").
 				"</p>");
 			exit;
 		}
@@ -633,7 +605,8 @@ sub formbuilder_setup (@) {
 	my %params=@_;
 
 	my $form=$params{form};
-	if ($form->title eq "preferences") {
+	if ($form->title eq "preferences" &&
+	    IkiWiki::is_admin($params{session}->param("name"))) {
 		push @{$params{buttons}}, "Comment Moderation";
 		if ($form->submitted && $form->submitted eq "Comment Moderation") {
 			commentmoderation($params{cgi}, $params{session});

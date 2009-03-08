@@ -125,4 +125,12 @@ sub pagetemplate (@) {
 	}
 }
 
+package IkiWiki::PageSpec;
+
+sub match_tagged ($$;@) {
+	my $page = shift;
+	my $glob = shift;
+	return match_link($page, IkiWiki::Plugin::tag::tagpage($glob));
+}
+
 1

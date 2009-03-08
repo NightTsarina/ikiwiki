@@ -28,7 +28,8 @@ sub gen_wrapper () {
 	my @envsave;
 	push @envsave, qw{REMOTE_ADDR QUERY_STRING REQUEST_METHOD REQUEST_URI
 	               CONTENT_TYPE CONTENT_LENGTH GATEWAY_INTERFACE
-		       HTTP_COOKIE REMOTE_USER HTTPS} if $config{cgi};
+		       HTTP_COOKIE REMOTE_USER HTTPS REDIRECT_STATUS
+		       REDIRECT_URL} if $config{cgi};
 	my $envsave="";
 	foreach my $var (@envsave) {
 		$envsave.=<<"EOF";
@@ -92,10 +93,7 @@ EOF
 	$configstring=~s/"/\\"/g;
 	$configstring=~s/\n/\\n/g;
 	
-	#translators: The first parameter is a filename, and the second is
-	#translators: a (probably not translated) error message.
-	open(OUT, ">$wrapper.c") || error(sprintf(gettext("failed to write %s: %s"), "$wrapper.c", $!));;
-	print OUT <<"EOF";
+	writefile(basename("$wrapper.c"), dirname($wrapper), <<"EOF");
 /* A wrapper for ikiwiki, can be safely made suid. */
 #include <stdio.h>
 #include <sys/types.h>

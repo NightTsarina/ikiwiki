@@ -149,3 +149,19 @@ But I don't get an edit link on my pages?  What am I doing wrong?
 > Assuming you don't have the editpage plugin disabled, all you should need
 > to so is re-run `ikiwiki -setup` with the above config and it should
 > rebuild your wiki and add the edit links to pages. --[[Joey]]
+
+----
+
+I setup ikiwiki on a fedora 10 machine and I am using apache as my http server. Faced a few difficulties while setting it up as the default setup program left some suid files and group writeable directories on the system. It took some time to get it working and documented what I did at http://flyingtux.blogspot.com/2009/03/installing-ikiwiki.html. Thought it might be useful to someone here. (The version installed is 2.72)
+
+> ikiwiki makes wrappers suid by default, because this ensures that when
+> the ikiwiki.cgi is run by your web server, it runs as the user who owns
+> your wiki, and can thus write to it. ikiwiki is designed to run securely
+> suid. If your webserver uses some
+> mechanism to run the ikiwiki.cgi as the user who owns it, without the
+> suid bit being set, you *could* modify `cgi_wrappermode` in your setup
+> file to drop the suid bit. 
+> 
+> ikiwiki respects the umask, so if your umask is one that causes things to
+> be group writable, they will by. If you want to override that, there is
+> also a `umask	` setting in your setup file. --[[Joey]] 

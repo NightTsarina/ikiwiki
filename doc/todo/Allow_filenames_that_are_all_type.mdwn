@@ -1,0 +1,41 @@
+This is a [[patch]] to allow filenames that are just the type.  The best example of this is wanting to
+pass a `Makefile` through one of the [[todo/syntax_highlighting/]] plugins.  With this patch,
+if the plugin can process files of type `.Makefile` then it will also process `Makefile`.
+
+I put this patch on the [[todo/syntax_highlighting/]] page a while ago, but it seemed to get
+lost because it didn't have its own bug to track it.  Now it does :).  -- [[Will]]
+
+> This changes `pagename()`, but what about `pagetype()`?
+> Many things in ikiwiki check if `pagetype($file)` returns
+> true to see if it's a page, etc. --[[Joey]] 
+
+>> I think this patch is complete.  It does not change `pagename()`, it
+>> changes `pagetype()` (the diff is fairly old - line numbers may have
+>> changed).
+>>
+>> Before this patch, `pagetype()` required a `.` in the page name.  With
+>> this patch it doesn't, as long as the extension is being kept.  This allows
+>> the filename to be all extension.  `pagename()` relies on `pagetype()`
+>> to detect the type.  `pagename()` also removes the extension on some
+>> pages, but this patch only affects pages where the extension isn't
+>> removed.
+>>
+>> So, yeah, I think this patch is complete. :)  -- [[Will]]
+
+>>> Thanks, [[applied|done]], but I added a noextension parameter,
+>>> since having keepextension allow files with no extension didn't make
+>>> sense. Also, made it work for pages in subdirs.. --[[Joey]] 
+
+    diff --git a/IkiWiki.pm b/IkiWiki.pm
+    index 8d728c9..1bd46a9 100644
+    --- a/IkiWiki.pm
+    +++ b/IkiWiki.pm
+    @@ -618,6 +618,8 @@ sub pagetype ($) {
+     	
+     	if ($page =~ /\.([^.]+)$/) {
+     		return $1 if exists $hooks{htmlize}{$1};
+    +	} elsif ($hooks{htmlize}{$page}{keepextension}) {
+    +		return $page;
+     	}
+     	return;
+     }

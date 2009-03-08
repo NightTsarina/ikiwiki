@@ -20,14 +20,20 @@ sub getsetup () {
 }
 
 sub checkconfig () {
-	if (defined $config{srcdir}) {
+	if (defined $config{srcdir} && length $config{srcdir}) {
 		# Preprocess the shortcuts page to get all the available shortcuts
 		# defined before other pages are rendered.
-		my $srcfile=srcfile("shortcuts.mdwn", 1);
+		my $srcfile=srcfile("shortcuts.".$config{default_pageext}, 1);
 		if (! defined $srcfile) {
-			error(gettext("shortcut plugin will not work without a shortcuts.mdwn"));
+			$srcfile=srcfile("shortcuts.mdwn", 1);
 		}
-		IkiWiki::preprocess("shortcuts", "shortcuts", readfile($srcfile));
+		if (! defined $srcfile) {
+			print STDERR sprintf(gettext("shortcut plugin will not work without %s"),
+				"shortcuts.".$config{default_pageext})."\n";
+		}
+		else {
+			IkiWiki::preprocess("shortcuts", "shortcuts", readfile($srcfile));
+		}
 	}
 }
 

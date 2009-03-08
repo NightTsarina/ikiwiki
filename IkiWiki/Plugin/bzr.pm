@@ -255,6 +255,26 @@ sub rcs_recentchanges ($) {
 	return @ret;
 }
 
+sub rcs_diff ($) {
+	my $taintedrev=shift;
+	my ($rev) = $taintedrev =~ /^(\d+(\.\d+)*)$/; # untaint
+
+	my $prevspec = "before:" . $rev;
+	my $revspec = "revno:" . $rev;
+	my @cmdline = ("bzr", "diff", "--old", $config{srcdir},
+		"--new", $config{srcdir},
+		"-r", $prevspec . ".." . $revspec);
+	open (my $out, "@cmdline |");
+
+	my @lines = <$out>;
+	if (wantarray) {
+		return @lines;
+	}
+	else {
+		return join("", @lines);
+	}
+}
+
 sub rcs_getctime ($) {
 	my ($file) = @_;
 
