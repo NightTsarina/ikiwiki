@@ -87,3 +87,218 @@ remains.  Some CSS to clean up the display of the live WMD preview would be good
 > I assume that is designed for websites that do not use markdown
 > internally. Doesn't it have a setting to leave it as markdown?
 >> Found setting, fixed. --[[Joey]] 
+
+>>> As I noted above, I've been working on the non-markdown page issue.
+>>> Below is my a new javascript file that I'm using, and below that a patch
+>>> to enable it.  This patch makes the normal usage prettier - you get
+>>> a side panel with the live preview in it.  It also adds a new config
+>>> option, `wmd_use101api`, which turns on code that tries to use the
+>>> wmd api.  At the moment this code doesn't seem to work - moreover the
+>>> code that uses the new API dies early, so any code after that point is
+>>> completely untested.  I will not
+>>> get a chance to look at this again soon though, so I thought I'd post
+>>> my progress so far.  -- [[Will]]
+
+
+Place the following file in `underlays/wmd/wmd-ikiwiki.js`.
+
+----
+
+    // This is some code to interface the WMD interface 1.0.1 with IkiWiki
+    // The WMD interface is planned to change, so this file will likely need
+    // updating in future.
+    
+    if (useWMDinterface) {
+    	wmd_options = { autostart: false, output: "Markdown" };
+    	var instance = null;
+    
+    	hook("onload", initwmd);
+    } else {
+    	var typeSelector = document.getElementById("type");
+    	
+    	var currentType = getType(typeSelector);
+    	
+    	if (currentType == "mdwn") {
+    		wmd_options = { output: "Markdown" };
+    		document.getElementById("wmd-preview-container").style.hidden = false;
+    	} else {
+    		wmd_options = { autostart: false };
+    		document.getElementById("wmd-preview-container").style.hidden = true;
+    	}
+    }
+    
+    function initwmd() {
+    	if (!Attacklab || !Attacklab.wmd) {
+    		alert("WMD hasn't finished loading!");
+    		return;
+    	}
+    	
+    	var typeSelector = document.getElementById("type");
+    	
+    	var currentType = getType(typeSelector);
+    	
+    	if (currentType == "mdwn") {
+    		enableWMD();
+    	}
+    	
+    	typeSelector.onchange=function() {
+    		var docType=getType(this);
+    		
+    		if (docType=="mdwn") {
+    			enableWMD();
+    		} else {
+    			disableWMD();
+    		}
+    	}
+    }
+    
+    function getType(typeSelector)
+    {
+    	if (typeSelector.nodeName.toLowerCase() == 'input') {
+    		return typeSelector.getAttribute('value');
+    	} else if (typeSelector.nodeName.toLowerCase() == 'selector') {
+    		return typeSelector.options[typeSelector.selectedIndex];
+    	}
+    	return "";
+    }
+    
+    function enableWMD()
+    {
+    	var editContent = document.getElementById("editcontent");
+    	var previewDiv = document.getElementById("wmd-preview");
+    	var previewDivContainer = document.getElementById("wmd-preview-container");
+    	
+    	previewDivContainer.style.hidden = false;
+    	// editContent.style.width = previewDivContainer.style.width;
+    	
+    	/***** build the preview manager *****/
+    	var panes = {input:editContent, preview:previewDiv, output:null};
+    	var previewManager = new Attacklab.wmd.previewManager(panes);
+    
+    	/***** build the editor and tell it to refresh the preview after commands *****/
+    	var editor = new Attacklab.wmd.editor(editContent,previewManager.refresh);
+    
+    	// save everything so we can destroy it all later
+    	instance = {ta:textarea, div:previewDiv, ed:editor, pm:previewManager};
+    }
+    
+    function disableWMD()
+    {
+    	document.getElementById("wmd-preview-container").style.hidden = true;
+    
+    	if (instance != null) {
+    		instance.pm.destroy();
+    		instance.ed.destroy();
+    		//inst.ta.style.width='100%'
+    	}
+    	instance = null;
+    }
+
+
+----
+
+    diff --git a/IkiWiki/Plugin/wmd.pm b/IkiWiki/Plugin/wmd.pm
+    index 9ddd237..743a0b8 100644
+    --- a/IkiWiki/Plugin/wmd.pm
+    +++ b/IkiWiki/Plugin/wmd.pm
+    @@ -17,6 +17,13 @@ sub getsetup () {
+     	return
+     		plugin => {
+     			safe => 1,
+    +			rebuild => 1,
+    +		},
+    +		wmd_use101api => {
+    +			type => "boolean",
+    +			description => "Use the advanced, but unstable, WMD api for markdown preview.",
+    +			safe => 0,
+    +			rebuild => 0,
+     		},
+     }
+     
+    @@ -24,29 +31,25 @@ sub formbuilder_setup (@) {
+     	my %params=@_;
+     	my $form=$params{form};
+     
+    -	return if ! defined $form->field("do");
+    +	return unless defined $form->field("do");
+     	
+     	return unless $form->field("do") eq "edit" ||
+    -			$form->field("do") eq "create" ||
+    -			$form->field("do") eq "comment";
+    -
+    -	$form->tmpl_param("wmd_preview", "<div class=\"wmd-preview\"></div>\n".
+    -		include_javascript(undef, 1));
+    -}
+    -
+    -sub include_javascript ($;$) {
+    -	my $page=shift;
+    -	my $absolute=shift;
+    -
+    -	my $wmdjs=urlto("wmd/wmd.js", $page, $absolute);
+    -	return <<"EOF"
+    -<script type="text/javascript">
+    -wmd_options = {
+    -	output: "Markdown"
+    -};
+    -</script>
+    -<script src="$wmdjs" type="text/javascript"></script>
+    -EOF
+    +				$form->field("do") eq "create" ||
+    +				$form->field("do") eq "comment";
+    +
+    +	my $useAPI = $config{wmd_use101api}?'true':'false';
+    +	my $ikiwikijs = urlto("ikiwiki.js", undef, 1);
+    +	my $wmdIkiwikijs = urlto("wmd-ikiwiki.js", undef, 1);
+    +	my $wmdjs = urlto("wmd.js", undef, 1);
+    +
+    +	my $previewScripts = <<"EOS";
+    +		<script type="text/javascript">useWMDinterface=$useAPI;</script>
+    +		<script src="$ikiwikijs" type="text/javascript"></script>
+    +		<script src="$wmdIkiwikijs" type="text/javascript"></script>
+    +		<script src="$wmdjs" type="text/javascript"></script>
+    +EOS
+    +
+    +	$form->tmpl_param("wmd_preview", $previewScripts);
+     }
+     
+     1
+    diff --git a/doc/style.css b/doc/style.css
+    index a6e6734..36c2b13
+    --- a/doc/style.css
+    +++ b/doc/style.css
+    @@ -76,9 +76,16 @@ div.tags {
+     	float: right;
+     }
+     
+    +/*
+     #editcontent {
+     	width: 100%;
+     }
+    +*/
+    +
+    +#wmd-preview-container {
+    +	width: 49%;
+    +	float: right;
+    +}
+     
+     img {
+     	border-style: none;
+    diff --git a/templates/editpage.tmpl b/templates/editpage.tmpl
+    index b1cf015..1d2f080 100644
+    --- a/templates/editpage.tmpl
+    +++ b/templates/editpage.tmpl
+    @@ -15,6 +15,14 @@ Page type: <TMPL_VAR FIELD-TYPE>
+     <TMPL_VAR FIELD-PAGE>
+     <TMPL_VAR FIELD-TYPE>
+     </TMPL_IF>
+    +<TMPL_IF NAME="WMD_PREVIEW">
+    +<div id="wmd-preview-container">
+    +<div  class="header">
+    +<span>Live preview:</span>
+    +</div>
+    +<div class="wmd-preview" id="wmd-preview"></div>
+    +</div>
+    +</TMPL_IF>
+     <TMPL_VAR FIELD-EDITCONTENT><br />
+     <TMPL_IF NAME="CAN_COMMIT">
+     Optional comment about this change:<br />
