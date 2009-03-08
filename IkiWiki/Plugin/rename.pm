@@ -318,8 +318,14 @@ sub sessioncgi ($$) {
 				cgi => $q,
 				session => $session,
 			);
-			# FIXME: remove duplicates (based on src or srcfile key)
-			# from @torename
+
+			# remove duplicates from @torename
+			my %seen=();
+			my @uniq_torename;
+			foreach my $item (@torename) {
+				push(@uniq_torename, $item) unless $seen{$item->{src}}++;
+			}
+			@torename=@uniq_torename;
 
 			require IkiWiki::Render;
 			IkiWiki::disable_commit_hook() if $config{rcs};
