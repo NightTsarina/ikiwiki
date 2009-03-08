@@ -69,9 +69,13 @@ sub preprocess (@) {
 		}
 	}
 
+	# This needs to run even in scan mode, in order to process
+	# links and other metadata includes via the template.
+	my $scan=! defined wantarray;
+
 	return IkiWiki::preprocess($params{page}, $params{destpage},
 		IkiWiki::filter($params{page}, $params{destpage},
-		$template->output));
+		$template->output), $scan);
 }
 
 1

@@ -18,32 +18,44 @@ add to ikiwiki.
 
 [[!tag wishlist]]
 
->>> Below is a simple plugin/[[patch]] to make use of the WMD editor.  Turns out it isn't hard at all to
+>>> Below is a simple plugin/[[patch]] to make use of the WMD editor.
+
+>>>> Now added to ikiwiki, thanks! --[[Joey]] 
+
+>>> Turns out it isn't hard at all to
 >>> get a basic version going (which doesn't handle directives at all, nor does it swtich itself off when you're
 >>> editing something other than Markdown source).  I've
 >>> removed the done tag so this is visible as a patch. -- [[Will]]
 
->>> Hmm, it would be good if it turned off for !mdwn. Although this could
->>> be difficult for a new page, since there is a dropdown selector to
->>> choose the markup language then. But it should be doable for editing an
->>> existing page.
->>>
->>> Can I get a license statement (ie, GPL-2+) ffrom you for the plugin?
->>> --[[Joey]] 
+>>>> Hmm, it would be good if it turned off for !mdwn. Although this could
+>>>> be difficult for a new page, since there is a dropdown selector to
+>>>> choose the markup language then. But it should be doable for editing an
+>>>> existing page.
 
-------
+>>>>> I agree.  I'm working on this for for both new pages and existing pages.
+>>>>> It shouldn't be hard once I get WMD going through the javascript API.
+>>>>> At the moment that is inexplicably failing, and I haven't had time to have a good look at why.
+>>>>> I may not get a chance to look at this again for a few weeks.
 
-### Instructions:
+>>>> Can I get a license statement (ie, GPL-2+) ffrom you for the plugin?
+>>>> --[[Joey]] 
 
+>>>>> Certainly.  You're free to use the code I posted below under the GPL-2+ license.  You'll note
+>>>>> however that I haven't said anything about the WMD code itself.  The WMD web page says:
 
-Download the [WMD source](http://wmd-editor.com/downloads/wmd-1.0.1.zip).  In that zip file you'll
-find a few example html files, a readme and `wmd` directory.  Move the `wmd` directory into the
-ikiwiki `underlays` directory.  You should now have an `underlays/wmd/wmd.js` file as well as 
-some other javascript files and an images directory in the same place.
+>>>>>> "I'm refactoring the code, and will be releasing WMD under the MIT license soon. For now you can download the most recent release (wmd-1.0.1.zip) and use it freely."
+
+>>>>> It might be best to contact <support@attacklab.net> to for an explicit license on that if you want to include it.
+>>>>> -- [[Will]]
 
 > So, I wonder if I should add a copy of the WMD source to ikiwiki, or rely
 > on the user or distribution providing it. It does not seem to be packaged
-> for Debian yet. --[[Joey]] 
+> for Debian yet. Hmm, I also can't find any copyright or license info in
+> the zip file. --[[Joey]] 
+
+>> This is a good question.  My thought is that it will probably not be packaged any time soon,
+>> so you're better off adding it to IkiWiki.  I'd contact the author of WMD and ask them.  They
+>> may have more insight.  -- [[Will]]
 
 Note that the WMD plugin does **not** handle directives.  For this reason the normal `preview` button
 remains.  Some CSS to clean up the display of the live WMD preview would be good.
@@ -51,66 +63,27 @@ remains.  Some CSS to clean up the display of the live WMD preview would be good
 > Can you elucidate the CSS comment -- or will it be obvious what you mean
 > when I try it? Is it what's needed for the live preview? --[[Joey]]
 
-Install the following patch and plugin file.  Then enable the 'wmd' plugin.
+>> In the version of the plugin below, a new `div` is added just below the form.  WMD
+>> populates this div with the HTML it generates from the Markdown source.  This is not very
+>> pretty at the moment - it appears in the same place as the preview used to, but with no
+>> header or anything.  Any standard IkiWiki preview will appear below the WMD live preview.
+>> I recommend having a look at <http://wmd-editor.com/examples/splitscreen>
+>> for what a little CSS could achieve.  -- [[Will]]
 
+> Hmm, now that I've tried it, I notice that it does live preview by
+> default, below the edit window. Which is nice, but then if I hit the
+> preview button, I get two previews.. which is confusing. (Also, minor,
+> but: the live preview is missing the "Page Preview:" header.) --[[Joey]] 
 
-    diff --git a/templates/editpage.tmpl b/templates/editpage.tmpl
-    index 4b54db2..b1cf015 100644
-    --- a/templates/editpage.tmpl
-    +++ b/templates/editpage.tmpl
-    @@ -37,6 +37,7 @@ Optional comment about this change:<br />
-     </div>
-     </TMPL_IF>
-     <TMPL_VAR FORM-END>
-    +<TMPL_VAR WMD_PREVIEW>
-     
-     <TMPL_IF NAME="PAGE_PREVIEW">
-     <hr />
+> I wonder how annoying it would be to add some kind of simplistic wikilink
+> support to wmd's preview? And/or a wikilink button? While not supporting
+> directies is fine, not supporting wikilinks in a wiki seems a bit
+> lacking. It may also entice novide users to not use wikilinks and instead
+> use the hyperlinks that wmd does support. --[[Joey]] 
 
------
-
-    #!/usr/bin/perl
-    package IkiWiki::Plugin::wmd;
-    
-    use warnings;
-    use strict;
-    use IkiWiki 3.00;
-    use POSIX;
-    use Encode;
-    
-    sub import {
-    	add_underlay("wmd");
-    	hook(type => "getsetup", id => "wmd", call => \&getsetup);
-    	hook(type => "formbuilder_setup", id => "wmd", call => \&formbuilder_setup);
-    }
-    
-    sub getsetup () {
-    	return
-    		plugin => {
-    			safe => 1,
-    			rebuild => 1,
-    		},
-    }
-    
-    sub formbuilder_setup (@) {
-    	my %params=@_;
-    	my $form=$params{form};
-    
-    	return if ! defined $form->field("do");
-    	
-    	return unless (($form->field("do") eq "edit") ||
-    				($form->field("do") eq "create"));
-    
-    	$form->tmpl_param("wmd_preview", "<div class=\"wmd-preview\"></div>\n".include_javascript(undef, 1));
-    }
-    
-    sub include_javascript ($;$) {
-    	my $page=shift;
-    	my $absolute=shift;
-    	
-    	return '<script src="'.urlto("wmd.js", $page, $absolute).
-    		'" type="text/javascript"></script>'."\n";
-    }
-    
-    1
-
+> Bug: When I preview, all the text in the edit field seems to be
+> converted from mdwn to html. I think that wmd is converting the mdwn
+> into html when the form is posted, so it would also save like that.
+> I assume that is designed for websites that do not use markdown
+> internally. Doesn't it have a setting to leave it as markdown?
+>> Found setting, fixed. --[[Joey]] 
