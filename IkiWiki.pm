@@ -1337,7 +1337,7 @@ sub check_content (@) {
 		foreach my $line (split("\n", $params{content})) {
 			push @diff, $line if ! exists $old{$_};
 		}
-		$params{content}=join("\n", @diff);
+		$params{diff}=join("\n", @diff);
 	}
 
 	my $ok;
