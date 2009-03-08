@@ -312,14 +312,6 @@ sub sessioncgi ($$) {
 				required => 1,
 			};
 
-			IkiWiki::run_hooks(rename => sub {
-				@torename=shift->(
-					torename => \@torename,
-					cgi => $q,
-					session => $session
-				);
-			});
-
 			# See if any subpages need to be renamed.
 			if ($q->param("subpages") && $src ne $dest) {
 				foreach my $p (keys %pagesources) {
@@ -341,6 +333,13 @@ sub sessioncgi ($$) {
 				}
 			}
 			
+			@torename=rename_hook(
+				torename => \@torename,
+				done => {},
+				cgi => $q,
+				session => $session,
+			);
+
 			require IkiWiki::Render;
 			IkiWiki::disable_commit_hook() if $config{rcs};
 			my %origpagesources=%pagesources;
@@ -465,6 +464,42 @@ sub renamepage_hook ($$$$) {
 	});
 
 	return $content;
+}
+
+sub rename_hook (@) {
+	my %params = @_;
+
+	my @torename=@{$params{torename}};
+	my %done=%{$params{done}};
+	my $q=$params{cgi};
+	my $session=$params{session};
+
+	debug("rename_hook called with ".scalar(@torename)." args.");
+	my @nextset;
+	if (@torename) {
+		foreach my $torename (@torename) {
+			unless (exists $done{$torename->{src}} && $done{$torename->{src}}) {
+				IkiWiki::run_hooks(rename => sub {
+					push @nextset, shift->(
+						torename => $torename,
+						cgi => $q,
+						session => $session,
+					);
+				});
+				$done{$torename->{src}}=1;
+			}
+		}
+		push @torename, rename_hook(
+			torename => \@nextset,
+			done => \%done,
+			cgi => $q,
+			session => $session,
+		);
+		return @torename;
+	}
+	else {
+		return ();
+	}
 }
 			
 sub do_rename ($$$) {

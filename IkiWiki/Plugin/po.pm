@@ -295,7 +295,7 @@ sub pagetemplate (@) {
 sub renamepages(@) {
 	my %params = @_;
 
-	my @torename = @{$params{torename}};
+	my %torename = %{$params{torename}};
 	my $session = $params{session};
 
 	# Save the page(s) the user asked to rename, so that our
@@ -305,24 +305,25 @@ sub renamepages(@) {
 	#  - a user trying to directly rename a translation
 	# This is why this hook has to be run first, before the list of pages
 	# to rename is modified by other plugins.
-	$session->param(po_orig_torename => \@torename);
+	my @orig_torename;
+	@orig_torename=@{$session->param("po_orig_torename")}
+		if defined $session->param("po_orig_torename");
+	push @orig_torename, $torename{src};
+	$session->param(po_orig_torename => \@orig_torename);
 	IkiWiki::cgi_savesession($session);
 
-	my @ret=@torename;
-	# iterate on @torename and push onto @ret, so that we don't iterate
-	# on the items we added ourselves
-	foreach my $rename (@torename) {
-		next unless istranslatable($rename->{src});
-		my %otherpages=%{otherlanguages($rename->{src})};
-		while (my ($lang, $otherpage) = each %otherpages) {
-			push @ret, {
-				src => $otherpage,
-				srcfile => $pagesources{$otherpage},
-				dest => otherlanguage($rename->{dest}, $lang),
-				destfile => $rename->{dest}.".".$lang.".po",
-				required => 0,
-			};
-		}
+	return () unless istranslatable($torename{src});
+
+	my @ret;
+	my %otherpages=%{otherlanguages($torename{src})};
+	while (my ($lang, $otherpage) = each %otherpages) {
+		push @ret, {
+			src => $otherpage,
+			srcfile => $pagesources{$otherpage},
+			dest => otherlanguage($torename{dest}, $lang),
+			destfile => $torename{dest}.".".$lang.".po",
+			required => 0,
+		};
 	}
 	return @ret;
 }
@@ -443,7 +444,7 @@ sub canrename (@) {
 		# by looking for the master page in the list of to-be-renamed pages we
 		# saved early in the renaming process.
 		my $orig_torename = $session->param("po_orig_torename");
-		unless (grep { $_->{src} eq $masterpage } @{$orig_torename}) {
+		unless (grep { $_ eq $masterpage } @{$orig_torename}) {
 			return gettext("Can not rename a translation. Renaming the master page, ".
 				       "though, renames its translations as well.");
 		}

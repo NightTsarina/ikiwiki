@@ -422,13 +422,17 @@ new page.
 	hook(type => "rename", id => "foo", call => \&rename);
 
 When a page or set of pages is renamed, the referenced function is
-called, and is passed named parameters:
+called for every page, and is passed named parameters:
 
-* `torename`: a reference to an array of hashes with keys: `src`, `srcfile`,
-  `dest`, `destfile`, `required`. Such a hook function can either return the
-  array content unchanged, or modify it and return the modified version.
+* `torename`: a reference to a hash with keys: `src`, `srcfile`,
+  `dest`, `destfile`, `required`.
 * `cgi`: a CGI object
 * `session`: a session object.
+
+Such a hook function returns any additional rename hashes it wants to
+add. This hook is applied recursively to returned additional rename
+hashes, so that it handles the case where two plugins use the hook:
+plugin A would see when plugin B adds a new file to be renamed.
 
 ### getsetup
 
