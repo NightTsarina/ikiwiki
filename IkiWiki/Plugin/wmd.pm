@@ -37,9 +37,16 @@ sub formbuilder_setup (@) {
 sub include_javascript ($;$) {
 	my $page=shift;
 	my $absolute=shift;
-	
-	return '<script src="'.urlto("wmd/wmd.js", $page, $absolute).
-		'" type="text/javascript"></script>'."\n";
+
+	my $wmdjs=urlto("wmd/wmd.js", $page, $absolute);
+	return <<"EOF"
+<script type="text/javascript">
+wmd_options = {
+	output: "Markdown"
+};
+</script>
+<script src="$wmdjs" type="text/javascript"></script>
+EOF
 }
 
 1
