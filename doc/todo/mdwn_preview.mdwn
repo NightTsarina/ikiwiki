@@ -120,10 +120,10 @@ Place the following file in `underlays/wmd/wmd-ikiwiki.js`.
     	
     	if (currentType == "mdwn") {
     		wmd_options = { output: "Markdown" };
-    		document.getElementById("wmd-preview-container").style.hidden = false;
+    		document.getElementById("wmd-preview-container").style.display = 'none';
     	} else {
     		wmd_options = { autostart: false };
-    		document.getElementById("wmd-preview-container").style.hidden = true;
+    		document.getElementById("wmd-preview-container").style.display = 'block';
     	}
     }
     
@@ -138,7 +138,7 @@ Place the following file in `underlays/wmd/wmd-ikiwiki.js`.
     	var currentType = getType(typeSelector);
     	
     	if (currentType == "mdwn") {
-    		enableWMD();
+    		window.setTimeout(enableWMD,10);
     	}
     	
     	typeSelector.onchange=function() {
@@ -156,8 +156,9 @@ Place the following file in `underlays/wmd/wmd-ikiwiki.js`.
     {
     	if (typeSelector.nodeName.toLowerCase() == 'input') {
     		return typeSelector.getAttribute('value');
-    	} else if (typeSelector.nodeName.toLowerCase() == 'selector') {
-    		return typeSelector.options[typeSelector.selectedIndex];
+    	} else if (typeSelector.nodeName.toLowerCase() == 'select') {
+    		return typeSelector.value;
+    		// return typeSelector.options[typeSelector.selectedIndex].innerText;
     	}
     	return "";
     }
@@ -168,7 +169,7 @@ Place the following file in `underlays/wmd/wmd-ikiwiki.js`.
     	var previewDiv = document.getElementById("wmd-preview");
     	var previewDivContainer = document.getElementById("wmd-preview-container");
     	
-    	previewDivContainer.style.hidden = false;
+    	previewDivContainer.style.display = 'block';
     	// editContent.style.width = previewDivContainer.style.width;
     	
     	/***** build the preview manager *****/
@@ -179,17 +180,17 @@ Place the following file in `underlays/wmd/wmd-ikiwiki.js`.
     	var editor = new Attacklab.wmd.editor(editContent,previewManager.refresh);
     
     	// save everything so we can destroy it all later
-    	instance = {ta:textarea, div:previewDiv, ed:editor, pm:previewManager};
+    	instance = {ta:editContent, div:previewDiv, ed:editor, pm:previewManager};
     }
     
     function disableWMD()
     {
-    	document.getElementById("wmd-preview-container").style.hidden = true;
+    	document.getElementById("wmd-preview-container").style.display = 'none';
     
     	if (instance != null) {
     		instance.pm.destroy();
     		instance.ed.destroy();
-    		//inst.ta.style.width='100%'
+    		// inst.ta.style.width='100%'
     	}
     	instance = null;
     }
