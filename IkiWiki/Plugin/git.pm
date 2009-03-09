@@ -136,14 +136,16 @@ sub safe_git (&@) {
 	}
 	# In parent.
 
+	# git output is probably utf-8 encoded, but may contain
+	# other encodings or invalidly encoded stuff. So do not rely
+	# on the normal utf-8 IO layer, decode it by hand.
+	binmode($OUT);
+
 	my @lines;
 	while (<$OUT>) {
+		$_=decode_utf8($_, 0);
+
 		chomp;
-		
-		# check for invalid utf-8, and toss it back to avoid crashes
-		if (! utf8::valid($_)) {
-			$_=encode_utf8($_);
-		}
 
 		push @lines, $_;
 	}
