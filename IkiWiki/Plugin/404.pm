@@ -67,7 +67,8 @@ sub cgi_page_from_404 ($$$) {
 sub cgi ($) {
 	my $cgi=shift;
 
-	if ($ENV{REDIRECT_STATUS} eq '404') {
+	if (exists $ENV{REDIRECT_STATUS} && 
+	    $ENV{REDIRECT_STATUS} eq '404') {
 		my $page = cgi_page_from_404($ENV{REDIRECT_URL},
 			$config{url}, $config{usedirs});
 		IkiWiki::Plugin::goto::cgi_goto($cgi, $page);
