@@ -447,7 +447,7 @@ sub rcs_commit_staged ($$$) {
 	# Set the commit author and email to the web committer.
 	my %env=%ENV;
 	if (defined $user || defined $ipaddr) {
-		my $u=defined $user ? $user : $ipaddr;
+		my $u=encode_utf8(defined $user ? $user : $ipaddr);
 		$ENV{GIT_AUTHOR_NAME}=$u;
 		$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
 	}
