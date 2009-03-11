@@ -65,3 +65,15 @@ actually be the way to go. IMHO, the Perl sections idea is the
 easiest to setup, but on the long run, I'd prefer ikiwiki to optionnally
 use a userdb storage backend supported at least by Apache and lighttpd.
 --[[intrigeri]]
+
+Tons of CPAN modules may help, but most of them are specific to =mod_perl=,
+and AFAIK, ikiwiki is generally not run with =mod_perl=. It's not clear to me
+wether these modules depend on the webapp to be run with =mod_perl= set 
+as the script handler, or only on =mod_perl= to be installed and loaded.
+
+* CPAN's =Apache::AuthenHook= allows to plug arbitrary Perl handlers as
+  Apache authentication providers.
+* CPAN's =Apache::Authen::Program= (=mod_perl=)
+* [http://www.openfusion.com.au/labs/mod_auth_tkt/](mod_auth_tkt) along with CPAN's
+  =Apache::AuthTkt=
+--[[intrigeri]]
