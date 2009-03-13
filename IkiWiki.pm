@@ -533,7 +533,7 @@ sub loadplugins () {
 
 	run_hooks(getopt => sub { shift->() });
 	if (grep /^-/, @ARGV) {
-		print STDERR "Unknown option: $_\n"
+		print STDERR "Unknown option (or missing parameter): $_\n"
 			foreach grep /^-/, @ARGV;
 		usage();
 	}
