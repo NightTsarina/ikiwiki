@@ -639,8 +639,10 @@ sub pagetype ($) {
 	if ($file =~ /\.([^.]+)$/) {
 		return $1 if exists $hooks{htmlize}{$1};
 	}
-	elsif ($hooks{htmlize}{basename($file)}{noextension}) {
-		return basename($file);
+	my $base=basename($file);
+	if (exists $hooks{htmlize}{$base} &&
+	    $hooks{htmlize}{$base}{noextension}) {
+		return $base;
 	}
 	return;
 }
