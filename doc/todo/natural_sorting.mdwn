@@ -1,0 +1,16 @@
+[[!tag wishlist]]
+[[!tag patch]]
+
+the inline plugin's sorting is plain lexical, thich may not be appropriate for
+page titles if they have numeric components. the
+[Sort::Naturally](http://search.cpan.org/dist/Sort-Naturally/) perl module
+provides an algorithm for that.
+
+there is a
+[patch](http://github.com/github076986099/ikiwiki/commit/25617577746dc1e4ab5ab69aa70d633daddcc01b)
+attached that makes the [[plugins/inline]] plugin use Sort::Naturally if sort
+is set to "title_natural".
+
+the current patch uses `require Sort::Naturally`, so
+[libsort-naturally-perl](http://packages.debian.org/libsort-naturally-perl)
+does not become a dependency; it might be worth suggesting, though.
