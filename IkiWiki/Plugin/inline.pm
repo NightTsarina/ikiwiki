@@ -281,8 +281,8 @@ sub preprocess_inline (@) {
 		}
 	}
 
-	my $rssurl=basename($feedbase."rss".$feednum) if $feeds && $rss;
-	my $atomurl=basename($feedbase."atom".$feednum) if $feeds && $atom;
+	my $rssurl=abs2rel($feedbase."rss".$feednum, dirname(htmlpage($params{destpage}))) if $feeds && $rss;
+	my $atomurl=abs2rel($feedbase."atom".$feednum, dirname(htmlpage($params{destpage}))) if $feeds && $atom;
 
 	my $ret="";
 
