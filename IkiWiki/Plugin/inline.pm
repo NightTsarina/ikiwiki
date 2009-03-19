@@ -195,7 +195,10 @@ sub preprocess_inline (@) {
 		@list=sort { pagetitle(basename($a)) cmp pagetitle(basename($b)) } @list;
 	}
 	elsif (exists $params{sort} && $params{sort} eq 'title_natural') {
-		require Sort::Naturally;
+		eval q{use Sort::Naturally};
+		if ($@) {
+			error(gettext("Sort::Naturally needed for title_natural sort"));
+		}
 		@list=sort { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) } @list;
 	}
 	elsif (exists $params{sort} && $params{sort} eq 'mtime') {
