@@ -594,8 +594,8 @@ sub rcs_getctime ($) {
 	# Remove srcdir prefix
 	$file =~ s/^\Q$config{srcdir}\E\/?//;
 
-	my $sha1  = git_sha1($file);
-	my $ci    = git_commit_info($sha1, 1);
+	my @sha1s = run_or_non('git', 'rev-list', 'HEAD', '--', $file);
+	my $ci    = git_commit_info($sha1s[$#sha1s], 1);
 	my $ctime = $ci->{'author_epoch'};
 	debug("ctime for '$file': ". localtime($ctime));
 
