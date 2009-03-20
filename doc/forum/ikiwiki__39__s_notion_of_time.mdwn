@@ -22,3 +22,14 @@ What is the rationale for ikiwiki's current behavior with respect to these
 time stamps?
 
 --[[tschwinge]]
+
+> Presumably it's the authors of the git and mercurial backends
+> not understanding the documentation for `rcs_getctime`,
+> which states:
+> 
+>>This is used to get the page creation time for a file from the RCS, by
+>>looking it up in the history.
+> 
+> I've fixed both broken implementations to correctly look
+> up the first, not the last, commit. Other VCS do not seem
+> to have the problem. --[[Joey]] 
