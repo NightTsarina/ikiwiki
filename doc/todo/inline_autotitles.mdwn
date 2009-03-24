@@ -14,14 +14,14 @@ permitted (both for autotitle and regular titles, as they go in the same GET
 parameter, `title`). as the empty page title is illegal, munging is used,
 resulting in ascending numeric page titles to be created.
 
-the second patch is actually a one-liner, filtering the title through sprintf.
+the second patch is actually a one-liner, filtering the title through strftime.
 
 ### potential user interaction issues
 
 this has two side effects which have to be considered: first, the empty page
 title is accepted also in normal postforms (previously, this resulted in a "bad
 page name" error); second, entering a percent sign in that field might result
-in unexpexted sprintf substitution (sprintf might not even substitute for
+in unexpexted strftime substitution (strftime might not even substitute for
 common uses of percent as in "reach 10% market share", but might in others as
 in "the 10%-rule").
 
