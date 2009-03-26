@@ -672,7 +672,7 @@ sub previewcomment ($$$) {
 sub commentsshown ($) {
 	my $page=shift;
 
-	return ! pagespec_match($page, "*/$config{comments_pagename}*",
+	return ! pagespec_match($page, "internal(*/$config{comments_pagename}*)",
 	                        location => $page) &&
 	       pagespec_match($page, $config{comments_pagespec},
 	                      location => $page);
