@@ -533,7 +533,7 @@ sub do_rename ($$$) {
 		IkiWiki::rcs_rename($rename->{srcfile}, $rename->{destfile});
 	}
 	else {
-		if (! CORE::rename($config{srcdir}."/".$rename->{srcfile},
+		if (! rename($config{srcdir}."/".$rename->{srcfile},
 		             $config{srcdir}."/".$rename->{destfile})) {
 			error("rename: $!");
 		}
