@@ -486,34 +486,31 @@ sub rename_hook (@) {
 	my $q=$params{cgi};
 	my $session=$params{session};
 
-	my @nextset;
-	if (@torename) {
-		foreach my $torename (@torename) {
-			unless (exists $done{$torename->{src}} && $done{$torename->{src}}) {
-				IkiWiki::run_hooks(rename => sub {
-					push @nextset, shift->(
-						torename => $torename,
-						cgi => $q,
-						session => $session,
-					);
-				});
-				$done{$torename->{src}}=1;
-			}
-		}
-		push @torename, rename_hook(
-			torename => \@nextset,
-			done => \%done,
-			cgi => $q,
-			session => $session,
-		);
+	return () unless @torename;
 
-		# remove duplicates from @torename
-		my %seen;
-		return grep { ! $seen{$_->{src}}++ } @torename;
+	my @nextset;
+	foreach my $torename (@torename) {
+		unless (exists $done{$torename->{src}} && $done{$torename->{src}}) {
+			IkiWiki::run_hooks(rename => sub {
+				push @nextset, shift->(
+					torename => $torename,
+					cgi => $q,
+					session => $session,
+				);
+			});
+			$done{$torename->{src}}=1;
+		}
 	}
-	else {
-		return ();
-	}
+	push @torename, rename_hook(
+		torename => \@nextset,
+		done => \%done,
+		cgi => $q,
+		session => $session,
+	);
+
+	# dedup
+	my %seen;
+	return grep { ! $seen{$_->{src}}++ } @torename;
 }
 
 sub do_rename ($$$) {
