@@ -10,7 +10,7 @@ sub import {
 	hook(type => "formbuilder_setup", id => "rename", call => \&formbuilder_setup);
 	hook(type => "formbuilder", id => "rename", call => \&formbuilder);
 	hook(type => "sessioncgi", id => "rename", call => \&sessioncgi);
-	hook(type => "rename", id => "rename", call => \&rename);
+	hook(type => "rename", id => "rename", call => \&rename_subpages);
 }
 
 sub getsetup () {
@@ -414,7 +414,7 @@ sub sessioncgi ($$) {
 }
 
 # Add subpages to the list of pages to be renamed, if needed.
-sub rename(@) {
+sub rename_subpages (@) {
 	my %params = @_;
 
 	my %torename = %{$params{torename}};
@@ -501,6 +501,7 @@ sub rename_hook (@) {
 			$done{$torename->{src}}=1;
 		}
 	}
+
 	push @torename, rename_hook(
 		torename => \@nextset,
 		done => \%done,
