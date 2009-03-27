@@ -319,14 +319,6 @@ sub sessioncgi ($$) {
 				session => $session,
 			);
 
-			# remove duplicates from @torename
-			my %seen=();
-			my @uniq_torename;
-			foreach my $item (@torename) {
-				push(@uniq_torename, $item) unless $seen{$item->{src}}++;
-			}
-			@torename=@uniq_torename;
-
 			require IkiWiki::Render;
 			IkiWiki::disable_commit_hook() if $config{rcs};
 			my %origpagesources=%pagesources;
@@ -514,13 +506,16 @@ sub rename_hook (@) {
 			cgi => $q,
 			session => $session,
 		);
-		return @torename;
+
+		# remove duplicates from @torename
+		my %seen;
+		return grep { ! $seen{$_->{src}}++ } @torename;
 	}
 	else {
 		return ();
 	}
 }
-			
+
 sub do_rename ($$$) {
 	my $rename=shift;
 	my $q=shift;
