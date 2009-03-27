@@ -236,7 +236,7 @@ sub rcs_getctime ($) {
 
 	# XXX filename passes through the shell here, should try to avoid
 	# that just in case
-	my @cmdline = ("hg", "-R", $config{srcdir}, "log", "-v", "-l", '1', 
+	my @cmdline = ("hg", "-R", $config{srcdir}, "log", "-v",
 		"--style", "default", "$config{srcdir}/$file");
 	open (my $out, "@cmdline |");
 
@@ -249,7 +249,7 @@ sub rcs_getctime ($) {
 	eval q{use Date::Parse};
 	error($@) if $@;
 	
-	my $ctime = str2time($log[0]->{"date"});
+	my $ctime = str2time($log[$#log]->{"date"});
 	return $ctime;
 }
 

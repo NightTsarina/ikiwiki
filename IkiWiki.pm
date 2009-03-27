@@ -533,7 +533,7 @@ sub loadplugins () {
 
 	run_hooks(getopt => sub { shift->() });
 	if (grep /^-/, @ARGV) {
-		print STDERR "Unknown option: $_\n"
+		print STDERR "Unknown option (or missing parameter): $_\n"
 			foreach grep /^-/, @ARGV;
 		usage();
 	}
@@ -639,8 +639,10 @@ sub pagetype ($) {
 	if ($file =~ /\.([^.]+)$/) {
 		return $1 if exists $hooks{htmlize}{$1};
 	}
-	elsif ($hooks{htmlize}{basename($file)}{noextension}) {
-		return basename($file);
+	my $base=basename($file);
+	if (exists $hooks{htmlize}{$base} &&
+	    $hooks{htmlize}{$base}{noextension}) {
+		return $base;
 	}
 	return;
 }

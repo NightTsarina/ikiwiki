@@ -136,14 +136,16 @@ sub safe_git (&@) {
 	}
 	# In parent.
 
+	# git output is probably utf-8 encoded, but may contain
+	# other encodings or invalidly encoded stuff. So do not rely
+	# on the normal utf-8 IO layer, decode it by hand.
+	binmode($OUT);
+
 	my @lines;
 	while (<$OUT>) {
+		$_=decode_utf8($_, 0);
+
 		chomp;
-		
-		# check for invalid utf-8, and toss it back to avoid crashes
-		if (! utf8::valid($_)) {
-			$_=encode_utf8($_);
-		}
 
 		push @lines, $_;
 	}
@@ -447,7 +449,7 @@ sub rcs_commit_staged ($$$) {
 	# Set the commit author and email to the web committer.
 	my %env=%ENV;
 	if (defined $user || defined $ipaddr) {
-		my $u=defined $user ? $user : $ipaddr;
+		my $u=encode_utf8(defined $user ? $user : $ipaddr);
 		$ENV{GIT_AUTHOR_NAME}=$u;
 		$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
 	}
@@ -592,8 +594,8 @@ sub rcs_getctime ($) {
 	# Remove srcdir prefix
 	$file =~ s/^\Q$config{srcdir}\E\/?//;
 
-	my $sha1  = git_sha1($file);
-	my $ci    = git_commit_info($sha1, 1);
+	my @sha1s = run_or_non('git', 'rev-list', 'HEAD', '--', $file);
+	my $ci    = git_commit_info($sha1s[$#sha1s], 1);
 	my $ctime = $ci->{'author_epoch'};
 	debug("ctime for '$file': ". localtime($ctime));
 

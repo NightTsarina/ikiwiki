@@ -194,6 +194,13 @@ sub preprocess_inline (@) {
 	if (exists $params{sort} && $params{sort} eq 'title') {
 		@list=sort { pagetitle(basename($a)) cmp pagetitle(basename($b)) } @list;
 	}
+	elsif (exists $params{sort} && $params{sort} eq 'title_natural') {
+		eval q{use Sort::Naturally};
+		if ($@) {
+			error(gettext("Sort::Naturally needed for title_natural sort"));
+		}
+		@list=sort { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) } @list;
+	}
 	elsif (exists $params{sort} && $params{sort} eq 'mtime') {
 		@list=sort { $pagemtime{$b} <=> $pagemtime{$a} } @list;
 	}
@@ -274,8 +281,8 @@ sub preprocess_inline (@) {
 		}
 	}
 
-	my $rssurl=basename($feedbase."rss".$feednum) if $feeds && $rss;
-	my $atomurl=basename($feedbase."atom".$feednum) if $feeds && $atom;
+	my $rssurl=abs2rel($feedbase."rss".$feednum, dirname(htmlpage($params{destpage}))) if $feeds && $rss;
+	my $atomurl=abs2rel($feedbase."atom".$feednum, dirname(htmlpage($params{destpage}))) if $feeds && $atom;
 
 	my $ret="";
 

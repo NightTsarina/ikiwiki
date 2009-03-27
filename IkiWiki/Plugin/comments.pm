@@ -224,7 +224,7 @@ sub preprocess {
 
 	if ($params{page} =~ m/\/(\Q$config{comments_pagename}\E\d+)$/) {
 		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page}), undef, 1).
-			"#".$params{page};
+			"#".page_to_id($params{page});
 	}
 
 	eval q{use Date::Parse};
@@ -490,7 +490,8 @@ sub editcomment ($$) {
 		# Jump to the new comment on the page.
 		# The trailing question mark tries to avoid broken
 		# caches and get the most recent version of the page.
-		IkiWiki::redirect($cgi, urlto($page, undef, 1)."?updated#$location");
+		IkiWiki::redirect($cgi, urlto($page, undef, 1).
+			"?updated#".page_to_id($location));
 
 	}
 	else {
@@ -672,7 +673,7 @@ sub previewcomment ($$$) {
 sub commentsshown ($) {
 	my $page=shift;
 
-	return ! pagespec_match($page, "*/$config{comments_pagename}*",
+	return ! pagespec_match($page, "internal(*/$config{comments_pagename}*)",
 	                        location => $page) &&
 	       pagespec_match($page, $config{comments_pagespec},
 	                      location => $page);
@@ -759,6 +760,10 @@ sub pagetemplate (@) {
 	if (!exists $commentstate{$page}) {
 		return;
 	}
+	
+	if ($template->query(name => 'commentid')) {
+		$template->param(commentid => page_to_id($page));
+	}
 
 	if ($template->query(name => 'commentuser')) {
 		$template->param(commentuser =>
@@ -808,6 +813,18 @@ sub unique_comment_location ($) {
 	return $location;
 }
 
+sub page_to_id ($) {
+	# Converts a comment page name into a unique, legal html id
+	# addtibute value, that can be used as an anchor to link to the
+	# comment.
+	my $page=shift;
+
+	eval q{use Digest::MD5 'md5_hex'};
+	error($@) if $@;
+
+	return "comment-".md5_hex($page);
+}
+	
 package IkiWiki::PageSpec;
 
 sub match_postcomment ($$;@) {
