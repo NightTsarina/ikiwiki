@@ -819,13 +819,10 @@ sub page_to_id ($) {
 	# comment.
 	my $page=shift;
 
-	# It needs to start with a letter.
-	$page="comment_".$page;
+	eval q{use Digest::MD5 'md5_hex'};
+	error($@) if $@;
 
-	# Encode any illegal characters.
-	$page=~s/([^A-Za-z0-9-_:.])/"__".ord($1)."__"/eg;
-
-	return $page;
+	return "comment-".md5_hex($page);
 }
 	
 package IkiWiki::PageSpec;
