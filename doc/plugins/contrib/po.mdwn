@@ -335,9 +335,28 @@ daring a timid "please pull"... or rather, please review again :)
 > outside `po.pm`. 
 > 
 > * Is it worth trying to fix compatability with `indexpages`?
+>> 
+>> Supporting `usedirs` being enabled or disabled was already quite
+>> hard IIRC, so supporting all four combinations of `usedirs` and
+>> `indexpages` settings will probably be painful. I propose we forget
+>> about it until someone reports he/she badly needs it, and then
+>> we'll see what can be done.
+>> 
 > * Would it make sense to go ahead and modify `page.tmpl` to use
 >   OTHERLANGUAGES and PERCENTTRANSLATED, instead of documenting how to modify it?
+>> 
+>> Sure, I'll do this today.
+>> 
 > * Would it be better to disable po support for pages that use unsupported
 >   or poorly-supported markup languages?
 > 
+>> I prefer keeping it enabled, as:
+>> * most wiki markups "almost work"
+>> * when someone needs one of these to be fully supported, it's not
+>>   that hard to add dedicated support for it to po4a; if it were
+>>   disabled, I fear the ones who could do this would maybe think
+>>   it's blandly impossible and give up.
+>> 
 > --[[Joey]] 
+>> 
+>> --[[intrigeri]]
