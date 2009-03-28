@@ -28,6 +28,9 @@
 </span>
 <span class="title">
 <TMPL_VAR TITLE>
+<TMPL_IF NAME="ISTRANSLATION">
+(<TMPL_VAR NAME="PERCENTTRANSLATED">&nbsp;%)
+</TMPL_IF>
 </span>
 </span><!--.header-->
 <TMPL_IF NAME="SEARCHFORM">
@@ -60,6 +63,24 @@
 </ul>
 </div>
 </TMPL_IF>
+
+<TMPL_IF NAME="OTHERLANGUAGES">
+<div id="otherlanguages">
+<ul>
+<TMPL_LOOP NAME="OTHERLANGUAGES">
+<li>
+<a href="<TMPL_VAR NAME="URL">"><TMPL_VAR NAME="LANGUAGE"></a>
+<TMPL_IF NAME="MASTER">
+(master)
+<TMPL_ELSE>
+(<TMPL_VAR NAME="PERCENT">&nbsp;%)
+</TMPL_IF>
+</li>
+</TMPL_LOOP>
+</ul>
+</div> <!-- #otherlanguages -->
+</TMPL_IF>
+
 </div> <!-- .pageheader -->
 
 <TMPL_IF SIDEBAR>

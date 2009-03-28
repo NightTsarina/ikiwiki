@@ -150,24 +150,9 @@ display things only on translatable or translation pages.
 The `OTHERLANGUAGES` loop provides ways to display other languages'
 versions of the same page, and the translations' status.
 
-One typically adds the following code to `templates/page.tmpl`:
-
-	<TMPL_IF NAME="OTHERLANGUAGES">
-	<div id="otherlanguages">
-	  <ul>
-	  <TMPL_LOOP NAME="OTHERLANGUAGES">
-	    <li>
-	      <a href="<TMPL_VAR NAME="URL">"><TMPL_VAR NAME="LANGUAGE"></a>
-	      <TMPL_UNLESS NAME="MASTER">
-	        (<TMPL_VAR NAME="PERCENT">&nbsp;%)
-	      </TMPL_UNLESS>
-	    </li>
-	  </TMPL_LOOP>
-	  </ul>
-	</div>
-	</TMPL_IF>
-
-The following variables are available inside the loop (for every page in):
+An example of its use can be found in the default
+`templates/page.tmpl`. In case you want to customize it, the following
+variables are available inside the loop (for every page in):
 
 * `URL` - url to the page
 * `CODE` - two-letters language code
@@ -178,15 +163,8 @@ The following variables are available inside the loop (for every page in):
 ### Display the current translation status
 
 The `PERCENTTRANSLATED` variable is set to the translation
-completeness, expressed in percent, on "slave" pages.
-
-One can use it this way:
-
-	<TMPL_IF NAME="ISTRANSLATION">
-	<div id="percenttranslated">
-	  <TMPL_VAR NAME="PERCENTTRANSLATED">
-	</div>
-	</TMPL_IF>
+completeness, expressed in percent, on "slave" pages. It is used by
+the default `templates/page.tmpl`.
 
 Additional PageSpec tests
 -------------------------
