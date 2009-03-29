@@ -332,12 +332,44 @@ daring a timid "please pull"... or rather, please review again :)
 > Ok, I've reviewed and merged into my own po branch. It's looking very
 > mergeable. I would still like to go over the `po.pm` code in detail and 
 > review it, but it's very complex, and I'm happy with all the changes
-> outside `po.pm`. 
+> outside `po.pm`. (Reviewed the first 520 lines, up to injected
+> functions.)
 > 
 > * Is it worth trying to fix compatability with `indexpages`?
+>> 
+>> Supporting `usedirs` being enabled or disabled was already quite
+>> hard IIRC, so supporting all four combinations of `usedirs` and
+>> `indexpages` settings will probably be painful. I propose we forget
+>> about it until someone reports he/she badly needs it, and then
+>> we'll see what can be done.
+>> 
 > * Would it make sense to go ahead and modify `page.tmpl` to use
 >   OTHERLANGUAGES and PERCENTTRANSLATED, instead of documenting how to modify it?
+>> 
+>> Done in my branch.
+>> 
 > * Would it be better to disable po support for pages that use unsupported
 >   or poorly-supported markup languages?
 > 
+>> I prefer keeping it enabled, as:
+>> 
+>> * most wiki markups "almost work"
+>> * when someone needs one of these to be fully supported, it's not
+>>   that hard to add dedicated support for it to po4a; if it were
+>>   disabled, I fear the ones who could do this would maybe think
+>>   it's blandly impossible and give up.
+>> 
+> 
+> * What's the reasoning behind checking that the link plugin
+>   is enabled? AFAICS, the same code in the scan hook should
+>   also work when other link plugins like camelcase are used.
+> * In `pagetemplate` there is a comment that claims the code
+>   relies on `genpage`, but I don't see how it does; it seems
+>   to always add a discussion link?
+> * Is there any real reason not to allow removing a translation?
+>   I'm imagining a spammy translation, which an admin might not
+>   be able to fix, but could remove.
+>  
 > --[[Joey]] 
+>> 
+>> --[[intrigeri]]
