@@ -290,7 +290,7 @@ sub pagetemplate (@) {
 } # }}}
 
 # Add the renamed page translations to the list of to-be-renamed pages.
-sub renamepages(@) {
+sub renamepages (@) {
 	my %params = @_;
 
 	my %torename = %{$params{torename}};
@@ -326,13 +326,13 @@ sub renamepages(@) {
 	return @ret;
 }
 
-sub mydelete(@) {
+sub mydelete (@) {
 	my @deleted=@_;
 
 	map { deletetranslations($_) } grep istranslatablefile($_), @deleted;
 }
 
-sub change(@) {
+sub change (@) {
 	my @rendered=@_;
 
 	# All meta titles are first extracted at scan time, i.e. before we turn
@@ -340,14 +340,14 @@ sub change(@) {
 	# PO files breaks the meta plugin's parsing enough to save ugly titles
 	# to %pagestate at this time.
 	#
-	# Then, at render time, every page's passes on row through the Great
+	# Then, at render time, every page passes in turn through the Great
 	# Rendering Chain (filter->preprocess->linkify->htmlize), and the meta
 	# plugin's preprocess hook is this time in a position to correctly
 	# extract the titles from slave pages.
 	#
-	# This is, unfortunately, too late: if the page A, linking to the page B,
-	# is rendered before B, it will display the wrongly-extracted meta title
-	# as the link text to B.
+	# This is, unfortunately, too late: if the page A, linking to the page
+	# B, is rendered before B, it will display the wrongly-extracted meta
+	# title as the link text to B.
 	#
 	# On the one hand, such a corner case only happens on rebuild: on
 	# refresh, every rendered page is fixed to contain correct meta titles.
