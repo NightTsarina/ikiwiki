@@ -786,9 +786,10 @@ sub refreshpot ($) {
 	$doc->{TT}{file_in_charset} = 'utf-8';
 	$doc->{TT}{file_out_charset} = 'utf-8';
 	$doc->read($masterfile);
-	# let's cheat a bit to force porefs option to be passed to Locale::Po4a::Po;
-	# this is undocument use of internal Locale::Po4a::TransTractor's data,
-	# compulsory since this module prevents us from using the porefs option.
+	# let's cheat a bit to force porefs option to be passed to
+	# Locale::Po4a::Po; this is undocument use of internal
+	# Locale::Po4a::TransTractor's data, compulsory since this module
+	# prevents us from using the porefs option.
 	$doc->{TT}{po_out}=Locale::Po4a::Po->new({ 'porefs' => 'none' });
 	$doc->{TT}{po_out}->set_charset('utf-8');
 	# do the actual work
