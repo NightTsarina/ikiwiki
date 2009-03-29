@@ -1,12 +1,14 @@
-[[!toc levels=2]]
+[[!toc ]]
 
 ----
 
-# Probable holes
+# Security review
+
+## Probable holes
 
 _(The list of things to fix.)_
 
-## po4a-gettextize
+### po4a-gettextize
 
 * po4a CVS 2009-01-16
 * Perl 5.10.0
@@ -40,12 +42,12 @@ nothing about the place where the crash happens.
 
 ----
 
-# Potential gotchas
+## Potential gotchas
 
 _(Things not to do.)_
 
 
-## Blindly activating more po4a format modules
+### Blindly activating more po4a format modules
 
 The format modules we want to use have to be checked, as not all are
 safe (e.g. the LaTeX module's behaviour is changed by commands
@@ -54,19 +56,19 @@ the content.
 
 ----
 
-# Hopefully non-holes
+## Hopefully non-holes
 
 _(AKA, the assumptions that will be the root of most security holes...)_
 
-## PO file features
+### PO file features
 
 No [documented](http://www.gnu.org/software/gettext/manual/gettext.html#PO-Files)
 directive that can be put in po files is supposed to cause mischief
 (ie, include other files, run commands, crash gettext, whatever).
 
-## gettext
+### gettext
 
-### Security history
+#### Security history
 
 The only past security issue I could find in GNU gettext is
 [CVE-2004-0966](http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-0966),
@@ -81,14 +83,14 @@ use, either directly or indirectly, the faulty scripts.
 Note: the lack of found security issues can either indicate that there
 are none, or reveal that no-one ever bothered to find or publish them.
 
-### msgmerge
+#### msgmerge
 
 `refreshpofiles()` runs this external program.
 
 * I was not able to crash it with `zzuf`.
 * I could not find any past security hole.
 
-### msgfmt
+#### msgfmt
 
 `isvalidpo()` runs this external program.
 
@@ -96,9 +98,9 @@ are none, or reveal that no-one ever bothered to find or publish them.
   when too many errors are detected.
 * I could not find any past security hole.
 
-## po4a
+### po4a
 
-### Security history
+#### Security history
 
 The only past security issue I could find in po4a is
 [CVE-2007-4462](http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-4462):
@@ -112,7 +114,7 @@ use, either directly or indirectly, the faulty `gettextize` function.
 Note: the lack of found security issues can either indicate that there
 are none, or reveal that no-one ever bothered to find or publish them.
 
-### General feeling
+#### General feeling
 
 Are there any security issues on running po4a on untrusted content?
 
@@ -126,7 +128,7 @@ a convincing manner, stating that processing untrusted content was not
 an initial goal, and analysing in detail the possible issues.
 The following analysis was done with his help.
 
-### Details
+#### Details
 
 * the core (`Po.pm`, `Transtractor.pm`) should be safe
 * po4a source code was fully checked for other potential symlink
@@ -141,14 +143,14 @@ The following analysis was done with his help.
   input charset (`file_in_charset`) before asking `TransTractor` to
   read any file. NB: this hack depends on po4a internals.
 
-#### Locale::Po4a::Text
+##### Locale::Po4a::Text
 
 * does not run any external program
 * only `do_paragraph()` builds regexp's that expand untrusted
   variables; according to [[Joey]], this is "Freaky code, but seems ok
   due to use of `quotementa`".
 
-#### Text::WrapI18N
+##### Text::WrapI18N
 
 `Text::WrapI18N` can cause DoS
 ([Debian bug #470250](http://bugs.debian.org/470250)).
@@ -158,7 +160,7 @@ If a recent enough po4a (>=0.35) is installed, this module's use is
 fully disabled. Else, the wiki administrator is warned about this
 at runtime.
 
-#### Term::ReadKey
+##### Term::ReadKey
 
 `Term::ReadKey` is not a hard dependency in our case, *i.e.* po4a
 works nicely without it. But the po4a Debian package recommends
@@ -171,9 +173,9 @@ be able to guarantee anything wrt. security.
 If a recent enough po4a (>=2009-01-15 CVS, which will probably be
 released as 0.35) is installed, this module's use is fully disabled.
 
-#### Fuzzing input
+##### Fuzzing input
 
-##### po4a-translate
+###### po4a-translate
 
 * po4a CVS 2009-01-16
 * Perl 5.10.0
@@ -202,5 +204,5 @@ section.
 
 ----
 
-# Fixed holes
+## Fixed holes
 
