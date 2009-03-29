@@ -32,7 +32,7 @@ sub import {
 	hook(type => "getsetup", id => "po", call => \&getsetup);
 	hook(type => "checkconfig", id => "po", call => \&checkconfig);
 	hook(type => "needsbuild", id => "po", call => \&needsbuild);
-	hook(type => "scan", id => "po", call => \&scan, last =>1);
+	hook(type => "scan", id => "po", call => \&scan, last => 1);
 	hook(type => "filter", id => "po", call => \&filter);
 	hook(type => "htmlize", id => "po", call => \&htmlize);
 	hook(type => "pagetemplate", id => "po", call => \&pagetemplate, last => 1);
@@ -141,9 +141,7 @@ sub checkconfig () {
 	    ! defined $config{po_link_to}) {
 		$config{po_link_to}='default';
 	}
-	elsif (! grep {
-			$config{po_link_to} eq $_
-		} ('default', 'current', 'negotiated')) {
+	elsif ($config{po_link_to} !~ /^(default|current|negotiated)$/) {
 		warn(sprintf(gettext('%s is not a valid value for po_link_to, falling back to po_link_to=default'),
 			     $config{po_link_to}));
 		$config{po_link_to}='default';
