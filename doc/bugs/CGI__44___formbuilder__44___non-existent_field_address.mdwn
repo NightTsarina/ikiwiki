@@ -41,3 +41,13 @@ Further details:
 
 - I'm running ikiwiki v3.08. Did I mention that it works perfectly in
   nearly every other way that I've managed to test thusfar?
+
+----
+
+> I suspect that your perl is too old and is incompatible with the version of CGI::FormBuilder you have installed.
+> 
+> Is so, it seems likely that the same error message can be reproduced by running a simple command like this at the command line:
+> 
+>     perl -e 'use warnings; use strict; use CGI::FormBuilder; my $form=CGI::FormBuilder->new; $form->text("boo")'
+> 
+> --[[Joey]]
