@@ -1,10 +1,26 @@
 This is similar to the last post in this forum. I want to know exactly how ikiwiki remembers the times associated with pages, especially when using it for blogging, so I know whether I can trust it or not. From that last thread, I think what ikiwiki does is this:
 
 *   The created time of a file is when that file was first committed into the versioning repository (in my case git)
+
+    > If `--getctime` it used, yes. In normal operation, when new files
+    > are added, ikiwiki sets the creation time to the ctime of the file
+    > on disk, rather than bothering to ask the VCS. --[[Joey]] 
+
 *   The modified time of a file is what that file was last updated in the repository
+
+    > Almost right, the modified time is actually taken from the
+    > modification time of the file in disk. --[[Joey]] 
 
 And with a blog, by default, the posts are ordered by creation time, although an option can order them by modified time.
 
 Okay. So this should mean that the times are safe if, for example, I delete my working copy and then clone another one from the bare git repository, or otherwise mess up the creation times and mtimes stored as file metadata on the filesystem.
 
 Do I have it right?
+
+> Some VCS, like git, set the file mtimes to the current time
+> when making a new checkout, so they will be lost if you do that.
+> The creation times can be retrived using the `--getctime` option.
+> I suppose it might be nice if there were a `--getmtime` that pulled
+> true modification times out of the VCS, but I haven't found it a big
+> deal in practice for the last modification times to be updated to the
+> current time when rebuilding a wiki like this. --[[Joey]] 
