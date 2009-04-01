@@ -1,0 +1,10 @@
+This is similar to the last post in this forum. I want to know exactly how ikiwiki remembers the times associated with pages, especially when using it for blogging, so I know whether I can trust it or not. From that last thread, I think what ikiwiki does is this:
+
+*   The created time of a file is when that file was first committed into the versioning repository (in my case git)
+*   The modified time of a file is what that file was last updated in the repository
+
+And with a blog, by default, the posts are ordered by creation time, although an option can order them by modified time.
+
+Okay. So this should mean that the times are safe if, for example, I delete my working copy and then clone another one from the bare git repository, or otherwise mess up the creation times and mtimes stored as file metadata on the filesystem.
+
+Do I have it right?
