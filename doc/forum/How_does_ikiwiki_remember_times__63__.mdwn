@@ -79,9 +79,9 @@ Do I have it right?
     fi
 
     date=$(date)
-    echo '[[!template id=draft]]' >> "$pagename"
-    echo "[[!meta date=\"$date\"]]" >> "$pagename"
-    echo "[[!tag draft]]" >> "$pagename"
+    echo '\[[!template id=draft]]' >> "$pagename"
+    echo "\[[!meta date=\"$date\"]]" >> "$pagename"
+    echo "\[[!tag draft]]" >> "$pagename"
     git add "$pagename"
     $EDITOR "$pagename"
 
