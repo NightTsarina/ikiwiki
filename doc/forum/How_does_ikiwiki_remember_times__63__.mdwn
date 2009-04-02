@@ -58,3 +58,31 @@ Do I have it right?
 > > > > normally lose the times also. (And in that case I think both times are irretrievable, even by 
 > > > > `--getctime`). I might start using a simple script to make blog posts that creates a file for
 > > > > me, puts today's date in the file as a meta, and opens the file in my editor.  -- [[seanh]]
+
+>>>>> I use a script that does that and also sets up templates and tags
+>>>>> for a new item:
+
+    #!/bin/sh
+    set -u
+    set -e
+
+    if [ $# -ne 1 ]; then
+        echo usage: $0 pagename >&2
+        exit 1
+    fi
+
+    pagename="$1"
+
+    if [ -e "$pagename" ]; then
+        echo error: "$pagename" exists >&2
+            exit 1
+    fi
+
+    date=$(date)
+    echo '[[!template id=draft]]' >> "$pagename"
+    echo "[[!meta date=\"$date\"]]" >> "$pagename"
+    echo "[[!tag draft]]" >> "$pagename"
+    git add "$pagename"
+    $EDITOR "$pagename"
+
+>>>>> -- [[Jon]]
