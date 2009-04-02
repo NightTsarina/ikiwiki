@@ -24,3 +24,28 @@ Do I have it right?
 > true modification times out of the VCS, but I haven't found it a big
 > deal in practice for the last modification times to be updated to the
 > current time when rebuilding a wiki like this. --[[Joey]] 
+>
+> > Thanks for the clarification. I ran some tests of my own to make sure I understand it right, and I'm satisfied
+> > that the order of posts in my blog can be retrieved from the VCS using the `--getctime` option, at least if I
+> > choose to order my posts by creation time rather than modification time. But I now know that I can't rely on
+> > page modification times in ikiwiki as these can be lost permanently.
+> >
+> > I would suggest that there should at least be a `--getmtime` option like you describe, and perhaps that 
+> > `--getctime` and `--getmtime` be _on by default_. In my opinion the creation times and modification times of 
+> > pages in ikiwiki are part of the user's content and are important to protect, because the user may be relying 
+> > on them, especially if they use blogging or lists of recently modified pages, etc. Right now the modification
+> > times can be lost permanently.
+> >
+> > Is there a typo in the description of `--getctime` in the man page?
+> >
+> > > --getctime
+> > > Pull  **last  changed  time**  for each new page out of the revision
+> > > control system. This rarely used option provides a  way  to  get
+> > > the real creation times of items in weblogs, such as when build‐
+> > > ing a wiki from a new Subversion checkout. It is unoptimised and
+> > > quite  slow. It is best used with --rebuild, to force ikiwiki to
+> > > get the ctime for all pages.
+> >
+> > Surely it is not the _last changed time_ but the _first seen time_ of each page that is pulled out of the VCS?
+> > If the aim is to get the real creation times of items in weblogs, then the last times that the items were
+> > changed in the VCS is not going to help. -- [[seanh]]
