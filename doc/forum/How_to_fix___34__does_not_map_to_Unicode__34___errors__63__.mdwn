@@ -6,3 +6,15 @@ I think it's because some of my files contain non-utf8, non-unicode, or somehow 
 
 Thanks  
 -- seanh
+
+> Unfortunatly, these messages are logged by perl so there's no way to add
+> a filename to them.
+> 
+> If you run the build in --verbose mode, you should see which page ikiwiki
+> is working on, and unless it inlines some other page, you can be pretty
+> sure that page contains invalid utf-8 if the message is then printed.
+>
+> Another option is to use the `isutf8` program from 
+> moreutils](http://kitenet.net/~joey/code/moreutils/),
+> and run it on each file, it will tell you the line number
+> and character position that is invalid. --[[Joey]] 
