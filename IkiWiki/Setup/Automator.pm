@@ -59,7 +59,7 @@ sub import (@) {
 			$config{mtn_wrapper}=$config{srcdir}."_MTN/ikiwiki-netsync-hook";
 		}
 		elsif ($config{rcs} eq 'darcs') {
-			$config{darcs_wrapper}=$config{repository}."_darcs/ikiwiki-wrapper";
+			$config{darcs_wrapper}=$config{repository}."/_darcs/ikiwiki-wrapper";
 		}
 		elsif ($config{rcs} eq 'bzr') {
 			# TODO
