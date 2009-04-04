@@ -298,8 +298,6 @@ sub rcs_recentchanges ($) {
 
 	my $repodir=$config{srcdir};
 
-	debug("darcs recent changes: $num");
-
 	my $child = open(LOG, "-|");
 	if (! $child) {
 		$ENV{"DARCS_DONT_ESCAPE_ANYTHING"}=1;
@@ -315,7 +313,6 @@ sub rcs_recentchanges ($) {
 
 	my $log = XMLin($data, ForceArray => 1);
 
-	debug("parsing recent changes...");
 	foreach my $patch (@{$log->{patch}}) {
 		my $date=$patch->{local_date};
 		my $hash=$patch->{hash};
@@ -339,16 +336,12 @@ sub rcs_recentchanges ($) {
 			$d =~ s/\[\[file\]\]/$f/go;
 			$d =~ s/\[\[hash\]\]/$hash/go;
 
-			debug("file: $f");
-			debug("diffurl: $d");
 			push @pg, {
 				page => pagename($f),
 				diffurl => $d,
 			};
 		}
 		next unless (scalar @pg > 0);
-		debug("recent change: " . $patch->{name}[0] . " ("
-			. scalar @pg . " changes)");
 
 		my @message;
 		push @message, { line => $_ } foreach (@{$patch->{name}});
