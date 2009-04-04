@@ -1,42 +1,4 @@
 #!/usr/bin/perl
-# Support for the darcs rcs, <URL:http://darcs.net/>.
-# Copyright (C) 2006  Thomas Schwinge <tschwinge@gnu.org>
-#               2007  Benjamin A'Lee <bma@bmalee.eu>
-#                     Tuomo Valkonen <tuomov@iki.fi>
-#               2008  Simon Michael <simon@joyful.com>
-#                     Petr Ročkai <me@mornfall.net>
-#                     Sven M. Hallberg <pesco@khjk.org>
-#
-# This program is free software; you can redistribute it and/or modify it
-# under the terms of the GNU General Public License as published by the
-# Free Software Foundation; either version 2 of the License, or (at your
-# option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but
-# WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-
-# History (see http://ikiwiki.info/todo/darcs/):
-#
-#  * Thomas Schwinge wrote the original file, implementing only rcs_commit.
-#  * Benjamin A'Lee contributed an alternative implementation.
-#  * Tuomo Valkonen contributed rcs_getctime and stub rcs_recentchanges.
-#  * Simon Michael contributed multiple changes.
-#  * Petr Ročkai fixed rcs_recentchanges and added caching to rcs_getctime.
-#  * Sven M. Hallberg merged the above and added missing features.
-
-
-# We're guaranteed to be the only instance of ikiwiki running at a given
-# time.  It is essential that only ikiwiki is working on a particular
-# repository.  That means one instance of ikiwiki and it also means that
-# you must not 'darcs push' into this repository, as this might create
-# race conditions, as I understand it.
-
 package IkiWiki::Plugin::darcs;
 
 use warnings;
