@@ -354,16 +354,19 @@ sub rcs_recentchanges ($) {
 		push @message, { line => $_ } foreach (@{$patch->{name}});
 
 		my $committype;
-		if ($patch->{author} =~ /\@web$/) {
+		my $author;
+		if ($patch->{author} =~ /(.*)\@web$/) {
+			$author = $1;
 			$committype = "web";
 		}
 		else {
+			$author=$patch->{author};
 			$committype = "darcs";
 		}
 
 		push @ret, {
 			rev => $patch->{hash},
-			user => $patch->{author},
+			user => $author,
 			committype => $committype,
 			when => $when, 
 			message => [@message],
