@@ -128,8 +128,7 @@ darcs)
 	fi
 
 	mkdir -p "$repository"
-	cd "$repository"
-	darcs initialize
+	(cd "$repository" && darcs initialize)
 
 	mkdir -p "$srcdir"
 	cd "$srcdir"
