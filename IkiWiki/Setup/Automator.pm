@@ -117,6 +117,7 @@ sub import (@) {
 		for (;;) {
 			print "Choose a password: ";
 			chomp($password=<STDIN>);
+			print "\n";
 			print "Confirm password: ";
 			chomp($password2=<STDIN>);
 
