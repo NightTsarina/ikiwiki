@@ -1,25 +1,21 @@
 <http://khjk.org/~pesco/ikiwiki-darcs/> (now a darcs repo)
 
-> Note that there's a 'darcs' branch in git that I'm keeping a copy of your
-> code in. Just in case. :-)
-
 I've taken all the good stuff from the above (now deleted --[[Joey]]) and added the missing hooks. The code hasn't seen a lot of testing, so some bugs are likely yet to surface. Also, I'm not experienced with perl and don't know where I should have used the function `possibly_foolish_untaint`.
 
 > Review of this one:
 > 
-> * Should use tab indentation.
+> * Should use tab indentation. (fixed)
 > * `rcs_getctime` should not need to use a ctime cache (such a cache should 
 >   also not be named `.ikiwiki.ctimes`). `rcs_getctime` is run exactly
->   once per page, ever, and the data is cached in ikiwiki's index.
+>   once per page, ever, and the data is cached in ikiwiki's index. (fixed)
 > * I doubt that ENV{DARCS} will be available, since the wrapper clobbers> the entire
->   environment. I'd say remove that.
+>   environment. I'd say remove that. (fixed)
 > * I don't understand what `darcs_info` is doing, but it seems to be
 >   parsing xml with a regexp?
 > * Looks like `rcs_commit` needs a few improvements, as marked TODO
-> * `rcs_remove` just calls "rm"? Does darcs record notice the file was removed
->    and automatically commit the removal? (And why `system("rm")` and not
->    `unlink`?)
-> * Is the the darcs info in [[rcs/details]] still up-to-date re this version?
+> * `rcs_remove` just calls unlink? Does darcs record notice the file was removed
+>    and automatically commit the removal?
+> * Is the the darcs info in [[rcs/details]] still up-to-date re this version? (fixed)
 > --[[Joey]]
 
 > Update:
@@ -46,4 +42,12 @@ I've taken all the good stuff from the above (now deleted --[[Joey]]) and added 
 
 >>> Done. --pesco
 
-[[!tag patch]]
+----
+
+I've finally merged this into ikiwiki master. The plugin looks quite
+complete, with only the new `rcs_receive` hook missing, and I
+hope it works as good as it looks. :) If anyone wants to work on improving
+it, there are some TODOs as mentioned above that could still be improved.
+--[[Joey]] 
+
+[[!tag patch done]]
