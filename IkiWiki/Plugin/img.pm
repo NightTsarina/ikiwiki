@@ -5,24 +5,24 @@ package IkiWiki::Plugin::img;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
 my %imgdefaults;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "img", call => \&getsetup);
 	hook(type => "preprocess", id => "img", call => \&preprocess, scan => 1);
-} #}}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub preprocess (@) { #{{{
+sub preprocess (@) {
 	my ($image) = $_[0] =~ /$config{wiki_file_regexp}/; # untaint
 	my %params=@_;
 
@@ -119,9 +119,9 @@ sub preprocess (@) { #{{{
 	}
 
 	my $imgtag='<img src="'.$imgurl.
-		'" alt="'.(exists $params{alt} ? $params{alt} : '').
 		'" width="'.$im->Get("width").
 		'" height="'.$im->Get("height").'"'.
+		(exists $params{alt} ? '" alt="'.$params{alt}.'"' : '').
 		(exists $params{title} ? ' title="'.$params{title}.'"' : '').
 		(exists $params{class} ? ' class="'.$params{class}.'"' : '').
 		(exists $params{id} ? ' id="'.$params{id}.'"' : '').
@@ -149,6 +149,6 @@ sub preprocess (@) { #{{{
 	else {
 		return $imgtag;
 	}
-} #}}}
+}
 
 1

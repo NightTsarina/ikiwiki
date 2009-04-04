@@ -4,22 +4,22 @@ package IkiWiki::Plugin::haiku;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "haiku", call => \&getsetup);
 	hook(type => "preprocess", id => "haiku", call => \&preprocess);
-} # }}}
+}
 
-sub getsetup { #{{{
+sub getsetup {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub preprocess (@) { #{{{
+sub preprocess (@) {
 	my %params=@_;
 
 	my $haiku;
@@ -54,6 +54,6 @@ sub preprocess (@) { #{{{
 	$haiku=~s/\n/<br \/>\n/mg;
 	
 	return "\n\n<blockquote><p>$haiku</p></blockquote>\n\n";
-} # }}}
+}
 
 1

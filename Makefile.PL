@@ -23,6 +23,9 @@ PROBABLE_INST_LIB=$(shell \\
 	fi \\
 )
 
+# Additional configurable path variables.
+W3M_CGI_BIN?=$(PREFIX)/lib/w3m/cgi-bin
+
 tflag=$(shell if [ -n "$$NOTAINT" ] && [ "$$NOTAINT" != 1 ]; then printf -- "-T"; fi)
 extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:Profile"; fi)
 
@@ -39,7 +42,7 @@ extra_build: ikiwiki.out ikiwiki.setup docwiki
 	./mdwn2man ikiwiki-makerepo 1 doc/ikiwiki-makerepo.mdwn > ikiwiki-makerepo.man
 	./mdwn2man ikiwiki-transition 1 doc/ikiwiki-transition.mdwn > ikiwiki-transition.man
 	./mdwn2man ikiwiki-update-wikilist 1 doc/ikiwiki-update-wikilist.mdwn > ikiwiki-update-wikilist.man
-	$(MAKE) -C po mo
+	$(MAKE) -C po
 	
 docwiki: ikiwiki.out
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup docwiki.setup -refresh
@@ -54,6 +57,7 @@ extra_install:
 	for dir in `cd underlays && find . -follow -type d ! -regex '.*\.svn.*'`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
 		for file in `find underlays/$$dir -follow -maxdepth 1 -type f`; do \
+			cp -aL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir 2>/dev/null || \
 			install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
 		done; \
 	done
@@ -65,6 +69,15 @@ extra_install:
 			install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive; \
 		fi \
 	done
+	
+	# Install example sites.
+	for dir in `cd doc/examples; find . -type d ! -regex '.*\.svn.*'`; do \
+		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$dir; \
+	done
+	for file in `cd doc/examples; find . -type f ! -regex '.*\.svn.*'`; do \
+		cp -aL doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file 2>/dev/null || \
+		install -m 644 doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file; \
+	done
 
 	for dir in `find templates -follow -type d ! -regex '.*\.svn.*'`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
@@ -74,10 +87,10 @@ extra_install:
 	done
 	
 	install -d $(DESTDIR)$(PREFIX)/lib/ikiwiki/plugins
-	for file in `find plugins -maxdepth 1 -type f ! -wholename plugins/.\* ! -name \*demo\* -name \*.py`; do \
+	for file in `find plugins -maxdepth 1 -type f ! -path plugins/.\* ! -name \*demo\* -name \*.py`; do \
 		install -m 644 $$file $(DESTDIR)$(PREFIX)/lib/ikiwiki/plugins; \
 	done
-	for file in `find plugins -maxdepth 1 -type f ! -wholename plugins/.\* ! -name \*demo\* ! -name \*.py ! -name \*.pyc`; do \
+	for file in `find plugins -maxdepth 1 -type f ! -path plugins/.\* ! -name \*demo\* ! -name \*.py ! -name \*.pyc`; do \
 		install -m 755 $$file $(DESTDIR)$(PREFIX)/lib/ikiwiki/plugins; \
 	done
 
@@ -93,8 +106,8 @@ extra_install:
 	install -d $(DESTDIR)$(PREFIX)/sbin
 	install ikiwiki-mass-rebuild $(DESTDIR)$(PREFIX)/sbin
 
-	install -d $(DESTDIR)$(PREFIX)/lib/w3m/cgi-bin
-	install ikiwiki-w3m.cgi $(DESTDIR)$(PREFIX)/lib/w3m/cgi-bin
+	install -d $(DESTDIR)$(W3M_CGI_BIN)
+	install ikiwiki-w3m.cgi $(DESTDIR)$(W3M_CGI_BIN)
 
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install ikiwiki.out $(DESTDIR)$(PREFIX)/bin/ikiwiki
@@ -107,6 +120,7 @@ extra_install:
 	-install -d $(DESTDIR)/etc/ikiwiki
 	-install -m 0644 wikilist $(DESTDIR)/etc/ikiwiki
 	-install -m 0644 auto.setup $(DESTDIR)/etc/ikiwiki
+	-install -m 0644 auto-blog.setup $(DESTDIR)/etc/ikiwiki
 }
 }
 

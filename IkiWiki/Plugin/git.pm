@@ -9,8 +9,9 @@ use open qw{:utf8 :std};
 
 my $sha1_pattern     = qr/[0-9a-fA-F]{40}/; # pattern to validate Git sha1sums
 my $dummy_commit_msg = 'dummy commit';      # message to skip in recent changes
+my $no_chdir=0;
 
-sub import { #{{{
+sub import {
 	hook(type => "checkconfig", id => "git", call => \&checkconfig);
 	hook(type => "getsetup", id => "git", call => \&getsetup);
 	hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
@@ -23,24 +24,34 @@ sub import { #{{{
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
-} #}}}
+	hook(type => "rcs", id => "rcs_receive", call => \&rcs_receive);
+}
 
-sub checkconfig () { #{{{
+sub checkconfig () {
 	if (! defined $config{gitorigin_branch}) {
 		$config{gitorigin_branch}="origin";
 	}
 	if (! defined $config{gitmaster_branch}) {
 		$config{gitmaster_branch}="master";
 	}
-	if (defined $config{git_wrapper} && length $config{git_wrapper}) {
+	if (defined $config{git_wrapper} &&
+	    length $config{git_wrapper}) {
 		push @{$config{wrappers}}, {
 			wrapper => $config{git_wrapper},
 			wrappermode => (defined $config{git_wrappermode} ? $config{git_wrappermode} : "06755"),
 		};
 	}
-} #}}}
+	if (defined $config{git_test_receive_wrapper} &&
+	    length $config{git_test_receive_wrapper}) {
+		push @{$config{wrappers}}, {
+			test_receive => 1,
+			wrapper => $config{git_test_receive_wrapper},
+			wrappermode => (defined $config{git_wrappermode} ? $config{git_wrappermode} : "06755"),
+		};
+	}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 0, # rcs plugin
@@ -60,6 +71,20 @@ sub getsetup () { #{{{
 			safe => 0,
 			rebuild => 0,
 		},
+		git_test_receive_wrapper => {
+			type => "string",
+			example => "/git/wiki.git/hooks/pre-receive",
+			description => "git pre-receive hook to generate",
+			safe => 0, # file
+			rebuild => 0,
+		},
+		untrusted_committers => {
+			type => "string",
+			example => [],
+			description => "unix users whose commits should be checked by the pre-receive hook",
+			safe => 0,
+			rebuild => 0,
+		},
 		historyurl => {
 			type => "string",
 			example => "http://git.example.com/gitweb.cgi?p=wiki.git;a=history;f=[[file]]",
@@ -69,8 +94,8 @@ sub getsetup () { #{{{
 		},
 		diffurl => {
 			type => "string",
-			example => "http://git.example.com/gitweb.cgi?p=wiki.git;a=blobdiff;h=[[sha1_to]];hp=[[sha1_from]];hb=[[sha1_parent]];f=[[file]]",
-			description => "gitweb url to show a diff ([[sha1_to]], [[sha1_from]], [[sha1_parent]], and [[file]] substituted)",
+			example => "http://git.example.com/gitweb.cgi?p=wiki.git;a=blobdiff;f=[[file]];h=[[sha1_to]];hp=[[sha1_from]];hb=[[sha1_commit]];hpb=[[sha1_parent]]",
+			description => "gitweb url to show a diff ([[file]], [[sha1_to]], [[sha1_from]], [[sha1_commit]], and [[sha1_parent]] substituted)",
 			safe => 1,
 			rebuild => 1,
 		},
@@ -88,9 +113,9 @@ sub getsetup () { #{{{
 			safe => 0, # paranoia
 			rebuild => 0,
 		},
-} #}}}
+}
 
-sub safe_git (&@) { #{{{
+sub safe_git (&@) {
 	# Start a child process safely without resorting /bin/sh.
 	# Return command output or success state (in scalar context).
 
@@ -103,15 +128,25 @@ sub safe_git (&@) { #{{{
 	if (!$pid) {
 		# In child.
 		# Git commands want to be in wc.
-		chdir $config{srcdir}
-		    or error("Cannot chdir to $config{srcdir}: $!");
+		if (! $no_chdir) {
+			chdir $config{srcdir}
+			    or error("Cannot chdir to $config{srcdir}: $!");
+		}
 		exec @cmdline or error("Cannot exec '@cmdline': $!");
 	}
 	# In parent.
 
+	# git output is probably utf-8 encoded, but may contain
+	# other encodings or invalidly encoded stuff. So do not rely
+	# on the normal utf-8 IO layer, decode it by hand.
+	binmode($OUT);
+
 	my @lines;
 	while (<$OUT>) {
+		$_=decode_utf8($_, 0);
+
 		chomp;
+
 		push @lines, $_;
 	}
 
@@ -125,9 +160,9 @@ sub safe_git (&@) { #{{{
 sub run_or_die ($@) { safe_git(\&error, @_) }
 sub run_or_cry ($@) { safe_git(sub { warn @_ },  @_) }
 sub run_or_non ($@) { safe_git(undef,            @_) }
-#}}}
 
-sub merge_past ($$$) { #{{{
+
+sub merge_past ($$$) {
 	# Unlike with Subversion, Git cannot make a 'svn merge -rN:M file'.
 	# Git merge commands work with the committed changes, except in the
 	# implicit case of '-m' of git checkout(1).  So we should invent a
@@ -219,9 +254,9 @@ sub merge_past ($$$) { #{{{
 	error("Git merge failed!\n$failure\n") if $failure;
 
 	return $conflict;
-} #}}}
+}
 
-sub parse_diff_tree ($@) { #{{{
+sub parse_diff_tree ($@) {
 	# Parse the raw diff tree chunk and return the info hash.
 	# See git-diff-tree(1) for the syntax.
 
@@ -320,6 +355,9 @@ sub parse_diff_tree ($@) { #{{{
 					'file'      => decode("utf8", $file),
 					'sha1_from' => $sha1_from[0],
 					'sha1_to'   => $sha1_to,
+					'mode_from' => $mode_from[0],
+					'mode_to'   => $mode_to,
+					'status'    => $status,
 				};
 			}
 			next;
@@ -328,17 +366,17 @@ sub parse_diff_tree ($@) { #{{{
 	}
 
 	return \%ci;
-} #}}}
+}
 
-sub git_commit_info ($;$) { #{{{
-	# Return an array of commit info hashes of num commits (default: 1)
+sub git_commit_info ($;$) {
+	# Return an array of commit info hashes of num commits
 	# starting from the given sha1sum.
-
 	my ($sha1, $num) = @_;
 
-	$num ||= 1;
+	my @opts;
+	push @opts, "--max-count=$num" if defined $num;
 
-	my @raw_lines = run_or_die('git', 'log', "--max-count=$num", 
+	my @raw_lines = run_or_die('git', 'log', @opts,
 		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
 		'-r', $sha1, '--', '.');
 	my ($prefix) = run_or_die('git', 'rev-parse', '--show-prefix');
@@ -351,11 +389,10 @@ sub git_commit_info ($;$) { #{{{
 	warn "Cannot parse commit info for '$sha1' commit" if !@ci;
 
 	return wantarray ? @ci : $ci[0];
-} #}}}
+}
 
-sub git_sha1 (;$) { #{{{
+sub git_sha1 (;$) {
 	# Return head sha1sum (of given file).
-
 	my $file = shift || q{--};
 
 	# Ignore error since a non-existing file might be given.
@@ -365,26 +402,25 @@ sub git_sha1 (;$) { #{{{
 		($sha1) = $sha1 =~ m/($sha1_pattern)/; # sha1 is untainted now
 	} else { debug("Empty sha1sum for '$file'.") }
 	return defined $sha1 ? $sha1 : q{};
-} #}}}
+}
 
-sub rcs_update () { #{{{
+sub rcs_update () {
 	# Update working directory.
 
 	if (length $config{gitorigin_branch}) {
 		run_or_cry('git', 'pull', $config{gitorigin_branch});
 	}
-} #}}}
+}
 
-sub rcs_prepedit ($) { #{{{
+sub rcs_prepedit ($) {
 	# Return the commit sha1sum of the file when editing begins.
 	# This will be later used in rcs_commit if a merge is required.
-
 	my ($file) = @_;
 
 	return git_sha1($file);
-} #}}}
+}
 
-sub rcs_commit ($$$;$$) { #{{{
+sub rcs_commit ($$$;$$) {
 	# Try to commit the page; returns undef on _success_ and
 	# a version of the page with the rcs's conflict markers on
 	# failure.
@@ -403,7 +439,7 @@ sub rcs_commit ($$$;$$) { #{{{
 
 	rcs_add($file);	
 	return rcs_commit_staged($message, $user, $ipaddr);
-} #}}}
+}
 
 sub rcs_commit_staged ($$$) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
@@ -413,7 +449,7 @@ sub rcs_commit_staged ($$$) {
 	# Set the commit author and email to the web committer.
 	my %env=%ENV;
 	if (defined $user || defined $ipaddr) {
-		my $u=defined $user ? $user : $ipaddr;
+		my $u=encode_utf8(defined $user ? $user : $ipaddr);
 		$ENV{GIT_AUTHOR_NAME}=$u;
 		$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
 	}
@@ -444,29 +480,29 @@ sub rcs_commit_staged ($$$) {
 	return undef; # success
 }
 
-sub rcs_add ($) { # {{{
+sub rcs_add ($) {
 	# Add file to archive.
 
 	my ($file) = @_;
 
 	run_or_cry('git', 'add', $file);
-} #}}}
+}
 
-sub rcs_remove ($) { # {{{
+sub rcs_remove ($) {
 	# Remove file from archive.
 
 	my ($file) = @_;
 
 	run_or_cry('git', 'rm', '-f', $file);
-} #}}}
+}
 
-sub rcs_rename ($$) { # {{{
+sub rcs_rename ($$) {
 	my ($src, $dest) = @_;
 
 	run_or_cry('git', 'mv', '-f', $src, $dest);
-} #}}}
+}
 
-sub rcs_recentchanges ($) { #{{{
+sub rcs_recentchanges ($) {
 	# List of recent changes.
 
 	my ($num) = @_;
@@ -475,7 +511,7 @@ sub rcs_recentchanges ($) { #{{{
 	error($@) if $@;
 
 	my @rets;
-	foreach my $ci (git_commit_info('HEAD', $num)) {
+	foreach my $ci (git_commit_info('HEAD', $num || 1)) {
 		# Skip redundant commits.
 		next if ($ci->{'comment'} && @{$ci->{'comment'}}[0] eq $dummy_commit_msg);
 
@@ -493,6 +529,7 @@ sub rcs_recentchanges ($) { #{{{
 			$diffurl =~ s/\[\[sha1_parent\]\]/$ci->{'parent'}/go;
 			$diffurl =~ s/\[\[sha1_from\]\]/$detail->{'sha1_from'}/go;
 			$diffurl =~ s/\[\[sha1_to\]\]/$detail->{'sha1_to'}/go;
+			$diffurl =~ s/\[\[sha1_commit\]\]/$sha1/go;
 
 			push @pages, {
 				page => pagename($file),
@@ -533,9 +570,9 @@ sub rcs_recentchanges ($) { #{{{
 	}
 
 	return @rets;
-} #}}}
+}
 
-sub rcs_diff ($) { #{{{
+sub rcs_diff ($) {
 	my $rev=shift;
 	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
 	my @lines;
@@ -550,19 +587,112 @@ sub rcs_diff ($) { #{{{
 	else {
 		return join("", @lines);
 	}
-} #}}}
+}
 
-sub rcs_getctime ($) { #{{{
+sub rcs_getctime ($) {
 	my $file=shift;
 	# Remove srcdir prefix
 	$file =~ s/^\Q$config{srcdir}\E\/?//;
 
-	my $sha1  = git_sha1($file);
-	my $ci    = git_commit_info($sha1);
+	my @sha1s = run_or_non('git', 'rev-list', 'HEAD', '--', $file);
+	my $ci    = git_commit_info($sha1s[$#sha1s], 1);
 	my $ctime = $ci->{'author_epoch'};
 	debug("ctime for '$file': ". localtime($ctime));
 
 	return $ctime;
-} #}}}
+}
+
+sub rcs_receive () {
+	# The wiki may not be the only thing in the git repo.
+	# Determine if it is in a subdirectory by examining the srcdir,
+	# and its parents, looking for the .git directory.
+	my $subdir="";
+	my $dir=$config{srcdir};
+	while (! -d "$dir/.git") {
+		$subdir=IkiWiki::basename($dir)."/".$subdir;
+		$dir=IkiWiki::dirname($dir);
+		if (! length $dir) {
+			error("cannot determine root of git repo");
+		}
+	}
+
+	my @rets;
+	while (<>) {
+		chomp;
+		my ($oldrev, $newrev, $refname) = split(' ', $_, 3);
+		
+		# only allow changes to gitmaster_branch
+		if ($refname !~ /^refs\/heads\/\Q$config{gitmaster_branch}\E$/) {
+			error sprintf(gettext("you are not allowed to change %s"), $refname);
+		}
+		
+		# Avoid chdir when running git here, because the changes
+		# are in the master git repo, not the srcdir repo.
+		# The pre-recieve hook already puts us in the right place.
+		$no_chdir=1;
+		my @changes=git_commit_info($oldrev."..".$newrev);
+		$no_chdir=0;
+
+		foreach my $ci (@changes) {
+			foreach my $detail (@{ $ci->{'details'} }) {
+				my $file = $detail->{'file'};
+
+				# check that all changed files are in the
+				# subdir
+				if (length $subdir &&
+				    ! ($file =~ s/^\Q$subdir\E//)) {
+					error sprintf(gettext("you are not allowed to change %s"), $file);
+				}
+
+				my ($action, $mode, $path);
+				if ($detail->{'status'} =~ /^[M]+\d*$/) {
+					$action="change";
+					$mode=$detail->{'mode_to'};
+				}
+				elsif ($detail->{'status'} =~ /^[AM]+\d*$/) {
+					$action="add";
+					$mode=$detail->{'mode_to'};
+				}
+				elsif ($detail->{'status'} =~ /^[DAM]+\d*/) {
+					$action="remove";
+					$mode=$detail->{'mode_from'};
+				}
+				else {
+					error "unknown status ".$detail->{'status'};
+				}
+				
+				# test that the file mode is ok
+				if ($mode !~ /^100[64][64][64]$/) {
+					error sprintf(gettext("you cannot act on a file with mode %s"), $mode);
+				}
+				if ($action eq "change") {
+					if ($detail->{'mode_from'} ne $detail->{'mode_to'}) {
+						error gettext("you are not allowed to change file modes");
+					}
+				}
+				
+				# extract attachment to temp file
+				if (($action eq 'add' || $action eq 'change') &&
+				     ! pagetype($file)) {
+					eval q{use File::Temp};
+					die $@ if $@;
+					my $fh;
+					($fh, $path)=File::Temp::tempfile("XXXXXXXXXX", UNLINK => 1);
+					if (system("git show ".$detail->{sha1_to}." > '$path'") != 0) {
+						error("failed writing temp file");
+					}
+				}
+
+				push @rets, {
+					file => $file,
+					action => $action,
+					path => $path,
+				};
+			}
+		}
+	}
+
+	return reverse @rets;
+}
 
 1

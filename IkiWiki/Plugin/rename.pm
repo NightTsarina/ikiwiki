@@ -3,25 +3,25 @@ package IkiWiki::Plugin::rename;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "rename", call => \&getsetup);
 	hook(type => "formbuilder_setup", id => "rename", call => \&formbuilder_setup);
 	hook(type => "formbuilder", id => "rename", call => \&formbuilder);
 	hook(type => "sessioncgi", id => "rename", call => \&sessioncgi);
 
-} # }}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return 
 		plugin => {
 			safe => 1,
 			rebuild => 0,
 		},
-} #}}}
+}
 
-sub check_canrename ($$$$$$) { #{{{
+sub check_canrename ($$$$$$) {
 	my $src=shift;
 	my $srcfile=shift;
 	my $dest=shift;
@@ -87,9 +87,9 @@ sub check_canrename ($$$$$$) { #{{{
 			IkiWiki::Plugin::attachment::check_canattach($session, $dest, $srcfile);
 		}
 	}
-} #}}}
+}
 
-sub rename_form ($$$) { #{{{ 
+sub rename_form ($$$) {
 	my $q=shift;
 	my $session=shift;
 	my $page=shift;
@@ -111,7 +111,7 @@ sub rename_form ($$$) { #{{{
 	
 	$f->field(name => "do", type => "hidden", value => "rename", force => 1);
 	$f->field(name => "page", type => "hidden", value => $page, force => 1);
-	$f->field(name => "new_name", value => pagetitle($page), size => 60);
+	$f->field(name => "new_name", value => pagetitle($page, 1), size => 60);
 	if (!$q->param("attachment")) {
 		# insert the standard extensions
 		my @page_types;
@@ -145,9 +145,9 @@ sub rename_form ($$$) { #{{{
 	$f->field(name => "attachment", type => "hidden");
 
 	return $f, ["Rename", "Cancel"];
-} #}}}
+}
 
-sub rename_start ($$$$) { #{{{
+sub rename_start ($$$$) {
 	my $q=shift;
 	my $session=shift;
 	my $attachment=shift;
@@ -171,9 +171,9 @@ sub rename_start ($$$$) { #{{{
 	my ($f, $buttons)=rename_form($q, $session, $page);
 	IkiWiki::showform($f, $buttons, $session, $q);
 	exit 0;
-} #}}}
+}
 
-sub postrename ($;$$$) { #{{{
+sub postrename ($;$$$) {
 	my $session=shift;
 	my $src=shift;
 	my $dest=shift;
@@ -204,9 +204,9 @@ sub postrename ($;$$$) { #{{{
 	}
 
 	IkiWiki::cgi_editpage($postrename, $session);
-} #}}}
+}
 
-sub formbuilder (@) { #{{{
+sub formbuilder (@) {
 	my %params=@_;
 	my $form=$params{form};
 
@@ -229,11 +229,11 @@ sub formbuilder (@) { #{{{
 			rename_start($q, $session, 1, $selected[0]);
 		}
 	}
-} #}}}
+}
 
 my $renamesummary;
 
-sub formbuilder_setup (@) { #{{{
+sub formbuilder_setup (@) {
 	my %params=@_;
 	my $form=$params{form};
 	my $q=$params{cgi};
@@ -248,9 +248,9 @@ sub formbuilder_setup (@) { #{{{
 			$form->tmpl_param(message => $renamesummary);
 		}
 	}
-} #}}}
+}
 
-sub sessioncgi ($$) { #{{{
+sub sessioncgi ($$) {
         my $q=shift;
 
 	if ($q->param("do") eq 'rename') {
@@ -390,22 +390,8 @@ sub sessioncgi ($$) { #{{{
 				$template->param(error => $rename->{error});
 				if ($rename->{src} ne $rename->{dest}) {
 					$template->param(brokenlinks_checked => 1);
-					$template->param(brokenlinks => [
-						map {
-							{
-								page => htmllink($rename->{dest}, $rename->{dest}, $_,
-										noimageinline => 1)
-							}
-						} @{$rename->{brokenlinks}}
-					]);
-					$template->param(fixedlinks => [
-						map {
-							{
-								page => htmllink($rename->{dest}, $rename->{dest}, $_,
-										noimageinline => 1)
-							}
-						} @{$rename->{fixedlinks}}
-					]);
+					$template->param(brokenlinks => linklist($rename->{dest}, $rename->{brokenlinks}));
+					$template->param(fixedlinks => linklist($rename->{dest}, $rename->{fixedlinks}));
 				}
 				$renamesummary.=$template->output;
 			}
@@ -418,9 +404,26 @@ sub sessioncgi ($$) { #{{{
 
 		exit 0;
 	}
-} #}}}
+}
+						
+sub linklist {
+	# generates a list of links in a form suitable for FormBuilder
+	my $dest=shift;
+	my $list=shift;
+	# converts a list of pages into a list of links
+	# in a form suitable for FormBuilder.
 
-sub renamepage_hook ($$$$) { #{{{
+	[map {
+		{
+			page => htmllink($dest, $dest, $_,
+					noimageinline => 1,
+					linktext => pagetitle($_),
+				)
+		}
+	} @{$list}]
+}
+
+sub renamepage_hook ($$$$) {
 	my ($page, $src, $dest, $content)=@_;
 
 	IkiWiki::run_hooks(renamepage => sub {
@@ -433,9 +436,9 @@ sub renamepage_hook ($$$$) { #{{{
 	});
 
 	return $content;
-}# }}}
+}
 			
-sub do_rename ($$$) { #{{{
+sub do_rename ($$$) {
 	my $rename=shift;
 	my $q=shift;
 	my $session=shift;
@@ -460,9 +463,9 @@ sub do_rename ($$$) { #{{{
 		}
 	}
 
-} # }}}
+}
 
-sub fixlinks ($$$) { #{{{
+sub fixlinks ($$$) {
 	my $rename=shift;
 	my $session=shift;
 
@@ -498,6 +501,6 @@ sub fixlinks ($$$) { #{{{
 	}
 
 	return @fixedlinks;
-} #}}}
+}
 
 1

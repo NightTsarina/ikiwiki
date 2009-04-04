@@ -8,7 +8,7 @@ package IkiWiki::Plugin::txt;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 use HTML::Entities;
 
 my $findurl=0;
@@ -24,13 +24,13 @@ sub import {
 	}
 }
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => 1, # format plugin
 		},
-} #}}}
+}
 
 # We use filter to convert raw text to HTML
 # (htmlize is called after other plugins insert HTML)
@@ -39,7 +39,7 @@ sub filter (@) {
 	my $content = $params{content};
 
 	if (defined $pagesources{$params{page}} && $pagesources{$params{page}} =~ /\.txt$/) {
-		encode_entities($content);
+		encode_entities($content, "<>&");
 		if ($findurl) {
 			my $finder = URI::Find->new(sub {
 				my ($uri, $orig_uri) = @_;

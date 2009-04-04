@@ -9,21 +9,22 @@ use IkiWiki;
 use IkiWiki::UserInfo;
 use Term::ReadLine;
 use File::Path;
+use Encode;
 
-sub ask ($$) { #{{{
+sub ask ($$) {
 	my ($question, $default)=@_;
 
 	my $r=Term::ReadLine->new("ikiwiki");
-	$r->readline($question." ", $default);
-} #}}}
+	$r->readline(encode_utf8($question)." ", $default);
+}
 
-sub prettydir ($) { #{{{
+sub prettydir ($) {
 	my $dir=shift;
 	$dir=~s/^\Q$ENV{HOME}\E\//~\//;
 	return $dir;
-} #}}}
+}
 
-sub import (@) { #{{{
+sub import (@) {
 	my $this=shift;
 	IkiWiki::Setup::merge({@_});
 
@@ -73,8 +74,18 @@ sub import (@) { #{{{
 
 	print "\n\nSetting up $config{wikiname} ...\n";
 
-	# Set up the repository.
+	# Set up the srcdir.
 	mkpath($config{srcdir}) || die "mkdir $config{srcdir}: $!";
+	# Copy in example wiki.
+	if (exists $config{example}) {
+		# cp -R is POSIX
+		# Another reason not to use -a is so that pages such as blog
+		# posts will not have old creation dates on this new wiki.
+		system("cp -R $IkiWiki::installdir/share/ikiwiki/examples/$config{example}/* $config{srcdir}");
+		delete $config{example};
+	}
+
+	# Set up the repository.
 	delete $config{repository} if ! $config{rcs} || $config{rcs}=~/bzr|mercurial/;
 	if ($config{rcs}) {
 		my @params=($config{rcs}, $config{srcdir});
@@ -99,11 +110,20 @@ sub import (@) { #{{{
 		next if $admin=~/^http\?:\/\//; # openid
 		
 		# Prompt for password w/o echo.
+		my ($password, $password2);
 		system('stty -echo 2>/dev/null');
 		local $|=1;
 		print "\n\nCreating wiki admin $admin ...\n";
-		print "Choose a password: ";
-		chomp(my $password=<STDIN>);
+		for (;;) {
+			print "Choose a password: ";
+			chomp($password=<STDIN>);
+			print "Confirm password: ";
+			chomp($password2=<STDIN>);
+
+			last if $password2 eq $password;
+
+			print "Password mismatch.\n\n";
+		}
 		print "\n\n\n";
 		system('stty sane 2>/dev/null');
 
@@ -142,6 +162,6 @@ sub import (@) { #{{{
 	print "To modify settings, edit ".prettydir($config{dumpsetup})." and then run:\n";
 	print "	ikiwiki -setup ".prettydir($config{dumpsetup})."\n";
 	exit 0;
-} #}}}
+}
 
 1

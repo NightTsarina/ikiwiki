@@ -4,13 +4,12 @@ package IkiWiki::Plugin::goodstuff;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
 my @bundle=qw{
 	brokenlinks
 	img
 	map
-	meta
 	more
 	orphans
 	pagecount
@@ -23,21 +22,22 @@ my @bundle=qw{
 	template
 	toc
 	toggle
+	repolist
 };
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "goodstuff", call => \&getsetup);
 	foreach my $plugin (@bundle) {
 		IkiWiki::loadplugin($plugin);
 	}
-} # }}}
+}
 
-sub getsetup { #{{{
+sub getsetup {
 	return 
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
 1

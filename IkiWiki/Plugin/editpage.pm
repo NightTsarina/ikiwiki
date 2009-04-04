@@ -6,19 +6,19 @@ use strict;
 use IkiWiki;
 use open qw{:utf8 :std};
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "editpage", call => \&getsetup);
 	hook(type => "refresh", id => "editpage", call => \&refresh);
         hook(type => "sessioncgi", id => "editpage", call => \&IkiWiki::cgi_editpage);
-} # }}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => 1,
 		},
-} #}}}
+}
 
 sub refresh () {
 	if (exists $wikistate{editpage} && exists $wikistate{editpage}{previews}) {
@@ -51,37 +51,10 @@ sub refresh () {
 
 # Back to ikiwiki namespace for the rest, this code is very much
 # internal to ikiwiki even though it's separated into a plugin,
-# and other plugins use the functions below.
+# and other plugins use the function below.
 package IkiWiki;
 
-sub check_canedit ($$$;$) { #{{{
-	my $page=shift;
-	my $q=shift;
-	my $session=shift;
-	my $nonfatal=shift;
-	
-	my $canedit;
-	run_hooks(canedit => sub {
-		return if defined $canedit;
-		my $ret=shift->($page, $q, $session);
-		if (defined $ret) {
-			if ($ret eq "") {
-				$canedit=1;
-			}
-			elsif (ref $ret eq 'CODE') {
-				$ret->() unless $nonfatal;
-				$canedit=0;
-			}
-			elsif (defined $ret) {
-				error($ret) unless $nonfatal;
-				$canedit=0;
-			}
-		}
-	});
-	return $canedit;
-} #}}}
-
-sub cgi_editpage ($$) { #{{{
+sub cgi_editpage ($$) {
 	my $q=shift;
 	my $session=shift;
 	
@@ -105,7 +78,6 @@ sub cgi_editpage ($$) { #{{{
 		header => 0,
 		table => 0,
 		template => scalar template_params("editpage.tmpl"),
-		wikiname => $config{wikiname},
 	);
 	
 	decode_form_utf8($form);
@@ -122,7 +94,7 @@ sub cgi_editpage ($$) { #{{{
 	my $absolute=($page =~ s#^/+##);
 	if (! defined $page || ! length $page ||
 	    file_pruned($page, $config{srcdir})) {
-		error("bad page name");
+		error(gettext("bad page name"));
 	}
 
 	my $baseurl = urlto($page, undef, 1);
@@ -340,16 +312,7 @@ sub cgi_editpage ($$) { #{{{
 	else {
 		# save page
 		check_canedit($page, $q, $session);
-	
-		# The session id is stored on the form and checked to
-		# guard against CSRF. But only if the user is logged in,
-		# as anonok can allow anonymous edits.
-		if (defined $session->param("name")) {
-			my $sid=$q->param('sid');
-			if (! defined $sid || $sid ne $session->id) {
-				error(gettext("Your login session has expired."));
-			}
-		}
+		checksessionexpiry($q, $session, $q->param('sid'));
 
 		my $exists=-e "$config{srcdir}/$file";
 
@@ -378,8 +341,17 @@ sub cgi_editpage ($$) { #{{{
 			showform($form, \@buttons, $session, $q, forcebaseurl => $baseurl);
 			exit;
 		}
+			
+		my $message="";
+		if (defined $form->field('comments') &&
+		    length $form->field('comments')) {
+			$message=$form->field('comments');
+		}
 		
 		my $content=$form->field('editcontent');
+		check_content(content => $content, page => $page,
+			cgi => $q, session => $session,
+			subject => $message);
 		run_hooks(editcontent => sub {
 			$content=shift->(
 				content => $content,
@@ -413,12 +385,6 @@ sub cgi_editpage ($$) { #{{{
 		
 		my $conflict;
 		if ($config{rcs}) {
-			my $message="";
-			if (defined $form->field('comments') &&
-			    length $form->field('comments')) {
-				$message=$form->field('comments');
-			}
-			
 			if (! $exists) {
 				rcs_add($file);
 			}
@@ -462,6 +428,6 @@ sub cgi_editpage ($$) { #{{{
 	}
 
 	exit;
-} #}}}
+}
 
 1

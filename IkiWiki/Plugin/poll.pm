@@ -3,25 +3,25 @@ package IkiWiki::Plugin::poll;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 use Encode;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "poll", call => \&getsetup);
 	hook(type => "preprocess", id => "poll", call => \&preprocess);
 	hook(type => "sessioncgi", id => "poll", call => \&sessioncgi);
-} # }}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return 
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
 my %pagenum;
-sub preprocess (@) { #{{{
+sub preprocess (@) {
 	my %params=(open => "yes", total => "yes", percent => "yes", @_);
 
 	my $open=IkiWiki::yesno($params{open});
@@ -77,9 +77,9 @@ sub preprocess (@) { #{{{
 		$ret.="<span>".gettext("Total votes:")." $total</span>\n";
 	}
 	return "<div class=poll>$ret</div>";
-} # }}}
+}
 
-sub sessioncgi ($$) { #{{{
+sub sessioncgi ($$) {
 	my $cgi=shift;
 	my $session=shift;
 	if (defined $cgi->param('do') && $cgi->param('do') eq "poll") {
@@ -152,6 +152,6 @@ sub sessioncgi ($$) { #{{{
 			-url => urlto($page, undef, 1));
 		exit;
 	}
-} #}}}
+}
 
 1

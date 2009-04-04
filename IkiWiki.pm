@@ -21,11 +21,12 @@ our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
                  bestlink htmllink readfile writefile pagetype srcfile pagename
                  displaytime will_render gettext urlto targetpage
 		 add_underlay pagetitle titlepage linkpage newpagefile
+		 inject
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources);
-our $VERSION = 2.00; # plugin interface version, next is ikiwiki version
+our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
 our $version='unknown'; # VERSION_AUTOREPLACE done by Makefile, DNE
-my $installdir=''; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
+our $installdir=''; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
 
 # Optimisation.
 use Memoize;
@@ -33,7 +34,7 @@ memoize("abs2rel");
 memoize("pagespec_translate");
 memoize("file_pruned");
 
-sub getsetup () { #{{{
+sub getsetup () {
 	wikiname => {
 		type => "string",
 		default => "wiki",
@@ -99,7 +100,7 @@ sub getsetup () { #{{{
 		type => "string",
 		default => '',
 		example => "/var/www/wiki/ikiwiki.cgi",
-		description => "cgi wrapper to generate",
+		description => "filename of cgi wrapper to generate",
 		safe => 0, # file
 		rebuild => 0,
 	},
@@ -119,7 +120,7 @@ sub getsetup () { #{{{
 	},
 	default_plugins => {
 		type => "internal",
-		default => [qw{mdwn link inline htmlscrubber passwordauth
+		default => [qw{mdwn link inline meta htmlscrubber passwordauth
 				openid signinedit lockedit conditional
 				recentchanges parentlinks editpage}],
 		description => "plugins to enable by default",
@@ -173,7 +174,7 @@ sub getsetup () { #{{{
 	verbose => {
 		type => "boolean",
 		example => 1,
-		description => "display verbose messages when building?",
+		description => "display verbose messages?",
 		safe => 1,
 		rebuild => 0,
 	},
@@ -193,7 +194,7 @@ sub getsetup () { #{{{
 	},
 	prefix_directives => {
 		type => "boolean",
-		default => 0,
+		default => 1,
 		description => "use '!'-prefixed preprocessor directives?",
 		safe => 0, # changing requires manual transition
 		rebuild => 1,
@@ -276,9 +277,16 @@ sub getsetup () { #{{{
 	},
 	umask => {
 		type => "integer",
-		description => "",
 		example => "022",
 		description => "force ikiwiki to use a particular umask",
+		advanced => 1,
+		safe => 0, # paranoia
+		rebuild => 0,
+	},
+	wrappergroup => {
+		type => "string",
+		example => "ikiwiki",
+		description => "group for wrappers to run in",
 		advanced => 1,
 		safe => 0, # paranoia
 		rebuild => 0,
@@ -381,6 +389,13 @@ sub getsetup () { #{{{
 		safe => 0,
 		rebuild => 0,
 	},
+	test_receive => {
+		type => "internal",
+		default => 0,
+		description => "running in receive test mode",
+		safe => 0,
+		rebuild => 0,
+	},
 	getctime => {
 		type => "internal",
 		default => 0,
@@ -395,6 +410,13 @@ sub getsetup () { #{{{
 		safe => 0,
 		rebuild => 0,
 	},
+	wikistatedir => {
+		type => "internal",
+		default => undef,
+		description => "path to the .ikiwiki directory holding ikiwiki state",
+		safe => 0,
+		rebuild => 0,
+	},
 	setupfile => {
 		type => "internal",
 		default => undef,
@@ -403,15 +425,15 @@ sub getsetup () { #{{{
 		rebuild => 0,
 	},
 	allow_symlinks_before_srcdir => {
-		type => "string",
+		type => "boolean",
 		default => 0,
 		description => "allow symlinks in the path leading to the srcdir (potentially insecure)",
 		safe => 0,
 		rebuild => 0,
 	},
-} #}}}
+}
 
-sub defaultconfig () { #{{{
+sub defaultconfig () {
 	my %s=getsetup();
 	my @ret;
 	foreach my $key (keys %s) {
@@ -419,9 +441,9 @@ sub defaultconfig () { #{{{
 	}
 	use Data::Dumper;
 	return @ret;
-} #}}}
+}
 
-sub checkconfig () { #{{{
+sub checkconfig () {
 	# locale stuff; avoid LC_ALL since it overrides everything
 	if (defined $ENV{LC_ALL}) {
 		$ENV{LANG} = $ENV{LC_ALL};
@@ -459,7 +481,7 @@ sub checkconfig () { #{{{
 	}
 	
 	$config{wikistatedir}="$config{srcdir}/.ikiwiki"
-		unless exists $config{wikistatedir};
+		unless exists $config{wikistatedir} && defined $config{wikistatedir};
 
 	if (defined $config{umask}) {
 		umask(possibly_foolish_untaint($config{umask}));
@@ -468,9 +490,9 @@ sub checkconfig () { #{{{
 	run_hooks(checkconfig => sub { shift->() });
 
 	return 1;
-} #}}}
+}
 
-sub listplugins () { #{{{
+sub listplugins () {
 	my %ret;
 
 	foreach my $dir (@INC, $config{libdir}) {
@@ -488,9 +510,9 @@ sub listplugins () { #{{{
 	}
 
 	return keys %ret;
-} #}}}
+}
 
-sub loadplugins () { #{{{
+sub loadplugins () {
 	if (defined $config{libdir} && length $config{libdir}) {
 		unshift @INC, possibly_foolish_untaint($config{libdir});
 	}
@@ -511,15 +533,15 @@ sub loadplugins () { #{{{
 
 	run_hooks(getopt => sub { shift->() });
 	if (grep /^-/, @ARGV) {
-		print STDERR "Unknown option: $_\n"
+		print STDERR "Unknown option (or missing parameter): $_\n"
 			foreach grep /^-/, @ARGV;
 		usage();
 	}
 
 	return 1;
-} #}}}
+}
 
-sub loadplugin ($) { #{{{
+sub loadplugin ($) {
 	my $plugin=shift;
 
 	return if grep { $_ eq $plugin} @{$config{disable_plugins}};
@@ -545,9 +567,9 @@ sub loadplugin ($) { #{{{
 	}
 	$loaded_plugins{$plugin}=1;
 	return 1;
-} #}}}
+}
 
-sub error ($;$) { #{{{
+sub error ($;$) {
 	my $message=shift;
 	my $cleaner=shift;
 	log_message('err' => $message) if $config{syslog};
@@ -555,15 +577,15 @@ sub error ($;$) { #{{{
 		$cleaner->();
 	}
 	die $message."\n";
-} #}}}
+}
 
-sub debug ($) { #{{{
+sub debug ($) {
 	return unless $config{verbose};
 	return log_message(debug => @_);
-} #}}}
+}
 
 my $log_open=0;
-sub log_message ($$) { #{{{
+sub log_message ($$) {
 	my $type=shift;
 
 	if ($config{syslog}) {
@@ -583,56 +605,63 @@ sub log_message ($$) { #{{{
 	else {
 		return print STDERR "@_\n";
 	}
-} #}}}
+}
 
-sub possibly_foolish_untaint ($) { #{{{
+sub possibly_foolish_untaint ($) {
 	my $tainted=shift;
 	my ($untainted)=$tainted=~/(.*)/s;
 	return $untainted;
-} #}}}
+}
 
-sub basename ($) { #{{{
+sub basename ($) {
 	my $file=shift;
 
 	$file=~s!.*/+!!;
 	return $file;
-} #}}}
+}
 
-sub dirname ($) { #{{{
+sub dirname ($) {
 	my $file=shift;
 
 	$file=~s!/*[^/]+$!!;
 	return $file;
-} #}}}
+}
 
-sub pagetype ($) { #{{{
-	my $page=shift;
-	
-	if ($page =~ /\.([^.]+)$/) {
-		return $1 if exists $hooks{htmlize}{$1};
-	}
-	return;
-} #}}}
-
-sub isinternal ($) { #{{{
+sub isinternal ($) {
 	my $page=shift;
 	return exists $pagesources{$page} &&
 		$pagesources{$page} =~ /\._([^.]+)$/;
-} #}}}
+}
 
-sub pagename ($) { #{{{
+sub pagetype ($) {
+	my $file=shift;
+	
+	if ($file =~ /\.([^.]+)$/) {
+		return $1 if exists $hooks{htmlize}{$1};
+	}
+	my $base=basename($file);
+	if (exists $hooks{htmlize}{$base} &&
+	    $hooks{htmlize}{$base}{noextension}) {
+		return $base;
+	}
+	return;
+}
+
+sub pagename ($) {
 	my $file=shift;
 
 	my $type=pagetype($file);
 	my $page=$file;
-	$page=~s/\Q.$type\E*$// if defined $type && !$hooks{htmlize}{$type}{keepextension};
+ 	$page=~s/\Q.$type\E*$//
+		if defined $type && !$hooks{htmlize}{$type}{keepextension}
+			&& !$hooks{htmlize}{$type}{noextension};
 	if ($config{indexpages} && $page=~/(.*)\/index$/) {
 		$page=$1;
 	}
 	return $page;
-} #}}}
+}
 
-sub newpagefile ($$) { #{{{
+sub newpagefile ($$) {
 	my $page=shift;
 	my $type=shift;
 
@@ -642,27 +671,31 @@ sub newpagefile ($$) { #{{{
 	else {
 		return $page."/index.".$type;
 	}
-} #}}}
+}
 
-sub targetpage ($$) { #{{{
+sub targetpage ($$;$) {
 	my $page=shift;
 	my $ext=shift;
+	my $filename=shift;
 	
-	if (! $config{usedirs} || $page eq 'index') {
+	if (defined $filename) {
+		return $page."/".$filename.".".$ext;
+	}
+	elsif (! $config{usedirs} || $page eq 'index') {
 		return $page.".".$ext;
 	}
 	else {
 		return $page."/index.".$ext;
 	}
-} #}}}
+}
 
-sub htmlpage ($) { #{{{
+sub htmlpage ($) {
 	my $page=shift;
 	
 	return targetpage($page, $config{htmlext});
-} #}}}
+}
 
-sub srcfile_stat { #{{{
+sub srcfile_stat {
 	my $file=shift;
 	my $nothrow=shift;
 
@@ -672,26 +705,27 @@ sub srcfile_stat { #{{{
 	}
 	error("internal error: $file cannot be found in $config{srcdir} or underlay") unless $nothrow;
 	return;
-} #}}}
+}
 
-sub srcfile ($;$) { #{{{
+sub srcfile ($;$) {
 	return (srcfile_stat(@_))[0];
-} #}}}
+}
 
-sub add_underlay ($) { #{{{
+sub add_underlay ($) {
 	my $dir=shift;
 
-	if ($dir=~/^\//) {
-		unshift @{$config{underlaydirs}}, $dir;
+	if ($dir !~ /^\//) {
+		$dir="$config{underlaydir}/../$dir";
 	}
-	else {
-		unshift @{$config{underlaydirs}}, "$config{underlaydir}/../$dir";
+
+	if (! grep { $_ eq $dir } @{$config{underlaydirs}}) {
+		unshift @{$config{underlaydirs}}, $dir;
 	}
 
 	return 1;
-} #}}}
+}
 
-sub readfile ($;$$) { #{{{
+sub readfile ($;$$) {
 	my $file=shift;
 	my $binary=shift;
 	my $wantfd=shift;
@@ -705,11 +739,15 @@ sub readfile ($;$$) { #{{{
 	binmode($in) if ($binary);
 	return \*$in if $wantfd;
 	my $ret=<$in>;
+	# check for invalid utf-8, and toss it back to avoid crashes
+	if (! utf8::valid($ret)) {
+		$ret=encode_utf8($ret);
+	}
 	close $in || error("failed to read $file: $!");
 	return $ret;
-} #}}}
+}
 
-sub prep_writefile ($$) { #{{{
+sub prep_writefile ($$) {
 	my $file=shift;
 	my $destdir=shift;
 	
@@ -733,9 +771,9 @@ sub prep_writefile ($$) { #{{{
 	}
 
 	return 1;
-} #}}}
+}
 
-sub writefile ($$$;$$) { #{{{
+sub writefile ($$$;$$) {
 	my $file=shift; # can include subdirs
 	my $destdir=shift; # directory to put file in
 	my $content=shift;
@@ -763,10 +801,10 @@ sub writefile ($$$;$$) { #{{{
 		error("failed renaming $newfile to $destdir/$file: $!", $cleanup);
 
 	return 1;
-} #}}}
+}
 
 my %cleared;
-sub will_render ($$;$) { #{{{
+sub will_render ($$;$) {
 	my $page=shift;
 	my $dest=shift;
 	my $clear=shift;
@@ -790,9 +828,9 @@ sub will_render ($$;$) { #{{{
 	$destsources{$dest}=$page;
 
 	return 1;
-} #}}}
+}
 
-sub bestlink ($$) { #{{{
+sub bestlink ($$) {
 	my $page=shift;
 	my $link=shift;
 	
@@ -828,15 +866,15 @@ sub bestlink ($$) { #{{{
 
 	#print STDERR "warning: page $page, broken link: $link\n";
 	return "";
-} #}}}
+}
 
-sub isinlinableimage ($) { #{{{
+sub isinlinableimage ($) {
 	my $file=shift;
 	
 	return $file =~ /\.(png|gif|jpg|jpeg)$/i;
-} #}}}
+}
 
-sub pagetitle ($;$) { #{{{
+sub pagetitle ($;$) {
 	my $page=shift;
 	my $unescaped=shift;
 
@@ -848,31 +886,31 @@ sub pagetitle ($;$) { #{{{
 	}
 
 	return $page;
-} #}}}
+}
 
-sub titlepage ($) { #{{{
+sub titlepage ($) {
 	my $title=shift;
 	# support use w/o %config set
 	my $chars = defined $config{wiki_file_chars} ? $config{wiki_file_chars} : "-[:alnum:]+/.:_";
 	$title=~s/([^$chars]|_)/$1 eq ' ' ? '_' : "__".ord($1)."__"/eg;
 	return $title;
-} #}}}
+}
 
-sub linkpage ($) { #{{{
+sub linkpage ($) {
 	my $link=shift;
 	my $chars = defined $config{wiki_file_chars} ? $config{wiki_file_chars} : "-[:alnum:]+/.:_";
 	$link=~s/([^$chars])/$1 eq ' ' ? '_' : "__".ord($1)."__"/eg;
 	return $link;
-} #}}}
+}
 
-sub cgiurl (@) { #{{{
+sub cgiurl (@) {
 	my %params=@_;
 
 	return $config{cgiurl}."?".
 		join("&amp;", map $_."=".uri_escape_utf8($params{$_}), keys %params);
-} #}}}
+}
 
-sub baseurl (;$) { #{{{
+sub baseurl (;$) {
 	my $page=shift;
 
 	return "$config{url}/" if ! defined $page;
@@ -881,9 +919,9 @@ sub baseurl (;$) { #{{{
 	$page=~s/[^\/]+$//;
 	$page=~s/[^\/]+\//..\//g;
 	return $page;
-} #}}}
+}
 
-sub abs2rel ($$) { #{{{
+sub abs2rel ($$) {
 	# Work around very innefficient behavior in File::Spec if abs2rel
 	# is passed two relative paths. It's much faster if paths are
 	# absolute! (Debian bug #376658; fixed in debian unstable now)
@@ -894,9 +932,16 @@ sub abs2rel ($$) { #{{{
 	my $ret=File::Spec->abs2rel($path, $base);
 	$ret=~s/^// if defined $ret;
 	return $ret;
-} #}}}
+}
 
-sub displaytime ($;$) { #{{{
+sub displaytime ($;$) {
+	# Plugins can override this function to mark up the time to
+	# display.
+	return '<span class="date">'.formattime(@_).'</span>';
+}
+
+sub formattime ($;$) {
+	# Plugins can override this function to format the time.
 	my $time=shift;
 	my $format=shift;
 	if (! defined $format) {
@@ -906,25 +951,25 @@ sub displaytime ($;$) { #{{{
 	# strftime doesn't know about encodings, so make sure
 	# its output is properly treated as utf8
 	return decode_utf8(POSIX::strftime($format, localtime($time)));
-} #}}}
+}
 
-sub beautify_urlpath ($) { #{{{
+sub beautify_urlpath ($) {
 	my $url=shift;
+
+	# Ensure url is not an empty link, and if necessary,
+	# add ./ to avoid colon confusion.
+	if ($url !~ /^\// && $url !~ /^\.\.?\//) {
+		$url="./$url";
+	}
 
 	if ($config{usedirs}) {
 		$url =~ s!/index.$config{htmlext}$!/!;
 	}
 
-	# Ensure url is not an empty link, and
-	# if it's relative, make that explicit to avoid colon confusion.
-	if ($url !~ /^\//) {
-		$url="./$url";
-	}
-
 	return $url;
-} #}}}
+}
 
-sub urlto ($$;$) { #{{{
+sub urlto ($$;$) {
 	my $to=shift;
 	my $from=shift;
 	my $absolute=shift;
@@ -944,9 +989,9 @@ sub urlto ($$;$) { #{{{
 	my $link = abs2rel($to, dirname(htmlpage($from)));
 
 	return beautify_urlpath($link);
-} #}}}
+}
 
-sub htmllink ($$$;@) { #{{{
+sub htmllink ($$$;@) {
 	my $lpage=shift; # the page doing the linking
 	my $page=shift; # the page that will contain the link (different for inline)
 	my $link=shift;
@@ -1009,9 +1054,9 @@ sub htmllink ($$$;@) { #{{{
 	}
 
 	return "<a href=\"$bestlink\"@attrs>$linktext</a>";
-} #}}}
+}
 
-sub userlink ($) { #{{{
+sub userlink ($) {
 	my $user=shift;
 
 	my $oiduser=eval { openiduser($user) };
@@ -1026,9 +1071,9 @@ sub userlink ($) { #{{{
 			length $config{userdir} ? $config{userdir}."/".$user : $user
 		), noimageinline => 1);
 	}
-} #}}}
+}
 
-sub htmlize ($$$$) { #{{{
+sub htmlize ($$$$) {
 	my $page=shift;
 	my $destpage=shift;
 	my $type=shift;
@@ -1063,9 +1108,9 @@ sub htmlize ($$$$) { #{{{
 	}
 
 	return $content;
-} #}}}
+}
 
-sub linkify ($$$) { #{{{
+sub linkify ($$$) {
 	my $page=shift;
 	my $destpage=shift;
 	my $content=shift;
@@ -1079,11 +1124,11 @@ sub linkify ($$$) { #{{{
 	});
 	
 	return $content;
-} #}}}
+}
 
 our %preprocessing;
 our $preprocess_preview=0;
-sub preprocess ($$$;$$) { #{{{
+sub preprocess ($$$;$$) {
 	my $page=shift; # the page the data comes from
 	my $destpage=shift; # the page the data will appear in (different for inline)
 	my $content=shift;
@@ -1236,9 +1281,9 @@ sub preprocess ($$$;$$) { #{{{
 
 	$content =~ s{$regex}{$handle->($1, $2, $3, $4)}eg;
 	return $content;
-} #}}}
+}
 
-sub filter ($$$) { #{{{
+sub filter ($$$) {
 	my $page=shift;
 	my $destpage=shift;
 	my $content=shift;
@@ -1249,16 +1294,79 @@ sub filter ($$$) { #{{{
 	});
 
 	return $content;
-} #}}}
+}
 
-sub indexlink () { #{{{
+sub indexlink () {
 	return "<a href=\"$config{url}\">$config{wikiname}</a>";
-} #}}}
+}
+
+sub check_canedit ($$$;$) {
+	my $page=shift;
+	my $q=shift;
+	my $session=shift;
+	my $nonfatal=shift;
+	
+	my $canedit;
+	run_hooks(canedit => sub {
+		return if defined $canedit;
+		my $ret=shift->($page, $q, $session);
+		if (defined $ret) {
+			if ($ret eq "") {
+				$canedit=1;
+			}
+			elsif (ref $ret eq 'CODE') {
+				$ret->() unless $nonfatal;
+				$canedit=0;
+			}
+			elsif (defined $ret) {
+				error($ret) unless $nonfatal;
+				$canedit=0;
+			}
+		}
+	});
+	return defined $canedit ? $canedit : 1;
+}
+
+sub check_content (@) {
+	my %params=@_;
+	
+	return 1 if ! exists $hooks{checkcontent}; # optimisation
+
+	if (exists $pagesources{$params{page}}) {
+		my @diff;
+		my %old=map { $_ => 1 }
+		        split("\n", readfile(srcfile($pagesources{$params{page}})));
+		foreach my $line (split("\n", $params{content})) {
+			push @diff, $line if ! exists $old{$_};
+		}
+		$params{content}=join("\n", @diff);
+	}
+
+	my $ok;
+	run_hooks(checkcontent => sub {
+		return if defined $ok;
+		my $ret=shift->(%params);
+		if (defined $ret) {
+			if ($ret eq "") {
+				$ok=1;
+			}
+			elsif (ref $ret eq 'CODE') {
+				$ret->() unless $params{nonfatal};
+				$ok=0;
+			}
+			elsif (defined $ret) {
+				error($ret) unless $params{nonfatal};
+				$ok=0;
+			}
+		}
+
+	});
+	return defined $ok ? $ok : 1;
+}
 
 my $wikilock;
 
-sub lockwiki (;$) { #{{{
-	my $wait=@_ ? shift : 1;
+sub lockwiki () {
 	# Take an exclusive lock on the wiki to prevent multiple concurrent
 	# run issues. The lock will be dropped on program exit.
 	if (! -d $config{wikistatedir}) {
@@ -1266,32 +1374,21 @@ sub lockwiki (;$) { #{{{
 	}
 	open($wikilock, '>', "$config{wikistatedir}/lockfile") ||
 		error ("cannot write to $config{wikistatedir}/lockfile: $!");
-	if (! flock($wikilock, 2 | 4)) { # LOCK_EX | LOCK_NB
-		if ($wait) {
-			debug("wiki seems to be locked, waiting for lock");
-			my $wait=600; # arbitrary, but don't hang forever to 
-			              # prevent process pileup
-			for (1..$wait) {
-				return if flock($wikilock, 2 | 4);
-				sleep 1;
-			}
-			error("wiki is locked; waited $wait seconds without lock being freed (possible stuck process or stale lock?)");
-		}
-		else {
-			return 0;
-		}
+	if (! flock($wikilock, 2)) { # LOCK_EX
+		error("failed to get lock");
 	}
 	return 1;
-} #}}}
+}
 
-sub unlockwiki () { #{{{
+sub unlockwiki () {
+	POSIX::close($ENV{IKIWIKI_CGILOCK_FD}) if exists $ENV{IKIWIKI_CGILOCK_FD};
 	return close($wikilock) if $wikilock;
 	return;
-} #}}}
+}
 
 my $commitlock;
 
-sub commit_hook_enabled () { #{{{
+sub commit_hook_enabled () {
 	open($commitlock, '+>', "$config{wikistatedir}/commitlock") ||
 		error("cannot write to $config{wikistatedir}/commitlock: $!");
 	if (! flock($commitlock, 1 | 4)) { # LOCK_SH | LOCK_NB to test
@@ -1300,23 +1397,23 @@ sub commit_hook_enabled () { #{{{
 	}
 	close($commitlock) || error("failed closing commitlock: $!");
 	return 1;
-} #}}}
+}
 
-sub disable_commit_hook () { #{{{
+sub disable_commit_hook () {
 	open($commitlock, '>', "$config{wikistatedir}/commitlock") ||
 		error("cannot write to $config{wikistatedir}/commitlock: $!");
 	if (! flock($commitlock, 2)) { # LOCK_EX
 		error("failed to get commit lock");
 	}
 	return 1;
-} #}}}
+}
 
-sub enable_commit_hook () { #{{{
+sub enable_commit_hook () {
 	return close($commitlock) if $commitlock;
 	return;
-} #}}}
+}
 
-sub loadindex () { #{{{
+sub loadindex () {
 	%oldrenderedfiles=%pagectime=();
 	if (! $config{rebuild}) {
 		%pagesources=%pagemtime=%oldlinks=%links=%depends=
@@ -1376,9 +1473,9 @@ sub loadindex () { #{{{
 		$destsources{$_}=$page foreach @{$renderedfiles{$page}};
 	}
 	return close($in);
-} #}}}
+}
 
-sub saveindex () { #{{{
+sub saveindex () {
 	run_hooks(savestate => sub { shift->() });
 
 	my %hookids;
@@ -1434,18 +1531,18 @@ sub saveindex () { #{{{
 		error("failed renaming $newfile to $config{wikistatedir}/indexdb", $cleanup);
 	
 	return 1;
-} #}}}
+}
 
-sub template_file ($) { #{{{
+sub template_file ($) {
 	my $template=shift;
 
 	foreach my $dir ($config{templatedir}, "$installdir/share/ikiwiki/templates") {
 		return "$dir/$template" if -e "$dir/$template";
 	}
 	return;
-} #}}}
+}
 
-sub template_params (@) { #{{{
+sub template_params (@) {
 	my $filename=template_file(shift);
 
 	if (! defined $filename) {
@@ -1464,14 +1561,14 @@ sub template_params (@) { #{{{
 		@_
 	);
 	return wantarray ? @ret : {@ret};
-} #}}}
+}
 
-sub template ($;@) { #{{{
+sub template ($;@) {
 	require HTML::Template;
 	return HTML::Template->new(template_params(@_));
-} #}}}
+}
 
-sub misctemplate ($$;@) { #{{{
+sub misctemplate ($$;@) {
 	my $title=shift;
 	my $pagebody=shift;
 	
@@ -1488,9 +1585,9 @@ sub misctemplate ($$;@) { #{{{
 		shift->(page => "", destpage => "", template => $template);
 	});
 	return $template->output;
-}#}}}
+}
 
-sub hook (@) { # {{{
+sub hook (@) {
 	my %param=@_;
 	
 	if (! exists $param{type} || ! ref $param{call} || ! exists $param{id}) {
@@ -1501,109 +1598,86 @@ sub hook (@) { # {{{
 	
 	$hooks{$param{type}}{$param{id}}=\%param;
 	return 1;
-} # }}}
+}
 
-sub run_hooks ($$) { # {{{
+sub run_hooks ($$) {
 	# Calls the given sub for each hook of the given type,
 	# passing it the hook function to call.
 	my $type=shift;
 	my $sub=shift;
 
 	if (exists $hooks{$type}) {
-		my @deferred;
+		my (@first, @middle, @last);
 		foreach my $id (keys %{$hooks{$type}}) {
-			if ($hooks{$type}{$id}{last}) {
-				push @deferred, $id;
-				next;
+			if ($hooks{$type}{$id}{first}) {
+				push @first, $id;
 			}
-			$sub->($hooks{$type}{$id}{call});
+			elsif ($hooks{$type}{$id}{last}) {
+				push @last, $id;
+			}
+			else {
+				push @middle, $id;
+			}
 		}
-		foreach my $id (@deferred) {
+		foreach my $id (@first, @middle, @last) {
 			$sub->($hooks{$type}{$id}{call});
 		}
 	}
 
 	return 1;
-} #}}}
+}
 
-sub rcs_update () { #{{{
+sub rcs_update () {
 	$hooks{rcs}{rcs_update}{call}->(@_);
-} #}}}
+}
 
-sub rcs_prepedit ($) { #{{{
+sub rcs_prepedit ($) {
 	$hooks{rcs}{rcs_prepedit}{call}->(@_);
-} #}}}
+}
 
-sub rcs_commit ($$$;$$) { #{{{
+sub rcs_commit ($$$;$$) {
 	$hooks{rcs}{rcs_commit}{call}->(@_);
-} #}}}
+}
 
-sub rcs_commit_staged ($$$) { #{{{
+sub rcs_commit_staged ($$$) {
 	$hooks{rcs}{rcs_commit_staged}{call}->(@_);
-} #}}}
+}
 
-sub rcs_add ($) { #{{{
+sub rcs_add ($) {
 	$hooks{rcs}{rcs_add}{call}->(@_);
-} #}}}
+}
 
-sub rcs_remove ($) { #{{{
+sub rcs_remove ($) {
 	$hooks{rcs}{rcs_remove}{call}->(@_);
-} #}}}
+}
 
-sub rcs_rename ($$) { #{{{
+sub rcs_rename ($$) {
 	$hooks{rcs}{rcs_rename}{call}->(@_);
-} #}}}
+}
 
-sub rcs_recentchanges ($) { #{{{
+sub rcs_recentchanges ($) {
 	$hooks{rcs}{rcs_recentchanges}{call}->(@_);
-} #}}}
+}
 
-sub rcs_diff ($) { #{{{
+sub rcs_diff ($) {
 	$hooks{rcs}{rcs_diff}{call}->(@_);
-} #}}}
+}
 
-sub rcs_getctime ($) { #{{{
+sub rcs_getctime ($) {
 	$hooks{rcs}{rcs_getctime}{call}->(@_);
-} #}}}
+}
 
-sub globlist_to_pagespec ($) { #{{{
-	my @globlist=split(' ', shift);
+sub rcs_receive () {
+	$hooks{rcs}{rcs_receive}{call}->();
+}
 
-	my (@spec, @skip);
-	foreach my $glob (@globlist) {
-		if ($glob=~/^!(.*)/) {
-			push @skip, $glob;
-		}
-		else {
-			push @spec, $glob;
-		}
-	}
-
-	my $spec=join(' or ', @spec);
-	if (@skip) {
-		my $skip=join(' and ', @skip);
-		if (length $spec) {
-			$spec="$skip and ($spec)";
-		}
-		else {
-			$spec=$skip;
-		}
-	}
-	return $spec;
-} #}}}
-
-sub is_globlist ($) { #{{{
-	my $s=shift;
-	return ( $s =~ /[^\s]+\s+([^\s]+)/ && $1 ne "and" && $1 ne "or" );
-} #}}}
-
-sub safequote ($) { #{{{
+sub safequote ($) {
 	my $s=shift;
 	$s=~s/[{}]//g;
 	return "q{$s}";
-} #}}}
+}
 
-sub add_depends ($$) { #{{{
+sub add_depends ($$) {
 	my $page=shift;
 	my $pagespec=shift;
 	
@@ -1617,9 +1691,9 @@ sub add_depends ($$) { #{{{
 	}
 
 	return 1;
-} # }}}
+}
 
-sub file_pruned ($$) { #{{{
+sub file_pruned ($$) {
 	require File::Spec;
 	my $file=File::Spec->canonpath(shift);
 	my $base=File::Spec->canonpath(shift);
@@ -1627,9 +1701,9 @@ sub file_pruned ($$) { #{{{
 
 	my $regexp='('.join('|', @{$config{wiki_file_prune_regexps}}).')';
 	return $file =~ m/$regexp/ && $file ne $base;
-} #}}}
+}
 
-sub gettext { #{{{
+sub gettext {
 	# Only use gettext in the rare cases it's needed.
 	if ((exists $ENV{LANG} && length $ENV{LANG}) ||
 	    (exists $ENV{LC_ALL} && length $ENV{LC_ALL}) ||
@@ -1650,38 +1724,49 @@ sub gettext { #{{{
 	else {
 		return shift;
 	}
-} #}}}
+}
 
-sub yesno ($) { #{{{
+sub yesno ($) {
 	my $val=shift;
 
-	return (defined $val && lc($val) eq gettext("yes"));
-} #}}}
+	return (defined $val && (lc($val) eq gettext("yes") || lc($val) eq "yes" || $val eq "1"));
+}
 
-sub pagespec_merge ($$) { #{{{
+sub inject {
+	# Injects a new function into the symbol table to replace an
+	# exported function.
+	my %params=@_;
+
+	# This is deep ugly perl foo, beware.
+	no strict;
+	no warnings;
+	if (! defined $params{parent}) {
+		$params{parent}='::';
+		$params{old}=\&{$params{name}};
+		$params{name}=~s/.*:://;
+	}
+	my $parent=$params{parent};
+	foreach my $ns (grep /^\w+::/, keys %{$parent}) {
+		$ns = $params{parent} . $ns;
+		inject(%params, parent => $ns) unless $ns eq '::main::';
+		*{$ns . $params{name}} = $params{call}
+			if exists ${$ns}{$params{name}} &&
+			   \&{${$ns}{$params{name}}} == $params{old};
+	}
+	use strict;
+	use warnings;
+}
+
+sub pagespec_merge ($$) {
 	my $a=shift;
 	my $b=shift;
 
 	return $a if $a eq $b;
-
-        # Support for old-style GlobLists.
-        if (is_globlist($a)) {
-                $a=globlist_to_pagespec($a);
-        }
-        if (is_globlist($b)) {
-                $b=globlist_to_pagespec($b);
-        }
-
 	return "($a) or ($b)";
-} #}}}
+}
 
-sub pagespec_translate ($) { #{{{
+sub pagespec_translate ($) {
 	my $spec=shift;
-
-	# Support for old-style GlobLists.
-	if (is_globlist($spec)) {
-		$spec=globlist_to_pagespec($spec);
-	}
 
 	# Convert spec to perl code.
 	my $code="";
@@ -1715,7 +1800,7 @@ sub pagespec_translate ($) { #{{{
 				$code.="IkiWiki::PageSpec::match_$1(\$page, ".safequote($2).", \@_)";
 			}
 			else {
-				$code.=' 0';
+				$code.="IkiWiki::FailReason->new(".safequote(qq{unknown function in pagespec "$word"}).")";
 			}
 		}
 		else {
@@ -1724,14 +1809,14 @@ sub pagespec_translate ($) { #{{{
 	}
 
 	if (! length $code) {
-		$code=0;
+		$code="IkiWiki::FailReason->new('empty pagespec')";
 	}
 
 	no warnings;
 	return eval 'sub { my $page=shift; '.$code.' }';
-} #}}}
+}
 
-sub pagespec_match ($$;@) { #{{{
+sub pagespec_match ($$;@) {
 	my $page=shift;
 	my $spec=shift;
 	my @params=@_;
@@ -1742,69 +1827,76 @@ sub pagespec_match ($$;@) { #{{{
 	}
 
 	my $sub=pagespec_translate($spec);
-	return IkiWiki::FailReason->new("syntax error in pagespec \"$spec\"") if $@;
+	return IkiWiki::FailReason->new("syntax error in pagespec \"$spec\"")
+		if $@ || ! defined $sub;
 	return $sub->($page, @params);
-} #}}}
+}
 
-sub pagespec_valid ($) { #{{{
+sub pagespec_valid ($) {
 	my $spec=shift;
 
 	my $sub=pagespec_translate($spec);
 	return ! $@;
-} #}}}
-	
-sub glob2re ($) { #{{{
+}
+
+sub glob2re ($) {
 	my $re=quotemeta(shift);
 	$re=~s/\\\*/.*/g;
 	$re=~s/\\\?/./g;
 	return $re;
-} #}}}
+}
 
 package IkiWiki::FailReason;
 
-use overload ( #{{{
+use overload (
 	'""'	=> sub { ${$_[0]} },
 	'0+'	=> sub { 0 },
 	'!'	=> sub { bless $_[0], 'IkiWiki::SuccessReason'},
 	fallback => 1,
-); #}}}
+);
 
-sub new { #{{{
+sub new {
 	my $class = shift;
 	my $value = shift;
 	return bless \$value, $class;
-} #}}}
+}
 
 package IkiWiki::SuccessReason;
 
-use overload ( #{{{
+use overload (
 	'""'	=> sub { ${$_[0]} },
 	'0+'	=> sub { 1 },
 	'!'	=> sub { bless $_[0], 'IkiWiki::FailReason'},
 	fallback => 1,
-); #}}}
+);
 
-sub new { #{{{
+sub new {
 	my $class = shift;
 	my $value = shift;
 	return bless \$value, $class;
-}; #}}}
+};
 
 package IkiWiki::PageSpec;
 
-sub match_glob ($$;@) { #{{{
+sub derel ($$) {
+	my $path=shift;
+	my $from=shift;
+
+	if ($path =~ m!^\./!) {
+		$from=~s#/?[^/]+$## if defined $from;
+		$path=~s#^\./##;
+		$path="$from/$path" if length $from;
+	}
+
+	return $path;
+}
+
+sub match_glob ($$;@) {
 	my $page=shift;
 	my $glob=shift;
 	my %params=@_;
 	
-	my $from=exists $params{location} ? $params{location} : '';
-	
-	# relative matching
-	if ($glob =~ m!^\./!) {
-		$from=~s#/?[^/]+$##;
-		$glob=~s#^\./##;
-		$glob="$from/$glob" if length $from;
-	}
+	$glob=derel($glob, $params{location});
 
 	my $regexp=IkiWiki::glob2re($glob);
 	if ($page=~/^$regexp$/i) {
@@ -1818,25 +1910,19 @@ sub match_glob ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("$glob does not match $page");
 	}
-} #}}}
+}
 
-sub match_internal ($$;@) { #{{{
+sub match_internal ($$;@) {
 	return match_glob($_[0], $_[1], @_, internal => 1)
-} #}}}
+}
 
-sub match_link ($$;@) { #{{{
+sub match_link ($$;@) {
 	my $page=shift;
 	my $link=lc(shift);
 	my %params=@_;
 
+	$link=derel($link, $params{location});
 	my $from=exists $params{location} ? $params{location} : '';
-
-	# relative matching
-	if ($link =~ m!^\.! && defined $from) {
-		$from=~s#/?[^/]+$##;
-		$link=~s#^\./##;
-		$link="$from/$link" if length $from;
-	}
 
 	my $links = $IkiWiki::links{$page};
 	return IkiWiki::FailReason->new("$page has no links") unless $links && @{$links};
@@ -1849,18 +1935,25 @@ sub match_link ($$;@) { #{{{
 		else {
 			return IkiWiki::SuccessReason->new("$page links to page $p matching $link")
 				if match_glob($p, $link, %params);
+			$p=~s/^\///;
+			$link=~s/^\///;
+			return IkiWiki::SuccessReason->new("$page links to page $p matching $link")
+				if match_glob($p, $link, %params);
 		}
 	}
 	return IkiWiki::FailReason->new("$page does not link to $link");
-} #}}}
+}
 
-sub match_backlink ($$;@) { #{{{
+sub match_backlink ($$;@) {
 	return match_link($_[1], $_[0], @_);
-} #}}}
+}
 
-sub match_created_before ($$;@) { #{{{
+sub match_created_before ($$;@) {
 	my $page=shift;
 	my $testpage=shift;
+	my %params=@_;
+	
+	$testpage=derel($testpage, $params{location});
 
 	if (exists $IkiWiki::pagectime{$testpage}) {
 		if ($IkiWiki::pagectime{$page} < $IkiWiki::pagectime{$testpage}) {
@@ -1873,11 +1966,14 @@ sub match_created_before ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("$testpage has no ctime");
 	}
-} #}}}
+}
 
-sub match_created_after ($$;@) { #{{{
+sub match_created_after ($$;@) {
 	my $page=shift;
 	my $testpage=shift;
+	my %params=@_;
+	
+	$testpage=derel($testpage, $params{location});
 
 	if (exists $IkiWiki::pagectime{$testpage}) {
 		if ($IkiWiki::pagectime{$page} > $IkiWiki::pagectime{$testpage}) {
@@ -1890,36 +1986,36 @@ sub match_created_after ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("$testpage has no ctime");
 	}
-} #}}}
+}
 
-sub match_creation_day ($$;@) { #{{{
+sub match_creation_day ($$;@) {
 	if ((gmtime($IkiWiki::pagectime{shift()}))[3] == shift) {
 		return IkiWiki::SuccessReason->new('creation_day matched');
 	}
 	else {
 		return IkiWiki::FailReason->new('creation_day did not match');
 	}
-} #}}}
+}
 
-sub match_creation_month ($$;@) { #{{{
+sub match_creation_month ($$;@) {
 	if ((gmtime($IkiWiki::pagectime{shift()}))[4] + 1 == shift) {
 		return IkiWiki::SuccessReason->new('creation_month matched');
 	}
 	else {
 		return IkiWiki::FailReason->new('creation_month did not match');
 	}
-} #}}}
+}
 
-sub match_creation_year ($$;@) { #{{{
+sub match_creation_year ($$;@) {
 	if ((gmtime($IkiWiki::pagectime{shift()}))[5] + 1900 == shift) {
 		return IkiWiki::SuccessReason->new('creation_year matched');
 	}
 	else {
 		return IkiWiki::FailReason->new('creation_year did not match');
 	}
-} #}}}
+}
 
-sub match_user ($$;@) { #{{{
+sub match_user ($$;@) {
 	shift;
 	my $user=shift;
 	my %params=@_;
@@ -1937,9 +2033,9 @@ sub match_user ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("user is $params{user}, not $user");
 	}
-} #}}}
+}
 
-sub match_admin ($$;@) { #{{{
+sub match_admin ($$;@) {
 	shift;
 	shift;
 	my %params=@_;
@@ -1957,9 +2053,9 @@ sub match_admin ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("user is not an admin");
 	}
-} #}}}
+}
 
-sub match_ip ($$;@) { #{{{
+sub match_ip ($$;@) {
 	shift;
 	my $ip=shift;
 	my %params=@_;
@@ -1974,6 +2070,6 @@ sub match_ip ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("IP is $params{ip}, not $ip");
 	}
-} #}}}
+}
 
 1

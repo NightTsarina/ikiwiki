@@ -4,28 +4,28 @@ package IkiWiki::Plugin::httpauth;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "httpauth", call => \&getsetup);
 	hook(type => "auth", id => "httpauth", call => \&auth);
-} # }}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => 0,
 		},
-} #}}}
+}
 
-sub auth ($$) { #{{{
+sub auth ($$) {
 	my $cgi=shift;
 	my $session=shift;
 
 	if (defined $cgi->remote_user()) {
 		$session->param("name", $cgi->remote_user());
 	}
-} #}}}
+}
 
 1

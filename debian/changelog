@@ -1,4 +1,295 @@
-ikiwiki (2.67) UNRELEASED; urgency=low
+ikiwiki (3.09) unstable; urgency=low
+
+  * inline: Add title_natural sort order, using Sort::Naturally
+    (chrysn)
+  * inline: Fix urls to feed when feedfile is used on an index page.
+  * git, mercurial: Fix --getctime to return file creation time,
+    not last commit time.
+  * Updated French translation (Jean-Luc Coulon). Closes: #521072
+  * css: Add clear: both to inlinefooter.
+  * comments: Fix too loose test for comments pages that matched
+    normal pages with "comment_" in their name. Closes: #521322
+  * comments: Fix anchor ids to be legal xhtml. Closes: #521339
+  * Fix documentation of anonok_pagespec. Closes: #521793
+  * Add missing suggests on libtext-textile-perl. Closes: #522039
+  * recentchanges: change to using do=goto links for user links.
+  * Fix git test suite to use a bare repo.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 04 Apr 2009 14:33:49 -0400
+
+ikiwiki (3.08) unstable; urgency=low
+
+  * git: Fix utf-8 encoding of author names.
+  * git: Manually decode git output from utf-8, avoids
+    warning messages on invalidly encoded output.
+  * Fix bug that caused weird things to appear as page types.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 15 Mar 2009 17:54:47 -0400
+
+ikiwiki (3.07) unstable; urgency=low
+ 
+  * Updated German translation (Kai Wasserbäch). Closes: #518377
+  * Updated French translation (Jean-Luc Coulon). Closes: #518510
+  * wmd: New plugin contributed by William Uther to support the WMD
+    Wysiwym markdown editor.
+  * smiley: Avoid infinite loop in smiley expansion triggered
+    by the template scan mode change in version 3.05. Closes: #518805
+  * template: When loading a template in scan mode, let preprocess
+    know it only needs to scan.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 08 Mar 2009 19:00:46 -0400
+
+ikiwiki (3.06) unstable; urgency=low
+
+  * Setup automator: Fix bug in password comparison. Closes: #517654
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 01 Mar 2009 15:02:30 -0500
+
+ikiwiki (3.05) unstable; urgency=low
+
+  * debhelper v7(.0.50); rules file minimisation.
+  * template: Load templates in scan mode.
+    This is potentially expensive, but is necessary so that meta and tag
+    directives, and other links on templates affect the page using the
+    template reliably.
+  * goto: Fix redirect to comments.
+  * Add noextension parameter to htmlize hooks to support, eg, Makefile.
+  * Add tagged() PageSpec.
+  * Updated German translation (Kai Wasserbäch). Closes: #516770
+  * Setup automator: Prompt for password twice. Closes: #516973
+  * bzr: Add missing rcs_diff. (liw)
+  * comments: Avoid showing comment moderation button in prefs to non-admins.
+  * goto: Fix typo that broke recentchanges_link compatibility.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 27 Feb 2009 15:48:39 -0500
+
+ikiwiki (3.04) unstable; urgency=low
+
+  * 404: New plugin which lets you use the IkiWiki CGI script as
+    an Apache 404 handler, to give the behaviour of various other wiki
+    engines where visiting a nonexistent page provides you with a link
+    to create it. (smcv)
+  * Factor out redundant code into goto plugin. (smcv)
+  * Work around XML::Atom strangeness that results in double-encoded posts.
+    (smcv) 
+  * Fix unusual --setup --post-commit command line option combo.
+  * Create any missing directory necessary to put the wrapper
+    file into. Closes: #514384
+  * shortcut: If default_pageext is set, first look for
+    shortcuts.default_pageext.
+  * Allow comments, rename, remove, and attachment plugins to be used
+    even if the editpage plugin is disabled.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 14 Feb 2009 02:27:14 -0500
+
+ikiwiki (3.03) unstable; urgency=low
+
+  * Avoid feeding decoded unicode to Term::ReadLine. Closes: 512169
+  * blogspam: Log spam info on failure in debug mode.
+  * Remove nonstandard css. Closes: #512378
+  * blogspam: Fix use of blogspam_options and blogspam_server config settings.
+  * comments: If comment content checks fail, store the comment
+    (in .ikiwiki/comments_pending) for moderator review.
+  * comments: Add a moderation web interface, which admins can
+    access via their Preferences page.
+  * git: Fix malformed utf8 received from git.
+  * meta: New "updated" metadata specifies a fake modification time for a
+    page, to be output into RSS and Atom feeds. (smcv)
+  * underlay: New plugin, allows pulling in additional files not
+    in version control. (smcv) 
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 29 Jan 2009 14:36:58 -0500
+
+ikiwiki (3.02) unstable; urgency=low
+
+  * blogspam: New plugin, adding spam filtering for page editing / comment
+    posting using the BlogSpam.net API.
+  * Add auto-blog.setup, which will set up an ikiwiki instance tuned for use
+    in blogging.
+  * checkcontent: New hook, can be used to implement arbitrary content
+    filters, including spam filters.
+  * table: Fix misparsed links in external files.
+  * table: Find links in external files in scan pass.
+  * rename: Show full names of affected pages.
+  * comments: Fix cache avoidance hack.
+  * repolist: New plugin to support the rel=vcs-* microformat.
+  * goodstuff: Include repolist by default. (But it does nothing until
+    configured with the repository locations.)
+  * comments: Add support for removing comments via web interface. (smcv)
+  * Consistently allow use of relative paths in all PageSpecs
+    that take a page name parameter. Previously, match_created_before(),
+    match_created_after(), match_sourcepage(), and match_destpage()
+    did not support that, and the docs were not clear.
+  * pinger: Get whole url, don't just head, avoids problems on
+    the nostromo web server.
+  * Recommend libterm-readline-gnu-perl since that makes auto.setup
+    behave better.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 17 Jan 2009 18:19:39 -0500
+
+ikiwiki (3.01) unstable; urgency=low
+
+  * ikiwiki-makerepo: Fix injecting of empty mercurial and bzr repositories.
+    Closes: #510518
+  * Fix documentation about git hook to use right name. Closes: #510393
+  * yesno: Always accept English even when localised.
+  * yesno: Also accept 1 and 0 as input.
+  * A recent change to gitweb removed support for the form of diffurl 
+    that many ikiwiki setups use. Document how to use the new url form.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 05 Jan 2009 18:53:50 -0500
+
+ikiwiki (3.00) unstable; urgency=low
+
+  * Remove support for GlobLists.
+  * Remove support for configuring allowed attachments, locked pages,
+    and banned users from the admin preferences page. These can only be
+    controlled via the setup file now.
+  * ikiwiki-transition moveprefs can be used to move the above
+    admin preferences into a setup file.
+  * prefix_directives and aggregate_internal are now turned on by default.
+  * ikiwiki-transition prefix_directives syntax changed
+  * googlecalendar: removed this deprecated plugin. Use htmlscrubber_skip
+    instead.
+  * embed: This plugin is deprecated, use htmlscrubber_skip instead.
+    Closes: ##462970.
+  * Version 3.00 of the plugin API.
+  * Replace blank OpenID placeholder logo with an unofficial OpenID
+    logo developed by Anna Hess. The official logo does not seem destined to
+    be free.
+  * comments: Add cache avoidance.
+  * htmlbalance: Demand-load HTML::TreeBuilder to avoid failing test suite
+    if it is not present.
+  * French translation update from Philippe Batailler. Closes: #510216
+  * websetup: Avoid a crash when a new array setup item has been added in 
+    a new ikiwiki release, and is thus not present in the setup file yet.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 31 Dec 2008 15:17:47 -0500
+
+ikiwiki (2.72) unstable; urgency=low
+
+  * Avoid comments in recentchanges being broken links (smcv)
+  * Add deprecation warning for GlobLists, which will stop working in 3.0.
+  * camelcase: Add camelcase_ignore setting.
+  * googlecalendar: Add runtime deprecation warning.
+  * comments: Deal with users entering unqualified or partial urls.
+  * inline: Run format hook first, to ensure other format hooks can affect
+    inlined content.  Closes: #509710
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 28 Dec 2008 15:01:02 -0500
+
+ikiwiki (2.71) unstable; urgency=low
+
+  * comments: Blog-style comment support, contributed by Simon McVittie.
+  * htmlbalance: New plugin contributed by Simon McVittie.
+  * Change deb dependencies to list Text::Markdown before markdown (really
+    this time).
+  * Improve escaping of wikilinks and preprocessor directives in content
+    produced by aggregate and recentchanges.
+  * French translation update from Philippe Batailler. Closes: #506250
+  * Spanish translation update from Victor Moral.
+  * Fix handling of wrappergroup option.
+  * Correct --dumpsetup to include the srcdir in the setup file.
+  * German translation update from Kai Wasserbäch. Closes: #507056
+  * inline: Support emptyfeeds=no option to skip generating empty feeds.
+  * inline: Support feedfile option to change the filename of the feed
+    generated.
+  * meta: Pass info to htmlscrubber so htmlscrubber_skip can take effect.
+  * htmlbalance: don't compact whitespace, and set misc other options (smcv)
+  * rename: Fix double-escaping of page name in edit box.
+  * monotone: When getting the log, tell monotone how many entries
+    we want, rather than closing the pipe, which it dislikes. (thm)
+  * Coding style change: Remove explcit vim folding markers.
+  * aggregate: If a feed fails to be downloaded, try again immediatly
+    next time aggregation is run, even if the usual time has not passed.
+    Closes: #508622 (Michael Gold)
+  * meta: Process meta date during scan pass so that the date will always
+    affect sorting in inlines.
+  * Improve display of some openids (smcv)
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 21 Dec 2008 16:22:05 -0500
+
+ikiwiki (2.70) unstable; urgency=low
+
+  * Avoid crash on malformed utf-8 discovered by intrigeri.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 12 Nov 2008 17:45:58 -0500
+
+ikiwiki (2.69) unstable; urgency=low
+
+  * Avoid multiple ikiwiki cgi processes piling up, eating all memory,
+    and thrashing, by making the cgi wrapper wait on a cgilock.
+    If you had to set apache's MaxClients low to avoid ikiwiki thrashing your
+    server, you can now turn it up to a high value.
+  * Stop busy-waiting in lockwiki, as this could delay ikiwiki from waking up
+    for up to one second. The bailout code is no longer needed after above
+    change.
+  * Remove support for unused optional wait parameter from lockwiki.
+  * aggregate: Try to query XML::Feed for the base url when derelevatising
+    links. Since this needs the just released XML::Feed 0.3, as well 
+    as a not yet released XML::RSS, it will fall back to the old method
+    if no xml:base info is available.
+  * meta: Plugin is now enabled by default since the basewiki uses it.
+  * txt: Do not encode quotes when filtering the txt, as that broke
+    later parsing of any directives on the page.
+  * Fix the link() pagespec to match links that are internally recorded as
+    absolute.
+  * Add rel=nofollow to recentchanges_links for the same (weak) reasons it
+    was earlier added to edit links.
+  * tag: Normalize tagbase so leading/trailing slashes in it don't break
+    things.
+  * bzr: Fix dates for recentchanges.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 11 Nov 2008 20:35:55 -0500
+
+ikiwiki (2.68) unstable; urgency=low
+
+  * Add support for checking pushes from untrusted git committers. This can be
+    used to set up anonymous git pushes, and other similar things.
+  * format: New plugin, allows embedding differently formatted text inside a
+    page (ie, otl inside a mdwn page, or syntax highlighted code inside a
+    page).
+  * relativedate: New javascript-alicious plugin that makes all dates display
+    relative, in a very nice way, if I say so myself.
+  * Optimise the no-op post-commit hook, to speed up web edits by a fraction
+    of a second.
+  * git: Allow [[sha1_commit]] to be used in the diffurl, to support cgit.
+  * shortcut: Fix display of shortcuts while previewing.
+  * Plugins that used to override displaytime should instead override
+    formattime. displaytime will call that, and may wrap markup around the
+    formatted time.
+  * Add an underlay for javascript, and add ikiwiki.js containing some utility
+    code.
+  * toggle: Stop embedding the full toggle code on each page using it, and
+    move it to toggle.js in the javascript underlay.
+  * recentchanges: Make feed links point back to anchors on the recentchanges
+    page. (JasonBlevins)
+  * Fix issue with utf-8 in wikiname breaking session cookies, by
+    entity-encoding the wikiname in the session cookie.
+  * Use the pure perl Data::Dumper when generating setup files to ensure that
+    utf-8 characters are written out as such, and not as the encoded perl
+    strings the C Data::Dumper produces.
+  * inline: Only the last feed link was put on the page, fix this to include
+    all feed links. So rss will be included along with atom, and pages with
+    multiple feeds will get links added for all feeds.
+  * tag: When tagbase is set, force the links created by tagging to point at
+    the toplevel tagbase, and not closer subpages. The html links already went
+    there, but internally the links were not recorded as absolute, which could
+    cause confusing backlinks etc.
+  * Add an inject function, that can be used by plugins that want to
+    replace one of ikiwiki's functions with their own version.
+    (This is a scary thing that grubs through the symbol table, and replaces
+    all exported occurances of a function with the injected version.)
+  * external: RPC functions can be injected to replace exported functions.
+  * Updated French translation. Closes: #502694
+  * Updated Spanish translation from the ever vigilant Victor Moral.
+  * Updated Danish translation from Jonas Smedegaard. Closes: #503117
+  * Preserve syslog setting when doing `ikiwiki -setup foo -dumpsetup bar`
+  * Several fixes to --render mode.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 03 Nov 2008 16:31:11 -0500
+
+ikiwiki (2.67) unstable; urgency=low
 
   * remove: Avoid $_ breakage. (Stupid, stupid perl.)
   * Updated Spanish translation from Victor Moral.
@@ -13,8 +304,10 @@ ikiwiki (2.67) UNRELEASED; urgency=low
   * inline: Allow MTIME to be used in inlinepage.tmpl.
   * inline: Use the feed's description in the rss and atom links.
     Closes: #502113
+  * aggregate: Avoid bug that caused immediate expiration of items
+    with a date in the future.
 
- -- Joey Hess <joeyh@debian.org>  Mon, 06 Oct 2008 16:07:50 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 17 Oct 2008 13:13:41 -0400
 
 ikiwiki (2.66) unstable; urgency=low
 

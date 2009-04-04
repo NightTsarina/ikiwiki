@@ -4,22 +4,22 @@ package IkiWiki::Plugin::brokenlinks;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "brokenlinks", call => \&getsetup);
 	hook(type => "preprocess", id => "brokenlinks", call => \&preprocess);
-} # }}}
+}
 
-sub getsetup { #{{{
+sub getsetup {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub preprocess (@) { #{{{
+sub preprocess (@) {
 	my %params=@_;
 	$params{pages}="*" unless defined $params{pages};
 	
@@ -61,6 +61,6 @@ sub preprocess (@) { #{{{
 			}
 			sort @broken)
 		."</ul>\n";
-} # }}}
+}
 
 1

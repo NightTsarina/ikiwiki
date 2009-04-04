@@ -4,24 +4,25 @@ package IkiWiki::Plugin::template;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 use HTML::Template;
 use Encode;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "template", call => \&getsetup);
-	hook(type => "preprocess", id => "template", call => \&preprocess);
-} # }}}
+	hook(type => "preprocess", id => "template", call => \&preprocess,
+		scan => 1);
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub preprocess (@) { #{{{
+sub preprocess (@) {
 	my %params=@_;
 
 	if (! exists $params{id}) {
@@ -68,9 +69,13 @@ sub preprocess (@) { #{{{
 		}
 	}
 
+	# This needs to run even in scan mode, in order to process
+	# links and other metadata includes via the template.
+	my $scan=! defined wantarray;
+
 	return IkiWiki::preprocess($params{page}, $params{destpage},
 		IkiWiki::filter($params{page}, $params{destpage},
-		$template->output));
-} # }}}
+		$template->output), $scan);
+}
 
 1

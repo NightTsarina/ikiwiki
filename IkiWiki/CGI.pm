@@ -9,7 +9,7 @@ use IkiWiki::UserInfo;
 use open qw{:utf8 :std};
 use Encode;
 
-sub printheader ($) { #{{{
+sub printheader ($) {
 	my $session=shift;
 	
 	if ($config{sslcookie}) {
@@ -19,9 +19,9 @@ sub printheader ($) { #{{{
 		print $session->header(-charset => 'utf-8',
 			-cookie => $session->cookie(-httponly => 1));
 	}
-} #}}}
+}
 
-sub showform ($$$$;@) { #{{{
+sub showform ($$$$;@) {
 	my $form=shift;
 	my $buttons=shift;
 	my $session=shift;
@@ -38,7 +38,7 @@ sub showform ($$$$;@) { #{{{
 	print misctemplate($form->title, $form->render(submit => $buttons), @_);
 }
 
-sub redirect ($$) { #{{{
+sub redirect ($$) {
 	my $q=shift;
 	my $url=shift;
 	if (! $config{w3mmode}) {
@@ -48,9 +48,9 @@ sub redirect ($$) { #{{{
 		print "Content-type: text/plain\n";
 		print "W3m-control: GOTO $url\n\n";
 	}
-} #}}}
+}
 
-sub decode_cgi_utf8 ($) { #{{{
+sub decode_cgi_utf8 ($) {
 	# decode_form_utf8 method is needed for 5.10
 	if ($] < 5.01) {
 		my $cgi = shift;
@@ -58,9 +58,9 @@ sub decode_cgi_utf8 ($) { #{{{
 			$cgi->param($f, map { decode_utf8 $_ } $cgi->param($f));
 		}
 	}
-} #}}}
+}
 
-sub decode_form_utf8 ($) { #{{{
+sub decode_form_utf8 ($) {
 	if ($] >= 5.01) {
 		my $form = shift;
 		foreach my $f ($form->field) {
@@ -70,11 +70,11 @@ sub decode_form_utf8 ($) { #{{{
 			);
 		}
 	}
-} #}}}
+}
 
 # Check if the user is signed in. If not, redirect to the signin form and
 # save their place to return to later.
-sub needsignin ($$) { #{{{
+sub needsignin ($$) {
 	my $q=shift;
 	my $session=shift;
 
@@ -85,9 +85,9 @@ sub needsignin ($$) { #{{{
 		cgi_savesession($session);
 		exit;
 	}
-} #}}}	
+}
 
-sub cgi_signin ($$) { #{{{
+sub cgi_signin ($$) {
 	my $q=shift;
 	my $session=shift;
 
@@ -127,9 +127,9 @@ sub cgi_signin ($$) { #{{{
 	}
 
 	showform($form, $buttons, $session, $q);
-} #}}}
+}
 
-sub cgi_postsignin ($$) { #{{{
+sub cgi_postsignin ($$) {
 	my $q=shift;
 	my $session=shift;
 	
@@ -142,11 +142,16 @@ sub cgi_postsignin ($$) { #{{{
 		exit;
 	}
 	else {
-		error(gettext("login failed, perhaps you need to turn on cookies?"));
+		if ($config{sslcookie} && ! $q->https()) {
+			error(gettext("probable misconfiguration: sslcookie is set, but you are attepting to login via http, not https"));
+		}
+		else {
+			error(gettext("login failed, perhaps you need to turn on cookies?"));
+		}
 	}
-} #}}}
+}
 
-sub cgi_prefs ($$) { #{{{
+sub cgi_prefs ($$) {
 	my $q=shift;
 	my $session=shift;
 
@@ -203,25 +208,9 @@ sub cgi_prefs ($$) { #{{{
 	
 	my $user_name=$session->param("name");
 
-	# XXX deprecated, should be removed eventually
-	$form->field(name => "banned_users", size => 50, fieldset => "admin");
-	if (! is_admin($user_name)) {
-		$form->field(name => "banned_users", type => "hidden");
-	}
 	if (! $form->submitted) {
 		$form->field(name => "email", force => 1,
 			value => userinfo_get($user_name, "email"));
-		if (is_admin($user_name)) {
-			my $value=join(" ", get_banned_users());
-			if (length $value) {
-				$form->field(name => "banned_users", force => 1,
-					value => join(" ", get_banned_users()),
-					comment => "deprecated; please move to banned_users in setup file");
-			}
-			else {
-				$form->field(name => "banned_users", type => "hidden");
-			}
-		}
 	}
 	
 	if ($form->submitted eq 'Logout') {
@@ -239,48 +228,48 @@ sub cgi_prefs ($$) { #{{{
 				error("failed to set email");
 		}
 
-		# XXX deprecated, should be removed eventually
-		if (is_admin($user_name)) {
-			set_banned_users(grep { ! is_admin($_) }
-					split(' ',
-						$form->field("banned_users"))) ||
-				error("failed saving changes");
-			if (! length $form->field("banned_users")) {
-				$form->field(name => "banned_users", type => "hidden");
-			}
-		}
-
 		$form->text(gettext("Preferences saved."));
 	}
 	
 	showform($form, $buttons, $session, $q);
-} #}}}
+}
 
-sub check_banned ($$) { #{{{
+sub cgi_custom_failure ($$) {
+	my $header=shift;
+	my $message=shift;
+
+	print $header;
+	print $message;
+
+	# Internet Explod^Hrer won't show custom 404 responses
+	# unless they're >= 512 bytes
+	print ' ' x 512;
+
+	exit;
+}
+
+sub check_banned ($$) {
 	my $q=shift;
 	my $session=shift;
 
 	my $name=$session->param("name");
 	if (defined $name) {
-		# XXX banned in userinfo is deprecated, should be removed
-		# eventually, and only banned_users be checked.
-		if (userinfo_get($session->param("name"), "banned") ||
-		    grep { $name eq $_ } @{$config{banned_users}}) {
-			print $q->header(-status => "403 Forbidden");
+		if (grep { $name eq $_ } @{$config{banned_users}}) {
 			$session->delete();
-			print gettext("You are banned.");
 			cgi_savesession($session);
-			exit;
+			cgi_custom_failure(
+				$q->header(-status => "403 Forbidden"),
+				gettext("You are banned."));
 		}
 	}
 }
 
-sub cgi_getsession ($) { #{{{
+sub cgi_getsession ($) {
 	my $q=shift;
 
-	eval q{use CGI::Session};
+	eval q{use CGI::Session; use HTML::Entities};
 	error($@) if $@;
-	CGI::Session->name("ikiwiki_session_".encode_utf8($config{wikiname}));
+	CGI::Session->name("ikiwiki_session_".encode_entities($config{wikiname}));
 	
 	my $oldmask=umask(077);
 	my $session = eval {
@@ -294,18 +283,34 @@ sub cgi_getsession ($) { #{{{
 	umask($oldmask);
 
 	return $session;
-} #}}}
+}
 
-sub cgi_savesession ($) { #{{{
+# To guard against CSRF, the user's session id (sid)
+# can be stored on a form. This function will check
+# (for logged in users) that the sid on the form matches
+# the session id in the cookie.
+sub checksessionexpiry ($$) {
+	my $q=shift;
+	my $session = shift;
+
+	if (defined $session->param("name")) {
+		my $sid=$q->param('sid');
+		if (! defined $sid || $sid ne $session->id) {
+			error(gettext("Your login session has expired."));
+		}
+	}
+}
+
+sub cgi_savesession ($) {
 	my $session=shift;
 
 	# Force session flush with safe umask.
 	my $oldmask=umask(077);
 	$session->flush;
 	umask($oldmask);
-} #}}}
+}
 
-sub cgi (;$$) { #{{{
+sub cgi (;$$) {
 	my $q=shift;
 	my $session=shift;
 
@@ -331,7 +336,7 @@ sub cgi (;$$) { #{{{
 			error("\"do\" parameter missing");
 		}
 	}
-	
+
 	# Need to lock the wiki before getting a session.
 	lockwiki();
 	loadindex();
@@ -375,16 +380,16 @@ sub cgi (;$$) { #{{{
 	else {
 		error("unknown do parameter");
 	}
-} #}}}
+}
 
 # Does not need to be called directly; all errors will go through here.
-sub cgierror ($) { #{{{
+sub cgierror ($) {
 	my $message=shift;
 
 	print "Content-type: text/html\n\n";
 	print misctemplate(gettext("Error"),
 		"<p class=\"error\">".gettext("Error").": $message</p>");
 	die $@;
-} #}}}
+}
 
 1

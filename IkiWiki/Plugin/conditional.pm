@@ -3,23 +3,23 @@ package IkiWiki::Plugin::conditional;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 use UNIVERSAL;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "conditional", call => \&getsetup);
 	hook(type => "preprocess", id => "if", call => \&preprocess_if);
-} # }}}
+}
 
-sub getsetup { #{{{
+sub getsetup {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub preprocess_if (@) { #{{{
+sub preprocess_if (@) {
 	my %params=@_;
 
 	foreach my $param (qw{test then}) {
@@ -66,11 +66,11 @@ sub preprocess_if (@) { #{{{
 	}
 	return IkiWiki::preprocess($params{page}, $params{destpage}, 
 		IkiWiki::filter($params{page}, $params{destpage}, $ret));
-} # }}}
+}
 
 package IkiWiki::PageSpec;
 
-sub match_enabled ($$;@) { #{{{
+sub match_enabled ($$;@) {
 	shift;
 	my $plugin=shift;
 	
@@ -81,12 +81,14 @@ sub match_enabled ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("$plugin is not enabled");
 	}
-} #}}}
+}
 
-sub match_sourcepage ($$;@) { #{{{
+sub match_sourcepage ($$;@) {
 	shift;
 	my $glob=shift;
 	my %params=@_;
+	
+	$glob=derel($glob, $params{location});
 
 	return IkiWiki::FailReason->new("cannot match sourcepage") unless exists $params{sourcepage};
 	if (match_glob($params{sourcepage}, $glob, @_)) {
@@ -95,13 +97,15 @@ sub match_sourcepage ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("sourcepage does not match $glob");
 	}
-} #}}}
+}
 
-sub match_destpage ($$;@) { #{{{
+sub match_destpage ($$;@) {
 	shift;
 	my $glob=shift;
 	my %params=@_;
 	
+	$glob=derel($glob, $params{location});
+
 	return IkiWiki::FailReason->new("cannot match destpage") unless exists $params{destpage};
 	if (match_glob($params{destpage}, $glob, @_)) {
 		return IkiWiki::SuccessReason->new("destpage matches $glob");
@@ -109,9 +113,9 @@ sub match_destpage ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("destpage does not match $glob");
 	}
-} #}}}
+}
 
-sub match_included ($$;@) { #{{{
+sub match_included ($$;@) {
 	shift;
 	shift;
 	my %params=@_;
@@ -123,6 +127,6 @@ sub match_included ($$;@) { #{{{
 	else {
 		return IkiWiki::FailReason->new("page $params{sourcepage} is not included");
 	}
-} #}}}
+}
 
 1

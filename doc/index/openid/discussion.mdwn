@@ -1,0 +1,29 @@
+# OpenID discussion
+
+## No return_to in OpenID server
+
+Hi, there's no return_to from a designated OpenID server page, specs requires (I think a "should" or "must", can't recall exact wording) that it redirects back to the RP, in order to complete the registration and authentication. Unless I'm missing something, and the doc is incomplete, I'd consider this a bug. I don't expect to be of much use WRT coming up with a patch, but I'm willing to test ;-) .
+
+> If this is a bug, could you please explain:
+> 
+> * What happens when the bug occurs?
+> * How can one reproduce the bug?
+>
+> PS, please file bugs under [[bugs]] in future. --[[Joey]]
+
+>> Oops, my bad, didn't know that existed at the time I wrote this.
+>>
+>> What happened is that the process wouldn't complete, therefore I couldn't login with my OpenID.
+>>
+>> reproducibility: every time
+>>
+>> Should probably move this page, eh? ;)
+>> I'd do that, but I dunno know other than using the SCM backend in question....
+
+Here's some actual output (with my OpenID URL stripped out):
+
+do=postsignin&oic.time=1238224497-1450566d93097caa707f&openid.assoc_handle=%7BHMAC-SHA1%7D%7B49cdce76%7D%7BBhuXXw%3D%3D%7D&openid.identity=|<==== MY OPENID URL GOES HERE ====>|&openid.mode=id_res&openid.op_endpoint=http%3A%2F%2Fwww.myopenid.com%2Fserver&openid.response_nonce=2009-03-28T07%3A15%3A02ZDUFmG3&openid.return_to=http%3A%2F%2Fsimonraven.kisikew.org%2Fbin%2Fikiwiki.cgi%3Fdo%3Dpostsignin%26oic.time%3D1238224497-1450566d93097caa707f&openid.sig=E51Xh6Gnjku%2B0se57qCyhHbT5QY%3D&openid.signed=assoc_handle%2Cidentity%2Cmode%2Cop_endpoint%2Cresponse_nonce%2Creturn_to%2Csigned
+
+The `return_to` arg should NOT be `signed`, it should be the originating URL where you initially logged in.
+
+Also, I dunno what the assoc_handle is doing spitting out an arg like `{HMAC-SHA1}{49cdce76}{BhuXXw%3D%3D}` it should be processed further. I have the needed perl packages installed (latest for Lenny). Hrm, would endianness matter?

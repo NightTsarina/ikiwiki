@@ -2,22 +2,22 @@
 # Discordian date support fnord ikiwiki.
 package IkiWiki::Plugin::ddate;
 
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 no warnings;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "ddate", call => \&getsetup);
-} # }}}
+}
 
-sub getsetup { #{{{
+sub getsetup {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => 1,
 		},
-} #}}}
+}
 
-sub IkiWiki::displaytime ($;$) { #{{{
+sub IkiWiki::formattime ($;$) {
 	my $time=shift;
 	my $format=shift;
 	if (! defined $format) {
@@ -36,6 +36,6 @@ sub IkiWiki::displaytime ($;$) { #{{{
 	my $dt = DateTime->from_epoch(epoch => $time);
 	my $dd = DateTime::Calendar::Discordian->from_object(object => $dt);
 	return $dd->strftime($format);
-} #}}}
+}
 
 5

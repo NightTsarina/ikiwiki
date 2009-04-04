@@ -4,22 +4,22 @@ package IkiWiki::Plugin::table;
 use warnings;
 use strict;
 use Encode;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "table", call => \&getsetup);
-	hook(type => "preprocess", id => "table", call => \&preprocess);
-} # }}}
+	hook(type => "preprocess", id => "table", call => \&preprocess, scan => 1);
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub preprocess (@) { #{{{
+sub preprocess (@) {
 	my %params =(
 		format	=> 'auto',
 		header	=> 'row',
@@ -27,11 +27,29 @@ sub preprocess (@) { #{{{
 	);
 
 	if (exists $params{file}) {
-		if (! $pagesources{$params{file}}) {
+		if (! exists $pagesources{$params{file}}) {
 			error gettext("cannot find file");
 		}
 		$params{data} = readfile(srcfile($params{file}));
 		add_depends($params{page}, $params{file});
+	}
+
+	if (! defined wantarray) {
+		# scan mode --	if the table uses an external file, need to
+		# scan that file too.
+		return unless exists $params{file};
+
+		IkiWiki::run_hooks(scan => sub {
+			shift->(
+				page => $params{page},
+				content => $params{data},
+			);
+		});
+
+		# Preprocess in scan-only mode.
+		IkiWiki::preprocess($params{page}, $params{page}, $params{data}, 1);
+
+		return;
 	}
 
 	if (lc $params{format} eq 'auto') {
@@ -50,22 +68,18 @@ sub preprocess (@) { #{{{
 			defined $params{delimiter} ? $params{delimiter} : ",",);
 		# linkify after parsing since html link quoting can
 		# confuse CSV parsing
-		if (! exists $params{file}) {
-			@data=map {
-				[ map {
-					IkiWiki::linkify($params{page},
-						$params{destpage}, $_);
-				} @$_ ]
-			} @data;
-		}
+		@data=map {
+			[ map {
+				IkiWiki::linkify($params{page},
+					$params{destpage}, $_);
+			} @$_ ]
+		} @data;
 	}
 	elsif (lc $params{format} eq 'dsv') {
 		# linkify before parsing since wikilinks can contain the
 		# delimiter
-		if (! exists $params{file}) {
-			$params{data} = IkiWiki::linkify($params{page},
-				$params{destpage}, $params{data});
-		}
+		$params{data} = IkiWiki::linkify($params{page},
+			$params{destpage}, $params{data});
 		@data=split_dsv($params{data},
 			defined $params{delimiter} ? $params{delimiter} : "|",);
 	}
@@ -102,16 +116,16 @@ sub preprocess (@) { #{{{
 	else {  
 		return $html;
 	}            
-} #}}}
+}
 
-sub is_dsv_data ($) { #{{{
+sub is_dsv_data ($) {
 	my $text = shift;
 
 	my ($line) = split(/\n/, $text);
 	return $line =~ m{.+\|};
 }
 
-sub split_csv ($$) { #{{{
+sub split_csv ($$) {
 	my @text_lines = split(/\n/, shift);
 	my $delimiter = shift;
 
@@ -137,9 +151,9 @@ sub split_csv ($$) { #{{{
 	}
 
 	return @data;
-} #}}}
+}
 
-sub split_dsv ($$) { #{{{
+sub split_dsv ($$) {
 	my @text_lines = split(/\n/, shift);
 	my $delimiter = shift;
 	$delimiter="|" unless defined $delimiter;
@@ -150,9 +164,9 @@ sub split_dsv ($$) { #{{{
 	}
     
 	return @data;
-} #}}}
+}
 
-sub genrow ($@) { #{{{
+sub genrow ($@) {
 	my %params=%{shift()};
 	my $elt = shift;
 	my @data = @_;
@@ -190,6 +204,6 @@ sub genrow ($@) { #{{{
 	push @ret, "\t\t</tr>";
 
 	return @ret;
-} #}}}
+}
 
 1

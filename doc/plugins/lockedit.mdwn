@@ -4,7 +4,7 @@
 This plugin allows the administrator of a wiki to lock some pages, limiting
 who can edit them using the online interface. This doesn't prevent anyone
 who can commit to the underlying revision control system from editing the
-pages, however.
+pages, however. (Unless you set up [[tips/untrusted_git_push]].)
 
 The `locked_pages` setting configures what pages are locked. It is a
 [[ikiwiki/PageSpec]], so you have lots of control over what kind of pages
@@ -16,6 +16,10 @@ One handy thing to do if you're using ikiwiki for your blog is to lock
 "* and !*/Discussion". This prevents others from adding to or modifying
 posts in your blog, while still letting them comment via the Discussion
 pages.
+
+Alternatively, if you're using the [[comments]] plugin, you can lock
+"!postcomment(*)" to allow users to comment on pages, but not edit anything
+else.
 
 Wiki administrators can always edit locked pages. The [[ikiwiki/PageSpec]]
 can specify that some pages are not locked for some users. For example,

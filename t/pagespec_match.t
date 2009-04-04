@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 56;
+use Test::More tests => 51;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -40,6 +40,7 @@ $links{"bugs/bar"}=[qw{done}];
 $links{"done"}=[];
 $links{"examples/softwaresite/bugs/fails_to_frobnicate"}=[qw{done}];
 $links{"examples/softwaresite/bugs/done"}=[];
+$links{"ook"}=[qw{/blog/tags/foo}];
 
 ok(pagespec_match("foo", "link(bar)"), "link");
 ok(pagespec_match("foo", "link(ba?)"), "glob link");
@@ -55,6 +56,8 @@ ok(pagespec_match("bar", "backlink(foo)"), "backlink");
 ok(! pagespec_match("quux", "backlink(foo)"), "failed backlink");
 ok(! pagespec_match("bar", ""), "empty pagespec should match nothing");
 ok(! pagespec_match("bar", "    	"), "blank pagespec should match nothing");
+ok(pagespec_match("ook", "link(blog/tags/foo)"), "link internal absolute success");
+ok(pagespec_match("ook", "link(/blog/tags/foo)"), "link explicit absolute success");
 
 $IkiWiki::pagectime{foo}=1154532692; # Wed Aug  2 11:26 EDT 2006
 $IkiWiki::pagectime{bar}=1154532695; # after
@@ -74,12 +77,3 @@ ok(! pagespec_match("foo", "no_such_function(foo)"), "foo");
 my $ret=pagespec_match("foo", "(invalid");
 ok(! $ret, "syntax error");
 ok($ret =~ /syntax error/, "error message");
-
-# old style globlists
-ok(pagespec_match("foo", "foo bar"), "simple list");
-ok(pagespec_match("bar", "foo bar"), "simple list 2");
-ok(pagespec_match("foo", "f?? !foz"));
-ok(! pagespec_match("foo", "f?? !foo"));
-ok(! pagespec_match("foo", "* !foo"));
-ok(! pagespec_match("foo", "foo !foo"));
-ok(! pagespec_match("foo.png", "* !*.*"));

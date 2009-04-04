@@ -3,33 +3,41 @@ package IkiWiki::Plugin::shortcut;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "shortcut", call => \&getsetup);
-	hook(type => "refresh", id => "shortcut", call => \&refresh);
+	hook(type => "checkconfig", id => "shortcut", call => \&checkconfig);
 	hook(type => "preprocess", id => "shortcut", call => \&preprocess_shortcut);
-} #}}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub refresh () { #{{{
-	# Preprocess the shortcuts page to get all the available shortcuts
-	# defined before other pages are rendered.
-	my $srcfile=srcfile("shortcuts.mdwn", 1);
-	if (! defined $srcfile) {
-		error(gettext("shortcut plugin will not work without a shortcuts.mdwn"));
+sub checkconfig () {
+	if (defined $config{srcdir} && length $config{srcdir}) {
+		# Preprocess the shortcuts page to get all the available shortcuts
+		# defined before other pages are rendered.
+		my $srcfile=srcfile("shortcuts.".$config{default_pageext}, 1);
+		if (! defined $srcfile) {
+			$srcfile=srcfile("shortcuts.mdwn", 1);
+		}
+		if (! defined $srcfile) {
+			print STDERR sprintf(gettext("shortcut plugin will not work without %s"),
+				"shortcuts.".$config{default_pageext})."\n";
+		}
+		else {
+			IkiWiki::preprocess("shortcuts", "shortcuts", readfile($srcfile));
+		}
 	}
-	IkiWiki::preprocess("shortcuts", "shortcuts", readfile($srcfile));
-} # }}}
+}
 
-sub preprocess_shortcut (@) { #{{{
+sub preprocess_shortcut (@) {
 	my %params=@_;
 
 	if (! defined $params{name} || ! defined $params{url}) {
@@ -37,15 +45,16 @@ sub preprocess_shortcut (@) { #{{{
 	}
 
 	hook(type => "preprocess", no_override => 1, id => $params{name},
+		shortcut => 1,
 		call => sub { shortcut_expand($params{url}, $params{desc}, @_) });
 
 	#translators: This is used to display what shortcuts are defined.
 	#translators: First parameter is the name of the shortcut, the second
 	#translators: is an URL.
 	return sprintf(gettext("shortcut %s points to <i>%s</i>"), $params{name}, $params{url});
-} # }}}
+}
 
-sub shortcut_expand ($$@) { #{{{
+sub shortcut_expand ($$@) {
 	my $url=shift;
 	my $desc=shift;
 	my %params=@_;
@@ -82,6 +91,6 @@ sub shortcut_expand ($$@) { #{{{
 	}
 
 	return "<a href=\"$url\">$desc</a>";
-} #}}}
+}
 
 1

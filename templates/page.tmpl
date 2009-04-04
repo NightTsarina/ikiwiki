@@ -13,6 +13,7 @@
 <link rel="alternate" type="application/x-wiki" title="Edit this page" href="<TMPL_VAR EDITURL>" />
 </TMPL_IF>
 <TMPL_IF NAME="FEEDLINKS"><TMPL_VAR FEEDLINKS></TMPL_IF>
+<TMPL_IF NAME="RELVCS"><TMPL_VAR RELVCS></TMPL_IF>
 <TMPL_IF NAME="META"><TMPL_VAR META></TMPL_IF>
 </head>
 <body>
@@ -22,7 +23,7 @@
 <span>
 <span class="parentlinks">
 <TMPL_LOOP NAME="PARENTLINKS">
-<a href="<TMPL_VAR NAME=URL>"><TMPL_VAR NAME=PAGE></a>/ 
+<a href="<TMPL_VAR URL>"><TMPL_VAR PAGE></a>/ 
 </TMPL_LOOP>
 </span>
 <span class="title">
@@ -49,8 +50,12 @@
 <TMPL_IF NAME="PREFSURL">
 <li><a href="<TMPL_VAR PREFSURL>">Preferences</a></li>
 </TMPL_IF>
+<TMPL_IF NAME="COMMENTSLINK">
+<li><TMPL_VAR COMMENTSLINK><br /></li>
+<TMPL_ELSE>
 <TMPL_IF NAME="DISCUSSIONLINK">
 <li><TMPL_VAR DISCUSSIONLINK><br /></li>
+</TMPL_IF>
 </TMPL_IF>
 </ul>
 </div>
@@ -67,6 +72,19 @@
 <TMPL_VAR CONTENT>
 </div>
 
+<TMPL_IF COMMENTS>
+<div id="comments">
+<TMPL_VAR COMMENTS>
+<TMPL_IF ADDCOMMENTURL>
+<div class="addcomment">
+<a href="<TMPL_VAR ADDCOMMENTURL>">Add a comment</a>
+</div>
+<TMPL_ELSE>
+<div class="addcomment">Comments on this page are closed.</div>
+</TMPL_IF>
+</div>
+</TMPL_IF>
+
 <div id="footer" class="pagefooter">
 <div id="pageinfo">
 
@@ -74,7 +92,7 @@
 <div class="tags">
 Tags:
 <TMPL_LOOP NAME="TAGS">
-<TMPL_VAR NAME=LINK>
+<TMPL_VAR LINK>
 </TMPL_LOOP>
 </div>
 </TMPL_IF>
@@ -83,13 +101,13 @@ Tags:
 <div id="backlinks">
 Links:
 <TMPL_LOOP NAME="BACKLINKS">
-<a href="<TMPL_VAR NAME=URL>"><TMPL_VAR NAME=PAGE></a>
+<a href="<TMPL_VAR URL>"><TMPL_VAR PAGE></a>
 </TMPL_LOOP>
 <TMPL_IF NAME="MORE_BACKLINKS">
 <span class="popup">...
 <span class="balloon">
 <TMPL_LOOP NAME="MORE_BACKLINKS">
-<a href="<TMPL_VAR NAME=URL>"><TMPL_VAR NAME=PAGE></a>
+<a href="<TMPL_VAR URL>"><TMPL_VAR PAGE></a>
 </TMPL_LOOP>
 </span>
 </span>
@@ -112,13 +130,13 @@ License: <TMPL_VAR LICENSE>
 </TMPL_IF>
 
 <div class="pagedate">
-Last edited <TMPL_VAR NAME=MTIME>
-<!-- Created <TMPL_VAR NAME=CTIME> -->
+Last edited <TMPL_VAR MTIME>
+<!-- Created <TMPL_VAR CTIME> -->
 </div>
 
 </div><!-- #pageinfo -->
 <TMPL_IF EXTRAFOOTER><TMPL_VAR EXTRAFOOTER></TMPL_IF>
-<!-- from <TMPL_VAR NAME=WIKINAME> -->
+<!-- from <TMPL_VAR WIKINAME> -->
 </div><!-- .pagefooter #footer -->
 
 </body>

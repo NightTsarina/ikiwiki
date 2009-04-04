@@ -3,17 +3,18 @@ package IkiWiki::Plugin::attachment;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
-sub import { #{{{
+sub import {
+	add_underlay("javascript");
 	hook(type => "getsetup", id => "attachment", call => \&getsetup);
 	hook(type => "checkconfig", id => "attachment", call => \&checkconfig);
 	hook(type => "formbuilder_setup", id => "attachment", call => \&formbuilder_setup);
 	hook(type => "formbuilder", id => "attachment", call => \&formbuilder);
 	IkiWiki::loadplugin("filecheck");
-} # }}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
@@ -34,9 +35,9 @@ sub getsetup () { #{{{
 			safe => 0, # executed
 			rebuild => 0,
 		},
-} #}}}
+}
 
-sub check_canattach ($$;$) { #{{{
+sub check_canattach ($$;$) {
 	my $session=shift;
 	my $dest=shift; # where it's going to be put, under the srcdir
 	my $file=shift; # the path to the attachment currently
@@ -60,36 +61,19 @@ sub check_canattach ($$;$) { #{{{
 		);
 	}
 
-	# XXX deprecated, should be removed eventually
-	if ($allowed) {
-		foreach my $admin (@{$config{adminuser}}) {
-			my $allowed_attachments=IkiWiki::userinfo_get($admin, "allowed_attachments");
-			if (defined $allowed_attachments &&
-			    length $allowed_attachments) {
-				$allowed=pagespec_match($dest,
-					$allowed_attachments,
-					file => $file,
-					user => $session->param("name"),
-					ip => $ENV{REMOTE_ADDR},
-				);
-				last if $allowed;
-			}
-		}
-	}
-
 	if (! $allowed) {
 		error(gettext("prohibited by allowed_attachments")." ($allowed)");
 	}
 	else {
 		return 1;
 	}
-} #}}}
+}
 
-sub checkconfig () { #{{{
+sub checkconfig () {
 	$config{cgi_disable_uploads}=0;
-} #}}}
+}
 
-sub formbuilder_setup (@) { #{{{
+sub formbuilder_setup (@) {
 	my %params=@_;
 	my $form=$params{form};
 	my $q=$params{cgi};
@@ -104,10 +88,10 @@ sub formbuilder_setup (@) { #{{{
 		$form->tmpl_param("field-upload" => '<input name="_submit" type="submit" value="Upload Attachment" />');
 		$form->tmpl_param("field-link" => '<input name="_submit" type="submit" value="Insert Links" />');
 
-		# Add the javascript from the toggle plugin;
-		# the attachments interface uses it to toggle visibility.
+		# Add the toggle javascript; the attachments interface uses
+		# it to toggle visibility.
 		require IkiWiki::Plugin::toggle;
-		$form->tmpl_param("javascript" => $IkiWiki::Plugin::toggle::javascript);
+		$form->tmpl_param("javascript" => IkiWiki::Plugin::toggle::include_javascript($params{page}, 1));
 		# Start with the attachments interface toggled invisible,
 		# but if it was used, keep it open.
 		if ($form->submitted ne "Upload Attachment" &&
@@ -119,42 +103,9 @@ sub formbuilder_setup (@) { #{{{
 			$form->tmpl_param("attachments-class" => "toggleable-open");
 		}
 	}
-	elsif ($form->title eq "preferences") {
-		# XXX deprecated, should remove eventually
-		my $session=$params{session};
-		my $user_name=$session->param("name");
+}
 
-		$form->field(name => "allowed_attachments", size => 50,
-			fieldset => "admin",
-			comment => "deprecated; please move to allowed_attachments in setup file",
-		);
-		if (! IkiWiki::is_admin($user_name)) {
-			$form->field(name => "allowed_attachments", type => "hidden");
-		}
-                if (! $form->submitted) {
-			my $value=IkiWiki::userinfo_get($user_name, "allowed_attachments");
-			if (length $value) {
-				$form->field(name => "allowed_attachments", force => 1,
-					value => IkiWiki::userinfo_get($user_name, "allowed_attachments"));
-			}
-			else {
-				$form->field(name => "allowed_attachments", type => "hidden");
-			}
-                }
-		if ($form->submitted && $form->submitted eq 'Save Preferences') {
-			if (defined $form->field("allowed_attachments")) {
-				IkiWiki::userinfo_set($user_name, "allowed_attachments",
-				$form->field("allowed_attachments")) ||
-					error("failed to set allowed_attachments");
-				if (! length $form->field("allowed_attachments")) {
-					$form->field(name => "allowed_attachments", type => "hidden");
-				}
-			}
-		}
-	}
-} #}}}
-
-sub formbuilder (@) { #{{{
+sub formbuilder (@) {
 	my %params=@_;
 	my $form=$params{form};
 	my $q=$params{cgi};
@@ -252,9 +203,9 @@ sub formbuilder (@) { #{{{
 	# Generate the attachment list only after having added any new
 	# attachments.
 	$form->tmpl_param("attachment_list" => [attachment_list($form->field('page'))]);
-} # }}}
+}
 
-sub attachment_location ($) { #{{{
+sub attachment_location ($) {
 	my $page=shift;
 	
 	# Put the attachment in a subdir of the page it's attached
@@ -263,9 +214,9 @@ sub attachment_location ($) { #{{{
 	$page.="/" if length $page;
 	
 	return $page;
-} #}}}
+}
 
-sub attachment_list ($) { #{{{
+sub attachment_list ($) {
 	my $page=shift;
 	my $loc=attachment_location($page);
 
@@ -279,7 +230,6 @@ sub attachment_list ($) { #{{{
 				link => htmllink($page, $page, $f, noimageinline => 1),
 				size => IkiWiki::Plugin::filecheck::humansize((stat(_))[7]),
 				mtime => displaytime($IkiWiki::pagemtime{$f}),
-				mtime_raw => $IkiWiki::pagemtime{$f},
 			};
 		}
 	}
@@ -287,6 +237,6 @@ sub attachment_list ($) { #{{{
 	# Sort newer attachments to the top of the list, so a newly-added
 	# attachment appears just before the form used to add it.
 	return sort { $b->{mtime_raw} <=> $a->{mtime_raw} || $a->{link} cmp $b->{link} } @ret;
-} #}}}
+}
 
 1

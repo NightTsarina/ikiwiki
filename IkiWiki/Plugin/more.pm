@@ -3,24 +3,24 @@ package IkiWiki::Plugin::more;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
 my $linktext = gettext("more");
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "more", call => \&getsetup);
 	hook(type => "preprocess", id => "more", call => \&preprocess);
-} # }}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub preprocess (@) { #{{{
+sub preprocess (@) {
 	my %params=@_;
 
 	$params{linktext} = $linktext unless defined $params{linktext};

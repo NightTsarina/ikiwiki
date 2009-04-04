@@ -1,0 +1,35 @@
+The [[plugins/recentchanges]] plugin has a `do=recentchanges_link` feature that will
+redirect to a given wiki page, or an error page with a creation link.
+
+In the [[plugins/contrib/comments]] plugin I've found that it would be useful to do
+the same for users. For now I've just cloned the functionality into the comments
+plugin, but perhaps this functionality could be renamed to `do=goto` or
+something, and moved to `IkiWiki/CGI.pm`?
+
+> Now implemented as the 'goto' branch in my git repository, along with
+> [[apache_404_ErrorDocument_handler]]. --[[smcv]]
+
+>> Looks good, the only things I wonder are:
+>> * Should it be a separate plugin? In particular `cgi_page_from_404()` is
+>>   pretty big, and only works if apache is configured so seems somewhat
+>>   pluginaable.
+
+>>> I've split out `goto` and `apache404` plugins in the branch. I think
+>>> you're right that apache404 should be a plugin. If you think goto is small
+>>> and general enough to not be a plugin, just don't merge my most recent
+>>> patch! --[[smcv]]
+
+>> * I wish there were some way to generalize the workaround for the stupid
+>>   MSIE behavior. Actually, I wish we could ignore the MSIE stupidity,
+>>   as I tend to do, but perhaps it's too stupid in this case for that to
+>>   fly..
+>> * Is there any reason to require do=goto before checking for
+>>   `REDIRECT_STATUS`? Seems that if that code were moved
+>>   out of the enclosing if block, the apache 404 handler could
+>>   be set direct to the cgi, which seems simpler to remember.
+>> --[[Joey]] 
+
+>>> No, good point - the `REDIRECT_STATUS` check is sufficiently unambiguous
+>>> already. Fixed. --[[smcv]]
+
+[[done]]

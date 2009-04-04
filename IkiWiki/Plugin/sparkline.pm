@@ -3,7 +3,7 @@ package IkiWiki::Plugin::sparkline;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 use IPC::Open2;
 
 my $match_num=qr/[-+]?[0-9]+(?:\.[0-9]+)?/;
@@ -14,20 +14,20 @@ my %locmap=(
 	left => 'TEXT_LEFT',
 );
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "sparkline", call => \&getsetup);
 	hook(type => "preprocess", id => "sparkline", call => \&preprocess);
-} # }}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub preprocess (@) { #{{{
+sub preprocess (@) {
 	my %params=@_;
 
 	my $php;
@@ -130,7 +130,7 @@ sub preprocess (@) { #{{{
 
 	if (! -e "$config{destdir}/$fn") {
 		my $pid;
-		my $sigpipe=0;;
+		my $sigpipe=0;
 		$SIG{PIPE}=sub { $sigpipe=1 };
 		$pid=open2(*IN, *OUT, "php");
 
@@ -166,6 +166,6 @@ sub preprocess (@) { #{{{
 	}
 
 	return '<img src="'.urlto($fn, $params{destpage}).'" alt="graph" />';
-} # }}}
+}
 
 1

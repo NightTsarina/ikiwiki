@@ -3,22 +3,22 @@ package IkiWiki::Plugin::pingee;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "pingee", call => \&getsetup);
 	hook(type => "cgi", id => "pingee", call => \&cgi);
-} # }}}
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return 
 		plugin => {
 			safe => 1,
 			rebuild => undef,
 		},
-} #}}}
+}
 
-sub cgi ($) { #{{{
+sub cgi ($) {
 	my $cgi=shift;
 
 	if (defined $cgi->param('do') && $cgi->param("do") eq "ping") {
@@ -37,6 +37,6 @@ sub cgi ($) { #{{{
 		IkiWiki::saveindex();
 		exit 0;
 	}
-} #}}}
+}
 
 1

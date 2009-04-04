@@ -9,11 +9,11 @@ use warnings;
 use strict;
 use IkiWiki;
 
-sub import { #{{{
+sub import {
 	IkiWiki::Setup::merge($_[1]);
-} #}}}
+}
 
-sub dumpline ($$$$) { #{{{
+sub dumpline ($$$$) {
 	my $key=shift;
 	my $value=shift;
 	my $type=shift;
@@ -26,6 +26,8 @@ sub dumpline ($$$$) { #{{{
 	local $Data::Dumper::Pad="\t";
 	local $Data::Dumper::Sortkeys=1;
 	local $Data::Dumper::Quotekeys=0;
+	# only the perl version preserves utf-8 in output
+	local $Data::Dumper::Useperl=1;
 	
 	my $dumpedvalue;
 	if (($type eq 'boolean' || $type eq 'integer') && $value=~/^[0-9]+$/) {
@@ -53,9 +55,9 @@ sub dumpline ($$$$) { #{{{
 	}
 	
 	return "\t$prefix$key => $dumpedvalue,";
-} #}}}
+}
 
-sub dumpvalues ($@) { #{{{
+sub dumpvalues ($@) {
 	my $setup=shift;
 	my @ret;
 	while (@_) {
@@ -78,9 +80,9 @@ sub dumpvalues ($@) { #{{{
 		}
 	}
 	return @ret;
-} #}}}
+}
 
-sub gendump ($) { #{{{
+sub gendump ($) {
 	my $description=shift;
 	my %setup=(%config);
 	my @ret;
@@ -110,6 +112,6 @@ sub gendump ($) { #{{{
 	push @ret, "}";
 
 	return @ret;
-} #}}}
+}
 
 1

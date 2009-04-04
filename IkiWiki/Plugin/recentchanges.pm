@@ -3,19 +3,21 @@ package IkiWiki::Plugin::recentchanges;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 use Encode;
+use HTML::Entities;
 
-sub import { #{{{
+sub import {
 	hook(type => "getsetup", id => "recentchanges", call => \&getsetup);
 	hook(type => "checkconfig", id => "recentchanges", call => \&checkconfig);
 	hook(type => "refresh", id => "recentchanges", call => \&refresh);
 	hook(type => "pagetemplate", id => "recentchanges", call => \&pagetemplate);
 	hook(type => "htmlize", id => "_change", call => \&htmlize);
-	hook(type => "cgi", id => "recentchanges", call => \&cgi);
-} #}}}
+	# Load goto to fix up links from recentchanges
+	IkiWiki::loadplugin("goto");
+}
 
-sub getsetup () { #{{{
+sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
@@ -35,14 +37,14 @@ sub getsetup () { #{{{
 			safe => 1,
 			rebuild => 0,
 		},
-} #}}}
+}
 
-sub checkconfig () { #{{{
+sub checkconfig () {
 	$config{recentchangespage}='recentchanges' unless defined $config{recentchangespage};
 	$config{recentchangesnum}=100 unless defined $config{recentchangesnum};
-} #}}}
+}
 
-sub refresh ($) { #{{{
+sub refresh ($) {
 	my %seen;
 
 	# add new changes
@@ -56,10 +58,10 @@ sub refresh ($) { #{{{
 			unlink($config{srcdir}.'/'.$pagesources{$page});
 		}
 	}
-} #}}}
+}
 
 # Enable the recentchanges link on wiki pages.
-sub pagetemplate (@) { #{{{
+sub pagetemplate (@) {
 	my %params=@_;
 	my $template=$params{template};
 	my $page=$params{page};
@@ -70,48 +72,15 @@ sub pagetemplate (@) { #{{{
 		$template->param(recentchangesurl => urlto($config{recentchangespage}, $page));
 		$template->param(have_actions => 1);
 	}
-} #}}}
-
-# Pages with extension _change have plain html markup, pass through.
-sub htmlize (@) { #{{{
-	my %params=@_;
-	return $params{content};
-} #}}}
-
-sub cgi ($) { #{{{
-	my $cgi=shift;
-	if (defined $cgi->param('do') && $cgi->param('do') eq "recentchanges_link") {
-		# This is a link from a change page to some
-		# other page. Since the change pages are only generated
-		# once, statically, links on them won't be updated if the
-		# page they link to is deleted, or newly created, or
-		# changes for whatever reason. So this CGI handles that
-		# dynamic linking stuff.
-		my $page=decode_utf8($cgi->param("page"));
-		if (!defined $page) {
-			error("missing page parameter");
-		}
-
-		IkiWiki::loadindex();
-
-		my $link=bestlink("", $page);
-		if (! length $link) {
-			print "Content-type: text/html\n\n";
-			print IkiWiki::misctemplate(gettext(gettext("missing page")),
-				"<p>".
-				sprintf(gettext("The page %s does not exist."),
-					htmllink("", "", $page)).
-				"</p>");
-		}
-		else {
-			IkiWiki::redirect($cgi, urlto($link, undef, 1));
-		}
-
-		exit;
-	}
 }
 
-sub store ($$$) { #{{{
+# Pages with extension _change have plain html markup, pass through.
+sub htmlize (@) {
+	my %params=@_;
+	return $params{content};
+}
+
+sub store ($$$) {
 	my $change=shift;
 
 	my $page="$config{recentchangespage}/change_".titlepage($change->{rev});
@@ -128,10 +97,10 @@ sub store ($$$) { #{{{
 			if (length $config{cgiurl}) {
 				$_->{link} = "<a href=\"".
 					IkiWiki::cgiurl(
-						do => "recentchanges_link",
+						do => "goto",
 						page => $_->{page}
 					).
-					"\">".
+					"\" rel=\"nofollow\">".
 					pagetitle($_->{page}).
 					"</a>"
 			}
@@ -154,16 +123,18 @@ sub store ($$$) { #{{{
 	}
 	elsif (length $config{cgiurl}) {
 		$change->{authorurl} = IkiWiki::cgiurl(
-			do => "recentchanges_link",
+			do => "goto",
 			page => (length $config{userdir} ? "$config{userdir}/" : "").$change->{author},
 		);
 	}
 
-	# escape wikilinks and preprocessor stuff in commit messages
 	if (ref $change->{message}) {
 		foreach my $field (@{$change->{message}}) {
 			if (exists $field->{line}) {
-				$field->{line} =~ s/(?<!\\)\[\[/\\\[\[/g;
+				# escape html
+				$field->{line} = encode_entities($field->{line});
+				# escape links and preprocessor stuff
+				$field->{line} = encode_entities($field->{line}, '\[\]');
 			}
 		}
 	}
@@ -175,6 +146,10 @@ sub store ($$$) { #{{{
 		commitdate => displaytime($change->{when}, "%X %x"),
 		wikiname => $config{wikiname},
 	);
+	
+	$template->param(permalink => "$config{url}/$config{recentchangespage}/#change-".titlepage($change->{rev}))
+		if exists $config{url};
+	
 	IkiWiki::run_hooks(pagetemplate => sub {
 		shift->(page => $page, destpage => $page,
 			template => $template, rev => $change->{rev});
@@ -185,6 +160,6 @@ sub store ($$$) { #{{{
 	utime $change->{when}, $change->{when}, "$config{srcdir}/$file";
 
 	return $page;
-} #}}}
+}
 
 1

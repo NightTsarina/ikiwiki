@@ -3,7 +3,10 @@
 [[!meta authorurl="""<TMPL_VAR AUTHORURL>"""]]
 </TMPL_IF>
 [[!meta title="""change to<TMPL_LOOP NAME="PAGES"> <TMPL_VAR PAGE></TMPL_LOOP> on <TMPL_VAR WIKINAME>"""]]
-<div class="metadata">
+<TMPL_IF PERMALINK>
+[[!meta permalink="<TMPL_VAR PERMALINK>"]]
+</TMPL_IF>
+<div id="change-<TMPL_VAR REV>" class="metadata">
 <span class="desc"><br />Changed pages:</span>
 <span class="pagelinks">
 <TMPL_LOOP NAME="PAGES">
@@ -16,7 +19,7 @@
 <span class="desc"><br />Changed by:</span>
 <span class="committer">
 <TMPL_IF NAME="AUTHORURL">
-<a href="<TMPL_VAR AUTHORURL>"><TMPL_VAR USER></a>
+<a href="<TMPL_VAR AUTHORURL>" rel="nofollow"><TMPL_VAR USER></a>
 <TMPL_ELSE>
 <TMPL_VAR USER>
 </TMPL_IF>
@@ -24,19 +27,19 @@
 <span class="desc"><br />Commit type:</span>
 <span class="committype"><TMPL_VAR COMMITTYPE></span>
 <span class="desc"><br />Date:</span>
-<span class="changedate"><TMPL_VAR COMMITDATE></span>
+<span class="changedate"><TMPL_VAR COMMITDATE>
 </div>
 <div class=changelog>
 <TMPL_LOOP NAME="MESSAGE">
 <TMPL_IF NAME="LINE">
-<TMPL_VAR NAME="LINE" ESCAPE="HTML"><br />
+<TMPL_VAR NAME="LINE"><br />
 </TMPL_IF>
 </TMPL_LOOP>
 </div>
 <TMPL_IF NAME="DIFF">
 <div class=diff>
 <pre>
-<TMPL_VAR NAME="DIFF" ESCAPE="HTML">
+<TMPL_VAR NAME="DIFF">
 </pre>
 </div>
 </TMPL_IF>
