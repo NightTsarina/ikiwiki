@@ -393,16 +393,13 @@ sub rcs_getctime ($) {
 	eval q{use XML::Simple};
 	local $/=undef;
 
-	# Sigh... doing things the hard way again
-	my $repodir=$config{srcdir};
-
-	my $filer=substr($file, length($repodir));
+	my $filer=substr($file, length($config{srcdir}));
 	$filer =~ s:^[/]+::;
 
 	my $child = open(LOG, "-|");
 	if (! $child) {
 		exec("darcs", "changes", "--xml", "--reverse",
-			"--repodir", "$repodir", "$filer")
+			"--repodir", $config{srcdir}, $filer)
 		|| error("'darcs changes $filer' failed to run");
 	}
 
