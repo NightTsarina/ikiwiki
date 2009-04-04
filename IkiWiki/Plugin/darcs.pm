@@ -205,7 +205,7 @@ sub rcs_commit ($$$;$$) {
 	# Update the repository by pulling from the default repository, which is
 	# master repository.
 	silentsystem('darcs', "pull", "--quiet", "--repodir", $config{srcdir},
-		"--all") !=0 || error("'darcs pull' failed");
+		"--all") == 0 || error("'darcs pull' failed");
 
 	# If this updating yields any conflicts, we'll record them now to resolve
 	# them.  If nothing is recorded, there are no conflicts.
