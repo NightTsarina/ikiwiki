@@ -7,7 +7,7 @@ repository="$3"
 
 usage () {
 	echo "usage: ikiwiki-makerepo svn|git|monotone|darcs srcdir repository" >&2
-	echo "       ikiwiki-makerepo bzr|mercurial|darcs srcdir" >&2
+	echo "       ikiwiki-makerepo bzr|mercurial srcdir" >&2
 	exit 1
 }
 
@@ -20,7 +20,7 @@ if [ ! -d "$srcdir" ]; then
 	exit 1
 fi
 
-if [ "$rcs" != mercurial ] && [ "$rcs" != bzr ] && [ "$rcs" != darcs ]; then
+if [ "$rcs" != mercurial ] && [ "$rcs" != bzr ]; then
 	if [ -z "$repository" ]; then
 		echo "you need to specify both a srcdir and a repository for $rcs" >&2
 		usage
@@ -125,15 +125,6 @@ darcs)
 	if [ -e "$srcdir/_darcs" ]; then
 		echo "$srcdir already seems to be a darcs repository" >&2
 		exit 1
-	fi
-
-	# if only one arg is given, we turn the given srcdir into the darcs
-	# master repo with a hidden srcdir inside its _darcs directory.
-	if [ -z "$repository" ]; then
-		echo "Turning $srcdir into master repo."
-		repository="$srcdir"
-		srcdir="$srcdir/_darcs/srcdir"
-		echo "The new srcdir is $srcdir - adjust ikiwiki.setup accordingly!"
 	fi
 
 	mkdir -p "$repository"
