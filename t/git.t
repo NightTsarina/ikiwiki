@@ -3,19 +3,17 @@ use warnings;
 use strict;
 
 my $dir;
-my $gitrepo;
 BEGIN {
 	$dir="/tmp/ikiwiki-test-git.$$";
-	$gitrepo="$dir/repo";
 	my $git=`which git`;
 	chomp $git;
-	if (! -x $git || ! mkdir($dir) || ! mkdir($gitrepo)) {
+	if (! -x $git || ! mkdir($dir)) {
 		eval q{
-			use Test::More skip_all => "git not available or could not make test dirs"
+			use Test::More skip_all => "git not available or could not make test dir"
 		}
 	}
 }
-use Test::More tests => 16;
+use Test::More tests => 18;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -25,17 +23,16 @@ $config{srcdir} = "$dir/src";
 IkiWiki::loadplugins();
 IkiWiki::checkconfig();
 
-system "cd $gitrepo && git init >/dev/null 2>&1";
-system "cd $gitrepo && echo dummy > dummy; git add . >/dev/null 2>&1";
-system "cd $gitrepo && git commit -m Initial >/dev/null 2>&1";
-system "git clone -l -s $gitrepo $config{srcdir} >/dev/null 2>&1";
+ok (mkdir($config{srcdir}));
+is (system("./ikiwiki-makerepo git $config{srcdir} $dir/repo"), 0);
 
 my @changes;
 @changes = IkiWiki::rcs_recentchanges(3);
 
 is($#changes, 0); # counts for dummy commit during repo creation
-is($changes[0]{message}[0]{"line"}, "Initial");
-is($changes[0]{pages}[0]{"page"}, "dummy");
+# ikiwiki-makerepo's first commit is setting up the .gitignore
+is($changes[0]{message}[0]{"line"}, "initial commit");
+is($changes[0]{pages}[0]{"page"}, ".gitignore");
 
 # Web commit
 my $test1 = readfile("t/test1.mdwn");
