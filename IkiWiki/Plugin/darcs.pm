@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 # Support for the darcs rcs, <URL:http://darcs.net/>.
 # Copyright (C) 2006  Thomas Schwinge <tschwinge@gnu.org>
 #               2007  Benjamin A'Lee <bma@bmalee.eu>
@@ -36,13 +37,11 @@
 # you must not 'darcs push' into this repository, as this might create
 # race conditions, as I understand it.
 
-
 package IkiWiki::Plugin::darcs;
 
 use warnings;
 use strict;
 use IkiWiki;
-
 
 sub import {
 	hook(type => "checkconfig", id => "darcs", call => \&checkconfig);
@@ -58,9 +57,6 @@ sub import {
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
 }
-
-
-# Internal functions
 
 sub silentsystem (@) {
 	open(SAVED_STDOUT, ">&STDOUT");
@@ -94,8 +90,8 @@ sub darcs_info ($$$) {
 }
 
 sub file_in_vc($$) {
-    my $repodir = shift;
-    my $file = shift;
+	my $repodir = shift;
+	my $file = shift;
 
 	my $child = open(DARCS_MANIFEST, "-|");
 	if (! $child) {
@@ -115,13 +111,10 @@ sub darcs_rev($) {
 	my $file = shift; # Relative to the repodir.
 	my $repodir = $config{srcdir};
 
-    return "" if (! file_in_vc($repodir, $file));
+	return "" if (! file_in_vc($repodir, $file));
 	my $hash = darcs_info('hash', $repodir, $file);
 	return defined $hash ? $hash : "";
 }
-
-
-# Exported functions.
 
 sub checkconfig() {
 	if (defined $config{darcs_wrapper} && length $config{darcs_wrapper}) {
@@ -134,38 +127,38 @@ sub checkconfig() {
 
 sub getsetup() {
 	return
-	plugin => {
-		safe => 0, # rcs plugin
-		rebuild => undef,
-	},
-	darcs_wrapper => {
-		type => "string",
-		example => "/darcs/repo/_darcs/ikiwiki-wrapper",
-		description => "wrapper to generate (set as master repo apply hook)",
-		safe => 0, # file
-		rebuild => 0,
-	},
-	darcs_wrappermode => {
-		type => "string",
-		example => '06755',
-		description => "mode for darcs_wrapper (can safely be made suid)",
-		safe => 0,
-		rebuild => 0,
-	},
-	historyurl => {
-		type => "string",
-		example => "http://darcs.example.com/darcsweb.cgi?r=wiki;a=filehistory;f=[[file]]",
-		description => "darcsweb url to show file history ([[file]] substituted)",
-		safe => 1,
-		rebuild => 1,
-	},
-	diffurl => {
-		type => "string",
-		example => "http://darcs.example.com/darcsweb.cgi?r=wiki;a=filediff;h=[[hash]];f=[[file]]",
-		description => "darcsweb url to show a diff ([[hash]] and [[file]] substituted)",
-		safe => 1,
-		rebuild => 1,
-	},
+		plugin => {
+			safe => 0, # rcs plugin
+			rebuild => undef,
+		},
+		darcs_wrapper => {
+			type => "string",
+			example => "/darcs/repo/_darcs/ikiwiki-wrapper",
+			description => "wrapper to generate (set as master repo apply hook)",
+			safe => 0, # file
+			rebuild => 0,
+		},
+		darcs_wrappermode => {
+			type => "string",
+			example => '06755',
+			description => "mode for darcs_wrapper (can safely be made suid)",
+			safe => 0,
+			rebuild => 0,
+		},
+		historyurl => {
+			type => "string",
+			example => "http://darcs.example.com/darcsweb.cgi?r=wiki;a=filehistory;f=[[file]]",
+			description => "darcsweb url to show file history ([[file]] substituted)",
+			safe => 1,
+			rebuild => 1,
+		},
+		diffurl => {
+			type => "string",
+			example => "http://darcs.example.com/darcsweb.cgi?r=wiki;a=filediff;h=[[hash]];f=[[file]]",
+			description => "darcsweb url to show a diff ([[hash]] and [[file]] substituted)",
+			safe => 1,
+			rebuild => 1,
+		},
 }
 
 sub rcs_update () {
@@ -176,8 +169,7 @@ sub rcs_prepedit ($) {
 	# Prepares to edit a file under revision control.  Returns a token that
 	# must be passed to rcs_commit() when the file is to be commited.  For us,
 	# this token the hash value of the latest patch that modifies the file,
-	# i.e. something like its current revision.  If the file is not yet added
-	# to the repository, we return TODO: the empty string.
+	# i.e. something like its current revision.
 
 	my $file = shift; # Relative to the repodir.
 	my $rev = darcs_rev($file);
@@ -195,63 +187,63 @@ sub rcs_commit ($$$;$$) {
 
 	# Yes, the following is a bit convoluted.
 	if ($changed) {
-	# TODO.  Invent a better, non-conflicting name.
-	rename("$config{srcdir}/$file", "$config{srcdir}/$file.save") or
-		error("failed to rename $file to $file.save: $!");
+		# TODO.  Invent a better, non-conflicting name.
+		rename("$config{srcdir}/$file", "$config{srcdir}/$file.save") or
+			error("failed to rename $file to $file.save: $!");
 
-	# Roll the repository back to $rcstoken.
+		# Roll the repository back to $rcstoken.
 
-	# TODO.  Can we be sure that no changes are lost?  I think that
-	# we can, if we make sure that the 'darcs push' below will always
-	# succeed.
-
-	# We need to revert everything as 'darcs obliterate' might choke
-	# otherwise.
-	# TODO: 'yes | ...' needed?  Doesn't seem so.
-	silentsystem('darcs', "revert", "--repodir", $config{srcdir}, "--all") and
-		error("'darcs revert' failed");
-	# Remove all patches starting at $rcstoken.
-	my $child = open(DARCS_OBLITERATE, "|-");
-	if (! $child) {
-		open(STDOUT, ">/dev/null");
-		exec('darcs', "obliterate", "--repodir", $config{srcdir},
-		   "--match", "hash " . $rcstoken) and
-		   error("'darcs obliterate' failed");
-	}
-	while (print DARCS_OBLITERATE "y") {
-		;
-	}
-	close(DARCS_OBLITERATE);
-	# Restore the $rcstoken one.
-	silentsystem('darcs', "pull", "--quiet", "--repodir", $config{srcdir},
-		"--match", "hash " . $rcstoken, "--all") and
-		error("'darcs pull' failed");
-
-	# We're back at $rcstoken.  Re-install the modified file.
-	rename("$config{srcdir}/$file.save", "$config{srcdir}/$file") or
-		error("failed to rename $file.save to $file: $!");
+		# TODO.  Can we be sure that no changes are lost?  I think that
+		# we can, if we make sure that the 'darcs push' below will always
+		# succeed.
+	
+		# We need to revert everything as 'darcs obliterate' might choke
+		# otherwise.
+		# TODO: 'yes | ...' needed?  Doesn't seem so.
+		silentsystem('darcs', "revert", "--repodir", $config{srcdir}, "--all") == 0 ||
+			error("'darcs revert' failed");
+		# Remove all patches starting at $rcstoken.
+		my $child = open(DARCS_OBLITERATE, "|-");
+		if (! $child) {
+			open(STDOUT, ">/dev/null");
+			exec('darcs', "obliterate", "--repodir", $config{srcdir},
+			   "--match", "hash " . $rcstoken) and
+			   error("'darcs obliterate' failed");
+		}
+		1 while print DARCS_OBLITERATE "y";
+		close(DARCS_OBLITERATE);
+		# Restore the $rcstoken one.
+		silentsystem('darcs', "pull", "--quiet", "--repodir", $config{srcdir},
+			"--match", "hash " . $rcstoken, "--all") == 0 ||
+			error("'darcs pull' failed");
+	
+		# We're back at $rcstoken.  Re-install the modified file.
+		rename("$config{srcdir}/$file.save", "$config{srcdir}/$file") or
+			error("failed to rename $file.save to $file: $!");
 	}
 
 	# Record the changes.
 	my $author;
 	if (defined $user) {
 		$author = "$user\@web";
-	} elsif (defined $ipaddr) {
+	}
+	elsif (defined $ipaddr) {
 		$author = "$ipaddr\@web";
-	} else {
+	}
+	else {
 		$author = "anon\@web";
 	}
 	if (!defined $message || !length($message)) {
 		$message = "empty message";
 	}
 	silentsystem('darcs', 'record', '--repodir', $config{srcdir}, '--all',
-	   '-m', $message, '--author', $author, $file) and
+			'-m', $message, '--author', $author, $file) == 0 ||
 		error("'darcs record' failed");
 
 	# Update the repository by pulling from the default repository, which is
 	# master repository.
 	silentsystem('darcs', "pull", "--quiet", "--repodir", $config{srcdir},
-		"--all") and error("'darcs pull' failed");
+		"--all") !=0 || error("'darcs pull' failed");
 
 	# If this updating yields any conflicts, we'll record them now to resolve
 	# them.  If nothing is recorded, there are no conflicts.
@@ -259,25 +251,26 @@ sub rcs_commit ($$$;$$) {
 	# TODO: Use only the first line here, i.e. only the patch name?
 	writefile("$file.log", $config{srcdir}, 'resolve conflicts: ' . $message);
 	silentsystem('darcs', 'record', '--repodir', $config{srcdir}, '--all',
-		'-m', 'resolve conflicts: ' . $message, '--author', $author, $file) and
+		'-m', 'resolve conflicts: ' . $message, '--author', $author, $file) == 0 ||
 		error("'darcs record' failed");
 	my $conflicts = darcs_rev($file) ne $rcstoken;
 	unlink("$config{srcdir}/$file.log") or
-	error("failed to remove '$file.log'");
+		error("failed to remove '$file.log'");
 
 	# Push the changes to the main repository.
-	silentsystem('darcs', 'push', '--quiet', '--repodir', $config{srcdir}, '--all')
-	and error("'darcs push' failed");
+	silentsystem('darcs', 'push', '--quiet', '--repodir', $config{srcdir}, '--all') == 0 ||
+		error("'darcs push' failed");
 	# TODO: darcs send?
 
 	if ($conflicts) {
 		my $document = readfile("$config{srcdir}/$file");
 		# Try to leave everything in a consistent state.
 		# TODO: 'yes | ...' needed?  Doesn't seem so.
-		silentsystem('darcs', "revert", "--repodir", $config{srcdir}, "--all") and
+		silentsystem('darcs', "revert", "--repodir", $config{srcdir}, "--all") == 0 || 
 			warn("'darcs revert' failed");
 		return $document;
-	} else {
+	}
+	else {
 		return undef;
 	}
 }
@@ -288,9 +281,11 @@ sub rcs_commit_staged($$$) {
 	my $author;
 	if (defined $user) {
 		$author = "$user\@web";
-	} elsif (defined $ipaddr) {
+	}
+	elsif (defined $ipaddr) {
 		$author = "$ipaddr\@web";
-	} else {
+	}
+	else {
 		$author = "anon\@web";
 	}
 	if (!defined $message || !length($message)) {
@@ -298,11 +293,11 @@ sub rcs_commit_staged($$$) {
 	}
 
 	silentsystem('darcs', "record", "--repodir", $config{srcdir}, "-a", "-A", $author,
-		"-m", $message)	and error("'darcs record' failed");
+		"-m", $message)	== 0 || error("'darcs record' failed");
 
 	# Push the changes to the main repository.
-	silentsystem('darcs', 'push', '--quiet', '--repodir', $config{srcdir}, '--all')
-		and error("'darcs push' failed");
+	silentsystem('darcs', 'push', '--quiet', '--repodir', $config{srcdir}, '--all') == 0 ||
+		error("'darcs push' failed");
 	# TODO: darcs send?
 
 	return undef;
@@ -314,7 +309,7 @@ sub rcs_add ($) {
 	if(! file_in_vc($config{srcdir}, $file)) {
 		# Intermediate directories will be added automagically.
 		system('darcs', 'add', '--quiet', '--repodir', $config{srcdir},
-			'--boring', $file) and error("'darcs add' failed");
+			'--boring', $file) == 0 || error("'darcs add' failed");
 	}
 }
 
@@ -328,8 +323,8 @@ sub rcs_rename ($$) {
 	my $a = shift; # Relative to the repodir.
 	my $b = shift; # Relative to the repodir.
 
-	system('darcs', 'mv', '--repodir', $config{srcdir}, $a, $b)
-	   and error("'darcs mv' failed");
+	system('darcs', 'mv', '--repodir', $config{srcdir}, $a, $b) == 0 ||
+		error("'darcs mv' failed");
 }
 
 sub rcs_recentchanges ($) {
@@ -367,20 +362,17 @@ sub rcs_recentchanges ($) {
 		push @pages, $_ for (@{$patch->{summary}->[0]->{modify_file}});
 		push @pages, $_ for (@{$patch->{summary}->[0]->{add_file}});
 		push @pages, $_ for (@{$patch->{summary}->[0]->{remove_file}});
-		for (@pages) {
-			my $f = $_;
-			$f = $_->{content} if (ref $_);
+		foreach my $f (@pages) {
+			$f = $f->{content} if ref $f;
 			$f =~ s,^\s+,,; $f =~ s,\s+$,,; # cut whitespace
 
 			push @files, $f;
 		}
-		for (@{$patch->{summary}->[0]->{move}}) {
-			my $p = $_;
+		foreach my $p (@{$patch->{summary}->[0]->{move}}) {
 			push @files, $p->{from};
 		}
 
-		for (@files) {
-			my $f = $_;
+		foreach my $f (@files) {
 			my $d = defined $config{'diffurl'} ? $config{'diffurl'} : "";
 			$d =~ s/\[\[file\]\]/$f/go;
 			$d =~ s/\[\[hash\]\]/$hash/go;
@@ -397,12 +389,13 @@ sub rcs_recentchanges ($) {
 			. scalar @pg . " changes)");
 
 		my @message;
-		push @message, { line => $_ } for (@{$patch->{name}});
+		push @message, { line => $_ } foreach (@{$patch->{name}});
 
 		my $committype;
 		if ($patch->{author} =~ /\@web$/) {
 			$committype = "web";
-		} else {
+		}
+		else {
 			$committype = "darcs";
 		}
 
@@ -456,25 +449,26 @@ sub rcs_getctime ($) {
 	}
 
 	my $data;
-	$data .= $_ while(<LOG>);
+	{
+		local $/=undef;
+		$data = <LOG>;
+	}
 	close LOG;
 
 	my $log = XMLin($data, ForceArray => 1);
 
-	my $datestr=$log->{patch}[0]->{local_date};
+	my $datestr = $log->{patch}[0]->{local_date};
 
 	if (! defined $datestr) {
 		warn "failed to get ctime for $filer";
 		return 0;
 	}
 
-	my $date=str2time($datestr);
-
-	#debug("found ctime ".localtime($date)." for $filer");
+	my $date = str2time($datestr);
+	
+	debug("ctime for '$file': ". localtime($date));
 
 	return $date;
 }
 
 1
-
-# vim: ts=4 sw=4 noet
