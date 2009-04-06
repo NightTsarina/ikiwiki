@@ -34,7 +34,6 @@ Net::Amazon::S3
 Text::WikiCreole
 Term::ReadLine::Gnu
 HTML::Tree
-Authen::Passphrase
 Sort::Naturally
 
 =head1 AUTHOR
