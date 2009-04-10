@@ -1,0 +1,17 @@
+If you use twitter or identi.ca, here's how to make a box
+on the side of your blog that holds your recent status updates
+from there, like I have on [my blog](http://kitenet.net/~joey/blog/)
+--[[Joey]] 
+
+* Enable the [[plugins/aggregate]] plugin, and set up a cron
+  job for it.
+* At the top of your blog's page, add something like the following.
+  You'll want to change the urls of course.
+
+	\[[!template id=note text="""
+	\[[!aggregate expirecount=5 name="identi.ca posts"
+	feedurl="http://identi.ca/api/statuses/user_timeline/joeyh.atom"
+	url="http://identi.ca/joeyh"]]
+	\[[!inline pages="internal(identi.ca_posts/*)" archive=yes show=5
+	quick=yes template=titlepage]]
+	"""]]
