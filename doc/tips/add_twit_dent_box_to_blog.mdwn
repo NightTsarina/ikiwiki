@@ -9,9 +9,10 @@ from there, like I have on [my blog](http://kitenet.net/~joey/blog/)
   You'll want to change the urls of course.
 
 	\[[!template id=note text="""
-	\[[!aggregate expirecount=5 name="identi.ca posts"
-	feedurl="http://identi.ca/api/statuses/user_timeline/joeyh.atom"
-	url="http://identi.ca/joeyh"]]
-	\[[!inline pages="internal(identi.ca_posts/*)" archive=yes show=5
-	feeds=yes template=titlepage]]
+	\[[!aggregate expirecount=5 name="dents" url="http://identi.ca/joeyh"
+	feedurl="http://identi.ca/api/statuses/user_timeline/joeyh.atom"]]
+	\[[!inline pages="internal(dents/*)" archive=yes show=5 feeds=no]]
 	"""]]
+
+For a cleaner look without the post dates, add `template=titlepage`
+to the `inline` directive.
