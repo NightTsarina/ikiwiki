@@ -1,0 +1,14 @@
+It seems that the inline directive doesn't generate wikilinks to the pages it includes.  For example I would expect the following to inline all bugs inside this bug report:
+
+\[[!inline pages="bugs/* and !*/discussion and backlink(bugs)" feeds=no postform=no archive=yes show="10"]]
+
+But here it is:
+
+[[!inline pages="bugs/* and !*/discussion and backlink(bugs)" feeds=no postform=no archive=yes show="10"]]
+
+and note that it only included the 'normal' wikilinks (and also note that this page is not marked done even though the done page is inlined).
+One might also wonder if inline would make this page link to any internal links on those inlined pages too, but I think
+that would be overkill.
+
+I'm not even really sure if this is a bug or defined behaviour, but I thought it might work and it didn't.  Regardless,
+the correct behaviour, whichever is decided, should be documented.  -- [[Will]]
