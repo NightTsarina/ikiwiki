@@ -1,4 +1,4 @@
-It seems that the inline directive doesn't generate wikilinks to the pages it includes.  For example I would expect the following to inline all bugs inside this bug report:
+It seems that the [[ikiwiki/directive/inline]] directive doesn't generate wikilinks to the pages it includes.  For example I would expect the following to inline all bugs inside this bug report:
 
 \[[!inline pages="bugs/* and !*/discussion and backlink(bugs)" feeds=no postform=no archive=yes show="10"]]
 
@@ -12,3 +12,7 @@ that would be overkill.
 
 I'm not even really sure if this is a bug or defined behaviour, but I thought it might work and it didn't.  Regardless,
 the correct behaviour, whichever is decided, should be documented.  -- [[Will]]
+
+It appears that [[ikiwiki/directive/map]] also doesn't wikilink to the pages it links.  Perhaps in each of these
+cases there should be another parameter to the directive that allows linking to switched on.  Just switching
+it on universally at this point might break a number of people's pagespecs.  -- [[Will]]
