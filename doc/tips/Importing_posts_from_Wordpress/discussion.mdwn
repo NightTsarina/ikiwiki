@@ -31,3 +31,11 @@ etc.
 
 >> This is only part of the problem... I'm not exactly sure what's going on, and it's get late/early for me....
 
+>>> I used --force for fast-import, but then everything seems deleted, so you end up doing a reset, checkout, add, *then* commit.
+>>> Seems really odd. I edited the script however, maybe this is why... this is my changes:
+
+    -print "data %d" % len(data)
+    +print "data %d merge refs/heads/%s" % (len(data), branch)
+
+>>> That control character is a ^q^0 in emacs, see git fast-import --help for more info.
+>>> I'll be trying an import *without* that change, to see what happens.
