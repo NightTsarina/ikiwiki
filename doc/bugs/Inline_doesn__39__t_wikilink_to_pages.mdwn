@@ -16,3 +16,58 @@ the correct behaviour, whichever is decided, should be documented.  -- [[Will]]
 It appears that [[ikiwiki/directive/map]] also doesn't wikilink to the pages it links.  Perhaps in each of these
 cases there should be another parameter to the directive that allows linking to switched on.  Just switching
 it on universally at this point might break a number of people's pagespecs.  -- [[Will]]
+
+Here is a patch to make map link to its linked pages (when passed `link="yes"`).  It is a bit problematic in that it uses a pagespec
+to decide what to link to (which is why I wanted it).  However, at the time the pagespec is used the links
+for each page haven't finished being calculated (we're using the pagespec to figure out those links,
+remember).  This means that some pagespec match functions may not work correctly.  Sigh.  
+It would be nice to find a topological ordering of the pages and scan them in that order
+so that everything we need is found before we need it, but this patch doesn't do that (it would be
+complex).
+
+If you just use simple pagespecs you'll be fine.  Unfortunately I really wanted this for more complex
+pagespecs.  -- [[Will]]
+
+    diff --git a/IkiWiki/Plugin/map.pm b/IkiWiki/Plugin/map.pm
+    index 3284931..57c0a7a 100644
+    --- a/IkiWiki/Plugin/map.pm
+    +++ b/IkiWiki/Plugin/map.pm
+    @@ -13,7 +13,7 @@ use IkiWiki 3.00;
+     
+     sub import {
+     	hook(type => "getsetup", id => "map", call => \&getsetup);
+    -	hook(type => "preprocess", id => "map", call => \&preprocess);
+    +	hook(type => "preprocess", id => "map", call => \&preprocess, scan => 1);
+     }
+     
+     sub getsetup () {
+    @@ -27,7 +27,9 @@ sub getsetup () {
+     sub preprocess (@) {
+     	my %params=@_;
+     	$params{pages}="*" unless defined $params{pages};
+    -	
+    +
+    +	return if (!defined wantarray && !IkiWiki::yesno($params{link}));
+    +
+     	my $common_prefix;
+     
+     	# Get all the items to map.
+    @@ -42,6 +44,9 @@ sub preprocess (@) {
+     			else {
+     				$mapitems{$page}='';
+     			}
+    +			if (!defined wantarray && IkiWiki::yesno($params{link})) {
+    +				push @{$links{$params{page}}}, $page;
+    +			}
+     			# Check for a common prefix.
+     			if (! defined $common_prefix) {
+     				$common_prefix=$page;
+    @@ -62,6 +67,8 @@ sub preprocess (@) {
+     		}
+     	}
+     	
+    +	return if ! defined wantarray;
+    +	
+     	# Common prefix should not be a page in the map.
+     	while (defined $common_prefix && length $common_prefix &&
+     	       exists $mapitems{$common_prefix}) {
