@@ -17,6 +17,12 @@ It appears that [[ikiwiki/directive/map]] also doesn't wikilink to the pages it 
 cases there should be another parameter to the directive that allows linking to switched on.  Just switching
 it on universally at this point might break a number of people's pagespecs.  -- [[Will]]
 
+> There's a simple reason why these directives don't generate a record of a
+> wikilink between them and the pages they include: Semantically, inlining
+> a page is not the same as writing a link to it. Nor is generating a map that
+> lists a page the same as linking to it. I don't think this is a bug.
+> --[[Joey]] 
+
 Here is a patch to make map link to its linked pages (when passed `link="yes"`).  It is a bit problematic in that it uses a pagespec
 to decide what to link to (which is why I wanted it).  However, at the time the pagespec is used the links
 for each page haven't finished being calculated (we're using the pagespec to figure out those links,
