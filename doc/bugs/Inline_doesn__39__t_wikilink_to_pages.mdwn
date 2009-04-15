@@ -23,6 +23,27 @@ it on universally at this point might break a number of people's pagespecs.  -- 
 > lists a page the same as linking to it. I don't think this is a bug.
 > --[[Joey]] 
 
+>> Fair enough.  I guess we can mark this as [[done]] then.
+>>
+>> Just a bit of background on where I was going here... I was looking for
+>> a simpler way of attacking [[todo/tracking_bugs_with_dependencies]].
+>> In particular, rather than introducing changes to the pagespec definition,
+>> I wondered if you could use wiki pages as the defined pagespec and 
+>> introduce a 'match_mutual' function which matches whenever two pages
+>> link to the same third page, then you don't need to alter the pagespec
+>> handling code.
+>>
+>> But that requires being able use use a pagespec to decide what pages
+>> are linked to.  e.g. I want to make an 'openbugs' page that links to all
+>> open bugs.  Then I could make a 'readybugs' page that links to
+>> `backlink(openbugs) and !mutualLink(openbugs)`.  That is, all bugs
+>> that are open and do not themselves link to an open bug.
+>>
+>> The problem with all this is that it introduces an ordering dependency,
+>> as I noted below.  I think the original proposal is better, because it
+>> handles that ordering dependency in the definition of the pagespecs.
+>> --[[Will]]
+
 Here is a patch to make map link to its linked pages (when passed `link="yes"`).  It is a bit problematic in that it uses a pagespec
 to decide what to link to (which is why I wanted it).  However, at the time the pagespec is used the links
 for each page haven't finished being calculated (we're using the pagespec to figure out those links,
