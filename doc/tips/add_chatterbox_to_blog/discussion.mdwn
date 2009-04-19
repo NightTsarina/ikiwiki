@@ -14,3 +14,9 @@ mine, live, here: <http://simonraven.kisikew.org/blog/meta/microblog-feed/>
 I expected something like: sidebar, with a number, and displaying them in the sidebar, but they don't display (similar to what you have on your blog).
 
 On the [[/ikiwiki/pagespec]] page, it says "internal" pages aren't "first-class" wiki pages, so it's best not to directly display them, so how do you manage to display them? I'd like to display their name, and what they link to in the sidebar, or otherwise in the main body.
+
+> That's what the inline does, displays the internal pages.
+> 
+> You need to fix your pagespec to refer to where the pages are aggregated
+> to, under the page that contains the aggregate directive. In your example,
+> it should be `internal(./blog/meta/microblog-feed/kijkaqawej/*)` --[[Joey]]
