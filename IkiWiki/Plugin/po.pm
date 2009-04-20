@@ -180,8 +180,6 @@ sub scan (@) {
 	my $page=$params{page};
 	my $content=$params{content};
 
-	return unless UNIVERSAL::can("IkiWiki::Plugin::link", "import");
-
 	if (istranslation($page)) {
 		foreach my $destpage (@{$links{$page}}) {
 			if (istranslatable($destpage)) {
