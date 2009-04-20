@@ -2,3 +2,43 @@ When I attempt to use this script, I get the following error:
 warning: Not updating refs/heads/master (new tip 26b1787fca04f2f9772b6854843fe99fe06e6088 does not contain fc0ad65d14d88fd27a6cee74c7cef3176f6900ec).  I have git 1.5.6.5, any ideas?
 
 Thanks!!
+
+-----
+
+### KeyError: 146
+
+I also get this error, here's the output (it seems to stem from an error in the python script):
+
+<pre>
+Traceback (most recent call last):
+  File "../ikiwiki-wordpress-import.py", line 74, in <module>
+    main(*sys.argv[1:])
+  File "../ikiwiki-wordpress-import.py", line 54, in main
+    data = content.encode('ascii', 'html_replace')
+  File "../ikiwiki-wordpress-import.py", line 30, in <lambda>
+    % htmlentitydefs.codepoint2name[ord(c)] for c in x.object[x.start:x.end]]), x.end))
+KeyError: 146
+warning: Not updating refs/heads/master (new tip 6dca6ac939e12966bd64ce8a822ef14fe60622b2 does not contain 60b798dbf92ec5ae92f18acac3075c4304aca120)
+git-fast-import statistics:
+</pre>
+
+etc.
+
+
+> Well, if this really is a script error, it's not really the script, but the wordpress XML dump, referring to a
+> possible malformed or invalid unicode character in the dump file. This is what I can gather from other scripts.
+> I'll be checking my dump file shortly.
+
+>> This is only part of the problem... I'm not exactly sure what's going on, and it's get late/early for me....
+
+>>> I used --force for fast-import, but then everything seems deleted, so you end up doing a reset, checkout, add, *then* commit.
+>>> Seems really odd. I edited the script however, maybe this is why... this is my changes:
+
+    -print "data %d" % len(data)
+    +print "data %d merge refs/heads/%s" % (len(data), branch)
+
+>>> That control character is a ^q^0 in emacs, see git fast-import --help for more info.
+>>> I'll be trying an import *without* that change, to see what happens.
+
+>>>> I still have to do the above to preserve the changes done by this script... (removed previous note).
+

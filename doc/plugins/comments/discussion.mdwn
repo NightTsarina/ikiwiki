@@ -60,7 +60,7 @@ spam problems. So, use `check_canedit` as at least a first-level check?
 > have postcomment(blog/*) or something. (Perhaps instead of taking a glob, postcomment
 > should take a pagespec, so you can have postcomment(link(tags/commentable))?)
 >
-> This is why `anonok_pages => 'postcomment(*)'` and `locked_pages => '!postcomment(*)'`
+> This is why `anonok_pagespec => 'postcomment(*)'` and `locked_pages => '!postcomment(*)'`
 > are necessary to allow anonymous and logged-in editing (respectively).
 >
 >> I changed that to move the flag out of the page name, and into a variable that the `match_postcomment`

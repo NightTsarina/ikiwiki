@@ -1,4 +1,31 @@
-ikiwiki (3.09) UNRELEASED; urgency=low
+ikiwiki (3.11) unstable; urgency=low
+
+  * Add new hooks: canremove, canrename, rename. (intrigeri)
+  * rename: Refactor subpage rename handling code into rename hook. (intrigeri)
+  * po: New plugin, suporting translation of wiki pages using po files.
+    (intrigeri)
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 20 Apr 2009 19:40:25 -0400
+
+ikiwiki (3.10) unstable; urgency=low
+
+  * darcs: Finally added support for this VCS, thanks to many
+    contributors:
+    - Thomas Schwinge wrote the original file, implementing only rcs_commit.
+    - Benjamin A'Lee contributed an alternative implementation.
+    - Tuomo Valkonen contributed rcs_getctime and stub rcs_recentchanges.
+    - Simon Michael contributed multiple changes.
+    - Petr Ročkai fixed rcs_recentchanges.
+    - Sven M. Hallberg merged the above and added missing features.
+  * Add missing newline to Confirm Password prompt.
+  * Add missing permalink support to archivepage and titlepage templates.
+  * debian/control: Wrap fields.
+  * inline: Add author info to archive display.
+  * Add a microblog template that is useful for inlining microblogging posts.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 18 Apr 2009 19:40:25 -0400
+
+ikiwiki (3.09) unstable; urgency=low
 
   * inline: Add title_natural sort order, using Sort::Naturally
     (chrysn)
@@ -10,12 +37,12 @@ ikiwiki (3.09) UNRELEASED; urgency=low
   * comments: Fix too loose test for comments pages that matched
     normal pages with "comment_" in their name. Closes: #521322
   * comments: Fix anchor ids to be legal xhtml. Closes: #521339
-  * Add new hooks: canremove, canrename, rename. (intrigeri)
-  * rename: Refactor subpage rename handling code into rename hook. (intrigeri)
-  * po: New plugin, suporting translation of wiki pages using po files.
-    (intrigeri)
+  * Fix documentation of anonok_pagespec. Closes: #521793
+  * Add missing suggests on libtext-textile-perl. Closes: #522039
+  * recentchanges: change to using do=goto links for user links.
+  * Fix git test suite to use a bare repo.
 
- -- Joey Hess <joeyh@debian.org>  Thu, 19 Mar 2009 15:32:49 -0400
+ -- Joey Hess <joeyh@debian.org>  Sat, 04 Apr 2009 14:33:49 -0400
 
 ikiwiki (3.08) unstable; urgency=low
 

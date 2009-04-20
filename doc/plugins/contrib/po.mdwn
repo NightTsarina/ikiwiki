@@ -330,12 +330,57 @@ daring a timid "please pull"... or rather, please review again :)
 --[[intrigeri]]
 
 > Ok, I've reviewed and merged into my own po branch. It's looking very
-> mergeable. I would still like to go over the `po.pm` code in detail and 
-> review it, but it's very complex, and I'm happy with all the changes
-> outside `po.pm`. 
+> mergeable.
 > 
 > * Is it worth trying to fix compatability with `indexpages`?
+>> 
+>> Supporting `usedirs` being enabled or disabled was already quite
+>> hard IIRC, so supporting all four combinations of `usedirs` and
+>> `indexpages` settings will probably be painful. I propose we forget
+>> about it until someone reports he/she badly needs it, and then
+>> we'll see what can be done.
+>> 
 > * Would it make sense to go ahead and modify `page.tmpl` to use
 >   OTHERLANGUAGES and PERCENTTRANSLATED, instead of documenting how to modify it?
+>> 
+>> Done in my branch.
+>> 
+> * Would it be better to disable po support for pages that use unsupported
+>   or poorly-supported markup languages?
 > 
+>> I prefer keeping it enabled, as:
+>> 
+>> * most wiki markups "almost work"
+>> * when someone needs one of these to be fully supported, it's not
+>>   that hard to add dedicated support for it to po4a; if it were
+>>   disabled, I fear the ones who could do this would maybe think
+>>   it's blandly impossible and give up.
+>> 
+ 
+> * What's the reasoning behind checking that the link plugin
+>   is enabled? AFAICS, the same code in the scan hook should
+>   also work when other link plugins like camelcase are used.
+> * In `pagetemplate` there is a comment that claims the code
+>   relies on `genpage`, but I don't see how it does; it seems
+>   to always add a discussion link?
+> * Is there any real reason not to allow removing a translation?
+>   I'm imagining a spammy translation, which an admin might not
+>   be able to fix, but could remove.
+> * Re the meta title escaping issue worked around by `change`. 
+>   I suppose this does not only affect meta, but other things
+>   at scan time too. Also, handling it only on rebuild feels
+>   suspicious -- a refresh could involve changes to multiple
+>   pages and trigger the same problem, I think. Also, exposing
+>   this rebuild to the user seems really ugly, not confidence inducing.
+>   
+>   So I wonder if there's a better way. Such as making po, at scan time,
+>   re-run the scan hooks, passing them modified content (either converted
+>   from po to mdwn or with the escaped stuff cheaply de-escaped). (Of
+>   course the scan hook would need to avoid calling itself!)
+> 
+>   (This doesn't need to block the merge, but I hope it can be addressed
+>   eventually..)
+>  
 > --[[Joey]] 
+>> 
+>> --[[intrigeri]]
