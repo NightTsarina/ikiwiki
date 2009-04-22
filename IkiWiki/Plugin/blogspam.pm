@@ -9,7 +9,7 @@ my $defaulturl='http://test.blogspam.net:8888/';
 
 sub import {
 	hook(type => "getsetup", id => "blogspam",  call => \&getsetup);
-	hook(type => "checkconfig", id => "skeleton", call => \&checkconfig);
+	hook(type => "checkconfig", id => "blogspam", call => \&checkconfig);
 	hook(type => "checkcontent", id => "blogspam", call => \&checkcontent);
 }
 
