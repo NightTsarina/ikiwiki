@@ -9,6 +9,7 @@ my $defaulturl='http://test.blogspam.net:8888/';
 
 sub import {
 	hook(type => "getsetup", id => "blogspam",  call => \&getsetup);
+	hook(type => "checkconfig", id => "skeleton", call => \&checkconfig);
 	hook(type => "checkcontent", id => "blogspam", call => \&checkcontent);
 }
 
@@ -43,17 +44,19 @@ sub getsetup () {
 		},
 }
 
-sub checkcontent (@) {
-	my %params=@_;
-
+sub checkconfig () {
+	# This is done at checkconfig time because printing an error
+	# if the module is missing when a spam is posted would not
+	# let the admin know about the problem.
 	eval q{
 		use RPC::XML;
 		use RPC::XML::Client;
 	};
-	if ($@) {
-		warn($@);
-		return undef;
-	}
+	error $@ if $@;
+}
+
+sub checkcontent (@) {
+	my %params=@_;
 	
  	if (exists $config{blogspam_pagespec}) {
 		return undef

@@ -2,6 +2,10 @@ ikiwiki (3.11) UNRELEASED; urgency=low
 
   * Add python:Depends to control file. Closes: #525086
   * websetup: Display stderr in browser if ikiwiki setup fails.
+  * blogspam: Load RPC::XML library in checkconfig, so that an
+    error can be printed at that point if it's not available,
+    allowing the admin to see it during wiki setup.
+    Closes: #520015
 
  -- Joey Hess <joeyh@debian.org>  Tue, 21 Apr 2009 21:41:38 -0400
 
