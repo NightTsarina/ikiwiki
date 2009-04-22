@@ -28,3 +28,23 @@ NicolasLimare
 > sidebar could be done as you describe using .shtml. --[[Joey]]
 
 [[wishlist]]
+
+> I have a plan for a way to avoid unecessary rebuilds caused by the
+> sidebar. The idea is to use wikistate to store what a sidebar renders to.
+> Then in the needsbuild hook, render sidebar(s) and compare with their
+> previous stored rendering. If a sidebar's rendered content has changed,
+> then all pages that display that sidebar need to be forced to be rebuilt.
+> 
+> Also, if there is no previous stored rendering for a sidebar, or
+> if there is a stored rendering for a sidebar page that no longer exists, then
+> the pages need to be rebuilt. (This should deal with the [[bugs/Building_a_sidebar_does_not_regenerate_the_subpages]] bug.
+> 
+> This would also save significant time, since the stored sidebar rendering
+> could just be dumped into the page by the pagetemplate hook. Current code
+> re-loads and renders the same sidebar file for every page built!
+> 
+> The sticky part is relative links on the sidebar. These would need to
+> be modified somehow depending on the page that the sidebar is placed on.
+> Doing that seems hard/tricky. Maybe it would not be worth the optimisation
+> of using the stored rendering after all, and instead still re-render it for
+> each page? --[[Joey]] 
