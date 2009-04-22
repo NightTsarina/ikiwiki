@@ -426,8 +426,10 @@ sub showform ($$) {
 					"-refresh", "-wrappers", "-v");
 			}
 
+			close STDERR;
+			open(STDERR, ">&STDOUT");
 			my $ret=system(@command);
-			print "\n<pre>";
+			print "\n<\/pre>";
 			if ($ret != 0) {
 				print '<p class="error">'.
 					sprintf(gettext("<p class=\"error\">Error: %s exited nonzero (%s)"),
