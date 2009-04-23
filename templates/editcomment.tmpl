@@ -6,8 +6,11 @@
 <TMPL_VAR FIELD-PAGE>
 <TMPL_UNLESS NAME=USERNAME>
 <TMPL_IF NAME=ALLOWAUTHOR>
-Name: <TMPL_VAR NAME=FIELD-AUTHOR> (optional)<br />
+Name: <TMPL_VAR NAME=FIELD-AUTHOR> (optional, or
+<a href="<TMPL_VAR SIGNINURL>">Signin</a>)<br />
 Website: <TMPL_VAR NAME=FIELD-URL> (optional)<br />
+<TMPL_ELSE>
+(You might want to <a href="<TMPL_VAR SIGNINURL>">Signin</a> first?)<br />
 </TMPL_IF>
 </TMPL_UNLESS>
 Subject: <TMPL_VAR FIELD-SUBJECT><br />

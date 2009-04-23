@@ -317,6 +317,13 @@ sub editcomment ($$) {
 			force => 1);
 	}
 
+	if (! defined $session->param('name')) {
+		# Make signinurl work and return here.
+		$form->tmpl_param(signinurl => IkiWiki::cgiurl(do => 'signin'));
+		$session->param(postsignin => $ENV{QUERY_STRING});
+		IkiWiki::cgi_savesession($session);
+	}
+
 	# The untaint is OK (as in editpage) because we're about to pass
 	# it to file_pruned anyway
 	my $page = $form->field('page');
