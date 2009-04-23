@@ -184,7 +184,7 @@ sub preprocess_inline (@) {
 	}
 
 	my @list=pagespec_match_list(
-		[ grep { $_ ne $params{page}} keys %pagesources ],
+		[ grep { $_ ne $params{page} } keys %pagesources ],
 		$params{pages}, location => $params{page});
 
 	if (exists $params{sort} && $params{sort} eq 'title') {
