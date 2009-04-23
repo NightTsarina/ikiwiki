@@ -50,11 +50,10 @@ sub preprocess (@) {
 
 	add_depends($params{page}, $params{pages});
 
-	my @list=pagespec_match_list(
-		[ grep { $_ ne $params{page} } keys %pagesources],
-		$params{pages}, location => $params{page});
-	
-	@list = sort { $params{timehash}->{$b} <=> $params{timehash}->{$a} } @list;
+	my @list=sort { $params{timehash}->{$b} <=> $params{timehash}->{$a} } 
+		pagespec_match_list(
+			[ grep { $_ ne $params{page} } keys %pagesources],
+			$params{pages}, location => $params{page});
 
 	my @data=eval qq{IkiWiki::Plugin::postsparkline::formula::$formula(\\\%params, \@list)};
 	if ($@) {
