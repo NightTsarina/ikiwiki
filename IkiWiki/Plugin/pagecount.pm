@@ -27,12 +27,9 @@ sub preprocess (@) {
 	add_depends($params{page}, $params{pages});
 	
 	my @pages=keys %pagesources;
-	return $#pages+1 if $params{pages} eq "*"; # optimisation
-	my $count=0;
-	foreach my $page (@pages) {
-		$count++ if pagespec_match($page, $params{pages}, location => $params{page});
-	}
-	return $count;
+	@pages=pagespec_match_list(\@pages, $params{pages}, location => $params{page})
+		if $params{pages} ne "*"; # optimisation;
+	return $#pages+1;
 }
 
 1

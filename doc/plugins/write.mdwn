@@ -572,6 +572,19 @@ The most often used is "location", which specifies the location the
 PageSpec should match against. If not passed, relative PageSpecs will match
 relative to the top of the wiki.
 
+#### `pagespec_match_list($$;@)`
+
+Passed a reference to a list of page names, and [[ikiwiki/PageSpec]],
+returns the set of pages that match the [[ikiwiki/PageSpec]].
+
+Additional named parameters can be passed, to further limit the match.
+The most often used is "location", which specifies the location the
+PageSpec should match against. If not passed, relative PageSpecs will match
+relative to the top of the wiki.
+
+Unlike pagespec_match, this may throw an error if there is an error in
+the pagespec.
+
 #### `bestlink($$)`
 
 Given a page and the text of a link on the page, determine which

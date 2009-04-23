@@ -32,32 +32,31 @@ sub preprocess (@) {
 
 	# Get all the items to map.
 	my %mapitems;
-	foreach my $page (keys %pagesources) {
-		if (pagespec_match($page, $params{pages}, location => $params{page})) {
-			if (exists $params{show} && 
-			    exists $pagestate{$page} &&
-			    exists $pagestate{$page}{meta}{$params{show}}) {
-				$mapitems{$page}=$pagestate{$page}{meta}{$params{show}};
-			}
-			else {
-				$mapitems{$page}='';
-			}
-			# Check for a common prefix.
-			if (! defined $common_prefix) {
-				$common_prefix=$page;
-			}
-			elsif (length $common_prefix &&
-			       $page !~ /^\Q$common_prefix\E(\/|$)/) {
-				my @a=split(/\//, $page);
-				my @b=split(/\//, $common_prefix);
-				$common_prefix="";
-				while (@a && @b && $a[0] eq $b[0]) {
-					if (length $common_prefix) {
-						$common_prefix.="/";
-					}
-					$common_prefix.=shift(@a);
-					shift @b;
+	foreach my $page (pagespec_match_list([keys %pagesources],
+				$params{pages}, location => $params{page})) {
+		if (exists $params{show} && 
+		    exists $pagestate{$page} &&
+		    exists $pagestate{$page}{meta}{$params{show}}) {
+			$mapitems{$page}=$pagestate{$page}{meta}{$params{show}};
+		}
+		else {
+			$mapitems{$page}='';
+		}
+		# Check for a common prefix.
+		if (! defined $common_prefix) {
+			$common_prefix=$page;
+		}
+		elsif (length $common_prefix &&
+		       $page !~ /^\Q$common_prefix\E(\/|$)/) {
+			my @a=split(/\//, $page);
+			my @b=split(/\//, $common_prefix);
+			$common_prefix="";
+			while (@a && @b && $a[0] eq $b[0]) {
+				if (length $common_prefix) {
+					$common_prefix.="/";
 				}
+				$common_prefix.=shift(@a);
+				shift @b;
 			}
 		}
 	}

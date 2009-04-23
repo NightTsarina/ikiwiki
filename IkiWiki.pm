@@ -18,10 +18,10 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
-                 bestlink htmllink readfile writefile pagetype srcfile pagename
-                 displaytime will_render gettext urlto targetpage
-		 add_underlay pagetitle titlepage linkpage newpagefile
-		 inject
+                 pagespec_match_list bestlink htmllink readfile writefile
+		 pagetype srcfile pagename displaytime will_render gettext urlto
+		 targetpage add_underlay pagetitle titlepage linkpage
+		 newpagefile inject
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
@@ -1830,6 +1830,30 @@ sub pagespec_match ($$;@) {
 	return IkiWiki::ErrorReason->new("syntax error in pagespec \"$spec\"")
 		if $@ || ! defined $sub;
 	return $sub->($page, @params);
+}
+
+sub pagespec_match_list ($$;@) {
+	my $pages=shift;
+	my $spec=shift;
+	my @params=@_;
+
+	my $sub=pagespec_translate($spec);
+	error "syntax error in pagespec \"$spec\""
+		if $@ || ! defined $sub;
+	
+	my @ret;
+	my $r;
+	foreach my $page (@$pages) {
+		$r=$sub->($page, @params);
+		push @ret, $page if $r;
+	}
+
+	if (! @ret && defined $r && $r->isa("IkiWiki::ErrorReason")) {
+		error(sprintf(gettext("cannot match pages: %s"), $r));
+	}
+	else {
+		return @ret;
+	}
 }
 
 sub pagespec_valid ($) {

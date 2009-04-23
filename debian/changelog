@@ -11,8 +11,11 @@ ikiwiki (3.11) UNRELEASED; urgency=low
   * Add IkiWiki::ErrorReason objects, and modify pagespecs to return
     them in cases where they fail to match due to a configuration or syntax
     error.
-  * inline: Display a handy error message if the inline cannot display any
-    pages due to such an error.
+  * pagespec_match_list: New API function, matches pages in a list
+    and throws an error if the pagespec is bad.
+  * inline, brokenlinks, calendar, linkmap, map, orphans, pagecount,
+    pagestate, postsparkline: Display a handy error message if the pagespec
+    is erronious.
   * comments: Add link to comment post form to allow user to sign in
     if they wish to, if the configuration makes signin optional
     for commenting.

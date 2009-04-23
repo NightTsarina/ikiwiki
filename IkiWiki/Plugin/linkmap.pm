@@ -56,10 +56,9 @@ sub genmap ($) {
 
 	# Get all the items to map.
 	my %mapitems = ();
-	foreach my $item (keys %links) {
-		if (pagespec_match($item, $params{pages}, location => $params{page})) {
-			$mapitems{$item}=urlto($item, $params{destpage});
-		}
+	foreach my $item (pagespec_match_list([keys %links],
+				$params{pages}, location => $params{page})) {
+		$mapitems{$item}=urlto($item, $params{destpage});
 	}
 
 	my $dest=$params{page}."/linkmap.png";

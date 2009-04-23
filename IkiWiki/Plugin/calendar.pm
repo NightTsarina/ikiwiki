@@ -369,8 +369,7 @@ sub preprocess (@) {
 	my $page =$params{page};
 
 	if (! defined $cache{$pagespec}) {
-		foreach my $p (keys %pagesources) {
-			next unless pagespec_match($p, $pagespec);
+		foreach my $p (pagespec_match_list([keys %pagesources], $pagespec)) {
 			my $mtime = $IkiWiki::pagectime{$p};
 			my $src   = $pagesources{$p};
 			my @date  = localtime($mtime);

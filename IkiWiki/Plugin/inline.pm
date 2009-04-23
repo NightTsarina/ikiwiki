@@ -183,20 +183,9 @@ sub preprocess_inline (@) {
 		$params{template} = $archive ? "archivepage" : "inlinepage";
 	}
 
-	my @list;
-	my $lastmatch;
-	foreach my $page (keys %pagesources) {
-		next if $page eq $params{page};
-		$lastmatch=pagespec_match($page, $params{pages}, location => $params{page});
-		if ($lastmatch) {
-			push @list, $page;
-		}
-	}
-
-	if (! @list && defined $lastmatch &&
-	    $lastmatch->isa("IkiWiki::ErrorReason")) {
-		error(sprintf(gettext("cannot match pages: %s"), $lastmatch));
-	}
+	my @list=pagespec_match_list(
+		[ grep { $_ ne $params{page}} keys %pagesources ],
+		$params{pages}, location => $params{page});
 
 	if (exists $params{sort} && $params{sort} eq 'title') {
 		@list=sort { pagetitle(basename($a)) cmp pagetitle(basename($b)) } @list;
