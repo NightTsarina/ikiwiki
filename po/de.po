@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.06\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-04 14:59-0400\n"
+"POT-Creation-Date: 2009-04-23 14:02-0400\n"
 "PO-Revision-Date: 2009-03-02 15:39+0100\n"
 "Last-Translator: Kai Wasserbäch <debian@carbon-project.org>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -178,7 +178,7 @@ msgstr "Anhang hochladen"
 msgid "automatic index generation"
 msgstr "automatische Index-Erstellung"
 
-#: ../IkiWiki/Plugin/blogspam.pm:105
+#: ../IkiWiki/Plugin/blogspam.pm:108
 msgid ""
 "Sorry, but that looks like spam to <a href=\"http://blogspam.net/"
 "\">blogspam</a>: "
@@ -187,7 +187,7 @@ msgstr ""
 "als Spam ein: "
 
 #: ../IkiWiki/Plugin/brokenlinks.pm:33 ../IkiWiki/Plugin/editpage.pm:233
-#: ../IkiWiki/Plugin/inline.pm:361 ../IkiWiki/Plugin/opendiscussion.pm:26
+#: ../IkiWiki/Plugin/inline.pm:368 ../IkiWiki/Plugin/opendiscussion.pm:26
 #: ../IkiWiki/Plugin/orphans.pm:37 ../IkiWiki/Render.pm:79
 #: ../IkiWiki/Render.pm:149
 msgid "discussion"
@@ -415,29 +415,34 @@ msgstr "Seitenbearbeitungen sind nicht erlaubt"
 msgid "missing pages parameter"
 msgstr "Fehlender Seitenparameter"
 
-#: ../IkiWiki/Plugin/inline.pm:200
+#: ../IkiWiki/Plugin/inline.pm:198
+#, fuzzy, perl-format
+msgid "cannot match pages: %s"
+msgstr "kann %s nicht lesen: %s"
+
+#: ../IkiWiki/Plugin/inline.pm:207
 msgid "Sort::Naturally needed for title_natural sort"
 msgstr ""
 
-#: ../IkiWiki/Plugin/inline.pm:211
+#: ../IkiWiki/Plugin/inline.pm:218
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "Unbekannter Sortierungstyp %s"
 
-#: ../IkiWiki/Plugin/inline.pm:314
+#: ../IkiWiki/Plugin/inline.pm:321
 msgid "Add a new post titled:"
 msgstr "Füge einen neuen Beitrag hinzu. Titel:"
 
-#: ../IkiWiki/Plugin/inline.pm:334
+#: ../IkiWiki/Plugin/inline.pm:341
 #, perl-format
 msgid "nonexistant template %s"
 msgstr "nicht-vorhandene Vorlage %s"
 
-#: ../IkiWiki/Plugin/inline.pm:369 ../IkiWiki/Render.pm:83
+#: ../IkiWiki/Plugin/inline.pm:376 ../IkiWiki/Render.pm:83
 msgid "Discussion"
 msgstr "Diskussion"
 
-#: ../IkiWiki/Plugin/inline.pm:600
+#: ../IkiWiki/Plugin/inline.pm:607
 msgid "RPC::XML::Client not found, not pinging"
 msgstr "RPC::XML::Client nicht gefunden, führe Ping nicht aus"
 
@@ -891,11 +896,10 @@ msgstr ""
 "Damit die unten aufgeführten Konfigurationsänderungen aktiviert werden, kann "
 "es erforderlich sein, das Wiki neu zu erzeugen."
 
-#: ../IkiWiki/Plugin/websetup.pm:433
+#: ../IkiWiki/Plugin/websetup.pm:436
 #, perl-format
-msgid "<p class=\"error\">Error: %s exited nonzero (%s)"
+msgid "Error: %s exited nonzero (%s). Discarding setup changes."
 msgstr ""
-"<p class=\"error\">Fehler: %s beendete sich mit einem Wert ungleich Null (%s)"
 
 #: ../IkiWiki/Receive.pm:35
 #, perl-format
@@ -978,12 +982,12 @@ msgid "you must enter a wikiname (that contains alphanumerics)"
 msgstr ""
 "Sie müssen einen Wiki-Namen eingeben (der alphanumerische Zeichen enthält)"
 
-#: ../IkiWiki/Setup/Automator.pm:68
+#: ../IkiWiki/Setup/Automator.pm:71
 #, perl-format
 msgid "unsupported revision control system %s"
 msgstr "Nicht unterstütztes Versionskontrollsystem %s"
 
-#: ../IkiWiki/Setup/Automator.pm:94
+#: ../IkiWiki/Setup/Automator.pm:97
 msgid "failed to set up the repository with ikiwiki-makerepo"
 msgstr "Erstellen des Depots mit ikiwiki-makerepo ist fehlgeschlagen"
 
@@ -1082,3 +1086,8 @@ msgstr ""
 #: ../auto.setup:23
 msgid "What is the domain name of the web server?"
 msgstr "Wie lautet der Domainname des Webservers?"
+
+#~ msgid "<p class=\"error\">Error: %s exited nonzero (%s)"
+#~ msgstr ""
+#~ "<p class=\"error\">Fehler: %s beendete sich mit einem Wert ungleich Null "
+#~ "(%s)"

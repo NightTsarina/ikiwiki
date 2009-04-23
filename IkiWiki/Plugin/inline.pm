@@ -184,11 +184,18 @@ sub preprocess_inline (@) {
 	}
 
 	my @list;
+	my $lastmatch;
 	foreach my $page (keys %pagesources) {
 		next if $page eq $params{page};
-		if (pagespec_match($page, $params{pages}, location => $params{page})) {
+		$lastmatch=pagespec_match($page, $params{pages}, location => $params{page});
+		if ($lastmatch) {
 			push @list, $page;
 		}
+	}
+
+	if (! @list && defined $lastmatch &&
+	    $lastmatch->isa("IkiWiki::ErrorReason")) {
+		error(sprintf(gettext("cannot match pages: %s"), $lastmatch));
 	}
 
 	if (exists $params{sort} && $params{sort} eq 'title') {

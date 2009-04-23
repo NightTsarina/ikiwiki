@@ -890,9 +890,12 @@ It's also possible to write plugins that add new functions to
 IkiWiki::PageSpec package, that is named `match_foo`, where "foo()" is
 how it will be accessed in a [[ikiwiki/PageSpec]]. The function will be passed
 two parameters: The name of the page being matched, and the thing to match
-against. It may also be passed additional, named parameters. It should return
-a IkiWiki::SuccessReason object if the match succeeds, or an
-IkiWiki::FailReason object if the match fails.
+against. It may also be passed additional, named parameters.
+
+It should return a IkiWiki::SuccessReason object if the match succeeds, or
+an IkiWiki::FailReason object if the match fails. If the match cannot be
+attempted at all, for any page, it can instead return an
+IkiWiki::ErrorReason object explaining why.
 
 ### Setup plugins
 

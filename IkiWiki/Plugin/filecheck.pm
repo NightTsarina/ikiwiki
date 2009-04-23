@@ -71,13 +71,13 @@ sub match_maxsize ($$;@) {
 	my $page=shift;
 	my $maxsize=eval{IkiWiki::Plugin::filecheck::parsesize(shift)};
 	if ($@) {
-		return IkiWiki::FailReason->new("unable to parse maxsize (or number too large)");
+		return IkiWiki::ErrorReason->new("unable to parse maxsize (or number too large)");
 	}
 
 	my %params=@_;
 	my $file=exists $params{file} ? $params{file} : $IkiWiki::pagesources{$page};
 	if (! defined $file) {
-		return IkiWiki::FailReason->new("no file specified");
+		return IkiWiki::ErrorReason->new("no file specified");
 	}
 
 	if (-s $file > $maxsize) {
@@ -92,13 +92,13 @@ sub match_minsize ($$;@) {
 	my $page=shift;
 	my $minsize=eval{IkiWiki::Plugin::filecheck::parsesize(shift)};
 	if ($@) {
-		return IkiWiki::FailReason->new("unable to parse minsize (or number too large)");
+		return IkiWiki::ErrorReason->new("unable to parse minsize (or number too large)");
 	}
 
 	my %params=@_;
 	my $file=exists $params{file} ? $params{file} : $IkiWiki::pagesources{$page};
 	if (! defined $file) {
-		return IkiWiki::FailReason->new("no file specified");
+		return IkiWiki::ErrorReason->new("no file specified");
 	}
 
 	if (-s $file < $minsize) {
@@ -116,14 +116,14 @@ sub match_mimetype ($$;@) {
 	my %params=@_;
 	my $file=exists $params{file} ? $params{file} : $IkiWiki::pagesources{$page};
 	if (! defined $file) {
-		return IkiWiki::FailReason->new("no file specified");
+		return IkiWiki::ErrorReason->new("no file specified");
 	}
 
 	# Use ::magic to get the mime type, the idea is to only trust
 	# data obtained by examining the actual file contents.
 	eval q{use File::MimeInfo::Magic};
 	if ($@) {
-		return IkiWiki::FailReason->new("failed to load File::MimeInfo::Magic ($@); cannot check MIME type");
+		return IkiWiki::ErrorReason->new("failed to load File::MimeInfo::Magic ($@); cannot check MIME type");
 	}
 	my $mimetype=File::MimeInfo::Magic::magic($file);
 	if (! defined $mimetype) {
@@ -149,12 +149,12 @@ sub match_virusfree ($$;@) {
 	my %params=@_;
 	my $file=exists $params{file} ? $params{file} : $IkiWiki::pagesources{$page};
 	if (! defined $file) {
-		return IkiWiki::FailReason->new("no file specified");
+		return IkiWiki::ErrorReason->new("no file specified");
 	}
 
 	if (! exists $IkiWiki::config{virus_checker} ||
 	    ! length $IkiWiki::config{virus_checker}) {
-		return IkiWiki::FailReason->new("no virus_checker configured");
+		return IkiWiki::ErrorReason->new("no virus_checker configured");
 	}
 
 	# The file needs to be fed into the virus checker on stdin,
@@ -162,7 +162,7 @@ sub match_virusfree ($$;@) {
 	# used, clamd would fail to read it.
 	eval q{use IPC::Open2};
 	error($@) if $@;
-	open (IN, "<", $file) || return IkiWiki::FailReason->new("failed to read file");
+	open (IN, "<", $file) || return IkiWiki::ErrorReason->new("failed to read file");
 	binmode(IN);
 	my $sigpipe=0;
 	$SIG{PIPE} = sub { $sigpipe=1 };

@@ -1800,7 +1800,7 @@ sub pagespec_translate ($) {
 				$code.="IkiWiki::PageSpec::match_$1(\$page, ".safequote($2).", \@_)";
 			}
 			else {
-				$code.="IkiWiki::FailReason->new(".safequote(qq{unknown function in pagespec "$word"}).")";
+				$code.="IkiWiki::ErrorReason->new(".safequote(qq{unknown function in pagespec "$word"}).")";
 			}
 		}
 		else {
@@ -1827,7 +1827,7 @@ sub pagespec_match ($$;@) {
 	}
 
 	my $sub=pagespec_translate($spec);
-	return IkiWiki::FailReason->new("syntax error in pagespec \"$spec\"")
+	return IkiWiki::ErrorReason->new("syntax error in pagespec \"$spec\"")
 		if $@ || ! defined $sub;
 	return $sub->($page, @params);
 }
@@ -1860,6 +1860,10 @@ sub new {
 	my $value = shift;
 	return bless \$value, $class;
 }
+
+package IkiWiki::ErrorReason;
+
+our @ISA = 'IkiWiki::FailReason';
 
 package IkiWiki::SuccessReason;
 
@@ -2021,7 +2025,7 @@ sub match_user ($$;@) {
 	my %params=@_;
 	
 	if (! exists $params{user}) {
-		return IkiWiki::FailReason->new("no user specified");
+		return IkiWiki::ErrorReason->new("no user specified");
 	}
 
 	if (defined $params{user} && lc $params{user} eq lc $user) {
@@ -2041,7 +2045,7 @@ sub match_admin ($$;@) {
 	my %params=@_;
 	
 	if (! exists $params{user}) {
-		return IkiWiki::FailReason->new("no user specified");
+		return IkiWiki::ErrorReason->new("no user specified");
 	}
 
 	if (defined $params{user} && IkiWiki::is_admin($params{user})) {
@@ -2061,7 +2065,7 @@ sub match_ip ($$;@) {
 	my %params=@_;
 	
 	if (! exists $params{ip}) {
-		return IkiWiki::FailReason->new("no IP specified");
+		return IkiWiki::ErrorReason->new("no IP specified");
 	}
 
 	if (defined $params{ip} && lc $params{ip} eq lc $ip) {
