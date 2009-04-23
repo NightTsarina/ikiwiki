@@ -26,7 +26,9 @@ sub preprocess (@) {
 	# register a dependency.
 	add_depends($params{page}, $params{pages});
 	
-	my @pages=pagespec_match_list([keys %pagesources], $params{pages}, location => $params{page});
+	my @pages=keys %pagesources;
+	@pages=pagespec_match_list(\@pages, $params{pages}, location => $params{page})
+		if $params{pages} ne "*"; # optimisation;
 	return $#pages+1;
 }
 
