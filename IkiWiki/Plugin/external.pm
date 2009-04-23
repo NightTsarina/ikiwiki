@@ -233,14 +233,14 @@ sub pagespec_match ($@) {
 	# convert return object into a XML RPC boolean
 	my $plugin=shift;
 
-	return RPC::XML::boolean->new(0 + IkiWiki::pagespec_march(@_));
+	return RPC::XML::boolean->new(0 + IkiWiki::pagespec_match(@_));
 }
 
 sub pagespec_match_list ($@) {
 	# convert return object into a XML RPC boolean
 	my $plugin=shift;
 
-	return RPC::XML::boolean->new(0 + IkiWiki::pagespec_march_list(@_));
+	return RPC::XML::boolean->new(0 + IkiWiki::pagespec_match_list(@_));
 }
 
 1
