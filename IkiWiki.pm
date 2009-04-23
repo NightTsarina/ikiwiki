@@ -1837,6 +1837,8 @@ sub pagespec_match_list ($$;@) {
 	my $spec=shift;
 	my @params=@_;
 
+	return @$pages if $spec eq '*'; # optimisation
+
 	my $sub=pagespec_translate($spec);
 	error "syntax error in pagespec \"$spec\""
 		if $@ || ! defined $sub;
