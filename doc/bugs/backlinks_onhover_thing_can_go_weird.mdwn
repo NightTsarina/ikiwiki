@@ -1,0 +1,22 @@
+I was just hovering over the '...' next to the backlinks on a page on
+<http://ikiwiki.info/>. In terms of the size of my browser window, this was
+towards the bottom-right of the screen.
+
+When I hovered over the '...', the additional backlinks float appeared. This
+caused the page length to grow down, meaning a horizontal scrollbar was added
+to the page. This meant the text reflowed, and the '...' moved outside of my
+mouse pointer region.
+
+This caused an infinite loop of box appears... text moves, box disappears...
+box re-appears.. which was not very visually pleasant.
+
+In general I think that the onhover float is a bit of bad UI. Even a truncated
+list of backlinks looks cluttered due to there being no delimiters. I moved to
+having an always-complete list of backlinks and having them as LI elements
+inside a UL to make it look neater, although I appreciate that would make some
+pages very long indeed.
+
+How about doing something a little like [[plugins/toggle]] for the excess
+items instead?
+
+-- [[Jon]]
