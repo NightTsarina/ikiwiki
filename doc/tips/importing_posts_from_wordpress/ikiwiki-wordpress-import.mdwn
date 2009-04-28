@@ -2,7 +2,7 @@
 
 I modified the script a bit so categories and tags would actually show up in the output file.
 
-
+-----
 <pre>
 #!/usr/bin/env python
 
@@ -29,7 +29,7 @@ I modified the script a bit so categories and tags would actually show up in the
     Usage: run --help as an argument with this script.
 
     Notes:
-    I added some extra bits to include the [[!tag foo]] stuff in the post,
+    I added some extra bits to include the \[[!tag foo]] stuff in the post,
     as it wasn't before, at all. I'll diff the versions out so you can see
     the mess I made :).
 
@@ -66,7 +66,7 @@ def main(name, email, subdir, branch='master'):
         commit_msg = """Importing WordPress post "%s" [%s]""" % (x.title.string, x.guid.string)
         timestamp = time.mktime(time.strptime(x.find('wp:post_date_gmt').string, "%Y-%m-%d %H:%M:%S"))
 
-        content = '[[!meta title="%s"]]\n\n' % (x.title.string.replace('"', r'\"'))
+        content = '\[[!meta title="%s"]]\n\n' % (x.title.string.replace('"', r'\"'))
         content += x.find('content:encoded').string.replace('\r\n', '\n')
 
         # categories = x.findAll('category')
@@ -76,8 +76,8 @@ def main(name, email, subdir, branch='master'):
         """
         We do it differently here because we have duplicates otherwise.
         Take a look:
-        <category><![CDATA[Health]]></category>
-	<category domain="category" nicename="health"><![CDATA[Health]]></category>
+        &lt;category&gt;&lt;![CDATA[Health]]&gt;&lt;/category&gt;
+        &lt;category domain="category" nicename="health"&gt;&lt;![CDATA[Health]]&gt;&lt;/category&gt;
 
         If we do the what original did, we end up with all tags and cats doubled.
         Therefore we only pick out nicename="foo". Our 'True' below is our 'foo'.
@@ -90,14 +90,14 @@ def main(name, email, subdir, branch='master'):
             for cat in categories:
                 # remove 'tags/' because we have a 'tagbase' set.
                 # your choice: 'tag', or 'taglink'
-                # content += "\n[[!tag %s]]" % (cat.string.replace(' ', '-'))
-                content += "\n[[!taglink %s]]" % (cat.string.replace(' ', '-'))
+                # content += "\n\[[!tag %s]]" % (cat.string.replace(' ', '-'))
+                content += "\n\[[!taglink %s]]" % (cat.string.replace(' ', '-'))
                 # print >>sys.stderr, cat.string.replace(' ', '-')
 
         # moved this thing down
         data = content.encode('ascii', 'html_replace')
         print "commit refs/heads/%s" % branch
-        print "committer %s <%s> %d +0000" % (name, email, timestamp)
+        print "committer %s &lt;%s&gt; %d +0000" % (name, email, timestamp)
         print "data %d" % len(commit_msg)
         print commit_msg
         print "M 644 inline %s" % os.path.join(subdir, "%s.mdwn" % stub)
@@ -111,12 +111,15 @@ if __name__ == "__main__":
         main(*sys.argv[1:])
 
 </pre>
-
+-----
 
 (I don't know why the tag down there says %s other than it's reading in from the &lt;pre&gt;'d script...)
 
 I have another version of the script, which scans for &lt;pubDate&gt; and inserts that as a \[[!meta date="foodate"]]. Still work in progress since I just got back to it today, after adding in a rough idea. I'll post a link to it here when it's "good enough for me".
 
+(Hopefully I've escaped everything properly; if I missed something, check the source.)
+
 [[!tag wordpress]]
 [[!tag python]]
 [[!tag conversion]]
+[[!tag ikiwiki]]
