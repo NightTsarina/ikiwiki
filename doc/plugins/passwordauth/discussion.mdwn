@@ -77,3 +77,75 @@ as the script handler, or only on `mod_perl` to be installed and loaded.
 * [http://www.openfusion.com.au/labs/mod_auth_tkt/](mod_auth_tkt) along with CPAN's
   `Apache::AuthTkt`
 --[[intrigeri]]
+
+  I've more or less managed to implement something based on `mod_perl` and
+  `Apache::AuthenHook`, respectively in Debian packages `libapache2-mod-perl2`
+  and `libapache-authenhook-perl`.
+
+  In the Apache VirtualHost configuration, I have added the following:
+
+	PerlLoadModule Apache::AuthenHook
+	PerlModule My::IkiWikiBasicProvider
+
+	<Location /test/>
+		AuthType Basic
+		AuthName "wiki"
+		AuthBasicProvider My::IkiWikiBasicProvider
+		Require valid-user
+		ErrorDocument 401 /test/ikiwiki.cgi?do=signin
+	</Location>
+	<LocationMatch "^/test/(ikiwiki\.cgi$|.*\.css$|wikiicons/)">
+		Satisfy any
+	</LocationMatch>
+
+  The perl module lies in `/etc/apache2/My/IkiWikiBasicProvider.pm`:
+
+	package My::IkiWikiBasicProvider;
+
+	use warnings;
+	use strict;
+	use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED);
+	use Storable;
+	use Authen::Passphrase;
+
+	sub userinfo_retrieve () {
+		my $userinfo=eval{ Storable::lock_retrieve("/var/lib/ikiwiki/test/.ikiwiki/userdb") };
+		return $userinfo;
+	}
+
+	sub handler {
+		my ($r, $user, $password) = @_;
+		my $field = "password";
+
+		if (! defined $password || ! length $password) {
+			return Apache2::Const::DECLINED;
+		}
+		my $userinfo = userinfo_retrieve();
+		if (! length $user || ! defined $userinfo ||
+		    ! exists $userinfo->{$user} || ! ref $userinfo->{$user}) {
+			return Apache2::Const::DECLINED;
+		}
+		my $ret=0;
+		if (exists $userinfo->{$user}->{"crypt".$field}) {
+			error $@ if $@;
+			my $p = Authen::Passphrase->from_crypt($userinfo->{$user}->{"crypt".$field});
+			$ret=$p->match($password);
+		}
+		elsif (exists $userinfo->{$user}->{$field}) {
+			$ret=$password eq $userinfo->{$user}->{$field};
+		}
+		if ($ret) {
+			return Apache2::Const::OK;
+		}
+		return Apache2::Const::DECLINED;
+	}
+
+	1;
+
+  This setup also allows people with the master password to create their own
+  account.
+
+  I'm not really fluent in Perl, and all this can probably be improved (*or
+  might destroy your computer as it is* and YMMV).
+
+  -- [[Lunar]]
