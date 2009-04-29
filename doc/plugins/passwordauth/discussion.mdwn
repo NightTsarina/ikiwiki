@@ -78,11 +78,11 @@ as the script handler, or only on `mod_perl` to be installed and loaded.
   `Apache::AuthTkt`
 --[[intrigeri]]
 
-  I've more or less managed to implement something based on `mod_perl` and
-  `Apache::AuthenHook`, respectively in Debian packages `libapache2-mod-perl2`
-  and `libapache-authenhook-perl`.
+I've more or less managed to implement something based on `mod_perl` and
+`Apache::AuthenHook`, respectively in Debian packages `libapache2-mod-perl2`
+and `libapache-authenhook-perl`.
 
-  In the Apache VirtualHost configuration, I have added the following:
+In the Apache VirtualHost configuration, I have added the following:
 
 	PerlLoadModule Apache::AuthenHook
 	PerlModule My::IkiWikiBasicProvider
@@ -98,7 +98,7 @@ as the script handler, or only on `mod_perl` to be installed and loaded.
 		Satisfy any
 	</LocationMatch>
 
-  The perl module lies in `/etc/apache2/My/IkiWikiBasicProvider.pm`:
+The perl module lies in `/etc/apache2/My/IkiWikiBasicProvider.pm`:
 
 	package My::IkiWikiBasicProvider;
 
@@ -142,10 +142,10 @@ as the script handler, or only on `mod_perl` to be installed and loaded.
 
 	1;
 
-  This setup also allows people with the master password to create their own
-  account.
+This setup also allows people with the master password to create their own
+account.
 
-  I'm not really fluent in Perl, and all this can probably be improved (*or
-  might destroy your computer as it is* and YMMV).
+I'm not really fluent in Perl, and all this can probably be improved (*or
+might destroy your computer as it is* and YMMV).
 
-  -- [[Lunar]]
+-- [[Lunar]]
