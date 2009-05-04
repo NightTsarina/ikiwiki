@@ -1,0 +1,23 @@
+ikiwiki 3.11 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Avoid using python-support. Closes: #[525086](http://bugs.debian.org/525086)
+   * websetup: Display stderr in browser if ikiwiki setup fails.
+   * blogspam: Load RPC::XML library in checkconfig, so that an
+     error can be printed at that point if it's not available,
+     allowing the admin to see it during wiki setup.
+     Closes: #[520015](http://bugs.debian.org/520015)
+   * websetup: If setup fails, restore old setup file.
+   * relativedate: Deal with clock skew.
+   * Add IkiWiki::ErrorReason objects, and modify pagespecs to return
+     them in cases where they fail to match due to a configuration or syntax
+     error.
+   * pagespec\_match\_list: New API function, matches pages in a list
+     and throws an error if the pagespec is bad.
+   * inline, brokenlinks, calendar, linkmap, map, orphans, pagecount,
+     pagestate, postsparkline: Display a handy error message if the pagespec
+     is erronious.
+   * comments: Add link to comment post form to allow user to sign in
+     if they wish to, if the configuration makes signin optional
+     for commenting.
+   * Updated Danish translation from Jonas Smedegaard. Closes: #[525751](http://bugs.debian.org/525751)
+   * translation.mdwn: Typo fixes. Closes: #[525753](http://bugs.debian.org/525753)"""]]
