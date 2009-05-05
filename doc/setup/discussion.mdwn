@@ -170,15 +170,15 @@ I setup ikiwiki on a fedora 10 machine and I am using apache as my http server. 
 
 /etc/ikiwiki/auto.setup tries to get abs_path of a non-existent "repository" path (in ikiwiki-makerepo), and that doesn't work in my perl:
 
-<nowiki>
+<pre>
 [mort@localhost ~]$ perl -e 'use Cwd q{abs_path}; print abs_path("/var")'
 /var[mort@localhost ~]$ perl -e 'use Cwd q{abs_path}; print abs_path("/abcde")'
 [mort@localhost ~]$ 
-</nowiki>
+</pre>
 
 Because of this, /etc/ikiwiki/auto.setup fails: 
 
-<nowiki>
+<pre>
 $ ikiwiki -setup /etc/ikiwiki/auto.setup
 What will the wiki be named? wiki
 What revision control system to use? git
@@ -206,7 +206,7 @@ this system using "man perl" or "perldoc perl".  If you have access to the
 Internet, point your browser at http://www.perl.org/, the Perl Home Page.
 
 $ 
-</nowiki>
+</pre>
 
 Can't ikiwiki's "make test" perhaps test for this, so that one knows something will go wrong?
 -- Ivan Z.
