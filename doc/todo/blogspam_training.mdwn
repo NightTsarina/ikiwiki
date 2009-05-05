@@ -1,0 +1,24 @@
+The [[blogspam plugin|plugins/blogspam]] is just great.
+
+However, it lacks support in the web interface to [train comments as
+SPAM](http://blogspam.net/api/classifyComment.html), when they were
+erroneously identified as ham.  It would be great to have such
+support, also in the spirit of helping
+[blogspam.net](http://blogspam.net) to get better and better.
+
+What would consist the most appropriate user interface is not entirely
+clear to me in the general case (wiki page editing).  The case of blog
+comments look easier to: when the admin user is logged in (and if the
+blogspam plugin is enabled), each comment can have an extra link "mark
+as SPAM" which would both delete/revert the comment and submit it to
+the configured blogspam server for training.
+
+Similarly, ham training can be plugged directly into the current
+comment moderation interface. Each comment that gets approved by the
+admin, can be sent to blogspam.net as ham. If this is considered too
+"aggressive", this behaviour can need to be explicitly enabled by
+turning on a configuration option.
+
+-- [[Zack]]
+
+[[!tag wishlist]]
