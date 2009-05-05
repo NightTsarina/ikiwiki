@@ -96,31 +96,49 @@ What is the syntax for specifying the adminuser as an openid user?  I've tried a
 
 ----
 
-I apologize if this is the incorrect forum for this question, but I am trying to get ikiwiki set up and running with git.  I followed all the directions and all seems to work until I go back and try to make changes.  The steps I am performing:
+I apologize if this is the incorrect forum for this question, but I am
+trying to get ikiwiki set up and running with git.  I followed all the
+directions and all seems to work until I go back and try to make changes.
+The steps I am performing:
 
     cd $SRCDIR  (e.g. ~/ikisrc)
     vim index.mdwn (add a couple lines)
     git commit -a -m 'test'
     git push
 
-I then get a long error message which reads in part "You asked me to pull without telling me which branch you
-want to merge with, and 'branch.master.merge' in your configuration file does not tell me either." From that point on, I get:
+I then get a long error message which reads in part "You asked me to pull
+without telling me which branch you want to merge with, and
+'branch.master.merge' in your configuration file does not tell me either."
+From that point on, I get:
 
     sws@odin:~/dev/ikisrc$ git push
     To /home/git/repos/myikiwiki.git
      ! [rejected]        master -> master (non-fast forward)
     error: failed to push to '/home/git/repos/myikiwiki.git'
 
-If I do a git clone ssh://odin/path/to/$REPOSITORY from another machine and try to edit I get the same error sequence.  What am I doing wrong?
+If I do a git clone ssh://odin/path/to/$REPOSITORY from another machine and
+try to edit I get the same error sequence.  What am I doing wrong?
+
+> I don't know. The only time I have seen this message is when
+> the master git repository was not bare. All current instructions and
+> `ikiwiki-makerepo` have a proper bare repo used for the master
+> repository, but perhaps you followed some old, broken instructions, or 
+> forgot to make it bare? --[[Joey]] 
 
 -----
 
-I follow every steps of the setup procedure, change some templates and tried to modify some page through the web but was not able to do so. Every page seems to be locked by the adminuser user. When I remove the adminuser in the setup file, every ran fine. Did I miss something ? What is exactly the adminuser supposed to be allowed to ? Is he the only user allowed to modify pages ?
+I follow every steps of the setup procedure, change some templates and
+tried to modify some page through the web but was not able to do so. Every
+page seems to be locked by the adminuser user. When I remove the adminuser
+in the setup file, every ran fine. Did I miss something ? What is exactly
+the adminuser supposed to be allowed to ? Is he the only user allowed to
+modify pages ?
 
 > This was a bug in ikwiki that was fixed in version 2.44. --[[Joey]]
 
 -----
-I hope you guys can put up with an absolute newbie. I am fairly new to linux and completely new to Perl. I have just installed MoinMoin locally in my PC, running ubuntu 8.4 and was about to use it until I ran into your ikiwiki. I thought ikiwiki is a better fit for what I want to do, so am seriously considering installing it as well in ubuntu. Except that the install seems way beyond my understanding.
+
+pI hope you guys can put up with an absolute newbie. I am fairly new to linux and completely new to Perl. I have just installed MoinMoin locally in my PC, running ubuntu 8.4 and was about to use it until I ran into your ikiwiki. I thought ikiwiki is a better fit for what I want to do, so am seriously considering installing it as well in ubuntu. Except that the install seems way beyond my understanding.
 
 Do i need to install git first? Which git -- the git-core? Ubuntu's instructions on installing the git-core is: "sudo apt-get install git-core". Is that it? Do I need to do a git-init as well, or will the ikiwiki-makerepo handle that? If I have to do a git-init as well, what --share values should I specify?
 
@@ -168,7 +186,8 @@ I setup ikiwiki on a fedora 10 machine and I am using apache as my http server. 
 
 ----
 
-/etc/ikiwiki/auto.setup tries to get abs_path of a non-existent "repository" path (in ikiwiki-makerepo), and that doesn't work in my perl:
+/etc/ikiwiki/auto.setup tries to get abs_path of a non-existent
+"repository" path (in ikiwiki-makerepo), and that doesn't work in my perl:
 
 <pre>
 [mort@localhost ~]$ perl -e 'use Cwd q{abs_path}; print abs_path("/var")'
@@ -210,3 +229,7 @@ $
 
 Can't ikiwiki's "make test" perhaps test for this, so that one knows something will go wrong?
 -- Ivan Z.
+
+> FWIW, I tried the same thing with perl 5.8.8 from Debian etch, and its
+> Cwd does not have the problem. But I've modified `ikiwiki-makerepo` to
+> avoid using `abs_path` this way anyhow. --[[Joey]] 

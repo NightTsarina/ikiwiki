@@ -29,7 +29,7 @@ if [ "$rcs" != mercurial ] && [ "$rcs" != bzr ]; then
 		echo "repository $repository already exists, aborting" >&2 
 		exit 1
 	fi
-	repository="$(perl -e 'use Cwd q{abs_path}; $r=shift; $r=~s/\/*$//; print abs_path($r)' "$repository")"
+	repository="$(perl -e 'use Cwd; $r=shift; $r=getcwd.q{/}.$r if $r!~m!^/!; print $r' "$repository")"
 	if [ -z "$repository" ]; then
 		echo "internal error finding repository abs_path" >&2
 		exit 1
