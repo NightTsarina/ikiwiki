@@ -165,3 +165,48 @@ I setup ikiwiki on a fedora 10 machine and I am using apache as my http server. 
 > ikiwiki respects the umask, so if your umask is one that causes things to
 > be group writable, they will by. If you want to override that, there is
 > also a `umask	` setting in your setup file. --[[Joey]] 
+
+----
+
+/etc/ikiwiki/auto.setup tries to get abs_path of a non-existent "repository" path (in ikiwiki-makerepo), and that doesn't work in my perl:
+
+<pre>
+[mort@localhost ~]$ perl -e 'use Cwd q{abs_path}; print abs_path("/var")'
+/var[mort@localhost ~]$ perl -e 'use Cwd q{abs_path}; print abs_path("/abcde")'
+[mort@localhost ~]$ 
+</pre>
+
+Because of this, /etc/ikiwiki/auto.setup fails: 
+
+<pre>
+$ ikiwiki -setup /etc/ikiwiki/auto.setup
+What will the wiki be named? wiki
+What revision control system to use? git
+What wiki user (or openid) will be admin? mort
+
+
+Setting up wiki ...
+internal error finding repository abs_path
+/etc/ikiwiki/auto.setup: failed to set up the repository with ikiwiki-makerepo
+
+usage: ikiwiki [options] source dest
+       ikiwiki --setup configfile
+$ perl -v
+
+This is perl, v5.8.8 built for i386-linux-thread-multi
+(with 2 registered patches, see perl -V for more detail)
+
+Copyright 1987-2007, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using "man perl" or "perldoc perl".  If you have access to the
+Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+
+$ 
+</pre>
+
+Can't ikiwiki's "make test" perhaps test for this, so that one knows something will go wrong?
+-- Ivan Z.
