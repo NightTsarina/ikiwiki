@@ -239,14 +239,4 @@ sub pagespec_match ($@) {
 			$page, $spec, @_));
 }
 
-sub pagespec_match_list ($@) {
-	# convert return object into a XML RPC boolean
-	my $plugin=shift;
-	my $pages=shift;
-	my $spec=shift;
-
-	return RPC::XML::boolean->new(0 + IkiWiki::pagespec_match_list(
-			$pages, $spec, @_));
-}
-
 1
