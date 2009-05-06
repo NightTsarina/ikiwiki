@@ -342,7 +342,7 @@ sub preprocess_inline (@) {
 					my $content=get_inline_content($page, $params{destpage});
 					$template->param(content => $content);
 				}
-				$template->param(pageurl => urlto(bestlink($params{page}, $page), $params{destpage}));
+				$template->param(pageurl => urlto($page, $params{destpage}));
 				$template->param(inlinepage => $page);
 				$template->param(title => pagetitle(basename($page)));
 				$template->param(ctime => displaytime($pagectime{$page}, $params{timeformat}));
