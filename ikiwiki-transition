@@ -220,6 +220,21 @@ sub moveprefs {
 	IkiWiki::Setup::dump($setup);
 }
 
+sub deduplinks {
+	my $dir=shift;
+	if (! defined $dir) {
+		usage();		
+	}
+	$config{wikistatedir}=$dir."/.ikiwiki";
+	IkiWiki::loadindex();
+	foreach my $page (keys %links) {
+		my %l;
+		$l{$_}=1 foreach @{$links{$page}};
+		$links{$page}=[keys %l]
+	}
+	IkiWiki::saveindex();
+}
+
 sub usage {
 	print STDERR "Usage: ikiwiki-transition type ...\n";
 	print STDERR "Currently supported transition subcommands:\n";
@@ -229,6 +244,7 @@ sub usage {
 	print STDERR "\tmoveprefs setupfile\n";
 	print STDERR "\thashpassword srcdir\n";
 	print STDERR "\tindexdb srcdir\n";
+	print STDERR "\tdeduplinks srcdir\n";
 	exit 1;
 }
 
@@ -252,6 +268,9 @@ elsif ($mode eq 'setupformat') {
 }
 elsif ($mode eq 'moveprefs') {
 	moveprefs(@ARGV);
+}
+elsif ($mode eq 'deduplinks') {
+	deduplinks(@ARGV);
 }
 else {
 	usage();

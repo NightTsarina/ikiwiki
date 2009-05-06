@@ -107,8 +107,8 @@ adding or removing files from it.
 
 This hook is called early in the process of building the wiki, and is used
 as a first pass scan of the page, to collect metadata about the page. It's
-mostly used to scan the page for [[WikiLinks|ikiwiki/WikiLink]], and add them to `%links`.
-Present in IkiWiki 2.40 and later.
+mostly used to scan the page for [[WikiLinks|ikiwiki/WikiLink]], and add
+them to `%links`. Present in IkiWiki 2.40 and later.
 
 The function is passed named parameters "page" and "content". Its return
 value is ignored.
@@ -151,11 +151,11 @@ parameter is set to a true value if the page is being previewed.
 If `hook` is passed an optional "scan" parameter, set to a true value, this
 makes the hook be called during the preliminary scan that ikiwiki makes of
 updated pages, before begining to render pages. This should be done if the
-hook modifies data in `%links`. Note that doing so will make the hook be
-run twice per page build, so avoid doing it for expensive hooks. (As an
-optimisation, if your preprocessor hook is called in a void context, you
-can assume it's being run in scan mode, and avoid doing expensive things at
-that point.)
+hook modifies data in `%links` (typically by calling `add_link`). Note that
+doing so will make the hook be run twice per page build, so avoid doing it
+for expensive hooks. (As an optimisation, if your preprocessor hook is
+called in a void context, you can assume it's being run in scan mode, and
+avoid doing expensive things at that point.)
 
 Note that if the [[htmlscrubber]] is enabled, html in
 preprocessor [[ikiwiki/directive]] output is sanitised, which may limit what
@@ -174,7 +174,8 @@ links. The function is passed named parameters "page", "destpage", and
 and later.
 
 Plugins that implement linkify must also implement a scan hook, that scans
-for the links on the page and adds them to `%links`.
+for the links on the page and adds them to `%links` (typically by calling
+`add_link`).
 
 ### htmlize
 
@@ -752,6 +753,11 @@ rendered to.
 Optionally, a third parameter can be passed, to specify the preferred
 filename of the page. For example, `targetpage("foo", "rss", "feed")`
 will yield something like `foo/feed.rss`.
+
+#### `add_link($$)`
+
+This adds a link to `%links`, ensuring that duplicate links are not
+added. Pass it the page that contains the link, and the link text.
 
 ## Miscellaneous
 

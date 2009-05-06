@@ -73,7 +73,7 @@ sub preprocess_tag (@) {
 		$tag=linkpage($tag);
 		$tags{$page}{$tag}=1;
 		# hidden WikiLink
-		push @{$links{$page}}, tagpage($tag);
+		add_link($page, tagpage($tag));
 	}
 		
 	return "";
@@ -88,14 +88,14 @@ sub preprocess_taglink (@) {
 		if (/(.*)\|(.*)/) {
 			my $tag=linkpage($2);
 			$tags{$params{page}}{$tag}=1;
-			push @{$links{$params{page}}}, tagpage($tag);
+			add_link($params{page}, tagpage($tag));
 			return taglink($params{page}, $params{destpage}, $tag,
 				linktext => pagetitle($1));
 		}
 		else {
 			my $tag=linkpage($_);
 			$tags{$params{page}}{$tag}=1;
-			push @{$links{$params{page}}}, tagpage($tag);
+			add_link($params{page}, tagpage($tag));
 			return taglink($params{page}, $params{destpage}, $tag);
 		}
 	}

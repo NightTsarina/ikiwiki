@@ -61,6 +61,13 @@ If this is not done explicitly, a user's plaintext password will be
 automatically converted to a hash when a user logs in for the first time
 after upgrade to ikiwiki 2.48.
 
+# deduplinks srcdir
+
+In the past, bugs in ikiwiki have allowed duplicate link information
+to be stored in its indexdb. This mode removes such duplicate information,
+which may speed up wikis afflicted by it. Note that rebuilding the wiki
+will have the same effect.
+
 # AUTHOR
 
 Josh Triplett <josh@freedesktop.org>, Joey Hess <joey@ikiwiki.info>

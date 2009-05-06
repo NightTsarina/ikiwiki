@@ -21,12 +21,12 @@ our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
                  pagespec_match_list bestlink htmllink readfile writefile
 		 pagetype srcfile pagename displaytime will_render gettext urlto
 		 targetpage add_underlay pagetitle titlepage linkpage
-		 newpagefile inject
+		 newpagefile inject add_link
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
 our $version='unknown'; # VERSION_AUTOREPLACE done by Makefile, DNE
-our $installdir=''; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
+our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
 
 # Optimisation.
 use Memoize;
@@ -1755,6 +1755,14 @@ sub inject {
 	}
 	use strict;
 	use warnings;
+}
+
+sub add_link ($$) {
+	my $page=shift;
+	my $link=shift;
+
+	push @{$links{$page}}, $link
+		unless grep { $_ eq $link } @{$links{$page}};
 }
 
 sub pagespec_merge ($$) {

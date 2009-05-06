@@ -5,6 +5,10 @@ ikiwiki (3.12) UNRELEASED; urgency=low
     fails on nonexistant directories with some broken perl
     versions.
   * inline: Minor optimisation.
+  * add_link: New function, which plugins should use rather than
+    modifying %links directly, to avoid it accumulating duplicates.
+  * ikiwiki-transition: Add a deduplinks action, that can be used
+    to remove duplicate links and optimise a wiki w/o rebuilding it.
 
  -- Joey Hess <joeyh@debian.org>  Mon, 04 May 2009 19:17:39 -0400
 
