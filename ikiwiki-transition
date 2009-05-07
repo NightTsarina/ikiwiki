@@ -73,11 +73,7 @@ sub prefix_directives {
 }
 
 sub indexdb {
-	my $dir=shift;
-	if (! defined $dir) {
-		usage();		
-	}
-	$config{wikistatedir}=$dir."/.ikiwiki";
+	setstatedir(shift);
 
 	# Note: No lockwiki here because ikiwiki already locks it
 	# before calling this.	
@@ -96,11 +92,7 @@ sub indexdb {
 }
 
 sub hashpassword {
-	my $dir=shift;
-	if (! defined $dir) {
-		usage();		
-	}
-	$config{wikistatedir}=$dir."/.ikiwiki";
+	setstatedir(shift);
 
 	eval q{use IkiWiki::UserInfo};
 	eval q{use Authen::Passphrase::BlowfishCrypt};
@@ -221,11 +213,7 @@ sub moveprefs {
 }
 
 sub deduplinks {
-	my $dir=shift;
-	if (! defined $dir) {
-		usage();		
-	}
-	$config{wikistatedir}=$dir."/.ikiwiki";
+	setstatdir(shift);
 	IkiWiki::loadindex();
 	foreach my $page (keys %links) {
 		my %l;
@@ -233,6 +221,24 @@ sub deduplinks {
 		$links{$page}=[keys %l]
 	}
 	IkiWiki::saveindex();
+}
+
+sub setstatedir {
+	my $dir=shift;
+
+	if (! defined $dir) {
+		usage();		
+	}
+
+	if (! -d $dir) {
+		error("ikiwiki-transition: $dir does not exist");
+	}
+
+	$config{wikistatedir}=$dir."/.ikiwiki";
+
+	if (! -d $config{wikistatedir}) {
+		error("ikiwiki-transition: $config{wikistatedir} does not exist");
+	}
 }
 
 sub usage {
