@@ -157,6 +157,13 @@ sub getsetup () {
 		safe => 0, # path
 		rebuild => 0,
 	},
+	underlaydirbase => {
+		type => "internal",
+		default => "$installdir/share/ikiwiki",
+		description => "parent directory containing additional underlays",
+		safe => 0,
+		rebuild => 0,
+	},
 	wrappers => {
 		type => "internal",
 		default => [],
@@ -715,7 +722,7 @@ sub add_underlay ($) {
 	my $dir=shift;
 
 	if ($dir !~ /^\//) {
-		$dir="$config{underlaydir}/../$dir";
+		$dir="$config{underlaydirbase}/$dir";
 	}
 
 	if (! grep { $_ eq $dir } @{$config{underlaydirs}}) {
