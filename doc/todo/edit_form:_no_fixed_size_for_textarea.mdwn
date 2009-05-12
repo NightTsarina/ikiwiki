@@ -13,3 +13,20 @@ On longer pages its not very comfortable to edit pages with such a small box. Th
 > include that? --[[Joey]] [[!tag done]]
 
 >> The screen shot was made with http://ikiwiki.info/ where i didn't change anything. The width is optimally used. The problem is the height.
+
+>>> You confused me by talking about rows...  
+>>> I don't know how to allow CSS to resize a textarea
+>>> to the full browser height. The obvious `height: 75%;`
+>>> does not work, at least in firefox and epiphany.
+>>> 
+>>> Ah, of course, if it did work, it'd make it be 75% of
+>>> the full *page* height, and not the browser window height.
+>>>
+>>> According to
+>>> [this page](http://stackoverflow.com/questions/632983/css-height-if-textarea-as-a-percentage-of-the-viewport-height):
+>>>>>50% of what? Parent says ‘auto’, which means base it on the height of the child content. Which depends on the height on the parent. Argh! etc.
+>>>>>
+>>>>>So you have to give its parent a percentage height. And the parent's parent, all the way up to the root.
+>>> So, other than a javascript-based resizer, some very tricky and invasive CSS
+>>> seems to be needed. Please someone let me know if you succeed in doing that.
+>>> --[[Joey]] 
