@@ -114,7 +114,7 @@ No, this doesn't help:
 	+       IkiWiki::refresh();
 	+       IkiWiki::saveindex();
 
-On the second extra pass, it doesn't notice that it has to update the "?"-link. If I run ikiwiki once more, it is updated. I don't know yet how this should be fixed, because I don't know the internals of ikiwiki good enough. Something inhibits detecting the need to update in refresh() in Render.pm; perhaps, this condition: 
+On the second extra pass, it doesn't notice that it has to update the "?"-link. If I run ikiwiki once more, it is updated. I don't know yet how this should be fixed, because I don't know the internals of ikiwiki well enough. Something inhibits detecting the need to update in refresh() in Render.pm; perhaps, this condition: 
 
 		if (! $pagemtime{$page}) {
                    ...
