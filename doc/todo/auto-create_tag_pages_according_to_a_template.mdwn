@@ -106,3 +106,20 @@ I am not sure if that is the best way to handle it.
 
 [[!tag patch]]
 -- Jeremy Schultz <jeremy.schultz@uleth.ca>
+
+No, this doesn't help:
+
+	+       # This refresh/saveindex is to fix the Tags link
+	+       # With out this additional refresh/saveindex the tag link displays ?tag
+	+       IkiWiki::refresh();
+	+       IkiWiki::saveindex();
+
+On the second extra pass, it doesn't notice that it has to update the "?"-link. If I run ikiwiki once more, it is updated. I don't know yet how this should be fixed, because I don't know the internals of ikiwiki good enough. Something inhibits detecting the need to update in refresh() in Render.pm; perhaps, this condition: 
+
+		if (! $pagemtime{$page}) {
+                   ...
+				push @add, $file;
+                   ...
+                }
+
+is not satisfied for the newly created tag page. I shall put debug msgs into Render.pm to find out better how it works. --Ivan Z.
