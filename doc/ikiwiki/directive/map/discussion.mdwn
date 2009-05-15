@@ -42,3 +42,23 @@ On the top-level index page, or on any other page that is neither a topic nor a 
 Is there any way to do that?  I don't mind mucking around with `\[[!meta]]` on every page if that's what it takes.
 
 -- Zack
+
+> I think that you're looking for this:
+> 
+> pages="((Topic*/* or Topic*) and ./*) or (Topic* and ! Topic*/*)"
+> 
+> Let's pull that [[PageSpec]] apart. 
+> 
+> * `(Topic*/* or Topic*)` matches all pages that are underneath a Topic
+>    page or are a topic page themselves.
+> * `and ./*` further adds the limitation that the pages have to be
+>   in the same directory as the page that is displaying the map. So,
+>   for `Topic_A/Page_1`, it will match `Topic_A/*`; for `Topic_A`,
+>   it will match `Topic_*` but not subpages.
+> * Finally, `Topic* and ! Topic*/*` matches all the toplevel topic pages,
+>   since we always want those to show up.
+> 
+> I haven't tested that this works or displays, but I hope it gets you
+> on the right track. PS, be aware of
+> [[this_sidebar_issue|todo/Post-compilation_inclusion_of_the_sidebar]]!
+> --[[Joey]]
