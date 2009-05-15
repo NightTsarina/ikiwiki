@@ -7,3 +7,5 @@ I'm asking this because right now I want to setup an httpd solely for the public
 > AFAIU, my main simplest security measure should be running the public ikiwiki's cgi under a special user, but then: how do I push to the repo owned by that other user? I see, probably I should setup the public wiki under the special user (so that it was able to create the cgi-script with the desired permission), and then give my personal user the required permissions to make a git-push by, say, creating a special Unix group for this.
 
 > Shouldn't there be a page here which would document a secure public and multi-user installation of ikiwiki (by "multi-user" I mean writable by a group of local Unix users)? If there isn't such yet, I started writing it with this discussion.--Ivan Z.
+
+> I see, perhaps a simpler setup would not make use of a Unix group, but simply allow pushing to the public wiki (kept under a special user) through git+ssh. --Ivan Z.
