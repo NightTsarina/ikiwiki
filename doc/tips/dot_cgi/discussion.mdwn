@@ -2,4 +2,6 @@
 
 Is your warning at the bottom (you don't know how secure it is) only about lighttpd or it's about apache2 configuration as well?
 
-I'm asking this because right now I want to setup an httpd solely for the public use of ikiwiki on a general puprpose computer (there are other things there), and so I need to choose the more secure solution. --Ivan Z.
+I'm asking this because right now I want to setup an httpd solely for the public use of ikiwiki on a general purpose computer (there are other things there), and so I need to choose the more secure solution. --Ivan Z.
+> AFAIU, my main simplest security measure should be running the public ikiwiki's cgi under a special user, but then: how do I push to the repo owned by that other user? I see, probably I should setup the public wiki under the special user (so that it was able to create the cgi-script with the desired permission), and then give my personal user the required permissions to make a git-push by, say, creating a special Unix group for this.
+> Shouldn't there be a page here which would document a secure public and multi-user installation of ikiwiki (by "multi-user" I mean writable by a group of local Unix users)? If there isn't such yet, I started writing it with this discussion.--Ivan Z.
