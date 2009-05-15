@@ -45,7 +45,7 @@ Is there any way to do that?  I don't mind mucking around with `\[[!meta]]` on e
 
 > I think that you're looking for this:
 > 
-> pages="((Topic*/* or Topic*) and ./*) or (Topic* and ! Topic*/*)"
+> `pages="((Topic*/* or Topic*) and ./*) or (Topic* and ! Topic*/*)"`
 > 
 > Let's pull that [[PageSpec]] apart. 
 > 
@@ -62,3 +62,9 @@ Is there any way to do that?  I don't mind mucking around with `\[[!meta]]` on e
 > on the right track. PS, be aware of
 > [[this_sidebar_issue|todo/Post-compilation_inclusion_of_the_sidebar]]!
 > --[[Joey]]
+
+>> Thanks, but this assumes that topic pages are named `Topic<something>`.
+>> They aren't.  They are tagged with `\[[!meta link="/topic"]]`, and as
+>> far as I can tell there is no [[PageSpec]] notation for "subpages of a
+>> page that satisfies link(foo)"...
+>> -- Zack
