@@ -188,6 +188,43 @@ The following three inlines work for me with this patch:
 I've lost track of the indent level, so I'm going back to not indented - I think this is a working [[patch]] taking into
 account all comments above (which doesn't mean it is above reproach :) ).  --[[Will]]
 
+> Very belated code review of last version of the patch:
+> 
+> * `is_globlist` is no longer needed
+> * `pagespec_translate` is already memoized, so the explicit call
+>   to memoize when handling a define seems unnecessary?
+> * I don't understand why the pagespec match regexp is changed
+>   from having flags `igx` to `ixgs`. Don't see why you
+>   want `.` to match '\n` in it, and don't see any `.` in the regexp 
+>   anyway?
+> * Some changes of `@_` to `%params` in `pagespec_makeperl` do not
+>   make sense to me. I don't see where \%params is defined and populated,
+>   except with `\$params{specFunc}`.
+> * Seems that the only reason `match_glob` has to check for `~` is
+>   because when a named spec appears in a pagespec, it is translated
+>   to `match_glob("~foo")`. If, instead, `pagespec_makeperl` checked
+>   for named specs, it could convert them into `check_named_spec("foo")`
+>   and avoid that ugliness.
+> * The changes to `match_link` seem either unecessary, or incomplete.
+>   Shouldn't it check for named specs and call
+>   `check_named_spec_existential`?
+> * Generally, the need to modify `match_*` functions so that they
+>   check for and handle named pagespecs seems suboptimal, if
+>   only because there might be others people may want to use named
+>   pagespecs with. It would be possible to move this check
+>   to `pagespec_makeperl`, by having it check if the parameter
+>   passed to a pagespec function looked like a named pagespec.
+>   The only issue is that some pagespec functions take a parameter
+>   that is not a page name at all, and it could be weird
+>   if such a parameter were accidentially interpreted as a named
+>   pagespec. (But, that seems unlikely to happen.)
+> * I need to check if your trick to avoid infinite recursion
+>   works if there are two named specs that recursively
+>   call one-another. I suspect it does, but will test this
+>   myself..
+>  
+> --[[Joey]] 
+
 ----
 
     diff --git a/IkiWiki.pm b/IkiWiki.pm
