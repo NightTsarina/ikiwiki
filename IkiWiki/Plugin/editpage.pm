@@ -276,8 +276,14 @@ sub cgi_editpage ($$) {
 			
 			my @page_types;
 			if (exists $hooks{htmlize}) {
-				@page_types=grep { !/^_/ }
-					keys %{$hooks{htmlize}};
+				foreach my $key (grep { !/^_/ } keys %{$hooks{htmlize}}) {
+					my $pluginref = ${$hooks{htmlize}}{$key};
+					if(${$pluginref}{'longname'}) {
+						push @page_types, [$key, ${$pluginref}{'longname'}];
+					} else {
+						push @page_types, [$key, $key];
+					}
+				}
 			}
 			
 			$form->tmpl_param("page_select", 1);
