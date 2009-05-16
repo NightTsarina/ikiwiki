@@ -195,8 +195,6 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 > Very belated code review of last version of the patch:
 > 
 > * `is_globlist` is no longer needed
-> * `pagespec_translate` is already memoized, so the explicit call
->   to memoize when handling a define seems unnecessary?
 > * I don't understand why the pagespec match regexp is changed
 >   from having flags `igx` to `ixgs`. Don't see why you
 >   want `.` to match '\n` in it, and don't see any `.` in the regexp 
