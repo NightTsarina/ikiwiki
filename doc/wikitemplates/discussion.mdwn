@@ -4,4 +4,39 @@ Where does one put any locally modified templates for an individual ikiwiki? --I
 > You can put them whereever you like; the `templatedir` controls
 > where ikiwiki looks for them. --[[Joey]] 
 
-Thank you for your response! My question arose out of my intention to make custom templates for a wiki--specifically suited for the kind of  content it will have--so, that would mean I would want to distribute them through git together with other content of the wiki. So, for this case the separation of conceptually ONE thing (the content, the templates, and the config option which orders to use these templates) into THREE separate files/repos (the main content repo, the repo with templates, and the config file) is not convenient: instead of distributing a single repo, I have to tell people to take three things if they want to replicate this wiki. How would you solve this inconvenience? Perhaps, a default location of the templates *inside* the source repo would do?--Ivan Z.
+Thank you for your response! My question arose out of my intention to make
+custom templates for a wiki--specifically suited for the kind of  content
+it will have--so, that would mean I would want to distribute them through
+git together with other content of the wiki. So, for this case the
+separation of conceptually ONE thing (the content, the templates, and the
+config option which orders to use these templates) into THREE separate
+files/repos (the main content repo, the repo with templates, and the config
+file) is not convenient: instead of distributing a single repo, I have to
+tell people to take three things if they want to replicate this wiki. How
+would you solve this inconvenience? Perhaps, a default location of the
+templates *inside* the source repo would do?--Ivan Z.
+
+> I would avoid putting the templates in a subdirectory of the ikiwiki srcdir.
+> (I'd also avoid putting the ikiwiki setup file there.)
+> While it's safe to do either in some cases, there are configurations where
+> it's unsafe. For example, a malicious user could use attachment handling to
+> replace those files with their own, bad versions.
+> 
+> So, two ideas for where to put the templatedir and ikiwiki setup. 
+
+> * The easiest option is to put your wiki content in a subdirectory
+>   ("wiki", say) and point `srcdir` at that.
+>   then you can have another subdirectory for the wikitemplates,
+>   and put the setup file at the top.
+> * Another option if using git would be to have a separate branch,
+>   in the same git repository, that holds wikitemplates and the setup file.
+>   Then you check out the repository once to make the `srcdir` available,
+>   and have a second checkout, of the other branch, to make the other stuff
+>   available.
+> 
+> Note that with either of these methods, you have to watch out if
+> giving other direct commit access to the repository. They could
+> still edit the setup file and templates, so only trusted users should
+> be given access. (It is, however, perfectly safe to let people edit
+> the wiki via the web, and is even safe to configure
+> [[tips/untrusted_git_push]] to such a repository.) --[[Joey]]
