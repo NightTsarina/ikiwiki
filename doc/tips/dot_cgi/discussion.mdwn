@@ -1,11 +1,36 @@
 ## warning: lighttpd only or both?
 
-Is your warning at the bottom (you don't know how secure it is) only about lighttpd or it's about apache2 configuration as well?
+Is your warning at the bottom (you don't know how secure it is) only about
+lighttpd or it's about apache2 configuration as well?
 
-I'm asking this because right now I want to setup an httpd solely for the public use of ikiwiki on a general purpose computer (there are other things there), and so I need to choose the more secure solution. --Ivan Z.
+> The latter. (Although I don't know why using lighttpd would lead
+> to any additional security exposure anyway.) --[[Joey]] 
 
-> AFAIU, my main simplest security measure should be running the public ikiwiki's cgi under a special user, but then: how do I push to the repo owned by that other user? I see, probably I should setup the public wiki under the special user (so that it was able to create the cgi-script with the desired permission), and then give my personal user the required permissions to make a git-push by, say, creating a special Unix group for this.
+I'm asking this because right now I want to setup an httpd solely for the
+public use of ikiwiki on a general purpose computer (there are other things
+there), and so I need to choose the more secure solution. --Ivan Z.
 
-> Shouldn't there be a page here which would document a secure public and multi-user installation of ikiwiki (by "multi-user" I mean writable by a group of local Unix users)? If there isn't such yet, I started writing it with this discussion.--Ivan Z.
+> AFAIU, my main simplest security measure should be running the public
+> ikiwiki's cgi under a special user, but then: how do I push to the repo
+> owned by that other user? I see, probably I should setup the public wiki
+> under the special user (so that it was able to create the cgi-script with
+> the desired permission), and then give my personal user the required
+> permissions to make a git-push by, say, creating a special Unix group for
+> this.
 
-> I see, perhaps a simpler setup would not make use of a Unix group, but simply allow pushing to the public wiki (kept under a special user) through git+ssh. --Ivan Z.
+> Shouldn't there be a page here which would document a secure public and
+> multi-user installation of ikiwiki (by "multi-user" I mean writable by a
+> group of local Unix users)? If there isn't such yet, I started writing it
+> with this discussion.--Ivan Z.
+
+> I see, perhaps a simpler setup would not make use of a Unix group, but
+> simply allow pushing to the public wiki (kept under a special user) through
+> git+ssh. --Ivan Z.
+
+>> Yes, it's certianly possible to configure git (and svn, etc) repositories so that
+>> two users can both push to them. There should be plenty of docs out there
+>> about doing that.
+>> 
+>> The easiest way though is probably
+>> to add your ssh key to the special user's `.ssh/authorized_keys`
+>> and push that way. --[[Joey]] 
