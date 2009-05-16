@@ -11,7 +11,7 @@ use Encode;
 
 sub import {
 	hook(type => "getsetup", id => "textile", call => \&getsetup);
-	hook(type => "htmlize", id => "txtl", call => \&htmlize);
+	hook(type => "htmlize", id => "txtl", call => \&htmlize, longname => "Textile");
 }
 
 sub getsetup () {
