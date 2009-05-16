@@ -15,6 +15,8 @@ match tagged pages independent of whatever the tagbase is set to.
 
 >> Yes, this is confusing and not nice. I observed this misbehavior, because I wanted to match two different lists of pages (only tagged or linked in any way), but it didn't work. Would this feature require a complex patch? --Ivan Z.
 
+>>> If you link to a page 'foo' which happens to be a tag then the page you link from will turn up in the set of pages returned by tagged(foo). The only way to avoid this would be for the tag plugin to not use wikilinks as an implementation method. That itself would not be too hard to do, but there might be people relying on the older behaviour. A better alternative might be to have a "tag2" plugin (or a better name) which implements tagging entirely separately. -- [[Jon]]
+
 >
 > One other thing, perhaps it should be called `tagged()`? --[[Joey]] 
 
