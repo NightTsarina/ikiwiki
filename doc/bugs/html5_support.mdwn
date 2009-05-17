@@ -3,28 +3,8 @@ Some elements of
 safely supported by ikiwiki. There are [several differences between HTML4 and
 HTML5](http://www.w3.org/TR/html5-diff/).
 
-> In the `origin/html` branch, there is an old work in progress to make
-> ikiwiki use html 4 instead of xhtml. If that could be brought forward and
-> finished then the plan has been to switch ikiwiki over to doing html 4.
-> I don't think it makes sense to try to make it support both xhtml and
-> html, it would complicate the code for no benefit.
-> 
-> I think that is the best route toward supporting html 5 as well. Get
-> ikiwiki doing html 4 first and the changes needed to get to 5 from there
-> should be small. Probably just changing some doctypes and a few other
-> small changes which could be kept in a branch, or even shipped in ikiwiki
-> mainline as an alternate set of templates. Some of the changes, like
-> supporting new html 5 tags in the htmlscrubber, can be done in mainline.
-> (Like was already done for the html 5 video and audio tags.)
->
-> This approach seems much more maintainable going foward than rolling a
-> html 5 branch immediatly and trying to keep that continually up-to-date
-> with mainline ikiwiki that is still using xhtml. --[[Joey]]
-
->> TODO Still need to merge origin/html with my html5 branch.
-
 * [HTML5 branch](http://git.webconverger.org/?p=ikiwiki;h=refs/heads/html5)
-* [test ikiwiki instance with HTML5 templates](http://h.dabase.com/html5/)
+* [ikiwiki instance with HTML5 templates](http://natalian.org)
 
 # HTML5 Validation and t/html.t
 
@@ -38,19 +18,27 @@ In the future, hopefully ikiwiki can test for valid HTML5 using [Relax NG
 schema](http://syntax.whattf.org/) using a Debian package tool
 [rnv](http://packages.qa.debian.org/r/rnv.html).
 
-# Issues
+# HTML5 migration issues
+
+# [article](http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#the-article-element) element
+
+This element is poorly supported by browsers. As a workaround, `style.css` needs:
+
+	article {
+		display: block;
+	}
+
+Internet Explorer will display it as a block, though you can't seem to be further control the style.
+
+# Validator complains with no h1-h6 in header
+
+* [#509](http://bugzilla.validator.nu/show_bug.cgi?id=509)
 
 ## Time element
 
 The [time element](http://www.whatwg.org/specs/web-apps/current-work/multipage/text-level-semantics.html#the-time-element) ideally needs the datatime= attribute set by a template variable with what [HTML5 defines as a valid datetime string](http://www.whatwg.org/specs/web-apps/current-work/multipage/infrastructure.html#valid-global-date-and-time-string).
 
-As a workaround I use in my setup file:
+As a workaround:
 
+	au:~% grep timeformat natalian.setup
 	timeformat => '%Y-%m-%d',
-
-## Header
-
-Many of the header `<span>`s should be proper [header elements](http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#the-h1,-h2,-h3,-h4,-h5,-and-h6-elements)
-  > See [[todo/Option_to_make_title_an_h1__63__]] for why not. --[[Joey]] 
-
-The [header element](http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#the-header-element) requires a h1-h6 child, in order to [validate](http://validator.nu/). Hence in my [html5 page templates](http://git.webconverger.org/?p=ikiwiki;a=tree;f=templates;hb=refs/heads/html5), I've marked up page title with a h1.
