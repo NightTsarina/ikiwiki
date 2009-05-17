@@ -1,11 +1,16 @@
 [[!tag bugs wishlist]]
 
-Escaping pipe-symbol in wikilink targets doesn't work as I wanted:
-
-[[a link to smth with a pipe|about the \|-symbol]]
+Escaping pipe-symbol in taglink targets doesn't work as I wanted:
 
 [[!taglink smth_with_a_pipe|about_the_\|-symbol]]
+[[!taglink smth_with_a_pipe|about_the_|-symbol]]
 
-But in pagespecs it works:
+as opposed to simple wikilinks:
 
+[[a link to smth with a pipe|about the \|-symbol]]
+[[a link to smth with a pipe|about the |-symbol]]
+
+And it works in pagespecs:
+
+[[!map pages="tagged(about the |-symbol)"]]
 [[!map pages="tagged(about the \|-symbol)"]]
