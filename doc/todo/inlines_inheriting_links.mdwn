@@ -5,9 +5,13 @@ Continuing the ideas in [[bugs/Inline doesn't wikilink to pages]].
 I thought of a use case for another feature: making [[ikiwiki/directive/inline]] inherit the link relations of the included pages (optionally, say, with `inheritlinks=yes`). For example, if I want to list `elements/*` that have been linked to in any of `new_stuff/*`, I could try to write a [[ikiwiki/pagespec]] like
 `elements/* and backlink(new_stuff/*)`.
 
-This is not yet possible, as discussed in [[todo/tracking_bugs_with_dependencies/]].
+This is not yet possible, as discussed in [[todo/tracking_bugs_with_dependencies]].
 
 It would be possible to work around this limitation of pagespecs if it was possible to create a page `all_new_stuff` with `\[[!inline pages="new_stuff/*" inheritlinks=yes]]`: then the desired pagespec would be expressed as `elements/* and backlink(all_new_stuff)`.
+
+> Or, instead of specifying whether to inherit at the place of the inline, add more relations (`inline`, `backinline`) and relation composition (say, `*`, or haskell-ish `$` in order not confuse with the glob `*`) and explicitly write in the pagespecs that you want to follow the inline relation backwards: `elements/* and backlink$backinline(all_new_stuff)` or, equivalently, if [["classes"|todo/tracking_bugs_with_dependencies]] are implemented in pagespecs: `elements/* and backlink(backinline(all_new_stuff))`. Of course, this suggestion requires the powerful extension to pagespecs, but it gives more flexibility, and the possibility to avoid redundant information: the same pagespec at two places -- the inline and the other matching construction.
+>
+> BTW, adding more relations -- the `inline` relation among them -- would satisfy [[the other feature request|bugs/Inline doesn't wikilink to pages]]. --Ivan Z.
 
 This is not just an ugly workaround. The availability of this feature has some reason: the classes of pages you want to refer to "recursively" (in that kind of complex pagespecs) tend to have some meaning themselves. So, I might indeed want to have a page like `all_new_stuff`, it would be useful for me. And at the same time I would like to write pagespecs like `elements/* and backlink(all_new_stuff)` -- and using the proposed feature in [[todo/tracking_bugs_with_dependencies/]] would be less clean because then I would have to enter the same information at two places: the possibly complex pagespec in the inline. And having redundant information leads to inconsistency.
 
