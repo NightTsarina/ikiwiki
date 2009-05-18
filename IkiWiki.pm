@@ -1678,12 +1678,6 @@ sub rcs_receive () {
 	$hooks{rcs}{rcs_receive}{call}->();
 }
 
-sub safequote ($) {
-	my $s=shift;
-	$s=~s/[{}]//g;
-	return "q{$s}";
-}
-
 sub add_depends ($$) {
 	my $page=shift;
 	my $pagespec=shift;
@@ -1785,6 +1779,7 @@ sub pagespec_translate ($) {
 
 	# Convert spec to perl code.
 	my $code="";
+	my @data;
 	while ($spec=~m{
 		\s*		# ignore whitespace
 		(		# 1: match a single word
@@ -1812,14 +1807,17 @@ sub pagespec_translate ($) {
 		}
 		elsif ($word =~ /^(\w+)\((.*)\)$/) {
 			if (exists $IkiWiki::PageSpec::{"match_$1"}) {
-				$code.="IkiWiki::PageSpec::match_$1(\$page, ".safequote($2).", \@_)";
+				push @data, $2;
+				$code.="IkiWiki::PageSpec::match_$1(\$page, \$data[$#data], \@_)";
 			}
 			else {
-				$code.="IkiWiki::ErrorReason->new(".safequote(qq{unknown function in pagespec "$word"}).")";
+				push @data, qq{unknown function in pagespec "$word"};
+				$code.="IkiWiki::ErrorReason->new(\$data[$#data])";
 			}
 		}
 		else {
-			$code.=" IkiWiki::PageSpec::match_glob(\$page, ".safequote($word).", \@_)";
+			push @data, $word;
+			$code.=" IkiWiki::PageSpec::match_glob(\$page, \$data[$#data], \@_)";
 		}
 	}
 
