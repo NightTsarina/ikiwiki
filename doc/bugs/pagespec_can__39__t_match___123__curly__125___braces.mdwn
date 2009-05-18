@@ -1,9 +1,28 @@
 I want match pages which have actually curly braces in the names (like this one), but this matches a lot of pages without the braces in their names :( :
 
-[[!map pages="*_{*}_*"]]
+[[!inline show="3" archive="yes" pages="*_{*}_*"]]
+
+(note: the inline above has been restricted to 3 matches to keep this page
+concise. Hopefully it is still clear that this page is not in the output set,
+and the 3 pages in the output set do not contain curly braces in their
+titles).
 
 When escaped, it doesn't work at all:
 
-[[!map pages="*_\{*}_*"]]
+[[!inline show="3" archive="yes" pages="*_\{*}_*"]]
 
-[[!map pages="*_{*\}_*"]]
+[[!inline show="3" archive="yes" pages="*_{*\}_*"]]
+
+More tests:
+
+"\*{\*":
+
+[[!inline show="3" archive="yes" pages="*{*"]]
+
+"\*}\*":
+
+[[!inline show="3" archive="yes" pages="*}*"]]
+
+"\*}\* and \*{\*":
+
+[[!inline show="3" archive="yes" pages="*}* and *{*"]]
