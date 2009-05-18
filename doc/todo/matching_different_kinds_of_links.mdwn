@@ -1,0 +1,9 @@
+[[!tag wishlist]]
+
+As noted in [[todo/tag_pagespec_function]], there is a "misbehavior" of a `tagged()` pagespec: it matches even pages which have plain links to the tag page.
+
+And in general, it would be quite useful to be able to distinguish different kinds of links: one more kind, in addition to "tag", is "bug dependency" noted in [[todo/structured_page_data#another_kind_of_links]] and [[todo/tracking_bugs_with_dependencies#another_kind_of_links]].
+
+It could distinguish the links by the `rel=` attribute. ([[Tags already receive a special rel-class|todo/rel_attribute_for_links]].) This means there is a general need for a syntax to specify user-defined rel-classes on wikilink (then bug deps would simply use their special rel-class, either directly, or through a special directive like `\[[!depends ]]`), and to refer to them in pagespecs (in forward and backward direction).
+
+Besides pagespecs, the `rel=` attribute could be used for styles. --Ivan Z.
