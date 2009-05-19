@@ -7,3 +7,31 @@ And in general, it would be quite useful to be able to distinguish different kin
 It could distinguish the links by the `rel=` attribute. ([[Tags already receive a special rel-class|todo/rel_attribute_for_links]].) This means there is a general need for a syntax to specify user-defined rel-classes on wikilink (then bug deps would simply use their special rel-class, either directly, or through a special directive like `\[[!depends ]]`), and to refer to them in pagespecs (in forward and backward direction).
 
 Besides pagespecs, the `rel=` attribute could be used for styles. --Ivan Z.
+
+> FWIW, the `add_link` function introduced in a recent
+> release adds an abstraction that could be used to get
+> part of the way there to storing data about different types of
+> links. That function could easily be extended to take an optional
+> third parameter specifying the link type.
+> 
+> Then there's the question of how to store and access the data. `%links`
+> does not offer a good way to add additional information about links.
+> Now, we could toss `%links` entirely and switch to an accessor function,
+> but let's think about not doing that..
+> 
+> The data that seems to be needed is basically a deep hash, so
+> one could check `$linktype{$page}{tag}{$link}` to see if
+> the page contains a link of the given type. (Note that pages could
+> contain links that were duplicates except for their types.)
+> 
+> There would be some data duplication, unfortuantly, but if `%linktype`
+> is not populated for regular wikilinks, it would at least be limited to
+> tags and other unusual link types, so not too bad.
+> 
+> `%linktype` could be stored in `%pagestate`.. if so
+> the actual use might look like `$pagestate{$page}{linktype}{tag}{$link}`.
+> That could be implemented by the tag plugin right now
+> with no core changes. (BTW, then I originally wrote tag, pagestate
+> was not available, which is why I didn't make it differentiate from
+> normal links.) Might be better to go ahead and add the variable to
+> core though. --[[Joey]] 
