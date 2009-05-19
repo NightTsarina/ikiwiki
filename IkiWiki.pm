@@ -321,7 +321,7 @@ sub getsetup () {
 		default => [qr/(^|\/)\.\.(\/|$)/, qr/^\./, qr/\/\./,
 			qr/\.x?html?$/, qr/\.ikiwiki-new$/,
 			qr/(^|\/).svn\//, qr/.arch-ids\//, qr/{arch}\//,
-			qr/(^|\/)_MTN\//,
+			qr/(^|\/)_MTN\//, qr/(^|\/)_darcs\//,
 			qr/\.dpkg-tmp$/],
 		description => "regexps of source files to ignore",
 		safe => 0,

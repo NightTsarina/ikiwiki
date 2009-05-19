@@ -1,0 +1,59 @@
+Error received when clicking on the "edit" link:
+
+> `Error: [CGI::FormBuilder::AUTOLOAD] Fatal: Attempt to address
+> non-existent field 'text' by name at
+> /home/tealart/bin/share/perl/5.8.4/IkiWiki/CGI.pm line 112`
+
+Error received when following a "Create New Page" (eg. ?) link: 
+
+> `Error: [CGI::FormBuilder::AUTOLOAD] Fatal: Attempt to address
+> non-existent field 'param' by name at
+> /home/tealart/bin/share/perl/5.8.4/IkiWiki/Plugin/editpage.pm line 122`
+
+I could probably find several other flavors of this error if I went
+looking, but I trust you get the idea. 
+
+The CGI starts to render (this isn't the "you forgot to set the
+permissions/turn on the CGI" error) and then fails. 
+
+Further details:
+
+- Running on shared hosting (dreamhost; but everything compiles,
+  dependencies installed, the site generates perfectly, other CGIs
+  work, the file permissions work).
+
+- It's running perl 5.8.4, but I did upgrade gettext to 0.17
+
+- the server is running gcc v3.3.5 (at this point, this is the main
+  difference between the working system and my box.)
+
+- I've removed the locale declarations from both the config file and
+  the environment variable.
+
+- I've also modified the page template and have my templates in a non
+  standard location. The wiki compiles fine, with the template, but
+  might this be an issue? The CGI script doesn't (seem) to load under
+  the new template, but I'm not sure how to address this issue.
+
+- All of the required/suggested module dependencies are installed
+  (finally) to the latest version including (relevantly)
+  CGI::FormBuilder 3.0501.
+
+- I'm running ikiwiki v3.08. Did I mention that it works perfectly in
+  nearly every other way that I've managed to test thusfar?
+
+----
+
+> I suspect that your perl is too old and is incompatible with the version of CGI::FormBuilder you have installed.
+> 
+> Is so, it seems likely that the same error message can be reproduced by running a simple command like this at the command line:
+> 
+>     perl -e 'use warnings; use strict; use CGI::FormBuilder; my $form=CGI::FormBuilder->new; $form->text("boo")'
+> 
+> --[[Joey]]
+
+> > nope, that command produces no output. :/
+> > 
+> > I considered downgrading CGI::FormBuilder but I saw evidence of previous versions being incompatible with ikiwiki so I decided against that.
+> > 
+> > -- [[tychoish]]

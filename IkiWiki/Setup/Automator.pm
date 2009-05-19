@@ -58,6 +58,9 @@ sub import (@) {
 		elsif ($config{rcs} eq 'monotone') {
 			$config{mtn_wrapper}=$config{srcdir}."_MTN/ikiwiki-netsync-hook";
 		}
+		elsif ($config{rcs} eq 'darcs') {
+			$config{darcs_wrapper}=$config{repository}."/_darcs/ikiwiki-wrapper";
+		}
 		elsif ($config{rcs} eq 'bzr') {
 			# TODO
 		}
@@ -117,6 +120,7 @@ sub import (@) {
 		for (;;) {
 			print "Choose a password: ";
 			chomp($password=<STDIN>);
+			print "\n";
 			print "Confirm password: ";
 			chomp($password2=<STDIN>);
 

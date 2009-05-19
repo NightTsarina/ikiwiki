@@ -10,9 +10,9 @@ commits edited pages, and uses the Mercurial history to generate the
 Example for a `.hg/hgrc` file in `$SRCDIR`:
 
     [hooks]
-    post-commit = /home/abe/bin/rebuildwiki
-    incoming = /home/abe/bin/rebuildwiki
+    post-commit = ikiwiki --setup /path/to/ikiwiki.setup --post-commit
+    incoming = ikiwiki --setup /path/to/ikiwiki.setup --post-commit
 
-Do not use `commit` or `precommit` hooks or ikiwiki will run into a dead lock when committing in `$SRCDIR`
+Do not use `commit` or `precommit` hooks or ikiwiki will run into a dead lock when committing in `$SRCDIR`. Also note that `--post-commit` and not `--refresh` must be used to avoid dead locking when editing the pages via CGI interface.
 
 See also [[todo/mercurial|todo/mercurial]]
