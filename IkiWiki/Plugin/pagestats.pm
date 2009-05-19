@@ -41,12 +41,11 @@ sub preprocess (@) {
 	
 	my %counts;
 	my $max = 0;
-	foreach my $page (keys %links) {
-		if (pagespec_match($page, $params{pages}, location => $params{page})) {
-			use IkiWiki::Render;
-			$counts{$page} = scalar(IkiWiki::backlinks($page));
-			$max = $counts{$page} if $counts{$page} > $max;
-		}
+	foreach my $page (pagespec_match_list([keys %links],
+			$params{pages}, location => $params{page})) {
+		use IkiWiki::Render;
+		$counts{$page} = scalar(IkiWiki::backlinks($page));
+		$max = $counts{$page} if $counts{$page} > $max;
 	}
 
 	if ($style eq 'table') {

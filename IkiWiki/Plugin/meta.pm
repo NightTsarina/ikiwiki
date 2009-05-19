@@ -110,7 +110,7 @@ sub preprocess (@) {
 	}
 	elsif ($key eq 'link' && ! %params) {
 		# hidden WikiLink
-		push @{$links{$page}}, $value;
+		add_link($page, $value);
 		return "";
 	}
 	elsif ($key eq 'author') {

@@ -45,6 +45,12 @@ function relativeDate(date) {
 	var offset = date.getTime() - now.getTime();
 	var seconds = Math.round(Math.abs(offset) / 1000);
 
+	// hack to avoid reading just in the future if there is a minor
+	// amount of clock slip
+	if (offset >= 0 && seconds < 30 * timeUnits['minute']) {
+		return "just now";
+	}
+
 	var ret = "";
 	var shown = 0;
 	for (i = 0; i < timeUnitOrder.length; i++) {

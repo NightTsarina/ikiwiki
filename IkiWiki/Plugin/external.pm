@@ -230,10 +230,13 @@ sub hook ($@) {
 }
 
 sub pagespec_match ($@) {
-	# convert pagespec_match's return object into a XML RPC boolean
+	# convert return object into a XML RPC boolean
 	my $plugin=shift;
+	my $page=shift;
+	my $spec=shift;
 
-	return RPC::XML::boolean->new(0 + IkiWiki::pagespec_march(@_));
+	return RPC::XML::boolean->new(0 + IkiWiki::pagespec_match(
+			$page, $spec, @_));
 }
 
 1

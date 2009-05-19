@@ -403,6 +403,7 @@ sub showform ($$) {
 			$form->reset(0); # doesn't really make sense here
 		}
 		else {
+			my $oldsetup=readfile($config{setupfile});
 			IkiWiki::Setup::dump($config{setupfile});
 
 			IkiWiki::saveindex();
@@ -426,16 +427,21 @@ sub showform ($$) {
 					"-refresh", "-wrappers", "-v");
 			}
 
+			close STDERR;
+			open(STDERR, ">&STDOUT");
 			my $ret=system(@command);
-			print "\n<pre>";
+			print "\n<\/pre>";
 			if ($ret != 0) {
 				print '<p class="error">'.
-					sprintf(gettext("<p class=\"error\">Error: %s exited nonzero (%s)"),
+					sprintf(gettext("Error: %s exited nonzero (%s). Discarding setup changes."),
 						join(" ", @command), $ret).
 					'</p>';
+				open(OUT, ">", $config{setupfile}) || error("$config{setupfile}: $!");
+				print OUT $oldsetup;
+				close OUT;
 			}
 
-			print $tail;			
+			print $tail;
 			exit 0;
 		}
 	}

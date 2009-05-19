@@ -73,11 +73,7 @@ sub prefix_directives {
 }
 
 sub indexdb {
-	my $dir=shift;
-	if (! defined $dir) {
-		usage();		
-	}
-	$config{wikistatedir}=$dir."/.ikiwiki";
+	setstatedir(shift);
 
 	# Note: No lockwiki here because ikiwiki already locks it
 	# before calling this.	
@@ -96,11 +92,7 @@ sub indexdb {
 }
 
 sub hashpassword {
-	my $dir=shift;
-	if (! defined $dir) {
-		usage();		
-	}
-	$config{wikistatedir}=$dir."/.ikiwiki";
+	setstatedir(shift);
 
 	eval q{use IkiWiki::UserInfo};
 	eval q{use Authen::Passphrase::BlowfishCrypt};
@@ -220,6 +212,35 @@ sub moveprefs {
 	IkiWiki::Setup::dump($setup);
 }
 
+sub deduplinks {
+	setstatdir(shift);
+	IkiWiki::loadindex();
+	foreach my $page (keys %links) {
+		my %l;
+		$l{$_}=1 foreach @{$links{$page}};
+		$links{$page}=[keys %l]
+	}
+	IkiWiki::saveindex();
+}
+
+sub setstatedir {
+	my $dir=shift;
+
+	if (! defined $dir) {
+		usage();		
+	}
+
+	if (! -d $dir) {
+		error("ikiwiki-transition: $dir does not exist");
+	}
+
+	$config{wikistatedir}=$dir."/.ikiwiki";
+
+	if (! -d $config{wikistatedir}) {
+		error("ikiwiki-transition: $config{wikistatedir} does not exist");
+	}
+}
+
 sub usage {
 	print STDERR "Usage: ikiwiki-transition type ...\n";
 	print STDERR "Currently supported transition subcommands:\n";
@@ -229,6 +250,7 @@ sub usage {
 	print STDERR "\tmoveprefs setupfile\n";
 	print STDERR "\thashpassword srcdir\n";
 	print STDERR "\tindexdb srcdir\n";
+	print STDERR "\tdeduplinks srcdir\n";
 	exit 1;
 }
 
@@ -252,6 +274,9 @@ elsif ($mode eq 'setupformat') {
 }
 elsif ($mode eq 'moveprefs') {
 	moveprefs(@ARGV);
+}
+elsif ($mode eq 'deduplinks') {
+	deduplinks(@ARGV);
 }
 else {
 	usage();

@@ -1,0 +1,25 @@
+[[!tag bugs wishlist]]
+
+Escaping pipe-symbol in [[taglink|ikwiki/directive/taglink]] targets doesn't work as I wanted:
+
+[[!taglink smth_with_a_pipe|about_the_\|-symbol]]
+[[!taglink smth_with_a_pipe|about_the_|-symbol]]
+
+as opposed to simple wikilinks:
+
+[[a link to smth with a pipe|about the \|-symbol]]
+[[a link to smth with a pipe|about the |-symbol]]
+
+And it seems to work in pagespecs:
+
+tagged:
+
+[[!map pages="tagged(about the |-symbol)"]]
+
+[[!map pages="tagged(about the \|-symbol)"]]
+
+link:
+
+[[!map pages="link(about the |-symbol)"]]
+
+[[!map pages="link(about the \|-symbol)"]]

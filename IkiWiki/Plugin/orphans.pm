@@ -35,9 +35,10 @@ sub preprocess (@) {
 	
 	my @orphans;
 	my $discussion=gettext("discussion");
-	foreach my $page (keys %pagesources) {
-		next if $linkedto{$page} || $page eq 'index';
-		next unless pagespec_match($page, $params{pages}, location => $params{page});
+	foreach my $page (pagespec_match_list(
+			[ grep { ! $linkedto{$_} && $_ ne 'index' }
+				keys %pagesources ],
+			$params{pages}, location => $params{page})) {
 		# If the page has a link to some other page, it's
 		# indirectly linked to a page via that page's backlinks.
 		next if grep { 

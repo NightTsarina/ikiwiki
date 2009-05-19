@@ -86,7 +86,7 @@ sub scan (@) {
 	my $content=$params{content};
 
 	while ($content =~ /(?<!\\)$link_regexp/g) {
-		push @{$links{$page}}, linkpage($2);
+		add_link($page, linkpage($2));
 	}
 }
 

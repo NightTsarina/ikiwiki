@@ -43,7 +43,7 @@ sub preprocess (@) {
 		return '';
 	}
 
-	push @{$links{$params{page}}}, $image;
+	add_link($params{page}, $image);
 	# optimisation: detect scan mode, and avoid generating the image
 	if (! defined wantarray) {
 		return;

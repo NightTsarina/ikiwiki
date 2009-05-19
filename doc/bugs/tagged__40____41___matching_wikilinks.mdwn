@@ -1,0 +1,17 @@
+It may be that I'm simply misunderstanding something, but what is the rationale
+for having `tagged()` also match normal wikilinks?
+
+> It simply hasn't been implemented yet -- see the answer in [[todo/tag_pagespec_function]]. Tags and wikilinks share the same underlying implementation, although ab reasonable expectation is that they are kept separate. --Ivan Z.
+
+The following situation.  I have `tagbase => 'tag'`.  On some pages, scattered
+over the whole wiki, I use `\[[!tag open_issue_gdb]]` to declare that this page
+contains information about an open issue with GDB.  Then, I have a page
+`/tag/open_issues_gdb.mdwn` that essentially contains `\[[!map
+pages="tagged(open_issue_gdb)"]]`.  So far, so good: this page indeed does list
+all pages that are tagged like this.  But now, when I add in `/gdb.mdwn` a link
+to this page, like `\[[Open Issues|tag/open_issue_gdb]]`, then `/gdb.mdwn`
+itself shows up in the map on `tag/open_issues_gdb.mdwn`.  In my understanding
+this is due to the wikilink being equal to a `\[[!tag ...]]`.  What's the
+rationale on this, or what am I doing wrong, and how to achieve what I want?
+
+--[[tschwinge]]

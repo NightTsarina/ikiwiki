@@ -1,0 +1,49 @@
+This is a fleshed out todo based on discussions at
+[[forum/managing_todo_lists]].
+
+I would like to have TODO lists inside ikiwiki wikis. This would mean:
+
+* a new markup plugin to support a language suitable for TODO lists (OPML,
+  XOXO are two possible candidates)
+* some javascript to provide interactive editing.
+
+As [[chrysn]] pointed out on the forum page, this has some crossover with
+[[structured page data]]. In particular, if the markup language chosen had a
+concept of invalid markup (existing plugins just tend to ignore stuff that
+isn't explicitly part of their markup) we would need to sensibly handle that.
+Perhaps rejecting web edits and providing context help on why the edit was
+rejected, although that sounds like a significant headache.
+
+I have started working on this, albeit slowly. A proof of concept is at
+<http://dev.jmtd.net/outliner/>.
+
+There are two git repositories associated with my WIP: one contains the
+javascript, the plugin, the changes made to page templates; the other contains
+the contents of that wiki-site (so the test todos and the contents of bugs/
+which forms a sort-of todo list for the todo list :) ) I will endeavour to get
+mirrors of those repos up on github or similar asap.
+
+-- [[Jon]]
+
+----
+
+Just to report the WIP plugin for this is now in a reasonably good state. I ended
+up just inventing a new markup language -- for now, items are divided by newlines
+and lists are one-dimensional, for simplicity. I got fed up thinking about how to
+handle the structured data issues / needing a lot of boilerplate around items and
+the implications for the "new item" dialogue.
+
+Still quite a lot to do though!
+
+-- [[Jon]]
+
+I've pushed a copy of the work in progress which consists of
+
+ * A change to page.tmpl
+ * A javascript underlay directory + javascript file
+ * a few CSS bits in a local.css
+ * a plugin
+
+to <http://github.com/jmtd/ikiwiki_todolist/>
+
+-- [[Jon]]

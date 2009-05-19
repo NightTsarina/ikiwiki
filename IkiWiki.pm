@@ -18,15 +18,15 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
-                 bestlink htmllink readfile writefile pagetype srcfile pagename
-                 displaytime will_render gettext urlto targetpage
-		 add_underlay pagetitle titlepage linkpage newpagefile
-		 inject
+                 pagespec_match_list bestlink htmllink readfile writefile
+		 pagetype srcfile pagename displaytime will_render gettext urlto
+		 targetpage add_underlay pagetitle titlepage linkpage
+		 newpagefile inject add_link
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
 our $version='unknown'; # VERSION_AUTOREPLACE done by Makefile, DNE
-our $installdir=''; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
+our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
 
 # Optimisation.
 use Memoize;
@@ -155,6 +155,13 @@ sub getsetup () {
 		description => "base wiki source location",
 		advanced => 1,
 		safe => 0, # path
+		rebuild => 0,
+	},
+	underlaydirbase => {
+		type => "internal",
+		default => "$installdir/share/ikiwiki",
+		description => "parent directory containing additional underlays",
+		safe => 0,
 		rebuild => 0,
 	},
 	wrappers => {
@@ -715,7 +722,7 @@ sub add_underlay ($) {
 	my $dir=shift;
 
 	if ($dir !~ /^\//) {
-		$dir="$config{underlaydir}/../$dir";
+		$dir="$config{underlaydirbase}/$dir";
 	}
 
 	if (! grep { $_ eq $dir } @{$config{underlaydirs}}) {
@@ -1671,12 +1678,6 @@ sub rcs_receive () {
 	$hooks{rcs}{rcs_receive}{call}->();
 }
 
-sub safequote ($) {
-	my $s=shift;
-	$s=~s/[{}]//g;
-	return "q{$s}";
-}
-
 sub add_depends ($$) {
 	my $page=shift;
 	my $pagespec=shift;
@@ -1757,6 +1758,14 @@ sub inject {
 	use warnings;
 }
 
+sub add_link ($$) {
+	my $page=shift;
+	my $link=shift;
+
+	push @{$links{$page}}, $link
+		unless grep { $_ eq $link } @{$links{$page}};
+}
+
 sub pagespec_merge ($$) {
 	my $a=shift;
 	my $b=shift;
@@ -1770,6 +1779,7 @@ sub pagespec_translate ($) {
 
 	# Convert spec to perl code.
 	my $code="";
+	my @data;
 	while ($spec=~m{
 		\s*		# ignore whitespace
 		(		# 1: match a single word
@@ -1797,14 +1807,17 @@ sub pagespec_translate ($) {
 		}
 		elsif ($word =~ /^(\w+)\((.*)\)$/) {
 			if (exists $IkiWiki::PageSpec::{"match_$1"}) {
-				$code.="IkiWiki::PageSpec::match_$1(\$page, ".safequote($2).", \@_)";
+				push @data, $2;
+				$code.="IkiWiki::PageSpec::match_$1(\$page, \$data[$#data], \@_)";
 			}
 			else {
-				$code.="IkiWiki::FailReason->new(".safequote(qq{unknown function in pagespec "$word"}).")";
+				push @data, qq{unknown function in pagespec "$word"};
+				$code.="IkiWiki::ErrorReason->new(\$data[$#data])";
 			}
 		}
 		else {
-			$code.=" IkiWiki::PageSpec::match_glob(\$page, ".safequote($word).", \@_)";
+			push @data, $word;
+			$code.=" IkiWiki::PageSpec::match_glob(\$page, \$data[$#data], \@_)";
 		}
 	}
 
@@ -1827,9 +1840,33 @@ sub pagespec_match ($$;@) {
 	}
 
 	my $sub=pagespec_translate($spec);
-	return IkiWiki::FailReason->new("syntax error in pagespec \"$spec\"")
+	return IkiWiki::ErrorReason->new("syntax error in pagespec \"$spec\"")
 		if $@ || ! defined $sub;
 	return $sub->($page, @params);
+}
+
+sub pagespec_match_list ($$;@) {
+	my $pages=shift;
+	my $spec=shift;
+	my @params=@_;
+
+	my $sub=pagespec_translate($spec);
+	error "syntax error in pagespec \"$spec\""
+		if $@ || ! defined $sub;
+	
+	my @ret;
+	my $r;
+	foreach my $page (@$pages) {
+		$r=$sub->($page, @params);
+		push @ret, $page if $r;
+	}
+
+	if (! @ret && defined $r && $r->isa("IkiWiki::ErrorReason")) {
+		error(sprintf(gettext("cannot match pages: %s"), $r));
+	}
+	else {
+		return @ret;
+	}
 }
 
 sub pagespec_valid ($) {
@@ -1860,6 +1897,10 @@ sub new {
 	my $value = shift;
 	return bless \$value, $class;
 }
+
+package IkiWiki::ErrorReason;
+
+our @ISA = 'IkiWiki::FailReason';
 
 package IkiWiki::SuccessReason;
 
@@ -2021,7 +2062,7 @@ sub match_user ($$;@) {
 	my %params=@_;
 	
 	if (! exists $params{user}) {
-		return IkiWiki::FailReason->new("no user specified");
+		return IkiWiki::ErrorReason->new("no user specified");
 	}
 
 	if (defined $params{user} && lc $params{user} eq lc $user) {
@@ -2041,7 +2082,7 @@ sub match_admin ($$;@) {
 	my %params=@_;
 	
 	if (! exists $params{user}) {
-		return IkiWiki::FailReason->new("no user specified");
+		return IkiWiki::ErrorReason->new("no user specified");
 	}
 
 	if (defined $params{user} && IkiWiki::is_admin($params{user})) {
@@ -2061,7 +2102,7 @@ sub match_ip ($$;@) {
 	my %params=@_;
 	
 	if (! exists $params{ip}) {
-		return IkiWiki::FailReason->new("no IP specified");
+		return IkiWiki::ErrorReason->new("no IP specified");
 	}
 
 	if (defined $params{ip} && lc $params{ip} eq lc $ip) {

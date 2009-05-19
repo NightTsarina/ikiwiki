@@ -1,0 +1,19 @@
+You may want to run `ikiwiki-transition deduplinks /path/to/srcdir`
+after upgrading to this version of ikiwiki. This command will
+optimise your wiki's saved state, removing duplicate information
+that can slow ikiwiki down.
+
+ikiwiki 3.12 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+  * Re-enable python-support and add python:Depends to control file.
+  * ikiwiki-makerepo: Avoid using abs_path, as it apparently
+    fails on nonexistant directories with some broken perl
+    versions.
+  * inline: Minor optimisation.
+  * add_link: New function, which plugins should use rather than
+    modifying %links directly, to avoid it accumulating duplicates.
+  * ikiwiki-transition: Add a deduplinks action, that can be used
+    to remove duplicate links and optimise a wiki w/o rebuilding it.
+  * external: Fix pagespec_match and pagespec_match_list.
+    Closes: #527281
+"""]]

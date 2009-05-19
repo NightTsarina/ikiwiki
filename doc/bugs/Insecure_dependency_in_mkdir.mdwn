@@ -82,3 +82,48 @@ I can't see any related entries. Any ideas?
 
 >>> Ubuntu Gutsy also has Perl 5.8.8-7, so probably it has the bug too.
 >>> --[[Paweł|ptecza]]
+
+>>>> I just got it while building my latest version of git.ikiwiki.info + my stuff.
+>>>> Only thing different in my version in IkiWiki.pm is that I moved a &lt;/a> over
+>>>> a word (for createlink), and disabled the lowercasing of created pages. Running
+>>>> Lenny's Perl. --[[simonraven]]
+
+>>>> Simon, I'm not clear what version of ikiwiki you're using.
+>>>> Since version 2.40, taint checking has been disabled by
+>>>> default due to the underlying perl bug. Unless you
+>>>> build ikiwiki with NOTAINT=0. --[[Joey]] 
+
+>>>> Hi, nope not doing this. Um, sorry, v. 3.13. I've no idea why it suddenly started doing this.
+>>>> It wasn't before. I've been messing around IkiWiki.pm to see if I can set
+>>>> a umask for `mkdir`.
+
+line 775 and down:
++			        umask ($config{umask} || 0022);
+
+>>>> I figured it *might* be the `umask`, but I'll see in a few when / if it gets past that in the build. No; I keep getting garbage during the brokenlinks test
+
+<pre>
+t/basewiki_brokenlinks.....Insecure dependency in mkdir while running with -T switch at IkiWiki.pm line 776.
+
+#   Failed test at t/basewiki_brokenlinks.t line 11.
+
+#   Failed test at t/basewiki_brokenlinks.t line 19.
+
+
+broken links found
+&lt;li>shortcut from &lt;a href="./shortcuts/">shortcuts&lt;/a>&lt;/li>&lt;/ul>
+
+
+
+#   Failed test at t/basewiki_brokenlinks.t line 25.
+Insecure dependency in mkdir while running with -T switch at IkiWiki.pm line 776.
+
+#   Failed test at t/basewiki_brokenlinks.t line 11.
+
+#   Failed test at t/basewiki_brokenlinks.t line 25.
+# Looks like you failed 5 tests of 12.
+dubious
+        Test returned status 5 (wstat 1280, 0x500)
+</pre>
+
+>>>> I get this over and over... I haven't touched that AFAICT, at all. --[[simonraven]]

@@ -1,4 +1,4 @@
-ikiwiki (3.11) unstable; urgency=low
+ikiwiki (3.14) UNRELEASED; urgency=low
 
   * Add new hooks: canremove, canrename, rename. (intrigeri)
   * rename: Refactor subpage rename handling code into rename hook. (intrigeri)
@@ -6,6 +6,62 @@ ikiwiki (3.11) unstable; urgency=low
     (intrigeri)
 
  -- Joey Hess <joeyh@debian.org>  Mon, 20 Apr 2009 19:40:25 -0400
+
+ikiwiki (3.13) UNRELEASED; urgency=low
+
+  * ikiwiki-transition: If passed a nonexistant srcdir, or one not
+    containing .ikiwiki, abort with an error rather than creating it.
+  * Allow underlaydir to be overridden without messing up inclusion
+    of other underlays via add_underlay.
+  * More friendly display of markdown, textile in edit form selector
+    (jmtd)
+  * Allow curly braces to be used in pagespecs, and avoid a whole class
+    of potential security problems, by avoiding performing any string
+    interpolation on user-supplied data when translating pagespecs.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 06 May 2009 20:45:44 -0400
+
+ikiwiki (3.12) unstable; urgency=low
+
+  * Re-enable python-support and add python:Depends to control file.
+  * ikiwiki-makerepo: Avoid using abs_path, as it apparently
+    fails on nonexistant directories with some broken perl
+    versions.
+  * inline: Minor optimisation.
+  * add_link: New function, which plugins should use rather than
+    modifying %links directly, to avoid it accumulating duplicates.
+  * ikiwiki-transition: Add a deduplinks action, that can be used
+    to remove duplicate links and optimise a wiki w/o rebuilding it.
+  * external: Fix pagespec_match and pagespec_match_list.
+    Closes: #527281
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 06 May 2009 00:31:16 -0400
+
+ikiwiki (3.11) unstable; urgency=low
+
+  * Avoid using python-support. Closes: #525086
+  * websetup: Display stderr in browser if ikiwiki setup fails.
+  * blogspam: Load RPC::XML library in checkconfig, so that an
+    error can be printed at that point if it's not available,
+    allowing the admin to see it during wiki setup.
+    Closes: #520015
+  * websetup: If setup fails, restore old setup file.
+  * relativedate: Deal with clock skew.
+  * Add IkiWiki::ErrorReason objects, and modify pagespecs to return
+    them in cases where they fail to match due to a configuration or syntax
+    error.
+  * pagespec_match_list: New API function, matches pages in a list
+    and throws an error if the pagespec is bad.
+  * inline, brokenlinks, calendar, linkmap, map, orphans, pagecount,
+    pagestate, postsparkline: Display a handy error message if the pagespec
+    is erronious.
+  * comments: Add link to comment post form to allow user to sign in
+    if they wish to, if the configuration makes signin optional
+    for commenting.
+  * Updated Danish translation from Jonas Smedegaard. Closes: #525751
+  * translation.mdwn: Typo fixes. Closes: #525753
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 04 May 2009 15:45:10 -0400
 
 ikiwiki (3.10) unstable; urgency=low
 
