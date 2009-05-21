@@ -1,7 +1,10 @@
 It may be that I'm simply misunderstanding something, but what is the rationale
 for having `tagged()` also match normal wikilinks?
 
-> It simply hasn't been implemented yet -- see the answer in [[todo/tag_pagespec_function]]. Tags and wikilinks share the same underlying implementation, although ab reasonable expectation is that they are kept separate. --Ivan Z.
+> It simply hasn't been implemented yet -- see the answer in
+> [[todo/tag_pagespec_function]]. Tags and wikilinks share the same
+> underlying implementation, although ab reasonable expectation is that
+> they are kept separate. --Ivan Z.
 
 The following situation.  I have `tagbase => 'tag'`.  On some pages, scattered
 over the whole wiki, I use `\[[!tag open_issue_gdb]]` to declare that this page
@@ -16,4 +19,11 @@ rationale on this, or what am I doing wrong, and how to achieve what I want?
 
 --[[tschwinge]]
 
-> What you are doing "wrong" is putting non-tag pages (i.e. `/tag/open_issues_gdb.mdwn`) under your tagbase. The rationale for implementing tag as it has been, I think, is one of simplicity and conciseness. -- [[Jon]]
+> What you are doing "wrong" is putting non-tag pages (i.e.
+> `/tag/open_issues_gdb.mdwn`) under your tagbase. The rationale for
+> implementing tag as it has been, I think, is one of simplicity and
+> conciseness. -- [[Jon]]
+
+>> No, he has no pages under tagbase that aren't tags. This bug
+>> is valid. [[todo/matching_different_kinds_of_links]] is probably
+>> how it will eventually be solved. --[[Joey]] 
