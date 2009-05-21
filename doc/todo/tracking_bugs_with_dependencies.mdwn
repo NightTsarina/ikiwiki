@@ -206,12 +206,51 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 
 >> Because you have to define all the named pagespecs in the pagespec, you sometimes end up with very long pagespecs.  I found it useful to split them over multiple lines.  That didn't work at one point and I added the 's' to make it work.  I may have further altered the regex since then to make the 's' redundant.  Remove it and see if multi-line pagespecs still work. :)
 
+>>> Well, I can tell you that multi-line pagespecs are supported w/o
+>>> your patch .. I use them all the time. The reason I find your
+>>> use of `/s` unlikely is because without it `\s` already matches
+>>> a newline. Only if you want to treat a newline as non-whitespace
+>>> is `/s` typically necessary. --[[Joey]] 
+
 > * Some changes of `@_` to `%params` in `pagespec_makeperl` do not
 >   make sense to me. I don't see where \%params is defined and populated,
 >   except with `\$params{specFunc}`.
 
->> I'm not a perl hacker.  This was a mighty battle for me to get going.  There is probably some battlefield carnage from my early struggles learning perl left here.
->> Part of this is that @_ / @params already existed as a way of passing in extra parameters.  I didn't want to pollute that top level namespace - just at my own parameter (a hash) which contained the data I needed.
+>> I'm not a perl hacker.  This was a mighty battle for me to get going.
+>> There is probably some battlefield carnage from my early struggles
+>> learning perl left here. Part of this is that @_ / @params already
+>> existed as a way of passing in extra parameters.  I didn't want to
+>> pollute that top level namespace - just at my own parameter (a hash)
+>> which contained the data I needed.
+
+>>> I think I understand how the various `%params`
+>>> (there's not just one) work in your code now, but it's really a mess.
+>>> Explaining it in words would take pages.. It could be fixed by,
+>>> in `pagespec_makeperl` something like:
+>>> 
+>>>	my %specFuncs;
+>>>	push @_, specFuncs => \%specFuncs;
+>>> 
+>>> With that you have the hash locally available for populating
+>>> inside `pagespec_makeperl`, and when the `match_*` functions
+>>> are called the same hash data will be available inside their
+>>> `@_` or `%params`. No need to change how the functions are called
+>>> or do any of the other hacks.
+>>>
+>>> Currently, specFuncs is populated by building up code
+>>> that recursively calls `pagespec_makeperl`, and is then
+>>> evaluated when the pagespec gets evaluated. My suggested
+>>> change to `%params` will break that, but that had to change 
+>>> anyway.
+>>>
+>>> It probably has a security hole, and is certianly inviting
+>>> one, since the pagespec definition is matched by a loose regexp (`.*`)
+>>> and then subject to string interpolation before being evaluated
+>>> inside perl code. I recently changed ikiwiki to never interpolate
+>>> user-supplied strings when translating pagespecs, and that
+>>> needs to happen here too. The obvious way, it seems to me,
+>>> is to not generate perl code, but just directly run perl code that
+>>> populates specFuncs.
 
 > * Seems that the only reason `match_glob` has to check for `~` is
 >   because when a named spec appears in a pagespec, it is translated
@@ -229,6 +268,10 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >> call match_glob().  match_glob() in turn will handle the named spec.  I tested this version briefly and it seemed to work.  I remember looking at this again later and wondering if I had mis-understood
 >> some of the logic in match_link(), which might mean there are cases where you would need an explicit call to check_named_spec_existential() - I never checked it properly after having that thought.
 
+>>> In the common case, `match_link` does not call `match_glob`,
+>>> because the link target it is being asked to check for is a single
+>>> page name, not a glob.
+
 > * Generally, the need to modify `match_*` functions so that they
 >   check for and handle named pagespecs seems suboptimal, if
 >   only because there might be others people may want to use named
@@ -243,6 +286,9 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >> Possibly.  I'm not sure which I prefer between the current solution and that one.  Each have advantages and disadvantages.
 >> It really isn't much code for the match functions to add a call to check_named_spec_existential().
 
+>>> But if a plugin adds its own match function, it has
+>>> to explicitly call that code to support named pagespecs.
+
 > * I need to check if your trick to avoid infinite recursion
 >   works if there are two named specs that recursively
 >   call one-another. I suspect it does, but will test this
@@ -250,16 +296,37 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 
 >> It worked for me. :)
 
+> * I also need to verify if memoizing the named pagespecs has
+>   really guarded against very expensive pagespecs DOSing the wiki..
+
 > --[[Joey]] 
 
 >>  There is one issue that I've been thinking about that I haven't raised anywhere (or checked myself), and that is how this all interacts with page dependencies.
->>  Firstly, I'm not sure anymore that the `pagespec_merge` function will continue to work in all cases.  Secondly, it seems that there are two types of dependency, and ikiwiki
->> currently only handles one of them.  The first type is "Rebuild this page when any of these other pages changes" - ikiwiki handles this.  The second type is "rebuild this page when
->> set of pages referred to by this pagespec changes" - ikiwiki doesn't seem to handle this.  I suspect that named pagespecs would make that second type of dependency more
->> important.  I'll try to come up with a good example. -- [[Will]]
+>>  Firstly, I'm not sure anymore that the `pagespec_merge` function will continue to work in all cases.
 
->>> Hrm, I was going to build an example of this with backlinks, but it looks like that is handled as a special case at the moment (line 458 of render.pm).  I'll see if I can break
+>>> The problem I can see there is that if two pagespecs
+>>> get merged and both use `~foo` but define it differently,
+>>> then the second definition might be used at a point when
+>>> it shouldn't (but I haven't verified that really happens).
+>>> That could certianly be a show-stopper. --[[Joey]] 
+
+>>  Secondly, it seems that there are two types of dependency, and ikiwiki
+>>  currently only handles one of them.  The first type is "Rebuild this
+>>  page when any of these other pages changes" - ikiwiki handles this.
+>>  The second type is "rebuild this page when set of pages referred to by
+>>  this pagespec changes" - ikiwiki doesn't seem to handle this.  I
+>>  suspect that named pagespecs would make that second type of dependency
+>>  more important.  I'll try to come up with a good example. -- [[Will]]
+
+>>> Hrm, I was going to build an example of this with backlinks, but it
+>>> looks like that is handled as a special case at the moment (line 458 of
+>>> render.pm).  I'll see if I can breapk
 >>> things another way.  Fixing this properly would allow removal of that special case. -- [[Will]]
+
+>>>> I can't quite understand the distinction you're trying to draw
+>>>> between the two types of dependencies. Backlinks are a very special
+>>>> case though and I'll be suprised if they fit well into pagespecs.
+>>>> --[[Joey]] 
 
 ----
 
