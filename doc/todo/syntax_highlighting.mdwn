@@ -73,7 +73,8 @@ releases the 5 or 6 language definitions he has running on his web site, it migh
 
 * The whole-file plugins all get confused if there is a `foo.c` and a `foo.h`.
   This is trivially fixable now by passing the keepextension option when
-  registering the htmlize hooks, though. That also should handle the
+  registering the htmlize hooks, though. There's also a noextension option
+  that should handle the
   case of source files with names that do not contain an extension (ie,
   "Makefile") -- in this case you just register the while filename
   in the htmlize hook.
