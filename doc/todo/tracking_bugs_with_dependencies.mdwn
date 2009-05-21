@@ -258,6 +258,9 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >> set of pages referred to by this pagespec changes" - ikiwiki doesn't seem to handle this.  I suspect that named pagespecs would make that second type of dependency more
 >> important.  I'll try to come up with a good example. -- [[Will]]
 
+>>> Hrm, I was going to build an example of this with backlinks, but it looks like that is handled as a special case at the moment (line 458 of render.pm).  I'll see if I can break
+>>> things another way.  Fixing this properly would allow removal of that special case. -- [[Will]]
+
 ----
 
     diff --git a/IkiWiki.pm b/IkiWiki.pm
