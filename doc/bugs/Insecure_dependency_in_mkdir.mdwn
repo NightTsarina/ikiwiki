@@ -127,3 +127,27 @@ dubious
 </pre>
 
 >>>> I get this over and over... I haven't touched that AFAICT, at all. --[[simonraven]]
+
+>>>>> Take a look at your `/usr/bin/ikiwiki`. The first
+>>>>> line should not contain -T. If it does, remove it,
+>>>>> and maybe try to work out or give details about how
+>>>>> you installed ikiwiki and why it got the -T in there,
+>>>>> which certianly doesn't happen by default when ikiwiki
+>>>>> is installed by the Makefile.PL or by any package I know of.
+>>>>> (If there's
+>>>>> no -T, then something *really* weird is going on..)
+>>>>> --[[Joey]] 
+
+>>>>>> nope, no -T in the hashbang line at all. Haven't added any;
+>>>>>> only thing I did there was change `use lib` to `/usr/share/perl5`,
+>>>>>> otherwise I'd get bogus errors about CGI::Cookie_al or some such thing.
+>>>>>>
+>>>>>> How I installed it was in non-public directories in various sites, then
+>>>>>> make it publish stuff to a public dir in the relevant site. Or do you
+>>>>>> mean installed, as in the whole thing? From a .deb I made based on the git tree, with `git-buildpackage`.
+>>>>>>
+>>>>>> This issue is recent, after a `git pull` IIRC. It has never happened before. It's also puzzling me.
+>>>>>>
+>>>>>> You can check it out for yourself by pulling my fork of this, at github or my local repo.
+>>>>>> github will probably be faster for you: git://github.com/kjikaqawej/ikiwiki-simon.git --[[simonraven]]
+

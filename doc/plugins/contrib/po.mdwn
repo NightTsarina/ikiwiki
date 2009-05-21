@@ -372,6 +372,18 @@ daring a timid "please pull"... or rather, please review again :)
 >> should appear on the current page. That's why I'm testing
 >> `$template->param('discussionlink')`.
 >> 
+>>> Maybe I was really wondering why it says it could lead to a broken
+>>> link if the cgiurl is disabled. I think I see why now: Discussionlink
+>>> will be set to a link to an existing disucssion page, even if cgi is
+>>> disabled -- but there's no guarantee of a translated discussion page
+>>> existing in that case. *However*, htmllink actually checks
+>>> for this case, and will avoid generating a broken link so AFAICS, the
+>>> comment is actually innacurate.. what will really happen in this case
+>>> is discussionlink will be set to a non-link translation of
+>>> "discussion". Also, I consider `$config{cgi}` and `%links` (etc)
+>>> documented parts of the plugin interface, which won't change; po could
+>>> rely on them to avoid this minor problem. --[[Joey]] 
+>
 > * Is there any real reason not to allow removing a translation?
 >   I'm imagining a spammy translation, which an admin might not
 >   be able to fix, but could remove.
@@ -383,6 +395,11 @@ daring a timid "please pull"... or rather, please review again :)
 >> delete the spammy `.po` file by hand using whatever VCS is in use.
 >> Not that I'd really care, but I am slightly in favour of the way
 >> it currently works.
+>>
+>>> That would definitly be confusing. It sounds to me like if we end up
+>>> needing to allow web-based deletion of spammy translations, it will
+>>> need improvements to the deletion UI to de-confuse that. It's fine to
+>>> put that off until needed --[[Joey]] 
 >> 
 > * Re the meta title escaping issue worked around by `change`. 
 >   I suppose this does not only affect meta, but other things
@@ -404,3 +421,5 @@ daring a timid "please pull"... or rather, please review again :)
 >> I'll think about it soon.
 >> 
 >> --[[intrigeri]]
+>>
+>>> Did you get a chance to? --[[Joey]] 

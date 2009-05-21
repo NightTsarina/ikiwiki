@@ -44,14 +44,14 @@ Moves values that used to be admin preferences into the setup file.
 Note that all comments and any unusual stuff like perl code in the setup
 file will be lost, as it is entirely rewritten by the move.
 
-# indexdb srcdir
+# indexdb your.setup|srcdir
 
 The `indexdb` mode handles converting a plain text `.ikiwiki/index` file to
 a binary `.ikiwiki/indexdb`. You do not normally need to run
 `ikiwiki-transition indexdb`; ikiwiki will automatically run it as
 necessary.
 
-# hashpassword srcdir
+# hashpassword your.setup|srcdir
 
 The `hashpassword` mode forces any plaintext passwords stored in the
 `.ikiwiki/userdb` file to be replaced with password hashes. (The
@@ -61,7 +61,7 @@ If this is not done explicitly, a user's plaintext password will be
 automatically converted to a hash when a user logs in for the first time
 after upgrade to ikiwiki 2.48.
 
-# deduplinks srcdir
+# deduplinks your.setup|srcdir
 
 In the past, bugs in ikiwiki have allowed duplicate link information
 to be stored in its indexdb. This mode removes such duplicate information,

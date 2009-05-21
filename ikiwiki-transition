@@ -42,16 +42,8 @@ sub handle_directive {
 }
 
 sub prefix_directives {
-	my $setup=shift;
-	if (! defined $setup) {
-		usage();
-	}
+	loadsetup(shift);
 
-	require IkiWiki::Setup;
-	require IkiWiki::Plugin::aggregate;
-
-	%config = IkiWiki::defaultconfig();
-	IkiWiki::Setup::load($setup);
 	IkiWiki::loadplugins();
 	IkiWiki::checkconfig();
 	IkiWiki::loadindex();
@@ -114,31 +106,16 @@ sub hashpassword {
 }
 
 sub aggregateinternal {
-	my $setup=shift;
-	if (! defined $setup) {
-		usage();
-	}
-
-	require IkiWiki::Setup;
+	loadsetup(shift);
 	require IkiWiki::Plugin::aggregate;
-
-	%config = IkiWiki::defaultconfig();
-	IkiWiki::Setup::load($setup);
 	IkiWiki::checkconfig();
-
 	IkiWiki::Plugin::aggregate::migrate_to_internal();
 }
 
 sub setupformat {
 	my $setup=shift;
-	if (! defined $setup) {
-		usage();
-	}
 
-	require IkiWiki::Setup;
-
-	%config = IkiWiki::defaultconfig();
-	IkiWiki::Setup::load($setup);
+	loadsetup($setup);
 	IkiWiki::checkconfig();
 	
 	# unpack old-format wrappers setting into new fields
@@ -175,14 +152,8 @@ sub setupformat {
 
 sub moveprefs {
 	my $setup=shift;
-	if (! defined $setup) {
-		usage();
-	}
 
-	require IkiWiki::Setup;
-
-	%config = IkiWiki::defaultconfig();
-	IkiWiki::Setup::load($setup);
+	loadsetup($setup);
 	IkiWiki::checkconfig();
 
 	eval q{use IkiWiki::UserInfo};
@@ -224,21 +195,37 @@ sub deduplinks {
 }
 
 sub setstatedir {
-	my $dir=shift;
+	my $dirorsetup=shift;
 
-	if (! defined $dir) {
+	if (! defined $dirorsetup) {
 		usage();		
 	}
 
-	if (! -d $dir) {
-		error("ikiwiki-transition: $dir does not exist");
+	if (-d $dirorsetup) {
+		$config{wikistatedir}=$dirorsetup."/.ikiwiki";
 	}
-
-	$config{wikistatedir}=$dir."/.ikiwiki";
+	elsif (-f $dirorsetup) {
+		loadsetup($dirorsetup);
+	}
+	else {
+		error("ikiwiki-transition: $dirorsetup does not exist");
+	}
 
 	if (! -d $config{wikistatedir}) {
 		error("ikiwiki-transition: $config{wikistatedir} does not exist");
 	}
+}
+	
+sub loadsetup {
+	my $setup=shift;
+	if (! defined $setup) {
+		usage();
+	}
+
+	require IkiWiki::Setup;
+
+	%config = IkiWiki::defaultconfig();
+	IkiWiki::Setup::load($setup);
 }
 
 sub usage {
@@ -248,9 +235,9 @@ sub usage {
 	print STDERR "\taggregateinternal setupfile\n";
 	print STDERR "\tsetupformat setupfile\n";
 	print STDERR "\tmoveprefs setupfile\n";
-	print STDERR "\thashpassword srcdir\n";
-	print STDERR "\tindexdb srcdir\n";
-	print STDERR "\tdeduplinks srcdir\n";
+	print STDERR "\thashpassword setupfile|srcdir\n";
+	print STDERR "\tindexdb setupfile|srcdir\n";
+	print STDERR "\tdeduplinks setupfile|srcdir\n";
 	exit 1;
 }
 
