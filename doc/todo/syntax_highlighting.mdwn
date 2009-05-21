@@ -41,12 +41,6 @@ releases the 5 or 6 language definitions he has running on his web site, it migh
   using a perl module, or a multiple-backend solution that can use a perl
   module as one option. (Or, if there's a great highlighter python module,
   we could use an external plugin..)
-* Currently no single plugin supports both modes of operation (directive
-  and whole source file to page).
-
-  > This is now fixed by the [[ikiwiki/directive/format]] directive for all
-  > whole-source-file plugins, right?
-
 * Nothing seems to support 
   [[wiki-formatted_comments|wiki-formatted_comments_with_syntax_plugin]]
   inside source files. Doing this probably means post-processing the 
@@ -73,41 +67,19 @@ releases the 5 or 6 language definitions he has running on his web site, it migh
 
 * The whole-file plugins all get confused if there is a `foo.c` and a `foo.h`.
   This is trivially fixable now by passing the keepextension option when
-  registering the htmlize hooks, though.
+  registering the htmlize hooks, though. That also should handle the
+  case of source files with names that do not contain an extension (ie,
+  "Makefile") -- in this case you just register the while filename
+  in the htmlize hook.
 * Whole-file plugins register a bunch of htmlize hooks. The wacky thing
   about it is that, when creating a new page, you can then pick "c" or
-  "h" or "pl" etc from the dropdown that normally has "mdwn" etc in it.
-  Is this a bug, or a feature? (Even if a feature, plugins with many
-  extensions make the dropdown unusable.. One way to deal with that is have
-  a config setting that lists what extensions to offer highlighting for.
-  Most people won't need/want the dozens some engines support.)
-* The per page highlighters can't handle creating wiki pages from 
-  "Makefile", or other files without a significant extension.
-  Not clear how to fix this, as ikiwiki is very oriented toward file
-  extensions. The workaround is to use a directive on a wiki page, pulling
-  in the Makefile.
+  "h" or "pl" etc from the dropdown that normally has "Markdown" etc in it.
+  Is this a bug, or a feature? Even if a feature, plugins with many
+  extensions make the dropdown unusable.. 
 
-  > I wonder how hard it would be to make a patch whereby a file with
-  > no `.` in the name, and a name that matches a filetype, and where
-  > that filetype was registered `keepextension`, then the file is just
-  > chosen as the appropriate type.  This would allow `Makefile` to
-  > work.
-
-like this:
-
-    diff --git a/IkiWiki.pm b/IkiWiki.pm
-    index 8d728c9..1bd46a9 100644
-    --- a/IkiWiki.pm
-    +++ b/IkiWiki.pm
-    @@ -618,6 +618,8 @@ sub pagetype ($) {
-     	
-     	if ($page =~ /\.([^.]+)$/) {
-     		return $1 if exists $hooks{htmlize}{$1};
-    +	} elsif ($hooks{htmlize}{$page}{keepextension}) {
-    +		return $page;
-     	}
-     	return;
-     }
+  Perhaps the thing to do here is to use the new `longname` parameter to
+  the format hook, to give them all names that will group together at or
+  near the end of the list. Ie: "Syntax: perl", "Syntax: C", etc.
 
 ## format directive and comments
 
