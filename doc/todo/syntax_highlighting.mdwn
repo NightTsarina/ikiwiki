@@ -21,13 +21,13 @@ things easier for the user.
 * [[plugins/contrib/syntax]] only operates as a directive
   ([[not_on_source_code_files|automatic_use_of_syntax_plugin_on_source_code_files]]),
   and uses [[!cpan Text::VimColor]].
-* [[plugins/contrib/sourcehighlight]] uses src-highlight, and operates on
+* [[plugins/contrib/sourcehighlight]] uses source-highlight, and operates on
   whole source files only. Needs to be updated to
   support [[bugs/multiple_pages_with_same_name]].
 * [[sourcecode|todo/automatic_use_of_syntax_plugin_on_source_code_files/discussion]]
-  also uses src-highlight, and operates on whole source files.
+  also uses source-highlight, and operates on whole source files.
   Updated to work with the fix for [[bugs/multiple_pages_with_same_name]].  Untested with files with no extension, e.g. `Makefile`.
-* [[users/jasonblevins]]'s code plugin uses src-highlight, and supports both
+* [[users/jasonblevins]]'s code plugin uses source-highlight, and supports both
   while file and directive use.
 
 * [hlsimple](http://pivot.cs.unb.ca/git/?p=ikiplugins.git;a=blob_plain;f=IkiWiki/Plugin/hlsimple.pm;hb=HEAD) is a wrapper for the the perl module [[!cpan Syntax::Highlight::Engine::Simple]].  This is pure perl, pretty simple, uses css. It ought to be pretty fast (according to the author, and just because it is not external).
@@ -37,16 +37,28 @@ releases the 5 or 6 language definitions he has running on his web site, it migh
 
 ## General problems / requirements
 
-* Using non-perl syntax highlighting backends is slow. I'd prefer either
-  using a perl module, or a multiple-backend solution that can use a perl
-  module as one option. (Or, if there's a great highlighter python module,
-  we could use an external plugin..)
+* Using non-perl syntax highlighting backends is slower. All things equal,
+  I'd prefer either using a perl module, or a multiple-backend solution that
+  can use a perl module as one option. (Or, if there's a great highlighter
+  python module, we could use an external plugin..)
+
+  Of course, some perl modules are also rather slow.. Kate, for example
+  can only process about 33 lines of C code, or 14 lines of
+  debian/changelog per second. That's **30 times slower than markdown**!
+
+  By comparison, source-highlight can do about 5000 lines of C code per
+  second... And launching the program 100 times on an empty file takes about
+  5 seconds.
+
 * Engines that already support a wide variety of file types are of
   course preferred. If the engine doesn't support a particular type
   of file, it could fall back to doing something simple like
   adding line numbers. (IkiWiki-Plugin-syntax does this.)
+* XHTML output.
 * Emitting html that uses CSS to control the display is preferred,
-  since it allows for easy user customization.
+  since it allows for easy user customization. (Engine::Simple does
+  this; Kate can be configured to do it; source-highlight can be 
+  made to do it via the switches `--css /dev/null --no-doc`)
 * Nothing seems to support 
   [[wiki-formatted_comments|wiki-formatted_comments_with_syntax_plugin]]
   inside source files. Doing this probably means post-processing the 
