@@ -116,14 +116,16 @@ sub rename_form ($$$) {
 		# insert the standard extensions
 		my @page_types;
 		if (exists $IkiWiki::hooks{htmlize}) {
-			@page_types=grep { !/^_/ }
-				keys %{$IkiWiki::hooks{htmlize}};
+			foreach my $key (grep { !/^_/ } keys %{$IkiWiki::hooks{htmlize}}) {
+				push @page_types, [$key, $IkiWiki::hooks{htmlize}{$key}{longname} || $key];
+			}
 		}
+		@page_types=sort @page_types;
 	
 		# make sure the current extension is in the list
 		my ($ext) = $pagesources{$page}=~/\.([^.]+)$/;
 		if (! $IkiWiki::hooks{htmlize}{$ext}) {
-			unshift(@page_types, $ext);
+			unshift(@page_types, [$ext, $ext]);
 		}
 	
 		$f->field(name => "type", type => 'select',

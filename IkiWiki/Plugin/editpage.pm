@@ -280,6 +280,7 @@ sub cgi_editpage ($$) {
 					push @page_types, [$key, $hooks{htmlize}{$key}{longname} || $key];
 				}
 			}
+			@page_types=sort @page_types;
 			
 			$form->tmpl_param("page_select", 1);
 			$form->field(name => "page", type => 'select',

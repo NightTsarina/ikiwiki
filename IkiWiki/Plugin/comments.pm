@@ -287,10 +287,15 @@ sub editcomment ($$) {
 	else {
 		$type = $config{default_pageext};
 	}
+
+
 	my @page_types;
 	if (exists $IkiWiki::hooks{htmlize}) {
-		@page_types = grep { ! /^_/ } keys %{$IkiWiki::hooks{htmlize}};
+		foreach my $key (grep { !/^_/ } keys %{$IkiWiki::hooks{htmlize}}) {
+			push @page_types, [$key, $IkiWiki::hooks{htmlize}{$key}{longname} || $key];
+		}
 	}
+	@page_types=sort @page_types;
 
 	$form->field(name => 'do', type => 'hidden');
 	$form->field(name => 'sid', type => 'hidden', value => $session->id,
