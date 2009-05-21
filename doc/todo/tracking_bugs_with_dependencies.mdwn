@@ -196,21 +196,39 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 > Very belated code review of last version of the patch:
 > 
 > * `is_globlist` is no longer needed
+
+>> Good :)
+
 > * I don't understand why the pagespec match regexp is changed
 >   from having flags `igx` to `ixgs`. Don't see why you
 >   want `.` to match '\n` in it, and don't see any `.` in the regexp 
 >   anyway?
+
+>> Because you have to define all the named pagespecs in the pagespec, you sometimes end up with very long pagespecs.  I found it useful to split them over multiple lines.  That didn't work at one point and I added the 's' to make it work.  I may have further altered the regex since then to make the 's' redundant.  Remove it and see if multi-line pagespecs still work. :)
+
 > * Some changes of `@_` to `%params` in `pagespec_makeperl` do not
 >   make sense to me. I don't see where \%params is defined and populated,
 >   except with `\$params{specFunc}`.
+
+>> I'm not a perl hacker.  This was a mighty battle for me to get going.  There is probably some battlefield carnage from my early struggles learning perl left here.
+>> Part of this is that @_ / @params already existed as a way of passing in extra parameters.  I didn't want to pollute that top level namespace - just at my own parameter (a hash) which contained the data I needed.
+
 > * Seems that the only reason `match_glob` has to check for `~` is
 >   because when a named spec appears in a pagespec, it is translated
 >   to `match_glob("~foo")`. If, instead, `pagespec_makeperl` checked
 >   for named specs, it could convert them into `check_named_spec("foo")`
 >   and avoid that ugliness.
+
+>> Yeah - I wanted to make named specs syntactically different on my first pass.  You are right in that this could be made a fallback - named specs always override pagenames.
+
 > * The changes to `match_link` seem either unecessary, or incomplete.
 >   Shouldn't it check for named specs and call
 >   `check_named_spec_existential`?
+
+>>  An earlier version did.  Then I realised it wasn't actually needed in that case - match_link() already included a loop that was like a type of existential matching.  Each time through the loop it would
+>> call match_glob().  match_glob() in turn will handle the named spec.  I tested this version briefly and it seemed to work.  I remember looking at this again later and wondering if I had mis-understood
+>> some of the logic in match_link(), which might mean there are cases where you would need an explicit call to check_named_spec_existential() - I never checked it properly after having that thought.
+
 > * Generally, the need to modify `match_*` functions so that they
 >   check for and handle named pagespecs seems suboptimal, if
 >   only because there might be others people may want to use named
@@ -221,12 +239,27 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >   that is not a page name at all, and it could be weird
 >   if such a parameter were accidentially interpreted as a named
 >   pagespec. (But, that seems unlikely to happen.)
+
+>> Possibly.  I'm not sure which I prefer between the current solution and that one.  Each have advantages and disadvantages.
+>> It really isn't much code for the match functions to add a call to check_named_spec_existential().
+
 > * I need to check if your trick to avoid infinite recursion
 >   works if there are two named specs that recursively
 >   call one-another. I suspect it does, but will test this
 >   myself..
->  
+
+>> It worked for me. :)
+
 > --[[Joey]] 
+
+>>  There is one issue that I've been thinking about that I haven't raised anywhere (or checked myself), and that is how this all interacts with page dependencies.
+>>  Firstly, I'm not sure anymore that the `pagespec_merge` function will continue to work in all cases.  Secondly, it seems that there are two types of dependency, and ikiwiki
+>> currently only handles one of them.  The first type is "Rebuild this page when any of these other pages changes" - ikiwiki handles this.  The second type is "rebuild this page when
+>> set of pages referred to by this pagespec changes" - ikiwiki doesn't seem to handle this.  I suspect that named pagespecs would make that second type of dependency more
+>> important.  I'll try to come up with a good example. -- [[Will]]
+
+>>> Hrm, I was going to build an example of this with backlinks, but it looks like that is handled as a special case at the moment (line 458 of render.pm).  I'll see if I can break
+>>> things another way.  Fixing this properly would allow removal of that special case. -- [[Will]]
 
 ----
 
