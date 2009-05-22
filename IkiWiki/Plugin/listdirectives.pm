@@ -45,7 +45,7 @@ sub checkconfig () {
 sub needsbuild (@) {
 	my $needsbuild=shift;
 
-	@fulllist = sort keys %{$IkiWiki::hooks{preprocess}};
+	@fulllist = grep { ! /^_/ } sort keys %{$IkiWiki::hooks{preprocess}};
 	@shortlist = grep { ! $IkiWiki::hooks{preprocess}{$_}{shortcut} } @fulllist;
 	$pluginstring = join(' ', @shortlist) . " : " . join(' ', @fulllist);
 
