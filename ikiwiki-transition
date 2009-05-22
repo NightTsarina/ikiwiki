@@ -184,7 +184,9 @@ sub moveprefs {
 }
 
 sub deduplinks {
-	setstatedir(shift);
+	loadsetup(shift);
+	IkiWiki::loadplugins();
+	IkiWiki::checkconfig();
 	IkiWiki::loadindex();
 	foreach my $page (keys %links) {
 		my %l;
@@ -237,7 +239,7 @@ sub usage {
 	print STDERR "\tmoveprefs setupfile\n";
 	print STDERR "\thashpassword setupfile|srcdir\n";
 	print STDERR "\tindexdb setupfile|srcdir\n";
-	print STDERR "\tdeduplinks setupfile|srcdir\n";
+	print STDERR "\tdeduplinks setupfile\n";
 	exit 1;
 }
 
