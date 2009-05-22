@@ -252,6 +252,11 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>> is to not generate perl code, but just directly run perl code that
 >>> populates specFuncs.
 
+>>>> I don't think this is as bad as you make out, but your addition of the
+>>>> data array will break with the recursion my patch adds in pagespec_makeperl.
+>>>> To fix that I'll need to pass a reference to that array into pagespec_makeperl.
+>>>> I think I can then do the same thing to $params{specFuncs}.  -- [[Will]]
+
 > * Seems that the only reason `match_glob` has to check for `~` is
 >   because when a named spec appears in a pagespec, it is translated
 >   to `match_glob("~foo")`. If, instead, `pagespec_makeperl` checked
@@ -314,6 +319,8 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>> If you're joining two pagespecs with 'or', you don't want a named pagespec in the first part overriding a page name in the
 >>>> second part.  Oh, and I assume 'or' has the right operator precedence that "a and b or c" is "(a and b) or c", and not "a and (b or c)" -- [[Will]]
 
+>>>>> Looks like its bracketed in the code anyway... -- [[Will]]
+
 >>  Secondly, it seems that there are two types of dependency, and ikiwiki
 >>  currently only handles one of them.  The first type is "Rebuild this
 >>  page when any of these other pages changes" - ikiwiki handles this.
@@ -369,8 +376,8 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>>> the page depended on, and for each pagespec you'd want to store the list of pages that currently match it.
 >>>>> On refresh, you'd need to check each pagespec to see if the set of pages that match it has changed, and if
 >>>>> that set has changed, then rebuild the dependent page(s).  Oh, and for this second type of dependency, I
->>>>> don't think you can merge pagespecs.  If I wanted to know if either "*" or "link(done)" changes, then just checking
->>>>> to see if the set of pages matched by "* or link(done)" changes doesn't work.
+>>>>> don't think you can merge pagespecs.  If I wanted to know if either "\*" or "link(done)" changes, then just checking
+>>>>> to see if the set of pages matched by "\* or link(done)" changes doesn't work.
 
 >>>>> The current system works because even though you usually want dependencies of the second type, the set of pages
 >>>>> referred to by a pagespec can only change if one of those pages itself changes.  i.e. A dependency check of the
