@@ -277,6 +277,19 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>> because the link target it is being asked to check for is a single
 >>> page name, not a glob.
 
+>>>> A named pagespec should fall into the glob case.  These two pagespecs should be the same:
+
+    link(a*)
+
+>>>> and
+
+    define(aStar, a*) and link(aStar)
+
+>>>> In the first case, we want the pagespec to match any page that links to a page matching the glob.
+>>>> In the second case, we want the pagespec to match any page that links to a page matching the named spec.
+>>>> match_link() was already doing existential part.  The patches to this code were simply to remove the `lc()`
+>>>> call from the named pagespec name.  Can that `lc` be removed entirely? -- [[Will]]
+
 > * Generally, the need to modify `match_*` functions so that they
 >   check for and handle named pagespecs seems suboptimal, if
 >   only because there might be others people may want to use named
