@@ -12,7 +12,7 @@ push @libs, 'IkiWiki/Plugin/skeleton.pm.example';
 plan(tests => (@progs + @libs));
 
 foreach my $file (@progs) {
-        ok(system("perl -T -c $file >/dev/null 2>&1") eq 0, $file);
+        ok(system("perl -c $file >/dev/null 2>&1") eq 0, $file);
 }
 foreach my $file (@libs) {
         ok(system("perl -c $file >/dev/null 2>&1") eq 0, $file);
