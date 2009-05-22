@@ -307,6 +307,9 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>> But if a plugin adds its own match function, it has
 >>> to explicitly call that code to support named pagespecs.
 
+>>>> Yes, and it can do that in just three lines of code.  But if we automatically check for named pagespecs all the time we
+>>>> potentially break any matching function that doesn't accept pages, or wants to use multiple arguments.
+
 > * I need to check if your trick to avoid infinite recursion
 >   works if there are two named specs that recursively
 >   call one-another. I suspect it does, but will test this
@@ -433,7 +436,7 @@ Patch updated to use closures rather than inline generated code for named pagesp
     -			\w+\([^\)]*\)	# command(params)
     +			define\(\s*~\w+\s*,((\([^()]*\)) | ([^()]+))+\) # define(~specName, spec) - spec can contain parens 1 deep
     +		|
-    +			\w+\([^())]*\)	# command(params) - params cannot contain parens
+    +			\w+\([^()]*\)	# command(params) - params cannot contain parens
      		|
      			[^\s()]+	# any other text
      		)
