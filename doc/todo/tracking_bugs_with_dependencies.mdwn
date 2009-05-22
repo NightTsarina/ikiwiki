@@ -344,11 +344,6 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>>> ikiwiki will not rebuild the page with the inline in it.  What is happening is that the page that I altered affects
 >>>>> the set of pages matched by the pagespec without itself being matched by the pagespec, and hence included in the dependency list.
 
->>>>> For another example, imagine I added a `match_word()` function.  It matches any page that contains the given word.  As with a backlink,
->>>>> it is now possible to change the set of pages referred to by a pagespec without changing any of the pages currently referred to by the
->>>>> pagespec.  If I have an inline of all pages that include the word "abracadabra", then it would have to depend upon all pages to detect
->>>>> any new uses of that word.
-
 >>>>> To make this work well, I think you need to recognise two types of dependencies for each page (and no
 >>>>> special cases for particular types of links, eg backlinks).  The first type of dependency says, "The content of
 >>>>> this page depends upon the content of these other pages".  The `add_depends()` in the shortcuts
