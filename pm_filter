@@ -25,8 +25,8 @@ elsif (/^use lib/) {
 		$_="use lib '$libdir';\n";
 	}
 }
-elsif ($. == 1 && ($ENV{NOTAINT} || ! exists $ENV{NOTAINT}) && m{^(#!.*perl.*?) -T$}) {
-	$_=qq{$1\n};
+elsif ($. == 1 && ($ENV{NOTAINT}=0) && m{^(#!.*perl.*?)$}) {
+	$_=qq{$1 -T\n};
 }
 elsif (/^\$ENV{PATH}="(.*)";/) {
 	$_="\$ENV{PATH}=\"$1:$prefix/bin\";\n";
