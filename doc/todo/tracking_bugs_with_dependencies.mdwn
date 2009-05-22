@@ -257,6 +257,9 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>> To fix that I'll need to pass a reference to that array into pagespec_makeperl.
 >>>> I think I can then do the same thing to $params{specFuncs}.  -- [[Will]]
 
+>>>>> You're right -- I did not think the recursive case through.
+>>>>> --[[Joey]] 
+
 > * Seems that the only reason `match_glob` has to check for `~` is
 >   because when a named spec appears in a pagespec, it is translated
 >   to `match_glob("~foo")`. If, instead, `pagespec_makeperl` checked
@@ -283,12 +286,17 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 
 >>>> and
 
-    define(aStar, a*) and link(aStar)
+    define(aStar, a*) and link(~aStar)
 
 >>>> In the first case, we want the pagespec to match any page that links to a page matching the glob.
 >>>> In the second case, we want the pagespec to match any page that links to a page matching the named spec.
 >>>> match_link() was already doing existential part.  The patches to this code were simply to remove the `lc()`
 >>>> call from the named pagespec name.  Can that `lc` be removed entirely? -- [[Will]]
+
+>>>>> I think we could get rid of it. `bestlink` will lc it itself
+>>>>> if the uppercase version does not exist; `match_glob` matches
+>>>>> insensitively.
+>>>>> --[[Joey]] 
 
 > * Generally, the need to modify `match_*` functions so that they
 >   check for and handle named pagespecs seems suboptimal, if
@@ -309,6 +317,25 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 
 >>>> Yes, and it can do that in just three lines of code.  But if we automatically check for named pagespecs all the time we
 >>>> potentially break any matching function that doesn't accept pages, or wants to use multiple arguments.
+
+>>>>> 3 lines of code, plus the functions called become part of the API,
+>>>>> don't forget about that..
+>>>>>
+>>>>> Yes, I think that is the tradeoff, the question is whether to export
+>>>>> the additional complexity needed for that flexability.
+>>>>>
+>>>>> I'd be suprised if multiple argument pagespecs become necessary..
+>>>>> with the exception of this patch there has been no need for them yet.
+>>>>>
+>>>>> There are lots of pagespecs that take data other than pages,
+>>>>> indeed, that's really the common case. So far, none of them 
+>>>>> seem likely to take data that starts with a `~`. Perhaps
+>>>>> the thing to do would be to check if `~foo` is a known,
+>>>>> named pagespec, and if not, just pass it through unchanged.
+>>>>> Then there's little room for ambiguity, and this also allows
+>>>>> pagespecs like `glob(~foo*)` to match the literal page `~foo`.
+>>>>> (It will make pagespec_merge even harder tho.. see below.)
+>>>>> --[[Joey]] 
 
 > * I need to check if your trick to avoid infinite recursion
 >   works if there are two named specs that recursively
@@ -338,6 +365,13 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>> second part.  Oh, and I assume 'or' has the right operator precedence that "a and b or c" is "(a and b) or c", and not "a and (b or c)" -- [[Will]]
 
 >>>>> Looks like its bracketed in the code anyway... -- [[Will]]
+
+>>>> Perhaps the thing to do is to have a `clear_defines()`
+>>>> function, then merging `A` and `B` yields `(A) or (clear_defines() and (B))`
+>>>> That would deal with both the cases where `A` and `B` differently
+>>>> define `~foo` as well as with the case where `A` defines `~foo` while
+>>>> `B` uses it to refer to a literal page.
+>>>> --[[Joey]]
 
 >>  Secondly, it seems that there are two types of dependency, and ikiwiki
 >>  currently only handles one of them.  The first type is "Rebuild this
@@ -385,10 +419,24 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>>> are inlined, the previous type handles a change in the content of any of those pages.  Shortcut does not need this type of
 >>>>> dependency.  Most of the places that use `add_depends()` seem to need this type of dependency rather than the first type.
 
+>>>>>> Note that inline and map currently achieve the second type of dependency by
+>>>>>> explicitly calling `add_depends` for each page the displayed.
+>>>>>> If any of those pages are removed, the regular pagespec would not
+>>>>>> match them -- since they're gone. However, the explicit dependency
+>>>>>> on them does cause them to match. It's an ugly corner I'd like to
+>>>>>> get rid of. --[[Joey]]
+
 >>>>> Implementation Details:  The first type of dependency can be handled very similarly to the current
 >>>>> dependency system.  You just need to keep a list of pages that the content depends upon.  You could
 >>>>> keep that list as a pagespec, but if you do this you might want to check that the pagespec doesn't change,
 >>>>> possibly by adding a dependency of the second type along with the dependency of the first type.
+
+>>>>>> An example of the current system not tracking enough data is 
+>>>>>> where A inlines B which inlines C. A change to C will cause B to
+>>>>>> rebuild, but A will not "notice" that B has implicitly changed.
+>>>>>> That example suggests it might be fixable without explicitly storing
+>>>>>> data, by causing a rebuild of B to be treated as a change to B.
+>>>>>> --[[Joey]] 
 
 >>>>> The second type of dependency is a little more tricky.  For each page, we'd need a list of pagespecs that
 >>>>> the page depended on, and for each pagespec you'd want to store the list of pages that currently match it.
@@ -410,6 +458,11 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>>> pagespec depends upon can quickly become "*", which is not very useful.  -- [[Will]]
 
 Patch updated to use closures rather than inline generated code for named pagespecs.  Also includes some new use of ErrorReason where appropriate. -- [[Will]]
+
+> * Perl really doesn't need forward declarations, honest!
+> * I have doubts about memoizing the anonymous sub created by
+>   `pagespec_translate`.
+> * Think where you wrote `+{}` you can just write `{}`
 
 ----
 
