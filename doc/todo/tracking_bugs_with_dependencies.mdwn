@@ -310,6 +310,10 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>> it shouldn't (but I haven't verified that really happens).
 >>> That could certianly be a show-stopper. --[[Joey]] 
 
+>>>> Even if that works, this is a good argument for having a syntactic difference between named pagespecs and normal pages.
+>>>> If you're joining two pagespecs with 'or', you don't want a named pagespec in the first part overriding a page name in the
+>>>> second part.  Oh, and I assume 'or' has the right operator precedence that "a and b or c" is "(a and b) or c", and not "a and (b or c)" -- [[Will]]
+
 >>  Secondly, it seems that there are two types of dependency, and ikiwiki
 >>  currently only handles one of them.  The first type is "Rebuild this
 >>  page when any of these other pages changes" - ikiwiki handles this.
@@ -327,6 +331,63 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>> between the two types of dependencies. Backlinks are a very special
 >>>> case though and I'll be suprised if they fit well into pagespecs.
 >>>> --[[Joey]] 
+
+>>>>> The issue is that the existential pagespec matching allows you to build things that have similar
+>>>>> problems to backlinks.
+>>>>> e.g. the following inline:
+
+    \[[!inline pages="define(~done, link(done)) and link(~done)" archive=yes]]
+
+>>>>> includes any page that links to a page that links to done.  Now imagine I add a new link to 'done' on
+>>>>> some random page somewhere - a page which some other page links to which didn't previously get included - the set of pages accepted by the pagespec, and hence the set of
+>>>>> pages inlined, will change.  But, there is no dependency anywhere on the page that I altered, so
+>>>>> ikiwiki will not rebuild the page with the inline in it.  What is happening is that the page that I altered affects
+>>>>> the set of pages matched by the pagespec without itself being matched by the pagespec, and hence included in the dependency list.
+
+>>>>> For another example, imagine I added a `match_word()` function.  It matches any page that contains the given word.  As with a backlink,
+>>>>> it is now possible to change the set of pages referred to by a pagespec without changing any of the pages currently referred to by the
+>>>>> pagespec.  If I have an inline of all pages that include the word "abracadabra", then it would have to depend upon all pages to detect
+>>>>> any new uses of that word.
+
+>>>>> To make this work well, I think you need to recognise two types of dependencies for each page (and no
+>>>>> special cases for particular types of links, eg backlinks).  The first type of dependency says, "The content of
+>>>>> this page depends upon the content of these other pages".  The `add_depends()` in the shortcuts
+>>>>> plugin is of this form: any time the shortcuts page is edited, any page with a shortcut on it
+>>>>> is rebuilt.  The inline plugin also needs to add dependencies of this form to detect when the inlined
+>>>>> content changes.  By contrast, the map plugin does not need a dependency of this form, because it
+>>>>> doesn't actually care about the content of any pages, just which pages it needs to include (which we'll handle next).
+
+>>>>> The second type of dependency says, "The content of this page depends upon the exact set of pages matched
+>>>>> by this pagespec".  The first type of dependency was about the content of some pages, the second type is about
+>>>>> which pages get matched by a pagespec.  This is the type of dependency tracking that the map plugin needs.
+>>>>> If the set of pages matched by map pagespec changes, then the page with the map on it needs to be rebuilt to show a different list of pages.
+>>>>> Inline needs this type of dependency as well as the previous type - This type handles a change in which pages
+>>>>> are inlined, the previous type handles a change in the content of any of those pages.  Shortcut does not need this type of
+>>>>> dependency.  Most of the places that use `add_depends()` seem to need this type of dependency rather than the first type.
+
+>>>>> Implementation Details:  The first type of dependency can be handled very similarly to the current
+>>>>> dependency system.  You just need to keep a list of pages that the content depends upon.  You could
+>>>>> keep that list as a pagespec, but if you do this you might want to check that the pagespec doesn't change,
+>>>>> possibly by adding a dependency of the second type along with the dependency of the first type.
+
+>>>>> The second type of dependency is a little more tricky.  For each page, we'd need a list of pagespecs that
+>>>>> the page depended on, and for each pagespec you'd want to store the list of pages that currently match it.
+>>>>> On refresh, you'd need to check each pagespec to see if the set of pages that match it has changed, and if
+>>>>> that set has changed, then rebuild the dependent page(s).  Oh, and for this second type of dependency, I
+>>>>> don't think you can merge pagespecs.  If I wanted to know if either "*" or "link(done)" changes, then just checking
+>>>>> to see if the set of pages matched by "* or link(done)" changes doesn't work.
+
+>>>>> The current system works because even though you usually want dependencies of the second type, the set of pages
+>>>>> referred to by a pagespec can only change if one of those pages itself changes.  i.e. A dependency check of the
+>>>>> first type will catch a dependency change of the second type with current pagespecs.
+>>>>> This doesn't work with backlinks, and it doesn't work with existential matching.  Backlinks are currently special-cased.  I don't know
+>>>>> how to special-case existential matching - I suspect you're better off just getting the dependency tracking right.
+
+>>>>> I also tried to come up with other possible solutions: e.g. can we find the dependencies for a pagespec?  That
+>>>>> would be the set of pages where a change on one of those pages could lead to a change in the set of pages matched by the pagespec.
+>>>>> For old-style pagespecs without backlinks, the dependency set for a pagespec is the same as the set of pages the pagespec matches.
+>>>>> Unfortunately, with existential matching, the set of pages that each
+>>>>> pagespec depends upon can quickly become "*", which is not very useful.  -- [[Will]]
 
 ----
 
