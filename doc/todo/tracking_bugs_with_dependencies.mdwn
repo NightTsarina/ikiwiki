@@ -337,6 +337,14 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>>> (It will make pagespec_merge even harder tho.. see below.)
 >>>>> --[[Joey]] 
 
+>>>>>> I've already used multi-argument pagespec match functions in
+>>>>>> my data plugin.  It is used for having different types of links.  If
+>>>>>> you want to have multiple types of links, then the match function
+>>>>>> for them needs to take both the link name and the link type.
+>>>>>> I'm trying to think of a way we could have both - automatically
+>>>>>> handle the existential case unless the function indicates somehow
+>>>>>> that it'll do it itself.  Any ideas?  -- [[Will]]
+
 > * I need to check if your trick to avoid infinite recursion
 >   works if there are two named specs that recursively
 >   call one-another. I suspect it does, but will test this
@@ -372,6 +380,33 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>> define `~foo` as well as with the case where `A` defines `~foo` while
 >>>> `B` uses it to refer to a literal page.
 >>>> --[[Joey]]
+
+>>>>> I don't think this will work with the new patch, and I don't think it was needed with the old one.
+>>>>> Under the old patch, pagespec_makeperl() generated a string of unevaluated, self-contained, perl
+>>>>> code.  When a new named pagespec was defined, a recursive call was made to get the perl code
+>>>>> for the pagespec, and then that code was used to add something like `$params{specFuncs}->{name} = sub {recursive code} and `
+>>>>> to the result of the calling function.  This means that at pagespec testing time, when this code is executed, the
+>>>>> specFuncs hash is built up as the pagespec is checked.  In the case of the 'or' used above, later redefinitions of
+>>>>> a named pagespec would have redefined the specFunc at the right time.  It should have just worked.  However...
+
+>>>>> Since my original patch, you started using closures for security reasons (and I can see the case for that).  Unfortunately this
+>>>>> means that the generated perl code is no longer self-contained - it needs to be evaluated in the same closure it was generated
+>>>>> so that it has access to the data array.  To make this work with the recursive call I had two options: a) make the data array a
+>>>>> reference that I pass around through the pagespec_makeperl() functions and have available when the code is finally evaluated
+>>>>> in pagespec_translate(), or b) make sure that each pagespec is evaluated in its correct closure and a perl function is returned, not a
+>>>>> string containing unevaluated perl code.
+
+>>>>> I went with option b).  I did it in such a way that the hash of specfuncs is built up at translation time, not at execution time.  This
+>>>>> means that with the new code you can call specfuncs that get defined out of order:
+
+    ~test and define(~test, blah)
+
+>>>>> but it also means that using a simple 'or' to join two pagespecs wont work.  If you do something like this:
+
+    ~test and define(~test, foo) and define(~test, baz)
+
+>>>>> then the last definition (baz) takes precedence.
+>>>>> In the process of writing this I think I've come up with a way to change this back the way it was, still using closures. -- [[Will]]
 
 >>  Secondly, it seems that there are two types of dependency, and ikiwiki
 >>  currently only handles one of them.  The first type is "Rebuild this
@@ -460,9 +495,17 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 Patch updated to use closures rather than inline generated code for named pagespecs.  Also includes some new use of ErrorReason where appropriate. -- [[Will]]
 
 > * Perl really doesn't need forward declarations, honest!
+
+>> It complained (warning, not error) when I didn't use the forward declaration. :(
+
 > * I have doubts about memoizing the anonymous sub created by
 >   `pagespec_translate`.
+
+>> This is there explicitly to make sure that runtime is polynomial and not exponential.
+
 > * Think where you wrote `+{}` you can just write `{}`
+
+>> Possibly :) -- [[Will]]
 
 ----
 
