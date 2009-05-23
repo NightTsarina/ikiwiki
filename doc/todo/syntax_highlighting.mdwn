@@ -28,12 +28,16 @@ things easier for the user.
   also uses source-highlight, and operates on whole source files.
   Updated to work with the fix for [[bugs/multiple_pages_with_same_name]].  Untested with files with no extension, e.g. `Makefile`.
 * [[users/jasonblevins]]'s code plugin uses source-highlight, and supports both
-  while file and directive use.
+  whole file and directive use.
 
 * [hlsimple](http://pivot.cs.unb.ca/git/?p=ikiplugins.git;a=blob_plain;f=IkiWiki/Plugin/hlsimple.pm;hb=HEAD) is a wrapper for the the perl module [[!cpan Syntax::Highlight::Engine::Simple]].  This is pure perl, pretty simple, uses css. It ought to be pretty fast (according to the author, and just because it is not external).
 On the other hand, there are not many predefined languages yet.  Defining language syntaxes is about as much 
 work as source-highlight, but in perl.  I plan to package the base module for debian. Perhaps after the author 
 releases the 5 or 6 language definitions he has running on his web site, it might be suitable for inclusion in ikiwiki. [[DavidBremner]]
+
+* [[plugins/highlight]] uses [highlight](http://www.andre-simon.de) via
+  its swig bindings. It supports whole files only. It uses either
+  keepextension or noextension, as appropriate for the type of file.
 
 ## General problems / requirements
 
@@ -55,7 +59,6 @@ releases the 5 or 6 language definitions he has running on his web site, it migh
   > that should make it trivial in principle to call from perl.  I like highlight a bit better because 
   > it has a pass-through feature that I find very useful.  My memory is unfortunately a bit fuzzy as to how
   > well the swig bindings work. [[DavidBremner]]
-
 
 * Engines that already support a wide variety of file types are of
   course preferred. If the engine doesn't support a particular type
@@ -105,20 +108,11 @@ releases the 5 or 6 language definitions he has running on his web site, it migh
 
   Perhaps the thing to do here is to use the new `longname` parameter to
   the format hook, to give them all names that will group together at or
-  near the end of the list. Ie: "Syntax: perl", "Syntax: C", etc.
+  near the end of the list. Ie: "Syntax: perl", "Source code: c", etc.
 
-## format directive and comments
+---
 
-Hmm, the [[ikiwiki/directive/format]] directive would also allow comments
-inside source files to have mdwn embedded in them, without making the use
-of mdwn a special case, or needing to postprocess the syntax highlighter
-output to find comments.
-
-	/* \[[!format mdwn """
-
-	This is a comment in my C file. You can use mdwn in here.
-
-	"""]] */
-
-Note that this assumes that directives are expanded in source files,
-which has its own set of problems.
+I'm calling this [[done]] since I added the [[plugins/highlight]]
+plugin. There are some unresolved issues touched on here,
+but they either have the own other bug reports, or are documented
+as semi-features in the docs to the plugin. --[[Joey]] 
