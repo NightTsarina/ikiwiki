@@ -26,7 +26,7 @@ sub getsetup () {
 		tohighlight => {
 			type => "string",
 			example => ".c .h .cpp .pl .py Makefile:make",
-			description => "source files to syntax highlight",
+			description => "types of source files to syntax highlight",
 			safe => 1,
 			rebuild => 1,
 		},
