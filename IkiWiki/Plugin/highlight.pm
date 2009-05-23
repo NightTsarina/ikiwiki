@@ -23,7 +23,7 @@ sub getsetup () {
 		},
 		tohighlight => {
 			type => "string",
-			example => ".c, .h, .cpp, .pl, .py, Makefile:make",
+			example => ".c .h .cpp .pl .py Makefile:make",
 			description => "source files to syntax highlight",
 			safe => 1,
 			rebuild => 1,
@@ -32,7 +32,7 @@ sub getsetup () {
 
 sub checkconfig () {
 	if (exists $config{tohighlight}) {
-		foreach my $file (split /, /, $config{tohighlight}) {
+		foreach my $file (split ' ', $config{tohighlight}) {
 			my @opts = $file=~s/^\.// ?
 				(keepextension => 1) :
 				(noextension => 1);
