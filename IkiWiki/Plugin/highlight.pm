@@ -4,7 +4,6 @@ package IkiWiki::Plugin::highlight;
 use warnings;
 use strict;
 use IkiWiki 3.00;
-use highlight;
 
 # locations of highlight's files
 my $filetypes="/etc/highlight/filetypes.conf";
@@ -13,6 +12,9 @@ my $langdefdir="/usr/share/highlight/langDefs";
 sub import {
 	hook(type => "getsetup", id => "highlight",  call => \&getsetup);
 	hook(type => "checkconfig", id => "highlight", call => \&checkconfig);
+	# this hook is used by the format plugin
+	hook(type => "htmlizefallback", id => "highlight", call =>
+		\&htmlizefallback);
 }
 
 sub getsetup () {
@@ -59,6 +61,17 @@ sub checkconfig () {
 	}
 }
 
+sub htmlizefallback {
+	my $format=lc shift;
+	my $langfile=ext2langfile($format);
+
+	if (! defined $langfile) {
+		return;
+	}
+
+	return highlight($langfile, shift);
+}
+
 my %ext2lang;
 my $filetypes_read=0;
 
@@ -102,6 +115,12 @@ sub ext2langfile ($) {
 sub highlight ($$) {
 	my $langfile=shift;
 	my $input=shift;
+
+	eval q{use highlight};
+	if ($@) {
+		print STDERR gettext("warning: highlight perl module not available; falling back to pass through");
+		return $input;
+	}
 
 	my $gen = highlightc::CodeGenerator_getInstance($highlightc::XHTML);
 	$gen->setFragmentCode(1); # generate html fragment
