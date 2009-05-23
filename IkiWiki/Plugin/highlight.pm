@@ -74,6 +74,7 @@ sub htmlizefallback {
 
 my %ext2lang;
 my $filetypes_read=0;
+my %highlighters;
 
 # Parse highlight's config file to get extension => language mappings.
 sub read_filetypes () {
@@ -88,23 +89,23 @@ sub read_filetypes () {
 	$filetypes_read=1;
 }
 
-sub langfile ($) {
-	return "$langdefdir/$_[0].lang";
-}
 
 # Given a filename extension, determines the language definition to
 # use to highlight it.
 sub ext2langfile ($) {
 	my $ext=shift;
 
+	my $langfile="$langdefdir/$ext.lang";
+	return $langfile if exists $highlighters{$langfile};
+
 	read_filetypes() unless $filetypes_read;
 	if (exists $ext2lang{$ext}) {
-		return langfile($ext2lang{$ext});
+		return "$langdefdir/$ext2lang{$ext}.lang";
 	}
 	# If a language only has one common extension, it will not
 	# be listed in filetypes, so check the langfile.
-	elsif (-e langfile($ext)) {
-		return langfile($ext);
+	elsif (-e $langfile) {
+		return $langfile;
 	}
 	else {
 		return undef;
@@ -122,16 +123,21 @@ sub highlight ($$) {
 		return $input;
 	}
 
-	my $gen = highlightc::CodeGenerator_getInstance($highlightc::XHTML);
-	$gen->setFragmentCode(1); # generate html fragment
-	$gen->setHTMLEnclosePreTag(1); # include stylish <pre>
-	$gen->initLanguage($langfile);
-	$gen->initTheme("/dev/null"); # theme is not needed because CSS is not emitted
-	$gen->setEncoding("utf-8");
+	my $gen;
+	if (! exists $highlighters{$langfile}) {
+		$gen = highlightc::CodeGenerator_getInstance($highlightc::XHTML);
+		$gen->setFragmentCode(1); # generate html fragment
+		$gen->setHTMLEnclosePreTag(1); # include stylish <pre>
+		$gen->initLanguage($langfile);
+		$gen->initTheme("/dev/null"); # theme is not needed because CSS is not emitted
+		$gen->setEncoding("utf-8");
+		$highlighters{$langfile}=$gen;
+	}
+	else {		
+		$gen=$highlighters{$langfile};
+	}
 
-	my $output=$gen->generateString($input);
-	highlightc::CodeGenerator_deleteInstance($gen);
-	return $output;
+	return $gen->generateString($input);
 }
 
 1
