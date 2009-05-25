@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-06 12:58-0400\n"
+"POT-Creation-Date: 2009-05-25 09:19+0200\n"
 "PO-Revision-Date: 2009-04-26 23:34+0100\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
@@ -59,7 +59,7 @@ msgstr "Indstillinger gemt"
 msgid "You are banned."
 msgstr "Du er banlyst."
 
-#: ../IkiWiki/CGI.pm:390 ../IkiWiki/CGI.pm:391 ../IkiWiki.pm:1211
+#: ../IkiWiki/CGI.pm:390 ../IkiWiki/CGI.pm:391 ../IkiWiki.pm:1218
 msgid "Error"
 msgstr "Fejl"
 
@@ -206,7 +206,7 @@ msgstr "%s fra %s"
 msgid "There are no broken links!"
 msgstr "Ingen henvisninger der ikker fungerer!"
 
-#: ../IkiWiki/Plugin/comments.pm:122 ../IkiWiki/Plugin/format.pm:23
+#: ../IkiWiki/Plugin/comments.pm:122 ../IkiWiki/Plugin/format.pm:38
 #, perl-format
 msgid "unsupported page format %s"
 msgstr "Ikke-understøttet sideformat %s"
@@ -219,55 +219,55 @@ msgstr "kommentar skal have indhold"
 msgid "Anonymous"
 msgstr "Anonym"
 
-#: ../IkiWiki/Plugin/comments.pm:333 ../IkiWiki/Plugin/editpage.pm:97
+#: ../IkiWiki/Plugin/comments.pm:338 ../IkiWiki/Plugin/editpage.pm:97
 msgid "bad page name"
 msgstr "dårligt sidenavn"
 
-#: ../IkiWiki/Plugin/comments.pm:338
+#: ../IkiWiki/Plugin/comments.pm:343
 #, perl-format
 msgid "commenting on %s"
 msgstr "kommenterer på %s"
 
-#: ../IkiWiki/Plugin/comments.pm:356
+#: ../IkiWiki/Plugin/comments.pm:361
 #, perl-format
 msgid "page '%s' doesn't exist, so you can't comment"
 msgstr "siden '%s' eksisterer ikke, så du kan ikke kommentere"
 
-#: ../IkiWiki/Plugin/comments.pm:363
+#: ../IkiWiki/Plugin/comments.pm:368
 #, perl-format
 msgid "comments on page '%s' are closed"
 msgstr "kommentarer på side '%s' er lukket"
 
-#: ../IkiWiki/Plugin/comments.pm:457
+#: ../IkiWiki/Plugin/comments.pm:462
 msgid "comment stored for moderation"
 msgstr "kommentar gemt for moderering"
 
-#: ../IkiWiki/Plugin/comments.pm:459
+#: ../IkiWiki/Plugin/comments.pm:464
 msgid "Your comment will be posted after moderator review"
 msgstr "Din kommentar vil blive tilføjet efter moderatorgenemsyn"
 
-#: ../IkiWiki/Plugin/comments.pm:472
+#: ../IkiWiki/Plugin/comments.pm:477
 msgid "Added a comment"
 msgstr "Tilføjede en kommentar"
 
-#: ../IkiWiki/Plugin/comments.pm:476
+#: ../IkiWiki/Plugin/comments.pm:481
 #, perl-format
 msgid "Added a comment: %s"
 msgstr "Tilføjede en kommentar: %s"
 
-#: ../IkiWiki/Plugin/comments.pm:518 ../IkiWiki/Plugin/websetup.pm:236
+#: ../IkiWiki/Plugin/comments.pm:523 ../IkiWiki/Plugin/websetup.pm:236
 msgid "you are not logged in as an admin"
 msgstr "du er ikke logget på som en administrator"
 
-#: ../IkiWiki/Plugin/comments.pm:569
+#: ../IkiWiki/Plugin/comments.pm:574
 msgid "Comment moderation"
 msgstr "Kommentarmoderering"
 
-#: ../IkiWiki/Plugin/comments.pm:608
+#: ../IkiWiki/Plugin/comments.pm:613
 msgid "comment moderation"
 msgstr "kommentarkoderering"
 
-#: ../IkiWiki/Plugin/comments.pm:759
+#: ../IkiWiki/Plugin/comments.pm:764
 msgid "Comments"
 msgstr "Kommentarer"
 
@@ -297,14 +297,14 @@ msgstr "fjerner gammelt smugkig %s"
 msgid "%s is not an editable page"
 msgstr "%s er ikke en redigérbar side"
 
-#: ../IkiWiki/Plugin/editpage.pm:289
+#: ../IkiWiki/Plugin/editpage.pm:291
 #, perl-format
 msgid "creating %s"
 msgstr "opretter %s"
 
-#: ../IkiWiki/Plugin/editpage.pm:307 ../IkiWiki/Plugin/editpage.pm:326
-#: ../IkiWiki/Plugin/editpage.pm:336 ../IkiWiki/Plugin/editpage.pm:380
-#: ../IkiWiki/Plugin/editpage.pm:419
+#: ../IkiWiki/Plugin/editpage.pm:309 ../IkiWiki/Plugin/editpage.pm:328
+#: ../IkiWiki/Plugin/editpage.pm:338 ../IkiWiki/Plugin/editpage.pm:382
+#: ../IkiWiki/Plugin/editpage.pm:421
 #, perl-format
 msgid "editing %s"
 msgstr "redigerer %s"
@@ -374,6 +374,21 @@ msgstr "graphviz-kørsel mislykkedes"
 #: ../IkiWiki/Plugin/graphviz.pm:94
 msgid "prog not a valid graphviz program"
 msgstr "prog er ikke et gyldigt graphviz-program"
+
+#: ../IkiWiki/Plugin/highlight.pm:46
+#, perl-format
+msgid "tohighlight contains unknown file type '%s'"
+msgstr ""
+
+#: ../IkiWiki/Plugin/highlight.pm:57
+#, perl-format
+msgid "Source code: %s"
+msgstr ""
+
+#: ../IkiWiki/Plugin/highlight.pm:122
+msgid ""
+"warning: highlight perl module not available; falling back to pass through"
+msgstr ""
 
 #: ../IkiWiki/Plugin/img.pm:62
 msgid "Image::Magick is not installed"
@@ -712,24 +727,24 @@ msgstr "%s eksisterer allerede på disken"
 msgid "rename %s"
 msgstr "omdøb %s"
 
-#: ../IkiWiki/Plugin/rename.pm:138
+#: ../IkiWiki/Plugin/rename.pm:140
 msgid "Also rename SubPages and attachments"
 msgstr "Omdøb også UnderSider og vedhæftninger"
 
-#: ../IkiWiki/Plugin/rename.pm:224
+#: ../IkiWiki/Plugin/rename.pm:226
 msgid "Only one attachment can be renamed at a time."
 msgstr "Kun en vedhæftning kan blive omdøbt ad gangen."
 
-#: ../IkiWiki/Plugin/rename.pm:227
+#: ../IkiWiki/Plugin/rename.pm:229
 msgid "Please select the attachment to rename."
 msgstr "Vælg vedhæftningen som skal omdøbes."
 
-#: ../IkiWiki/Plugin/rename.pm:338
+#: ../IkiWiki/Plugin/rename.pm:340
 #, perl-format
 msgid "rename %s to %s"
 msgstr "omdøb %s til %s"
 
-#: ../IkiWiki/Plugin/rename.pm:493
+#: ../IkiWiki/Plugin/rename.pm:495
 #, perl-format
 msgid "update for rename of %s to %s"
 msgstr "opdatering til omdøbning af %s til %s"
@@ -1026,30 +1041,30 @@ msgstr "genopbygger wiki..."
 msgid "refreshing wiki.."
 msgstr "genopfrisker wiki..."
 
-#: ../IkiWiki.pm:480
+#: ../IkiWiki.pm:487
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr "Skal angive url til wiki med --url når der bruges --cgi"
 
-#: ../IkiWiki.pm:526
+#: ../IkiWiki.pm:533
 msgid "cannot use multiple rcs plugins"
 msgstr "kan ikke bruge flere samtidige RCS-udvidelser"
 
-#: ../IkiWiki.pm:555
+#: ../IkiWiki.pm:562
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr ""
 "indlæsning af ekstern udvidelse krævet af udvidelsen %s mislykkedes: %s"
 
-#: ../IkiWiki.pm:1194
+#: ../IkiWiki.pm:1201
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "forudberegningssløkke fundet på %s ved dybde %i"
 
-#: ../IkiWiki.pm:1732
+#: ../IkiWiki.pm:1733
 msgid "yes"
 msgstr "ja"
 
-#: ../IkiWiki.pm:1860
+#: ../IkiWiki.pm:1865
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "kan ikke få sider til at passe sammen: %s"
