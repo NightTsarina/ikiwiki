@@ -14,6 +14,7 @@ foreach my $plugin ("", "listdirectives") {
 			"-plugin smiley ".
 			($plugin ? "-plugin $plugin " : "").
 			"-underlaydir=t/tmp/install/usr/share/ikiwiki/basewiki ".
+			"-set underlaydirbase=t/tmp/install/usr/share/ikiwiki ".
 			"-templatedir=templates t/basewiki_brokenlinks t/tmp/out"));
 	my $result=`grep 'no broken links' t/tmp/out/index.html`;
 	ok(length($result));
