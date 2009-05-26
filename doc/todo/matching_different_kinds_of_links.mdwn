@@ -35,3 +35,13 @@ Besides pagespecs, the `rel=` attribute could be used for styles. --Ivan Z.
 > was not available, which is why I didn't make it differentiate from
 > normal links.) Might be better to go ahead and add the variable to
 > core though. --[[Joey]] 
+
+I saw somewhere else here some suggestions for the wiki-syntax for specifying the relation name of a link. One more suggestion---[the syntax used in Semantic MediaWiki](http://en.wikipedia.org/wiki/Semantic_MediaWiki#Basic_usage), like this:
+
+<pre>
+... the capital city is \[[Has capital::Berlin]] ...
+</pre>
+
+So a part of the effect of [[`\[[!taglink TAG\]\]`|plugins/tag]] could be represented as something like `\[[tag::TAG]]` or (more understandable relation name in what concerns the direction) `\[[tagged::TAG]]`.
+
+I don't have any opinion on this syntax (whether it's good or not)...--Ivan Z.
