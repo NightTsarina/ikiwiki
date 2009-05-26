@@ -128,8 +128,8 @@ sub highlight ($$) {
 		$gen = highlightc::CodeGenerator_getInstance($highlightc::XHTML);
 		$gen->setFragmentCode(1); # generate html fragment
 		$gen->setHTMLEnclosePreTag(1); # include stylish <pre>
-		$gen->initLanguage($langfile);
 		$gen->initTheme("/dev/null"); # theme is not needed because CSS is not emitted
+		$gen->initLanguage($langfile); # must come after initTheme
 		$gen->setEncoding("utf-8");
 		$highlighters{$langfile}=$gen;
 	}
