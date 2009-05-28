@@ -431,3 +431,21 @@ daring a timid "please pull"... or rather, please review again :)
 >> --[[intrigeri]]
 >>
 >>> Did you get a chance to? --[[Joey]] 
+
+ * As discussed at [[todo/l10n]] the templates needs to be translatable too.  They
+   should be treated properly by po4a using the markdown option - at least with my
+   later patches in [bug#530574](http://bugs.debian.org/530574)) applied.
+
+ * It seems to me that the po plugin (and possibly other parts of ikiwiki) wrongly
+   uses gettext.  As I understand it, gettext (as used currently in ikiwiki) always
+   lookup a single language, That might make sense for a single-language site, but
+   multilingual sites should emit all strings targeted at the web output in each own
+   language.
+
+   So generally the system language (used for e.g. compile warnings) should be separated
+   from both master language and slave languages.
+
+   Preferrably the gettext subroutine could be extended to pass locale as optional
+   secondary parameter overriding the default locale (for messages like "N/A" as
+   percentage in po plugin).  Alternatively (with above mentioned template support)
+   all such strings could be externalized as templates that can then be localized.
