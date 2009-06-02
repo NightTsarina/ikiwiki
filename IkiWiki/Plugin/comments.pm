@@ -21,6 +21,8 @@ my %commentstate;
 sub import {
 	hook(type => "checkconfig", id => 'comments',  call => \&checkconfig);
 	hook(type => "getsetup", id => 'comments',  call => \&getsetup);
+	hook(type => "preprocess", id => 'comment', call => \&preprocess);
+	# here for backwards compatability with old comments
 	hook(type => "preprocess", id => '_comment', call => \&preprocess);
 	hook(type => "sessioncgi", id => 'comment', call => \&sessioncgi);
 	hook(type => "htmlize", id => "_comment", call => \&htmlize);
@@ -377,7 +379,7 @@ sub editcomment ($$) {
 
 	my $location=unique_comment_location($page, $config{srcdir});
 
-	my $content = "[[!_comment format=$type\n";
+	my $content = "[[!comment format=$type\n";
 
 	# FIXME: handling of double quotes probably wrong?
 	if (defined $session->param('name')) {
