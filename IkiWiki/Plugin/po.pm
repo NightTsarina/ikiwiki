@@ -260,22 +260,20 @@ sub pagetemplate (@) {
 		$template->param(otherlanguages => [otherlanguagesloop($page)]);
 		map add_depends($page, $_), (values %{otherlanguages($page)});
 	}
-	# Rely on IkiWiki::Render's genpage() to decide wether
-	# a discussion link should appear on $page; this is not
-	# totally accurate, though: some broken links may be generated
-	# when cgiurl is disabled.
-	# This compromise avoids some code duplication, and will probably
-	# prevent future breakage when ikiwiki internals change.
-	# Known limitations are preferred to future random bugs.
-	if ($template->param('discussionlink') && istranslation($page)) {
-		$template->param('discussionlink' => htmllink(
-			$page,
-			$destpage,
-			$masterpage . '/' . gettext("Discussion"),
-			noimageinline => 1,
-			forcesubpage => 0,
-			linktext => gettext("Discussion"),
+	if ($config{discussion} && istranslation($page)) {
+		my $discussionlink=gettext("discussion");
+		if ($page !~ /.*\/\Q$discussionlink\E$/i &&
+		   (length $config{cgiurl} ||
+		    exists $links{$masterpage."/".$discussionlink})) {
+			$template->param('discussionlink' => htmllink(
+				$page,
+				$destpage,
+				$masterpage . '/' . gettext("Discussion"),
+				noimageinline => 1,
+				forcesubpage => 0,
+				linktext => gettext("Discussion"),
 		));
+		}
 	}
 	# Remove broken parentlink to ./index.html on home page's translations.
 	# It works because this hook has the "last" parameter set, to ensure it
