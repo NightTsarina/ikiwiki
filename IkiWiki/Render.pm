@@ -76,7 +76,7 @@ sub genpage ($$) {
 		$actions++;
 	}
 	if ($config{discussion}) {
-		my $discussionlink=gettext("discussion");
+		my $discussionlink=lc(gettext("Discussion"));
 		if ($page !~ /.*\/\Q$discussionlink\E$/ &&
 		   (length $config{cgiurl} ||
 		    exists $links{$page."/".$discussionlink})) {
