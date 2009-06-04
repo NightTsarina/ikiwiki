@@ -230,7 +230,7 @@ sub cgi_editpage ($$) {
 				$dir=~s![^/]+/+$!!;
 				
 				if ((defined $form->field('subpage') && length $form->field('subpage')) ||
-				    $page eq gettext('discussion')) {
+				    $page eq lc(gettext('Discussion'))) {
 					$best_loc="$from/$page";
 				}
 				else {

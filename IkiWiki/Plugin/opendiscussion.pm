@@ -23,7 +23,7 @@ sub canedit ($$) {
 	my $cgi=shift;
 	my $session=shift;
 
-	my $discussion=gettext("discussion");
+	my $discussion=lc(gettext("Discussion"));
 	return "" if $page=~/(\/|^)\Q$discussion\E$/;
 	return undef;
 }

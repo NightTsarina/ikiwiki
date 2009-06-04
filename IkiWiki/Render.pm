@@ -146,7 +146,7 @@ sub scan ($) {
 		if ($config{discussion}) {
 			# Discussion links are a special case since they're
 			# not in the text of the page, but on its template.
-			$links{$page}=[ $page."/".gettext("discussion") ];
+			$links{$page}=[ $page."/".lc(gettext("Discussion")) ];
 		}
 		else {
 			$links{$page}=[];
