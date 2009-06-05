@@ -5,6 +5,10 @@ ikiwiki (3.15) UNRELEASED; urgency=low
   * Avoid relying on translators preserving the case when translating
     "discussion", which caused Discussion pages to get unwanted Discussion
     links.
+  * Tighten up matching of bare words inside directives; do not
+    allow an unterminated """ string to be treated as a series
+    of bare words. Fixes runaway regexp recursion/backtracking
+    in strange situations.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 02 Jun 2009 17:03:41 -0400
 

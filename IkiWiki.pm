@@ -1253,7 +1253,7 @@ sub preprocess ($$$;$$) {
 						|
 						"[^"]+"		# single-quoted value
 						|
-						[^\s\]]+	# unquoted value
+						[^"\s\]]+	# unquoted value
 					)
 					\s*			# whitespace or end
 								# of directive
@@ -1276,7 +1276,7 @@ sub preprocess ($$$;$$) {
 						|
 						"[^"]+"		# single-quoted value
 						|
-						[^\s\]]+	# unquoted value
+						[^"\s\]]+	# unquoted value
 					)
 					\s*			# whitespace or end
 								# of directive
