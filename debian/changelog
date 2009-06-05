@@ -9,6 +9,10 @@ ikiwiki (3.15) UNRELEASED; urgency=low
     allow an unterminated """ string to be treated as a series
     of bare words. Fixes runaway regexp recursion/backtracking
     in strange situations.
+  * Setup automator: Check that each plugin added to the generated
+    setup file can be loaded and that its config is ok. If a plugin
+    fails for any reason, disable it in the generated file.
+    Closes: 532001
 
  -- Joey Hess <joeyh@debian.org>  Tue, 02 Jun 2009 17:03:41 -0400
 
