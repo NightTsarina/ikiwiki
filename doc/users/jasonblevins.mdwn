@@ -2,12 +2,12 @@
 
 I'm currently hosting a private ikiwiki for keeping research notes
 which, with some patches and a plugin (below), will
-convert inline LaTeX expressions to MathML.  I'm working towards a
+convert inline [[todo/LaTeX]] expressions to [[MathML]].  I'm working towards a
 patchset and instructions for others to do the same.
 
 I've setup a test ikiwiki [here](http://xbeta.org/colab/) where I've
 started keeping a few notes on my progress.  There is an example of
-inline SVG on the homepage (note that the logo scales along with the
+inline [[todo/SVG]] on the homepage (note that the logo scales along with the
 font size).  There are a few example mathematical expressions in the
 [sandbox](http://xbeta.org/colab/sandbox/).  The MathML is generated
 automatically from inline LaTeX expressions using an experimental
@@ -32,23 +32,23 @@ These plugins are experimental.  Use them at your own risk.  Read the
 perldoc documentation for more details.  Patches and suggestions are
 welcome.
 
- * [mdwn_itex][] - Works with the `mdwn` plugin to convert inline LaTeX
-   expressions to MathML using `itex2MML`.
+ * [mdwn_itex][] - Works with the [[`mdwn`|plugins/mdwn]] plugin to convert inline [[todo/LaTeX]]
+   expressions to [[MathML]] using `itex2MML`.
 
  * [h1title][] - If present, use the leading level 1 Markdown header to
    set the page title and remove it from the page body.
 
- * [code][] - Whole file and inline code snippet syntax highlighting
+ * [code][] - Whole file and inline code snippet [[todo/syntax highlighting]]
    via GNU Source-highlight.  The list of supported file extensions is
    configurable.  There is also some preliminary [documentation][code-doc].
    See the [FortranWiki](http://fortranwiki.org) for examples.
 
- * [metamail][] - a plugin for loading metadata from email-style
+ * [metamail][] - a plugin for loading metadata from [[email]]-style
    headers at top of a file (e.g., `title: Page Title` or
    `date: November 2, 2008 11:14 EST`).
 
- * [pandoc][] - Markdown page processing via [Pandoc](http://johnmacfarlane.net/pandoc/) (a Haskell library for converting from one markup format to another).  LaTeX and
-   reStructuredText are optional.
+ * [pandoc][] - [[ikiwiki/Markdown]] page processing via [Pandoc](http://johnmacfarlane.net/pandoc/) (a Haskell library for converting from one markup format to another).  [[todo/LaTeX]] and
+   [[reStructuredText|plugins/rst]] are optional.
 
  * [path][] - Provides path-specific template conditionals such as
    `IS_HOMEPAGE` and `IN_DIR_SUBDIR`.

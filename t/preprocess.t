@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 19;
+use Test::More tests => 21;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -51,6 +51,11 @@ is(IkiWiki::preprocess("foo", "foo", '[[foo a="""'.$multiline.'""" b="foo"]]', 0
 	"foo(a => $multiline, b => foo)");
 is(IkiWiki::preprocess("foo", "foo", '[[foo a="""'."\n".$multiline."\n".'""" b="foo"]]', 0, 0),
 	"foo(a => $multiline, b => foo)", "leading/trailing newline stripped");
+my $long='[[foo a="""'.("a" x 100000).'';
+is(IkiWiki::preprocess("foo", "foo", $long, 0, 0), $long,
+	"unterminated triple-quoted string inside unterminated directive(should not warn about over-recursion)");
+is(IkiWiki::preprocess("foo", "foo", $long."]]", 0, 0), $long."]]",
+	"unterminated triple-quoted string is not treated as a bare word");
 
 TODO: {
 	local $TODO = "nested strings not yet implemented";

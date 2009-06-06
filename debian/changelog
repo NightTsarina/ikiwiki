@@ -1,13 +1,47 @@
-ikiwiki (3.14) UNRELEASED; urgency=low
+ikiwiki (3.15) UNRELEASED; urgency=low
 
+  * comment: Make comment directives no longer use the internal "_comment"
+    form, and document the comment directive syntax.
+  * Avoid relying on translators preserving the case when translating
+    "discussion", which caused Discussion pages to get unwanted Discussion
+    links.
+  * Tighten up matching of bare words inside directives; do not
+    allow an unterminated """ string to be treated as a series
+    of bare words. Fixes runaway regexp recursion/backtracking
+    in strange situations.
+  * Setup automator: Check that each plugin added to the generated
+    setup file can be loaded and that its config is ok. If a plugin
+    fails for any reason, disable it in the generated file.
+    Closes: 532001
+  * pagecount: Fix broken optimisation for * pagespec.
+  * goto: Support being passed a page title that is not a valid page
+    name, to support several cases including mercurial's long user
+    names on the RecentChanges page, and urls with spaces being handled
+    by the 404 plugin.
   * Add new hooks: canremove, canrename, rename. (intrigeri)
   * rename: Refactor subpage rename handling code into rename hook. (intrigeri)
   * po: New plugin, suporting translation of wiki pages using po files.
     (intrigeri)
 
- -- Joey Hess <joeyh@debian.org>  Mon, 20 Apr 2009 19:40:25 -0400
+ -- Joey Hess <joeyh@debian.org>  Tue, 02 Jun 2009 17:03:41 -0400
 
-ikiwiki (3.13) UNRELEASED; urgency=low
+ikiwiki (3.14) unstable; urgency=low
+
+  * highlight: New plugin supporting syntax highlighting of pretty much
+    anything.
+  * debian/control: Add suggests for libhighlight-perl, although
+    that package is not yet created by Debian's highlight source package.
+    (See #529869)
+  * format: Provide a htmlizefallback hook that other plugins
+    can use to handle formats that are not suitable for general-purpose
+    htmlize hooks. Used by highlight.
+  * Fix test suite to not rely on an installed copy of ikiwiki after
+    underlaydir change. Closes: #530502
+  * Danish translation update. Closes: #530877
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 01 Jun 2009 13:05:34 -0400
+
+ikiwiki (3.13) unstable; urgency=low
 
   * ikiwiki-transition: If passed a nonexistant srcdir, or one not
     containing .ikiwiki, abort with an error rather than creating it.
@@ -20,8 +54,12 @@ ikiwiki (3.13) UNRELEASED; urgency=low
     interpolation on user-supplied data when translating pagespecs.
   * ikiwiki-transition: Allow setup files to be passed to all subcommands
     that need a srcdir.
+  * ikiwiki-transition: deduplinks was broken and threw away all
+    metadata stored by plugins in the index. Fix this bug.
+  * listdirectives: Avoid listing _comment directives and generally
+    assume any directive starting with _ is likewise internal.
 
- -- Joey Hess <joeyh@debian.org>  Wed, 06 May 2009 20:45:44 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 22 May 2009 14:10:56 -0400
 
 ikiwiki (3.12) unstable; urgency=low
 

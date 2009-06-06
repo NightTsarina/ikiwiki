@@ -98,6 +98,29 @@ sub import (@) {
 		}
 	}
 
+	# Make sure that all the listed plugins can load
+	# and checkconfig is ok. If a plugin fails to work,
+	# remove it from the configuration and keep on truckin'.
+	my %bakconfig=%config; # checkconfig can modify %config so back up
+	if (! eval { IkiWiki::loadplugins(); IkiWiki::checkconfig() }) {
+		foreach my $plugin (@{$config{default_plugins}}, @{$bakconfig{add_plugins}}) {
+			eval {
+				# delete all hooks so that only this plugins's
+				# checkconfig will be run
+				%IkiWiki::hooks=();
+				IkiWiki::loadplugin($plugin);
+				IkiWiki::run_hooks(checkconfig => sub { shift->() });
+			};
+			if ($@) {
+				print STDERR sprintf(gettext("** Disabling plugin %s, since it is failing with this message:"),
+					$plugin)."\n";
+				print STDERR "$@\n";
+				push @{$bakconfig{disable_plugins}}, $plugin;
+			}
+		}
+	}
+	%config=%bakconfig;
+
 	# Generate setup file.
 	require IkiWiki::Setup;
 	IkiWiki::Setup::dump($config{dumpsetup});

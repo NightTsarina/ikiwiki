@@ -1,0 +1,25 @@
+If goto is passed a page name that 
+contains spaces or is otherwise not a valid page name,
+it will display a "page does not exist", with a create link. But,
+clicking on the link will result in "bad page name".
+
+I have found at least two ways it can happen:
+
+* If 404 is enabled, and the user goes to "http://wiki/some page with spaces"
+* If mercurial is used, it pulls the user's full name, with spaces,
+  out for `rcs_recentchanges` and that ends up on RecentChanges.
+
+When fixing, need to keep in mind that we can't just run the input through
+titlepage, since in all other circumstances, the page name is already valid
+and we don't want to doubly-encode it.
+
+Seems like the goto plugin needs to check if the page name is valid and
+pass it through titlepage if not.
+
+(As a side effect of this, 404 will start redirecting "http://wiki/some page
+with spaces" to "http://wiki/some_page_with_spaces", if the latter exists.
+That seems like a fairly good thing.)
+
+[[done]]
+
+--[[Joey]] 

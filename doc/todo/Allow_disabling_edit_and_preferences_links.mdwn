@@ -52,3 +52,18 @@ Patch:
 >>> is not controlled by any plugin.  It would be nice if it were; I am
 >>> trying to achieve a configuration where the only action supported
 >>> via CGI is blog-style comments.  --[Zack](http://zwol.livejournal.com/)
+
+>>> Like [[puck]], I'd like to keep search available but I want to disable all
+>>> login facitilities and thus disable the "Preferences" link.
+>>>
+>>> After digging a little bit in the source code, my first attempt was to make
+>>> the "Preferences" link appear only if there is `sessioncgi` hooks
+>>> registered.  But this will not work as the [[plugins/inline]] plugin also
+>>> defines it.
+>>>
+>>> Looking for `auth` hooks currently would not work as at least
+>>> [[plugins/passwordauth]] does not register one.
+>>>
+>>> Adding a new `canlogin` hook looks like overkill to me.  [[Joey]], how
+>>> about making registration of the `auth` hook mandatory for all plugins
+>>> making sense of the "Preferences" link? --[[Lunar]]

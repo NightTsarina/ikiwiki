@@ -34,7 +34,7 @@ sub preprocess (@) {
 	}
 	
 	my @orphans;
-	my $discussion=gettext("discussion");
+	my $discussion=lc(gettext("Discussion"));
 	foreach my $page (pagespec_match_list(
 			[ grep { ! $linkedto{$_} && $_ ne 'index' }
 				keys %pagesources ],

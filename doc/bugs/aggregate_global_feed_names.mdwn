@@ -1,0 +1,13 @@
+[[plugins/aggregate]] takes a name parameter that specifies a global name
+for a feed. This causes some problems:
+
+* If a site has multiple pages that aggregate, and they use the same
+  name, one will win and get the global name, the other will claim it's
+  working, but it's really showing what the other aggregated.
+* If an aggregate directive is moved from page A to page B, and the wiki
+  refreshed, aggregate does not realize the feed moved, and so it will
+  keep aggregated pages under `A/feed_name/*`. To work around this bug,
+  you have to delete A, refresh (maybe with --aggregate?), and then add B.
+
+Need to find a way to not make the name be global. Perhaps it needs to
+include the name of the page that contains the directive?

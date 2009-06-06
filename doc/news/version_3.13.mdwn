@@ -1,0 +1,24 @@
+News for ikiwiki 3.13:
+
+   The `ikiwiki-transition deduplinks` command introduced in the
+   last release was buggy. If you followed the NEWS file instructions
+   and ran it, you should run `ikiwiki -setup` to rebuild your wiki
+   to fix the problem.
+
+ikiwiki 3.13 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * ikiwiki-transition: If passed a nonexistant srcdir, or one not
+     containing .ikiwiki, abort with an error rather than creating it.
+   * Allow underlaydir to be overridden without messing up inclusion
+     of other underlays via add\_underlay.
+   * More friendly display of markdown, textile in edit form selector
+     (jmtd)
+   * Allow curly braces to be used in pagespecs, and avoid a whole class
+     of potential security problems, by avoiding performing any string
+     interpolation on user-supplied data when translating pagespecs.
+   * ikiwiki-transition: Allow setup files to be passed to all subcommands
+     that need a srcdir.
+   * ikiwiki-transition: deduplinks was broken and threw away all
+     metadata stored by plugins in the index. Fix this bug.
+   * listdirectives: Avoid listing \_comment directives and generally
+     assume any directive starting with \_ is likewise internal."""]]

@@ -153,6 +153,14 @@ Any thoughts on this?
 >> basewiki, which seems like it should be pretty easy to do, and would be
 >> a great demo! --[[Joey]]
 >>
+>>> I have a complete translation of basewiki into danish, and am working with
+>>> others on preparing one in german.  For a complete translated user
+>>> experience, however, you will also need templates translated (there are a few
+>>> translatable strings there too).  My not-yet-merged po4a Markdown improvements
+>>> (see [bug#530574](http://bugs.debian.org/530574)) correctly handles multiple
+>>> files in a single PO which might be relevant for template translation handling.
+>>> --[[JonasSmedegaard]]
+>>
 >>> I've merged your changes into my own branch, and made great
 >>> progress on the various todo items. Please note my repository
 >>> location has changed a few days ago, my user page was updated
@@ -383,6 +391,9 @@ daring a timid "please pull"... or rather, please review again :)
 >>> "discussion". Also, I consider `$config{cgi}` and `%links` (etc)
 >>> documented parts of the plugin interface, which won't change; po could
 >>> rely on them to avoid this minor problem. --[[Joey]] 
+>>>> 
+>>>> Done in my branch. --[[intrigeri]]
+>>>> 
 >
 > * Is there any real reason not to allow removing a translation?
 >   I'm imagining a spammy translation, which an admin might not
@@ -423,3 +434,21 @@ daring a timid "please pull"... or rather, please review again :)
 >> --[[intrigeri]]
 >>
 >>> Did you get a chance to? --[[Joey]] 
+
+ * As discussed at [[todo/l10n]] the templates needs to be translatable too.  They
+   should be treated properly by po4a using the markdown option - at least with my
+   later patches in [bug#530574](http://bugs.debian.org/530574)) applied.
+
+ * It seems to me that the po plugin (and possibly other parts of ikiwiki) wrongly
+   uses gettext.  As I understand it, gettext (as used currently in ikiwiki) always
+   lookup a single language, That might make sense for a single-language site, but
+   multilingual sites should emit all strings targeted at the web output in each own
+   language.
+
+   So generally the system language (used for e.g. compile warnings) should be separated
+   from both master language and slave languages.
+
+   Preferrably the gettext subroutine could be extended to pass locale as optional
+   secondary parameter overriding the default locale (for messages like "N/A" as
+   percentage in po plugin).  Alternatively (with above mentioned template support)
+   all such strings could be externalized as templates that can then be localized.

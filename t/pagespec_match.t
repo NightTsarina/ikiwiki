@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 53;
+use Test::More tests => 54;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -20,6 +20,15 @@ ok(! pagespec_match("foo", "* and !foo"));
 ok(! pagespec_match("foo", "foo and !foo"));
 ok(! pagespec_match("foo.png", "* and !*.*"));
 ok(pagespec_match("foo", "(bar or ((meep and foo) or (baz or foo) or beep))"));
+ok(pagespec_match("foo", "(
+	bar
+	or (
+		(meep and foo)
+		or
+		(baz or foo)
+		or beep
+	)
+)"), "multiline complex pagespec");
 ok(! pagespec_match("a/foo", "foo", location => "a/b"), "nonrelative fail");
 ok(! pagespec_match("foo", "./*", location => "a/b"), "relative fail");
 ok(pagespec_match("a/foo", "./*", location => "a/b"), "relative");

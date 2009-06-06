@@ -196,21 +196,108 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 > Very belated code review of last version of the patch:
 > 
 > * `is_globlist` is no longer needed
+
+>> Good :)
+
 > * I don't understand why the pagespec match regexp is changed
 >   from having flags `igx` to `ixgs`. Don't see why you
 >   want `.` to match '\n` in it, and don't see any `.` in the regexp 
 >   anyway?
+
+>> Because you have to define all the named pagespecs in the pagespec, you sometimes end up with very long pagespecs.  I found it useful to split them over multiple lines.  That didn't work at one point and I added the 's' to make it work.  I may have further altered the regex since then to make the 's' redundant.  Remove it and see if multi-line pagespecs still work. :)
+
+>>> Well, I can tell you that multi-line pagespecs are supported w/o
+>>> your patch .. I use them all the time. The reason I find your
+>>> use of `/s` unlikely is because without it `\s` already matches
+>>> a newline. Only if you want to treat a newline as non-whitespace
+>>> is `/s` typically necessary. --[[Joey]] 
+
 > * Some changes of `@_` to `%params` in `pagespec_makeperl` do not
 >   make sense to me. I don't see where \%params is defined and populated,
 >   except with `\$params{specFunc}`.
+
+>> I'm not a perl hacker.  This was a mighty battle for me to get going.
+>> There is probably some battlefield carnage from my early struggles
+>> learning perl left here. Part of this is that @_ / @params already
+>> existed as a way of passing in extra parameters.  I didn't want to
+>> pollute that top level namespace - just at my own parameter (a hash)
+>> which contained the data I needed.
+
+>>> I think I understand how the various `%params`
+>>> (there's not just one) work in your code now, but it's really a mess.
+>>> Explaining it in words would take pages.. It could be fixed by,
+>>> in `pagespec_makeperl` something like:
+>>> 
+>>>	my %specFuncs;
+>>>	push @_, specFuncs => \%specFuncs;
+>>> 
+>>> With that you have the hash locally available for populating
+>>> inside `pagespec_makeperl`, and when the `match_*` functions
+>>> are called the same hash data will be available inside their
+>>> `@_` or `%params`. No need to change how the functions are called
+>>> or do any of the other hacks.
+>>>
+>>> Currently, specFuncs is populated by building up code
+>>> that recursively calls `pagespec_makeperl`, and is then
+>>> evaluated when the pagespec gets evaluated. My suggested
+>>> change to `%params` will break that, but that had to change 
+>>> anyway.
+>>>
+>>> It probably has a security hole, and is certianly inviting
+>>> one, since the pagespec definition is matched by a loose regexp (`.*`)
+>>> and then subject to string interpolation before being evaluated
+>>> inside perl code. I recently changed ikiwiki to never interpolate
+>>> user-supplied strings when translating pagespecs, and that
+>>> needs to happen here too. The obvious way, it seems to me,
+>>> is to not generate perl code, but just directly run perl code that
+>>> populates specFuncs.
+
+>>>> I don't think this is as bad as you make out, but your addition of the
+>>>> data array will break with the recursion my patch adds in pagespec_makeperl.
+>>>> To fix that I'll need to pass a reference to that array into pagespec_makeperl.
+>>>> I think I can then do the same thing to $params{specFuncs}.  -- [[Will]]
+
+>>>>> You're right -- I did not think the recursive case through.
+>>>>> --[[Joey]] 
+
 > * Seems that the only reason `match_glob` has to check for `~` is
 >   because when a named spec appears in a pagespec, it is translated
 >   to `match_glob("~foo")`. If, instead, `pagespec_makeperl` checked
 >   for named specs, it could convert them into `check_named_spec("foo")`
 >   and avoid that ugliness.
+
+>> Yeah - I wanted to make named specs syntactically different on my first pass.  You are right in that this could be made a fallback - named specs always override pagenames.
+
 > * The changes to `match_link` seem either unecessary, or incomplete.
 >   Shouldn't it check for named specs and call
 >   `check_named_spec_existential`?
+
+>>  An earlier version did.  Then I realised it wasn't actually needed in that case - match_link() already included a loop that was like a type of existential matching.  Each time through the loop it would
+>> call match_glob().  match_glob() in turn will handle the named spec.  I tested this version briefly and it seemed to work.  I remember looking at this again later and wondering if I had mis-understood
+>> some of the logic in match_link(), which might mean there are cases where you would need an explicit call to check_named_spec_existential() - I never checked it properly after having that thought.
+
+>>> In the common case, `match_link` does not call `match_glob`,
+>>> because the link target it is being asked to check for is a single
+>>> page name, not a glob.
+
+>>>> A named pagespec should fall into the glob case.  These two pagespecs should be the same:
+
+    link(a*)
+
+>>>> and
+
+    define(aStar, a*) and link(~aStar)
+
+>>>> In the first case, we want the pagespec to match any page that links to a page matching the glob.
+>>>> In the second case, we want the pagespec to match any page that links to a page matching the named spec.
+>>>> match_link() was already doing existential part.  The patches to this code were simply to remove the `lc()`
+>>>> call from the named pagespec name.  Can that `lc` be removed entirely? -- [[Will]]
+
+>>>>> I think we could get rid of it. `bestlink` will lc it itself
+>>>>> if the uppercase version does not exist; `match_glob` matches
+>>>>> insensitively.
+>>>>> --[[Joey]] 
+
 > * Generally, the need to modify `match_*` functions so that they
 >   check for and handle named pagespecs seems suboptimal, if
 >   only because there might be others people may want to use named
@@ -221,120 +308,304 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >   that is not a page name at all, and it could be weird
 >   if such a parameter were accidentially interpreted as a named
 >   pagespec. (But, that seems unlikely to happen.)
+
+>> Possibly.  I'm not sure which I prefer between the current solution and that one.  Each have advantages and disadvantages.
+>> It really isn't much code for the match functions to add a call to check_named_spec_existential().
+
+>>> But if a plugin adds its own match function, it has
+>>> to explicitly call that code to support named pagespecs.
+
+>>>> Yes, and it can do that in just three lines of code.  But if we automatically check for named pagespecs all the time we
+>>>> potentially break any matching function that doesn't accept pages, or wants to use multiple arguments.
+
+>>>>> 3 lines of code, plus the functions called become part of the API,
+>>>>> don't forget about that..
+>>>>>
+>>>>> Yes, I think that is the tradeoff, the question is whether to export
+>>>>> the additional complexity needed for that flexability.
+>>>>>
+>>>>> I'd be suprised if multiple argument pagespecs become necessary..
+>>>>> with the exception of this patch there has been no need for them yet.
+>>>>>
+>>>>> There are lots of pagespecs that take data other than pages,
+>>>>> indeed, that's really the common case. So far, none of them 
+>>>>> seem likely to take data that starts with a `~`. Perhaps
+>>>>> the thing to do would be to check if `~foo` is a known,
+>>>>> named pagespec, and if not, just pass it through unchanged.
+>>>>> Then there's little room for ambiguity, and this also allows
+>>>>> pagespecs like `glob(~foo*)` to match the literal page `~foo`.
+>>>>> (It will make pagespec_merge even harder tho.. see below.)
+>>>>> --[[Joey]] 
+
+>>>>>> I've already used multi-argument pagespec match functions in
+>>>>>> my data plugin.  It is used for having different types of links.  If
+>>>>>> you want to have multiple types of links, then the match function
+>>>>>> for them needs to take both the link name and the link type.
+>>>>>> I'm trying to think of a way we could have both - automatically
+>>>>>> handle the existential case unless the function indicates somehow
+>>>>>> that it'll do it itself.  Any ideas?  -- [[Will]]
+
 > * I need to check if your trick to avoid infinite recursion
 >   works if there are two named specs that recursively
 >   call one-another. I suspect it does, but will test this
 >   myself..
->  
+
+>> It worked for me. :)
+
+> * I also need to verify if memoizing the named pagespecs has
+>   really guarded against very expensive pagespecs DOSing the wiki..
+
 > --[[Joey]] 
+
+>>  There is one issue that I've been thinking about that I haven't raised anywhere (or checked myself), and that is how this all interacts with page dependencies.
+>>  Firstly, I'm not sure anymore that the `pagespec_merge` function will continue to work in all cases.
+
+>>> The problem I can see there is that if two pagespecs
+>>> get merged and both use `~foo` but define it differently,
+>>> then the second definition might be used at a point when
+>>> it shouldn't (but I haven't verified that really happens).
+>>> That could certianly be a show-stopper. --[[Joey]] 
+
+>>>> I think this can happen in the new closure based code.  I don't think this could happen in the old code.  -- [[Will]]
+
+>>>> Even if that works, this is a good argument for having a syntactic difference between named pagespecs and normal pages.
+>>>> If you're joining two pagespecs with 'or', you don't want a named pagespec in the first part overriding a page name in the
+>>>> second part.  Oh, and I assume 'or' has the right operator precedence that "a and b or c" is "(a and b) or c", and not "a and (b or c)" -- [[Will]]
+
+>>>>> Looks like its bracketed in the code anyway... -- [[Will]]
+
+>>>> Perhaps the thing to do is to have a `clear_defines()`
+>>>> function, then merging `A` and `B` yields `(A) or (clear_defines() and (B))`
+>>>> That would deal with both the cases where `A` and `B` differently
+>>>> define `~foo` as well as with the case where `A` defines `~foo` while
+>>>> `B` uses it to refer to a literal page.
+>>>> --[[Joey]]
+
+>>>>> I don't think this will work with the new patch, and I don't think it was needed with the old one.
+>>>>> Under the old patch, pagespec_makeperl() generated a string of unevaluated, self-contained, perl
+>>>>> code.  When a new named pagespec was defined, a recursive call was made to get the perl code
+>>>>> for the pagespec, and then that code was used to add something like `$params{specFuncs}->{name} = sub {recursive code} and `
+>>>>> to the result of the calling function.  This means that at pagespec testing time, when this code is executed, the
+>>>>> specFuncs hash is built up as the pagespec is checked.  In the case of the 'or' used above, later redefinitions of
+>>>>> a named pagespec would have redefined the specFunc at the right time.  It should have just worked.  However...
+
+>>>>> Since my original patch, you started using closures for security reasons (and I can see the case for that).  Unfortunately this
+>>>>> means that the generated perl code is no longer self-contained - it needs to be evaluated in the same closure it was generated
+>>>>> so that it has access to the data array.  To make this work with the recursive call I had two options: a) make the data array a
+>>>>> reference that I pass around through the pagespec_makeperl() functions and have available when the code is finally evaluated
+>>>>> in pagespec_translate(), or b) make sure that each pagespec is evaluated in its correct closure and a perl function is returned, not a
+>>>>> string containing unevaluated perl code.
+
+>>>>> I went with option b).  I did it in such a way that the hash of specfuncs is built up at translation time, not at execution time.  This
+>>>>> means that with the new code you can call specfuncs that get defined out of order:
+
+    ~test and define(~test, blah)
+
+>>>>> but it also means that using a simple 'or' to join two pagespecs wont work.  If you do something like this:
+
+    ~test and define(~test, foo) and define(~test, baz)
+
+>>>>> then the last definition (baz) takes precedence.
+>>>>> In the process of writing this I think I've come up with a way to change this back the way it was, still using closures. -- [[Will]]
+
+>>  Secondly, it seems that there are two types of dependency, and ikiwiki
+>>  currently only handles one of them.  The first type is "Rebuild this
+>>  page when any of these other pages changes" - ikiwiki handles this.
+>>  The second type is "rebuild this page when set of pages referred to by
+>>  this pagespec changes" - ikiwiki doesn't seem to handle this.  I
+>>  suspect that named pagespecs would make that second type of dependency
+>>  more important.  I'll try to come up with a good example. -- [[Will]]
+
+>>> Hrm, I was going to build an example of this with backlinks, but it
+>>> looks like that is handled as a special case at the moment (line 458 of
+>>> render.pm).  I'll see if I can breapk
+>>> things another way.  Fixing this properly would allow removal of that special case. -- [[Will]]
+
+>>>> I can't quite understand the distinction you're trying to draw
+>>>> between the two types of dependencies. Backlinks are a very special
+>>>> case though and I'll be suprised if they fit well into pagespecs.
+>>>> --[[Joey]] 
+
+>>>>> The issue is that the existential pagespec matching allows you to build things that have similar
+>>>>> problems to backlinks.
+>>>>> e.g. the following inline:
+
+    \[[!inline pages="define(~done, link(done)) and link(~done)" archive=yes]]
+
+>>>>> includes any page that links to a page that links to done.  Now imagine I add a new link to 'done' on
+>>>>> some random page somewhere - a page which some other page links to which didn't previously get included - the set of pages accepted by the pagespec, and hence the set of
+>>>>> pages inlined, will change.  But, there is no dependency anywhere on the page that I altered, so
+>>>>> ikiwiki will not rebuild the page with the inline in it.  What is happening is that the page that I altered affects
+>>>>> the set of pages matched by the pagespec without itself being matched by the pagespec, and hence included in the dependency list.
+
+>>>>> To make this work well, I think you need to recognise two types of dependencies for each page (and no
+>>>>> special cases for particular types of links, eg backlinks).  The first type of dependency says, "The content of
+>>>>> this page depends upon the content of these other pages".  The `add_depends()` in the shortcuts
+>>>>> plugin is of this form: any time the shortcuts page is edited, any page with a shortcut on it
+>>>>> is rebuilt.  The inline plugin also needs to add dependencies of this form to detect when the inlined
+>>>>> content changes.  By contrast, the map plugin does not need a dependency of this form, because it
+>>>>> doesn't actually care about the content of any pages, just which pages it needs to include (which we'll handle next).
+
+>>>>> The second type of dependency says, "The content of this page depends upon the exact set of pages matched
+>>>>> by this pagespec".  The first type of dependency was about the content of some pages, the second type is about
+>>>>> which pages get matched by a pagespec.  This is the type of dependency tracking that the map plugin needs.
+>>>>> If the set of pages matched by map pagespec changes, then the page with the map on it needs to be rebuilt to show a different list of pages.
+>>>>> Inline needs this type of dependency as well as the previous type - This type handles a change in which pages
+>>>>> are inlined, the previous type handles a change in the content of any of those pages.  Shortcut does not need this type of
+>>>>> dependency.  Most of the places that use `add_depends()` seem to need this type of dependency rather than the first type.
+
+>>>>>> Note that inline and map currently achieve the second type of dependency by
+>>>>>> explicitly calling `add_depends` for each page the displayed.
+>>>>>> If any of those pages are removed, the regular pagespec would not
+>>>>>> match them -- since they're gone. However, the explicit dependency
+>>>>>> on them does cause them to match. It's an ugly corner I'd like to
+>>>>>> get rid of. --[[Joey]]
+
+>>>>> Implementation Details:  The first type of dependency can be handled very similarly to the current
+>>>>> dependency system.  You just need to keep a list of pages that the content depends upon.  You could
+>>>>> keep that list as a pagespec, but if you do this you might want to check that the pagespec doesn't change,
+>>>>> possibly by adding a dependency of the second type along with the dependency of the first type.
+
+>>>>>> An example of the current system not tracking enough data is 
+>>>>>> where A inlines B which inlines C. A change to C will cause B to
+>>>>>> rebuild, but A will not "notice" that B has implicitly changed.
+>>>>>> That example suggests it might be fixable without explicitly storing
+>>>>>> data, by causing a rebuild of B to be treated as a change to B.
+>>>>>> --[[Joey]] 
+
+>>>>> The second type of dependency is a little more tricky.  For each page, we'd need a list of pagespecs that
+>>>>> the page depended on, and for each pagespec you'd want to store the list of pages that currently match it.
+>>>>> On refresh, you'd need to check each pagespec to see if the set of pages that match it has changed, and if
+>>>>> that set has changed, then rebuild the dependent page(s).  Oh, and for this second type of dependency, I
+>>>>> don't think you can merge pagespecs.  If I wanted to know if either "\*" or "link(done)" changes, then just checking
+>>>>> to see if the set of pages matched by "\* or link(done)" changes doesn't work.
+
+>>>>> The current system works because even though you usually want dependencies of the second type, the set of pages
+>>>>> referred to by a pagespec can only change if one of those pages itself changes.  i.e. A dependency check of the
+>>>>> first type will catch a dependency change of the second type with current pagespecs.
+>>>>> This doesn't work with backlinks, and it doesn't work with existential matching.  Backlinks are currently special-cased.  I don't know
+>>>>> how to special-case existential matching - I suspect you're better off just getting the dependency tracking right.
+
+>>>>> I also tried to come up with other possible solutions: e.g. can we find the dependencies for a pagespec?  That
+>>>>> would be the set of pages where a change on one of those pages could lead to a change in the set of pages matched by the pagespec.
+>>>>> For old-style pagespecs without backlinks, the dependency set for a pagespec is the same as the set of pages the pagespec matches.
+>>>>> Unfortunately, with existential matching, the set of pages that each
+>>>>> pagespec depends upon can quickly become "*", which is not very useful.  -- [[Will]]
+
+Patch updated to use closures rather than inline generated code for named pagespecs.  Also includes some new use of ErrorReason where appropriate. -- [[Will]]
+
+> * Perl really doesn't need forward declarations, honest!
+
+>> It complained (warning, not error) when I didn't use the forward declaration. :(
+
+> * I have doubts about memoizing the anonymous sub created by
+>   `pagespec_translate`.
+
+>> This is there explicitly to make sure that runtime is polynomial and not exponential.
+
+> * Think where you wrote `+{}` you can just write `{}`
+
+>> Possibly :) -- [[Will]]
 
 ----
 
     diff --git a/IkiWiki.pm b/IkiWiki.pm
-    index 4e4da11..8b3cdfe 100644
+    index 061a1c6..1e78a63 100644
     --- a/IkiWiki.pm
     +++ b/IkiWiki.pm
-    @@ -1550,7 +1550,16 @@ sub globlist_to_pagespec ($) {
-     
-     sub is_globlist ($) {
-     	my $s=shift;
-    -	return ( $s =~ /[^\s]+\s+([^\s]+)/ && $1 ne "and" && $1 ne "or" );
-    +	return ! ($s =~ /
-    +			(^\s*
-    +				[^\s(]+		# single item
-    +					(\(			# possibly with parens after it
-    +						([^)]*	# with stuff inside those parens
-    +						(\([^)]*\))*)*	# maybe even nested parens
-    +					\))?\s*$
-    +			) |
-    +				(\s and \s) | (\s or \s)	# or we find 'and' or 'or' somewhere
-    +			/xs);
-     }
-     
-     sub safequote ($) {
-    @@ -1631,7 +1640,7 @@ sub pagespec_merge ($$) {
+    @@ -1774,8 +1774,12 @@ sub pagespec_merge ($$) {
      	return "($a) or ($b)";
      }
      
     -sub pagespec_translate ($) {
-    +sub pagespec_makeperl ($) {
+    +# is perl really so dumb it requires a forward declaration for recursive calls?
+    +sub pagespec_translate ($$);
+    +
+    +sub pagespec_translate ($$) {
      	my $spec=shift;
+    +	my $specFuncsRef=shift;
      
-     	# Support for old-style GlobLists.
-    @@ -1650,12 +1659,14 @@ sub pagespec_translate ($) {
+     	# Convert spec to perl code.
+     	my $code="";
+    @@ -1789,7 +1793,9 @@ sub pagespec_translate ($) {
      		|
      			\)		# )
      		|
     -			\w+\([^\)]*\)	# command(params)
-    +			define\(\s*~\w+\s*,((\([^()]*\)) | ([^()]+))+\)	# define(~specName, spec) - spec can contain parens 1 deep
+    +			define\(\s*~\w+\s*,((\([^()]*\)) | ([^()]+))+\) # define(~specName, spec) - spec can contain parens 1 deep
     +		|
     +			\w+\([^()]*\)	# command(params) - params cannot contain parens
      		|
      			[^\s()]+	# any other text
      		)
-     		\s*		# ignore whitespace
-    -	}igx) {
-    +	}igxs) {
-     		my $word=$1;
-     		if (lc $word eq 'and') {
-     			$code.=' &&';
-    @@ -1666,16 +1677,23 @@ sub pagespec_translate ($) {
+    @@ -1805,10 +1811,19 @@ sub pagespec_translate ($) {
      		elsif ($word eq "(" || $word eq ")" || $word eq "!") {
      			$code.=' '.$word;
      		}
     -		elsif ($word =~ /^(\w+)\((.*)\)$/) {
-    +		elsif ($word =~ /^define\(\s*~(\w+)\s*,(.*)\)$/s) {
-    +			$code .= " (\$params{specFuncs}->{$1}=";	# (exists \$params{specFuncs}) && 
-    +			$code .= "memoize(";
-    +			$code .= &pagespec_makeperl($2);
-    +			$code .= ")";
-    +			$code .= ") ";
+    +		elsif ($word =~ /^define\(\s*(~\w+)\s*,(.*)\)$/s) {
+    +			my $name = $1;
+    +			my $subSpec = $2;
+    +			my $newSpecFunc = pagespec_translate($subSpec, $specFuncsRef);
+    +			return if $@ || ! defined $newSpecFunc;
+    +			$specFuncsRef->{$name} = $newSpecFunc;
+    +			push @data, qq{Created named pagespec "$name"};
+    +			$code.="IkiWiki::SuccessReason->new(\$data[$#data])";
     +		}
     +		elsif ($word =~ /^(\w+)\((.*)\)$/s) {
      			if (exists $IkiWiki::PageSpec::{"match_$1"}) {
-    -				$code.="IkiWiki::PageSpec::match_$1(\$page, ".safequote($2).", \@_)";
-    +				$code.="IkiWiki::PageSpec::match_$1(\$page, ".safequote($2).", \%params)";
+     				push @data, $2;
+    -				$code.="IkiWiki::PageSpec::match_$1(\$page, \$data[$#data], \@_)";
+    +				$code.="IkiWiki::PageSpec::match_$1(\$page, \$data[$#data], \@_, specFuncs => \$specFuncsRef)";
      			}
      			else {
-     				$code.=' 0';
-     			}
+     				push @data, qq{unknown function in pagespec "$word"};
+    @@ -1817,7 +1832,7 @@ sub pagespec_translate ($) {
      		}
      		else {
-    -			$code.=" IkiWiki::PageSpec::match_glob(\$page, ".safequote($word).", \@_)";
-    +			$code.=" IkiWiki::PageSpec::match_glob(\$page, ".safequote($word).", \%params)";
+     			push @data, $word;
+    -			$code.=" IkiWiki::PageSpec::match_glob(\$page, \$data[$#data], \@_)";
+    +			$code.=" IkiWiki::PageSpec::match_glob(\$page, \$data[$#data], \@_, specFuncs => \$specFuncsRef)";
      		}
      	}
      
-    @@ -1683,8 +1701,18 @@ sub pagespec_translate ($) {
-     		$code=0;
+    @@ -1826,7 +1841,7 @@ sub pagespec_translate ($) {
      	}
      
-    +	return 'sub { my $page=shift; my %params = @_; '.$code.' }';
-    +}
-    +
-    +sub pagespec_translate ($) {
-    +	my $spec=shift;
-    +
-    +	my $code = pagespec_makeperl($spec);
-    +
-    +	# print STDERR "Spec '$spec' generated code '$code'\n";
-    +
      	no warnings;
     -	return eval 'sub { my $page=shift; '.$code.' }';
-    +	return eval $code;
+    +	return eval 'memoize (sub { my $page=shift; '.$code.' })';
      }
      
      sub pagespec_match ($$;@) {
-    @@ -1699,7 +1727,7 @@ sub pagespec_match ($$;@) {
+    @@ -1839,7 +1854,7 @@ sub pagespec_match ($$;@) {
+     		unshift @params, 'location';
+     	}
      
-     	my $sub=pagespec_translate($spec);
-     	return IkiWiki::FailReason->new("syntax error in pagespec \"$spec\"") if $@;
-    -	return $sub->($page, @params);
-    +	return $sub->($page, @params, specFuncs => {});
+    -	my $sub=pagespec_translate($spec);
+    +	my $sub=pagespec_translate($spec, +{});
+     	return IkiWiki::ErrorReason->new("syntax error in pagespec \"$spec\"")
+     		if $@ || ! defined $sub;
+     	return $sub->($page, @params);
+    @@ -1850,7 +1865,7 @@ sub pagespec_match_list ($$;@) {
+     	my $spec=shift;
+     	my @params=@_;
+     
+    -	my $sub=pagespec_translate($spec);
+    +	my $sub=pagespec_translate($spec, +{});
+     	error "syntax error in pagespec \"$spec\""
+     		if $@ || ! defined $sub;
+     	
+    @@ -1872,7 +1887,7 @@ sub pagespec_match_list ($$;@) {
+     sub pagespec_valid ($) {
+     	my $spec=shift;
+     
+    -	my $sub=pagespec_translate($spec);
+    +	my $sub=pagespec_translate($spec, +{});
+     	return ! $@;
      }
      
-     sub pagespec_valid ($) {
-    @@ -1748,11 +1776,78 @@ sub new {
+    @@ -1919,6 +1934,68 @@ sub new {
      
      package IkiWiki::PageSpec;
      
@@ -342,15 +613,14 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
     +	my $page=shift;
     +	my $specName=shift;
     +	my %params=@_;
-    +	
-    +	error("Unable to find specFuncs in params to check_named_spec()!") unless exists $params{specFuncs};
+    +
+    +	return IkiWiki::ErrorReason->new("Unable to find specFuncs in params to check_named_spec()!")
+    +		unless exists $params{specFuncs};
     +
     +	my $specFuncsRef=$params{specFuncs};
-    +	
-    +	return IkiWiki::FailReason->new("Named page spec '$specName' is not valid")
+    +
+    +	return IkiWiki::ErrorReason->new("Named page spec '$specName' is not valid")
     +		unless (substr($specName, 0, 1) eq '~');
-    +	
-    +	$specName = substr($specName, 1);
     +
     +	if (exists $specFuncsRef->{$specName}) {
     +		# remove the named spec from the spec refs
@@ -361,7 +631,7 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
     +		$specFuncsRef->{$specName} = $sub;
     +		return $result;
     +	} else {
-    +		return IkiWiki::FailReason->new("Page spec '$specName' does not exist");
+    +		return IkiWiki::ErrorReason->new("Page spec '$specName' does not exist");
     +	}
     +}
     +
@@ -370,14 +640,14 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
     +	my $specName=shift;
     +	my $funcref=shift;
     +	my %params=@_;
-    +	
-    +	error("Unable to find specFuncs in params to check_named_spec_existential()!") unless exists $params{specFuncs};
+    +
+    +	return IkiWiki::ErrorReason->new("Unable to find specFuncs in params to check_named_spec_existential()!")
+    +			unless exists $params{specFuncs};
     +	my $specFuncsRef=$params{specFuncs};
     +	
-    +	return IkiWiki::FailReason->new("Named page spec '$specName' is not valid")
+    +	return IkiWiki::ErrorReason->new("Named page spec '$specName' is not valid")
     +		unless (substr($specName, 0, 1) eq '~');
-    +	$specName = substr($specName, 1);
-    +	
+    +
     +	if (exists $specFuncsRef->{$specName}) {
     +		# remove the named spec from the spec refs
     +		# when we recurse to avoid infinite recursion
@@ -389,7 +659,7 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
     +				my $tempResult = $funcref->($page, $nextpage, %params);
     +				if ($tempResult) {
     +					$specFuncsRef->{$specName} = $sub;
-    +					return $tempResult;
+    +					return IkiWiki::SuccessReason->new("Existential check of '$specName' matches because $tempResult");
     +				}
     +			}
     +		}
@@ -397,12 +667,14 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
     +		$specFuncsRef->{$specName} = $sub;
     +		return IkiWiki::FailReason->new("No page in spec '$specName' was successfully matched");
     +	} else {
-    +		return IkiWiki::FailReason->new("Named page spec '$specName' does not exist");
+    +		return IkiWiki::ErrorReason->new("Named page spec '$specName' does not exist");
     +	}
     +}
     +
-     sub match_glob ($$;@) {
-     	my $page=shift;
+     sub derel ($$) {
+     	my $path=shift;
+     	my $from=shift;
+    @@ -1937,6 +2014,10 @@ sub match_glob ($$;@) {
      	my $glob=shift;
      	my %params=@_;
      	
@@ -410,30 +682,31 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
     +		return check_named_spec($page, $glob, %params);
     +	}
     +
-     	my $from=exists $params{location} ? $params{location} : '';
-     	
-     	# relative matching
-    @@ -1782,11 +1877,12 @@ sub match_internal ($$;@) {
+     	$glob=derel($glob, $params{location});
+     
+     	my $regexp=IkiWiki::glob2re($glob);
+    @@ -1959,8 +2040,9 @@ sub match_internal ($$;@) {
      
      sub match_link ($$;@) {
      	my $page=shift;
     -	my $link=lc(shift);
-    +	my $fulllink=shift;
+    +	my $fullLink=shift;
      	my %params=@_;
-    +	my $link=lc($fulllink);
+    +	my $link=lc($fullLink);
      
+     	$link=derel($link, $params{location});
      	my $from=exists $params{location} ? $params{location} : '';
-    -
-    +	
-     	# relative matching
-     	if ($link =~ m!^\.! && defined $from) {
-     		$from=~s#/?[^/]+$##;
-    @@ -1804,19 +1900,32 @@ sub match_link ($$;@) {
+    @@ -1975,25 +2057,37 @@ sub match_link ($$;@) {
      		}
      		else {
      			return IkiWiki::SuccessReason->new("$page links to page $p matching $link")
     -				if match_glob($p, $link, %params);
-    +				if match_glob($p, $fulllink, %params);
+    +				if match_glob($p, $fullLink, %params);
+     			$p=~s/^\///;
+     			$link=~s/^\///;
+     			return IkiWiki::SuccessReason->new("$page links to page $p matching $link")
+    -				if match_glob($p, $link, %params);
+    +				if match_glob($p, $fullLink, %params);
      		}
      	}
      	return IkiWiki::FailReason->new("$page does not link to $link");
@@ -455,23 +728,24 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
      sub match_created_before ($$;@) {
      	my $page=shift;
      	my $testpage=shift;
-    +	my @params=@_;
+     	my %params=@_;
+    -	
     +
     +	if (substr($testpage, 0, 1) eq '~') {
-    +		return check_named_spec_existential($page, $testpage, \&match_created_before, @params);
+    +		return check_named_spec_existential($page, $testpage, \&match_created_before, %params);
     +	}
+    +
+     	$testpage=derel($testpage, $params{location});
      
      	if (exists $IkiWiki::pagectime{$testpage}) {
-     		if ($IkiWiki::pagectime{$page} < $IkiWiki::pagectime{$testpage}) {
-    @@ -1834,6 +1943,11 @@ sub match_created_before ($$;@) {
-     sub match_created_after ($$;@) {
-     	my $page=shift;
+    @@ -2014,6 +2108,10 @@ sub match_created_after ($$;@) {
      	my $testpage=shift;
-    +	my @params=@_;
-    +
+     	my %params=@_;
+     	
     +	if (substr($testpage, 0, 1) eq '~') {
-    +		return check_named_spec_existential($page, $testpage, \&match_created_after, @params);
+    +		return check_named_spec_existential($page, $testpage, \&match_created_after, %params);
     +	}
+    +
+     	$testpage=derel($testpage, $params{location});
      
      	if (exists $IkiWiki::pagectime{$testpage}) {
-     		if ($IkiWiki::pagectime{$page} > $IkiWiki::pagectime{$testpage}) {

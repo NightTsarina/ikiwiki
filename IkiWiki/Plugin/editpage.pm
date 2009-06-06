@@ -230,7 +230,7 @@ sub cgi_editpage ($$) {
 				$dir=~s![^/]+/+$!!;
 				
 				if ((defined $form->field('subpage') && length $form->field('subpage')) ||
-				    $page eq gettext('discussion')) {
+				    $page eq lc(gettext('Discussion'))) {
 					$best_loc="$from/$page";
 				}
 				else {
@@ -280,6 +280,7 @@ sub cgi_editpage ($$) {
 					push @page_types, [$key, $hooks{htmlize}{$key}{longname} || $key];
 				}
 			}
+			@page_types=sort @page_types;
 			
 			$form->tmpl_param("page_select", 1);
 			$form->field(name => "page", type => 'select',

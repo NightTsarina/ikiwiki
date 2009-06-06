@@ -30,7 +30,7 @@ sub preprocess (@) {
 	my %broken;
 	foreach my $page (pagespec_match_list([keys %links],
 			$params{pages}, location => $params{page})) {
-		my $discussion=gettext("discussion");
+		my $discussion=gettext("Discussion");
 		my %seen;
 		foreach my $link (@{$links{$page}}) {
 			next if $seen{$link};

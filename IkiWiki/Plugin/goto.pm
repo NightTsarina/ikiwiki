@@ -32,6 +32,12 @@ sub cgi_goto ($;$) {
 		}
 	}
 
+	# It's possible that $page is not a valid page name;
+	# if so attempt to turn it into one.
+	if ($page !~ /$config{wiki_file_regexp}/) {
+		$page=titlepage($page);
+	}
+
 	IkiWiki::loadindex();
 
 	# If the page is internal (like a comment), see if it has a
