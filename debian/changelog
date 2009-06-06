@@ -14,6 +14,10 @@ ikiwiki (3.15) UNRELEASED; urgency=low
     fails for any reason, disable it in the generated file.
     Closes: 532001
   * pagecount: Fix broken optimisation for * pagespec.
+  * goto: Support being passed a page title that is not a valid page
+    name, to support several cases including mercurial's long user
+    names on the RecentChanges page, and urls with spaces being handled
+    by the 404 plugin.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 02 Jun 2009 17:03:41 -0400
 
