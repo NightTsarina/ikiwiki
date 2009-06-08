@@ -1,0 +1,22 @@
+### "meta openid" problems
+
+I have add the followning to _index.mdwn_ on my site.
+
+    \[[!meta openid="http://certifi.ca/lunix"
+    server="http://certifi.ca/_serve"]]
+
+This resulted in the following being added to my site
+
+    <link href="http://certifi.ca/_serve" rel="openid.server" />
+    <link href="http://certifi.ca/_serve" rel="openid2.provider" />
+    <link href="http://certifi.ca/lunix" rel="openid.delegate" />
+    <link href="http://certifi.ca/lunix" rel="openid2.local_id" /> -->
+
+Perhaps I have done something wrong but this fails to work when I try to log in to several sites using my sites url as my login.  
+If I edit index.html and remove the two openid2 lines all works fine.  
+**Is there a way to only add openid version 1 tags to my index.html ?  
+Or a way to make it work the way it is ?**  
+
+Cheers  
+Mick  
+\_lunix_
