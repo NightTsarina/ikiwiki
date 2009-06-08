@@ -14,7 +14,7 @@ use open qw{:utf8 :std};
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
 	    %pagesources %destsources %depends %hooks %forcerebuild
-	    $gettext_obj %loaded_plugins};
+	    %loaded_plugins};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
@@ -459,7 +459,7 @@ sub checkconfig () {
 	if (defined $config{locale}) {
 		if (POSIX::setlocale(&POSIX::LC_ALL, $config{locale})) {
 			$ENV{LANG}=$config{locale};
-			$gettext_obj=undef;
+			define_gettext();
 		}
 	}
 		
@@ -1704,27 +1704,35 @@ sub file_pruned ($$) {
 	return $file =~ m/$regexp/ && $file ne $base;
 }
 
-sub gettext {
-	# Only use gettext in the rare cases it's needed.
+sub define_gettext () {
+	# If translation is needed, redefine the gettext function to do it.
+	# Otherwise, it becomes a quick no-op.
+	no warnings 'redefine';
 	if ((exists $ENV{LANG} && length $ENV{LANG}) ||
 	    (exists $ENV{LC_ALL} && length $ENV{LC_ALL}) ||
 	    (exists $ENV{LC_MESSAGES} && length $ENV{LC_MESSAGES})) {
-		if (! $gettext_obj) {
-			$gettext_obj=eval q{
+	    	*gettext=sub {
+			my $gettext_obj=eval q{
 				use Locale::gettext q{textdomain};
 				Locale::gettext->domain('ikiwiki')
 			};
-			if ($@) {
-				print STDERR "$@";
-				$gettext_obj=undef;
+
+			if ($gettext_obj) {
+				$gettext_obj->get(shift);
+			}
+			else {
 				return shift;
 			}
-		}
-		return $gettext_obj->get(shift);
+		};
 	}
 	else {
-		return shift;
+		*gettext=sub { return shift };
 	}
+}
+
+sub gettext {
+	define_gettext();
+	gettext(@_);
 }
 
 sub yesno ($) {
