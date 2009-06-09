@@ -42,6 +42,8 @@ It seems that since I have moved my site to its final location and made it live 
 I do not have a proper understanding of the inner workings of openid so not exactly sure what part is failing but I think the problem  
 lays with the consumers not falling back to the openid1 tags when they are openid1 only consumers.  --[Mick](http://www.lunix.com.au)  
 
-
-
-
+> So, just to clarify, certifi.ca works ok (I verified this, logging into identi.ca using it).
+> You had the problem running your own openid provider which did not support 2.0, in which case,
+> consumers seem justified in not falling back (guess; I don't know the 2.0 spec).
+> The only way this seems fixable is to add an option to meta to allow disabling openid 2. Which
+> should be easy enough to do. --[[Joey]] 
