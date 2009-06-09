@@ -163,17 +163,22 @@ sub preprocess (@) {
 			"\" type=\"text/css\" />";
 	}
 	elsif ($key eq 'openid') {
+		my $delegate=0; # both by default
+		if (exists $params{delegate}) {
+			$delegate = 1 if lc $params{delegate} eq 'openid';
+			$delegate = 2 if lc $params{delegate} eq 'openid2';
+		}
 		if (exists $params{server} && safeurl($params{server})) {
 			push @{$metaheaders{$page}}, '<link href="'.encode_entities($params{server}).
-				'" rel="openid.server" />';
+				'" rel="openid.server" />' if $delegate ne 2;
 			push @{$metaheaders{$page}}, '<link href="'.encode_entities($params{server}).
-				'" rel="openid2.provider" />';
+				'" rel="openid2.provider" />' if $delegate ne 1;
 		}
 		if (safeurl($value)) {
 			push @{$metaheaders{$page}}, '<link href="'.encode_entities($value).
-				'" rel="openid.delegate" />';
+				'" rel="openid.delegate" />' if $delegate ne 2;
 			push @{$metaheaders{$page}}, '<link href="'.encode_entities($value).
-				'" rel="openid2.local_id" />';
+				'" rel="openid2.local_id" />' if $delegate ne 1;
 		}
 		if (exists $params{"xrds-location"} && safeurl($params{"xrds-location"})) {
 			push @{$metaheaders{$page}}, '<meta http-equiv="X-XRDS-Location"'.
