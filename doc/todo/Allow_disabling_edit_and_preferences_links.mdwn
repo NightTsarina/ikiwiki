@@ -67,3 +67,13 @@ Patch:
 >>> Adding a new `canlogin` hook looks like overkill to me.  [[Joey]], how
 >>> about making registration of the `auth` hook mandatory for all plugins
 >>> making sense of the "Preferences" link? --[[Lunar]]
+
+>>>> Hmm, using the `auth` hook existance does seem like a nice solution.
+>>>> While splitting the preferences code out into its own plugin is
+>>>> easily enough done, it has the minor problem of being yet another
+>>>> file nearly all ikiwikis will have to load, and also, prefs would
+>>>> have to be disabled manually. So I like that using the hook would
+>>>> cause it to auto-disable if nothing uses it. It's a bit ugly that
+>>>> passwordauth doesn't need an auth hook (it could be reorged to
+>>>> use it instead of formbuilder, maybe) and would probably just have an
+>>>> empty one. Thanks for the idea. --[[Joey]]  [[done]]
