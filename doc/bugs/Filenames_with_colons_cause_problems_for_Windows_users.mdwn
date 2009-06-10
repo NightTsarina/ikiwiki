@@ -68,3 +68,8 @@ Windows does not support filenames containing any of these characters: `/ \ * : 
 >>> ikiwiki on windows, including its assumption that the directory
 >>> separator is "/". Windows will be supported when someone sends me a
 >>> comprehansive and not ugly or performance impacting patch. :-) --[[Joey]]
+
+> Speaking of Windows filename problems, how do I keep directories ending in a
+> period from being created? The following didn't seem to work.
+> `wiki_file_chars => "-[:alnum:]+/._",`
+> `wiki_file_regex => '[-[:alnum:]+_]$',`
