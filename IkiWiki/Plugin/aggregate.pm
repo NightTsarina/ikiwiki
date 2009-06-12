@@ -650,11 +650,13 @@ sub add_page (@) {
 		# creation time on record for the new page.
 		utime $mtime, $mtime, "$config{srcdir}/".htmlfn($guid->{page});
 		# Store it in pagectime for expiry code to use also.
-		$IkiWiki::pagectime{$guid->{page}}=$mtime;
+		$IkiWiki::pagectime{$guid->{page}}=$mtime
+			unless exists $IkiWiki::pagectime{$guid->{page}};
 	}
 	else {
 		# Dummy value for expiry code.
-		$IkiWiki::pagectime{$guid->{page}}=time;
+		$IkiWiki::pagectime{$guid->{page}}=time
+			unless exists $IkiWiki::pagectime{$guid->{page}};
 	}
 }
 
