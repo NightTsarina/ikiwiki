@@ -6,7 +6,7 @@ Here's a patch[[!tag patch]] to achieve this (also in the "defaultmeta" branch o
 my github ikiwiki fork):
 
     diff --git a/IkiWiki/Plugin/meta.pm b/IkiWiki/Plugin/meta.pm
-    index b229592..2894e08 100644
+    index b229592..3132257 100644
     --- a/IkiWiki/Plugin/meta.pm
     +++ b/IkiWiki/Plugin/meta.pm
     @@ -13,6 +13,7 @@ sub import {
@@ -17,19 +17,14 @@ my github ikiwiki fork):
      }
      
      sub getsetup () {
-    @@ -302,6 +303,20 @@ sub match {
+    @@ -302,6 +303,15 @@ sub match {
      	}
      }
      
-    +my @metatypes = qw/title description license copyright link
-    +				   author authorurl date permalink stylesheet
-    +				   openid redir robots guid updated/;
-    +
     +sub scan() {
     +	my %params = @_;
     +	my $page = $params{page};
-    +
-    +	foreach my $type (grep { exists $config{"meta_$_"} } @metatypes) {
+    +    foreach my $type (map { s/^meta_//; $_ } grep /^meta_/, keys %config) {
     +		$pagestate{$page}{meta}{$type} = $config{"meta_$type"}
     +			unless defined $pagestate{$page}{meta}{$type};
     +	}
