@@ -6,39 +6,38 @@ Here's a patch[[!tag patch]] to achieve this (also in the "defaultmeta" branch o
 my github ikiwiki fork):
 
     diff --git a/IkiWiki/Plugin/meta.pm b/IkiWiki/Plugin/meta.pm
-    index b229592..a307db4 100644
+    index b229592..2894e08 100644
     --- a/IkiWiki/Plugin/meta.pm
     +++ b/IkiWiki/Plugin/meta.pm
     @@ -13,6 +13,7 @@ sub import {
-            hook(type => "needsbuild", id => "meta", call => \&needsbuild);
-            hook(type => "preprocess", id => "meta", call => \&preprocess, scan => 1);
-            hook(type => "pagetemplate", id => "meta", call => \&pagetemplate);
-    +       hook(type => "scan", id => "meta", call => \&scan);
+     	hook(type => "needsbuild", id => "meta", call => \&needsbuild);
+     	hook(type => "preprocess", id => "meta", call => \&preprocess, scan => 1);
+     	hook(type => "pagetemplate", id => "meta", call => \&pagetemplate);
+    +	hook(type => "scan", id => "meta", call => \&scan);
      }
      
      sub getsetup () {
-    @@ -302,6 +303,15 @@ sub match {
-            }
+    @@ -302,6 +303,20 @@ sub match {
+     	}
      }
      
+    +my @metatypes = qw/title description license copyright link
+    +				   author authorurl date permalink stylesheet
+    +				   openid redir robots guid updated/;
+    +
     +sub scan() {
-    +       my %params = @_;
-    +       my $page = $params{page};
-    +    foreach my $type (map { s/^meta_//; $_ } grep /^meta_/, keys %config) {
-    +               $pagestate{$page}{meta}{$type} = $config{"meta_$type"}
-    +                       unless defined $pagestate{$page}{meta}{$type};
-    +       }
+    +	my %params = @_;
+    +	my $page = $params{page};
+    +
+    +	foreach my $type (grep { exists $config{"meta_$_"} } @metatypes) {
+    +		$pagestate{$page}{meta}{$type} = $config{"meta_$type"}
+    +			unless defined $pagestate{$page}{meta}{$type};
+    +	}
     +}
     +
      package IkiWiki::PageSpec;
      
      sub match_title ($$;@) {
-    @@ -324,4 +334,5 @@ sub match_copyright ($$;@) {
-            IkiWiki::Plugin::meta::match("copyright", @_);
-     }
-     
-    +
-     1
     diff --git a/doc/ikiwiki/directive/meta.mdwn b/doc/ikiwiki/directive/meta.mdwn
     index 000f461..200c4b2 100644
     --- a/doc/ikiwiki/directive/meta.mdwn
@@ -50,8 +49,8 @@ my github ikiwiki fork):
     +You can also define site-wide defaults for meta values by including them
     +in your setup file, e.g.
     +
-    +       meta_copyright => "Copyright 2007 by Joey Hess",
-    +       meta_license   => "GPL v2+",
+    +	meta_copyright => "Copyright 2007 by Joey Hess",
+    +	meta_license   => "GPL v2+",
     +
      Supported fields:
      
