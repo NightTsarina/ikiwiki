@@ -11,7 +11,7 @@ take it as far as implementing "replies" to other comments.
 
 -- Marcelo
 
-> See [[todo/discussion_page_as_blog]] for some of my own thoughts on this
+> See [[plugins/comments]]
 > --[[Joey]]
 
 ---
@@ -37,6 +37,22 @@ Is there a simple way to exclude images, stylesheets, and other
 
 I would be especially interested in a list of variables which can be used in such a template.
 
-I have a page template with some structured information as parameters. For example `location="nowhere"` and `price="20"`. Is there a possibility to extract those information, i. e. access the parameters, to compose the item for the inline directive from these information? For example the line »Go to nowhere for 20 bugs.« is shown inlined.
+> I try to keep ikiwiki's templates self-documenting, so if you take
+> a look at a template used by inline, such as the default `/usr/share/ikiwiki/template/inlinepage.tmpl`,
+> you can see all or nearly all the template variables in use in it.
+
+I have a page template with some structured information as parameters. For
+example `location="nowhere"` and `price="20"`. Is there a possibility to
+extract those information, i. e. access the parameters, to compose the item
+for the inline directive from these information? For example the line »Go
+to nowhere for 20 bugs.« is shown inlined.
 
 --[[PaulePanter]]
+
+> Let's not confuse the template directive with the templates used by inline.
+> When a page is inlined, any template directives in it are first expanded,
+> using the user-defined templates for that. Then, the inline directive's
+> template is used to insert it into the inlining page.
+> 
+> So no, you can't reference template directive parameters inside inline's
+> template, because it's already expanded at that point. --[[Joey]] 
