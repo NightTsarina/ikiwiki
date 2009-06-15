@@ -13,4 +13,23 @@ Presuming that the pagespec does not match, output:
 
 The UL element is not closed.
 
+Patch[[!tag patch]]:
+
+    --- /usr/share/perl5/IkiWiki/Plugin/map.pm  2009-05-06 00:56:55.000000000 +0100
+    +++ IkiWiki/Plugin/map.pm   2009-06-15 12:23:54.000000000 +0100
+    @@ -137,11 +137,11 @@
+            $openli=1;
+            $parent=$item;
+        }
+    -   while ($indent > 0) {
+    +   while ($indent > 1) {
+            $indent--;
+            $map .= "</li>\n</ul>\n";
+        }
+    -   $map .= "</div>\n";
+    +   $map .= "</ul>\n</div>\n";
+        return $map;
+     }
+     
+
 -- [[Jon]]
