@@ -1,8 +1,5 @@
-[[!template id=plugin name=smcvgallery author="[[Simon_McVittie|smcv]]"]]
-[[!tag type/chrome]]
-
-This plugin has not yet been written; this page is an experiment in
-design-by-documentation :-)
+This plugin has now been implemented as [[plugins/contrib/album]]; this
+page has older thoughts about it.
 
 ## Requirements
 
@@ -124,6 +121,8 @@ an option!)
 
 ### Synthesize source pages for viewers
 
+(Edited to add: this is what [[plugins/contrib/album]] implements. --[[smcv]])
+
 Another is to synthesize source pages for the viewers. This means they can have
 tags and metadata, but trying to arrange for them to be scanned etc. correctly
 without needing another refresh run is somewhat terrifying.
@@ -145,6 +144,10 @@ in that directory during the refresh hook. The source pages could be in the
 underlay until they are edited (e.g. tagged), at which point they would be
 copied into the source-code-controlled version in the usual way.
 
+> Coming back to this: a specialized web UI to mark attachments as part of
+> the gallery would make this easy too - you'd put the photos in the
+> underlay, then go to the CGI and say "add all". --[[smcv]]
+
 The synthetic source pages can be very simple, using the same trick as my
 [[plugins/comments]] plugin (a dedicated [[directive|ikiwiki/directives]]
 encapsulating everything the plugin needs). If the plugin automatically
@@ -152,6 +155,9 @@ gathers information like file size, pixel size, date etc. from the images, then
 only the human-edited information and a filename reference need to be present
 in the source page; with some clever lookup rules based on the filename of
 the source page, not even the photo's filename is necessarily needed.
+
+> Coming back to this later: the clever lookup rules make dependency tracking
+> hard, though. --[[smcv]]
 
     \[[!meta title="..."]]
     \[[!meta date="..."]]
