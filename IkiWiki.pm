@@ -1507,8 +1507,11 @@ sub loadindex () {
 				$links{$page}=$d->{links};
 				$oldlinks{$page}=[@{$d->{links}}];
 			}
-			if (exists $d->{depends}) {
-				$depends{$page}=$d->{depends};
+			if (exists $d->{dependslist}) {
+				$depends{$page}=$d->{dependslist};
+			}
+			elsif (exists $d->{depends}) {
+				$depends{$page}=[$d->{depends}];
 			}
 			if (exists $d->{state}) {
 				$pagestate{$page}=$d->{state};
@@ -1554,7 +1557,8 @@ sub saveindex () {
 		};
 
 		if (exists $depends{$page}) {
-			$index{page}{$src}{depends} = $depends{$page};
+			$index{page}{$src}{depends} = join(" or ", @{$depends{$page}});
+			$index{page}{$src}{dependslist} = $depends{$page};
 		}
 
 		if (exists $pagestate{$page}) {
@@ -1724,14 +1728,17 @@ sub rcs_receive () {
 sub add_depends ($$) {
 	my $page=shift;
 	my $pagespec=shift;
-	
+
 	return unless pagespec_valid($pagespec);
 
 	if (! exists $depends{$page}) {
-		$depends{$page}=$pagespec;
+		$depends{$page}=[$pagespec];
 	}
 	else {
-		$depends{$page}=pagespec_merge($depends{$page}, $pagespec);
+		foreach my $p (@{$depends{$page}}) {
+			return 1 if $p eq $pagespec;
+		}
+		push @{$depends{$page}}, $pagespec;
 	}
 
 	return 1;

@@ -32,9 +32,9 @@ $renderedfiles{"bar.png"}=["bar.png"];
 $links{"Foo"}=["bar.png"];
 $links{"bar"}=["Foo", "new-page"];
 $links{"bar.png"}=[];
-$depends{"Foo"}="";
-$depends{"bar"}="foo*";
-$depends{"bar.png"}="";
+$depends{"Foo"}=[];
+$depends{"bar"}=["foo*"];
+$depends{"bar.png"}=[];
 $pagestate{"bar"}{meta}{title}="a page about bar";
 $pagestate{"bar"}{meta}{moo}="mooooo";
 # only loaded plugins save state, so this should not be saved out
@@ -80,9 +80,9 @@ is_deeply(\%links, {
 	"bar.png" => [],
 }, "%links loaded correctly");
 is_deeply(\%depends, {
-	Foo => "",
-	bar => "foo*",
-	"bar.png" => "",
+	Foo => [],
+	bar => ["foo*"],
+	"bar.png" => [],
 }, "%depends loaded correctly");
 is_deeply(\%pagestate, {
 	bar => {

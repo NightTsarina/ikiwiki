@@ -299,7 +299,7 @@ sub oldloadindex {
 			$pagemtime{$page}=$items{mtime}[0];
 			$oldlinks{$page}=[@{$items{link}}];
 			$links{$page}=[@{$items{link}}];
-			$depends{$page}=$items{depends}[0] if exists $items{depends};
+			$depends{$page}=[$items{depends}[0]] if exists $items{depends};
 			$destsources{$_}=$page foreach @{$items{dest}};
 			$renderedfiles{$page}=[@{$items{dest}}];
 			$pagecase{lc $page}=$page;
