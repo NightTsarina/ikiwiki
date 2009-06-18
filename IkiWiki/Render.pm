@@ -24,13 +24,19 @@ sub calculate_backlinks () {
 	$backlinks_calculated=1;
 }
 
-sub backlinks ($) {
+sub backlink_pages ($) {
 	my $page=shift;
 
 	calculate_backlinks();
 
+	return keys %{$backlinks{$page}};
+}
+
+sub backlinks ($) {
+	my $page=shift;
+
 	my @links;
-	foreach my $p (keys %{$backlinks{$page}}) {
+	foreach my $p (backlink_pages($page)) {
 		my $href=urlto($p, $page);
                 
 		# Trim common dir prefixes from both pages.
