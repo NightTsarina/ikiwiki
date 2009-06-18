@@ -1,0 +1,16 @@
+The `among` branch in my git repository refactors IkiWiki::Render a
+bit, then uses this refactoring to add a [[ikiwiki/directive/pagestats]]
+parameter `among` that will only count links from pages that match a
+given [[ikiwiki/PageSpec]]. From its documentation:
+
+> The optional `among` parameter limits counting to pages that match a
+> [[ikiwiki/PageSpec]]. For instance, to display a cloud of tags used on blog
+> entries, you could use:
+> 
+>        \[[!pagestats pages="tags/*" among="blog/posts/*"]]
+> 
+> or to display a cloud of tags related to Linux, you could use:
+> 
+>        \[[!pagestats pages="tags/* and not tags/linux" among="tagged(linux)"]]
+
+Suggestions for a better parameter name are welcome. --[[smcv]]
