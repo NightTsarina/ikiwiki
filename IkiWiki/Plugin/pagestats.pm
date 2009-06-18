@@ -63,6 +63,8 @@ sub preprocess (@) {
 
 		my $res = "<div class='pagecloud'>\n";
 		foreach my $page (sort keys %counts) {
+			next unless $counts{$page} > 0;
+
 			my $class = $classes[$counts{$page} * scalar(@classes) / ($max + 1)];
 			$res .= "<span class=\"$class\">".
 			        htmllink($params{page}, $params{destpage}, $page).
