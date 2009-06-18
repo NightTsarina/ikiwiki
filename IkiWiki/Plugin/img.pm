@@ -135,11 +135,15 @@ sub preprocess (@) {
 	elsif ($params{link} =~ /^\w+:\/\//) {
 		$imgtag='<a href="'.$params{link}.'">'.$imgtag.'</a>';
 	}
-	elsif (length bestlink($params{page}, $params{link})) {
-		add_depends($params{page}, $params{link});
-		$imgtag=htmllink($params{page}, $params{destpage},
-			$params{link}, linktext => $imgtag,
-			noimageinline => 1);
+	else {
+		my $b = bestlink($params{page}, $params{link});
+	
+		if (length $b) {
+			add_depends($params{page}, $b);
+			$imgtag=htmllink($params{page}, $params{destpage},
+				$params{link}, linktext => $imgtag,
+				noimageinline => 1);
+		}
 	}
 
 	if (exists $params{caption}) {
