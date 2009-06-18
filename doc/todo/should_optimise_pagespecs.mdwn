@@ -79,4 +79,13 @@ I can think about reducung the size of my wiki source and making it available on
 > 
 > --[[Joey]]
 
-[[!tag wishlist]]
+>> I've been looking at optimizing ikiwiki for a site using
+>> [[plugins/contrib/album]] (which produces a lot of pages) and it seems
+>> that checking which pages depend on which pages does take a significant
+>> amount of time. The optimize-depends branch in my git repository
+>> avoids using `pagespec_merge()` for this (indeed it's no longer used
+>> at all), and instead represents dependencies as a list of pagespecs
+>> rather than a single pagespec. This does turn out to be faster, although
+>> not as much as I'd like. --[[smcv]]
+
+[[!tag wishlist patch]]
