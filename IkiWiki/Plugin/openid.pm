@@ -189,8 +189,18 @@ sub openiduser ($) {
 
 	if ($user =~ m!^https?://! &&
 	    eval q{use Net::OpenID::VerifiedIdentity; 1} && !$@) {
-		my $oid=Net::OpenID::VerifiedIdentity->new(identity => $user);
-		my $display=$oid->display;
+		my $display;
+
+		if (Net::OpenID::VerifiedIdentity->can("DisplayOfURL")) {
+			# this works in at least 2.x
+			$display = Net::OpenID::VerifiedIdentity::DisplayOfURL($user);
+		}
+		else {
+			# this only works in 1.x
+			my $oid=Net::OpenID::VerifiedIdentity->new(identity => $user);
+			$display=$oid->display;
+		}
+
 		# Convert "user.somehost.com" to "user [somehost.com]"
 		# (also "user.somehost.co.uk")
 		if ($display !~ /\[/) {
