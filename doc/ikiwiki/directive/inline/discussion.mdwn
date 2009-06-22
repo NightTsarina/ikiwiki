@@ -56,3 +56,34 @@ to nowhere for 20 bugs.« is shown inlined.
 > 
 > So no, you can't reference template directive parameters inside inline's
 > template, because it's already expanded at that point. --[[Joey]] 
+
+## meta parameters are not enough
+
+I think I have the same problem as Paule, as I want extra arbitary parameters in my template.
+
+This is what I am doing currently, which makes my skin crawl. In `wgts/foo.mdwn`
+I have resorted to using AUTHORURL as the location of this widgets icon:
+
+	[[!meta authorurl="/ico/aHR0cDovL2JvbmRpLm9tdHAub3JnL3dpZGdldHMvYmF0dGVyeQ==.png" ]]
+
+In templates I have a file called `wgtlist.tmpl`:
+
+	<div class="widget">
+	<TMPL_IF NAME="AUTHORURL">
+	<img src="<TMPL_VAR AUTHORURL>" />
+	</TMPL_IF>
+	<TMPL_IF NAME="PERMALINK">
+	<a href="<TMPL_VAR PERMALINK>"><TMPL_VAR TITLE></a><br />
+	<TMPL_ELSE>
+	<a href="<TMPL_VAR PAGEURL>"><TMPL_VAR TITLE></a><br />
+	</TMPL_IF>
+	Posted <TMPL_VAR CTIME>
+	</div>
+
+My index page has:
+
+	[[!inline pages="./wgts/*" show=5 feeds=no actions=no rootpage="wgts" archive="yes" template=wgtlist]]
+
+Else can you please suggest a smarter way of getting certain data out from pages for a inline index?
+
+--[[hendry]]
