@@ -57,6 +57,23 @@ to nowhere for 20 bugs.« is shown inlined.
 > So no, you can't reference template directive parameters inside inline's
 > template, because it's already expanded at that point. --[[Joey]] 
 
+>> Thank you for the explanation. Can you think of another way to accomplish
+>> my goals?
+>>
+>> Right now, I only see the option to edit the title with the
+>> `[[/ikiwiki/directive/meta]]` directive and the field `title`.
+>>
+>> How could a solution look like?
+>>
+>> 1. The possibility to add custom fields to the `meta` directive.
+>> 1. The possibility to specify in a page, how the page should be displayed
+>>    when used by inlined. That could be done by a new directive `cinlined`
+>>    (for »custom inlined«) which is chosen by the `inline` directive to
+>>    display if told to do so.
+>>
+>>    [[!cinlined text="""Text which can also use Parameter, bla blubb …"""]]
+>> --[[PaulePanter]]
+
 ## meta parameters are not enough
 
 I think I have the same problem as Paule, as I want extra arbitary parameters in my template.
