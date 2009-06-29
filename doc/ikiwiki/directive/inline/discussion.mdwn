@@ -73,6 +73,26 @@ to nowhere for 20 bugs.« is shown inlined.
 >>
 >>    [[!cinlined text="""Text which can also use Parameter, bla blubb …"""]]
 >> --[[PaulePanter]]
+>>> You can make the body of a page change depending on whether it's being
+>>> inlined, with the [[ikiwiki/directive/if]] directive from the
+>>> [[plugins/conditional]] plugin:
+>>>
+>>>     \[[!if test="inlined()"
+>>>       then="""[[!template id=productsummary
+>>>         location="Warehouse 23" price=20
+>>>         ]]"""
+>>>       else="""[[!template id=productdetail
+>>>         location="Warehouse 23" price=20
+>>>         description="Every home should have one"
+>>>         ]]"""
+>>>     ]]
+>>>
+>>> Perhaps that does some of what you want?
+>>>
+>>> If you want to go beyond that, my inclination would be to write
+>>> a simple plugin to deal with whatever it is you want to do (bug
+>>> metadata or product metadata or whatever) rather than prematurely
+>>> generalizing. --[[smcv]]
 
 ## meta parameters are not enough
 
