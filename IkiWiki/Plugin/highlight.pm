@@ -4,6 +4,7 @@ package IkiWiki::Plugin::highlight;
 use warnings;
 use strict;
 use IkiWiki 3.00;
+use Encode;
 
 # locations of highlight's files
 my $filetypes="/etc/highlight/filetypes.conf";
@@ -69,7 +70,7 @@ sub htmlizefallback {
 		return;
 	}
 
-	return highlight($langfile, shift);
+	return Encode::decode_utf8(highlight($langfile, shift));
 }
 
 my %ext2lang;
