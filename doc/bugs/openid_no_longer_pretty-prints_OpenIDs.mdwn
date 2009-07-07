@@ -8,6 +8,8 @@ The git commit (in my `openid` branch) says it all:
 
 This bug affects ikiwiki.info (my commits show up in [[RecentChanges]] as http://smcv.pseudorandom.co.uk/ rather than smcv [pseudorandom.co.uk]).
 
+> Cherry picked, thanks. --[[Joey]] 
+
 Relatedly, the other commit on the same branch would be nice to have:
 
     Allow the openid plugin to be loaded but disabled, for its side-effect of defining IkiWiki::openiduser
@@ -19,5 +21,9 @@ Relatedly, the other commit on the same branch would be nice to have:
     git history.
 
 --[[smcv]]
+
+> I wonder if an option is the best approach. Maybe it would be better to
+> simply move `openiduser` into `userlink`, and thus always support openid
+> usernames whether the plugin is enabled or not. --[[Joey]] 
 
 [[!tag patch]]
