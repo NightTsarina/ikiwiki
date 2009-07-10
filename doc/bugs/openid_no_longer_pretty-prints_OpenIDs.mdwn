@@ -8,22 +8,10 @@ The git commit (in my `openid` branch) says it all:
 
 This bug affects ikiwiki.info (my commits show up in [[RecentChanges]] as http://smcv.pseudorandom.co.uk/ rather than smcv [pseudorandom.co.uk]).
 
-> Cherry picked, thanks. --[[Joey]] 
+> Cherry picked, thanks. --[[Joey]]
 
-Relatedly, the other commit on the same branch would be nice to have:
+Relatedly, the other commit on the same branch would be nice to have
+(edited to add: I've now moved it, and its discussion, to
+[[todo/pretty-print_OpenIDs_even_if_not_enabled]]). --[[smcv]]
 
-    Allow the openid plugin to be loaded but disabled, for its side-effect of defining IkiWiki::openiduser
-    
-    On various sites I have two IkiWiki instances running from the same
-    repository: one accessible via http and only accepting openid logins,
-    and one accessible via authenticated https and only accepting httpauth.
-    Ideally, the https version should still pretty-print OpenIDs seen in
-    git history.
-
---[[smcv]]
-
-> I wonder if an option is the best approach. Maybe it would be better to
-> simply move `openiduser` into `userlink`, and thus always support openid
-> usernames whether the plugin is enabled or not. --[[Joey]] 
-
-[[!tag patch]]
+[[!tag done]]
