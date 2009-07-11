@@ -24,3 +24,11 @@ In my real world situation, page1 is actually listing all pages that match a cer
 Whenever a page got tagged, it will appear on page1 but not on page0.
 
 Am I missing something? Is this a bug or Ikiwiki not supposed to support this use case?
+
+> Perhaps the inline plugin isn't being clever enough about dependencies -
+> strictly speaking, when a page is inlined with full content, the inlining
+> page should probably inherit all the inlined page's dependencies.
+> That might be prohibitively slow in practise due to the way IkiWiki
+> currently merges pagespecs, though - maybe the patches I suggested for
+> [[separating_and_uniquifying_pagespecs|todo/should_optimise_pagespecs]]
+> would help? --[[smcv]]
