@@ -38,3 +38,10 @@ Patch[[!tag patch]]:
 > could `map` instead delay emitting the first `<ul>` until it determines that
 > it will have at least one item? Perhaps refactoring that function into
 > something easier to regression-test would be useful. --[[smcv]]
+
+>> You are right (just checked 4.01 DTD to confirm). I suspect refactoring
+>> the function would be wise. From my brief look at it to formulate the
+>> above I thought it was a bit icky.  I'm not a good judge of what would
+>> be regression-test friendly but I might have a go at reworking it. With
+>> this variety of problem I have a strong inclination to use things like
+>> map. - [[Jon]]
