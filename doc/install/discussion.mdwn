@@ -232,9 +232,9 @@ In any case, thanks for the help, and thanks for the superb software.  I really 
 ---
 
 ## Prerequisite modules not found for non-root user
-Hi, I'm a non-root user trying to use IkiWiki on an academic webserver with Perl 5.8.8 but several missing modules, so I grab them from CPAN:
+Hi, I'm a non-root user trying to use IkiWiki on an academic webserver with Perl 5.8.8 but several missing modules, so I grab them from CPAN (edited):
 
-    cd ~; PERL5LIB=`pwd` PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->install("Bundle::IkiWiki")'
+    cd ~; PERL5LIB=`pwd`/ikiwiki:`pwd`/ikiwiki/cpan:`pwd`/lib/perl5 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->install("Bundle::IkiWiki")'
 
 That puts a lot of files in ~/.cpan. Then when I go into the directory where I untarred IkiWiki and try to run the Perl makefile:
 
