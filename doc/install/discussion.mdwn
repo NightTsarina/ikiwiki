@@ -228,3 +228,26 @@ For ubuntu 8.04:
 I was just trying to get the latest version.
 
 In any case, thanks for the help, and thanks for the superb software.  I really like it a lot.
+
+---
+
+## Prerequisite modules not found for non-root user
+Hi, I'm a non-root user trying to use IkiWiki on an academic webserver with Perl 5.8.8 but several missing modules, so I grab them from CPAN:
+
+    cd ~; PERL5LIB=`pwd` PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->install("Bundle::IkiWiki")'
+
+That puts a lot of files in ~/.cpan. Then when I go into the directory where I untarred IkiWiki and try to run the Perl makefile:
+
+    cd ~/ikiwiki; perl Makefile.PL PREFIX=$HOME/ikiwiki
+
+I get warnings that all the modules needed were not found:
+
+Warning: prerequisite CGI::FormBuilder  not found.
+Warning: prerequisite CGI::Session 0 not found.
+Warning: prerequisite Date::Parse 0 not found.
+Warning: prerequisite HTML::Scrubber 0 not found.
+Warning: prerequisite HTML::Template 0 not found.
+Warning: prerequisite Mail::Sendmail 0 not found.
+Warning: prerequisite Text::Markdown 0 not found.
+
+I've tried various combinations of PERL5LIB and PERL_MM_USE_DEFAULT to run this Makefile.PL but I'm not knowledgeable enough in Perl to get it to find the files in ~/.cpan. Thanks for any help!
