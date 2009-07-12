@@ -69,8 +69,12 @@ Why do they appear two times with conflicting values in the very same hashes?
 Marking [[done]] since it's not really an ikiwiki bug. --[[Joey]]
 
 I'm getting some odd behaviour with boa.  When I edit a page and click "Save
-Page", the URL I get taken to produces a 403 - Forbidden error until I reload
-it.  For example, it brings me back to page `http://localhost/~pdw/iki/?updated`,
-I see a 403 error message, then I hit Ctrl-R, and then the page displays
-correctly, with the same URL that gave an error a moment ago.  This is with boa
-0.94.14rc21-3 and Firefox 3.0.11 on Ubuntu 9.04.
+Page", the URL I get taken to produces a 403 - Forbidden error until I recompile
+the wiki.  For example, after editing the root page of the wiki it brings me back to
+`http://localhost/~pdw/iki/?updated`, and I see a 403 error message.  Then, if
+I open up a terminal and type `ikiwiki --setup ikiwiki.setup`, and then go back
+to the browser and hit Ctrl-R, the page displays correctly, with the same URL
+that gave an error a moment ago.  This is with boa 0.94.14rc21-3 and Firefox
+3.0.11 on Ubuntu 9.04.  I get the feeling I'm doing something wrong somewhere;
+any suggestions where to start looking?  This is a very basic setup, so feel
+free to ask. --Paul
