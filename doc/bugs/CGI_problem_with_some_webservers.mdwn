@@ -78,3 +78,16 @@ that gave an error a moment ago.  This is with boa 0.94.14rc21-3 and Firefox
 3.0.11 on Ubuntu 9.04.  I get the feeling I'm doing something wrong somewhere;
 any suggestions where to start looking?  This is a very basic setup, so feel
 free to ask. --Paul
+
+Tried setting up a git repository back-end for the wiki, in case the `post-update`
+hook caused the right updates to happen; it didn't.  (But I do now have my wiki
+in git!)
+
+Turns out that `.../destdir/index.html` was being recreated after a web edit, or
+at least having its permissions modified, and being left without world-read
+permissions.  Boa was then rightly refusing to serve the page.  Adding the
+`umask 022` config option to `ikiwiki.setup` fixed everything, and all
+appears to be working fine now.  --Paul.
+
+(I'm new to wiki etiquette - would it be more polite to leave these details on the
+wiki, or to remove them and only leave a short summary?  Thanks.  --Paul)
