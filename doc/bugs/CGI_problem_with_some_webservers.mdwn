@@ -70,36 +70,39 @@ Marking [[done]] since it's not really an ikiwiki bug. --[[Joey]]
 
 ----
 
-I'm getting some odd behaviour with boa.  When I edit a page and click "Save
-Page", the URL I get taken to produces a 403 - Forbidden error until I recompile
-the wiki.  For example, after editing the root page of the wiki it brings me back to
-`http://localhost/~pdw/iki/?updated`, and I see a 403 error message.  Then, if
-I open up a terminal and type `ikiwiki --setup ikiwiki.setup`, and then go back
-to the browser and hit Ctrl-R, the page displays correctly, with the same URL
-that gave an error a moment ago.  This is with boa 0.94.14rc21-3 and Firefox
-3.0.11 on Ubuntu 9.04.  I get the feeling I'm doing something wrong somewhere;
-any suggestions where to start looking?  This is a very basic setup, so feel
-free to ask. --Paul
+I'm using boa and getting some odd behaviour if I don't set the `umask`
+option in the config file.  Editing a page through the web interface and
+hitting "Save Page" regenerates the `index.html` file with no world-read
+permissions.  As a result, the server serves a "403 - Forbidden" error page
+instead of the page I was expecting to return to.
 
-Tried setting up a git repository back-end for the wiki, in case the `post-update`
-hook caused the right updates to happen; it didn't.  (But I do now have my wiki
-in git!)
-
-Turns out that `.../destdir/index.html` was being recreated after a web edit, or
-at least having its permissions modified, and being left without world-read
-permissions.  Boa was then rightly refusing to serve the page.  Adding the
-`umask 022` config option to `ikiwiki.setup` fixed everything, and all
-appears to be working fine now.  --Paul.
+There are only two ways I found to work around this: adding a `umask 022`
+option to the config file, or re-compiling the wiki from the command line
+using `ikiwiki --setup`.  Setting up a git back-end and re-running `ikiwiki
+--setup` from inside a hook had no effect; it needed to be at the terminal.
+--Paul
 
 > Since others seem to have gotten ikiwiki working with boa, 
 > I'm guessing that this is not a generic problem with boa, but that
 > your boa was started from a shell that had an unusual umask and inherited
 > that. --[[Joey]] 
 
-(I'm new to wiki etiquette - would it be more polite to leave these details on the
-wiki, or to remove them and only leave a short summary?  Thanks.  --Paul)
+>> That's right; once I'd worked out what was wrong, it was clear that any
+>> webserver should have been refusing to serve the page.  I agree about the
+>> inherited umask; I hadn't expected that.  Even if it's unusual, though, it
+>> probably won't be uncommon - this was a stock Ubuntu 9.04 install.  --Paul
+
+(I'm new to wiki etiquette - would it be more polite to leave these details
+on the wiki, or to remove them and only leave a short summary?  Thanks.
+--Paul)
 
 > Well, I just try to keep things understandable and clear, whether than
 > means deleting bad old data or not. That said, this page is a bug report,
 > that was already closed. It's generally better to open a new bug report
 > rather than edit an old closed one. --[[Joey]] 
+                                      
+>> Thanks for the feedback, I've tidied up my comment accordingly.  I see
+>> your point about the bug; sorry for cluttering the page up.  I doubt it's
+>> worth opening a new page at this stage, but will do so if there's a next
+>> time.  The solution seems worth leaving, though, in case anyone else in my
+>> situation picks it up.  --Paul
