@@ -2,6 +2,29 @@ A simple plugin to allow per-page customization of a template by passing paramat
 
 [[!tag patch]]
 
+> The implementation looks fine to me (assuming it works with current ikiwiki),
+> apart from the "XXX" already noted in the patch. The design could reasonably
+> be considered premature generalization, though - how often do you actually
+> need to define new tmplvars?
+>
+> As for the page/destpage/preview thing, it would be good if the preprocess
+> hook could distinguish between software-supplied and user-supplied
+> parameters (the [[plugins/tag]] plugin could benefit from this too). Perhaps
+> the IkiWiki core could be modified so that
+> `hook(type => "preprocess", splitparams => 1, ...)` would invoke preprocess
+> with { page => "foo", destpage => "bar", ... } as a special first argument,
+> and the user-supplied parameters as subsequent arguments? Then plugins like
+> tag could use:
+>
+>     my $ikiparams = shift;
+>     my %params = @_;
+>
+>     add_tags($ikiparams->{page}, keys %params);
+>
+> --[[smcv]]
+
+----
+
     #!/usr/bin/perl
     package IkiWiki::Plugin::tmplvars;
 

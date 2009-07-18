@@ -54,3 +54,20 @@ my github ikiwiki fork):
      * title
 
 -- [[Jon]]
+
+> This doesn't support multiple-argument meta directives like
+> `link=x rel=y`, or meta directives with special side-effects like
+> `updated`.
+>
+> The first could be solved (if you care) by a syntax like this:
+>
+>     meta_defaults => [
+>         { copyright => "© me" },
+>         { link => "about:blank", rel => "silly", },
+>     ]
+>
+> The second could perhaps be solved by invoking `meta::preprocess` from within
+> `scan` (which might be a simplification anyway), although this is complicated
+> by the fact that some (but not all!) meta headers are idempotent.
+> 
+> --[[smcv]]
