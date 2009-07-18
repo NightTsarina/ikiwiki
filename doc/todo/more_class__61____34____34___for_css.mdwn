@@ -15,6 +15,8 @@ Here's the one-liner:
 
 > applied --[[Joey]]
 
+----
+
 The following adds a div element with class="trailer" around the meta-information
 added after an inlined page (namely: the post date, the tags, and the actions):
 
@@ -42,7 +44,7 @@ added after an inlined page (namely: the post date, the tags, and the actions):
 > gets confused by these nested div's and puts p's around one of them, generating
 > broken html. If you can come up with a way to put in the div that passes
 > the test suite, or a fix to markdown, I will accept it, but the above patch
-> fails the test suite. --[[Joey]] 
+> fails the test suite. --[[Joey]]
 
 >> Just a note...  This discrepancy doesn't exist in [pandoc](http://code.google.com/p/pandoc/) as
 >> demonstrated in the relevant [page](http://code.google.com/p/pandoc/wiki/PandocVsMarkdownPl).
@@ -63,6 +65,16 @@ added after an inlined page (namely: the post date, the tags, and the actions):
 >>>> 1.0.2b7 is slower, but ok, and parses much better. I'm waiting for it
 >>>> to at least get into debian testing before I make ikiwiki depend on it
 >>>> though. --[[Joey]]
+
+>> This Markdown issue seems to have been worked around by the optimization
+>> in which \[[!inline]] is replaced with a placeholder, and the
+>> placeholder is later replaced by the HTML. Meanwhile, this patch
+>> has been obsoleted by applying a similar one (wrapping things in a div
+>> with class inlinefooter). That was the last remaining unapplied patch
+>> on this page, so I think this whole page can be considered [[done]].
+>> --[[smcv]]
+
+----
 
 I'd like a class attribute on the `<span>` tag surrounding wikilinks
 that refer to non-existent pages, in Ikiwiki.pm:htmllink, so that such
