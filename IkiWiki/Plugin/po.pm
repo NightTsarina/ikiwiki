@@ -10,7 +10,7 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use Encode;
-use Locale::Po4a::Common qw(nowrapi18n);
+use Locale::Po4a::Common qw(nowrapi18n !/.*/);
 use Locale::Po4a::Chooser;
 use Locale::Po4a::Po;
 use File::Basename;
