@@ -75,7 +75,7 @@ sub preprocess (@) {
 			my ($x, $y, $color, $diameter, $text, $location)=
 				split(/\s*,\s*/, $value);
 			if (! defined $diameter || $diameter < 0) {
-				error gettext("bad featurepoint diameter");
+				error gettext("invalid featurepoint diameter");
 			}
 			$x=int($x);
 			$y=int($y);
@@ -85,7 +85,7 @@ sub preprocess (@) {
 			if (defined $location) {
 				$location=$locmap{$location};
 				if (! defined $location) {
-					error gettext("bad featurepoint location");
+					error gettext("invalid featurepoint location");
 				}
 			}
 			$php.=qq{\$sparkline->SetFeaturePoint($x, $y, '$color', $diameter};
@@ -101,7 +101,7 @@ sub preprocess (@) {
 
 	my $height=int($params{height} || 20);
 	if ($height < 2 || $height > 100) {
-		error gettext("bad height value");
+		error gettext("invalid height value");
 	}
 	if ($style eq "Bar") {
 		$php.=qq{\$sparkline->Render($height);\n};
@@ -112,7 +112,7 @@ sub preprocess (@) {
 		}
 		my $width=int($params{width});
 		if ($width < 2 || $width > 1024) {
-			error gettext("bad width value");
+			error gettext("invalid width value");
 		}
 		$php.=qq{\$sparkline->RenderResampled($width, $height);\n};
 	}
