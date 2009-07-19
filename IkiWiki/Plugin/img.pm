@@ -66,7 +66,7 @@ sub preprocess (@) {
 
 	if ($params{size} ne 'full') {
 		my ($w, $h) = ($params{size} =~ /^(\d*)x(\d*)$/);
-		error sprintf(gettext('bad size "%s"'), $params{size})
+		error sprintf(gettext('wrong size format "%s" (should be WxH)'), $params{size})
 			unless (defined $w && defined $h &&
 			        (length $w || length $h));
 
