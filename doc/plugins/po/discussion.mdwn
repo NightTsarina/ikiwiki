@@ -665,3 +665,35 @@ daring a timid "please pull"... or rather, please review again :)
    secondary parameter overriding the default locale (for messages like "N/A" as
    percentage in po plugin).  Alternatively (with above mentioned template support)
    all such strings could be externalized as templates that can then be localized.
+
+# Robustness tests
+
+### Enabling/disabling the plugin
+
+* enabling the plugin with `po_translatable_pages` set to blacklist: **OK**
+* enabling the plugin with `po_translatable_pages` set to whitelist: **OK**
+* enabling the plugin without `po_translatable_pages` set: **OK**
+* disabling the plugin: **OK**
+
+### Changing the plugin config
+
+* adding existing pages to `po_translatable_pages`: **OK**
+* removing existing pages from `po_translatable_pages`: **OK**
+* adding a language to `po_slave_languages`: **OK**
+* removing a language from `po_slave_languages`: **OK**
+* changing `po_master_language`: **OK**
+* replacing `po_master_language` with a language previously part of
+  `po_slave_languages`: needs two rebuilds, but **OK** (this is quite
+  a perverse test actually)
+
+### Creating/deleting/renaming pages
+
+All cases of master/slave page creation/deletion/rename, both via RCS
+and via CGI, have been tested.
+
+### Misc
+
+* general test with `usedirs` disabled: **OK**
+* general test with `indexpages` enabled: **not OK**
+* general test with `po_link_to=default` with `userdirs` enabled: **OK**
+* general test with `po_link_to=default` with `userdirs` disabled: **OK**
