@@ -1,0 +1,244 @@
+# Danish translation of templates page for ikiwiki.
+# Copyright (C) 2008-2009 Jonas Smedegaard <dr@jones.dk>
+# This file is distributed under the same license as the ikiwiki package.
+# Jonas Smedegaard <dr@jones.dk>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki 3.15\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-07-19 23:45+0200\n"
+"PO-Revision-Date: 2009-07-19 23:45+0200\n"
+"Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"[[!if test=\"enabled(template)\"\n"
+"then=\"This wiki has templates **enabled**.\"\n"
+"else=\"This wiki has templates **disabled**.\"\n"
+"]]\n"
+msgstr ""
+"[[!if test=\"enabled(template)\"\n"
+"then=\"Denne wiki har skabeloner **aktiveret**.\"\n"
+"else=\"Denne wiki har skabeloner **deaktiveret**.\" ]]\n"
+
+#. type: Plain text
+msgid ""
+"Templates are files that can be filled out and inserted into pages in the "
+"wiki."
+msgstr "Skabeloner er filer som kan blive udfyldt og indsat på sider i wikien."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+
+#. type: Plain text
+msgid ""
+"These templates are available for inclusion onto other pages in this wiki:"
+msgstr ""
+"Disse skabeloner er tilgængelige til indsættelse på andre sider i denne wiki:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
+"sort=title template=titlepage]]\n"
+msgstr ""
+"[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
+"sort=title template=titlepage]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "## Using a template\n"
+msgstr "## Brug af skabelon\n"
+
+#. type: Plain text
+msgid "Using a template works like this:"
+msgstr "En skabelon bruges som her:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!template id=note text=\"\"\"Here is the text to insert into my note.\"\"\"]]\n"
+msgstr "\t\\[[!template id=note text=\"\"\"Her er teksten til at sætte ind i min note.\"\"\"]]\n"
+
+#. type: Plain text
+msgid ""
+"This fills out the [[note]] template, filling in the `text` field with the "
+"specified value, and inserts the result into the page."
+msgstr ""
+"Dette udfylder [[note]]-skabelonen, ved at erstatte `text`-feltet med den "
+"angivne værdi og indsætte resultatet på siden."
+
+#. type: Plain text
+msgid ""
+"Generally, a value can include any markup that would be allowed in the wiki "
+"page outside the template. Triple-quoting the value even allows quotes to be "
+"included in it. Combined with multi-line quoted values, this allows for "
+"large chunks of marked up text to be embedded into a template:"
+msgstr ""
+"Generelt kan en værdi indeholde enhver opmærkning som ville være tilladt på "
+"wikisiden udenfor skabelonen. Trippel-citering af værdien tillader endda at "
+"bruge citering som del af værdien. Kombineret med flerlinje-citerede værdier "
+"tillader dette indlejring af store klumper af opmærket tekst i skabelonen:"
+
+#. type: Plain text
+#, no-wrap
+msgid "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes=\"\"\"\n"
+msgstr "        \\[[!template id=foo name=\"Sally\" color=\"grøn\" age=8 notes=\"\"\"\n"
+
+#. type: Bullet: '        * '
+msgid "\\[[Charley]]'s sister."
+msgstr "\\[[Charley]]'s søster."
+
+#. type: Bullet: '        * '
+msgid "\"I want to be an astronaut when I grow up.\""
+msgstr "\"Jeg vil være en astronaut når jeg bliver stor.\""
+
+#. type: Bullet: '        * '
+msgid "Really 8 and a half."
+msgstr "Egentligt 8 og et halvt."
+
+#. type: Plain text
+#, no-wrap
+msgid "## Creating a template\n"
+msgstr "## Oprettelse af skabelon\n"
+
+#. type: Plain text
+msgid ""
+"To create a template, simply add a template directive to a page, and the "
+"page will provide a link that can be used to create the template. The "
+"template is a regular wiki page, located in the `templates/` subdirectory "
+"inside the source directory of the wiki."
+msgstr ""
+"Opret en skabelon ved simpelthen at tilføje skabelon-direktivet til en side, "
+"så vil siden vise en henvisning som kan bruges til at oprette skabelonen. "
+"Skabelonen er en normal wikiside, placeret i `templates/` undermappen indeni "
+"wikiens kildemappe."
+
+#. type: Plain text
+msgid ""
+"The template uses the syntax used by the [[!cpan HTML::Template]] perl "
+"module, which allows for some fairly complex things to be done. Consult its "
+"documentation for the full syntax, but all you really need to know are a few "
+"things:"
+msgstr ""
+"Skabelonen bruger samme syntax som perl-modulet [[!cpan HTML::Template]] som "
+"giver mulighed for at lave ret komplekse ting. Læs dokumentationen for den "
+"fulde syntaks, men alt hvad du reelt behøver at vide er nogle få ting:"
+
+#. type: Bullet: '* '
+msgid ""
+"Each parameter you pass to the template directive will generate a template "
+"variable. There are also some pre-defined variables like PAGE and BASENAME."
+msgstr ""
+"Ethvert parameter du angiver til skabelondirektivet vil danne en "
+"skabelonvariabel. Der er også nogle foruddefinerede variable som PAGE og "
+"BASENAME."
+
+#. type: Bullet: '* '
+msgid ""
+"To insert the value of a variable, use `<TMPL_VAR variable>`. Wiki markup in "
+"the value will first be converted to html."
+msgstr ""
+"Brug `<TMPL_VAR variabel>` til at indsætte værdien af en variabel. Wiki-"
+"opmærkning i værdien bliver først konverteret til html."
+
+#. type: Bullet: '* '
+msgid ""
+"To insert the raw value of a variable, with wiki markup not yet converted to "
+"html, use `<TMPL_VAR raw_variable>`."
+msgstr ""
+"Brug `<TMPL_VAR raw_variabel>` til at indsætte den rå værdi af en variabel, "
+"med wiki-opmærkning endnu ikke konverteret til html."
+
+#. type: Bullet: '* '
+msgid ""
+"To make a block of text conditional on a variable being set use `<TMPL_IF "
+"NAME=\"variable\">text</TMPL_IF>`."
+msgstr ""
+"Gør en tekstblok betinget af at en variabel er i brug med `<TMPL_IF NAME="
+"\"variabel\">tekst</TMPL_IF>`."
+
+#. type: Bullet: '* '
+msgid ""
+"To use one block of text if a variable is set and a second if it's not, use "
+"`<TMPL_IF NAME=\"variable\">text<TMPL_ELSE>other text</TMPL_IF>`"
+msgstr ""
+"Brug een tekstblok hvis en variabel er i brug, og en anden hvis ikke, med "
+"`<TMPL_IF NAME=\"variabel\">tekst<TMPL_ELSE>anden tekst</TMPL_IF>`"
+
+#. type: Plain text
+msgid "Here's a sample template:"
+msgstr ""
+"Her er et eksempel på en skabelon (det anbefales at bruge engelske "
+"variabelnavne for at undgå problemer med æøå og andre specialtegn):"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"        <span class=\"infobox\">\n"
+"        Name: \\[[<TMPL_VAR raw_name>]]<br />\n"
+"        Age: <TMPL_VAR age><br />\n"
+"        <TMPL_IF NAME=\"color\">\n"
+"        Favorite color: <TMPL_VAR color><br />\n"
+"        <TMPL_ELSE>\n"
+"        No favorite color.<br />\n"
+"        </TMPL_IF>\n"
+"        <TMPL_IF NAME=\"notes\">\n"
+"        <hr />\n"
+"        <TMPL_VAR notes>\n"
+"        </TMPL_IF>\n"
+"        </span>\n"
+msgstr ""
+"        <span class=\"infobox\">\n"
+"        Navn: \\[[<TMPL_VAR raw_name>]]<br />\n"
+"        Alder: <TMPL_VAR age><br />\n"
+"        <TMPL_IF NAME=\"color\">\n"
+"        Favoritfarve: <TMPL_VAR color><br />\n"
+"        <TMPL_ELSE>\n"
+"        Ingen favoritfarve.<br />\n"
+"        </TMPL_IF>\n"
+"        <TMPL_IF NAME=\"notes\">\n"
+"        <hr />\n"
+"        <TMPL_VAR notes>\n"
+"        </TMPL_IF>\n"
+"        </span>\n"
+
+#. type: Plain text
+msgid ""
+"The filled out template will be formatted the same as the rest of the page "
+"that contains it, so you can include WikiLinks and all other forms of wiki "
+"markup in the template. Note though that such WikiLinks will not show up as "
+"backlinks to the page that uses the template."
+msgstr ""
+"Den udfyldte skabelon vil blive formateret som resten af siden den er "
+"inkluderet i, så du kan medtage WikiLinks og alle andre former for wiki- "
+"opmærkning i skabelonen. Bemærk dog at sådanne WikiLinks ikke vil dukke op "
+"som krydshenvisninger (backlinks) til den side som anvender skabelonen."
+
+#. type: Plain text
+msgid ""
+"Note the use of \"raw_name\" inside the [[ikiwiki/WikiLink]] generator. This "
+"ensures that if the name contains something that might be mistaken for wiki "
+"markup, it's not converted to html before being processed as a [[ikiwiki/"
+"WikiLink]]."
+msgstr ""
+"Bemærk brugen af \"raw_name\" indeni [[ikiwiki/WikiLink]]-generatoren. Dette "
+"sikrer at hvor navnet indeholder noget som måske kan fejltolkes som wiki-"
+"opmærkning, bliver det ikke konverteret til html før det er blevet behandlet "
+"som en [[ikiwiki/WikiLink]]."
