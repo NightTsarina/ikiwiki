@@ -58,9 +58,11 @@ underlaypo: ikiwiki.out
 	install -d po/underlays/directives/ikiwiki/directive
 	for file in doc/ikiwiki/directive/*; do \
 		if [ -f "$$file" ]; then \
+			cp -a $$file po/underlays/directives/ikiwiki/directive ||  \
 			install -m 644 $$file po/underlays/directives/ikiwiki/directive; \
 		fi \
 	done
+	install -d po/underlays/empty
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup underlaypo.setup -refresh
 	find po/underlays -name \*.mdwn | xargs rm -f
 

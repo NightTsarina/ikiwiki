@@ -260,6 +260,28 @@ order, as `po_slave_languages` is a hash. It would need to be converted
 to an array to support this. (If twere done, twere best done quickly.)
 --[[Joey]] 
 
+po files in underlay
+--------------------
+
+I think this plugin doesn't yet allow po files to be present in an
+underlay to translate files also from the underlay.
+
+In `istranslatablefile`, it specifically checks that
+the file is present in srcdir. 
+
+Problem with this is that it precludes using po to translate
+the basewiki (work which is well under way for Danish BTW),
+since the translated po files cannot really be used. --[[Joey]]
+
+Duplicate %links ?
+------------------
+
+I notice code in the scan hook that seems to assume
+that %links will accumulate duplicate links for a page.
+That used to be so, but the bug was fixed. Does this mean
+that po might be replacing the only link on a page, in error? 
+--[[Joey]] 
+
 Documentation
 -------------
 
