@@ -62,13 +62,13 @@ underlaypo: ikiwiki.out
 		fi \
 	done
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup underlaypo.setup -refresh
-	rm -rf po/html po/underlays/.ikiwiki
-	find po/underlays -name \*.mdwn | xargs rm -f
 
 extra_clean:
 	rm -rf html doc/.ikiwiki
 	rm -f *.man ikiwiki.out ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
+	rm -rf po/html po/underlays/.ikiwiki
+	find po/underlays -name \*.mdwn | xargs rm -f
 
 extra_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki
