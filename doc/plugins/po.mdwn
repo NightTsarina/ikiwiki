@@ -260,22 +260,18 @@ order, as `po_slave_languages` is a hash. It would need to be converted
 to an array to support this. (If twere done, twere best done quickly.)
 --[[Joey]] 
 
-Re-render bug
--------------
+po files in underlay
+--------------------
 
-If .ikiwiki is deleted and a wiki is rebuilt from scratch, and
-po has created po files before, something wrong happens:
+I think this plugin doesn't yet allow po files to be present in an
+underlay to translate files also from the underlay.
 
-> joey@gnu:~/src/ikiwiki/po/html>ls -l index*
-> -rw-r--r-- 1 joey joey 1159 Jul 19 22:51 index.html
-> 
-> index.de:
-> total 4
-> -rw-r--r-- 1 joey joey 1829 Jul 19 22:51 index.html
+In `istranslatablefile`, it specifically checks that
+the file is present in srcdir. 
 
-index.de/index.html contains the raw po file shoved into
-page.tmpl. I have only gotten as far as guessing it is a bug in
-`_istranslation` --[[Joey]]
+Problem with this is that it precludes using po to translate
+the basewiki (work which is well under way for Danish BTW),
+since the translated po files cannot really be used. --[[Joey]]
 
 Duplicate %links ?
 ------------------
