@@ -807,7 +807,7 @@ sub refreshpofiles ($@) {
 	foreach my $pofile (@pofiles) {
 		IkiWiki::prep_writefile(basename($pofile),dirname($pofile));
 		if (-e $pofile) {
-			system("msgmerge", "-U", "--backup=none", $pofile, $potfile) == 0
+			system("msgmerge", "-q", "-U", "--backup=none", $pofile, $potfile) == 0
 				or error("po(refreshpofiles) ".
 					 sprintf(gettext("failed to update %s"),
 						 $pofile));
