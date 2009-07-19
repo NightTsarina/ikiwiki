@@ -30,3 +30,15 @@ essentially three pieces needed for a complete translation:
 1. The [[basewiki]] itself needs to be translated. The
    [[plugins/contrib/po]] ikiwiki plugin will allow translating
    wikis using po files and can be used for this.
+
+   To generate the po and pot files for translating the basewiki,
+   get ikiwiki's source, and edit the `basewikipo.setup` file,
+   adding your language. Then run 'perl Makefile.PL; make basewikipo`.
+   This will generate many po files under `po/underlays`. The first
+   ones you'll want to translate are in the `po/underlays/basewiki` directory,
+   which is really not very large, just a few thousand words.
+   After that is done, you can tackle those under
+   `po/underlays/directives`, which are a much larger tens of
+  thousands of words.
+
+   
