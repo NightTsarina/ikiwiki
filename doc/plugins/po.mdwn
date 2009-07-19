@@ -250,6 +250,15 @@ once [[intrigeri]]'s `meta` branch is merged.
 An integration branch, called `meta-po`, merges [[intrigeri]]'s `po`
 and `meta` branches, and thus has thise additional features.
 
+Misc Bugs
+---------
+
+If `po_translatable_pages` matches a file that is not a wiki
+page, a po file will still be generated for it. There
+is a missing check in there to make sure that the file is a
+page. (Do it by calling `pagetype` and see if it returns a defined
+value.) --[[Joey]] 
+
 Documentation
 -------------
 
