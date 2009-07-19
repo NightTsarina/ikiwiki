@@ -10,7 +10,7 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use Encode;
-use Locale::Po4a::Common qw(nowrapi18n);
+use Locale::Po4a::Common qw(nowrapi18n !/.*/);
 use Locale::Po4a::Chooser;
 use Locale::Po4a::Po;
 use File::Basename;
@@ -807,7 +807,7 @@ sub refreshpofiles ($@) {
 	foreach my $pofile (@pofiles) {
 		IkiWiki::prep_writefile(basename($pofile),dirname($pofile));
 		if (-e $pofile) {
-			system("msgmerge", "-U", "--backup=none", $pofile, $potfile) == 0
+			system("msgmerge", "-q", "-U", "--backup=none", $pofile, $potfile) == 0
 				or error("po(refreshpofiles) ".
 					 sprintf(gettext("failed to update %s"),
 						 $pofile));
