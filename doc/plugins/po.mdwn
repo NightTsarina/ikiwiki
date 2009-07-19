@@ -260,6 +260,23 @@ order, as `po_slave_languages` is a hash. It would need to be converted
 to an array to support this. (If twere done, twere best done quickly.)
 --[[Joey]] 
 
+Re-render bug
+-------------
+
+If .ikiwiki is deleted and a wiki is rebuilt from scratch, and
+po has created po files before, something wrong happens:
+
+> joey@gnu:~/src/ikiwiki/po/html>ls -l index*
+> -rw-r--r-- 1 joey joey 1159 Jul 19 22:51 index.html
+> 
+> index.de:
+> total 4
+> -rw-r--r-- 1 joey joey 1829 Jul 19 22:51 index.html
+
+index.de/index.html contains the raw po file shoved into
+page.tmpl. I have only gotten as far as guessing it is a bug in
+`_istranslation` --[[Joey]]
+
 Documentation
 -------------
 
