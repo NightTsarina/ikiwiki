@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-07 16:32-0400\n"
+"POT-Creation-Date: 2009-07-19 16:45+0200\n"
 "PO-Revision-Date: 2009-06-14 12:32+0200\n"
 "Last-Translator: Victor Moral <victor@taquiones.net>\n"
 "Language-Team:  <en@li.org>\n"
@@ -60,7 +60,7 @@ msgstr "Las preferencias se han guardado."
 msgid "You are banned."
 msgstr "Ha sido expulsado."
 
-#: ../IkiWiki/CGI.pm:390 ../IkiWiki/CGI.pm:391 ../IkiWiki.pm:1218
+#: ../IkiWiki/CGI.pm:390 ../IkiWiki/CGI.pm:391 ../IkiWiki.pm:1253
 msgid "Error"
 msgstr "Error"
 
@@ -195,6 +195,7 @@ msgstr ""
 #: ../IkiWiki/Plugin/brokenlinks.pm:33 ../IkiWiki/Plugin/editpage.pm:233
 #: ../IkiWiki/Plugin/inline.pm:357 ../IkiWiki/Plugin/inline.pm:365
 #: ../IkiWiki/Plugin/opendiscussion.pm:26 ../IkiWiki/Plugin/orphans.pm:37
+#: ../IkiWiki/Plugin/po.pm:271 ../IkiWiki/Plugin/po.pm:274
 #: ../IkiWiki/Render.pm:80 ../IkiWiki/Render.pm:84 ../IkiWiki/Render.pm:150
 msgid "Discussion"
 msgstr "Comentarios"
@@ -351,12 +352,11 @@ msgstr "no puede actuar sobre un archivo con permisos %s"
 msgid "you are not allowed to change file modes"
 msgstr "No puede cambiar los permisos de acceso de un archivo"
 
-#: ../IkiWiki/Plugin/google.pm:27
-#, perl-format
-msgid "Must specify %s when using the google search plugin"
-msgstr ""
-"Es obligatorio indicar %s cuando se utiliza el complemento de búsqueda de "
-"google"
+#: ../IkiWiki/Plugin/google.pm:27 ../IkiWiki/Plugin/po.pm:124
+#: ../IkiWiki/Plugin/search.pm:36
+#, fuzzy, perl-format
+msgid "Must specify %s when using the %s plugin"
+msgstr "Es obligatorio indicar %s cuando se utiliza el complemento de búsqueda"
 
 #: ../IkiWiki/Plugin/google.pm:31
 msgid "Failed to parse url, cannot determine domain name"
@@ -403,8 +403,8 @@ msgstr "El complemento Image::Magick no ha sido instalado"
 
 #: ../IkiWiki/Plugin/img.pm:69
 #, perl-format
-msgid "bad size \"%s\""
-msgstr "tamaño erróneo \"%s\""
+msgid "wrong size format \"%s\" (should be WxH)"
+msgstr ""
 
 #: ../IkiWiki/Plugin/img.pm:80 ../IkiWiki/Plugin/img.pm:84
 #: ../IkiWiki/Plugin/img.pm:101
@@ -579,6 +579,104 @@ msgstr "Ignorando directiva 'ping' para el wiki %s (este wiki es %s)"
 msgid "LWP not found, not pinging"
 msgstr "No he encontrado el componente LWP, no envío señal alguna"
 
+#: ../IkiWiki/Plugin/po.pm:129
+msgid ""
+"At least one slave language must be defined in po_slave_languages when using "
+"the po plugin"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:134
+#, fuzzy, perl-format
+msgid "%s is not a valid language code"
+msgstr "%s no es un archivo"
+
+#: ../IkiWiki/Plugin/po.pm:145
+#, perl-format
+msgid ""
+"%s is not a valid value for po_link_to, falling back to po_link_to=default"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:150
+msgid ""
+"po_link_to=negotiated requires usedirs to be enabled, falling back to "
+"po_link_to=default"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:264
+#, fuzzy
+msgid "discussion"
+msgstr "Comentarios"
+
+#: ../IkiWiki/Plugin/po.pm:361
+#, perl-format
+msgid "re-rendering all pages to fix meta titles"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:365 ../IkiWiki/Render.pm:406
+#, perl-format
+msgid "rendering %s"
+msgstr "convirtiendo %s"
+
+#: ../IkiWiki/Plugin/po.pm:398
+msgid "updated PO files"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:422
+msgid ""
+"Can not remove a translation. Removing the master page, though, removes its "
+"translations as well."
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:442
+msgid ""
+"Can not rename a translation. Renaming the master page, though, renames its "
+"translations as well."
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:804
+#, fuzzy, perl-format
+msgid "POT file (%s) does not exist"
+msgstr "No existe la página %s."
+
+#: ../IkiWiki/Plugin/po.pm:812
+#, fuzzy, perl-format
+msgid "failed to update %s"
+msgstr "ha fallado la compilación del programa %s"
+
+#: ../IkiWiki/Plugin/po.pm:818
+#, fuzzy, perl-format
+msgid "failed to copy the POT file to %s"
+msgstr "ha fallado la compilación del programa %s"
+
+#: ../IkiWiki/Plugin/po.pm:854
+msgid "N/A"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:867
+#, fuzzy, perl-format
+msgid "failed to translate %s"
+msgstr "dimensionamiento fallido: %s"
+
+#: ../IkiWiki/Plugin/po.pm:943
+msgid "removed obsolete PO files"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:1006 ../IkiWiki/Plugin/po.pm:1020
+#: ../IkiWiki/Plugin/po.pm:1060
+#, fuzzy, perl-format
+msgid "failed to write %s"
+msgstr "dimensionamiento fallido: %s"
+
+#: ../IkiWiki/Plugin/po.pm:1018
+#, fuzzy
+msgid "failed to translate"
+msgstr "no he podido ejecutar el programa dot"
+
+#: ../IkiWiki/Plugin/po.pm:1023
+#, fuzzy, perl-format
+msgid "failed to read %s"
+msgstr "no puedo leer de %s: %s "
+
 #: ../IkiWiki/Plugin/poll.pm:69
 msgid "vote"
 msgstr "Votar"
@@ -695,16 +793,16 @@ msgstr "%s no está en el directorio fuente por lo que no puede ser borrada"
 msgid "%s is not a file"
 msgstr "%s no es un archivo"
 
-#: ../IkiWiki/Plugin/remove.pm:115
+#: ../IkiWiki/Plugin/remove.pm:134
 #, perl-format
 msgid "confirm removal of %s"
 msgstr "confirme el borrado de %s"
 
-#: ../IkiWiki/Plugin/remove.pm:152
+#: ../IkiWiki/Plugin/remove.pm:171
 msgid "Please select the attachments to remove."
 msgstr "Por favor seleccione los adjuntos que serán borrados."
 
-#: ../IkiWiki/Plugin/remove.pm:192
+#: ../IkiWiki/Plugin/remove.pm:211
 msgid "removed"
 msgstr "borrado"
 
@@ -732,37 +830,32 @@ msgstr "%s ya existe"
 msgid "%s already exists on disk"
 msgstr "%s ya existe en el disco"
 
-#: ../IkiWiki/Plugin/rename.pm:101
+#: ../IkiWiki/Plugin/rename.pm:122
 #, perl-format
 msgid "rename %s"
 msgstr "cambiando de nombre %s"
 
-#: ../IkiWiki/Plugin/rename.pm:140
+#: ../IkiWiki/Plugin/rename.pm:161
 msgid "Also rename SubPages and attachments"
 msgstr "También cambia de nombre las subpáginas y los adjuntos"
 
-#: ../IkiWiki/Plugin/rename.pm:226
+#: ../IkiWiki/Plugin/rename.pm:247
 msgid "Only one attachment can be renamed at a time."
 msgstr "Únicamente un adjunto puede ser renombrado a la vez."
 
-#: ../IkiWiki/Plugin/rename.pm:229
+#: ../IkiWiki/Plugin/rename.pm:250
 msgid "Please select the attachment to rename."
 msgstr "Por favor, seleccione el adjunto al que cambiar el nombre."
 
-#: ../IkiWiki/Plugin/rename.pm:340
+#: ../IkiWiki/Plugin/rename.pm:347
 #, perl-format
 msgid "rename %s to %s"
 msgstr "%s cambia de nombre a %s"
 
-#: ../IkiWiki/Plugin/rename.pm:495
+#: ../IkiWiki/Plugin/rename.pm:571
 #, perl-format
 msgid "update for rename of %s to %s"
 msgstr "actualizado el cambio de nombre de %s a %s"
-
-#: ../IkiWiki/Plugin/search.pm:36
-#, perl-format
-msgid "Must specify %s when using the search plugin"
-msgstr "Es obligatorio indicar %s cuando se utiliza el complemento de búsqueda"
 
 #: ../IkiWiki/Plugin/search.pm:182
 #, perl-format
@@ -954,11 +1047,6 @@ msgstr "eliminando la antigua página %s"
 msgid "scanning %s"
 msgstr "explorando %s"
 
-#: ../IkiWiki/Render.pm:406
-#, perl-format
-msgid "rendering %s"
-msgstr "convirtiendo %s"
-
 #: ../IkiWiki/Render.pm:427
 #, perl-format
 msgid "rendering %s, which links to %s"
@@ -1077,18 +1165,18 @@ msgstr "no puedo emplear varios complementos rcs"
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr "no he podido cargar el complemento externo %s necesario para %s"
 
-#: ../IkiWiki.pm:1201
+#: ../IkiWiki.pm:1236
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr ""
 "se ha detectado en la página %s un bucle de preprocesado en la iteración "
 "número %i"
 
-#: ../IkiWiki.pm:1741
+#: ../IkiWiki.pm:1776
 msgid "yes"
 msgstr "si"
 
-#: ../IkiWiki.pm:1873
+#: ../IkiWiki.pm:1908
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "no encuentro páginas coincidentes: %s"
@@ -1114,3 +1202,11 @@ msgstr ""
 #: ../auto.setup:23
 msgid "What is the domain name of the web server?"
 msgstr "¿ Cuál es el dominio para el servidor web ?"
+
+#~ msgid "Must specify %s when using the google search plugin"
+#~ msgstr ""
+#~ "Es obligatorio indicar %s cuando se utiliza el complemento de búsqueda de "
+#~ "google"
+
+#~ msgid "bad size \"%s\""
+#~ msgstr "tamaño erróneo \"%s\""

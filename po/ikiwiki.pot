@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-16 14:38-0400\n"
+"POT-Creation-Date: 2009-07-19 16:45+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -186,6 +186,7 @@ msgstr ""
 #: ../IkiWiki/Plugin/brokenlinks.pm:33 ../IkiWiki/Plugin/editpage.pm:233
 #: ../IkiWiki/Plugin/inline.pm:357 ../IkiWiki/Plugin/inline.pm:365
 #: ../IkiWiki/Plugin/opendiscussion.pm:26 ../IkiWiki/Plugin/orphans.pm:37
+#: ../IkiWiki/Plugin/po.pm:271 ../IkiWiki/Plugin/po.pm:274
 #: ../IkiWiki/Render.pm:80 ../IkiWiki/Render.pm:84 ../IkiWiki/Render.pm:150
 msgid "Discussion"
 msgstr ""
@@ -342,9 +343,10 @@ msgstr ""
 msgid "you are not allowed to change file modes"
 msgstr ""
 
-#: ../IkiWiki/Plugin/google.pm:27
+#: ../IkiWiki/Plugin/google.pm:27 ../IkiWiki/Plugin/po.pm:124
+#: ../IkiWiki/Plugin/search.pm:36
 #, perl-format
-msgid "Must specify %s when using the google search plugin"
+msgid "Must specify %s when using the %s plugin"
 msgstr ""
 
 #: ../IkiWiki/Plugin/google.pm:31
@@ -389,7 +391,7 @@ msgstr ""
 
 #: ../IkiWiki/Plugin/img.pm:69
 #, perl-format
-msgid "bad size \"%s\""
+msgid "wrong size format \"%s\" (should be WxH)"
 msgstr ""
 
 #: ../IkiWiki/Plugin/img.pm:80 ../IkiWiki/Plugin/img.pm:84
@@ -554,6 +556,102 @@ msgstr ""
 msgid "LWP not found, not pinging"
 msgstr ""
 
+#: ../IkiWiki/Plugin/po.pm:129
+msgid ""
+"At least one slave language must be defined in po_slave_languages when using "
+"the po plugin"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:134
+#, perl-format
+msgid "%s is not a valid language code"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:145
+#, perl-format
+msgid ""
+"%s is not a valid value for po_link_to, falling back to po_link_to=default"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:150
+msgid ""
+"po_link_to=negotiated requires usedirs to be enabled, falling back to "
+"po_link_to=default"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:264
+msgid "discussion"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:361
+#, perl-format
+msgid "re-rendering all pages to fix meta titles"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:365 ../IkiWiki/Render.pm:406
+#, perl-format
+msgid "rendering %s"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:398
+msgid "updated PO files"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:422
+msgid ""
+"Can not remove a translation. Removing the master page, though, removes its "
+"translations as well."
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:442
+msgid ""
+"Can not rename a translation. Renaming the master page, though, renames its "
+"translations as well."
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:804
+#, perl-format
+msgid "POT file (%s) does not exist"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:812
+#, perl-format
+msgid "failed to update %s"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:818
+#, perl-format
+msgid "failed to copy the POT file to %s"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:854
+msgid "N/A"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:867
+#, perl-format
+msgid "failed to translate %s"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:943
+msgid "removed obsolete PO files"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:1006 ../IkiWiki/Plugin/po.pm:1020
+#: ../IkiWiki/Plugin/po.pm:1060
+#, perl-format
+msgid "failed to write %s"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:1018
+msgid "failed to translate"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:1023
+#, perl-format
+msgid "failed to read %s"
+msgstr ""
+
 #: ../IkiWiki/Plugin/poll.pm:69
 msgid "vote"
 msgstr ""
@@ -670,16 +768,16 @@ msgstr ""
 msgid "%s is not a file"
 msgstr ""
 
-#: ../IkiWiki/Plugin/remove.pm:115
+#: ../IkiWiki/Plugin/remove.pm:134
 #, perl-format
 msgid "confirm removal of %s"
 msgstr ""
 
-#: ../IkiWiki/Plugin/remove.pm:152
+#: ../IkiWiki/Plugin/remove.pm:171
 msgid "Please select the attachments to remove."
 msgstr ""
 
-#: ../IkiWiki/Plugin/remove.pm:192
+#: ../IkiWiki/Plugin/remove.pm:211
 msgid "removed"
 msgstr ""
 
@@ -707,36 +805,31 @@ msgstr ""
 msgid "%s already exists on disk"
 msgstr ""
 
-#: ../IkiWiki/Plugin/rename.pm:101
+#: ../IkiWiki/Plugin/rename.pm:122
 #, perl-format
 msgid "rename %s"
 msgstr ""
 
-#: ../IkiWiki/Plugin/rename.pm:140
+#: ../IkiWiki/Plugin/rename.pm:161
 msgid "Also rename SubPages and attachments"
 msgstr ""
 
-#: ../IkiWiki/Plugin/rename.pm:226
+#: ../IkiWiki/Plugin/rename.pm:247
 msgid "Only one attachment can be renamed at a time."
 msgstr ""
 
-#: ../IkiWiki/Plugin/rename.pm:229
+#: ../IkiWiki/Plugin/rename.pm:250
 msgid "Please select the attachment to rename."
 msgstr ""
 
-#: ../IkiWiki/Plugin/rename.pm:340
+#: ../IkiWiki/Plugin/rename.pm:347
 #, perl-format
 msgid "rename %s to %s"
 msgstr ""
 
-#: ../IkiWiki/Plugin/rename.pm:495
+#: ../IkiWiki/Plugin/rename.pm:571
 #, perl-format
 msgid "update for rename of %s to %s"
-msgstr ""
-
-#: ../IkiWiki/Plugin/search.pm:36
-#, perl-format
-msgid "Must specify %s when using the search plugin"
 msgstr ""
 
 #: ../IkiWiki/Plugin/search.pm:182
@@ -919,11 +1012,6 @@ msgstr ""
 #: ../IkiWiki/Render.pm:401
 #, perl-format
 msgid "scanning %s"
-msgstr ""
-
-#: ../IkiWiki/Render.pm:406
-#, perl-format
-msgid "rendering %s"
 msgstr ""
 
 #: ../IkiWiki/Render.pm:427
