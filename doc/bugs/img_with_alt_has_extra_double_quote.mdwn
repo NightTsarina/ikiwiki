@@ -1,0 +1,32 @@
+The [[ikiwiki/directive/img]] directive emits an extra double quote if alt=x is
+specified (as is necessary for valid HTML). This results in malformed HTML,
+like this:
+
+    <img src="U" width="W" height="H"" alt="A" />
+                                     ^
+
+This [[patch]] is available from the img-bugfix branch in my git repository:
+
+    commit a648c439f3467571374daf597e9b3a659ea2008f
+    Author: Simon McVittie <smcv@ http://smcv.pseudorandom.co.uk/>
+    Date:   2009-06-16 17:15:06 +0100
+    
+        img plugin: do not emit a redundant double-quote before alt attribute
+    
+    diff --git a/IkiWiki/Plugin/img.pm b/IkiWiki/Plugin/img.pm
+    index a697fea..a186abd 100644
+    --- a/IkiWiki/Plugin/img.pm
+    +++ b/IkiWiki/Plugin/img.pm
+    @@ -121,7 +121,7 @@ sub preprocess (@) {
+            my $imgtag='<img src="'.$imgurl.
+                    '" width="'.$im->Get("width").
+                    '" height="'.$im->Get("height").'"'.
+    -               (exists $params{alt} ? '" alt="'.$params{alt}.'"' : '').
+    +               (exists $params{alt} ? ' alt="'.$params{alt}.'"' : '').
+                    (exists $params{title} ? ' title="'.$params{title}.'"' : '').
+                    (exists $params{class} ? ' class="'.$params{class}.'"' : '').
+                    (exists $params{id} ? ' id="'.$params{id}.'"' : '').
+
+--[[smcv]]
+
+[[done]] --[[Joey]] 

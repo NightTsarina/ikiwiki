@@ -1,0 +1,29 @@
+A feature I originally requested on
+[[a_related_bug|bugs/openid_no_longer_pretty-prints_OpenIDs]]:
+
+    Allow the openid plugin to be loaded but disabled, for its side-effect of defining IkiWiki::openiduser
+    
+    On various sites I have two IkiWiki instances running from the same
+    repository: one accessible via http and only accepting openid logins,
+    and one accessible via authenticated https and only accepting httpauth.
+    Ideally, the https version should still pretty-print OpenIDs seen in
+    git history.
+
+--[[smcv]]
+
+> I wonder if an option is the best approach. Maybe it would be better to
+> simply move `openiduser` into `userlink`, and thus always support openid
+> usernames whether the plugin is enabled or not. --[[Joey]]
+
+>> OK, implemented that as 'smcv/always-openid'; if you don't think that's
+>> bloating the IkiWiki core too much, please consider merging. The poll on
+>> [[news/openid]] indicates fairly strong support for *only* accepting OpenID
+>> logins, so I think recognising OpenIDs can reasonably be considered core
+>> functionality! --[[smcv]]
+
+>>> That seemed easier than expected, [[done]].
+>>> (I do wonder if the call to openiduser still needs to be evaled --
+>>> it was probably only evaled before in case it was not available, but
+>>> I have not carefully checked it to make sure it doesn't ever die. --[[Joey]] 
+
+[[!tag patch]]

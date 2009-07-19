@@ -33,7 +33,7 @@ sub default_timetable {
 		gettext("%A evening"),				# 6
 		"",						# 7
 		gettext("late %A evening"),			# 8
-		"",			# 9			# 9
+		"",						# 9
 		gettext("%A night"),				# 10
 		"",						# 11
 	];

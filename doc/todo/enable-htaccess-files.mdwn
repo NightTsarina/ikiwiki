@@ -12,7 +12,7 @@
                     qr/(^|\/).svn\//, qr/.arch-ids\//, qr/{arch}\//],
            wiki_link_regexp => qr/\[\[(?:([^\]\|]+)\|)?([^\s\]#]+)(?:#([^\s\]]+))?\]\]/,
 
-[[!tag patch]]
+[[!tag patch patch/core]]
 
 This lets the site administrator have a `.htaccess` file in their underlay
 directory, say, then get it copied over when the wiki is built. Without
@@ -39,6 +39,13 @@ access and such .htaccess files should not be accessible through wiki cgi. Of co
 
 > See [[!debbug 447267]] for a patch for this.
 
+>> It looks to me as though this functionality won't be included in ikiwiki
+>> unless someone who wants it takes responsibility for updating the patch
+>> from that Debian bug to be applicable to current versions, so that there's a
+>> setup file parameter for extra filenames to allow, defaulting to none
+>> (i.e. a less simplistic patch than the one at the top of this page).
+>> Joey, is this an accurate summary? --[[smcv]]
+
 ---
 
 bump! I would like to see some form of this functionality included in ikiwiki. I use a patched version, but
@@ -47,4 +54,8 @@ but I use ikiwiki with a very small group of people collaborating so svn/web acc
 and htaccess is for limiting access to some areas of wiki.   
 It should be off by default of course. --Max
 
-[[!tag patch]]
+---
++1 I want `.htaccess` so I can rewrite some old Wordpress URLs to make feeds work again. --[[hendry]]
+
+---
++1 for various purposes (but sometimes the filename isn't `.htaccess`, so please make it configurable) --[[schmonz]]

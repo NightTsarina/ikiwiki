@@ -1,0 +1,60 @@
+[[!tag type/chrome patch]]
+
+Available from [[smcv]]'s git repository, in the `trail` branch. This
+plugin aims to solve [[todo/wikitrails]] in a simpler way.
+
+Joey: what do you think of this plugin? If you like the general approach
+and are likely to include it in ikiwiki, I'll try to modify
+[[plugins/contrib/album]] to be based on it, rather than partially
+reinventing it.
+
+This plugin can benefit from
+[[another_of_my_branches|todo/inline_plugin:_specifying_ordered_page_names]]
+but does not require it.
+
+----
+
+[[!template id=plugin name=trail author="[[Simon_McVittie|smcv]]"]]
+
+It's sometimes useful to have "trails" of pages in a wiki, as a guided
+tour, sequence of chapters etc. In this plugin, a trail is represented
+by a page, and the pages in the trail are indicated by specially marked
+links within that page.
+
+If using the default `page.tmpl`, each page automatically displays the
+trails that it's a member of (if any), with links to the trail and to
+the next and previous members.
+
+The `traillink` [[ikiwiki/directive]] is used to record which pages
+are in a trail, and simultaneously link to them. Alternatively, the
+[[ikiwiki/directive/inline]] directive can be used with `trail=yes`
+to record the inlined pages as part of the trail, in the order in
+which they are inlined.
+
+## Directives
+
+(These will go to the appropriate pages in [[ikiwiki/directive]] if this
+plugin is included in ikiwiki.)
+
+### traillink
+
+The `traillink` directive is supplied by the [[!iki plugins/contrib/trail desc=trail]]
+plugin. This directive appears on the page representing a trail. It acts
+as a visible [[ikiwiki/WikiLink]], but also records the linked page as
+a member of the trail.
+
+Various syntaxes can be used:
+
+    \[[!traillink Badgers]]
+    \[[!traillink How_to_find_mushrooms_using_badgers|badgers]]
+    \[[!traillink badgers text="How to find mushrooms using badgers"]]
+
+### trailoptions
+
+The `trailoptions` directive is supplied by the [[!iki plugins/contrib/trail desc=trail]]
+plugin. This directive appears on the page representing a trail, and
+produces no output.
+
+Currently, the only option supported is `[[!trailoptions circular=yes]]`,
+which adds links between the first and last pages, turning the trail into
+a circle.

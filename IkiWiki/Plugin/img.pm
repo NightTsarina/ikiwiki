@@ -121,8 +121,9 @@ sub preprocess (@) {
 	my $imgtag='<img src="'.$imgurl.
 		'" width="'.$im->Get("width").
 		'" height="'.$im->Get("height").'"'.
-		(exists $params{alt} ? '" alt="'.$params{alt}.'"' : '').
+		(exists $params{alt} ? ' alt="'.$params{alt}.'"' : '').
 		(exists $params{title} ? ' title="'.$params{title}.'"' : '').
+		(exists $params{align} ? ' align="'.$params{align}.'"' : '').
 		(exists $params{class} ? ' class="'.$params{class}.'"' : '').
 		(exists $params{id} ? ' id="'.$params{id}.'"' : '').
 		' />';

@@ -1,3 +1,5 @@
+[[!tag patch plugins/inline patch/core]]
+
 The `IkiWiki::pagetitle` function does not respect title changes via `meta.title`. It really should, so that links rendered with `htmllink` get the proper title in the link text.
 
 --[[madduck]]
@@ -5,7 +7,7 @@ The `IkiWiki::pagetitle` function does not respect title changes via `meta.title
 ----
 
 It is possible to set a Page-Title in the meta-plugin, but that one isn't
-reused in parentlinks. This [[patch]] may fix it.
+reused in parentlinks. This patch may fix it.
 
 <ul>
 <li> I give pagetitle the full path to a page.
@@ -132,7 +134,7 @@ diff -c /usr/share/perl5/IkiWiki/Plugin/meta.pm.distrib /usr/share/perl5/IkiWiki
 >
 >> It was actually more complicated than expected. A working prototype is
 >> now in my `meta` branch, see my userpage for the up-to-date url.
->> Thus tagging [[patch]]. --[[intrigeri]]
+>> Thus tagging patch. --[[intrigeri]]
 >>
 >>> Joey, please consider merging my `meta` branch. --[[intrigeri]]
 

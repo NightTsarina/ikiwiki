@@ -1,0 +1,17 @@
+The git commit (in my `openid` branch) says it all:
+
+    Update IkiWiki::openiduser to work with Net::OpenID 2.x
+    
+    openiduser previously used a constructor that no longer works in 2.x.
+    However, all we actually want is the (undocumented) DisplayOfURL function
+    that is invoked by the display method, so try to use that.
+
+This bug affects ikiwiki.info (my commits show up in [[RecentChanges]] as http://smcv.pseudorandom.co.uk/ rather than smcv [pseudorandom.co.uk]).
+
+> Cherry picked, thanks. --[[Joey]]
+
+Relatedly, the other commit on the same branch would be nice to have
+(edited to add: I've now moved it, and its discussion, to
+[[todo/pretty-print_OpenIDs_even_if_not_enabled]]). --[[smcv]]
+
+[[!tag done]]

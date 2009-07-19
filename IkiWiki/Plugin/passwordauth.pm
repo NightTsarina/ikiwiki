@@ -8,9 +8,10 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "getsetup", id => "passwordauth", "call" => \&getsetup);
-        hook(type => "formbuilder_setup", id => "passwordauth", call => \&formbuilder_setup);
-        hook(type => "formbuilder", id => "passwordauth", call => \&formbuilder);
+	hook(type => "formbuilder_setup", id => "passwordauth", call => \&formbuilder_setup);
+	hook(type => "formbuilder", id => "passwordauth", call => \&formbuilder);
 	hook(type => "sessioncgi", id => "passwordauth", call => \&sessioncgi);
+	hook(type => "auth", id => "passwordauth", call => \&auth);
 }
 
 sub getsetup () {
@@ -335,6 +336,12 @@ sub sessioncgi ($$) {
 		IkiWiki::cgi_prefs($q, $session);
 		exit;
 	}
+}
+
+sub auth ($$) {
+	# While this hook is not currently used, it needs to exist
+	# so ikiwiki knows that the wiki supports logins, and will
+	# enable the Preferences page.
 }
 
 1

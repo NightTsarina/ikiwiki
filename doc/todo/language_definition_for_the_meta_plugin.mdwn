@@ -81,4 +81,16 @@ This may be useful for sites with a few pages in different languages, but no ful
 > Please resolve lang somewhere reusable rather than within meta plugin: It is certainly usable outside
 > the scope of the meta plugin as well. --[[JonasSmedegaard]]
 
+>> I don't see any problem with having this in meta? meta is on by default, and
+>> other plugins are free to use it or even depend on it (e.g. inline does).
+>>
+>> My only comments on this patch beyond what Joey said are that the page
+>> language could usefully go into `$pagestate{$page}{meta}{lang}` for other
+>> plugins to be able to see it (is that what you meant?), and that
+>> restricting to 2 characters is too restrictive (HTML 4.01 mentions
+>> `en`, `en-US` and `i-navajo` as possible language codes).
+>> This slightly complicates parsing the locale to get the default language:
+>> it'll need `tr/_/-/` after the optional `.encoding` is removed.
+>> --[[smcv]]
+
 [[!tag wishlist patch plugins/meta translation]]

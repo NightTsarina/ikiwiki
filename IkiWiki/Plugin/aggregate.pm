@@ -404,6 +404,7 @@ sub mergestate () {
 	}
 
 	# New guids can be created during aggregation.
+	# Guids have a few fields that may be updated during aggregation.
 	# It's also possible that guids were removed from the on-disk state
 	# while the aggregation was in process. That would only happen if
 	# their feed was also removed, so any removed guids added back here
@@ -411,6 +412,11 @@ sub mergestate () {
 	foreach my $guid (keys %myguids) {
 		if (! exists $guids{$guid}) {
 			$guids{$guid}=$myguids{$guid};
+		}
+		else {
+			foreach my $field (qw{md5}) {
+				$guids{$guid}->{$field}=$myguids{$guid}->{$field};
+			}
 		}
 	}
 }
@@ -644,11 +650,13 @@ sub add_page (@) {
 		# creation time on record for the new page.
 		utime $mtime, $mtime, "$config{srcdir}/".htmlfn($guid->{page});
 		# Store it in pagectime for expiry code to use also.
-		$IkiWiki::pagectime{$guid->{page}}=$mtime;
+		$IkiWiki::pagectime{$guid->{page}}=$mtime
+			unless exists $IkiWiki::pagectime{$guid->{page}};
 	}
 	else {
 		# Dummy value for expiry code.
-		$IkiWiki::pagectime{$guid->{page}}=time;
+		$IkiWiki::pagectime{$guid->{page}}=time
+			unless exists $IkiWiki::pagectime{$guid->{page}};
 	}
 }
 

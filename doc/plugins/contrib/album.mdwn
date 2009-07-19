@@ -1,0 +1,100 @@
+[[!template id=plugin name=album author="[[Simon_McVittie|smcv]]"]]
+[[!tag type/chrome]]
+
+Available from [[smcv]]'s git repository, in the `album` branch
+([[users/smcv/gallery|users/smcv/gallery]] contains some older
+thoughts about this plugin).
+
+This plugin formats a collection of images into a photo album,
+in the same way as many websites: good examples include the
+PHP application [Gallery](http://gallery.menalto.com/), Flickr,
+and Facebook's Photos "application". I've called it `album`
+to distinguish it from [[contrib/gallery|plugins/contrib/gallery]],
+although `gallery` might well be a better name for this functionality.
+
+The web UI I'm trying to achieve consists of one
+[HTML page of thumbnails](http://www.pseudorandom.co.uk/2008/2008-03-08-panic-cell-gig/)
+as an entry point to the album, where each thumbnail links to
+[a "viewer" HTML page](http://www.pseudorandom.co.uk/2008/2008-03-08-panic-cell-gig/img_0068/)
+with a full size image, next/previous thumbnail links, and
+[[plugins/comments]].
+
+(The Summer of Code [[plugins/contrib/gallery]] plugin does the
+next/previous UI in Javascript using Lightbox, which means that
+individual photos can't be bookmarked in a meaningful way, and
+the best it can do as a fallback for non-Javascript browsers
+is to provide a direct link to the image.)
+
+## Writing the viewers
+
+    \[[!albumimage image=foo.jpg album=myalbum
+        title=...
+        caption=...
+        copyright=...
+        size=...
+        viewertemplate=...
+    ]]
+
+Each viewer contains one `\[[!albumimage]]` directive. This
+sets the `image` filename, the `album` in which this image appears,
+and an optional `caption`, and can override the `size` at which to
+display the image and the `viewertemplate` to use to display the
+image.
+
+It can also have `title`, `copyright` and `date` parameters, which
+are short-cuts for [[ikiwiki/directive/meta]] directives.
+
+The viewer can also have any other content, but typically the
+directive will be the only thing there.
+
+Eventually, there will be a specialized CGI user interface to
+edit all the photos of an album at once, upload a new photo
+(which will attach the photo but also write out a viewer page
+for it), or mark an already-uploaded photo as a member of an
+album (which is done by writing out a viewer page for it).
+
+The `\[[!albumimage]]` directive is replaced by an
+[[ikiwiki/directive/img]], wrapped in some formatting using a
+template (by default `albumviewer.tmpl`). The template can (and
+should) also include "next photo", "previous photo" and
+"up to gallery" links.
+
+The next/previous links are themselves implemented by
+[[inlining|ikiwiki/directive/inline]] the next or previous
+photo, using a special template (by default `albumnext.tmpl`
+or `albumprev.tmpl`), in `archive`/`quick` mode.
+
+## Writing the album
+
+The album contains one `\[[!album]]` directive. It may also
+contain any number of `\[[!albumsection]]` directives, for
+example the demo album linked above could look like:
+
+    \[[!album]]
+    <!-- replaced with one uncategorized photo -->
+
+    ## Gamarra
+
+    \[[!albumsection filter="link(gamarra)"]]
+    <!-- all the Gamarra photos -->
+
+    ## Smokescreen
+
+    \[[!albumsection filter="link(smokescreen)"]]
+    <!-- all the Smokescreen photos -->
+
+    ...
+
+The `\[[!album]]` directive is replaced by an
+[[ikiwiki/directive/inline]] which automatically includes every
+page that has an `\[[!albumimage]]` directive linking it to this
+album, except those that will appear in an `\[[!albumsection]]`.
+
+The `inline` is in `archive`/`quick` mode, but includes some
+extra information about the images, including file size and a
+thumbnail (again, made using [[ikiwiki/directive/img]]). The
+default template is `albumitem.tmpl`, which takes advantage
+of these things.
+
+Each `\[[!albumsection]]` is replaced by a similar inline, which
+selects a subset of the photos in the album.

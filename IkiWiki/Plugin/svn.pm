@@ -243,10 +243,10 @@ sub rcs_rename ($$) {
 	
 	if (-d "$config{srcdir}/.svn") {
 		# Add parent directory for $dest
-		my $parent=dirname($dest);
+		my $parent=IkiWiki::dirname($dest);
 		if (! -d "$config{srcdir}/$parent/.svn") {
 			while (! -d "$config{srcdir}/$parent/.svn") {
-				$parent=dirname($dest);
+				$parent=IkiWiki::dirname($dest);
 			}
 			if (system("svn", "add", "--quiet", "$config{srcdir}/$parent") != 0) {
 				warn("svn add $parent failed\n");

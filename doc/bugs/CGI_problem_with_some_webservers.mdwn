@@ -67,3 +67,42 @@ Why do they appear two times with conflicting values in the very same hashes?
 >>>> (reported as [[!debbug 437927]] and [[!debbug 437932]]) --[[JeremieKoenig]]
 
 Marking [[done]] since it's not really an ikiwiki bug. --[[Joey]]
+
+----
+
+I'm using boa and getting some odd behaviour if I don't set the `umask`
+option in the config file.  Editing a page through the web interface and
+hitting "Save Page" regenerates the `index.html` file with no world-read
+permissions.  As a result, the server serves a "403 - Forbidden" error page
+instead of the page I was expecting to return to.
+
+There are only two ways I found to work around this: adding a `umask 022`
+option to the config file, or re-compiling the wiki from the command line
+using `ikiwiki --setup`.  Setting up a git back-end and re-running `ikiwiki
+--setup` from inside a hook had no effect; it needed to be at the terminal.
+--Paul
+
+> Since others seem to have gotten ikiwiki working with boa, 
+> I'm guessing that this is not a generic problem with boa, but that
+> your boa was started from a shell that had an unusual umask and inherited
+> that. --[[Joey]] 
+
+>> That's right; once I'd worked out what was wrong, it was clear that any
+>> webserver should have been refusing to serve the page.  I agree about the
+>> inherited umask; I hadn't expected that.  Even if it's unusual, though, it
+>> probably won't be uncommon - this was a stock Ubuntu 9.04 install.  --Paul
+
+(I'm new to wiki etiquette - would it be more polite to leave these details
+on the wiki, or to remove them and only leave a short summary?  Thanks.
+--Paul)
+
+> Well, I just try to keep things understandable and clear, whether than
+> means deleting bad old data or not. That said, this page is a bug report,
+> that was already closed. It's generally better to open a new bug report
+> rather than edit an old closed one. --[[Joey]] 
+                                      
+>> Thanks for the feedback, I've tidied up my comment accordingly.  I see
+>> your point about the bug; sorry for cluttering the page up.  I doubt it's
+>> worth opening a new page at this stage, but will do so if there's a next
+>> time.  The solution seems worth leaving, though, in case anyone else in my
+>> situation picks it up.  --Paul

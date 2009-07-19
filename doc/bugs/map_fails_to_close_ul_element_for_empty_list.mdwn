@@ -1,0 +1,49 @@
+[[!tag plugins/map patch]]
+
+input:
+
+    before.
+    \[[!map pages="sdfsdfsdfsd/*"]]
+    after.
+
+Presuming that the pagespec does not match, output:
+
+    <p>before.
+    <div class="map">
+    <ul>
+    </div></p>
+
+The UL element is not closed.
+
+Patch:
+
+    --- /usr/share/perl5/IkiWiki/Plugin/map.pm  2009-05-06 00:56:55.000000000 +0100
+    +++ IkiWiki/Plugin/map.pm   2009-06-15 12:23:54.000000000 +0100
+    @@ -137,11 +137,11 @@
+            $openli=1;
+            $parent=$item;
+        }
+    -   while ($indent > 0) {
+    +   while ($indent > 1) {
+            $indent--;
+            $map .= "</li>\n</ul>\n";
+        }
+    -   $map .= "</div>\n";
+    +   $map .= "</ul>\n</div>\n";
+        return $map;
+     }
+     
+
+-- [[Jon]]
+
+> Strictly speaking, a `<ul>` with no `<li>`s isn't valid HTML either...
+> could `map` instead delay emitting the first `<ul>` until it determines that
+> it will have at least one item? Perhaps refactoring that function into
+> something easier to regression-test would be useful. --[[smcv]]
+
+>> You are right (just checked 4.01 DTD to confirm). I suspect refactoring
+>> the function would be wise. From my brief look at it to formulate the
+>> above I thought it was a bit icky.  I'm not a good judge of what would
+>> be regression-test friendly but I might have a go at reworking it. With
+>> this variety of problem I have a strong inclination to use HOFs like map,
+>> grep. - [[Jon]]

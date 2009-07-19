@@ -68,11 +68,16 @@ Supported fields:
 * openid
 
   Adds html &lt;link&gt; tags to perform OpenID delegation to an external
-  OpenID server (for `openid` and `openid2`). An optional `xrds-location`
+  OpenID server. This lets you use an ikiwiki page as your OpenID.
+
+  By default this will delegate for both `openid` and `openid2`. To only
+  delegate for one, add a parameter such as `delegate=openid`.
+
+  An optional `xrds-location`
   parameter lets you specify the location of any [eXtensible Resource
   DescriptorS](http://www.windley.com/archives/2007/05/using_xrds.shtml).
 
-  This lets you use an ikiwiki page as your OpenID. Example:
+  Example:
 
 	\\[[!meta openid="http://joeyh.myopenid.com/"
 	server="http://www.myopenid.com/server"

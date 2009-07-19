@@ -11,7 +11,7 @@ take it as far as implementing "replies" to other comments.
 
 -- Marcelo
 
-> See [[todo/discussion_page_as_blog]] for some of my own thoughts on this
+> See [[plugins/comments]]
 > --[[Joey]]
 
 ---
@@ -30,3 +30,97 @@ Is there a simple way to exclude images, stylesheets, and other
 
 > The [[plugins/filecheck]] plugin adds a 'ispage()' pagespec test that can do that.
 > --[[Joey]]
+
+---
+
+## Documentation for parameter `template`?
+
+I would be especially interested in a list of variables which can be used in such a template.
+
+> I try to keep ikiwiki's templates self-documenting, so if you take
+> a look at a template used by inline, such as the default `/usr/share/ikiwiki/template/inlinepage.tmpl`,
+> you can see all or nearly all the template variables in use in it.
+
+I have a page template with some structured information as parameters. For
+example `location="nowhere"` and `price="20"`. Is there a possibility to
+extract those information, i. e. access the parameters, to compose the item
+for the inline directive from these information? For example the line »Go
+to nowhere for 20 bugs.« is shown inlined.
+
+--[[PaulePanter]]
+
+> Let's not confuse the template directive with the templates used by inline.
+> When a page is inlined, any template directives in it are first expanded,
+> using the user-defined templates for that. Then, the inline directive's
+> template is used to insert it into the inlining page.
+> 
+> So no, you can't reference template directive parameters inside inline's
+> template, because it's already expanded at that point. --[[Joey]] 
+
+>> Thank you for the explanation. Can you think of another way to accomplish
+>> my goals?
+>>
+>> Right now, I only see the option to edit the title with the
+>> `[[/ikiwiki/directive/meta]]` directive and the field `title`.
+>>
+>> How could a solution look like?
+>>
+>> 1. The possibility to add custom fields to the `meta` directive.
+>> 1. The possibility to specify in a page, how the page should be displayed
+>>    when used by inlined. That could be done by a new directive `cinlined`
+>>    (for »custom inlined«) which is chosen by the `inline` directive to
+>>    display if told to do so.
+>>
+>>    [[!cinlined text="""Text which can also use Parameter, bla blubb …"""]]
+>> --[[PaulePanter]]
+>>> You can make the body of a page change depending on whether it's being
+>>> inlined, with the [[ikiwiki/directive/if]] directive from the
+>>> [[plugins/conditional]] plugin:
+>>>
+>>>     \[[!if test="inlined()"
+>>>       then="""[[!template id=productsummary
+>>>         location="Warehouse 23" price=20
+>>>         ]]"""
+>>>       else="""[[!template id=productdetail
+>>>         location="Warehouse 23" price=20
+>>>         description="Every home should have one"
+>>>         ]]"""
+>>>     ]]
+>>>
+>>> Perhaps that does some of what you want?
+>>>
+>>> If you want to go beyond that, my inclination would be to write
+>>> a simple plugin to deal with whatever it is you want to do (bug
+>>> metadata or product metadata or whatever) rather than prematurely
+>>> generalizing. --[[smcv]]
+
+## meta parameters are not enough
+
+I think I have the same problem as Paule, as I want extra arbitary parameters in my template.
+
+This is what I am doing currently, which makes my skin crawl. In `wgts/foo.mdwn`
+I have resorted to using AUTHORURL as the location of this widgets icon:
+
+	[[!meta authorurl="/ico/aHR0cDovL2JvbmRpLm9tdHAub3JnL3dpZGdldHMvYmF0dGVyeQ==.png" ]]
+
+In templates I have a file called `wgtlist.tmpl`:
+
+	<div class="widget">
+	<TMPL_IF NAME="AUTHORURL">
+	<img src="<TMPL_VAR AUTHORURL>" />
+	</TMPL_IF>
+	<TMPL_IF NAME="PERMALINK">
+	<a href="<TMPL_VAR PERMALINK>"><TMPL_VAR TITLE></a><br />
+	<TMPL_ELSE>
+	<a href="<TMPL_VAR PAGEURL>"><TMPL_VAR TITLE></a><br />
+	</TMPL_IF>
+	Posted <TMPL_VAR CTIME>
+	</div>
+
+My index page has:
+
+	[[!inline pages="./wgts/*" show=5 feeds=no actions=no rootpage="wgts" archive="yes" template=wgtlist]]
+
+Else can you please suggest a smarter way of getting certain data out from pages for a inline index?
+
+--[[hendry]]

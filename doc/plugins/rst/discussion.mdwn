@@ -30,3 +30,14 @@ An exhaustive list of differences between prest and "standard" reST follows:
 * references directive doesn't allow options
 
 There may be a few others; my eyes glazed over. --Ethan
+
+rst support for ikiwiki seems to be on hold. rst is much more elegant
+than markdown in my opinion, so I tried it out in ikiwiki. I found out
+in other places that some directives work just fine, like [[meta]] and
+[[tag]], others work fine if you wrap them in `.. raw::`, like [[inline]].
+
+But to make a wiki we need [[WikiLinks]]; they can't be escape-inserted or
+such since they are inline elements in the text.. But images work fine in
+rst's syntax.. what about using rst syntax for wikilinks as well?
+Is it possible to inject something into the parser to turn unmached links
+``WikiLink`_` into ikiwiki links? --ulrik
