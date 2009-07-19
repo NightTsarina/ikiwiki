@@ -656,7 +656,8 @@ sub istranslatablefile ($) {
 	my $file=shift;
 
 	return 0 unless defined $file;
-	return 0 if defined pagetype($file) && pagetype($file) eq 'po';
+	my $type=pagetype($file);
+	return 0 if ! defined $type || $type eq 'po';
 	return 0 if $file =~ /\.pot$/;
 	return 0 unless -e "$config{srcdir}/$file"; # underlay dirs may be read-only
 	return 1 if pagespec_match(pagename($file), $config{po_translatable_pages});
