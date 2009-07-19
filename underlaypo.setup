@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # Configuration file for ikiwiki that uses the po plugin to build/update
-# po files for pages in the base wiki.
+# po files for pages in the underlays.
 
 use IkiWiki::Setup::Standard {
 	wikiname => "ikiwiki",
@@ -16,9 +16,9 @@ use IkiWiki::Setup::Standard {
 	syslog => 0,
 	add_plugins => [qw{po}],
 	po_master_language => { 'code' => 'en', 'name' => 'English' },
-	# List here all languages for which someone is working on
-	# translating the base wiki. Listing languages that are not
-	# being actively worked on will excessively bloat things.
+	# List here all languages that have translations.
+	# Listing languages that are not being actively
+	# translated on will excessively bloat things.
         po_slave_languages => {
 		#'fr' => 'Français',
                 #'es' => 'Español',
