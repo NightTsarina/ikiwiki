@@ -480,7 +480,7 @@ sub renamepage_hook ($$$$) {
 	return $content;
 }
 
-sub rename_hook (@) {
+sub rename_hook {
 	my %params = @_;
 
 	my @torename=@{$params{torename}};
