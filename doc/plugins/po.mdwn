@@ -271,7 +271,22 @@ the file is present in srcdir.
 
 Problem with this is that it precludes using po to translate
 the basewiki (work which is well under way for Danish BTW),
-since the translated po files cannot really be used. --[[Joey]]
+since the translated po files cannot really be used.
+
+A further problem comes if one wants to use a non-English language as the
+`po_master_language`. It would be good to get a translated
+basewiki, taking po files from the underlay and using them as the primary
+page sources, but this plugin doesn't yet support that. 
+
+And, maybe it shouldn't? A user would not expect to see a po file when
+editing the index page of their wiki, just because they're using a
+different language. Instead, we might want to build localized .mdwn files
+for the basewiki, and then ikiwiki would just use that translated underlay.
+The when the user edits index, they get a nice mdwn file to start from.
+
+So, we seem to have two cases, in one po files from the underlay should be
+used, in the other not. Hmm. Support both?
+--[[Joey]] 
 
 Duplicate %links ?
 ------------------
