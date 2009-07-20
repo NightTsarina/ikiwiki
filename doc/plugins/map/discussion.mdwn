@@ -41,3 +41,6 @@ that seems to work on the examples I tried. I am a beginner so please help me ou
                     my @linktext = (length $mapitems{$item} ? (linktext => $mapitems{$item}) : ());
                     $item=~s/^\Q$common_prefix\E\///
     
+> This was also reported as [[bugs/map_fails_to_close_ul_element_for_empty_list]];
+> this patch is simpler than the one there, but has the same problem (it emits
+> `<ul></ul>`, which technically isn't valid HTML either). --[[smcv]]
