@@ -904,10 +904,10 @@ sub otherlanguagesloop ($) {
 		}
 	}
 	return sort {
-			return -1 if $a->{code} eq $config{po_master_language}{code};
-			return 1 if $b->{code} eq $config{po_master_language}{code};
-			return $a->{language} cmp $b->{language};
-		} @ret;
+		return -1 if $a->{code} eq $config{po_master_language}{code};
+		return 1 if $b->{code} eq $config{po_master_language}{code};
+		return $a->{language} cmp $b->{language};
+	} @ret;
 }
 
 sub homepageurl (;$) {

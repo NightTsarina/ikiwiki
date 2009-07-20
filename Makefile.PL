@@ -64,6 +64,7 @@ underlaypo: ikiwiki.out
 	done
 	install -d po/underlays/empty
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup underlaypo.setup -refresh
+	PERL5LIB=. po/po2wiki underlaypo.setup
 	find po/underlays -name \*.mdwn | xargs rm -f
 
 extra_clean:
