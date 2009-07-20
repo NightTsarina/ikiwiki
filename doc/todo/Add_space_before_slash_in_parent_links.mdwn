@@ -61,3 +61,14 @@ Patch:
     +<TMPL_VAR INDEXLINK> / <TMPL_VAR TITLE>
      </span>
      </div>
+
+----
+
+It's almost implicit in some of the discussion above but this can be achieved locally if you fork your templates directory from ikiwiki's, with an ammendment such as
+
+    <h1><TMPL_LOOP NAME="PARENTLINKS"><a
+        href="<TMPL_VAR NAME=URL>"><TMPL_VAR NAME=PAGE></a>
+        &rarr;
+        </TMPL_LOOP><TMPL_VAR TITLE></h1>
+
+This is what I do on my site for example. -- [[Jon]]
