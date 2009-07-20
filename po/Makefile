@@ -61,10 +61,10 @@ underlays_copy_stamp:
 		cp -a ../$$file underlays/directives/ikiwiki/directive ||  \
 		install -m 644 ../$$file underlays/directives/ikiwiki/directive; \
 	done
+	install -d underlays/empty
 	touch $@
 
 underlays: underlays_copy_stamp
-	install -d underlays/empty
 	../ikiwiki.out -libdir .. -setup underlay.setup -refresh
 
 ../underlays/locale: po2wiki_stamp
