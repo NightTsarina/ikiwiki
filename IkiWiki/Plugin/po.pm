@@ -119,20 +119,18 @@ sub getsetup () {
 }
 
 sub checkconfig () {
-	foreach my $field (qw{po_master_language po_slave_languages}) {
+	foreach my $field (qw{po_master_language}) {
 		if (! exists $config{$field} || ! defined $config{$field}) {
 			error(sprintf(gettext("Must specify %s when using the %s plugin"),
 				      $field, 'po'));
 		}
 	}
-	if (! (keys %{$config{po_slave_languages}})) {
-		error(gettext("At least one slave language must be defined ".
-			      "in po_slave_languages when using the po plugin"));
-	}
+
 	map {
 		islanguagecode($_)
 			or error(sprintf(gettext("%s is not a valid language code"), $_));
 	} ($config{po_master_language}{code}, keys %{$config{po_slave_languages}});
+
 	if (! exists $config{po_translatable_pages} ||
 	    ! defined $config{po_translatable_pages}) {
 		$config{po_translatable_pages}="";
@@ -150,7 +148,16 @@ sub checkconfig () {
 		warn(gettext('po_link_to=negotiated requires usedirs to be enabled, falling back to po_link_to=default'));
 		$config{po_link_to}='default';
 	}
+
 	push @{$config{wiki_file_prune_regexps}}, qr/\.pot$/;
+
+	if ($config{po_master_language}{code} ne 'en') {
+		# use translated underlay directories in preference
+		# to the untranslated ones
+		foreach my $underlay ('basewiki', reverse @{$config{underlaydirs}}) {
+			add_underlay("locale/".$config{po_master_language}{code}."/".$underlay);
+		}
+	}
 }
 
 sub needsbuild () {
