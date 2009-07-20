@@ -18,3 +18,26 @@ We'd also very much like to have an option to display the title of the page inst
 
 There's a patch implementing this in [[!debbug 484510]]. It needs a few fixes
 before I merge it. Now applied. --[[Joey]]
+
+----
+
+I noticed that when the pagespec returns no map items, the map plugin does not close off the ul and div tags. Below is a simple patch 
+that seems to work on the examples I tried. I am a beginner so please help me out here. Thanks. --[[harishcm]]
+
+    --- a/map.pm
+    +++ b/map.pm
+    @@ -81,6 +81,13 @@
+            my $openli=0;
+            my $addparent="";
+            my $map = "<div class='map'>\n<ul>\n";
+    +
+    +       # Return properly closed $map if %mapitems is empty
+    +       if (!scalar(keys %mapitems)) {
+    +               $map .= "</ul>\n</div>\n";
+    +               return $map; 
+    +       }
+    +
+            foreach my $item (sort keys %mapitems) {
+                    my @linktext = (length $mapitems{$item} ? (linktext => $mapitems{$item}) : ());
+                    $item=~s/^\Q$common_prefix\E\///
+    
