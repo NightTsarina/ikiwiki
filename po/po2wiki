@@ -23,15 +23,19 @@ foreach my $file (@$files) {
 }
 
 foreach my $ll (keys %{$config{po_slave_languages}}) {
-	$config{destdir}="po/out.$ll";
+	$config{destdir}="../underlays/locale/$ll";
 
 	foreach my $file (@$files) {
 		my $page=pagename($file);
 		my ($masterpage, $lang) = IkiWiki::Plugin::po::_istranslation($page);
 		next unless defined $lang && $lang eq $ll;
 		
-		my $content=readfile(srcfile($file));
-		$content=IkiWiki::Plugin::po::po_to_markup($page, $content);
-		writefile($masterpage.".".$config{default_pageext}, $config{destdir}, $content);
+		my $content=IkiWiki::Plugin::po::po_to_markup($page, readfile(srcfile($file)));
+		# avoid wasting space if the page is not translated at all
+		my $mastercontent=readfile(srcfile($pagesources{$masterpage}));
+		if ($content ne $mastercontent) {
+			writefile($masterpage.".".$config{default_pageext},
+				$config{destdir}, $content);
+		}
 	}
 }
