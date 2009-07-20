@@ -246,7 +246,7 @@ sub prune ($) {
 	}
 }
 
-sub refresh () {
+sub srcdir_check () {
 	# security check, avoid following symlinks in the srcdir path by default
 	my $test=$config{srcdir};
 	while (length $test) {
@@ -258,11 +258,10 @@ sub refresh () {
 		}
 	}
 	
-	run_hooks(refresh => sub { shift->() });
+}
 
-	# find existing pages
-	my %exists;
-	my @files;
+sub find_src_files () {
+	my (@files, %pages);
 	eval q{use File::Find};
 	error($@) if $@;
 	find({
@@ -281,10 +280,10 @@ sub refresh () {
 					$f=~s/^\Q$config{srcdir}\E\/?//;
 					push @files, $f;
 					my $pagename = pagename($f);
-					if ($exists{$pagename}) {
+					if ($pages{$pagename}) {
 						debug(sprintf(gettext("%s has multiple possible source pages"), $pagename));
 					}
-					$exists{$pagename}=1;
+					$pages{$pagename}=1;
 				}
 			}
 		},
@@ -310,9 +309,9 @@ sub refresh () {
 						if (! -l "$config{srcdir}/$f" && 
 						    ! -e _) {
 						    	my $page=pagename($f);
-							if (! $exists{$page}) {
+							if (! $pages{$page}) {
 								push @files, $f;
-								$exists{$page}=1;
+								$pages{$page}=1;
 							}
 						}
 					}
@@ -321,9 +320,19 @@ sub refresh () {
 		}, $dir);
 	};
 
+	# Returns a list of all source files found, and a hash of 
+	# the corresponding page names.
+	return \@files, \%pages;
+}
+
+sub refresh () {
+	srcdir_check();
+	run_hooks(refresh => sub { shift->() });
+	my ($files, $exists)=find_src_files();
+
 	my (%rendered, @add, @del, @internal);
 	# check for added or removed pages
-	foreach my $file (@files) {
+	foreach my $file (@$files) {
 		my $page=pagename($file);
 		if (exists $pagesources{$page} && $pagesources{$page} ne $file) {
 			# the page has changed its type
@@ -353,7 +362,7 @@ sub refresh () {
 		}
 	}
 	foreach my $page (keys %pagemtime) {
-		if (! $exists{$page}) {
+		if (! $exists->{$page}) {
 			if (isinternal($page)) {
 				push @internal, $pagesources{$page};
 			}
@@ -377,7 +386,7 @@ sub refresh () {
 
 	# find changed and new files
 	my @needsbuild;
-	foreach my $file (@files) {
+	foreach my $file (@$files) {
 		my $page=pagename($file);
 		my ($srcfile, @stat)=srcfile_stat($file);
 		if (! exists $pagemtime{$page} ||
@@ -435,7 +444,7 @@ sub refresh () {
 		my @changed=(keys %rendered, @del);
 
 		# rebuild dependant pages
-		foreach my $f (@files) {
+		foreach my $f (@$files) {
 			next if $rendered{$f};
 			my $p=pagename($f);
 			if (exists $depends{$p}) {

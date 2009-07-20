@@ -5,7 +5,7 @@ POTFILES=$(sort $(shell find ../IkiWiki -type f -name \*.pm)) \
 POFILES=$(wildcard *.po)
 MOFILES=$(POFILES:.po=.mo)
 
-all: ikiwiki.pot mo
+all: ikiwiki.pot mo ../underlays/locale
 
 mo: $(MOFILES)
 
@@ -23,7 +23,9 @@ ikiwiki.pot: $(POTFILES)
 	fi
 
 clean:
-	rm -f $(MOFILES) messages messages.mo
+	rm -f $(MOFILES) messages messages.mo *_stamp
+	rm -rf html underlays/.ikiwiki ../underlays/locale
+	find underlays -name \*.mdwn | xargs rm -f
 
 %.mo: %.po
 	msgfmt -o $@ $<
@@ -46,3 +48,28 @@ check:
 		printf "$$lang: "; \
 		msgfmt -o /dev/null -c -v --statistics $$lang.po;\
 	done
+
+underlays_copy_stamp:
+	# copy all the files we want to translate into a srcdir
+	for file in `cd ..; find underlays -follow -name \*.mdwn`; do \
+		install -d $$(dirname $$file); \
+		cp -aL ../$$file $$file 2>/dev/null || \
+		install -m 644 ../$$file $$file; \
+	done
+	install -d underlays/directives/ikiwiki/directive
+	for file in `cd ..; find doc/ikiwiki/directive/ -maxdepth 1 -type f`; do \
+		cp -a ../$$file underlays/directives/ikiwiki/directive ||  \
+		install -m 644 ../$$file underlays/directives/ikiwiki/directive; \
+	done
+	touch $@
+
+underlays: underlays_copy_stamp
+	install -d underlays/empty
+	../ikiwiki.out -libdir .. -setup underlay.setup -refresh
+
+../underlays/locale: po2wiki_stamp
+po2wiki_stamp: po2wiki underlays_copy_stamp
+	PERL5LIB=.. ./po2wiki underlay.setup
+	touch $@
+
+.PHONY: underlays

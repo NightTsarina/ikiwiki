@@ -47,30 +47,10 @@ extra_build: ikiwiki.out ikiwiki.setup docwiki
 docwiki: ikiwiki.out
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup docwiki.setup -refresh
 
-underlaypo: ikiwiki.out
-	# copy all the files we want to translate into the
-	# po/underlays scrdir.
-	for file in `find underlays -follow -name \*.mdwn`; do \
-		install -d po/$$(dirname $$file); \
-		cp -aL $$file po/$$file 2>/dev/null || \
-		install -m 644 $$file po/$$file; \
-	done
-	install -d po/underlays/directives/ikiwiki/directive
-	for file in doc/ikiwiki/directive/*; do \
-		if [ -f "$$file" ]; then \
-			cp -a $$file po/underlays/directives/ikiwiki/directive ||  \
-			install -m 644 $$file po/underlays/directives/ikiwiki/directive; \
-		fi \
-	done
-	install -d po/underlays/empty
-	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup underlaypo.setup -refresh
-	find po/underlays -name \*.mdwn | xargs rm -f
-
 extra_clean:
 	rm -rf html doc/.ikiwiki
 	rm -f *.man ikiwiki.out ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
-	rm -rf po/html po/underlays/.ikiwiki
 
 extra_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki
