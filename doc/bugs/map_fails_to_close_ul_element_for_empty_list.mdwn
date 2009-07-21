@@ -51,3 +51,30 @@ Patch:
 >>> The patch in [[map/discussion|plugins/map/discussion]] has the same
 >>> problem, but does suggest a simpler approach to solving it (bail out
 >>> early if the map has no items at all). --[[smcv]]
+
+>>>> Thanks for pointing out the problem. I guess this patch should solve it.
+>>>> --[[harishcm]]
+
+Patch:
+
+    --- /usr/local/share/perl/5.8.8/IkiWiki/Plugin/map.pm
+    +++ map.pm
+    @@ -80,7 +80,17 @@
+     	my $indent=0;
+     	my $openli=0;
+     	my $addparent="";
+    -	my $map = "<div class='map'>\n<ul>\n";
+    +	my $map = "<div class='map'>\n";
+    +
+    +	# Return empty div if %mapitems is empty
+    +	if (!scalar(keys %mapitems)) {
+    +		$map .= "</div>\n";
+    +		return $map; 
+    +	} 
+    +	else { # continue populating $map
+    +		$map .= "<ul>\n";
+    +	}
+    +
+     	foreach my $item (sort keys %mapitems) {
+     		my @linktext = (length $mapitems{$item} ? (linktext => $mapitems{$item}) : ());
+     		$item=~s/^\Q$common_prefix\E\///
