@@ -157,10 +157,6 @@ sub checkconfig () {
 	                          reverse @{$config{underlaydirs}}) {
 		next if $underlay=~/^locale\//;
 
-		# Underlay containing pot files.
-		add_underlay("locale/pot/$underlay")
-			if -d "$config{underlaydirbase}/locale/pot/$underlay";
-
 		# Underlays containing the po files for slave languages.
 		foreach my $ll (keys %{$config{po_slave_languages}}) {
 			add_underlay("locale/po/$ll/$underlay")
