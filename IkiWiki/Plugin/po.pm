@@ -152,13 +152,15 @@ sub checkconfig () {
 	push @{$config{wiki_file_prune_regexps}}, qr/\.pot$/;
 
 	# Translated versions of the underlays are added if available.
-	foreach my $underlay ("basewiki", map { m/^\Q$config{underlaydirbase}\E\/*(.*)/ } reverse @{$config{underlaydirs}}) {
+	foreach my $underlay ("basewiki",
+	                      map { m/^\Q$config{underlaydirbase}\E\/*(.*)/ }
+	                          reverse @{$config{underlaydirs}}) {
 		next if $underlay=~/^locale\//;
 
-		# Add underlays containing the po files for slave languages.
+		# Underlays containing the po files for slave languages.
 		foreach my $ll (keys %{$config{po_slave_languages}}) {
-			add_underlay("locale/mo/$underlay")
-				if -d "$config{underlaydirbase}/locale/mo/$underlay";
+			add_underlay("locale/po/$ll/$underlay")
+				if -d "$config{underlaydirbase}/locale/po/$ll/$underlay";
 		}
 	
 		if ($config{po_master_language}{code} ne 'en') {
@@ -1088,8 +1090,8 @@ sub isvalidpo ($) {
 	if ($res) {
 	    return IkiWiki::SuccessReason->new("valid gettext data");
 	}
-	return IkiWiki::FailReason->new("invalid gettext data, go back ".
-					"to previous page to go on with edit");
+	return IkiWiki::FailReason->new(gettext("invalid gettext data, go back ".
+					"to previous page to continue edit"));
 }
 
 # ,----
