@@ -103,7 +103,7 @@ sub getsetup () {
 		},
 		po_translatable_pages => {
 			type => "pagespec",
-			example => "!*/Discussion",
+			example => "* and !*/Discussion",
 			description => "PageSpec controlling which pages are translatable",
 			link => "ikiwiki/PageSpec",
 			safe => 1,
