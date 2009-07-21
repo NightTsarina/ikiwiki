@@ -159,8 +159,8 @@ sub checkconfig () {
 
 		# Underlays containing the po files for slave languages.
 		foreach my $ll (keys %{$config{po_slave_languages}}) {
-			add_underlay("locale/po/$ll/$underlay")
-				if -d "$config{underlaydirbase}/locale/po/$ll/$underlay";
+			add_underlay("po/$ll/$underlay")
+				if -d "$config{underlaydirbase}/po/$ll/$underlay";
 		}
 	
 		if ($config{po_master_language}{code} ne 'en') {
