@@ -20,8 +20,8 @@ install: all
 	# Underlay translation via po files that go in special per-language
 	# underlays.
 	for file in `cd underlays && find . -type f -name \*.po`; do \
-		lang=`echo $file | sed -e 's/.po$$//' -e 's/.*\\.//'`; \
-		dir=`dirname "$(DESTDIR)$(PREFIX)/share/ikiwiki/po/$$lang"`; \
+		lang=`echo $$file | sed -e 's/.po$$//' -e 's/.*\\.//'`; \
+		dir=`dirname "$(DESTDIR)$(PREFIX)/share/ikiwiki/po/$$lang/$$file"`; \
 		install -d $$dir; \
 		install -m 0644 underlays/$$file $$dir; \
 	done
