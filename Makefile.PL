@@ -52,7 +52,7 @@ extra_clean:
 	rm -f *.man ikiwiki.out ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
 
-extra_install:
+underlay_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki
 	for dir in `cd underlays && find . -follow -type d ! -regex '.*\.svn.*'`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
@@ -70,6 +70,7 @@ extra_install:
 		fi \
 	done
 	
+extra_install: underlay_install
 	# Install example sites.
 	for dir in `cd doc/examples; find . -type d ! -regex '.*\.svn.*'`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$dir; \
