@@ -74,8 +74,14 @@ underlays_copy_stamp:
 	install -d underlays/empty
 	touch $@
 
-underlays: underlays_copy_stamp
+underlays: ../ikiwiki.out underlays_copy_stamp
 	../ikiwiki.out -libdir .. -setup underlay.setup -refresh
+
+../ikiwiki.out: ../Makefile
+	make -C .. ikiwiki.out
+
+../Makefile: ../Makefile.PL
+	cd .. && ./Makefile.PL
 
 ../underlays/locale: po2wiki_stamp
 po2wiki_stamp: po2wiki underlays_copy_stamp
