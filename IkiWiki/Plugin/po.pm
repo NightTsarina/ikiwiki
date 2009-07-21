@@ -151,11 +151,24 @@ sub checkconfig () {
 
 	push @{$config{wiki_file_prune_regexps}}, qr/\.pot$/;
 
-	if ($config{po_master_language}{code} ne 'en') {
-		# use translated underlay directories in preference
-		# to the untranslated ones
-		foreach my $underlay ('basewiki', reverse @{$config{underlaydirs}}) {
-			add_underlay("locale/".$config{po_master_language}{code}."/".$underlay);
+	# Translated versions of the underlays are added if available.
+	foreach my $underlay ("basewiki", map { m/^\Q$config{underlaydirbase}\E\/*(.*)/ } reverse @{$config{underlaydirs}}) {
+		next if $underlay=~/^locale\//;
+
+		# Add underlay containing the pot files.
+		#add_underlay("locale/pot/$underlay")
+		#		if -d "$config{underlaydirbase}/locale/pot/$underlay";
+
+		# Add underlays containing the po files for slave languages.
+		foreach my $ll (keys %{$config{po_slave_languages}}) {
+			add_underlay("locale/mo/$underlay")
+				if -d "$config{underlaydirbase}/locale/mo/$underlay";
+		}
+	
+		if ($config{po_master_language}{code} ne 'en') {
+			# Add underlay containing translated source files
+			# for the master language.
+			add_underlay("locale/$config{po_master_language}{code}/$underlay");
 		}
 	}
 }
@@ -377,22 +390,26 @@ sub change (@) {
 	my $updated_po_files=0;
 
 	# Refresh/create POT and PO files as needed.
+	# (But avoid doing so if they are in an underlay directory.)
 	foreach my $file (grep {istranslatablefile($_)} @rendered) {
-		my $page=pagename($file);
 		my $masterfile=srcfile($file);
+		my $page=pagename($file);
 		my $updated_pot_file=0;
-		# Only refresh Pot file if it does not exist, or if
+		# Only refresh POT file if it does not exist, or if
 		# $pagesources{$page} was changed: don't if only the HTML was
 		# refreshed, e.g. because of a dependency.
-		if ((grep { $_ eq $pagesources{$page} } @origneedsbuild)
-		    || ! -e potfile($masterfile)) {
+		if ($masterfile eq "$config{srcdir}/$file" &&
+		   ((grep { $_ eq $pagesources{$page} } @origneedsbuild)
+		    || ! -e potfile($masterfile))) {
 			refreshpot($masterfile);
 			$updated_pot_file=1;
 		}
 		my @pofiles;
-		map {
-			push @pofiles, $_ if ($updated_pot_file || ! -e $_);
-		} (pofiles($masterfile));
+		foreach my $po (pofiles($masterfile)) {
+			next if ! $updated_pot_file && ! -e $po;
+			next if grep { $po=~/\Q$_\E/ } @{$config{underlaydirs}};
+			push @pofiles, $po;
+		}
 		if (@pofiles) {
 			refreshpofiles($masterfile, @pofiles);
 			map { IkiWiki::rcs_add($_) } @pofiles if $config{rcs};
@@ -666,7 +683,6 @@ sub istranslatablefile ($) {
 	my $type=pagetype($file);
 	return 0 if ! defined $type || $type eq 'po';
 	return 0 if $file =~ /\.pot$/;
-	return 0 unless -e "$config{srcdir}/$file"; # underlay dirs may be read-only
 	return 1 if pagespec_match(pagename($file), $config{po_translatable_pages});
 	return;
 }
