@@ -5,7 +5,7 @@ use Test::More 'no_plan';
 
 ok(! system("rm -rf t/tmp; mkdir t/tmp"));
 ok(! system("make -s ikiwiki.out"));
-ok(! system("make extra_install DESTDIR=`pwd`/t/tmp/install PREFIX=/usr >/dev/null"));
+ok(! system("make underlay_install DESTDIR=`pwd`/t/tmp/install PREFIX=/usr >/dev/null"));
 
 foreach my $plugin ("", "listdirectives") {
 	ok(! system("perl -I. ./ikiwiki.out -rebuild -plugin brokenlinks ".
