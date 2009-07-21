@@ -1094,8 +1094,8 @@ sub isvalidpo ($) {
 	if ($res) {
 	    return IkiWiki::SuccessReason->new("valid gettext data");
 	}
-	return IkiWiki::FailReason->new("invalid gettext data, go back ".
-					"to previous page to go on with edit");
+	return IkiWiki::FailReason->new(gettext("invalid gettext data, go back ".
+					"to previous page to continue edit"));
 }
 
 # ,----
