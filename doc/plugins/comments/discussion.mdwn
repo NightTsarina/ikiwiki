@@ -161,3 +161,30 @@ Raw HTML was not initially allowed by default (this was configurable).
 >>> all directives will contine to be inexpensive and safe enough that it's
 >>> sensible to allow users to (ab)use them on open wikis.
 >>> --[[Joey]]
+
+----
+
+I have a test ikiwiki setup somewhere to investigate adopting the comments
+plugin. It is setup with no auth enabled and I got hammered with a spam attack
+over the last weekend (predictably).  What surprised me was the scale of the
+attack: ikiwiki eventually triggered OOM and brought the box down. When I got
+it back up, I checked out a copy of the underlying git repository, and it
+measured 280M in size after being packed. Of that, about 300K was data prior
+to the spam attack, so the rest was entirely spam text, compressed via git's
+efficient delta compression.
+
+I had two thoughts about possible improvements to the comments plugin in the
+wake of this:
+
+ * comment pagination - there is a hard-to-define upper limit on the number
+   of comments that can be appended to a wiki page whilst the page remains
+   legible.  It would be useful if comments could be paginated into sub-pages.
+
+ * crude flood control - asides from spam attacks (and I am aware of
+   [[plugins/blogspam]]), people can crap flood or just aggressively flame
+   repeatedly. An interesting prevention measure might be to not let an IP
+   post more than 3 sequential comments to a page, or to the site, without
+   at least one other comment being interleaved. I say 3 rather than 2 since
+   correction follow-ups are common.
+
+-- [[Jon]]
