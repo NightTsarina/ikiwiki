@@ -155,10 +155,6 @@ sub checkconfig () {
 	foreach my $underlay ("basewiki", map { m/^\Q$config{underlaydirbase}\E\/*(.*)/ } reverse @{$config{underlaydirs}}) {
 		next if $underlay=~/^locale\//;
 
-		# Add underlay containing the pot files.
-		#add_underlay("locale/pot/$underlay")
-		#		if -d "$config{underlaydirbase}/locale/pot/$underlay";
-
 		# Add underlays containing the po files for slave languages.
 		foreach my $ll (keys %{$config{po_slave_languages}}) {
 			add_underlay("locale/mo/$underlay")
