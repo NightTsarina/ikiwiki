@@ -10,10 +10,20 @@ all: ikiwiki.pot mo ../underlays/locale
 mo: $(MOFILES)
 
 install: all
+	# Normal mo files for program translation.
 	for file in $(MOFILES); do \
 		lang=`echo $$file | sed 's/\.mo//'`; \
 		install -d $(DESTDIR)$(PREFIX)/share/locale/$$lang/LC_MESSAGES/; \
 		install -m 0644 $$file $(DESTDIR)$(PREFIX)/share/locale/$$lang/LC_MESSAGES/ikiwiki.mo; \
+	done
+	
+	# Underlay translation via po files that go in special per-language
+	# underlays.
+	for file in `cd underlays && find . -type f -name \*.po`; do \
+		lang=`echo $file | sed -e 's/.po$$//' -e 's/.*\\.//'`; \
+		dir=`dirname "$(DESTDIR)$(PREFIX)/share/ikiwiki/po/$$lang"`; \
+		install -d $$dir; \
+		install -m 0644 underlays/$$file $$dir; \
 	done
 
 ikiwiki.pot: $(POTFILES)
@@ -25,7 +35,7 @@ ikiwiki.pot: $(POTFILES)
 clean:
 	rm -f $(MOFILES) messages messages.mo *_stamp
 	rm -rf html underlays/.ikiwiki ../underlays/locale
-	find underlays -name \*.mdwn | xargs rm -f
+	find underlays -name \*.mdwn -or -name \*.pot | xargs rm -f
 
 %.mo: %.po
 	msgfmt -o $@ $<
