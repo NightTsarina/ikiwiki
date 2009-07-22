@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ikiwiki\n"
+"Project-Id-Version: ikiwiki 3.14159\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-20 06:45+0200\n"
-"PO-Revision-Date: 2009-07-19 19:38+0200\n"
+"POT-Creation-Date: 2009-07-23 01:01+0200\n"
+"PO-Revision-Date: 2009-07-23 01:07+0200\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgstr "Du skal først logge på."
 
 #: ../IkiWiki/CGI.pm:146
 msgid ""
-"probable misconfiguration: sslcookie is set, but you are attepting to login "
+"probable misconfiguration: sslcookie is set, but you are attempting to login "
 "via http, not https"
 msgstr ""
 "mulig opsætningsfejl: sslcookie er sat, men du forsøger at logge på via "
@@ -150,15 +150,15 @@ msgid "Must specify %s"
 msgstr "Skal angive %s"
 
 #: ../IkiWiki/Plugin/amazon_s3.pm:136
-msgid "Failed to create bucket in S3: "
+msgid "Failed to create bucket inside S3: "
 msgstr "Oprettelse af bundt i S3 mislykkedes: "
 
 #: ../IkiWiki/Plugin/amazon_s3.pm:221
-msgid "Failed to save file to S3: "
+msgid "Failed to save file into S3: "
 msgstr "Arkivering af fil i S3 mislykkedes: "
 
 #: ../IkiWiki/Plugin/amazon_s3.pm:243
-msgid "Failed to delete file from S3: "
+msgid "Failed to delete file inside S3: "
 msgstr "Sletning af fil fra S3 mislykkedes: "
 
 #: ../IkiWiki/Plugin/attachment.pm:49
@@ -193,7 +193,7 @@ msgstr ""
 #: ../IkiWiki/Plugin/brokenlinks.pm:33 ../IkiWiki/Plugin/editpage.pm:233
 #: ../IkiWiki/Plugin/inline.pm:357 ../IkiWiki/Plugin/inline.pm:365
 #: ../IkiWiki/Plugin/opendiscussion.pm:26 ../IkiWiki/Plugin/orphans.pm:37
-#: ../IkiWiki/Plugin/po.pm:283 ../IkiWiki/Plugin/po.pm:286
+#: ../IkiWiki/Plugin/po.pm:289 ../IkiWiki/Plugin/po.pm:292
 #: ../IkiWiki/Render.pm:80 ../IkiWiki/Render.pm:84 ../IkiWiki/Render.pm:150
 msgid "Discussion"
 msgstr "Diskussion"
@@ -511,8 +511,8 @@ msgid "Get an OpenID"
 msgstr "Skaf en OpenID"
 
 #: ../IkiWiki/Plugin/orphans.pm:52
-msgid "All pages are linked to by other pages."
-msgstr "Alle sider henvises til fra andre sider."
+msgid "All pages have other pages linking to them."
+msgstr "Alle sider har henvisninger fra andre sider."
 
 #: ../IkiWiki/Plugin/pagetemplate.pm:30
 msgid "bad or missing template"
@@ -569,19 +569,12 @@ msgstr "ignorerer ping-direktiv for wiki %s (denne wiki er %s)"
 msgid "LWP not found, not pinging"
 msgstr "LWP ikke fundet, pinger ikke"
 
-#: ../IkiWiki/Plugin/po.pm:130
-msgid ""
-"At least one slave language must be defined in po_slave_languages when using "
-"the po plugin"
-msgstr ""
-"Mindst et slavesprog skal defineres i po_slave_languages når po plugin bruges"
-
-#: ../IkiWiki/Plugin/po.pm:136
+#: ../IkiWiki/Plugin/po.pm:131
 #, perl-format
 msgid "%s is not a valid language code"
 msgstr "%s er ikke en gyldig sprogkode"
 
-#: ../IkiWiki/Plugin/po.pm:148
+#: ../IkiWiki/Plugin/po.pm:143
 #, perl-format
 msgid ""
 "%s is not a valid value for po_link_to, falling back to po_link_to=default"
@@ -589,7 +582,7 @@ msgstr ""
 "%s er ikke en gyldig værdi for po_link_to, falder tilbage til "
 "po_link_to=default"
 
-#: ../IkiWiki/Plugin/po.pm:153
+#: ../IkiWiki/Plugin/po.pm:148
 msgid ""
 "po_link_to=negotiated requires usedirs to be enabled, falling back to "
 "po_link_to=default"
@@ -597,82 +590,87 @@ msgstr ""
 "po_link_to=negotiated kræver at usedirs er aktiveret, falder tilbage til "
 "po_link_to=default"
 
-#: ../IkiWiki/Plugin/po.pm:276
+#: ../IkiWiki/Plugin/po.pm:282
 msgid "discussion"
 msgstr "diskussion"
 
-#: ../IkiWiki/Plugin/po.pm:373
+#: ../IkiWiki/Plugin/po.pm:379
 #, perl-format
-msgid "re-rendering all pages to fix meta titles"
+msgid "rebuilding all pages to fix meta titles"
 msgstr "gendanner alle sider for at korrigere meta titler"
 
-#: ../IkiWiki/Plugin/po.pm:377 ../IkiWiki/Render.pm:415
+#: ../IkiWiki/Plugin/po.pm:383 ../IkiWiki/Render.pm:415
 #, perl-format
-msgid "rendering %s"
+msgid "building %s"
 msgstr "danner %s"
 
-#: ../IkiWiki/Plugin/po.pm:410
+#: ../IkiWiki/Plugin/po.pm:420
 msgid "updated PO files"
 msgstr "opdaterer PO-filer"
 
-#: ../IkiWiki/Plugin/po.pm:434
+#: ../IkiWiki/Plugin/po.pm:444
 msgid ""
-"Can not remove a translation. Removing the master page, though, removes its "
-"translations as well."
+"Can not remove a translation. If the master page is removed, however, its "
+"translations will be removed as well."
 msgstr ""
 "Kan ikke fjerne en oversættelse. Fjern i stedet hovedsiden, så fjernes dens "
 "oversættelser også."
 
-#: ../IkiWiki/Plugin/po.pm:454
+#: ../IkiWiki/Plugin/po.pm:464
 msgid ""
-"Can not rename a translation. Renaming the master page, though, renames its "
-"translations as well."
+"Can not rename a translation. If the master page is renamed, however, its "
+"translations will be renamed as well."
 msgstr ""
 "Kan ikke omdøbe en oversættelse. Omdøb i stedet hovedsiden, så omdøbes dens "
 "oversættelser også."
 
-#: ../IkiWiki/Plugin/po.pm:816
+#: ../IkiWiki/Plugin/po.pm:825
 #, perl-format
 msgid "POT file (%s) does not exist"
 msgstr "POT-filen %s eksisterer ikke"
 
-#: ../IkiWiki/Plugin/po.pm:824
+#: ../IkiWiki/Plugin/po.pm:833
 #, perl-format
 msgid "failed to update %s"
 msgstr "opdatering af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:830
+#: ../IkiWiki/Plugin/po.pm:839
 #, perl-format
 msgid "failed to copy the POT file to %s"
 msgstr "kopiering af POT-filen til %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:866
+#: ../IkiWiki/Plugin/po.pm:875
 msgid "N/A"
-msgstr ""
+msgstr "N/A"
 
-#: ../IkiWiki/Plugin/po.pm:879
+#: ../IkiWiki/Plugin/po.pm:888
 #, perl-format
 msgid "failed to translate %s"
 msgstr "oversættelse af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:955
+#: ../IkiWiki/Plugin/po.pm:964
 msgid "removed obsolete PO files"
 msgstr "forældede PO filer fjernet"
 
-#: ../IkiWiki/Plugin/po.pm:1018 ../IkiWiki/Plugin/po.pm:1032
-#: ../IkiWiki/Plugin/po.pm:1072
+#: ../IkiWiki/Plugin/po.pm:1027 ../IkiWiki/Plugin/po.pm:1041
+#: ../IkiWiki/Plugin/po.pm:1081
 #, perl-format
 msgid "failed to write %s"
 msgstr "skrivning af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:1030
+#: ../IkiWiki/Plugin/po.pm:1039
 msgid "failed to translate"
 msgstr "oversættelse mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:1035
+#: ../IkiWiki/Plugin/po.pm:1044
 #, perl-format
 msgid "failed to read %s"
 msgstr "læsning af %s mislykkedes"
+
+#: ../IkiWiki/Plugin/po.pm:1093
+msgid "invalid gettext data, go back to previous page to continue edit"
+msgstr ""
+"forkert gettext-data, gå tilbage til forrige side og fortsæt redigering"
 
 #: ../IkiWiki/Plugin/poll.pm:69
 msgid "vote"
@@ -1044,27 +1042,27 @@ msgstr "gennemlæser %s"
 
 #: ../IkiWiki/Render.pm:436
 #, perl-format
-msgid "rendering %s, which links to %s"
+msgid "building %s, which links to %s"
 msgstr "danner %s, som henviser til %s"
 
 #: ../IkiWiki/Render.pm:457
 #, perl-format
-msgid "rendering %s, which depends on %s"
+msgid "building %s, which depends on %s"
 msgstr "danner %s, som afhænger af %s"
 
 #: ../IkiWiki/Render.pm:496
 #, perl-format
-msgid "rendering %s, to update its backlinks"
+msgid "building %s, to update its backlinks"
 msgstr "danner %s, for at opdatere dens krydshenvisninger (backlinks)"
 
 #: ../IkiWiki/Render.pm:508
 #, perl-format
-msgid "removing %s, no longer rendered by %s"
+msgid "removing %s, no longer built by %s"
 msgstr "fjerner %s, ikke længere dannet af %s"
 
 #: ../IkiWiki/Render.pm:532
 #, perl-format
-msgid "ikiwiki: cannot render %s"
+msgid "ikiwiki: cannot build %s"
 msgstr "ikiwiki: kan ikke danne %s"
 
 #. translators: The first parameter is a filename, and the second
@@ -1182,15 +1180,9 @@ msgid "What revision control system to use?"
 msgstr "Hvilket revisionskontrolsystem skal bruges?"
 
 #: ../auto.setup:20
-msgid "What wiki user (or openid) will be admin?"
-msgstr "Hvilken wiki bruger (eller openid) skal være administrator?"
+msgid "Which user (wiki account or openid) will be admin?"
+msgstr "Hvilken bruger (wiki konto eller openid) skal være administrator?"
 
 #: ../auto.setup:23
 msgid "What is the domain name of the web server?"
 msgstr "Hvad er webserverens domænenavn?"
-
-msgid "<p class=\"error\">Error: %s exited nonzero (%s)"
-msgstr "<p class=\"error\">Fejl: %s sluttede med fejl (%s)"
-
-msgid "processed ok at %s"
-msgstr "korrekt dannet ved %s"
