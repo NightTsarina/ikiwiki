@@ -63,7 +63,7 @@ sub getsetup () {
 		amazon_s3_bucket => {
 			type => "string",
 			example => "mywiki",
-			description => "globally unique name of bucket to store wiki in",
+			description => "globally unique name of bucket to store wiki into",
 			safe => 1,
 			rebuild => 1,
 		},
@@ -133,7 +133,7 @@ sub getbucket {
 	}
 
 	if (! $bucket) {
-		error(gettext("Failed to create bucket in S3: ").
+		error(gettext("Failed to create bucket inside S3: ").
 			$s3->err.": ".$s3->errstr."\n");
 	}
 
@@ -218,7 +218,7 @@ sub writefile ($$$;$$) {
 				}
 			}
 			if (! $res) {
-				error(gettext("Failed to save file to S3: ").
+				error(gettext("Failed to save file into S3: ").
 					$bucket->err.": ".$bucket->errstr."\n");
 			}
 		}
@@ -240,7 +240,7 @@ sub prune ($) {
 		foreach my $key (@keys) {
 			my $res=$bucket->delete_key($key);
 			if (! $res) {
-				error(gettext("Failed to delete file from S3: ").
+				error(gettext("Failed to delete file inside S3: ").
 					$bucket->err.": ".$bucket->errstr."\n");
 			}
 		}
