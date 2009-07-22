@@ -143,7 +143,7 @@ sub cgi_postsignin ($$) {
 	}
 	else {
 		if ($config{sslcookie} && ! $q->https()) {
-			error(gettext("probable misconfiguration: sslcookie is set, but you are attepting to login via http, not https"));
+			error(gettext("probable misconfiguration: sslcookie is set, but you are attempting to login via http, not https"));
 		}
 		else {
 			error(gettext("login failed, perhaps you need to turn on cookies?"));
