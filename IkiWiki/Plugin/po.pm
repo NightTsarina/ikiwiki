@@ -441,8 +441,8 @@ sub canremove (@) {
 	my %params = @_;
 
 	if (istranslation($params{page})) {
-		return gettext("Can not remove a translation. Removing the master page, ".
-			       "though, removes its translations as well.");
+		return gettext("Can not remove a translation. If the master page is removed, ".
+			       "however, its translations will be removed as well.");
 	}
 	return undef;
 }
@@ -461,8 +461,8 @@ sub canrename (@) {
 		# saved early in the renaming process.
 		my $orig_torename = $session->param("po_orig_torename");
 		unless (grep { $_ eq $masterpage } @{$orig_torename}) {
-			return gettext("Can not rename a translation. Renaming the master page, ".
-				       "though, renames its translations as well.");
+			return gettext("Can not rename a translation. If the master page is renamed, ".
+				       "however, its translations will be renamed as well.");
 		}
 	}
 	return undef;
