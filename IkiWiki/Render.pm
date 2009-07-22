@@ -412,7 +412,7 @@ sub refresh () {
 	}
 	calculate_backlinks();
 	foreach my $file (@needsbuild) {
-		debug(sprintf(gettext("rendering %s"), $file));
+		debug(sprintf(gettext("building %s"), $file));
 		render($file);
 		$rendered{$file}=1;
 	}
@@ -433,7 +433,7 @@ sub refresh () {
 			foreach my $page (keys %{$backlinks{$p}}) {
 				my $file=$pagesources{$page};
 				next if $rendered{$file};
-		   		debug(sprintf(gettext("rendering %s, which links to %s"), $file, $p));
+		   		debug(sprintf(gettext("building %s, which links to %s"), $file, $p));
 				render($file);
 				$rendered{$file}=1;
 			}
@@ -454,7 +454,7 @@ sub refresh () {
 					next if $f eq $file;
 					my $page=pagename($file);
 					if (pagespec_match($page, $depends{$p}, location => $p)) {
-						debug(sprintf(gettext("rendering %s, which depends on %s"), $f, $page));
+						debug(sprintf(gettext("building %s, which depends on %s"), $f, $page));
 						render($f);
 						$rendered{$f}=1;
 						last;
@@ -493,7 +493,7 @@ sub refresh () {
 		    	my $linkfile=$pagesources{$link};
 			if (defined $linkfile) {
 				next if $rendered{$linkfile};
-				debug(sprintf(gettext("rendering %s, to update its backlinks"), $linkfile));
+				debug(sprintf(gettext("building %s, to update its backlinks"), $linkfile));
 				render($linkfile);
 				$rendered{$linkfile}=1;
 			}
@@ -505,7 +505,7 @@ sub refresh () {
 		my $page=pagename($src);
 		foreach my $file (@{$oldrenderedfiles{$page}}) {
 			if (! grep { $_ eq $file } @{$renderedfiles{$page}}) {
-				debug(sprintf(gettext("removing %s, no longer rendered by %s"), $file, $page));
+				debug(sprintf(gettext("removing %s, no longer built by %s"), $file, $page));
 				prune($config{destdir}."/".$file);
 			}
 		}
@@ -529,7 +529,7 @@ sub commandline_render () {
 	$file=~s/\Q$config{srcdir}\E\/?//;
 
 	my $type=pagetype($file);
-	die sprintf(gettext("ikiwiki: cannot render %s"), $srcfile)."\n" unless defined $type;
+	die sprintf(gettext("ikiwiki: cannot build %s"), $srcfile)."\n" unless defined $type;
 	my $content=readfile($srcfile);
 	my $page=pagename($file);
 	$pagesources{$page}=$file;

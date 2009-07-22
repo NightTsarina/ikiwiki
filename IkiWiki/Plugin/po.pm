@@ -376,11 +376,11 @@ sub change (@) {
 	    && exists $config{meta_overrides_page_title}
 	    && defined $config{meta_overrides_page_title}
 	    && $config{meta_overrides_page_title}) {
-		debug(sprintf(gettext("re-rendering all pages to fix meta titles")));
+		debug(sprintf(gettext("rebuilding all pages to fix meta titles")));
 		resetalreadyfiltered();
 		require IkiWiki::Render;
 		foreach my $file (@rendered) {
-			debug(sprintf(gettext("rendering %s"), $file));
+			debug(sprintf(gettext("building %s"), $file));
 			IkiWiki::render($file);
 		}
 	}
