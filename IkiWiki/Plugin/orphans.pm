@@ -49,7 +49,7 @@ sub preprocess (@) {
 		push @orphans, $page;
 	}
 	
-	return gettext("All pages are linked to by other pages.") unless @orphans;
+	return gettext("All pages are linked to from other pages.") unless @orphans;
 	return "<ul>\n".
 		join("\n",
 			map {
