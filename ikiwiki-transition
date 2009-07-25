@@ -335,4 +335,14 @@ sub get_banned_users () {
 	return @ret;
 }
 
+# Used to be in IkiWiki, but only used here (to migrate admin prefs into the
+# setup file) now.
+sub pagespec_merge ($$) {
+	my $a=shift;
+	my $b=shift;
+
+	return $a if $a eq $b;
+	return "($a) or ($b)";
+}
+
 1
