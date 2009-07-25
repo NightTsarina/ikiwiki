@@ -1,0 +1,18 @@
+<span class="infobox">
+Available in a [[!taglink /git]] repository.<br />
+Branch: <TMPL_VAR branch><br />
+Author: <TMPL_VAR author><br />
+</span>
+<TMPL_UNLESS NAME="branch">
+This template is used to create an infobox for a git branch. It uses
+these parameters:
+
+<ul>
+<li>branch - the name of the branch, prefixed with the name of one of the
+  remotes listed on the [[/git]] page and provided by the gitremotes script
+  (e.g. github/master)</li>
+<li>author - the author of the branch</li>
+</ul>
+
+It also automatically tags the branch with `/git`.
+</TMPL_UNLESS>
