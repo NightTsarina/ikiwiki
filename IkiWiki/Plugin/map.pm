@@ -80,7 +80,17 @@ sub preprocess (@) {
 	my $indent=0;
 	my $openli=0;
 	my $addparent="";
-	my $map = "<div class='map'>\n<ul>\n";
+	my $map = "<div class='map'>\n";
+
+	# Return empty div if %mapitems is empty
+	if (!scalar(keys %mapitems)) {
+		$map .= "</div>\n";
+		return $map; 
+	} 
+	else { # continue populating $map
+		$map .= "<ul>\n";
+	}
+
 	foreach my $item (sort keys %mapitems) {
 		my @linktext = (length $mapitems{$item} ? (linktext => $mapitems{$item}) : ());
 		$item=~s/^\Q$common_prefix\E\///
