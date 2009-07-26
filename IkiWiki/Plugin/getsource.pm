@@ -9,7 +9,7 @@ use open qw{:utf8 :std};
 sub import {
 	hook(type => "getsetup", id => "getsource", call => \&getsetup);
 	hook(type => "pagetemplate", id => "getsource", call => \&pagetemplate);
-	hook(type => "sessioncgi", id => "getsource", call => \&cgi_getsource);
+	hook(type => "cgi", id => "getsource", call => \&cgi_getsource);
 }
 
 sub getsetup () {
@@ -39,9 +39,8 @@ sub pagetemplate (@) {
 	}
 }
 
-sub cgi_getsource ($$) {
+sub cgi_getsource ($) {
 	my $cgi=shift;
-	my $session=shift;
 
 	# Note: we use sessioncgi rather than just cgi
 	# because we need $IkiWiki::pagesources{} to be
@@ -53,6 +52,8 @@ sub cgi_getsource ($$) {
 	IkiWiki::decode_cgi_utf8($cgi);
 
 	my $page=$cgi->param('page');
+
+	IkiWiki::loadindex();
 
 	if ($IkiWiki::pagesources{$page}) {
 		
