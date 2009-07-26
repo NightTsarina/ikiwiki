@@ -55,25 +55,29 @@ sub cgi_getsource ($) {
 
 	IkiWiki::loadindex();
 
-	if ($IkiWiki::pagesources{$page}) {
-		
-		my $data = IkiWiki::readfile(IkiWiki::srcfile($IkiWiki::pagesources{$page}));
-		
-		if (! $config{getsource_mimetype}) {
-			$config{getsource_mimetype} = "text/plain; charset=utf-8";
-		}
-		
-		print "Content-Type: $config{getsource_mimetype}\r\n";
-		
-		print ("\r\n");
-		
-		print $data;
-		
-		exit 0;
+	if (! exists $IkiWiki::pagesources{$page}) {
+		IkiWiki::cgi_custom_failure(
+			$cgi->header(-status => "404 Not Found"),
+			IkiWiki::misctemplate(gettext("missing page"),
+				"<p>".
+				sprintf(gettext("The page %s does not exist."),
+					htmllink("", "", $page)).
+				"</p>"));
+		exit;
 	}
-	
-	error("Unable to find page source for page: $page");
 
+	my $data = IkiWiki::readfile(IkiWiki::srcfile($IkiWiki::pagesources{$page}));
+
+	if (! $config{getsource_mimetype}) {
+		$config{getsource_mimetype} = "text/plain; charset=utf-8";
+	}
+
+	print "Content-Type: $config{getsource_mimetype}\r\n";
+
+	print ("\r\n");
+
+	print $data;
+	
 	exit 0;
 }
 
