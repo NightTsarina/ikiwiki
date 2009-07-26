@@ -72,3 +72,12 @@ It's almost implicit in some of the discussion above but this can be achieved lo
         </TMPL_LOOP><TMPL_VAR TITLE></h1>
 
 This is what I do on my site for example. -- [[Jon]]
+
+> You don't actually need to fork the whole directory, "only" `page.tmpl` -
+> put `templatedir => "/foo/templates"` in your setup file, copy `page.tmpl`
+> to that directory, and modify it there. IkiWiki will look in `templatedir`
+> first, then fall back to its default templates if any are missing from
+> `templatedir`.
+>
+> (Admittedly, `page.tmpl` is the hardest to maintain a fork of, because it
+> tends to change whenever a new plugin is added...) --[[smcv]]
