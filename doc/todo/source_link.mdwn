@@ -9,6 +9,21 @@ I just implemented this.  There is one [[patch]] to the default page template, a
 > by loading the index with IkiWiki::loadindex, like [[plugins/goto]] does?
 > --[[smcv]]
 
+[[!template id=gitbranch branch=smcv/getsource
+  author="[[Will]]/[[smcv]]"]]
+
+>> I've applied the patch below in a git branch, fixed my earlier criticism,
+>> and also fixed a couple of other issues I noticed:
+>>
+>> * missing pages could be presented better as a real 404 page
+>> * the default Content-type should probably be UTF-8 since the rest of
+>>   IkiWiki tends to assume that
+>> * emitting attachments (images, etc.) as text/plain isn't going to work :-)
+>>
+>> Any opinions on my branch? I think it's ready for merge, if Joey approves.
+>>
+>> --[[smcv]]
+
 ----
 
     diff --git a/templates/page.tmpl b/templates/page.tmpl
