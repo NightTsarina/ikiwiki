@@ -2,13 +2,20 @@ I understand the `IkiWiki::titlepage` function is used to generate filenames fro
 
 I imagine two things: a lookup hash and a template.
 
-Since `IkiWiki::titlepage` basically translates characters, it would be cool to be able to define a lookup hash in the configuration, which would be consulted before falling back to the generic `__xx__` `ord()` representation of a letter. For instance, in German, I might prefer to have 'ÃÂ¤' become 'ae' instead of something illegible.
+Since `IkiWiki::titlepage` basically translates characters, it would be cool to be able to define a lookup hash in the configuration, which would be consulted before falling back to the generic `__xx__` `ord()` representation of a letter. For instance, in German, I might prefer to have 'ä' become 'ae' instead of something illegible.
+
+> This is [[todo/unaccent_url_instead_of_encoding]]. --[[smcv]]
 
 Second, maybe a template could be honoured. The template could have a slot `%s` where the calculated title goes, and it could contain `strftime` symbols as well as variables, which get interpolated on use.
 
 Another option would be a function I could define in the setup file, or an external script, though that would be pretty expensive.
 
 -- [[madduck]]
+
+> This somewhat resembles [[todo/inline_postform_autotitles]].
+> Another way to do this, suggested in that todo, would be to
+> pre-fill the title field with YYYY/MM/DD/ using Javascript.
+> --[[smcv]]
 
 I don't think that changing titlepage is a good idea, there are
 compatability problems.
@@ -27,5 +34,9 @@ inserted if any changes are made to the page name. Only problem with this
 is that having the directive appear in the edit box for a new page could
 confuse the user. The title could be passed on in a hidden field, and
 prepended to the page when it's saved..
+
+--[[Joey]]
+
+> I'll pass on these comments to the two similar todo items. --[[smcv]]
 
 [[wishlist]]
