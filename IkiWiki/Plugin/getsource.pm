@@ -20,7 +20,7 @@ sub getsetup () {
 		},
 		getsource_mimetype => {
 			type => "string",
-			example => "application/octet-stream",
+			example => "text/plain; charset=utf-8",
 			description => "Mime type for returned source.",
 			safe => 1,
 			rebuild => 0,
@@ -60,7 +60,7 @@ sub cgi_getsource ($) {
 		my $data = IkiWiki::readfile(IkiWiki::srcfile($IkiWiki::pagesources{$page}));
 		
 		if (! $config{getsource_mimetype}) {
-			$config{getsource_mimetype} = "text/plain";
+			$config{getsource_mimetype} = "text/plain; charset=utf-8";
 		}
 		
 		print "Content-Type: $config{getsource_mimetype}\r\n";
