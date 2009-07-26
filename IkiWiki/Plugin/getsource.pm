@@ -66,6 +66,17 @@ sub cgi_getsource ($) {
 		exit;
 	}
 
+	if (! defined pagetype($IkiWiki::pagesources{$page})) {
+		IkiWiki::cgi_custom_failure(
+			$cgi->header(-status => "403 Forbidden"),
+			IkiWiki::misctemplate(gettext("not a page"),
+				"<p>".
+				sprintf(gettext("%s is an attachment, not a page."),
+					htmllink("", "", $page)).
+				"</p>"));
+		exit;
+	}
+
 	my $data = IkiWiki::readfile(IkiWiki::srcfile($IkiWiki::pagesources{$page}));
 
 	if (! $config{getsource_mimetype}) {
