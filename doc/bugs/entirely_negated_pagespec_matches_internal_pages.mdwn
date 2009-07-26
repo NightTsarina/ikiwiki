@@ -21,3 +21,10 @@ pagespec, and implicitly add "and !internal()" to it.
 
 Either approach would require fully parsing the pagespec. And consider cases
 like "!(foo and !bar)". Doesn't seem at all easy to solve. --[[Joey]]
+
+> It occurs to me that at least one place in ikiwiki optimizes by assuming
+> that pagespecs not mentioning the word "internal" never match internal
+> pages. I wonder whether this bug could be solved by making that part of
+> the definition of a pagespec, rather than a risky optimization
+> like it is now? That seems strange, though - having this special case
+> would make pagespecs significantly harder to understand. --[[smcv]]
