@@ -43,7 +43,7 @@ sub cgi_getsource ($) {
 	my $cgi=shift;
 
 	# Note: we use sessioncgi rather than just cgi
-	# because we need $IkiWiki::pagesources{} to be
+	# because we need %pagesources to be
 	# populated.
 
 	return unless (defined $cgi->param('do') &&
@@ -55,7 +55,7 @@ sub cgi_getsource ($) {
 
 	IkiWiki::loadindex();
 
-	if (! exists $IkiWiki::pagesources{$page}) {
+	if (! exists $pagesources{$page}) {
 		IkiWiki::cgi_custom_failure(
 			$cgi->header(-status => "404 Not Found"),
 			IkiWiki::misctemplate(gettext("missing page"),
@@ -66,7 +66,7 @@ sub cgi_getsource ($) {
 		exit;
 	}
 
-	if (! defined pagetype($IkiWiki::pagesources{$page})) {
+	if (! defined pagetype($pagesources{$page})) {
 		IkiWiki::cgi_custom_failure(
 			$cgi->header(-status => "403 Forbidden"),
 			IkiWiki::misctemplate(gettext("not a page"),
@@ -77,7 +77,7 @@ sub cgi_getsource ($) {
 		exit;
 	}
 
-	my $data = IkiWiki::readfile(IkiWiki::srcfile($IkiWiki::pagesources{$page}));
+	my $data = readfile(srcfile($pagesources{$page}));
 
 	if (! $config{getsource_mimetype}) {
 		$config{getsource_mimetype} = "text/plain; charset=utf-8";
