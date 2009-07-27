@@ -77,18 +77,14 @@ sub cgi_getsource ($) {
 		exit;
 	}
 
-	my $data = readfile(srcfile($pagesources{$page}));
-
 	if (! $config{getsource_mimetype}) {
 		$config{getsource_mimetype} = "text/plain; charset=utf-8";
 	}
 
 	print "Content-Type: $config{getsource_mimetype}\r\n";
-
 	print ("\r\n");
+	print readfile(srcfile($pagesources{$page}));
 
-	print $data;
-	
 	exit 0;
 }
 
