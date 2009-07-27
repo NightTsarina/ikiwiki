@@ -24,6 +24,9 @@ I just implemented this.  There is one [[patch]] to the default page template, a
 >>
 >> --[[smcv]]
 
+>>> That looks like a nice set of fixes.  One more that might be worthwhile: instead of reading the page source into a var, and then writing it out later, it might be nice to just
+>>>  `print readfile(srcfile(pagesources{$page}));` at the appropriate point. -- [[Will]]
+
 ----
 
     diff --git a/templates/page.tmpl b/templates/page.tmpl

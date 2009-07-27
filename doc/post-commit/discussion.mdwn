@@ -45,3 +45,16 @@ Thanks
 > Yes, ikiwiki does expect you to use your revision control system to check
 > in changes. Otherwise, recentchanges cannot work right, since it uses the
 > commit history from your revision control system. --[[Joey]]
+
+-----
+
+I'm working on an [[rcs]] plugin for CVS, adapted from `svn.pm`, in order to integrate ikiwiki at sites where that's all they've got. What's working so far: web commit (post-commit hook and all), diff, add (under certain conditions), and remove. What's not working: with rcs_add(), iff any of the new page's parent dirs aren't already under CVS control and the post-commit hook is enabled, the browser and ikiwiki stall for several seconds trying to add it, then time out. (If I kill ikiwiki when this is happening, it cvs adds the topmost parent that needed adding; if I wait for timeout, it doesn't. I think.) If I disable the post-commit hook and do the same kind of thing, the page is created and saved.
+
+In case you're lucky enough not to know, cvs adds on directories are weird -- they operate immediately against the repository, unlike file adds:
+
+    $ cvs add randomdir
+    Directory /Users/schmonz/Documents/cvswiki/repository/ikiwiki/randomdir added to the repository
+
+I was able to work out that when I'm seeing this page save misbehavior, my plugin is somewhere inside `system("cvs", "-Q", "add", "$file")`, which was never returning. If I changed it to anything other than cvs it iterated correctly over all the parent dirs which needed to be added to CVS, in the proper order. (cvs add isn't recursive, sadly.)
+
+Can you offer an educated guess what's going wrong here? --[[Schmonz]]
