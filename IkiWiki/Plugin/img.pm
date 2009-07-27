@@ -44,6 +44,7 @@ sub preprocess (@) {
 	}
 
 	add_link($params{page}, $image);
+
 	# optimisation: detect scan mode, and avoid generating the image
 	if (! defined wantarray) {
 		return;
@@ -65,6 +66,8 @@ sub preprocess (@) {
 	my $r;
 
 	if ($params{size} ne 'full') {
+		add_depends($params{page}, $image);
+
 		my ($w, $h) = ($params{size} =~ /^(\d*)x(\d*)$/);
 		error sprintf(gettext('wrong size format "%s" (should be WxH)'), $params{size})
 			unless (defined $w && defined $h &&
@@ -101,8 +104,6 @@ sub preprocess (@) {
 		error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 		$imglink = $file;
 	}
-
-	add_depends($imglink, $params{page});
 
 	my ($fileurl, $imgurl);
 	if (! $params{preview}) {
