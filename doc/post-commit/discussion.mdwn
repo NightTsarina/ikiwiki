@@ -58,3 +58,5 @@ In case you're lucky enough not to know, cvs adds on directories are weird -- th
 I was able to work out that when I'm seeing this page save misbehavior, my plugin is somewhere inside `system("cvs", "-Q", "add", "$file")`, which was never returning. If I changed it to anything other than cvs it iterated correctly over all the parent dirs which needed to be added to CVS, in the proper order. (cvs add isn't recursive, sadly.)
 
 Can you offer an educated guess what's going wrong here? --[[Schmonz]]
+
+> Got `rcs_recentchanges` working, believe it or not, thanks to [cvsps](http://www.cobite.com/cvsps/). If I can figure out this interaction between the post-commit hook and `cvs add` on directories, the CVS plugin is mostly done. Could it be a locking issue? Where should I be looking? Any suggestions appreciated. --[[Schmonz]]
