@@ -48,15 +48,52 @@ Thanks
 
 -----
 
-I'm working on an [[rcs]] plugin for CVS, adapted from `svn.pm`, in order to integrate ikiwiki at sites where that's all they've got. What's working so far: web commit (post-commit hook and all), diff, add (under certain conditions), and remove. What's not working: with rcs_add(), iff any of the new page's parent dirs aren't already under CVS control and the post-commit hook is enabled, the browser and ikiwiki stall for several seconds trying to add it, then time out. (If I kill ikiwiki when this is happening, it cvs adds the topmost parent that needed adding; if I wait for timeout, it doesn't. I think.) If I disable the post-commit hook and do the same kind of thing, the page is created and saved.
+I'm working on an [[rcs]] plugin for CVS, adapted from `svn.pm`, in order
+to integrate ikiwiki at sites where that's all they've got. What's working
+so far: web commit (post-commit hook and all), diff, add (under certain
+conditions), and remove. What's not working: with rcs_add(), iff any of the
+new page's parent dirs aren't already under CVS control and the post-commit
+hook is enabled, the browser and ikiwiki stall for several seconds trying
+to add it, then time out. (If I kill ikiwiki when this is happening, it cvs
+adds the topmost parent that needed adding; if I wait for timeout, it
+doesn't. I think.) If I disable the post-commit hook and do the same kind
+of thing, the page is created and saved.
 
-In case you're lucky enough not to know, cvs adds on directories are weird -- they operate immediately against the repository, unlike file adds:
+In case you're lucky enough not to know, cvs adds on directories are weird
+-- they operate immediately against the repository, unlike file adds:
 
     $ cvs add randomdir
     Directory /Users/schmonz/Documents/cvswiki/repository/ikiwiki/randomdir added to the repository
 
-I was able to work out that when I'm seeing this page save misbehavior, my plugin is somewhere inside `system("cvs", "-Q", "add", "$file")`, which was never returning. If I changed it to anything other than cvs it iterated correctly over all the parent dirs which needed to be added to CVS, in the proper order. (cvs add isn't recursive, sadly.)
+I was able to work out that when I'm seeing this page save misbehavior, my
+plugin is somewhere inside `system("cvs", "-Q", "add", "$file")`, which was
+never returning. If I changed it to anything other than cvs it iterated
+correctly over all the parent dirs which needed to be added to CVS, in the
+proper order. (cvs add isn't recursive, sadly.)
 
 Can you offer an educated guess what's going wrong here? --[[Schmonz]]
 
-> Got `rcs_recentchanges` working, believe it or not, thanks to [cvsps](http://www.cobite.com/cvsps/). If I can figure out this interaction between the post-commit hook and `cvs add` on directories, the CVS plugin is mostly done. Could it be a locking issue? Where should I be looking? Any suggestions appreciated. --[[Schmonz]]
+> Got `rcs_recentchanges` working, believe it or not, thanks to
+> [cvsps](http://www.cobite.com/cvsps/). If I can figure out this
+> interaction between the post-commit hook and `cvs add` on directories,
+> the CVS plugin is mostly done. Could it be a locking issue? Where should
+> I be looking? Any suggestions appreciated. --[[Schmonz]]
+
+>> Locking certianly seems likely to be a problem. ikiwiki calls `rcs_add`
+>> *before* disabling the post-commit plugin, since all over VCS allow
+>> adding something in a staged manner. You can see this in, for example,
+>> `editpage.pm` lines 391+.
+>> 
+>> So I guess what happens is that ikiwiki has taken the wiki lock, calls
+>> `rcs_add`, which does a `cvs add`, which runs the post commit hook,
+>> since it is not disabled -- which blocks waiting for the wiki lock.
+>>
+>> I guess you can fix this in either of three ways: Modify lots of places
+>> in ikiwiki to disable the post commit hook before calling `rcs_add`,
+>> or make cvs's `rcs_add` temporarily disable the commit hook and
+>> re-enable it (but only if it was not already disabled, somehow),
+>> or make cvs's `rcs_add` only make note that it needs to call `cvs add`
+>> later, and do so at `rcs_commit`. The last of these seems easist,
+>> especially since ikiwiki always commits after an add, in the same
+>> process, so you could just use a temporary list of things to add.
+>> --[[Joey]] 
