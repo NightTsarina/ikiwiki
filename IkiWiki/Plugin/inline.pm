@@ -151,7 +151,7 @@ my %feedlinks;
 sub preprocess_inline (@) {
 	my %params=@_;
 	
-	if (! exists $params{pages}) {
+	if (! exists $params{pages} && ! exists $params{pagenames}) {
 		error gettext("missing pages parameter");
 	}
 	my $raw=yesno($params{raw});
@@ -183,28 +183,47 @@ sub preprocess_inline (@) {
 		$params{template} = $archive ? "archivepage" : "inlinepage";
 	}
 
-	my @list=pagespec_match_list(
-		[ grep { $_ ne $params{page} } keys %pagesources ],
-		$params{pages}, location => $params{page});
+	my @list;
 
-	if (exists $params{sort} && $params{sort} eq 'title') {
-		@list=sort { pagetitle(basename($a)) cmp pagetitle(basename($b)) } @list;
-	}
-	elsif (exists $params{sort} && $params{sort} eq 'title_natural') {
-		eval q{use Sort::Naturally};
-		if ($@) {
-			error(gettext("Sort::Naturally needed for title_natural sort"));
+	if (exists $params{pagenames}) {
+
+		foreach my $p (qw(sort pages)) {
+			if (exists $params{$p}) {
+				error sprintf(gettext("the %s and %s parameters cannot be used together"),
+					"pagenames", $p);
+			}
 		}
-		@list=sort { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) } @list;
-	}
-	elsif (exists $params{sort} && $params{sort} eq 'mtime') {
-		@list=sort { $pagemtime{$b} <=> $pagemtime{$a} } @list;
-	}
-	elsif (! exists $params{sort} || $params{sort} eq 'age') {
-		@list=sort { $pagectime{$b} <=> $pagectime{$a} } @list;
+
+		@list = split ' ', $params{pagenames};
+		my $_;
+		@list = map { bestlink($params{page}, $_) } @list;
+
+		$params{pages} = join(" or ", @list);
 	}
 	else {
-		error sprintf(gettext("unknown sort type %s"), $params{sort});
+		@list = pagespec_match_list(
+			[ grep { $_ ne $params{page} } keys %pagesources ],
+			$params{pages}, location => $params{page});
+
+		if (exists $params{sort} && $params{sort} eq 'title') {
+			@list=sort { pagetitle(basename($a)) cmp pagetitle(basename($b)) } @list;
+		}
+		elsif (exists $params{sort} && $params{sort} eq 'title_natural') {
+			eval q{use Sort::Naturally};
+			if ($@) {
+				error(gettext("Sort::Naturally needed for title_natural sort"));
+			}
+			@list=sort { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) } @list;
+		}
+		elsif (exists $params{sort} && $params{sort} eq 'mtime') {
+			@list=sort { $pagemtime{$b} <=> $pagemtime{$a} } @list;
+		}
+		elsif (! exists $params{sort} || $params{sort} eq 'age') {
+			@list=sort { $pagectime{$b} <=> $pagectime{$a} } @list;
+		}
+		else {
+			error sprintf(gettext("unknown sort type %s"), $params{sort});
+		}
 	}
 
 	if (yesno($params{reverse})) {
