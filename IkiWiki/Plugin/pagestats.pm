@@ -38,13 +38,22 @@ sub preprocess (@) {
 	# Needs to update whenever a page is added or removed, so
 	# register a dependency.
 	add_depends($params{page}, $params{pages});
+	add_depends($params{page}, $params{among}) if exists $params{among};
 	
 	my %counts;
 	my $max = 0;
 	foreach my $page (pagespec_match_list([keys %links],
 			$params{pages}, location => $params{page})) {
 		use IkiWiki::Render;
-		$counts{$page} = scalar(IkiWiki::backlinks($page));
+
+		my @backlinks = IkiWiki::backlink_pages($page);
+
+		if (exists $params{among}) {
+			@backlinks = pagespec_match_list(\@backlinks,
+				$params{among}, location => $params{page});
+		}
+
+		$counts{$page} = scalar(@backlinks);
 		$max = $counts{$page} if $counts{$page} > $max;
 	}
 
@@ -63,6 +72,8 @@ sub preprocess (@) {
 
 		my $res = "<div class='pagecloud'>\n";
 		foreach my $page (sort keys %counts) {
+			next unless $counts{$page} > 0;
+
 			my $class = $classes[$counts{$page} * scalar(@classes) / ($max + 1)];
 			$res .= "<span class=\"$class\">".
 			        htmllink($params{page}, $params{destpage}, $page).
