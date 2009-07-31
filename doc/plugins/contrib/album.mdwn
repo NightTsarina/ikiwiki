@@ -65,6 +65,13 @@ The next/previous links are themselves implemented by
 photo, using a special template (by default `albumnext.tmpl`
 or `albumprev.tmpl`), in `archive`/`quick` mode.
 
+> With hindsight, using an inline here is wrong - I should just
+> run hooks and fill in the template within the album plugin.
+> inline has some specialized functionality that's overkill
+> here, and its delayed HTML substitution breaks the ability
+> to have previous/up/next links both above and below the
+> photo, for instance. --[[smcv]]
+
 ## Writing the album
 
 The album contains one `\[[!album]]` directive. It may also
