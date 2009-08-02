@@ -3,3 +3,12 @@ Hi,
 Can you give me a hint for showing if one user is logged or not. If user is logged, then I want to display the user name, as wikipedia or dokuwiki for example.
 Regards,
 Xan.
+
+> ikiwiki doesn't serve pages, so this can't be done inside ikiwiki.
+> For certain kinds of authentication it might be possible anyway.
+> For instance, if you're using [[plugins/httpauth]] exclusively and
+> your server has PHP, you could put `<?php print("$REMOTE_USER");
+> ?>` in all the relevant ikiwiki [[templates]] and arrange for the
+> generated HTML pages to get run through the PHP interpreter. The trick
+> would work differently with other [[plugins/type/auth]] plugins,
+> if at all.
