@@ -6,5 +6,11 @@ I installed ikiwiki v3.14159 in /usr/local from tarball (/usr contains an older 
 > to the underlaying VCS? Which VCS? These are all different code paths..
 > --[[Joey]] 
 
+>> It's blocking when I run "ikiwiki --setup ikiwiki.setup" (which calls hg update, which calls ikiwiki --post-commit).
+>> Hmm, maybe it's the recursive call to ikiwiki which is the problem.
+>> The underlying VCS is mercurial. --Ali
+
 > Also, how have you arranged to keep it from seeing the installation in /usr? Perl could well be loading
 > modules from the old installation, and if it's one with a different locking strategy that would explain your problem. --[[Joey]] 
+
+>> Good point. Not knowing perl, I just assumed /usr/local would take precedence. I've now used "dpkg -r ikiwiki" to remove the problem. --Ali
