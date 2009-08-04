@@ -20,6 +20,10 @@ I installed ikiwiki v3.14159 in /usr/local from tarball (/usr contains an older 
 >>> Or, you can use the `--post-commit` option, as documented
 >>> in [[rcs/mecurial]] --[[Joey]] 
 
+>>>> I don't run ikiwiki --setup in the commit hook; I run ikiwiki --post-commit (as mentioned above).
+>>>> I'm trying to run ikiwiki --setup from the command line after modifying the setup file.
+>>>> ikiwiki --setup is calling hg update, which is calling ikiwiki --post-commit. Am I not supposed to do that? --Ali
+
 > Also, how have you arranged to keep it from seeing the installation in /usr? Perl could well be loading
 > modules from the old installation, and if it's one with a different locking strategy that would explain your problem. --[[Joey]] 
 
