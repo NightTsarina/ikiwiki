@@ -10,6 +10,16 @@ I installed ikiwiki v3.14159 in /usr/local from tarball (/usr contains an older 
 >> Hmm, maybe it's the recursive call to ikiwiki which is the problem.
 >> The underlying VCS is mercurial. --Ali
 
+>>> You're not supposed to run ikiwiki -setup manually in your post commit hook.
+>>> Doing so will certianly lead to a locking problem; it also forces ikiwiki to rebuild
+>>> the entire wiki anytime a single page changes, which is very inefficient!
+>>>
+>>> Instead, you should use the `mercurial_wrapper` setting
+>>> in the setup file, which will make ikiwiki generate a small
+>>> executable expressly designed to be run at post commit time.
+>>> Or, you can use the `--post-commit` option, as documented
+>>> in [[rcs/mecurial]] --[[Joey]] 
+
 > Also, how have you arranged to keep it from seeing the installation in /usr? Perl could well be loading
 > modules from the old installation, and if it's one with a different locking strategy that would explain your problem. --[[Joey]] 
 
