@@ -27,6 +27,18 @@ I installed ikiwiki v3.14159 in /usr/local from tarball (/usr contains an older 
 >>>>> No, I don't think that hg update should call ikiwiki anything. The
 >>>>> [[hgrc_example|rcs/mercurial]] doesn't seem to configure it to do that? --[[Joey]] 
 
+>>>>>> Ok, I'm not sure I understand what's going on, but my problem is solved.
+>>>>>>
+>>>>>> My hgrc used to say:
+>>>>>>
+>>>>>> [hooks]
+>>>>>>
+>>>>>> incoming.update = hg up
+>>>>>>
+>>>>>> update.ikiwiki = ikiwiki --setup /home/ikiwiki/ikiwiki.setup --post-commit
+>>>>>>
+>>>>>> I've now changed it to match the example page and it works. Thanks --Ali.
+
 > Also, how have you arranged to keep it from seeing the installation in /usr? Perl could well be loading
 > modules from the old installation, and if it's one with a different locking strategy that would explain your problem. --[[Joey]] 
 
