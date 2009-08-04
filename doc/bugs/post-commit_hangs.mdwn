@@ -5,3 +5,6 @@ I installed ikiwiki v3.14159 in /usr/local from tarball (/usr contains an older 
 > It's blocking when you do what? Save a page from the web? Make a commit
 > to the underlaying VCS? Which VCS? These are all different code paths..
 > --[[Joey]] 
+
+> Also, how have you arranged to keep it from seeing the installation in /usr? Perl could well be loading
+> modules from the old installation, and if it's one with a different locking strategy that would explain your problem. --[[Joey]] 
