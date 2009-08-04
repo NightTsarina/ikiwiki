@@ -16,6 +16,10 @@ changes via [[Subversion|rcs/svn]], [[rcs/git]], or any of a number of other
 ikiwiki can be run from a [[post-commit]] hook to update your wiki
 immediately whenever you commit a change using the RCS.
 
+It's even possible to securely let
+[[anonymous_users_git_push_changes|tips/untrusted_git_push]]
+to the wiki.
+
 Note that ikiwiki does not require a RCS to function. If you want to
 run a simple wiki without page history, it can do that too.
 
@@ -142,7 +146,8 @@ authentication, or other methods implemented via plugins.
 
 Thanks to subpages, every page can easily and automatically have a
 /Discussion subpage. By default, these links are included in the
-[[templates]] for each page.
+[[templates]] for each page. If you prefer blog-syle
+[[plugins/comments]], that is available too.
 
 ### Edit controls
 
@@ -160,6 +165,11 @@ Well, sorta. Rather than implementing YA history browser, it can link to
 
 ikiwiki can use the xapian search engine to add powerful
 full text [[plugins/search]] capabilities to your wiki.
+
+### Translation via po files
+
+The [[plugins/po]] plugin allows translating individual wiki pages using
+standard `po` files.
 
 ### [[w3mmode]]
 
