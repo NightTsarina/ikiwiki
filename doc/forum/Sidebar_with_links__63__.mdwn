@@ -1,0 +1,41 @@
+I'm trying to create a template to use as a sidebar with links. The template will be static
+(no variables are used). I first created a page with this directive: \[[!template id=sidebar]],
+and then created the template with the web interface.
+
+This is the code I put in the template:
+
+    <div class="infobox">
+    <ul>
+    <li>\[[Existing internal link|exists]]</li>
+    <li>\[[Non-existing internal link|doesnotexist]]</li>
+    <li>[External link](http://google.com/)</li>
+    </ul>
+    <http://google.com/>
+    </div>
+
+This is the relevant part of the resulting html file `template/sidebar.html`:
+
+    <div class="infobox">
+    <ul>
+    <li><a href="../exists.html">Existing internal link</a></li>
+    <li><span class="createlink"><a href="http://localhost/cgi-bin/itesohome.cgi?page=doesnotexist&amp;from=templates%2Fsidebar&amp;do=create" rel="nofollow">?</a>Non-existing internal link</span></li>
+    <li>[External link](http://google.com/)</li>
+    </ul>
+    </div>
+
+Note that the `<http://google.com/>` link has disappeared, and that `[External link](http://google.com/)`
+has been copied literally instead of being converted to a link, as I expected.
+
+Worse, this is the relevant part of the html file of the page that includes the template:
+
+    <div class="infobox">
+    <ul>
+    <li><span class="selflink">Existing internal link</span></li>
+    <li><span class="createlink"><a href="http://localhost/cgi-bin/itesohome.cgi?page=doesnotexist&amp;from=research&amp;do=create" rel="nofollow">?</a>Non-existing internal link</span></li>
+    <li>[External link](http://google.com/)</li>
+    </ul>
+    </div>
+
+Note that the `Existing internal link` is no longer a link. It is only text.
+
+What am I doing wrong? Any help or pointers will be appreciated. --[[buo]]
