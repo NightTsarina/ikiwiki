@@ -1,0 +1,13 @@
+[[!template id=plugin name=getsource author="[[Will_Uther|Will]]"]]
+
+This plugin adds a `getsource` action to the IkiWiki CGI, and a "Source" link
+that uses it to display pages' source.
+
+Configuration for this plugin in the setup file:
+
+* `getsource_mimetype => "text/plain; charset=utf-8"`
+
+  Sets the MIME type used when page source is requested. The default is
+  usually appropriate, but you could set this to `application/octet-stream`
+  to encourage browsers to download the source to a file rather than showing
+  it in the browser.
