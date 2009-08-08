@@ -42,10 +42,6 @@ sub pagetemplate (@) {
 sub cgi_getsource ($) {
 	my $cgi=shift;
 
-	# Note: we use sessioncgi rather than just cgi
-	# because we need %pagesources to be
-	# populated.
-
 	return unless (defined $cgi->param('do') &&
 					$cgi->param("do") eq "getsource");
 
@@ -53,6 +49,7 @@ sub cgi_getsource ($) {
 
 	my $page=$cgi->param('page');
 
+	# For %pagesources.
 	IkiWiki::loadindex();
 
 	if (! exists $pagesources{$page}) {
