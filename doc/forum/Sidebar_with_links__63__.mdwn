@@ -1,0 +1,58 @@
+I'm trying to create a template to use as a sidebar with links. The template will be static
+(no variables are used). I first created a page with this directive: \[[!template id=sidebar]],
+and then created the template with the web interface.
+
+This is the code I put in the template:
+
+    <div class="infobox">
+    <ul>
+    <li>\[[Existing internal link|exists]]</li>
+    <li>\[[Non-existing internal link|doesnotexist]]</li>
+    <li>[External link](http://google.com/)</li>
+    </ul>
+    <http://google.com/>
+    </div>
+
+This is the relevant part of the resulting html file `template/sidebar.html`:
+
+    <div class="infobox">
+    <ul>
+    <li><a href="../exists.html">Existing internal link</a></li>
+    <li><span class="createlink"><a href="http://localhost/cgi-bin/itesohome.cgi?page=doesnotexist&amp;from=templates%2Fsidebar&amp;do=create" rel="nofollow">?</a>Non-existing internal link</span></li>
+    <li>[External link](http://google.com/)</li>
+    </ul>
+    </div>
+
+Note that the `<http://google.com/>` link has disappeared, and that `[External link](http://google.com/)`
+has been copied literally instead of being converted to a link, as I expected.
+
+> Templates aren't Markdown page. [[ikiwiki/WikiLink]] only are expanded. --[[Jogo]]
+
+>> Thanks for the help Jogo. Looking at the [[templates]] page, it says that
+"...you can include WikiLinks and all other forms of wiki markup in the template." I read this
+to mean that a template may indeed include Markdown. Am I wrong in my interpratation? --[[buo]] 
+
+>> I discovered that if I eliminate all html from my sidebar.mdwn template, the links are
+rendered properly. It seems that the mix of Markdown and html is confusing some part of
+Ikiwiki. --[[buo]]
+
+Worse, this is the relevant part of the html file of the page that includes the template:
+
+    <div class="infobox">
+    <ul>
+    <li><span class="selflink">Existing internal link</span></li>
+    <li><span class="createlink"><a href="http://localhost/cgi-bin/itesohome.cgi?page=doesnotexist&amp;from=research&amp;do=create" rel="nofollow">?</a>Non-existing internal link</span></li>
+    <li>[External link](http://google.com/)</li>
+    </ul>
+    </div>
+
+Note that the `Existing internal link` is no longer a link. It is only text.
+
+What am I doing wrong? Any help or pointers will be appreciated. --[[buo]]
+
+-----
+
+I think I have figured this out. I thought the template was filled and then
+processed to convert Markdown to html. Instead, the text in each variable is
+processed and then the template is filled. I somehow misunderstood the 
+[[templates]] page. -- [[buo]]
