@@ -42,12 +42,16 @@ sub pagetemplate (@) {
 sub cgi_getsource ($) {
 	my $cgi=shift;
 
-	return unless (defined $cgi->param('do') &&
-					$cgi->param("do") eq "getsource");
+	return unless defined $cgi->param('do') &&
+	              $cgi->param("do") eq "getsource";
 
 	IkiWiki::decode_cgi_utf8($cgi);
 
 	my $page=$cgi->param('page');
+
+	if (! defined $page || $page !~ /$config{wiki_file_regexp}/) {
+		error("invalid page parameter");
+	}
 
 	# For %pagesources.
 	IkiWiki::loadindex();
