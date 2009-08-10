@@ -2,20 +2,16 @@
 
 This plugin allows ikiwiki to use [[!wikipedia desc="CVS" Concurrent Versions System]] as an [[rcs]].
 
-* Diffs are against [[3.14159|news/version_3.14159]]. `cvs.pm` started life as a copy of `svn.pm`.
-* `IkiWiki.pm:wiki_file_prune_regexps` avoids copying CVS metadata into `$DESTDIR`.
-* [[ikiwiki-makerepo]]:
- * creates a repository,
- * imports `$SRCDIR` into top-level module `ikiwiki` (vendor tag IKIWIKI, release tag PRE_CVS),
- * creates a small post-commit wrapper to prevent `cvs add <directory>` from being seen by ikiwiki's [[post-commit]] hook,
- * configures the wrapper itself as a post-commit hook in `CVSROOT/loginfo`.
-* [`cvsps`](http://www.cobite.com/cvsps/) is required (`rcs_recentchanges()` and `rcs_diff()` need it to work).
-* [[!cpan IPC::Cmd]] and [[!cpan String::ShellQuote]] are required (to safely keep `cvs` quiet and to safely escape commit messages, respectively).
-* CVS multi-directory commits happen separately; the post-commit hook sees only the first directory's changes in time for [[recentchanges|plugins/recentchanges]]. The next run of `ikiwiki --setup` will correctly re-render such a recentchanges entry. It might be possible to solve this problem with scripts like `commit_prep` and `log_accum` from CVS contrib.
-* Due to the name of CVS's metadata directories, it's impossible to create `.../CVS/foo.mdwn`. On case-insensitive filesystems it's also impossible to create `.../cvs/foo.mdwn`. Since the failure can have confusing effects on one's CVS checkout, perhaps the web interface should prevent the attempt.
-* No testing or special-casing has been done with [[attachments|plugins/attachment]], but they'll probably need `cvs add -kb`.
+### Installation and usage
+7. Apply patches to [`IkiWiki.pm`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs-IkiWiki.pm.diff)
+and [`ikiwiki-makerepo`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs-ikiwiki-makerepo.diff).
+7. Rebuild and install ikiwiki.
+7. Install [cvsps](http://www.cobite.com/cvsps/), [[!cpan IPC::Cmd]], [[!cpan String::ShellQuote]], and [cvsweb](http://www.freebsd.org/projects/cvsweb.html) or the like.
+7. Download [`cvs.pm`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs.pm) into a suitable `$libdir/IkiWiki/Plugin`.
+7. While setting up a wiki [[by hand|setup/byhand]], also specify `--libdir` until you get to the point where you have a setup file. (This ensures the CVS plugin is found and its settings stanza included.)
+7. Adjust CVS-related parameters in your setup file.
 
-Having a `$HOME/.cvsrc` isn't necessary. Sure does make using CVS more livable, though. Here's a good general-purpose one:
+Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn't need it, but you yourself might. Here's a good general-purpose one:
 
     cvs -q
     checkout -P
@@ -23,10 +19,19 @@ Having a `$HOME/.cvsrc` isn't necessary. Sure does make using CVS more livable, 
     diff -u
     rdiff -u
 
-Not knowing how the tests get set up, I blindly attempted to add subversion-like tests to `t/file_pruned.t`. They fail. But the plugin definitely works. :-)
+### Implementation details
+* Diffs are against [[3.14159|news/version_3.14159]]. `cvs.pm` started life as a copy of `svn.pm`.
+* `IkiWiki.pm:wiki_file_prune_regexps` avoids copying CVS metadata into `$DESTDIR`.
+* [[ikiwiki-makerepo]]:
+ * creates a repository,
+ * imports `$SRCDIR` into top-level module `ikiwiki` (vendor tag IKIWIKI, release tag PRE_CVS),
+ * creates a small post-commit wrapper to prevent `cvs add <directory>` from being seen by ikiwiki's [[post-commit]] hook (and avoid `cvs` locking against itself),
+ * configures the wrapper itself as a post-commit hook in `CVSROOT/loginfo`.
+* CVS multi-directory commits happen separately; the post-commit hook sees only the first directory's changes in time for [[recentchanges|plugins/recentchanges]]. The next run of `ikiwiki --setup` will correctly re-render such a recentchanges entry. It should be possible to solve this problem with NetBSD's `commit_prep` and `log_accum` scripts (see below).
 
-### Code
-* [`cvs.pm`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs.pm)
-* [`cvs-IkiWiki.pm.diff`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs-IkiWiki.pm.diff)
-* [`cvs-ikiwiki-makerepo.diff`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs-ikiwiki-makerepo.diff)
-* [`cvs-t-file_pruned.t.diff`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs-t-file_pruned.t.diff)
+### To do
+* Add automated tests. ([Blindly adding svn-like tests to `t/file_pruned.t`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs-t-file_pruned.t.diff) doesn't do the trick.)
+* If the argument to `cvs add` smells like a binary file, `cvs add -kb` it (for [[plugins/attachment]] support).
+* Don't slurp the entire `cvsps` output into memory (!).
+* Instead of resource-intensively scraping changesets with `cvsps`, have `ikiwiki-makerepo` set up NetBSD-like `log_accum` and `commit_prep` scripts that coalesce and keep records of commits. `cvsps` can be used as a fallback for repositories without such records.
+* Perhaps prevent web edits from attempting to create `.../CVS/foo.mdwn` (and `.../cvs/foo.mdwn` on case-insensitive filesystems); thanks to the CVS metadata directory, the attempt will fail anyway (and much more confusingly) if we don't.
