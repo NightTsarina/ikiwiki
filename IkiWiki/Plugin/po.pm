@@ -827,6 +827,21 @@ sub refreshpofiles ($@) {
 
 	foreach my $pofile (@pofiles) {
 		IkiWiki::prep_writefile(basename($pofile),dirname($pofile));
+
+		if (! -e $pofile) {
+			# If the po file exists in an underlay, copy it
+			# from there.
+			my ($pobase)=$pofile=~/^\Q$config{srcdir}\E\/?(.*)$/;
+			foreach my $dir (@{$config{underlaydirs}}) {
+				if (-e "$dir/$pobase") {
+					File::Copy::syscopy("$dir/$pobase",$pofile)
+						or error("po(refreshpofiles) ".
+							 sprintf(gettext("failed to copy underlay PO file to %s"),
+								 $pofile));
+				}
+			}
+		}
+
 		if (-e $pofile) {
 			system("msgmerge", "--previous", "-q", "-U", "--backup=none", $pofile, $potfile) == 0
 				or error("po(refreshpofiles) ".
