@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.141\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-23 01:01+0200\n"
+"POT-Creation-Date: 2009-08-11 15:00-0400\n"
 "PO-Revision-Date: 2009-06-29 16:42+0200\n"
 "Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
@@ -149,17 +149,17 @@ msgstr "Vous devez spécifier %s"
 
 #: ../IkiWiki/Plugin/amazon_s3.pm:136
 #, fuzzy
-msgid "Failed to create bucket inside S3: "
+msgid "Failed to create S3 bucket: "
 msgstr "Impossible de créer un compartiment S3 :"
 
 #: ../IkiWiki/Plugin/amazon_s3.pm:221
 #, fuzzy
-msgid "Failed to save file into S3: "
+msgid "Failed to save file to S3: "
 msgstr "Impossible de sauvegarder le fichier dans le compartiment S3 :"
 
 #: ../IkiWiki/Plugin/amazon_s3.pm:243
 #, fuzzy
-msgid "Failed to delete file inside S3: "
+msgid "Failed to delete file from S3: "
 msgstr "Échec lors de la suppression du fichier sur S3 :"
 
 #: ../IkiWiki/Plugin/attachment.pm:49
@@ -192,10 +192,10 @@ msgstr ""
 "blogspam.net/\">blogspam</a>: "
 
 #: ../IkiWiki/Plugin/brokenlinks.pm:33 ../IkiWiki/Plugin/editpage.pm:233
-#: ../IkiWiki/Plugin/inline.pm:357 ../IkiWiki/Plugin/inline.pm:365
+#: ../IkiWiki/Plugin/inline.pm:376 ../IkiWiki/Plugin/inline.pm:384
 #: ../IkiWiki/Plugin/opendiscussion.pm:26 ../IkiWiki/Plugin/orphans.pm:37
 #: ../IkiWiki/Plugin/po.pm:289 ../IkiWiki/Plugin/po.pm:292
-#: ../IkiWiki/Render.pm:80 ../IkiWiki/Render.pm:84 ../IkiWiki/Render.pm:150
+#: ../IkiWiki/Render.pm:86 ../IkiWiki/Render.pm:90 ../IkiWiki/Render.pm:156
 msgid "Discussion"
 msgstr "Discussion"
 
@@ -336,6 +336,25 @@ msgstr "le format et le texte doivent être indiqués"
 msgid "fortune failed"
 msgstr "Échec du lancement de « fortune »"
 
+#: ../IkiWiki/Plugin/getsource.pm:62 ../IkiWiki/Plugin/goto.pm:55
+msgid "missing page"
+msgstr "Page manquante"
+
+#: ../IkiWiki/Plugin/getsource.pm:64 ../IkiWiki/Plugin/goto.pm:57
+#, perl-format
+msgid "The page %s does not exist."
+msgstr "La page %s n'existe pas."
+
+#: ../IkiWiki/Plugin/getsource.pm:73
+#, fuzzy
+msgid "not a page"
+msgstr "Impossible de trouver les pages %s"
+
+#: ../IkiWiki/Plugin/getsource.pm:75
+#, fuzzy, perl-format
+msgid "%s is an attachment, not a page."
+msgstr "%s n'est pas une page éditable"
+
 #: ../IkiWiki/Plugin/git.pm:626 ../IkiWiki/Plugin/git.pm:644
 #: ../IkiWiki/Receive.pm:129
 #, perl-format
@@ -360,15 +379,6 @@ msgstr "Vous devez indiquer %s lors de l'utilisation du greffon « search »."
 #: ../IkiWiki/Plugin/google.pm:31
 msgid "Failed to parse url, cannot determine domain name"
 msgstr "Impossible d'analyser l'url, pas de nom de domaine"
-
-#: ../IkiWiki/Plugin/goto.pm:55
-msgid "missing page"
-msgstr "Page manquante"
-
-#: ../IkiWiki/Plugin/goto.pm:57
-#, perl-format
-msgid "The page %s does not exist."
-msgstr "La page %s n'existe pas."
 
 #: ../IkiWiki/Plugin/graphviz.pm:67
 msgid "failed to run graphviz"
@@ -395,27 +405,27 @@ msgstr ""
 "Avertissement : le module perl « highlight » n'est pas disponible. "
 "Continuation malgré tout."
 
-#: ../IkiWiki/Plugin/img.pm:62
+#: ../IkiWiki/Plugin/img.pm:63
 msgid "Image::Magick is not installed"
 msgstr "Image::Magick n'est pas installé"
 
-#: ../IkiWiki/Plugin/img.pm:69
+#: ../IkiWiki/Plugin/img.pm:72
 #, perl-format
 msgid "wrong size format \"%s\" (should be WxH)"
 msgstr ""
 
-#: ../IkiWiki/Plugin/img.pm:80 ../IkiWiki/Plugin/img.pm:84
-#: ../IkiWiki/Plugin/img.pm:101
+#: ../IkiWiki/Plugin/img.pm:83 ../IkiWiki/Plugin/img.pm:87
+#: ../IkiWiki/Plugin/img.pm:104
 #, perl-format
 msgid "failed to read %s: %s"
 msgstr "Échec de la lecture de %s : %s"
 
-#: ../IkiWiki/Plugin/img.pm:87
+#: ../IkiWiki/Plugin/img.pm:90
 #, perl-format
 msgid "failed to resize: %s"
 msgstr "Échec du redimensionnement : %s"
 
-#: ../IkiWiki/Plugin/img.pm:118
+#: ../IkiWiki/Plugin/img.pm:119
 #, perl-format
 msgid "failed to determine size of image %s"
 msgstr "Échec de la détermination de la taille de l'image : %s"
@@ -434,25 +444,30 @@ msgstr "Modification de page interdite"
 msgid "missing pages parameter"
 msgstr "Paramètre « pages » manquant"
 
-#: ../IkiWiki/Plugin/inline.pm:196
+#: ../IkiWiki/Plugin/inline.pm:192
+#, perl-format
+msgid "the %s and %s parameters cannot be used together"
+msgstr ""
+
+#: ../IkiWiki/Plugin/inline.pm:214
 msgid "Sort::Naturally needed for title_natural sort"
 msgstr "Sort::Naturally est nécessaire pour un tri « title_natural »"
 
-#: ../IkiWiki/Plugin/inline.pm:207
+#: ../IkiWiki/Plugin/inline.pm:225
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "Type de tri %s inconnu"
 
-#: ../IkiWiki/Plugin/inline.pm:310
+#: ../IkiWiki/Plugin/inline.pm:329
 msgid "Add a new post titled:"
 msgstr "Ajouter un nouvel article dont le titre est :"
 
-#: ../IkiWiki/Plugin/inline.pm:330
+#: ../IkiWiki/Plugin/inline.pm:349
 #, perl-format
 msgid "nonexistant template %s"
 msgstr "Le modèle de page %s n'existe pas"
 
-#: ../IkiWiki/Plugin/inline.pm:596
+#: ../IkiWiki/Plugin/inline.pm:615
 msgid "RPC::XML::Client not found, not pinging"
 msgstr "RPC::XML::Client introuvable, pas de réponse au ping"
 
@@ -601,7 +616,7 @@ msgstr "Discussion"
 msgid "rebuilding all pages to fix meta titles"
 msgstr ""
 
-#: ../IkiWiki/Plugin/po.pm:383 ../IkiWiki/Render.pm:415
+#: ../IkiWiki/Plugin/po.pm:383 ../IkiWiki/Render.pm:421
 #, fuzzy, perl-format
 msgid "building %s"
 msgstr "va envoyer un ping à %s"
@@ -627,46 +642,51 @@ msgstr ""
 msgid "POT file (%s) does not exist"
 msgstr "La page %s n'existe pas."
 
-#: ../IkiWiki/Plugin/po.pm:833
+#: ../IkiWiki/Plugin/po.pm:839
+#, fuzzy, perl-format
+msgid "failed to copy underlay PO file to %s"
+msgstr "Échec de la compilation de %s"
+
+#: ../IkiWiki/Plugin/po.pm:848
 #, fuzzy, perl-format
 msgid "failed to update %s"
 msgstr "Échec de la compilation de %s"
 
-#: ../IkiWiki/Plugin/po.pm:839
+#: ../IkiWiki/Plugin/po.pm:854
 #, fuzzy, perl-format
 msgid "failed to copy the POT file to %s"
 msgstr "Échec de la compilation de %s"
 
-#: ../IkiWiki/Plugin/po.pm:875
+#: ../IkiWiki/Plugin/po.pm:890
 msgid "N/A"
 msgstr ""
 
-#: ../IkiWiki/Plugin/po.pm:888
+#: ../IkiWiki/Plugin/po.pm:903
 #, fuzzy, perl-format
 msgid "failed to translate %s"
 msgstr "Échec du redimensionnement : %s"
 
-#: ../IkiWiki/Plugin/po.pm:964
+#: ../IkiWiki/Plugin/po.pm:979
 msgid "removed obsolete PO files"
 msgstr ""
 
-#: ../IkiWiki/Plugin/po.pm:1027 ../IkiWiki/Plugin/po.pm:1041
-#: ../IkiWiki/Plugin/po.pm:1081
+#: ../IkiWiki/Plugin/po.pm:1042 ../IkiWiki/Plugin/po.pm:1056
+#: ../IkiWiki/Plugin/po.pm:1096
 #, fuzzy, perl-format
 msgid "failed to write %s"
 msgstr "Échec du redimensionnement : %s"
 
-#: ../IkiWiki/Plugin/po.pm:1039
+#: ../IkiWiki/Plugin/po.pm:1054
 #, fuzzy
 msgid "failed to translate"
 msgstr "Échec du lancement de dot"
 
-#: ../IkiWiki/Plugin/po.pm:1044
+#: ../IkiWiki/Plugin/po.pm:1059
 #, fuzzy, perl-format
 msgid "failed to read %s"
 msgstr "Échec de la lecture de %s : %s"
 
-#: ../IkiWiki/Plugin/po.pm:1093
+#: ../IkiWiki/Plugin/po.pm:1108
 msgid "invalid gettext data, go back to previous page to continue edit"
 msgstr ""
 
@@ -1015,7 +1035,7 @@ msgstr ""
 msgid "bad file name %s"
 msgstr "Nom de fichier incorrect %s"
 
-#: ../IkiWiki/Render.pm:254
+#: ../IkiWiki/Render.pm:260
 #, perl-format
 msgid ""
 "symlink found in srcdir path (%s) -- set allow_symlinks_before_srcdir to "
@@ -1024,47 +1044,47 @@ msgstr ""
 "Lien symbolique trouvé dans l'adresse de srcdir (%s) -- pour l'autoriser, "
 "activez le paramètre « allow_symlinks_before_srcdir »."
 
-#: ../IkiWiki/Render.pm:277 ../IkiWiki/Render.pm:302
+#: ../IkiWiki/Render.pm:283 ../IkiWiki/Render.pm:308
 #, perl-format
 msgid "skipping bad filename %s"
 msgstr "Omission du fichier au nom incorrect %s"
 
-#: ../IkiWiki/Render.pm:284
+#: ../IkiWiki/Render.pm:290
 #, perl-format
 msgid "%s has multiple possible source pages"
 msgstr "%s peut être associé à plusieurs pages source."
 
-#: ../IkiWiki/Render.pm:370
+#: ../IkiWiki/Render.pm:376
 #, perl-format
 msgid "removing old page %s"
 msgstr "Suppression de l'ancienne page %s"
 
-#: ../IkiWiki/Render.pm:410
+#: ../IkiWiki/Render.pm:416
 #, perl-format
 msgid "scanning %s"
 msgstr "Examen de %s"
 
-#: ../IkiWiki/Render.pm:436
+#: ../IkiWiki/Render.pm:442
 #, fuzzy, perl-format
 msgid "building %s, which links to %s"
 msgstr "Reconstruction de %s, qui est lié à %s"
 
-#: ../IkiWiki/Render.pm:457
+#: ../IkiWiki/Render.pm:463
 #, fuzzy, perl-format
 msgid "building %s, which depends on %s"
 msgstr "Reconstruction de %s, qui dépend de %s"
 
-#: ../IkiWiki/Render.pm:496
+#: ../IkiWiki/Render.pm:502
 #, fuzzy, perl-format
 msgid "building %s, to update its backlinks"
 msgstr "Reconstruction de %s, afin de mettre à jour ses rétroliens"
 
-#: ../IkiWiki/Render.pm:508
+#: ../IkiWiki/Render.pm:514
 #, fuzzy, perl-format
 msgid "removing %s, no longer built by %s"
 msgstr "Suppression de %s, qui n'est plus rendu par %s"
 
-#: ../IkiWiki/Render.pm:532
+#: ../IkiWiki/Render.pm:538
 #, fuzzy, perl-format
 msgid "ikiwiki: cannot build %s"
 msgstr "ikiwiki : impossible de reconstruire %s"
