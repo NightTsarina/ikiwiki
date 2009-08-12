@@ -10,7 +10,12 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use Encode;
-use Locale::Po4a::Common qw(nowrapi18n !/.*/);
+eval q{use Locale::Po4a::Common qw(nowrapi18n !/.*/)};
+if ($@) {
+	print STDERR gettext("warning: Old po4a detected! Recommend upgrade to 0.35.")."\n";
+	eval q{use Locale::Po4a::Common qw(!/.*/)};
+	die $@ if $@;
+}
 use Locale::Po4a::Chooser;
 use Locale::Po4a::Po;
 use File::Basename;
