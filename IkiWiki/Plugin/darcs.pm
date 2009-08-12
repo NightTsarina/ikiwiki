@@ -318,9 +318,9 @@ sub rcs_recentchanges ($) {
 		my $hash=$patch->{hash};
 		my $when=str2time($date);
 		my (@pages, @files, @pg);
-		push @pages, $_ for (@{$patch->{summary}->[0]->{modify_file}});
-		push @pages, $_ for (@{$patch->{summary}->[0]->{add_file}});
-		push @pages, $_ for (@{$patch->{summary}->[0]->{remove_file}});
+		push @pages, $_ foreach (@{$patch->{summary}->[0]->{modify_file}});
+		push @pages, $_ foreach (@{$patch->{summary}->[0]->{add_file}});
+		push @pages, $_ foreach (@{$patch->{summary}->[0]->{remove_file}});
 		foreach my $f (@pages) {
 			$f = $f->{content} if ref $f;
 			$f =~ s,^\s+,,; $f =~ s,\s+$,,; # cut whitespace
