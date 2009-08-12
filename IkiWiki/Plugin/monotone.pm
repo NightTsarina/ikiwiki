@@ -575,13 +575,12 @@ sub rcs_recentchanges ($) {
 		}
 		
 		my @changed_files = get_changed_files($automator, $rev);
-		my $file;
 		
 		my ($out, $err) = $automator->call("parents", $rev);
 		my @parents = ($out =~ m/^($sha1_pattern)$/);
 		my $parent = $parents[0];
 
-		foreach $file (@changed_files) {
+		foreach my $file (@changed_files) {
 			next unless length $file;
 			
 			if (defined $config{diffurl} and (@parents == 1)) {
