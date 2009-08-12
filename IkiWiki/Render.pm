@@ -379,12 +379,13 @@ sub refresh () {
 			$links{$page}=[];
 			$renderedfiles{$page}=[];
 			$pagemtime{$page}=0;
-			prune($config{destdir}."/".$_)
-				foreach @{$oldrenderedfiles{$page}};
+			foreach my $old (@{$oldrenderedfiles{$page}}) {
+				prune($config{destdir}."/".$old);
+			}
 			delete $pagesources{$page};
-			foreach (keys %destsources) {
-				if ($destsources{$_} eq $page) {
-					delete $destsources{$_};
+			foreach my $source (keys %destsources) {
+				if ($destsources{$source} eq $page) {
+					delete $destsources{$source};
 				}
 			}
 		}
