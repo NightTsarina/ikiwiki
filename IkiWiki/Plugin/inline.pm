@@ -186,7 +186,6 @@ sub preprocess_inline (@) {
 	my @list;
 
 	if (exists $params{pagenames}) {
-
 		foreach my $p (qw(sort pages)) {
 			if (exists $params{$p}) {
 				error sprintf(gettext("the %s and %s parameters cannot be used together"),
@@ -194,9 +193,8 @@ sub preprocess_inline (@) {
 			}
 		}
 
-		@list = split ' ', $params{pagenames};
-		my $_;
-		@list = map { bestlink($params{page}, $_) } @list;
+		@list = map { bestlink($params{page}, $_) }
+		        split ' ', $params{pagenames};
 
 		$params{pages} = join(" or ", @list);
 	}
