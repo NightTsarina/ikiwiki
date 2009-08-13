@@ -1,0 +1,423 @@
+#!/usr/pkg/bin/perl
+package IkiWiki::Plugin::cvs;
+
+use warnings;
+use strict;
+use IkiWiki;
+
+sub import {
+	hook(type => "checkconfig", id => "cvs", call => \&checkconfig);
+	hook(type => "getsetup", id => "cvs", call => \&getsetup);
+	hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
+	hook(type => "rcs", id => "rcs_prepedit", call => \&rcs_prepedit);
+	hook(type => "rcs", id => "rcs_commit", call => \&rcs_commit);
+	hook(type => "rcs", id => "rcs_commit_staged", call => \&rcs_commit_staged);
+	hook(type => "rcs", id => "rcs_add", call => \&rcs_add);
+	hook(type => "rcs", id => "rcs_remove", call => \&rcs_remove);
+	hook(type => "rcs", id => "rcs_rename", call => \&rcs_rename);
+	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
+	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
+	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+}
+
+sub checkconfig () {
+	if (! defined $config{cvspath}) {
+		$config{cvspath}="ikiwiki";
+	}
+	if (exists $config{cvspath}) {
+		# code depends on the path not having extraneous slashes
+		$config{cvspath}=~tr#/#/#s;
+		$config{cvspath}=~s/\/$//;
+		$config{cvspath}=~s/^\///;
+	}
+	if (defined $config{cvs_wrapper} && length $config{cvs_wrapper}) {
+		push @{$config{wrappers}}, {
+			wrapper => $config{cvs_wrapper},
+			wrappermode => (defined $config{cvs_wrappermode} ? $config{cvs_wrappermode} : "04755"),
+		};
+	}
+}
+
+sub getsetup () {
+	return
+		plugin => {
+			safe => 0, # rcs plugin
+			rebuild => undef,
+		},
+		cvsrepo => {
+			type => "string",
+			example => "/cvs/wikirepo",
+			description => "cvs repository location",
+			safe => 0, # path
+			rebuild => 0,
+		},
+		cvspath => {
+			type => "string",
+			example => "ikiwiki",
+			description => "path inside repository where the wiki is located",
+			safe => 0, # paranoia
+			rebuild => 0,
+		},
+		cvs_wrapper => {
+			type => "string",
+			example => "/cvs/wikirepo/CVSROOT/post-commit",
+			description => "cvs post-commit hook to generate (triggered by CVSROOT/loginfo entry",
+			safe => 0, # file
+			rebuild => 0,
+		},
+		cvs_wrappermode => {
+			type => "string",
+			example => '04755',
+			description => "mode for cvs_wrapper (can safely be made suid)",
+			safe => 0,
+			rebuild => 0,
+		},
+		historyurl => {
+			type => "string",
+			example => "http://cvs.example.org/cvsweb.cgi/ikiwiki/[[file]]",
+			description => "cvsweb url to show file history ([[file]] substituted)",
+			safe => 1,
+			rebuild => 1,
+		},
+		diffurl => {
+			type => "string",
+			example => "http://cvs.example.org/cvsweb.cgi/ikiwiki/[[file]].diff?r1=text&amp;tr1=[[r1]]&amp;r2=text&amp;tr2=[[r2]]",
+			description => "cvsweb url to show a diff ([[file]], [[r1]], and [[r2]] substituted)",
+			safe => 1,
+			rebuild => 1,
+		},
+}
+
+sub cvs_info ($$) {
+	my $field=shift;
+	my $file=shift;
+
+	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+
+	my $info=`cvs status $file`;
+	my ($ret)=$info=~/^\s*$field:\s*(\S+)/m;
+	return $ret;
+}
+
+sub cvs_runcvs(@) {
+	my ($cmd) = @_;
+	unshift @$cmd, 'cvs', '-Q';
+
+	eval q{
+		use IPC::Cmd;
+	};
+	error($@) if $@;
+
+	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+
+	debug("runcvs: " . join(" ", @$cmd));
+
+	my ($success, $error_code, $full_buf, $stdout_buf, $stderr_buf) =
+		IPC::Cmd::run(command => $cmd, verbose => 0);
+	if (! $success) {
+		warn(join(" ", @$cmd) . " exited with code $error_code\n");
+		warn(join "", @$stderr_buf);
+	}
+	return $success;
+}
+
+sub cvs_shquote_commit ($) {
+	my $message = shift;
+
+	eval q{
+		use String::ShellQuote;
+	};
+	error($@) if $@;
+
+	return shell_quote(IkiWiki::possibly_foolish_untaint($message));
+}
+
+sub cvs_is_controlling {
+	my $dir=shift;
+	$dir=$config{srcdir} unless defined($dir);
+	return (-d "$dir/CVS") ? 1 : 0;
+}
+
+sub rcs_update () {
+	return unless cvs_is_controlling;
+	cvs_runcvs(['update', '-dP']);
+}
+
+sub rcs_prepedit ($) {
+	# Prepares to edit a file under revision control. Returns a token
+	# that must be passed into rcs_commit when the file is ready
+	# for committing.
+	# The file is relative to the srcdir.
+	my $file=shift;
+
+	return unless cvs_is_controlling;
+
+	# For cvs, return the revision of the file when
+	# editing begins.
+	my $rev=cvs_info("Repository revision", "$file");
+	return defined $rev ? $rev : "";
+}
+
+sub rcs_commit ($$$;$$) {
+	# Tries to commit the page; returns undef on _success_ and
+	# a version of the page with the rcs's conflict markers on failure.
+	# The file is relative to the srcdir.
+	my $file=shift;
+	my $message=shift;
+	my $rcstoken=shift;
+	my $user=shift;
+	my $ipaddr=shift;
+
+	return unless cvs_is_controlling;
+
+	if (defined $user) {
+		$message="web commit by $user".(length $message ? ": $message" : "");
+	}
+	elsif (defined $ipaddr) {
+		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
+	}
+
+	# Check to see if the page has been changed by someone
+	# else since rcs_prepedit was called.
+	my ($oldrev)=$rcstoken=~/^([0-9]+)$/; # untaint
+	my $rev=cvs_info("Repository revision", "$config{srcdir}/$file");
+	if (defined $rev && defined $oldrev && $rev != $oldrev) {
+		# Merge their changes into the file that we've
+		# changed.
+		cvs_runcvs(['update', $file]) ||
+			warn("cvs merge from $oldrev to $rev failed\n");
+	}
+
+	if (! cvs_runcvs(['commit', '-m', cvs_shquote_commit $message])) {
+		my $conflict=readfile("$config{srcdir}/$file");
+		cvs_runcvs(['update', '-C', $file]) ||
+			warn("cvs revert failed\n");
+		return $conflict;
+	}
+
+	return undef # success
+}
+
+sub rcs_commit_staged ($$$) {
+	# Commits all staged changes. Changes can be staged using rcs_add,
+	# rcs_remove, and rcs_rename.
+	my ($message, $user, $ipaddr)=@_;
+
+	if (defined $user) {
+		$message="web commit by $user".(length $message ? ": $message" : "");
+	}
+	elsif (defined $ipaddr) {
+		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
+	}
+
+	if (! cvs_runcvs(['commit', '-m', cvs_shquote_commit $message])) {
+		warn "cvs staged commit failed\n";
+		return 1; # failure
+	}
+	return undef # success
+}
+
+sub rcs_add ($) {
+	# filename is relative to the root of the srcdir
+	my $file=shift;
+	my $parent=IkiWiki::dirname($file);
+	my @files_to_add = ($file);
+
+	until ((length($parent) == 0) || cvs_is_controlling("$config{srcdir}/$parent")){
+		push @files_to_add, $parent;
+		$parent = IkiWiki::dirname($parent);
+	}
+
+	while ($file = pop @files_to_add) {
+		cvs_runcvs(['add', $file]) ||
+			warn("cvs add $file failed\n");
+	}
+}
+
+sub rcs_remove ($) {
+	# filename is relative to the root of the srcdir
+	my $file=shift;
+
+	return unless cvs_is_controlling;
+
+	cvs_runcvs(['rm', '-f', $file]) ||
+		warn("cvs rm $file failed\n");
+}
+
+sub rcs_rename ($$) {
+	# filenames relative to the root of the srcdir
+	my ($src, $dest)=@_;
+
+	return unless cvs_is_controlling;
+
+	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+
+	if (system("mv", "$src", "$dest") != 0) {
+		warn("filesystem rename failed\n");
+	}
+
+	rcs_add($dest);
+	rcs_remove($src);
+}
+
+sub rcs_recentchanges($) {
+	my $num = shift;
+	my @ret;
+
+	return unless cvs_is_controlling;
+
+	eval q{
+		use Date::Parse;
+	};
+	error($@) if $@;
+
+	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+
+	open CVSPS, "env TZ=UTC cvsps -q --cvs-direct -z 30 -x |" || error "couldn't get cvsps output: $!\n";
+	my @spsvc = reverse <CVSPS>;		# is this great? no it is not
+	close CVSPS || error "couldn't close cvsps output: $!\n";
+
+	while (my $line = shift @spsvc) {
+		$line =~ /^$/ || error "expected blank line, got $line";
+
+		my ($rev, $user, $committype, $when);
+		my (@message, @pages);
+
+		# We're reading backwards.
+		# Forwards, an entry looks like so:
+		# ---------------------
+		# PatchSet $rev
+		# Date: $when
+		# Author: $user (or user CGI runs as, for web commits)
+		# Branch: branch
+		# Tag: tag
+		# Log:
+		# @message_lines
+		# Members:
+		#	@pages (and revisions)
+		#
+
+		while ($line = shift @spsvc) {
+			last if ($line =~ /^Members:/);
+			for ($line) {
+				s/^\s+//;
+				s/\s+$//;
+			}
+			my ($page, $revs) = split(/:/, $line);
+			my ($oldrev, $newrev) = split(/->/, $revs);
+			$oldrev =~ s/INITIAL/0/;
+			$newrev =~ s/\(DEAD\)//;
+			my $diffurl = defined $config{diffurl} ? $config{diffurl} : "";
+			$diffurl=~s/\[\[file\]\]/$page/g;
+			$diffurl=~s/\[\[r1\]\]/$oldrev/g;
+			$diffurl=~s/\[\[r2\]\]/$newrev/g;
+			unshift @pages, {
+				page => pagename($page),
+				diffurl => $diffurl,
+			} if length $page;
+		}
+
+		while ($line = shift @spsvc) {
+			last if ($line =~ /^Log:$/);
+			chomp $line;
+			unshift @message, { line => $line };
+		}
+		$committype = "web";
+		if (defined $message[0] &&
+		    $message[0]->{line}=~/$config{web_commit_regexp}/) {
+			$user=defined $2 ? "$2" : "$3";
+			$message[0]->{line}=$4;
+		} else {
+			$committype="cvs";
+		}
+
+		$line = shift @spsvc;	# Tag
+		$line = shift @spsvc;	# Branch
+
+		$line = shift @spsvc;
+		if ($line =~ /^Author: (.*)$/) {
+			$user = $1 unless defined $user && length $user;
+		} else {
+			error "expected Author, got $line";
+		}
+
+		$line = shift @spsvc;
+		if ($line =~ /^Date: (.*)$/) {
+			$when = str2time($1, 'UTC');
+		} else {
+			error "expected Date, got $line";
+		}
+
+		$line = shift @spsvc;
+		if ($line =~ /^PatchSet (.*)$/) {
+			$rev = $1;
+		} else {
+			error "expected PatchSet, got $line";
+		}
+
+		$line = shift @spsvc;	# ---------------------
+
+		push @ret, {
+			rev => $rev,
+			user => $user,
+			committype => $committype,
+			when => $when,
+			message => [@message],
+			pages => [@pages],
+		} if @pages;
+		return @ret if @ret >= $num;
+	}
+
+	return @ret;
+}
+
+sub rcs_diff ($) {
+	my $rev=IkiWiki::possibly_foolish_untaint(int(shift));
+
+	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+
+	# diff output is unavoidably preceded by the cvsps PatchSet entry
+	my @cvsps = `env TZ=UTC cvsps -q --cvs-direct -z 30 -g -s $rev`;
+	my $blank_lines_seen = 0;
+
+	while (my $line = shift @cvsps) {
+		$blank_lines_seen++ if ($line =~ /^$/);
+		last if $blank_lines_seen == 2;
+	}
+
+	if (wantarray) {
+		return @cvsps;
+	} else {
+		return join("", @cvsps);
+	}
+}
+
+sub rcs_getctime ($) {
+	my $file=shift;
+
+	my $cvs_log_infoline=qr/^date: (.+);\s+author/;
+
+	open CVSLOG, "cvs -Q log -r1.1 '$file' |"
+		|| error "couldn't get cvs log output: $!\n";
+
+	my $date;
+	while (<CVSLOG>) {
+		if (/$cvs_log_infoline/) {
+			$date=$1;
+		}
+	}
+	close CVSLOG || warn "cvs log $file exited $?";
+
+	if (! defined $date) {
+		warn "failed to parse cvs log for $file\n";
+		return 0;
+	}
+
+	eval q{use Date::Parse};
+	error($@) if $@;
+	$date=str2time($date, 'UTC');
+	debug("found ctime ".localtime($date)." for $file");
+	return $date;
+}
+
+1

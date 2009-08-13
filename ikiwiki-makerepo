@@ -6,7 +6,7 @@ srcdir="$2"
 repository="$3"
 
 usage () {
-	echo "usage: ikiwiki-makerepo svn|git|monotone|darcs srcdir repository" >&2
+	echo "usage: ikiwiki-makerepo cvs|svn|git|monotone|darcs srcdir repository" >&2
 	echo "       ikiwiki-makerepo bzr|mercurial srcdir" >&2
 	exit 1
 }
@@ -39,6 +39,56 @@ fi
 echo "Importing $srcdir into $rcs"
 
 case "$rcs" in
+cvs)
+	if [ -e "$srcdir/CVS" ]; then
+		echo "$srcdir already seems to be a cvs working copy" >&2
+		exit 1
+	fi
+	cvs -Q -d "$repository" init
+	cat > "$repository/CVSROOT/post-commit-wrapper" <<EOF
+#!/bin/sh
+
+IKIWIKI_POST_COMMIT_HOOK="$repository/CVSROOT/post-commit"
+
+exists_ikiwiki_post_commit_hook() {
+	[ -x \$IKIWIKI_POST_COMMIT_HOOK ];
+}
+
+called_with_exactly_one_dir() {
+	echo "\$@" | grep 'New directory' >/dev/null 2>&1
+}
+
+main() {
+	exists_ikiwiki_post_commit_hook || exit 0
+	called_with_exactly_one_dir "\$@" && exit 0
+	# Return from commit and relinquish write lock. ikiwiki post-commit
+	# wants to "cvs update", which wants to take a read lock.
+	\$IKIWIKI_POST_COMMIT_HOOK &
+	return 0
+}
+
+main "\$@"
+exit \$?
+EOF
+	chmod +x "$repository/CVSROOT/post-commit-wrapper"
+	cd "$srcdir"/..
+	cvs -Q -d "$repository" get -P CVSROOT
+	cd CVSROOT
+	echo .ikiwiki >> cvsignore
+	cvs -Q add cvsignore
+	echo "^ikiwiki $repository/CVSROOT/post-commit-wrapper %{sVv}" >> loginfo
+	cvs -Q commit -m "ikiwiki-makerepo setup" cvsignore loginfo
+	cd ..
+	rm -rf CVSROOT
+	cd "$srcdir"
+	cvs -Q -d "$repository" import -m "initial import" ikiwiki IKIWIKI PRE_CVS
+	cd ..
+	mv "$srcdir" "$srcdir.orig"
+	cvs -Q -d "$repository" get -P -d "$(basename "$srcdir")" ikiwiki
+	[ -d "$srcdir.orig/.ikiwiki" ] && mv "$srcdir.orig/.ikiwiki" "$srcdir"
+	rm -rf "$srcdir.orig"
+	echo "Directory $srcdir is now a checkout of $rcs repository $repository"
+;;
 svn)
 	if [ -e "$srcdir/.svn" ]; then
 		echo "$srcdir already seems to be a svn working copy" >&2

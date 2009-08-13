@@ -329,7 +329,7 @@ sub getsetup () {
 			qr/\.x?html?$/, qr/\.ikiwiki-new$/,
 			qr/(^|\/).svn\//, qr/.arch-ids\//, qr/{arch}\//,
 			qr/(^|\/)_MTN\//, qr/(^|\/)_darcs\//,
-			qr/\.dpkg-tmp$/],
+			qr/(^|\/)CVS\//, qr/\.dpkg-tmp$/],
 		description => "regexps of source files to ignore",
 		safe => 0,
 		rebuild => 1,
