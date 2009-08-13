@@ -1,14 +1,11 @@
 [[!template id=plugin name=cvs core=0 author="[[schmonz]]"]]
 
+[[!template id=gitbranch branch=schmonz author="[[schmonz]]"]]
+
 This plugin allows ikiwiki to use [[!wikipedia desc="CVS" Concurrent Versions System]] as an [[rcs]].
 
-### Installation and usage
-7. Apply patches to [`IkiWiki.pm`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs-IkiWiki.pm.diff)
-and [`ikiwiki-makerepo`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs-ikiwiki-makerepo.diff).
-7. Rebuild and install ikiwiki.
+### Usage
 7. Install [cvsps](http://www.cobite.com/cvsps/), [[!cpan IPC::Cmd]], [[!cpan String::ShellQuote]], and [cvsweb](http://www.freebsd.org/projects/cvsweb.html) or the like.
-7. Download [`cvs.pm`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs.pm) into a suitable `$libdir/IkiWiki/Plugin`.
-7. While setting up a wiki [[by hand|setup/byhand]], also specify `--libdir` until you get to the point where you have a setup file. (This ensures the CVS plugin is found and its settings stanza included.)
 7. Adjust CVS-related parameters in your setup file.
 
 Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn't need it, but you yourself might. Here's a good general-purpose one:
@@ -20,7 +17,7 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
     rdiff -u
 
 ### Implementation details
-* Diffs are against [[3.14159|news/version_3.14159]]. `cvs.pm` started life as a copy of `svn.pm`.
+* `cvs.pm` started life as a copy of [[3.14159|news/version_3.14159]]'s `svn.pm`.
 * `IkiWiki.pm:wiki_file_prune_regexps` avoids copying CVS metadata into `$DESTDIR`.
 * [[ikiwiki-makerepo]]:
  * creates a repository,
@@ -30,7 +27,7 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
 * CVS multi-directory commits happen separately; the post-commit hook sees only the first directory's changes in time for [[recentchanges|plugins/recentchanges]]. The next run of `ikiwiki --setup` will correctly re-render such a recentchanges entry. It should be possible to solve this problem with NetBSD's `commit_prep` and `log_accum` scripts (see below).
 
 ### To do
-* Add automated tests. ([Blindly adding svn-like tests to `t/file_pruned.t`](http://www.netbsd.org/~schmonz/ikiwiki-cvs/cvs-t-file_pruned.t.diff) doesn't do the trick.)
+* Add automated tests. (Blindly adding svn-like tests to `t/file_pruned.t` doesn't do the trick.)
 * If the argument to `cvs add` smells like a binary file, `cvs add -kb` it (for [[plugins/attachment]] support).
 * Don't slurp the entire `cvsps` output into memory (!).
 * Instead of resource-intensively scraping changesets with `cvsps`, have `ikiwiki-makerepo` set up NetBSD-like `log_accum` and `commit_prep` scripts that coalesce and keep records of commits. `cvsps` can be used as a fallback for repositories without such records.
