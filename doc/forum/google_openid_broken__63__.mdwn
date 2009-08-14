@@ -16,3 +16,15 @@ http://openid-provider.appspot.com/larrylud
 > <https://rt.cpan.org/Ticket/Display.html?id=48728> on the Openid perl
 > module. It's a pretty easy fix, so I hope upstream will fix it quickly.
 > --[[Joey]] 
+
+>> A little more information here:  I'm using that same openid provider at the moment.  Note that
+>> that provider isn't google - it is someone using the google API to authenticate.  I normally have it
+>> set up as a redirect from my home page (which means I can change providers easily).
+
+    <link rel="openid.server" href="http://openid-provider.appspot.com/will.uther">
+    <link rel="openid.delegate" href="http://openid-provider.appspot.com/will.uther">
+
+>> In that mode it works (I used it to log in to make this edit).  However, when I try the openid
+>> URL directly, it doesn't work.  I think there is something weird with re-direction.  I hope this
+>> isn't a more general security hole.
+>> -- [[Will]]
