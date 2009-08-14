@@ -220,6 +220,13 @@ sub getsetup () {
 		safe => 1,
 		rebuild => 1,
 	},
+	discussionpage => {
+		type => "string",
+		default => gettext("Discussion"),
+		description => "name of Discussion pages",
+		safe => 1,
+		rebuild => 1,
+	},
 	sslcookie => {
 		type => "boolean",
 		default => 0,

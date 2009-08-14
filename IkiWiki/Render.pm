@@ -83,11 +83,10 @@ sub genpage ($$) {
 		$actions++;
 	}
 	if ($config{discussion}) {
-		my $discussionlink=lc(gettext("Discussion"));
-		if ($page !~ /.*\/\Q$discussionlink\E$/ &&
+		if ($page !~ /.*\/\Q$config{discussionpage}\E$/ &&
 		   (length $config{cgiurl} ||
-		    exists $links{$page."/".$discussionlink})) {
-			$template->param(discussionlink => htmllink($page, $page, gettext("Discussion"), noimageinline => 1, forcesubpage => 1));
+		    exists $links{$page."/".$config{discussionpage}})) {
+			$template->param(discussionlink => htmllink($page, $page, $config{discussionpage}, noimageinline => 1, forcesubpage => 1));
 			$actions++;
 		}
 	}
@@ -153,7 +152,7 @@ sub scan ($) {
 		if ($config{discussion}) {
 			# Discussion links are a special case since they're
 			# not in the text of the page, but on its template.
-			$links{$page}=[ $page."/".lc(gettext("Discussion")) ];
+			$links{$page}=[ $page."/".lc($config{discussionpage}) ];
 		}
 		else {
 			$links{$page}=[];

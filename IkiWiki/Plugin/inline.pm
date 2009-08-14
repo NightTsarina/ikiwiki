@@ -348,9 +348,6 @@ sub preprocess_inline (@) {
 		}
 		my $template=HTML::Template->new(@params) unless $raw;
 	
-		my $discussionlink=lc(gettext("Discussion"))
-			if $config{discussion};
-
 		foreach my $page (@list) {
 			my $file = $pagesources{$page};
 			my $type = pagetype($file);
@@ -374,14 +371,14 @@ sub preprocess_inline (@) {
 					my $file = $pagesources{$page};
 					my $type = pagetype($file);
 					if ($config{discussion}) {
-						if ($page !~ /.*\/\Q$discussionlink\E$/ &&
+						if ($page !~ /.*\/\Q$config{discussionpage}\E$/ &&
 						    (length $config{cgiurl} ||
-						     exists $links{$page."/".$discussionlink})) {
+						     exists $links{$page."/".$config{discussionpage}})) {
 							$template->param(have_actions => 1);
 							$template->param(discussionlink =>
 								htmllink($page,
 									$params{destpage},
-									gettext("Discussion"),
+									$config{discussionpage},
 									noimageinline => 1,
 									forcesubpage => 1));
 						}

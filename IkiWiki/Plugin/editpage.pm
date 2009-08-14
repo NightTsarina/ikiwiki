@@ -229,8 +229,9 @@ sub cgi_editpage ($$) {
 				my $dir=$from."/";
 				$dir=~s![^/]+/+$!!;
 				
-				if ((defined $form->field('subpage') && length $form->field('subpage')) ||
-				    $page eq lc(gettext('Discussion'))) {
+				if ((defined $form->field('subpage') &&
+				     length $form->field('subpage')) ||
+				    $page eq lc($config{discussionpage})) {
 					$best_loc="$from/$page";
 				}
 				else {

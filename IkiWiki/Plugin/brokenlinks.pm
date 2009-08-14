@@ -28,14 +28,13 @@ sub preprocess (@) {
 	add_depends($params{page}, $params{pages});
 	
 	my %broken;
-	my $discussion=gettext("Discussion");
 	foreach my $page (pagespec_match_list([keys %links],
 			$params{pages}, location => $params{page})) {
 		my %seen;
 		foreach my $link (@{$links{$page}}) {
 			next if $seen{$link};
 			$seen{$link}=1;
-			next if $link =~ /.*\/\Q$discussion\E/i && $config{discussion};
+			next if $link =~ /.*\/\Q$config{discussionpage}\E/i && $config{discussion};
 			my $bestlink=bestlink($page, $link);
 			next if length $bestlink;
 			push @{$broken{$link}}, $page;
