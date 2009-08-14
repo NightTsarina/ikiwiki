@@ -284,17 +284,16 @@ sub pagetemplate (@) {
 		map add_depends($page, $_), (values %{otherlanguages($page)});
 	}
 	if ($config{discussion} && istranslation($page)) {
-		my $discussionlink=gettext("discussion");
-		if ($page !~ /.*\/\Q$discussionlink\E$/i &&
+		if ($page !~ /.*\/\Q$config{discussionpage}\E$/i &&
 		   (length $config{cgiurl} ||
-		    exists $links{$masterpage."/".$discussionlink})) {
+		    exists $links{$masterpage."/".lc($config{discussionpage})})) {
 			$template->param('discussionlink' => htmllink(
 				$page,
 				$destpage,
-				$masterpage . '/' . gettext("Discussion"),
+				$masterpage . '/' . $config{discussionpage},
 				noimageinline => 1,
 				forcesubpage => 0,
-				linktext => gettext("Discussion"),
+				linktext => $config{discussionpage},
 		));
 		}
 	}
