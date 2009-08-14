@@ -8,26 +8,31 @@ use IkiWiki;
 use Encode;
 
 my %backlinks;
-my $backlinks_calculated=0;
+our %brokenlinks;
+my $links_calculated=0;
 
-sub calculate_backlinks () {
-	return if $backlinks_calculated;
-	%backlinks=();
+sub calculate_links () {
+	return if $links_calculated;
+	%backlinks=%brokenlinks=();
 	foreach my $page (keys %links) {
 		foreach my $link (@{$links{$page}}) {
 			my $bestlink=bestlink($page, $link);
-			if (length $bestlink && $bestlink ne $page) {
-				$backlinks{$bestlink}{$page}=1;
+			if (length $bestlink) {
+				$backlinks{$bestlink}{$page}=1
+					if $bestlink ne $page;
+			}
+			else {
+				push @{$brokenlinks{$link}}, $page;
 			}
 		}
 	}
-	$backlinks_calculated=1;
+	$links_calculated=1;
 }
 
 sub backlink_pages ($) {
 	my $page=shift;
 
-	calculate_backlinks();
+	calculate_links();
 
 	return keys %{$backlinks{$page}};
 }
@@ -416,7 +421,7 @@ sub refresh () {
 		debug(sprintf(gettext("scanning %s"), $file));
 		scan($file);
 	}
-	calculate_backlinks();
+	calculate_links();
 	foreach my $file (@needsbuild) {
 		debug(sprintf(gettext("building %s"), $file));
 		render($file);
