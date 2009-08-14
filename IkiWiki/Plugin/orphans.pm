@@ -27,15 +27,9 @@ sub preprocess (@) {
 	# register a dependency.
 	add_depends($params{page}, $params{pages});
 	
-	my %linkedto;
-	foreach my $p (keys %links) {
-		map { $linkedto{bestlink($p, $_)}=1 if length $_ }
-			@{$links{$p}};
-	}
-	
 	my @orphans;
 	foreach my $page (pagespec_match_list(
-			[ grep { ! $linkedto{$_} && $_ ne 'index' }
+			[ grep { ! IkiWiki::backlink_pages($_) && $_ ne 'index' }
 				keys %pagesources ],
 			$params{pages}, location => $params{page})) {
 		# If the page has a link to some other page, it's
