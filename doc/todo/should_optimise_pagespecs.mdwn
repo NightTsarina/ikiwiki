@@ -105,4 +105,33 @@ I can think about reducung the size of my wiki source and making it available on
 >>>>> ikiwiki-transition, but that copy doesn't have to be optimal or support
 >>>>> future features like [[tracking_bugs_with_dependencies]]). --[[smcv]]
 
+---
+
+Some questions on your optimize-depends branch. --[[Joey]]
+
+In saveindex it still or'd together the depends list, but the `{depends}`
+field seems only useful for backwards compatability (ie, ikiwiki-transition
+uses it still), and otherwise just bloats the index.
+
+Is an array the right data structure? `add_depends` has to loop through the
+array to avoid dups, it would be better if a hash were used there. Since
+inline (and other plugins) explicitly add all linked pages, each as a
+separate item, the list can get rather long, and that single add_depends
+loop has suddenly become O(N^2) to the number of pages, which is something
+to avoid..
+
+Also, since a lot of places are calling add_depends in a loop, it probably
+makes sense to just make it accept a list of dependencies to add. It'll be
+marginally faster, probably, and should allow for better optimisation
+when adding a lot of depends at once.
+
+In Render.pm, we now have a triply nested loop, which is a bit
+scary for efficiency. It seems there should be a way to
+rework this code so it can use the optimised `pagespec_match_list`,
+and/or hoist some of the inner loop calculations (like the `pagename`)
+out.
+
+Very good catch on img/meta using the wrong dependency; verified in the wild!
+(I've cherry-picked those bug fixes.)
+
 [[!tag wishlist patch patch/core]]
