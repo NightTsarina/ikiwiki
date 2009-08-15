@@ -99,7 +99,7 @@ sub getsetup () {
 			type => "string",
 			example => {
 				'fr' => 'Français',
-				'es' => 'Castellano',
+				'es' => 'Español',
 				'de' => 'Deutsch'
 			},
 			description => "slave languages (PO files)",
