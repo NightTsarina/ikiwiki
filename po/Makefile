@@ -37,7 +37,7 @@ ikiwiki.pot: $(POTFILES)
 
 clean:
 	rm -f $(MOFILES) messages messages.mo *_stamp
-	rm -rf html underlays/.ikiwiki ../underlays/locale
+	rm -rf html underlays/.ikiwiki $(TRANSLATED_UNDERLAYS)
 	find underlays -name \*.mdwn -or -name \*.pot | xargs rm -f
 
 %.mo: %.po
