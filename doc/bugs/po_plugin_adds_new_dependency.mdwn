@@ -8,3 +8,28 @@ Was it intended that the po plugin add a new dependency?
     
     make[1]: *** [po2wiki_stamp] Error 2
     make: *** [extra_build] Error 2
+
+And it looks like this dependency is not easy to work around.  The issue is that the newly translated base wiki means that the po plugin is being used by the build system.  It is no longer optional.  I've turned it off in my workspace like this: (heavy handed, but it lets me keep going until a proper fix is available)
+
+    diff --git a/Makefile.PL b/Makefile.PL
+    index 602d8fb..68728b7 100755
+    --- a/Makefile.PL
+    +++ b/Makefile.PL
+    @@ -42,7 +42,7 @@ extra_build: ikiwiki.out ikiwiki.setup docwiki
+     	./mdwn2man ikiwiki-makerepo 1 doc/ikiwiki-makerepo.mdwn > ikiwiki-makerepo.man
+     	./mdwn2man ikiwiki-transition 1 doc/ikiwiki-transition.mdwn > ikiwiki-transition.man
+     	./mdwn2man ikiwiki-update-wikilist 1 doc/ikiwiki-update-wikilist.mdwn > ikiwiki-update-wikilist.man
+    -	$(MAKE) -C po
+    +	# $(MAKE) -C po
+     	
+     docwiki: ikiwiki.out
+     	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup docwiki.setup -refresh
+    @@ -114,7 +114,7 @@ extra_install: underlay_install
+     	install ikiwiki.out $(DESTDIR)$(PREFIX)/bin/ikiwiki
+     	install ikiwiki-makerepo ikiwiki-transition ikiwiki-update-wikilist $(DESTDIR)$(PREFIX)/bin/
+     
+    -	$(MAKE) -C po install DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
+    +	# $(MAKE) -C po install DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
+     	
+     	# These might fail if a regular user is installing into a home
+     	# directory.
