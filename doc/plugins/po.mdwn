@@ -306,6 +306,20 @@ brings up an edit form to create a new, english page.
 
 This is with po_link_to=current. With default, it doesn't happen..
 
+Double commits of po files
+--------------------------
+
+When adding a new english page, the po files are created, committed,
+and then committed again. The second commit makes this change:
+
+	-"Content-Type: text/plain; charset=utf-8\n"
+	-"Content-Transfer-Encoding: ENCODING"
+	+"Content-Type: text/plain; charset=UTF-8\n"
+	+"Content-Transfer-Encoding: ENCODING\n"
+
+Same thing happens when a change to an existing page triggers a po file
+update.
+
 Documentation
 -------------
 
