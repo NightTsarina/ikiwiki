@@ -1,5 +1,8 @@
 Was it intended that the po plugin add a new dependency?
 
+> Yes; see debian/control Build-Depends. However, I have made it disable
+> building that is po4a is not available. [[done]] --[[Joey]] 
+
     PERL5LIB=.. ./po2wiki underlay.setup
     Failed to load plugin IkiWiki::Plugin::po: Can't locate Locale/Po4a/Common.pm in @INC (@INC contains: .. /Library/Perl/Updates/5.8.8 /System/Library/Perl/5.8.8/darwin-thread-multi-2level /System/Library/Perl/5.8.8 /Library/Perl/5.8.8/darwin-thread-multi-2level /Library/Perl/5.8.8 /Library/Perl /Network/Library/Perl/5.8.8/darwin-thread-multi-2level /Network/Library/Perl/5.8.8 /Network/Library/Perl /System/Library/Perl/Extras/5.8.8/darwin-thread-multi-2level /System/Library/Perl/Extras/5.8.8 /Library/Perl/5.8.6 /Library/Perl/5.8.1 /sw/lib/perl5/5.8.8/darwin-thread-multi-2level /sw/lib/perl5/5.8.8 /sw/lib/perl5/darwin-thread-multi-2level /sw/lib/perl5 /sw/lib/perl5/darwin /usr/local/lib/perl5/site_perl/5.8.8/darwin-thread-multi-2level /usr/local/lib/perl5/site_perl/5.8.8 /usr/local/lib/perl5/site_perl .) at ../IkiWiki/Plugin/po.pm line 13.
     BEGIN failed--compilation aborted at ../IkiWiki/Plugin/po.pm line 13.
