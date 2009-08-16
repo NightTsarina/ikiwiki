@@ -891,7 +891,7 @@ sub percenttranslated ($) {
 	my $page=shift;
 
 	$page=~s/^\///;
-	return gettext("0") unless istranslation($page);
+	return gettext("N/A") unless istranslation($page);
 	my $file=srcfile($pagesources{$page});
 	my $masterfile = srcfile($pagesources{masterpage($page)});
 	my %options = (
@@ -934,7 +934,7 @@ sub otherlanguagesloop ($) {
 				master => 1,
 			};
 		}
-		else {
+		elsif (istranslation($otherpage)) {
 			push @ret, {
 				url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
 				code => $lang,
