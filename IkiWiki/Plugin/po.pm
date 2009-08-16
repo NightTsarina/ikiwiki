@@ -891,7 +891,7 @@ sub percenttranslated ($) {
 	my $page=shift;
 
 	$page=~s/^\///;
-	return gettext("N/A") unless istranslation($page);
+	return gettext("0") unless istranslation($page);
 	my $file=srcfile($pagesources{$page});
 	my $masterfile = srcfile($pagesources{masterpage($page)});
 	my %options = (
