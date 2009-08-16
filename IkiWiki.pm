@@ -1255,9 +1255,10 @@ sub preprocess ($$$;$$) {
 					);
 				};
 				if ($@) {
-					chomp $@;
+					my $error=$@;
+					chomp $error;
 				 	$ret="[[!$command <span class=\"error\">".
-						gettext("Error").": $@"."</span>]]";
+						gettext("Error").": $error"."</span>]]";
 				}
 			}
 			else {
