@@ -120,6 +120,14 @@ separate item, the list can get rather long, and that single add_depends
 loop has suddenly become O(N^2) to the number of pages, which is something
 to avoid..
 
+> I was also thinking about this (I've been playing with some stuff based on the
+> `remove-pagespec-merge` branch).  A hash, by itself, is not optimal because
+> the dependency list holds two things: page names and page specs.  The hash would
+> work well for the page names, but you'll still need to iterate through the page specs.
+> I was thinking of keeping a list and a hash.  You use the list for pagespecs
+> and the hash for individual page names.  To make this work you need to adjust the
+> API so it knows which you're adding.  -- [[Will]]
+
 Also, since a lot of places are calling add_depends in a loop, it probably
 makes sense to just make it accept a list of dependencies to add. It'll be
 marginally faster, probably, and should allow for better optimisation
