@@ -128,6 +128,9 @@ to avoid..
 > and the hash for individual page names.  To make this work you need to adjust the
 > API so it knows which you're adding.  -- [[Will]]
 
+> I wasn't thinking about a lookup hash, just a dedup hash, FWIW.
+> --[[Joey]]
+
 Also, since a lot of places are calling add_depends in a loop, it probably
 makes sense to just make it accept a list of dependencies to add. It'll be
 marginally faster, probably, and should allow for better optimisation
