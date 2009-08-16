@@ -254,7 +254,7 @@ sub preprocess_inline (@) {
 	add_depends($params{page}, join(" or ", $#list >= $#feedlist ? @list : @feedlist));
 	
 	if ($feeds && exists $params{feedpages}) {
-		@feedlist=grep { pagespec_match($_, $params{feedpages}, location => $params{page}) } @feedlist;
+		@feedlist=pagespec_match_list(\@feedlist, $params{feedpages}, location => $params{page});
 	}
 
 	my ($feedbase, $feednum);
