@@ -120,6 +120,11 @@ uses it still), and otherwise just bloats the index.
 > that the performance increase won't fully apply until the next
 > rebuild. --[[smcv]]
 
+>> It is acceptable not to support downgrades.
+>> I don't think we need a NEWS file update since any sort of refresh,
+>> not just a full rebuild, will cause the indexdb to be loaded and saved,
+>> enabling the optimisation. --[[Joey]] 
+
 Is an array the right data structure? `add_depends` has to loop through the
 array to avoid dups, it would be better if a hash were used there. Since
 inline (and other plugins) explicitly add all linked pages, each as a
@@ -143,6 +148,9 @@ to avoid..
 >> values. If I was wrong, great, I'll fix that and it'll probably go
 >> a bit faster. --[[smcv]]
 
+>>> It depends, really. And it'd certianly make sense to benchmark such a
+>>> change. --[[Joey]] 
+
 Also, since a lot of places are calling add_depends in a loop, it probably
 makes sense to just make it accept a list of dependencies to add. It'll be
 marginally faster, probably, and should allow for better optimisation
@@ -151,6 +159,11 @@ when adding a lot of depends at once.
 > That'd be an API change; perhaps marginally faster, but I don't
 > see how it would allow better optimisation if we're de-duplicating
 > anyway? --[[smcv]]
+
+>> Well, I was thinking that it might be sufficient to build a `%seen`
+>> hash of dependencies inside `add_depends`, if the places that call
+>> it lots were changed to just call it once. Of course the only way to
+>> tell is benchmarking. --[[Joey]] 
 
 In Render.pm, we now have a triply nested loop, which is a bit
 scary for efficiency. It seems there should be a way to
@@ -162,6 +175,10 @@ out.
 > moved one level of "loop" out of the generated Perl, to be
 > in visible code. I'll see whether some of it can be hoisted, though.
 > --[[smcv]]
+
+>> The call to `pagename` is the only part I can see that's clearly
+>> run more often than before. That function is pretty inexpensive, but..
+>> --[[Joey]]
 
 Very good catch on img/meta using the wrong dependency; verified in the wild!
 (I've cherry-picked those bug fixes.)
