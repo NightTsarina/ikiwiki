@@ -113,6 +113,13 @@ In saveindex it still or'd together the depends list, but the `{depends}`
 field seems only useful for backwards compatability (ie, ikiwiki-transition
 uses it still), and otherwise just bloats the index.
 
+> If it's acceptable to declare that downgrading IkiWiki requires a complete
+> rebuild, I'm happy with that. I'd prefer to keep the (simple form of the)
+> transition done automatically during a load/save cycle, rather than
+> requiring ikiwiki-transition to be run; we should probably say in NEWS
+> that the performance increase won't fully apply until the next
+> rebuild. --[[smcv]]
+
 Is an array the right data structure? `add_depends` has to loop through the
 array to avoid dups, it would be better if a hash were used there. Since
 inline (and other plugins) explicitly add all linked pages, each as a
@@ -131,16 +138,30 @@ to avoid..
 > I wasn't thinking about a lookup hash, just a dedup hash, FWIW.
 > --[[Joey]]
 
+>> I was under the impression from previous code review that you preferred
+>> to represent unordered sets as lists, rather than hashes with dummy
+>> values. If I was wrong, great, I'll fix that and it'll probably go
+>> a bit faster. --[[smcv]]
+
 Also, since a lot of places are calling add_depends in a loop, it probably
 makes sense to just make it accept a list of dependencies to add. It'll be
 marginally faster, probably, and should allow for better optimisation
 when adding a lot of depends at once.
+
+> That'd be an API change; perhaps marginally faster, but I don't
+> see how it would allow better optimisation if we're de-duplicating
+> anyway? --[[smcv]]
 
 In Render.pm, we now have a triply nested loop, which is a bit
 scary for efficiency. It seems there should be a way to
 rework this code so it can use the optimised `pagespec_match_list`,
 and/or hoist some of the inner loop calculations (like the `pagename`)
 out.
+
+> I don't think the complexity is any greater than it was: I've just
+> moved one level of "loop" out of the generated Perl, to be
+> in visible code. I'll see whether some of it can be hoisted, though.
+> --[[smcv]]
 
 Very good catch on img/meta using the wrong dependency; verified in the wild!
 (I've cherry-picked those bug fixes.)
