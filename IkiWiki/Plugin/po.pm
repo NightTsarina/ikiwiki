@@ -414,7 +414,7 @@ sub change (@) {
 		}
 		if (@pofiles) {
 			refreshpofiles($masterfile, @pofiles);
-			map { IkiWiki::rcs_add($_) } @pofiles if $config{rcs};
+			map { s/^\Q$config{srcdir}\E\/*//; IkiWiki::rcs_add($_) } @pofiles if $config{rcs};
 			$updated_po_files=1;
 		}
 	}

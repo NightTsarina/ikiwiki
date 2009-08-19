@@ -5,3 +5,10 @@ I have set absolute path for srcdir = '/path/to/repo/doc/'. The root of my git r
 I have no problem when I use an relative path like srcdir = '.'.
 
 I have an other issue with the po plugin when I set the srcdir to './doc/' (provided that my config file is in /path/to/repo). In this case the po plugin try to add 'doc/doc/index.fr.po' which does not exists (seems like the srcdir path is prepended twice).
+
+> You should never use a relative srcdir path with ikiwiki.
+> 
+> I wonder what version of git you have there, since it works ok with the
+> version I have here. But, the po plugin is definitly doing the wrong
+> thing; it's telling git to add the po file with the full scrdir path
+> rather than relative to its root. Fixed that. [[done]] --[[Joey]] 
