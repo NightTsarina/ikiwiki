@@ -1,0 +1,7 @@
+po files are not added to git (error: /path/to/po/file not in repository tree) in my setup.
+
+I have set absolute path for srcdir = '/path/to/repo/doc/'. The root of my git repository is '/path/to/repo/'. When I enable the po plugin, it creates all po files and produces an error when it try to add the file saying that the /path/to/repo/doc/index.fr.po is not in the repository tree.
+
+I have no problem when I use an relative path like srcdir = '.'.
+
+I have an other issue with the po plugin when I set the srcdir to './doc/' (provided that my config file is in /path/to/repo). In this case the po plugin try to add 'doc/doc/index.fr.po' which does not exists (seems like the srcdir path is prepended twice).
