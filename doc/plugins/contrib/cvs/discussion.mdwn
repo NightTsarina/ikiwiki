@@ -3,3 +3,33 @@ post-commit wrapper wrapper that ikiwiki-makerepo is patched to set up.
 That just seems unnecessarily complicated. Why can't ikiwiki itself detect
 the "cvs add <directory>" call and avoid doing anything in that case?
 --[[Joey]] 
+
+> The wrapper wrapper does three things:
+>
+> 7. It ignores `cvs add <directory>`, since this is a weird CVS
+> behavior that ikiwiki gets confused by and doesn't need to act on.
+> 7. It prevents `cvs` locking against itself: `cvs commit` takes a
+> write lock and runs the post-commit hook, which runs `cvs update`,
+> which wants a read lock and sleeps forever -- unless the post-commit
+> hook runs in the background so the commit can "finish".
+> 7. It fails silently if the ikiwiki post-commit hook is missing.
+> CVS doesn't have any magic post-commit filenames, so hooks have to
+> be configured explicitly. I don't think a commit will actually fail
+> if a configured post-commit hook is missing (though I can't test
+> this at the moment).
+>
+> Thing 1 can probably be handled within ikiwiki, if that seems less
+> gross to you.
+>
+> Thing 2 I'm less sure of. (I'd like to see the web UI return
+> immediately on save anyway, to a temporary "rebuilding, please wait
+> if you feel like knowing when it's done" page, but this problem
+> with CVS happens with any kind of commit, and could conceivably
+> happen with some other VCS.)
+>
+> Thing 3 I think I did in order to squelch the error messages that
+> were bollixing up the CGI. It was easy to do this in the wrapper
+> wrapper, but if that's going away, it can be done just as easily
+> with output redirection in `CVSROOT/loginfo`.
+>
+> --[[schmonz]]
