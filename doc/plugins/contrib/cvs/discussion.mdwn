@@ -20,16 +20,34 @@ the "cvs add <directory>" call and avoid doing anything in that case?
 >
 > Thing 1 can probably be handled within ikiwiki, if that seems less
 > gross to you.
->
+
+>> It seems like it might be. You can use a `getopt` hook to check
+>> `@ARGV` to see how it was called. --[[Joey]] 
+
 > Thing 2 I'm less sure of. (I'd like to see the web UI return
 > immediately on save anyway, to a temporary "rebuilding, please wait
 > if you feel like knowing when it's done" page, but this problem
 > with CVS happens with any kind of commit, and could conceivably
 > happen with some other VCS.)
->
+
+>> None of the other VCSes let a write lock block a read lock, apparently.
+>> 
+>> Anyway, re the backgrounding, when committing via the web, the
+>> post-commit hook doesn't run anyway; the rendering is done via the
+>> ikiwiki CGI. It would certianly be nice if it popped up a quick "working"
+>> page and replaced it with the updated page when done, but that's
+>> unrelated;  the post-commit
+>> hook only does rendering when committing using the VCS directly. The
+>> backgrounding you do actually seems safe enough -- but tacking
+>> on a " &" to the ikiwiki wrapper call doesn't need a wrapper script,
+>> does it? --[[Joey]]
+
 > Thing 3 I think I did in order to squelch the error messages that
 > were bollixing up the CGI. It was easy to do this in the wrapper
 > wrapper, but if that's going away, it can be done just as easily
 > with output redirection in `CVSROOT/loginfo`.
 >
 > --[[schmonz]]
+
+>> If the error messages screw up the CGI they must go to stdout.
+>> I thought we had stderr even in the the CVS dark ages. ;-) --[[Joey]] 
