@@ -25,7 +25,7 @@ sub getopt () {
 	# "cvs add dir" acts immediately on the repository.
 	# post-commit gets confused by this and doesn't need to act on it.
 	# If that's why we're here, terminate the process.
-	@ARGV == 3 && $ARGV[1] eq "NONE" && $ARGV[2] eq "NONE" && exit 0;
+	((grep /New directory/, @ARGV) > 0) && exit 0;
 }
 
 sub checkconfig () {
