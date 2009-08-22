@@ -139,7 +139,7 @@ $envsave
 	}
 
 $pre_exec
-	execl("$this", "$this", NULL);
+	execv("$this", argv);
 	perror("exec $this");
 	exit(1);
 }

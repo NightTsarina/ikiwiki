@@ -6,6 +6,7 @@ use strict;
 use IkiWiki;
 
 sub import {
+	hook(type => "getopt", id => "cvs", call => \&getopt);
 	hook(type => "checkconfig", id => "cvs", call => \&checkconfig);
 	hook(type => "getsetup", id => "cvs", call => \&getsetup);
 	hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
@@ -18,6 +19,13 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+}
+
+sub getopt () {
+	# "cvs add dir" acts immediately on the repository.
+	# post-commit gets confused by this and doesn't need to act on it.
+	# If that's why we're here, terminate the process.
+	@ARGV == 3 && $ARGV[1] eq "NONE" && $ARGV[2] eq "NONE" && exit 0;
 }
 
 sub checkconfig () {
