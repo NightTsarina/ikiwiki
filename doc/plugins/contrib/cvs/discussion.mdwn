@@ -31,6 +31,11 @@ the "cvs add <directory>" call and avoid doing anything in that case?
 >>> should only be built with execv() if the cvs plugin is loaded?
 >>> --[[schmonz]]
 
+>>>> Hadn't considered that. While in wrapper mode the normal getopt is not
+>>>> done, plugin getopt still runs, and so any unsafe options that 
+>>>> other plugins support could be a problem if another user runs
+>>>> the setuid wrapper and passes those options through. --[[Joey]]
+
 > Thing 2 I'm less sure of. (I'd like to see the web UI return
 > immediately on save anyway, to a temporary "rebuilding, please wait
 > if you feel like knowing when it's done" page, but this problem
