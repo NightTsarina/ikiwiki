@@ -22,8 +22,7 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
 * [[ikiwiki-makerepo]]:
  * creates a repository,
  * imports `$SRCDIR` into top-level module `ikiwiki` (vendor tag IKIWIKI, release tag PRE_CVS),
- * creates a small post-commit wrapper to prevent `cvs add <directory>` from being seen by ikiwiki's [[post-commit]] hook (and avoid `cvs` locking against itself),
- * configures the wrapper itself as a post-commit hook in `CVSROOT/loginfo`.
+ * configures the post-commit hook in `CVSROOT/loginfo`.
 * CVS multi-directory commits happen separately; the post-commit hook sees only the first directory's changes in time for [[recentchanges|plugins/recentchanges]]. The next run of `ikiwiki --setup` will correctly re-render such a recentchanges entry. It should be possible to solve this problem with NetBSD's `commit_prep` and `log_accum` scripts (see below).
 
 ### To do
