@@ -20,7 +20,7 @@ sub getsetup () {
 		rsync_command => {
 			type => "string",
 			example => "rsync -qa --delete /path/to/destdir/ user\@host:/path/to/docroot/",
-			description => "command to upload regenerated pages to another host",
+			description => "unattended command to upload regenerated pages",
 			safe => 0,
 			rebuild => 0,
 		},
@@ -34,7 +34,6 @@ sub checkconfig {
 }
 
 sub postrefresh () {
-	debug "in postrefresh hook, gonna run rsync";
 	system $config{rsync_command};
 	if ($? == -1) {
 		error("failed to execute rsync_command: $!");
