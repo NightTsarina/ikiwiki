@@ -2,7 +2,6 @@
 package IkiWiki::Plugin::rsync;
 
 use warnings;
-no warnings 'redefine';
 use strict;
 use IkiWiki 3.00;
 
