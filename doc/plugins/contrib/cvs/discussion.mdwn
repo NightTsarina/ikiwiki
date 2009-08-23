@@ -36,6 +36,19 @@ the "cvs add <directory>" call and avoid doing anything in that case?
 >>>> other plugins support could be a problem if another user runs
 >>>> the setuid wrapper and passes those options through. --[[Joey]]
 
+>>>>> I've tried compiling the argument check into the wrapper as
+>>>>> the first thing main() does, and was surprised to find that
+>>>>> this doesn't prevent the `cvs add <dir>` deadlock in a web
+>>>>> commit. I was convinced this'd be a reasonable solution,
+>>>>> especially if conditionalized on the cvs plugin being loaded,
+>>>>> but it doesn't work. And I stuck debug printfs at the beginning
+>>>>> of all the rcs_foo() subs, and whatever `cvs add <dir>` is
+>>>>> doing to ikiwiki isn't visible to my plugin, because none of
+>>>>> those subs are getting called. Nuts. Can you think of anything
+>>>>> else that might solve the problem, or should I go back to
+>>>>> generating a minimal wrapper wrapper that checks for just
+>>>>> this one thing? --[[schmonz]]
+
 > Thing 2 I'm less sure of. (I'd like to see the web UI return
 > immediately on save anyway, to a temporary "rebuilding, please wait
 > if you feel like knowing when it's done" page, but this problem
