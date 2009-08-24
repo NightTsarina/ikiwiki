@@ -1557,7 +1557,6 @@ sub saveindex () {
 		};
 
 		if (exists $depends{$page}) {
-			$index{page}{$src}{depends} = join(" or ", @{$depends{$page}});
 			$index{page}{$src}{dependslist} = $depends{$page};
 		}
 
