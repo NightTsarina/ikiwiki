@@ -661,8 +661,14 @@ sub pagetype ($) {
 	return;
 }
 
+my %pagename_cache;
+
 sub pagename ($) {
 	my $file=shift;
+
+	if (exists $pagename_cache{$file}) {
+		return $pagename_cache{$file};
+	}
 
 	my $type=pagetype($file);
 	my $page=$file;
@@ -672,6 +678,8 @@ sub pagename ($) {
 	if ($config{indexpages} && $page=~/(.*)\/index$/) {
 		$page=$1;
 	}
+
+	$pagename_cache{$file} = $page;
 	return $page;
 }
 
