@@ -123,7 +123,12 @@ uses it still), and otherwise just bloats the index.
 >> It is acceptable not to support downgrades.
 >> I don't think we need a NEWS file update since any sort of refresh,
 >> not just a full rebuild, will cause the indexdb to be loaded and saved,
->> enabling the optimisation. --[[Joey]] 
+>> enabling the optimisation. --[[Joey]]
+
+>>> A refresh will load the current dependencies from `{depends}` and save
+>>> them as-is as a one-element `{dependslist}`; only a rebuild will replace
+>>> the single complex pagespec with a long list of simpler pagespecs.
+>>> --[[smcv]]
 
 Is an array the right data structure? `add_depends` has to loop through the
 array to avoid dups, it would be better if a hash were used there. Since
@@ -149,7 +154,9 @@ to avoid..
 >> a bit faster. --[[smcv]]
 
 >>> It depends, really. And it'd certianly make sense to benchmark such a
->>> change. --[[Joey]] 
+>>> change. --[[Joey]]
+
+>>>> Benchmarked, below. --[[smcv]]
 
 Also, since a lot of places are calling add_depends in a loop, it probably
 makes sense to just make it accept a list of dependencies to add. It'll be
@@ -163,7 +170,10 @@ when adding a lot of depends at once.
 >> Well, I was thinking that it might be sufficient to build a `%seen`
 >> hash of dependencies inside `add_depends`, if the places that call
 >> it lots were changed to just call it once. Of course the only way to
->> tell is benchmarking. --[[Joey]] 
+>> tell is benchmarking. --[[Joey]]
+
+>>> It doesn't seem that it significantly affects performance either way.
+>>> --[[smcv]]
 
 In Render.pm, we now have a triply nested loop, which is a bit
 scary for efficiency. It seems there should be a way to
@@ -180,7 +190,70 @@ out.
 >> run more often than before. That function is pretty inexpensive, but..
 >> --[[Joey]]
 
+>>> I don't see anything that can be hoisted without significant refactoring,
+>>> actually. Beware that there are two pagename calls in the loop: one for
+>>> `$f` (which is the page we might want to rebuild), and one for `$file`
+>>> (which is the changed page that it might depend on). Note that I didn't
+>>> choose those names!
+>>>
+>>> The three loops are over source files, their lists of dependency pagespecs,
+>>> and files that might have changed. I see the following things we might be
+>>> doing redundantly:
+>>>
+>>> * If `$file` is considered as a potential dependency for more than
+>>>   one `$f`, we evaluate `pagename($file)` more than once. Potential fix:
+>>>   cache them (this turns out to save about half a second on the docwiki,
+>>>   see below).
+>>> * If several pages depend on the same pagespec, we evaluate whether each
+>>>   changed page matches that pagespec more than once: however, we do so
+>>>   with a different location parameter every time, so repeated calls are,
+>>>   in the general case, the only correct thing to do. Potential fix:
+>>>   perhaps special-case "page x depends on page y and nothing else"
+>>>   (i.e. globs that have no wildcards) into a separate hash? I haven't
+>>>   done anything in this direction.
+>>> * Any preparatory work done by pagespec_match (converting the pagespec
+>>>   into Perl, mostly?) is done in the inner loop; switching to
+>>>   pagespec_match_list (significant refactoring) saves more than half a
+>>>   second on the docwiki.
+>>>
+>>> --[[smcv]]
+
 Very good catch on img/meta using the wrong dependency; verified in the wild!
 (I've cherry-picked those bug fixes.)
+
+----
+
+Benchmarking results: I benchmarked by altering docwiki.setup to switch off
+verbose, running "make clean && ./Makefile.PL && make", and timing one rebuild
+of the docwiki followed by three refreshes. Before each refresh I used
+`touch plugins/*.mdwn` to have something significant to refresh.
+
+I'm assuming that "user" CPU time is the important thing here (system time was
+relatively small in all cases, up to 0.35 seconds per run).
+
+master at the time of rebasing: 14.20s to rebuild, 10.04/12.07/14.01s to
+refresh. I think you can see the bug clearly here - the pagespecs are getting
+more complicated every time!
+
+After the initial optimization: 14.27s to rebuild, 8.26/8.33/8.26 to refresh.
+Success!
+
+Not pre-joining dependencies actually took about ~0.2s more; I don't know why.
+I'm worried that duplicates will just build up (again) in less simple cases,
+though, so 0.2s is probably a small price to pay for that not happening (it
+might well be experimental error, for that matter).
+
+Not saving {depends} to the index, using a hash instead of a list to
+de-duplicate, and allowing add_depends to take an arrayref instead of a single
+pagespec had no noticable positive or negative effect on this test.
+
+Memoizing the results of pagename brought the rebuild time down to 14.06s
+and the refresh time down to 7.96/7.92/7.92, a significant win.
+
+Refactoring to use pagespec_match_list looks more risky from a code churn
+point of view; rebuild now takes 14.35s, but refresh is only 7.30/7.29/7.28,
+another significant win.
+
+--[[smcv]]
 
 [[!tag wishlist patch patch/core]]
