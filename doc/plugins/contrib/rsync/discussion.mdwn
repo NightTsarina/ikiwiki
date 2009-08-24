@@ -25,3 +25,14 @@ As a proof of concept, I added an rsync post-commit hook after
 ikiwiki's usual. It worked, just not for web edits, which is how
 the wiki will be used. So I wrote this plugin to finish the job.
 The wiki now lives on (1), and clicking "edit" just works.
+
+> Just out of interest, why use `rsync` and not `git push`.  i.e. a
+> different setup to solve the same problem would be to run a
+> normal ikiwiki setup on the universities server with its git
+> repository available over ssh (same security setup your using
+> for rsync should work for git over ssh).  On the cgi-capable server,
+> when it would rsync, make it git push.  It would seem that git
+> has enough information that it should be able to be more
+> network efficient.  It also means that corruption at one end
+> wouldn't be propagated to the other end. -- [[Will]]
+
