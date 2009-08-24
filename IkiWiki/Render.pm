@@ -462,15 +462,17 @@ sub refresh () {
 				foreach my $d (keys %{$depends{$p}}) {
 					# only consider internal files
 					# if the page explicitly depends on such files
-					foreach my $file (@changed, $d=~/internal\(/ ? @internal : ()) {
-						next if $f eq $file;
-						my $page=pagename($file);
-						if (pagespec_match($page, $d, location => $p)) {
-							debug(sprintf(gettext("building %s, which depends on %s"), $f, $page));
-							render($f);
-							$rendered{$f}=1;
-							next F;
-						}
+					my @pages = map {
+						pagename($_)
+					} grep {
+						$_ ne $f
+					} (@changed, $d =~ /internal\(/ ? @internal : ());
+					@pages = pagespec_match_list(\@pages, $d, location => $p);
+					if (@pages) {
+						debug(sprintf(gettext("building %s, which depends on %s"), $f, $pages[0]));
+						render($f);
+						$rendered{$f}=1;
+						next F;
 					}
 				}
 			}
