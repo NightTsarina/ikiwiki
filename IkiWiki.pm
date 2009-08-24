@@ -1730,6 +1730,15 @@ sub add_depends ($$) {
 	my $page=shift;
 	my $pagespec=shift;
 
+	if (ref $pagespec eq 'ARRAY') {
+		foreach my $ps (@$pagespec) {
+			if (pagespec_valid($ps)) {
+				$depends{$page}{$ps} = 1;
+			}
+		}
+		return;
+	}
+
 	return unless pagespec_valid($pagespec);
 
 	$depends{$page}{$pagespec} = 1;

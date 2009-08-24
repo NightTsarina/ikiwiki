@@ -73,9 +73,7 @@ sub preprocess (@) {
 	add_depends($params{page}, $params{pages});
 	# Explicitly add all currently shown pages, to detect when pages
 	# are removed.
-	foreach my $item (keys %mapitems) {
-		add_depends($params{page}, $item);
-	}
+	add_depends($params{page}, [keys %mapitems]);
 
 	# Create the map.
 	my $parent="";
