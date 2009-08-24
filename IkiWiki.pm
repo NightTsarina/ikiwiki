@@ -1508,10 +1508,12 @@ sub loadindex () {
 				$oldlinks{$page}=[@{$d->{links}}];
 			}
 			if (exists $d->{dependslist}) {
-				$depends{$page}=$d->{dependslist};
+				$depends{$page}={
+					map { $_ => 1 } @{$d->{dependslist}}
+				};
 			}
 			elsif (exists $d->{depends}) {
-				$depends{$page}=[$d->{depends}];
+				$depends{$page}={$d->{depends} => 1};
 			}
 			if (exists $d->{state}) {
 				$pagestate{$page}=$d->{state};
@@ -1557,7 +1559,7 @@ sub saveindex () {
 		};
 
 		if (exists $depends{$page}) {
-			$index{page}{$src}{dependslist} = $depends{$page};
+			$index{page}{$src}{dependslist} = [ keys %{$depends{$page}} ];
 		}
 
 		if (exists $pagestate{$page}) {
@@ -1730,16 +1732,7 @@ sub add_depends ($$) {
 
 	return unless pagespec_valid($pagespec);
 
-	if (! exists $depends{$page}) {
-		$depends{$page}=[$pagespec];
-	}
-	else {
-		foreach my $p (@{$depends{$page}}) {
-			return 1 if $p eq $pagespec;
-		}
-		push @{$depends{$page}}, $pagespec;
-	}
-
+	$depends{$page}{$pagespec} = 1;
 	return 1;
 }
 

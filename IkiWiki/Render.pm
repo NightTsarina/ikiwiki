@@ -459,7 +459,7 @@ sub refresh () {
 			next if $rendered{$f};
 			my $p=pagename($f);
 			if (exists $depends{$p}) {
-				foreach my $d (@{$depends{$p}}) {
+				foreach my $d (keys %{$depends{$p}}) {
 					# only consider internal files
 					# if the page explicitly depends on such files
 					foreach my $file (@changed, $d=~/internal\(/ ? @internal : ()) {
