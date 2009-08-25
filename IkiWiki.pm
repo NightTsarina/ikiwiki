@@ -1824,14 +1824,6 @@ sub add_link ($$) {
 		unless grep { $_ eq $link } @{$links{$page}};
 }
 
-sub pagespec_merge ($$) {
-	my $a=shift;
-	my $b=shift;
-
-	return $a if $a eq $b;
-	return "($a) or ($b)";
-}
-
 sub pagespec_translate ($) {
 	my $spec=shift;
 
