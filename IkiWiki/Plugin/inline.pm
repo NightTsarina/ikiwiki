@@ -251,7 +251,7 @@ sub preprocess_inline (@) {
 	# Explicitly add all currently displayed pages as dependencies, so
 	# that if they are removed or otherwise changed, the inline will be
 	# sure to be updated.
-	add_depends($params{page}, join(" or ", $#list >= $#feedlist ? @list : @feedlist));
+	add_depends($params{page}, $#list >= $#feedlist ? \@list : \@feedlist);
 	
 	if ($feeds && exists $params{feedpages}) {
 		@feedlist=pagespec_match_list(\@feedlist, $params{feedpages}, location => $params{page});

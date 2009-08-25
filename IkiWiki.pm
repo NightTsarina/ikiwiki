@@ -661,8 +661,14 @@ sub pagetype ($) {
 	return;
 }
 
+my %pagename_cache;
+
 sub pagename ($) {
 	my $file=shift;
+
+	if (exists $pagename_cache{$file}) {
+		return $pagename_cache{$file};
+	}
 
 	my $type=pagetype($file);
 	my $page=$file;
@@ -672,6 +678,8 @@ sub pagename ($) {
 	if ($config{indexpages} && $page=~/(.*)\/index$/) {
 		$page=$1;
 	}
+
+	$pagename_cache{$file} = $page;
 	return $page;
 }
 
@@ -1507,8 +1515,13 @@ sub loadindex () {
 				$links{$page}=$d->{links};
 				$oldlinks{$page}=[@{$d->{links}}];
 			}
-			if (exists $d->{depends}) {
-				$depends{$page}=$d->{depends};
+			if (exists $d->{dependslist}) {
+				$depends{$page}={
+					map { $_ => 1 } @{$d->{dependslist}}
+				};
+			}
+			elsif (exists $d->{depends}) {
+				$depends{$page}={$d->{depends} => 1};
 			}
 			if (exists $d->{state}) {
 				$pagestate{$page}=$d->{state};
@@ -1554,7 +1567,7 @@ sub saveindex () {
 		};
 
 		if (exists $depends{$page}) {
-			$index{page}{$src}{depends} = $depends{$page};
+			$index{page}{$src}{dependslist} = [ keys %{$depends{$page}} ];
 		}
 
 		if (exists $pagestate{$page}) {
@@ -1724,16 +1737,19 @@ sub rcs_receive () {
 sub add_depends ($$) {
 	my $page=shift;
 	my $pagespec=shift;
-	
+
+	if (ref $pagespec eq 'ARRAY') {
+		foreach my $ps (@$pagespec) {
+			if (pagespec_valid($ps)) {
+				$depends{$page}{$ps} = 1;
+			}
+		}
+		return;
+	}
+
 	return unless pagespec_valid($pagespec);
 
-	if (! exists $depends{$page}) {
-		$depends{$page}=$pagespec;
-	}
-	else {
-		$depends{$page}=pagespec_merge($depends{$page}, $pagespec);
-	}
-
+	$depends{$page}{$pagespec} = 1;
 	return 1;
 }
 
