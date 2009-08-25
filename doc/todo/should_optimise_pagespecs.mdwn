@@ -244,11 +244,13 @@ more complicated every time!
 >    other things that overloaded the system.
 > b) Suggests to me we will probably want to force a rebuild on upgrade
 >    when fixing this (via the mechanism in the postinst).
-> 
-> BTW, the underlying bug here is really horribly simple:
-> When refreshing, `loadindex` preserves the previous depends list,
-> and `add_depends` adds stuff to it. So it doubles every time a page is
-> re-rendered during refresh. --[[Joey]]
+>
+> I've investigated why the pagespecs keep growing: When page A changes,
+> its old depends are cleared. Then
+> page B that inlines A gets rebuilt, and its old depends are also cleared.
+> But page B also inlines page C; which means C gets re-rendered. And this
+> happens w/o its old depends being cleared, so C's depends are doubled.
+> --[[Joey]]
 
 After the initial optimization: 14.27s to rebuild, 8.26/8.33/8.26 to refresh.
 Success!
