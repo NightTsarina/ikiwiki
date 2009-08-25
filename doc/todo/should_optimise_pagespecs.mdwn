@@ -266,6 +266,9 @@ might well be experimental error, for that matter).
 > `add_depends` had no effect. So, the commit message to
 > b6fcb1cb0ef27e5a63184440675d465fad652acf is actually wrong.. ? --[[Joey]] 
 
+>> I'll try benchmarking again on the non-public wiki where I had the 4%
+>> speedup. The docwiki is so small that 4% is hard to measure... --[[smcv]]
+
 Not saving {depends} to the index, using a hash instead of a list to
 de-duplicate, and allowing add_depends to take an arrayref instead of a single
 pagespec had no noticable positive or negative effect on this test.
@@ -273,10 +276,16 @@ pagespec had no noticable positive or negative effect on this test.
 > I see e4cd168ebedd95585290c97ff42234344bfed46c is still in your branch
 > though. I don't like using an arrayref, it could just take `($page, @depends)`.
 > and I don't see the need to keep it if it doesn't currently help.
-> 
+
+>> I'll drop it. --[[smcv]]
+
 > Is there any reason to keep 7227c2debfeef94b35f7d81f42900aa01820caa3
 > if it doesn't improve speed?
 > --[[Joey]] 
+
+>> I'll try benchmarking on a more complex wiki and see whether it has a
+>> positive or negative effect. It does avoid being O(n**2) in number of
+>> dependencies. --[[smcv]]
 
 Memoizing the results of pagename brought the rebuild time down to 14.06s
 and the refresh time down to 7.96/7.92/7.92, a significant win.
@@ -284,6 +293,9 @@ and the refresh time down to 7.96/7.92/7.92, a significant win.
 > Ok, that seems safe to memoize. (It's a real function and it isn't
 > called with a great many inputs.) Why did you chose to memoize it
 > explicitly rather than adding it to the memoize list at the top?
+
+>> It does depend on global variables, so using Memoize seemed like asking for
+>> trouble. I suppose what I did is equivalent to Memoize though... --[[smcv]]
 
 Refactoring to use pagespec_match_list looks more risky from a code churn
 point of view; rebuild now takes 14.35s, but refresh is only 7.30/7.29/7.28,
