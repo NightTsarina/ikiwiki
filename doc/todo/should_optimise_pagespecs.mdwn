@@ -235,6 +235,21 @@ master at the time of rebasing: 14.20s to rebuild, 10.04/12.07/14.01s to
 refresh. I think you can see the bug clearly here - the pagespecs are getting
 more complicated every time!
 
+> I can totally see a bug here, and it's one I didn't think existed. Ie,
+> I thought that after the first refresh, the pagespec should stabalize,
+> and what it stabalized to was probably unnecessarily long, but not
+> growing w/o bounds!
+> 
+> a) Explains why ikiwiki.info has been so slow lately. Well that and some
+>    other things that overloaded the system.
+> b) Suggests to me we will probably want to force a rebuild on upgrade
+>    when fixing this (via the mechanism in the postinst).
+> 
+> BTW, the underlying bug here is really horribly simple:
+> When refreshing, `loadindex` preserves the previous depends list,
+> and `add_depends` adds stuff to it. So it doubles every time a page is
+> re-rendered during refresh. --[[Joey]]
+
 After the initial optimization: 14.27s to rebuild, 8.26/8.33/8.26 to refresh.
 Success!
 
@@ -243,17 +258,44 @@ I'm worried that duplicates will just build up (again) in less simple cases,
 though, so 0.2s is probably a small price to pay for that not happening (it
 might well be experimental error, for that matter).
 
+> It's weird that the suggested optimisations to
+> `add_depends` had no effect. So, the commit message to
+> b6fcb1cb0ef27e5a63184440675d465fad652acf is actually wrong.. ? --[[Joey]] 
+
 Not saving {depends} to the index, using a hash instead of a list to
 de-duplicate, and allowing add_depends to take an arrayref instead of a single
 pagespec had no noticable positive or negative effect on this test.
 
+> I see e4cd168ebedd95585290c97ff42234344bfed46c is still in your branch
+> though. I don't like using an arrayref, it could just take `($page, @depends)`.
+> and I don't see the need to keep it if it doesn't currently help.
+> 
+> Is there any reason to keep 7227c2debfeef94b35f7d81f42900aa01820caa3
+> if it doesn't improve speed?
+> --[[Joey]] 
+
 Memoizing the results of pagename brought the rebuild time down to 14.06s
 and the refresh time down to 7.96/7.92/7.92, a significant win.
+
+> Ok, that seems safe to memoize. (It's a real function and it isn't
+> called with a great many inputs.) Why did you chose to memoize it
+> explicitly rather than adding it to the memoize list at the top?
 
 Refactoring to use pagespec_match_list looks more risky from a code churn
 point of view; rebuild now takes 14.35s, but refresh is only 7.30/7.29/7.28,
 another significant win.
 
 --[[smcv]]
+
+> I had mostly convinced myself that
+> `pagespec_match_list` would not lead to a speed gain here. My reasoning
+> was that you want to stop after finding one match, while `pagespec_match_list`
+> checks all pages for matches. So what we're seeing is that
+> on a rebuild, `@changed` is all pages, and not short-circuiting leads
+> to unnecessary work. OTOH, on refresh, `@changed` is small and I suppose
+> `pagespec_match_list`'s other slight efficiencies win out somehow.
+> 
+> Welcome to the "I made ikiwiki twice as fast
+> and all I got was this lousy git sha1sum" club BTW :-) --[[Joey]] 
 
 [[!tag wishlist patch patch/core]]
