@@ -282,12 +282,23 @@ That used to be so, but the bug was fixed. Does this mean
 that po might be replacing the only link on a page, in error? 
 --[[Joey]] 
 
+> It would replace it. The only problematic case is when another
+> plugin has its own reasons, in its `scan` hook, to add a page
+> that is already there to `$links{$page}`. This other plugin's
+> effect might then be changed by po's `scan` hook... which could
+> be either good (better overall l10n) or bad (break the other
+> plugin's goal). --[[intrigeri]]
+
 Name of toplevel index page
 ---------------------------
 
 Normally at the top index page of a wiki, you see the wiki name at
 the top. However, at the top *translated* index page, you see something
-like "index.da". --[[Joey]] 
+like "index.da". --[[Joey]]
+
+> I suggest changing `Render.pm`, line 115, to replace the `$page eq 'index'`
+> test with a predicate call such as isindexpage($page). Such a predicate
+> function could then be overriden by the po plugin. --[[intrigeri]]
 
 Pagespecs
 ---------
