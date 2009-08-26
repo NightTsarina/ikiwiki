@@ -602,17 +602,21 @@ sub myurlto ($$;$) {
 	# so that one is redirected to the just-edited page rather than to the
 	# negociated translation; to prevent unnecessary fiddling with caller/inject,
 	# we only do so when our beautify_urlpath would actually do what we want to
-	# avoid, i.e. when po_link_to = negotiated
+	# avoid, i.e. when po_link_to = negotiated.
+	# also avoid doing so when run by cgi_goto, so that the links on recentchanges
+	# page actually lead to the exact page they pretend to.
 	if ($config{po_link_to} eq "negotiated") {
 		my @caller = caller(1);
-		my $run_by_editpage = 0;
-		$run_by_editpage = 1 if (exists $caller[3] && defined $caller[3]
-					 && $caller[3] eq "IkiWiki::cgi_editpage");
+		my $use_orig = 0;
+		$use_orig = 1 if (exists $caller[3] && defined $caller[3]
+				 && ($caller[3] eq "IkiWiki::cgi_editpage" ||
+				     $caller[3] eq "IkiWiki::Plugin::goto::cgi_goto")
+				 );
 		inject(name => "IkiWiki::beautify_urlpath", call => $origsubs{'beautify_urlpath'})
-			if $run_by_editpage;
+			if $use_orig;
 		my $res = $origsubs{'urlto'}->($to,$from,$absolute);
 		inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath)
-			if $run_by_editpage;
+			if $use_orig;
 		return $res;
 	}
 	else {
