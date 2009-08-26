@@ -260,7 +260,9 @@ If a page contains a WikiLink to itself, ikiwiki does not normally
 turn that into a hyperlink. However, if a translated page contains a
 WikiLink to itself, a hyperlink is inserted, at least with the default
 `po_link_to` the link points to the English version of the page. Is there a
-good reason for that to be done? --[[Joey]] 
+good reason for that to be done? --[[Joey]]
+
+> The commit 0113c69d4fb in my po branch might fix this. --[[intrigeri]]
 
 Language display order
 ----------------------
@@ -280,12 +282,23 @@ That used to be so, but the bug was fixed. Does this mean
 that po might be replacing the only link on a page, in error? 
 --[[Joey]] 
 
+> It would replace it. The only problematic case is when another
+> plugin has its own reasons, in its `scan` hook, to add a page
+> that is already there to `$links{$page}`. This other plugin's
+> effect might then be changed by po's `scan` hook... which could
+> be either good (better overall l10n) or bad (break the other
+> plugin's goal). --[[intrigeri]]
+
 Name of toplevel index page
 ---------------------------
 
 Normally at the top index page of a wiki, you see the wiki name at
 the top. However, at the top *translated* index page, you see something
-like "index.da". --[[Joey]] 
+like "index.da". --[[Joey]]
+
+> I suggest changing `Render.pm`, line 115, to replace the `$page eq 'index'`
+> test with a predicate call such as isindexpage($page). Such a predicate
+> function could then be overriden by the po plugin. --[[intrigeri]]
 
 Pagespecs
 ---------
@@ -321,6 +334,10 @@ When a po file is changed, the recentchanges page shows a link such as
 "sandbox.es". But, clicking on it goes to the English (or negotiated
 language) version of the page. It would be better in this one case if
 the link went direct to the translated version of the page. --[[Joey]] 
+
+> The (untested) commit 496e8523c670 in my po branch might fix this...
+> or at least, I believe, put someone on the right track.
+> --[[intrigeri]]
 
 Double commits of po files
 --------------------------
