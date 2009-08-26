@@ -547,6 +547,9 @@ sub mybestlink ($$) {
 	my $page=shift;
 	my $link=shift;
 
+	return $origsubs{'bestlink'}->($page, $link)
+		if $config{po_link_to} eq "default";
+
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
 	if (length $res
 	    && ($config{po_link_to} eq "current" || $config{po_link_to} eq "negotiated")
