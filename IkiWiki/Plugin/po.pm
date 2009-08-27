@@ -51,8 +51,6 @@ sub import {
 	hook(type => "formbuilder_setup", id => "po", call => \&formbuilder_setup, last => 1);
 	hook(type => "formbuilder", id => "po", call => \&formbuilder);
 
-	$origsubs{'bestlink'}=\&IkiWiki::bestlink;
-	inject(name => "IkiWiki::bestlink", call => \&mybestlink);
 	$origsubs{'beautify_urlpath'}=\&IkiWiki::beautify_urlpath;
 	inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath);
 	$origsubs{'targetpage'}=\&IkiWiki::targetpage;
@@ -152,6 +150,10 @@ sub checkconfig () {
 	elsif ($config{po_link_to} eq "negotiated" && ! $config{usedirs}) {
 		warn(gettext('po_link_to=negotiated requires usedirs to be enabled, falling back to po_link_to=default'));
 		$config{po_link_to}='default';
+	}
+	unless ($config{po_link_to} eq 'default') {
+		$origsubs{'bestlink'}=\&IkiWiki::bestlink;
+		inject(name => "IkiWiki::bestlink", call => \&mybestlink);
 	}
 
 	push @{$config{wiki_file_prune_regexps}}, qr/\.pot$/;
@@ -543,13 +545,13 @@ sub formbuilder (@) {
 # `----
 
 # Implement po_link_to 'current' and 'negotiated' settings.
+# Not injected otherwise.
 sub mybestlink ($$) {
 	my $page=shift;
 	my $link=shift;
 
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
 	if (length $res
-	    && ($config{po_link_to} eq "current" || $config{po_link_to} eq "negotiated")
 	    && istranslatable($res)
 	    && istranslation($page)) {
 		return $res . "." . lang($page);
