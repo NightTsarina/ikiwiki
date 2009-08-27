@@ -302,6 +302,9 @@ sub pagetemplate (@) {
 	    && $masterpage eq "index") {
 		$template->param('parentlinks' => []);
 	}
+	if (ishomepage($page) && $template->query(name => "title")) {
+		$template->param(title => $config{wikiname});
+	}
 } # }}}
 
 # Add the renamed page translations to the list of to-be-renamed pages.
@@ -955,6 +958,14 @@ sub homepageurl (;$) {
 	my $page=shift;
 
 	return urlto('', $page);
+}
+
+sub ishomepage ($) {
+	my $page = shift;
+
+	return 1 if $page eq 'index';
+	map { return 1 if $page eq 'index.'.$_ } keys %{$config{po_slave_languages}};
+	return undef;
 }
 
 sub deletetranslations ($) {
