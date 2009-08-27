@@ -46,7 +46,10 @@ sub sanitize (@) {
 	waitpid $pid, 0;
 
 	$SIG{PIPE}="DEFAULT";
-	return "" if $sigpipe || ! defined $ret;
+	if ($sigpipe || ! defined $ret) {
+		print STDERR gettext("warning: tidy failed")."\n";
+		return "";
+	}
 
 	return $ret;
 }
