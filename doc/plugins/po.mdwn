@@ -289,27 +289,6 @@ order, as `po_slave_languages` is a hash. It would need to be converted
 to an array to support this. (If twere done, twere best done quickly.)
 --[[Joey]] 
 
-Name of toplevel index page
----------------------------
-
-Normally at the top index page of a wiki, you see the wiki name at
-the top. However, at the top *translated* index page, you see something
-like "index.da". --[[Joey]]
-
-> I suggest changing `Render.pm`, line 115, to replace the `$page eq 'index'`
-> test with a predicate call such as isindexpage($page). Such a predicate
-> function could then be overriden by the po plugin. --[[intrigeri]]
-
->> Could do that, but if you have such a function it's natural to want to
->> use it elsewhere. Not clear to me it would make sense for po to override
->> such a function if it were used in some of the other places that compare
->> to index.
->> 
->> The other option would be for po to override the template setting.
->> --[[Joey]] 
-
->>> Great idea. Commit 6c0f9c691c3df3a in my po branch does it. --[[intrigeri]]
-
 Pagespecs
 ---------
 
