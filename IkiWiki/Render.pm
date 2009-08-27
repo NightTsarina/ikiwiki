@@ -210,6 +210,7 @@ sub render ($) {
 	if (defined $type) {
 		my $page=pagename($file);
 		delete $depends{$page};
+		delete $depends_exact{$page};
 		will_render($page, htmlpage($page), 1);
 		return if $type=~/^_/;
 		
@@ -224,6 +225,7 @@ sub render ($) {
 	}
 	else {
 		delete $depends{$file};
+		delete $depends_exact{$file};
 		will_render($file, $file, 1);
 		
 		if ($config{hardlink}) {
@@ -431,6 +433,7 @@ sub refresh () {
 		# internal pages are not rendered
 		my $page=pagename($file);
 		delete $depends{$page};
+		delete $depends_exact{$page};
 		foreach my $old (@{$renderedfiles{$page}}) {
 			delete $destsources{$old};
 		}
@@ -454,10 +457,24 @@ sub refresh () {
 	if (%rendered || @del || @internal) {
 		my @changed=(keys %rendered, @del);
 
+ 		my %changedpages = map { pagename($_) => 1 } @changed;
+ 
 		# rebuild dependant pages
 		F: foreach my $f (@$files) {
 			next if $rendered{$f};
 			my $p=pagename($f);
+
+			if (exists $depends_exact{$p}) {
+				foreach my $d (keys %{$depends_exact{$p}}) {
+					if (exists $changedpages{$d}) {
+						debug(sprintf(gettext("building %s, which depends on %s"), $f, $p));
+						render($f);
+						$rendered{$f}=1;
+						next F;
+					}
+				}
+			}
+
 			if (exists $depends{$p}) {
 				foreach my $d (keys %{$depends{$p}}) {
 					my $sub=pagespec_translate($d);

@@ -14,14 +14,14 @@ use open qw{:utf8 :std};
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
 	    %pagesources %destsources %depends %hooks %forcerebuild
-	    %loaded_plugins};
+	    %loaded_plugins %depends_exact};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
                  pagespec_match_list bestlink htmllink readfile writefile
 		 pagetype srcfile pagename displaytime will_render gettext urlto
 		 targetpage add_underlay pagetitle titlepage linkpage
-		 newpagefile inject add_link
+		 newpagefile inject add_link add_depends_exact
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
@@ -1475,7 +1475,8 @@ sub loadindex () {
 	%oldrenderedfiles=%pagectime=();
 	if (! $config{rebuild}) {
 		%pagesources=%pagemtime=%oldlinks=%links=%depends=
-		%destsources=%renderedfiles=%pagecase=%pagestate=();
+		%destsources=%renderedfiles=%pagecase=%pagestate=
+		%depends_exact=();
 	}
 	my $in;
 	if (! open ($in, "<", "$config{wikistatedir}/indexdb")) {
@@ -1514,6 +1515,11 @@ sub loadindex () {
 			if (exists $d->{links} && ref $d->{links}) {
 				$links{$page}=$d->{links};
 				$oldlinks{$page}=[@{$d->{links}}];
+			}
+			if (exists $d->{depends_exact}) {
+				$depends_exact{$page}={
+					map { $_ => 1 } @{$d->{depends_exact}}
+				};
 			}
 			if (exists $d->{dependslist}) {
 				$depends{$page}={
@@ -1568,6 +1574,10 @@ sub saveindex () {
 
 		if (exists $depends{$page}) {
 			$index{page}{$src}{dependslist} = [ keys %{$depends{$page}} ];
+		}
+
+		if (exists $depends_exact{$page}) {
+			$index{page}{$src}{depends_exact} = [ keys %{$depends_exact{$page}} ];
 		}
 
 		if (exists $pagestate{$page}) {
@@ -1742,6 +1752,13 @@ sub add_depends ($$) {
 
 	$depends{$page}{$pagespec} = 1;
 	return 1;
+}
+
+sub add_depends_exact ($$) {
+	my $page = shift;
+	my $dep = shift;
+
+	$depends_exact{$page}{$dep} = 1;
 }
 
 sub file_pruned ($$) {
