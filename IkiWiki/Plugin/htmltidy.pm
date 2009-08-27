@@ -47,8 +47,7 @@ sub sanitize (@) {
 
 	$SIG{PIPE}="DEFAULT";
 	if ($sigpipe || ! defined $ret) {
-		print STDERR gettext("warning: tidy failed")."\n";
-		return "";
+		return gettext("htmltidy failed to parse this html");
 	}
 
 	return $ret;
