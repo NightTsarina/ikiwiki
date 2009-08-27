@@ -195,10 +195,10 @@ sub preprocess_inline (@) {
 
 		@list = map { bestlink($params{page}, $_) }
 		        split ' ', $params{pagenames};
-
-		$params{pages} = join(" or ", @list);
 	}
 	else {
+		add_depends($params{page}, $params{pages});
+
 		@list = pagespec_match_list(
 			[ grep { $_ ne $params{page} } keys %pagesources ],
 			$params{pages}, location => $params{page});
@@ -247,7 +247,6 @@ sub preprocess_inline (@) {
 		@list=@list[0..$params{show} - 1];
 	}
 
-	add_depends($params{page}, $params{pages});
 	# Explicitly add all currently displayed pages as dependencies, so
 	# that if they are removed or otherwise changed, the inline will be
 	# sure to be updated.
