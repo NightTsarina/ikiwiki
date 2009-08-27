@@ -253,33 +253,6 @@ once [[intrigeri]]'s `meta` branch is merged.
 An integration branch, called `meta-po`, merges [[intrigeri]]'s `po`
 and `meta` branches, and thus has this additional features.
 
-Self links
-----------
-
-If a page contains a WikiLink to itself, ikiwiki does not normally
-turn that into a hyperlink. However, if a translated page contains a
-WikiLink to itself, a hyperlink is inserted, at least with the default
-`po_link_to` the link points to the English version of the page. Is there a
-good reason for that to be done? --[[Joey]]
-
-> The commit 0113c69d4fb in my po branch might fix this. --[[intrigeri]]
-
->> It may fix it in passing, but shouldn't it also be fixed for the other
->> `po_link_to` styles?
-
->>> Other `po_link_to` styles already work ok: say there is
->>> a \[[dest]] link on a page called `dest`. When rendering
->>> `dest.LL`, `mybestlink` returns `dest.LL`, and `htmllink` is then
->>> able to detect, and manage correctly, that it is a self-link.
->>> --[[intrigeri]]
-
->> (Also, if `mybestlink` is going to always just return `bestlink` in
->> this case, there seems no reason to inject it.) --[[Joey]]
-
->>> Right. Commit cdc3576c8d1efb2 in my po branch prevents
->>> `mybestlink` to be injected when `po_link_to` is
->>> `default`. --[[intrigeri]]
-
 Language display order
 ----------------------
 
