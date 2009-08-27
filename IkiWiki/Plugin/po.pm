@@ -204,10 +204,7 @@ sub scan (@) {
 	if (istranslation($page)) {
 		foreach my $destpage (@{$links{$page}}) {
 			if (istranslatable($destpage)) {
-				# replace one occurence of $destpage in $links{$page}
-				# (we only want to replace the one that was added by
-				# IkiWiki::Plugin::link::scan, other occurences may be
-				# there for other reasons)
+				# replace the occurence of $destpage in $links{$page}
 				for (my $i=0; $i<@{$links{$page}}; $i++) {
 					if (@{$links{$page}}[$i] eq $destpage) {
 						@{$links{$page}}[$i] = $destpage . '.' . lang($page);
