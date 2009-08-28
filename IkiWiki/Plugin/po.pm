@@ -59,6 +59,8 @@ sub import {
 	inject(name => "IkiWiki::urlto", call => \&myurlto);
 	$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
 	inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
+	$origsubs{'rootpage'}=\&IkiWiki::rootpage;
+	inject(name => "IkiWiki::rootpage", call => \&myrootpage);
 }
 
 
@@ -647,6 +649,22 @@ sub mycgiurl (@) {
 		$params{'from'} = masterpage($params{'from'});
 	}
 	return $origsubs{'cgiurl'}->(%params);
+}
+
+sub myrootpage (@) {
+	my %params=@_;
+
+	my $rootpage;
+	if (exists $params{rootpage}) {
+		$rootpage=$origsubs{'bestlink'}->($params{page}, $params{rootpage});
+		if (!length $rootpage) {
+			$rootpage=$params{rootpage};
+		}
+	}
+	else {
+		$rootpage=masterpage($params{page});
+	}
+	return $rootpage;
 }
 
 # ,----
