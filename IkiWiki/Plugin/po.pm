@@ -531,10 +531,23 @@ sub formbuilder (@) {
 	if ($form->field("do") eq "create") {
 	        foreach my $field ($form->field) {
 			next unless "$field" eq "type";
-			if ($field->type eq 'select') {
-				# remove po from the list of types
-				my @types = grep { $_->[0] ne 'po' } $field->options;
-				$field->options(\@types) if @types;
+			next unless $field->type eq 'select';
+			my $orig_value = $field->value;
+			# remove po from the list of types
+			my @types = grep { $_->[0] ne 'po' } $field->options;
+			$field->options(\@types) if @types;
+			# favor the type of linking page's masterpage
+			if ($orig_value eq 'po') {
+				my ($from, $type);
+				if (defined $form->field('from')) {
+					($from)=$form->field('from')=~/$config{wiki_file_regexp}/;
+					$from = masterpage($from);
+				}
+				if (defined $from && exists $pagesources{$from}) {
+					$type=pagetype($pagesources{$from});
+				}
+				$type=$config{default_pageext} unless defined $type;
+				$field->value($type) ;
 			}
 		}
 	}
