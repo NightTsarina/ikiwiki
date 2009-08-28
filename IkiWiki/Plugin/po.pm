@@ -564,13 +564,9 @@ sub mybestlink ($$) {
 	my $link=shift;
 
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
-	my @caller = caller(1);
 	if (length $res
 	    && istranslatable($res)
-	    && istranslation($page)
-	    # keep masterpage as the rootpage for inline's post form
-	    && !(exists $caller[3] && defined $caller[3]
-		 && ($caller[3] eq "IkiWiki::rootpage"))) {
+	    && istranslation($page)) {
 		return $res . "." . lang($page);
 	}
 	return $res;
