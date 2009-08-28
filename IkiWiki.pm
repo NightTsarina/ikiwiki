@@ -13,8 +13,8 @@ use open qw{:utf8 :std};
 
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
-	    %pagesources %destsources %depends %hooks %forcerebuild
-	    %loaded_plugins %depends_exact};
+	    %pagesources %destsources %depends %depends_simple %hooks
+	    %forcerebuild %loaded_plugins};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
@@ -1476,7 +1476,7 @@ sub loadindex () {
 	if (! $config{rebuild}) {
 		%pagesources=%pagemtime=%oldlinks=%links=%depends=
 		%destsources=%renderedfiles=%pagecase=%pagestate=
-		%depends_exact=();
+		%depends_simple=();
 	}
 	my $in;
 	if (! open ($in, "<", "$config{wikistatedir}/indexdb")) {
@@ -1516,9 +1516,9 @@ sub loadindex () {
 				$links{$page}=$d->{links};
 				$oldlinks{$page}=[@{$d->{links}}];
 			}
-			if (exists $d->{depends_exact}) {
-				$depends_exact{$page}={
-					map { $_ => 1 } @{$d->{depends_exact}}
+			if (exists $d->{depends_simple}) {
+				$depends_simple{$page}={
+					map { $_ => 1 } @{$d->{depends_simple}}
 				};
 			}
 			if (exists $d->{dependslist}) {
@@ -1576,8 +1576,8 @@ sub saveindex () {
 			$index{page}{$src}{dependslist} = [ keys %{$depends{$page}} ];
 		}
 
-		if (exists $depends_exact{$page}) {
-			$index{page}{$src}{depends_exact} = [ keys %{$depends_exact{$page}} ];
+		if (exists $depends_simple{$page}) {
+			$index{page}{$src}{depends_simple} = [ keys %{$depends_simple{$page}} ];
 		}
 
 		if (exists $pagestate{$page}) {
@@ -1751,7 +1751,7 @@ sub add_depends ($$) {
 	if ($pagespec =~ /$config{wiki_file_regexp}/ &&
 		$pagespec !~ /[\s*?()!]/) {
 		# a simple dependency, which can be matched by string eq
-		$depends_exact{$page}{lc $pagespec} = 1;
+		$depends_simple{$page}{lc $pagespec} = 1;
 		return 1;
 	}
 

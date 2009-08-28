@@ -210,7 +210,7 @@ sub render ($) {
 	if (defined $type) {
 		my $page=pagename($file);
 		delete $depends{$page};
-		delete $depends_exact{$page};
+		delete $depends_simple{$page};
 		will_render($page, htmlpage($page), 1);
 		return if $type=~/^_/;
 		
@@ -225,7 +225,7 @@ sub render ($) {
 	}
 	else {
 		delete $depends{$file};
-		delete $depends_exact{$file};
+		delete $depends_simple{$file};
 		will_render($file, $file, 1);
 		
 		if ($config{hardlink}) {
@@ -433,7 +433,7 @@ sub refresh () {
 		# internal pages are not rendered
 		my $page=pagename($file);
 		delete $depends{$page};
-		delete $depends_exact{$page};
+		delete $depends_simple{$page};
 		foreach my $old (@{$renderedfiles{$page}}) {
 			delete $destsources{$old};
 		}
@@ -465,8 +465,8 @@ sub refresh () {
 			my $p=pagename($f);
 			my $reason = undef;
 
-			if (exists $depends_exact{$p}) {
-				foreach my $d (keys %{$depends_exact{$p}}) {
+			if (exists $depends_simple{$p}) {
+				foreach my $d (keys %{$depends_simple{$p}}) {
 					if (exists $lcchanged{$d}) {
 						$reason = $d;
 						last;
