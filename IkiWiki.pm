@@ -21,7 +21,7 @@ our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
                  pagespec_match_list bestlink htmllink readfile writefile
 		 pagetype srcfile pagename displaytime will_render gettext urlto
 		 targetpage add_underlay pagetitle titlepage linkpage
-		 newpagefile inject add_link add_depends_exact
+		 newpagefile inject add_link
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
@@ -1748,17 +1748,17 @@ sub add_depends ($$) {
 	my $page=shift;
 	my $pagespec=shift;
 
+	if ($pagespec =~ /$config{wiki_file_regexp}/ &&
+		$pagespec !~ /[\s*?()!]/) {
+		# a simple dependency, which can be matched by string eq
+		$depends_exact{$page}{$pagespec} = 1;
+		return 1;
+	}
+
 	return unless pagespec_valid($pagespec);
 
 	$depends{$page}{$pagespec} = 1;
 	return 1;
-}
-
-sub add_depends_exact ($$) {
-	my $page = shift;
-	my $dep = shift;
-
-	$depends_exact{$page}{$dep} = 1;
 }
 
 sub file_pruned ($$) {
