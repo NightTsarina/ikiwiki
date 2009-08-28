@@ -1,0 +1,238 @@
+# Czech translation of basewiki/templates page for ikiwiki.
+# Copyright (C) 2009 Miroslav Kure <kurem@debian.cz>
+# This file is distributed under the same license as the ikiwiki package.
+# Miroslav Kure <kurem@debian.cz>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki/basewiki\n"
+"POT-Creation-Date: 2009-08-28 02:49-0300\n"
+"PO-Revision-Date: 2009-08-20 09:38+0200\n"
+"Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
+"Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"[[!if test=\"enabled(template)\"\n"
+"then=\"This wiki has templates **enabled**.\"\n"
+"else=\"This wiki has templates **disabled**.\"\n"
+"]]\n"
+msgstr ""
+"[[!if test=\"enabled(template)\"\n"
+"then=\"Tato wiki má šablony **povolené**.\"\n"
+"else=\"Tato wiki má šablony **vypnuté**.\"\n"
+"]]\n"
+
+#. type: Plain text
+msgid ""
+"Templates are files that can be filled out and inserted into pages in the "
+"wiki."
+msgstr ""
+"Šablony jsou soubory, které je možno vyplnit a vložit do stránek ve wiki."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+
+#. type: Plain text
+msgid ""
+"These templates are available for inclusion onto other pages in this wiki:"
+msgstr "V této wiki jsou k dispozici následující šablony:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
+"sort=title template=titlepage]]\n"
+msgstr ""
+"[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
+"sort=title template=titlepage]]\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "Using a template"
+msgstr "Používání šablon"
+
+#. type: Plain text
+msgid "Using a template works like this:"
+msgstr "Použití šablony vypadá následovně:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!template id=note text=\"\"\"Here is the text to insert into my note.\"\"\"]]\n"
+msgstr "\t\\[[!template id=note text=\"\"\"Text pro vložení do poznámky.\"\"\"]]\n"
+
+#. type: Plain text
+msgid ""
+"This fills out the [[note]] template, filling in the `text` field with the "
+"specified value, and inserts the result into the page."
+msgstr ""
+"Tímto se v šabloně [[note]] vyplní pole `text` zadanou hodnotou a výsledek "
+"se vloží do stránky."
+
+#. type: Plain text
+msgid ""
+"Generally, a value can include any markup that would be allowed in the wiki "
+"page outside the template. Triple-quoting the value even allows quotes to be "
+"included in it. Combined with multi-line quoted values, this allows for "
+"large chunks of marked up text to be embedded into a template:"
+msgstr ""
+"Hodnota může obsahovat libovolné značky, které jsou povoleny v běžné wiki "
+"stránce. Trojité uvozovky dokonce umožňují používat uvnitř hodnoty i běžné "
+"anglické uvozovky. V kombinaci s viceřádkovými hodnotami lze do šablony "
+"vložit poměrně velké kusy označkovaného textu:"
+
+#. type: Plain text
+#, no-wrap
+msgid "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes=\"\"\"\n"
+msgstr "        \\[[!template id=foo name=\"Sally\" color=\"zelená\" age=8 notes=\"\"\"\n"
+
+#. type: Bullet: '        * '
+msgid "\\[[Charley]]'s sister."
+msgstr "\\[[Charlieho|Charley]] sestra."
+
+#. type: Bullet: '        * '
+msgid "\"I want to be an astronaut when I grow up.\""
+msgstr "\"Až vyrostu, chci být kosmonautem.\""
+
+#. type: Bullet: '        * '
+msgid "Really 8 and a half."
+msgstr "Opravdu, 8 a půl."
+
+#. type: Title ##
+#, no-wrap
+msgid "Creating a template"
+msgstr "Vytvoření šablony"
+
+#. type: Plain text
+msgid ""
+"To create a template, simply add a template directive to a page, and the "
+"page will provide a link that can be used to create the template. The "
+"template is a regular wiki page, located in the `templates/` subdirectory "
+"inside the source directory of the wiki."
+msgstr ""
+"Pro vytvoření šablony jednoduše přidejte do stránky direktivu template a "
+"stránka poskytne odkaz, který se dá použít pro vytvoření šablony. Šablona je "
+"běžná wiki stránka umístěná ve zdrojovém adresáři wiki v podadresáři "
+"`templates/`."
+
+#. type: Plain text
+msgid ""
+"The template uses the syntax used by the [[!cpan HTML::Template]] perl "
+"module, which allows for some fairly complex things to be done. Consult its "
+"documentation for the full syntax, but all you really need to know are a few "
+"things:"
+msgstr ""
+"Šablona používá stejnou syntaxi jako perlový modul [[!cpan HTML::Template]], "
+"což umožňuje provádět poměrně komplexní věci. Úplný popis syntaxe naleznete "
+"v dokumentaci modulu, ale ve skutečnosti stačí znát jen pár věcí:"
+
+#. type: Bullet: '* '
+msgid ""
+"Each parameter you pass to the template directive will generate a template "
+"variable. There are also some pre-defined variables like PAGE and BASENAME."
+msgstr ""
+"Každý parametr, který předáte direktivě template, vygeneruje proměnnou "
+"šablony. Existuje několik předdefinovaných proměnných jako PAGE a BASENAME."
+
+#. type: Bullet: '* '
+msgid ""
+"To insert the value of a variable, use `<TMPL_VAR variable>`. Wiki markup in "
+"the value will first be converted to html."
+msgstr ""
+"Pro vložení hodnoty proměnné použijte `<TMPL_VAR proměnná>`. Wiki značky v "
+"hodnotě budou nejprve převedeny na html."
+
+#. type: Bullet: '* '
+msgid ""
+"To insert the raw value of a variable, with wiki markup not yet converted to "
+"html, use `<TMPL_VAR raw_variable>`."
+msgstr ""
+"Chcete-li vložit hodnotu proměnné bez dalších úprav (bez převodu na html), "
+"použijte `<TMPL_VAR raw_proměnná>`."
+
+#. type: Bullet: '* '
+msgid ""
+"To make a block of text conditional on a variable being set use `<TMPL_IF "
+"NAME=\"variable\">text</TMPL_IF>`."
+msgstr ""
+"Chcete-li blok textu zobrazit pouze pokud je nastavena příslušná proměnná, "
+"použijte `<TMPL_IF NAME=\"proměnná\">text</TMPL_IF>`."
+
+#. type: Bullet: '* '
+msgid ""
+"To use one block of text if a variable is set and a second if it's not, use "
+"`<TMPL_IF NAME=\"variable\">text<TMPL_ELSE>other text</TMPL_IF>`"
+msgstr ""
+"Chcete-li použít jeden blok textu v případě, že je proměnná nastavená, a "
+"jiný blok textu pokud nastavená není, použijte `<TMPL_IF NAME=\"proměnná"
+"\">text<TMPL_ELSE>jiný text</TMPL_IF>`."
+
+#. type: Plain text
+msgid "Here's a sample template:"
+msgstr "Ukázková šablona:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"        <span class=\"infobox\">\n"
+"        Name: \\[[<TMPL_VAR raw_name>]]<br />\n"
+"        Age: <TMPL_VAR age><br />\n"
+"        <TMPL_IF NAME=\"color\">\n"
+"        Favorite color: <TMPL_VAR color><br />\n"
+"        <TMPL_ELSE>\n"
+"        No favorite color.<br />\n"
+"        </TMPL_IF>\n"
+"        <TMPL_IF NAME=\"notes\">\n"
+"        <hr />\n"
+"        <TMPL_VAR notes>\n"
+"        </TMPL_IF>\n"
+"        </span>\n"
+msgstr ""
+"        <span class=\"infobox\">\n"
+"        Jméno: \\[[<TMPL_VAR raw_name>]]<br />\n"
+"        Věk: <TMPL_VAR age><br />\n"
+"        <TMPL_IF NAME=\"color\">\n"
+"        Oblíbená barva: <TMPL_VAR color><br />\n"
+"        <TMPL_ELSE>\n"
+"        Žádná oblíbená barva.<br />\n"
+"        </TMPL_IF>\n"
+"        <TMPL_IF NAME=\"notes\">\n"
+"        <hr />\n"
+"        <TMPL_VAR notes>\n"
+"        </TMPL_IF>\n"
+"        </span>\n"
+
+#. type: Plain text
+msgid ""
+"The filled out template will be formatted the same as the rest of the page "
+"that contains it, so you can include WikiLinks and all other forms of wiki "
+"markup in the template. Note though that such WikiLinks will not show up as "
+"backlinks to the page that uses the template."
+msgstr ""
+"Vyplněná šablona bude formátována stejně jako zbytek stránky, do které je "
+"vložena, tudíž můžete v šabloně používat wiki linky a všechny obvyklé "
+"formátovací značky. Změnou je, že se wiki linky neobjeví jako zpětné odkazy "
+"na stránku, která šablonu použila."
+
+#. type: Plain text
+msgid ""
+"Note the use of \"raw_name\" inside the [[ikiwiki/WikiLink]] generator. This "
+"ensures that if the name contains something that might be mistaken for wiki "
+"markup, it's not converted to html before being processed as a [[ikiwiki/"
+"WikiLink]]."
+msgstr ""
+"Všimněte si použití „raw_name“ uvnitř generátoru [[wiki odkazu|ikiwiki/"
+"WikiLink]]. Tímto se zajistí, že pokud by jméno obsahovalo něco, co by mohlo "
+"být považováno za formátovací wiki značku, nebude to převedeno na html před "
+"vytvořením [[wiki odkazu|ikiwiki/WikiLink]]."
