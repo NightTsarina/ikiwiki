@@ -566,9 +566,12 @@ sub mybestlink ($$) {
 	my $link=shift;
 
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
+	my @caller = caller(1);
 	if (length $res
 	    && istranslatable($res)
-	    && istranslation($page)) {
+	    && istranslation($page)
+	    &&  !(exists $caller[3] && defined $caller[3]
+		  && ($caller[3] eq "IkiWiki::PageSpec::match_link"))) {
 		return $res . "." . lang($page);
 	}
 	return $res;
