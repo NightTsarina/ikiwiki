@@ -460,23 +460,22 @@ sub refresh () {
  		my %lcchanged = map { lc(pagename($_)) => 1 } @changed;
  
 		# rebuild dependant pages
-		F: foreach my $f (@$files) {
+		foreach my $f (@$files) {
 			next if $rendered{$f};
 			my $p=pagename($f);
+			my $reason = undef;
 
 			if (exists $depends_exact{$p}) {
 				foreach my $d (keys %{$depends_exact{$p}}) {
 					if (exists $lcchanged{$d}) {
-						debug(sprintf(gettext("building %s, which depends on %s"), $f, $d));
-						render($f);
-						$rendered{$f}=1;
-						next F;
+						$reason = $d;
+						last;
 					}
 				}
 			}
 
-			if (exists $depends{$p}) {
-				foreach my $d (keys %{$depends{$p}}) {
+			if (exists $depends{$p} && ! defined $reason) {
+				D: foreach my $d (keys %{$depends{$p}}) {
 					my $sub=pagespec_translate($d);
 					next if $@ || ! defined $sub;
 
@@ -487,13 +486,17 @@ sub refresh () {
 						next if $file eq $f;
 						my $page=pagename($file);
 						if ($sub->($page, location => $p)) {
-							debug(sprintf(gettext("building %s, which depends on %s"), $f, $page));
-							render($f);
-							$rendered{$f}=1;
-							next F;
+							$reason = $page;
+							last D;
 						}
 					}
 				}
+			}
+
+			if (defined $reason) {
+				debug(sprintf(gettext("building %s, which depends on %s"), $f, $reason));
+				render($f);
+				$rendered{$f}=1;
 			}
 		}
 		
