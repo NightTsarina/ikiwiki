@@ -317,6 +317,19 @@ text, or text in whatever single language ikiwiki is configured to "speak".
 Maybe there could be a way to switch ikiwiki to speaking another language
 when building a non-english page? Then the directives would get translated.
 
+Created page type
+-----------------
+
+The interdiction to create pages of type po was broken by the new
+`page_types` code. This is fixed in my po branch by
+commit 1914ae2fd24e1e802.
+
+While I was there, I also added some code to set a new default value
+to the type select field in case it was previously set to "po".
+This code favors the type of the linking page's masterpage on page
+creation (when `from=page.LL`). This is commit c9301d2c296f682.
+--[[intrigeri]]
+
 Documentation
 -------------
 
