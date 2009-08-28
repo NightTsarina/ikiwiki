@@ -20,7 +20,7 @@ while (<IN>) {
 			$error |= system("git", "remote", "add", "-f", $remote, $url);
 		}
 		else {
-			$error |= system("git", "fetch", $remote);
+			$error |= system("git", "fetch", "--no-tag", $remote);
 		}
 	}
 }
