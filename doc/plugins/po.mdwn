@@ -343,6 +343,15 @@ as translation pages are not supposed to have subpages. My po branch
 has code (e671e72053e81fa, which depends on 72ac9821e56637) that fixes
 this. --[[intrigeri]]
 
+link() pagespec on translation pages
+------------------------------------
+
+The `link()` pagespec, on translation pages, currently tests whether
+a given page links to the *current translation page*, rather than
+whether it links to its master page. I believe the later is generally
+expected. Commit 646c9a4c95a480 in my po branch fixes this.
+--[[intrigeri]]
+
 Documentation
 -------------
 
