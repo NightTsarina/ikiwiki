@@ -62,7 +62,12 @@ equally valid.)
 >>
 >> Performance impact: Test 2 above takes 0.2s longer to rebuild (probably
 >> from all the calls to lc, which are, however, necessary for correctness)
->> and has indistinguishable performance for a refresh. --[[smcv]]
+>> and has indistinguishable performance for a refresh.
+>>
+>> Test 1 took about 6 minutes to rebuild and 1:25 to refresh; those are
+>> pessimistic figures, since I've added 90 more photos and 90 more pages
+>> (both to the wiki as a whole, and the number touched before refreshing)
+>> since testing the previous version of this branch. --[[smcv]]
 
 > Also I think there may be little optimisation value left in
 > 7227c2debfeef94b35f7d81f42900aa01820caa3, since the "regular" dependency
