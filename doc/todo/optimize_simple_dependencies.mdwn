@@ -46,3 +46,23 @@ beyond the ready/depends-exact branch point, so the results should be
 equally valid.)
 
 --[[smcv]]
+
+> We discussed this on irc; I had some worries that things may have been
+> switched to `add_depends_exact` that were not pure page names. My current
+> feeling is it's all safe, but who knows. It's easy to miss something.
+> Which makes me think this is not a good interface.
+> 
+> Why not, instead, make `add_depends` smart. If it's passed something
+> that is clearly a raw page name, it can add it to the exact depends hash.
+> Else, add it to the pagespec hash. You can tell if it's a pure page name
+> by matching on `$config{wiki_file_regexp}`.
+> 
+> Also I think there may be little optimisation value left in
+> 7227c2debfeef94b35f7d81f42900aa01820caa3, since the "regular" dependency
+> lists will be much shorter.
+>
+> Sounds like inline pagenames has an already exstant bug WRT
+> pages moving, which this should not make worse. Would be good to verify.
+> 
+> Re coding, it would be nice if `refresh()` could avoid duplicating
+> the debug message, etc in the two cases. --[[Joey]] 
