@@ -1,0 +1,48 @@
+[[!template id=gitbranch branch=smcv/ready/depends-exact author="[[smcv]]"]]
+
+I'm still trying to optimize ikiwiki for a site using
+[[plugins/contrib/album]], and checking which pages depend on which pages
+is still taking too long. Here's another go at fixing that, using [[Will]]'s
+suggestion from [[todo/should_optimise_pagespecs]]:
+
+> A hash, by itself, is not optimal because
+> the dependency list holds two things: page names and page specs.  The hash would
+> work well for the page names, but you'll still need to iterate through the page specs.
+> I was thinking of keeping a list and a hash.  You use the list for pagespecs
+> and the hash for individual page names.  To make this work you need to adjust the
+> API so it knows which you're adding.  -- [[Will]]
+
+If you have P pages and refresh after changing C of them, where an average
+page has E dependencies on exact page names and D other dependencies, this
+branch should drop the complexity of checking dependencies from
+O(P * (D+E) * C) to O(C + P*E + P*D*C). Pages that use inline or map have
+a large value for E (e.g. one per inlined page) and a small value for D (e.g.
+one per inline).
+
+Benchmarking:
+
+Test 1: a wiki with about 3500 pages and 3500 photos, and a change that
+touches about 350 pages and 350 photos
+
+Test 2: the docwiki (about 700 objects not excluded by docwiki.setup, mostly
+pages), docwiki.setup modified to turn off verbose, and a change that touches
+the 98 pages of plugins/*.mdwn
+
+In both tests I rebuilt the wiki with the target ikiwiki version, then touched
+the appropriate pages and refreshed.
+
+Results of test 1: without this branch it took around 5:45 to rebuild and
+around 5:45 again to refresh (so rebuilding 10% of the pages, then deciding
+that most of the remaining 90% didn't need to change, took about as long as
+rebuilding everything). With this branch it took 5:47 to rebuild and 1:16
+to refresh.
+
+Results of test 2: rebuilding took 14.11s without, 13.96s with; refreshing
+three times took 7.29/7.40/7.37s without, 6.62/6.56/6.63s with.
+
+(This benchmarking was actually done with my [[plugins/contrib/album]] branch,
+since that's what the huge wiki needs; that branch doesn't alter core code
+beyond the ready/depends-exact branch point, so the results should be
+equally valid.)
+
+--[[smcv]]
