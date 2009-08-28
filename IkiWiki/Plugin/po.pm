@@ -152,8 +152,10 @@ sub checkconfig () {
 		$config{po_link_to}='default';
 	}
 	unless ($config{po_link_to} eq 'default') {
-		$origsubs{'bestlink'}=\&IkiWiki::bestlink;
-		inject(name => "IkiWiki::bestlink", call => \&mybestlink);
+		if (! exists $origsubs{'bestlink'}) {
+			$origsubs{'bestlink'}=\&IkiWiki::bestlink;
+			inject(name => "IkiWiki::bestlink", call => \&mybestlink);
+		}
 	}
 
 	push @{$config{wiki_file_prune_regexps}}, qr/\.pot$/;
