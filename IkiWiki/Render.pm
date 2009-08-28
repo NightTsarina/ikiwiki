@@ -457,7 +457,7 @@ sub refresh () {
 	if (%rendered || @del || @internal) {
 		my @changed=(keys %rendered, @del);
 
- 		my %changedpages = map { pagename($_) => 1 } @changed;
+ 		my %lcchanged = map { lc(pagename($_)) => 1 } @changed;
  
 		# rebuild dependant pages
 		F: foreach my $f (@$files) {
@@ -466,7 +466,7 @@ sub refresh () {
 
 			if (exists $depends_exact{$p}) {
 				foreach my $d (keys %{$depends_exact{$p}}) {
-					if (exists $changedpages{$d}) {
+					if (exists $lcchanged{$d}) {
 						debug(sprintf(gettext("building %s, which depends on %s"), $f, $d));
 						render($f);
 						$rendered{$f}=1;

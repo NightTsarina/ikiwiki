@@ -1751,7 +1751,7 @@ sub add_depends ($$) {
 	if ($pagespec =~ /$config{wiki_file_regexp}/ &&
 		$pagespec !~ /[\s*?()!]/) {
 		# a simple dependency, which can be matched by string eq
-		$depends_exact{$page}{$pagespec} = 1;
+		$depends_exact{$page}{lc $pagespec} = 1;
 		return 1;
 	}
 
