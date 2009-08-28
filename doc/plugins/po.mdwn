@@ -317,41 +317,6 @@ text, or text in whatever single language ikiwiki is configured to "speak".
 Maybe there could be a way to switch ikiwiki to speaking another language
 when building a non-english page? Then the directives would get translated.
 
-Created page type
------------------
-
-The interdiction to create pages of type po was broken by the new
-`page_types` code. This is fixed in my po branch by
-commit 1914ae2fd24e1e802.
-
-While I was there, I also added some code to set a new default value
-to the type select field in case it was previously set to "po".
-This code favors the type of the linking page's masterpage on page
-creation (when `from=page.LL`). This is commit c9301d2c296f682.
---[[intrigeri]]
-
-> Both cherry picked. --[[Joey]] 
-
-inline's post form's rootpage
------------------------------
-
-When a translatable page (say it is called "bugs") contains an
-[[inline directive|ikiwiki/directive/inline]] with `postform` enabled,
-the rootpage is l10n'd on translations pages (e.g. "bugs.fr" gets
-a `rootpage` value of `bugs.fr`). This is usually not what's expected,
-as translation pages are not supposed to have subpages. My po branch
-has code (e671e72053e81fa, which depends on 72ac9821e56637) that fixes
-this. --[[intrigeri]]
-
-link() pagespec on translation pages
-------------------------------------
-
-The `link()` pagespec, on translation pages, currently tests whether
-a given page links to the *current translation page*, rather than
-whether it links to its master page. I believe the later is generally
-expected. Commit 646c9a4c95a480 in my po branch fixes this.
---[[intrigeri]]
-
 2 test suite failures
 --------------------
 
