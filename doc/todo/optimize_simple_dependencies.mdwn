@@ -56,13 +56,33 @@ equally valid.)
 > that is clearly a raw page name, it can add it to the exact depends hash.
 > Else, add it to the pagespec hash. You can tell if it's a pure page name
 > by matching on `$config{wiki_file_regexp}`.
-> 
+
+>> Good thinking. Done in commit 68ce514a 'Auto-detect "simple dependencies"',
+>> with a related bugfix in e8b43825 "Force %depends_exact to lower case".
+>>
+>> Performance impact: Test 2 above takes 0.2s longer to rebuild (probably
+>> from all the calls to lc, which are, however, necessary for correctness)
+>> and has indistinguishable performance for a refresh. --[[smcv]]
+
 > Also I think there may be little optimisation value left in
 > 7227c2debfeef94b35f7d81f42900aa01820caa3, since the "regular" dependency
 > lists will be much shorter.
->
+
+>> You're probably right, but IMO it's not worth reverting it - a set (hash with
+>> dummy values) is still the right data structure. --[[smcv]]
+
 > Sounds like inline pagenames has an already exstant bug WRT
 > pages moving, which this should not make worse. Would be good to verify.
-> 
+
+>> If you mean the standard "add a better match for a link-like construct" bug
+>> that also affects sidebar, then yes, it does have the bug, but I'm pretty
+>> sure this branch doesn't make it any worse. I could solve this at the cost
+>> of making pagenames less useful for interactive use, by making it not
+>> respect [[ikiwiki/subpage/LinkingRules]], but instead always interpret
+>> its paths as relative to the top of the wiki - that's actually all that
+>> [[plugins/contrib/album]] needs. --[[smcv]]
+
 > Re coding, it would be nice if `refresh()` could avoid duplicating
-> the debug message, etc in the two cases. --[[Joey]] 
+> the debug message, etc in the two cases. --[[Joey]]
+
+>> Fixed in commit f805d566 "Avoid duplicating debug message..." --[[smcv]]
