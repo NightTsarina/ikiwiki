@@ -307,17 +307,7 @@ sub preprocess_inline (@) {
 		# Add a blog post form, with feed buttons.
 		my $formtemplate=template("blogpost.tmpl", blind_cache => 1);
 		$formtemplate->param(cgiurl => $config{cgiurl});
-		my $rootpage;
-		if (exists $params{rootpage}) {
-			$rootpage=bestlink($params{page}, $params{rootpage});
-			if (!length $rootpage) {
-				$rootpage=$params{rootpage};
-			}
-		}
-		else {
-			$rootpage=$params{page};
-		}
-		$formtemplate->param(rootpage => $rootpage);
+		$formtemplate->param(rootpage => rootpage(%params));
 		$formtemplate->param(rssurl => $rssurl) if $feeds && $rss;
 		$formtemplate->param(atomurl => $atomurl) if $feeds && $atom;
 		if (exists $params{postformtext}) {
@@ -652,6 +642,23 @@ sub pingurl (@) {
 	}
 
 	exit 0; # daemon done
+}
+
+
+sub rootpage (@) {
+	my %params=@_;
+
+	my $rootpage;
+	if (exists $params{rootpage}) {
+		$rootpage=bestlink($params{page}, $params{rootpage});
+		if (!length $rootpage) {
+			$rootpage=$params{rootpage};
+		}
+	}
+	else {
+		$rootpage=$params{page};
+	}
+	return $rootpage;
 }
 
 1
