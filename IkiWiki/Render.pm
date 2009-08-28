@@ -467,7 +467,7 @@ sub refresh () {
 			if (exists $depends_exact{$p}) {
 				foreach my $d (keys %{$depends_exact{$p}}) {
 					if (exists $changedpages{$d}) {
-						debug(sprintf(gettext("building %s, which depends on %s"), $f, $p));
+						debug(sprintf(gettext("building %s, which depends on %s"), $f, $d));
 						render($f);
 						$rendered{$f}=1;
 						next F;
