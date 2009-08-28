@@ -533,7 +533,7 @@ sub formbuilder (@) {
 			next unless "$field" eq "type";
 			if ($field->type eq 'select') {
 				# remove po from the list of types
-				my @types = grep { $_ ne 'po' } $field->options;
+				my @types = grep { $_->[0] ne 'po' } $field->options;
 				$field->options(\@types) if @types;
 			}
 		}
