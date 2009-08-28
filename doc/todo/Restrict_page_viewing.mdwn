@@ -1,0 +1,11 @@
+I'd like to have some pages of my wiki to be only viewable by some users.
+
+I could use htaccess for that, but it would force the users to have 2 authentication mecanisms, so I'd prefer to use openID for that too.
+
+* I'm thinking of adding a "show" parameter to the cgi script, thanks to a plugin similar to goto.
+* When called, it would check the credential using the session stuff (that I don't understand yet). If not enough, it would serve a 403 error of course.
+* If enough, it would read the file locally on the server side and return this as a content.
+
+Then, I'd have to generate the private page the regular way with ikiwiki, and prevent apache from serving them with an appropriate and much more maintainable htaccess file.
+
+-- [[users/emptty]]
