@@ -332,6 +332,17 @@ creation (when `from=page.LL`). This is commit c9301d2c296f682.
 
 > Both cherry picked. --[[Joey]] 
 
+inline's post form's rootpage
+-----------------------------
+
+When a translatable page (say it is called "bugs") contains an
+[[inline directive|ikiwiki/directive/inline]] with `postform` enabled,
+the rootpage is l10n'd on translations pages (e.g. "bugs.fr" gets
+a `rootpage` value of `bugs.fr`). This is usually not what's expected,
+as translation pages are not supposed to have subpages. My po branch
+has code (e671e72053e81fa, which depends on 72ac9821e56637) that fixes
+this. --[[intrigeri]]
+
 Documentation
 -------------
 
