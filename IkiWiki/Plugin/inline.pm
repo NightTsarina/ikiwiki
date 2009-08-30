@@ -195,10 +195,10 @@ sub preprocess_inline (@) {
 
 		@list = map { bestlink($params{page}, $_) }
 		        split ' ', $params{pagenames};
-
-		$params{pages} = join(" or ", @list);
 	}
 	else {
+		add_depends($params{page}, $params{pages});
+
 		@list = pagespec_match_list(
 			[ grep { $_ ne $params{page} } keys %pagesources ],
 			$params{pages}, location => $params{page});
@@ -247,14 +247,15 @@ sub preprocess_inline (@) {
 		@list=@list[0..$params{show} - 1];
 	}
 
-	add_depends($params{page}, $params{pages});
 	# Explicitly add all currently displayed pages as dependencies, so
 	# that if they are removed or otherwise changed, the inline will be
 	# sure to be updated.
-	add_depends($params{page}, join(" or ", $#list >= $#feedlist ? @list : @feedlist));
+	foreach my $p ($#list >= $#feedlist ? @list : @feedlist) {
+		add_depends($params{page}, $p);
+	}
 	
 	if ($feeds && exists $params{feedpages}) {
-		@feedlist=grep { pagespec_match($_, $params{feedpages}, location => $params{page}) } @feedlist;
+		@feedlist=pagespec_match_list(\@feedlist, $params{feedpages}, location => $params{page});
 	}
 
 	my ($feedbase, $feednum);
@@ -305,17 +306,7 @@ sub preprocess_inline (@) {
 		# Add a blog post form, with feed buttons.
 		my $formtemplate=template("blogpost.tmpl", blind_cache => 1);
 		$formtemplate->param(cgiurl => $config{cgiurl});
-		my $rootpage;
-		if (exists $params{rootpage}) {
-			$rootpage=bestlink($params{page}, $params{rootpage});
-			if (!length $rootpage) {
-				$rootpage=$params{rootpage};
-			}
-		}
-		else {
-			$rootpage=$params{page};
-		}
-		$formtemplate->param(rootpage => $rootpage);
+		$formtemplate->param(rootpage => rootpage(%params));
 		$formtemplate->param(rssurl => $rssurl) if $feeds && $rss;
 		$formtemplate->param(atomurl => $atomurl) if $feeds && $atom;
 		if (exists $params{postformtext}) {
@@ -371,15 +362,14 @@ sub preprocess_inline (@) {
 					my $file = $pagesources{$page};
 					my $type = pagetype($file);
 					if ($config{discussion}) {
-						my $discussionlink=lc(gettext("Discussion"));
-						if ($page !~ /.*\/\Q$discussionlink\E$/ &&
+						if ($page !~ /.*\/\Q$config{discussionpage}\E$/ &&
 						    (length $config{cgiurl} ||
-						     exists $links{$page."/".$discussionlink})) {
+						     exists $links{$page."/".$config{discussionpage}})) {
 							$template->param(have_actions => 1);
 							$template->param(discussionlink =>
 								htmllink($page,
 									$params{destpage},
-									gettext("Discussion"),
+									$config{discussionpage},
 									noimageinline => 1,
 									forcesubpage => 1));
 						}
@@ -651,6 +641,23 @@ sub pingurl (@) {
 	}
 
 	exit 0; # daemon done
+}
+
+
+sub rootpage (@) {
+	my %params=@_;
+
+	my $rootpage;
+	if (exists $params{rootpage}) {
+		$rootpage=bestlink($params{page}, $params{rootpage});
+		if (!length $rootpage) {
+			$rootpage=$params{rootpage};
+		}
+	}
+	else {
+		$rootpage=$params{page};
+	}
+	return $rootpage;
 }
 
 1

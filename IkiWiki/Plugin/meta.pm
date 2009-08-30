@@ -191,11 +191,11 @@ sub preprocess (@) {
 		if ($value !~ /^\w+:\/\//) {
 			my ($redir_page, $redir_anchor) = split /\#/, $value;
 
-			add_depends($page, $redir_page);
 			my $link=bestlink($page, $redir_page);
 			if (! length $link) {
 				error gettext("redir page not found")
 			}
+			add_depends($page, $link);
 
 			$value=urlto($link, $page);
 			$value.='#'.$redir_anchor if defined $redir_anchor;

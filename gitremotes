@@ -15,13 +15,19 @@ while (<IN>) {
 		# check configured url to deal with it changing
 		my $info=`git remote show -n $remote`;
 		my ($oldurl)=$info=~/URL: (.*)/m;
+		my $r;
 		if ($oldurl ne $url) {
 			system("git remote rm $remote 2>/dev/null");
-			$error |= system("git", "remote", "add", "-f", $remote, $url);
+			$r = system("git", "remote", "add", "-f", $remote, $url)
 		}
 		else {
-			$error |= system("git", "fetch", $remote);
+			$r = system("git", "fetch", "--no-tag", $remote);
 		}
+
+		if ($r != 0) {
+			print "$remote failed\n";
+		}
+		$error |= $r;
 	}
 }
 close IN;

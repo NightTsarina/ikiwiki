@@ -1,9 +1,49 @@
-ikiwiki (3.141593) UNRELEASED; urgency=low
+ikiwiki (3.1415926) UNRELEASED; urgency=low
 
+  [ Joey Hess ]
   * po: Detect if nowrapi18n can't be passed to po4a, and warn about
     the old version, but continue. Closes: #541205 
   * inline: Avoid use of my $_ as it fails with older perls.
     Closes: #541215
+  * Add discussionpage configuration setting.
+  * Several optimisations, including speedups to orphans and brokenlinks
+    calculation.
+  * meta, img: Fix bugs in dependency code. (smcv)
+  * Allow building ikiwiki on systems w/o po4a --
+    building of the translated underlays will be skipped in this case.
+  * Add basic styling of po plugin's languages list.
+  * inline: Display an error if feedpages is specified and fails to match
+    due to a problem such as created_before being told to check against
+    a page that does not exist.
+  * Remove deprecated ikiwiki/blog and ikiwiki/preprocessordirective
+    pages from the basewiki.
+  * Updated French program translation from Philippe Batailler.
+    Closes: #542036
+  * po: Fixed to run rcs_add ralative to srcdir.
+  * Italian program translation from Luca Bruno.
+  * Fix example blog's tags/life to not have a broken PageSpec.
+    Closes: #543510
+  * Optimize the dependencies list. This also fixes a bug
+    that could cause repeated refreshes of the wiki to grow
+    increasingly larger dependency lists, and get increasingly
+    slower. (smcv)
+  * Rebuild wikis on upgrade to this version to fix bloat caused
+    by the dependency bug.
+  * Further optimisation of dependency handling by adding a special
+    case for simple page dependencies. (smcv)
+  * htmltidy: Return an error message if tidy fails. Closes: #543722
+  * po: Fix name of translated toplevel index page. (intrigeri)
+  * po: Fix display of links from a translated page to itself (ntrigeri)
+  * Add Czech basewiki translation from Miroslav Kure.
+  * po: fix interdiction to create pages of type po (intrigeri)
+  * po: po: favor the type of linking page's masterpage on page creation
+    (intrigeri)
+  * img: Don't generate new verison of image if it is scaled to be
+    larger in either dimension.
+
+  [ Josh Triplett ]
+  * teximg: Replace the insufficient blacklist with the built-in security
+    mechanisms of TeX.
 
  -- Joey Hess <joeyh@debian.org>  Wed, 12 Aug 2009 12:25:30 -0400
 
@@ -11,7 +51,7 @@ ikiwiki (3.141592) unstable; urgency=low
 
   * Add new hooks: canremove, canrename, rename. (intrigeri)
   * rename: Refactor subpage rename handling code into rename hook. (intrigeri)
-  * po: New plugin, suporting translation of wiki pages using po files.
+  * po: New plugin<F11>, suporting translation of wiki pages using po files.
     (intrigeri)
   * Add build machinery to build po files to translate the underlay wikis,
   * Add further build machinery to generate translated underlays from

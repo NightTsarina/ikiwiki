@@ -1,3 +1,19 @@
+ikiwiki should be fully internationalized.
+
+----
+
+As to the hardcoded strings in ikiwiki, I've internationalized the program,
+and there is a po/ikiwiki.pot in the source that can be translated.
+--[[Joey]]
+
+----
+
+> The now merged po plugin handles l10n of wiki pages. The only missing
+> piece now is l10n of the templates.
+> --[[Joey]]
+
+----
+
 From [[Recai]]:
 > Here is my initial work on ikiwiki l10n infrastructure (I'm sending it
 > before finalizing, there may be errors).
@@ -54,48 +70,3 @@ kullanıcının ait IP adresi: <TMPL_VAR REMOTE_ADDR>[2] <TMPL_VAR WIKIURL>
 This could be easily worked around in tmpl_process3, but I wouldn't like to
 maintain a separate utility.
 
-----
-
-As to the hardcoded strings in ikiwiki, I've internationalized the program,
-and there is a po/ikiwiki.pot in the source that can be translated.
---[[Joey]]
-
-----
-
-Danish l10n of templates and basewiki is available with the following commands:
-
-    git clone http://source.jones.dk/ikiwiki.git newsite
-    cd newsite
-    make
-
-Updates are retrieved with this single command:
-
-    make
-
-l10n is maintained using po4a for basewiki, smiley and templates - please  send me PO files if you
-translate to other languagess than the few I know about myself: <dr@jones.dk>
-
-As upstream ikiwiki is now maintained in GIT too, keeping the master mirror in sync with upstream
-could probably be automated even more - but an obstacle seems to be that content is not maintained
-separately but as an integral part of upstream source (GIT seems to not support subscribing to
-only parts of a repository).
-
-For example use, here's how to roll out a clone of the [Redpill support site](http://support.redpill.dk/):
-
-    mkdir -p ~/public_cgi/support.redpill.dk
-    git clone git://source.jones.dk/bin
-    bin/localikiwikicreatesite -o git://source.redpill.dk/support rpdemo
-
-(Redpill support is inspired by <http://help.riseup.net> but needs to be reusable for several similarly configured networks)
-
---[[JonasSmedegaard]]
-
-> I don't understand at all why you're using git the way you are.
-> 
-> I think that this needs to be reworked into a patch against the regular
-> ikiwiki tree, that adds the po4a stuff needed to generate the pot files for the
-> basewiki and template content, as well as the stuff that generates the
-> translated versions of those from the po files.
->
-> The now merged po plugin also handles some of this.
-> --[[Joey]]

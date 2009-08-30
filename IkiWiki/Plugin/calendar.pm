@@ -211,8 +211,10 @@ EOF
 	# matching the pagespec are added or removed.
 	add_depends($params{page}, $params{pages});
 	# Explicitly add all currently linked pages as dependencies, so
-        # that if they are removed, the calendar will be sure to be updated.
-        add_depends($params{page}, join(" or ", @list));
+	# that if they are removed, the calendar will be sure to be updated.
+	foreach my $p (@list) {
+		add_depends($params{page}, $p);
+	}
 
 	return $calendar;
 }

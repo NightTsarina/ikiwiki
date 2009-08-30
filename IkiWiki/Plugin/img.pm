@@ -65,6 +65,8 @@ sub preprocess (@) {
 	my $imglink;
 	my $r;
 
+	my ($dwidth, $dheight);
+
 	if ($params{size} ne 'full') {
 		add_depends($params{page}, $image);
 
@@ -86,7 +88,15 @@ sub preprocess (@) {
 			$r = $im->Read($srcfile);
 			error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 
-			$r = $im->Resize(geometry => "${w}x${h}");
+			# don't resize any larger
+			my ($rw, $rh) = ($w, $h);
+			if ((length $rw && $rw > $im->Get("width")) ||
+			    (length $rh && $rh > $im->Get("height"))) {
+				$rw=$im->Get("width");
+				$rh=$im->Get("height");
+			}
+
+			$r = $im->Resize(geometry => "${rw}x${rh}");
 			error sprintf(gettext("failed to resize: %s"), $r) if $r;
 
 			# don't actually write file in preview mode
@@ -98,11 +108,34 @@ sub preprocess (@) {
 				$imglink = $file;
 			}
 		}
+
+		# since we don't really resize larger, set the display
+		# size, so the browser can scale the image up if necessary
+		if (length $w && length $h) {
+			($dwidth, $dheight)=($w, $h);
+		}
+		# avoid division by zero on 0x0 image
+		elsif ($im->Get("width") == 0 || $im->Get("height") == 0) {
+			($dwidth, $dheight)=(0, 0);
+		}
+		# calculate unspecified size from the other one, preserving
+		# aspect ratio
+		elsif (length $w) {
+			$dwidth=$w;
+			$dheight=$w / $im->Get("width") * $im->Get("height");
+		}
+		elsif (length $h) {
+			$dheight=$h;
+			$dwidth=$h / $im->Get("height") * $im->Get("width");
+		}
+
 	}
 	else {
 		$r = $im->Read($srcfile);
 		error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 		$imglink = $file;
+		$dwidth = $im->Get("width");
+		$dheight = $im->Get("height");
 	}
 
 	my ($fileurl, $imgurl);
@@ -120,8 +153,8 @@ sub preprocess (@) {
 	}
 
 	my $imgtag='<img src="'.$imgurl.
-		'" width="'.$im->Get("width").
-		'" height="'.$im->Get("height").'"'.
+		'" width="'.$dwidth.
+		'" height="'.$dheight.'"'.
 		(exists $params{alt} ? ' alt="'.$params{alt}.'"' : '').
 		(exists $params{title} ? ' title="'.$params{title}.'"' : '').
 		(exists $params{align} ? ' align="'.$params{align}.'"' : '').
@@ -135,11 +168,15 @@ sub preprocess (@) {
 	elsif ($params{link} =~ /^\w+:\/\//) {
 		$imgtag='<a href="'.$params{link}.'">'.$imgtag.'</a>';
 	}
-	elsif (length bestlink($params{page}, $params{link})) {
-		add_depends($params{page}, $params{link});
-		$imgtag=htmllink($params{page}, $params{destpage},
-			$params{link}, linktext => $imgtag,
-			noimageinline => 1);
+	else {
+		my $b = bestlink($params{page}, $params{link});
+	
+		if (length $b) {
+			add_depends($params{page}, $b);
+			$imgtag=htmllink($params{page}, $params{destpage},
+				$params{link}, linktext => $imgtag,
+				noimageinline => 1);
+		}
 	}
 
 	if (exists $params{caption}) {

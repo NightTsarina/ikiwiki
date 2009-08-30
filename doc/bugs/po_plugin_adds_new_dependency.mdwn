@@ -1,0 +1,38 @@
+Was it intended that the po plugin add a new dependency?
+
+> Yes; see debian/control Build-Depends. However, I have made it disable
+> building that is po4a is not available. [[done]] --[[Joey]] 
+
+    PERL5LIB=.. ./po2wiki underlay.setup
+    Failed to load plugin IkiWiki::Plugin::po: Can't locate Locale/Po4a/Common.pm in @INC (@INC contains: .. /Library/Perl/Updates/5.8.8 /System/Library/Perl/5.8.8/darwin-thread-multi-2level /System/Library/Perl/5.8.8 /Library/Perl/5.8.8/darwin-thread-multi-2level /Library/Perl/5.8.8 /Library/Perl /Network/Library/Perl/5.8.8/darwin-thread-multi-2level /Network/Library/Perl/5.8.8 /Network/Library/Perl /System/Library/Perl/Extras/5.8.8/darwin-thread-multi-2level /System/Library/Perl/Extras/5.8.8 /Library/Perl/5.8.6 /Library/Perl/5.8.1 /sw/lib/perl5/5.8.8/darwin-thread-multi-2level /sw/lib/perl5/5.8.8 /sw/lib/perl5/darwin-thread-multi-2level /sw/lib/perl5 /sw/lib/perl5/darwin /usr/local/lib/perl5/site_perl/5.8.8/darwin-thread-multi-2level /usr/local/lib/perl5/site_perl/5.8.8 /usr/local/lib/perl5/site_perl .) at ../IkiWiki/Plugin/po.pm line 13.
+    BEGIN failed--compilation aborted at ../IkiWiki/Plugin/po.pm line 13.
+    Compilation failed in require at (eval 27) line 2.
+    BEGIN failed--compilation aborted at (eval 27) line 2.
+    
+    make[1]: *** [po2wiki_stamp] Error 2
+    make: *** [extra_build] Error 2
+
+And it looks like this dependency is not easy to work around.  The issue is that the newly translated base wiki means that the po plugin is being used by the build system.  It is no longer optional.  I've turned it off in my workspace like this: (heavy handed, but it lets me keep going until a proper fix is available)
+
+    diff --git a/Makefile.PL b/Makefile.PL
+    index 602d8fb..68728b7 100755
+    --- a/Makefile.PL
+    +++ b/Makefile.PL
+    @@ -42,7 +42,7 @@ extra_build: ikiwiki.out ikiwiki.setup docwiki
+     	./mdwn2man ikiwiki-makerepo 1 doc/ikiwiki-makerepo.mdwn > ikiwiki-makerepo.man
+     	./mdwn2man ikiwiki-transition 1 doc/ikiwiki-transition.mdwn > ikiwiki-transition.man
+     	./mdwn2man ikiwiki-update-wikilist 1 doc/ikiwiki-update-wikilist.mdwn > ikiwiki-update-wikilist.man
+    -	$(MAKE) -C po
+    +	# $(MAKE) -C po
+     	
+     docwiki: ikiwiki.out
+     	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup docwiki.setup -refresh
+    @@ -114,7 +114,7 @@ extra_install: underlay_install
+     	install ikiwiki.out $(DESTDIR)$(PREFIX)/bin/ikiwiki
+     	install ikiwiki-makerepo ikiwiki-transition ikiwiki-update-wikilist $(DESTDIR)$(PREFIX)/bin/
+     
+    -	$(MAKE) -C po install DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
+    +	# $(MAKE) -C po install DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
+     	
+     	# These might fail if a regular user is installing into a home
+     	# directory.

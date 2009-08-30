@@ -114,7 +114,8 @@ Apache
 
 Using Apache `mod_negotiation` makes it really easy to have Apache
 serve any page in the client's preferred language, if available.
-This is the default Debian Apache configuration.
+
+Add 'Options MultiViews' to the wiki directory's configuration in Apache.
 
 When `usedirs` is enabled, one has to set `DirectoryIndex index` for
 the wiki context.
@@ -122,6 +123,8 @@ the wiki context.
 Setting `DefaultLanguage LL` (replace `LL` with your default MIME
 language code) for the wiki context can help to ensure
 `bla/page/index.en.html` is served as `Content-Language: LL`.
+
+For details, see [Apache's documentation](http://httpd.apache.org/docs/2.2/content-negotiation.html).
 
 lighttpd
 --------
@@ -248,16 +251,7 @@ ea753782b222bf4ba2fb4683b6363afdd9055b64, which should be reverted
 once [[intrigeri]]'s `meta` branch is merged.
 
 An integration branch, called `meta-po`, merges [[intrigeri]]'s `po`
-and `meta` branches, and thus has thise additional features.
-
-Self links
-----------
-
-If a page contains a WikiLink to itself, ikiwiki does not normally
-turn that into a hyperlink. However, if a translated page contains a
-WikiLink to itself, a hyperlink is inserted, at least with the default
-`po_link_to` the link points to the English version of the page. Is there a
-good reason for that to be done? --[[Joey]] 
+and `meta` branches, and thus has this additional features.
 
 Language display order
 ----------------------
@@ -268,14 +262,66 @@ order, as `po_slave_languages` is a hash. It would need to be converted
 to an array to support this. (If twere done, twere best done quickly.)
 --[[Joey]] 
 
-Duplicate %links ?
-------------------
+Pagespecs
+---------
 
-I notice code in the scan hook that seems to assume
-that %links will accumulate duplicate links for a page.
-That used to be so, but the bug was fixed. Does this mean
-that po might be replacing the only link on a page, in error? 
+I was suprised that, when using the map directive, a pagespec of "*"
+listed all the translated pages as well as regular pages. That can 
+make a big difference to an existing wiki when po is turned on,
+and seems generally not wanted.
+(OTOH, you do want to match translated pages by
+default when locking pages.) --[[Joey]]
+
+Edit links on untranslated pages
+--------------------------------
+
+If a page is not translated yet, the "translated" version of it
+displays wikilinks to other, existing (but not yet translated?)
+pages as edit links, as if those pages do not exist. 
+
+That's really confusing, especially as clicking such a link
+brings up an edit form to create a new, english page.
+
+This is with po_link_to=current or negotiated. With default, it doesn't
+happen.. 
+
+Also, this may only happen if the page being linked to is coming from an
+underlay, and the underlays lack translation to a given language.
 --[[Joey]] 
+
+Double commits of po files
+--------------------------
+
+When adding a new english page, the po files are created, committed,
+and then committed again. The second commit makes this change:
+
+	-"Content-Type: text/plain; charset=utf-8\n"
+	-"Content-Transfer-Encoding: ENCODING"
+	+"Content-Type: text/plain; charset=UTF-8\n"
+	+"Content-Transfer-Encoding: ENCODING\n"
+
+Same thing happens when a change to an existing page triggers a po file
+update. --[[Joey]] 
+
+Ugly messages with empty files
+------------------------------
+
+If there are empty .mdwn files, the po plugin displays some ugly messages.
+
+Translation of directives
+-------------------------
+
+If a translated page contains a directive, it may expand to some english
+text, or text in whatever single language ikiwiki is configured to "speak".
+
+Maybe there could be a way to switch ikiwiki to speaking another language
+when building a non-english page? Then the directives would get translated.
+
+2 test suite failures
+--------------------
+
+t/po is currently failing tests 57 and 59 (and I would like to release
+soon..) --[[Joey]] 
 
 Documentation
 -------------

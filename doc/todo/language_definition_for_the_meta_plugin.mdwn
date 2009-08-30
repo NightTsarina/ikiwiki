@@ -95,7 +95,24 @@ This may be useful for sites with a few pages in different languages, but no ful
 
 >>> Now that po has been merged, this patch should probably also be adapted
 >>> so that the po plugin forces the meta::lang of every page to what po
->>> thinks it should be. Perhaps [[the_special_po_pagespecs|ikiwiki/pagespec/po]]
->>> should also work with meta-assigned languages? --[[smcv]]
+>>> thinks it should be. --[[smcv]]
+
+>>>> Agreed, users of the po plugin would greatly benefit from it.
+>>>> Seems doable. --[[intrigeri]]
+
+>>> Perhaps [[the_special_po_pagespecs|ikiwiki/pagespec/po]] should
+>>> also work with meta-assigned languages? --[[smcv]]
+
+>>>> Yes. But then, these special pagespecs should be moved outside of
+>>>> [[plugins/po]], as they could be useful to anyone using the
+>>>> currently discussed patch even when not using the po plugin.
+>>>> 
+>>>> We could add these pagespecs to the core and make them use
+>>>> a simple language-guessing system based on a new hook. Any plugin
+>>>> that implements such a hook could decide whether it should
+>>>> overrides the language guessed by another one, and optionally use
+>>>> the `first`/`last` options (e.g. the po plugin will want to be
+>>>> authoritative on the pages of type po, and will then use
+>>>> `last`). --[[intrigeri]]
 
 [[!tag wishlist patch plugins/meta translation]]

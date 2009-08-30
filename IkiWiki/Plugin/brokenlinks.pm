@@ -27,32 +27,27 @@ sub preprocess (@) {
 	# register a dependency.
 	add_depends($params{page}, $params{pages});
 	
-	my %broken;
-	foreach my $page (pagespec_match_list([keys %links],
-			$params{pages}, location => $params{page})) {
-		my $discussion=gettext("Discussion");
-		my %seen;
-		foreach my $link (@{$links{$page}}) {
-			next if $seen{$link};
-			$seen{$link}=1;
-			next if $link =~ /.*\/\Q$discussion\E/i && $config{discussion};
-			my $bestlink=bestlink($page, $link);
-			next if length $bestlink;
-			push @{$broken{$link}}, $page;
-		}
-	}
-
 	my @broken;
-	foreach my $link (keys %broken) {
-		my $page=$broken{$link}->[0];
+	foreach my $link (keys %IkiWiki::brokenlinks) {
+		next if $link =~ /.*\/\Q$config{discussionpage}\E/i && $config{discussion};
+
+		my @pages;
+		foreach my $page (@{$IkiWiki::brokenlinks{$link}}) {
+			push @pages, $page
+				if pagespec_match($page, $params{pages}, location => $params{page});
+		}
+		next unless @pages;
+
+		my $page=$IkiWiki::brokenlinks{$link}->[0];
 		push @broken, sprintf(gettext("%s from %s"),
 			htmllink($page, $params{destpage}, $link, noimageinline => 1),
 			join(", ", map {
 				htmllink($params{page}, $params{destpage}, $_, 	noimageinline => 1)
-			} @{$broken{$link}}));
+			} @pages)
+		);
 	}
 	
-	return gettext("There are no broken links!") unless %broken;
+	return gettext("There are no broken links!") unless @broken;
 	return "<ul>\n"
 		.join("\n",
 			map {

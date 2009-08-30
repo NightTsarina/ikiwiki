@@ -13,8 +13,8 @@ use open qw{:utf8 :std};
 
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
-	    %pagesources %destsources %depends %hooks %forcerebuild
-	    %loaded_plugins};
+	    %pagesources %destsources %depends %depends_simple %hooks
+	    %forcerebuild %loaded_plugins};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
@@ -217,6 +217,13 @@ sub getsetup () {
 		type => "boolean",
 		default => 1,
 		description => "enable Discussion pages?",
+		safe => 1,
+		rebuild => 1,
+	},
+	discussionpage => {
+		type => "string",
+		default => gettext("Discussion"),
+		description => "name of Discussion pages",
 		safe => 1,
 		rebuild => 1,
 	},
@@ -654,8 +661,14 @@ sub pagetype ($) {
 	return;
 }
 
+my %pagename_cache;
+
 sub pagename ($) {
 	my $file=shift;
+
+	if (exists $pagename_cache{$file}) {
+		return $pagename_cache{$file};
+	}
 
 	my $type=pagetype($file);
 	my $page=$file;
@@ -665,6 +678,8 @@ sub pagename ($) {
 	if ($config{indexpages} && $page=~/(.*)\/index$/) {
 		$page=$1;
 	}
+
+	$pagename_cache{$file} = $page;
 	return $page;
 }
 
@@ -1248,9 +1263,10 @@ sub preprocess ($$$;$$) {
 					);
 				};
 				if ($@) {
-					chomp $@;
+					my $error=$@;
+					chomp $error;
 				 	$ret="[[!$command <span class=\"error\">".
-						gettext("Error").": $@"."</span>]]";
+						gettext("Error").": $error"."</span>]]";
 				}
 			}
 			else {
@@ -1459,7 +1475,8 @@ sub loadindex () {
 	%oldrenderedfiles=%pagectime=();
 	if (! $config{rebuild}) {
 		%pagesources=%pagemtime=%oldlinks=%links=%depends=
-		%destsources=%renderedfiles=%pagecase=%pagestate=();
+		%destsources=%renderedfiles=%pagecase=%pagestate=
+		%depends_simple=();
 	}
 	my $in;
 	if (! open ($in, "<", "$config{wikistatedir}/indexdb")) {
@@ -1499,8 +1516,18 @@ sub loadindex () {
 				$links{$page}=$d->{links};
 				$oldlinks{$page}=[@{$d->{links}}];
 			}
-			if (exists $d->{depends}) {
-				$depends{$page}=$d->{depends};
+			if (exists $d->{depends_simple}) {
+				$depends_simple{$page}={
+					map { $_ => 1 } @{$d->{depends_simple}}
+				};
+			}
+			if (exists $d->{dependslist}) {
+				$depends{$page}={
+					map { $_ => 1 } @{$d->{dependslist}}
+				};
+			}
+			elsif (exists $d->{depends}) {
+				$depends{$page}={$d->{depends} => 1};
 			}
 			if (exists $d->{state}) {
 				$pagestate{$page}=$d->{state};
@@ -1546,7 +1573,11 @@ sub saveindex () {
 		};
 
 		if (exists $depends{$page}) {
-			$index{page}{$src}{depends} = $depends{$page};
+			$index{page}{$src}{dependslist} = [ keys %{$depends{$page}} ];
+		}
+
+		if (exists $depends_simple{$page}) {
+			$index{page}{$src}{depends_simple} = [ keys %{$depends_simple{$page}} ];
 		}
 
 		if (exists $pagestate{$page}) {
@@ -1716,16 +1747,17 @@ sub rcs_receive () {
 sub add_depends ($$) {
 	my $page=shift;
 	my $pagespec=shift;
-	
+
+	if ($pagespec =~ /$config{wiki_file_regexp}/ &&
+		$pagespec !~ /[\s*?()!]/) {
+		# a simple dependency, which can be matched by string eq
+		$depends_simple{$page}{lc $pagespec} = 1;
+		return 1;
+	}
+
 	return unless pagespec_valid($pagespec);
 
-	if (! exists $depends{$page}) {
-		$depends{$page}=$pagespec;
-	}
-	else {
-		$depends{$page}=pagespec_merge($depends{$page}, $pagespec);
-	}
-
+	$depends{$page}{$pagespec} = 1;
 	return 1;
 }
 
@@ -1807,14 +1839,6 @@ sub add_link ($$) {
 
 	push @{$links{$page}}, $link
 		unless grep { $_ eq $link } @{$links{$page}};
-}
-
-sub pagespec_merge ($$) {
-	my $a=shift;
-	my $b=shift;
-
-	return $a if $a eq $b;
-	return "($a) or ($b)";
 }
 
 sub pagespec_translate ($) {
@@ -2048,7 +2072,7 @@ sub match_created_before ($$;@) {
 		}
 	}
 	else {
-		return IkiWiki::FailReason->new("$testpage has no ctime");
+		return IkiWiki::ErrorReason->new("$testpage does not exist");
 	}
 }
 
@@ -2068,7 +2092,7 @@ sub match_created_after ($$;@) {
 		}
 	}
 	else {
-		return IkiWiki::FailReason->new("$testpage has no ctime");
+		return IkiWiki::ErrorReason->new("$testpage does not exist");
 	}
 }
 

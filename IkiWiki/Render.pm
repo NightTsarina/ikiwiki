@@ -8,26 +8,31 @@ use IkiWiki;
 use Encode;
 
 my %backlinks;
-my $backlinks_calculated=0;
+our %brokenlinks;
+my $links_calculated=0;
 
-sub calculate_backlinks () {
-	return if $backlinks_calculated;
-	%backlinks=();
+sub calculate_links () {
+	return if $links_calculated;
+	%backlinks=%brokenlinks=();
 	foreach my $page (keys %links) {
 		foreach my $link (@{$links{$page}}) {
 			my $bestlink=bestlink($page, $link);
-			if (length $bestlink && $bestlink ne $page) {
-				$backlinks{$bestlink}{$page}=1;
+			if (length $bestlink) {
+				$backlinks{$bestlink}{$page}=1
+					if $bestlink ne $page;
+			}
+			else {
+				push @{$brokenlinks{$link}}, $page;
 			}
 		}
 	}
-	$backlinks_calculated=1;
+	$links_calculated=1;
 }
 
 sub backlink_pages ($) {
 	my $page=shift;
 
-	calculate_backlinks();
+	calculate_links();
 
 	return keys %{$backlinks{$page}};
 }
@@ -83,11 +88,10 @@ sub genpage ($$) {
 		$actions++;
 	}
 	if ($config{discussion}) {
-		my $discussionlink=lc(gettext("Discussion"));
-		if ($page !~ /.*\/\Q$discussionlink\E$/ &&
+		if ($page !~ /.*\/\Q$config{discussionpage}\E$/ &&
 		   (length $config{cgiurl} ||
-		    exists $links{$page."/".$discussionlink})) {
-			$template->param(discussionlink => htmllink($page, $page, gettext("Discussion"), noimageinline => 1, forcesubpage => 1));
+		    exists $links{$page."/".$config{discussionpage}})) {
+			$template->param(discussionlink => htmllink($page, $page, $config{discussionpage}, noimageinline => 1, forcesubpage => 1));
 			$actions++;
 		}
 	}
@@ -153,7 +157,7 @@ sub scan ($) {
 		if ($config{discussion}) {
 			# Discussion links are a special case since they're
 			# not in the text of the page, but on its template.
-			$links{$page}=[ $page."/".lc(gettext("Discussion")) ];
+			$links{$page}=[ $page."/".lc($config{discussionpage}) ];
 		}
 		else {
 			$links{$page}=[];
@@ -206,6 +210,7 @@ sub render ($) {
 	if (defined $type) {
 		my $page=pagename($file);
 		delete $depends{$page};
+		delete $depends_simple{$page};
 		will_render($page, htmlpage($page), 1);
 		return if $type=~/^_/;
 		
@@ -220,6 +225,7 @@ sub render ($) {
 	}
 	else {
 		delete $depends{$file};
+		delete $depends_simple{$file};
 		will_render($file, $file, 1);
 		
 		if ($config{hardlink}) {
@@ -417,7 +423,7 @@ sub refresh () {
 		debug(sprintf(gettext("scanning %s"), $file));
 		scan($file);
 	}
-	calculate_backlinks();
+	calculate_links();
 	foreach my $file (@needsbuild) {
 		debug(sprintf(gettext("building %s"), $file));
 		render($file);
@@ -427,6 +433,7 @@ sub refresh () {
 		# internal pages are not rendered
 		my $page=pagename($file);
 		delete $depends{$page};
+		delete $depends_simple{$page};
 		foreach my $old (@{$renderedfiles{$page}}) {
 			delete $destsources{$old};
 		}
@@ -450,23 +457,46 @@ sub refresh () {
 	if (%rendered || @del || @internal) {
 		my @changed=(keys %rendered, @del);
 
+ 		my %lcchanged = map { lc(pagename($_)) => 1 } @changed;
+ 
 		# rebuild dependant pages
 		foreach my $f (@$files) {
 			next if $rendered{$f};
 			my $p=pagename($f);
-			if (exists $depends{$p}) {
-				# only consider internal files
-				# if the page explicitly depends on such files
-				foreach my $file (@changed, $depends{$p}=~/internal\(/ ? @internal : ()) {
-					next if $f eq $file;
-					my $page=pagename($file);
-					if (pagespec_match($page, $depends{$p}, location => $p)) {
-						debug(sprintf(gettext("building %s, which depends on %s"), $f, $page));
-						render($f);
-						$rendered{$f}=1;
+			my $reason = undef;
+
+			if (exists $depends_simple{$p}) {
+				foreach my $d (keys %{$depends_simple{$p}}) {
+					if (exists $lcchanged{$d}) {
+						$reason = $d;
 						last;
 					}
 				}
+			}
+
+			if (exists $depends{$p} && ! defined $reason) {
+				D: foreach my $d (keys %{$depends{$p}}) {
+					my $sub=pagespec_translate($d);
+					next if $@ || ! defined $sub;
+
+					# only consider internal files
+					# if the page explicitly depends
+					# on such files
+					foreach my $file (@changed, $d =~ /internal\(/ ? @internal : ()) {
+						next if $file eq $f;
+						my $page=pagename($file);
+						if ($sub->($page, location => $p)) {
+							$reason = $page;
+							last D;
+						}
+					}
+				}
+			}
+
+			if (defined $reason) {
+				debug(sprintf(gettext("building %s, which depends on %s"), $f, $reason));
+				render($f);
+				$rendered{$f}=1;
 			}
 		}
 		

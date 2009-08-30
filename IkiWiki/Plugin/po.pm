@@ -51,8 +51,6 @@ sub import {
 	hook(type => "formbuilder_setup", id => "po", call => \&formbuilder_setup, last => 1);
 	hook(type => "formbuilder", id => "po", call => \&formbuilder);
 
-	$origsubs{'bestlink'}=\&IkiWiki::bestlink;
-	inject(name => "IkiWiki::bestlink", call => \&mybestlink);
 	$origsubs{'beautify_urlpath'}=\&IkiWiki::beautify_urlpath;
 	inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath);
 	$origsubs{'targetpage'}=\&IkiWiki::targetpage;
@@ -61,6 +59,8 @@ sub import {
 	inject(name => "IkiWiki::urlto", call => \&myurlto);
 	$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
 	inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
+	$origsubs{'rootpage'}=\&IkiWiki::rootpage;
+	inject(name => "IkiWiki::rootpage", call => \&myrootpage);
 }
 
 
@@ -99,7 +99,7 @@ sub getsetup () {
 			type => "string",
 			example => {
 				'fr' => 'Français',
-				'es' => 'Castellano',
+				'es' => 'Español',
 				'de' => 'Deutsch'
 			},
 			description => "slave languages (PO files)",
@@ -153,6 +153,12 @@ sub checkconfig () {
 		warn(gettext('po_link_to=negotiated requires usedirs to be enabled, falling back to po_link_to=default'));
 		$config{po_link_to}='default';
 	}
+	unless ($config{po_link_to} eq 'default') {
+		if (! exists $origsubs{'bestlink'}) {
+			$origsubs{'bestlink'}=\&IkiWiki::bestlink;
+			inject(name => "IkiWiki::bestlink", call => \&mybestlink);
+		}
+	}
 
 	push @{$config{wiki_file_prune_regexps}}, qr/\.pot$/;
 
@@ -204,10 +210,7 @@ sub scan (@) {
 	if (istranslation($page)) {
 		foreach my $destpage (@{$links{$page}}) {
 			if (istranslatable($destpage)) {
-				# replace one occurence of $destpage in $links{$page}
-				# (we only want to replace the one that was added by
-				# IkiWiki::Plugin::link::scan, other occurences may be
-				# there for other reasons)
+				# replace the occurence of $destpage in $links{$page}
 				for (my $i=0; $i<@{$links{$page}}; $i++) {
 					if (@{$links{$page}}[$i] eq $destpage) {
 						@{$links{$page}}[$i] = $destpage . '.' . lang($page);
@@ -284,17 +287,16 @@ sub pagetemplate (@) {
 		map add_depends($page, $_), (values %{otherlanguages($page)});
 	}
 	if ($config{discussion} && istranslation($page)) {
-		my $discussionlink=gettext("discussion");
-		if ($page !~ /.*\/\Q$discussionlink\E$/i &&
+		if ($page !~ /.*\/\Q$config{discussionpage}\E$/i &&
 		   (length $config{cgiurl} ||
-		    exists $links{$masterpage."/".$discussionlink})) {
+		    exists $links{$masterpage."/".lc($config{discussionpage})})) {
 			$template->param('discussionlink' => htmllink(
 				$page,
 				$destpage,
-				$masterpage . '/' . gettext("Discussion"),
+				$masterpage . '/' . $config{discussionpage},
 				noimageinline => 1,
 				forcesubpage => 0,
-				linktext => gettext("Discussion"),
+				linktext => $config{discussionpage},
 		));
 		}
 	}
@@ -305,6 +307,9 @@ sub pagetemplate (@) {
 	    && istranslation($page)
 	    && $masterpage eq "index") {
 		$template->param('parentlinks' => []);
+	}
+	if (ishomepage($page) && $template->query(name => "title")) {
+		$template->param(title => $config{wikiname});
 	}
 } # }}}
 
@@ -415,7 +420,7 @@ sub change (@) {
 		}
 		if (@pofiles) {
 			refreshpofiles($masterfile, @pofiles);
-			map { IkiWiki::rcs_add($_) } @pofiles if $config{rcs};
+			map { s/^\Q$config{srcdir}\E\/*//; IkiWiki::rcs_add($_) } @pofiles if $config{rcs};
 			$updated_po_files=1;
 		}
 	}
@@ -530,10 +535,23 @@ sub formbuilder (@) {
 	if ($form->field("do") eq "create") {
 	        foreach my $field ($form->field) {
 			next unless "$field" eq "type";
-			if ($field->type eq 'select') {
-				# remove po from the list of types
-				my @types = grep { $_ ne 'po' } $field->options;
-				$field->options(\@types) if @types;
+			next unless $field->type eq 'select';
+			my $orig_value = $field->value;
+			# remove po from the list of types
+			my @types = grep { $_->[0] ne 'po' } $field->options;
+			$field->options(\@types) if @types;
+			# favor the type of linking page's masterpage
+			if ($orig_value eq 'po') {
+				my ($from, $type);
+				if (defined $form->field('from')) {
+					($from)=$form->field('from')=~/$config{wiki_file_regexp}/;
+					$from = masterpage($from);
+				}
+				if (defined $from && exists $pagesources{$from}) {
+					$type=pagetype($pagesources{$from});
+				}
+				$type=$config{default_pageext} unless defined $type;
+				$field->value($type) ;
 			}
 		}
 	}
@@ -544,15 +562,18 @@ sub formbuilder (@) {
 # `----
 
 # Implement po_link_to 'current' and 'negotiated' settings.
+# Not injected otherwise.
 sub mybestlink ($$) {
 	my $page=shift;
 	my $link=shift;
 
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
+	my @caller = caller(1);
 	if (length $res
-	    && ($config{po_link_to} eq "current" || $config{po_link_to} eq "negotiated")
 	    && istranslatable($res)
-	    && istranslation($page)) {
+	    && istranslation($page)
+	    &&  !(exists $caller[3] && defined $caller[3]
+		  && ($caller[3] eq "IkiWiki::PageSpec::match_link"))) {
 		return $res . "." . lang($page);
 	}
 	return $res;
@@ -603,17 +624,21 @@ sub myurlto ($$;$) {
 	# so that one is redirected to the just-edited page rather than to the
 	# negociated translation; to prevent unnecessary fiddling with caller/inject,
 	# we only do so when our beautify_urlpath would actually do what we want to
-	# avoid, i.e. when po_link_to = negotiated
+	# avoid, i.e. when po_link_to = negotiated.
+	# also avoid doing so when run by cgi_goto, so that the links on recentchanges
+	# page actually lead to the exact page they pretend to.
 	if ($config{po_link_to} eq "negotiated") {
 		my @caller = caller(1);
-		my $run_by_editpage = 0;
-		$run_by_editpage = 1 if (exists $caller[3] && defined $caller[3]
-					 && $caller[3] eq "IkiWiki::cgi_editpage");
+		my $use_orig = 0;
+		$use_orig = 1 if (exists $caller[3] && defined $caller[3]
+				 && ($caller[3] eq "IkiWiki::cgi_editpage" ||
+				     $caller[3] eq "IkiWiki::Plugin::goto::cgi_goto")
+				 );
 		inject(name => "IkiWiki::beautify_urlpath", call => $origsubs{'beautify_urlpath'})
-			if $run_by_editpage;
+			if $use_orig;
 		my $res = $origsubs{'urlto'}->($to,$from,$absolute);
 		inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath)
-			if $run_by_editpage;
+			if $use_orig;
 		return $res;
 	}
 	else {
@@ -629,6 +654,22 @@ sub mycgiurl (@) {
 		$params{'from'} = masterpage($params{'from'});
 	}
 	return $origsubs{'cgiurl'}->(%params);
+}
+
+sub myrootpage (@) {
+	my %params=@_;
+
+	my $rootpage;
+	if (exists $params{rootpage}) {
+		$rootpage=$origsubs{'bestlink'}->($params{page}, $params{rootpage});
+		if (!length $rootpage) {
+			$rootpage=$params{rootpage};
+		}
+	}
+	else {
+		$rootpage=masterpage($params{page});
+	}
+	return $rootpage;
 }
 
 # ,----
@@ -935,7 +976,7 @@ sub otherlanguagesloop ($) {
 				master => 1,
 			};
 		}
-		else {
+		elsif (istranslation($otherpage)) {
 			push @ret, {
 				url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
 				code => $lang,
@@ -955,6 +996,14 @@ sub homepageurl (;$) {
 	my $page=shift;
 
 	return urlto('', $page);
+}
+
+sub ishomepage ($) {
+	my $page = shift;
+
+	return 1 if $page eq 'index';
+	map { return 1 if $page eq 'index.'.$_ } keys %{$config{po_slave_languages}};
+	return undef;
 }
 
 sub deletetranslations ($) {

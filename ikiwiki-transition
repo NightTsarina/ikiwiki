@@ -299,7 +299,7 @@ sub oldloadindex {
 			$pagemtime{$page}=$items{mtime}[0];
 			$oldlinks{$page}=[@{$items{link}}];
 			$links{$page}=[@{$items{link}}];
-			$depends{$page}=$items{depends}[0] if exists $items{depends};
+			$depends{$page}={ $items{depends}[0] => 1 } if exists $items{depends};
 			$destsources{$_}=$page foreach @{$items{dest}};
 			$renderedfiles{$page}=[@{$items{dest}}];
 			$pagecase{lc $page}=$page;
@@ -333,6 +333,16 @@ sub get_banned_users () {
 		push @ret, $user if $userinfo->{$user}->{banned};
 	}
 	return @ret;
+}
+
+# Used to be in IkiWiki, but only used here (to migrate admin prefs into the
+# setup file) now.
+sub pagespec_merge ($$) {
+	my $a=shift;
+	my $b=shift;
+
+	return $a if $a eq $b;
+	return "($a) or ($b)";
 }
 
 1

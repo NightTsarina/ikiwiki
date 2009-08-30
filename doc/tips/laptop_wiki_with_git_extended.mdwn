@@ -10,7 +10,7 @@ a bare repo on `gitserver`, and clone that to a workingdir on  gitserver.
   Next create a setup file for the laptop with 
 
         gitorigin_branch=> "",
-        wrapper => "/working/dir/.git/hooks/post-commit",
+        git_wrapper => "/working/dir/.git/hooks/post-commit",
     
   At this point, assuming you followed page above, and not my hasty summary, 
 
@@ -21,7 +21,7 @@ a bare repo on `gitserver`, and clone that to a workingdir on  gitserver.
 2. Now create a setup file for the server (I call it server.setup).
 
         gitorigin_branch=> "origin",
-        wrapper => "/repo/wiki.git/hooks/post-update.ikiwiki"
+        git_wrapper => "/repo/wiki.git/hooks/post-update.ikiwiki"
        
   Note the non-standard and bizzare name of the hook.   
 

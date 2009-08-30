@@ -27,7 +27,7 @@ PROBABLE_INST_LIB=$(shell \\
 W3M_CGI_BIN?=$(PREFIX)/lib/w3m/cgi-bin
 
 tflag=$(shell if [ -n "$$NOTAINT" ] && [ "$$NOTAINT" != 1 ]; then printf -- "-T"; fi)
-extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:Profile"; fi)
+extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:NYTProf"; fi)
 
 ikiwiki.out: ikiwiki.in
 	./pm_filter $(PREFIX) $(VER) $(PROBABLE_INST_LIB) < ikiwiki.in > ikiwiki.out
