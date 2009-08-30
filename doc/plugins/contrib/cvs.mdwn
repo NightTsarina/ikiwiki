@@ -5,7 +5,9 @@
 This plugin allows ikiwiki to use [[!wikipedia desc="CVS" Concurrent Versions System]] as an [[rcs]].
 
 ### Usage
-7. Install [cvsps](http://www.cobite.com/cvsps/), [[!cpan IPC::Cmd]], [[!cpan String::ShellQuote]], and [cvsweb](http://www.freebsd.org/projects/cvsweb.html) or the like.
+7. Install [cvsps](http://www.cobite.com/cvsps/), [[!cpan IPC::Cmd]],
+[[!cpan String::ShellQuote]], [[!cpan File::ReadBackwards]], and
+[cvsweb](http://www.freebsd.org/projects/cvsweb.html) or the like.
 7. Adjust CVS-related parameters in your setup file.
 
 Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn't need it, but you yourself might. Here's a good general-purpose one:
@@ -18,7 +20,11 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
 
 ### Implementation details
 * `cvs.pm` started life as a copy of [[3.14159|news/version_3.14159]]'s `svn.pm`.
-* `IkiWiki.pm:wiki_file_prune_regexps` avoids copying CVS metadata into `$DESTDIR`.
+* `IkiWiki.pm:wiki_file_prune_regexps` avoids copying CVS metadata
+into `$DESTDIR`.
+* `IkiWiki/Wrapper.pm` avoids calling ikiwiki from post-commit if it's a
+directory being `cvs add`ed (this check is only compiled into the wrapper
+iff the configured VCS is "cvs").
 * [[ikiwiki-makerepo]]:
  * creates a repository,
  * imports `$SRCDIR` into top-level module `ikiwiki` (vendor tag IKIWIKI, release tag PRE_CVS),
@@ -27,7 +33,5 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
 
 ### To do
 * Add automated tests. (Blindly adding svn-like tests to `t/file_pruned.t` doesn't do the trick.)
-* If the argument to `cvs add` smells like a binary file, `cvs add -kb` it (for [[plugins/attachment]] support).
-* Don't slurp the entire `cvsps` output into memory (!).
 * Instead of resource-intensively scraping changesets with `cvsps`, have `ikiwiki-makerepo` set up NetBSD-like `log_accum` and `commit_prep` scripts that coalesce and keep records of commits. `cvsps` can be used as a fallback for repositories without such records.
 * Perhaps prevent web edits from attempting to create `.../CVS/foo.mdwn` (and `.../cvs/foo.mdwn` on case-insensitive filesystems); thanks to the CVS metadata directory, the attempt will fail anyway (and much more confusingly) if we don't.
