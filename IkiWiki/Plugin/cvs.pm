@@ -108,8 +108,6 @@ sub cvs_runcvs(@) {
 
 	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
 
-	debug("runcvs: " . join(" ", @$cmd));
-
 	my ($success, $error_code, $full_buf, $stdout_buf, $stderr_buf) =
 		IPC::Cmd::run(command => $cmd, verbose => 0);
 	if (! $success) {
