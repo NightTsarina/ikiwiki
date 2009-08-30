@@ -226,13 +226,18 @@ sub rcs_add ($) {
 	}
 
 	while ($file = pop @files_to_add) {
-		if ((@files_to_add == 0) &&
-			(File::MimeInfo::default $file ne 'text/plain')) {
-			# it's a binary file, add specially
-			cvs_runcvs(['add', '-kb', $file]) ||
-				warn("cvs add $file failed\n");
+		if (@files_to_add == 0) {
+			# file
+			my $filemime = File::MimeInfo::default($file);
+			if (defined($filemime) && $filemime eq 'text/plain') {
+				cvs_runcvs(['add', $file]) ||
+					warn("cvs add $file failed\n");
+			} else {
+				cvs_runcvs(['add', '-kb', $file]) ||
+					warn("cvs add binary $file failed\n");
+			}
 		} else {
-			# directory or regular file
+			# directory
 			cvs_runcvs(['add', $file]) ||
 				warn("cvs add $file failed\n");
 		}
