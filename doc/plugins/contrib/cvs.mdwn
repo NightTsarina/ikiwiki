@@ -27,7 +27,5 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
 
 ### To do
 * Add automated tests. (Blindly adding svn-like tests to `t/file_pruned.t` doesn't do the trick.)
-* If the argument to `cvs add` smells like a binary file, `cvs add -kb` it (for [[plugins/attachment]] support).
-* Don't slurp the entire `cvsps` output into memory (!).
 * Instead of resource-intensively scraping changesets with `cvsps`, have `ikiwiki-makerepo` set up NetBSD-like `log_accum` and `commit_prep` scripts that coalesce and keep records of commits. `cvsps` can be used as a fallback for repositories without such records.
 * Perhaps prevent web edits from attempting to create `.../CVS/foo.mdwn` (and `.../cvs/foo.mdwn` on case-insensitive filesystems); thanks to the CVS metadata directory, the attempt will fail anyway (and much more confusingly) if we don't.
