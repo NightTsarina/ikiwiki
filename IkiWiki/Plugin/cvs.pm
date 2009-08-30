@@ -219,14 +219,25 @@ sub rcs_add ($) {
 	my $parent=IkiWiki::dirname($file);
 	my @files_to_add = ($file);
 
+	eval q{use File::MimeInfo};
+	error($@) if $@;
+
 	until ((length($parent) == 0) || cvs_is_controlling("$config{srcdir}/$parent")){
 		push @files_to_add, $parent;
 		$parent = IkiWiki::dirname($parent);
 	}
 
 	while ($file = pop @files_to_add) {
-		cvs_runcvs(['add', $file]) ||
-			warn("cvs add $file failed\n");
+		if ((@files_to_add == 0) &&
+			(File::MimeInfo::default $file ne 'text/plain')) {
+			# it's a binary file, add specially
+			cvs_runcvs(['add', '-kb', $file]) ||
+				warn("cvs add $file failed\n");
+		} else {
+			# directory or regular file
+			cvs_runcvs(['add', $file]) ||
+				warn("cvs add $file failed\n");
+		}
 	}
 }
 
