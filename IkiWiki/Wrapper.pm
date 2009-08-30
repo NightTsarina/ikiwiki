@@ -50,7 +50,7 @@ EOF
 	{
 		int j;
 		for (j = 1; j < argc; j++)
-			if (strcmp(argv[j], "New directory") == 0)
+			if (strstr(argv[j], "New directory") != NULL)
 				exit(0);
 	}
 EOF
