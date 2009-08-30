@@ -119,11 +119,21 @@ sub cvs_runcvs(@) {
 
 sub cvs_shquote_commit ($) {
 	my $message = shift;
+	my $test_message = "CVS autodiscover quoting CVS";
 
 	eval q{use String::ShellQuote};
 	error($@) if $@;
+	eval q{use IPC::Cmd};
+	error($@) if $@;
 
-	return shell_quote(IkiWiki::possibly_foolish_untaint($message));
+	my $cmd = ['echo', shell_quote($test_message)];
+	my ($success, $error_code, $full_buf, $stdout_buf, $stderr_buf) =
+		IPC::Cmd::run(command => $cmd, verbose => 0);
+	if ((grep /'$test_message'/, @$stdout_buf) > 0) {
+		return IkiWiki::possibly_foolish_untaint($message);
+	} else {
+		return shell_quote(IkiWiki::possibly_foolish_untaint($message));
+	}
 }
 
 sub cvs_is_controlling {
