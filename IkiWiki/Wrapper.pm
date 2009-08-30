@@ -45,8 +45,8 @@ EOF
 	}
 
 	my $check_cvs_add_dir="";
-	# XXX conditionalize on $config{rcs} eq 'cvs'
-	$check_cvs_add_dir=<<"EOF";
+	if ($config{rcs} eq 'cvs') {
+		$check_cvs_add_dir=<<"EOF";
 	{
 		int j;
 		for (j = 1; j < argc; j++)
@@ -54,6 +54,7 @@ EOF
 				exit(0);
 	}
 EOF
+	}
 
 	my $check_commit_hook="";
 	my $pre_exec="";
