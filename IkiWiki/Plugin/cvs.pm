@@ -6,7 +6,6 @@ use strict;
 use IkiWiki;
 
 sub import {
-	hook(type => "getopt", id => "cvs", call => \&getopt);
 	hook(type => "checkconfig", id => "cvs", call => \&checkconfig);
 	hook(type => "getsetup", id => "cvs", call => \&getsetup);
 	hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
@@ -19,13 +18,6 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
-}
-
-sub getopt () {
-	# "cvs add dir" acts immediately on the repository.
-	# post-commit gets confused by this and doesn't need to act on it.
-	# If that's why we're here, terminate the process.
-	((grep /New directory/, @ARGV) > 0) && exit 0;
 }
 
 sub checkconfig () {
@@ -111,9 +103,7 @@ sub cvs_runcvs(@) {
 	my ($cmd) = @_;
 	unshift @$cmd, 'cvs', '-Q';
 
-	eval q{
-		use IPC::Cmd;
-	};
+	eval q{use IPC::Cmd};
 	error($@) if $@;
 
 	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
@@ -132,9 +122,7 @@ sub cvs_runcvs(@) {
 sub cvs_shquote_commit ($) {
 	my $message = shift;
 
-	eval q{
-		use String::ShellQuote;
-	};
+	eval q{use String::ShellQuote};
 	error($@) if $@;
 
 	return shell_quote(IkiWiki::possibly_foolish_untaint($message));
@@ -274,13 +262,12 @@ sub rcs_recentchanges($) {
 
 	return unless cvs_is_controlling;
 
-	eval q{
-		use Date::Parse;
-	};
+	eval q{use Date::Parse};
 	error($@) if $@;
 
 	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
 
+	# there's no option to get the last N changesets, so read backwards
 	open CVSPS, "env TZ=UTC cvsps -q --cvs-direct -z 30 -x |" || error "couldn't get cvsps output: $!\n";
 	my @spsvc = reverse <CVSPS>;		# is this great? no it is not
 	close CVSPS || error "couldn't close cvsps output: $!\n";
