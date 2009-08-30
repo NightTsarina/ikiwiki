@@ -20,7 +20,11 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
 
 ### Implementation details
 * `cvs.pm` started life as a copy of [[3.14159|news/version_3.14159]]'s `svn.pm`.
-* `IkiWiki.pm:wiki_file_prune_regexps` avoids copying CVS metadata into `$DESTDIR`.
+* `IkiWiki.pm:wiki_file_prune_regexps` avoids copying CVS metadata
+into `$DESTDIR`.
+* `IkiWiki/Wrapper.pm` avoids calling ikiwiki from post-commit if it's a
+directory being `cvs add`ed (this check is only compiled into the wrapper
+iff the configured VCS is "cvs").
 * [[ikiwiki-makerepo]]:
  * creates a repository,
  * imports `$SRCDIR` into top-level module `ikiwiki` (vendor tag IKIWIKI, release tag PRE_CVS),
