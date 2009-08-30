@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.14159\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-15 14:07-0400\n"
+"POT-Creation-Date: 2009-08-30 15:25-0400\n"
 "PO-Revision-Date: 2009-07-23 01:07+0200\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
@@ -59,7 +59,7 @@ msgstr "Indstillinger gemt"
 msgid "You are banned."
 msgstr "Du er banlyst."
 
-#: ../IkiWiki/CGI.pm:390 ../IkiWiki/CGI.pm:391 ../IkiWiki.pm:1260
+#: ../IkiWiki/CGI.pm:390 ../IkiWiki/CGI.pm:391 ../IkiWiki.pm:1269
 msgid "Error"
 msgstr "Fejl"
 
@@ -364,7 +364,7 @@ msgstr "du kan ikke påvirke en fil med modus %s"
 msgid "you are not allowed to change file modes"
 msgstr "du har ikke lov til at ændre modus for filer"
 
-#: ../IkiWiki/Plugin/google.pm:27 ../IkiWiki/Plugin/po.pm:129
+#: ../IkiWiki/Plugin/google.pm:27 ../IkiWiki/Plugin/po.pm:131
 #: ../IkiWiki/Plugin/search.pm:36
 #, perl-format
 msgid "Must specify %s when using the %s plugin"
@@ -399,27 +399,32 @@ msgstr ""
 "advarsel: highlight perl modul ikke tilgængelig: falder tilbage til simpel "
 "gennemkørsel"
 
+#: ../IkiWiki/Plugin/htmltidy.pm:50
+#, fuzzy
+msgid "htmltidy failed to parse this html"
+msgstr "afkodning af smileys mislykkedes"
+
 #: ../IkiWiki/Plugin/img.pm:63
 msgid "Image::Magick is not installed"
 msgstr "Image::Magick ikke installeret"
 
-#: ../IkiWiki/Plugin/img.pm:72
+#: ../IkiWiki/Plugin/img.pm:74
 #, perl-format
 msgid "wrong size format \"%s\" (should be WxH)"
 msgstr "forkert størrelsesformat \"%s\" (burde være WxH)"
 
-#: ../IkiWiki/Plugin/img.pm:83 ../IkiWiki/Plugin/img.pm:87
-#: ../IkiWiki/Plugin/img.pm:104
+#: ../IkiWiki/Plugin/img.pm:85 ../IkiWiki/Plugin/img.pm:89
+#: ../IkiWiki/Plugin/img.pm:135
 #, perl-format
 msgid "failed to read %s: %s"
 msgstr "læsning af %s mislykkedes: %s"
 
-#: ../IkiWiki/Plugin/img.pm:90
+#: ../IkiWiki/Plugin/img.pm:100
 #, perl-format
 msgid "failed to resize: %s"
 msgstr "Ændring af størrelse mislykkedes: %s"
 
-#: ../IkiWiki/Plugin/img.pm:119
+#: ../IkiWiki/Plugin/img.pm:152
 #, perl-format
 msgid "failed to determine size of image %s"
 msgstr "Vurdering af billedstørrelse mislykkedes: %s"
@@ -450,16 +455,16 @@ msgstr "Sort::Naturally krævet for title_natural sortering"
 msgid "unknown sort type %s"
 msgstr "ukendt sorteringsform %s"
 
-#: ../IkiWiki/Plugin/inline.pm:327
+#: ../IkiWiki/Plugin/inline.pm:318
 msgid "Add a new post titled:"
 msgstr "Tilføj nyt indlæg med følgende titel:"
 
-#: ../IkiWiki/Plugin/inline.pm:347
+#: ../IkiWiki/Plugin/inline.pm:338
 #, perl-format
 msgid "nonexistant template %s"
 msgstr "ikke-eksisterende skabelon: %s"
 
-#: ../IkiWiki/Plugin/inline.pm:612
+#: ../IkiWiki/Plugin/inline.pm:603
 msgid "RPC::XML::Client not found, not pinging"
 msgstr "RPC::XML::Client ikke fundet, pinger ikke"
 
@@ -583,12 +588,12 @@ msgstr "LWP ikke fundet, pinger ikke"
 msgid "warning: Old po4a detected! Recommend upgrade to 0.35."
 msgstr ""
 
-#: ../IkiWiki/Plugin/po.pm:136
+#: ../IkiWiki/Plugin/po.pm:138
 #, perl-format
 msgid "%s is not a valid language code"
 msgstr "%s er ikke en gyldig sprogkode"
 
-#: ../IkiWiki/Plugin/po.pm:148
+#: ../IkiWiki/Plugin/po.pm:150
 #, perl-format
 msgid ""
 "%s is not a valid value for po_link_to, falling back to po_link_to=default"
@@ -596,7 +601,7 @@ msgstr ""
 "%s er ikke en gyldig værdi for po_link_to, falder tilbage til "
 "po_link_to=default"
 
-#: ../IkiWiki/Plugin/po.pm:153
+#: ../IkiWiki/Plugin/po.pm:155
 msgid ""
 "po_link_to=negotiated requires usedirs to be enabled, falling back to "
 "po_link_to=default"
@@ -604,21 +609,21 @@ msgstr ""
 "po_link_to=negotiated kræver at usedirs er aktiveret, falder tilbage til "
 "po_link_to=default"
 
-#: ../IkiWiki/Plugin/po.pm:383
+#: ../IkiWiki/Plugin/po.pm:385
 #, perl-format
 msgid "rebuilding all pages to fix meta titles"
 msgstr "gendanner alle sider for at korrigere meta titler"
 
-#: ../IkiWiki/Plugin/po.pm:387 ../IkiWiki/Render.pm:426
+#: ../IkiWiki/Plugin/po.pm:389 ../IkiWiki/Render.pm:428
 #, perl-format
 msgid "building %s"
 msgstr "danner %s"
 
-#: ../IkiWiki/Plugin/po.pm:424
+#: ../IkiWiki/Plugin/po.pm:426
 msgid "updated PO files"
 msgstr "opdaterer PO-filer"
 
-#: ../IkiWiki/Plugin/po.pm:448
+#: ../IkiWiki/Plugin/po.pm:450
 msgid ""
 "Can not remove a translation. If the master page is removed, however, its "
 "translations will be removed as well."
@@ -626,7 +631,7 @@ msgstr ""
 "Kan ikke fjerne en oversættelse. Fjern i stedet hovedsiden, så fjernes dens "
 "oversættelser også."
 
-#: ../IkiWiki/Plugin/po.pm:468
+#: ../IkiWiki/Plugin/po.pm:470
 msgid ""
 "Can not rename a translation. If the master page is renamed, however, its "
 "translations will be renamed as well."
@@ -634,55 +639,55 @@ msgstr ""
 "Kan ikke omdøbe en oversættelse. Omdøb i stedet hovedsiden, så omdøbes dens "
 "oversættelser også."
 
-#: ../IkiWiki/Plugin/po.pm:829
+#: ../IkiWiki/Plugin/po.pm:869
 #, perl-format
 msgid "POT file (%s) does not exist"
 msgstr "POT-filen %s eksisterer ikke"
 
-#: ../IkiWiki/Plugin/po.pm:843
+#: ../IkiWiki/Plugin/po.pm:883
 #, fuzzy, perl-format
 msgid "failed to copy underlay PO file to %s"
 msgstr "kopiering af POT-filen til %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:852
+#: ../IkiWiki/Plugin/po.pm:892
 #, perl-format
 msgid "failed to update %s"
 msgstr "opdatering af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:858
+#: ../IkiWiki/Plugin/po.pm:898
 #, perl-format
 msgid "failed to copy the POT file to %s"
 msgstr "kopiering af POT-filen til %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:894
+#: ../IkiWiki/Plugin/po.pm:934
 msgid "N/A"
 msgstr "N/A"
 
-#: ../IkiWiki/Plugin/po.pm:907
+#: ../IkiWiki/Plugin/po.pm:947
 #, perl-format
 msgid "failed to translate %s"
 msgstr "oversættelse af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:983
+#: ../IkiWiki/Plugin/po.pm:1031
 msgid "removed obsolete PO files"
 msgstr "forældede PO filer fjernet"
 
-#: ../IkiWiki/Plugin/po.pm:1046 ../IkiWiki/Plugin/po.pm:1060
-#: ../IkiWiki/Plugin/po.pm:1100
+#: ../IkiWiki/Plugin/po.pm:1094 ../IkiWiki/Plugin/po.pm:1108
+#: ../IkiWiki/Plugin/po.pm:1148
 #, perl-format
 msgid "failed to write %s"
 msgstr "skrivning af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:1058
+#: ../IkiWiki/Plugin/po.pm:1106
 msgid "failed to translate"
 msgstr "oversættelse mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:1063
+#: ../IkiWiki/Plugin/po.pm:1111
 #, perl-format
 msgid "failed to read %s"
 msgstr "læsning af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:1112
+#: ../IkiWiki/Plugin/po.pm:1160
 msgid "invalid gettext data, go back to previous page to continue edit"
 msgstr ""
 "forkert gettext-data, gå tilbage til forrige side og fortsæt redigering"
@@ -967,11 +972,7 @@ msgstr "dannelsen mislykkedes:"
 msgid "missing tex code"
 msgstr "manglende tex-kode"
 
-#: ../IkiWiki/Plugin/teximg.pm:77
-msgid "code includes disallowed latex commands"
-msgstr "kode indeholder ikke-tilladte latec-kommandoer"
-
-#: ../IkiWiki/Plugin/teximg.pm:128
+#: ../IkiWiki/Plugin/teximg.pm:122
 msgid "failed to generate image from code"
 msgstr "billedopbygning fra kode mislykkedes"
 
@@ -1026,7 +1027,7 @@ msgstr "kan ikke afgøre id for ikke-tillidsfulde skribent %s"
 msgid "bad file name %s"
 msgstr "dårligt filnavn %s"
 
-#: ../IkiWiki/Render.pm:264
+#: ../IkiWiki/Render.pm:266
 #, perl-format
 msgid ""
 "symlink found in srcdir path (%s) -- set allow_symlinks_before_srcdir to "
@@ -1035,47 +1036,47 @@ msgstr ""
 "symbolsk lænke fundet i srcdir-sti (%s) -- sæt allow_symlinks_before_srcdir "
 "for at tillade dette"
 
-#: ../IkiWiki/Render.pm:287 ../IkiWiki/Render.pm:312
+#: ../IkiWiki/Render.pm:289 ../IkiWiki/Render.pm:314
 #, perl-format
 msgid "skipping bad filename %s"
 msgstr "udelader forkert filnavn %s"
 
-#: ../IkiWiki/Render.pm:294
+#: ../IkiWiki/Render.pm:296
 #, perl-format
 msgid "%s has multiple possible source pages"
 msgstr "%s har flere mulige kildesider"
 
-#: ../IkiWiki/Render.pm:380
+#: ../IkiWiki/Render.pm:382
 #, perl-format
 msgid "removing old page %s"
 msgstr "fjerner gammel side %s"
 
-#: ../IkiWiki/Render.pm:421
+#: ../IkiWiki/Render.pm:423
 #, perl-format
 msgid "scanning %s"
 msgstr "gennemlæser %s"
 
-#: ../IkiWiki/Render.pm:447
+#: ../IkiWiki/Render.pm:450
 #, perl-format
 msgid "building %s, which links to %s"
 msgstr "danner %s, som henviser til %s"
 
-#: ../IkiWiki/Render.pm:468
+#: ../IkiWiki/Render.pm:497
 #, perl-format
 msgid "building %s, which depends on %s"
 msgstr "danner %s, som afhænger af %s"
 
-#: ../IkiWiki/Render.pm:507
+#: ../IkiWiki/Render.pm:533
 #, perl-format
 msgid "building %s, to update its backlinks"
 msgstr "danner %s, for at opdatere dens krydshenvisninger (backlinks)"
 
-#: ../IkiWiki/Render.pm:519
+#: ../IkiWiki/Render.pm:545
 #, perl-format
 msgid "removing %s, no longer built by %s"
 msgstr "fjerner %s, ikke længere dannet af %s"
 
-#: ../IkiWiki/Render.pm:543
+#: ../IkiWiki/Render.pm:569
 #, perl-format
 msgid "ikiwiki: cannot build %s"
 msgstr "ikiwiki: kan ikke danne %s"
@@ -1172,16 +1173,16 @@ msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr ""
 "indlæsning af ekstern udvidelse krævet af udvidelsen %s mislykkedes: %s"
 
-#: ../IkiWiki.pm:1243
+#: ../IkiWiki.pm:1251
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "forudberegningssløkke fundet på %s ved dybde %i"
 
-#: ../IkiWiki.pm:1783
+#: ../IkiWiki.pm:1808
 msgid "yes"
 msgstr "ja"
 
-#: ../IkiWiki.pm:1915
+#: ../IkiWiki.pm:1932
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "kan ikke få sider til at passe sammen: %s"
@@ -1205,6 +1206,9 @@ msgstr "Hvilken bruger (wiki konto eller openid) skal være administrator?"
 #: ../auto.setup:23
 msgid "What is the domain name of the web server?"
 msgstr "Hvad er webserverens domænenavn?"
+
+#~ msgid "code includes disallowed latex commands"
+#~ msgstr "kode indeholder ikke-tilladte latec-kommandoer"
 
 #~ msgid "discussion"
 #~ msgstr "diskussion"
