@@ -278,12 +278,26 @@ sub rcs_recentchanges($) {
 
 	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
 
-	# there's no option to get the last N changesets, so read backwards
-	open CVSPS, "env TZ=UTC cvsps -q --cvs-direct -z 30 -x |" || error "couldn't get cvsps output: $!\n";
-	my @spsvc = reverse <CVSPS>;		# is this great? no it is not
-	close CVSPS || error "couldn't close cvsps output: $!\n";
+	# There's no cvsps option to get the last N changesets.
+	# Write full output to a temp file and read backwards.
 
-	while (my $line = shift @spsvc) {
+	eval q{use File::Temp qw/tempfile/};
+	error($@) if $@;
+	eval q{use File::ReadBackwards};
+	error($@) if $@;
+
+	my (undef, $tmpfile) = tempfile(OPEN=>0);
+	system("env TZ=UTC cvsps -q --cvs-direct -z 30 -x >$tmpfile");
+	if ($? == -1) {
+		error "couldn't run cvsps: $!\n";
+	} elsif (($? >>8) != 0) {
+		error "cvsps exited " . ($? >> 8) . ": $!\n";
+	}
+
+	tie(*SPSVC, 'File::ReadBackwards', $tmpfile)
+		|| error "couldn't open $tmpfile for read: $!\n";
+
+	while (my $line = <SPSVC>) {
 		$line =~ /^$/ || error "expected blank line, got $line";
 
 		my ($rev, $user, $committype, $when);
@@ -303,7 +317,7 @@ sub rcs_recentchanges($) {
 		#	@pages (and revisions)
 		#
 
-		while ($line = shift @spsvc) {
+		while ($line = <SPSVC>) {
 			last if ($line =~ /^Members:/);
 			for ($line) {
 				s/^\s+//;
@@ -323,7 +337,7 @@ sub rcs_recentchanges($) {
 			} if length $page;
 		}
 
-		while ($line = shift @spsvc) {
+		while ($line = <SPSVC>) {
 			last if ($line =~ /^Log:$/);
 			chomp $line;
 			unshift @message, { line => $line };
@@ -337,31 +351,31 @@ sub rcs_recentchanges($) {
 			$committype="cvs";
 		}
 
-		$line = shift @spsvc;	# Tag
-		$line = shift @spsvc;	# Branch
+		$line = <SPSVC>;	# Tag
+		$line = <SPSVC>;	# Branch
 
-		$line = shift @spsvc;
+		$line = <SPSVC>;
 		if ($line =~ /^Author: (.*)$/) {
 			$user = $1 unless defined $user && length $user;
 		} else {
 			error "expected Author, got $line";
 		}
 
-		$line = shift @spsvc;
+		$line = <SPSVC>;
 		if ($line =~ /^Date: (.*)$/) {
 			$when = str2time($1, 'UTC');
 		} else {
 			error "expected Date, got $line";
 		}
 
-		$line = shift @spsvc;
+		$line = <SPSVC>;
 		if ($line =~ /^PatchSet (.*)$/) {
 			$rev = $1;
 		} else {
 			error "expected PatchSet, got $line";
 		}
 
-		$line = shift @spsvc;	# ---------------------
+		$line = <SPSVC>;	# ---------------------
 
 		push @ret, {
 			rev => $rev,
@@ -371,8 +385,10 @@ sub rcs_recentchanges($) {
 			message => [@message],
 			pages => [@pages],
 		} if @pages;
-		return @ret if @ret >= $num;
+		last if @ret >= $num;
 	}
+
+	unlink($tmpfile) || error "couldn't unlink $tmpfile: $!\n";
 
 	return @ret;
 }
