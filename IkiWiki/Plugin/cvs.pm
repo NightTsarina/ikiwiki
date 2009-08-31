@@ -303,7 +303,7 @@ sub rcs_recentchanges($) {
 	system("env TZ=UTC cvsps -q --cvs-direct -z 30 -x >$tmpfile");
 	if ($? == -1) {
 		error "couldn't run cvsps: $!\n";
-	} elsif (($? >>8) != 0) {
+	} elsif (($? >> 8) != 0) {
 		error "cvsps exited " . ($? >> 8) . ": $!\n";
 	}
 
