@@ -1,0 +1,241 @@
+# Traduction de ikiwiki
+# Copyright (C) 2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2009-08-15 18:30-0300\n"
+"PO-Revision-Date: 2009-08-23 21:20+0200\n"
+"Last-Translator: Alexandre Dupas <alexandre.dupas@gmail.com>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"[[!if test=\"enabled(template)\"\n"
+"then=\"This wiki has templates **enabled**.\"\n"
+"else=\"This wiki has templates **disabled**.\"\n"
+"]]\n"
+msgstr ""
+"[[!if test=\"enabled(template)\"\n"
+"then=\"Les modèles sont **activés** dans ce wiki.\"\n"
+"else=\"Les modèles sont **désactivés** dans ce wiki.\"\n"
+"]]\n"
+
+#. type: Plain text
+msgid ""
+"Templates are files that can be filled out and inserted into pages in the "
+"wiki."
+msgstr ""
+"Les modèles sont des fichiers pouvant être remplis et insérés dans les pages "
+"du wiki."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+
+#. type: Plain text
+msgid ""
+"These templates are available for inclusion onto other pages in this wiki:"
+msgstr "Ces modèles peuvent être insérés dans d'autres pages de ce wiki :"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
+"sort=title template=titlepage]]\n"
+msgstr ""
+"[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
+"sort=title template=titlepage]]\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "Using a template"
+msgstr "Utiliser un modèle"
+
+#. type: Plain text
+msgid "Using a template works like this:"
+msgstr "Voici comment fonctionne un modèle :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!template id=note text=\"\"\"Here is the text to insert into my note.\"\"\"]]\n"
+msgstr "\t\\[[!template id=note text=\"\"\"Ici se trouve le texte à insérer dans ma note.\"\"\"]]\n"
+
+#. type: Plain text
+msgid ""
+"This fills out the [[note]] template, filling in the `text` field with the "
+"specified value, and inserts the result into the page."
+msgstr ""
+"Ceci remplit le modèle [[note]], remplaçant le champ `text` par la valeur "
+"spécifiée, et insérant le résultat dans la page."
+
+#. type: Plain text
+msgid ""
+"Generally, a value can include any markup that would be allowed in the wiki "
+"page outside the template. Triple-quoting the value even allows quotes to be "
+"included in it. Combined with multi-line quoted values, this allows for "
+"large chunks of marked up text to be embedded into a template:"
+msgstr ""
+"Généralement, une valeur peut inclure n'importe quelle balise qui serait "
+"autorisée dans les pages du wiki. Tripler les guillemets autour de la valeur "
+"permet même d'y inclure des guillemets. Ainsi, avec des valeurs sur "
+"plusieurs lignes, de larges morceaux de texte mis en forme peuvent être "
+"intégrés dans un modèle :"
+
+#. type: Plain text
+#, no-wrap
+msgid "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes=\"\"\"\n"
+msgstr "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes=\"\"\"\n"
+
+#. type: Bullet: '        * '
+msgid "\\[[Charley]]'s sister."
+msgstr "soeur de \\[[Charley]]."
+
+#. type: Bullet: '        * '
+msgid "\"I want to be an astronaut when I grow up.\""
+msgstr "\"Je veux devenir une astronaute lorsque je serai grande.\""
+
+#. type: Bullet: '        * '
+msgid "Really 8 and a half."
+msgstr "Réellement 8 ans et demi."
+
+#. type: Title ##
+#, no-wrap
+msgid "Creating a template"
+msgstr "Créer un modèle"
+
+#. type: Plain text
+msgid ""
+"To create a template, simply add a template directive to a page, and the "
+"page will provide a link that can be used to create the template. The "
+"template is a regular wiki page, located in the `templates/` subdirectory "
+"inside the source directory of the wiki."
+msgstr ""
+"Pour créer un modèle, ajoutez simplement une directive `template` à une "
+"page. La page fournira alors un lien qui peut être utilisé pour créer le "
+"modèle. Le modèle est une page de wiki régulière, enregistrée dans le sous-"
+"répertoire `templates/` du répertoire source du wiki."
+
+#. type: Plain text
+msgid ""
+"The template uses the syntax used by the [[!cpan HTML::Template]] perl "
+"module, which allows for some fairly complex things to be done. Consult its "
+"documentation for the full syntax, but all you really need to know are a few "
+"things:"
+msgstr ""
+"Le modèle utilise la syntaxe définie par le module perl [[!cpan HTML::"
+"Template]], qui permet de faire des choses plutôt complexes. Consultez sa "
+"documentation pour obtenir la syntaxe complète. Cependant, vous n'avez "
+"réellement besoin que de quelques informations :"
+
+#. type: Bullet: '* '
+msgid ""
+"Each parameter you pass to the template directive will generate a template "
+"variable. There are also some pre-defined variables like PAGE and BASENAME."
+msgstr ""
+"Chaque paramètre que vous donnez à la directive `template` générera une "
+"variable dans le modèle. Il y a en plus quelques variables prédéfinies comme "
+"PAGE et BASENAME."
+
+#. type: Bullet: '* '
+msgid ""
+"To insert the value of a variable, use `<TMPL_VAR variable>`. Wiki markup in "
+"the value will first be converted to html."
+msgstr ""
+"Pour insérer la valeur d'une variable, utilisez `<TMPL_VAR variable>`. La "
+"syntaxe wiki dans la valeur sera d'abord transformée en html."
+
+#. type: Bullet: '* '
+msgid ""
+"To insert the raw value of a variable, with wiki markup not yet converted to "
+"html, use `<TMPL_VAR raw_variable>`."
+msgstr ""
+"Pour insérer la valeur brute d'une variable, sans que la syntaxe wiki soit "
+"convertie en html, utilisez `<TMPL_VAR raw_variable>`."
+
+#. type: Bullet: '* '
+msgid ""
+"To make a block of text conditional on a variable being set use `<TMPL_IF "
+"NAME=\"variable\">text</TMPL_IF>`."
+msgstr ""
+"Pour écrire un bloc de texte si une variable est définie, utilisez `<TMPL_IF "
+"NAME=\"variable\">texte</TMPL_IF>`."
+
+#. type: Bullet: '* '
+msgid ""
+"To use one block of text if a variable is set and a second if it's not, use "
+"`<TMPL_IF NAME=\"variable\">text<TMPL_ELSE>other text</TMPL_IF>`"
+msgstr ""
+"Pour utiliser un bloc de texte si une variable est définie et un autre dans "
+"le cas contraire, utilisez `<TMPL_IF NAME=\"variable\">texte<TMPL_ELSE>autre "
+"texte</TMPL_IF>`"
+
+#. type: Plain text
+msgid "Here's a sample template:"
+msgstr "Voici un exemple de modèle :"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"        <span class=\"infobox\">\n"
+"        Name: \\[[<TMPL_VAR raw_name>]]<br />\n"
+"        Age: <TMPL_VAR age><br />\n"
+"        <TMPL_IF NAME=\"color\">\n"
+"        Favorite color: <TMPL_VAR color><br />\n"
+"        <TMPL_ELSE>\n"
+"        No favorite color.<br />\n"
+"        </TMPL_IF>\n"
+"        <TMPL_IF NAME=\"notes\">\n"
+"        <hr />\n"
+"        <TMPL_VAR notes>\n"
+"        </TMPL_IF>\n"
+"        </span>\n"
+msgstr ""
+"        <span class=\"infobox\">\n"
+"        Nom : \\[[<TMPL_VAR raw_name>]]<br />\n"
+"        Age : <TMPL_VAR age><br />\n"
+"        <TMPL_IF NAME=\"color\">\n"
+"        Couleur favorite : <TMPL_VAR color><br />\n"
+"        <TMPL_ELSE>\n"
+"        Pas de couleur favorite.<br />\n"
+"        </TMPL_IF>\n"
+"        <TMPL_IF NAME=\"notes\">\n"
+"        <hr />\n"
+"        <TMPL_VAR notes>\n"
+"        </TMPL_IF>\n"
+"        </span>\n"
+
+#. type: Plain text
+msgid ""
+"The filled out template will be formatted the same as the rest of the page "
+"that contains it, so you can include WikiLinks and all other forms of wiki "
+"markup in the template. Note though that such WikiLinks will not show up as "
+"backlinks to the page that uses the template."
+msgstr ""
+"Le modèle rempli sera mis en forme comme le reste de la page qui le "
+"contient. Vous pouvez donc inclure des WikiLinks et toutes les autres formes "
+"de balises wiki dans les modèles. Notez cependant que de tels WikiLinks "
+"n'apparaîtront pas dans les BackLinks de la page qui utilise le modèle."
+
+#. type: Plain text
+msgid ""
+"Note the use of \"raw_name\" inside the [[ikiwiki/WikiLink]] generator. This "
+"ensures that if the name contains something that might be mistaken for wiki "
+"markup, it's not converted to html before being processed as a [[ikiwiki/"
+"WikiLink]]."
+msgstr ""
+"Notez l'utilisation de \"raw_name\" à l'intérieur du générateur de [[ikiwiki/"
+"WikiLink]]. Cela assure que si le nom contient quelque chose pouvant être "
+"confondu avec une balise wiki, alors il n'est pas converti en html avant "
+"d'être traité comme un [[ikiwiki/WikiLink]]."
