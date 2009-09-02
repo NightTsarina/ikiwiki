@@ -61,7 +61,7 @@ sub getsetup () {
 		cvs_wrapper => {
 			type => "string",
 			example => "/cvs/wikirepo/CVSROOT/post-commit",
-			description => "cvs post-commit hook to generate (triggered by CVSROOT/loginfo entry",
+			description => "cvs post-commit hook to generate (triggered by CVSROOT/loginfo entry)",
 			safe => 0, # file
 			rebuild => 0,
 		},
@@ -131,7 +131,8 @@ sub cvs_shquote_commit ($) {
 		IPC::Cmd::run(command => $cmd, verbose => 0);
 	if ((grep /'$test_message'/, @$stdout_buf) > 0) {
 		return IkiWiki::possibly_foolish_untaint($message);
-	} else {
+	}
+	else {
 		return shell_quote(IkiWiki::possibly_foolish_untaint($message));
 	}
 }
@@ -242,11 +243,13 @@ sub rcs_add ($) {
 			if (defined($filemime) && $filemime eq 'text/plain') {
 				cvs_runcvs(['add', $file]) ||
 					warn("cvs add $file failed\n");
-			} else {
+			}
+			else {
 				cvs_runcvs(['add', '-kb', $file]) ||
 					warn("cvs add binary $file failed\n");
 			}
-		} else {
+		}
+		else {
 			# directory
 			cvs_runcvs(['add', $file]) ||
 				warn("cvs add $file failed\n");
@@ -360,7 +363,8 @@ sub rcs_recentchanges($) {
 		    $message[0]->{line}=~/$config{web_commit_regexp}/) {
 			$user=defined $2 ? "$2" : "$3";
 			$message[0]->{line}=$4;
-		} else {
+		}
+		else {
 			$committype="cvs";
 		}
 
@@ -370,21 +374,24 @@ sub rcs_recentchanges($) {
 		$line = <SPSVC>;
 		if ($line =~ /^Author: (.*)$/) {
 			$user = $1 unless defined $user && length $user;
-		} else {
+		}
+		else {
 			error "expected Author, got $line";
 		}
 
 		$line = <SPSVC>;
 		if ($line =~ /^Date: (.*)$/) {
 			$when = str2time($1, 'UTC');
-		} else {
+		}
+		else {
 			error "expected Date, got $line";
 		}
 
 		$line = <SPSVC>;
 		if ($line =~ /^PatchSet (.*)$/) {
 			$rev = $1;
-		} else {
+		}
+		else {
 			error "expected PatchSet, got $line";
 		}
 
@@ -422,7 +429,8 @@ sub rcs_diff ($) {
 
 	if (wantarray) {
 		return @cvsps;
-	} else {
+	}
+	else {
 		return join("", @cvsps);
 	}
 }
