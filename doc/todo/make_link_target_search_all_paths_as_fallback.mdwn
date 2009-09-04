@@ -1,0 +1,27 @@
+[[!tag wishlist]]
+
+## Idea
+
+After searching from the most local to the root for a wikilinkable page, descend into the tree of pages looking for a matching page. 
+
+For example, if I link to \[\[Pastrami\]\] from /users/eric, the current behavior is to look for 
+
+ * /users/eric/pastrami
+ * /users/pastrami
+ * /users/eric/pastrami
+
+I'd like it to find /sandwiches/pastrami. 
+
+## Issues
+
+I know this is a tougher problem, especially to scale efficiently. There is also not a clear ordering unless it is the recursive dictionary ordering (ie the order of a breadth-first search with natural ordering). It would probably require some sort of static lookup table keyed by pagename and yielding a path. This could be generated initially by a breadth-first search and then updated incrementally when pages are added/removed/renamed. In some ways a global might not be ideal, since one might argue that the link above should match /users/eric/sandwiches/pastrami before /sandwiches/pastrami. I guess you could put all matching paths in the lookup table and then evaluate the ordering at parse-time.
+
+## Motivation
+
+Since I often access my documents using a text editor, I find it useful to keep them ordered in a heirarchy, about 3 levels deep with a branching factor of perhaps 10. When linking though, I'd like the wiki to find the document for me, since I am lazy. 
+
+Also, many of my wiki pages comprise the canonical local representation of some unique entity, for example I might have /software/ikiwiki. The nesting, however, is only to aid navigation, and shouldn't be considered as part of resource's name.
+
+## Alternatives
+
+If an alias could be specified in the page body (for example, /ikiwiki for /software/ikiwiki) which would then stand in for a regular page when searching, then the navigational convenience of folders could be preserved while selectively flattening the search namespace.
