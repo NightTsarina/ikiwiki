@@ -1,0 +1,103 @@
+# Traduction de ikiwiki
+# Copyright (C) 2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2009-08-15 18:30-0300\n"
+"PO-Revision-Date: 2009-08-25 10:59+0200\n"
+"Last-Translator: Alexandre Dupas <alexandre.dupas@gmail.com>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+msgid ""
+"To link to or from a [[SubPage]], you can normally use a regular "
+"[[WikiLink]] that does not contain the name of the parent directory of the "
+"[[SubPage]]. Ikiwiki descends the directory hierarchy looking for a page "
+"that matches your link."
+msgstr ""
+"Pour faire un lien depuis ou vers une sous-page ([[SubPage]]), vous pouvez "
+"normalement utiliser un [[WikiLink]] classique qui ne contient pas le nom du "
+"répertoire parent de la sous-page. Ikiwiki parcourt l'arborescence des "
+"répertoires pour trouver une page qui corresponde au lien."
+
+#. type: Plain text
+msgid ""
+"For example, if FooBar/SubPage links to \"OtherPage\", ikiwiki will first "
+"prefer pointing the link to FooBar/SubPage/OtherPage if it exists, next to "
+"FooBar/OtherPage and finally to OtherPage in the root of the wiki."
+msgstr ""
+"Par exemple, si FooBar/SubPage est liée à \"OtherPage\", ikiwiki préfèrera "
+"d'abord chercher la page dans FooBar/SubPage/OtherPage si elle existe, "
+"ensuite dans FooBar/OtherPage et finalement dans OtherPage à la racine du "
+"wiki."
+
+#. type: Plain text
+msgid ""
+"Note that this means that if a link on FooBar/SomePage to \"OtherPage\" "
+"currently links to OtherPage, in the root of the wiki, and FooBar/OtherPage "
+"is created, the link will _change_ to point to FooBar/OtherPage. On the "
+"other hand, a link from BazBar to \"OtherPage\" would be unchanged by this "
+"creation of a [[SubPage]] of FooBar."
+msgstr ""
+"Cela signifie que si un lien de FooBar/SomePage vers \"OtherPage\" pointe "
+"actuellement vers OtherPage à la racine du wiki, et que la page FooBar/"
+"OtherPage est créée, alors le lien _changera_ pour pointer vers la page "
+"FooBar/OtherPage. Cependant, un lien de BazBar vers \"OtherPage\" ne serait "
+"pas impacté par cette création d'une sous-page ([[SubPage]]) de FooBar."
+
+#. type: Plain text
+msgid ""
+"You can also specify a link that contains a directory name, like \"FooBar/"
+"OtherPage\" to more exactly specify what page to link to. This is the only "
+"way to link to an unrelated [[SubPage]]."
+msgstr ""
+"Vous pouvez également définir un lien qui contient le nom d'un répertoire, "
+"comme \"FooBar/OtherPage\" pour spécifier plus précisément vers quelle page "
+"il faut pointer. C'est le seul moyen de faire un lien vers une sous-page qui "
+"n'est pas apparentée."
+
+#. type: Plain text
+msgid ""
+"You can use this to, for example, to link from BazBar to \"FooBar/SubPage\", "
+"or from BazBar/SubPage to \"FooBar/SubPage\"."
+msgstr ""
+"Vous pouvez utiliser ceci pour, par exemple, faire un lien depuis BazBar "
+"vers \"FooBar/SubPage\", ou de BazBar/SubPage vers \"FooBar/SubPage\"."
+
+#. type: Plain text
+msgid ""
+"You can also use \"/\" at the start of a link, to specify exactly which page "
+"to link to, when there are multiple pages with similar names and the link "
+"goes to the wrong page by default. For example, linking from \"FooBar/SubPage"
+"\" to \"/OtherPage\" will link to the \"OtherPage\" in the root of the wiki, "
+"even if there is a \"FooBar/OtherPage\"."
+msgstr ""
+"Vous pouvez également utiliser \"/\" au début d'un lien pour indiquer "
+"précisément quelle page doit être pointée lorsqu'il y a plusieurs pages avec "
+"des noms identiques et que le lien ne pointe pas vers la bonne page par "
+"défaut. Par exemple, faire un lien depuis \"FooBar/SubPage\" vers \"/"
+"OtherPage\" pointera vers la page \"OtherPage\" à la racine du wiki même "
+"s'il existe une page \"FooBar/OtherPage\"."
+
+#. type: Plain text
+msgid ""
+"Also, if the wiki is configured with a userdir, you can link to pages within "
+"the userdir without specifying a path to them. This is to allow for easy "
+"linking to a user's page in the userdir, to sign a comment. These links are "
+"checked for last of all."
+msgstr ""
+"De plus, si le wiki est configuré avec un répertoire `userdir`, vous pouvez "
+"facilement faire des liens vers les pages dans `userdir` sans spécifier le "
+"chemin vers ces pages. Cela permet de facilement pointer vers la page d'un "
+"utilisateur dans `userdir` pour signer un commentaire. La correspondance des "
+"liens avec ces pages est testée en tout dernier lieu."
