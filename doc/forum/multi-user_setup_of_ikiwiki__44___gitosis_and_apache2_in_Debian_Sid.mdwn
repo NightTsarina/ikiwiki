@@ -65,3 +65,32 @@ Could you please enlighten me. It should be possible seeing for example this sit
 Thanks in advance,
 
 --[[PaulePanter]]
+
+---
+
+## Current Working Notes
+
+I've spent a little time getting this working and I wanted to share my notes on this, for those that come after me. 
+
+### My Setup 
+
+- Debian Lenny
+
+- Gitosis (hand compiled, for no good reason, but it's the same version as in the repository) 
+
+- Ikiwiki 3.12 installed using packages from Sid
+
+### What Works
+
+- Everything needs to be chowned git:git (or gitosis:gitosis) by whatever gitosis runs with. This includes: 
+  - the bare repository (as always)
+  - the srcdir
+  - the destdir
+
+- Ikiwiki needs to run in gitosis' group (eg. git in my case, but probably gitosis in yours) 
+
+- ikiwiki.cgi needs be set with the wrapper mode 6755. 
+
+-- [[tychoish]]
+
+

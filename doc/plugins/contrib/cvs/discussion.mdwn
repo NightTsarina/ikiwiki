@@ -93,3 +93,35 @@ the "cvs add <directory>" call and avoid doing anything in that case?
 >>> if a configured post-commit hook is missing, and it seems fine,
 >>> probably also thanks to IPC::Cmd.
 >>> --[[schmonz]]
+
+----
+
+
+Further review.. --[[Joey]] 
+
+I don't understand what `cvs_shquote_commit` is
+trying to do with the test message, but it seems
+highly likely to be insecure; I never trust anything 
+that relies on safely quoting user input passed to the shell. 
+
+(As an aside, `shell_quote` can die on certian inputs.)
+
+Seems to me that, if `IPC::Cmd` exposes input to the shell
+(which I have not verified but its docs don't specify; a bad sign)
+you chose the wrong tool and ended up doing down the wrong
+route, dragging in shell quoting problems and fixes. Since you
+chose to use `IPC::Cmd`	just because you wanted to shut
+up CVS stderr, my suggestion would be to use plain `system`
+to run the command, with stderr temporarily sent to /dev/null:
+
+	open(my $savederr, ">&STDERR");
+	open(STDERR, ">", "/dev/null");
+	my $ret=system("cvs", "-Q", @_);
+	open(STDERR, ">$savederr");
+
+`cvs_runcvs` should not take an array reference. It's
+usual for this type of function to take a list of parameters
+to pass to the command.
+
+> Thanks for reading carefully. I've tested your suggestions and
+> applied them on my branch. --[[schmonz]]
