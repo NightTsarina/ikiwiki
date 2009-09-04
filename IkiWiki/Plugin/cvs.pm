@@ -100,40 +100,17 @@ sub cvs_info ($$) {
 }
 
 sub cvs_runcvs(@) {
-	my ($cmd) = @_;
-	unshift @$cmd, 'cvs', '-Q';
-
-	eval q{use IPC::Cmd};
-	error($@) if $@;
+	my @cmd = @_;
+	unshift @cmd, 'cvs', '-Q';
 
 	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
 
-	my ($success, $error_code, $full_buf, $stdout_buf, $stderr_buf) =
-		IPC::Cmd::run(command => $cmd, verbose => 0);
-	if (! $success) {
-		warn(join(" ", @$cmd) . " exited with code $error_code\n");
-		warn(join "", @$stderr_buf);
-	}
-	return $success;
-}
+	open(my $savederr, ">&STDERR");
+	open(STDERR, ">", "/dev/null");
+	my $ret = system(@cmd);
+	open(STDERR, ">$savederr");
 
-sub cvs_shquote_commit ($) {
-	my $message = shift;
-	my $test_message = "CVS autodiscover quoting CVS";
-
-	eval q{use String::ShellQuote};
-	error($@) if $@;
-	eval q{use IPC::Cmd};
-	error($@) if $@;
-
-	my $cmd = ['echo', shell_quote($test_message)];
-	my ($success, $error_code, $full_buf, $stdout_buf, $stderr_buf) =
-		IPC::Cmd::run(command => $cmd, verbose => 0);
-	if ((grep /'$test_message'/, @$stdout_buf) > 0) {
-		return IkiWiki::possibly_foolish_untaint($message);
-	} else {
-		return shell_quote(IkiWiki::possibly_foolish_untaint($message));
-	}
+	return ($ret == 0) ? 1 : 0;
 }
 
 sub cvs_is_controlling {
@@ -144,7 +121,7 @@ sub cvs_is_controlling {
 
 sub rcs_update () {
 	return unless cvs_is_controlling;
-	cvs_runcvs(['update', '-dP']);
+	cvs_runcvs('update', '-dP');
 }
 
 sub rcs_prepedit ($) {
@@ -188,13 +165,14 @@ sub rcs_commit ($$$;$$) {
 	if (defined $rev && defined $oldrev && $rev != $oldrev) {
 		# Merge their changes into the file that we've
 		# changed.
-		cvs_runcvs(['update', $file]) ||
+		cvs_runcvs('update', $file) ||
 			warn("cvs merge from $oldrev to $rev failed\n");
 	}
 
-	if (! cvs_runcvs(['commit', '-m', cvs_shquote_commit $message])) {
+	if (! cvs_runcvs('commit', '-m',
+			 IkiWiki::possibly_foolish_untaint $message)) {
 		my $conflict=readfile("$config{srcdir}/$file");
-		cvs_runcvs(['update', '-C', $file]) ||
+		cvs_runcvs('update', '-C', $file) ||
 			warn("cvs revert failed\n");
 		return $conflict;
 	}
@@ -214,7 +192,8 @@ sub rcs_commit_staged ($$$) {
 		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
 	}
 
-	if (! cvs_runcvs(['commit', '-m', cvs_shquote_commit $message])) {
+	if (! cvs_runcvs('commit', '-m',
+			 IkiWiki::possibly_foolish_untaint $message)) {
 		warn "cvs staged commit failed\n";
 		return 1; # failure
 	}
@@ -240,15 +219,15 @@ sub rcs_add ($) {
 			# file
 			my $filemime = File::MimeInfo::default($file);
 			if (defined($filemime) && $filemime eq 'text/plain') {
-				cvs_runcvs(['add', $file]) ||
+				cvs_runcvs('add', $file) ||
 					warn("cvs add $file failed\n");
 			} else {
-				cvs_runcvs(['add', '-kb', $file]) ||
+				cvs_runcvs('add', '-kb', $file) ||
 					warn("cvs add binary $file failed\n");
 			}
 		} else {
 			# directory
-			cvs_runcvs(['add', $file]) ||
+			cvs_runcvs('add', $file) ||
 				warn("cvs add $file failed\n");
 		}
 	}
@@ -260,7 +239,7 @@ sub rcs_remove ($) {
 
 	return unless cvs_is_controlling;
 
-	cvs_runcvs(['rm', '-f', $file]) ||
+	cvs_runcvs('rm', '-f', $file) ||
 		warn("cvs rm $file failed\n");
 }
 
