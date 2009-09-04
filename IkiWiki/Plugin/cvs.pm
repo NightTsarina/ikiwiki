@@ -105,10 +105,10 @@ sub cvs_runcvs(@) {
 
 	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
 
-	open(my $savederr, ">&STDERR");
-	open(STDERR, ">", "/dev/null");
+	open(my $savedout, ">&STDOUT");
+	open(STDOUT, ">", "/dev/null");
 	my $ret = system(@cmd);
-	open(STDERR, ">$savederr");
+	open(STDOUT, ">&", $savedout);
 
 	return ($ret == 0) ? 1 : 0;
 }
