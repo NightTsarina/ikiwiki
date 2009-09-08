@@ -33,6 +33,7 @@ use Memoize;
 memoize("abs2rel");
 memoize("pagespec_translate");
 memoize("file_pruned");
+memoize("template_file");
 
 sub getsetup () {
 	wikiname => {
