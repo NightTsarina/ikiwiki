@@ -27,14 +27,21 @@ sub getsetup () {
 			safe => 0,
 			rebuild => 1,
 		},
+		add_templates => {
+			type => "string",
+			default => [],
+			description => "extra template directories to add",
+			advanced => 1,
+			safe => 0,
+			rebuild => 1,
+		},
 }
 
 sub checkconfig () {
-	return unless exists $config{add_underlays};
-
 	foreach my $dir (@{$config{add_underlays}}) {
 		add_underlay($dir);
 	}
+	push @{$config{templatedirs}}, @{$config{add_templates}};
 }
 
 1;

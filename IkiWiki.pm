@@ -33,6 +33,7 @@ use Memoize;
 memoize("abs2rel");
 memoize("pagespec_translate");
 memoize("file_pruned");
+memoize("template_file");
 
 sub getsetup () {
 	wikiname => {
@@ -148,6 +149,13 @@ sub getsetup () {
 		advanced => 1,
 		safe => 0, # path
 		rebuild => 1,
+	},
+	templatedirs => {
+		type => "internal",
+		default => [],
+		description => "additional directories containing template files",
+		safe => 0,
+		rebuild => 0,
 	},
 	underlaydir => {
 		type => "string",
@@ -1609,7 +1617,8 @@ sub saveindex () {
 sub template_file ($) {
 	my $template=shift;
 
-	foreach my $dir ($config{templatedir}, "$installdir/share/ikiwiki/templates") {
+	foreach my $dir ($config{templatedir}, @{$config{templatedirs}},
+	                 "$installdir/share/ikiwiki/templates") {
 		return "$dir/$template" if -e "$dir/$template";
 	}
 	return;

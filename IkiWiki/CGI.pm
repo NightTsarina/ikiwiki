@@ -252,15 +252,29 @@ sub check_banned ($$) {
 	my $q=shift;
 	my $session=shift;
 
+	my $banned=0;
 	my $name=$session->param("name");
-	if (defined $name) {
-		if (grep { $name eq $_ } @{$config{banned_users}}) {
-			$session->delete();
-			cgi_savesession($session);
-			cgi_custom_failure(
-				$q->header(-status => "403 Forbidden"),
-				gettext("You are banned."));
+	if (defined $name && 
+	    grep { $name eq $_ } @{$config{banned_users}}) {
+		$banned=1;
+	}
+
+	foreach my $b (@{$config{banned_users}}) {
+		if (pagespec_match("", $b,
+			ip => $ENV{REMOTE_ADDR},
+			name => defined $name ? $name : "",
+		)) {
+			$banned=1;
+			last;
 		}
+	}
+
+	if ($banned) {
+		$session->delete();
+		cgi_savesession($session);
+		cgi_custom_failure(
+			$q->header(-status => "403 Forbidden"),
+			gettext("You are banned."));
 	}
 }
 
