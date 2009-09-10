@@ -6,9 +6,11 @@ BEGIN {
 	$dir="/tmp/ikiwiki-test-cvs.$$";
 	my $cvs=`which cvs`;
 	chomp $cvs;
-	if (! -x $cvs || ! mkdir($dir)) {
+	my $cvsps=`which cvsps`;
+	chomp $cvsps;
+	if (! -x $cvs || ! -x $cvsps || ! mkdir($dir)) {
 		eval q{
-			use Test::More skip_all => "cvs not available or could not make test dir"
+			use Test::More skip_all => "cvs or cvsps not available or could not make test dir"
 		}
 	}
 }
