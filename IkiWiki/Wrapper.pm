@@ -38,11 +38,12 @@ sub gen_wrapper () {
 EOF
 	}
 
-	my $test_receive="";
 	if ($config{test_receive}) {
 		require IkiWiki::Receive;
-		$test_receive=IkiWiki::Receive::gen_wrapper();
 	}
+	
+	my @wrapper_hooks;
+	run_hooks(genwrapper => sub { push @wrapper_hooks, shift->() });
 
 	my $check_commit_hook="";
 	my $pre_exec="";
@@ -120,7 +121,7 @@ int main (int argc, char **argv) {
 	char *s;
 
 $check_commit_hook
-$test_receive
+@wrapper_hooks
 $envsave
 	newenviron[i++]="HOME=$ENV{HOME}";
 	newenviron[i++]="WRAPPED_OPTIONS=$configstring";
@@ -144,7 +145,6 @@ $pre_exec
 	exit(1);
 }
 EOF
-	close OUT;
 
 	my $cc=exists $ENV{CC} ? possibly_foolish_untaint($ENV{CC}) : 'cc';
 	if (system($cc, "$wrapper.c", "-o", "$wrapper.new") != 0) {

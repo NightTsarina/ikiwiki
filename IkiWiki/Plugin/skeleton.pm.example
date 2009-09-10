@@ -39,6 +39,7 @@ sub import {
 	hook(type => "renamepage", id => "skeleton", call => \&renamepage);
 	hook(type => "rename", id => "skeleton", call => \&rename);
 	hook(type => "savestate", id => "skeleton", call => \&savestate);
+	hook(type => "genwrapper", id => "skeleton", call => \&genwrapper);
 }
 
 sub getopt () {
@@ -237,6 +238,10 @@ sub rename (@) {
 
 sub savestate () {
 	debug("skeleton plugin running in savestate");
+}
+
+sub genwrapper () {
+	debug("skeleton plugin running in genwrapper");
 }
 
 1
