@@ -1,8 +1,5 @@
-[[!template id=plugin name=cvs core=0 author="[[schmonz]]"]]
-
-[[!template id=gitbranch branch=schmonz author="[[schmonz]]"]]
-
-This plugin allows ikiwiki to use [[!wikipedia desc="CVS" Concurrent Versions System]] as an [[rcs]].
+If you really need to, you can use [[!wikipedia desc="CVS" Concurrent Versions System]]
+with ikiwiki.
 
 ### Usage
 7. Install [[!cpan File::chdir]], [[!cpan File::ReadBackwards]],
@@ -19,9 +16,6 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
     rdiff -u
 
 ### Implementation details
-* `cvs.pm` started life as a copy of [[3.14159|news/version_3.14159]]'s `svn.pm`.
-* `IkiWiki.pm:wiki_file_prune_regexps` avoids copying CVS metadata
-into `$DESTDIR`.
 * [[ikiwiki-makerepo]]:
  * creates a repository,
  * imports `$SRCDIR` into top-level module `ikiwiki` (vendor tag IKIWIKI, release tag PRE_CVS),
