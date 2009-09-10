@@ -45,9 +45,6 @@ EOF
 	my @wrapper_hooks;
 	run_hooks(genwrapper => sub { push @wrapper_hooks, shift->() });
 
-	my $check_args="	return 0;";
-	run_hooks(wrapperargcheck => sub { $check_args = shift->(); });
-
 	my $check_commit_hook="";
 	my $pre_exec="";
 	if ($config{post_commit}) {
@@ -120,15 +117,8 @@ addenv(char *var, char *val) {
 	newenviron[i++]=s;
 }
 
-int checkargs(int argc, char **argv) {
-$check_args
-}
-
 int main (int argc, char **argv) {
 	char *s;
-
-	if (!checkargs(argc, argv))
-		exit(0);
 
 $check_commit_hook
 @wrapper_hooks

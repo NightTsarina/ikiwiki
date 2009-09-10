@@ -8,7 +8,7 @@ use IkiWiki;
 use File::chdir;
 
 sub import {
-	hook(type => "wrapperargcheck", id => "cvs", call => \&wrapperargcheck);
+	hook(type => "genwrapper", id => "cvs", call => \&genwrapper);
 	hook(type => "checkconfig", id => "cvs", call => \&checkconfig);
 	hook(type => "getsetup", id => "cvs", call => \&getsetup);
 	hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
@@ -23,13 +23,14 @@ sub import {
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
 }
 
-sub wrapperargcheck () {
+sub genwrapper () {
 	my $check_args=<<"EOF";
-	int j;
-	for (j = 1; j < argc; j++)
-		if (strstr(argv[j], "New directory") != NULL)
-			return 0;
-	return 1;
+	{
+		int j;
+		for (j = 1; j < argc; j++)
+			if (strstr(argv[j], "New directory") != NULL)
+				exit(0);
+	}
 EOF
 	return $check_args;
 }
