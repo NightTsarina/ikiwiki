@@ -5,7 +5,10 @@ use warnings;
 use strict;
 use IkiWiki;
 
+use File::chdir;
+
 sub import {
+	hook(type => "wrapperargcheck", id => "cvs", call => \&wrapperargcheck);
 	hook(type => "checkconfig", id => "cvs", call => \&checkconfig);
 	hook(type => "getsetup", id => "cvs", call => \&getsetup);
 	hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
@@ -18,6 +21,17 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+}
+
+sub wrapperargcheck () {
+	my $check_args=<<"EOF";
+	int j;
+	for (j = 1; j < argc; j++)
+		if (strstr(argv[j], "New directory") != NULL)
+			return 0;
+	return 1;
+EOF
+	return $check_args;
 }
 
 sub checkconfig () {
@@ -92,7 +106,7 @@ sub cvs_info ($$) {
 	my $field=shift;
 	my $file=shift;
 
-	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+	local $CWD = $config{srcdir};
 
 	my $info=`cvs status $file`;
 	my ($ret)=$info=~/^\s*$field:\s*(\S+)/m;
@@ -103,7 +117,7 @@ sub cvs_runcvs(@) {
 	my @cmd = @_;
 	unshift @cmd, 'cvs', '-Q';
 
-	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+	local $CWD = $config{srcdir};
 
 	open(my $savedout, ">&STDOUT");
 	open(STDOUT, ">", "/dev/null");
@@ -251,7 +265,7 @@ sub rcs_rename ($$) {
 
 	return unless cvs_is_controlling;
 
-	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+	local $CWD = $config{srcdir};
 
 	if (system("mv", "$src", "$dest") != 0) {
 		warn("filesystem rename failed\n");
@@ -270,7 +284,7 @@ sub rcs_recentchanges($) {
 	eval q{use Date::Parse};
 	error($@) if $@;
 
-	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+	local $CWD = $config{srcdir};
 
 	# There's no cvsps option to get the last N changesets.
 	# Write full output to a temp file and read backwards.
@@ -394,7 +408,7 @@ sub rcs_recentchanges($) {
 sub rcs_diff ($) {
 	my $rev=IkiWiki::possibly_foolish_untaint(int(shift));
 
-	chdir $config{srcdir} || error("Cannot chdir to $config{srcdir}: $!");
+	local $CWD = $config{srcdir};
 
 	# diff output is unavoidably preceded by the cvsps PatchSet entry
 	my @cvsps = `env TZ=UTC cvsps -q --cvs-direct -z 30 -g -s $rev`;
