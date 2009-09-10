@@ -317,27 +317,8 @@ text, or text in whatever single language ikiwiki is configured to "speak".
 Maybe there could be a way to switch ikiwiki to speaking another language
 when building a non-english page? Then the directives would get translated.
 
-2 test suite failures
---------------------
-
-t/po is currently failing tests 57 and 59 (and I would like to release
-soon..) --[[Joey]] 
-
-> They are failing because of commit cdc3576c8d1e (po: do not inject
-> custom bestlink function when `po_link_to` eq `default`). The test
-> suite changes `$config{po_link_to}`, but the `checkconfig` hook is
-> not re-run. I could manually run it when needed in the test-suite,
-> but this would lead to this function being injected several times,
-> and then `$origsubs{'bestlink'}` to be sometimes set to a wrong
-> value, which would break other parts of the test-suite. The best
-> solution I can think of (apart of reverting this commit or disabling
-> these two tests) is to split the test-suite into 3 parts, depending
-> on the `$config{po_link_to}` setting, either in 3 different `.t`
-> files, or inside the existing one and completely reset the IkiWiki
-> environment at the start of these parts... which I did not manage to
-> achieve in the last 2 hours :/ --[[intrigeri]]
-
->> I've reverted it. --[[Joey]] 
+(We also will need this in order to use translated templates, when they are
+available.)
 
 Documentation
 -------------

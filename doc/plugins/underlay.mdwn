@@ -1,7 +1,7 @@
 [[!template id=plugin name=underlay author="[[Simon_McVittie|smcv]]"]]
 [[!tag type/useful]]
 
-This plugin adds an `add_underlays` option to the `.setup` file.
+This plugin adds an `add_underlays` option to the setup file.
 Its value is a list of underlay directories whose content is added to the wiki.
 
 Multiple underlays are normally set up automatically by other plugins (for
@@ -12,3 +12,9 @@ like photos or software releases.
 Directories in `add_underlays` should usually be absolute. If relative, they're
 interpreted as relative to the parent directory of the basewiki underlay, which
 is probably not particularly useful in this context.
+
+--
+
+This plugin also adds an `add_templates` option to the setup file.
+Its value is a list of template directories to look for template files in,
+if they are not present in the `templatedir`.
