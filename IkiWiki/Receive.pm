@@ -114,7 +114,7 @@ sub test () {
 			# by not testing the removal in such pairs of changes.
 			# (The add is still tested, just to make sure that
 			# no data is added to the repo that a web edit
-			# could add.)
+			# could not add.)
 			next if $newfiles{$file};
 
 			if (IkiWiki::Plugin::remove->can("check_canremove")) {
