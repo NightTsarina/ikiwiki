@@ -496,6 +496,13 @@ describes the plugin as a whole. For example:
   and undef if a rebuild could be needed in some circumstances, but is not
   strictly required.
 
+### genwrapper
+
+	hook(type => "genwrapper", id => "foo", call => \&genwrapper);
+
+This hook is used to inject C code (which it returns) into the `main`
+function of the ikiwiki wrapper when it is being generated.
+
 ## Plugin interface
 
 To import the ikiwiki plugin interface:
