@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-
 package IkiWiki::Receive;
 
 use warnings;
@@ -20,9 +19,9 @@ sub trusted () {
 		! grep { $_ eq $user } @{$config{untrusted_committers}};
 }
 
-sub gen_wrapper () {
+sub genwrapper () {
 	# Test for commits from untrusted committers in the wrapper, to
-	# avoid loading ikiwiki at all for trusted commits.
+	# avoid starting ikiwiki proper at all for trusted commits.
 
 	my $ret=<<"EOF";
 	{
@@ -37,6 +36,8 @@ EOF
 			"u != $uid";
 		} @{$config{untrusted_committers}}).
 		") exit(0);\n";
+
+	
 	$ret.=<<"EOF";
 		asprintf(&s, "CALLER_UID=%i", u);
 		newenviron[i++]=s;

@@ -14,6 +14,7 @@ my $no_chdir=0;
 sub import {
 	hook(type => "checkconfig", id => "git", call => \&checkconfig);
 	hook(type => "getsetup", id => "git", call => \&getsetup);
+	hook(type => "genwrapper", id => "git", call => \&genwrapper);
 	hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
 	hook(type => "rcs", id => "rcs_prepedit", call => \&rcs_prepedit);
 	hook(type => "rcs", id => "rcs_commit", call => \&rcs_commit);
@@ -41,6 +42,7 @@ sub checkconfig () {
 			wrappermode => (defined $config{git_wrappermode} ? $config{git_wrappermode} : "06755"),
 		};
 	}
+
 	if (defined $config{git_test_receive_wrapper} &&
 	    length $config{git_test_receive_wrapper}) {
 		push @{$config{wrappers}}, {
@@ -48,6 +50,13 @@ sub checkconfig () {
 			wrapper => $config{git_test_receive_wrapper},
 			wrappermode => (defined $config{git_wrappermode} ? $config{git_wrappermode} : "06755"),
 		};
+	}
+	
+	# Run receive test only if being called by the wrapper, and not
+	# when generating same.
+	if ($config{test_receive} && ! exists $config{wrapper}) {
+		require IkiWiki::Receive;
+		IkiWiki::Receive::test();
 	}
 }
 
@@ -113,6 +122,16 @@ sub getsetup () {
 			safe => 0, # paranoia
 			rebuild => 0,
 		},
+}
+
+sub genwrapper {
+	if ($config{test_receive}) {
+		require IkiWiki::Receive;
+		return IkiWiki::Receive::genwrapper();
+	}
+	else {
+		return "";
+	}
 }
 
 sub safe_git (&@) {

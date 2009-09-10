@@ -37,10 +37,6 @@ sub gen_wrapper () {
 		addenv("$var", s);
 EOF
 	}
-
-	if ($config{test_receive}) {
-		require IkiWiki::Receive;
-	}
 	
 	my @wrapper_hooks;
 	run_hooks(genwrapper => sub { push @wrapper_hooks, shift->() });

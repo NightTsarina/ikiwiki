@@ -190,10 +190,6 @@ sub main () {
 	elsif ($config{post_commit} && ! commit_hook_enabled()) {
 		# do nothing
 	}
-	elsif ($config{test_receive}) {
-		require IkiWiki::Receive;
-		IkiWiki::Receive::test();
-	}
 	else {
 		if ($config{rebuild}) {
 			debug(gettext("rebuilding wiki.."));
