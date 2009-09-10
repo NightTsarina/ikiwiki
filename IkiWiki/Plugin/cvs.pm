@@ -24,7 +24,7 @@ sub import {
 }
 
 sub genwrapper () {
-	my $check_args=<<"EOF";
+	return <<EOF;
 	{
 		int j;
 		for (j = 1; j < argc; j++)
@@ -32,7 +32,6 @@ sub genwrapper () {
 				exit(0);
 	}
 EOF
-	return $check_args;
 }
 
 sub checkconfig () {
