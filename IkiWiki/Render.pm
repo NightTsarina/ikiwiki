@@ -554,7 +554,6 @@ sub refresh () {
 	if (%rendered) {
 		run_hooks(change => sub { shift->(keys %rendered) });
 	}
-	run_hooks(postrefresh => sub { shift->() });
 }
 
 sub commandline_render () {
