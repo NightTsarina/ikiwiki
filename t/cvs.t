@@ -28,14 +28,11 @@ my $cvsrepo = "$dir/repo";
 
 system "cvs -d $cvsrepo init >/dev/null";
 system "mkdir $dir/ikiwiki >/dev/null";
-my $cwd = `pwd`; chomp $cwd;
 system "cd $dir/ikiwiki && cvs -d $cvsrepo import -m import ikiwiki VENDOR RELEASE >/dev/null";
-chdir $cwd;
 system "rm -rf $dir/ikiwiki >/dev/null";
 system "cvs -d $cvsrepo co -d $config{srcdir} ikiwiki >/dev/null";
 
 # Web commit
-chdir $cwd;
 my $test1 = readfile("t/test1.mdwn");
 writefile('test1.mdwn', $config{srcdir}, $test1);
 IkiWiki::rcs_add("test1.mdwn");
@@ -51,12 +48,10 @@ is($changes[0]{pages}[0]{"page"}, "test1");
 # Manual commit
 my $message = "Added the second page";
 
-chdir $cwd;
 my $test2 = readfile("t/test2.mdwn");
 writefile('test2.mdwn', $config{srcdir}, $test2);
-chdir $config{srcdir};
-system "cvs add test2.mdwn >/dev/null 2>&1";
-system "cvs commit -m \"$message\" test2.mdwn >/dev/null";
+system "cd $config{srcdir} && cvs add test2.mdwn >/dev/null 2>&1";
+system "cd $config{srcdir} && cvs commit -m \"$message\" test2.mdwn >/dev/null";
 
 @changes = IkiWiki::rcs_recentchanges(3);
 is($#changes, 1);
