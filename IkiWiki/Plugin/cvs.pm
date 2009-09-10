@@ -6,6 +6,7 @@ use strict;
 use IkiWiki;
 
 sub import {
+	hook(type => "wrapperargcheck", id => "cvs", call => \&wrapperargcheck);
 	hook(type => "checkconfig", id => "cvs", call => \&checkconfig);
 	hook(type => "getsetup", id => "cvs", call => \&getsetup);
 	hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
@@ -18,6 +19,17 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+}
+
+sub wrapperargcheck () {
+	my $check_args=<<"EOF";
+	int j;
+	for (j = 1; j < argc; j++)
+		if (strstr(argv[j], "New directory") != NULL)
+			return 0;
+	return 1;
+EOF
+	return $check_args;
 }
 
 sub checkconfig () {

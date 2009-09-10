@@ -44,17 +44,8 @@ EOF
 		$test_receive=IkiWiki::Receive::gen_wrapper();
 	}
 
-	my $check_cvs_add_dir="";
-	if ($config{rcs} eq 'cvs') {
-		$check_cvs_add_dir=<<"EOF";
-	{
-		int j;
-		for (j = 1; j < argc; j++)
-			if (strstr(argv[j], "New directory") != NULL)
-				exit(0);
-	}
-EOF
-	}
+	my $check_args="	return 0;";
+	run_hooks(wrapperargcheck => sub { $check_args = shift->(); });
 
 	my $check_commit_hook="";
 	my $pre_exec="";
@@ -128,10 +119,16 @@ addenv(char *var, char *val) {
 	newenviron[i++]=s;
 }
 
+int checkargs(int argc, char **argv) {
+$check_args
+}
+
 int main (int argc, char **argv) {
 	char *s;
 
-$check_cvs_add_dir
+	if (!checkargs(argc, argv))
+		exit(0);
+
 $check_commit_hook
 $test_receive
 $envsave
