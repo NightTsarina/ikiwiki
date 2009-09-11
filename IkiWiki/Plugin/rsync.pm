@@ -7,7 +7,6 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "getsetup", id => "rsync", call => \&getsetup);
-	hook(type => "checkconfig", id => "rsync", call => \&checkconfig);
 	hook(type => "postrefresh", id => "rsync", call => \&postrefresh);
 }
 
@@ -26,20 +25,16 @@ sub getsetup () {
 		},
 }
 
-sub checkconfig {
-	if (! exists $config{rsync_command} ||
-	    ! defined $config{rsync_command}) {
-		error("Must specify rsync_command");
-	}
-}
-
 sub postrefresh () {
-	chdir($config{destdir}) || error("chdir: $!");
-	system $config{rsync_command};
-	if ($? == -1) {
-		error("failed to execute rsync_command: $!");
-	} elsif ($? != 0) {
-		error(sprintf("rsync_command exited %d", $? >> 8));
+	if (defined $config{rsync_command}) {
+		chdir($config{destdir}) || error("chdir: $!");
+		system $config{rsync_command};
+		if ($? == -1) {
+			warn("failed to execute rsync_command: $!");
+		}
+		elsif ($? != 0) {
+			warn(sprintf("rsync_command exited %d", $? >> 8));
+		}
 	}
 }
 
