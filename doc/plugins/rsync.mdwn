@@ -7,11 +7,11 @@ The command to run is specified by setting `rsync_command` in your setup
 file. The command will be run in your destdir, so something like this
 is a typical command:
 
-	rsync -qa --delete . user\@host:/path/to/docroot/ --exclude ikiwiki.cgi
+	rsync => 'rsync -qa --delete . user@host:/path/to/docroot/ --exclude ikiwiki.cgi',
 
 If using rsync over ssh, you will need to enable noninteractive ssh login
 to the remote host. It's also a good idea to specify the exact command line
 to be permitted in the remote host's `$HOME/.ssh/authorized_keys`.
 
 Be sure to exclude the `ikiwiki.cgi` wrapper from being sent to the remote
-host.
+host, as in the above example.
