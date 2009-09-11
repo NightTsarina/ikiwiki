@@ -19,8 +19,8 @@ sub getsetup () {
 		},
 		rsync_command => {
 			type => "string",
-			example => "rsync -qa --delete /path/to/destdir/ user\@host:/path/to/docroot/",
-			description => "unattended command to upload regenerated pages",
+			example => "rsync -qa --delete . user\@host:/path/to/docroot/",
+			description => "command to run to sync updated pages",
 			safe => 0,
 			rebuild => 0,
 		},
@@ -34,6 +34,7 @@ sub checkconfig {
 }
 
 sub postrefresh () {
+	chdir($config{destdir}) || error("chdir: $!");
 	system $config{rsync_command};
 	if ($? == -1) {
 		error("failed to execute rsync_command: $!");
