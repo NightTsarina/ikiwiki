@@ -66,3 +66,12 @@ Revew: --[[Joey]]
 > * Changed the other errors to warnings.
 > * The name might be wrong: there isn't anything rsync-specific about the
 >   plugin, that's just the command I personally need to run. --[[schmonz]]
+
+>> One problem with the error is that it prevents dumping a new setup file with
+>> the plugin enabled, and then editing it to configure. ie:
+
+	joey@gnu:~>ikiwiki -setup .ikiwiki/joeywiki.setup -plugin rsync -dumpsetup new.setup
+	Must specify rsync_command
+
+> rsync seems by far the most likely command, though someone might use something
+> to push via ftp instead. I think calling it rsync is ok. --[[Joey]] 
