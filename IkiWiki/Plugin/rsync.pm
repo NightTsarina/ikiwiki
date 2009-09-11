@@ -7,7 +7,8 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "getsetup", id => "rsync", call => \&getsetup);
-	hook(type => "postrefresh", id => "rsync", call => \&postrefresh);
+	hook(type => "change", id => "rsync", call => \&postrefresh);
+	hook(type => "delete", id => "rsync", call => \&postrefresh);
 }
 
 sub getsetup () {
@@ -25,8 +26,11 @@ sub getsetup () {
 		},
 }
 
+my $ran=0;
+
 sub postrefresh () {
-	if (defined $config{rsync_command}) {
+	if (defined $config{rsync_command} && ! $ran) {
+		$ran=1;
 		chdir($config{destdir}) || error("chdir: $!");
 		system $config{rsync_command};
 		if ($? == -1) {
