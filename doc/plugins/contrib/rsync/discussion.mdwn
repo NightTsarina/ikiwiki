@@ -46,3 +46,17 @@ The wiki now lives on (1), and clicking "edit" just works. --[[schmonz]]
 >> This plugin is definitely still useful for projects not able to use
 >> a DVCS (of which I've got at least one other), and possibly for
 >> other uses not yet imagined. ;-) --[[schmonz]]
+
+----
+
+Revew: --[[Joey]] 
+
+* I think it should not throw an error if no command is set. Just don't do anything.
+* If the rsync fails, it currently errors out, which will probably also leave
+  the wiki in a broken state, since ikiwiki will not get a chance to save
+  its state. This seems fragile; what if the laptop is offline, or the
+  server is down, etc. Maybe it should just warn if the rsync fails?
+* Is a new hook really needed? The savestate hook runs at a similar time;
+  only issue with it is that it is run even when ikiwiki has not
+  rendered any updated pages. Bah, I think you do need the new hook, how
+  annoying..
