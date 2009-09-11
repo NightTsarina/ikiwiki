@@ -30,10 +30,10 @@ sub postrefresh () {
 		chdir($config{destdir}) || error("chdir: $!");
 		system $config{rsync_command};
 		if ($? == -1) {
-			warn("failed to execute rsync_command: $!");
+			warn(sprintf(gettext("failed to execute rsync_command: %s"), $!))."\n";
 		}
 		elsif ($? != 0) {
-			warn(sprintf("rsync_command exited %d", $? >> 8));
+			warn(sprintf(gettext("rsync_command exited %d"), $? >> 8))."\n";
 		}
 	}
 }
