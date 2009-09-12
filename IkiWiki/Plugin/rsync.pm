@@ -19,7 +19,7 @@ sub getsetup () {
 		},
 		rsync_command => {
 			type => "string",
-			example => "rsync -qa --delete . user\@host:/path/to/docroot/ --exclude ikiwiki.cgi",
+			example => "rsync -qa --delete . user\@host:/path/to/docroot/",
 			description => "command to run to sync updated pages",
 			safe => 0,
 			rebuild => 0,
