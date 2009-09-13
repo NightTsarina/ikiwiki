@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-07-19 23:45+0200\n"
+"POT-Creation-Date: 2009-08-15 18:54-0300\n"
 "PO-Revision-Date: 2009-07-23 00:06+0200\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
@@ -49,6 +49,29 @@ msgstr "Og sådan her dannes en tabel over alle sider i wikien:"
 #, no-wrap
 msgid "\t\\[[!pagestats style=\"table\"]]\n"
 msgstr "\t\\[[!pagestats style=\"table\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `among` parameter limits counting to pages that match a "
+"[[ikiwiki/PageSpec]]. For instance, to display a cloud of tags used on blog "
+"entries, you could use:"
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgid "\t\\[[!pagestats pages=\"tags/*\" among=\"blog/posts/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+
+#. type: Plain text
+msgid "or to display a cloud of tags related to Linux, you could use:"
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgid "\t\\[[!pagestats pages=\"tags/* and not tags/linux\" among=\"tagged(linux)\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
 
 #. type: Plain text
 #, no-wrap
