@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 27;
+use Test::More tests => 26;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -9,8 +9,7 @@ BEGIN { use_ok("IkiWiki"); }
 
 ok(IkiWiki::file_pruned("src/.ikiwiki/", "src"));
 ok(IkiWiki::file_pruned("src/.ikiwiki/index", "src"));
-ok(IkiWiki::file_pruned("src/CVS", "src"));
-ok(IkiWiki::file_pruned("src/subdir/CVS", "src"));
+ok(IkiWiki::file_pruned("src/CVS/foo", "src"));
 ok(IkiWiki::file_pruned("src/subdir/CVS/foo", "src"));
 ok(IkiWiki::file_pruned("src/.svn", "src"));
 ok(IkiWiki::file_pruned("src/subdir/.svn", "src"));
