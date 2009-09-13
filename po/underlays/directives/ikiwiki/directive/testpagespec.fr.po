@@ -1,0 +1,69 @@
+# Traduction de ikiwiki
+# Copyright (C) 2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2009-08-15 18:30-0300\n"
+"PO-Revision-Date: 2009-09-12 08:25+0200\n"
+"Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+msgid ""
+"The `testpagespec` directive is supplied by the [[!iki plugins/testpagespec "
+"desc=testpagespec]] plugin."
+msgstr "La directive `testpagespec` est fournie par le module d'extension [[!iki plugins/testpagespec desc=testpagespec]]."
+
+#. type: Plain text
+msgid ""
+"This directive allows testing a [[ikiwiki/PageSpec]] to see if it matches a "
+"page, and to see the part that matches, or causes the match to fail."
+msgstr "Cette directive permet de confronter une spécification [[ikiwiki/PageSpec]] et une page, puis de voir quelle partie correspond ou quelle partie provoque l'échec du test."
+
+#. type: Plain text
+msgid "Example uses:"
+msgstr "Exemples :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!testpagespec pagespec=\"foopage and barpage\" match=\"foopage\"]]\n"
+msgstr "\t\\[[!testpagespec pagespec=\"foopage and barpage\" match=\"foopage\"]]\n"
+
+#. type: Plain text
+msgid ""
+"This will print out something like \"no match: barpage does not match foopage"
+"\", highlighting which part of the [[ikiwiki/PageSpec]] is causing the match "
+"to fail."
+msgstr " Cette expression affichera quelque chose comme \"no match: barpage does not match foopage\", mettant en évidence la partie de la spécification [[ikiwiki/PageSpec]] qui provoque l'échec."
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!testpagespec pagespec=\"foopage or !bar*\" match=\"barpage\"]]\n"
+msgstr "\t\\[[!testpagespec pagespec=\"foopage or !bar*\" match=\"barpage\"]]\n"
+
+#. type: Plain text
+msgid ""
+"This will print out something like \"no match: bar* matches barpage\", since "
+"the part of the [[ikiwiki/PageSpec]] that fails is this negated match."
+msgstr "Cette expression affichera quelque chose comme \"no match: bar* matches barpage\", puisque la  partie de la spécification [[ikiwiki/PageSpec]] qui fait échouer le test est le motif nié."
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!testpagespec pagespec=\"foopage or barpage\" match=\"barpage\"]]\n"
+msgstr "\t\\[[!testpagespec pagespec=\"foopage or barpage\" match=\"barpage\"]]\n"
+
+#. type: Plain text
+msgid ""
+"This will print out something like \"match: barpage matches barpage\", "
+"indicating the part of the [[ikiwiki/PageSpec]] that caused it to match."
+msgstr "Cette expression affichera quelque chose comme \"match: barpage matches barpage\", indiquant la  partie de la spécification [[ikiwiki/PageSpec]] qui fait réussir le test."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

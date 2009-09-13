@@ -1,0 +1,71 @@
+# Traduction de ikiwiki
+# Copyright (C) 2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2009-08-15 18:30-0300\n"
+"PO-Revision-Date: 2009-09-12 12:02+0200\n"
+"Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+msgid ""
+"The `pagestats` directive is supplied by the [[!iki plugins/pagestats "
+"desc=pagestats]] plugin."
+msgstr "La directive `pagestats` est fournie par le module d'extension [[!iki plugins/pagestats desc=pagestats]]."
+
+#. type: Plain text
+msgid ""
+"This directive can generate stats about how pages link to each other. It can "
+"produce either a tag cloud, or a table counting the number of links to each "
+"page."
+msgstr "Cette directive permet de créer des statistiques sur les pages et la façon dont elles sont liées. Elle affiche soit un nuage d'étiquettes, soit un tableau montrant le nombre de liens de chaque page."
+
+#. type: Plain text
+msgid "Here's how to use it to create a [[tag]] cloud:"
+msgstr "Voici comment afficher un nuage d'étiquettes [[tag]] :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+
+#. type: Plain text
+msgid "And here's how to create a table of all the pages on the wiki:"
+msgstr "Et voici comment créer le tableau :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats style=\"table\"]]\n"
+msgstr "\t\\[[!pagestats style=\"table\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `among` parameter limits counting to pages that match a "
+"[[ikiwiki/PageSpec]]. For instance, to display a cloud of tags used on blog "
+"entries, you could use:"
+msgstr "Le paramètre facultatif `among` permet d'utiliser une spécification [[ikiwiki/PageSpec]] pour limiter l'ensemble des pages à compter. Par exemple, pour afficher un nuage avec les étiquettes utilisées dans un blog, on peut écrire : "
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats pages=\"tags/*\" among=\"blog/posts/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\" among=\"blog/posts/*\"]]\n"
+
+#. type: Plain text
+msgid "or to display a cloud of tags related to Linux, you could use:"
+msgstr "Pour afficher un nuage avec les étiquettes consacrées à Linux, écrivez :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats pages=\"tags/* and not tags/linux\" among=\"tagged(linux)\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/* and not tags/linux\" among=\"tagged(linux)\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

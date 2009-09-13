@@ -1,0 +1,177 @@
+# Traduction de ikiwiki
+# Copyright (C)2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2009-08-15 18:30-0300\n"
+"PO-Revision-Date: 2009-09-05 08:43+0200\n"
+"Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+msgid ""
+"The `aggregate` directive is supplied by the [[!iki plugins/aggregate "
+"desc=aggregate]] plugin.  This plugin requires extra setup, specifically, a "
+"cron job. See the plugin's documentation for details."
+msgstr ""
+"La directive `aggregate` est fournie par le module d'extension [[!iki "
+"plugins/aggregate desc=aggregate]]. Ce greffon demande une configuration "
+"particulière, à savoir une tâche `cron`. Consultez la documention du greffon "
+"pour des précisions."
+
+#. type: Plain text
+msgid ""
+"This directive allows content from other feeds to be aggregated into the "
+"wiki.  Aggregate a feed as follows:"
+msgstr ""
+"Cette directive permet d'assembler les contenus d'autres flux dans le wiki. "
+"Ainsi :"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!aggregate name=\"example blog\" dir=\"example\"\n"
+"\tfeedurl=\"http://example.com/index.rss\"\n"
+"\turl=\"http://example.com/\" updateinterval=\"15\"]]\n"
+msgstr ""
+"\t\\[[!aggregate name=\"example blog\" dir=\"example\"\n"
+"\tfeedurl=\"http://example.com/index.rss\"\n"
+"\turl=\"http://example.com/\" updateinterval=\"15\"]]\n"
+
+#. type: Plain text
+msgid ""
+"That example aggregates posts from the specified RSS feed, updating no more "
+"frequently than once every 15 minutes (though possibly less frequently, if "
+"the cron job runs less frequently than that), and puts a page per post under "
+"the example/ directory in the wiki."
+msgstr ""
+"Dans cet exemple, les messages du flux RSS indiqué sont assemblés dans le "
+"répertoire example/ du wiki, une page par message. La fréquence de mise à "
+"jour est de 15 minutes (mais moins fréquemment si la tâche cron est exécutée "
+"moins fréquemment)."
+
+#. type: Plain text
+msgid ""
+"You can then use ikiwiki's [[inline]] directive to create a blog of one or "
+"more aggregated feeds. For example:"
+msgstr ""
+"Vous pouvez utiliser la directive [[inline]] d'ikiwiki pour créer un blog "
+"avec un ou plusieurs flux assemblés. Par exemple :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!inline pages=\"internal(example/*)\"]]\n"
+msgstr "\t\\[[!inline pages=\"internal(example/*)\"]]\n"
+
+#. type: Plain text
+msgid ""
+"Note the use of `internal()` in the [[ikiwiki/PageSpec]] to match aggregated "
+"pages. By default, aggregated pages are internal pages, which prevents them "
+"from showing up directly in the wiki, and so this special [[PageSpec]] is "
+"needed to match them."
+msgstr ""
+"Notez l'utilisation de la fonction `internal()` de [[ikiwiki/PageSpec]] pour "
+"trouver les pages assemblées. Par défaut, les pages assemblées sont des "
+"pages internes, ce qui empêche qu'elles apparaissent directement dans le "
+"wiki. C'est pourquoi la fonction `internal()` est nécessaire dans la "
+"spécification [[PageSpec]] pour les trouver."
+
+#. type: Title ##
+#, no-wrap
+msgid "usage"
+msgstr "Usage"
+
+#. type: Plain text
+msgid ""
+"Here are descriptions of all the supported parameters to the `aggregate` "
+"directive:"
+msgstr ""
+"Voici la description de tous les paramètres acceptés par cette directive :"
+
+#. type: Bullet: '* '
+msgid ""
+"`name` - A name for the feed. Each feed must have a unique name.  Required."
+msgstr "`name` - Le nom du flux. Chaque flux doit avoir un nom unique. Paramètre obligatoire."
+
+#. type: Bullet: '* '
+msgid ""
+"`url` - The url to the web page for the feed that's being aggregated.  "
+"Required."
+msgstr "`url` - L'URL de la page web contenant le flux assemblé. Paramètre obligatoire."
+
+#. type: Bullet: '* '
+msgid ""
+"`dir` - The directory in the wiki where pages should be saved. Optional, if "
+"not specified, the directory is based on the name of the feed."
+msgstr ""
+"`dir` - Le répertoire du wiki où seront sauvegardées les pages. Paramètre "
+"facultatif. S'il n'est pas indiqué, le répertoire est construit à partir du "
+"nom du flux."
+
+#. type: Bullet: '* '
+msgid ""
+"`feedurl` - The url to the feed. Optional, if it's not specified ikiwiki "
+"will look for feeds on the `url`. RSS and atom feeds are supported."
+msgstr ""
+"`feedurl` - L'URL du flux. Paramètre facultatif. S'il n'est pas indiqué, "
+"ikiwiki cherchera le flux avec le paramètre `url`. Les flux RSS et Atom sont "
+"reconnus."
+
+#. type: Bullet: '* '
+msgid ""
+"`updateinterval` - How often to check for new posts, in minutes. Default is "
+"15 minutes."
+msgstr ""
+"`updateinterval` - Fréquence, en minutes, de la recherche des nouveaux "
+"messages. Par défaut, 15 minutes."
+
+#. type: Bullet: '* '
+msgid ""
+"`expireage` - Expire old items from this feed if they are older than a "
+"specified number of days. Default is to never expire on age."
+msgstr "`expireage` -  Éliminer les anciens messages du flux si leur ancienneté est plus grande qu'un nombre de jours donné. Par défaut, aucune élimination ne se fait sur l'ancienneté."
+
+#. type: Bullet: '* '
+msgid ""
+"`expirecount` - Expire old items from this feed if there are more than the "
+"specified number total. Oldest items will be expired first. Default is to "
+"never expire on count."
+msgstr ""
+"`expirecount` - Éliminer les anciens messages du flux si leur nombre est "
+"plus grand qu'un nombre donné. Les messages les plus anciens sont éliminés "
+"en premier. Par défaut, aucune élimination ne se fait sur le nombre."
+
+#. type: Bullet: '* '
+msgid ""
+"`tag` - A tag to tag each post from the feed with. A good tag to use is the "
+"name of the feed. Can be repeated multiple times. The [[tag]] plugin must be "
+"enabled for this to work."
+msgstr ""
+"`tag` -  Représente une étiquette avec laquelle étiqueter chaque message du "
+"flux. Le nom du flux est une bonne étiquette. Ce paramètre peut être répété. "
+"Le greffon [[tag]] doit être activé."
+
+#. type: Bullet: '* '
+msgid ""
+"`template` - Template to use for creating the aggregated pages. Defaults to "
+"aggregatepost."
+msgstr ""
+"`template` - Modèle de page à utiliser pour la création des pages "
+"assemblées. Par défaut, c'est \"aggregatepost\"."
+
+#. type: Plain text
+msgid ""
+"Note that even if you are using subversion or another revision control "
+"system, pages created by aggregation will *not* be checked into revision "
+"control."
+msgstr "Notez que même si vous utilisez subversion ou un autre système de versionnement, les pages créées par assemblage *ne* seront *pas* prises en compte par le système de contrôle de versions."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

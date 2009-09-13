@@ -1,0 +1,64 @@
+# Traduction de ikiwiki
+# Copyright (C) 2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2009-08-15 18:30-0300\n"
+"PO-Revision-Date: 2009-09-11 21:16+0200\n"
+"Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+msgid ""
+"The `linkmap` directive is supplied by the [[!iki plugins/linkmap "
+"desc=linkmap]] plugin."
+msgstr "\"La directive `linkmap` est fournie par le module d'extension [[!iki plugins/linkmap desc=linkmap]]."
+
+#. type: Plain text
+msgid ""
+"This directive uses [graphviz](http://www.graphviz.org/) to generate a graph "
+"showing the links between a set of pages in the wiki. Example usage:"
+msgstr "Cette directive utilise le programme [graphviz](http://www.graphviz.org/) pour créer un graphique montrant les liens existants entre certaines pages du wiki. Par exemple :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!linkmap pages=\"* and !blog/* and !*/Discussion\"]]\n"
+msgstr "\t\\[[!linkmap pages=\"* and !blog/* and !*/Discussion\"]]\n"
+
+#. type: Plain text
+msgid ""
+"Only links between mapped pages will be shown; links pointing to or from "
+"unmapped pages will be omitted. If the pages to include are not specified, "
+"the links between all pages (and other files) in the wiki are mapped. For "
+"best results, only a small set of pages should be mapped, since otherwise "
+"the map can become very large, unwieldy, and complicated. Also, the map is "
+"rebuilt whenever one of the mapped pages is changed, which can make the wiki "
+"a bit slow."
+msgstr "Seuls les liens entre les pages recherchées sont montrés. Des liens existants entre des pages non recherchées sont ignorés. Si les pages à rechercher ne sont pas spécifiées, les liens entre toutes les pages (et tous les fichiers) du wiki seront affichés. Pour des résultats corrects, il vaut mieux définir l'ensemble des pages à rechercher. Sinon, le diagramme deviendra très grand, illisible et compliqué. De plus le diagramme est reconstruit à chaque modification d'une page faisant partie de l'ensemble, ce qui peut rendre le wiki un peu lent."
+
+#. type: Plain text
+msgid ""
+"Here are descriptions of all the supported parameters to the `linkmap` "
+"directive:"
+msgstr "Voici la description des paramètres de la directive `linkmap` :"
+
+#. type: Bullet: '* '
+msgid "`pages` - A [[ikiwiki/PageSpec]] of the pages to map."
+msgstr "`pages` - Une spéfication [[ikiwiki/PageSpec]] des pages à rechercher."
+
+#. type: Bullet: '* '
+msgid ""
+"`height`, `width` - Limit the size of the map to a given height and width, "
+"in inches. Both must be specified for the limiting to take effect, otherwise "
+"the map's size is not limited."
+msgstr "`height`, `width` - Ces paramètres limitent la taille du diagramme, avec une hauteur et une largeur exprimées en pouce. Vous devez les indiquer tous les deux. Sinon le programme choisira une valeur sans limites."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
