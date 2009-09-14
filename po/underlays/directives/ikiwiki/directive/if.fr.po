@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki\n"
 "POT-Creation-Date: 2009-08-28 19:19-0300\n"
-"PO-Revision-Date: 2009-09-11 21:31+0200\n"
+"PO-Revision-Date: 2009-09-14 17:13+0200\n"
 "Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
 "MIME-Version: 1.0\n"
@@ -36,6 +36,9 @@ msgid ""
 "\t      then=\"The smiley plugin is enabled :-)\"\n"
 "\t      else=\"No smiley plugin here..\"]]\n"
 msgstr ""
+"\t\\[[!if test=\"enabled(smiley)\"\n"
+"\t      then=\"Le greffon smiley est activé :-)\"\n"
+"\t      else=\"Pas de greffon smiley ici...\"]]\n"
 
 #. type: Plain text
 msgid ""
@@ -92,7 +95,7 @@ msgstr "enabled(greffon)"
 #. type: Plain text
 #, no-wrap
 msgid "  Tests whether the specified plugin is enabled.\n"
-msgstr "Ce test vérifie si le greffon indiqué est activé.\n"
+msgstr "  Ce test vérifie si le greffon indiqué est activé.\n"
 
 #. type: Bullet: '* '
 msgid "sourcepage(glob)"
@@ -103,7 +106,7 @@ msgstr "sourcepage(motif)"
 msgid ""
 "  Tests whether the glob matches the name of the page that contains the\n"
 "  conditional.\n"
-msgstr "Ce test confronte le motif donné au nom de la page qui contient la condition.\n"
+msgstr "  Ce test confronte le motif donné au nom de la page qui contient la condition.\n"
 
 #. type: Bullet: '* '
 msgid "destpage(glob)"
@@ -115,7 +118,10 @@ msgid ""
 "  Tests whether the glob matches the name of the page that is being built.\n"
 "  That might be different than the name of the page that contains the\n"
 "  conditional, if it's being inlined into another page.\n"
-msgstr "Ce test confronte le motif donné au nom de la page qui est construite. Ce nom peut être différent du nom de la page qui contient la condition, si la page est reliée à une autre page.\n"
+msgstr ""
+"  Ce test confronte le motif donné au nom de la page qui est construite.\n"
+"  Ce nom peut être différent du nom de la page qui contient la condition,\n"
+"  si la page est reliée à une autre page.\n"
 
 #. type: Bullet: '* '
 msgid "included()"
@@ -124,7 +130,7 @@ msgstr "included()"
 #. type: Plain text
 #, no-wrap
 msgid "  Tests whether the page is being included onto another page.\n"
-msgstr "Ce test vérifie si la page est incluse dans une autre page.\n"
+msgstr "  Ce test vérifie si la page est incluse dans une autre page.\n"
 
 #. type: Plain text
 #, no-wrap
