@@ -18,6 +18,16 @@ Desing issues in general:
 
 We resolve rST links without definition, we don't help resolving defined relative links, so we don't support specifying link name and target separately.
 
+> I found out this is possible by using rST subsitutions. So to do [[Version history...|releases]]
+> you would use:
+> 
+> `|releases|_`  
+> `.. |releases| replace:: Version history...`  
+> Which does not seem to have an inline replacement. Using non-resolved links there is the alternative:
+>
+> ``Version history <releases/>`_`. --ulrik [kaizer.se]
+
+
 Many other issues with rST are of course unresolved, but some might be solved by implementing custom rST directives (which is a supported extension mechanism).
 
 Patch follows:
