@@ -7,7 +7,7 @@ Design issues of the patch:
 
 Right now it changes rendering so that undefined pages (previous errors) are resolved to either ikiwiki pages or link to "#". It could be changed (trivially) so that undefined pages give the same error as before. Since it only resolves links that would previously error out, impact on current installations should be minimal.
 
-I don't know why backlinks don't show up with the patch as it is; they are registered, but not rendered on the linked-to page.
+The page is rST-parsed once in 'scan' and once in 'htmlize' (the first to generate backlinks). Can the parse output be safely reused?
 
 Desing issues in general:
 
