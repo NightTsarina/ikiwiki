@@ -41,3 +41,33 @@ such since they are inline elements in the text.. But images work fine in
 rst's syntax.. what about using rst syntax for wikilinks as well?
 Is it possible to inject something into the parser to turn unmached links
 ``WikiLink`_` into ikiwiki links? --ulrik
+
+------
+
+Resolving WikiLinks in rst
+==========================
+
+I wanted to look into if we can hook into rst and influence how links are resolved.
+It turns out it is possible, and I have a working WIP for the rst plugin that does this.
+
+My work in progress for `/usr/lib/ikiwiki/plugins/rst` is here: http://kaizer.se/wiki/rst.py  
+*Warning, written in the middle of the night just to test if it works!*
+
+It basically matches normal rst links just like ikiwiki would match a wikilink
+if it existed.
+I can't read perl so I haven't found out so much. The plugin successfully registers backlinks using
+`proxy.rpc('add_link', on_page, bestlink)` (since the destination page will be rebuilt to update),
+but the backlinks don't show up.
+
+I converted one of my pages to rst:
+
+Before: http://kaizer.se/wiki/kupfer-mdwn  
+After: http://kaizer.se/wiki/kupfer-rst  
+
+I need help on a couple of points
+
+* How to fix the backlinks with `add_link`?
+* How to generate NonExistingLinks using the plugin API?
+* Can we include this in ikiwiki's rst if it is not too hairy?
+
+--ulrik
