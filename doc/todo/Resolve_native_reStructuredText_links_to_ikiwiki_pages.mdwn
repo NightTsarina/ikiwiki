@@ -9,6 +9,11 @@ Right now it changes rendering so that undefined pages (previous errors) are res
 
 The page is rST-parsed once in 'scan' and once in 'htmlize' (the first to generate backlinks). Can the parse output be safely reused?
 
+> The page content fed to htmlize may be different than that fed to scan,
+> as directives can change the content. If you cached the input and output
+> at scan time, you could reuse the cached data at htmlize time for inputs
+> that are the same -- but that could be a very big cache! --[[Joey]] 
+
 Desing issues in general:
 
 We resolve rST links without definition, we don't help resolving defined relative links, so we don't support specifying link name and target separately.
