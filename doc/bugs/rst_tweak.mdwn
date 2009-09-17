@@ -41,3 +41,12 @@ what is supposed to happen? --Peter
 > That's why the [[plugin_page|plugins/rst]] has its note about 
 > issues with wikilinks and directives. You'd have to put those inside
 > raw directives yourself to avoid rst escaping their result. --[[Joey]]
+
+You can also create a raw "role" which is at least easier than raw directives.
+
+	.. role:: ikiwiki(raw)
+	   :format: html
+
+	:ikiwiki:`\[[WikiLink]]`
+
+A role assigns meaning to interpreted text (for example :acronym:`ABC`) or :PEP:`8`. --ulrik [kaizer.se]
