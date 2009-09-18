@@ -1,11 +1,103 @@
-I have a working minimal implementation letting the rst renderer resolve undefined native rST links to ikiwiki pages. I have posted it as one patch at:
+_NB! this page has been refactored, hopefully it is clearer now_  
+_I propose putting discussion posts somewhere in the vincity of
+the secttion Individual reStructuredText Issues_
+
+**Goal**
+
+To be able to use rst as a first-class markup language in ikiwiki. I think
+most believe this is almost impossible (ikiwiki is built around markdown).
+
+**Design**
+
+**WikiLinks**, first and foremost, are needed for a wiki. rST already allows
+specifying absolue and relative URL links, and relative links can be used to
+tie together wiki of rst documents.
+
+1. Below are links to a small, working implementation for resolving
+   undefined rST references using ikiwiki's mechanism. This is **Proposal 1**
+   for rst WikiLinks.
+
+2. Looking over at rST-using systems such as trac and MoinMoin; I think it
+   would be wiser to implement wikilinks by the `:role:` mechanism, together
+   with allowing a custom URL scheme to point to wiki links. This is
+   **Proposal 2**.
+
+        This is a simple wiki page, with :wiki:`WikiLinks` and other_ links
+	
+        .. _other: wiki:wikilink
+
+Benefits of using a `:role:` and a `wiki: page/subpage` URL scheme are
+following:
+
+1. rST documents taken out of the context (the wiki) will not fail as bad as
+   if they have lots of Proposal-1 links: They look just the same as valid
+   references, and you have to edit them all.
+   In contrast, should the `:wiki:` role disappear, one line is enough
+   to redefined it and silence all the warnings for the document:
+
+        .. role:: wiki (title)
+
+*Implementation* there is no implementation of Proposal 2 but it should be
+doable; adding a local role is trivial. Rewriting `wiki:` links could be
+done in the format phase(?).
+
+Now **Directives**: As it is now, ikiwiki goes though (roughly):
+filter, preprocess, htmlize, format as major stages of content
+transformation. rST has major problems to work with any HTML that enters the
+picture before it.
+
+1. Formatting rST in `htmlize` (as is done now): Raw html can be escaped by
+   raw blocks:
+
+        .. raw:: html
+   	
+	        \[[!inline and do stuff]]
+
+   (This can be simplified to alias the above as `.. ikiwiki::`)
+   This escape method works, if ikwiki can be persuaded to maintain the
+   indent when inserting html, so that it stays inside the raw block.
+
+2. Formatting rST in `filter` (idea)
+   1. rST does not have to see any HTML (raw not needed)
+   2. rST directives can alias ikiwiki syntax:
+     
+        ..ikiwiki:: inline pages= ...
+
+   3. Using rST directives as ikiwiki directives can be complicated;
+      but rST directives allow a direct line (after :: on first line),
+      an option list, and a content block.
+
+
+**Discussion**
+
+I guess you (or someone) has been through this before and knows why it
+simply won't work. But I hoped there was something original in the above;
+and I know there are wiki installations where rST works. --ulrik
+
+**Individual reStructuredText Issues**
+
+* We resolve rST links without definition, we don't help resolving defined
+  relative links, so we don't support specifying link name and target
+  separately.
+
+> I found out this is possible by using rST subsitutions. So to do [[Version history...|releases]]
+> you would use:
+> 
+> `|releases|_`  
+> `.. |releases| replace:: Version history...`  
+> Which does not seem to have an inline equivalent. Using non-resolved links there is the alternative:
+>
+> ``Version history <releases/>`_`. --ulrik [kaizer.se]
+
+**A first implementation: Resolving unmatched links**
+
+I have a working minimal implementation letting the rst renderer resolve
+undefined native rST links to ikiwiki pages. I have posted it as one patch at:
 
 Preview commit: http://github.com/engla/ikiwiki/commit/486fd79e520da1d462f00f40e7a90ab07e9c6fdf  
 Repository: git://github.com/engla/ikiwiki.git  
 
 Design issues of the patch:
-
-Right now it changes rendering so that undefined pages (previous errors) are resolved to either ikiwiki pages or link to "#". It could be changed (trivially) so that undefined pages give the same error as before. Since it only resolves links that would previously error out, impact on current installations should be minimal.
 
 The page is rST-parsed once in 'scan' and once in 'htmlize' (the first to generate backlinks). Can the parse output be safely reused?
 
@@ -19,22 +111,6 @@ The page is rST-parsed once in 'scan' and once in 'htmlize' (the first to genera
 >> (without any ikiwiki directives or wikilinks).
 >> However, I think that if the cache does not work for a big load, it should
 >> not work at all; small loads are small so they don't matter. --ulrik
-
-Desing issues in general:
-
-We resolve rST links without definition, we don't help resolving defined relative links, so we don't support specifying link name and target separately.
-
-> I found out this is possible by using rST subsitutions. So to do [[Version history...|releases]]
-> you would use:
-> 
-> `|releases|_`  
-> `.. |releases| replace:: Version history...`  
-> Which does not seem to have an inline equivalent. Using non-resolved links there is the alternative:
->
-> ``Version history <releases/>`_`. --ulrik [kaizer.se]
-
-
-Many other issues with rST are of course unresolved, but some might be solved by implementing custom rST directives (which is a supported extension mechanism).
 
 Patch follows:
 
