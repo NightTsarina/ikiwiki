@@ -18,15 +18,19 @@ __licence__ = 'GPLv2'
 from docutils.core import publish_parts;
 from proxy import IkiWikiProcedureProxy
 
-def rst2html(proxy, *kwargs):
-    # FIXME arguments should be treated as a hash, the order could change
-    # at any time and break this.
-    parts = publish_parts(kwargs[3], writer_name='html',
+def rst2html(proxy, *args):
+    kwargs = _to_dict(args)
+    parts = publish_parts(kwargs["content"],
+                          writer_name="html",
                           settings_overrides = { 'halt_level': 6
                                                , 'file_insertion_enabled': 0
                                                , 'raw_enabled': 1
                                                })
     return '\n'.join(parts['html_body'].splitlines()[1:-1])
+
+def _to_dict(args):
+    # args is a list paired by key, value, so we turn it into a dict
+    return dict((k, v) for k, v in zip(*[iter(args)]*2))
 
 def getsetup(proxy, *kwargs):
     return 'plugin', { 'safe' : 1, 'rebuild' : 1 }
