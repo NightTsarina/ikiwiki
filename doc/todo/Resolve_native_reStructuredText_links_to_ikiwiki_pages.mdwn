@@ -14,6 +14,12 @@ The page is rST-parsed once in 'scan' and once in 'htmlize' (the first to genera
 > at scan time, you could reuse the cached data at htmlize time for inputs
 > that are the same -- but that could be a very big cache! --[[Joey]] 
 
+>> I would propose using a simple heuristic: If you see `[[` anywhere on the
+>> page, don't cache it. It would be an effective cache for pure-rst wikis
+>> (without any ikiwiki directives or wikilinks).
+>> However, I think that if the cache does not work for a big load, it should
+>> not work at all; small loads are small so they don't matter. --ulrik
+
 Desing issues in general:
 
 We resolve rST links without definition, we don't help resolving defined relative links, so we don't support specifying link name and target separately.
