@@ -23,8 +23,15 @@ tie together wiki of rst documents.
    **Proposal 2**.
 
         This is a simple wiki page, with :wiki:`WikiLinks` and other_ links
-	
+        
         .. _other: wiki:wikilink
+
+        We can get rid of the role part as well for WikiLinks::
+        
+            .. default-role:: wiki
+        
+        Enables `WikiLinks` but does not impact references such as ``other``
+        This can be made the default for ikiwiki.
 
 Benefits of using a `:role:` and a `wiki: page/subpage` URL scheme are
 following:
