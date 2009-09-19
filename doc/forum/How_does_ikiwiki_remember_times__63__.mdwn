@@ -96,11 +96,13 @@ Do I have it right?
     set +x
     
     for FILE in **/*(.); do
-      TIMES="`git log --follow  --pretty=format:%ai $FILE`"
+      TIMES="`git log --pretty=format:%ai $FILE`"
       MTIME="`echo $TIMES | head -n1`"
     
-      echo  touch -m -d "$MTIME" $FILE
-      touch -m -d "$MTIME" $FILE
+      if [ ! -z $MTIME ]; then
+        echo  touch -m -d "$MTIME" $FILE
+        touch -m -d "$MTIME" $FILE
+      fi
     
     done
 
