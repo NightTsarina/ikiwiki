@@ -89,7 +89,7 @@ Do I have it right?
 >>>>> -- [[Jon]]
 
 > A quick workaround for me to get modification times right is the following
-> little zsh script, which unfortynately only works for git:
+> little zsh script, which unfortunately only works for git:
 
     #!/usr/bin/env zsh
     
@@ -97,7 +97,6 @@ Do I have it right?
     
     for FILE in **/*(.); do
       TIMES="`git log --follow  --pretty=format:%ai $FILE`"
-      #CTIME="`echo $TIMES | tail -n1`"
       MTIME="`echo $TIMES | head -n1`"
     
       echo  touch -m -d "$MTIME" $FILE
