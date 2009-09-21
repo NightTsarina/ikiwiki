@@ -2,12 +2,14 @@ _NB! this page has been refactored, hopefully it is clearer now_
 _I propose putting discussion posts somewhere in the vincity of
 the secttion Individual reStructuredText Issues_
 
+## Design ##
+
 **Goal**
 
 To be able to use rst as a first-class markup language in ikiwiki. I think
 most believe this is almost impossible (ikiwiki is built around markdown).
 
-**Design**
+## Wikilinks ##
 
 **WikiLinks**, first and foremost, are needed for a wiki. rST already allows
 specifying absolue and relative URL links, and relative links can be used to
@@ -44,9 +46,37 @@ following:
 
         .. role:: wiki (title)
 
-*Implementation* there is no implementation of Proposal 2 but it should be
-doable; adding a local role is trivial. Rewriting `wiki:` links could be
-done in the format phase(?).
+### Implementation ###
+
+Implementation of Proposal-2 wikilinks are in the branch
+[rst-wikilinks][rst-wl]
+
+
+        This is a simple wiki page, with :wiki:`WikiLinks` and |named| links
+        
+        .. |named| wiki:: Some Page
+
+        We can get rid of the role part as well for WikiLinks::
+        
+            .. default-role:: wiki
+        
+        Enables `WikiLinks` but does not impact references such as ``named``
+        This can be made the default for ikiwiki.
+
+[rst-wl]: http://github.com/engla/ikiwiki/commits/rst-wikilinks
+
+On top of **rst-wikilinks** is [rst-customize][rst-custom] which adds two
+power user features: Global (python) file to read in custom directives
+(unsafe), and a wikifile as "header" file for all parsed .rst files (safe,
+but disruptive since all .rst depend on it). Well, the customizations have
+to be picked and chosen from this, but at least the global python file can
+be very convenient.
+
+Some rst-custom [examples are here](http://kaizer.se/wiki/rst_examples/)
+
+[rst-custom]: http://github.com/engla/ikiwiki/commits/rst-customize
+
+## Directives ##
 
 Now **Directives**: As it is now, ikiwiki goes though (roughly):
 filter, preprocess, htmlize, format as major stages of content
@@ -74,8 +104,13 @@ picture before it.
       but rST directives allow a direct line (after :: on first line),
       an option list, and a content block.
 
+### Implementation ###
 
-**Discussion**
+Preserving indents in the preprocessor are in branch [pproc-indent][ppi]
+
+[ppi]: http://github.com/engla/ikiwiki/commits/pproc-indent
+
+## Discussion ##
 
 I guess you (or someone) has been through this before and knows why it
 simply won't work. But I hoped there was something original in the above;
@@ -86,15 +121,8 @@ and I know there are wiki installations where rST works. --ulrik
 * We resolve rST links without definition, we don't help resolving defined
   relative links, so we don't support specifying link name and target
   separately.
-
-> I found out this is possible by using rST subsitutions. So to do [[Version history...|releases]]
-> you would use:
-> 
-> `|releases|_`  
-> `.. |releases| replace:: Version history...`  
-> Which does not seem to have an inline equivalent. Using non-resolved links there is the alternative:
->
-> ``Version history <releases/>`_`. --ulrik [kaizer.se]
+  
+  * Resolved by |replacement| links with the wiki:: directive.
 
 **A first implementation: Resolving unmatched links**
 
@@ -119,110 +147,3 @@ The page is rST-parsed once in 'scan' and once in 'htmlize' (the first to genera
 >> However, I think that if the cache does not work for a big load, it should
 >> not work at all; small loads are small so they don't matter. --ulrik
 
-Patch follows:
-
-----
-<pre>
-	From 486fd79e520da1d462f00f40e7a90ab07e9c6fdf Mon Sep 17 00:00:00 2001
-	From: Ulrik Sverdrup <ulrik.sverdrup@gmail.com>
-	Date: Thu, 17 Sep 2009 15:18:50 +0200
-	Subject: [PATCH] rst: Resolve native reStructuredText links to ikiwiki pages
-
-	Links in rST use syntax `Like This`_ or OneWordLink_, and are
-	generally used for relative or absolue links, with an auxiliary
-	definition:
-
-	.. _`Like This`: http://ikiwiki.info
-	.. _OneWordLink: relative
-
-	We can hook into docutils to resolve unresolved links so that rST
-	links without definition can be resolved to wiki pages. This enables
-	WikiLink_ to link to [[WikiLink]] (if no .. _WikiLink is specified).
-
-	Comparing to Ikiwiki's wikilinks
-
-	[[blogging|blog]] specifies a link to the page blog, with the name
-	blogging. In rST we should use blogging_
-
-	.. _blogging: blog
-
-	*However*, note that this patch does not hook into this. What we
-	resolve in this patch is finding the appropriate "_blogging" if it is
-	not found, not resolving the address 'blog'.
-	---
-	 plugins/rst |   46 +++++++++++++++++++++++++++++++++++++++++-----
-	 1 files changed, 41 insertions(+), 5 deletions(-)
-
-	diff --git a/plugins/rst b/plugins/rst
-	index a2d07eb..a74baa8 100755
-	--- a/plugins/rst
-	+++ b/plugins/rst
-	@@ -6,22 +6,58 @@
-	 # based a little bit on rst.pm by Sergio Talens-Oliag, but only a little bit. :)
-	 #
-	 # Copyright © martin f. krafft <madduck@madduck.net>
-	+# Copyright © Ulrik Sverdrup <ulrik.sverdrup@gmail.com>, 2009
-	+#
-	 # Released under the terms of the GNU GPL version 2
-	 #
-	+
-	 __name__ = 'rst'
-	 __description__ = 'xml-rpc-based ikiwiki plugin to process RST files'
-	-__version__ = '0.3'
-	+__version__ = '0.3+'
-	 __author__ = 'martin f. krafft <madduck@madduck.net>'
-	 __copyright__ = 'Copyright © ' + __author__
-	 __licence__ = 'GPLv2'
-	 
-	 from docutils.core import publish_parts;
-	+from docutils.writers import html4css1
-	 from proxy import IkiWikiProcedureProxy
-	 
-	-def rst2html(proxy, *kwargs):
-	-    # FIXME arguments should be treated as a hash, the order could change
-	-    # at any time and break this.
-	-    parts = publish_parts(kwargs[3], writer_name='html',
-	+class IkiwikiWriter(html4css1.Writer):
-	+    def resolve_node(self, node):
-	+        refname = node.get('refname', None)
-	+        if not refname:
-	+            return False
-	+
-	+        bestlink = self.proxy.rpc('bestlink', self.page, refname)
-	+
-	+        node.resolved = 1
-	+        node['class'] = 'wiki'
-	+        del node['refname']
-	+
-	+        if not bestlink:
-	+            rel_url = "#"
-	+        else:
-	+            rel_url = self.proxy.rpc('urlto', bestlink, self.page)
-	+            self.proxy.rpc('add_link', self.page, bestlink)
-	+        node['refuri'] = rel_url
-	+        self.proxy.rpc('debug', "Emitting link %s => %s" % (refname, rel_url))
-	+        return True
-	+
-	+    resolve_node.priority = 1
-	+
-	+    def __init__(self, proxy, page):
-	+        html4css1.Writer.__init__(self)
-	+        self.proxy = proxy
-	+        self.page = page
-	+        self.unknown_reference_resolvers = (self.resolve_node, )
-	+
-	+def rst2html(proxy, *args):
-	+    # args is a list paired by key, value, so we turn it into a dict
-	+    kwargs = dict((k, v) for k, v in zip(*[iter(args)]*2))
-	+    page = kwargs['page']
-	+
-	+    parts = publish_parts(kwargs['content'],
-	+                          writer=IkiwikiWriter(proxy, page),
-	                           settings_overrides = { 'halt_level': 6
-	                                                , 'file_insertion_enabled': 0
-	                                                , 'raw_enabled': 1
-	-- 
-	1.6.4
-
-</pre>
-----
