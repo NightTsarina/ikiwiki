@@ -65,6 +65,11 @@ Implementation of Proposal-2 wikilinks are in the branch
 
 [rst-wl]: http://github.com/engla/ikiwiki/commits/rst-wikilinks
 
+**rst-wikilinks** patch series includes changes at the end to use ikiwiki's
+'htmllink' for the links (which is the only sane thing to do to work in all configurations).
+This means a :wiki:`Link` should render just exactly like [[Link]] whether
+the target exists or not.
+
 On top of **rst-wikilinks** is [rst-customize][rst-custom] which adds two
 power user features: Global (python) file to read in custom directives
 (unsafe), and a wikifile as "header" file for all parsed .rst files (safe,
@@ -75,10 +80,6 @@ be very convenient.
 Some rst-custom [examples are here](http://kaizer.se/wiki/rst_examples/)
 
 [rst-custom]: http://github.com/engla/ikiwiki/commits/rst-customize
-
-**What is missing?** links to nonexistant pages are not resolved.
-Perhaps the "link resolver" part should use Ikiwiki's htmllink instead
-of its simple subsitutions.
 
 ## Directives ##
 
