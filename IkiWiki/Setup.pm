@@ -20,8 +20,9 @@ sub load ($) {
 	my $code;
 	{
 		local $/=undef;
-		$code=<IN>;
+		$code=<IN> || error("$setup: $!");
 	}
+	
 	($code)=$code=~/(.*)/s;
 	close IN;
 
