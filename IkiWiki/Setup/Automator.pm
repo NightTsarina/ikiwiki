@@ -24,15 +24,20 @@ sub prettydir ($) {
 	return $dir;
 }
 
+sub sanitize_wikiname ($) {
+	my $wikiname=shift;
+
+	# Sanitize this to avoid problimatic directory names.
+	$wikiname=~s/[^-A-Za-z0-9_]//g;
+	if (! length $wikiname) {
+		error gettext("you must enter a wikiname (that contains alphanumerics)");
+	}
+	return $wikiname;
+}
+
 sub import (@) {
 	my $this=shift;
 	IkiWiki::Setup::merge({@_});
-
-	# Sanitize this to avoid problimatic directory names.
-	$config{wikiname}=~s/[^-A-Za-z0-9_]//g;
-	if (! length $config{wikiname}) {
-		error gettext("you must enter a wikiname (that contains alphanumerics)");
-	}
 
 	# Avoid overwriting any existing files.
 	foreach my $key (qw{srcdir destdir repository dumpsetup}) {
