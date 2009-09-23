@@ -9,9 +9,7 @@ use open qw{:utf8 :std};
 
 sub import {
 	hook(type => "getsetup", id => "otl", call => \&getsetup);
-	hook(type => "filter", id => "otl", call => \&filter);
 	hook(type => "htmlize", id => "otl", call => \&htmlize);
-
 }
 
 sub getsetup () {
@@ -22,22 +20,16 @@ sub getsetup () {
 		},
 }
 
-sub filter (@) {
+sub htmlize (@) {
 	my %params=@_;
-        
-	# Munge up check boxes to look a little bit better. This is a hack.
+	
+	# Munge up check boxes to look a little bit better.
 	my $checked=htmllink($params{page}, $params{page},
 		"smileys/star_on.png", linktext => "[X]");
 	my $unchecked=htmllink($params{page}, $params{page},
 		"smileys/star_off.png", linktext => "[_]");
 	$params{content}=~s/^(\s*)\[X\]\s/${1}$checked /mg;
 	$params{content}=~s/^(\s*)\[_\]\s/${1}$unchecked /mg;
-        
-	return $params{content};
-}
-
-sub htmlize (@) {
-	my %params=@_;
 
 	# Can't use open2 since otl2html doesn't play nice with buffering.
 	# Instead, fork off a child process that will run otl2html and feed
