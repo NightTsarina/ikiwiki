@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.14159\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-30 15:25-0400\n"
+"POT-Creation-Date: 2009-09-24 18:53-0400\n"
 "PO-Revision-Date: 2009-07-23 01:07+0100\n"
 "Last-Translator: Kurt Gramlich <kurt@skolelinux.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -32,7 +32,7 @@ msgid "login failed, perhaps you need to turn on cookies?"
 msgstr ""
 "Anmeldung fehlgeschlagen, möglicherweise müssen Sie zuvor Cookies aktivieren?"
 
-#: ../IkiWiki/CGI.pm:168 ../IkiWiki/CGI.pm:299
+#: ../IkiWiki/CGI.pm:168 ../IkiWiki/CGI.pm:313
 msgid "Your login session has expired."
 msgstr "Ihre Anmeldezeit ist abgelaufen."
 
@@ -52,11 +52,11 @@ msgstr "Administrator"
 msgid "Preferences saved."
 msgstr "Einstellungen gespeichert."
 
-#: ../IkiWiki/CGI.pm:262
+#: ../IkiWiki/CGI.pm:277
 msgid "You are banned."
 msgstr "Sie sind ausgeschlossen worden."
 
-#: ../IkiWiki/CGI.pm:390 ../IkiWiki/CGI.pm:391 ../IkiWiki.pm:1269
+#: ../IkiWiki/CGI.pm:404 ../IkiWiki/CGI.pm:405 ../IkiWiki.pm:1277
 msgid "Error"
 msgstr "Fehler"
 
@@ -137,7 +137,7 @@ msgstr "erstelle neue Seite %s"
 msgid "deleting bucket.."
 msgstr "lösche Behälter (bucket)..."
 
-#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:210
+#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:206
 msgid "done"
 msgstr "fertig"
 
@@ -347,18 +347,18 @@ msgstr "Kann die Seiten nicht zuordnen: %s"
 msgid "%s is an attachment, not a page."
 msgstr "Seite %s kann nicht bearbeitet werden"
 
-#: ../IkiWiki/Plugin/git.pm:626 ../IkiWiki/Plugin/git.pm:644
-#: ../IkiWiki/Receive.pm:129
+#: ../IkiWiki/Plugin/git.pm:645 ../IkiWiki/Plugin/git.pm:663
+#: ../IkiWiki/Receive.pm:130
 #, perl-format
 msgid "you are not allowed to change %s"
 msgstr "Sie dürfen %s nicht verändern"
 
-#: ../IkiWiki/Plugin/git.pm:666
+#: ../IkiWiki/Plugin/git.pm:685
 #, perl-format
 msgid "you cannot act on a file with mode %s"
 msgstr "Sie können eine Datei mit den Zugriffsrechten %s nicht nutzen"
 
-#: ../IkiWiki/Plugin/git.pm:670
+#: ../IkiWiki/Plugin/git.pm:689
 msgid "you are not allowed to change file modes"
 msgstr "Sie dürfen die Zugriffsrechte der Datei nicht ändern"
 
@@ -878,6 +878,16 @@ msgstr "benenne %s in %s um"
 msgid "update for rename of %s to %s"
 msgstr "aktualisiert zum Umbenennen von %s nach %s"
 
+#: ../IkiWiki/Plugin/rsync.pm:37
+#, fuzzy, perl-format
+msgid "failed to execute rsync_command: %s"
+msgstr "lesen von %s fehlgeschlagen"
+
+#: ../IkiWiki/Plugin/rsync.pm:40
+#, perl-format
+msgid "rsync_command exited %d"
+msgstr ""
+
 #: ../IkiWiki/Plugin/search.pm:182
 #, perl-format
 msgid "need Digest::SHA1 to index %s"
@@ -1025,13 +1035,13 @@ msgstr ""
 "Fehler: %s endet mit nicht Null (%s). Die Änderungen an der Konfiguration "
 "wurden verworfen."
 
-#: ../IkiWiki/Receive.pm:35
+#: ../IkiWiki/Receive.pm:34
 #, perl-format
 msgid "cannot determine id of untrusted committer %s"
 msgstr ""
 "id des nicht vertrauenswürdigen Absenders %s konnte nicht feststellt werden"
 
-#: ../IkiWiki/Receive.pm:85
+#: ../IkiWiki/Receive.pm:86
 #, perl-format
 msgid "bad file name %s"
 msgstr "fehlerhafter Dateiname %s"
@@ -1097,21 +1107,21 @@ msgstr "ikiwiki: kann %s nicht erzeugen"
 msgid "cannot read %s: %s"
 msgstr "kann %s nicht lesen: %s"
 
-#: ../IkiWiki/Setup/Automator.pm:34
+#: ../IkiWiki/Setup/Automator.pm:33
 msgid "you must enter a wikiname (that contains alphanumerics)"
 msgstr ""
 "Sie müssen einen Wiki-Namen eingeben (der alphanumerische Zeichen enthält)"
 
-#: ../IkiWiki/Setup/Automator.pm:71
+#: ../IkiWiki/Setup/Automator.pm:76
 #, perl-format
 msgid "unsupported revision control system %s"
 msgstr "nicht unterstütztes Versionskontrollsystem %s"
 
-#: ../IkiWiki/Setup/Automator.pm:97
+#: ../IkiWiki/Setup/Automator.pm:102
 msgid "failed to set up the repository with ikiwiki-makerepo"
 msgstr "erstellen des Depots mit ikiwiki-makerepo ist fehlgeschlagen"
 
-#: ../IkiWiki/Setup/Automator.pm:115
+#: ../IkiWiki/Setup/Automator.pm:120
 #, perl-format
 msgid "** Disabling plugin %s, since it is failing with this message:"
 msgstr ""
@@ -1132,13 +1142,13 @@ msgid "wrapper filename not specified"
 msgstr "Dateiname des Wrappers nicht angegeben"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:152
+#: ../IkiWiki/Wrapper.pm:148
 #, perl-format
 msgid "failed to compile %s"
 msgstr "erzeugen von %s fehlgeschlagen"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:172
+#: ../IkiWiki/Wrapper.pm:168
 #, perl-format
 msgid "successfully generated %s"
 msgstr "%s wurde erfolgreich erstellt"
@@ -1159,44 +1169,44 @@ msgstr "Aufruf: --set Variable=Wert"
 msgid "generating wrappers.."
 msgstr "erzeuge Wrapper.."
 
-#: ../ikiwiki.in:199
+#: ../ikiwiki.in:195
 msgid "rebuilding wiki.."
 msgstr "erzeuge Wiki neu.."
 
-#: ../ikiwiki.in:202
+#: ../ikiwiki.in:198
 msgid "refreshing wiki.."
 msgstr "aktualisiere Wiki.."
 
-#: ../IkiWiki.pm:225
+#: ../IkiWiki.pm:233
 msgid "Discussion"
 msgstr "Diskussion"
 
-#: ../IkiWiki.pm:494
+#: ../IkiWiki.pm:502
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr ""
 "Es muss eine URL zum Wiki mit --url angegeben werden, wenn --cgi verwandt "
 "wird"
 
-#: ../IkiWiki.pm:540
+#: ../IkiWiki.pm:548
 msgid "cannot use multiple rcs plugins"
 msgstr ""
 "Es können nicht mehrere Versionskontrollsystem-Erweiterungen verwandt werden"
 
-#: ../IkiWiki.pm:569
+#: ../IkiWiki.pm:577
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr "Laden der für %s benötigten externen Erweiterung fehlgeschlagen: %s"
 
-#: ../IkiWiki.pm:1251
+#: ../IkiWiki.pm:1259
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "Präprozessorschleife auf %s in Tiefe %i erkannt"
 
-#: ../IkiWiki.pm:1808
+#: ../IkiWiki.pm:1817
 msgid "yes"
 msgstr "ja"
 
-#: ../IkiWiki.pm:1932
+#: ../IkiWiki.pm:1941
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "Kann die Seiten nicht zuordnen: %s"
@@ -1209,15 +1219,15 @@ msgstr "Wie soll das Wiki heißen?"
 msgid "wiki"
 msgstr "Wiki"
 
-#: ../auto.setup:18
+#: ../auto.setup:19
 msgid "What revision control system to use?"
 msgstr "Welches Versionskontrollsystem soll verwandt werden?"
 
-#: ../auto.setup:20
+#: ../auto.setup:21
 msgid "Which user (wiki account or openid) will be admin?"
 msgstr "Wer (Wiki-Konto oder OpenID) soll Administrator sein?"
 
-#: ../auto.setup:23
+#: ../auto.setup:24
 msgid "What is the domain name of the web server?"
 msgstr "Wie lautet der Domainname des Webservers?"
 

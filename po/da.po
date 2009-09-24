@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.14159\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-30 15:25-0400\n"
+"POT-Creation-Date: 2009-09-24 18:53-0400\n"
 "PO-Revision-Date: 2009-07-23 01:07+0200\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
@@ -35,7 +35,7 @@ msgstr ""
 msgid "login failed, perhaps you need to turn on cookies?"
 msgstr "Pålogning mislykkedes, måske skal du tillade infokager (cookies)?"
 
-#: ../IkiWiki/CGI.pm:168 ../IkiWiki/CGI.pm:299
+#: ../IkiWiki/CGI.pm:168 ../IkiWiki/CGI.pm:313
 msgid "Your login session has expired."
 msgstr "Din kørsel (login session) er udløbet"
 
@@ -55,11 +55,11 @@ msgstr "Admin"
 msgid "Preferences saved."
 msgstr "Indstillinger gemt"
 
-#: ../IkiWiki/CGI.pm:262
+#: ../IkiWiki/CGI.pm:277
 msgid "You are banned."
 msgstr "Du er banlyst."
 
-#: ../IkiWiki/CGI.pm:390 ../IkiWiki/CGI.pm:391 ../IkiWiki.pm:1269
+#: ../IkiWiki/CGI.pm:404 ../IkiWiki/CGI.pm:405 ../IkiWiki.pm:1277
 msgid "Error"
 msgstr "Fejl"
 
@@ -140,7 +140,7 @@ msgstr "opretter ny side %s"
 msgid "deleting bucket.."
 msgstr "sletter bundt.."
 
-#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:210
+#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:206
 msgid "done"
 msgstr "færdig"
 
@@ -349,18 +349,18 @@ msgstr "kan ikke få sider til at passe sammen: %s"
 msgid "%s is an attachment, not a page."
 msgstr "%s er ikke en redigérbar side"
 
-#: ../IkiWiki/Plugin/git.pm:626 ../IkiWiki/Plugin/git.pm:644
-#: ../IkiWiki/Receive.pm:129
+#: ../IkiWiki/Plugin/git.pm:645 ../IkiWiki/Plugin/git.pm:663
+#: ../IkiWiki/Receive.pm:130
 #, perl-format
 msgid "you are not allowed to change %s"
 msgstr "Du har ikke lov til at ændre %s"
 
-#: ../IkiWiki/Plugin/git.pm:666
+#: ../IkiWiki/Plugin/git.pm:685
 #, perl-format
 msgid "you cannot act on a file with mode %s"
 msgstr "du kan ikke påvirke en fil med modus %s"
 
-#: ../IkiWiki/Plugin/git.pm:670
+#: ../IkiWiki/Plugin/git.pm:689
 msgid "you are not allowed to change file modes"
 msgstr "du har ikke lov til at ændre modus for filer"
 
@@ -872,6 +872,16 @@ msgstr "omdøb %s til %s"
 msgid "update for rename of %s to %s"
 msgstr "opdatering til omdøbning af %s til %s"
 
+#: ../IkiWiki/Plugin/rsync.pm:37
+#, fuzzy, perl-format
+msgid "failed to execute rsync_command: %s"
+msgstr "læsning af %s mislykkedes"
+
+#: ../IkiWiki/Plugin/rsync.pm:40
+#, perl-format
+msgid "rsync_command exited %d"
+msgstr ""
+
 #: ../IkiWiki/Plugin/search.pm:182
 #, perl-format
 msgid "need Digest::SHA1 to index %s"
@@ -1017,12 +1027,12 @@ msgstr ""
 msgid "Error: %s exited nonzero (%s). Discarding setup changes."
 msgstr "Fejl: %s returnerede ikke-nul (%s). Dropper opsætningsændringer."
 
-#: ../IkiWiki/Receive.pm:35
+#: ../IkiWiki/Receive.pm:34
 #, perl-format
 msgid "cannot determine id of untrusted committer %s"
 msgstr "kan ikke afgøre id for ikke-tillidsfulde skribent %s"
 
-#: ../IkiWiki/Receive.pm:85
+#: ../IkiWiki/Receive.pm:86
 #, perl-format
 msgid "bad file name %s"
 msgstr "dårligt filnavn %s"
@@ -1088,20 +1098,20 @@ msgstr "ikiwiki: kan ikke danne %s"
 msgid "cannot read %s: %s"
 msgstr "kan ikke læse %s: %s"
 
-#: ../IkiWiki/Setup/Automator.pm:34
+#: ../IkiWiki/Setup/Automator.pm:33
 msgid "you must enter a wikiname (that contains alphanumerics)"
 msgstr "du skal angive et wikinavn (som indeholder alfanumeriske tegn)"
 
-#: ../IkiWiki/Setup/Automator.pm:71
+#: ../IkiWiki/Setup/Automator.pm:76
 #, perl-format
 msgid "unsupported revision control system %s"
 msgstr "revisionskontrolsystem %s ikke understøttet"
 
-#: ../IkiWiki/Setup/Automator.pm:97
+#: ../IkiWiki/Setup/Automator.pm:102
 msgid "failed to set up the repository with ikiwiki-makerepo"
 msgstr "opsætning af depotet med ikiwiki-makerepo mislykkedes"
 
-#: ../IkiWiki/Setup/Automator.pm:115
+#: ../IkiWiki/Setup/Automator.pm:120
 #, perl-format
 msgid "** Disabling plugin %s, since it is failing with this message:"
 msgstr "** Deaktiverer udvidelse %s, da den fejler med denne besked:"
@@ -1120,13 +1130,13 @@ msgid "wrapper filename not specified"
 msgstr "wrapper-navn ikke angivet"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:152
+#: ../IkiWiki/Wrapper.pm:148
 #, perl-format
 msgid "failed to compile %s"
 msgstr "kompilering af %s mislykkedes"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:172
+#: ../IkiWiki/Wrapper.pm:168
 #, perl-format
 msgid "successfully generated %s"
 msgstr "Korrekt bygget %s"
@@ -1147,42 +1157,42 @@ msgstr "brug: --set var=værdi"
 msgid "generating wrappers.."
 msgstr "bygger wrappers.."
 
-#: ../ikiwiki.in:199
+#: ../ikiwiki.in:195
 msgid "rebuilding wiki.."
 msgstr "genopbygger wiki..."
 
-#: ../ikiwiki.in:202
+#: ../ikiwiki.in:198
 msgid "refreshing wiki.."
 msgstr "genopfrisker wiki..."
 
-#: ../IkiWiki.pm:225
+#: ../IkiWiki.pm:233
 msgid "Discussion"
 msgstr "Diskussion"
 
-#: ../IkiWiki.pm:494
+#: ../IkiWiki.pm:502
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr "Skal angive url til wiki med --url når der bruges --cgi"
 
-#: ../IkiWiki.pm:540
+#: ../IkiWiki.pm:548
 msgid "cannot use multiple rcs plugins"
 msgstr "kan ikke bruge flere samtidige RCS-udvidelser"
 
-#: ../IkiWiki.pm:569
+#: ../IkiWiki.pm:577
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr ""
 "indlæsning af ekstern udvidelse krævet af udvidelsen %s mislykkedes: %s"
 
-#: ../IkiWiki.pm:1251
+#: ../IkiWiki.pm:1259
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "forudberegningssløkke fundet på %s ved dybde %i"
 
-#: ../IkiWiki.pm:1808
+#: ../IkiWiki.pm:1817
 msgid "yes"
 msgstr "ja"
 
-#: ../IkiWiki.pm:1932
+#: ../IkiWiki.pm:1941
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "kan ikke få sider til at passe sammen: %s"
@@ -1195,15 +1205,15 @@ msgstr "Hvad skal wikien hedde?"
 msgid "wiki"
 msgstr "wiki"
 
-#: ../auto.setup:18
+#: ../auto.setup:19
 msgid "What revision control system to use?"
 msgstr "Hvilket revisionskontrolsystem skal bruges?"
 
-#: ../auto.setup:20
+#: ../auto.setup:21
 msgid "Which user (wiki account or openid) will be admin?"
 msgstr "Hvilken bruger (wiki konto eller openid) skal være administrator?"
 
-#: ../auto.setup:23
+#: ../auto.setup:24
 msgid "What is the domain name of the web server?"
 msgstr "Hvad er webserverens domænenavn?"
 

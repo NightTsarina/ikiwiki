@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-08-30 15:25-0400\n"
+"POT-Creation-Date: 2009-09-24 18:53-0400\n"
 "PO-Revision-Date: 2009-09-11 20:23+0200\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
@@ -24,14 +24,14 @@ msgid ""
 "probable misconfiguration: sslcookie is set, but you are attempting to login "
 "via http, not https"
 msgstr ""
-"pravděpodobná chyba konfigurace: je nastavena proměnná sslcookie, ale E"
-"zkoušíte se přihlásit přes http a ne přes https"
+"pravděpodobná chyba konfigurace: je nastavena proměnná sslcookie, ale "
+"Ezkoušíte se přihlásit přes http a ne přes https"
 
 #: ../IkiWiki/CGI.pm:149
 msgid "login failed, perhaps you need to turn on cookies?"
 msgstr "přihlášení selhalo; možná si musíte povolit cookies?"
 
-#: ../IkiWiki/CGI.pm:168 ../IkiWiki/CGI.pm:299
+#: ../IkiWiki/CGI.pm:168 ../IkiWiki/CGI.pm:313
 msgid "Your login session has expired."
 msgstr "Vaše sezení expirovalo."
 
@@ -51,11 +51,11 @@ msgstr "Správce"
 msgid "Preferences saved."
 msgstr "Nastavení uloženo."
 
-#: ../IkiWiki/CGI.pm:262
+#: ../IkiWiki/CGI.pm:277
 msgid "You are banned."
 msgstr "Jste vyhoštěni."
 
-#: ../IkiWiki/CGI.pm:390 ../IkiWiki/CGI.pm:391 ../IkiWiki.pm:1269
+#: ../IkiWiki/CGI.pm:404 ../IkiWiki/CGI.pm:405 ../IkiWiki.pm:1277
 msgid "Error"
 msgstr "Chyba"
 
@@ -136,7 +136,7 @@ msgstr "vytvářím novou stránku %s"
 msgid "deleting bucket.."
 msgstr "mažu bucket..."
 
-#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:210
+#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:206
 msgid "done"
 msgstr "hotovo"
 
@@ -341,18 +341,18 @@ msgstr "není stránkou"
 msgid "%s is an attachment, not a page."
 msgstr "%s není ani příloha, ani stránka."
 
-#: ../IkiWiki/Plugin/git.pm:626 ../IkiWiki/Plugin/git.pm:644
-#: ../IkiWiki/Receive.pm:129
+#: ../IkiWiki/Plugin/git.pm:645 ../IkiWiki/Plugin/git.pm:663
+#: ../IkiWiki/Receive.pm:130
 #, perl-format
 msgid "you are not allowed to change %s"
 msgstr "nejste oprávněni měnit %s"
 
-#: ../IkiWiki/Plugin/git.pm:666
+#: ../IkiWiki/Plugin/git.pm:685
 #, perl-format
 msgid "you cannot act on a file with mode %s"
 msgstr "nemůžete pracovat se souborem s přístupovým oprávněními %s"
 
-#: ../IkiWiki/Plugin/git.pm:670
+#: ../IkiWiki/Plugin/git.pm:689
 msgid "you are not allowed to change file modes"
 msgstr "nejste oprávněni měnit přístupová oprávnění souborů"
 
@@ -612,8 +612,8 @@ msgid ""
 "Can not remove a translation. If the master page is removed, however, its "
 "translations will be removed as well."
 msgstr ""
-"Nemohu odstranit překlad. Nicméně pokud bude odstraněna hlavní stránka, budou "
-"odstraněny také její překlady."
+"Nemohu odstranit překlad. Nicméně pokud bude odstraněna hlavní stránka, "
+"budou odstraněny také její překlady."
 
 #: ../IkiWiki/Plugin/po.pm:470
 msgid ""
@@ -857,6 +857,16 @@ msgstr "přejmenování %s na %s"
 msgid "update for rename of %s to %s"
 msgstr "aktualizace pro přejmenování %s na %s"
 
+#: ../IkiWiki/Plugin/rsync.pm:37
+#, fuzzy, perl-format
+msgid "failed to execute rsync_command: %s"
+msgstr "nepodařilo se přečíst %s"
+
+#: ../IkiWiki/Plugin/rsync.pm:40
+#, perl-format
+msgid "rsync_command exited %d"
+msgstr ""
+
 #: ../IkiWiki/Plugin/search.pm:182
 #, perl-format
 msgid "need Digest::SHA1 to index %s"
@@ -999,14 +1009,15 @@ msgstr ""
 #, perl-format
 msgid "Error: %s exited nonzero (%s). Discarding setup changes."
 msgstr ""
-"Chyba: %s skončil s nenulovým návratovým kódem (%s). Ruším změny v konfiguraci"
+"Chyba: %s skončil s nenulovým návratovým kódem (%s). Ruším změny v "
+"konfiguraci"
 
-#: ../IkiWiki/Receive.pm:35
+#: ../IkiWiki/Receive.pm:34
 #, perl-format
 msgid "cannot determine id of untrusted committer %s"
 msgstr "nemohu určit identitu nedůvěryhodného uživatele %s"
 
-#: ../IkiWiki/Receive.pm:85
+#: ../IkiWiki/Receive.pm:86
 #, perl-format
 msgid "bad file name %s"
 msgstr "chybné jméno souboru %s"
@@ -1017,8 +1028,8 @@ msgid ""
 "symlink found in srcdir path (%s) -- set allow_symlinks_before_srcdir to "
 "allow this"
 msgstr ""
-"v cestě ke zdrojovému adresáři (%s) byl nalezen symbolický odkaz -- chcete-li "
-"to povolit, nastavte proměnnou allow_symlinks_before_srcdir"
+"v cestě ke zdrojovému adresáři (%s) byl nalezen symbolický odkaz -- chcete-"
+"li to povolit, nastavte proměnnou allow_symlinks_before_srcdir"
 
 #: ../IkiWiki/Render.pm:289 ../IkiWiki/Render.pm:314
 #, perl-format
@@ -1072,20 +1083,20 @@ msgstr "ikiwiki: nelze sestavit %s"
 msgid "cannot read %s: %s"
 msgstr "nemohu číst %s: %s"
 
-#: ../IkiWiki/Setup/Automator.pm:34
+#: ../IkiWiki/Setup/Automator.pm:33
 msgid "you must enter a wikiname (that contains alphanumerics)"
 msgstr "musíte zadat název wiki (který obsahuje alfanumerické znaky)"
 
-#: ../IkiWiki/Setup/Automator.pm:71
+#: ../IkiWiki/Setup/Automator.pm:76
 #, perl-format
 msgid "unsupported revision control system %s"
 msgstr "nepodporovaný systém pro správu verzí: %s"
 
-#: ../IkiWiki/Setup/Automator.pm:97
+#: ../IkiWiki/Setup/Automator.pm:102
 msgid "failed to set up the repository with ikiwiki-makerepo"
 msgstr "nepodařilo se nastavit repositář pomocí ikiwiki-makerepo"
 
-#: ../IkiWiki/Setup/Automator.pm:115
+#: ../IkiWiki/Setup/Automator.pm:120
 #, perl-format
 msgid "** Disabling plugin %s, since it is failing with this message:"
 msgstr "** Deaktivuji modul %s, protože selhává s touto hláškou:"
@@ -1104,13 +1115,13 @@ msgid "wrapper filename not specified"
 msgstr "jméno souboru s obalem nebylo zadáno"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:152
+#: ../IkiWiki/Wrapper.pm:148
 #, perl-format
 msgid "failed to compile %s"
 msgstr "nelze zkompilovat %s"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:172
+#: ../IkiWiki/Wrapper.pm:168
 #, perl-format
 msgid "successfully generated %s"
 msgstr "%s byl úspěšně vytvořen"
@@ -1131,41 +1142,41 @@ msgstr "použití: --set proměnná=hodnota"
 msgid "generating wrappers.."
 msgstr "generuji obaly..."
 
-#: ../ikiwiki.in:199
+#: ../ikiwiki.in:195
 msgid "rebuilding wiki.."
 msgstr "znovusestavuji wiki..."
 
-#: ../ikiwiki.in:202
+#: ../ikiwiki.in:198
 msgid "refreshing wiki.."
 msgstr "obnovuji wiki..."
 
-#: ../IkiWiki.pm:225
+#: ../IkiWiki.pm:233
 msgid "Discussion"
 msgstr "Diskuse"
 
-#: ../IkiWiki.pm:494
+#: ../IkiWiki.pm:502
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr "Při použití --cgi musíte pomocí --url zadat url k wiki"
 
-#: ../IkiWiki.pm:540
+#: ../IkiWiki.pm:548
 msgid "cannot use multiple rcs plugins"
 msgstr "nelze použít několik rcs modulů"
 
-#: ../IkiWiki.pm:569
+#: ../IkiWiki.pm:577
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr "nepodařilo se nahrát externí modul vyžadovaný modulem %s: %s"
 
-#: ../IkiWiki.pm:1251
+#: ../IkiWiki.pm:1259
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "Byla rozpoznána smyčka na %s v hloubce %i"
 
-#: ../IkiWiki.pm:1808
+#: ../IkiWiki.pm:1817
 msgid "yes"
 msgstr "ano"
 
-#: ../IkiWiki.pm:1932
+#: ../IkiWiki.pm:1941
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "nelze vybrat stránky: %s"
@@ -1178,15 +1189,15 @@ msgstr "Jak se bude wiki jmenovat?"
 msgid "wiki"
 msgstr "wiki"
 
-#: ../auto.setup:18
+#: ../auto.setup:19
 msgid "What revision control system to use?"
 msgstr "Který systém pro správu verzí se má použít?"
 
-#: ../auto.setup:20
+#: ../auto.setup:21
 msgid "Which user (wiki account or openid) will be admin?"
 msgstr "Který uživatel (wiki účet nebo openid) bude správce?"
 
-#: ../auto.setup:23
+#: ../auto.setup:24
 msgid "What is the domain name of the web server?"
 msgstr "Jaké je doménové jméno webového serveru?"
 
