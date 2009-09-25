@@ -1,7 +1,53 @@
 thanks for this plugin.  it might help me in my application, which is to provide album/galleries which can be edited (ie. new images added, taken away, etc.) through web interface.
 
+> That's my goal eventually, too. Perhaps you can help to
+> design/write this plugin? At the moment I'm mostly
+> waiting for a design "sanity check" from [[Joey]],
+> but any feedback you can provide on the design would
+> also be helpful. --[[smcv]]
+
 i have two challenges: firstly, for installation, i'm not sure what all the files are that need to be downloaded (because of my setup i can't easily pull the repo).  so far i have Ikiwiki/Plugins/album.pm; ikiwiki-album; and 4 files in templates/  any others?
+
+> Those are all the added files; ikiwiki-album isn't strictly
+> needed (IkiWiki itself doesn't use that code, but you can
+> use it to turn a directory full of images into correct
+> input for the album plugin).
+>
+> You probably also want the album plugin's expanded version of
+> style.css (or put its extra rules in your local.css).
+> Without that, your albums will be quite ugly.
+>
+> There aren't currently any other files modified by my branch.
+> --[[smcv]]
 
 secondly: barring the CGI interface for editing the album, which would be great, is there at least a way to use attachment plugin or any other to manually add images and then create viewers for them?
 
+> Images are just attachments, and viewers are pages (any supported
+> format, but .html will be fastest to render). Attach each image,
+> then write a page for each image containing the
+> \[[!albumimage]] directive (usually it will *only* contain that
+> directive).
+>
+> The script ikiwiki-album can help you to do this in a git/svn/etc.
+> tree; doing it over the web will be a lot of work (until I get
+> the CGI interface written), but it should already be possible!
+>
+> The structure is something like this:
+> 
+> * album.mdwn (contains the \[[!album]] directive, and perhaps also
+>   some \[[!albumsection]] directives)
+> * album/a.jpg
+> * album/a.html (contains the \[[!albumimage]] directive for a.jpg)
+> * album/b.jpg
+> * album/b.html (contains the \[[!albumimage]] directive for b.jpg)
+>
+> Have a look at ikiwiki-album to see how the directives are meant to
+> work in practice.
+>
+> --[[smcv]]
+
 i'm new to ikiwiki, apologies if this is dealt with elsewhere.  -brush
+
+> This plugin is pretty ambitious, and is unfinished, so I'd recommend
+> playing with  a normal IkiWiki installation for a bit, then trying
+> out this plugin when you've mastered the basics of IkiWiki. --[[smcv]]
