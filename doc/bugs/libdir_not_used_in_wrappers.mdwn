@@ -1,0 +1,32 @@
+[[!tag patch wishlist]]
+
+If I install ikiwiki in a user directory (let's say /home/bruno/ikiwiki) with all perl modules (thoses coming from Bundle::Ikiwiki and Bundle::Ikiwiki:Extras) inside that directory (in /home/bruno/ikiwiki/lib/perl5) then the generated CGI wrapper does not work even if I make libdir point to that directory. The error reported explain that wrapper <code>Can't locate IkiWiki.pm in @INC</code>.
+
+This is bad when you try to install Ikiwiki in such a way (everything needed by ikiwiki in one single directory) since ikiwiki is unusable in such case.
+
+Situations where this behavior (everything in one directory) may be wanted include installing latest ikiwiki on Debian stable, Ubuntu or more simply installing it on any hosting provider without root access. 
+
+Here is a simple patch correcting that behavior.
+
+<pre>
+---
+ IkiWiki/Wrapper.pm |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+diff --git a/IkiWiki/Wrapper.pm b/IkiWiki/Wrapper.pm
+index ff110b5..5289966 100644
+--- a/IkiWiki/Wrapper.pm
++++ b/IkiWiki/Wrapper.pm
+@@ -121,6 +121,7 @@ $check_commit_hook
+ $envsave
+        newenviron[i++]="HOME=$ENV{HOME}";
+        newenviron[i++]="WRAPPED_OPTIONS=$configstring";
++       newenviron[i++]="PERL5LIB=$config{libdir}";
+        newenviron[i]=NULL;
+        environ=newenviron;
+ 
+-- 
+1.6.0.4
+</pre>
+
+-- [[/users/bbb]]
