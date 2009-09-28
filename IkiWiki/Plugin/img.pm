@@ -63,8 +63,9 @@ sub preprocess (@) {
 	error gettext("Image::Magick is not installed") if $@;
 	my $im = Image::Magick->new;
 	my $imglink;
-	my $r;
-
+	my $r = $im->Read($srcfile);
+	error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
+	
 	my ($dwidth, $dheight);
 
 	if ($params{size} ne 'full') {
@@ -74,68 +75,70 @@ sub preprocess (@) {
 		error sprintf(gettext('wrong size format "%s" (should be WxH)'), $params{size})
 			unless (defined $w && defined $h &&
 			        (length $w || length $h));
-
-		my $outfile = "$config{destdir}/$dir/${w}x${h}-$base";
-		$imglink = "$dir/${w}x${h}-$base";
 		
-		will_render($params{page}, $imglink);
+		if ((length $w && $w > $im->Get("width")) ||
+		    (length $h && $h > $im->Get("height"))) {
+		    	# resizing larger
+			$imglink = $file;
 
-		if (-e $outfile && (-M $srcfile >= -M $outfile)) {
-			$r = $im->Read($outfile);
-			error sprintf(gettext("failed to read %s: %s"), $outfile, $r) if $r;
+			# don't generate larger image, just set display size
+			if (length $w && length $h) {
+				($dwidth, $dheight)=($w, $h);
+			}
+			# avoid division by zero on 0x0 image
+			elsif ($im->Get("width") == 0 || $im->Get("height") == 0) {
+				($dwidth, $dheight)=(0, 0);
+			}
+			# calculate unspecified size from the other one, preserving
+			# aspect ratio
+			elsif (length $w) {
+				$dwidth=$w;
+				$dheight=$w / $im->Get("width") * $im->Get("height");
+			}
+			elsif (length $h) {
+				$dheight=$h;
+				$dwidth=$h / $im->Get("height") * $im->Get("width");
+			}
 		}
 		else {
-			$r = $im->Read($srcfile);
-			error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
+			# resizing smaller
+			my $outfile = "$config{destdir}/$dir/${w}x${h}-$base";
+			$imglink = "$dir/${w}x${h}-$base";
+		
+			will_render($params{page}, $imglink);
 
-			# don't resize any larger
-			my ($rw, $rh) = ($w, $h);
-			if ((length $rw && $rw > $im->Get("width")) ||
-			    (length $rh && $rh > $im->Get("height"))) {
-				$rw=$im->Get("width");
-				$rh=$im->Get("height");
-			}
-
-			$r = $im->Resize(geometry => "${rw}x${rh}");
-			error sprintf(gettext("failed to resize: %s"), $r) if $r;
-
-			# don't actually write file in preview mode
-			if (! $params{preview}) {
-				my @blob = $im->ImageToBlob();
-				writefile($imglink, $config{destdir}, $blob[0], 1);
+			if (-e $outfile && (-M $srcfile >= -M $outfile)) {
+				$im = Image::Magick->new;
+				$r = $im->Read($outfile);
+				error sprintf(gettext("failed to read %s: %s"), $outfile, $r) if $r;
+		
+				$dwidth = $im->Get("width");
+				$dheight = $im->Get("height");
 			}
 			else {
-				$imglink = $file;
+				($dwidth, $dheight)=($w, $h);
+				$r = $im->Resize(geometry => "${w}x${h}");
+				error sprintf(gettext("failed to resize: %s"), $r) if $r;
+
+				# don't actually write file in preview mode
+				if (! $params{preview}) {
+					my @blob = $im->ImageToBlob();
+					writefile($imglink, $config{destdir}, $blob[0], 1);
+				}
+				else {
+					$imglink = $file;
+				}
 			}
 		}
-
-		# since we don't really resize larger, set the display
-		# size, so the browser can scale the image up if necessary
-		if (length $w && length $h) {
-			($dwidth, $dheight)=($w, $h);
-		}
-		# avoid division by zero on 0x0 image
-		elsif ($im->Get("width") == 0 || $im->Get("height") == 0) {
-			($dwidth, $dheight)=(0, 0);
-		}
-		# calculate unspecified size from the other one, preserving
-		# aspect ratio
-		elsif (length $w) {
-			$dwidth=$w;
-			$dheight=$w / $im->Get("width") * $im->Get("height");
-		}
-		elsif (length $h) {
-			$dheight=$h;
-			$dwidth=$h / $im->Get("height") * $im->Get("width");
-		}
-
 	}
 	else {
-		$r = $im->Read($srcfile);
-		error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 		$imglink = $file;
 		$dwidth = $im->Get("width");
 		$dheight = $im->Get("height");
+	}
+	
+	if (! defined($dwidth) || ! defined($dheight)) {
+		error sprintf(gettext("failed to determine size of image %s"), $file)
 	}
 
 	my ($fileurl, $imgurl);
@@ -146,10 +149,6 @@ sub preprocess (@) {
 	else {
 		$fileurl="$config{url}/$file";
 		$imgurl="$config{url}/$imglink";
-	}
-
-	if (! defined($im->Get("width")) || ! defined($im->Get("height"))) {
-		error sprintf(gettext("failed to determine size of image %s"), $file)
 	}
 
 	my $imgtag='<img src="'.$imgurl.
