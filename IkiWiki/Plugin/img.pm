@@ -44,6 +44,7 @@ sub preprocess (@) {
 	}
 
 	add_link($params{page}, $image);
+	add_depends($params{page}, $image);
 
 	# optimisation: detect scan mode, and avoid generating the image
 	if (! defined wantarray) {
@@ -69,8 +70,6 @@ sub preprocess (@) {
 	my ($dwidth, $dheight);
 
 	if ($params{size} ne 'full') {
-		add_depends($params{page}, $image);
-
 		my ($w, $h) = ($params{size} =~ /^(\d*)x(\d*)$/);
 		error sprintf(gettext('wrong size format "%s" (should be WxH)'), $params{size})
 			unless (defined $w && defined $h &&
