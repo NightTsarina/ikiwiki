@@ -68,7 +68,7 @@ sub format (@) {
 
 	if ($params{content}=~s!(<div class="toggleable(?:-open)?" id="[^"]+">\s*)</div>!$1!g) {
 		$params{content}=~s/<div class="toggleableend">//g;
-		if (! ($params{content}=~s!^(<body>)!$1.include_javascript($params{page})!em)) {
+		if (! ($params{content}=~s!^(<body[^>]*>)!$1.include_javascript($params{page})!em)) {
 			# no </body> tag, probably in preview mode
 			$params{content}=include_javascript($params{page}, 1).$params{content};
 		}
