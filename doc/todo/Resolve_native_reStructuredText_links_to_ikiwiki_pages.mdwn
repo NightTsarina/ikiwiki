@@ -79,6 +79,14 @@ be very convenient.
 
 > Did you consider just including the global rst header text into an item
 > in the setup file? --[[Joey]] 
+>
+>> Then `rst_header` would not be much different from the python script
+>> `rst_customize`. rst_header is as safe as other files (though disruptive
+>> as noted), so it should/could be a editable file in the Wiki. A Python
+>> script of course can not be. There is nothing you can do in the
+>> rst_header (that you sensibly would do, I think) that couldn't be done in
+>> the Python script. `rst_header` has very limited use, but it is another
+>> possibility, mainly for the user-editable aspect. --[[ulrik]]
 
 Some rst-custom [examples are here](http://kaizer.se/wiki/rst_examples/)
 
@@ -148,6 +156,15 @@ picture before it.
 >>> the time, but ikiwiki's [[ikiwiki/subpage/linkingrules]]
 >>> are sufficiently different from normal html relative link
 >>> rules that it often won't work. --[[Joey]]
+>>>
+>>>> With degradation I mean that if you take a file out of the wiki; the
+>>>> links degrade to stylized text. If using default role, they degrade to
+>>>> :title: which renders italicized text (which I find is exactly
+>>>> appropriate). There is no way for them to degrade into links, except of
+>>>> course if you reimplement the :wiki: role. You can also respecify
+>>>> either the default role (the `wikilink` syntax) or the :wiki: role (the
+>>>> :wiki:`wikilink` syntax) to any other markup, for example None.
+>>>> --[[ulrik]]
 >> 
 >> The named link syntax (just like the :wiki: role) are inspired from trac
 >> and a good fit, but only if the wiki is committed to using only rst,
@@ -226,7 +243,7 @@ Perl I've ever written!_)
 >> Well, no idea how that would be expressed, but I mean, replace the indent
 >> directly in $handle's return value.
 >>
->> Yes, in effect just `indent($1, handle->($2,$,4))` --[[Joey]] 
+>>> Yes, in effect just `indent($1, handle->($2,$,4))` --[[Joey]] 
 >>
 >> The indent-catching regex is wrong in the way you mention, it has been
 >> nagigng my mind a bit as well; I think matching start of line + spaces
