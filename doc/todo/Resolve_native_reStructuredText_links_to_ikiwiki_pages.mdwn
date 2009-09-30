@@ -77,6 +77,9 @@ but disruptive since all .rst depend on it). Well, the customizations have
 to be picked and chosen from this, but at least the global python file can
 be very convenient.
 
+> Did you consider just including the global rst header text into an item
+> in the setup file? --[[Joey]] 
+
 Some rst-custom [examples are here](http://kaizer.se/wiki/rst_examples/)
 
 [rst-custom]: http://github.com/engla/ikiwiki/commits/rst-customize
@@ -141,6 +144,11 @@ picture before it.
 >> use more rst-like syntax (and documents degrades better outside the wiki as
 >> noted).
 >>
+>>> Unsure about the degredation argument. It will work some of
+>>> the time, but ikiwiki's [[ikiwiki/subpage/linkingrules]]
+>>> are sufficiently different from normal html relative link
+>>> rules that it often won't work. --[[Joey]]
+>> 
 >> The named link syntax (just like the :wiki: role) are inspired from trac
 >> and a good fit, but only if the wiki is committed to using only rst,
 >> which I don't think is the case.
@@ -165,9 +173,11 @@ picture before it.
 >> other phases? rst must be before any preprocess hook to avoid seeing any
 >> HTML.
 >>
->> With the presented changes, I already have a working RestructuredText
->> wiki, but I'm admitting that using .. raw:: html around all directives is
->> very ugly (I use few directives: inline, toggle, meta, tag, map)
+>>> One of my long term goals is to refactor all the code in ikiwiki
+>>> that manually runs the various stages of the render pipeline,
+>>> into one centralized place. Once that's done, that place can get
+>>> smart about what order to run the stages, and use a different
+>>> order for rst. --[[Joey]]
 >>
 >> If I'm thinking right, processing to HTML already in filter means any
 >> processing in scan can be reused directly (or skipped if it's legal to
@@ -175,6 +185,7 @@ picture before it.
 >>
 >> -- [[ulrik]] 
 
+>>> Seems it could be, yes. --[[Joey]]
 
 ### Implementation ###
 
