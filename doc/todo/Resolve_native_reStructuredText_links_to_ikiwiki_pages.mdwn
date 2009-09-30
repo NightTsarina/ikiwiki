@@ -109,12 +109,45 @@ picture before it.
       but rST directives allow a direct line (after :: on first line),
       an option list, and a content block.
 
+> You've done a lot of work already, but ...
+> 
+> The filter approach seems much simpler than the other approaches
+> for users to understand, since they can just use identical ikiwiki
+> markup on rst pages as they would use anywhere else. This is very desirable
+> if the wiki allows rst in addition to mdwn, since then users don't have
+> to learn two completly different ways of doing wikilinks and directives.
+> I also wonder if even those familiar with rst would find entirely natural
+> the ways you've found to shoehorn in wikilinks, named wikilinks, and ikiwiki
+> directives?
+> 
+> Htmlize in filter avoids these problems. It also leaves open the possibility
+> that ikiwiki could become smarter about the rendering chain later, and learn
+> to use a better order for rst (ie, htmlize first). If that later happened,
+> the htmlize in filter hack could go away. --[[Joey]] 
+
+> (BTW, the [[plugins/txt]] plugin already does html formatting
+> in filter, for similar reasons.) --[[Joey]]
+
 ### Implementation ###
 
 Preserving indents in the preprocessor are in branch [pproc-indent][ppi]
 
 (These simple patches come with a warning: _Those are the first lines of
 Perl I've ever written!_)
+
+> This seems like a good idea, since it solves issues for eg, indented
+> directives in mdwn as well. But, looking at the diff, I see a clear bug:
+>
+>	-                               return "[[!$command <span class=\"error\">".
+>	+                               $result = "[[!$command <span class=\"error\">".
+> 
+> That makes it go on and parse an infinitely nested directive chain, instead
+> of immediatly throwing an error.
+> 
+> Also, it seems that the "indent" matching in the regexps may be too broad,
+> wouldn't it also match whitespace before a directive that was not at the beginning 
+> of a line, and treat it as an indent? With some bad luck, that could cause mdwn
+> to put the indented output in a pre block. --[[Joey]] 
 
 [ppi]: http://github.com/engla/ikiwiki/commits/pproc-indent
 
