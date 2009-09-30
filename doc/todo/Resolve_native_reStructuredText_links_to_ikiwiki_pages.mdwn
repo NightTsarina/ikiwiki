@@ -226,10 +226,16 @@ Perl I've ever written!_)
 >> Well, no idea how that would be expressed, but I mean, replace the indent
 >> directly in $handle's return value.
 >>
+>> Yes, in effect just `indent($1, handle->($2,$,4))` --[[Joey]] 
+>>
 >> The indent-catching regex is wrong in the way you mention, it has been
 >> nagigng my mind a bit as well; I think matching start of line + spaces
 >> and tabs is the only thing we want.
 >> -- [[ulrik]]
+>> 
+>>> Well, seems you want to match the indent at the start of the line containing
+>>> the directive, even if the directive does not start the line. That would
+>>> be quite hard to make a regexp do, though. --[[Joey]]
 
 [ppi]: http://github.com/engla/ikiwiki/commits/pproc-indent
 
