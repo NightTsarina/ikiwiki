@@ -128,6 +128,54 @@ picture before it.
 > (BTW, the [[plugins/txt]] plugin already does html formatting
 > in filter, for similar reasons.) --[[Joey]]
 
+>> Thank you for the comments! Forget the work, it's not so much.
+>> I'd rank the :wiki: link addition pretty high, and the other changes way
+>> behind that:
+>>
+>> The :wiki:`Wiki Link` syntax is *very* appropriate as rst syntax
+>> since it fits well with other uses of roles (notice that :RFC:`822`
+>> inserts a link to RFC822 etc, and that the default role is a *title* role
+>> (title of some work); thus very appropriate for medium-specific links like
+>> wiki links. So I'd rank :wiki: links a worthwhile addition regardless of
+>> outcome here, since it's a very rst-like alternative for those who wish to
+>> use more rst-like syntax (and documents degrades better outside the wiki as
+>> noted).
+>>
+>> The named link syntax (just like the :wiki: role) are inspired from trac
+>> and a good fit, but only if the wiki is committed to using only rst,
+>> which I don't think is the case.
+>>
+>> The rst-customize changes are very useful for custom directive
+>> installations (like the sourcecode directive, or shortcut roles I show
+>> in the examples page), but there might be a way for the user to inject
+>> docutils addons that I'm missing (one very ugly way would be to stick
+>> them in sitecustomize.py which affects all Python programs).
+>>
+>> With the presented changes, I already have a working RestructuredText
+>> wiki, but I'm admitting that using .. raw:: html around all directives is
+>> very ugly (I use few directives: inline, toggle, meta, tag, map)
+>>
+>> On filter/htmlize: Well **rst** is clearly antisocial: It can't see HTML,
+>> and ikiwiki directives are wrappend in paragraph tags. (For wikilinks
+>> this is probably no problem). So the suggestion about `.. ikiwiki:` is
+>> partly because it looks good in rst syntax, but also since it would emit
+>> a div to wrap around the element instead of a paragraph.
+>>
+>> I don't know if you mean that rst could be reordered to do htmlize before
+>> other phases? rst must be before any preprocess hook to avoid seeing any
+>> HTML.
+>>
+>> With the presented changes, I already have a working RestructuredText
+>> wiki, but I'm admitting that using .. raw:: html around all directives is
+>> very ugly (I use few directives: inline, toggle, meta, tag, map)
+>>
+>> If I'm thinking right, processing to HTML already in filter means any
+>> processing in scan can be reused directly (or skipped if it's legal to
+>> emit 'add_link' in filter.)
+>>
+>> -- [[ulrik]] 
+
+
 ### Implementation ###
 
 Preserving indents in the preprocessor are in branch [pproc-indent][ppi]
@@ -148,6 +196,29 @@ Perl I've ever written!_)
 > wouldn't it also match whitespace before a directive that was not at the beginning 
 > of a line, and treat it as an indent? With some bad luck, that could cause mdwn
 > to put the indented output in a pre block. --[[Joey]] 
+>
+>> You are probably right about the bug. I'm not quite sure what the nested
+>> directives examples looks like, but I must have overlooked how the
+>> recursion counter works; I thought simply changing if to elif the next
+>> few lines would solve that. I'm sorry for that!
+>>
+>> We don't have to change the `$handle` function at all, if it is possible
+>> to do the indent substitution all in one line instead of passing it to
+>> handle, I don't know if it is possible to turn:
+>>
+>> 		$content =~ s{$regex}{$handle->($1, $2, $3, $4, $5)}eg;
+>>
+>> into
+>>
+>> 		$content =~ s{$regex}{s/^/$1/gm{$handle->($2, $3, $4, $5)}}eg;
+>>
+>> Well, no idea how that would be expressed, but I mean, replace the indent
+>> directly in $handle's return value.
+>>
+>> The indent-catching regex is wrong in the way you mention, it has been
+>> nagigng my mind a bit as well; I think matching start of line + spaces
+>> and tabs is the only thing we want.
+>> -- [[ulrik]]
 
 [ppi]: http://github.com/engla/ikiwiki/commits/pproc-indent
 
