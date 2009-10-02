@@ -87,6 +87,17 @@ be very convenient.
 >> rst_header (that you sensibly would do, I think) that couldn't be done in
 >> the Python script. `rst_header` has very limited use, but it is another
 >> possibility, mainly for the user-editable aspect. --[[ulrik]]
+>>
+>> (I foresaw only two things to be added to the rst_header: the default
+>> role could be configured there (as with rst_wikirole), and if you have a
+>> meta-role like :shortcut:, shortcuts could be defined there.)
+>
+> I have some discussion on the [docutils mailing list][dml], the developers
+> of docutils seems to favor "Proposal 1", while I defend my ideas. They
+> want all users of ReST to use only the basic featureset to remain
+> compatible, of course. -- [[ulrik]]
+
+[dml]: http://thread.gmane.org/gmane.text.docutils.user/5376
 
 Some rst-custom [examples are here](http://kaizer.se/wiki/rst_examples/)
 
@@ -203,6 +214,11 @@ picture before it.
 >> -- [[ulrik]] 
 
 >>> Seems it could be, yes. --[[Joey]]
+>>>
+>>>> It is not clear how we can work around reST wrapping directives with
+>>>> paragraph tags. Also, some escaping of xml characters & <> might
+>>>> happen, but I can't imagine right now what breakage can come from that.
+>>>> -- [[ulrik]]
 
 [tracrst]: http://trac.edgewall.org/wiki/WikiRestructuredText
 
