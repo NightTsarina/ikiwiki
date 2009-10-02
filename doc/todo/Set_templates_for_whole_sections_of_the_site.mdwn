@@ -8,4 +8,10 @@ I've written a new plugin, sectiontemplate, available in the `page_tmpl` branch 
 > Before I do though, would it perhaps make sense to merge
 > this in with the pagetemplate plugin? They do such a similar thing,
 > and unless letting users control the template by editing a page is not
-> wanted, I can't see any reason not to combine them. --[[Joey]] 
+> wanted, I can't see any reason not to combine them. --[[Joey]]
+
+> One other idea is moving the pagespec from setup file to a directive.
+> The edittemplate plugin does that, and it might be nice
+> to be consistent with that. To implement it, you'd have to
+> make the scan hook store the template pagespecs in `%pagestate`,
+> so a bit more complicated. --[[Joey]] 
