@@ -455,50 +455,55 @@ sub refresh () {
 	}
 
 	if (%rendered || @del || @internal) {
-		my @changed=(keys %rendered, @del);
+		my @changed;
+		my $changes;
+		do {
+			$changes=0;
+			@changed=(keys %rendered, @del);
+	 		my %lcchanged = map { lc(pagename($_)) => 1 } @changed;
 
- 		my %lcchanged = map { lc(pagename($_)) => 1 } @changed;
- 
-		# rebuild dependant pages
-		foreach my $f (@$files) {
-			next if $rendered{$f};
-			my $p=pagename($f);
-			my $reason = undef;
-
-			if (exists $depends_simple{$p}) {
-				foreach my $d (keys %{$depends_simple{$p}}) {
-					if (exists $lcchanged{$d}) {
-						$reason = $d;
-						last;
-					}
-				}
-			}
-
-			if (exists $depends{$p} && ! defined $reason) {
-				D: foreach my $d (keys %{$depends{$p}}) {
-					my $sub=pagespec_translate($d);
-					next if $@ || ! defined $sub;
-
-					# only consider internal files
-					# if the page explicitly depends
-					# on such files
-					foreach my $file (@changed, $d =~ /internal\(/ ? @internal : ()) {
-						next if $file eq $f;
-						my $page=pagename($file);
-						if ($sub->($page, location => $p)) {
-							$reason = $page;
-							last D;
+			# rebuild dependant pages
+			foreach my $f (@$files) {
+				next if $rendered{$f};
+				my $p=pagename($f);
+				my $reason = undef;
+	
+				if (exists $depends_simple{$p}) {
+					foreach my $d (keys %{$depends_simple{$p}}) {
+						if (exists $lcchanged{$d}) {
+							$reason = $d;
+							last;
 						}
 					}
 				}
+	
+				if (exists $depends{$p} && ! defined $reason) {
+					D: foreach my $d (keys %{$depends{$p}}) {
+						my $sub=pagespec_translate($d);
+						next if $@ || ! defined $sub;
+	
+						# only consider internal files
+						# if the page explicitly depends
+						# on such files
+						foreach my $file (@changed, $d =~ /internal\(/ ? @internal : ()) {
+							next if $file eq $f;
+							my $page=pagename($file);
+							if ($sub->($page, location => $p)) {
+								$reason = $page;
+								last D;
+							}
+						}
+					}
+				}
+	
+				if (defined $reason) {
+					debug(sprintf(gettext("building %s, which depends on %s"), $f, $reason));
+					render($f);
+					$rendered{$f}=1;
+					$changes++;
+				}
 			}
-
-			if (defined $reason) {
-				debug(sprintf(gettext("building %s, which depends on %s"), $f, $reason));
-				render($f);
-				$rendered{$f}=1;
-			}
-		}
+		} while $changes;
 		
 		# handle backlinks; if a page has added/removed links,
 		# update the pages it links to
