@@ -286,7 +286,7 @@ Mediawiki.pm - A plugin which supports mediawiki format.
 	}
 	
 	
-	# Called to handle bookmarks like [[#heading]] or <span class="createlink"><a href="http://u32.net/cgi-bin/ikiwiki.cgi?page=%20text%20&amp;from=Mediawiki_Plugin%2Fmediawiki&amp;do=create" rel="nofollow">?</a>#a</span>
+	# Called to handle bookmarks like \[[#heading]] or <span class="createlink"><a href="http://u32.net/cgi-bin/ikiwiki.cgi?page=%20text%20&amp;from=Mediawiki_Plugin%2Fmediawiki&amp;do=create" rel="nofollow">?</a>#a</span>
 	sub generate_fragment_link
 	{
 	   my $url = shift;
@@ -316,10 +316,10 @@ Mediawiki.pm - A plugin which supports mediawiki format.
 	
 	   # Ikiwiki's link link plugin wrecks this line when displaying on the site.
 	   # Until the code highlighter plugin can turn off link finding,
-	   # always escape double brackets in double quotes: [[
+	   # always escape double brackets in double quotes: \[[
 	   if($inlink eq '..') {
-	      # Mediawiki doesn't touch links like [[..#hi|ho]].
-	      return "[[" . $inlink . ($anchor?"#$anchor":"") .
+	      # Mediawiki doesn't touch links like \[[..#hi|ho]].
+	      return "\[[" . $inlink . ($anchor?"#$anchor":"") .
 	         ($title?"|$title":"") . "]]" . $trailing;
 	   }
 	
@@ -380,7 +380,7 @@ Mediawiki.pm - A plugin which supports mediawiki format.
 	      add_depends($page, $redir_page);
 	      my $link=bestlink($page, underscorize(translate_path($page,$redir_page)));
 	      if (! length $link) {
-	         return "<b>Redirect Error:</b> <nowiki>[[$redir_page]] not found.</nowiki>";
+	         return "<b>Redirect Error:</b> <nowiki>\[[$redir_page]] not found.</nowiki>";
 	      }
 	
 	      $value=urlto($link, $page);
@@ -393,7 +393,7 @@ Mediawiki.pm - A plugin which supports mediawiki format.
 	      my %seen;
 	      while (exists $pagestate{$at}{mediawiki}{redir}) {
 	         if ($seen{$at}) {
-	            return "<b>Redirect Error:</b> cycle found on <nowiki>[[$at]]</nowiki>";
+	            return "<b>Redirect Error:</b> cycle found on <nowiki>\[[$at]]</nowiki>";
 	         }
 	         $seen{$at}=1;
 	         $at=$pagestate{$at}{mediawiki}{redir};
