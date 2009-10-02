@@ -29,7 +29,8 @@ sub pagetemplate (@) {
 	my %params=@_;
         my $template=$params{template};
 	
-	if ($template->query(name => "extrafooter")) {
+	if ($template->query(name => "extrafooter") &&
+	    keys %{$config{mirrorlist}} > 0) {
 		my $value=$template->param("extrafooter");
 		$value.=mirrorlist($params{page});
 		$template->param(extrafooter => $value);
