@@ -51,6 +51,8 @@ Downsides here:
 * Means a minimum of 2x as much time spent resolving dependencies,
   at least in my simple implementation, which re-runs the dependency
   resolution loop until no new pages are rebuilt.
+  (I added an optimisation that gets it down to 1.5X as much work on
+  average, still 2x as much worst case.)
 * Causes extra work for some transitive dependencies that we don't
   actually care about. For example, changing index causes
   plugins/brokenlinks to update in the first pass; if there's a second
