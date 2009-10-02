@@ -1,5 +1,24 @@
-Moved this relevant discussion to here from
-[[tracking_bugs_with_dependencies]]: --[[Joey]]
+Ikiwiki currently only has one type of dependency between pages
+(plus wikilinks special cased in on the side). This has resulted in various
+problems, and it's seemed for a long time to me that ikiwiki needs to get
+smarter about what types of dependencies are supported.
+
+### unnecessary work
+
+The current single dependency type causes the depending page to be rebuilt
+whenever a matching dependency is added, removed, or *modified*. But a
+great many things don't care about the modification case, and often cause
+unnecessary page rebuilds:
+
+* meta only cares if the pages are added or removed. Content change does
+  not matter (unless show=title is used).
+* brokenlinks, orphans, pagecount, ditto
+* inline in archive mode cares about page title, author changing, but
+  not content. (Ditto for meta with show=title.)
+* Causes extra work when solving the [[bug/transitive_dependencies]]
+  problem.
+
+### two types of dependencies needed for [[tracking_bugs_with_dependencies]]
 
 >>  it seems that there are two types of dependency, and ikiwiki
 >>  currently only handles one of them.  The first type is "Rebuild this
@@ -81,3 +100,26 @@ Moved this relevant discussion to here from
 >>>>> For old-style pagespecs without backlinks, the dependency set for a pagespec is the same as the set of pages the pagespec matches.
 >>>>> Unfortunately, with existential matching, the set of pages that each
 >>>>> pagespec depends upon can quickly become "*", which is not very useful.  -- [[Will]]
+
+### proposal
+
+I propose the following. --[[Joey]] 
+
+* Add a second type of dependency, call it an "contentless dependency".
+* `add_depends` defaults to adding a regular ("full") dependency, as
+  before. (So nothing breaks.)
+* `add_depends($page, $spec, content => 0)` adds an contentless dependency.
+* Contentless dependencies are stored in `%depends_contentless` and
+  `%depends_contentless_simple`, which are stored in the index similarly
+  to the existing hashes.
+* `refresh` only looks at added/removed pages when resolving contentless
+  dependencies.
+
+This seems straightforwardly doable. I'd like [[Will]]'s feedback on it, if
+possible. The type types of dependencies I am proposing are not identical
+to the two types he talks about above, but I hope are close enough that
+they can be used.
+
+This doesn't deal with the stuff that only depend on the metadata of a
+page, as collected in the scan pass, changing. But it does leave a window
+open for adding such a dependency type later.
