@@ -501,6 +501,7 @@ sub refresh () {
 					render($f);
 					$rendered{$f}=1;
 					$changes++;
+					last;
 				}
 			}
 		} while $changes;
