@@ -472,10 +472,7 @@ account all comments above (which doesn't mean it is above reproach :) ).  --[[W
 >>>>> possibly by adding a dependency of the second type along with the dependency of the first type.
 
 >>>>>> An example of the current system not tracking enough data is 
->>>>>> where A inlines B which inlines C. A change to C will cause B to
->>>>>> rebuild, but A will not "notice" that B has implicitly changed.
->>>>>> That example suggests it might be fixable without explicitly storing
->>>>>> data, by causing a rebuild of B to be treated as a change to B.
+>>>>>> described in [[bugs/transitive_dependencies]].
 >>>>>> --[[Joey]] 
 
 >>>>> The second type of dependency is a little more tricky.  For each page, we'd need a list of pagespecs that

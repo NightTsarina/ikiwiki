@@ -1,0 +1,47 @@
+If a sidebar contains a map, or inline (etc), one would expect a
+change/add/remove of any of the mapped/inlined pages to cause a full wiki
+rebuild. But this does not happen.
+
+If page A inlines page B, which inlines page C, a change to C will cause B
+to be updated, but A will not "notice" that this means A needs to be
+updated.
+
+One way to look at this bug is that it's a bug in where dependencies are
+recorded when preprocessing the rendered or sidebar page. The current code
+does:
+
+	add_depends($params{page}, $somepage);
+
+Where `$params{page}` is page B. If this is changed to `$params{destpage}`,
+then the dependency is added to page A, and updates to C cause it to
+change. This does result in the page A's getting lots more dependency info
+recorded than before (essentially a copy of all the B's dependency info).
+
+It's also a fragile, since all plugins that handle dependencies have to be
+changed, and do this going forward. And it seems non-obvious that this should
+be done. Or really, whether to use `page` or `destpage` there. Currently,
+making the "wrong" choice and using `destpage` instead of `page` (which nearly
+everything uses) will just result in semi-redundant dependency info being
+recorded. If we make destpage mandatory to fix this, goofing up will lead to
+this bug coming back. Ugh.
+
+Another approach to fix it could be to say that anything that causes a
+rebuild of B is treated as a change of B. Then when C is changed, B is
+rebuilt due to dependencies, and in turn this means A is rebuild because B
+"changed". 
+
+This is essentially what is done with wikilinks now, and why, if a sidebar
+links to page C, add/remove of C causes all pages to be rebuilt, as seen 
+here:
+
+	removing old page meep
+	building sidebar.mdwn, which links to meep
+	building TourBusStop.mdwn, which depends on sidebar
+	building contact.mdwn, which depends on sidebar
+	...
+
+The only downside I can see with this approach is that it involves more work.
+Does the dep resolver have to keep looping until no new pages are rebuilt?
+Seems worth a try to implement this approach.
+
+--[[Joey]] 
