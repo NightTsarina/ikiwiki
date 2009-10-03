@@ -12,7 +12,7 @@ unnecessary page rebuilds:
 
 * meta only cares if the pages are added or removed. Content change does
   not matter (unless show=title is used).
-* brokenlinks, orphans, pagecount, ditto
+* brokenlinks, orphans, pagecount, ditto (generally)
 * inline in archive mode cares about page title, author changing, but
   not content. (Ditto for meta with show=title.)
 * Causes extra work when solving the [[bugs/transitive_dependencies]]
@@ -109,9 +109,6 @@ I propose the following. --[[Joey]]
 * `add_depends` defaults to adding a regular ("full") dependency, as
   before. (So nothing breaks.)
 * `add_depends($page, $spec, content => 0)` adds an contentless dependency.
-* Contentless dependencies are stored in `%depends_contentless` and
-  `%depends_contentless_simple`, which are stored in the index similarly
-  to the existing hashes.
 * `refresh` only looks at added/removed pages when resolving contentless
   dependencies.
 
@@ -121,5 +118,35 @@ to the two types he talks about above, but I hope are close enough that
 they can be used.
 
 This doesn't deal with the stuff that only depend on the metadata of a
-page, as collected in the scan pass, changing. But it does leave a window
+page, as collected in the scan pass, changing.  But it does leave a window
 open for adding such a dependency type later.
+
+----
+
+I implemented the above in a branch.
+[[!template id=gitbranch branch=origin/dependency-types author="[[joey]]"]]
+
+Then I found some problems:
+
+* pagestats is often used with a pagespec that uses `tagged()`.
+  A pure contentless dependency does not work for that, it needs to look
+  at link info.
+* orphans and brokenlinks cannot use contentless dependencies because they
+  need to update when links change.
+* Something simple like pagecount, that seems like it could use a
+  contentless dependency, can have a pagespec that uses metadata, like
+  `author()` or `copyright()`.
+
+Now I'm thinking about having a contentless dependency look at page
+metadata, and fire if the metadata changes. And it seems links should
+either be included in that, or there should be a way to make a dependency
+that fires when a page's links change. (And what about backlinks?)
+
+It's easy to see when a page's links change, since there is `%oldlinks`.
+To see when metadata is changed is harder, since it's stored in the
+pagestate by the meta plugin.
+
+(Alternative: Make add_depends look at the pagespec. Ie, if it is a simple
+page name, or a glob, we know a contentless dependency can be valid.
+If's more complex, convert the dependency from contentless to full. Finding
+a non-ad-hoc, non-sucky way to do that could be hard.)
