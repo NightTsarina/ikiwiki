@@ -544,12 +544,12 @@ sub loadplugins () {
 	}
 	
 	if ($config{rcs}) {
-		if (exists $IkiWiki::hooks{rcs}) {
+		if (exists $hooks{rcs}) {
 			error(gettext("cannot use multiple rcs plugins"));
 		}
 		loadplugin($config{rcs});
 	}
-	if (! exists $IkiWiki::hooks{rcs}) {
+	if (! exists $hooks{rcs}) {
 		loadplugin("norcs");
 	}
 
