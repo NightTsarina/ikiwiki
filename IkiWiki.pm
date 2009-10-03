@@ -2052,10 +2052,10 @@ sub match_link ($$;@) {
 		else {
 			return IkiWiki::SuccessReason->new("$page links to page $p matching $link")
 				if match_glob($p, $link, %params);
-			$p=~s/^\///;
+			my ($p_rel)=$p=~/^\/?(.*)/;
 			$link=~s/^\///;
-			return IkiWiki::SuccessReason->new("$page links to page $p matching $link")
-				if match_glob($p, $link, %params);
+			return IkiWiki::SuccessReason->new("$page links to page $p_rel matching $link")
+				if match_glob($p_rel, $link, %params);
 		}
 	}
 	return IkiWiki::FailReason->new("$page does not link to $link");
