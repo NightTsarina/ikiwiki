@@ -1774,7 +1774,8 @@ sub add_depends ($$;@) {
 	my $deptype=$DEPEND_CONTENT | $DEPEND_EXISTS;
 	if (@_) {
 		my %params=@_;
-		if (defined $params{content} && $params{content} == 0) {
+		if (defined $params{content} && $params{content} == 0 &&
+		    pagespec_contentless($pagespec)) {
 			$deptype=$deptype & ~$DEPEND_CONTENT;
 		}
 	}
@@ -1972,6 +1973,20 @@ sub pagespec_valid ($) {
 
 	my $sub=pagespec_translate($spec);
 	return ! $@;
+}
+
+sub pagespec_contentless ($) {
+	my $spec=shift;
+
+	while ($spec=~m{
+		(\w+)\([^\)]*\) # only match pagespec functions
+	}igx) {
+		# only glob and internal can be matched contentless
+		# (first approximation)
+		return 0 if $1 ne "glob" && $1 ne "internal";
+	}
+
+	return 1;
 }
 
 sub glob2re ($) {
