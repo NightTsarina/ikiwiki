@@ -28,8 +28,8 @@ sub preprocess (@) {
 
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Needs to update whenever a page is added or removed, so
-	# register a dependency.
+	# Needs to update whenever a page is added, removed, or
+	# its links change, so register a dependency.
 	add_depends($params{page}, $params{pages});
 	
 	# Can't just return the linkmap here, since the htmlscrubber
