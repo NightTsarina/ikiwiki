@@ -197,7 +197,7 @@ sub preprocess_inline (@) {
 		        split ' ', $params{pagenames};
 	}
 	else {
-		add_depends($params{page}, $params{pages});
+		add_depends($params{page}, $params{pages}, content => ! $quick);
 
 		@list = pagespec_match_list(
 			[ grep { $_ ne $params{page} } keys %pagesources ],
@@ -248,10 +248,9 @@ sub preprocess_inline (@) {
 	}
 
 	# Explicitly add all currently displayed pages as dependencies, so
-	# that if they are removed or otherwise changed, the inline will be
-	# sure to be updated.
+	# that if they are removed, the inline will be sure to be updated.
 	foreach my $p ($#list >= $#feedlist ? @list : @feedlist) {
-		add_depends($params{page}, $p);
+		add_depends($params{page}, $p, content => ! $quick);
 	}
 	
 	if ($feeds && exists $params{feedpages}) {
