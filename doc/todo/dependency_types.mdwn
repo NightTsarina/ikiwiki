@@ -10,7 +10,7 @@ whenever a matching dependency is added, removed, or *modified*. But a
 great many things don't care about the modification case, and often cause
 unnecessary page rebuilds:
 
-* meta only cares if the pages are added or removed. Content change does
+* map only cares if the pages are added or removed. Content change does
   not matter (unless show=title is used).
 * brokenlinks, orphans, pagecount, ditto (generally)
 * inline in archive mode cares about page title, author changing, but
@@ -128,14 +128,11 @@ I implemented the above in a branch.
 
 Then I found some problems:
 
-* pagestats is often used with a pagespec that uses `tagged()`.
-  A pure contentless dependency does not work for that, it needs to look
-  at link info.
-* orphans and brokenlinks cannot use contentless dependencies because they
-  need to update when links change.
 * Something simple like pagecount, that seems like it could use a
   contentless dependency, can have a pagespec that uses metadata, like
   `author()` or `copyright()`.
+* pagestats, orphans and brokenlinks cannot use contentless dependencies
+  because they need to update when links change.
 
 Now I'm thinking about having a contentless dependency look at page
 metadata, and fire if the metadata changes. And it seems links should
@@ -146,7 +143,14 @@ It's easy to see when a page's links change, since there is `%oldlinks`.
 To see when metadata is changed is harder, since it's stored in the
 pagestate by the meta plugin.
 
-(Alternative: Make add_depends look at the pagespec. Ie, if it is a simple
-page name, or a glob, we know a contentless dependency can be valid.
-If's more complex, convert the dependency from contentless to full. Finding
-a non-ad-hoc, non-sucky way to do that could be hard.)
+Quick alternative: Make add_depends look at the pagespec. Ie, if it
+is a simple page name, or a glob, we know a contentless dependency
+can be valid. If's more complex, convert the dependency from
+contentless to full.
+
+There is a lot to dislike about this method. Its parsing of the
+pagespec, as currently implemented, does not let plugins add new types of
+pagespecs that are contentless. Its pagespec parsing is also subject to
+false negatives (though these should be somewhat rare, and no false
+positives). Still, it does work, and it makes things like simple maps and
+pagecounts much more efficient.
