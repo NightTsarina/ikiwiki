@@ -13,9 +13,9 @@ ikiwiki (3.14159266) UNRELEASED; urgency=low
   * Added support framework for multiple types of dependencies.
   * Allow declaring that a dependency does not encompass the content of a
     page. (By passing content => 0 to add_depends.)
-  * pagecount, calendar: Use a contentless dependency, which makes these
-    directives much less expensive to use, since page edits will
-    no longer trigger an unnecessary update.
+  * pagecount, calendar, postsparkline, progress: Use a contentless dependency,
+    which makes these directives much less expensive to use, since page
+    edits will no longer trigger an unnecessary update.
   * map: Use a contentless dependency unless show= is specified.
     This makes simple maps efficient enough that they can be used on sidebars!
   * inline: Use a contentless dependency in quick mode.
