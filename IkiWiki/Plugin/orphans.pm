@@ -23,8 +23,8 @@ sub preprocess (@) {
 	my %params=@_;
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Needs to update whenever a page is added or removed, so
-	# register a dependency.
+	# Needs to update whenever a page is changed, added, or removed,
+	# in order to see the link changes.
 	add_depends($params{page}, $params{pages});
 	
 	my @orphans;

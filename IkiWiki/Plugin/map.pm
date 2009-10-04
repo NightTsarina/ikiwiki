@@ -68,13 +68,13 @@ sub preprocess (@) {
 	}
 
 	# Needs to update whenever a page is added or removed (or in some
-	# cases, when its content changes, if show=title), so register a
-	# dependency.
-	add_depends($params{page}, $params{pages});
+	# cases, when its content changes, if show= is specified), so
+	# register a dependency.
+	add_depends($params{page}, $params{pages}, content => exists $params{show});
 	# Explicitly add all currently shown pages, to detect when pages
 	# are removed.
 	foreach my $item (keys %mapitems) {
-		add_depends($params{page}, $item);
+		add_depends($params{page}, $item, content => exists $params{show});
 	}
 
 	# Create the map.

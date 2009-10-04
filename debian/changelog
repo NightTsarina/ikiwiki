@@ -10,6 +10,15 @@ ikiwiki (3.14159266) UNRELEASED; urgency=low
   * mirrorlist: Display nothing if list is empty.
   * Fix a bug that could lead to duplicate links being recorded
     for tags.
+  * Added support framework for multiple types of dependencies.
+  * Allow declaring that a dependency does not encompass the content of a
+    page. (By passing content => 0 to add_depends.)
+  * pagecount, calendar, postsparkline, progress: Use a contentless dependency,
+    which makes these directives much less expensive to use, since page
+    edits will no longer trigger an unnecessary update.
+  * map: Use a contentless dependency unless show= is specified.
+    This makes simple maps efficient enough that they can be used on sidebars!
+  * inline: Use a contentless dependency in quick mode.
 
  -- Joey Hess <joeyh@debian.org>  Sun, 27 Sep 2009 17:40:03 -0400
 

@@ -342,7 +342,7 @@ sub refresh () {
 	run_hooks(refresh => sub { shift->() });
 	my ($files, $exists)=find_src_files();
 
-	my (%rendered, @add, @del, @internal);
+	my (%rendered, @add, @del, @internal, @internal_change);
 	# check for added or removed pages
 	foreach my $file (@$files) {
 		my $page=pagename($file);
@@ -407,7 +407,7 @@ sub refresh () {
 	    	    $forcerebuild{$page}) {
 			$pagemtime{$page}=$stat[9];
 			if (isinternal($page)) {
-				push @internal, $file;
+				push @internal_change, $file;
 				# Preprocess internal page in scan-only mode.
 				preprocess($page, $page, readfile($srcfile), 1);
 			}
@@ -429,7 +429,7 @@ sub refresh () {
 		render($file);
 		$rendered{$file}=1;
 	}
-	foreach my $file (@internal) {
+	foreach my $file (@internal, @internal_change) {
 		# internal pages are not rendered
 		my $page=pagename($file);
 		delete $depends{$page};
@@ -454,14 +454,17 @@ sub refresh () {
 		}
 	}
 
-	if (%rendered || @del || @internal) {
+	if (%rendered || @del || @internal || @internal_change) {
 		my @changed;
 		my $changes;
 		do {
 			$changes=0;
 			@changed=(keys %rendered, @del);
-	 		my %lcchanged = map { lc(pagename($_)) => 1 } @changed;
-
+			my @exists_changed=(@add, @del);
+	
+			my %lc_changed = map { lc(pagename($_)) => 1 } @changed;
+			my %lc_exists_changed = map { lc(pagename($_)) => 1 } @exists_changed;
+	 
 			# rebuild dependant pages
 			foreach my $f (@$files) {
 				next if $rendered{$f};
@@ -470,7 +473,13 @@ sub refresh () {
 	
 				if (exists $depends_simple{$p}) {
 					foreach my $d (keys %{$depends_simple{$p}}) {
-						if (exists $lcchanged{$d}) {
+						if ($depends_simple{$p}{$d} == $IkiWiki::DEPEND_EXISTS) {
+							if (exists $lc_exists_changed{$d}) {
+								$reason = $d;
+								last;
+							}
+						}
+						elsif (exists $lc_changed{$d}) {
 							$reason = $d;
 							last;
 						}
@@ -482,10 +491,26 @@ sub refresh () {
 						my $sub=pagespec_translate($d);
 						next if $@ || ! defined $sub;
 	
+						my @candidates;
+						if ($depends{$p}{$d} == $IkiWiki::DEPEND_EXISTS) {
+							@candidates=@exists_changed;
+						}
+						else {
+							@candidates=@changed;
+						}
 						# only consider internal files
 						# if the page explicitly depends
 						# on such files
-						foreach my $file (@changed, $d =~ /internal\(/ ? @internal : ()) {
+						if ($d =~ /internal\(/) {
+							if ($depends{$p}{$d} == $IkiWiki::DEPEND_EXISTS) {
+								push @candidates, @internal;
+							}
+							else {
+								push @candidates, @internal, @internal_change;
+							}
+						}
+	
+						foreach my $file (@candidates) {
 							next if $file eq $f;
 							my $page=pagename($file);
 							if ($sub->($page, location => $p)) {

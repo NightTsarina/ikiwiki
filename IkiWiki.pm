@@ -28,6 +28,10 @@ our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
 our $version='unknown'; # VERSION_AUTOREPLACE done by Makefile, DNE
 our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
 
+# Page dependency types.
+our $DEPEND_EXISTS=1;
+our $DEPEND_CONTENT=2;
+
 # Optimisation.
 use Memoize;
 memoize("abs2rel");
@@ -1524,18 +1528,28 @@ sub loadindex () {
 				$links{$page}=$d->{links};
 				$oldlinks{$page}=[@{$d->{links}}];
 			}
-			if (exists $d->{depends_simple}) {
+			if (ref $d->{depends_simple} eq 'ARRAY') {
+				# old format
 				$depends_simple{$page}={
 					map { $_ => 1 } @{$d->{depends_simple}}
 				};
 			}
+			elsif (exists $d->{depends_simple}) {
+				$depends{$page}=$d->{depends_simple};
+			}
 			if (exists $d->{dependslist}) {
+				# old format
 				$depends{$page}={
-					map { $_ => 1 } @{$d->{dependslist}}
+					map { $_ => $DEPEND_CONTENT | $DEPEND_EXISTS }
+						@{$d->{dependslist}}
 				};
 			}
+			elsif (exists $d->{depends} && ! ref $d->{depends}) {
+				# old format
+				$depends{$page}={$d->{depends} => $DEPEND_CONTENT | $DEPEND_EXISTS};
+			}
 			elsif (exists $d->{depends}) {
-				$depends{$page}={$d->{depends} => 1};
+				$depends{$page}=$d->{depends};
 			}
 			if (exists $d->{state}) {
 				$pagestate{$page}=$d->{state};
@@ -1581,11 +1595,11 @@ sub saveindex () {
 		};
 
 		if (exists $depends{$page}) {
-			$index{page}{$src}{dependslist} = [ keys %{$depends{$page}} ];
+			$index{page}{$src}{depends} = $depends{$page};
 		}
 
 		if (exists $depends_simple{$page}) {
-			$index{page}{$src}{depends_simple} = [ keys %{$depends_simple{$page}} ];
+			$index{page}{$src}{depends_simple} = $depends_simple{$page};
 		}
 
 		if (exists $pagestate{$page}) {
@@ -1753,20 +1767,30 @@ sub rcs_receive () {
 	$hooks{rcs}{rcs_receive}{call}->();
 }
 
-sub add_depends ($$) {
+sub add_depends ($$;@) {
 	my $page=shift;
 	my $pagespec=shift;
 
-	if ($pagespec =~ /$config{wiki_file_regexp}/ &&
-		$pagespec !~ /[\s*?()!]/) {
-		# a simple dependency, which can be matched by string eq
-		$depends_simple{$page}{lc $pagespec} = 1;
+	my $simple=$pagespec =~ /$config{wiki_file_regexp}/ &&
+		$pagespec !~ /[\s*?()!]/;
+
+	my $deptype=$DEPEND_CONTENT | $DEPEND_EXISTS;
+	if (@_) {
+		my %params=@_;
+		if (defined $params{content} && $params{content} == 0 &&
+		    ($simple || pagespec_contentless($pagespec))) {
+			$deptype=$deptype & ~$DEPEND_CONTENT;
+		}
+	}
+
+	if ($simple) {
+		$depends_simple{$page}{lc $pagespec} |= $deptype;
 		return 1;
 	}
 
 	return unless pagespec_valid($pagespec);
 
-	$depends{$page}{$pagespec} = 1;
+	$depends{$page}{$pagespec} |= $deptype;
 	return 1;
 }
 
@@ -1950,6 +1974,18 @@ sub pagespec_valid ($) {
 
 	my $sub=pagespec_translate($spec);
 	return ! $@;
+}
+
+sub pagespec_contentless ($) {
+	my $spec=shift;
+
+	while ($spec=~m{
+		(\w+)\([^\)]*\) # only match pagespec functions
+	}igx) {
+		return 0 unless $1=~/^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after)$/;
+	}
+
+	return 1;
 }
 
 sub glob2re ($) {
