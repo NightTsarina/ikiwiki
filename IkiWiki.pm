@@ -1771,18 +1771,19 @@ sub add_depends ($$;@) {
 	my $page=shift;
 	my $pagespec=shift;
 
+	my $simple=$pagespec =~ /$config{wiki_file_regexp}/ &&
+		$pagespec !~ /[\s*?()!]/;
+
 	my $deptype=$DEPEND_CONTENT | $DEPEND_EXISTS;
 	if (@_) {
 		my %params=@_;
 		if (defined $params{content} && $params{content} == 0 &&
-		    pagespec_contentless($pagespec)) {
+		    ($simple || pagespec_contentless($pagespec))) {
 			$deptype=$deptype & ~$DEPEND_CONTENT;
 		}
 	}
 
-	if ($pagespec =~ /$config{wiki_file_regexp}/ &&
-		$pagespec !~ /[\s*?()!]/) {
-		# a simple dependency, which can be matched by string eq
+	if ($simple) {
 		$depends_simple{$page}{lc $pagespec} |= $deptype;
 		return 1;
 	}
