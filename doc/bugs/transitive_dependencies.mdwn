@@ -52,7 +52,8 @@ Downsides here:
   at least in my simple implementation, which re-runs the dependency
   resolution loop until no new pages are rebuilt.
   (I added an optimisation that gets it down to 1.5X as much work on
-  average, still 2x as much worst case.)
+  average, still 2x as much worst case. I suppose building a directed
+  graph and traversing it would be theoretically more efficient.)
 * Causes extra work for some transitive dependencies that we don't
   actually care about. For example, changing index causes
   plugins/brokenlinks to update in the first pass; if there's a second
@@ -60,5 +61,7 @@ Downsides here:
   (Of course, this is just a special case of the issue that a real
   modification to plugins/brokenlinks causes an unnecessary update of plugins/map,
   because we have [[only_one_kind_of_dependency|todo/dependency_types]].)
+  (Fixed now for cases like this one where contenless dependencies avoid
+  the unnecessary work.)
 
 --[[Joey]] 
