@@ -1982,9 +1982,7 @@ sub pagespec_contentless ($) {
 	while ($spec=~m{
 		(\w+)\([^\)]*\) # only match pagespec functions
 	}igx) {
-		# only glob and internal can be matched contentless
-		# (first approximation)
-		return 0 if $1 ne "glob" && $1 ne "internal";
+		return 0 unless $1=~/^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after)$/;
 	}
 
 	return 1;
