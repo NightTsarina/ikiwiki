@@ -16,6 +16,8 @@ ikiwiki (3.14159266) UNRELEASED; urgency=low
   * pagecount: Use a contentless dependency, which makes this
     directive much less expensive to use, since page edits will
     no longer trigger an unnecessary update of the page count.
+  * map: Use a contentless dependency unless show= is specified.
+    This makes simple maps efficient enough that they can be used on sidebars!
 
  -- Joey Hess <joeyh@debian.org>  Sun, 27 Sep 2009 17:40:03 -0400
 
