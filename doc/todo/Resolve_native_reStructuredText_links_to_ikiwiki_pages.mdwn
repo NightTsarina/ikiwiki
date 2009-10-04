@@ -271,6 +271,17 @@ Perl I've ever written!_)
 >>> Well, seems you want to match the indent at the start of the line containing
 >>> the directive, even if the directive does not start the line. That would
 >>> be quite hard to make a regexp do, though. --[[Joey]]
+>>
+>> I wasted a long time getting the simpler `indent($1, handle->($2,$,4))` to
+>> work (remember, I don't know perl at all). Somehow `$1` does not arrive, I
+>> made a simple testcase that worked, and I conclude something inside $handle
+>> results in the value of $1 not arriving as it should!
+>>
+>> Anyway, instead a very simple incremental patch is in [pproc-indent][ppi]
+>> where the indentation regex is `(^[ \t]+|)` instead, which seems to work
+>> very well (and the regex is multiline now as well). I'm happy to rebase the
+>> changes if you want or you can just squash the four patches 1+3 => 1+1
+>> -- [[ulrik]]
 
 [ppi]: http://github.com/engla/ikiwiki/commits/pproc-indent
 
