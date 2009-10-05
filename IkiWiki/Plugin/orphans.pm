@@ -23,9 +23,13 @@ sub preprocess (@) {
 	my %params=@_;
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Needs to update whenever a page is changed, added, or removed,
-	# in order to see the link changes.
-	add_depends($params{page}, $params{pages});
+	# Needs to update whenever a link changes, on any page
+	# since any page could link to one of the pages we're
+	# considering as orphans.
+	add_depends($params{page}, "*", links => 1);
+	# Also needs to update whenever potential orphans are added or
+	# removed.
+	add_depends($params{page}, $params{pages}, presence => 1);
 	
 	my @orphans;
 	foreach my $page (pagespec_match_list(
