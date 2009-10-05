@@ -613,12 +613,15 @@ generating a link to a page.
 
 Makes the specified page depend on the specified [[ikiwiki/PageSpec]].
 
-Additional named parameters can be passed, to indicate what type of
-dependency this is.
+By default, dependencies are full content dependencies, meaning that the
+page will be updated whenever anything matching the PageSpec is modified.
+This default can be overridden by additional named parameters, which can be
+used to indicate weaker types of dependencies:
 
-Currently, only a "content" parameter is specified. If set to 0, the
-dependency does not involve the content of pages matching the PageSpec, but
-only their existence.
+* `presence` if set to true, only the presence of a matching page triggers
+  the dependency.
+* `links` if set to true, any change in the text of links on a matching page
+  triggers the dependency
 
 #### `pagespec_match($$;@)`
 

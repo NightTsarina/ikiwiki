@@ -29,8 +29,8 @@ our $version='unknown'; # VERSION_AUTOREPLACE done by Makefile, DNE
 our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
 
 # Page dependency types.
-our $DEPEND_EXISTS=1;
-our $DEPEND_CONTENT=2;
+our $DEPEND_CONTENT=1;
+our $DEPEND_PRESENCE=2;
 
 # Optimisation.
 use Memoize;
@@ -1540,13 +1540,13 @@ sub loadindex () {
 			if (exists $d->{dependslist}) {
 				# old format
 				$depends{$page}={
-					map { $_ => $DEPEND_CONTENT | $DEPEND_EXISTS }
+					map { $_ => $DEPEND_CONTENT }
 						@{$d->{dependslist}}
 				};
 			}
 			elsif (exists $d->{depends} && ! ref $d->{depends}) {
 				# old format
-				$depends{$page}={$d->{depends} => $DEPEND_CONTENT | $DEPEND_EXISTS};
+				$depends{$page}={$d->{depends} => $DEPEND_CONTENT };
 			}
 			elsif (exists $d->{depends}) {
 				$depends{$page}=$d->{depends};
@@ -1771,16 +1771,23 @@ sub add_depends ($$;@) {
 	my $page=shift;
 	my $pagespec=shift;
 
+	# Is the pagespec a simple page name?
 	my $simple=$pagespec =~ /$config{wiki_file_regexp}/ &&
 		$pagespec !~ /[\s*?()!]/;
 
-	my $deptype=$DEPEND_CONTENT | $DEPEND_EXISTS;
+	my $deptype=$DEPEND_CONTENT;
 	if (@_) {
 		my %params=@_;
-		if (defined $params{content} && $params{content} == 0 &&
-		    ($simple || pagespec_contentless($pagespec))) {
-			$deptype=$deptype & ~$DEPEND_CONTENT;
+		
+		# Is the pagespec limited to terms that will continue
+		# to match pages as long as those pages exist?
+		my $limited=1;
+		while ($limited && $pagespec=~m/(\w+)\([^\)]*\)/g) {
+			$limited = $1 =~ /^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after)$/;
 		}
+
+		$deptype=$deptype & ~$DEPEND_CONTENT & $DEPEND_PRESENCE
+			if $params{presence} && $limited;
 	}
 
 	if ($simple) {
@@ -1974,18 +1981,6 @@ sub pagespec_valid ($) {
 
 	my $sub=pagespec_translate($spec);
 	return ! $@;
-}
-
-sub pagespec_contentless ($) {
-	my $spec=shift;
-
-	while ($spec=~m{
-		(\w+)\([^\)]*\) # only match pagespec functions
-	}igx) {
-		return 0 unless $1=~/^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after)$/;
-	}
-
-	return 1;
 }
 
 sub glob2re ($) {

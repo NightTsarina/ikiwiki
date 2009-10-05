@@ -473,13 +473,11 @@ sub refresh () {
 	
 				if (exists $depends_simple{$p}) {
 					foreach my $d (keys %{$depends_simple{$p}}) {
-						if ($depends_simple{$p}{$d} == $IkiWiki::DEPEND_EXISTS) {
-							if (exists $lc_exists_changed{$d}) {
-								$reason = $d;
-								last;
-							}
-						}
-						elsif (exists $lc_changed{$d}) {
+						if (($depends_simple{$p}{$d} & $IkiWiki::DEPEND_CONTENT &&
+						     exists $lc_changed{$d})
+						    ||
+						    ($depends_simple{$p}{$d} & $IkiWiki::DEPEND_PRESENCE &&
+						     exists $lc_exists_changed{$d})) {
 							$reason = $d;
 							last;
 						}
@@ -492,21 +490,21 @@ sub refresh () {
 						next if $@ || ! defined $sub;
 	
 						my @candidates;
-						if ($depends{$p}{$d} == $IkiWiki::DEPEND_EXISTS) {
-							@candidates=@exists_changed;
-						}
-						else {
+						if ($depends_simple{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
 							@candidates=@changed;
+						}
+						elsif ($depends{$p}{$d} & $IkiWiki::DEPEND_PRESENCE) {
+							@candidates=@exists_changed;
 						}
 						# only consider internal files
 						# if the page explicitly depends
 						# on such files
 						if ($d =~ /internal\(/) {
-							if ($depends{$p}{$d} == $IkiWiki::DEPEND_EXISTS) {
-								push @candidates, @internal;
-							}
-							else {
+							if ($depends_simple{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
 								push @candidates, @internal, @internal_change;
+							}
+							elsif ($depends{$p}{$d} & $IkiWiki::DEPEND_PRESENCE) {
+								push @candidates, @internal;
 							}
 						}
 	

@@ -105,21 +105,21 @@ sub format_month (@) {
 			linktext => " $monthname ");
 	}
 	add_depends($params{page}, "$archivebase/$year/".sprintf("%02d", $month),
-		content => 0);
+		presence => 1);
 	if (exists $cache{$pagespec}{"$pyear/$pmonth"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$pyear/" . sprintf("%02d", $pmonth),
 			linktext => " $pmonthname ");
 	}
 	add_depends($params{page}, "$archivebase/$pyear/".sprintf("%02d", $pmonth),
-		content => 0);
+		presence => 1);
 	if (exists $cache{$pagespec}{"$nyear/$nmonth"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$nyear/" . sprintf("%02d", $nmonth),
 			linktext => " $nmonthname ");
 	}
 	add_depends($params{page}, "$archivebase/$nyear/".sprintf("%02d", $nmonth),
-		content => 0);
+		presence => 1);
 
 	# Start producing the month calendar
 	$calendar=<<EOF;
@@ -212,11 +212,11 @@ EOF
 
 	# Add dependencies to update the calendar whenever pages
 	# matching the pagespec are added or removed.
-	add_depends($params{page}, $params{pages}, content => 0);
+	add_depends($params{page}, $params{pages}, presence => 1);
 	# Explicitly add all currently linked pages as dependencies, so
 	# that if they are removed, the calendar will be sure to be updated.
 	foreach my $p (@list) {
-		add_depends($params{page}, $p, content => 0);
+		add_depends($params{page}, $p, presence => 1);
 	}
 
 	return $calendar;
@@ -249,19 +249,19 @@ sub format_year (@) {
 			"$archivebase/$year",
 			linktext => "$year");
 	}
-	add_depends($params{page}, "$archivebase/$year", content => 0);
+	add_depends($params{page}, "$archivebase/$year", presence => 1);
 	if (exists $cache{$pagespec}{"$pyear"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$pyear",
 			linktext => "\&larr;");
 	}
-	add_depends($params{page}, "$archivebase/$pyear", content => 0);
+	add_depends($params{page}, "$archivebase/$pyear", presence => 1);
 	if (exists $cache{$pagespec}{"$nyear"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$nyear",
 			linktext => "\&rarr;");
 	}
-	add_depends($params{page}, "$archivebase/$nyear", content => 0);
+	add_depends($params{page}, "$archivebase/$nyear", presence => 1);
 
 	# Start producing the year calendar
 	$calendar=<<EOF;
@@ -313,7 +313,7 @@ EOF
 		else {
 			$calendar.=qq{\t<td class="$tag">$monthabbr</td>\n};
 		}
-		add_depends($params{page}, "$archivebase/$year/$mtag", content => 0);
+		add_depends($params{page}, "$archivebase/$year/$mtag", presence => 1);
 
 		$calendar.=qq{\t</tr>\n} if ($month % $params{months_per_row} == 0);
 	}

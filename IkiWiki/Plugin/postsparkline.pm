@@ -48,7 +48,7 @@ sub preprocess (@) {
 		error gettext("unknown formula");
 	}
 
-	add_depends($params{page}, $params{pages}, content => 0);
+	add_depends($params{page}, $params{pages}, presence => 1);
 
 	my @list=sort { $params{timehash}->{$b} <=> $params{timehash}->{$a} } 
 		pagespec_match_list(

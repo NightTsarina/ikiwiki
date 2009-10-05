@@ -23,8 +23,8 @@ sub preprocess (@) {
 	$params{pages}="*" unless defined $params{pages};
 	
 	# Needs to update count whenever a page is added or removed, so
-	# register a contentless dependency.
-	add_depends($params{page}, $params{pages}, content => 0);
+	# register a presence dependency.
+	add_depends($params{page}, $params{pages}, presence => 1);
 	
 	my @pages;
 	if ($params{pages} eq "*") {
