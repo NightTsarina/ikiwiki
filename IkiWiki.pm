@@ -31,6 +31,7 @@ our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
 # Page dependency types.
 our $DEPEND_CONTENT=1;
 our $DEPEND_PRESENCE=2;
+our $DEPEND_LINKS=4;
 
 # Optimisation.
 use Memoize;
@@ -1788,6 +1789,8 @@ sub add_depends ($$;@) {
 
 		$deptype=$deptype & ~$DEPEND_CONTENT | $DEPEND_PRESENCE
 			if $params{presence} && $limited;
+		$deptype=$deptype & ~$DEPEND_CONTENT | $DEPEND_LINKS
+			if $params{links} && $limited;
 	}
 
 	if ($simple) {

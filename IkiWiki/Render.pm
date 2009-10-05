@@ -58,6 +58,37 @@ sub backlinks ($) {
 	return @links;
 }
 
+sub find_changed_links (@_) {
+	my %linkchanged;
+	my %linkchangers;
+	foreach my $file (@_) {
+		my $page=pagename($file);
+		
+		if (exists $links{$page}) {
+			foreach my $link (map { bestlink($page, $_) } @{$links{$page}}) {
+				if (length $link &&
+				    (! exists $oldlinks{$page} ||
+				     ! grep { bestlink($page, $_) eq $link } @{$oldlinks{$page}})) {
+					$linkchanged{$link}=1;
+					$linkchangers{lc($page)}=1;
+				}
+			}
+		}
+		if (exists $oldlinks{$page}) {
+			foreach my $link (map { bestlink($page, $_) } @{$oldlinks{$page}}) {
+				if (length $link &&
+				    (! exists $links{$page} || 
+				     ! grep { bestlink($page, $_) eq $link } @{$links{$page}})) {
+					$linkchanged{$link}=1;
+					$linkchangers{lc($page)}=1;
+				}
+			}
+		}
+	}
+
+	return \%linkchanged, \%linkchangers;
+}
+
 sub genpage ($$) {
 	my $page=shift;
 	my $content=shift;
@@ -455,10 +486,12 @@ sub refresh () {
 	}
 
 	if (%rendered || @del || @internal || @internal_change) {
-		my @changed;
-		my $changes;
+		my @changed=(keys %rendered, @del);
+		my ($linkchanged, $linkchangers)=find_changed_links(@changed);
+
+		my $unsettled;
 		do {
-			$changes=0;
+			$unsettled=0;
 			@changed=(keys %rendered, @del);
 			my @exists_changed=(@add, @del);
 	
@@ -474,10 +507,14 @@ sub refresh () {
 				if (exists $depends_simple{$p}) {
 					foreach my $d (keys %{$depends_simple{$p}}) {
 						if (($depends_simple{$p}{$d} & $IkiWiki::DEPEND_CONTENT &&
-						     exists $lc_changed{$d})
+						     $lc_changed{$d})
 						    ||
 						    ($depends_simple{$p}{$d} & $IkiWiki::DEPEND_PRESENCE &&
-						     exists $lc_exists_changed{$d})) {
+						     $lc_exists_changed{$d})
+					     	    ||
+						    ($depends_simple{$p}{$d} & $IkiWiki::DEPEND_LINKS &&
+						     $linkchangers->{$d})
+				     		) {
 							$reason = $d;
 							last;
 						}
@@ -489,29 +526,30 @@ sub refresh () {
 						my $sub=pagespec_translate($d);
 						next if $@ || ! defined $sub;
 	
-						my @candidates;
-						if ($depends{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
-							@candidates=@changed;
-						}
-						elsif ($depends{$p}{$d} & $IkiWiki::DEPEND_PRESENCE) {
-							@candidates=@exists_changed;
-						}
 						# only consider internal files
 						# if the page explicitly depends
 						# on such files
-						if ($d =~ /internal\(/) {
-							if ($depends{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
-								push @candidates, @internal, @internal_change;
-							}
-							elsif ($depends{$p}{$d} & $IkiWiki::DEPEND_PRESENCE) {
-								push @candidates, @internal;
-							}
+						my $internal_dep=$d =~ /internal\(/;
+
+						my @candidates;
+						if ($depends{$p}{$d} & $IkiWiki::DEPEND_PRESENCE) {
+							@candidates=@exists_changed;
+	 						push @candidates, @internal
+								if $internal_dep;
 						}
-	
+						if (($depends{$p}{$d} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS))) {
+							@candidates=@changed;
+							push @candidates, @internal, @internal_change
+								if $internal_dep;
+						}
+
 						foreach my $file (@candidates) {
 							next if $file eq $f;
 							my $page=pagename($file);
 							if ($sub->($page, location => $p)) {
+								if ($depends{$p}{$d} & $IkiWiki::DEPEND_LINKS) {
+									next unless $linkchangers->{lc($page)};
+								}
 								$reason = $page;
 								last D;
 							}
@@ -523,39 +561,14 @@ sub refresh () {
 					debug(sprintf(gettext("building %s, which depends on %s"), $f, $reason));
 					render($f);
 					$rendered{$f}=1;
-					$changes++;
+					$unsettled=1;
 					last;
 				}
 			}
-		} while $changes;
+		} while $unsettled;
 		
-		# handle backlinks; if a page has added/removed links,
-		# update the pages it links to
-		my %linkchanged;
-		foreach my $file (@changed) {
-			my $page=pagename($file);
-			
-			if (exists $links{$page}) {
-				foreach my $link (map { bestlink($page, $_) } @{$links{$page}}) {
-					if (length $link &&
-					    (! exists $oldlinks{$page} ||
-					     ! grep { bestlink($page, $_) eq $link } @{$oldlinks{$page}})) {
-						$linkchanged{$link}=1;
-					}
-				}
-			}
-			if (exists $oldlinks{$page}) {
-				foreach my $link (map { bestlink($page, $_) } @{$oldlinks{$page}}) {
-					if (length $link &&
-					    (! exists $links{$page} || 
-					     ! grep { bestlink($page, $_) eq $link } @{$links{$page}})) {
-						$linkchanged{$link}=1;
-					}
-				}
-			}
-		}
-
-		foreach my $link (keys %linkchanged) {
+		# update backlinks at end
+		foreach my $link (keys %{$linkchanged}) {
 		    	my $linkfile=$pagesources{$link};
 			if (defined $linkfile) {
 				next if $rendered{$linkfile};
