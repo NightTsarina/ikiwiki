@@ -35,10 +35,13 @@ sub preprocess (@) {
 	$params{pages}="*" unless defined $params{pages};
 	my $style = ($params{style} or 'cloud');
 	
-	# Needs to update whenever a page is added or removed, so
-	# register a dependency.
-	add_depends($params{page}, $params{pages});
-	add_depends($params{page}, $params{among}) if exists $params{among};
+	# Needs to update whenever a page is added or removed.
+	add_depends($params{page}, $params{pages}, exists => 1);
+	# Also needs to update when any page with links changes, 
+	# in case the links point to our displayed pages.
+	# (Amoung limits this further.)
+	add_depends($params{page}, exists $params{among} ? $params{among} : "*",
+		links => 1); 
 	
 	my %counts;
 	my $max = 0;
