@@ -61,21 +61,59 @@ code or tried it yet, but here goes. --[[Joey]]
   seems like it will become a pain. Everyone will need to come up
   with their own automation for it, and then there's the question
   of how to automate it when uploading attachments.
+
+> There's already a script (ikiwiki-album) to populate a git
+> checkout with skeleton "viewer" pages; I was planning to make a
+> specialized CGI interface for albums after getting feedback from
+> you (since the requirements for that CGI interface change depending
+> on the implementation). I agree that this is ugly, though. -s
+
 * With each viewer page having next/prev links, I can see how you
   were having the scalability issues with ikiwiki's data structures
   earlier!
+
+> Yeah, I think they're a basic requirement from a UI point of view
+> though (although they don't necessarily have to be full wikilinks).
+> -s
+
 * And doesn't each viewer page really depend on every other page in the
   same albumsection? If a new page is added, the next/prev links
   may need to be updated, for example. If so, there will be much
   unnecessary rebuilding.
+
+> albumsections are just a way to insert headings into the flow of
+> photos, so they don't actually affect dependencies.
+>
+> One non-obvious constraint of ikiwiki's current design is that
+> everything "off-page" necessary to build any page has to happen
+> at scan time, which has caused a few strange design decisions,
+> like the fact that each viewer controls what album it's in.
+>
+> It's difficult for the contents of the album to just be a
+> pagespec, like for inline, because pagespecs can depend on
+> metadata, which is gathered in arbitrary order at scan time;
+> so the earliest you can safely apply a pagespec to the wiki
+> contents to get a concrete list of pages is at rebuild time.
+>
+> (This stalled my attempt at a trail plugin, too.) -s
+
 * One thing I do like about having individual pages per image is
   that they can each have their own comments, etc.
+
+> Yes; also, they can be wikilinked. I consider those to be
+> UI requirements. -s
+
 * Seems possibly backwards that the albumimage controls what album
   an image appears in. Two use cases -- 1: I may want to make a locked
   album, but then anyone who can write to any other page on the wiki can
   add an image to it. 2: I may want an image to appear in more than one
   album. Think tags. So it seems it would be better to have the album
   directive control what pages it includes (a la inline).
+
+> See note above about pagespecs not being very safe early on.
+> You did merge my inline-with-pagenames feature, which is safe to use
+> at scan time, though.
+
 * Putting a few of the above thoughts together, my ideal album system
   seems to be one where I can just drop the images into a directory and
   have them appear in the album index, as well as each generate their own wiki
@@ -84,3 +122,92 @@ code or tried it yet, but here goes. --[[Joey]]
   themselves.) This is almost pointing toward making the images first-class
   wiki page sources. Hey, it worked for po! :) But the metadata and editing
   problems probably don't really allow that.
+
+> Putting a JPEG in the web form is not an option from my point of
+> view :-) but perhaps there could just be a "web-editable" flag supplied
+> by plugins, and things could be changed to respect it.
+>
+> In a way, what you really want for metadata is to have it in the album
+> page, so you can batch-edit the whole lot by editing one file (this
+> does mean that editing the album necessarily causes each of its viewers
+> to be rebuilt, but in practice that happens anyway). -s
+
+----
+
+Trying to use the "special extension" design:
+
+Suppose that each viewer is a JPEG-or-GIF-or-something, with extension
+".albumimage". We have a gallery "memes" with three images, badger,
+mushroom and snake.
+
+Files in git repo:
+
+* index.mdwn
+* memes.mdwn
+* memes/badger.albumimage (a renamed JPEG)
+* memes/badger/comment_1._comment
+* memes/badger/comment_2._comment
+* memes/mushroom.albumimage (a renamed GIF)
+* memes/mushroom.meta (sidecar file with metadata)
+* memes/snake.albumimage (a renamed video)
+
+Files in web content:
+
+* index.html
+* memes/index.html
+* memes/96x96-badger.jpg (from img)
+* memes/96x96-mushroom.jpg (from img)
+* memes/96x96-snake.jpg (from img, hacked up to use totem-video-thumbnailer :-) )
+* memes/badger/index.html (including comments)
+* memes/badger.jpg
+* memes/mushroom/index.html
+* memes/mushroom.gif
+* memes/snake/index.html
+* memes/snake.mov
+
+ispage("memes/badger") (etc.) must be true, to make the above rendering
+happen, so albumimage needs to be a "page" extension.
+
+To not confuse other plugins, album should probably have a filter() hook
+that turns .albumimage files into HTML? That'd probably be a reasonable
+way to get them rendered anyway.
+
+do=edit&page=memes/badger needs to not put the JPG in a text box: somehow
+divert or override the normal edit CGI by telling it that .albumimage
+files are not editable in the usual way?
+
+Every image needs to depend on, and link to, the next and previous images,
+which is a bit tricky. In previous thinking about this I'd been applying
+the overly strict constraint that the ordered sequence of pages in each
+album must be known at scan time. However, that's not *necessarily* needed:
+the album and each photo could collect an unordered superset of dependencies
+at scan time, and at rebuild time that could be refined to be the exact set,
+in order. Perhaps restricting to "the images in an album A must match A/*"
+would be useful; then the unordered superset could just be "A/*". Your
+"albums via tags" idea would be nice too though, particularly for feature
+parity with e.g. Facebook: "photos of Joey" -> "tags/joey and albumimage()"
+maybe?
+
+If images are allowed to be considered to be part of more than one album,
+then a pretty and usable UI becomes harder - "next/previous" expands into
+"next photo in holidays/2009/germany / next photo in tagged/smcv / ..."
+and it could get quite hard to navigate. Perhaps next/previous links could
+be displayed only for the closest ancestor (in URL space) that is an
+album, or something?
+
+Requiring renaming is awkward for non-technical Windows/Mac users, with both
+platforms' defaults being to hide extensions; however, this could be
+circumvented by adding some sort of hook in attachment to turn things into
+a .albumimage at upload time, and declaring that using git/svn/... without
+extensions visible is a "don't do that then" situation :-)
+
+Ideally attachment could also be configured to upload into a specified
+underlay, so that photos don't have to be in your source-code control
+(you might want that, but I don't!).
+
+Things that would be nice, and are probably possible:
+
+* make the "Edit page" link on viewers divert to album-specific CGI instead
+  of just failing or not appearing
+* some way to deep-link to memes/badger.jpg with a wikilink, without knowing a
+  priori that it's secretly a JPEG
