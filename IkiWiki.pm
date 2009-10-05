@@ -1786,7 +1786,7 @@ sub add_depends ($$;@) {
 			$limited = $1 =~ /^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after)$/;
 		}
 
-		$deptype=$deptype & ~$DEPEND_CONTENT & $DEPEND_PRESENCE
+		$deptype=$deptype & ~$DEPEND_CONTENT | $DEPEND_PRESENCE
 			if $params{presence} && $limited;
 	}
 
