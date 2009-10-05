@@ -12,13 +12,13 @@ And here's how to create a table of all the pages on the wiki:
 
 	\[[!pagestats style="table"]]
 
-The optional `among` parameter limits display to pages that match a
-[[ikiwiki/PageSpec]]. For instance, to display a cloud of tags used on blog
-entries, you could use:
+The optional `among` parameter limits the pages whose outgoing links are
+considered. For instance, to display a cloud of tags used on blog
+entries, while ignoring other pages that use those tags, you could use:
 
 	\[[!pagestats pages="tags/*" among="blog/posts/*"]]
 
-or to display a cloud of tags related to Linux, you could use:
+Or to display a cloud of tags related to Linux, you could use:
 
 	\[[!pagestats pages="tags/* and not tags/linux" among="tagged(linux)"]]
 
