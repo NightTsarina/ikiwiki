@@ -1,5 +1,5 @@
 If a sidebar contains a map, or inline (etc), one would expect a
-change/add/remove of any of the mapped/inlined pages to cause a full wiki
+add/remove of any of the mapped/inlined pages to cause a full wiki
 rebuild. But this does not happen.
 
 If page A inlines page B, which inlines page C, a change to C will cause B
@@ -52,13 +52,17 @@ Downsides here:
   at least in my simple implementation, which re-runs the dependency
   resolution loop until no new pages are rebuilt.
   (I added an optimisation that gets it down to 1.5X as much work on
-  average, still 2x as much worst case.)
+  average, still 2x as much worst case. I suppose building a directed
+  graph and traversing it would be theoretically more efficient.)
 * Causes extra work for some transitive dependencies that we don't
-  actually care about. For example, changing index causes
+  actually care about. This is amelorated, but not solved by 
+  the current work on [[todo/dependency_types]].
+  For example, changing index causes
   plugins/brokenlinks to update in the first pass; if there's a second
-  pass, plugins/map is then updated, because it depends on plugins/brokenlinks.
+  pass, plugins/map is no longer updated (contentless dependencies FTW),
+  but plugins is, because it depends on plugins/brokenlinks.
   (Of course, this is just a special case of the issue that a real
-  modification to plugins/brokenlinks causes an unnecessary update of plugins/map,
-  because we have [[only_one_kind_of_dependency|todo/dependency_types]].)
+  modification to plugins/brokenlinks causes an unnecessary update of
+  plugins, and could be solved by adding more dependency types.)
 
 --[[Joey]] 

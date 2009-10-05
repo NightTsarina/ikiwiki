@@ -1901,7 +1901,7 @@ sub pagespec_translate ($) {
 			[^\s()]+	# any other text
 		)
 		\s*		# ignore whitespace
-	}igx) {
+	}gx) {
 		my $word=$1;
 		if (lc $word eq 'and') {
 			$code.=' &&';
