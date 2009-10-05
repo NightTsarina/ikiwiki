@@ -490,7 +490,7 @@ sub refresh () {
 						next if $@ || ! defined $sub;
 	
 						my @candidates;
-						if ($depends_simple{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
+						if ($depends{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
 							@candidates=@changed;
 						}
 						elsif ($depends{$p}{$d} & $IkiWiki::DEPEND_PRESENCE) {
@@ -500,7 +500,7 @@ sub refresh () {
 						# if the page explicitly depends
 						# on such files
 						if ($d =~ /internal\(/) {
-							if ($depends_simple{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
+							if ($depends{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
 								push @candidates, @internal, @internal_change;
 							}
 							elsif ($depends{$p}{$d} & $IkiWiki::DEPEND_PRESENCE) {
