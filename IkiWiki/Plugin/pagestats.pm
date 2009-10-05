@@ -39,7 +39,7 @@ sub preprocess (@) {
 	add_depends($params{page}, $params{pages}, exists => 1);
 	# Also needs to update when any page with links changes, 
 	# in case the links point to our displayed pages.
-	# (Amoung limits this further.)
+	# (Among limits this further.)
 	add_depends($params{page}, exists $params{among} ? $params{among} : "*",
 		links => 1); 
 	
