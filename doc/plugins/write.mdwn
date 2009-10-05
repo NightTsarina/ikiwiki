@@ -620,8 +620,10 @@ used to indicate weaker types of dependencies:
 
 * `presence` if set to true, only the presence of a matching page triggers
   the dependency.
-* `links` if set to true, any change in the text of links on a matching page
-  triggers the dependency
+* `links` if set to true, any change to links on a matching page
+  triggers the dependency. This includes when a link is added, removed,
+  or changes what it points to due to other changes. It does not include
+  the addition or removal of a duplicate link.
 
 #### `pagespec_match($$;@)`
 

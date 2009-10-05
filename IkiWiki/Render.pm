@@ -63,24 +63,39 @@ sub find_changed_links (@_) {
 	my %linkchangers;
 	foreach my $file (@_) {
 		my $page=pagename($file);
-		
+	
 		if (exists $links{$page}) {
-			foreach my $link (map { bestlink($page, $_) } @{$links{$page}}) {
-				if (length $link &&
-				    (! exists $oldlinks{$page} ||
-				     ! grep { bestlink($page, $_) eq $link } @{$oldlinks{$page}})) {
-					$linkchanged{$link}=1;
-					$linkchangers{lc($page)}=1;
+			foreach my $l (@{$links{$page}}) {
+				my $link=bestlink($page, $l);
+				if (length $link) {
+					if (! exists $oldlinks{$page} ||
+					    ! grep { bestlink($page, $_) eq $link } @{$oldlinks{$page}}) {
+						$linkchanged{$link}=1;
+						$linkchangers{lc($page)}=1;
+					}
 				}
+				else {
+					if (! grep { lc $_ eq lc $l } @{$oldlinks{$page}}) {
+						$linkchangers{lc($page)}=1
+					}
+				}
+				
 			}
 		}
 		if (exists $oldlinks{$page}) {
-			foreach my $link (map { bestlink($page, $_) } @{$oldlinks{$page}}) {
-				if (length $link &&
-				    (! exists $links{$page} || 
-				     ! grep { bestlink($page, $_) eq $link } @{$links{$page}})) {
-					$linkchanged{$link}=1;
-					$linkchangers{lc($page)}=1;
+			foreach my $l (@{$oldlinks{$page}}) {
+				my $link=bestlink($page, $l);
+				if (length $link) {
+					if (! exists $links{$page} || 
+					    ! grep { bestlink($page, $_) eq $link } @{$links{$page}}) {
+						$linkchanged{$link}=1;
+						$linkchangers{lc($page)}=1;
+					}
+				}
+				else {
+					if (! grep { lc $_ eq lc $l } @{$links{$page}}) {
+						$linkchangers{lc($page)}=1
+					}
 				}
 			}
 		}
