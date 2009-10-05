@@ -162,14 +162,13 @@ Link dependencies:
 
 * `add_depends($page, $spec, links => 1, presence => 1)`
   adds a links + presence dependency.
-* `refresh` only rebuilds a page with a links dependency if
-  pages matched by the pagespec gain or lose links. (What the link
-  actually points to may change independent of this, due to changes
-  elsewhere, without it firing.)
+* Use backlinks change code to detect changes to link dependencies too.
 * So, brokenlinks can fire whenever any links in any of the
   pages it's tracking change, or when pages are added or
   removed.
 
 TODO: How to determine if a pagespec is valid to be used with a links
 dependency? Use the same simple pagespecs that are valid for presence
-dependencies?
+dependencies? Seems ok.
+
+[[done]]
