@@ -23,9 +23,8 @@ sub preprocess (@) {
 	my %params=@_;
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Needs to update whenever a page is changed, 
-	# added or removed, in order to see the link changes.
-	add_depends($params{page}, $params{pages});
+	# Needs to update whenever the links on a page change.
+	add_depends($params{page}, $params{pages}, links => 1);
 	
 	my @broken;
 	foreach my $link (keys %IkiWiki::brokenlinks) {
