@@ -76,6 +76,12 @@ code or tried it yet, but here goes. --[[Joey]]
 > though (although they don't necessarily have to be full wikilinks).
 > -s
 
+>> I think that with the new dependency types system, the dependencies for
+>> these can be presence dependencies, which will probably help with
+>> avoiding rebuilds of a page if the next/prev page is changed.
+>> (Unless you use img to make the thumbnails for those links, then it
+>> would rebuild the thumbnails anyway. Have not looked at the code.) --[[Joey]] 
+
 * And doesn't each viewer page really depend on every other page in the
   same albumsection? If a new page is added, the next/prev links
   may need to be updated, for example. If so, there will be much
@@ -96,6 +102,11 @@ code or tried it yet, but here goes. --[[Joey]]
 > contents to get a concrete list of pages is at rebuild time.
 >
 > (This stalled my attempt at a trail plugin, too.) -s
+
+>> Not sure I understand why these need to look at pagespecs at scan time?
+>> Also, note that it is fairly doable to detect if a pagespec uses such
+>> metadata. Er, I mean, I have a cheezy hack in `add_depends` now that does
+>> it to deal with a similar case. --[[Joey]] 
 
 * One thing I do like about having individual pages per image is
   that they can each have their own comments, etc.
@@ -131,6 +142,15 @@ code or tried it yet, but here goes. --[[Joey]]
 > page, so you can batch-edit the whole lot by editing one file (this
 > does mean that editing the album necessarily causes each of its viewers
 > to be rebuilt, but in practice that happens anyway). -s
+>
+>> Yes, that would make some sense.. It also allows putting one image in
+>> two albums, with different caption etc. (Maybe for different audiences.)
+>>
+>> It would probably be possible to add a new dependency type, and thus
+>> make ikiwiki smart about noticing whether the metadata has actually
+>> changed, and only update those viewers where it has. But the dependency
+>> type stuff is still very new, and not plugin friendly .. so only just
+>> possible, --[[Joey]] 
 
 ----
 
@@ -139,6 +159,10 @@ Trying to use the "special extension" design:
 Suppose that each viewer is a JPEG-or-GIF-or-something, with extension
 ".albumimage". We have a gallery "memes" with three images, badger,
 mushroom and snake.
+
+> An alternative might be to use ".album.jpg", and ".album.gif"
+> etc as the htmlize extensions. May need some fixes to ikiwiki to support
+> that. --[[Joey]] 
 
 Files in git repo:
 
@@ -172,6 +196,10 @@ To not confuse other plugins, album should probably have a filter() hook
 that turns .albumimage files into HTML? That'd probably be a reasonable
 way to get them rendered anyway.
 
+> I guess that is needed to avoid preprocess, scan, etc trying to process
+> the image, as well as eg, smiley trying to munge it in sanitize.
+> --[[Joey]] 
+
 do=edit&page=memes/badger needs to not put the JPG in a text box: somehow
 divert or override the normal edit CGI by telling it that .albumimage
 files are not editable in the usual way?
@@ -182,7 +210,14 @@ the overly strict constraint that the ordered sequence of pages in each
 album must be known at scan time. However, that's not *necessarily* needed:
 the album and each photo could collect an unordered superset of dependencies
 at scan time, and at rebuild time that could be refined to be the exact set,
-in order. Perhaps restricting to "the images in an album A must match A/*"
+in order.
+
+> Why do you need to collect this info at scan time? You can determine it
+> at build time via `pagespec_match_list`, surely .. maybe with some
+> memoization to avoid each image in an album building the same list.
+> I sense that I may be missing a subtelty though. --[[Joey]] 
+
+Perhaps restricting to "the images in an album A must match A/*"
 would be useful; then the unordered superset could just be "A/*". Your
 "albums via tags" idea would be nice too though, particularly for feature
 parity with e.g. Facebook: "photos of Joey" -> "tags/joey and albumimage()"
@@ -195,11 +230,19 @@ and it could get quite hard to navigate. Perhaps next/previous links could
 be displayed only for the closest ancestor (in URL space) that is an
 album, or something?
 
+> Ugh, yeah, that is a problem. Perhaps wanting to support that was just
+> too ambitious. --[[Joey]] 
+
 Requiring renaming is awkward for non-technical Windows/Mac users, with both
 platforms' defaults being to hide extensions; however, this could be
 circumvented by adding some sort of hook in attachment to turn things into
 a .albumimage at upload time, and declaring that using git/svn/... without
 extensions visible is a "don't do that then" situation :-)
+
+> Or extend `pagetype` so it can do the necessary matching without
+> renaming. Maybe by allowing a subdirectory to be specified along
+> with an extension. (Or allow specifying a full pagespec,
+> but I hesitate to seriously suggest that.) --[[Joey]] 
 
 Ideally attachment could also be configured to upload into a specified
 underlay, so that photos don't have to be in your source-code control
