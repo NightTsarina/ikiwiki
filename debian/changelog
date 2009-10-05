@@ -11,14 +11,17 @@ ikiwiki (3.14159266) UNRELEASED; urgency=low
   * Fix a bug that could lead to duplicate links being recorded
     for tags.
   * Added support framework for multiple types of dependencies.
-  * Allow declaring that a dependency is only affected by page presence.
-    (By passing presence => 1 to add_depends.)
+  * Allow declaring that a dependency is only affected by page presence
+    or changes to its links.
+    (By passing presence => 1 or links => 1 to add_depends.)
   * pagecount, calendar, postsparkline, progress: Use a presence dependency,
     which makes these directives much less expensive to use, since page
     edits will no longer trigger an unnecessary update.
   * map: Use a presence dependency unless show= is specified.
     This makes maps efficient enough that they can be used on sidebars!
   * inline: Use a presence dependency in quick mode.
+  * brokenlinks: Use a link dependency.
+    This makes it much more efficient, only updating when really necessary.
   * Transitive dependencies are now correctly supported.
 
  -- Joey Hess <joeyh@debian.org>  Sun, 27 Sep 2009 17:40:03 -0400
