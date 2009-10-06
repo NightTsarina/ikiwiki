@@ -45,7 +45,7 @@ sub preprocess (@) {
 	
 	my %counts;
 	my $max = 0;
-	foreach my $page (pagespec_match_list([keys %links],
+	foreach my $page (pagespec_match_list([keys %pagesources],
 			$params{pages}, location => $params{page})) {
 		use IkiWiki::Render;
 
