@@ -557,7 +557,7 @@ sub render_dependent ($$$$$$$) {
 				my $in=sub {
 					my $list=shift;
 					my $type=shift;
-					foreach my $file ($list) {
+					foreach my $file (@$list) {
 						next if $file eq $f;
 						my $page=pagename($file);
 						if ($sub->($page, location => $p)) {
