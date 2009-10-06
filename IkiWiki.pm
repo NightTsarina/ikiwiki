@@ -1536,7 +1536,7 @@ sub loadindex () {
 				};
 			}
 			elsif (exists $d->{depends_simple}) {
-				$depends{$page}=$d->{depends_simple};
+				$depends_simple{$page}=$d->{depends_simple};
 			}
 			if (exists $d->{dependslist}) {
 				# old format
