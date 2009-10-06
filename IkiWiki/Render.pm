@@ -8,7 +8,7 @@ use IkiWiki;
 use Encode;
 
 my (%backlinks, %rendered, @new, @del, @internal, @internal_change, @files,
-	%page_exists, %oldlink_targets, @needsbuild, %backlinkchanged,
+	%page_exists, %oldlink_targets, %backlinkchanged,
 	%linkchangers);
 our %brokenlinks;
 my $links_calculated=0;
@@ -400,6 +400,7 @@ sub process_del_files () {
 }
 
 sub find_needsbuild () {
+	my @needsbuild;
 	foreach my $file (@files) {
 		my $page=pagename($file);
 		my ($srcfile, @stat)=srcfile_stat($file);
@@ -418,15 +419,15 @@ sub find_needsbuild () {
 			}
 		}
 	}
+	return @needsbuild;
 }
 
-sub calculate_old_links () {
-	foreach my $file (@needsbuild, @del) {
-		my $page=pagename($file);
-		if (exists $oldlinks{$page}) {
-			foreach my $l (@{$oldlinks{$page}}) {
-				$oldlink_targets{$page}{$l}=bestlink($page, $l);
-			}
+sub calculate_old_links ($) {
+	my $file=shift;
+	my $page=pagename($file);
+	if (exists $oldlinks{$page}) {
+		foreach my $l (@{$oldlinks{$page}}) {
+			$oldlink_targets{$page}{$l}=bestlink($page, $l);
 		}
 	}
 }
@@ -442,13 +443,12 @@ sub derender_internal ($) {
 	$renderedfiles{$page}=[];
 }
 
-sub render_linkers () {
-	foreach my $f (@new, @del) {
-		my $p=pagename($f);
-		foreach my $page (keys %{$backlinks{$p}}) {
-			my $file=$pagesources{$page};
-			render($file, sprintf(gettext("building %s, which links to %s"), $file, $p));
-		}
+sub render_linkers ($) {
+	my $f=shift;
+	my $p=pagename($f);
+	foreach my $page (keys %{$backlinks{$p}}) {
+		my $file=$pagesources{$page};
+		render($file, sprintf(gettext("building %s, which links to %s"), $file, $p));
 	}
 }
 
@@ -464,28 +464,26 @@ sub remove_unrendered () {
 	}
 }
 
-sub calculate_changed_links () {
-	foreach my $file (@needsbuild, @del) {
-		my $page=pagename($file);
-		my %link_targets;
-		if (exists $links{$page}) {
-			foreach my $l (@{$links{$page}}) {
-				my $target=bestlink($page, $l);
-				if (! exists $oldlink_targets{$page}{$l} ||
-				    $target ne $oldlink_targets{$page}{$l}) {
-					$backlinkchanged{$l}=1;
-					$linkchangers{lc($page)}=1;
-				}
-				delete $oldlink_targets{$page}{$l};
+sub calculate_changed_links ($) {
+	my $file=shift;
+	my $page=pagename($file);
+	if (exists $links{$page}) {
+		foreach my $l (@{$links{$page}}) {
+			my $target=bestlink($page, $l);
+			if (! exists $oldlink_targets{$page}{$l} ||
+			    $target ne $oldlink_targets{$page}{$l}) {
+				$backlinkchanged{$l}=1;
+				$linkchangers{lc($page)}=1;
 			}
+			delete $oldlink_targets{$page}{$l};
 		}
-		if (exists $oldlink_targets{$page} &&
-		    %{$oldlink_targets{$page}}) {
-			foreach my $target (keys %{$oldlink_targets{$page}}) {
-				$backlinkchanged{$target}=1;
-			}
-			$linkchangers{lc($page)}=1;
+	}
+	if (exists $oldlink_targets{$page} &&
+	    %{$oldlink_targets{$page}}) {
+		foreach my $target (keys %{$oldlink_targets{$page}}) {
+			$backlinkchanged{$target}=1;
 		}
+		$linkchangers{lc($page)}=1;
 	}
 }
 
@@ -578,9 +576,13 @@ sub refresh () {
 	@files=@{find_src_files()};
 	process_new_files();
 	process_del_files();
-	find_needsbuild();
+
+	my @needsbuild=find_needsbuild();
 	run_hooks(needsbuild => sub { shift->(\@needsbuild) });
-	calculate_old_links();
+
+	foreach my $file (@needsbuild, @del) {
+		calculate_old_links($file);
+	}
 
 	foreach my $file (@needsbuild) {
 		scan($file);
@@ -591,13 +593,17 @@ sub refresh () {
 	foreach my $file (@needsbuild) {
 		render($file, sprintf(gettext("building %s"), $file));
 	}
-
 	foreach my $file (@internal, @internal_change) {
 		derender_internal($file);
 	}
-	
-	calculate_changed_links();
-	render_linkers();
+
+	foreach my $file (@needsbuild, @del) {
+		calculate_changed_links($file);
+	}
+
+	foreach my $file (@new, @del) {
+		render_linkers($file);
+	}
 	
 	if (@needsbuild || @del || @internal || @internal_change) {
 		1 while render_dependent();
