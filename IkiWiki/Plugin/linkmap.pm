@@ -28,8 +28,9 @@ sub preprocess (@) {
 
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Needs to update whenever a relevant page's links change.
-	add_depends($params{page}, $params{pages}, links => 1);
+	# Needs to update whenever a relevant page is added, or removed, or
+	# its links change.
+	add_depends($params{page}, $params{pages}, presence => 1, links => 1);
 	
 	# Can't just return the linkmap here, since the htmlscrubber
 	# scrubs out all <object> tags (with good reason!)
