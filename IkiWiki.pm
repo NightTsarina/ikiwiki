@@ -1776,21 +1776,42 @@ sub add_depends ($$;@) {
 	my $simple=$pagespec =~ /$config{wiki_file_regexp}/ &&
 		$pagespec !~ /[\s*?()!]/;
 
-	my $deptype=$DEPEND_CONTENT;
+	my $deptype=0;
 	if (@_) {
 		my %params=@_;
 		
-		# Is the pagespec limited to terms that will continue
-		# to match pages as long as those pages exist?
-		my $limited=1;
-		while ($limited && $pagespec=~m/(\w+)\([^\)]*\)/g) {
-			$limited = $1 =~ /^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after)$/;
+		if ($params{presence}) {
+ 			# Is the pagespec limited to terms that will continue
+			# to match pages as long as those pages exist?
+			my $presence_limited=1;
+			while ($presence_limited && $pagespec=~m/(\w+)\([^\)]*\)/g) {
+				$presence_limited = $1 =~ /^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after)$/;
+			}
+			if ($presence_limited) {
+				$deptype=$deptype | $DEPEND_PRESENCE;
+			}
+			else {
+				$deptype=$deptype | $DEPEND_CONTENT;
+			}
 		}
-
-		$deptype=$deptype & ~$DEPEND_CONTENT | $DEPEND_PRESENCE
-			if $params{presence} && $limited;
-		$deptype=$deptype & ~$DEPEND_CONTENT | $DEPEND_LINKS
-			if $params{links} && $limited;
+		if ($params{links}) {
+ 			# Is the pagespec limited to terms that will continue
+			# to match pages as long as those pages exist and
+			# link to the same places?
+			my $links_limited=1;
+			while ($links_limited && $pagespec=~m/(\w+)\([^\)]*\)/g) {
+				$links_limited = $1 =~ /^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after|backlink)$/;
+			}
+			if ($links_limited) {
+				$deptype=$deptype | $DEPEND_LINKS;
+			}
+			else {
+				$deptype=$deptype | $DEPEND_CONTENT;
+			}
+		}
+	}
+	else {
+		$deptype=$DEPEND_CONTENT;
 	}
 
 	if ($simple) {
