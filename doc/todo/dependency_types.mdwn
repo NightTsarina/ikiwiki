@@ -166,9 +166,10 @@ Link dependencies:
 * So, brokenlinks can fire whenever any links in any of the
   pages it's tracking change, or when pages are added or
   removed.
-
-TODO: How to determine if a pagespec is valid to be used with a links
-dependency? Use the same simple pagespecs that are valid for presence
-dependencies? Seems ok.
+* To determine if a pagespec is valid to be used with a links dependency,
+  use the same set that are valid for presence dependencies. But also
+  allow `backlinks()` to be used in it, since that matches pages
+  that the page links to, which is just what link dependencies are
+  triggered on.
 
 [[done]]
