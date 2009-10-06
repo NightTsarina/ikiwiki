@@ -7,9 +7,7 @@ use strict;
 use IkiWiki;
 use Encode;
 
-my (%backlinks, %rendered, @new, @del, @internal, @internal_change, @files,
-	%page_exists, %oldlink_targets, %backlinkchanged,
-	%linkchangers);
+my (%backlinks, %rendered);
 our %brokenlinks;
 my $links_calculated=0;
 
@@ -280,7 +278,8 @@ sub srcdir_check () {
 }
 
 sub find_src_files () {
-	my @ret;
+	my @files;
+	my %pages;
 	eval q{use File::Find};
 	error($@) if $@;
 	find({
@@ -297,12 +296,12 @@ sub find_src_files () {
 				}
 				else {
 					$f=~s/^\Q$config{srcdir}\E\/?//;
-					push @ret, $f;
+					push @files, $f;
 					my $page = pagename($f);
-					if ($page_exists{$page}) {
+					if ($pages{$page}) {
 						debug(sprintf(gettext("%s has multiple possible source pages"), $page));
 					}
-					$page_exists{$page}=1;
+					$pages{$page}=1;
 				}
 			}
 		},
@@ -328,9 +327,9 @@ sub find_src_files () {
 						if (! -l "$config{srcdir}/$f" && 
 						    ! -e _) {
 						    	my $page=pagename($f);
-							if (! $page_exists{$page}) {
-								push @ret, $f;
-								$page_exists{$page}=1;
+							if (! $pages{$page}) {
+								push @files, $f;
+								$pages{$page}=1;
 							}
 						}
 					}
@@ -338,11 +337,15 @@ sub find_src_files () {
 			},
 		}, $dir);
 	};
-	return \@ret;
+	return \@files, \%pages;
 }
 
-sub process_new_files () {
-	foreach my $file (@files) {
+sub find_new_files ($) {
+	my $files=shift;
+	my @new;
+	my @internal_new;
+
+	foreach my $file (@$files) {
 		my $page=pagename($file);
 		if (exists $pagesources{$page} && $pagesources{$page} ne $file) {
 			# the page has changed its type
@@ -351,7 +354,7 @@ sub process_new_files () {
 		$pagesources{$page}=$file;
 		if (! $pagemtime{$page}) {
 			if (isinternal($page)) {
-				push @internal, $file;
+				push @internal_new, $file;
 			}
 			else {
 				push @new, $file;
@@ -371,13 +374,19 @@ sub process_new_files () {
 			}
 		}
 	}
+
+	return \@new, \@internal_new;
 }
 
-sub process_del_files () {
+sub find_del_files ($) {
+	my $pages=shift;
+	my @del;
+	my @internal_del;
+
 	foreach my $page (keys %pagemtime) {
-		if (! $page_exists{$page}) {
+		if (! $pages->{$page}) {
 			if (isinternal($page)) {
-				push @internal, $pagesources{$page};
+				push @internal_del, $pagesources{$page};
 			}
 			else {
 				debug(sprintf(gettext("removing old page %s"), $page));
@@ -397,11 +406,15 @@ sub process_del_files () {
 			}
 		}
 	}
+
+	return \@del, \@internal_del;
 }
 
-sub find_needsbuild () {
-	my @needsbuild;
-	foreach my $file (@files) {
+sub find_changed ($) {
+	my $files=shift;
+	my @changed;
+	my @internal_changed;
+	foreach my $file (@$files) {
 		my $page=pagename($file);
 		my ($srcfile, @stat)=srcfile_stat($file);
 		if (! exists $pagemtime{$page} ||
@@ -412,24 +425,28 @@ sub find_needsbuild () {
 			if (isinternal($page)) {
 				# Preprocess internal page in scan-only mode.
 				preprocess($page, $page, readfile($srcfile), 1);
-				push @internal_change, $file;
+				push @internal_changed, $file;
 			}
 			else {
-				push @needsbuild, $file;
+				push @changed, $file;
 			}
 		}
 	}
-	return @needsbuild;
+	return \@changed, \@internal_changed;
 }
 
-sub calculate_old_links ($) {
-	my $file=shift;
-	my $page=pagename($file);
-	if (exists $oldlinks{$page}) {
-		foreach my $l (@{$oldlinks{$page}}) {
-			$oldlink_targets{$page}{$l}=bestlink($page, $l);
+sub calculate_old_links ($$) {
+	my ($changed, $del)=@_;
+	my %oldlink_targets;
+	foreach my $file (@$changed, @$del) {
+		my $page=pagename($file);
+		if (exists $oldlinks{$page}) {
+			foreach my $l (@{$oldlinks{$page}}) {
+				$oldlink_targets{$page}{$l}=bestlink($page, $l);
+			}
 		}
 	}
+	return \%oldlink_targets;
 }
 
 sub derender_internal ($) {
@@ -464,37 +481,48 @@ sub remove_unrendered () {
 	}
 }
 
-sub calculate_changed_links ($) {
-	my $file=shift;
-	my $page=pagename($file);
-	if (exists $links{$page}) {
-		foreach my $l (@{$links{$page}}) {
-			my $target=bestlink($page, $l);
-			if (! exists $oldlink_targets{$page}{$l} ||
-			    $target ne $oldlink_targets{$page}{$l}) {
-				$backlinkchanged{$l}=1;
-				$linkchangers{lc($page)}=1;
+sub calculate_changed_links ($$$) {
+	my ($changed, $del, $oldlink_targets)=@_;
+
+	my (%backlinkchanged, %linkchangers);
+
+	foreach my $file (@$changed, @$del) {
+		my $page=pagename($file);
+
+		if (exists $links{$page}) {
+			foreach my $l (@{$links{$page}}) {
+				my $target=bestlink($page, $l);
+				if (! exists $oldlink_targets->{$page}{$l} ||
+				    $target ne $oldlink_targets->{$page}{$l}) {
+					$backlinkchanged{$l}=1;
+					$linkchangers{lc($page)}=1;
+				}
+				delete $oldlink_targets->{$page}{$l};
 			}
-			delete $oldlink_targets{$page}{$l};
+		}
+		if (exists $oldlink_targets->{$page} &&
+		    %{$oldlink_targets->{$page}}) {
+			foreach my $target (keys %{$oldlink_targets->{$page}}) {
+				$backlinkchanged{$target}=1;
+			}
+			$linkchangers{lc($page)}=1;
 		}
 	}
-	if (exists $oldlink_targets{$page} &&
-	    %{$oldlink_targets{$page}}) {
-		foreach my $target (keys %{$oldlink_targets{$page}}) {
-			$backlinkchanged{$target}=1;
-		}
-		$linkchangers{lc($page)}=1;
-	}
+
+	return \%backlinkchanged, \%linkchangers;
 }
 
-sub render_dependent () {
-	my @changed=(keys %rendered, @del);
-	my @exists_changed=(@new, @del);
+sub render_dependent ($$$$$$$) {
+	my ($files, $new, $internal_new, $del, $internal_del,
+		$internal_changed, $linkchangers)=@_;
+
+	my @changed=(keys %rendered, @$del);
+	my @exists_changed=(@$new, @$del);
 	
 	my %lc_changed = map { lc(pagename($_)) => 1 } @changed;
 	my %lc_exists_changed = map { lc(pagename($_)) => 1 } @exists_changed;
 	 
-	foreach my $f (@files) {
+	foreach my $f (@$files) {
 		next if $rendered{$f};
 		my $p=pagename($f);
 		my $reason = undef;
@@ -508,7 +536,7 @@ sub render_dependent () {
 				     $lc_exists_changed{$d})
 			     	    ||
 				    ($depends_simple{$p}{$d} & $IkiWiki::DEPEND_LINKS &&
-				     $linkchangers{$d})
+				     $linkchangers->{$d})
 		     		) {
 					$reason = $d;
 					last;
@@ -529,12 +557,12 @@ sub render_dependent () {
 				my @candidates;
 				if ($depends{$p}{$d} & $IkiWiki::DEPEND_PRESENCE) {
 					@candidates=@exists_changed;
- 					push @candidates, @internal
+ 					push @candidates, @$internal_new, @$internal_del
 						if $internal_dep;
 				}
 				if (($depends{$p}{$d} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS))) {
 					@candidates=@changed;
-					push @candidates, @internal, @internal_change
+					push @candidates, @$internal_new, @$internal_del, @$internal_changed
 						if $internal_dep;
 				}
 
@@ -543,7 +571,7 @@ sub render_dependent () {
 					my $page=pagename($file);
 					if ($sub->($page, location => $p)) {
 						if ($depends{$p}{$d} & $IkiWiki::DEPEND_LINKS) {
-							next unless $linkchangers{lc($page)};
+							next unless $linkchangers->{lc($page)};
 						}
 						$reason = $page;
 						last D;
@@ -561,8 +589,9 @@ sub render_dependent () {
 	return 0;
 }
 
-sub render_backlinks () {
-	foreach my $link (keys %backlinkchanged) {
+sub render_backlinks ($) {
+	my $backlinkchanged=shift;
+	foreach my $link (keys %$backlinkchanged) {
 		my $linkfile=$pagesources{$link};
 		if (defined $linkfile) {
 			render($linkfile, sprintf(gettext("building %s, to update its backlinks"), $linkfile));
@@ -573,47 +602,45 @@ sub render_backlinks () {
 sub refresh () {
 	srcdir_check();
 	run_hooks(refresh => sub { shift->() });
-	@files=@{find_src_files()};
-	process_new_files();
-	process_del_files();
+	my ($files, $pages)=find_src_files();
+	my ($new, $internal_new)=find_new_files($files);
+	my ($del, $internal_del)=find_del_files($pages);
+	my ($changed, $internal_changed)=find_changed($files);
+	run_hooks(needsbuild => sub { shift->($changed) });
+	my $oldlink_targets=calculate_old_links($changed, $del);
 
-	my @needsbuild=find_needsbuild();
-	run_hooks(needsbuild => sub { shift->(\@needsbuild) });
-
-	foreach my $file (@needsbuild, @del) {
-		calculate_old_links($file);
-	}
-
-	foreach my $file (@needsbuild) {
+	foreach my $file (@$changed) {
 		scan($file);
 	}
 
 	calculate_links();
 
-	foreach my $file (@needsbuild) {
+	foreach my $file (@$changed) {
 		render($file, sprintf(gettext("building %s"), $file));
 	}
-	foreach my $file (@internal, @internal_change) {
+	foreach my $file (@$internal_new, @$internal_del, @$internal_changed) {
 		derender_internal($file);
 	}
 
-	foreach my $file (@needsbuild, @del) {
-		calculate_changed_links($file);
-	}
+	my ($backlinkchanged, $linkchangers)=calculate_changed_links($changed,
+		$del, $oldlink_targets);
 
-	foreach my $file (@new, @del) {
+	foreach my $file (@$new, @$del) {
 		render_linkers($file);
 	}
 	
-	if (@needsbuild || @del || @internal || @internal_change) {
-		1 while render_dependent();
+	if (@$changed || @$internal_changed ||
+	    @$del || @$internal_del || @$internal_new) {
+		1 while render_dependent($files, $new, $internal_new,
+			$del, $internal_del, $internal_changed,
+			$linkchangers);
 	}
 
-	render_backlinks();
+	render_backlinks($backlinkchanged);
 	remove_unrendered();
 
-	if (@del) {
-		run_hooks(delete => sub { shift->(@del) });
+	if (@$del) {
+		run_hooks(delete => sub { shift->(@$del) });
 	}
 	if (%rendered) {
 		run_hooks(change => sub { shift->(keys %rendered) });
