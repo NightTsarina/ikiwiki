@@ -545,38 +545,53 @@ sub render_dependent ($$$$$$$) {
 		}
 	
 		if (exists $depends{$p} && ! defined $reason) {
-			D: foreach my $d (keys %{$depends{$p}}) {
-				my $sub=pagespec_translate($d);
+			foreach my $dep (keys %{$depends{$p}}) {
+				my $sub=pagespec_translate($dep);
 				next if $@ || ! defined $sub;
 
 				# only consider internal files
 				# if the page explicitly depends
 				# on such files
-				my $internal_dep=$d =~ /internal\(/;
+				my $internal_dep=$dep =~ /internal\(/;
 
-				my @candidates;
-				if ($depends{$p}{$d} & $IkiWiki::DEPEND_PRESENCE) {
-					@candidates=@exists_changed;
- 					push @candidates, @$internal_new, @$internal_del
-						if $internal_dep;
-				}
-				if (($depends{$p}{$d} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS))) {
-					@candidates=@changed;
-					push @candidates, @$internal_new, @$internal_del, @$internal_changed
-						if $internal_dep;
-				}
-
-				foreach my $file (@candidates) {
-					next if $file eq $f;
-					my $page=pagename($file);
-					if ($sub->($page, location => $p)) {
-						if ($depends{$p}{$d} & $IkiWiki::DEPEND_LINKS &&
-						    ! $depends{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
-							next unless $linkchangers->{lc($page)};
+				my $in=sub {
+					my $list=shift;
+					my $type=shift;
+					foreach my $file ($list) {
+						next if $file eq $f;
+						my $page=pagename($file);
+						if ($sub->($page, location => $p)) {
+							if ($type == $IkiWiki::DEPEND_LINKS) {
+								next unless $linkchangers->{lc($page)};
+							}
+							return $page;
 						}
-						$reason = $page;
-						last D;
 					}
+					return undef;
+				};
+
+				if ($depends{$p}{$dep} & $IkiWiki::DEPEND_CONTENT) {
+					last if $reason =
+						$in->(\@changed, $IkiWiki::DEPEND_CONTENT);
+					last if $internal_dep && ($reason =
+						$in->($internal_new, $IkiWiki::DEPEND_CONTENT) ||
+						$in->($internal_del, $IkiWiki::DEPEND_CONTENT) ||
+						$in->($internal_changed, $IkiWiki::DEPEND_CONTENT));
+				}
+				if ($depends{$p}{$dep} & $IkiWiki::DEPEND_PRESENCE) {
+					last if $reason = 
+						$in->(\@exists_changed, $IkiWiki::DEPEND_PRESENCE);
+					last if $internal_dep && ($reason =
+						$in->($internal_new, $IkiWiki::DEPEND_PRESENCE) ||
+						$in->($internal_del, $IkiWiki::DEPEND_PRESENCE));
+				}
+				if ($depends{$p}{$dep} & $IkiWiki::DEPEND_LINKS) {
+					last if $reason =
+						$in->(\@changed, $IkiWiki::DEPEND_LINKS);
+					last if $internal_dep && ($reason =
+						$in->($internal_new, $IkiWiki::DEPEND_LINKS) ||
+						$in->($internal_del, $IkiWiki::DEPEND_LINKS) ||
+						$in->($internal_changed, $IkiWiki::DEPEND_LINKS));
 				}
 			}
 		}
