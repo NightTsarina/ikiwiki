@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 50;
+use Test::More tests => 85;
 
 BEGIN { use_ok("IkiWiki"); }
 %config=IkiWiki::defaultconfig();
@@ -42,19 +42,6 @@ ok($IkiWiki::depends_simple{foo2}{"baz"} & $IkiWiki::DEPEND_LINKS);
 ok($IkiWiki::depends_simple{foo2}{"baz"} & $IkiWiki::DEPEND_PRESENCE);
 ok(! ($IkiWiki::depends_simple{foo2}{"baz"} & $IkiWiki::DEPEND_CONTENT));
 
-# adding a pagespec that requires page metadata should cause a fallback to
-# a content dependency
-foreach my $spec ("* and ! link(bar)", "* or link(bar)", "unknownspec()",
-	"title(hi)",
-	"* or backlink(yo)", # this one could actually be acceptably be
-	                     # detected to not need a content dep .. in
-			     # theory!
-	) {
-	ok(add_depends("foo3", $spec, presence => 1));
-	ok($IkiWiki::depends{foo3}{$spec} & $IkiWiki::DEPEND_CONTENT);
-	ok(! ($IkiWiki::depends{foo3}{$spec} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_LINKS)));
-}
-
 # adding dep types to existing dependencies should merge the flags
 ok(add_depends("foo2", "baz"));
 ok($IkiWiki::depends_simple{foo2}{"baz"} & $IkiWiki::DEPEND_LINKS);
@@ -66,3 +53,35 @@ ok(! ($IkiWiki::depends_simple{foo2}{"bar"} & $IkiWiki::DEPEND_CONTENT));
 ok(add_depends("foo", "bar", links => 1)); # had only content before
 ok($IkiWiki::depends{foo}{"*"} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS));
 ok(! ($IkiWiki::depends{foo}{"*"} & $IkiWiki::DEPEND_PRESENCE));
+
+# adding a pagespec that requires page metadata should cause a fallback to
+# a content dependency
+foreach my $spec ("* and ! link(bar)", "* or link(bar)", "unknownspec()",
+	"title(hi)",
+	"* or unknown(yo)", # this one could actually be acceptably be
+	                    # detected to not need a content dep .. in
+			    # theory!
+	) {
+	ok(add_depends("foo3", $spec, presence => 1));
+	ok($IkiWiki::depends{foo3}{$spec} & $IkiWiki::DEPEND_CONTENT);
+	ok(! ($IkiWiki::depends{foo3}{$spec} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_LINKS)));
+	ok(add_depends("foo4", $spec, links => 1));
+	ok($IkiWiki::depends{foo3}{$spec} & $IkiWiki::DEPEND_CONTENT);
+	ok(! ($IkiWiki::depends{foo3}{$spec} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_LINKS)));
+}
+
+# a pagespec with backlinks() in it is acceptable for a links dependency,
+# but not a presence dependency
+foreach my $spec ("index or (backlink(index) and !*.png)", "backlink(foo)") {
+	ok(add_depends("foo5", $spec, presence => 1));
+	ok($IkiWiki::depends{foo5}{$spec} & $IkiWiki::DEPEND_CONTENT);
+	ok(! ($IkiWiki::depends{foo5}{$spec} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_LINKS)));
+	ok(add_depends("foo6", $spec, links => 1));
+	ok($IkiWiki::depends{foo6}{$spec} & $IkiWiki::DEPEND_LINKS);
+	ok(! ($IkiWiki::depends{foo6}{$spec} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_CONTENT)));
+	# combining both ends up with a content+links dependency
+	ok(add_depends("foo7", $spec, presence => 1, links => 1));
+	ok($IkiWiki::depends{foo7}{$spec} & $IkiWiki::DEPEND_CONTENT);
+	ok($IkiWiki::depends{foo7}{$spec} & $IkiWiki::DEPEND_LINKS);
+	ok(! ($IkiWiki::depends{foo7}{$spec} & $IkiWiki::DEPEND_PRESENCE));
+}
