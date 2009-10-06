@@ -570,7 +570,8 @@ sub render_dependent ($$$$$$$) {
 					next if $file eq $f;
 					my $page=pagename($file);
 					if ($sub->($page, location => $p)) {
-						if ($depends{$p}{$d} & $IkiWiki::DEPEND_LINKS) {
+						if ($depends{$p}{$d} & $IkiWiki::DEPEND_LINKS &&
+						    ! $depends{$p}{$d} & $IkiWiki::DEPEND_CONTENT) {
 							next unless $linkchangers->{lc($page)};
 						}
 						$reason = $page;
