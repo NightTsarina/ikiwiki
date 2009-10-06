@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 85;
+use Test::More tests => 88;
 
 BEGIN { use_ok("IkiWiki"); }
 %config=IkiWiki::defaultconfig();
@@ -85,3 +85,8 @@ foreach my $spec ("index or (backlink(index) and !*.png)", "backlink(foo)") {
 	ok($IkiWiki::depends{foo7}{$spec} & $IkiWiki::DEPEND_LINKS);
 	ok(! ($IkiWiki::depends{foo7}{$spec} & $IkiWiki::DEPEND_PRESENCE));
 }
+
+# content is the default if unknown types are entered
+ok(add_depends("foo8", "*", presenCe => 1));
+ok($IkiWiki::depends{foo8}{"*"} & $IkiWiki::DEPEND_CONTENT);
+ok(! ($IkiWiki::depends{foo8}{"*"} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_LINKS)));

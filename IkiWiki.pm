@@ -1810,9 +1810,7 @@ sub add_depends ($$;@) {
 			}
 		}
 	}
-	else {
-		$deptype=$DEPEND_CONTENT;
-	}
+	$deptype=$DEPEND_CONTENT unless $deptype;
 
 	if ($simple) {
 		$depends_simple{$page}{lc $pagespec} |= $deptype;
