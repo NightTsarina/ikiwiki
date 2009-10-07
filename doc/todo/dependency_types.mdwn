@@ -301,3 +301,22 @@ Not 100% free since it would add explicit deps for things that are not
 shown on an inline that limits its display to the first sorted N items.
 I suppose we could reach 100% free by making the function also handle
 sorting and limiting, though that could be overkill.
+
+----
+
+Found a further complication in presence dependencies. Map now uses
+presence dependencies when adding its explicit dependencies on pages. But
+this defeats the purpose of the explicit dependencies! Because, now,
+when B is changed to not match a pagespec, the A's presence dep does
+not fire.
+
+I didn't think things through when switching it to use presense
+dependencies there. But, if I change it to use full dependencies, then all
+the work that was done to allow map to use presence dependencies for its
+main pagespec is for naught. The map will once again have to update
+whenever *any* content of the page changes.
+
+This points toward the conclusion that explicit dependencies, however they
+are added, are not the right solution at all. Some other approach, such as
+maintaining the list of pages that match a dependency, and noticing when it
+changes, is needed.
