@@ -170,6 +170,11 @@ I added an "add_depends_spec()" function that adds a dependency on the pagespec 
 changes, then the dependent page is rebuilt.  At the moment the implementation uses the same hack used by map and inline -
 just add all the pages that currently exist as traditional content dependencies.
 
+> As I note below, a problem with this approach is that it has to try
+> matching the pagespec against every page, redundantly with the work done
+> by the plugin. (But there are ways to avoid that redundant matching.)
+> --[[Joey]] 
+
 Getting back to commenting on your proposal:
 
 Just talking about the definition of a "presence dependency" for the moment, and ignoring implementation.  Is a
@@ -179,6 +184,11 @@ supposed to cause an update when a pages existence hasn't changed, but it no lon
 after `test_page`.  `new_page` will not match the spec.  Now we'll delete and then re-create `test_page`.  Now
 `new_page` will match the spec, and yet `new_page` itself hasn't changed.  Nor has its 'presence' - it was present
 before and it is present now.  Should this cause a re-build of any page that has a 'presence' dependency on the spec?
+
+> Yes, a presence dep will trigger when a page is added, or removed. 
+
+> Your example is valid.. but it's also not handled right by normal,
+> (content) dependencies, for the same reasons. --[[Joey]]
 
 I think that is another version of the problem you encountered with meta-data.
 
@@ -216,6 +226,19 @@ Does ShavedByBob.mdwn include itself?
 sigh.
 
 -- [[Will]]
+
+> I have also been thinking about some sort of analysis pass over pagespecs
+> to determine what metadata, pages, etc they depend on. It is indeed
+> tricky to do. Even if it's just limited to returning a list of pages
+> as you suggest.
+>
+> Consider: For a `*` glob, it has to return a list of all pages
+> in the wiki. Which is expensive. And what if the pagespec is
+> something like `* and backlink(index)`? Without analyising the
+> boolean relationship between terms, the returned list 
+> will have many more items in it than it should. Or do we not make
+> globs return their matches? (If so we have to deal with those
+> with one of the other methods disucssed.) --[[Joey]] 
 
 ---- 
 
@@ -259,9 +282,22 @@ we grew the complication of `depends_simple`.
 One way to fix this is to include with each dependency, a list of pages
 that currently match it. If the list changes, the dependency is triggered.
 
-Should be doable, but seems to involve a more work than
+Should be doable, but may involve more work than
 currently. Consider that a dependency on "bugs/*" currently
 is triggered by just checking until *one* page is found to match it.
 But to store the list, *every* page would have to be tried against it.
 Unless the list can somehow be intelligently updated, looking at only the
-changed pages. 
+changed pages.
+
+----
+
+What if there were a function that added a dependency, and at the same time
+returned a list of pages matching the pagespec? Plugins that use this would
+be exactly the ones, like inline and map, for which this is a problem, and
+which already do a match pass over all pages.
+
+Adding explicit dependencies during this pass would thus be nearly free.
+Not 100% free since it would add explicit deps for things that are not
+shown on an inline that limits its display to the first sorted N items.
+I suppose we could reach 100% free by making the function also handle
+sorting and limiting, though that could be overkill.
