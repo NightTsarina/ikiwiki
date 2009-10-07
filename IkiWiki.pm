@@ -1926,10 +1926,10 @@ sub pagespec_translate ($) {
 	}gx) {
 		my $word=$1;
 		if (lc $word eq 'and') {
-			$code.=' &&';
+			$code.=' &';
 		}
 		elsif (lc $word eq 'or') {
-			$code.=' ||';
+			$code.=' |';
 		}
 		elsif ($word eq "(" || $word eq ")" || $word eq "!") {
 			$code.=' '.$word;
@@ -2015,36 +2015,40 @@ sub glob2re ($) {
 package IkiWiki::FailReason;
 
 use overload (
-	'""'	=> sub { ${$_[0]} },
+	'""'	=> sub { $_[0][0] },
 	'0+'	=> sub { 0 },
 	'!'	=> sub { bless $_[0], 'IkiWiki::SuccessReason'},
+	'&'	=> sub { $_[0][1]={%{$_[0][1]}, %{$_[1][1]}}; $_[0] },
+	'|'	=> sub { $_[1][1]={%{$_[0][1]}, %{$_[1][1]}}; $_[1] },
+	fallback => 1,
+);
+
+our @ISA = 'IkiWiki::SuccessReason';
+
+package IkiWiki::SuccessReason;
+
+use overload (
+	'""'	=> sub { $_[0][0] },
+	'0+'	=> sub { 1 },
+	'!'	=> sub { bless $_[0], 'IkiWiki::FailReason'},
+	'&'	=> sub { $_[1][1]={%{$_[0][1]}, %{$_[1][1]}}; $_[1] },
+	'|'	=> sub { $_[0][1]={%{$_[0][1]}, %{$_[1][1]}}; $_[0] },
 	fallback => 1,
 );
 
 sub new {
 	my $class = shift;
 	my $value = shift;
-	return bless \$value, $class;
+	return bless [$value, {@_}], $class;
+}
+
+sub influences {
+	return keys %{$_[0][1]};
 }
 
 package IkiWiki::ErrorReason;
 
 our @ISA = 'IkiWiki::FailReason';
-
-package IkiWiki::SuccessReason;
-
-use overload (
-	'""'	=> sub { ${$_[0]} },
-	'0+'	=> sub { 1 },
-	'!'	=> sub { bless $_[0], 'IkiWiki::FailReason'},
-	fallback => 1,
-);
-
-sub new {
-	my $class = shift;
-	my $value = shift;
-	return bless \$value, $class;
-};
 
 package IkiWiki::PageSpec;
 

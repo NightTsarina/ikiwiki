@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 54;
+use Test::More tests => 56;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -88,3 +88,7 @@ ok(! pagespec_match("foo", "no_such_function(foo)"), "foo");
 my $ret=pagespec_match("foo", "(invalid");
 ok(! $ret, "syntax error");
 ok($ret =~ /syntax error/, "error message");
+
+my $ret=pagespec_match("foo", "bar or foo");
+ok($ret, "simple match");
+is($ret, "foo matches foo", "stringified return");
