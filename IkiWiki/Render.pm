@@ -494,7 +494,7 @@ sub calculate_changed_links ($$$) {
 				my $target=bestlink($page, $l);
 				if (! exists $oldlink_targets->{$page}{$l} ||
 				    $target ne $oldlink_targets->{$page}{$l}) {
-					$backlinkchanged{$l}=1;
+					$backlinkchanged{$target}=1;
 					$linkchangers{lc($page)}=1;
 				}
 				delete $oldlink_targets->{$page}{$l};
@@ -502,7 +502,7 @@ sub calculate_changed_links ($$$) {
 		}
 		if (exists $oldlink_targets->{$page} &&
 		    %{$oldlink_targets->{$page}}) {
-			foreach my $target (keys %{$oldlink_targets->{$page}}) {
+			foreach my $target (values %{$oldlink_targets->{$page}}) {
 				$backlinkchanged{$target}=1;
 			}
 			$linkchangers{lc($page)}=1;
