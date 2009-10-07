@@ -156,6 +156,67 @@ false negatives (though these should be somewhat rare, and no false
 positives). Still, it does work, and it makes things like simple maps and
 pagecounts much more efficient.
 
+----
+
+#### Will's first pass feedback.
+
+If the API is going to be updated, then it would be good to make it forward compatible.
+I'd like for the API to be extendible to what is useful for complex pagespecs, even if we
+that is a little redundant at the moment.
+
+My attempt to play with this is in my git repo.  [[!template id=gitbranch branch=origin/depends-spec author="[[will]]"]]
+That branch is a little out of date, but if you just look at the changes in IkiWiki.pm you'll see the concept I was looking at.
+I added an "add_depends_spec()" function that adds a dependency on the pagespec passed to it.  If the set of matched pages
+changes, then the dependent page is rebuilt.  At the moment the implementation uses the same hack used by map and inline -
+just add all the pages that currently exist as traditional content dependencies.
+
+Getting back to commenting on your proposal:
+
+Just talking about the definition of a "presence dependency" for the moment, and ignoring implementation.  Is a
+"presence dependency" supposed to cause an update when a page disappears?  I assume so.  Is a presence dependency
+supposed to cause an update when a pages existence hasn't changed, but it no longer matches the pagespec.
+(e.g. you use `created_before(test_page)` in a pagespec, and there was a page, `new_page`, that was created
+after `test_page`.  `new_page` will not match the spec.  Now we'll delete and then re-create `test_page`.  Now
+`new_page` will match the spec, and yet `new_page` itself hasn't changed.  Nor has its 'presence' - it was present
+before and it is present now.  Should this cause a re-build of any page that has a 'presence' dependency on the spec?
+
+I think that is another version of the problem you encountered with meta-data.
+
+In the longer term I was thinking we'd have to introduce a concept of 'internal pagespec dependencies'.  Note that I'm
+defining 'internal' pagespec dependencies differently to the pagespec dependencies I defined above.  Perhaps an example:
+If you had a pagespec that was `created_before(test_page)`, then you could list all pages created before `test_page`
+with a `map` directive.  The map directive would add a pagespec dependency on `created_before(test_page)`.
+Internally, there would be a second page-spec parsing function that discovers which pages a given pagespec
+depends on.  As well as the function `match_created_before()`, we'd have to add a new function `depend_created_before()`.
+This new function would return a list of pages, which when any of them change, the output of `match_created_before()`
+would change.  In this example, it would just return `test_page`.
+
+These lists of dependent pages could just be concatenated for every `match_...()` function in a pagespec - you can ignore
+the boolean formula aspects of the pagespec for this.  If a content dependency were added on these pages, then I think 
+the correct rebuilds would occur.  
+
+In all, this is a surprisingly difficult problem to solve perfectly.  Consider the following case:
+
+PageA.mdwn:
+
+> [ShavesSelf]
+
+PageB.mdwn
+
+> Doesn't shave self.
+
+ShavedByBob.mdwn:
+
+> [!include pages="!link(ShavesSelf)"]
+
+Does ShavedByBob.mdwn include itself?
+
+(Yeah - in IkiWiki currently links are included by include, but the idea holds.  I had a good example a while back, but I can't think of it right now.)
+
+sigh.
+
+-- [[Will]]
+
 ---- 
 
 ### Link dependencies
