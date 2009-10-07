@@ -158,7 +158,7 @@ pagecounts much more efficient.
 
 ---- 
 
-Link dependencies:
+### Link dependencies
 
 * `add_depends($page, $spec, links => 1, presence => 1)`
   adds a links + presence dependency.
@@ -173,3 +173,33 @@ Link dependencies:
 TODO: How to determine if a pagespec is valid to be used with a links
 dependency? Use the same simple pagespecs that are valid for presence
 dependencies?
+
+----
+
+### the removal problem
+
+So far I have not addressed fixing the removal problem (which Will
+discusses above).
+
+Summary of problem: A has a dependency on a pagespec such as
+"bugs/* and !link(done)". B currently matches. Then B is updated,
+in a way that makes A's dependency not match it (ie, it links to done).
+Now A is not updated, because ikiwiki does not realize that it
+depended on B before.
+
+This was worked around to fix [[bugs/inline_page_not_updated_on_removal]]
+by inline and map adding explicit dependencies on each page that appears
+on them. Then a change to B triggers the explicit dep. While this works,
+it's 1) ugly 2) probably not implemented by all plugins that could
+be affected by this problem (ie, linkmap) and 3) is most of the reason why
+we grew the complication of `depends_simple`.
+
+One way to fix this is to include with each dependency, a list of pages
+that currently match it. If the list changes, the dependency is triggered.
+
+Should be doable, but seems to involve a more work than
+currently. Consider that a dependency on "bugs/*" currently
+is triggered by just checking until *one* page is found to match it.
+But to store the list, *every* page would have to be tried against it.
+Unless the list can somehow be intelligently updated, looking at only the
+changed pages. 
