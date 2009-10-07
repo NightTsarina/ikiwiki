@@ -188,7 +188,8 @@ before and it is present now.  Should this cause a re-build of any page that has
 > Yes, a presence dep will trigger when a page is added, or removed. 
 
 > Your example is valid.. but it's also not handled right by normal,
-> (content) dependencies, for the same reasons. --[[Joey]]
+> (content) dependencies, for the same reasons. Still, I think I've
+> addressed it with the pagespec influence stuff below. --[[Joey]]
 
 I think that is another version of the problem you encountered with meta-data.
 
@@ -229,16 +230,7 @@ sigh.
 
 > I have also been thinking about some sort of analysis pass over pagespecs
 > to determine what metadata, pages, etc they depend on. It is indeed
-> tricky to do. Even if it's just limited to returning a list of pages
-> as you suggest.
->
-> Consider: For a `*` glob, it has to return a list of all pages
-> in the wiki. Which is expensive. And what if the pagespec is
-> something like `* and backlink(index)`? Without analyising the
-> boolean relationship between terms, the returned list 
-> will have many more items in it than it should. Or do we not make
-> globs return their matches? (If so we have to deal with those
-> with one of the other methods disucssed.) --[[Joey]] 
+> tricky to do. More thoughts on influence lists a bit below. --[[Joey]] 
 
 ---- 
 
@@ -289,13 +281,131 @@ changed pages.
 
 ----
 
-What if there were a function that added a dependency, and at the same time
-returned a list of pages matching the pagespec? Plugins that use this would
-be exactly the ones, like inline and map, for which this is a problem, and
-which already do a match pass over all pages.
+Found a further complication in presence dependencies. Map now uses
+presence dependencies when adding its explicit dependencies on pages. But
+this defeats the purpose of the explicit dependencies! Because, now,
+when B is changed to not match a pagespec, the A's presence dep does
+not fire.
 
-Adding explicit dependencies during this pass would thus be nearly free.
-Not 100% free since it would add explicit deps for things that are not
-shown on an inline that limits its display to the first sorted N items.
-I suppose we could reach 100% free by making the function also handle
-sorting and limiting, though that could be overkill.
+I didn't think things through when switching it to use presence
+dependencies there. But, if I change it to use full dependencies, then all
+the work that was done to allow map to use presence dependencies for its
+main pagespec is for naught. The map will once again have to update
+whenever *any* content of the page changes.
+
+This points toward the conclusion that explicit dependencies, however they
+are added, are not the right solution at all. Some other approach, such as
+maintaining the list of pages that match a dependency, and noticing when it
+changes, is needed.
+
+----
+
+### pagespec influence lists
+
+I'm using this term for the concept of a list of pages whose modification
+can indirectly influence what pages a pagespec matches.
+
+#### Examples
+
+* The pagespec "created_before(foo)" has an influence list that contains foo.
+  The removal or (re)creation of foo changes what pages match it.
+
+* The pagespec "foo" has an empty influence list. This is because a
+  modification/creation/removal of foo directly changes what the pagespec
+  matches.
+
+* The pagespec "*" has an empty influence list, for the same reason.
+  Avoiding including every page in the wiki into its influence list is
+  very important!
+
+* The pagespec "title(foo)" has an influence list that contains every page
+  that currently matches it. A change to any matching page can change its
+  title. Why is that considered an indirect influence? Well, the pagespec
+  might be used in a presence dependency, and so its title changing
+  would not directly affect the dependency.
+
+* The pagespec "backlink(index)" has an influence list
+  that contains index (because a change to index changes the backlinks).
+
+* The pagespec "link(done)" has an influence list that
+  contains every page that it matches. A change to any matching page can
+  remove a link and make it not match any more, and so the list is needed
+  due to the removal problem.
+
+#### Low-level Calculation
+
+One way to calculate a pagespec's influence would be to
+expand the SuccessReason and FailReason objects used and returned
+by `pagespec_match`. Make the objects be created with an
+influence list included, and when the objects are ANDed or ORed
+together, combine the influence lists.
+
+That would have the benefit of allowing just using the existing `match_*`
+functions, with minor changes to a few of them to gather influence info.
+
+But does it work? Let's try some examples:
+
+Consider "bugs/* and link(done) and backlink(index)".
+
+Its influence list contains index, and it contains all pages that the whole
+pagespec matches. It should, ideally, not contain all pages that link
+to done. There are a lot of such pages, and only a subset influence this
+pagespec.
+
+When matching this pagespec against a page, the `link` will put the page
+on the list. The `backlink` will put index on the list, and they will be
+anded together and combined. If we combine the influences from each
+successful match, we get the right result.
+
+Now consider "bugs/* and link(done) and !backlink(index)".
+
+It influence list is the same as the previous one, even though a term has
+been negated. Because a change to index still influences it, though in a
+different way.
+
+If negation of a SuccessReason preserves the influence list, the right
+influence list will be calculated.
+
+Consider "bugs/* and (link(done) or backlink(index))"
+and      "bugs/* and (backlink(index) or link(done))'
+
+Its clear that the influence lists for these are identical. And they
+contain index, plus all matching pages.
+
+When matching the first against page P, the `link` will put P on the list.
+The OR needs to be a non-short-circuiting type. (In perl, `or`, not `||` --
+so, `pagespec_translate` will need to be changed to not use `||`.)
+Given that, the `backlink` will always be evalulated, and will put index
+onto the influence list. If we combine the influences from each
+successful match, we get the right result.
+
+#### High-level Calculation and Storage
+
+Calculating the full influence list for a pagespec requires trying to match
+it against every page in the wiki. 
+
+I'd like to avoid doing such expensive matching redundantly. So add a
+`pagespec_match_all`, which returns a list of all pages in the whole
+wiki that match the pagespec, and also adds the pagespec as a dependency,
+and while it's at it, calculates and stores the influence list.
+
+It could have an optional sort parameter, and limit parameter, to control
+how many items to return and the sort order. So when inline wants to
+display the 10 newest, only the influence lists for those ten are added.
+
+If `pagespec_match_depends` can be used by all plugins, then great,
+influences are automatically calculated, no extra work needs to be done.
+
+If not, and some plugins still need to use `pagespec_match_list` or
+`pagespec_match`, and `add_depends`, then I guess that `add_depends` can do
+a slightly more expensive influence calculation.
+
+Bonus: If `add_depends` is doing an influence calculation, then I can remove
+the nasty hack it currently uses to decide if a given pagespec is safe to use
+with an existence or links dependency.
+
+Where to store the influence list? Well, it appears that we can just add
+(content) dependencies for each item on the list, to the page's
+regular list of simple dependencies. So, the data stored ends up looking
+just like what is stored today by the explicit dependency hacks. Except,
+it's calculated more smartly, and is added automatically.
