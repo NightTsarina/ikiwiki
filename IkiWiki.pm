@@ -1876,7 +1876,9 @@ sub use_pagespec ($$;@) {
 		foreach my $i (keys %i) {
 			$depends_simple{$page}{lc $i} |= $i{$i};
 		}
-		error(sprintf(gettext("cannot match pages: %s"), $firstfail));
+
+		error(sprintf(gettext("cannot match pages: %s"), $firstfail))
+			if $firstfail->isa("IkiWiki::ErrorReason");
 	}
 
 	return @ret;

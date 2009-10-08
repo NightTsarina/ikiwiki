@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 64;
+use Test::More tests => 10;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -24,7 +24,8 @@ is_deeply([use_pagespec("foo", "post/*", sort => "title", num => 50)],
 is_deeply([use_pagespec("foo", "post/*", sort => "title",
                          limit => sub { $_[0] !~ /3/}) ],
 	["post/1", "post/2"]);
-eval { use_pagespec("foo", "beep") };
-ok($@, "fails with error when unable to match anything");
+my $r=eval { use_pagespec("foo", "beep") };
+ok(eval { use_pagespec("foo", "beep") } == 0);
+ok(! $@, "does not fail with error when unable to match anything");
 eval { use_pagespec("foo", "this is not a legal pagespec!") };
 ok($@, "fails with error when pagespec bad");
