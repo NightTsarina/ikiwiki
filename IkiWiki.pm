@@ -1772,52 +1772,32 @@ sub add_depends ($$;@) {
 	my $page=shift;
 	my $pagespec=shift;
 
-	# Is the pagespec a simple page name?
-	my $simple=$pagespec =~ /$config{wiki_file_regexp}/ &&
-		$pagespec !~ /[\s*?()!]/;
-
 	my $deptype=0;
 	if (@_) {
 		my %params=@_;
 		
-		if ($params{presence}) {
- 			# Is the pagespec limited to terms that will continue
-			# to match pages as long as those pages exist?
-			my $presence_limited=1;
-			while ($presence_limited && $pagespec=~m/(\w+)\([^\)]*\)/g) {
-				$presence_limited = $1 =~ /^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after)$/;
-			}
-			if ($presence_limited) {
-				$deptype=$deptype | $DEPEND_PRESENCE;
-			}
-			else {
-				$deptype=$deptype | $DEPEND_CONTENT;
-			}
-		}
-		if ($params{links}) {
- 			# Is the pagespec limited to terms that will continue
-			# to match pages as long as those pages exist and
-			# link to the same places?
-			my $links_limited=1;
-			while ($links_limited && $pagespec=~m/(\w+)\([^\)]*\)/g) {
-				$links_limited = $1 =~ /^(glob|internal|creation_month|creation_day|creation_year|created_before|created_after|backlink)$/;
-			}
-			if ($links_limited) {
-				$deptype=$deptype | $DEPEND_LINKS;
-			}
-			else {
-				$deptype=$deptype | $DEPEND_CONTENT;
-			}
-		}
+		$deptype=$deptype | $DEPEND_PRESENCE if $params{presence};
+		$deptype=$deptype | $DEPEND_LINKS if $params{links};
 	}
 	$deptype=$DEPEND_CONTENT unless $deptype;
 
-	if ($simple) {
+	# Is the pagespec a simple page name?
+	if ($pagespec =~ /$config{wiki_file_regexp}/ &&
+	    $pagespec !~ /[\s*?()!]/) {
 		$depends_simple{$page}{lc $pagespec} |= $deptype;
 		return 1;
 	}
 
-	return unless pagespec_valid($pagespec);
+	# Analyse the pagespec, and match it against all pages
+	# to get a list of influences, and add explicit 
+	# content dependencies for those.
+	my $sub=pagespec_translate($pagespec);
+	return if $@;
+	foreach my $p (keys %pagesources) {
+		my $r=$sub->($p, location => $page );
+		map { $depends_simple{$page}{lc $_} |= $DEPEND_CONTENT } $r->influences
+			if $r;
+	}
 
 	$depends{$page}{$pagespec} |= $deptype;
 	return 1;
@@ -2099,7 +2079,7 @@ sub match_link ($$;@) {
 	my $from=exists $params{location} ? $params{location} : '';
 
 	my $links = $IkiWiki::links{$page};
-	return IkiWiki::FailReason->new("$page has no links", $link) unless $links && @{$links};
+	return IkiWiki::FailReason->new("$page has no links", $page) unless $links && @{$links};
 	my $bestlink = IkiWiki::bestlink($from, $link);
 	foreach my $p (@{$links}) {
 		if (length $bestlink) {
