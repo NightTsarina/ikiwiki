@@ -254,6 +254,14 @@ sigh.
 >>>>
 >>>> --[[Will]]
 
+>>>>> I think that should be supported by [[bugs/transitive_dependencies]].
+>>>>> At least in the current implementation, which considers each page
+>>>>> that is rendered to be changed, and rebuilds pages that are dependent
+>>>>> on it, in a loop. An alternate implementation, which could be faster,
+>>>>> is to construct a directed graph and traverse it just once. Sounds
+>>>>> like that would probably not support what you want to do.
+>>>>> --[[Joey]]
+
 ---- 
 
 ### Link dependencies
@@ -347,6 +355,13 @@ can indirectly influence what pages a pagespec matches.
 >>> of "!backlink(bogus)" where the page bogus doesn't exist?  In this case, the page 'bogus' needs to be in the influence
 >>> set even though it doesn't exist.
 >>>
+>>>> I think you're right, this is a case that the current code is not
+>>>> handling. Actually, I made all the pagespecs return influences
+>>>> even if the influence was not present or did not match. But, it
+>>>> currently only records influences as dependencies when a pagespec
+>>>> successfully matches. Now I'm sure that is wrong, and I've removed
+>>>> that false optimisation. I've updated some of the below. --[[Joey]]
+>>>
 >>> Also, I would really like the formalism to include the whole dependency system, not just any additions to it.  That will make
 >>> the whole thing much easier to reason about.
 >>
@@ -364,7 +379,8 @@ can indirectly influence what pages a pagespec matches.
 #### Examples
 
 * The pagespec "created_before(foo)" has an influence list that contains foo.
-  The removal or (re)creation of foo changes what pages match it.
+  The removal or (re)creation of foo changes what pages match it. Note that
+  this is true even if the pagespec currently fails to match.
 
 * The pagespec "foo" has an empty influence list. This is because a
   modification/creation/removal of foo directly changes what the pagespec
@@ -377,13 +393,27 @@ can indirectly influence what pages a pagespec matches.
 >>> So, why don't the above influence lists contain the currently matched pages?
 >>> Don't you need this to handle the removal problem? -- [[Will]]
 
+>>>> The removal problem is slightly confusingly named, since it does not
+>>>> affect pages that were matched by a glob and have been removed. Such
+>>>> pages can be handled without being influences, because ikiwiki knows
+>>>> they have been removed, and so can still match them against the
+>>>> pagespec, and see they used to match; and thus knows that the
+>>>> dependency has triggered.
+>>>>
+>>>> Maybe the thing to do is consider this an optimisation, where such
+>>>> pages are influences, but ikiwiki is able to implicitly find them,
+>>>> so they do not need to be explicitly stored. --[[Joey]]
+
 * The pagespec "title(foo)" has an influence list that contains every page
   that currently matches it. A change to any matching page can change its
   title, making it not match any more, and so the list is needed due to the
-  removal problem.
+  removal problem. A page that does not have a matching title is not an
+  influence, because modifying the page to change its title directly
+  changes what the pagespec matches.
 
 * The pagespec "backlink(index)" has an influence list
   that contains index (because a change to index changes the backlinks).
+  Note that this is true even if the backlink currently fails.
 
 * The pagespec "link(done)" has an influence list that
   contains every page that it matches. A change to any matching page can
@@ -449,6 +479,27 @@ successful match, we get the right result.
 
 > `or` short-circuits too, but the implementation correctly uses `|`,
 > which I assume is what you meant. --[[smcv]]
+
+>> Er, yeah. --[[Joey]] 
+
+----
+
+What about: "!link(done)"
+
+Specifically, I want to make sure it works now that I've changed
+`match_link` to only return a page as an influence if it *does*
+link to done.
+
+So, when matching against page P, that does not link to done,
+there are no influences, and the pagespec matches. If P is later
+changed to add a link to done, then the dependency resolver will directly
+notice that.
+
+When matching against page P, that does link to done, P
+is an influence, and the pagespec does not match. If P is later changed
+to not link to done, the influence will do its job.
+
+Looks good!
 
 #### High-level Calculation and Storage
 
