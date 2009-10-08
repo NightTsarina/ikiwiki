@@ -222,7 +222,7 @@ ShavedByBob.mdwn:
 
 Does ShavedByBob.mdwn include itself?
 
-(Yeah - in IkiWiki currently links are included by include, but the idea holds.  I had a good example a while back, but I can't think of it right now.)
+(Yeah - in IkiWiki currently links are *not* included by include, but the idea holds.  I had a good example a while back, but I can't think of it right now.)
 
 sigh.
 
@@ -231,6 +231,10 @@ sigh.
 > I have also been thinking about some sort of analysis pass over pagespecs
 > to determine what metadata, pages, etc they depend on. It is indeed
 > tricky to do. More thoughts on influence lists a bit below. --[[Joey]] 
+
+>> The big part of what makes this tricky is that there may be cycles in the
+>> dependency graph.  This can lead to situations where the result is just not
+>> well defined.  This is what I was trying to get at above. -- [[Will]]
 
 ---- 
 
@@ -304,6 +308,20 @@ changes, is needed.
 I'm using this term for the concept of a list of pages whose modification
 can indirectly influence what pages a pagespec matches.
 
+> Trying to make a formal definition of this: (Note, I'm using the term sets rather than lists, but they're roughly equivalent)
+>
+>  * Let the *matching set* for a pagespec be the set of pages that the pagespec matches.
+>  * Let a *complete influence set* for a pagespec be the set of all pages whose alteration might change the matching set of that pagespec.
+>  * Let the *direct influence set* be the intersection of the matching set and the complete influence set.
+>  * Let the *indirect influence set* be the compliment of the direct influence set with respect to the complete influence set.
+>
+> Is that a fair definition?  I don't think it quite matches your examples below unfortunately.
+> I was unsure if I should insert the word 'existing' in there in a few places.  As it stands, these definitions could include sets of pages that don't exist, e.g. "*".
+> The one I'm least sure of is the definition of the direct influence set.  It feels like you want something
+> like "the traditional set of things we thought about that could cause a pagespec to change", but that definition
+> is not very formal and I suspect will lead to problems.  Something like "The set of pages matched by the globs in the pagespec" might be closer?
+> --[[Will]]
+
 #### Examples
 
 * The pagespec "created_before(foo)" has an influence list that contains foo.
@@ -330,6 +348,10 @@ can indirectly influence what pages a pagespec matches.
   contains every page that it matches. A change to any matching page can
   remove a link and make it not match any more, and so the list is needed
   due to the removal problem.
+
+>> Why doesn't this include every page?  If I change a page that doesn't have a link to
+>> 'done' to include a link to 'done', then it will now match...  or is that considered a
+>> 'direct match'? -- [[Will]]
 
 #### Low-level Calculation
 
@@ -421,3 +443,8 @@ Note that influences can also have types, same as dependency types.
 For example, "backlink(foo)" has an influence of foo, of type links.
 "created_before(foo)" also is influenced by foo, but it's a presence
 type. Etc.
+
+> This is an interesting concept that I hadn't considered.  It might
+> allow significant computational savings, but I suspect will be tricky
+> to implement. -- [[Will]]
+
