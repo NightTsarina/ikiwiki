@@ -627,8 +627,12 @@ used to indicate weaker types of dependencies:
 
 #### `pagespec_match($$;@)`
 
-Passed a page name, and [[ikiwiki/PageSpec]], returns true if the
+Passed a page name, and [[ikiwiki/PageSpec]], returns a true value if the
 [[ikiwiki/PageSpec]] matches the page.
+
+Note that the return value is overloaded. If stringified, it will be a
+message indicating why the PageSpec succeeded, or failed, to match the
+page.
 
 Additional named parameters can be passed, to further limit the match.
 The most often used is "location", which specifies the location the
