@@ -238,10 +238,7 @@ sigh.
 
 * `add_depends($page, $spec, links => 1, presence => 1)`
   adds a links + presence dependency.
-* `refresh` only rebuilds a page with a links dependency if
-  pages matched by the pagespec gain or lose links. (What the link
-  actually points to may change independent of this, due to changes
-  elsewhere, without it firing.)
+* Use backlinks change code to detect changes to link dependencies too.
 * So, brokenlinks can fire whenever any links in any of the
   pages it's tracking change, or when pages are added or
   removed.
@@ -413,3 +410,14 @@ Where to store the influence list? Well, it appears that we can just add
 regular list of simple dependencies. So, the data stored ends up looking
 just like what is stored today by the explicit dependency hacks. Except,
 it's calculated more smartly, and is added automatically.
+
+> I've implemented influence calculation in `add_depends`. As expected,
+> it means rather a lot more work, and makes some things much slower.
+> Optimisation via `pagespec_match_depends` next.. --[[Joey]] 
+
+#### Influence types
+
+Note that influences can also have types, same as dependency types.
+For example, "backlink(foo)" has an influence of foo, of type links.
+"created_before(foo)" also is influenced by foo, but it's a presence
+type. Etc.
