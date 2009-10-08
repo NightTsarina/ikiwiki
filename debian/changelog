@@ -13,7 +13,6 @@ ikiwiki (3.14159266) UNRELEASED; urgency=low
   * Added support framework for multiple types of dependencies.
   * Allow declaring that a dependency is only affected by page presence
     or changes to its links.
-    (By passing presence => 1 or links => 1 to add_depends.)
   * pagecount, calendar, postsparkline, progress: Use a presence dependency,
     which makes these directives much less expensive to use, since page
     edits will no longer trigger an unnecessary update.
@@ -34,6 +33,9 @@ ikiwiki (3.14159266) UNRELEASED; urgency=low
     info.
   * Plugins providing PageSpec `match_*` functions should pass additional
     influence information when creating result objects.
+  * Added `use_pagespec` function, that plugins can use to find a list
+    of matching pages and add dependencies and influences, all at once,
+    and efficiently.
 
  -- Joey Hess <joeyh@debian.org>  Sun, 27 Sep 2009 17:40:03 -0400
 

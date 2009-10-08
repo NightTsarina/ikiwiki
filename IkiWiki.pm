@@ -17,11 +17,12 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %forcerebuild %loaded_plugins};
 
 use Exporter q{import};
-our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
-                 pagespec_match_list bestlink htmllink readfile writefile
-		 pagetype srcfile pagename displaytime will_render gettext urlto
-		 targetpage add_underlay pagetitle titlepage linkpage
-		 newpagefile inject add_link
+our @EXPORT = qw(hook debug error template htmlpage deptype use_pagespec
+                 add_depends pagespec_match pagespec_match_list bestlink
+		 htmllink readfile writefile pagetype srcfile pagename
+		 displaytime will_render gettext urlto targetpage
+		 add_underlay pagetitle titlepage linkpage newpagefile
+		 inject add_link
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
@@ -1768,18 +1769,10 @@ sub rcs_receive () {
 	$hooks{rcs}{rcs_receive}{call}->();
 }
 
-sub add_depends ($$;@) {
+sub add_depends ($$;$) {
 	my $page=shift;
 	my $pagespec=shift;
-
-	my $deptype=0;
-	if (@_) {
-		my %params=@_;
-		
-		$deptype=$deptype | $DEPEND_PRESENCE if $params{presence};
-		$deptype=$deptype | $DEPEND_LINKS if $params{links};
-	}
-	$deptype=$DEPEND_CONTENT unless $deptype;
+	my $deptype=shift || $DEPEND_CONTENT;
 
 	# Is the pagespec a simple page name?
 	if ($pagespec =~ /$config{wiki_file_regexp}/ &&
@@ -1791,18 +1784,118 @@ sub add_depends ($$;@) {
 	# Analyse the pagespec, and match it against all pages
 	# to get a list of influences, and add explicit dependencies
 	# for those.
-	my $sub=pagespec_translate($pagespec);
-	return if $@;
-	foreach my $p (keys %pagesources) {
-		my $r=$sub->($p, location => $page );
-		my %i=$r->influences;
-		foreach my $i (keys %i) {
-			$depends_simple{$page}{lc $i} |= $i{$i};
-		}
-	}
+	#my $sub=pagespec_translate($pagespec);
+	#return if $@;
+	#foreach my $p (keys %pagesources) {
+	#	my $r=$sub->($p, location => $page );
+	#	my %i=$r->influences;
+	#	foreach my $i (keys %i) {
+	#		$depends_simple{$page}{lc $i} |= $i{$i};
+	#	}
+	#}
+	print STDERR "warning: use of add_depends; influences not tracked\n";
 
 	$depends{$page}{$pagespec} |= $deptype;
 	return 1;
+}
+
+sub use_pagespec ($$;@) {
+	my $page=shift;
+	my $pagespec=shift;
+	my %params=@_;
+
+	my $sub=pagespec_translate($pagespec);
+	error "syntax error in pagespec \"$pagespec\""
+		if $@ || ! defined $sub;
+
+	my @candidates;
+	if (exists $params{limit}) {
+		@candidates=grep { $params{limit}->($_) } keys %pagesources;
+	}
+	else {
+		@candidates=keys %pagesources;
+	}
+
+	if (defined $params{sort}) {
+		my $f;
+		if ($params{sort} eq 'title') {
+			$f=sub { pagetitle(basename($a)) cmp pagetitle(basename($b)) };
+		}
+		elsif ($params{sort} eq 'title_natural') {
+			eval q{use Sort::Naturally};
+			if ($@) {
+				error(gettext("Sort::Naturally needed for title_natural sort"));
+			}
+			$f=sub { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) };
+                }
+		elsif ($params{sort} eq 'mtime') {
+			$f=sub { $pagemtime{$b} <=> $pagemtime{$a} };
+		}
+		elsif ($params{sort} eq 'age') {
+			$f=sub { $pagectime{$b} <=> $pagectime{$a} };
+		}
+		else {
+			error sprintf(gettext("unknown sort type %s"), $params{sort});
+		}
+		@candidates = sort { &$f } @candidates;
+	}
+
+	@candidates=reverse(@candidates) if $params{reverse};
+	
+	my @matches;
+	my $firstfail;
+	my $count=0;
+	foreach my $p (@candidates) {
+		my $r=$sub->($p, location => $page);
+		if ($r) {
+			push @matches, [$p, $r];
+			last if defined $params{num} && ++$count == $params{num};
+		}
+		elsif (! defined $firstfail) {
+			$firstfail=$r;
+		}
+	}
+	
+	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
+
+	my @ret;
+	if (@matches) {
+		# Add all influences from successful matches.
+		foreach my $m (@matches) {
+			push @ret, $m->[0];
+			my %i=$m->[1]->influences;
+			foreach my $i (keys %i) {
+				$depends_simple{$page}{lc $i} |= $i{$i};
+			}
+		}
+	}
+	elsif (defined $firstfail) {
+		# Add influences from one failure. (Which one should not
+		# matter; all should have the same influences.)
+		my %i=$firstfail->influences;
+		foreach my $i (keys %i) {
+			$depends_simple{$page}{lc $i} |= $i{$i};
+		}
+		error(sprintf(gettext("cannot match pages: %s"), $firstfail));
+	}
+
+	return @ret;
+}
+
+sub deptype (@) {
+	my $deptype=0;
+	foreach my $type (@_) {
+		if ($type eq 'presence') {
+			$deptype |= $DEPEND_PRESENCE;
+		}
+		elsif ($type eq 'links') { 
+			$deptype |= $DEPEND_LINKS;
+		}
+		elsif ($type eq 'content') {
+			$deptype |= $DEPEND_CONTENT;
+		}
+	}
+	return $deptype;
 }
 
 sub file_pruned ($$) {
