@@ -236,6 +236,9 @@ sigh.
 >> dependency graph.  This can lead to situations where the result is just not
 >> well defined.  This is what I was trying to get at above. -- [[Will]]
 
+>>> Hmm, I'm not seeing cycles be a problem, at least with the current
+>>> pagespec terms. --[[Joey]] 
+
 ---- 
 
 ### Link dependencies
@@ -322,6 +325,17 @@ can indirectly influence what pages a pagespec matches.
 > is not very formal and I suspect will lead to problems.  Something like "The set of pages matched by the globs in the pagespec" might be closer?
 > --[[Will]]
 
+>> I appreciate the formalism! 
+>>
+>> Only existing pages need to be in these sets, because if a page is added
+>> in the future, the existing dependency code will always test to see
+>> if it matches. So it will be in the maching set (or not) at that point.
+>>
+>> The problem with your definition of direct influence set seems to be
+>> that it doesn't allow `link()` and `title()` to have as an indirect
+>> influence, the page that matches. But I'm quite sure we need those.
+>>  --[[Joey]] 
+
 #### Examples
 
 * The pagespec "created_before(foo)" has an influence list that contains foo.
@@ -337,9 +351,8 @@ can indirectly influence what pages a pagespec matches.
 
 * The pagespec "title(foo)" has an influence list that contains every page
   that currently matches it. A change to any matching page can change its
-  title. Why is that considered an indirect influence? Well, the pagespec
-  might be used in a presence dependency, and so its title changing
-  would not directly affect the dependency.
+  title, making it not match any more, and so the list is needed due to the
+  removal problem.
 
 * The pagespec "backlink(index)" has an influence list
   that contains index (because a change to index changes the backlinks).
@@ -352,6 +365,10 @@ can indirectly influence what pages a pagespec matches.
 >> Why doesn't this include every page?  If I change a page that doesn't have a link to
 >> 'done' to include a link to 'done', then it will now match...  or is that considered a
 >> 'direct match'? -- [[Will]]
+
+>>> The regular dependency calculation code will check if every changed
+>>> page matches every dependency. So it will notice the link was added.
+>>> --[[Joey]] 
 
 #### Low-level Calculation
 
@@ -404,13 +421,29 @@ successful match, we get the right result.
 
 #### High-level Calculation and Storage
 
-Calculating the full influence list for a pagespec requires trying to match
-it against every page in the wiki. 
+Naively calculating the full influence list for a pagespec requires trying
+to match it against every page in the wiki. I'd like to avoid doing such
+expensive matching redundantly.
 
-I'd like to avoid doing such expensive matching redundantly. So add a
-`pagespec_match_all`, which returns a list of all pages in the whole
-wiki that match the pagespec, and also adds the pagespec as a dependency,
-and while it's at it, calculates and stores the influence list.
+It may be possible, for some types of pagespecs, to just try matching a
+single, arbitrary page against it, and know the full influence list has
+been obtained. It seems to be that case that if a pagespec has any
+influences, matching any page will return at least one. So if none are
+returned, we can skip trying other pages.
+
+If the influence list does not include the page that was tried, we know
+that the pagespec does not things like `link()` and `title()`, that are
+influenced by the page's own content. So it *might* be safe to not try
+matching any more pages in this case too. I think it would work for all
+current pagespec terms. There might be a hypothetical term where this
+optimisation doesn't work. We could add a special case to ensure it can
+work: If a term declares it is unfluenced by "", then it means it is
+always influenced by the matching page.
+
+Anyway, this seems worth doing: Add a `pagespec_match_all`, which returns a
+list of all pages in the whole wiki that match the pagespec, and also adds
+the pagespec as a dependency, and while it's at it, calculates and stores
+the influence list.
 
 It could have an optional sort parameter, and limit parameter, to control
 how many items to return and the sort order. So when inline wants to
@@ -435,7 +468,7 @@ it's calculated more smartly, and is added automatically.
 
 > I've implemented influence calculation in `add_depends`. As expected,
 > it means rather a lot more work, and makes some things much slower.
-> Optimisation via `pagespec_match_depends` next.. --[[Joey]] 
+> Optimisations next.. --[[Joey]] 
 
 #### Influence types
 
@@ -448,3 +481,5 @@ type. Etc.
 > allow significant computational savings, but I suspect will be tricky
 > to implement. -- [[Will]]
 
+>> It was actually really easy to implement it, assuming I picked the right
+>> dependency types of course. --[[Joey]]
