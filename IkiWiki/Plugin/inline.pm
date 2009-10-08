@@ -247,12 +247,6 @@ sub preprocess_inline (@) {
 		@list=@list[0..$params{show} - 1];
 	}
 
-	# Explicitly add all currently displayed pages as dependencies, so
-	# that if they are removed, the inline will be sure to be updated.
-	foreach my $p ($#list >= $#feedlist ? @list : @feedlist) {
-		add_depends($params{page}, $p, presence => $quick);
-	}
-	
 	if ($feeds && exists $params{feedpages}) {
 		@feedlist=pagespec_match_list(\@feedlist, $params{feedpages}, location => $params{page});
 	}

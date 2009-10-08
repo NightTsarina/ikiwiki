@@ -71,11 +71,6 @@ sub preprocess (@) {
 	# cases, when its content changes, if show= is specified), so
 	# register a dependency.
 	add_depends($params{page}, $params{pages}, presence => ! exists $params{show});
-	# Explicitly add all currently shown pages, to detect when pages
-	# are removed.
-	foreach my $item (keys %mapitems) {
-		add_depends($params{page}, $item, presence => ! exists $params{show});
-	}
 
 	# Create the map.
 	my $parent="";
