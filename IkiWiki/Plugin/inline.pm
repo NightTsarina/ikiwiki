@@ -196,45 +196,37 @@ sub preprocess_inline (@) {
 		@list = map { bestlink($params{page}, $_) }
 		        split ' ', $params{pagenames};
 
+		if (yesno($params{reverse})) {
+			@list=reverse(@list);
+		}
+
 		foreach my $p (@list) {
 			add_depends($params{page}, $p, deptype($quick ? "presence" : "content"));
 		}
 	}
 	else {
-		add_depends($params{page}, $params{pages},
-			deptype($quick ? "presence" : "content"));
+		my $num=0;
+		if ($params{show}) {
+			$num=$params{show};
+		}
+		if ($params{feedshow} && $num < $params{feedshow}) {
+			$num=$params{feedshow};
+		}
+		if ($params{skip}) {
+			$num+=$params{skip};
+		}
 
-		@list = pagespec_match_list(
-			[ grep { $_ ne $params{page} } keys %pagesources ],
-			$params{pages}, location => $params{page});
-
-		if (exists $params{sort} && $params{sort} eq 'title') {
-			@list=sort { pagetitle(basename($a)) cmp pagetitle(basename($b)) } @list;
-		}
-		elsif (exists $params{sort} && $params{sort} eq 'title_natural') {
-			eval q{use Sort::Naturally};
-			if ($@) {
-				error(gettext("Sort::Naturally needed for title_natural sort"));
-			}
-			@list=sort { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) } @list;
-		}
-		elsif (exists $params{sort} && $params{sort} eq 'mtime') {
-			@list=sort { $pagemtime{$b} <=> $pagemtime{$a} } @list;
-		}
-		elsif (! exists $params{sort} || $params{sort} eq 'age') {
-			@list=sort { $pagectime{$b} <=> $pagectime{$a} } @list;
-		}
-		else {
-			error sprintf(gettext("unknown sort type %s"), $params{sort});
-		}
-	}
-
-	if (yesno($params{reverse})) {
-		@list=reverse(@list);
+		@list = use_pagespec($params{page}, $params{pages},
+			deptype => deptype($quick ? "presence" : "content"),
+			limit => sub { $_[0] ne $params{page} },
+			sort => exists $params{sort} ? $params{sort} : "age",
+			reverse => yesno($params{reverse}),
+			num => $num,
+		);
 	}
 
 	if (exists $params{skip}) {
-		@list=@list[$params{skip} .. scalar @list - 1];
+		@list=@list[$params{skip} .. $#list];
 	}
 	
 	my @feedlist;
@@ -253,7 +245,8 @@ sub preprocess_inline (@) {
 	}
 
 	if ($feeds && exists $params{feedpages}) {
-		@feedlist=pagespec_match_list(\@feedlist, $params{feedpages}, location => $params{page});
+		@feedlist = use_pagespec($params{page}, $params{feedpages},
+			list => \@feedlist);
 	}
 
 	my ($feedbase, $feednum);
