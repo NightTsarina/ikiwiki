@@ -1795,6 +1795,7 @@ sub add_depends ($$;@) {
 	return if $@;
 	foreach my $p (keys %pagesources) {
 		my $r=$sub->($p, location => $page );
+		next unless $r;
 		my %i=$r->influences;
 		foreach my $i (keys %i) {
 			$depends_simple{$page}{lc $i} |= $i{$i};
