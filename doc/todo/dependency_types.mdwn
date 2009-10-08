@@ -501,6 +501,34 @@ to not link to done, the influence will do its job.
 
 Looks good!
 
+----
+
+Here is a case where this approach has some false positives.
+
+"bugs/* and link(patch)"
+
+This finds as influences all pages that link to patch, even
+if they are not under bugs/, and so can never match.
+
+To fix this, the influence calculation would need to consider boolean
+operators. Currently, this turns into roughly:
+
+`FailReason() & SuccessReason(patch)`
+
+Let's say that the glob instead returns a HardFailReason, which when
+ANDed with another object, drops their influences. (But when ORed, combines
+them.) Fixes the above, but does it always work?
+
+"(bugs/* or link(patch)) and backlink(index)" =>
+`( HardFailReason() | SuccessReason(patch) ) & SuccessReason(index)`` =>
+`SuccessReason(patch) & SuccessReason(index)` =>
+SuccessReason(patch, index) => right
+
+"(bugs/* and link(patch)) or backlink(index)" =>
+`( HardFailReason() & SuccessReason(patch) ) | SuccessReason(index)`` =>
+`HardFailReason() | SuccessReason(index)` =>
+`SuccessReason(index)` => right
+
 #### High-level Calculation and Storage
 
 Naively calculating the full influence list for a pagespec requires trying
