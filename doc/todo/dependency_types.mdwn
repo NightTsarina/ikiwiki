@@ -279,7 +279,7 @@ One way to fix this is to include with each dependency, a list of pages
 that currently match it. If the list changes, the dependency is triggered.
 
 Should be doable, but may involve more work than
-currently. Consider that a dependency on "bugs/*" currently
+currently. Consider that a dependency on `bugs/*` currently
 is triggered by just checking until *one* page is found to match it.
 But to store the list, *every* page would have to be tried against it.
 Unless the list can somehow be intelligently updated, looking at only the
@@ -417,7 +417,10 @@ Given that, the `backlink` will always be evalulated, and will put index
 onto the influence list. If we combine the influences from each
 successful match, we get the right result.
 
-> This is implemented, seems to work ok. --[[Joey]] 
+> This is implemented, seems to work ok. --[[Joey]]
+
+> `or` short-circuits too, but the implementation correctly uses `|`,
+> which I assume is what you meant. --[[smcv]]
 
 #### High-level Calculation and Storage
 
