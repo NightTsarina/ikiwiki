@@ -291,21 +291,21 @@ sub match {
 
 	if (defined $val) {
 		if ($val=~/^$re$/i) {
-			return IkiWiki::SuccessReason->new("$re matches $field of $page");
+			return IkiWiki::SuccessReason->new("$re matches $field of $page", $page);
 		}
 		else {
-			return IkiWiki::FailReason->new("$re does not match $field of $page");
+			return IkiWiki::FailReason->new("$re does not match $field of $page", $page);
 		}
 	}
 	else {
-		return IkiWiki::FailReason->new("$page does not have a $field");
+		return IkiWiki::FailReason->new("$page does not have a $field", $page);
 	}
 }
 
 package IkiWiki::PageSpec;
 
 sub match_title ($$;@) {
-	IkiWiki::Plugin::meta::match("title", @_);	
+	IkiWiki::Plugin::meta::match("title", @_);
 }
 
 sub match_author ($$;@) {

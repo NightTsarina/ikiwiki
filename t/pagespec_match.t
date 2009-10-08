@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 56;
+use Test::More tests => 61;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -89,6 +89,17 @@ my $ret=pagespec_match("foo", "(invalid");
 ok(! $ret, "syntax error");
 ok($ret =~ /syntax error/, "error message");
 
-my $ret=pagespec_match("foo", "bar or foo");
+$ret=pagespec_match("foo", "bar or foo");
 ok($ret, "simple match");
 is($ret, "foo matches foo", "stringified return");
+
+$ret=pagespec_match("foo", "link(bar)");
+is(join(",", $ret->influences), 'foo', "link is influenced by the page with the link");
+$ret=pagespec_match("bar", "backlink(foo)");
+is(join(",", $ret->influences), 'foo', "backlink is influenced by the page with the link");
+$ret=pagespec_match("bar", "backlink(foo)");
+is(join(",", $ret->influences), 'foo', "backlink is influenced by the page with the link");
+$ret=pagespec_match("bar", "created_before(foo)");
+is(join(",", $ret->influences), 'foo', "created_before is influenced by the comparison page");
+$ret=pagespec_match("bar", "created_after(foo)");
+is(join(",", $ret->influences), 'foo', "created_after is influenced by the comparison page");

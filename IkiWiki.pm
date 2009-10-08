@@ -2039,7 +2039,7 @@ use overload (
 sub new {
 	my $class = shift;
 	my $value = shift;
-	return bless [$value, {@_}], $class;
+	return bless [$value, {map { $_ => 1 } @_}], $class;
 }
 
 sub influences {
@@ -2099,23 +2099,23 @@ sub match_link ($$;@) {
 	my $from=exists $params{location} ? $params{location} : '';
 
 	my $links = $IkiWiki::links{$page};
-	return IkiWiki::FailReason->new("$page has no links") unless $links && @{$links};
+	return IkiWiki::FailReason->new("$page has no links", $link) unless $links && @{$links};
 	my $bestlink = IkiWiki::bestlink($from, $link);
 	foreach my $p (@{$links}) {
 		if (length $bestlink) {
-			return IkiWiki::SuccessReason->new("$page links to $link")
+			return IkiWiki::SuccessReason->new("$page links to $link", $page)
 				if $bestlink eq IkiWiki::bestlink($page, $p);
 		}
 		else {
-			return IkiWiki::SuccessReason->new("$page links to page $p matching $link")
+			return IkiWiki::SuccessReason->new("$page links to page $p matching $link", $page)
 				if match_glob($p, $link, %params);
 			my ($p_rel)=$p=~/^\/?(.*)/;
 			$link=~s/^\///;
-			return IkiWiki::SuccessReason->new("$page links to page $p_rel matching $link")
+			return IkiWiki::SuccessReason->new("$page links to page $p_rel matching $link", $page)
 				if match_glob($p_rel, $link, %params);
 		}
 	}
-	return IkiWiki::FailReason->new("$page does not link to $link");
+	return IkiWiki::FailReason->new("$page does not link to $link", $page);
 }
 
 sub match_backlink ($$;@) {
@@ -2131,14 +2131,14 @@ sub match_created_before ($$;@) {
 
 	if (exists $IkiWiki::pagectime{$testpage}) {
 		if ($IkiWiki::pagectime{$page} < $IkiWiki::pagectime{$testpage}) {
-			return IkiWiki::SuccessReason->new("$page created before $testpage");
+			return IkiWiki::SuccessReason->new("$page created before $testpage", $testpage);
 		}
 		else {
-			return IkiWiki::FailReason->new("$page not created before $testpage");
+			return IkiWiki::FailReason->new("$page not created before $testpage", $testpage);
 		}
 	}
 	else {
-		return IkiWiki::ErrorReason->new("$testpage does not exist");
+		return IkiWiki::ErrorReason->new("$testpage does not exist", $testpage);
 	}
 }
 
@@ -2151,14 +2151,14 @@ sub match_created_after ($$;@) {
 
 	if (exists $IkiWiki::pagectime{$testpage}) {
 		if ($IkiWiki::pagectime{$page} > $IkiWiki::pagectime{$testpage}) {
-			return IkiWiki::SuccessReason->new("$page created after $testpage");
+			return IkiWiki::SuccessReason->new("$page created after $testpage", $testpage);
 		}
 		else {
-			return IkiWiki::FailReason->new("$page not created after $testpage");
+			return IkiWiki::FailReason->new("$page not created after $testpage", $testpage);
 		}
 	}
 	else {
-		return IkiWiki::ErrorReason->new("$testpage does not exist");
+		return IkiWiki::ErrorReason->new("$testpage does not exist", $testpage);
 	}
 }
 

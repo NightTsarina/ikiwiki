@@ -982,6 +982,13 @@ an IkiWiki::FailReason object if the match fails. If the match cannot be
 attempted at all, for any page, it can instead return an
 IkiWiki::ErrorReason object explaining why.
 
+When constructing these objects, you should also include a list of any
+pages whose contents or other metadata influenced the result of the match.
+For example, "backlink(foo)" is influenced by the contents of page foo;
+"link(foo)" and "title(bar)" are influenced by the contents of any
+page they match; "created_before(foo)" is influenced by the metadata of
+foo; while "glob(*)" is not influenced by the contents of any page.
+
 ### Setup plugins
 
 The ikiwiki setup file is loaded using a pluggable mechanism. If you look
