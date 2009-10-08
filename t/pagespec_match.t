@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 61;
+use Test::More tests => 64;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -103,3 +103,9 @@ $ret=pagespec_match("bar", "created_before(foo)");
 is(join(",", $ret->influences), 'foo', "created_before is influenced by the comparison page");
 $ret=pagespec_match("bar", "created_after(foo)");
 is(join(",", $ret->influences), 'foo', "created_after is influenced by the comparison page");
+$ret=pagespec_match("bar", "link(quux) and created_after(foo)");
+is(join(",", sort $ret->influences), 'foo,quux', "influences add up over AND");
+$ret=pagespec_match("bar", "link(quux) and created_after(foo)");
+is(join(",", sort $ret->influences), 'foo,quux', "influences add up over OR");
+$ret=pagespec_match("bar", "!link(quux) and !created_after(foo)");
+is(join(",", sort $ret->influences), 'foo,quux', "influences unaffected by negation");
