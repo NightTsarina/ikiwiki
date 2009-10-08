@@ -35,25 +35,27 @@ sub preprocess (@) {
 	$params{pages}="*" unless defined $params{pages};
 	my $style = ($params{style} or 'cloud');
 	
-	# Needs to update whenever a page is added or removed.
-	add_depends($params{page}, $params{pages}, deptype("presence"));
-	# Also needs to update when any page with links changes, 
-	# in case the links point to our displayed pages.
-	# (Among limits this further.)
-	add_depends($params{page}, exists $params{among} ? $params{among} : "*",
-		deptype("links")); 
-	
 	my %counts;
 	my $max = 0;
-	foreach my $page (pagespec_match_list([keys %pagesources],
-			$params{pages}, location => $params{page})) {
+	foreach my $page (use_pagespec($params{page}, $params{pages},
+	                  # update when a displayed page is added or removed
+	                  deptype => deptype("presence"))) {
 		use IkiWiki::Render;
 
 		my @backlinks = IkiWiki::backlink_pages($page);
 
 		if (exists $params{among}) {
-			@backlinks = pagespec_match_list(\@backlinks,
-				$params{among}, location => $params{page});
+			# only consider backlinks from the amoung pages
+			@backlinks = use_pagespec($params{page}, $params{among},
+				# update whenever links on those pages change
+				deptype => deptype("links"),
+				list => \@backlinks
+			);
+		}
+		else {
+			# update when any page with links changes,
+			# in case the links point to our displayed pages
+			add_depends($params{page}, "*", deptype("links"));
 		}
 
 		$counts{$page} = scalar(@backlinks);
