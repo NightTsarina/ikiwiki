@@ -1789,13 +1789,12 @@ sub add_depends ($$;@) {
 	}
 
 	# Analyse the pagespec, and match it against all pages
-	# to get a list of influences, and add explicit 
-	# content dependencies for those.
+	# to get a list of influences, and add explicit dependencies
+	# for those.
 	my $sub=pagespec_translate($pagespec);
 	return if $@;
 	foreach my $p (keys %pagesources) {
 		my $r=$sub->($p, location => $page );
-		next unless $r;
 		my %i=$r->influences;
 		foreach my $i (keys %i) {
 			$depends_simple{$page}{lc $i} |= $i{$i};
@@ -2026,7 +2025,13 @@ sub new {
 }
 
 sub influences {
-	return %{$_[0][1]};
+	my $this=shift;
+	if (! @_) {
+		return %{$this->[1]};
+	}
+	else {
+		$this->[1]={@_};
+	}
 }
 
 sub merge_influences {
@@ -2090,7 +2095,7 @@ sub match_link ($$;@) {
 	my $from=exists $params{location} ? $params{location} : '';
 
 	my $links = $IkiWiki::links{$page};
-	return IkiWiki::FailReason->new("$page has no links", $page => $IkiWiki::DEPEND_LINKS)
+	return IkiWiki::FailReason->new("$page has no links")
 		unless $links && @{$links};
 	my $bestlink = IkiWiki::bestlink($from, $link);
 	foreach my $p (@{$links}) {
@@ -2107,11 +2112,13 @@ sub match_link ($$;@) {
 				if match_glob($p_rel, $link, %params);
 		}
 	}
-	return IkiWiki::FailReason->new("$page does not link to $link", $page => $IkiWiki::DEPEND_LINKS);
+	return IkiWiki::FailReason->new("$page does not link to $link");
 }
 
 sub match_backlink ($$;@) {
-	return match_link($_[1], $_[0], @_);
+	my $ret=match_link($_[1], $_[0], @_);
+	$ret->influences($_[1] => $IkiWiki::DEPEND_LINKS);
+	return $ret;
 }
 
 sub match_created_before ($$;@) {

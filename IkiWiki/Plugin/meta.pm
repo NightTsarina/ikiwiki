@@ -294,11 +294,11 @@ sub match {
 			return IkiWiki::SuccessReason->new("$re matches $field of $page", $page => $IkiWiki::DEPEND_CONTENT);
 		}
 		else {
-			return IkiWiki::FailReason->new("$re does not match $field of $page", $page => $IkiWiki::DEPEND_CONTENT);
+			return IkiWiki::FailReason->new("$re does not match $field of $page");
 		}
 	}
 	else {
-		return IkiWiki::FailReason->new("$page does not have a $field", $page => $IkiWiki::DEPEND_CONTENT);
+		return IkiWiki::FailReason->new("$page does not have a $field");
 	}
 }
 
