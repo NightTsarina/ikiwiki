@@ -520,14 +520,18 @@ ANDed with another object, drops their influences. (But when ORed, combines
 them.) Fixes the above, but does it always work?
 
 "(bugs/* or link(patch)) and backlink(index)" =>
-`( HardFailReason() | SuccessReason(patch) ) & SuccessReason(index)`` =>
-`SuccessReason(patch) & SuccessReason(index)` =>
-SuccessReason(patch, index) => right
+`( HardFailReason() | SuccessReason(page) ) & SuccessReason(index)`` =>
+`SuccessReason(page & SuccessReason(index)` =>
+SuccessReason(page, index) => right
 
 "(bugs/* and link(patch)) or backlink(index)" =>
-`( HardFailReason() & SuccessReason(patch) ) | SuccessReason(index)`` =>
+`( HardFailReason() & SuccessReason(page) ) | SuccessReason(index)`` =>
 `HardFailReason() | SuccessReason(index)` =>
 `SuccessReason(index)` => right
+
+"!bugs/* and link(patch)" =>
+`HardFailReason() | SuccessReason(bugs/foo)` =>  
+`HardFailReason()` => right
 
 #### High-level Calculation and Storage
 
