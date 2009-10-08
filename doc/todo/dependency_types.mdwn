@@ -239,6 +239,21 @@ sigh.
 >>> Hmm, I'm not seeing cycles be a problem, at least with the current
 >>> pagespec terms. --[[Joey]] 
 
+>>>> Oh, they're not with current pagespec terms.  But this is really close to extending to handle
+>>>> functional pagespecs, etc.  And I think I'd like to think about that now.
+>>>>
+>>>> Having said that, I don't want to hold you up - you seem to be making progress.  The best is
+>>>> the enemy of the good, etc. etc.
+>>>>
+>>>> For my part, I'm imagining we have two more constructs in IkiWiki:
+>>>>
+>>>>  * A map directive that actually wikilinks to the pages it links to, and
+>>>>  * A `match_sharedLink(pageX)` matching function that matches pageY if both pageX and pageY each have links to any same third page, pageZ.
+>>>>
+>>>> With those two constructs, one page changing might change the set of pages included in a map somewhere, which might then change the set of pages matched by some other pagespec, which might then...
+>>>>
+>>>> --[[Will]]
+
 ---- 
 
 ### Link dependencies
@@ -313,16 +328,13 @@ can indirectly influence what pages a pagespec matches.
 
 > Trying to make a formal definition of this: (Note, I'm using the term sets rather than lists, but they're roughly equivalent)
 >
->  * Let the *matching set* for a pagespec be the set of pages that the pagespec matches.
->  * Let a *complete influence set* for a pagespec be the set of all pages whose alteration might change the matching set of that pagespec.
->  * Let the *direct influence set* be the intersection of the matching set and the complete influence set.
->  * Let the *indirect influence set* be the compliment of the direct influence set with respect to the complete influence set.
+>  * Let the *matching set* for a pagespec be the set of existing pages that the pagespec matches.
+>  * Let a *influence set* for a pagespec be the set of all pages, *p*, whose alteration might:
+>    * cause the pagespec to include or exclude a page other than *p*, or
+>    * cause the pagespec to exclude *p*.
 >
-> Is that a fair definition?  I don't think it quite matches your examples below unfortunately.
-> I was unsure if I should insert the word 'existing' in there in a few places.  As it stands, these definitions could include sets of pages that don't exist, e.g. "*".
-> The one I'm least sure of is the definition of the direct influence set.  It feels like you want something
-> like "the traditional set of things we thought about that could cause a pagespec to change", but that definition
-> is not very formal and I suspect will lead to problems.  Something like "The set of pages matched by the globs in the pagespec" might be closer?
+>> \[Will snipped some stuff and edited the formal definition]
+>
 > --[[Will]]
 
 >> I appreciate the formalism! 
@@ -331,10 +343,23 @@ can indirectly influence what pages a pagespec matches.
 >> in the future, the existing dependency code will always test to see
 >> if it matches. So it will be in the maching set (or not) at that point.
 >>
+>>> Hrm, I agree with you in general, but I think I can come up with nasty counter-examples.  What about a pagespec
+>>> of "!backlink(bogus)" where the page bogus doesn't exist?  In this case, the page 'bogus' needs to be in the influence
+>>> set even though it doesn't exist.
+>>>
+>>> Also, I would really like the formalism to include the whole dependency system, not just any additions to it.  That will make
+>>> the whole thing much easier to reason about.
+>>
 >> The problem with your definition of direct influence set seems to be
 >> that it doesn't allow `link()` and `title()` to have as an indirect
 >> influence, the page that matches. But I'm quite sure we need those.
 >>  --[[Joey]] 
+
+>>> I see what you mean.  Does the revised definition capture this effectively?
+>>> The problem with this revised definition is that it still doesn't match your examples below.
+>>> My revised definition will include pretty much all currently matching pages to be in the influence list
+>>> because deletion of any of them would cause a change in which pages are matched - the removal problem.
+>>> -- [[Will]]
 
 #### Examples
 
@@ -348,6 +373,9 @@ can indirectly influence what pages a pagespec matches.
 * The pagespec "*" has an empty influence list, for the same reason.
   Avoiding including every page in the wiki into its influence list is
   very important!
+
+>>> So, why don't the above influence lists contain the currently matched pages?
+>>> Don't you need this to handle the removal problem? -- [[Will]]
 
 * The pagespec "title(foo)" has an influence list that contains every page
   that currently matches it. A change to any matching page can change its
