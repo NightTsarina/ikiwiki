@@ -36,8 +36,8 @@ sub preprocess (@) {
 		$fill.="%";
 	}
 	elsif (defined $params{totalpages} and defined $params{donepages}) {
-		add_depends($params{page}, $params{totalpages}, presence => 1);
-		add_depends($params{page}, $params{donepages}, presence => 1);
+		add_depends($params{page}, $params{totalpages}, deptype("presence"));
+		add_depends($params{page}, $params{donepages}, deptype("presence"));
 
 		my @pages=keys %pagesources;
 		my $totalcount=0;

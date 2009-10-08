@@ -195,9 +195,14 @@ sub preprocess_inline (@) {
 
 		@list = map { bestlink($params{page}, $_) }
 		        split ' ', $params{pagenames};
+
+		foreach my $p (@list) {
+			add_depends($params{page}, $p, deptype($quick ? "presence" : "content"));
+		}
 	}
 	else {
-		add_depends($params{page}, $params{pages}, presence => $quick);
+		add_depends($params{page}, $params{pages},
+			deptype($quick ? "presence" : "content"));
 
 		@list = pagespec_match_list(
 			[ grep { $_ ne $params{page} } keys %pagesources ],

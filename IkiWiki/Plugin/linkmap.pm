@@ -30,7 +30,7 @@ sub preprocess (@) {
 	
 	# Needs to update whenever a relevant page is added, or removed, or
 	# its links change.
-	add_depends($params{page}, $params{pages}, presence => 1, links => 1);
+	add_depends($params{page}, $params{pages}, deptype("presence", "links"));
 	
 	# Can't just return the linkmap here, since the htmlscrubber
 	# scrubs out all <object> tags (with good reason!)

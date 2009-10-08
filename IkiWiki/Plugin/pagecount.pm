@@ -24,7 +24,7 @@ sub preprocess (@) {
 	
 	# Needs to update count whenever a page is added or removed, so
 	# register a presence dependency.
-	add_depends($params{page}, $params{pages}, presence => 1);
+	add_depends($params{page}, $params{pages}, deptype("presence"));
 	
 	my @pages;
 	if ($params{pages} eq "*") {

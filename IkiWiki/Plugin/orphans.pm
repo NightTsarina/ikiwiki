@@ -26,10 +26,10 @@ sub preprocess (@) {
 	# Needs to update whenever a link changes, on any page
 	# since any page could link to one of the pages we're
 	# considering as orphans.
-	add_depends($params{page}, "*", links => 1);
+	add_depends($params{page}, "*", deptype("links"));
 	# Also needs to update whenever potential orphans are added or
 	# removed.
-	add_depends($params{page}, $params{pages}, presence => 1);
+	add_depends($params{page}, $params{pages}, deptype("presence"));
 	
 	my @orphans;
 	foreach my $page (pagespec_match_list(

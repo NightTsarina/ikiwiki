@@ -195,7 +195,7 @@ sub preprocess (@) {
 			if (! length $link) {
 				error gettext("redir page not found")
 			}
-			add_depends($page, $link, presence => 1);
+			add_depends($page, $link, deptype("presence"));
 
 			$value=urlto($link, $page);
 			$value.='#'.$redir_anchor if defined $redir_anchor;

@@ -70,7 +70,8 @@ sub preprocess (@) {
 	# Needs to update whenever a page is added or removed (or in some
 	# cases, when its content changes, if show= is specified), so
 	# register a dependency.
-	add_depends($params{page}, $params{pages}, presence => ! exists $params{show});
+	add_depends($params{page}, $params{pages},
+		deptype(exists $params{show} ? "content" : "presence");
 
 	# Create the map.
 	my $parent="";
