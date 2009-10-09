@@ -30,11 +30,16 @@ sub preprocess (@) {
 		return "";
 	}
 
+	my $deptype;
 	if (! exists $params{time} || $params{time} ne 'mtime') {
 		$params{timehash} = \%IkiWiki::pagectime;
+		# need to update when pages are added or removed
+		$deptype = deptype("presence");
 	}
 	else {
 		$params{timehash} = \%IkiWiki::pagemtime;
+		# need to update when pages are changed
+		$deptype = deptype("content");
 	}
 
 	if (! exists $params{formula}) {
@@ -48,12 +53,11 @@ sub preprocess (@) {
 		error gettext("unknown formula");
 	}
 
-	add_depends($params{page}, $params{pages}, deptype("presence"));
-
 	my @list=sort { $params{timehash}->{$b} <=> $params{timehash}->{$a} } 
-		pagespec_match_list(
-			[ grep { $_ ne $params{page} } keys %pagesources],
-			$params{pages}, location => $params{page});
+		use_pagespec($params{page}, $params{pages},
+			deptype => $deptype,
+			limit => sub { $_[0] ne $params{page} },
+		);
 
 	my @data=eval qq{IkiWiki::Plugin::postsparkline::formula::$formula(\\\%params, \@list)};
 	if ($@) {
