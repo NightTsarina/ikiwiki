@@ -170,7 +170,7 @@ sub preprocess (@) {
 		my $b = bestlink($params{page}, $params{link});
 	
 		if (length $b) {
-			add_depends($params{page}, $b);
+			add_depends($params{page}, $b, deptype("presence"));
 			$imgtag=htmllink($params{page}, $params{destpage},
 				$params{link}, linktext => $imgtag,
 				noimageinline => 1);
