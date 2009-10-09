@@ -348,7 +348,7 @@ can indirectly influence what pages a pagespec matches.
 > of pages are both considered changes.  This base mechanism will catch:
 >
 >  * The addition of any page to the matching set through its own modification/creation
->  * The removal of any page *that would still match while non-existant* from the matching set through its own removal.  (Note: The base mechanism cannot remove a page cannot from the matching set because of that page's own modification (not deletion).  If the page should be removed matching set, then it obviously cannot match the spec after the change.) 
+>  * The removal of any page *that would still match while non-existant* from the matching set through its own removal.  (Note: The base mechanism cannot remove a page from the matching set because of that page's own modification (not deletion).  If the page should be removed matching set, then it obviously cannot match the spec after the change.) 
 >  * The modification (not deletion) of any page that still matches after the modification.
 >
 > The base mechanism may therefore not catch:
@@ -397,8 +397,16 @@ can indirectly influence what pages a pagespec matches.
   The removal or (re)creation of foo changes what pages match it. Note that
   this is true even if the pagespec currently fails to match.
 
->>> This is an annoying example (hence well worth having :) ).  I think the indirect influence list must contain 'foo' and all currently matching pages.  `created_before(foo)` will not match
->>> a deleted page, and so the base mechanism would not cause a rebuild.  The removal problem strikes. -- [[Will]]
+>>> This is an annoying example (hence well worth having :) ).  I think the
+>>> indirect influence list must contain 'foo' and all currently matching
+>>> pages.  `created_before(foo)` will not match
+>>> a deleted page, and so the base mechanism would not cause a rebuild.  The
+>>> removal problem strikes. -- [[Will]]
+
+>>>> But `created_before` can in fact match a deleted page. Because the mtime
+>>>> of a deleted page is temporarily set to 0 while the base mechanism runs to
+>>>> find changes in deleted pages. (I verified this works by experiment,
+>>>> also that `created_after` is triggered by a deleted page.) --[[Joey]]
 
 * The pagespec "foo" has an empty influence list. This is because a
   modification/creation/removal of foo directly changes what the pagespec
