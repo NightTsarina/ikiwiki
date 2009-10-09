@@ -245,7 +245,8 @@ sub preprocess_inline (@) {
 	}
 
 	if ($feeds && exists $params{feedpages}) {
-		@feedlist = use_pagespec($params{page}, $params{feedpages},
+		@feedlist = use_pagespec($params{page}, "($params{pages}) and ($params{feedpages})",
+			deptype => deptype($quick ? "presence" : "content"),
 			list => \@feedlist);
 	}
 
