@@ -2032,41 +2032,25 @@ sub pagespec_match_list ($$;@) {
 	my @matches;
 	my $firstfail;
 	my $count=0;
+	my $accum=IkiWiki::SuccessReason->new();
 	foreach my $p (@candidates) {
 		my $r=$sub->($p, %params, location => $page);
+		error(sprintf(gettext("cannot match pages: %s"), $r))
+			if $r->isa("IkiWiki::ErrorReason");
+		$accum |= $r;
 		if ($r) {
-			push @matches, [$p, $r];
+			push @matches, $p;
 			last if defined $num && ++$count == $num;
 		}
-		elsif (! defined $firstfail) {
-			$firstfail=$r;
-		}
 	}
 
-	my @ret;
-	if (@matches) {
-		# Add all influences from successful matches.
-		foreach my $m (@matches) {
-			push @ret, $m->[0];
-			my %i=$m->[1]->influences;
-			foreach my $i (keys %i) {
-				$depends_simple{$page}{lc $i} |= $i{$i};
-			}
-		}
-	}
-	elsif (defined $firstfail) {
-		# Add influences from one failure. (Which one should not
-		# matter; all should have the same influences.)
-		my %i=$firstfail->influences;
-		foreach my $i (keys %i) {
-			$depends_simple{$page}{lc $i} |= $i{$i};
-		}
-
-		error(sprintf(gettext("cannot match pages: %s"), $firstfail))
-			if $firstfail->isa("IkiWiki::ErrorReason");
+	# Add simple dependencies for accumulated influences.
+	my %i=$accum->influences;
+	foreach my $i (keys %i) {
+		$depends_simple{$page}{lc $i} |= $i{$i};
 	}
 
-	return @ret;
+	return @matches;
 }
 
 sub pagespec_valid ($) {
