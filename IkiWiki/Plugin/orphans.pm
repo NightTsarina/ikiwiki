@@ -31,24 +31,24 @@ sub preprocess (@) {
 	my @orphans=pagespec_match_list($params{page}, $params{pages},
 		# update when orphans are added/removed
 		deptype => deptype("presence"),
-		limit => sub {
+		filter => sub {
 			my $page=shift;
 
 			# Filter out pages that other pages link to.
-			return 0 if IkiWiki::backlink_pages($page);
+			return 1 if IkiWiki::backlink_pages($page);
 
 			# Toplevel index is assumed to never be orphaned.
-			return 0 if $page eq 'index';
+			return 1 if $page eq 'index';
 
 			# If the page has a link to some other page, it's
 			# indirectly linked via that page's backlinks.
-			return 0 if grep {
+			return 1 if grep {
 				length $_ &&
 				($_ !~ /\/\Q$config{discussionpage}\E$/i || ! $config{discussion}) &&
 				bestlink($page, $_) !~ /^(\Q$page\E|)$/ 
 			} @{$links{$page}};
 			
-			return 1;
+			return 0;
 		},
 	);
 	

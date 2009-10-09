@@ -1986,8 +1986,8 @@ sub pagespec_match_list ($$;@) {
 		if $@ || ! defined $sub;
 
 	my @candidates;
-	if (exists $params{limit}) {
-		@candidates=grep { $params{limit}->($_) } keys %pagesources;
+	if (exists $params{filter}) {
+		@candidates=grep { ! $params{filter}->($_) } keys %pagesources;
 	}
 	else {
 		@candidates=keys %pagesources;
@@ -2023,7 +2023,7 @@ sub pagespec_match_list ($$;@) {
 	
 	# clear params, remainder is passed to pagespec
 	my $num=$params{num};
-	delete @params{qw{num deptype reverse sort limit}};
+	delete @params{qw{num deptype reverse sort filter}};
 	
 	my @matches;
 	my $firstfail;

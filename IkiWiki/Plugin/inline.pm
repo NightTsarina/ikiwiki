@@ -218,7 +218,7 @@ sub preprocess_inline (@) {
 
 		@list = pagespec_match_list($params{page}, $params{pages},
 			deptype => deptype($quick ? "presence" : "content"),
-			limit => sub { $_[0] ne $params{page} },
+			filter => sub { $_[0] eq $params{page} },
 			sort => exists $params{sort} ? $params{sort} : "age",
 			reverse => yesno($params{reverse}),
 			num => $num,

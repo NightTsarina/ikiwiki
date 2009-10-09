@@ -643,8 +643,8 @@ Additional named parameters can be specified:
 
 * `deptype` optionally specifies the type of dependency to add. Use the
   `deptype` function to generate a dependency type.
-* `limit` is a reference to a function, that is called and passed a page,
-  and must return true for the page to be included.
+* `filter` is a reference to a function, that is called and passed a page,
+  and returns true if the page should be filtered out of the list.
 * `sort` specifies a sort order for the list. See
   [[ikiwiki/PageSpec/sorting]] for the avilable sort methods.
 * `reverse` if true, sorts in reverse.

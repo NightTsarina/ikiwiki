@@ -56,7 +56,7 @@ sub preprocess (@) {
 	my @list=sort { $params{timehash}->{$b} <=> $params{timehash}->{$a} } 
 		pagespec_match_list($params{page}, $params{pages},
 			deptype => $deptype,
-			limit => sub { $_[0] ne $params{page} },
+			filter => sub { $_[0] eq $params{page} },
 		);
 
 	my @data=eval qq{IkiWiki::Plugin::postsparkline::formula::$formula(\\\%params, \@list)};
