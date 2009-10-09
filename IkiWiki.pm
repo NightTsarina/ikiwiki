@@ -1780,19 +1780,17 @@ sub add_depends ($$;$) {
 		return 1;
 	}
 
-	# Analyse the pagespec, and match it against all pages
-	# to get a list of influences, and add explicit dependencies
-	# for those.
-	#my $sub=pagespec_translate($pagespec);
-	#return if $@;
-	#foreach my $p (keys %pagesources) {
-	#	my $r=$sub->($p, location => $page );
-	#	my %i=$r->influences;
-	#	foreach my $i (keys %i) {
-	#		$depends_simple{$page}{lc $i} |= $i{$i};
-	#	}
-	#}
-	print STDERR "warning: use of add_depends by ".caller()."; influences not tracked\n";
+	# Add explicit dependencies for influences.
+	my $sub=pagespec_translate($pagespec);
+	return if $@;
+	foreach my $p (keys %pagesources) {
+		my $r=$sub->($p, location => $page);
+		my $i=$r->influences;
+		foreach my $k (keys %$i) {
+			$depends_simple{$page}{lc $k} |= $i->{$k};
+		}
+		last if $r->influences_static;
+	}
 
 	$depends{$page}{$pagespec} |= $deptype;
 	return 1;
@@ -2045,9 +2043,9 @@ sub pagespec_match_list ($$;@) {
 	}
 
 	# Add simple dependencies for accumulated influences.
-	my %i=$accum->influences;
-	foreach my $i (keys %i) {
-		$depends_simple{$page}{lc $i} |= $i{$i};
+	my $i=$accum->influences;
+	foreach my $k (keys %$i) {
+		$depends_simple{$page}{lc $k} |= $i->{$k};
 	}
 
 	return @matches;
@@ -2099,12 +2097,14 @@ sub new {
 
 sub influences {
 	my $this=shift;
-	if (! @_) {
-		return %{$this->[1]};
-	}
-	else {
-		$this->[1]={@_};
-	}
+	$this->[1]={@_} if @_;
+	my %i=%{$this->[1]};
+	delete $i{""};
+	return \%i;
+}
+
+sub influences_static {
+	return ! $_[0][1]->{""};
 }
 
 sub merge_influences {
@@ -2173,19 +2173,19 @@ sub match_link ($$;@) {
 	my $bestlink = IkiWiki::bestlink($from, $link);
 	foreach my $p (@{$links}) {
 		if (length $bestlink) {
-			return IkiWiki::SuccessReason->new("$page links to $link", $page => $IkiWiki::DEPEND_LINKS)
+			return IkiWiki::SuccessReason->new("$page links to $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 				if $bestlink eq IkiWiki::bestlink($page, $p);
 		}
 		else {
-			return IkiWiki::SuccessReason->new("$page links to page $p matching $link", $page => $IkiWiki::DEPEND_LINKS)
+			return IkiWiki::SuccessReason->new("$page links to page $p matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 				if match_glob($p, $link, %params);
 			my ($p_rel)=$p=~/^\/?(.*)/;
 			$link=~s/^\///;
-			return IkiWiki::SuccessReason->new("$page links to page $p_rel matching $link", $page => $IkiWiki::DEPEND_LINKS)
+			return IkiWiki::SuccessReason->new("$page links to page $p_rel matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 				if match_glob($p_rel, $link, %params);
 		}
 	}
-	return IkiWiki::FailReason->new("$page does not link to $link");
+	return IkiWiki::FailReason->new("$page does not link to $link", "" => 1);
 }
 
 sub match_backlink ($$;@) {
