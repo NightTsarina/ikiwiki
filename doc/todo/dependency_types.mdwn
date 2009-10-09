@@ -222,7 +222,7 @@ ShavedByBob.mdwn:
 
 Does ShavedByBob.mdwn include itself?
 
-(Yeah - in IkiWiki currently links are included by include, but the idea holds.  I had a good example a while back, but I can't think of it right now.)
+(Yeah - in IkiWiki currently links are *not* included by include, but the idea holds.  I had a good example a while back, but I can't think of it right now.)
 
 sigh.
 
@@ -231,6 +231,36 @@ sigh.
 > I have also been thinking about some sort of analysis pass over pagespecs
 > to determine what metadata, pages, etc they depend on. It is indeed
 > tricky to do. More thoughts on influence lists a bit below. --[[Joey]] 
+
+>> The big part of what makes this tricky is that there may be cycles in the
+>> dependency graph.  This can lead to situations where the result is just not
+>> well defined.  This is what I was trying to get at above. -- [[Will]]
+
+>>> Hmm, I'm not seeing cycles be a problem, at least with the current
+>>> pagespec terms. --[[Joey]] 
+
+>>>> Oh, they're not with current pagespec terms.  But this is really close to extending to handle
+>>>> functional pagespecs, etc.  And I think I'd like to think about that now.
+>>>>
+>>>> Having said that, I don't want to hold you up - you seem to be making progress.  The best is
+>>>> the enemy of the good, etc. etc.
+>>>>
+>>>> For my part, I'm imagining we have two more constructs in IkiWiki:
+>>>>
+>>>>  * A map directive that actually wikilinks to the pages it links to, and
+>>>>  * A `match_sharedLink(pageX)` matching function that matches pageY if both pageX and pageY each have links to any same third page, pageZ.
+>>>>
+>>>> With those two constructs, one page changing might change the set of pages included in a map somewhere, which might then change the set of pages matched by some other pagespec, which might then...
+>>>>
+>>>> --[[Will]]
+
+>>>>> I think that should be supported by [[bugs/transitive_dependencies]].
+>>>>> At least in the current implementation, which considers each page
+>>>>> that is rendered to be changed, and rebuilds pages that are dependent
+>>>>> on it, in a loop. An alternate implementation, which could be faster,
+>>>>> is to construct a directed graph and traverse it just once. Sounds
+>>>>> like that would probably not support what you want to do.
+>>>>> --[[Joey]]
 
 ---- 
 
@@ -273,7 +303,7 @@ One way to fix this is to include with each dependency, a list of pages
 that currently match it. If the list changes, the dependency is triggered.
 
 Should be doable, but may involve more work than
-currently. Consider that a dependency on "bugs/*" currently
+currently. Consider that a dependency on `bugs/*` currently
 is triggered by just checking until *one* page is found to match it.
 But to store the list, *every* page would have to be tried against it.
 Unless the list can somehow be intelligently updated, looking at only the
@@ -305,10 +335,53 @@ changes, is needed.
 I'm using this term for the concept of a list of pages whose modification
 can indirectly influence what pages a pagespec matches.
 
+> Trying to make a formal definition of this: (Note, I'm using the term sets rather than lists, but they're roughly equivalent)
+>
+>  * Let the *matching set* for a pagespec be the set of existing pages that the pagespec matches.
+>  * Let a *influence set* for a pagespec be the set of all pages, *p*, whose alteration might:
+>    * cause the pagespec to include or exclude a page other than *p*, or
+>    * cause the pagespec to exclude *p*.
+>
+>> \[Will snipped some stuff and edited the formal definition]
+>
+> --[[Will]]
+
+>> I appreciate the formalism! 
+>>
+>> Only existing pages need to be in these sets, because if a page is added
+>> in the future, the existing dependency code will always test to see
+>> if it matches. So it will be in the maching set (or not) at that point.
+>>
+>>> Hrm, I agree with you in general, but I think I can come up with nasty counter-examples.  What about a pagespec
+>>> of "!backlink(bogus)" where the page bogus doesn't exist?  In this case, the page 'bogus' needs to be in the influence
+>>> set even though it doesn't exist.
+>>>
+>>>> I think you're right, this is a case that the current code is not
+>>>> handling. Actually, I made all the pagespecs return influences
+>>>> even if the influence was not present or did not match. But, it
+>>>> currently only records influences as dependencies when a pagespec
+>>>> successfully matches. Now I'm sure that is wrong, and I've removed
+>>>> that false optimisation. I've updated some of the below. --[[Joey]]
+>>>
+>>> Also, I would really like the formalism to include the whole dependency system, not just any additions to it.  That will make
+>>> the whole thing much easier to reason about.
+>>
+>> The problem with your definition of direct influence set seems to be
+>> that it doesn't allow `link()` and `title()` to have as an indirect
+>> influence, the page that matches. But I'm quite sure we need those.
+>>  --[[Joey]] 
+
+>>> I see what you mean.  Does the revised definition capture this effectively?
+>>> The problem with this revised definition is that it still doesn't match your examples below.
+>>> My revised definition will include pretty much all currently matching pages to be in the influence list
+>>> because deletion of any of them would cause a change in which pages are matched - the removal problem.
+>>> -- [[Will]]
+
 #### Examples
 
 * The pagespec "created_before(foo)" has an influence list that contains foo.
-  The removal or (re)creation of foo changes what pages match it.
+  The removal or (re)creation of foo changes what pages match it. Note that
+  this is true even if the pagespec currently fails to match.
 
 * The pagespec "foo" has an empty influence list. This is because a
   modification/creation/removal of foo directly changes what the pagespec
@@ -318,19 +391,43 @@ can indirectly influence what pages a pagespec matches.
   Avoiding including every page in the wiki into its influence list is
   very important!
 
+>>> So, why don't the above influence lists contain the currently matched pages?
+>>> Don't you need this to handle the removal problem? -- [[Will]]
+
+>>>> The removal problem is slightly confusingly named, since it does not
+>>>> affect pages that were matched by a glob and have been removed. Such
+>>>> pages can be handled without being influences, because ikiwiki knows
+>>>> they have been removed, and so can still match them against the
+>>>> pagespec, and see they used to match; and thus knows that the
+>>>> dependency has triggered.
+>>>>
+>>>> Maybe the thing to do is consider this an optimisation, where such
+>>>> pages are influences, but ikiwiki is able to implicitly find them,
+>>>> so they do not need to be explicitly stored. --[[Joey]]
+
 * The pagespec "title(foo)" has an influence list that contains every page
   that currently matches it. A change to any matching page can change its
-  title. Why is that considered an indirect influence? Well, the pagespec
-  might be used in a presence dependency, and so its title changing
-  would not directly affect the dependency.
+  title, making it not match any more, and so the list is needed due to the
+  removal problem. A page that does not have a matching title is not an
+  influence, because modifying the page to change its title directly
+  changes what the pagespec matches.
 
 * The pagespec "backlink(index)" has an influence list
   that contains index (because a change to index changes the backlinks).
+  Note that this is true even if the backlink currently fails.
 
 * The pagespec "link(done)" has an influence list that
   contains every page that it matches. A change to any matching page can
   remove a link and make it not match any more, and so the list is needed
   due to the removal problem.
+
+>> Why doesn't this include every page?  If I change a page that doesn't have a link to
+>> 'done' to include a link to 'done', then it will now match...  or is that considered a
+>> 'direct match'? -- [[Will]]
+
+>>> The regular dependency calculation code will check if every changed
+>>> page matches every dependency. So it will notice the link was added.
+>>> --[[Joey]] 
 
 #### Low-level Calculation
 
@@ -379,17 +476,89 @@ Given that, the `backlink` will always be evalulated, and will put index
 onto the influence list. If we combine the influences from each
 successful match, we get the right result.
 
-> This is implemented, seems to work ok. --[[Joey]] 
+> This is implemented, seems to work ok. --[[Joey]]
+
+> `or` short-circuits too, but the implementation correctly uses `|`,
+> which I assume is what you meant. --[[smcv]]
+
+>> Er, yeah. --[[Joey]] 
+
+----
+
+What about: "!link(done)"
+
+Specifically, I want to make sure it works now that I've changed
+`match_link` to only return a page as an influence if it *does*
+link to done.
+
+So, when matching against page P, that does not link to done,
+there are no influences, and the pagespec matches. If P is later
+changed to add a link to done, then the dependency resolver will directly
+notice that.
+
+When matching against page P, that does link to done, P
+is an influence, and the pagespec does not match. If P is later changed
+to not link to done, the influence will do its job.
+
+Looks good!
+
+----
+
+Here is a case where this approach has some false positives.
+
+"bugs/* and link(patch)"
+
+This finds as influences all pages that link to patch, even
+if they are not under bugs/, and so can never match.
+
+To fix this, the influence calculation would need to consider boolean
+operators. Currently, this turns into roughly:
+
+`FailReason() & SuccessReason(patch)`
+
+Let's say that the glob instead returns a HardFailReason, which when
+ANDed with another object, drops their influences. (But when ORed, combines
+them.) Fixes the above, but does it always work?
+
+"(bugs/* or link(patch)) and backlink(index)" =>
+`( HardFailReason() | SuccessReason(page) ) & SuccessReason(index)`` =>
+`SuccessReason(page & SuccessReason(index)` =>
+SuccessReason(page, index) => right
+
+"(bugs/* and link(patch)) or backlink(index)" =>
+`( HardFailReason() & SuccessReason(page) ) | SuccessReason(index)`` =>
+`HardFailReason() | SuccessReason(index)` =>
+`SuccessReason(index)` => right
+
+"!bugs/* and link(patch)" =>
+`HardFailReason() | SuccessReason(bugs/foo)` =>  
+`HardFailReason()` => right
 
 #### High-level Calculation and Storage
 
-Calculating the full influence list for a pagespec requires trying to match
-it against every page in the wiki. 
+Naively calculating the full influence list for a pagespec requires trying
+to match it against every page in the wiki. I'd like to avoid doing such
+expensive matching redundantly.
 
-I'd like to avoid doing such expensive matching redundantly. So add a
-`pagespec_match_all`, which returns a list of all pages in the whole
-wiki that match the pagespec, and also adds the pagespec as a dependency,
-and while it's at it, calculates and stores the influence list.
+It may be possible, for some types of pagespecs, to just try matching a
+single, arbitrary page against it, and know the full influence list has
+been obtained. It seems to be that case that if a pagespec has any
+influences, matching any page will return at least one. So if none are
+returned, we can skip trying other pages.
+
+If the influence list does not include the page that was tried, we know
+that the pagespec does not things like `link()` and `title()`, that are
+influenced by the page's own content. So it *might* be safe to not try
+matching any more pages in this case too. I think it would work for all
+current pagespec terms. There might be a hypothetical term where this
+optimisation doesn't work. We could add a special case to ensure it can
+work: If a term declares it is unfluenced by "", then it means it is
+always influenced by the matching page.
+
+Anyway, this seems worth doing: Add a `pagespec_match_all`, which returns a
+list of all pages in the whole wiki that match the pagespec, and also adds
+the pagespec as a dependency, and while it's at it, calculates and stores
+the influence list.
 
 It could have an optional sort parameter, and limit parameter, to control
 how many items to return and the sort order. So when inline wants to
@@ -414,7 +583,7 @@ it's calculated more smartly, and is added automatically.
 
 > I've implemented influence calculation in `add_depends`. As expected,
 > it means rather a lot more work, and makes some things much slower.
-> Optimisation via `pagespec_match_depends` next.. --[[Joey]] 
+> Optimisations next.. --[[Joey]] 
 
 #### Influence types
 
@@ -422,3 +591,10 @@ Note that influences can also have types, same as dependency types.
 For example, "backlink(foo)" has an influence of foo, of type links.
 "created_before(foo)" also is influenced by foo, but it's a presence
 type. Etc.
+
+> This is an interesting concept that I hadn't considered.  It might
+> allow significant computational savings, but I suspect will be tricky
+> to implement. -- [[Will]]
+
+>> It was actually really easy to implement it, assuming I picked the right
+>> dependency types of course. --[[Joey]]

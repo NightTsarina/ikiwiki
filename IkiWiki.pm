@@ -38,7 +38,6 @@ our $DEPEND_LINKS=4;
 use Memoize;
 memoize("abs2rel");
 memoize("pagespec_translate");
-memoize("file_pruned");
 memoize("template_file");
 
 sub getsetup () {
@@ -1900,14 +1899,18 @@ sub deptype (@) {
 	return $deptype;
 }
 
-sub file_pruned ($$) {
-	require File::Spec;
-	my $file=File::Spec->canonpath(shift);
-	my $base=File::Spec->canonpath(shift);
-	$file =~ s#^\Q$base\E/+##;
+sub file_pruned ($;$) {
+	my $file=shift;
+	if (@_) {
+		require File::Spec;
+		$file=File::Spec->canonpath($file);
+		my $base=File::Spec->canonpath(shift);
+		return if $file eq $base;
+		$file =~ s#^\Q$base\E/+##;
+	}
 
 	my $regexp='('.join('|', @{$config{wiki_file_prune_regexps}}).')';
-	return $file =~ m/$regexp/ && $file ne $base;
+	return $file =~ m/$regexp/;
 }
 
 sub define_gettext () {
