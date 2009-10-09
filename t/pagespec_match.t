@@ -103,9 +103,9 @@ is(join(",", keys %i), 'foo', "backlink is influenced by the page with the link"
 is(join(",", keys %i), 'foo', "created_before is influenced by the comparison page");
 %i=pagespec_match("bar", "created_after(foo)")->influences;
 is(join(",", keys %i), 'foo', "created_after is influenced by the comparison page");
-%i=pagespec_match("bar", "link(quux) and created_after(foo)")->influences;
+%i=pagespec_match("foo", "link(baz) and created_after(bar)")->influences;
 is(join(",", sort keys %i), 'bar,foo', "influences add up over AND");
-%i=pagespec_match("bar", "link(quux) and created_after(foo)")->influences;
+%i=pagespec_match("foo", "link(baz) and created_after(bar)")->influences;
 is(join(",", sort keys %i), 'bar,foo', "influences add up over OR");
-%i=pagespec_match("bar", "!link(quux) and !created_after(foo)")->influences;
+%i=pagespec_match("foo", "!link(baz) and !created_after(bar)")->influences;
 is(join(",", sort keys %i), 'bar,foo', "influences unaffected by negation");
