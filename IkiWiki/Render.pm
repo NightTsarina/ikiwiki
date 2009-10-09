@@ -279,24 +279,26 @@ sub find_src_files () {
 	find({
 		no_chdir => 1,
 		wanted => sub {
-			$_=decode_utf8($_);
-			if (file_pruned($_, $config{srcdir})) {
+			my $file=decode_utf8($_);
+			$file=~s/^\Q$config{srcdir}\E\/?//;
+			my $page = pagename($file);
+			if (! exists $pagesources{$page} &&
+			    file_pruned($file)) {
 				$File::Find::prune=1;
+				return;
 			}
-			elsif (! -l $_ && ! -d _) {
-				my ($f)=/$config{wiki_file_regexp}/; # untaint
-				if (! defined $f) {
-					warn(sprintf(gettext("skipping bad filename %s"), $_)."\n");
+			return if -l $_ || -d _ || ! length $file;
+
+			my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
+			if (! defined $f) {
+				warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
+			}
+			else {
+				push @files, $f;
+				if ($pages{$page}) {
+					debug(sprintf(gettext("%s has multiple possible source pages"), $page));
 				}
-				else {
-					$f=~s/^\Q$config{srcdir}\E\/?//;
-					push @files, $f;
-					my $pagename = pagename($f);
-					if ($pages{$pagename}) {
-						debug(sprintf(gettext("%s has multiple possible source pages"), $pagename));
-					}
-					$pages{$pagename}=1;
-				}
+				$pages{$page}=1;
 			}
 		},
 	}, $config{srcdir});
@@ -304,27 +306,28 @@ sub find_src_files () {
 		find({
 			no_chdir => 1,
 			wanted => sub {
-				$_=decode_utf8($_);
-				if (file_pruned($_, $dir)) {
+				my $file=decode_utf8($_);
+				$file=~s/^\Q$dir\E\/?//;
+				my $page=pagename($file);
+				if (! exists $pagesources{$page} &&
+				    file_pruned($file)) {
 					$File::Find::prune=1;
+					return;
 				}
-				elsif (! -l $_ && ! -d _) {
-					my ($f)=/$config{wiki_file_regexp}/; # untaint
-					if (! defined $f) {
-						warn(sprintf(gettext("skipping bad filename %s"), $_)."\n");
-					}
-					else {
-						$f=~s/^\Q$dir\E\/?//;
-						# avoid underlaydir
-						# override attacks; see
-						# security.mdwn
-						if (! -l "$config{srcdir}/$f" && 
-						    ! -e _) {
-						    	my $page=pagename($f);
-							if (! $pages{$page}) {
-								push @files, $f;
-								$pages{$page}=1;
-							}
+				return if -l $_ || -d _ || ! length $file;
+
+				my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
+				if (! defined $f) {
+					warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
+				}
+				else {
+					# avoid underlaydir override
+					# attacks; see security.mdwn
+					if (! -l "$config{srcdir}/$f" && 
+					    ! -e _) {
+						if (! $pages{$page}) {
+							push @files, $f;
+							$pages{$page}=1;
 						}
 					}
 				}
