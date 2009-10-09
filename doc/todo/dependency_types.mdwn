@@ -339,11 +339,25 @@ can indirectly influence what pages a pagespec matches.
 > Trying to make a formal definition of this: (Note, I'm using the term sets rather than lists, but they're roughly equivalent)
 >
 >  * Let the *matching set* for a pagespec be the set of existing pages that the pagespec matches.
->  * Let a *influence set* for a pagespec be the set of all pages, *p*, whose alteration might:
+>  * Let the *assignment dependent glob matching set* for a particular assignment of True/False to the `match_()` functions of a pagespec, be the set of pages that would match if the `match_()` functions returned those true/false values.
+>  * Let the *glob matching set* be the intersection of all assignment dependent glob matching sets.  i.e. the set of pages that can match this pagespec just based on glob information, regardless of what the `match_()` functions return. 
+>  * Let the *indirect influence set* for a pagespec be the set of all pages, *p*, whose alteration might:
 >    * cause the pagespec to include or exclude a page other than *p*, or
->    * cause the pagespec to exclude *p*.
+>    * cause the pagespec to exclude *p* unless *p* is in the glob matching set.
 >
->> \[Will snipped some stuff and edited the formal definition]
+> Justification: The 'base dependency mechanism' is to compare changed pages against each pagespec.  If the page matches, then rebuild the spec.  For this comparison, creation and removal
+> of pages are both considered changes.  This base mechanism will catch:
+>
+>  * The addition of any page to the matching set through its own modification/creation
+>  * The removal of any page *that would still match if it existed* from the matching set through its own removal.  (Note: The base mechanism cannot remove a page cannot from the matching set because of that page's own modification.  If the page should be removed, then cannot match the spec after the change.)  This 'match after the change' criterion is what I tried to capture in the glob matching set above.  I think my glob matching set is slightly more restrictive than the set of pages that 'still match after the change', but more restrictive is safer than less restrictive for that set.
+>
+> The base mechanism may therefore not catch:
+>
+>  * The addition or removal of any page from the matching set through the modification/addition/removal of any other page.
+>  * The removal of any page from the matching set through its own modification/removal if it does not still match after the change.
+>
+> The indirect influence set then should handle anything that the base mechanism will not catch.
+>> At the moment the indirect influence set is a little conservative, in that the glob matching set doesn't exactly equal the set of pages that still match after the change.  It is quite hard to get this right - thoughts on tuning the glob matching set definition are welcome.  I've tried to err on the side of a longer indirect influence set, as that will make sure we do enough updates.
 >
 > --[[Will]]
 
@@ -380,9 +394,12 @@ can indirectly influence what pages a pagespec matches.
 
 #### Examples
 
-* The pagespec "created_before(foo)" has an influence list that contains foo.
+* The pagespec "created_before(foo)" has an indirect influence list that contains foo.
   The removal or (re)creation of foo changes what pages match it. Note that
   this is true even if the pagespec currently fails to match.
+
+>>> This is an annoying example.  I think the indirect influence list must contain 'foo' and all currently matching pages.  `created_before(foo)` will not match
+>>> a deleted page, and so the base mechanism would not cause a rebuild.  The removal problem strikes.  Note that the glob matching set is empty in this case. -- [[Will]]
 
 * The pagespec "foo" has an empty influence list. This is because a
   modification/creation/removal of foo directly changes what the pagespec
@@ -401,6 +418,8 @@ can indirectly influence what pages a pagespec matches.
 >>>> they have been removed, and so can still match them against the
 >>>> pagespec, and see they used to match; and thus knows that the
 >>>> dependency has triggered.
+>>>>
+>>>>> IkiWiki can only see that they used to match if they're in the glob matching set.  -- [[Will]]
 >>>>
 >>>> Maybe the thing to do is consider this an optimisation, where such
 >>>> pages are influences, but ikiwiki is able to implicitly find them,
