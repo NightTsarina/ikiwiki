@@ -30,10 +30,10 @@ sub preprocess_if (@) {
 
 	my $result=0;
 	if (! IkiWiki::yesno($params{all}) ||
-		# An optimisation to avoid needless looping over every page
-		# and adding of dependencies for simple uses of some of the
-		# tests.
-		$params{test} =~ /^([\s\!()]*((enabled|sourcepage|destpage|included)\([^)]*\)|(and|or))[\s\!()]*)+$/) {
+	    # An optimisation to avoid needless looping over every page
+	    # and adding of dependencies for simple uses of some of the
+	    # tests.
+	    $params{test} =~ /^([\s\!()]*((enabled|sourcepage|destpage|included)\([^)]*\)|(and|or))[\s\!()]*)+$/) {
 		add_depends($params{page}, "($params{test}) and $params{page}");
 		$result=pagespec_match($params{page}, $params{test},
 				location => $params{page},
