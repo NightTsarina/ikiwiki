@@ -56,42 +56,6 @@ ok(add_depends("foo0", "bar", deptype("links"))); # had only content before
 ok($IkiWiki::depends{foo0}{"*"} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS));
 ok(! ($IkiWiki::depends{foo0}{"*"} & $IkiWiki::DEPEND_PRESENCE));
 
-# Adding a pagespec that requires page metadata should add the influence
-# as an explicit dependency. In the case of a link, a links dependency.
-$links{foo0}=$links{foo9}=[qw{bar baz}];
-foreach my $spec ("* and ! link(bar)", "* or link(bar)") {
-	ok(add_depends("foo3", $spec, deptype("presence")));
-	ok($IkiWiki::depends{foo3}{$spec} & $IkiWiki::DEPEND_PRESENCE);
-	ok(! ($IkiWiki::depends{foo3}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
-	ok($IkiWiki::depends_simple{foo3}{foo3} == $IkiWiki::DEPEND_LINKS);
-	ok(add_depends("foo4", $spec, deptype("links")));
-	ok($IkiWiki::depends{foo4}{$spec} & $IkiWiki::DEPEND_LINKS);
-	ok(! ($IkiWiki::depends{foo4}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_PRESENCE)));
-	ok($IkiWiki::depends_simple{foo4}{foo4} == $IkiWiki::DEPEND_LINKS);
-}
-
-# a pagespec with backlinks() will add as an influence the page with the links
-$links{foo0}=[qw{foo5 foo7}];
-foreach my $spec ("bugs or (backlink(foo0) and !*.png)", "backlink(foo)") {
-	ok(add_depends("foo5", $spec, deptype("presence")));
-	ok($IkiWiki::depends{foo5}{$spec} & $IkiWiki::DEPEND_PRESENCE);
-	ok(! ($IkiWiki::depends{foo5}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
-	ok($IkiWiki::depends_simple{foo5}{foo0} == $IkiWiki::DEPEND_LINKS);
-	ok(add_depends("foo6", $spec, deptype("links")));
-	ok($IkiWiki::depends{foo6}{$spec} & $IkiWiki::DEPEND_LINKS);
-	ok(! ($IkiWiki::depends{foo6}{$spec} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_CONTENT)));
-	ok($IkiWiki::depends_simple{foo5}{foo0} == $IkiWiki::DEPEND_LINKS);
-	ok(add_depends("foo7", $spec, deptype("presence", "links")));
-	ok($IkiWiki::depends{foo7}{$spec} & $IkiWiki::DEPEND_PRESENCE);
-	ok($IkiWiki::depends{foo7}{$spec} & $IkiWiki::DEPEND_LINKS);
-	ok(! ($IkiWiki::depends{foo7}{$spec} & $IkiWiki::DEPEND_CONTENT));
-	ok($IkiWiki::depends_simple{foo7}{foo0} == $IkiWiki::DEPEND_LINKS);
-	ok(add_depends("foo8", $spec));
-	ok($IkiWiki::depends{foo8}{$spec} & $IkiWiki::DEPEND_CONTENT);
-	ok(! ($IkiWiki::depends{foo8}{$spec} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_LINKS)));
-	ok($IkiWiki::depends_simple{foo8}{foo0} == $IkiWiki::DEPEND_LINKS);
-}
-
 # content is the default if unknown types are entered
 ok(add_depends("foo9", "*", deptype("monkey")));
 ok($IkiWiki::depends{foo9}{"*"} & $IkiWiki::DEPEND_CONTENT);
