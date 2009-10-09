@@ -636,6 +636,9 @@ is significantly more efficient than calling `add_depends` and
 `pagespec_match` in a loop. You should use this anytime a plugin
 needs to match a set of pages and do something based on that list.
 
+Unlike pagespec_match, this may throw an error if there is an error in
+the pagespec.
+
 Additional named parameters can be specified:
 
 * `deptype` optionally specifies the type of dependency to add. Use the
@@ -650,8 +653,8 @@ Additional named parameters can be specified:
 * `list` makes it only match amoung the specified list of pages.
   Default is to match amoung all pages in the wiki.
 
-Unlike pagespec_match, this may throw an error if there is an error in
-the pagespec.
+Any other named parameters are passed on to `pagespec_match`, to further
+limit the match.
 
 #### `add_depends($$;$)`
 

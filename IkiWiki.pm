@@ -2019,21 +2019,25 @@ sub pagespec_match_list ($$;@) {
 
 	@candidates=reverse(@candidates) if $params{reverse};
 	
+	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
+	
+	# clear params, remainder is passed to pagespec
+	my $num=$params{num};
+	delete @params{qw{num deptype reverse sort limit}};
+	
 	my @matches;
 	my $firstfail;
 	my $count=0;
 	foreach my $p (@candidates) {
-		my $r=$sub->($p, location => $page);
+		my $r=$sub->($p, %params, location => $page);
 		if ($r) {
 			push @matches, [$p, $r];
-			last if defined $params{num} && ++$count == $params{num};
+			last if defined $num && ++$count == $num;
 		}
 		elsif (! defined $firstfail) {
 			$firstfail=$r;
 		}
 	}
-	
-	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
 
 	my @ret;
 	if (@matches) {
