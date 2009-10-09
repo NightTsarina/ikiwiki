@@ -216,7 +216,7 @@ sub preprocess_inline (@) {
 			$num+=$params{skip};
 		}
 
-		@list = use_pagespec($params{page}, $params{pages},
+		@list = pagespec_match_list($params{page}, $params{pages},
 			deptype => deptype($quick ? "presence" : "content"),
 			limit => sub { $_[0] ne $params{page} },
 			sort => exists $params{sort} ? $params{sort} : "age",
@@ -245,9 +245,11 @@ sub preprocess_inline (@) {
 	}
 
 	if ($feeds && exists $params{feedpages}) {
-		@feedlist = use_pagespec($params{page}, "($params{pages}) and ($params{feedpages})",
+		@feedlist = pagespec_match_list(
+			$params{page}, "($params{pages}) and ($params{feedpages})",
 			deptype => deptype($quick ? "presence" : "content"),
-			list => \@feedlist);
+			list => \@feedlist,
+		);
 	}
 
 	my ($feedbase, $feednum);

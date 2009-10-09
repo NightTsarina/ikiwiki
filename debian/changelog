@@ -33,9 +33,9 @@ ikiwiki (3.14159266) UNRELEASED; urgency=low
     info.
   * Plugins providing PageSpec `match_*` functions should pass additional
     influence information when creating result objects.
-  * Added `use_pagespec` function, that plugins can use to find a list
-    of matching pages and add dependencies and influences, all at once,
-    and efficiently.
+  * API change: `pagespec_match_list` has completly changed its interface.
+    The old interface will be removed soon, and a warning will be printed
+    if any plugins try to use it.
   * Optimize away most expensive file prune calls, when refreshing,
     by only checking new files.
 

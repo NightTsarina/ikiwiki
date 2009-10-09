@@ -28,7 +28,7 @@ sub preprocess (@) {
 	# considering as orphans.
 	add_depends($params{page}, "*", deptype("links"));
 	
-	my @orphans=use_pagespec($params{page}, $params{pages},
+	my @orphans=pagespec_match_list($params{page}, $params{pages},
 		# update when orphans are added/removed
 		deptype => deptype("presence"),
 		limit => sub {

@@ -54,7 +54,7 @@ sub preprocess (@) {
 	}
 
 	my @list=sort { $params{timehash}->{$b} <=> $params{timehash}->{$a} } 
-		use_pagespec($params{page}, $params{pages},
+		pagespec_match_list($params{page}, $params{pages},
 			deptype => $deptype,
 			limit => sub { $_[0] ne $params{page} },
 		);

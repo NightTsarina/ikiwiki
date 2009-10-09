@@ -625,16 +625,16 @@ dependency type from one or more of these keywords:
 
 If multiple types are specified, they are combined.
 
-#### `use_pagespec($$;@)`
+#### `pagespec_match_list($$;@)`
 
 Passed a page name, and [[ikiwiki/PageSpec]], returns a list of pages
 in the wiki that match the [[ikiwiki/PageSpec]]. 
 
 The page will automatically be made to depend on the specified
 [[ikiwiki/PageSpec]], so `add_depends` does not need to be called. This
-is significantly more efficient than calling `add_depends`
-followed by `pagespec_match_list`. You should use this anytime a plugin
-needs to match a set of pages and generate something based on that list.
+is significantly more efficient than calling `add_depends` and
+`pagespec_match` in a loop. You should use this anytime a plugin
+needs to match a set of pages and do something based on that list.
 
 Additional named parameters can be specified:
 
@@ -649,6 +649,9 @@ Additional named parameters can be specified:
   will be returned.
 * `list` makes it only match amoung the specified list of pages.
   Default is to match amoung all pages in the wiki.
+
+Unlike pagespec_match, this may throw an error if there is an error in
+the pagespec.
 
 #### `add_depends($$;$)`
 
@@ -671,19 +674,6 @@ Additional named parameters can be passed, to further limit the match.
 The most often used is "location", which specifies the location the
 PageSpec should match against. If not passed, relative PageSpecs will match
 relative to the top of the wiki.
-
-#### `pagespec_match_list($$;@)`
-
-Passed a reference to a list of page names, and [[ikiwiki/PageSpec]],
-returns the set of pages that match the [[ikiwiki/PageSpec]].
-
-Additional named parameters can be passed, to further limit the match.
-The most often used is "location", which specifies the location the
-PageSpec should match against. If not passed, relative PageSpecs will match
-relative to the top of the wiki.
-
-Unlike pagespec_match, this may throw an error if there is an error in
-the pagespec.
 
 #### `bestlink($$)`
 

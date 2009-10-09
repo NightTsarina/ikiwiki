@@ -36,7 +36,8 @@ sub preprocess (@) {
 
 	# Get all the items to map.
 	my %mapitems;
-	foreach my $page (use_pagespec($params{page}, $params{pages}, deptype => $deptype)) {
+	foreach my $page (pagespec_match_list($params{page}, $params{pages},
+					deptype => $deptype)) {
 		if (exists $params{show} && 
 		    exists $pagestate{$page} &&
 		    exists $pagestate{$page}{meta}{$params{show}}) {

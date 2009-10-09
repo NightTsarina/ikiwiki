@@ -37,16 +37,17 @@ sub preprocess (@) {
 	
 	my %counts;
 	my $max = 0;
-	foreach my $page (use_pagespec($params{page}, $params{pages},
-	                  # update when a displayed page is added or removed
-	                  deptype => deptype("presence"))) {
+	foreach my $page (pagespec_match_list($params{page}, $params{pages},
+		                  # update when a displayed page is added/removed
+	        	          deptype => deptype("presence"))) {
 		use IkiWiki::Render;
 
 		my @backlinks = IkiWiki::backlink_pages($page);
 
 		if (exists $params{among}) {
 			# only consider backlinks from the amoung pages
-			@backlinks = use_pagespec($params{page}, $params{among},
+			@backlinks = pagespec_match_list(
+				$params{page}, $params{among},
 				# update whenever links on those pages change
 				deptype => deptype("links"),
 				list => \@backlinks

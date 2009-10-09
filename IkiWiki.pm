@@ -17,7 +17,7 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %forcerebuild %loaded_plugins};
 
 use Exporter q{import};
-our @EXPORT = qw(hook debug error template htmlpage deptype use_pagespec
+our @EXPORT = qw(hook debug error template htmlpage deptype
                  add_depends pagespec_match pagespec_match_list bestlink
 		 htmllink readfile writefile pagetype srcfile pagename
 		 displaytime will_render gettext urlto targetpage
@@ -1798,91 +1798,6 @@ sub add_depends ($$;$) {
 	return 1;
 }
 
-sub use_pagespec ($$;@) {
-	my $page=shift;
-	my $pagespec=shift;
-	my %params=@_;
-
-	my $sub=pagespec_translate($pagespec);
-	error "syntax error in pagespec \"$pagespec\""
-		if $@ || ! defined $sub;
-
-	my @candidates;
-	if (exists $params{limit}) {
-		@candidates=grep { $params{limit}->($_) } keys %pagesources;
-	}
-	else {
-		@candidates=keys %pagesources;
-	}
-
-	if (defined $params{sort}) {
-		my $f;
-		if ($params{sort} eq 'title') {
-			$f=sub { pagetitle(basename($a)) cmp pagetitle(basename($b)) };
-		}
-		elsif ($params{sort} eq 'title_natural') {
-			eval q{use Sort::Naturally};
-			if ($@) {
-				error(gettext("Sort::Naturally needed for title_natural sort"));
-			}
-			$f=sub { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) };
-                }
-		elsif ($params{sort} eq 'mtime') {
-			$f=sub { $pagemtime{$b} <=> $pagemtime{$a} };
-		}
-		elsif ($params{sort} eq 'age') {
-			$f=sub { $pagectime{$b} <=> $pagectime{$a} };
-		}
-		else {
-			error sprintf(gettext("unknown sort type %s"), $params{sort});
-		}
-		@candidates = sort { &$f } @candidates;
-	}
-
-	@candidates=reverse(@candidates) if $params{reverse};
-	
-	my @matches;
-	my $firstfail;
-	my $count=0;
-	foreach my $p (@candidates) {
-		my $r=$sub->($p, location => $page);
-		if ($r) {
-			push @matches, [$p, $r];
-			last if defined $params{num} && ++$count == $params{num};
-		}
-		elsif (! defined $firstfail) {
-			$firstfail=$r;
-		}
-	}
-	
-	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
-
-	my @ret;
-	if (@matches) {
-		# Add all influences from successful matches.
-		foreach my $m (@matches) {
-			push @ret, $m->[0];
-			my %i=$m->[1]->influences;
-			foreach my $i (keys %i) {
-				$depends_simple{$page}{lc $i} |= $i{$i};
-			}
-		}
-	}
-	elsif (defined $firstfail) {
-		# Add influences from one failure. (Which one should not
-		# matter; all should have the same influences.)
-		my %i=$firstfail->influences;
-		foreach my $i (keys %i) {
-			$depends_simple{$page}{lc $i} |= $i{$i};
-		}
-
-		error(sprintf(gettext("cannot match pages: %s"), $firstfail))
-			if $firstfail->isa("IkiWiki::ErrorReason");
-	}
-
-	return @ret;
-}
-
 sub deptype (@) {
 	my $deptype=0;
 	foreach my $type (@_) {
@@ -2055,27 +1970,95 @@ sub pagespec_match ($$;@) {
 }
 
 sub pagespec_match_list ($$;@) {
-	my $pages=shift;
-	my $spec=shift;
-	my @params=@_;
+	my $page=shift;
+	my $pagespec=shift;
+	my %params=@_;
 
-	my $sub=pagespec_translate($spec);
-	error "syntax error in pagespec \"$spec\""
-		if $@ || ! defined $sub;
-	
-	my @ret;
-	my $r;
-	foreach my $page (@$pages) {
-		$r=$sub->($page, @params);
-		push @ret, $page if $r;
+	# Backwards compatability with old calling convention.
+	if (ref $page) {
+		print STDERR "warning: a plugin (".caller().") is using pagespec_match_list in an obsolete way, and needs to be updated\n";
+		$params{list}=$page;
+		$page=$params{location}; # ugh!
 	}
 
-	if (! @ret && defined $r && $r->isa("IkiWiki::ErrorReason")) {
-		error(sprintf(gettext("cannot match pages: %s"), $r));
+	my $sub=pagespec_translate($pagespec);
+	error "syntax error in pagespec \"$pagespec\""
+		if $@ || ! defined $sub;
+
+	my @candidates;
+	if (exists $params{limit}) {
+		@candidates=grep { $params{limit}->($_) } keys %pagesources;
 	}
 	else {
-		return @ret;
+		@candidates=keys %pagesources;
 	}
+
+	if (defined $params{sort}) {
+		my $f;
+		if ($params{sort} eq 'title') {
+			$f=sub { pagetitle(basename($a)) cmp pagetitle(basename($b)) };
+		}
+		elsif ($params{sort} eq 'title_natural') {
+			eval q{use Sort::Naturally};
+			if ($@) {
+				error(gettext("Sort::Naturally needed for title_natural sort"));
+			}
+			$f=sub { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) };
+                }
+		elsif ($params{sort} eq 'mtime') {
+			$f=sub { $pagemtime{$b} <=> $pagemtime{$a} };
+		}
+		elsif ($params{sort} eq 'age') {
+			$f=sub { $pagectime{$b} <=> $pagectime{$a} };
+		}
+		else {
+			error sprintf(gettext("unknown sort type %s"), $params{sort});
+		}
+		@candidates = sort { &$f } @candidates;
+	}
+
+	@candidates=reverse(@candidates) if $params{reverse};
+	
+	my @matches;
+	my $firstfail;
+	my $count=0;
+	foreach my $p (@candidates) {
+		my $r=$sub->($p, location => $page);
+		if ($r) {
+			push @matches, [$p, $r];
+			last if defined $params{num} && ++$count == $params{num};
+		}
+		elsif (! defined $firstfail) {
+			$firstfail=$r;
+		}
+	}
+	
+	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
+
+	my @ret;
+	if (@matches) {
+		# Add all influences from successful matches.
+		foreach my $m (@matches) {
+			push @ret, $m->[0];
+			my %i=$m->[1]->influences;
+			foreach my $i (keys %i) {
+				$depends_simple{$page}{lc $i} |= $i{$i};
+			}
+		}
+	}
+	elsif (defined $firstfail) {
+		# Add influences from one failure. (Which one should not
+		# matter; all should have the same influences.)
+		my %i=$firstfail->influences;
+		foreach my $i (keys %i) {
+			$depends_simple{$page}{lc $i} |= $i{$i};
+		}
+
+		error(sprintf(gettext("cannot match pages: %s"), $firstfail))
+			if $firstfail->isa("IkiWiki::ErrorReason");
+	}
+
+	return @ret;
 }
 
 sub pagespec_valid ($) {

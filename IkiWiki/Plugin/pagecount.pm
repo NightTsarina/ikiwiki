@@ -32,7 +32,7 @@ sub preprocess (@) {
 		return scalar keys %pagesources;
 	}
 
-	return scalar use_pagespec($params{page}, $pages,
+	return scalar pagespec_match_list($params{page}, $pages,
 		deptype => deptype("presence"));
 }
 
