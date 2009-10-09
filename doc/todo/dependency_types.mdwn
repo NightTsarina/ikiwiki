@@ -408,6 +408,11 @@ can indirectly influence what pages a pagespec matches.
 >>>> find changes in deleted pages. (I verified this works by experiment,
 >>>> also that `created_after` is triggered by a deleted page.) --[[Joey]]
 
+>>>>> Oh, okie.  I looked at the source, saw the `if (exists $IkiWiki::pagectime{$testpage})` and assumed it would fail.
+>>>>> Of course, having it succeed doesn't cure all the issues -- just moves them.  With `created_before()` succeeding
+>>>>> for deleted files, this pagespec will be match any removal in the entire wiki with the base mechanism.  Whether this is
+>>>>> better or worse than the longer indirect influence list is an empirical question. -- [[Will]]
+
 * The pagespec "foo" has an empty influence list. This is because a
   modification/creation/removal of foo directly changes what the pagespec
   matches.
