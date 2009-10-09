@@ -29,7 +29,7 @@ sub preprocess_if (@) {
 	}
 
 	my $result=0;
-	if ((exists $params{all} && lc $params{all} eq "no") ||
+	if (! IkiWiki::yesno($params{all}) ||
 		# An optimisation to avoid needless looping over every page
 		# and adding of dependencies for simple uses of some of the
 		# tests.

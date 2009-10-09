@@ -1792,7 +1792,7 @@ sub add_depends ($$;$) {
 	#		$depends_simple{$page}{lc $i} |= $i{$i};
 	#	}
 	#}
-	print STDERR "warning: use of add_depends; influences not tracked\n";
+	print STDERR "warning: use of add_depends by ".caller()."; influences not tracked\n";
 
 	$depends{$page}{$pagespec} |= $deptype;
 	return 1;
