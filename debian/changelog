@@ -1,18 +1,9 @@
-ikiwiki (3.14159266) UNRELEASED; urgency=low
+ikiwiki (3.2009XXXX) UNRELEASED; urgency=low
 
-  * parentlinks: Add has_parentlinks template parameter to allow styling
-    the toplevel index differently etc.
-  * img: Correct bug in image size calculation code.
-  * img: Fix dependency code for full size images.
-  * toggle, relativedate: Support templates that add attributes
-    to the body tag.
-  * Support RPC::XML 0.69's incompatable object instantiation method.
-  * mirrorlist: Display nothing if list is empty.
-  * Fix a bug that could lead to duplicate links being recorded
-    for tags.
-  * Added support framework for multiple types of dependencies.
-  * Allow declaring that a dependency is only affected by page presence
-    or changes to its links.
+  * Added support framework for multiple types of dependencies, including
+    dependncies that are only affected by page precence or link changes.
+  * Rebuild wikis on upgrade to this version to get improved dependency
+    info.
   * pagecount, calendar, postsparkline, progress: Use a presence dependency,
     which makes these directives much less expensive to use, since page
     edits will no longer trigger an unnecessary update.
@@ -28,18 +19,32 @@ ikiwiki (3.14159266) UNRELEASED; urgency=low
   * linkmap: Use a combination of presence and link dependencies.
     This makes the map be regenerated much less frequently in many cases,
     so larger maps are more practical to use now.
-  * Transitive dependencies are now correctly supported.
-  * Rebuild wikis on upgrade to this version to get improved dependency
-    info.
   * Plugins providing PageSpec `match_*` functions should pass additional
-    influence information when creating result objects.
+    influence information when creating result objects. This allows correctly
+    handling many more complicated dependencies.
   * API change: `pagespec_match_list` has completly changed its interface.
     The old interface will be removed soon, and a warning will be printed
     if any plugins try to use it.
+  * Transitive dependencies are now correctly supported.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 09 Oct 2009 20:13:27 -0400
+
+ikiwiki (3.20091009) unstable; urgency=low
+
+  * parentlinks: Add has_parentlinks template parameter to allow styling
+    the toplevel index differently etc.
+  * img: Correct bug in image size calculation code.
+  * img: Fix dependency code for full size images.
+  * toggle, relativedate: Support templates that add attributes
+    to the body tag.
+  * Support RPC::XML 0.69's incompatible object instantiation method.
+  * mirrorlist: Display nothing if list is empty.
+  * Fix a bug that could lead to duplicate links being recorded
+    for tags.
   * Optimize away most expensive file prune checks, when refreshing,
     by only checking new files.
 
- -- Joey Hess <joeyh@debian.org>  Sun, 27 Sep 2009 17:40:03 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 09 Oct 2009 19:53:50 -0400
 
 ikiwiki (3.14159265) unstable; urgency=low
 

@@ -262,6 +262,8 @@ sigh.
 >>>>> like that would probably not support what you want to do.
 >>>>> --[[Joey]]
 
+>>>>>> Yes - that's what I'm talking about - I'll add some comments there.  -- [[Will]]
+
 ---- 
 
 ### Link dependencies
@@ -338,11 +340,24 @@ can indirectly influence what pages a pagespec matches.
 > Trying to make a formal definition of this: (Note, I'm using the term sets rather than lists, but they're roughly equivalent)
 >
 >  * Let the *matching set* for a pagespec be the set of existing pages that the pagespec matches.
->  * Let a *influence set* for a pagespec be the set of all pages, *p*, whose alteration might:
+>  * Let the *missing document matching set* be the set of pages that would match the spec if they didn't exist. These pages may or may not currently exist.  Note that membership of this set depends upon how the `match_()` functions react to non-existant pages.
+>  * Let the *indirect influence set* for a pagespec be the set of all pages, *p*, whose alteration might:
 >    * cause the pagespec to include or exclude a page other than *p*, or
->    * cause the pagespec to exclude *p*.
+>    * cause the pagespec to exclude *p*, unless the alteration is the removal of *p* and *p* is in the missing document matching set.
 >
->> \[Will snipped some stuff and edited the formal definition]
+> Justification: The 'base dependency mechanism' is to compare changed pages against each pagespec.  If the page matches, then rebuild the spec.  For this comparison, creation and removal
+> of pages are both considered changes.  This base mechanism will catch:
+>
+>  * The addition of any page to the matching set through its own modification/creation
+>  * The removal of any page *that would still match while non-existant* from the matching set through its own removal.  (Note: The base mechanism cannot remove a page from the matching set because of that page's own modification (not deletion).  If the page should be removed matching set, then it obviously cannot match the spec after the change.) 
+>  * The modification (not deletion) of any page that still matches after the modification.
+>
+> The base mechanism may therefore not catch:
+>
+>  * The addition or removal of any page from the matching set through the modification/addition/removal of any other page.
+>  * The removal of any page from the matching set through its own modification/removal if it does not still match after the change.
+>
+> The indirect influence set then should handle anything that the base mechanism will not catch.
 >
 > --[[Will]]
 
@@ -379,9 +394,25 @@ can indirectly influence what pages a pagespec matches.
 
 #### Examples
 
-* The pagespec "created_before(foo)" has an influence list that contains foo.
+* The pagespec "created_before(foo)" has an indirect influence list that contains foo.
   The removal or (re)creation of foo changes what pages match it. Note that
   this is true even if the pagespec currently fails to match.
+
+>>> This is an annoying example (hence well worth having :) ).  I think the
+>>> indirect influence list must contain 'foo' and all currently matching
+>>> pages.  `created_before(foo)` will not match
+>>> a deleted page, and so the base mechanism would not cause a rebuild.  The
+>>> removal problem strikes. -- [[Will]]
+
+>>>> But `created_before` can in fact match a deleted page. Because the mtime
+>>>> of a deleted page is temporarily set to 0 while the base mechanism runs to
+>>>> find changes in deleted pages. (I verified this works by experiment,
+>>>> also that `created_after` is triggered by a deleted page.) --[[Joey]]
+
+>>>>> Oh, okie.  I looked at the source, saw the `if (exists $IkiWiki::pagectime{$testpage})` and assumed it would fail.
+>>>>> Of course, having it succeed doesn't cure all the issues -- just moves them.  With `created_before()` succeeding
+>>>>> for deleted files, this pagespec will be match any removal in the entire wiki with the base mechanism.  Whether this is
+>>>>> better or worse than the longer indirect influence list is an empirical question. -- [[Will]]
 
 * The pagespec "foo" has an empty influence list. This is because a
   modification/creation/removal of foo directly changes what the pagespec
@@ -401,6 +432,8 @@ can indirectly influence what pages a pagespec matches.
 >>>> pagespec, and see they used to match; and thus knows that the
 >>>> dependency has triggered.
 >>>>
+>>>>> IkiWiki can only see that they used to match if they're in the glob matching set.  -- [[Will]]
+>>>>
 >>>> Maybe the thing to do is consider this an optimisation, where such
 >>>> pages are influences, but ikiwiki is able to implicitly find them,
 >>>> so they do not need to be explicitly stored. --[[Joey]]
@@ -415,6 +448,9 @@ can indirectly influence what pages a pagespec matches.
 * The pagespec "backlink(index)" has an influence list
   that contains index (because a change to index changes the backlinks).
   Note that this is true even if the backlink currently fails.
+
+>>> This is another interesting example.  The missing document matching set contains all links on the page index, and so
+>>> the influence list only needs to contain 'index' itself.  -- [[Will]]
 
 * The pagespec "link(done)" has an influence list that
   contains every page that it matches. A change to any matching page can
@@ -533,57 +569,6 @@ SuccessReason(page, index) => right
 "!bugs/* and link(patch)" =>
 `HardFailReason() | SuccessReason(bugs/foo)` =>  
 `HardFailReason()` => right
-
-#### High-level Calculation and Storage
-
-Naively calculating the full influence list for a pagespec requires trying
-to match it against every page in the wiki. I'd like to avoid doing such
-expensive matching redundantly.
-
-It may be possible, for some types of pagespecs, to just try matching a
-single, arbitrary page against it, and know the full influence list has
-been obtained. It seems to be that case that if a pagespec has any
-influences, matching any page will return at least one. So if none are
-returned, we can skip trying other pages.
-
-If the influence list does not include the page that was tried, we know
-that the pagespec does not things like `link()` and `title()`, that are
-influenced by the page's own content. So it *might* be safe to not try
-matching any more pages in this case too. I think it would work for all
-current pagespec terms. There might be a hypothetical term where this
-optimisation doesn't work. We could add a special case to ensure it can
-work: If a term declares it is unfluenced by "", then it means it is
-always influenced by the matching page.
-
-Anyway, this seems worth doing: Add a `pagespec_match_all`, which returns a
-list of all pages in the whole wiki that match the pagespec, and also adds
-the pagespec as a dependency, and while it's at it, calculates and stores
-the influence list.
-
-It could have an optional sort parameter, and limit parameter, to control
-how many items to return and the sort order. So when inline wants to
-display the 10 newest, only the influence lists for those ten are added.
-
-If `pagespec_match_depends` can be used by all plugins, then great,
-influences are automatically calculated, no extra work needs to be done.
-
-If not, and some plugins still need to use `pagespec_match_list` or
-`pagespec_match`, and `add_depends`, then I guess that `add_depends` can do
-a slightly more expensive influence calculation.
-
-Bonus: If `add_depends` is doing an influence calculation, then I can remove
-the nasty hack it currently uses to decide if a given pagespec is safe to use
-with an existence or links dependency.
-
-Where to store the influence list? Well, it appears that we can just add
-(content) dependencies for each item on the list, to the page's
-regular list of simple dependencies. So, the data stored ends up looking
-just like what is stored today by the explicit dependency hacks. Except,
-it's calculated more smartly, and is added automatically.
-
-> I've implemented influence calculation in `add_depends`. As expected,
-> it means rather a lot more work, and makes some things much slower.
-> Optimisations next.. --[[Joey]] 
 
 #### Influence types
 

@@ -66,3 +66,29 @@ Downsides here:
   plugins, and could be solved by adding more dependency types.)
 
 [[done]] --[[Joey]] 
+
+> Some questions/comments...  I've thought about this a lot for [[todo/tracking_bugs_with_dependencies]].
+> 
+>  * When you say that anything that causes a rebuild of B is treated as a change of B, are you: i) Treating
+> any rebuild as a change, or ii) Treating any rebuild that gives a new result as a change?  Option ii) would
+> lead to fewer rebuilds.  Implementation is easy: when you're about to rebuild a page, load the old rendered html in.  Do the rebuild.  Compare
+> the new and old html.  If there is a difference, then mark that page as having changed.  If there is no difference
+> then you don't need to mark that pages as changed, even though it has been rebuilt.  (This would ignore pages in meta-data that don't
+> cause changes in html, but I don't think that is a huge issue.)
+
+>> That is a good idea. I will have to look at it to see if the overhead of
+>> reading back in the html of every page before building actually is a
+>> win though. So far, I've focused on avoiding unnecessary rebuilds, and
+>> there is still some room for more dependency types doing so.
+>> (Particularly for metadata dependencies..) --[[Joey]] 
+
+>  * The second comment I have relates to cycles in transitive dependencies.  At the moment I don't think this is
+> possible, but with some additions it may well become so.  This could be problematic as it could lead to a)
+> updates that never complete, or b) it being theoretically unclear what the final result should be (i.e. you
+> can construct logical paradoxes in the system).  I think the point above about marking things as changed only when
+> the output actually changes fixes any cases that are well defined.  For logical paradoxes and infinite loops (e.g.
+> two pages that include each other), you might want to put a limit on the number of times you'll rebuild a page in any
+> given run of ikiwiki.  Say, only allow a page to rebuild twice on any run, regardless of whether a page it depends on changes.
+> This is not a perfect solution, but would be a good approximation. -- [[Will]]
+
+>> Ikiwiki only builds any given output file once per run, already. --[[Joey]] 

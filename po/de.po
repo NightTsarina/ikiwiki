@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.14159\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-09-24 18:53-0400\n"
+"POT-Creation-Date: 2009-10-09 19:55-0400\n"
 "PO-Revision-Date: 2009-07-23 01:07+0100\n"
 "Last-Translator: Kurt Gramlich <kurt@skolelinux.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -56,7 +56,7 @@ msgstr "Einstellungen gespeichert."
 msgid "You are banned."
 msgstr "Sie sind ausgeschlossen worden."
 
-#: ../IkiWiki/CGI.pm:404 ../IkiWiki/CGI.pm:405 ../IkiWiki.pm:1277
+#: ../IkiWiki/CGI.pm:404 ../IkiWiki/CGI.pm:405 ../IkiWiki.pm:1276
 msgid "Error"
 msgstr "Fehler"
 
@@ -402,27 +402,26 @@ msgstr ""
 msgid "htmltidy failed to parse this html"
 msgstr "Smileys konnten nicht ausgewertet werden"
 
-#: ../IkiWiki/Plugin/img.pm:63
+#: ../IkiWiki/Plugin/img.pm:64
 msgid "Image::Magick is not installed"
 msgstr "Image::Magick ist nicht installiert"
+
+#: ../IkiWiki/Plugin/img.pm:68 ../IkiWiki/Plugin/img.pm:112
+#, perl-format
+msgid "failed to read %s: %s"
+msgstr "Lesen von %s fehlgeschlagen: %s"
 
 #: ../IkiWiki/Plugin/img.pm:74
 #, perl-format
 msgid "wrong size format \"%s\" (should be WxH)"
 msgstr "falsches Format in \"%s\" für size (sollte BxH sein)"
 
-#: ../IkiWiki/Plugin/img.pm:85 ../IkiWiki/Plugin/img.pm:89
-#: ../IkiWiki/Plugin/img.pm:135
-#, perl-format
-msgid "failed to read %s: %s"
-msgstr "Lesen von %s fehlgeschlagen: %s"
-
-#: ../IkiWiki/Plugin/img.pm:100
+#: ../IkiWiki/Plugin/img.pm:120
 #, perl-format
 msgid "failed to resize: %s"
 msgstr "Größenänderung fehlgeschlagen: %s"
 
-#: ../IkiWiki/Plugin/img.pm:152
+#: ../IkiWiki/Plugin/img.pm:140
 #, perl-format
 msgid "failed to determine size of image %s"
 msgstr "Größe des Bildes %s konnte nicht festgestellt werden."
@@ -502,11 +501,11 @@ msgstr "Umleitungsseite nicht gefunden"
 msgid "redir cycle is not allowed"
 msgstr "Zyklische Umleitungen sind nicht erlaubt"
 
-#: ../IkiWiki/Plugin/mirrorlist.pm:42
+#: ../IkiWiki/Plugin/mirrorlist.pm:43
 msgid "Mirrors"
 msgstr "Spiegel"
 
-#: ../IkiWiki/Plugin/mirrorlist.pm:42
+#: ../IkiWiki/Plugin/mirrorlist.pm:43
 msgid "Mirror"
 msgstr "Spiegel"
 
@@ -617,7 +616,7 @@ msgstr ""
 msgid "rebuilding all pages to fix meta titles"
 msgstr "um die meta-titeln zu reparieren werden alle Seiten neu erstellt"
 
-#: ../IkiWiki/Plugin/po.pm:389 ../IkiWiki/Render.pm:428
+#: ../IkiWiki/Plugin/po.pm:389 ../IkiWiki/Render.pm:431
 #, perl-format
 msgid "building %s"
 msgstr "erzeuge %s"
@@ -1055,47 +1054,47 @@ msgstr ""
 "symbolischer Verweis im srcdir Pfad (%s) gefunden -- setzen Sie "
 "allow_symlinks_before_srcdir, um dies zu erlauben"
 
-#: ../IkiWiki/Render.pm:289 ../IkiWiki/Render.pm:314
+#: ../IkiWiki/Render.pm:294 ../IkiWiki/Render.pm:321
 #, perl-format
 msgid "skipping bad filename %s"
 msgstr "überspringe fehlerhaften Dateinamen %s"
 
-#: ../IkiWiki/Render.pm:296
+#: ../IkiWiki/Render.pm:299
 #, perl-format
 msgid "%s has multiple possible source pages"
 msgstr "%s hat mehrere mögliche Quellseiten"
 
-#: ../IkiWiki/Render.pm:382
+#: ../IkiWiki/Render.pm:385
 #, perl-format
 msgid "removing old page %s"
 msgstr "entferne alte Seite %s"
 
-#: ../IkiWiki/Render.pm:423
+#: ../IkiWiki/Render.pm:426
 #, perl-format
 msgid "scanning %s"
 msgstr "durchsuche %s"
 
-#: ../IkiWiki/Render.pm:450
+#: ../IkiWiki/Render.pm:453
 #, perl-format
 msgid "building %s, which links to %s"
 msgstr "erzeuge %s, die auf %s verweist"
 
-#: ../IkiWiki/Render.pm:497
+#: ../IkiWiki/Render.pm:500
 #, perl-format
 msgid "building %s, which depends on %s"
 msgstr "erzeuge %s, die von %s abhängt"
 
-#: ../IkiWiki/Render.pm:533
+#: ../IkiWiki/Render.pm:536
 #, perl-format
 msgid "building %s, to update its backlinks"
 msgstr "erzeuge %s, um dessen Rückverweise zu aktualisieren"
 
-#: ../IkiWiki/Render.pm:545
+#: ../IkiWiki/Render.pm:548
 #, perl-format
 msgid "removing %s, no longer built by %s"
 msgstr "entferne %s, wird nicht länger von %s erzeugt"
 
-#: ../IkiWiki/Render.pm:569
+#: ../IkiWiki/Render.pm:572
 #, perl-format
 msgid "ikiwiki: cannot build %s"
 msgstr "ikiwiki: kann %s nicht erzeugen"
@@ -1177,36 +1176,36 @@ msgstr "erzeuge Wiki neu.."
 msgid "refreshing wiki.."
 msgstr "aktualisiere Wiki.."
 
-#: ../IkiWiki.pm:233
+#: ../IkiWiki.pm:232
 msgid "Discussion"
 msgstr "Diskussion"
 
-#: ../IkiWiki.pm:502
+#: ../IkiWiki.pm:501
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr ""
 "Es muss eine URL zum Wiki mit --url angegeben werden, wenn --cgi verwandt "
 "wird"
 
-#: ../IkiWiki.pm:548
+#: ../IkiWiki.pm:547
 msgid "cannot use multiple rcs plugins"
 msgstr ""
 "Es können nicht mehrere Versionskontrollsystem-Erweiterungen verwandt werden"
 
-#: ../IkiWiki.pm:577
+#: ../IkiWiki.pm:576
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr "Laden der für %s benötigten externen Erweiterung fehlgeschlagen: %s"
 
-#: ../IkiWiki.pm:1259
+#: ../IkiWiki.pm:1258
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "Präprozessorschleife auf %s in Tiefe %i erkannt"
 
-#: ../IkiWiki.pm:1817
+#: ../IkiWiki.pm:1820
 msgid "yes"
 msgstr "ja"
 
-#: ../IkiWiki.pm:1941
+#: ../IkiWiki.pm:1944
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "Kann die Seiten nicht zuordnen: %s"
