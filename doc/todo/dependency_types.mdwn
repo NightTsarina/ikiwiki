@@ -566,9 +566,16 @@ SuccessReason(page, index) => right
 `HardFailReason() | SuccessReason(index)` =>
 `SuccessReason(index)` => right
 
+Ok so far, but:
+
 "!bugs/* and link(patch)" =>
-`HardFailReason() | SuccessReason(bugs/foo)` =>  
-`HardFailReason()` => right
+`!SuccessReason() | SuccessReason(bugs/foo)` =>  
+'FailReason() | SuccessReason(bugs/foo)
+`FailReason(bugs/foo)` => wrong!
+
+This could be fixed by adding a HardSuccessReason that glob also returns.
+Maybe just a field of the object that is set if it is "hard" is a better
+approach though.
 
 #### Influence types
 
