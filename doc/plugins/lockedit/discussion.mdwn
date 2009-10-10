@@ -1,0 +1,21 @@
+This plugin not only locks pages but ensures too a user is logged in. This seems to me redundant with signedit. I propose :
+
+    sub canedit ($$) {
+    	my $page=shift;
+    	my $cgi=shift;
+    	my $session=shift;
+    
+    	my $user=$session->param("name");
+    	return undef if defined $user && IkiWiki::is_admin($user);
+    
+    	if (defined $config{locked_pages} && length $config{locked_pages} &&
+    	    pagespec_match($page, $config{locked_pages},
+    		    user => $session->param("name"),
+    		    ip => $ENV{REMOTE_ADDR},
+    	    )) {
+    		return sprintf(gettext("%s is locked and cannot be edited"),
+    			htmllink("", "", $page, noimageinline => 1));
+    	}
+    
+    	return undef;
+    }
