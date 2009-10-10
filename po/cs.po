@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-09-24 18:53-0400\n"
+"POT-Creation-Date: 2009-10-09 19:55-0400\n"
 "PO-Revision-Date: 2009-09-11 20:23+0200\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
@@ -55,7 +55,7 @@ msgstr "Nastavení uloženo."
 msgid "You are banned."
 msgstr "Jste vyhoštěni."
 
-#: ../IkiWiki/CGI.pm:404 ../IkiWiki/CGI.pm:405 ../IkiWiki.pm:1277
+#: ../IkiWiki/CGI.pm:404 ../IkiWiki/CGI.pm:405 ../IkiWiki.pm:1276
 msgid "Error"
 msgstr "Chyba"
 
@@ -393,27 +393,26 @@ msgstr "varování: perlový modul highlight není dostupný; pokračuji bez ně
 msgid "htmltidy failed to parse this html"
 msgstr "htmltidy se nepodařilo zpracovat toto html"
 
-#: ../IkiWiki/Plugin/img.pm:63
+#: ../IkiWiki/Plugin/img.pm:64
 msgid "Image::Magick is not installed"
 msgstr "Image::Magick není nainstalován"
+
+#: ../IkiWiki/Plugin/img.pm:68 ../IkiWiki/Plugin/img.pm:112
+#, perl-format
+msgid "failed to read %s: %s"
+msgstr "nelze číst %s: %s"
 
 #: ../IkiWiki/Plugin/img.pm:74
 #, perl-format
 msgid "wrong size format \"%s\" (should be WxH)"
 msgstr "chybné rozměry „%s“ (formát má být ŠxV)"
 
-#: ../IkiWiki/Plugin/img.pm:85 ../IkiWiki/Plugin/img.pm:89
-#: ../IkiWiki/Plugin/img.pm:135
-#, perl-format
-msgid "failed to read %s: %s"
-msgstr "nelze číst %s: %s"
-
-#: ../IkiWiki/Plugin/img.pm:100
+#: ../IkiWiki/Plugin/img.pm:120
 #, perl-format
 msgid "failed to resize: %s"
 msgstr "nelze změnit velikost: %s"
 
-#: ../IkiWiki/Plugin/img.pm:152
+#: ../IkiWiki/Plugin/img.pm:140
 #, perl-format
 msgid "failed to determine size of image %s"
 msgstr "nelze určit velikost obrázku %s"
@@ -488,11 +487,11 @@ msgstr "stránka, na kterou vede přesměrování, nebyla nalezena"
 msgid "redir cycle is not allowed"
 msgstr "cykly nejsou v přesměrování povoleny"
 
-#: ../IkiWiki/Plugin/mirrorlist.pm:42
+#: ../IkiWiki/Plugin/mirrorlist.pm:43
 msgid "Mirrors"
 msgstr "Zrcadla"
 
-#: ../IkiWiki/Plugin/mirrorlist.pm:42
+#: ../IkiWiki/Plugin/mirrorlist.pm:43
 msgid "Mirror"
 msgstr "Zrcadlo"
 
@@ -598,7 +597,7 @@ msgstr ""
 msgid "rebuilding all pages to fix meta titles"
 msgstr "znovusestavuji všechny stránky, aby se opravily meta nadpisy"
 
-#: ../IkiWiki/Plugin/po.pm:389 ../IkiWiki/Render.pm:428
+#: ../IkiWiki/Plugin/po.pm:389 ../IkiWiki/Render.pm:431
 #, perl-format
 msgid "building %s"
 msgstr "sestavuji %s"
@@ -1031,47 +1030,47 @@ msgstr ""
 "v cestě ke zdrojovému adresáři (%s) byl nalezen symbolický odkaz -- chcete-"
 "li to povolit, nastavte proměnnou allow_symlinks_before_srcdir"
 
-#: ../IkiWiki/Render.pm:289 ../IkiWiki/Render.pm:314
+#: ../IkiWiki/Render.pm:294 ../IkiWiki/Render.pm:321
 #, perl-format
 msgid "skipping bad filename %s"
 msgstr "přeskakuji chybné jméno souboru %s"
 
-#: ../IkiWiki/Render.pm:296
+#: ../IkiWiki/Render.pm:299
 #, perl-format
 msgid "%s has multiple possible source pages"
 msgstr "%s má několik možných zdrojových stránek"
 
-#: ../IkiWiki/Render.pm:382
+#: ../IkiWiki/Render.pm:385
 #, perl-format
 msgid "removing old page %s"
 msgstr "odstraňuji starou stránku %s"
 
-#: ../IkiWiki/Render.pm:423
+#: ../IkiWiki/Render.pm:426
 #, perl-format
 msgid "scanning %s"
 msgstr "prohledávám %s"
 
-#: ../IkiWiki/Render.pm:450
+#: ../IkiWiki/Render.pm:453
 #, perl-format
 msgid "building %s, which links to %s"
 msgstr "sestavuji %s, která odkazuje na %s"
 
-#: ../IkiWiki/Render.pm:497
+#: ../IkiWiki/Render.pm:500
 #, perl-format
 msgid "building %s, which depends on %s"
 msgstr "sestavuji %s, která závisí na %s"
 
-#: ../IkiWiki/Render.pm:533
+#: ../IkiWiki/Render.pm:536
 #, perl-format
 msgid "building %s, to update its backlinks"
 msgstr "sestavuji %s, aby se aktualizovaly zpětné odkazy"
 
-#: ../IkiWiki/Render.pm:545
+#: ../IkiWiki/Render.pm:548
 #, perl-format
 msgid "removing %s, no longer built by %s"
 msgstr "odstraňuji %s, již není sestavována pomocí %s"
 
-#: ../IkiWiki/Render.pm:569
+#: ../IkiWiki/Render.pm:572
 #, perl-format
 msgid "ikiwiki: cannot build %s"
 msgstr "ikiwiki: nelze sestavit %s"
@@ -1150,33 +1149,33 @@ msgstr "znovusestavuji wiki..."
 msgid "refreshing wiki.."
 msgstr "obnovuji wiki..."
 
-#: ../IkiWiki.pm:233
+#: ../IkiWiki.pm:232
 msgid "Discussion"
 msgstr "Diskuse"
 
-#: ../IkiWiki.pm:502
+#: ../IkiWiki.pm:501
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr "Při použití --cgi musíte pomocí --url zadat url k wiki"
 
-#: ../IkiWiki.pm:548
+#: ../IkiWiki.pm:547
 msgid "cannot use multiple rcs plugins"
 msgstr "nelze použít několik rcs modulů"
 
-#: ../IkiWiki.pm:577
+#: ../IkiWiki.pm:576
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr "nepodařilo se nahrát externí modul vyžadovaný modulem %s: %s"
 
-#: ../IkiWiki.pm:1259
+#: ../IkiWiki.pm:1258
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "Byla rozpoznána smyčka na %s v hloubce %i"
 
-#: ../IkiWiki.pm:1817
+#: ../IkiWiki.pm:1820
 msgid "yes"
 msgstr "ano"
 
-#: ../IkiWiki.pm:1941
+#: ../IkiWiki.pm:1944
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "nelze vybrat stránky: %s"
