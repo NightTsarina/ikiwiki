@@ -57,3 +57,21 @@ ok(! $s->influences->{foo}, "removed 0 influence");
 ok(! $s->influences->{bar}, "removed 1 influence");
 ok($s->influences->{baz}, "set influence");
 ok($s->influences_static);
+
+# influence blocking
+my $r=F()->block & S(foo => 1);
+ok(! $r->influences->{foo}, "failed blocker & influence -> does not pass");
+$r=F()->block | S(foo => 1);
+ok($r->influences->{foo}, "failed blocker | influence -> does pass");
+$r=S(foo => 1) & F()->block;
+ok(! $r->influences->{foo}, "influence & failed blocker -> does not pass");
+$r=S(foo => 1) | F()->block;
+ok($r->influences->{foo}, "influence | failed blocker -> does pass");
+$r=S(foo => 1) & F()->block & S(foo => 2);
+ok(! $r->influences->{foo}, "influence & failed blocker & influence -> does not pass");
+$r=S(foo => 1) | F()->block | S(foo => 2);
+ok($r->influences->{foo}, "influence | failed blocker | influence -> does pass");
+$r=S()->block & S(foo => 1);
+ok($r->influences->{foo}, "successful blocker -> does pass");
+$r=(! S()->block) & S(foo => 1);
+ok(! $r->influences->{foo}, "! successful blocker -> failed blocker");
