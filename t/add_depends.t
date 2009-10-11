@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 88;
+use Test::More tests => 38;
 
 BEGIN { use_ok("IkiWiki"); }
 %config=IkiWiki::defaultconfig();
@@ -39,7 +39,7 @@ ok($IkiWiki::depends_simple{foo2}{"bar"} & $IkiWiki::DEPEND_LINKS);
 ok(! ($IkiWiki::depends_simple{foo2}{"bar"} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_CONTENT)));
 
 # adding combined dep types
-ok(add_depends("foo2", "baz", deptype("links". "presence")));
+ok(add_depends("foo2", "baz", deptype("links", "presence")));
 ok($IkiWiki::depends_simple{foo2}{"baz"} & $IkiWiki::DEPEND_LINKS);
 ok($IkiWiki::depends_simple{foo2}{"baz"} & $IkiWiki::DEPEND_PRESENCE);
 ok(! ($IkiWiki::depends_simple{foo2}{"baz"} & $IkiWiki::DEPEND_CONTENT));
