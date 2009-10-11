@@ -1,5 +1,4 @@
 The `calendar` directive is supplied by the [[!iki plugins/calendar desc=calendar]] plugin.
-This plugin requires extra setup.  See the plugin documentation for details.
 
 This directive displays a calendar, similar to the typical calendars shown on
 some blogs.
@@ -12,16 +11,28 @@ some blogs.
 
 	\[[!calendar type="year" year="2005" pages="blog/* and !*/Discussion"]]
 
+## setup
+
 The calendar is essentially a fancy front end to archives of previous
 pages, usually used for blogs. It can produce a calendar for a given month,
-or a list of months for a given year.
+or a list of months for a given year. The month format calendar simply
+links to any page posted on each day of the month. The year format calendar
+links to archive pages, with names like `archives/2007` (for all of 2007)
+and `archives/2007/01` (for January, 2007).
 
-The month format calendar simply links to any page posted on each
-day of the month. The year format calendar links to archive pages, with
-names like `archives/2007` (for all of 2007)  and `archives/2007/01`
-(for January, 2007). For this to work, you'll need to create these archive
-pages. They typically use [[inline]] to display or list pages created in
-the given time frame.
+While you can insert calendar directives anywhere on your wiki, including
+in the sidebar, you'll also need to create these archive pages. They
+typically use this directive to display a calendar, and also use [[inline]]
+to display or list pages created in the given time frame.
+
+The `ikiwiki-calendar` command can be used to automatically generate the
+archive pages. It also refreshes the wiki, updating the calendars to
+highlight the current day. This command is typically run at midnight from
+cron. An example crontab:
+
+An example crontab:
+
+	0 0 * * * ikiwiki-calendar ~/ikiwiki.setup "posts/* and !*/Discussion"
 
 ## usage
 
