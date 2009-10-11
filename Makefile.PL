@@ -42,6 +42,7 @@ extra_build: ikiwiki.out ikiwiki.setup docwiki
 	./mdwn2man ikiwiki-makerepo 1 doc/ikiwiki-makerepo.mdwn > ikiwiki-makerepo.man
 	./mdwn2man ikiwiki-transition 1 doc/ikiwiki-transition.mdwn > ikiwiki-transition.man
 	./mdwn2man ikiwiki-update-wikilist 1 doc/ikiwiki-update-wikilist.mdwn > ikiwiki-update-wikilist.man
+	./mdwn2man ikiwiki-calendar 1 doc/ikiwiki-calendar.mdwn > ikiwiki-calendar.man
 	$(MAKE) -C po
 	
 docwiki: ikiwiki.out
@@ -100,6 +101,7 @@ extra_install: underlay_install
 	install -m 644 ikiwiki-makerepo.man $(DESTDIR)$(PREFIX)/share/man/man1/ikiwiki-makerepo.1
 	install -m 644 ikiwiki-transition.man $(DESTDIR)$(PREFIX)/share/man/man1/ikiwiki-transition.1
 	install -m 644 ikiwiki-update-wikilist.man $(DESTDIR)$(PREFIX)/share/man/man1/ikiwiki-update-wikilist.1
+	install -m 644 ikiwiki-calendar.man $(DESTDIR)$(PREFIX)/share/man/man1/ikiwiki-calendar.1
 	
 	install -d $(DESTDIR)$(PREFIX)/share/man/man8
 	install -m 644 ikiwiki-mass-rebuild.man $(DESTDIR)$(PREFIX)/share/man/man8/ikiwiki-mass-rebuild.8
@@ -112,7 +114,7 @@ extra_install: underlay_install
 
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install ikiwiki.out $(DESTDIR)$(PREFIX)/bin/ikiwiki
-	install ikiwiki-makerepo ikiwiki-transition ikiwiki-update-wikilist $(DESTDIR)$(PREFIX)/bin/
+	install ikiwiki-makerepo ikiwiki-transition ikiwiki-update-wikilist ikiwiki-calendar $(DESTDIR)$(PREFIX)/bin/
 
 	$(MAKE) -C po install DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
 	
