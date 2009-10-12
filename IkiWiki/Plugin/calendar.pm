@@ -133,14 +133,14 @@ sub format_month (@) {
 	if (exists $pagesources{"$archivebase/$pyear/$pmonth"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$pyear/$pmonth",
-			linktext => " $pmonthname ");
+			linktext => " \&larr ");
 	}
 	add_depends($params{page}, "$archivebase/$pyear/$pmonth",
 		deptype("presence"));
 	if (exists $pagesources{"$archivebase/$nyear/$nmonth"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$nyear/$nmonth",
-			linktext => " $nmonthname ");
+			linktext => " \&rarr ");
 	}
 	add_depends($params{page}, "$archivebase/$nyear/$nmonth",
 		deptype("presence"));
