@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 49;
+use Test::More tests => 61;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -82,4 +82,33 @@ foreach my $spec ("bar or (backlink(foo) and !*.png)", "backlink(foo)") {
 	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_CONTENT);
 	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_LINKS)));
 	ok($IkiWiki::depends_simple{foo2}{foo} == $IkiWiki::DEPEND_LINKS);
+	%IkiWiki::depends_simple=();
+	%IkiWiki::depends=();
+}
+
+TODO: {
+	local $TODO = "optimisation not yet written";
+
+# a pagespec that hard fails due to a glob, etc, will not set influences
+# for other terms that normally would.
+foreach my $spec ("nosuchpage and link(bar)", "link(bar) and */Discussion") {
+	pagespec_match_list("foo2", $spec, deptype => deptype("presence"));
+	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_PRESENCE);
+	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
+	ok(! exists $IkiWiki::depends_simple{foo2}{foo2});
+	%IkiWiki::depends_simple=();
+	%IkiWiki::depends=();
+}
+
+# a pagespec containing a hard failure that is ored with another term will
+# get influences from the other term
+foreach my $spec ("nosuchpage or link(bar)", "link(bar) or */Discussion") {
+	pagespec_match_list("foo2", $spec, deptype => deptype("presence"));
+	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_PRESENCE);
+	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
+	ok($IkiWiki::depends_simple{foo2}{foo2} == $IkiWiki::DEPEND_LINKS);
+	%IkiWiki::depends_simple=();
+	%IkiWiki::depends=();
+}
+
 }
