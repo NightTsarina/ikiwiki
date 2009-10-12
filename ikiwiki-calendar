@@ -43,8 +43,6 @@ sub writearchive ($$;$) {
 	}
 }
 
-IkiWiki::lockwiki();
-
 foreach my $y ($year-1, $year, $year+1) {
 	writearchive("calendaryear.tmpl", $y);
 	foreach my $m (qw{01 02 03 04 05 06 07 08 09 10 11 12}) {
@@ -54,6 +52,5 @@ foreach my $y ($year-1, $year, $year+1) {
 
 IkiWiki::rcs_commit_staged(gettext("calendar update"), undef, undef)
 	if $config{rcs};
-IkiWiki::unlockwiki();
 
 system("ikiwiki", "-setup", $setup, "-refresh");
