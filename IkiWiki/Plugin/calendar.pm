@@ -318,24 +318,48 @@ EOF
 
 sub preprocess (@) {
 	my %params=@_;
+
+	my $thisyear=1900 + $now[5];
+	my $thismonth=1 + $now[4];
+
 	$params{pages} = "*"            unless defined $params{pages};
 	$params{type}  = "month"        unless defined $params{type};
-	$params{month} = sprintf("%02d", $params{month}) if defined  $params{month};
 	$params{week_start_day} = 0     unless defined $params{week_start_day};
 	$params{months_per_row} = 3     unless defined $params{months_per_row};
+	$params{year}  = $thisyear	unless defined $params{year};
+	$params{month} = $thismonth	unless defined $params{month};
 
-	if (! defined $params{year} || ! defined $params{month}) {
-		# Record that the calendar next changes at midnight.
+	$params{month} = sprintf("%02d", $params{month});
+			
+	if ($params{type} eq 'month' && $params{year} == $thisyear
+	    && $params{month} == $thismonth) {
+		# calendar for current month, updates next midnight
 		$pagestate{$params{destpage}}{calendar}{nextchange}=($time
 			+ (60 - $now[0])		# seconds
 			+ (59 - $now[1]) * 60		# minutes
 			+ (23 - $now[2]) * 60 * 60	# hours
 		);
-		
-		$params{year}  = 1900 + $now[5] unless defined $params{year};
-		$params{month} = 1    + $now[4] unless defined $params{month};
+	}
+	elsif ($params{type} eq 'month' &&
+	       (($params{year} == $thisyear && $params{month} > $thismonth) ||
+	        $params{year} > $thisyear)) {
+		# calendar for upcoming month, updates 1st of that month
+		$pagestate{$params{destpage}}{calendar}{nextchange}=
+			timelocal(0, 0, 0, 1, $params{month}-1, $params{year});
+	}
+	elsif ($params{type} eq 'year' && $params{year} == $thisyear) {
+		# calendar for current year, updates 1st of next month
+		$pagestate{$params{destpage}}{calendar}{nextchange}=
+			timelocal(0, 0, 0, 1, $thismonth+1-1, $params{year});
+	}
+	elsif ($params{type} eq 'year' && $params{year} > $thisyear) {
+		# calendar for upcoming year, updates 1st of that year
+		$pagestate{$params{destpage}}{calendar}{nextchange}=
+			timelocal(0, 0, 0, 1, 1-1, $params{year});
 	}
 	else {
+		# calendar for past month or year, does not need
+		# to update any more
 		delete $pagestate{$params{destpage}}{calendar};
 	}
 
@@ -356,10 +380,10 @@ sub preprocess (@) {
 	}
 
 	my $calendar="";
-	if ($params{type} =~ /month/i) {
+	if ($params{type} eq 'month') {
 		$calendar=format_month(%params);
 	}
-	elsif ($params{type} =~ /year/i) {
+	elsif ($params{type} eq 'year') {
 		$calendar=format_year(%params);
 	}
 
