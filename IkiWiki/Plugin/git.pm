@@ -613,9 +613,11 @@ sub rcs_getctime ($) {
 	# Remove srcdir prefix
 	$file =~ s/^\Q$config{srcdir}\E\/?//;
 
-	my @sha1s = run_or_non('git', 'rev-list', 'HEAD', '--', $file);
-	my $ci    = git_commit_info($sha1s[$#sha1s], 1);
-	my $ctime = $ci->{'author_epoch'};
+	my @raw_lines = run_or_die('git', 'log', '--reverse', '--follow',
+		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
+		'-r', '--', $file);
+	my $first = parse_diff_tree("", \@raw_lines);
+	my $ctime = $first->{'author_epoch'};
 	debug("ctime for '$file': ". localtime($ctime));
 
 	return $ctime;
