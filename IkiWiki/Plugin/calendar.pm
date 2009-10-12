@@ -300,21 +300,16 @@ EOF
 		my $tag;
 		my $mtag=sprintf("%02d", $month);
 		if ($month == $params{month}) {
-			if ($pagesources{"$archivebase/$params{year}/$mtag"}) {
-				$tag = 'this_month_link';
-			}
-			else {
-				$tag = 'this_month_nolink';
-			}
+			$tag = 'year-calendar-this-month';
 		}
 		elsif ($pagesources{"$archivebase/$params{year}/$mtag"}) {
-			$tag = 'month_link';
+			$tag = 'year-calendar-month-link';
 		} 
 		elsif ($future_month && $month >= $future_month) {
-			$tag = 'month_future';
+			$tag = 'year-calendar-month-future';
 		} 
 		else {
-			$tag = 'month_nolink';
+			$tag = 'year-calendar-month-nolink';
 		}
 
 		if ($pagesources{"$archivebase/$params{year}/$mtag"}) {
