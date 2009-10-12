@@ -96,6 +96,10 @@ sub format_month (@) {
 		$nyear++;
 	}
 
+	# Add padding.
+	$pmonth=sprintf("%02d", $pmonth);
+	$nmonth=sprintf("%02d", $nmonth);
+
 	my $calendar="\n";
 
 	# When did this month start?
@@ -121,24 +125,24 @@ sub format_month (@) {
 	my ($url, $purl, $nurl)=("$monthname",'','');
 	if (exists $pagesources{"$archivebase/$params{year}/$params{month}"}) {
 		$url = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$params{year}/".sprintf("%02d", $params{month}),
+			"$archivebase/$params{year}/".$params{month},
 			linktext => " $monthname ");
 	}
-	add_depends($params{page}, "$archivebase/$params{year}/".sprintf("%02d", $params{month}),
+	add_depends($params{page}, "$archivebase/$params{year}/$params{month}",
 		deptype("presence"));
 	if (exists $pagesources{"$archivebase/$pyear/$pmonth"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$pyear/" . sprintf("%02d", $pmonth),
+			"$archivebase/$pyear/$pmonth",
 			linktext => " $pmonthname ");
 	}
-	add_depends($params{page}, "$archivebase/$pyear/".sprintf("%02d", $pmonth),
+	add_depends($params{page}, "$archivebase/$pyear/$pmonth",
 		deptype("presence"));
 	if (exists $pagesources{"$archivebase/$nyear/$nmonth"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$nyear/" . sprintf("%02d", $nmonth),
+			"$archivebase/$nyear/$nmonth",
 			linktext => " $nmonthname ");
 	}
-	add_depends($params{page}, "$archivebase/$nyear/".sprintf("%02d", $nmonth),
+	add_depends($params{page}, "$archivebase/$nyear/$nmonth",
 		deptype("presence"));
 
 	# Start producing the month calendar
@@ -192,8 +196,7 @@ EOF
 		}
 		
 		my $tag;
-		my $mtag = sprintf("%02d", $params{month});
-		if (defined $linkcache{"$params{year}/$mtag/$day"}) {
+		if (defined $linkcache{"$params{year}/$params{month}/$day"}) {
 			if ($day == $today) {
 				$tag='month-calendar-day-this-day';
 			}
@@ -202,7 +205,7 @@ EOF
 			}
 			$calendar.=qq{\t\t<td class="$tag $downame{$wday}">};
 			$calendar.=htmllink($params{page}, $params{destpage}, 
-			                    $linkcache{"$params{year}/$mtag/$day"},
+			                    $linkcache{"$params{year}/$params{month}/$day"},
 			                    "linktext" => "$day");
 			$calendar.=qq{</td>\n};
 		}
