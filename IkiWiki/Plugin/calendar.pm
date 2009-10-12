@@ -66,7 +66,8 @@ sub format_month (@) {
 	my %params=@_;
 
 	my %linkcache;
-	foreach my $p (pagespec_match_list($params{page}, $params{pages},
+	foreach my $p (pagespec_match_list($params{page}, 
+				"creation_year($params{year}) and creation_month($params{month}) and ($params{pages})",
 				# add presence dependencies to update
 				# month calendar when pages are added/removed
 				deptype => deptype("presence"))) {
