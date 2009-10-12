@@ -81,6 +81,21 @@ sub format_month (@) {
 		# Only one posting per day is being linked to.
 		$linkcache{"$year/$mtag/$mday"} = "$src";
 	}
+		
+	my $pmonth = $params{month} - 1;
+	my $nmonth = $params{month} + 1;
+	my $pyear  = $params{year};
+	my $nyear  = $params{year};
+
+	# Adjust for January and December
+	if ($params{month} == 1) {
+		$pmonth = 12;
+		$pyear--;
+	}
+	if ($params{month} == 12) {
+		$nmonth = 1;
+		$nyear++;
+	}
 
 	my @list;
 	my $calendar="\n";
@@ -97,8 +112,8 @@ sub format_month (@) {
 
 	# Find out month names for this, next, and previous months
 	my $monthname=POSIX::strftime("%B", @monthstart);
-	my $pmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$params{pmonth}-1,$params{pyear}-1900)));
-	my $nmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$params{nmonth}-1,$params{nyear}-1900)));
+	my $pmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$pmonth-1,$pyear-1900)));
+	my $nmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$nmonth-1,$nyear-1900)));
 
 	my $archivebase = 'archives';
 	$archivebase = $config{archivebase} if defined $config{archivebase};
@@ -113,19 +128,19 @@ sub format_month (@) {
 	}
 	add_depends($params{page}, "$archivebase/$params{year}/".sprintf("%02d", $params{month}),
 		deptype("presence"));
-	if (exists $pagesources{"$archivebase/$params{pyear}/$params{pmonth}"}) {
+	if (exists $pagesources{"$archivebase/$pyear/$pmonth"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$params{pyear}/" . sprintf("%02d", $params{pmonth}),
+			"$archivebase/$pyear/" . sprintf("%02d", $pmonth),
 			linktext => " $pmonthname ");
 	}
-	add_depends($params{page}, "$archivebase/$params{pyear}/".sprintf("%02d", $params{pmonth}),
+	add_depends($params{page}, "$archivebase/$pyear/".sprintf("%02d", $pmonth),
 		deptype("presence"));
-	if (exists $pagesources{"$archivebase/$params{nyear}/$params{nmonth}"}) {
+	if (exists $pagesources{"$archivebase/$nyear/$nmonth"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$params{nyear}/" . sprintf("%02d", $params{nmonth}),
+			"$archivebase/$nyear/" . sprintf("%02d", $nmonth),
 			linktext => " $nmonthname ");
 	}
-	add_depends($params{page}, "$archivebase/$params{nyear}/".sprintf("%02d", $params{nmonth}),
+	add_depends($params{page}, "$archivebase/$nyear/".sprintf("%02d", $nmonth),
 		deptype("presence"));
 
 	# Start producing the month calendar
@@ -222,8 +237,11 @@ EOF
 
 sub format_year (@) {
 	my %params=@_;
-
+		
 	my $calendar="\n";
+	
+	my $pyear = $params{year}  - 1;
+	my $nyear = $params{year}  + 1;
 
 	my $future_month = 0;
 	$future_month = $now[4]+1 if ($params{year} == $now[5]+1900);
@@ -240,18 +258,18 @@ sub format_year (@) {
 			linktext => "$params{year}");
 	}
 	add_depends($params{page}, "$archivebase/$params{year}", deptype("presence"));
-	if (exists $pagesources{"$archivebase/$params{pyear}"}) {
+	if (exists $pagesources{"$archivebase/$pyear"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$params{pyear}",
+			"$archivebase/$pyear",
 			linktext => "\&larr;");
 	}
-	add_depends($params{page}, "$archivebase/$params{pyear}", deptype("presence"));
-	if (exists $pagesources{"$archivebase/$params{nyear}"}) {
+	add_depends($params{page}, "$archivebase/$pyear", deptype("presence"));
+	if (exists $pagesources{"$archivebase/$nyear"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$params{nyear}",
+			"$archivebase/$nyear",
 			linktext => "\&rarr;");
 	}
-	add_depends($params{page}, "$archivebase/$params{nyear}", deptype("presence"));
+	add_depends($params{page}, "$archivebase/$nyear", deptype("presence"));
 
 	# Start producing the year calendar
 	$calendar=<<EOF;
@@ -364,21 +382,6 @@ sub preprocess (@) {
 	}
 
 	# Calculate month names for next month, and previous months
-	$params{pmonth} = $params{month} - 1;
-	$params{nmonth} = $params{month} + 1;
-	$params{pyear}  = $params{year}  - 1;
-	$params{nyear}  = $params{year}  + 1;
-
-	# Adjust for January and December
-	if ($params{month} == 1) {
-		$params{pmonth} = 12;
-		$params{pyear}--;
-	}
-	if ($params{month} == 12) {
-		$params{nmonth} = 1;
-		$params{nyear}++;
-	}
-
 	my $calendar="";
 	if ($params{type} eq 'month') {
 		$calendar=format_month(%params);
