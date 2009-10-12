@@ -126,6 +126,7 @@ sub format_month (@) {
 	if (exists $pagesources{"$archivebase/$params{year}/$params{month}"}) {
 		$url = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$params{year}/".$params{month},
+			noimageinline => 1,
 			linktext => " $monthname ");
 	}
 	add_depends($params{page}, "$archivebase/$params{year}/$params{month}",
@@ -133,6 +134,7 @@ sub format_month (@) {
 	if (exists $pagesources{"$archivebase/$pyear/$pmonth"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$pyear/$pmonth",
+			noimageinline => 1,
 			linktext => " \&larr ");
 	}
 	add_depends($params{page}, "$archivebase/$pyear/$pmonth",
@@ -140,6 +142,7 @@ sub format_month (@) {
 	if (exists $pagesources{"$archivebase/$nyear/$nmonth"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$nyear/$nmonth",
+			noimageinline => 1,
 			linktext => " \&rarr ");
 	}
 	add_depends($params{page}, "$archivebase/$nyear/$nmonth",
@@ -205,8 +208,9 @@ EOF
 			}
 			$calendar.=qq{\t\t<td class="$tag $downame{$wday}">};
 			$calendar.=htmllink($params{page}, $params{destpage}, 
-			                    $linkcache{"$params{year}/$params{month}/$day"},
-			                    "linktext" => "$day");
+				$linkcache{"$params{year}/$params{month}/$day"},
+				noimageinline => 1,
+				"linktext" => "$day");
 			$calendar.=qq{</td>\n};
 		}
 		else {
@@ -255,18 +259,21 @@ sub format_year (@) {
 	if (exists $pagesources{"$archivebase/$params{year}"}) {
 		$url = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$params{year}",
+			noimageinline => 1,
 			linktext => "$params{year}");
 	}
 	add_depends($params{page}, "$archivebase/$params{year}", deptype("presence"));
 	if (exists $pagesources{"$archivebase/$pyear"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$pyear",
+			noimageinline => 1,
 			linktext => "\&larr;");
 	}
 	add_depends($params{page}, "$archivebase/$pyear", deptype("presence"));
 	if (exists $pagesources{"$archivebase/$nyear"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$nyear",
+			noimageinline => 1,
 			linktext => "\&rarr;");
 	}
 	add_depends($params{page}, "$archivebase/$nyear", deptype("presence"));
@@ -313,6 +320,7 @@ EOF
 		if ($pagesources{"$archivebase/$params{year}/$mtag"}) {
 			$murl = htmllink($params{page}, $params{destpage}, 
 				"$archivebase/$params{year}/$mtag",
+				noimageinline => 1,
 				linktext => "$monthabbr");
 			$calendar.=qq{\t<td class="$tag">};
 			$calendar.=$murl;
