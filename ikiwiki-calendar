@@ -15,7 +15,8 @@ GetOptions(
 ) || usage();
 my $setup=shift		|| usage();
 my $pagespec=shift	|| "*";
-my $year=shift		|| 1900+(localtime(time))[5];
+my $startyear=shift	|| 1900+(localtime(time))[5];
+my $endyear=shift	|| $startyear;
 
 %config=IkiWiki::defaultconfig();
 IkiWiki::Setup::load($setup);
@@ -43,7 +44,7 @@ sub writearchive ($$;$) {
 	}
 }
 
-foreach my $y ($year-1, $year, $year+1) {
+foreach my $y ($startyear..$endyear) {
 	writearchive("calendaryear.tmpl", $y);
 	foreach my $m (qw{01 02 03 04 05 06 07 08 09 10 11 12}) {
 		writearchive("calendarmonth.tmpl", $y, $m);
