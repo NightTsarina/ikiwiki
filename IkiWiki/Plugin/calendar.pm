@@ -71,7 +71,6 @@ sub format_month (@) {
 				# month calendar when pages are added/removed
 				deptype => deptype("presence"))) {
 		my $mtime = $IkiWiki::pagectime{$p};
-		my $src   = $pagesources{$p};
 		my @date  = localtime($mtime);
 		my $mday  = $date[3];
 		my $month = $date[4] + 1;
@@ -79,7 +78,7 @@ sub format_month (@) {
 		my $mtag  = sprintf("%02d", $month);
 
 		# Only one posting per day is being linked to.
-		$linkcache{"$year/$mtag/$mday"} = "$src";
+		$linkcache{"$year/$mtag/$mday"} = $p;
 	}
 		
 	my $pmonth = $params{month} - 1;
@@ -97,7 +96,6 @@ sub format_month (@) {
 		$nyear++;
 	}
 
-	my @list;
 	my $calendar="\n";
 
 	# When did this month start?
@@ -195,7 +193,7 @@ EOF
 		
 		my $tag;
 		my $mtag = sprintf("%02d", $params{month});
-		if (defined $pagesources{"$archivebase/$params{year}/$mtag/$day"}) {
+		if (defined $linkcache{"$params{year}/$mtag/$day"}) {
 			if ($day == $today) {
 				$tag='month-calendar-day-this-day';
 			}
@@ -204,9 +202,8 @@ EOF
 			}
 			$calendar.=qq{\t\t<td class="$tag $downame{$wday}">};
 			$calendar.=htmllink($params{page}, $params{destpage}, 
-			                    pagename($linkcache{"$params{year}/$mtag/$day"}),
+			                    $linkcache{"$params{year}/$mtag/$day"},
 			                    "linktext" => "$day");
-			push @list, pagename($linkcache{"$params{year}/$mtag/$day"});
 			$calendar.=qq{</td>\n};
 		}
 		else {
