@@ -242,6 +242,20 @@ EOF
 
 sub format_year (@) {
 	my %params=@_;
+	
+	my @post_months;
+	foreach my $p (pagespec_match_list($params{page}, 
+				"creation_year($params{year}) and ($params{pages})",
+				# add presence dependencies to update
+				# year calendar's links to months when
+				# pages are added/removed
+				deptype => deptype("presence"))) {
+		my $mtime = $IkiWiki::pagectime{$p};
+		my @date  = localtime($mtime);
+		my $month = $date[4] + 1;
+
+		$post_months[$month]++;
+	}
 		
 	my $calendar="\n";
 	
@@ -313,7 +327,8 @@ EOF
 			$tag = 'year-calendar-month-nolink';
 		}
 
-		if ($pagesources{"$archivebase/$params{year}/$mtag"}) {
+		if ($pagesources{"$archivebase/$params{year}/$mtag"} &&
+		    $post_months[$mtag]) {
 			$murl = htmllink($params{page}, $params{destpage}, 
 				"$archivebase/$params{year}/$mtag",
 				noimageinline => 1,
