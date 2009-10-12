@@ -262,8 +262,9 @@ sub format_year (@) {
 	my $pyear = $params{year}  - 1;
 	my $nyear = $params{year}  + 1;
 
+	my $thisyear = $now[5]+1900;
 	my $future_month = 0;
-	$future_month = $now[4]+1 if ($params{year} == $now[5]+1900);
+	$future_month = $now[4]+1 if $params{year} == $thisyear;
 
 	my $archivebase = 'archives';
 	$archivebase = $config{archivebase} if defined $config{archivebase};
@@ -314,7 +315,7 @@ EOF
 		$calendar.=qq{\t<tr>\n}  if ($month % $params{months_per_row} == 1);
 		my $tag;
 		my $mtag=sprintf("%02d", $month);
-		if ($month == $params{month}) {
+		if ($month == $params{month} && $thisyear == $params{year}) {
 			$tag = 'year-calendar-this-month';
 		}
 		elsif ($pagesources{"$archivebase/$params{year}/$mtag"}) {
