@@ -23,24 +23,34 @@ sub preprocess (@) {
 	my %params=@_;
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Needs to update whenever a page is added or removed, so
-	# register a dependency.
-	add_depends($params{page}, $params{pages});
+	# Needs to update whenever a link changes, on any page
+	# since any page could link to one of the pages we're
+	# considering as orphans.
+	add_depends($params{page}, "*", deptype("links"));
 	
-	my @orphans;
-	foreach my $page (pagespec_match_list(
-			[ grep { ! IkiWiki::backlink_pages($_) && $_ ne 'index' }
-				keys %pagesources ],
-			$params{pages}, location => $params{page})) {
-		# If the page has a link to some other page, it's
-		# indirectly linked to a page via that page's backlinks.
-		next if grep { 
-			length $_ &&
-			($_ !~ /\/\Q$config{discussionpage}\E$/i || ! $config{discussion}) &&
-			bestlink($page, $_) !~ /^(\Q$page\E|)$/ 
-		} @{$links{$page}};
-		push @orphans, $page;
-	}
+	my @orphans=pagespec_match_list($params{page}, $params{pages},
+		# update when orphans are added/removed
+		deptype => deptype("presence"),
+		filter => sub {
+			my $page=shift;
+
+			# Filter out pages that other pages link to.
+			return 1 if IkiWiki::backlink_pages($page);
+
+			# Toplevel index is assumed to never be orphaned.
+			return 1 if $page eq 'index';
+
+			# If the page has a link to some other page, it's
+			# indirectly linked via that page's backlinks.
+			return 1 if grep {
+				length $_ &&
+				($_ !~ /\/\Q$config{discussionpage}\E$/i || ! $config{discussion}) &&
+				bestlink($page, $_) !~ /^(\Q$page\E|)$/ 
+			} @{$links{$page}};
+			
+			return 0;
+		},
+	);
 	
 	return gettext("All pages have other pages linking to them.") unless @orphans;
 	return "<ul>\n".

@@ -17,16 +17,22 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %forcerebuild %loaded_plugins};
 
 use Exporter q{import};
-our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
-                 pagespec_match_list bestlink htmllink readfile writefile
-		 pagetype srcfile pagename displaytime will_render gettext urlto
-		 targetpage add_underlay pagetitle titlepage linkpage
-		 newpagefile inject add_link
+our @EXPORT = qw(hook debug error template htmlpage deptype
+                 add_depends pagespec_match pagespec_match_list bestlink
+		 htmllink readfile writefile pagetype srcfile pagename
+		 displaytime will_render gettext urlto targetpage
+		 add_underlay pagetitle titlepage linkpage newpagefile
+		 inject add_link
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
 our $version='unknown'; # VERSION_AUTOREPLACE done by Makefile, DNE
 our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
+
+# Page dependency types.
+our $DEPEND_CONTENT=1;
+our $DEPEND_PRESENCE=2;
+our $DEPEND_LINKS=4;
 
 # Optimisation.
 use Memoize;
@@ -1523,18 +1529,28 @@ sub loadindex () {
 				$links{$page}=$d->{links};
 				$oldlinks{$page}=[@{$d->{links}}];
 			}
-			if (exists $d->{depends_simple}) {
+			if (ref $d->{depends_simple} eq 'ARRAY') {
+				# old format
 				$depends_simple{$page}={
 					map { $_ => 1 } @{$d->{depends_simple}}
 				};
 			}
+			elsif (exists $d->{depends_simple}) {
+				$depends_simple{$page}=$d->{depends_simple};
+			}
 			if (exists $d->{dependslist}) {
+				# old format
 				$depends{$page}={
-					map { $_ => 1 } @{$d->{dependslist}}
+					map { $_ => $DEPEND_CONTENT }
+						@{$d->{dependslist}}
 				};
 			}
+			elsif (exists $d->{depends} && ! ref $d->{depends}) {
+				# old format
+				$depends{$page}={$d->{depends} => $DEPEND_CONTENT };
+			}
 			elsif (exists $d->{depends}) {
-				$depends{$page}={$d->{depends} => 1};
+				$depends{$page}=$d->{depends};
 			}
 			if (exists $d->{state}) {
 				$pagestate{$page}=$d->{state};
@@ -1580,11 +1596,11 @@ sub saveindex () {
 		};
 
 		if (exists $depends{$page}) {
-			$index{page}{$src}{dependslist} = [ keys %{$depends{$page}} ];
+			$index{page}{$src}{depends} = $depends{$page};
 		}
 
 		if (exists $depends_simple{$page}) {
-			$index{page}{$src}{depends_simple} = [ keys %{$depends_simple{$page}} ];
+			$index{page}{$src}{depends_simple} = $depends_simple{$page};
 		}
 
 		if (exists $pagestate{$page}) {
@@ -1752,21 +1768,48 @@ sub rcs_receive () {
 	$hooks{rcs}{rcs_receive}{call}->();
 }
 
-sub add_depends ($$) {
+sub add_depends ($$;$) {
 	my $page=shift;
 	my $pagespec=shift;
+	my $deptype=shift || $DEPEND_CONTENT;
 
+	# Is the pagespec a simple page name?
 	if ($pagespec =~ /$config{wiki_file_regexp}/ &&
-		$pagespec !~ /[\s*?()!]/) {
-		# a simple dependency, which can be matched by string eq
-		$depends_simple{$page}{lc $pagespec} = 1;
+	    $pagespec !~ /[\s*?()!]/) {
+		$depends_simple{$page}{lc $pagespec} |= $deptype;
 		return 1;
 	}
 
-	return unless pagespec_valid($pagespec);
+	# Add explicit dependencies for influences.
+	my $sub=pagespec_translate($pagespec);
+	return if $@;
+	foreach my $p (keys %pagesources) {
+		my $r=$sub->($p, location => $page);
+		my $i=$r->influences;
+		foreach my $k (keys %$i) {
+			$depends_simple{$page}{lc $k} |= $i->{$k};
+		}
+		last if $r->influences_static;
+	}
 
-	$depends{$page}{$pagespec} = 1;
+	$depends{$page}{$pagespec} |= $deptype;
 	return 1;
+}
+
+sub deptype (@) {
+	my $deptype=0;
+	foreach my $type (@_) {
+		if ($type eq 'presence') {
+			$deptype |= $DEPEND_PRESENCE;
+		}
+		elsif ($type eq 'links') { 
+			$deptype |= $DEPEND_LINKS;
+		}
+		elsif ($type eq 'content') {
+			$deptype |= $DEPEND_CONTENT;
+		}
+	}
+	return $deptype;
 }
 
 sub file_pruned ($;$) {
@@ -1876,10 +1919,10 @@ sub pagespec_translate ($) {
 	}gx) {
 		my $word=$1;
 		if (lc $word eq 'and') {
-			$code.=' &&';
+			$code.=' &';
 		}
 		elsif (lc $word eq 'or') {
-			$code.=' ||';
+			$code.=' |';
 		}
 		elsif ($word eq "(" || $word eq ")" || $word eq "!") {
 			$code.=' '.$word;
@@ -1925,27 +1968,87 @@ sub pagespec_match ($$;@) {
 }
 
 sub pagespec_match_list ($$;@) {
-	my $pages=shift;
-	my $spec=shift;
-	my @params=@_;
+	my $page=shift;
+	my $pagespec=shift;
+	my %params=@_;
 
-	my $sub=pagespec_translate($spec);
-	error "syntax error in pagespec \"$spec\""
-		if $@ || ! defined $sub;
-	
-	my @ret;
-	my $r;
-	foreach my $page (@$pages) {
-		$r=$sub->($page, @params);
-		push @ret, $page if $r;
+	# Backwards compatability with old calling convention.
+	if (ref $page) {
+		print STDERR "warning: a plugin (".caller().") is using pagespec_match_list in an obsolete way, and needs to be updated\n";
+		$params{list}=$page;
+		$page=$params{location}; # ugh!
 	}
 
-	if (! @ret && defined $r && $r->isa("IkiWiki::ErrorReason")) {
-		error(sprintf(gettext("cannot match pages: %s"), $r));
+	my $sub=pagespec_translate($pagespec);
+	error "syntax error in pagespec \"$pagespec\""
+		if $@ || ! defined $sub;
+
+	my @candidates;
+	if (exists $params{list}) {
+		@candidates=exists $params{filter}
+			? grep { ! $params{filter}->($_) } @{$params{list}}
+			: @{$params{list}};
 	}
 	else {
-		return @ret;
+		@candidates=exists $params{filter}
+			? grep { ! $params{filter}->($_) } keys %pagesources
+			: keys %pagesources;
 	}
+
+	if (defined $params{sort}) {
+		my $f;
+		if ($params{sort} eq 'title') {
+			$f=sub { pagetitle(basename($a)) cmp pagetitle(basename($b)) };
+		}
+		elsif ($params{sort} eq 'title_natural') {
+			eval q{use Sort::Naturally};
+			if ($@) {
+				error(gettext("Sort::Naturally needed for title_natural sort"));
+			}
+			$f=sub { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) };
+                }
+		elsif ($params{sort} eq 'mtime') {
+			$f=sub { $pagemtime{$b} <=> $pagemtime{$a} };
+		}
+		elsif ($params{sort} eq 'age') {
+			$f=sub { $pagectime{$b} <=> $pagectime{$a} };
+		}
+		else {
+			error sprintf(gettext("unknown sort type %s"), $params{sort});
+		}
+		@candidates = sort { &$f } @candidates;
+	}
+
+	@candidates=reverse(@candidates) if $params{reverse};
+	
+	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
+	
+	# clear params, remainder is passed to pagespec
+	my $num=$params{num};
+	delete @params{qw{num deptype reverse sort filter list}};
+	
+	my @matches;
+	my $firstfail;
+	my $count=0;
+	my $accum=IkiWiki::SuccessReason->new();
+	foreach my $p (@candidates) {
+		my $r=$sub->($p, %params, location => $page);
+		error(sprintf(gettext("cannot match pages: %s"), $r))
+			if $r->isa("IkiWiki::ErrorReason");
+		$accum |= $r;
+		if ($r) {
+			push @matches, $p;
+			last if defined $num && ++$count == $num;
+		}
+	}
+
+	# Add simple dependencies for accumulated influences.
+	my $i=$accum->influences;
+	foreach my $k (keys %$i) {
+		$depends_simple{$page}{lc $k} |= $i->{$k};
+	}
+
+	return @matches;
 }
 
 sub pagespec_valid ($) {
@@ -1965,36 +2068,65 @@ sub glob2re ($) {
 package IkiWiki::FailReason;
 
 use overload (
-	'""'	=> sub { ${$_[0]} },
+	'""'	=> sub { $_[0][0] },
 	'0+'	=> sub { 0 },
 	'!'	=> sub { bless $_[0], 'IkiWiki::SuccessReason'},
+	'&'	=> sub { $_[0]->merge_influences($_[1], 1); $_[0] },
+	'|'	=> sub { $_[1]->merge_influences($_[0]); $_[1] },
+	fallback => 1,
+);
+
+our @ISA = 'IkiWiki::SuccessReason';
+
+package IkiWiki::SuccessReason;
+
+use overload (
+	'""'	=> sub { $_[0][0] },
+	'0+'	=> sub { 1 },
+	'!'	=> sub { bless $_[0], 'IkiWiki::FailReason'},
+	'&'	=> sub { $_[1]->merge_influences($_[0], 1); $_[1] },
+	'|'	=> sub { $_[0]->merge_influences($_[1]); $_[0] },
 	fallback => 1,
 );
 
 sub new {
 	my $class = shift;
 	my $value = shift;
-	return bless \$value, $class;
+	return bless [$value, {@_}], $class;
+}
+
+sub influences {
+	my $this=shift;
+	$this->[1]={@_} if @_;
+	my %i=%{$this->[1]};
+	delete $i{""};
+	return \%i;
+}
+
+sub influences_static {
+	return ! $_[0][1]->{""};
+}
+
+sub merge_influences {
+	my $this=shift;
+	my $other=shift;
+	my $anded=shift;
+
+	if (! $anded || (($this || %{$this->[1]}) &&
+	                ($other || %{$other->[1]}))) {
+		foreach my $influence (keys %{$other->[1]}) {
+			$this->[1]{$influence} |= $other->[1]{$influence};
+		}
+	}
+	else {
+		# influence blocker
+		$this->[1]={};
+	}
 }
 
 package IkiWiki::ErrorReason;
 
 our @ISA = 'IkiWiki::FailReason';
-
-package IkiWiki::SuccessReason;
-
-use overload (
-	'""'	=> sub { ${$_[0]} },
-	'0+'	=> sub { 1 },
-	'!'	=> sub { bless $_[0], 'IkiWiki::FailReason'},
-	fallback => 1,
-);
-
-sub new {
-	my $class = shift;
-	my $value = shift;
-	return bless \$value, $class;
-};
 
 package IkiWiki::PageSpec;
 
@@ -2045,27 +2177,30 @@ sub match_link ($$;@) {
 	my $from=exists $params{location} ? $params{location} : '';
 
 	my $links = $IkiWiki::links{$page};
-	return IkiWiki::FailReason->new("$page has no links") unless $links && @{$links};
+	return IkiWiki::FailReason->new("$page has no links", "" => 1)
+		unless $links && @{$links};
 	my $bestlink = IkiWiki::bestlink($from, $link);
 	foreach my $p (@{$links}) {
 		if (length $bestlink) {
-			return IkiWiki::SuccessReason->new("$page links to $link")
+			return IkiWiki::SuccessReason->new("$page links to $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 				if $bestlink eq IkiWiki::bestlink($page, $p);
 		}
 		else {
-			return IkiWiki::SuccessReason->new("$page links to page $p matching $link")
+			return IkiWiki::SuccessReason->new("$page links to page $p matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 				if match_glob($p, $link, %params);
 			my ($p_rel)=$p=~/^\/?(.*)/;
 			$link=~s/^\///;
-			return IkiWiki::SuccessReason->new("$page links to page $p_rel matching $link")
+			return IkiWiki::SuccessReason->new("$page links to page $p_rel matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 				if match_glob($p_rel, $link, %params);
 		}
 	}
-	return IkiWiki::FailReason->new("$page does not link to $link");
+	return IkiWiki::FailReason->new("$page does not link to $link", "" => 1);
 }
 
 sub match_backlink ($$;@) {
-	return match_link($_[1], $_[0], @_);
+	my $ret=match_link($_[1], $_[0], @_);
+	$ret->influences($_[1] => $IkiWiki::DEPEND_LINKS);
+	return $ret;
 }
 
 sub match_created_before ($$;@) {
@@ -2077,14 +2212,14 @@ sub match_created_before ($$;@) {
 
 	if (exists $IkiWiki::pagectime{$testpage}) {
 		if ($IkiWiki::pagectime{$page} < $IkiWiki::pagectime{$testpage}) {
-			return IkiWiki::SuccessReason->new("$page created before $testpage");
+			return IkiWiki::SuccessReason->new("$page created before $testpage", $testpage => $IkiWiki::DEPEND_PRESENCE);
 		}
 		else {
-			return IkiWiki::FailReason->new("$page not created before $testpage");
+			return IkiWiki::FailReason->new("$page not created before $testpage", $testpage => $IkiWiki::DEPEND_PRESENCE);
 		}
 	}
 	else {
-		return IkiWiki::ErrorReason->new("$testpage does not exist");
+		return IkiWiki::ErrorReason->new("$testpage does not exist", $testpage => $IkiWiki::DEPEND_PRESENCE);
 	}
 }
 
@@ -2097,14 +2232,14 @@ sub match_created_after ($$;@) {
 
 	if (exists $IkiWiki::pagectime{$testpage}) {
 		if ($IkiWiki::pagectime{$page} > $IkiWiki::pagectime{$testpage}) {
-			return IkiWiki::SuccessReason->new("$page created after $testpage");
+			return IkiWiki::SuccessReason->new("$page created after $testpage", $testpage => $IkiWiki::DEPEND_PRESENCE);
 		}
 		else {
-			return IkiWiki::FailReason->new("$page not created after $testpage");
+			return IkiWiki::FailReason->new("$page not created after $testpage", $testpage => $IkiWiki::DEPEND_PRESENCE);
 		}
 	}
 	else {
-		return IkiWiki::ErrorReason->new("$testpage does not exist");
+		return IkiWiki::ErrorReason->new("$testpage does not exist", $testpage => $IkiWiki::DEPEND_PRESENCE);
 	}
 }
 

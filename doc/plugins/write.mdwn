@@ -609,21 +609,60 @@ page created from it. (Ie, it appends ".html".)
 Use this when constructing the filename of a html file. Use `urlto` when
 generating a link to a page.
 
-#### `add_depends($$;@)`
+### `deptype(@)`
+
+Use this function to generate ikiwiki's internal representation of a
+dependency type from one or more of these keywords:
+
+* `content` is the default. Any change to the content
+  of a page triggers the dependency.
+* `presence` is only triggered by a change to the presence
+  of a page.
+* `links` is only triggered by a change to the links of a page.
+  This includes when a link is added, removed, or changes what
+  it points to due to other changes. It does not include the
+  addition or removal of a duplicate link.
+
+If multiple types are specified, they are combined.
+
+#### `pagespec_match_list($$;@)`
+
+Passed a page name, and [[ikiwiki/PageSpec]], returns a list of pages
+in the wiki that match the [[ikiwiki/PageSpec]]. 
+
+The page will automatically be made to depend on the specified
+[[ikiwiki/PageSpec]], so `add_depends` does not need to be called. This
+is often significantly more efficient than calling `add_depends` and
+`pagespec_match` in a loop. You should use this anytime a plugin
+needs to match a set of pages and do something based on that list.
+
+Unlike pagespec_match, this may throw an error if there is an error in
+the pagespec.
+
+Additional named parameters can be specified:
+
+* `deptype` optionally specifies the type of dependency to add. Use the
+  `deptype` function to generate a dependency type.
+* `filter` is a reference to a function, that is called and passed a page,
+  and returns true if the page should be filtered out of the list.
+* `sort` specifies a sort order for the list. See
+  [[ikiwiki/PageSpec/sorting]] for the avilable sort methods.
+* `reverse` if true, sorts in reverse.
+* `num` if nonzero, specifies the maximum number of matching pages that
+  will be returned.
+* `list` makes it only match amoung the specified list of pages.
+  Default is to match amoung all pages in the wiki.
+
+Any other named parameters are passed on to `pagespec_match`, to further
+limit the match.
+
+#### `add_depends($$;$)`
 
 Makes the specified page depend on the specified [[ikiwiki/PageSpec]].
 
 By default, dependencies are full content dependencies, meaning that the
 page will be updated whenever anything matching the PageSpec is modified.
-This default can be overridden by additional named parameters, which can be
-used to indicate weaker types of dependencies:
-
-* `presence` if set to true, only the presence of a matching page triggers
-  the dependency.
-* `links` if set to true, any change to links on a matching page
-  triggers the dependency. This includes when a link is added, removed,
-  or changes what it points to due to other changes. It does not include
-  the addition or removal of a duplicate link.
+This can be overridden by passing a `deptype` value as the third parameter.
 
 #### `pagespec_match($$;@)`
 
@@ -638,19 +677,6 @@ Additional named parameters can be passed, to further limit the match.
 The most often used is "location", which specifies the location the
 PageSpec should match against. If not passed, relative PageSpecs will match
 relative to the top of the wiki.
-
-#### `pagespec_match_list($$;@)`
-
-Passed a reference to a list of page names, and [[ikiwiki/PageSpec]],
-returns the set of pages that match the [[ikiwiki/PageSpec]].
-
-Additional named parameters can be passed, to further limit the match.
-The most often used is "location", which specifies the location the
-PageSpec should match against. If not passed, relative PageSpecs will match
-relative to the top of the wiki.
-
-Unlike pagespec_match, this may throw an error if there is an error in
-the pagespec.
 
 #### `bestlink($$)`
 
@@ -981,6 +1007,15 @@ It should return a IkiWiki::SuccessReason object if the match succeeds, or
 an IkiWiki::FailReason object if the match fails. If the match cannot be
 attempted at all, for any page, it can instead return an
 IkiWiki::ErrorReason object explaining why.
+
+When constructing these objects, you should also include information about
+of any pages whose contents or other metadata influenced the result of the
+match. Do this by passing a list of pages, followed by `deptype` values.
+
+For example, "backlink(foo)" is influenced by the contents of page foo;
+"link(foo)" and "title(bar)" are influenced by the contents of any page
+they match; "created_before(foo)" is influenced by the metadata of foo;
+while "glob(*)" is not influenced by the contents of any page.
 
 ### Setup plugins
 

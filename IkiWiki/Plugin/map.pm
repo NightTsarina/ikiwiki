@@ -28,12 +28,16 @@ sub preprocess (@) {
 	my %params=@_;
 	$params{pages}="*" unless defined $params{pages};
 	
+	# Needs to update whenever a page is added or removed (or in some
+	# cases, when its content changes, if show= is specified).
+	my $deptype=deptype(exists $params{show} ? "content" : "presence");
+	
 	my $common_prefix;
 
 	# Get all the items to map.
 	my %mapitems;
-	foreach my $page (pagespec_match_list([keys %pagesources],
-				$params{pages}, location => $params{page})) {
+	foreach my $page (pagespec_match_list($params{page}, $params{pages},
+					deptype => $deptype)) {
 		if (exists $params{show} && 
 		    exists $pagestate{$page} &&
 		    exists $pagestate{$page}{meta}{$params{show}}) {
@@ -67,16 +71,6 @@ sub preprocess (@) {
 		$common_prefix=IkiWiki::dirname($common_prefix);
 	}
 
-	# Needs to update whenever a page is added or removed (or in some
-	# cases, when its content changes, if show=title), so register a
-	# dependency.
-	add_depends($params{page}, $params{pages});
-	# Explicitly add all currently shown pages, to detect when pages
-	# are removed.
-	foreach my $item (keys %mapitems) {
-		add_depends($params{page}, $item);
-	}
-
 	# Create the map.
 	my $parent="";
 	my $indent=0;
@@ -84,12 +78,12 @@ sub preprocess (@) {
 	my $addparent="";
 	my $map = "<div class='map'>\n";
 
-	# Return empty div if %mapitems is empty
-	if (!scalar(keys %mapitems)) {
+	if (! keys %mapitems) {
+		# return empty div for empty map
 		$map .= "</div>\n";
 		return $map; 
 	} 
-	else { # continue populating $map
+	else {
 		$map .= "<ul>\n";
 	}
 

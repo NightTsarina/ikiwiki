@@ -1,11 +1,44 @@
-ikiwiki (3.20091010) UNRELEASED; urgency=low
+ikiwiki (3.2009XXXX) UNRELEASED; urgency=low
 
+  * Added support framework for multiple types of dependencies, including
+    dependncies that are only affected by page precence or link changes.
+  * Rebuild wikis on upgrade to this version to get improved dependency
+    info.
+  * pagecount, calendar, postsparkline, progress: Use a presence dependency,
+    which makes these directives much less expensive to use, since page
+    edits will no longer trigger an unnecessary update.
+  * map: Use a presence dependency unless show= is specified.
+    This makes maps efficient enough that they can be used on sidebars!
+  * inline: Use a presence dependency in quick mode.
+  * brokenlinks: Use a link dependency.
+    This makes it much more efficient, only updating when really necessary.
+  * orphans, pagestats: Use a combination of presence and link dependencies.
+    This makes them more efficient. It also fixes a longstanding bug,
+    where if only a small set of pages were considered by orphans/pagestats,
+    changes to links on other pages failed to cause an update.
+  * linkmap: Use a combination of presence and link dependencies.
+    This makes the map be regenerated much less frequently in many cases,
+    so larger maps are more practical to use now.
+  * Plugins providing PageSpec `match_*` functions should pass additional
+    influence information when creating result objects. This allows correctly
+    handling many more complicated dependencies.
+  * API change: `pagespec_match_list` has completly changed its interface.
+    The old interface will be removed soon, and a warning will be printed
+    if any plugins try to use it.
+  * Transitive dependencies are now correctly supported.
   * ikiwiki-calendar: New command automates creation of archive pages
     using the calendar plugin.
+  * calendar: Fix midnight rebuild trigger of calendars with explicit
+    month/year.
+  * calendar: Fix bug in next/previous year/month links, which sometimes
+    linked to an archive page from the wrong year, or were missing.
   * git: --getctime will now follow renames back to the original creation
     of a file.
+  * calendar: Fix CSS for year calendar to match the plugin documentation.
+  * Added minimal default CSS for calendar plugin, just highlighting the
+    current day.
 
- -- Joey Hess <joeyh@debian.org>  Sun, 11 Oct 2009 15:54:45 -0400
+ -- Joey Hess <joeyh@debian.org>  Fri, 09 Oct 2009 19:53:50 -0400
 
 ikiwiki (3.20091009) unstable; urgency=low
 
@@ -19,7 +52,7 @@ ikiwiki (3.20091009) unstable; urgency=low
   * mirrorlist: Display nothing if list is empty.
   * Fix a bug that could lead to duplicate links being recorded
     for tags.
-  * Optimize away most expensive file prune calls, when refreshing,
+  * Optimize away most expensive file prune checks, when refreshing,
     by only checking new files.
 
  -- Joey Hess <joeyh@debian.org>  Fri, 09 Oct 2009 19:53:50 -0400

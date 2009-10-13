@@ -195,7 +195,7 @@ sub preprocess (@) {
 			if (! length $link) {
 				error gettext("redir page not found")
 			}
-			add_depends($page, $link);
+			add_depends($page, $link, deptype("presence"));
 
 			$value=urlto($link, $page);
 			$value.='#'.$redir_anchor if defined $redir_anchor;
@@ -291,21 +291,21 @@ sub match {
 
 	if (defined $val) {
 		if ($val=~/^$re$/i) {
-			return IkiWiki::SuccessReason->new("$re matches $field of $page");
+			return IkiWiki::SuccessReason->new("$re matches $field of $page", $page => $IkiWiki::DEPEND_CONTENT, "" => 1);
 		}
 		else {
-			return IkiWiki::FailReason->new("$re does not match $field of $page");
+			return IkiWiki::FailReason->new("$re does not match $field of $page", "" => 1);
 		}
 	}
 	else {
-		return IkiWiki::FailReason->new("$page does not have a $field");
+		return IkiWiki::FailReason->new("$page does not have a $field", "" => 1);
 	}
 }
 
 package IkiWiki::PageSpec;
 
 sub match_title ($$;@) {
-	IkiWiki::Plugin::meta::match("title", @_);	
+	IkiWiki::Plugin::meta::match("title", @_);
 }
 
 sub match_author ($$;@) {

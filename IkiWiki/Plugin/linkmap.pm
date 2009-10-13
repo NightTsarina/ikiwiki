@@ -28,10 +28,6 @@ sub preprocess (@) {
 
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Needs to update whenever a page is added or removed, so
-	# register a dependency.
-	add_depends($params{page}, $params{pages});
-	
 	# Can't just return the linkmap here, since the htmlscrubber
 	# scrubs out all <object> tags (with good reason!)
 	# Instead, insert a placeholder tag, which will be expanded during
@@ -55,12 +51,11 @@ sub genmap ($) {
 	my %params=%{$maps{$mapnum}};
 
 	# Get all the items to map.
-	my %mapitems = ();
-	foreach my $item (keys %links) {
-		if (pagespec_match($item, $params{pages}, location => $params{page})) {
-			$mapitems{$item}=urlto($item, $params{destpage});
-		}
-	}
+	my %mapitems = map { $_ => urlto($_, $params{destpage}) }
+		pagespec_match_list($params{page}, $params{pages},
+			# update when a page is added or removed, or its
+			# links change
+			deptype => deptype("presence", "links"));
 
 	my $dest=$params{page}."/linkmap.png";
 

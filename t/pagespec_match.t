@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 54;
+use Test::More tests => 64;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -88,3 +88,24 @@ ok(! pagespec_match("foo", "no_such_function(foo)"), "foo");
 my $ret=pagespec_match("foo", "(invalid");
 ok(! $ret, "syntax error");
 ok($ret =~ /syntax error/, "error message");
+
+$ret=pagespec_match("foo", "bar or foo");
+ok($ret, "simple match");
+is($ret, "foo matches foo", "stringified return");
+
+my $i=pagespec_match("foo", "link(bar)")->influences;
+is(join(",", keys %$i), 'foo', "link is influenced by the page with the link");
+$i=pagespec_match("bar", "backlink(foo)")->influences;
+is(join(",", keys %$i), 'foo', "backlink is influenced by the page with the link");
+$i=pagespec_match("bar", "backlink(foo)")->influences;
+is(join(",", keys %$i), 'foo', "backlink is influenced by the page with the link");
+$i=pagespec_match("bar", "created_before(foo)")->influences;
+is(join(",", keys %$i), 'foo', "created_before is influenced by the comparison page");
+$i=pagespec_match("bar", "created_after(foo)")->influences;
+is(join(",", keys %$i), 'foo', "created_after is influenced by the comparison page");
+$i=pagespec_match("foo", "link(baz) and created_after(bar)")->influences;
+is(join(",", sort keys %$i), 'bar,foo', "influences add up over AND");
+$i=pagespec_match("foo", "link(baz) and created_after(bar)")->influences;
+is(join(",", sort keys %$i), 'bar,foo', "influences add up over OR");
+$i=pagespec_match("foo", "!link(baz) and !created_after(bar)")->influences;
+is(join(",", sort keys %$i), 'bar,foo', "influences unaffected by negation");

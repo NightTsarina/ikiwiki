@@ -24,8 +24,6 @@ use IkiWiki 3.00;
 use Time::Local;
 use POSIX;
 
-my %cache;
-my %linkcache;
 my $time=time;
 my @now=localtime($time);
 
@@ -67,23 +65,50 @@ sub month_days {
 sub format_month (@) {
 	my %params=@_;
 
-	my $pagespec = $params{pages};
-	my $year     = $params{year};
-	my $month    = $params{month};
-	my $pmonth   = $params{pmonth};
-	my $nmonth   = $params{nmonth};
-	my $pyear    = $params{pyear};
-	my $nyear    = $params{nyear};
+	my %linkcache;
+	foreach my $p (pagespec_match_list($params{page}, 
+				"creation_year($params{year}) and creation_month($params{month}) and ($params{pages})",
+				# add presence dependencies to update
+				# month calendar when pages are added/removed
+				deptype => deptype("presence"))) {
+		my $mtime = $IkiWiki::pagectime{$p};
+		my @date  = localtime($mtime);
+		my $mday  = $date[3];
+		my $month = $date[4] + 1;
+		my $year  = $date[5] + 1900;
+		my $mtag  = sprintf("%02d", $month);
 
-	my @list;
+		# Only one posting per day is being linked to.
+		$linkcache{"$year/$mtag/$mday"} = $p;
+	}
+		
+	my $pmonth = $params{month} - 1;
+	my $nmonth = $params{month} + 1;
+	my $pyear  = $params{year};
+	my $nyear  = $params{year};
+
+	# Adjust for January and December
+	if ($params{month} == 1) {
+		$pmonth = 12;
+		$pyear--;
+	}
+	if ($params{month} == 12) {
+		$nmonth = 1;
+		$nyear++;
+	}
+
+	# Add padding.
+	$pmonth=sprintf("%02d", $pmonth);
+	$nmonth=sprintf("%02d", $nmonth);
+
 	my $calendar="\n";
 
 	# When did this month start?
-	my @monthstart = localtime(timelocal(0,0,0,1,$month-1,$year-1900));
+	my @monthstart = localtime(timelocal(0,0,0,1,$params{month}-1,$params{year}-1900));
 
 	my $future_dom = 0;
 	my $today      = 0;
-	if ($year == $now[5]+1900 && $month == $now[4]+1) {
+	if ($params{year} == $now[5]+1900 && $params{month} == $now[4]+1) {
 		$future_dom = $now[3]+1;
 		$today      = $now[3];
 	}
@@ -99,24 +124,30 @@ sub format_month (@) {
   
 	# Calculate URL's for monthly archives.
 	my ($url, $purl, $nurl)=("$monthname",'','');
-	if (exists $cache{$pagespec}{"$year/$month"}) {
+	if (exists $pagesources{"$archivebase/$params{year}/$params{month}"}) {
 		$url = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$year/".sprintf("%02d", $month),
+			"$archivebase/$params{year}/".$params{month},
+			noimageinline => 1,
 			linktext => " $monthname ");
 	}
-	add_depends($params{page}, "$archivebase/$year/".sprintf("%02d", $month));
-	if (exists $cache{$pagespec}{"$pyear/$pmonth"}) {
+	add_depends($params{page}, "$archivebase/$params{year}/$params{month}",
+		deptype("presence"));
+	if (exists $pagesources{"$archivebase/$pyear/$pmonth"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$pyear/" . sprintf("%02d", $pmonth),
-			linktext => " $pmonthname ");
+			"$archivebase/$pyear/$pmonth",
+			noimageinline => 1,
+			linktext => "\&larr");
 	}
-	add_depends($params{page}, "$archivebase/$pyear/".sprintf("%02d", $pmonth));
-	if (exists $cache{$pagespec}{"$nyear/$nmonth"}) {
+	add_depends($params{page}, "$archivebase/$pyear/$pmonth",
+		deptype("presence"));
+	if (exists $pagesources{"$archivebase/$nyear/$nmonth"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$nyear/" . sprintf("%02d", $nmonth),
-			linktext => " $nmonthname ");
+			"$archivebase/$nyear/$nmonth",
+			noimageinline => 1,
+			linktext => "\&rarr");
 	}
-	add_depends($params{page}, "$archivebase/$nyear/".sprintf("%02d", $nmonth));
+	add_depends($params{page}, "$archivebase/$nyear/$nmonth",
+		deptype("presence"));
 
 	# Start producing the month calendar
 	$calendar=<<EOF;
@@ -137,7 +168,7 @@ EOF
 	my %downame;
 	my %dowabbr;
 	for my $dow ($week_start_day..$week_start_day+6) {
-		my @day=localtime(timelocal(0,0,0,$start_day++,$month-1,$year-1900));
+		my @day=localtime(timelocal(0,0,0,$start_day++,$params{month}-1,$params{year}-1900));
 		my $downame = POSIX::strftime("%A", @day);
 		my $dowabbr = POSIX::strftime("%a", @day);
 		$downame{$dow % 7}=$downame;
@@ -158,7 +189,7 @@ EOF
 
 	# At this point, either the first is a week_start_day, in which case
 	# nothing has been printed, or else we are in the middle of a row.
-	for (my $day = 1; $day <= month_days(year => $year, month => $month);
+	for (my $day = 1; $day <= month_days(year => $params{year}, month => $params{month});
 	     $day++, $wday++, $wday %= 7) {
 		# At tihs point, on a week_start_day, we close out a row,
 		# and start a new one -- unless it is week_start_day on the
@@ -169,8 +200,7 @@ EOF
 		}
 		
 		my $tag;
-		my $mtag = sprintf("%02d", $month);
-		if (defined $cache{$pagespec}{"$year/$mtag/$day"}) {
+		if (defined $linkcache{"$params{year}/$params{month}/$day"}) {
 			if ($day == $today) {
 				$tag='month-calendar-day-this-day';
 			}
@@ -179,9 +209,9 @@ EOF
 			}
 			$calendar.=qq{\t\t<td class="$tag $downame{$wday}">};
 			$calendar.=htmllink($params{page}, $params{destpage}, 
-			                    pagename($linkcache{"$year/$mtag/$day"}),
-			                    "linktext" => "$day");
-			push @list, pagename($linkcache{"$year/$mtag/$day"});
+				$linkcache{"$params{year}/$params{month}/$day"},
+				noimageinline => 1,
+				"linktext" => "$day");
 			$calendar.=qq{</td>\n};
 		}
 		else {
@@ -207,58 +237,62 @@ EOF
 </table>
 EOF
 
-	# Add dependencies to update the calendar whenever pages
-	# matching the pagespec are added or removed.
-	add_depends($params{page}, $params{pages});
-	# Explicitly add all currently linked pages as dependencies, so
-	# that if they are removed, the calendar will be sure to be updated.
-	foreach my $p (@list) {
-		add_depends($params{page}, $p);
-	}
-
 	return $calendar;
 }
 
 sub format_year (@) {
 	my %params=@_;
+	
+	my @post_months;
+	foreach my $p (pagespec_match_list($params{page}, 
+				"creation_year($params{year}) and ($params{pages})",
+				# add presence dependencies to update
+				# year calendar's links to months when
+				# pages are added/removed
+				deptype => deptype("presence"))) {
+		my $mtime = $IkiWiki::pagectime{$p};
+		my @date  = localtime($mtime);
+		my $month = $date[4] + 1;
 
-	my $pagespec = $params{pages};
-	my $year     = $params{year};
-	my $month    = $params{month};
-	my $pmonth   = $params{pmonth};
-	my $nmonth   = $params{nmonth};
-	my $pyear    = $params{pyear};
-	my $nyear    = $params{nyear};
-
+		$post_months[$month]++;
+	}
+		
 	my $calendar="\n";
+	
+	my $pyear = $params{year}  - 1;
+	my $nyear = $params{year}  + 1;
 
+	my $thisyear = $now[5]+1900;
 	my $future_month = 0;
-	$future_month = $now[4]+1 if ($year == $now[5]+1900);
+	$future_month = $now[4]+1 if $params{year} == $thisyear;
 
 	my $archivebase = 'archives';
 	$archivebase = $config{archivebase} if defined $config{archivebase};
 	$archivebase = $params{archivebase} if defined $params{archivebase};
 
 	# calculate URL's for previous and next years
-	my ($url, $purl, $nurl)=("$year",'','');
-	if (exists $cache{$pagespec}{"$year"}) {
+	my ($url, $purl, $nurl)=("$params{year}",'','');
+	if (exists $pagesources{"$archivebase/$params{year}"}) {
 		$url = htmllink($params{page}, $params{destpage}, 
-			"$archivebase/$year",
-			linktext => "$year");
+			"$archivebase/$params{year}",
+			noimageinline => 1,
+			linktext => "$params{year}");
 	}
-	add_depends($params{page}, "$archivebase/$year");
-	if (exists $cache{$pagespec}{"$pyear"}) {
+	add_depends($params{page}, "$archivebase/$params{year}", deptype("presence"));
+	if (exists $pagesources{"$archivebase/$pyear"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$pyear",
+			noimageinline => 1,
 			linktext => "\&larr;");
 	}
-	add_depends($params{page}, "$archivebase/$pyear");
-	if (exists $cache{$pagespec}{"$nyear"}) {
+	add_depends($params{page}, "$archivebase/$pyear", deptype("presence"));
+	if (exists $pagesources{"$archivebase/$nyear"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$nyear",
+			noimageinline => 1,
 			linktext => "\&rarr;");
 	}
-	add_depends($params{page}, "$archivebase/$nyear");
+	add_depends($params{page}, "$archivebase/$nyear", deptype("presence"));
 
 	# Start producing the year calendar
 	$calendar=<<EOF;
@@ -273,35 +307,32 @@ sub format_year (@) {
 	</tr>
 EOF
 
-	for ($month = 1; $month <= 12; $month++) {
-		my @day=localtime(timelocal(0,0,0,15,$month-1,$year-1900));
+	for (my $month = 1; $month <= 12; $month++) {
+		my @day=localtime(timelocal(0,0,0,15,$month-1,$params{year}-1900));
 		my $murl;
 		my $monthname = POSIX::strftime("%B", @day);
 		my $monthabbr = POSIX::strftime("%b", @day);
 		$calendar.=qq{\t<tr>\n}  if ($month % $params{months_per_row} == 1);
 		my $tag;
 		my $mtag=sprintf("%02d", $month);
-		if ($month == $params{month}) {
-			if ($cache{$pagespec}{"$year/$mtag"}) {
-				$tag = 'this_month_link';
-			}
-			else {
-				$tag = 'this_month_nolink';
-			}
+		if ($month == $params{month} && $thisyear == $params{year}) {
+			$tag = 'year-calendar-this-month';
 		}
-		elsif ($cache{$pagespec}{"$year/$mtag"}) {
-			$tag = 'month_link';
+		elsif ($pagesources{"$archivebase/$params{year}/$mtag"}) {
+			$tag = 'year-calendar-month-link';
 		} 
 		elsif ($future_month && $month >= $future_month) {
-			$tag = 'month_future';
+			$tag = 'year-calendar-month-future';
 		} 
 		else {
-			$tag = 'month_nolink';
+			$tag = 'year-calendar-month-nolink';
 		}
 
-		if ($cache{$pagespec}{"$year/$mtag"}) {
+		if ($pagesources{"$archivebase/$params{year}/$mtag"} &&
+		    $post_months[$mtag]) {
 			$murl = htmllink($params{page}, $params{destpage}, 
-				"$archivebase/$year/$mtag",
+				"$archivebase/$params{year}/$mtag",
+				noimageinline => 1,
 				linktext => "$monthabbr");
 			$calendar.=qq{\t<td class="$tag">};
 			$calendar.=$murl;
@@ -310,7 +341,8 @@ EOF
 		else {
 			$calendar.=qq{\t<td class="$tag">$monthabbr</td>\n};
 		}
-		add_depends($params{page}, "$archivebase/$year/$mtag");
+		add_depends($params{page}, "$archivebase/$params{year}/$mtag",
+			deptype("presence"));
 
 		$calendar.=qq{\t</tr>\n} if ($month % $params{months_per_row} == 0);
 	}
@@ -324,74 +356,57 @@ EOF
 
 sub preprocess (@) {
 	my %params=@_;
+
+	my $thisyear=1900 + $now[5];
+	my $thismonth=1 + $now[4];
+
 	$params{pages} = "*"            unless defined $params{pages};
 	$params{type}  = "month"        unless defined $params{type};
-	$params{month} = sprintf("%02d", $params{month}) if defined  $params{month};
 	$params{week_start_day} = 0     unless defined $params{week_start_day};
 	$params{months_per_row} = 3     unless defined $params{months_per_row};
+	$params{year}  = $thisyear	unless defined $params{year};
+	$params{month} = $thismonth	unless defined $params{month};
 
-	if (! defined $params{year} || ! defined $params{month}) {
-		# Record that the calendar next changes at midnight.
+	$params{month} = sprintf("%02d", $params{month});
+			
+	if ($params{type} eq 'month' && $params{year} == $thisyear
+	    && $params{month} == $thismonth) {
+		# calendar for current month, updates next midnight
 		$pagestate{$params{destpage}}{calendar}{nextchange}=($time
 			+ (60 - $now[0])		# seconds
 			+ (59 - $now[1]) * 60		# minutes
 			+ (23 - $now[2]) * 60 * 60	# hours
 		);
-		
-		$params{year}  = 1900 + $now[5] unless defined $params{year};
-		$params{month} = 1    + $now[4] unless defined $params{month};
+	}
+	elsif ($params{type} eq 'month' &&
+	       (($params{year} == $thisyear && $params{month} > $thismonth) ||
+	        $params{year} > $thisyear)) {
+		# calendar for upcoming month, updates 1st of that month
+		$pagestate{$params{destpage}}{calendar}{nextchange}=
+			timelocal(0, 0, 0, 1, $params{month}-1, $params{year});
+	}
+	elsif ($params{type} eq 'year' && $params{year} == $thisyear) {
+		# calendar for current year, updates 1st of next month
+		$pagestate{$params{destpage}}{calendar}{nextchange}=
+			timelocal(0, 0, 0, 1, $thismonth+1-1, $params{year});
+	}
+	elsif ($params{type} eq 'year' && $params{year} > $thisyear) {
+		# calendar for upcoming year, updates 1st of that year
+		$pagestate{$params{destpage}}{calendar}{nextchange}=
+			timelocal(0, 0, 0, 1, 1-1, $params{year});
 	}
 	else {
+		# calendar for past month or year, does not need
+		# to update any more
 		delete $pagestate{$params{destpage}}{calendar};
 	}
 
 	# Calculate month names for next month, and previous months
-	my $pmonth = $params{month} - 1;
-	my $nmonth = $params{month} + 1;
-	my $pyear  = $params{year}  - 1;
-	my $nyear  = $params{year}  + 1;
-
-	# Adjust for January and December
-	if ($params{month} == 1) {
-		$pmonth = 12;
-		$pyear--;
-	}
-	if ($params{month} == 12) {
-		$nmonth = 1;
-		$nyear++;
-	}
-
-	$params{pmonth}=$pmonth;
-	$params{nmonth}=$nmonth;
-	$params{pyear} =$pyear;
-	$params{nyear} =$nyear;
-
-	my $calendar="\n";
-	my $pagespec=$params{pages};
-	my $page =$params{page};
-
-	if (! defined $cache{$pagespec}) {
-		foreach my $p (pagespec_match_list([keys %pagesources], $pagespec)) {
-			my $mtime = $IkiWiki::pagectime{$p};
-			my $src   = $pagesources{$p};
-			my @date  = localtime($mtime);
-			my $mday  = $date[3];
-			my $month = $date[4] + 1;
-			my $year  = $date[5] + 1900;
-			my $mtag  = sprintf("%02d", $month);
-
-			# Only one posting per day is being linked to.
-			$linkcache{"$year/$mtag/$mday"} = "$src";
-			$cache{$pagespec}{"$year"}++;
-			$cache{$pagespec}{"$year/$mtag"}++;
-			$cache{$pagespec}{"$year/$mtag/$mday"}++;
-		}
-	}
-
-	if ($params{type} =~ /month/i) {
+	my $calendar="";
+	if ($params{type} eq 'month') {
 		$calendar=format_month(%params);
 	}
-	elsif ($params{type} =~ /year/i) {
+	elsif ($params{type} eq 'year') {
 		$calendar=format_year(%params);
 	}
 

@@ -36,16 +36,12 @@ sub preprocess (@) {
 		$fill.="%";
 	}
 	elsif (defined $params{totalpages} and defined $params{donepages}) {
-		add_depends($params{page}, $params{totalpages});
-		add_depends($params{page}, $params{donepages});
-
-		my @pages=keys %pagesources;
-		my $totalcount=0;
-		my $donecount=0;
-		foreach my $page (@pages) {
-			$totalcount++ if pagespec_match($page, $params{totalpages}, location => $params{page});
-			$donecount++ if pagespec_match($page, $params{donepages}, location => $params{page});
-		}
+		my $totalcount=pagespec_match_list(
+			$params{page}, $params{totalpages},
+			deptype => deptype("presence"));
+		my $donecount=pagespec_match_list(
+			$params{page}, $params{donepages},
+			deptype => deptype("presence"));
 		
 		if ($totalcount == 0) {
 			$fill = "100%";

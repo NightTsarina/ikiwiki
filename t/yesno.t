@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 10;
+use Test::More tests => 11;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -19,3 +19,5 @@ ok(IkiWiki::yesno("NO") == 0);
 ok(IkiWiki::yesno("1") == 1);
 ok(IkiWiki::yesno("0") == 0);
 ok(IkiWiki::yesno("mooooooooooo") == 0);
+
+ok(IkiWiki::yesno(undef) == 0);

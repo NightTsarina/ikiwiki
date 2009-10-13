@@ -20,20 +20,20 @@ sub getsetup () {
 
 sub preprocess (@) {
 	my %params=@_;
-	$params{pages}="*" unless defined $params{pages};
+	my $pages=defined $params{pages} ? $params{pages} : "*";
 	
-	# Needs to update count whenever a page is added or removed, so
-	# register a dependency.
-	add_depends($params{page}, $params{pages});
-	
-	my @pages;
-	if ($params{pages} eq "*") {
-		@pages=keys %pagesources;
+	# Just get a list of all the pages, and count the items in it.
+	# Use a presence dependency to only update when pages are added
+	# or removed.
+
+	if ($pages eq '*') {
+		# optimisation to avoid needing to try matching every page
+		add_depends($params{page}, $pages, deptype("presence"));
+		return scalar keys %pagesources;
 	}
-	else {
-		@pages=pagespec_match_list([keys %pagesources], $params{pages}, location => $params{page});
-	}
-	return $#pages+1;
+
+	return scalar pagespec_match_list($params{page}, $pages,
+		deptype => deptype("presence"));
 }
 
 1

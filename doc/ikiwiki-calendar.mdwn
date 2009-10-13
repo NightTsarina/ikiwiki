@@ -4,7 +4,7 @@ ikiwiki-calendar - create calendar archive pages
 
 # SYNOPSIS
 
-ikiwiki-calendar [-f] your.setup [pagespec] [year]
+ikiwiki-calendar [-f] your.setup [pagespec] [startyear [endyear]]
 
 # DESCRIPTION
 
@@ -22,13 +22,13 @@ default is all pages. To limit it to only posts in a blog,
 use something like "posts/* and !*/Discussion".
 
 It defaults to creating calendar pages for the current
-year, as well as the previous year, and the next year.
-If you specify a year, it will create pages for that year.
+year. If you specify a year, it will create pages for that year.
+Specify a second year to create pages for a span of years.
 
 Existing pages will not be overwritten by this command by default.
 Use the `-f` switch to force it to overwrite any existing pages.
 
-## CRONTAB
+# CRONTAB
 
 While this command only needs to be run once a year to update
 the archive pages for each new year, you are recommended to set up

@@ -58,7 +58,7 @@ sub preprocess (@) {
 	$pagestate{$params{page}}{edittemplate}{$params{match}}=$link;
 
 	return "" if ($params{silent} && IkiWiki::yesno($params{silent}));
-	add_depends($params{page}, $link);
+	add_depends($params{page}, $link, deptype("presence"));
 	return sprintf(gettext("edittemplate %s registered for %s"),
 		htmllink($params{page}, $params{destpage}, $link),
 	       	$params{match});

@@ -23,19 +23,15 @@ sub preprocess (@) {
 	my %params=@_;
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Needs to update whenever a page is added or removed, so
-	# register a dependency.
-	add_depends($params{page}, $params{pages});
-	
 	my @broken;
 	foreach my $link (keys %IkiWiki::brokenlinks) {
 		next if $link =~ /.*\/\Q$config{discussionpage}\E/i && $config{discussion};
 
-		my @pages;
-		foreach my $page (@{$IkiWiki::brokenlinks{$link}}) {
-			push @pages, $page
-				if pagespec_match($page, $params{pages}, location => $params{page});
-		}
+		my @pages=pagespec_match_list($params{page}, $params{pages},
+			list => $IkiWiki::brokenlinks{$link},
+			# needs to update when links on a page change
+			deptype => deptype("links")
+		);
 		next unless @pages;
 
 		my $page=$IkiWiki::brokenlinks{$link}->[0];
