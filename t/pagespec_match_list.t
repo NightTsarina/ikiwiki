@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 61;
+use Test::More tests => 88;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -86,29 +86,27 @@ foreach my $spec ("bar or (backlink(foo) and !*.png)", "backlink(foo)") {
 	%IkiWiki::depends=();
 }
 
-TODO: {
-	local $TODO = "optimisation not yet written";
-
-# a pagespec that hard fails due to a glob, etc, will not set influences
-# for other terms that normally would.
-foreach my $spec ("nosuchpage and link(bar)", "link(bar) and */Discussion") {
+# Hard fails due to a glob, etc, will block influences of other anded terms.
+foreach my $spec ("nosuchpage and link(bar)", "link(bar) and nosuchpage",
+                  "link(bar) and */Discussion", "*/Discussion and link(bar)",
+                  "!foo2 and link(bar)", "link(bar) and !foo2") {
 	pagespec_match_list("foo2", $spec, deptype => deptype("presence"));
 	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_PRESENCE);
 	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
-	ok(! exists $IkiWiki::depends_simple{foo2}{foo2});
+	ok(! exists $IkiWiki::depends_simple{foo2}{foo2}, "no influence from $spec");
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 }
 
-# a pagespec containing a hard failure that is ored with another term will
-# get influences from the other term
-foreach my $spec ("nosuchpage or link(bar)", "link(bar) or */Discussion") {
+# A hard fail will not block influences of other ored terms.
+foreach my $spec ("nosuchpage or link(bar)", "link(bar) or nosuchpage",
+                  "link(bar) or */Discussion", "*/Discussion or link(bar)",
+                  "!foo2 or link(bar)", "link(bar) or !foo2",
+                  "link(bar) or (!foo2 and !foo1)") {
 	pagespec_match_list("foo2", $spec, deptype => deptype("presence"));
 	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_PRESENCE);
 	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
 	ok($IkiWiki::depends_simple{foo2}{foo2} == $IkiWiki::DEPEND_LINKS);
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
-}
-
 }
