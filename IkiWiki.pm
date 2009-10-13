@@ -2120,10 +2120,7 @@ sub merge_influences {
 	}
 	else {
 		# influence blocker
-		print STDERR "merging $this and $other; found influence blocker\n";
 		$this->[1]={};
-		$this->[2]=1;
-		return;
 	}
 }
 
