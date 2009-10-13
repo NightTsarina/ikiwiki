@@ -2071,7 +2071,7 @@ use overload (
 	'""'	=> sub { $_[0][0] },
 	'0+'	=> sub { 0 },
 	'!'	=> sub { bless $_[0], 'IkiWiki::SuccessReason'},
-	'&'	=> sub { $_[0]->merge_influences($_[1]); $_[0] },
+	'&'	=> sub { $_[0]->merge_influences($_[1], 1); $_[0] },
 	'|'	=> sub { $_[1]->merge_influences($_[0]); $_[1] },
 	fallback => 1,
 );
@@ -2084,7 +2084,7 @@ use overload (
 	'""'	=> sub { $_[0][0] },
 	'0+'	=> sub { 1 },
 	'!'	=> sub { bless $_[0], 'IkiWiki::FailReason'},
-	'&'	=> sub { $_[1]->merge_influences($_[0]); $_[1] },
+	'&'	=> sub { $_[1]->merge_influences($_[0], 1); $_[1] },
 	'|'	=> sub { $_[0]->merge_influences($_[1]); $_[0] },
 	fallback => 1,
 );
@@ -2110,8 +2110,20 @@ sub influences_static {
 sub merge_influences {
 	my $this=shift;
 	my $other=shift;
-	foreach my $influence (keys %{$other->[1]}) {
-		$this->[1]{$influence} |= $other->[1]{$influence};
+	my $anded=shift;
+
+	if (! $anded || (($this || %{$this->[1]}) &&
+	                ($other || %{$other->[1]}))) {
+		foreach my $influence (keys %{$other->[1]}) {
+			$this->[1]{$influence} |= $other->[1]{$influence};
+		}
+	}
+	else {
+		# influence blocker
+		print STDERR "merging $this and $other; found influence blocker\n";
+		$this->[1]={};
+		$this->[2]=1;
+		return;
 	}
 }
 
