@@ -552,22 +552,16 @@ operators. Currently, this turns into roughly:
 `FailReason() & SuccessReason(patch)`
 
 Let's say that the glob instead returns a HardFailReason, which when
-ANDed with another object, drops their influences. (But when ORed, combines
-them.) Fixes the above, but does it always work?
+ANDed with another object, blocks their influences. (But when ORed,
+combines them.)
 
-"(bugs/* or link(patch)) and backlink(index)" =>
-`( HardFailReason() | SuccessReason(page) ) & SuccessReason(index)`` =>
-`SuccessReason(page & SuccessReason(index)` =>
-SuccessReason(page, index) => right
+Question: Are all pagespec terms that return reason objects w/o any
+influence info, suitable to block influence in this way? 
 
-"(bugs/* and link(patch)) or backlink(index)" =>
-`( HardFailReason() & SuccessReason(page) ) | SuccessReason(index)`` =>
-`HardFailReason() | SuccessReason(index)` =>
-`SuccessReason(index)` => right
-
-"!bugs/* and link(patch)" =>
-`HardFailReason() | SuccessReason(bugs/foo)` =>  
-`HardFailReason()` => right
+To be suitable to block, a term should never change from failing to match a
+page to successfully matching it, unless that page is directly changed in a
+way that influences are not needed for ikiwiki to notice. But, if a term
+did not meet these criteria, it would have an influence. QED.
 
 #### Influence types
 
