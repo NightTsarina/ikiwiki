@@ -47,6 +47,8 @@ The wiki now lives on (1), and clicking "edit" just works. --[[schmonz]]
 >> a DVCS (of which I've got at least one other), and possibly for
 >> other uses not yet imagined. ;-) --[[schmonz]]
 
+>>> I'm now using this plugin for an additional purpose. One of the aforementioned wikis (there are actually two) can only be read by trusted users, the list of which is kept in an `.htaccess` file. I added it to git as `htaccess.txt`, enabled the [[plugins/txt]] plugin, and in my `rsync_command` script, have it copied to the destdir as `.htaccess` before calling `rsync`. Now my users (who aren't tech-savvy, but are trustworthy) can edit the access list directly in the wiki. This idea might also be useful for wikis not using `rsync` at all. --[[schmonz]]
+
 ----
 
 Revew: --[[Joey]] 
