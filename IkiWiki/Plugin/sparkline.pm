@@ -149,7 +149,7 @@ sub preprocess (@) {
 
 		waitpid $pid, 0;
 		$SIG{PIPE}="DEFAULT";
-		if ($sigpipe) {
+		if ($sigpipe || ! defined $png) {
 			error gettext("failed to run php");
 		}
 
