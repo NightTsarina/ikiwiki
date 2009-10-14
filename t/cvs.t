@@ -13,6 +13,14 @@ BEGIN {
 			use Test::More skip_all => "cvs or cvsps not available or could not make test dir"
 		}
 	}
+	foreach my $module ('File::ReadBackwards', 'File::MimeInfo') {
+		eval qq{use $module};
+		if ($@) {
+			eval qq{
+				use Test::More skip_all => "$module not available"
+			}
+		}
+	}
 }
 use Test::More tests => 12;
 
