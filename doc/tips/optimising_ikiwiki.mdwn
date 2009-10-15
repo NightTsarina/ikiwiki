@@ -1,7 +1,17 @@
-Is ikiwiki taking too long to build your wiki? Read on for some common
-problems that can be avoided to make ikiwiki run quick.
+Ikiwiki is a wiki compiler, which means that, unlike a traditional wiki,
+all the work needed to display your wiki is done up front. Where you can
+see it and get annoyed at it. In some ways, this is better than a wiki
+where a page view means running a program to generate the page on the fly.
+
+But enough excuses. If ikiwiki is taking too long to build your wiki,
+let's fix that. Read on for some common problems that can be avoided to
+make ikiwiki run quick.
 
 [[!toc]]
+
+(And if none of that helps, file a [[bug|bugs]]. One other great thing about
+ikiwiki being a wiki compiler is that it's easy to provide a test case when
+it's slow, and get the problem fixed!)
 
 ## rebuild vs refresh
 
@@ -22,13 +32,13 @@ configured the hook in the usual way.) Most people who have run into this
 problem got in the habit of running `ikiwiki -setup my.setup` by hand
 when their wiki was small, and found it got slower as they added pages.
 
-### use the latest version
+## use the latest version
 
 If your version of ikiwiki is not [[!verison]], try upgrading. New
 optimisations are frequently added to ikiwiki, some of them yielding
 *enormous* speed increases.
 
-### expensive inlines
+## expensive inlines
 
 Do you have an archive page for your blog that shows all posts, 
 using an inline that looks like this?
