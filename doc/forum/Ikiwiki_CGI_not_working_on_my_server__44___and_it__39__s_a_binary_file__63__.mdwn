@@ -3,3 +3,10 @@ Hey, trying to get ikiwiki working on my account on a shared webserver. Actually
 My first thought was that this is a Perl CGI and I would need to change the shebang to point to the unusual location of Perl on this server, it's at /usr/pkg/bin/perl. But when I looked at ikiwiki.cgi I found it was a binary file.
 
 Why is it a binary? And what can I do about this error?
+
+> It's a binary because it's SUID, so that it has permission to write to the ikiwiki repository. See [[security]], under 'suid wrappers', for more on that.
+> 
+> As to why you get 'premature end of script headers', that suggests there is a problem running
+> the script (and there is output occurring before the HTTP headers are printed). Do you have access
+> to the webserver logs for your host? They might contain some clues. Are you sure that the webserver
+> is setup for CGI properly? -- [[Jon]]
