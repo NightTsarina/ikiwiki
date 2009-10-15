@@ -1,0 +1,5 @@
+Hey, trying to get ikiwiki working on my account on a shared webserver. Actually installing ikiwiki on the server is phase 2. For now I'm running the latest ikiwiki (from source) locally, compiling the output with the ikiwiki command, then rsyncing the output dir up to the server. This works for the static HTML files, but the CGI file doesn't work, the server redirects to an error page. The error log on the server says "Premature end of script headers: /path/to/ikiwiki.cgi"
+
+My first thought was that this is a Perl CGI and I would need to change the shebang to point to the unusual location of Perl on this server, it's at /usr/pkg/bin/perl. But when I looked at ikiwiki.cgi I found it was a binary file.
+
+Why is it a binary? And what can I do about this error?
