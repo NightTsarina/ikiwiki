@@ -332,13 +332,13 @@ sub preprocess_inline (@) {
 			error sprintf(gettext("nonexistant template %s"), $params{template});
 		}
 		my $template=HTML::Template->new(@params) unless $raw;
+		my $needcontent=!($archive && $quick) && $template->query(name => 'content');
 	
 		foreach my $page (@list) {
 			my $file = $pagesources{$page};
 			my $type = pagetype($file);
 			if (! $raw || ($raw && ! defined $type)) {
-				if (!($archive && $quick) &&
-				    $template->query(name => 'content')) {
+				if ($needcontent) {
 					# Get the content before populating the
 					# template, since getting the content uses
 					# the same template if inlines are nested.
