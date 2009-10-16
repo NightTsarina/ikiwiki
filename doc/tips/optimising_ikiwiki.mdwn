@@ -140,6 +140,21 @@ That is accomplished as follows:
 Be aware that the [[plugins/search]] plugin has to update the search index
 whenever any page is changed. This can slow things down somewhat.
 
+## profiling
+
+If you have a repeatable change that ikiwiki takes a long time to build,
+and none of the above help, the next thing to consider is profiling
+ikiwiki. 
+
+The best way to do it is:
+
+* Install [[cpan Devel::NYTProf]]
+* `PERL5OPT=-d:NYTProf`
+* `export PER5OPT`
+* Now run ikiwiki as usual, and it will generate a `nytprof.out` file.
+* Run `nytprofhtml` to generate html files.
+* Those can be examined to see what parts of ikiwiki are being slow.
+
 ## scaling to large numbers of pages
 
 Finally, let's think about how huge number of pages can affect ikiwiki.
