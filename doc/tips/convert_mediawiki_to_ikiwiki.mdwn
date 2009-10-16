@@ -42,6 +42,16 @@ to adjust this script too:
 Also, if you have pages with titles that need to be encoded to be represented
 in HTML, you may need to add further processing to the last line.
 
+Note that by default, `Special:Allpages` will only list pages in the main
+namespace. You need to add a `&namespace=XX` argument to get pages in a
+different namespace. The following numbers correspond to common namespaces:
+
+ * 10 - templates (`Template:foo`)
+ * 14 - categories (`Category:bar`)
+
+Note that the page names obtained this way will not include any namespace
+specific prefix: e.g. `Category:` will be stripped off.
+
 ### Querying the database
 
 If you have access to the relational database in which your mediawiki data is
@@ -66,6 +76,12 @@ mediawiki's `index.php` file:
 
 You may need to add more conversions here depending on the precise page titles
 used in your wiki.
+
+If you are trying to fetch pages from a different namespace to the default,
+you will need to prefix the page title with the relevant prefix, e.g.
+`Category:` for category pages. You probably don't want to prefix it to the
+output page, but you may want to vary the destination path (i.e. insert an
+extra directory component corresponding to your ikiwiki's `tagbase`).
 
 ### Method 2: via HTTP and `Special:Export`
 
