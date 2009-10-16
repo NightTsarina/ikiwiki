@@ -10,7 +10,7 @@ On longer pages its not very comfortable to edit pages with such a small box. Th
 >	}
 >
 > Perhaps you have replaced it with a modified style sheet that does not
-> include that? --[[Joey]] [[!tag done]]
+> include that? --[[Joey]]
 
 >> The screen shot was made with http://ikiwiki.info/ where i didn't change anything. The width is optimally used. The problem is the height.
 
@@ -32,3 +32,9 @@ On longer pages its not very comfortable to edit pages with such a small box. Th
 >>> --[[Joey]] 
 
 >>>>>> the javascript approach would need to work something like this: you need to know about the "bottom-most" item on the edit page, and get a handle for that object in the DOM. You can then obtain the absolute position height-wise of this element and the absolute position of the bottom of the window to determine the pixel-difference. Then, you set the height of the textarea to (current height in px) + determined-value. This needs to be re-triggered on various resize events, at least for the window and probably for other elements too. I may have a stab at this at some point. -- [[Jon]]
+
+Google chrome has a completly elegant fix for this problem: All textareas
+have a small resize handle in a corner, that can be dragged around. No
+nasty javascript needed. IMHO, this is the right solution, and I hope other
+browsers emulate it. [[done]]
+--[[Joey]]
