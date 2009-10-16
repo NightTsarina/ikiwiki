@@ -77,15 +77,14 @@ wrapper.
 > Dependencies go in the `%IkiWiki::depends` hash, which is not exported. It
 > can also be dumped out as part of the wiki state - see [[tips/inside_dot_ikiwiki]].
 >
-> It's a map from page name to increasingly complex pagespec, although
-> the `optimize-depends` branch in my git repository changes that to a
-> map from a page name to a *list* of pagespecs which are automatically
-> or'd together for use (this at least means duplicates can be weeded out).
->
-> See [[todo/should_optimise_pagespecs]] for more on that.
+> Nowadays, it's a hash of pagespecs, and there
+> is also a `IkiWiki::depends_simple` hash of simple page names.
 >
 > I've been hoping to speed up IkiWiki too - making a lot of photo albums
 > with my [[plugins/contrib/album]] plugin makes it pretty slow.
 >
 > One thing that I found was a big improvement was to use `quick=yes` on all
 > my `archive=yes` [[ikiwiki/directive/inline]]s. --[[smcv]]
+
+> Take a look at [[tips/optimising_ikiwiki]] for lots of helpful advice.
+> --[[Joey]] 
