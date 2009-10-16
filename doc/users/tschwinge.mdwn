@@ -46,6 +46,8 @@ The \[[!map]] on, for example,
 the complete hierarchy of pages, but instead just the pages that actually *do*
 contain the \[[!tag open_issue_hurd]].
 
+> `tagged(open_issue_hurd)` in its pagespec should do that. --[[Joey]]
+
 ## Anchors -- [[ikiwiki/wikilink/discussion]]
 
 ## Default Content for Meta Values -- [[plugins/contrib/default_content_for___42__copyright__42___and___42__license__42__]]
@@ -68,6 +70,9 @@ stable URLs, for example) are linked to from other wiki pages.  This is useful
 w.r.t. backlinks.  Alternative, the backlinks to the \[[!meta redir]]-using
 pages could perhaps be passed on to the referred-to page?
 
+> I found that backlinks was an easy way to find such links to such pages.
+> (Although the redirection made it hard to see the backlinks!) --[[Joey]] 
+
 ## Sendmail -- [[todo/passwordauth:_sendmail_interface]]
 
 ## Parentlinks -- [[bugs/non-existing_pages_in_parentlinks]]
@@ -88,6 +93,9 @@ on)* after a customizable amount of characters (or lines) would be a another
 possibility.  The *... (read on)* would then either toggle the full content
 being displayed or link to the complete page.
 
+> You're looking for [[plugins/more]] (or possibly a way to do that automatically, 
+> I suppose. --[[Joey]] 
+
 ## Prefix For the HTML Title
 
 The title of each page (as in `<html><head><title>`...) should be prefixed with
@@ -101,11 +109,21 @@ would be nice to have even when using *usedirs*.  Might involve issues as
 discussed in *N-to-M Mapping of Input and Output Files* on
 [[plugins/contrib/texinfo]].
 
+> Do you mean when *not* using usedirs? It is currently supported for usedirs,
+> only. --[[Joey]] 
+
 ## Unverified -- these may be bugs, but have yet to be verified
 
   * ikiwiki doesn't change its internal database when \[[!meta date]] /
     \[[!meta updated]] are added / removed, and thusly these meta values are
     not promulgated in RSS / Atom feeds.
+
+    > I would rather see this filed as a bug, but FWIW, the problem
+    > is probably that meta does not override the mdate_3339
+    > template variable used by the atom and rss templates.
+    > (Meta does store ctime directly in the ikiwiki database, but cannot
+    > store mtime in \%pagemtime because it would mess up detection of when
+    > actual file mtimes change.) --[[Joey]]
 
   * Complicated issue w.r.t. *no text was copied in this page*
     ([[plugins/cutpaste]]) in RSS feed (only; not Atom?) under some conditions
