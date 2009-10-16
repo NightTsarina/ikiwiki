@@ -60,7 +60,7 @@ code or tried it yet, but here goes. --[[Joey]]
 * Needing to create the albumimage "viewer" pages for each photo
   seems like it will become a pain. Everyone will need to come up
   with their own automation for it, and then there's the question
-  of how to automate it when uploading attachments.
+  of how to automate it when uploading attachments. -J
 
 > There's already a script (ikiwiki-album) to populate a git
 > checkout with skeleton "viewer" pages; I was planning to make a
@@ -73,7 +73,7 @@ code or tried it yet, but here goes. --[[Joey]]
 
 * With each viewer page having next/prev links, I can see how you
   were having the scalability issues with ikiwiki's data structures
-  earlier!
+  earlier! -J
 
 > Yeah, I think they're a basic requirement from a UI point of view
 > though (although they don't necessarily have to be full wikilinks).
@@ -88,7 +88,7 @@ code or tried it yet, but here goes. --[[Joey]]
 * And doesn't each viewer page really depend on every other page in the
   same albumsection? If a new page is added, the next/prev links
   may need to be updated, for example. If so, there will be much
-  unnecessary rebuilding.
+  unnecessary rebuilding. -J
 
 > albumsections are just a way to insert headings into the flow of
 > photos, so they don't actually affect dependencies.
@@ -117,7 +117,7 @@ code or tried it yet, but here goes. --[[Joey]]
 >>> have no idea what it depends on until the rebuild phase. -s
 
 * One thing I do like about having individual pages per image is
-  that they can each have their own comments, etc.
+  that they can each have their own comments, etc. -J
 
 > Yes; also, they can be wikilinked. I consider those to be
 > UI requirements. -s
@@ -127,7 +127,7 @@ code or tried it yet, but here goes. --[[Joey]]
   album, but then anyone who can write to any other page on the wiki can
   add an image to it. 2: I may want an image to appear in more than one
   album. Think tags. So it seems it would be better to have the album
-  directive control what pages it includes (a la inline).
+  directive control what pages it includes (a la inline). -J
 
 > I'm inclined to fix this by constraining images to be subpages of exactly
 > one album: if they're subpages of 2+ nested albums then they're only
@@ -156,7 +156,7 @@ code or tried it yet, but here goes. --[[Joey]]
   etc. (Real pity we can't just put arbitrary metadata into the images
   themselves.) This is almost pointing toward making the images first-class
   wiki page sources. Hey, it worked for po! :) But the metadata and editing
-  problems probably don't really allow that.
+  problems probably don't really allow that. -J
 
 > Putting a JPEG in the web form is not an option from my point of
 > view :-) but perhaps there could just be a "web-editable" flag supplied
