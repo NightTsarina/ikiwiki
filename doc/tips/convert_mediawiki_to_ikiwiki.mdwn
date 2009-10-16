@@ -1,3 +1,5 @@
+[[!toc levels=2]]
+
 Mediawiki is a dynamically-generated wiki which stores it's data in a
 relational database. Pages are marked up using a proprietary markup. It is
 possible to import the contents of a Mediawiki site into an ikiwiki,
@@ -85,7 +87,23 @@ The next step is to convert Mediawiki conventions into Ikiwiki ones. These
 include
 
  * convert Categories into tags
- * ...
+
+    import sys, re
+    pattern =  r'\[\[Category:([^\]]+)\]\]'
+    
+    def manglecat(mo):
+            return '[[!tag %s]]' % mo.group(1).strip().replace(' ','_')
+            
+    for line in sys.stdin.readlines():
+            res = re.match(pattern, line)
+            if res:
+                    sys.stdout.write(re.sub(pattern, manglecat, line))
+            else: sys.stdout.write(line)
+
+## Step 3: Mediawiki plugin
+
+The [[plugins/contrib/mediawiki]] plugin can be used by ikiwiki to interpret
+most of the Mediawiki syntax.
 
 ## External links
 
@@ -93,5 +111,3 @@ include
 git](http://u32.net/Mediawiki_Conversion/index.html?updated), including full
 edit history, but as of 2009/10/16 that site is not available.
 
-The [[plugins/contrib/mediawiki]] plugin can then be used by ikiwiki to build
-the wiki.
