@@ -53,7 +53,7 @@ Once you have a list of page names, you can fetch the data for each page.
 
 ### Method 1: via HTTP and `action=raw`
 
-You need to create two derived strings from the page titles already: the
+You need to create two derived strings from the page titles: the
 destination path for the page and the source URL. Assuming `$pagename` 
 contains a pagename obtained above, and `$wiki` contains the URL to your
 mediawiki's `index.php` file:
@@ -63,6 +63,9 @@ mediawiki's `index.php` file:
     
     mkdir -p `dirname "$dest"`
     wget -q "$wiki?title=$src&action=raw" -O "$dest"
+
+You may need to add more conversions here depending on the precise page titles
+used in your wiki.
 
 ### Method 2: via HTTP and `Special:Export`
 
