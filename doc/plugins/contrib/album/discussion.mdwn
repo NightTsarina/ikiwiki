@@ -60,7 +60,7 @@ code or tried it yet, but here goes. --[[Joey]]
 * Needing to create the albumimage "viewer" pages for each photo
   seems like it will become a pain. Everyone will need to come up
   with their own automation for it, and then there's the question
-  of how to automate it when uploading attachments.
+  of how to automate it when uploading attachments. -J
 
 > There's already a script (ikiwiki-album) to populate a git
 > checkout with skeleton "viewer" pages; I was planning to make a
@@ -68,9 +68,21 @@ code or tried it yet, but here goes. --[[Joey]]
 > you (since the requirements for that CGI interface change depending
 > on the implementation). I agree that this is ugly, though. -s
 
+>> Would you accept a version where the albumimage "viewer" pages
+>> could be 0 bytes long, at least until metadata gets added?
+>>
+>> The more I think about the "binaries as first-class pages" approach,
+>> the more subtle interactions I notice with other plugins. I
+>> think I'm up to needing changes to editpage, comments, attachment
+>> and recentchanges, plus adjustments to img and Render (to reduce
+>> duplication when thumbnailing an image with a strange extension
+>> while simultaneously changing the extension, and to hardlink/copy
+>> an image with a strange extension to a differing target filename
+>> with the normal extension, respectively). -s
+
 * With each viewer page having next/prev links, I can see how you
   were having the scalability issues with ikiwiki's data structures
-  earlier!
+  earlier! -J
 
 > Yeah, I think they're a basic requirement from a UI point of view
 > though (although they don't necessarily have to be full wikilinks).
@@ -80,12 +92,12 @@ code or tried it yet, but here goes. --[[Joey]]
 >> these can be presence dependencies, which will probably help with
 >> avoiding rebuilds of a page if the next/prev page is changed.
 >> (Unless you use img to make the thumbnails for those links, then it
->> would rebuild the thumbnails anyway. Have not looked at the code.) --[[Joey]] 
+>> would rebuild the thumbnails anyway. Have not looked at the code.) --[[Joey]]
 
 * And doesn't each viewer page really depend on every other page in the
   same albumsection? If a new page is added, the next/prev links
   may need to be updated, for example. If so, there will be much
-  unnecessary rebuilding.
+  unnecessary rebuilding. -J
 
 > albumsections are just a way to insert headings into the flow of
 > photos, so they don't actually affect dependencies.
@@ -108,8 +120,13 @@ code or tried it yet, but here goes. --[[Joey]]
 >> metadata. Er, I mean, I have a cheezy hack in `add_depends` now that does
 >> it to deal with a similar case. --[[Joey]] 
 
+>>> I think I was misunderstanding how early you have to call `add_depends`?
+>>> The critical thing I missed was that if you're scanning a page, you're
+>>> going to rebuild it in a moment anyway, so it doesn't matter if you
+>>> have no idea what it depends on until the rebuild phase. -s
+
 * One thing I do like about having individual pages per image is
-  that they can each have their own comments, etc.
+  that they can each have their own comments, etc. -J
 
 > Yes; also, they can be wikilinked. I consider those to be
 > UI requirements. -s
@@ -119,11 +136,27 @@ code or tried it yet, but here goes. --[[Joey]]
   album, but then anyone who can write to any other page on the wiki can
   add an image to it. 2: I may want an image to appear in more than one
   album. Think tags. So it seems it would be better to have the album
-  directive control what pages it includes (a la inline).
+  directive control what pages it includes (a la inline). -J
 
-> See note above about pagespecs not being very safe early on.
-> You did merge my inline-with-pagenames feature, which is safe to use
-> at scan time, though.
+> I'm inclined to fix this by constraining images to be subpages of exactly
+> one album: if they're subpages of 2+ nested albums then they're only
+> considered to be in the deepest-nested one (i.e. longest URL), and if
+> they're not in any album then that's a usage error. This would
+> also make prev/next links sane.
+>
+> If you want to reference images from elsewhere in the wiki and display
+> them as if in an album, then you can use an ordinary inline with
+> the same template that the album would use, and I'll make sure the
+> templates are set up so this works.
+>
+> (Implementation detail: this means that an image X/Y/Z/W/V, where X and
+> Y are albums, Z does not exist and W exists but is not an album,
+> would have a content dependency on Y, a presence dependency on Z
+> and a content dependency on W.)
+>
+> Perhaps I should just restrict to having the album images be direct
+> subpages of the album, although that would mean breaking some URLs
+> on the existing website I'm doing all this work for... -s
 
 * Putting a few of the above thoughts together, my ideal album system
   seems to be one where I can just drop the images into a directory and
@@ -132,20 +165,62 @@ code or tried it yet, but here goes. --[[Joey]]
   etc. (Real pity we can't just put arbitrary metadata into the images
   themselves.) This is almost pointing toward making the images first-class
   wiki page sources. Hey, it worked for po! :) But the metadata and editing
-  problems probably don't really allow that.
+  problems probably don't really allow that. -J
 
 > Putting a JPEG in the web form is not an option from my point of
 > view :-) but perhaps there could just be a "web-editable" flag supplied
 > by plugins, and things could be changed to respect it.
->
+
+>> Replying to myself: would you accept patches to support
+>> `hook(type => 'htmlize', editable => 0, ...)` in editpage? This would
+>> essentially mean "this is an opaque binary: you can delete it
+>> or rename it, and it might have its own special editing UI, but you
+>> can never get it in a web form".
+>>
+>> On the other hand, that essentially means we need to reimplement
+>> editpage in order to edit the sidecar files that contain the metadata.
+>> Having already done one partial reimplementation of editpage (for
+>> comments) I'm in no hurry to do another.
+>>
+>> I suppose another possibility would be to register hook
+>> functions to be called by editpage when it loads and saves the
+>> file. In this case, the loading hook would be to discard
+>> the binary and use filter() instead, and the saving conversion
+>> would be to write the edited content into the metadata sidecar
+>> (creating it if necessary).
+>>
+>> I'd also need to make editpage (and also comments!) not allow the
+>> creation of a file of type albumjpg, albumgif etc., which is something
+>> I previously missed; and I'd need to make attachment able to
+>> upload-and-rename.
+>> -s
+
 > In a way, what you really want for metadata is to have it in the album
 > page, so you can batch-edit the whole lot by editing one file (this
 > does mean that editing the album necessarily causes each of its viewers
 > to be rebuilt, but in practice that happens anyway). -s
->
->> Yes, that would make some sense.. It also allows putting one image in
->> two albums, with different caption etc. (Maybe for different audiences.)
+
+>> Replying to myself: in practice that *doesn't* happen anyway. Having
+>> the metadata in the album page is somewhat harmful because it means
+>> that changing the title of one image causes every viewer in the album
+>> to be rebuilt, whereas if you have a metadata file per image, only
+>> the album itself, plus the next and previous viewers, need
+>> rebuilding. So, I think a file per image is the way to go.
 >>
+>> Ideally we'd have some way to "batch-edit" the metadata of all
+>> images in an album at once, except that would make conflict
+>> resolution much more complicated to deal with; maybe just
+>> give up and scream about mid-air collisions in that case?
+>> (That's apparently good enough for Bugzilla, but not really
+>> for ikiwiki). -s
+
+>> Yes, [all metadata in one file] would make some sense.. It also allows putting one image in
+>> two albums, with different caption etc. (Maybe for different audiences.)
+>> --[[Joey]]
+
+>>> Eek. No, that's not what I had in mind at all; the metadata ends up
+>>> in the "viewer" page, so it's necessarily the same for all albums. -s
+
 >> It would probably be possible to add a new dependency type, and thus
 >> make ikiwiki smart about noticing whether the metadata has actually
 >> changed, and only update those viewers where it has. But the dependency
@@ -164,23 +239,26 @@ mushroom and snake.
 > etc as the htmlize extensions. May need some fixes to ikiwiki to support
 > that. --[[Joey]] 
 
+>> foo.albumjpg (etc.) for images, and foo._albummeta (with
+>> `keepextension => 1`) for sidecar metadata files, seems viable. -s
+
 Files in git repo:
 
 * index.mdwn
 * memes.mdwn
-* memes/badger.albumimage (a renamed JPEG)
+* memes/badger.albumjpg (a renamed JPEG)
 * memes/badger/comment_1._comment
 * memes/badger/comment_2._comment
-* memes/mushroom.albumimage (a renamed GIF)
-* memes/mushroom.meta (sidecar file with metadata)
-* memes/snake.albumimage (a renamed video)
+* memes/mushroom.albumgif (a renamed GIF)
+* memes/mushroom._albummeta (sidecar file with metadata)
+* memes/snake.albummov (a renamed video)
 
 Files in web content:
 
 * index.html
 * memes/index.html
 * memes/96x96-badger.jpg (from img)
-* memes/96x96-mushroom.jpg (from img)
+* memes/96x96-mushroom.gif (from img)
 * memes/96x96-snake.jpg (from img, hacked up to use totem-video-thumbnailer :-) )
 * memes/badger/index.html (including comments)
 * memes/badger.jpg
@@ -200,9 +278,27 @@ way to get them rendered anyway.
 > the image, as well as eg, smiley trying to munge it in sanitize.
 > --[[Joey]] 
 
+>> As long as nothing has a filter() hook that assumes it's already
+>> text... filters are run in arbitrary order. We seem to be OK so far
+>> though.
+>>
+>> If this is the route I take, I propose to have the result of filter()
+>> be the contents of the sidecar metadata file (empty string if none),
+>> with the `\[[!albumimage]]` directive (which no longer requires
+>> arguments) prepended if not already present. This would mean that
+>> meta directives in the metadata file would work as normal, and it
+>> would be possible to insert text both before and after the viewer
+>> if desired. The result of filter() would also be a sensible starting
+>> point for editing, and the result of editing could be diverted into
+>> the metadata file. -s
+
 do=edit&page=memes/badger needs to not put the JPG in a text box: somehow
 divert or override the normal edit CGI by telling it that .albumimage
 files are not editable in the usual way?
+
+> Something I missed here is that editpage also needs to be told that
+> creating new files of type albumjpg, albumgif etc. is not allowed
+> either! -s
 
 Every image needs to depend on, and link to, the next and previous images,
 which is a bit tricky. In previous thinking about this I'd been applying
@@ -216,6 +312,9 @@ in order.
 > at build time via `pagespec_match_list`, surely .. maybe with some
 > memoization to avoid each image in an album building the same list.
 > I sense that I may be missing a subtelty though. --[[Joey]] 
+
+>> I think I was misunderstanding how early you have to call `add_depends`
+>> as mentioned above. -s
 
 Perhaps restricting to "the images in an album A must match A/*"
 would be useful; then the unordered superset could just be "A/*". Your
@@ -233,6 +332,9 @@ album, or something?
 > Ugh, yeah, that is a problem. Perhaps wanting to support that was just
 > too ambitious. --[[Joey]] 
 
+>> I propose to restrict to having images be subpages of albums, as
+>> described above. -s
+
 Requiring renaming is awkward for non-technical Windows/Mac users, with both
 platforms' defaults being to hide extensions; however, this could be
 circumvented by adding some sort of hook in attachment to turn things into
@@ -244,13 +346,28 @@ extensions visible is a "don't do that then" situation :-)
 > with an extension. (Or allow specifying a full pagespec,
 > but I hesitate to seriously suggest that.) --[[Joey]] 
 
+>> I think that might be a terrifying idea for another day. If we can
+>> mutate the extension during the `attach` upload, that'd be enough;
+>> I don't think people who are skilled enough to use git/svn/...,
+>> but not skilled enough to tell Explorer to show file extensions,
+>> represent a major use case. -s
+
 Ideally attachment could also be configured to upload into a specified
 underlay, so that photos don't have to be in your source-code control
 (you might want that, but I don't!).
 
+> Replying to myself: perhaps best done as an orthogonal extension
+> to attach? -s
+
+> Yet another non-obvious thing this design would need to do is to find
+> some way to have each change to memes/badger._albummeta show up as a
+> change to memes/badger in `recentchanges`. -s
+
 Things that would be nice, and are probably possible:
 
 * make the "Edit page" link on viewers divert to album-specific CGI instead
-  of just failing or not appearing
+  of just failing or not appearing (probably possible via pagetemplate)
+
 * some way to deep-link to memes/badger.jpg with a wikilink, without knowing a
-  priori that it's secretly a JPEG
+  priori that it's secretly a JPEG (probably harder than it looks - you'd
+  have to make a directive for it and it's probably not worth it)

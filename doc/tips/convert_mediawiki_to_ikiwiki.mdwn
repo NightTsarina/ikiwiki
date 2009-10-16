@@ -1,4 +1,135 @@
-[[sabr]] explains how to [import MediaWiki content into
-git](http://u32.net/Mediawiki_Conversion/index.html?updated), including
-full edit hostory. The [[plugins/contrib/mediawiki]] plugin can then be
-used by ikiwiki to build the wiki.
+[[!toc levels=2]]
+
+Mediawiki is a dynamically-generated wiki which stores it's data in a
+relational database. Pages are marked up using a proprietary markup. It is
+possible to import the contents of a Mediawiki site into an ikiwiki,
+converting some of the Mediawiki conventions into Ikiwiki ones.
+
+The following instructions describe ways of obtaining the current version of
+the wiki. We do not yet cover importing the history of edits.
+
+## Step 1: Getting a list of pages
+
+The first bit of information you require is a list of pages in the Mediawiki.
+There are several different ways of obtaining these.
+
+### Parsing the output of `Special:Allpages`
+
+Mediawikis have a special page called `Special:Allpages` which list all the
+pages for a given namespace on the wiki.
+
+If you fetch the output of this page to a local file with something like
+
+    wget -q -O tmpfile 'http://your-mediawiki/wiki/Special:Allpages'
+
+You can extract the list of page names using the following python script. Note
+that this script is sensitive to the specific markup used on the page, so if
+you have tweaked your mediawiki theme a lot from the original, you will need
+to adjust this script too:
+
+    from xml.dom.minidom import parse, parseString
+    
+    dom = parse(argv[1])
+    tables = dom.getElementsByTagName("table")
+    pagetable = tables[-1]
+    anchors = pagetable.getElementsByTagName("a")
+    for a in anchors:
+        print a.firstChild.toxml().\
+            replace('&amp;,'&').\
+            replace('&lt;','<').\
+            replace('&gt;','>')
+
+Also, if you have pages with titles that need to be encoded to be represented
+in HTML, you may need to add further processing to the last line.
+
+Note that by default, `Special:Allpages` will only list pages in the main
+namespace. You need to add a `&namespace=XX` argument to get pages in a
+different namespace. The following numbers correspond to common namespaces:
+
+ * 10 - templates (`Template:foo`)
+ * 14 - categories (`Category:bar`)
+
+Note that the page names obtained this way will not include any namespace
+specific prefix: e.g. `Category:` will be stripped off.
+
+### Querying the database
+
+If you have access to the relational database in which your mediawiki data is
+stored, it is possible to derive a list of page names from this.
+
+## Step 2: fetching the page data
+
+Once you have a list of page names, you can fetch the data for each page.
+
+### Method 1: via HTTP and `action=raw`
+
+You need to create two derived strings from the page titles: the
+destination path for the page and the source URL. Assuming `$pagename` 
+contains a pagename obtained above, and `$wiki` contains the URL to your
+mediawiki's `index.php` file:
+
+    src=`echo "$pagename" | tr ' ' _ | sed 's,&,&amp;,g'`
+    dest=`"$pagename" | tr ' ' _ | sed 's,&,__38__,g'`
+    
+    mkdir -p `dirname "$dest"`
+    wget -q "$wiki?title=$src&action=raw" -O "$dest"
+
+You may need to add more conversions here depending on the precise page titles
+used in your wiki.
+
+If you are trying to fetch pages from a different namespace to the default,
+you will need to prefix the page title with the relevant prefix, e.g.
+`Category:` for category pages. You probably don't want to prefix it to the
+output page, but you may want to vary the destination path (i.e. insert an
+extra directory component corresponding to your ikiwiki's `tagbase`).
+
+### Method 2: via HTTP and `Special:Export`
+
+Mediawiki also has a special page `Special:Export` which can be used to obtain
+the source of the page and other metadata such as the last contributor, or the
+full history, etc.
+
+You need to send a `POST` request to the `Special:Export` page. See the source
+of the page fetched via `GET` to determine the correct arguments.
+
+You will then need to write an XML parser to extract the data you need from
+the result.
+
+### Method 3: via the database
+
+It is possible to extract the page data from the database with some
+well-crafted queries.
+
+## Step 3: format conversion
+
+The next step is to convert Mediawiki conventions into Ikiwiki ones.
+
+### categories
+
+Mediawiki uses a special page name prefix to define "Categories", which
+otherwise behave like ikiwiki tags. You can convert every Mediawiki category
+into an ikiwiki tag name using a script such as
+
+    import sys, re
+    pattern =  r'\[\[Category:([^\]]+)\]\]'
+    
+    def manglecat(mo):
+            return '[[!tag %s]]' % mo.group(1).strip().replace(' ','_')
+            
+    for line in sys.stdin.readlines():
+            res = re.match(pattern, line)
+            if res:
+                    sys.stdout.write(re.sub(pattern, manglecat, line))
+            else: sys.stdout.write(line)
+
+## Step 4: Mediawiki plugin
+
+The [[plugins/contrib/mediawiki]] plugin can be used by ikiwiki to interpret
+most of the Mediawiki syntax.
+
+## External links
+
+[[sabr]] used to explain how to [import MediaWiki content into
+git](http://u32.net/Mediawiki_Conversion/index.html?updated), including full
+edit history, but as of 2009/10/16 that site is not available.
+
