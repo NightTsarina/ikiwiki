@@ -69,7 +69,16 @@ code or tried it yet, but here goes. --[[Joey]]
 > on the implementation). I agree that this is ugly, though. -s
 
 >> Would you accept a version where the albumimage "viewer" pages
->> could be 0 bytes long, at least until metadata gets added? -s
+>> could be 0 bytes long, at least until metadata gets added?
+>>
+>> The more I think about the "binaries as first-class pages" approach,
+>> the more subtle interactions I notice with other plugins. I
+>> think I'm up to needing changes to editpage, comments, attachment
+>> and recentchanges, plus adjustments to img and Render (to reduce
+>> duplication when thumbnailing an image with a strange extension
+>> while simultaneously changing the extension, and to hardlink/copy
+>> an image with a strange extension to a differing target filename
+>> with the normal extension, respectively). -s
 
 * With each viewer page having next/prev links, I can see how you
   were having the scalability issues with ikiwiki's data structures
@@ -349,6 +358,10 @@ underlay, so that photos don't have to be in your source-code control
 
 > Replying to myself: perhaps best done as an orthogonal extension
 > to attach? -s
+
+> Yet another non-obvious thing this design would need to do is to find
+> some way to have each change to memes/badger._albummeta show up as a
+> change to memes/badger in `recentchanges`. -s
 
 Things that would be nice, and are probably possible:
 
