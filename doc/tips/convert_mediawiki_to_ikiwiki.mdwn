@@ -83,10 +83,13 @@ well-crafted queries.
 
 ## Step 2: format conversion
 
-The next step is to convert Mediawiki conventions into Ikiwiki ones. These
-include
+The next step is to convert Mediawiki conventions into Ikiwiki ones.
 
- * convert Categories into tags
+### categories
+
+Mediawiki uses a special page name prefix to define "Categories", which
+otherwise behave like ikiwiki tags. You can convert every Mediawiki category
+into an ikiwiki tag name using a script such as
 
     import sys, re
     pattern =  r'\[\[Category:([^\]]+)\]\]'
