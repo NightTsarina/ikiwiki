@@ -83,10 +83,13 @@ sub formbuilder (@) {
 	foreach my $field ($form->field) {
 		if ($field eq 'page') {
 			@page_locs=$field->def_value;
-			push @page_locs, $field->options;
+
+			# FormBuilder is on the bad crack. See #551499
+			my @options=map { ref $_ ? @$_ : $_ } $field->options;
+
+			push @page_locs, @options;
 		}
 	}
-
 	foreach my $p (@page_locs) {
 		foreach my $registering_page (keys %pagestate) {
 			if (exists $pagestate{$registering_page}{edittemplate}) {
