@@ -55,7 +55,8 @@ sub preprocess (@) {
 	}
 
 	my $link=linkpage($params{template});
-	$pagestate{$params{page}}{edittemplate}{$params{match}}=$link;
+	my $bestlink=bestlink($params{page}, $link);
+	$pagestate{$params{page}}{edittemplate}{$params{match}}=$bestlink;
 
 	return "" if ($params{silent} && IkiWiki::yesno($params{silent}));
 	add_depends($params{page}, $link, deptype("presence"));
