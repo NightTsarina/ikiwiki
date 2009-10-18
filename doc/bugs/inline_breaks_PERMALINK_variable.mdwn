@@ -1,0 +1,9 @@
+in 3.20091017 the following inline
+
+> `\[[!inline pages="internal(foo/bar/baz/*)" show=3 archive="yes" feeds="no" template="sometemplates"]]`
+
+with sometemplate being
+
+> `<p><a href="<TMPL_VAR PERMALINK>"><TMPL_VAR TITLE></a> (<TMPL_VAR CTIME>)</p>`
+
+produced output that links nowhere (`<a href="">`) while the other variables do fine. This problem does not occur in 3.1415926.
