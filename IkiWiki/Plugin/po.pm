@@ -394,23 +394,25 @@ sub change (@) {
 	my $updated_po_files=0;
 
 	# Refresh/create POT and PO files as needed.
-	# (But avoid doing so if they are in an underlay directory.)
 	foreach my $file (grep {istranslatablefile($_)} @rendered) {
 		my $masterfile=srcfile($file);
 		my $page=pagename($file);
 		my $updated_pot_file=0;
+
+		# Avoid touching underlay files.
+		next if $masterfile ne "$config{srcdir}/$file";
+
 		# Only refresh POT file if it does not exist, or if
-		# $pagesources{$page} was changed: don't if only the HTML was
+		# the source was changed: don't if only the HTML was
 		# refreshed, e.g. because of a dependency.
-		if ($masterfile eq "$config{srcdir}/$file" &&
-		   ((grep { $_ eq $pagesources{$page} } @origneedsbuild)
-		    || ! -e potfile($masterfile))) {
+		if ((grep { $_ eq $pagesources{$page} } @origneedsbuild) ||
+		    ! -e potfile($masterfile)) {
 			refreshpot($masterfile);
 			$updated_pot_file=1;
 		}
 		my @pofiles;
 		foreach my $po (pofiles($masterfile)) {
-			next if ! $updated_pot_file && ! -e $po;
+			next if ! $updated_pot_file && -e $po;
 			next if grep { $po=~/\Q$_\E/ } @{$config{underlaydirs}};
 			push @pofiles, $po;
 		}
