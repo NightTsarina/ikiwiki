@@ -143,7 +143,8 @@ $pre_exec
 EOF
 
 	my $cc=exists $ENV{CC} ? possibly_foolish_untaint($ENV{CC}) : 'cc';
-	if (system($cc, "$wrapper.c", "-o", "$wrapper.new") != 0) {
+	my $cflags=exists $ENV{CFLAGS} ? possibly_foolish_untaint($ENV{CFLAGS}) : '-O';
+	if (system($cc, $cflags, "$wrapper.c", "-o", "$wrapper.new") != 0) {
 		#translators: The parameter is a C filename.
 		error(sprintf(gettext("failed to compile %s"), "$wrapper.c"));
 	}
