@@ -1,0 +1,17 @@
+Hi,
+
+I've rebuilt two sites now, and anything that requires a working directory structure isn't working properly. I have no idea how it's doing this. I don't see anything in my templates, and I haven't messed around with the back-end code much.
+
+An example would show this best I think.
+
+<pre>
+/                   <- root of site
+/About/             <- sub-directory
+      /Policy/      <- sub-sub-
+</pre>
+
+When you're on /About/, any generated links get mapped to /Policy/ and NOT /About/Policy/ - of course this results in a 404 error.
+
+I used to be able to use relative links or absolute ones to get the links I want, and now I can't do either. The generated link results in a 404 due to the stripping of a directory.
+
+I don't know if it's related to the fact that I have one ikiwiki install under another (/blog/ under / is also ikiwiki), but both are FUBAR.
