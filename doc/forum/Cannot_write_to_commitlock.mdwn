@@ -14,4 +14,11 @@ Now ~/ianbarton/.ikiwiki exists and is owned and writable by me. I have tried to
 
 Ian.
 
-
+> I'm guessing that this is some kind of permissions problem,
+> and that the error message is just being misleading. 
+> 
+> When you push the changes to the server, what user is
+> git logging into the server as? If that user is different
+> than `ian` (possibly due to using git-daemon?), the post-commit
+> wrapper needs to be setuid to `ian`. This ensures that ikiwiki
+> runs as you and can see and write to the files. --[[Joey]] 
