@@ -287,13 +287,13 @@ sub find_src_files () {
 		wanted => sub {
 			my $file=decode_utf8($_);
 			$file=~s/^\Q$config{srcdir}\E\/?//;
+			return if -l $_ || -d _ || ! length $file;
 			my $page = pagename($file);
 			if (! exists $pagesources{$page} &&
 			    file_pruned($file)) {
 				$File::Find::prune=1;
 				return;
 			}
-			return if -l $_ || -d _ || ! length $file;
 
 			my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
 			if (! defined $f) {
@@ -314,13 +314,13 @@ sub find_src_files () {
 			wanted => sub {
 				my $file=decode_utf8($_);
 				$file=~s/^\Q$dir\E\/?//;
+				return if -l $_ || -d _ || ! length $file;
 				my $page=pagename($file);
 				if (! exists $pagesources{$page} &&
 				    file_pruned($file)) {
 					$File::Find::prune=1;
 					return;
 				}
-				return if -l $_ || -d _ || ! length $file;
 
 				my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
 				if (! defined $f) {
