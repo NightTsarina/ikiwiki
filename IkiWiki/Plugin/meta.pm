@@ -121,6 +121,10 @@ sub preprocess (@) {
 		$pagestate{$page}{meta}{authorurl}=$value if safeurl($value);
 		# fallthrough
 	}
+	elsif ($key eq 'permalink') {
+		$pagestate{$page}{meta}{permalink}=$value if safeurl($value);
+		# fallthrough
+	}
 	elsif ($key eq 'date') {
 		eval q{use Date::Parse};
 		if (! $@) {
@@ -141,10 +145,9 @@ sub preprocess (@) {
 		return;
 	}
 
-	# Metadata collection that happens only during preprocessing pass.
+	# Metadata handling that happens only during preprocessing pass.
 	if ($key eq 'permalink') {
 		if (safeurl($value)) {
-			$pagestate{$page}{meta}{permalink}=$value;
 			push @{$metaheaders{$page}}, scrub('<link rel="bookmark" href="'.encode_entities($value).'" />', $destpage);
 		}
 	}
