@@ -1,0 +1,17 @@
+I am following the laptop wiki with git tip page. I have set up my local and remote wiki as suggested. However, when I try to push my local changes back to the server I get the following error:
+
+Writing objects: 100% (4/4), 359 bytes, done.
+Total 4 (delta 2), reused 0 (delta 0)
+cannot write to /home/ian/ianbarton/.ikiwiki/commitlock: No such file or directory
+To ian@wilkesley.org:~/ikiwiki/ianbarton.git
+   5cf9054..16a871d  master -> master
+
+The relevnt bit of my setup file is:
+
+git_wrapper => '/home/ian/ianbarton.git/hooks/post-commit',
+
+Now ~/ianbarton/.ikiwiki exists and is owned and writable by me. I have tried touching commitlock and also removing lock and commitlock before pushing. Any suggestions for further trouble shooting?
+
+Ian.
+
+
