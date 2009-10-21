@@ -22,5 +22,31 @@ I don't know if it's related to the fact that I have one ikiwiki install under a
 > /Policy/ and NOT /About/Policy" can you provide an example of what
 > source generates the link? -- [[Jon]]
 
+>> No, a \[[map]] call, such as:
+>>
+>> (actual code)<br />
+>> = = = = =<br />
+>> \[[!map pages="About/*" show="title"]]<br />
+>> = = = = =<br />
+>>
+>> The end result is:<br />
+>> (actual code)
+>>
+<pre>
+&lt;div class="map">
+&lt;ul>
+&lt;li>&lt;a class="mapitem" href="./Policy/">Policy&lt;/a>
+&lt;ul>
+&lt;li>&lt;a class="mapitem" href="./Policy/Microblog/">Microblogging subscription policy&lt;/a>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;/div>
+</pre>
+
 > I'm also confused about what is generating the links. The map directive?
-> You? --[[Joey]] 
+> You? --[[Joey]]
+
+>> see above :)
+
