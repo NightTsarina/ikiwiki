@@ -20,7 +20,7 @@ our $rcs=IkiWiki::Setup::Automator::ask(
 our $admin=IkiWiki::Setup::Automator::ask(
 	gettext("Which user (wiki account or openid) will be admin?"), $ENV{USER});
 use Net::Domain q{hostfqdn};
-our $domain=hostfqdn() || ikiwiki::setup::automator::ask(
+our $domain=hostfqdn() || IkiWiki::Setup::Automator::ask(
 	gettext("What is the domain name of the web server?"), "");
 
 IkiWiki::Setup::Automator->import(
