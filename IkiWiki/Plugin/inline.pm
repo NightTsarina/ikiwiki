@@ -332,7 +332,7 @@ sub preprocess_inline (@) {
 			error sprintf(gettext("nonexistant template %s"), $params{template});
 		}
 		my $template=HTML::Template->new(@params) unless $raw;
-		my $needcontent=!($archive && $quick) && $template->query(name => 'content');
+		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));
 	
 		foreach my $page (@list) {
 			my $file = $pagesources{$page};
