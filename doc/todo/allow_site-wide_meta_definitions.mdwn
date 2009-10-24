@@ -36,8 +36,76 @@ definitions essentially.
 >> I've made may not be acceptable, though -- I'd appreciate someone providing
 >> some feedback on that hunk!
 
-<code>
-[[!inline pages="allow_site-wide_meta_definitions/current-patch" raw=yes quick=yes]]
-</code>
+
+    diff --git a/IkiWiki/Plugin/meta.pm b/IkiWiki/Plugin/meta.pm
+    index 6fe9cda..c4079fd 100644
+    --- a/IkiWiki/Plugin/meta.pm
+    +++ b/IkiWiki/Plugin/meta.pm
+    @@ -13,6 +13,7 @@ sub import {
+     	hook(type => "needsbuild", id => "meta", call => \&needsbuild);
+     	hook(type => "preprocess", id => "meta", call => \&preprocess, scan => 1);
+     	hook(type => "pagetemplate", id => "meta", call => \&pagetemplate);
+    +	hook(type => "scan", id => "meta", call => \&scan);
+     }
+     
+     sub getsetup () {
+    @@ -305,6 +306,17 @@ sub match {
+     	}
+     }
+     
+    +sub scan() {
+    +	my %params = @_;
+    +	my $page = $params{page};
+    +	if($config{"meta_defaults"}) {
+    +		foreach my $default (@{$config{"meta_defaults"}}) {
+    +			preprocess(%$default, page => $page,
+    +				destpage => $page, preview => 0);
+    +		}
+    +	}
+    +}
+    +
+     package IkiWiki::PageSpec;
+     
+     sub match_title ($$;@) {
+    diff --git a/IkiWiki/Setup.pm b/IkiWiki/Setup.pm
+    index 8a25ecc..e4d50c9 100644
+    --- a/IkiWiki/Setup.pm
+    +++ b/IkiWiki/Setup.pm
+    @@ -51,7 +51,13 @@ sub merge ($) {
+     					$config{$c}=$setup{$c};
+     				}
+     				else {
+    -					$config{$c}=[map { IkiWiki::possibly_foolish_untaint($_) } @{$setup{$c}}]
+    +					$config{$c}=[map {
+    +						if(ref $_ eq 'HASH') {
+    +							$_
+    +						} else {
+    +							IkiWiki::possibly_foolish_untaint($_)
+    +						}
+    +					} @{$setup{$c}}];
+     				}
+     			}
+     			elsif (ref $setup{$c} eq 'HASH') {
+    diff --git a/doc/ikiwiki/directive/meta.mdwn b/doc/ikiwiki/directive/meta.mdwn
+    index 000f461..8d34ee4 100644
+    --- a/doc/ikiwiki/directive/meta.mdwn
+    +++ b/doc/ikiwiki/directive/meta.mdwn
+    @@ -12,6 +12,16 @@ also specifies some additional sub-parameters.
+     The field values are treated as HTML entity-escaped text, so you can include
+     a quote in the text by writing `&quot;` and so on.
+     
+    +You can also define site-wide defaults for meta values by including them
+    +in your setup file. The key used is `meta_defaults` and the value is a list
+    +of hashes, one per meta directive. e.g.:
+    +
+    +	meta_defaults = [
+    +		{ copyright => "Copyright 2007 by Joey Hess" },
+    +		{ license   => "GPL v2+" },
+    +		{ link => "somepage", rel => "site entrypoint", },
+    +	],
+    +
+     Supported fields:
+     
+     * title
 
  -- [[Jon]]
