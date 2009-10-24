@@ -36,31 +36,29 @@ definitions essentially.
 >> I've made may not be acceptable, though -- I'd appreciate someone providing
 >> some feedback on that hunk!
 
-
     diff --git a/IkiWiki/Plugin/meta.pm b/IkiWiki/Plugin/meta.pm
-    index 6fe9cda..c4079fd 100644
+    index 6fe9cda..2f8c098 100644
     --- a/IkiWiki/Plugin/meta.pm
     +++ b/IkiWiki/Plugin/meta.pm
-    @@ -13,6 +13,7 @@ sub import {
+    @@ -13,6 +13,8 @@ sub import {
      	hook(type => "needsbuild", id => "meta", call => \&needsbuild);
      	hook(type => "preprocess", id => "meta", call => \&preprocess, scan => 1);
      	hook(type => "pagetemplate", id => "meta", call => \&pagetemplate);
-    +	hook(type => "scan", id => "meta", call => \&scan);
+    +	hook(type => "scan", id => "meta", call => \&scan)
+    +		if $config{"meta_defaults"};
      }
      
      sub getsetup () {
-    @@ -305,6 +306,17 @@ sub match {
+    @@ -305,6 +307,15 @@ sub match {
      	}
      }
      
     +sub scan() {
     +	my %params = @_;
     +	my $page = $params{page};
-    +	if($config{"meta_defaults"}) {
-    +		foreach my $default (@{$config{"meta_defaults"}}) {
-    +			preprocess(%$default, page => $page,
-    +				destpage => $page, preview => 0);
-    +		}
+    +	foreach my $default (@{$config{"meta_defaults"}}) {
+    +		preprocess(%$default, page => $page,
+    +			destpage => $page, preview => 0);
     +	}
     +}
     +
@@ -108,4 +106,4 @@ definitions essentially.
      
      * title
 
- -- [[Jon]]
+-- [[Jon]]
