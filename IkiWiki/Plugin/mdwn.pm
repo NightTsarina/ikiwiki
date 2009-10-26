@@ -43,8 +43,10 @@ sub htmlize (@) {
 			if ($@) {
 				debug(gettext("multimarkdown is enabled, but Text::MultiMarkdown is not installed"));
 			}
-			$markdown_sub=sub {
-				Text::MultiMarkdown::markdown(shift, {use_metadata => 0});
+			else {
+				$markdown_sub=sub {
+					Text::MultiMarkdown::markdown(shift, {use_metadata => 0});
+				}
 			}
 		}
 		if (! defined $markdown_sub) {
