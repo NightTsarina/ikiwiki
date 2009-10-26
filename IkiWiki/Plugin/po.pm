@@ -386,8 +386,7 @@ sub change (@) {
 		resetalreadyfiltered();
 		require IkiWiki::Render;
 		foreach my $file (@rendered) {
-			debug(sprintf(gettext("building %s"), $file));
-			IkiWiki::render($file);
+			IkiWiki::render($file, sprintf(gettext("building %s"), $file));
 		}
 	}
 
