@@ -124,3 +124,19 @@ My index page has:
 Else can you please suggest a smarter way of getting certain data out from pages for a inline index?
 
 --[[hendry]]
+
+---
+
+## Interaction of `show` and `feedshow`
+
+Reading the documentation I would think that `feedshow` does not
+influence `show`.
+
+	 [[!inline pages="./blog/*" archive=yes quick=yes feedshow=10 sort=title reverse=yes]]
+
+Only ten pages are listed in this example although `archive` is set to
+yes. Removing `feedshow=10` all matching pages are shown.
+
+Is that behaviour intended?
+
+--[[PaulePanter]]
