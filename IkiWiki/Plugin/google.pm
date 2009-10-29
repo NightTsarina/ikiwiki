@@ -6,8 +6,6 @@ use strict;
 use IkiWiki 3.00;
 use URI;
 
-my $host;
-
 sub import {
 	hook(type => "getsetup", id => "google", call => \&getsetup);
 	hook(type => "checkconfig", id => "google", call => \&checkconfig);
@@ -26,11 +24,6 @@ sub checkconfig () {
 	if (! length $config{url}) {
 		error(sprintf(gettext("Must specify %s when using the %s plugin"), "url", 'google'));
 	}
-	my $uri=URI->new($config{url});
-	if (! $uri || ! defined $uri->host) {
-		error(gettext("Failed to parse url, cannot determine domain name"));
-	}
-	$host=$uri->host;
 }
 
 my $form;
@@ -43,7 +36,7 @@ sub pagetemplate (@) {
 	if ($template->query(name => "searchform")) {
 		if (! defined $form) {
 			my $searchform = template("googleform.tmpl", blind_cache => 1);
-			$searchform->param(sitefqdn => $host);
+			$searchform->param(url => $config{url});
 			$form=$searchform->output;
 		}
 
