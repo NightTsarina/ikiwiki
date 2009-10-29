@@ -6,6 +6,8 @@ Summary:        A wiki compiler
 Group:          Applications/Internet
 License:        GPLv2+
 URL:            http://ikiwiki.info/
+Source0:	http://ftp.debian.org/debian/pool/main/i/%{name}/%{name}_%{version}.tar.gz
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:      noarch
 
 BuildRequires:  perl(Text::Markdown)
