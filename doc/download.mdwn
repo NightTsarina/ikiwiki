@@ -1,16 +1,21 @@
-Here's how to get ikiwiki. See [[setup]] for how to use it, and be sure to
-add your wiki to [[IkiwikiUsers]] if you use ikiwiki.
+Here's how to get ikiwiki in source or prepackaged form. See [[setup]] for
+how to use it, and be sure to add your wiki to [[IkiwikiUsers]] if you use
+ikiwiki.
 
-## tarball
+## source
+
+Ikiwiki is developed in a [[git_repository|git]].
 
 The best place to download a tarball of the latest release is from 
 <http://packages.debian.org/unstable/source/ikiwiki>.
 
-Installation steps and requirements are listed on the [[install]] page.
+Manual installation steps and requirements are listed on the [[install]] page.
 
 ## packages
 
-To install with apt, if using Debian or Ubuntu:
+### Debian / Ubuntu
+
+To install with apt:
 
         apt-get install ikiwiki
 
@@ -19,16 +24,25 @@ Or download the deb from <http://packages.debian.org/unstable/web/ikiwiki>.
 There is a backport of a recent version of ikiwiki for Debian 5.0 at
 <http://packages.debian.org/lenny-backports/ikiwiki>.
 
-Fedora versions 8 and newer have RPMs of ikiwiki available.
-
 There is also an unofficial backport of ikiwiki for Ubuntu Jaunty, provided by
 [[Paweł_Tęcza|users/ptecza]],
 at [http://gpa.net.icm.edu.pl/ubuntu/](http://gpa.net.icm.edu.pl/ubuntu/index-en.html).
+
+### Fedora / other RPM based systems
+
+Fedora versions 8 and newer have RPMs of ikiwiki available.
+
+Ikiwiki's source includes a RPM spec file, which you can use to build your
+own RPM.
+
+### BSD
 
 NetBSD and many other platforms: pkgsrc has an [ikiwiki package](ftp://ftp.netbsd.org/pub/pkgsrc/current/pkgsrc/www/ikiwiki/README.html).
 
 FreeBSD has ikiwiki in its
 [ports collection](http://www.freshports.org/www/ikiwiki/).
+
+### Others
 
 Gentoo has an [ebuild](http://bugs.gentoo.org/show_bug.cgi?id=144453) in its bug database. 
 
@@ -38,7 +52,3 @@ IkiWiki can be installed [from macports](http://www.macports.org/ports.php?by=na
 by running `sudo port install ikiwiki`.
 
 A [PKGBUILD for Arch Linux](http://aur.archlinux.org/packages.php?ID=12284) is in the AUR.
-
-## revision control
-
-Ikiwiki is developed in a [[git_repository|git]].
