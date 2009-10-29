@@ -40,7 +40,8 @@ sub showform ($$$$;@) {
 
 sub redirect ($$) {
 	my $q=shift;
-	my $url=shift;
+	eval q{use URI};
+	my $url=URI->new(shift);
 	if (! $config{w3mmode}) {
 		print $q->redirect($url);
 	}
