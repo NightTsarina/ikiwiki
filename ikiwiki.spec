@@ -6,7 +6,6 @@ Summary:        A wiki compiler
 Group:          Applications/Internet
 License:        GPLv2+
 URL:            http://ikiwiki.info/
-Patch0:         ikiwiki-3.00-libexecdir.patch
 BuildArch:      noarch
 
 BuildRequires:  perl(Text::Markdown)
@@ -47,7 +46,6 @@ array of plugins.
 
 %prep
 %setup0 -q -n %{name}
-%patch0 -p1 -b .libexecdir
 
 # Filter unwanted Provides:
 %{__cat} << \EOF > %{name}-prov
@@ -88,18 +86,6 @@ EOF
 %{__make} pure_install DESTDIR=%{buildroot} W3M_CGI_BIN=%{cgi_bin}
 %find_lang %{name}
 
-# move external plugins
-%{__mkdir_p} %{buildroot}%{_libexecdir}/ikiwiki/plugins
-%{__mv} %{buildroot}%{_prefix}/lib/ikiwiki/plugins/* \
-        %{buildroot}%{_libexecdir}/ikiwiki/plugins
-
-# remove shebang
-%{__sed} -e '1{/^#!/d}' -i \
-        %{buildroot}%{_sysconfdir}/ikiwiki/auto.setup \
-        %{buildroot}%{_sysconfdir}/ikiwiki/auto-blog.setup \
-        %{buildroot}%{_libexecdir}/ikiwiki/plugins/proxy.py
-
-
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -117,7 +103,7 @@ EOF
 %exclude %{perl_vendorarch}
 %{perl_vendorlib}/IkiWiki*
 %exclude %{perl_vendorlib}/IkiWiki*/Plugin/skeleton.pm.example
-%{_libexecdir}/ikiwiki
+%{_libdir}/ikiwiki
 %doc README debian/changelog debian/NEWS html
 %doc IkiWiki/Plugin/skeleton.pm.example
 
