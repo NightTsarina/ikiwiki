@@ -82,6 +82,24 @@ following lines in `page.tmpl`:
 
 Then write the appropriate CSS bits for `a.height1`, etc.
 
+Avoid showing title of toplevel index page
+------------------------------------------
+
+If you don't like having "index" appear on the top page of the wiki,
+but you do want to see the name of the page otherwise, you can use a
+special `HAS_PARENTLINKS` template variable that the plugin provides.
+It is true for every page *except* the toplevel index.
+
+Here is an example of using it to hide the title of the toplevel index
+page:
+
+	<TMPL_LOOP NAME="PARENTLINKS">
+	<a href="<TMPL_VAR NAME=URL>"><TMPL_VAR NAME=PAGE></a>/ 
+	</TMPL_LOOP>
+	<TMPL_IF HAS_PARENTLINKS>
+	<TMPL_VAR TITLE>
+	</TMPL_IF>
+
 Full-blown example
 ------------------
 
