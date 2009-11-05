@@ -1,0 +1,37 @@
+My website has 214 hand written html, 1500 of pictures and a few, err sorry, 114
+video files. All this takes around 1.5 GB of disk space at the moment.
+Plain html files take 1.7 MB and fit naturally into git.
+
+But what about the picture and video files?
+
+Pictures are mostly static and rarely need to be edited after first upload, 
+wasting a megabyte or two after an edit while having them in git doesn't really matter. 
+Videos on the other hand are quite large from megabytes to hundreds. Sometimes
+I re-encode them from the original source with better codec parameters and just
+replace the files under html root so they are accessible from the same URL.
+So having a way to delete a 200 MB file and upload a new one with same name and access URL
+is what I need. And it appears git has trouble erasing commits from history, or requires
+some serious gitfoo and good backups of the original repository.
+
+So which ikiwiki backend could handle piles of large binary files? Or should I go for a separate
+data/binary blob directory next to ikiwiki content?
+
+Further complication is my intention to keep URL compatibility with old handwritten and ikiwiki
+based site. Sigh, tough job but luckily just a hobby.
+
+[-Mikko](http://mcfrisk.kapsi.fi)
+
+ps. here's how to calculate space taken by html, picture and video files:
+
+    ~/www$ unset sum; for size in $( for ext in htm html txt xml log; \
+    do find . -iname "*$ext" -exec stat -c "%s" \{\} \; ; done | xargs ); \
+    do sum=$(( $sum + $size )); done ; echo $sum
+    1720696
+    ~/www$ unset sum; for size in $( for ext in jpg gif jpeg png; \
+    do find . -iname "*$ext" -exec stat -c "%s" \{\} \; ; done | xargs ); \
+    do sum=$(( $sum + $size )); done ; echo $sum
+    46032184
+    ~/www$ unset sum; for size in $( for ext in avi dv mpeg mp4; \
+    do find . -iname "*$ext" -exec stat -c "%s" \{\} \; ; done | xargs ); \
+    do sum=$(( $sum + $size )); done ; echo $sum
+    1351890888
