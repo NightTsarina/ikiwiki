@@ -19,3 +19,20 @@ Thanks,
 Thanks, usedirs seems to be just the thing I need.
 
 -Mikko
+
+Actually usedirs didn't do exactly what I want. The old site contains both
+somedir/index.html and somedir/somename.html files. With html plugin and 
+indexpages=1 the somedir/index.html pages are accessed correctly but 
+somedir/somefile.html files not.
+
+With usedirs => 0, somedir/somename.html pages are accessed correctly but
+somedir/index.html pages are not. Actually the handwritten somedir/index.html
+files were removed on a rebuild:
+
+    $ ikiwiki -setup blog.setup -rebuild -v
+    ...
+    removing test2/index.html, no longer built by test2
+
+Is there a way for both index.html and somename.html raw html files to show up through ikiwki?
+
+-Mikko
