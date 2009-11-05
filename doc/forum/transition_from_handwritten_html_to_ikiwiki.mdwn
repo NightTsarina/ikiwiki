@@ -36,3 +36,32 @@ files were removed on a rebuild:
 Is there a way for both index.html and somename.html raw html files to show up through ikiwki?
 
 -Mikko
+
+> I think you want usedirs => 0 and indexpages => 0?
+>
+> What IkiWiki does is to map the source filename to an abstract page name
+> (indexpages alters how this is done), then map the abstract page name
+> to an output filename (usedirs alters how this is done).
+>
+> The three columns here are input, abstract page name, output:
+>
+>     usedirs => 0, indexpages => 0:
+>         a/index.html -> a/index -> a/index.html
+>         a/b.html -> a/b -> a/b.html
+>     usedirs => 1, indexpages => 0:
+>         a/index.html -> a/index -> a/index/index.html
+>         a/b.html -> a/b -> a/b/index.html
+>     usedirs => 0, indexpages => 1:
+>         a/index.html -> a -> a.html
+>         a/b.html -> a/b -> a/b.html
+>     usedirs => 1, indexpages => 1:
+>         a/index.html -> a -> a/index.html
+>         a/b.html -> a/b -> a/b/index.html
+>
+> The abstract page name is what you use in wikilinks and pagespecs.
+>
+> What I would suggest you do instead, though, is break your URLs once
+> (but put in Apache redirections), to get everything to be consistent;
+> I strongly recommend usedirs => 1 and indexpages => 0, then always
+> advertising URLs that look like <http://www.example.com/a/b/>. This is
+> what ikiwiki.info itself does, for instance. --[[smcv]]
