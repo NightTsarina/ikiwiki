@@ -5,3 +5,13 @@ How to make somedir/somefile.html accessible as somedir/somefile.html under ikiw
 Thanks,
 
 -Mikko
+
+> Hello! The options you need to investigate are `--usedirs` and
+> `--no-usedirs`. The default `--usedirs` takes any source page foo
+> (regardless of its format, be it markdown or html) and converts it into a
+> destination page foo/index.html (URL foo/). By comparison, `--no-usedirs`
+> maps the source file onto a destination file directly: src/foo.html becomes
+> dest/foo.html, src/bar.mdwn becomes dest/bar.html, etc.
+> 
+> It sounds like you want `--no-usedirs`, or the corresponding `usedirs => 0,`
+> option in your setup file. See [[usage]] for more information. -- [[Jon]]
