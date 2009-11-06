@@ -35,3 +35,16 @@ ps. here's how to calculate space taken by html, picture and video files:
     do find . -iname "*$ext" -exec stat -c "%s" \{\} \; ; done | xargs ); \
     do sum=$(( $sum + $size )); done ; echo $sum
     1351890888
+
+> One approach is to use the [[plugins/underlay]] plugin to
+> configure a separate underlay directory, and put the large
+> files in there. Those files will then be copied to the generated
+> wiki, but need not be kept in revision control. (Or could be 
+> revision controlled in a separate repository -- perhaps one using
+> a version control system that handles large files better than git;
+> or perhaps one that you periodically blow away the old history to
+> in order to save space.)
+> 
+> BTW, the `hardlink` setting is a good thing to enable if you
+> have large files, as it saves both disk space and copying time. 
+> --[[Joey]]
