@@ -51,6 +51,9 @@ ps. here's how to calculate space taken by html, picture and video files:
 
 Can underlay plugin handle the case that source and destination directories
 are the same? I'd rather have just one copy of these underlay files on the server.
+
+> No, but enabling hardlinks accomplishes the same effect. --[[Joey]] 
+
 And did I goof in the setup file since I got this:
 
     $ ikiwiki -setup blog.setup -rebuild --verbose
@@ -71,3 +74,9 @@ And did I goof in the setup file since I got this:
         # directory in srcdir that contains directive descriptions
 
 -Mikko
+
+> The plugin seems to present a bad default value in the setup file.
+> (Fixed in git.) A correct configuration would be:
+
+        add_underlays => ['/home/users/mcfrisk/www/blog/media'],
+	
