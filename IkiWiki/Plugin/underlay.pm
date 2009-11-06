@@ -21,7 +21,7 @@ sub getsetup () {
 		},
 		add_underlays => {
 			type => "string",
-			default => [],
+			example => ["$ENV{HOME}/wiki.underlay"],
 			description => "extra underlay directories to add",
 			advanced => 1,
 			safe => 0,
@@ -29,7 +29,7 @@ sub getsetup () {
 		},
 		add_templates => {
 			type => "string",
-			default => [],
+			example => ["$ENV{HOME}/.ikiwiki/templates"],
 			description => "extra template directories to add",
 			advanced => 1,
 			safe => 0,
