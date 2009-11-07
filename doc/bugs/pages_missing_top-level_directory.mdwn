@@ -51,7 +51,25 @@ I don't know if it's related to the fact that I have one ikiwiki install under a
 >> see above :)
 
 >> I suspect this is due to git scanning everything under the pwd of the .git/ directory, but not totally so.
+
+>>> Ikiwiki never, ever, looks in directories with names starting with a
+>>> dot. --[[Joey]] 
+
 >> Other ikiwiki sites I have don't do this, and work OK, on the same server, but different docroots.
 
->>> Well, I've moved my blog to under my site's docroot - in terms of git and ikiwiki - and it's still cutting out a whole directory level. I have no idea what's going on. I need to check the code. The site is at http://simonraven.kisikew.org/ - if you follow the "About" link, you'll understand exactly what's going on, if you look at the URL in your status bar (or under your cursor if you're using a text browser).
+>>> Well, I've moved my blog to under my site's docroot - in terms of git
+>>> and ikiwiki - and it's still cutting out a whole directory level. I
+>>> have no idea what's going on. I need to check the code. The site is at
+>>> http://simonraven.kisikew.org/ - if you follow the "About" link, you'll
+>>> understand exactly what's going on, if you look at the URL in your
+>>> status bar (or under your cursor if you're using a text browser).
 
+>>>> Your page contains the following in its html:
+>>>>	`<base href="../" />`
+>>>> 
+>>>> Given a link like "./Policy/", which is *correct*, and when on the
+>>>> About page will normally link to the About/Policy page, this causes
+>>>> the link to really link to ".././Policy/" which is of course broken.
+>>>> 
+>>>> Ikiwiki's standard page templates do not contain this base tag, so
+>>>> I guess your customised templates are broken. --[[Joey]] [[done]]
