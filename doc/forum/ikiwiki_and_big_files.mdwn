@@ -80,3 +80,18 @@ And did I goof in the setup file since I got this:
 
         add_underlays => ['/home/users/mcfrisk/www/blog/media'],
 	
+Umm, doesn't quite fix this yet:
+
+    $ ikiwiki -setup blog.setup -v
+    Can't use an undefined value as an ARRAY reference at /home/users/mcfrisk/bin/share/perl/5.10.0/IkiWiki
+    /Plugin/underlay.pm line 44.
+    $ grep underlay blog.setup 
+        add_plugins => [qw{goodstuff websetup comments blogspam html sidebar underlay}],
+        underlaydir => '/home/users/mcfrisk/bin/share/ikiwiki/basewiki',
+        # underlay plugin
+        # extra underlay directories to add
+        add_underlays => ['/home/users/mcfrisk/www/blog/media'],
+    $ ikiwiki --version
+    ikiwiki version 3.20091032
+
+-Mikko
