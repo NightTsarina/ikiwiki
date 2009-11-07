@@ -43,6 +43,11 @@ BTW, ikiwiki doesn't displays the #foo anchor in the example
 
 >> Fixed that --[[Joey]]
 
+The 'name' attribute of the 'a' element is a depracated way to create a named anchor. The right way to do that is using the 'id' attribute of any element. This is because an anchor may refer to a complete element rather than some point in the page.
+
+Standard purity aside, if you define an anchor (using either 'a name' or 'id') to a single point in the document but refer to a complete section, the browser may just show that specific point at the bottom of the page rather than trying to show all the section.
+--[[tzafrir]]
+
 ---
 
 Considering a hierarchy like `foo/bar/bar`, I had the need to link from the
