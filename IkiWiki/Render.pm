@@ -61,6 +61,10 @@ sub backlinks ($) {
 sub genpage ($$) {
 	my $page=shift;
 	my $content=shift;
+	
+	run_hooks(postscan => sub {
+		shift->(page => $page, content => $content);
+	});
 
 	my $templatefile;
 	run_hooks(templatefile => sub {
@@ -130,10 +134,6 @@ sub genpage ($$) {
 	
 	$content=$template->output;
 	
-	run_hooks(postscan => sub {
-		shift->(page => $page, content => $content);
-	});
-
 	run_hooks(format => sub {
 		$content=shift->(
 			page => $page,

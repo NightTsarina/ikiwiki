@@ -201,6 +201,17 @@ like `Makefile` that have no extension.
 If `hook` is passed an optional "longname" parameter, this value is used
 when prompting a user to choose a page type on the edit page form.
 
+### postscan
+
+	hook(type => "postscan", id => "foo", call => \&postscan);
+
+This hook is called once the page has been converted to html (but before
+the generated html is put in a template). The most common use is to
+update search indexes. Added in ikiwiki 2.54.
+
+The function is passed named parameters "page" and "content". Its return
+value is ignored.
+
 ### pagetemplate
 
 	hook(type => "pagetemplate", id => "foo", call => \&pagetemplate);
@@ -236,17 +247,6 @@ modify the body of a page after it has been fully converted to html.
 
 The function is passed named parameters: "page", "destpage", and "content",
 and should return the sanitized content.
-
-### postscan
-
-	hook(type => "postscan", id => "foo", call => \&postscan);
-
-This hook is called once the full page body is available (but before the
-format hook). The most common use is to update search indexes. Added in
-ikiwiki 2.54.
-
-The function is passed named parameters "page" and "content". Its return
-value is ignored.
 
 ### format
 
