@@ -107,3 +107,25 @@ definitions essentially.
      * title
 
 -- [[Jon]]
+
+>> Ok, I've had a bit of a think about this. There are currently 15 supported
+>> meta fields. Of these: title, licence, copyright, author, authorurl,
+>> and robots might make sense to define globally and override on a per-page
+>> basis.
+>> 
+>> Less so, description (due to its impact on map); openid (why would
+>> someone want more than one URI to act as an openid endpoint, delegating
+>> to the same place?); updated.
+>> 
+>> Not useful are permalink, date, stylesheet (you already have a global
+>> stylesheet), link, redir, guid, updated.
+>>
+>> In other words, the limitations of my first patch that [[smcv]] outlined
+>> are only relevant to defined fields that you wouldn't want to specify a
+>> global default for anyway.
+>>
+>> Due to this, and the added complexity of the second patch (having to adjust
+>> `IkiWiki/Setup.pm`), I think the first patch makes more sense. I've thus
+>> reverted to it here.
+>> 
+>> --[[Jon]]
