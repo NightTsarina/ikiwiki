@@ -19,7 +19,7 @@ sub getsetup () {
 		},
 		cgiauthurl => {
 			type => "string",
-			example => "ttp://example.com/wiki/auth/ikiwiki.cgi",
+			example => "http://example.com/wiki/auth/ikiwiki.cgi",
 			description => "url to redirect to when authentication is needed",
 			safe => 1,
 			rebuild => 0,
