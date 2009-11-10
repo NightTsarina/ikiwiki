@@ -17,6 +17,13 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 0,
 		},
+		cgiauthurl => {
+			type => "string",
+			example => "ttp://example.com/wiki/auth/ikiwiki.cgi",
+			description => "url to redirect to when authentication is needed",
+			safe => 1,
+			rebuild => 0,
+		},
 }
 
 sub auth ($$) {
@@ -25,6 +32,10 @@ sub auth ($$) {
 
 	if (defined $cgi->remote_user()) {
 		$session->param("name", $cgi->remote_user());
+	}
+	elsif (defined $config{cgiauthurl}) {
+		IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$cgi->query_string());
+		exit;
 	}
 }
 

@@ -2,8 +2,24 @@
 [[!tag type/auth]]
 
 This plugin allows HTTP basic authentication to be used to log into the
-wiki. To use the plugin, your web server should be set up to perform HTTP
-basic authentiation for at least the directory containing `ikiwiki.cgi`. 
-The authenticated user will be automatically signed into the wiki.
+wiki. 
 
-This plugin is included in ikiwiki, but is not enabled by default.
+## fully authenticated wiki
+
+One way to use the plugin is to configure your web server to require
+HTTP basic authentication for any access to the directory containing the
+wiki (and `ikiwiki.cgi`). The authenticated user will be automatically
+signed into the wiki. This method is suitable only for private wikis.
+
+## separate cgiauthurl
+
+To use httpauth for a wiki where the content is public, and where
+the `ikiwiki.cgi` needs to be usable without authentication (for searching
+and so on), you can configure a separate url that is used for
+authentication, via the `cgiauthurl` option in the setup file. This
+url will then be redirected to whenever authentication is needed.
+
+A typical setup is to make an `auth` subdirectory, and symlink `ikiwiki.cgi` 
+into it. Then configure the web server to require authentication only for
+access to the `auth` subdirectory. Then `cgiauthurl` is pointed at this
+symlink.
