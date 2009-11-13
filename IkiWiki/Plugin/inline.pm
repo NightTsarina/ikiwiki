@@ -337,7 +337,7 @@ sub preprocess_inline (@) {
 		foreach my $page (@list) {
 			my $file = $pagesources{$page};
 			my $type = pagetype($file);
-			if (! $raw || ($raw && ! defined $type)) {
+			if (! $raw) {
 				if ($needcontent) {
 					# Get the content before populating the
 					# template, since getting the content uses
@@ -390,6 +390,10 @@ sub preprocess_inline (@) {
 					      preprocess($page, $params{destpage},
 					      filter($page, $params{destpage},
 					      readfile(srcfile($file)))));
+				}
+				else {
+					$ret.="\n".
+					      readfile(srcfile($file));
 				}
 			}
 		}
