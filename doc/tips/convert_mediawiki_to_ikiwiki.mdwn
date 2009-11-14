@@ -30,9 +30,10 @@ that this script is sensitive to the specific markup used on the page, so if
 you have tweaked your mediawiki theme a lot from the original, you will need
 to adjust this script too:
 
+    import sys
     from xml.dom.minidom import parse, parseString
     
-    dom = parse(argv[1])
+    dom = parse(sys.argv[1])
     tables = dom.getElementsByTagName("table")
     pagetable = tables[-1]
     anchors = pagetable.getElementsByTagName("a")
