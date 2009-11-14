@@ -212,7 +212,7 @@ sub preprocess_inline (@) {
 		if ($params{feedshow} && $num < $params{feedshow}) {
 			$num=$params{feedshow};
 		}
-		if ($params{skip}) {
+		if ($params{skip} && $num) {
 			$num+=$params{skip};
 		}
 
@@ -221,7 +221,7 @@ sub preprocess_inline (@) {
 			filter => sub { $_[0] eq $params{page} },
 			sort => exists $params{sort} ? $params{sort} : "age",
 			reverse => yesno($params{reverse}),
-			num => $num,
+			($num ? (num => $num) : ()),
 		);
 	}
 
