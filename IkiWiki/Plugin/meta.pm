@@ -88,7 +88,7 @@ sub preprocess (@) {
 	# Metadata collection that needs to happen during the scan pass.
 	if ($key eq 'title') {
 		$pagestate{$page}{meta}{title}=HTML::Entities::encode_numeric($value);
-		# fallthrough
+		return "";
 	}
 	elsif ($key eq 'description') {
 		$pagestate{$page}{meta}{description}=HTML::Entities::encode_numeric($value);
