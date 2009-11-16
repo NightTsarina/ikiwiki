@@ -1,1 +1,8 @@
 The [[directive/map]] directive sorty by pagename. That looks kind of odd, when used together with show=title. I would expect it to sort by title then.
+
+> This would be quite hard to fix. Map sorts the pages it displays by page
+> name, which has the happy effect of making "foo/bar" come after "foo";
+> which it *has* to do, so that it can be displayed as a child of the page
+> it's located in. If sorting by title, that wouldn't hold. So, map
+> would have to be effectively totally rewritten, to build up each group
+> of child pages, and then re-sort those. --[[Joey]] 
