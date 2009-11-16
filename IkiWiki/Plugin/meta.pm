@@ -267,7 +267,7 @@ sub pagetemplate (@) {
 		$template->param(title_overridden => 1);
 	}
 
-	foreach my $field (qw{author authorurl permalink}) {
+	foreach my $field (qw{author authorurl description permalink}) {
 		$template->param($field => $pagestate{$page}{meta}{$field})
 			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);
 	}
