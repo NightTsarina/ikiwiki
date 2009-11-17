@@ -423,6 +423,8 @@ sub preprocess_inline (@) {
 		}
 	}
 	
+	clear_inline_content_cache();
+
 	return $ret if $raw || $nested;
 	push @inline, $ret;
 	return "<div class=\"inline\" id=\"$#inline\"></div>\n\n";
@@ -437,25 +439,42 @@ sub pagetemplate_inline (@) {
 		if exists $feedlinks{$page} && $template->query(name => "feedlinks");
 }
 
+{
+my %inline_content;
+my $cached_destpage="";
+
 sub get_inline_content ($$) {
 	my $page=shift;
 	my $destpage=shift;
 	
+	if (exists $inline_content{$page} && $cached_destpage eq $destpage) {
+		return $inline_content{$page};
+	}
+
 	my $file=$pagesources{$page};
 	my $type=pagetype($file);
+	my $ret="";
 	if (defined $type) {
 		$nested++;
-		my $ret=htmlize($page, $destpage, $type,
+		$ret=htmlize($page, $destpage, $type,
 		       linkify($page, $destpage,
 		       preprocess($page, $destpage,
 		       filter($page, $destpage,
 		       readfile(srcfile($file))))));
 		$nested--;
-		return $ret;
 	}
-	else {
-		return "";
+	
+	if ($cached_destpage ne $destpage) {
+		clear_inline_content_cache();
+		$cached_destpage=$destpage;
 	}
+	return $inline_content{$page}=$ret;
+}
+
+sub clear_inline_content_cache () {
+	%inline_content=();
+}
+
 }
 
 sub date_822 ($) {
