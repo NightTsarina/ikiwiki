@@ -118,7 +118,7 @@ into an ikiwiki tag name using a script such as
     pattern =  r'\[\[Category:([^\]]+)\]\]'
     
     def manglecat(mo):
-            return '[[!tag %s]]' % mo.group(1).strip().replace(' ','_')
+            return '\[[!tag %s]]' % mo.group(1).strip().replace(' ','_')
             
     for line in sys.stdin.readlines():
             res = re.match(pattern, line)
