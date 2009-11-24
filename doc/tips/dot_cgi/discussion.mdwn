@@ -34,3 +34,13 @@ there), and so I need to choose the more secure solution. --Ivan Z.
 >> The easiest way though is probably
 >> to add your ssh key to the special user's `.ssh/authorized_keys`
 >> and push that way. --[[Joey]] 
+
+## apache2 - run from userdir
+Followed instructions but couldn't get it right to run from user dir (running ubuntu jaunty),  
+Finally got it working once I've sym linked as follow (& restarted apache):    
+\# ln -s ../mods-available/userdir.load .  
+\# ln -s ../mods-available/userdir.conf .  
+\# pwd  
+/etc/apache2/mods-enabled  
+
+
