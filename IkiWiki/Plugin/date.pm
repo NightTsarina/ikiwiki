@@ -6,8 +6,8 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
-	hook(type => "getsetup", id => "meta", call => \&getsetup);
-	hook(type => "preprocess", id => "meta", call => \&preprocess);
+	hook(type => "getsetup", id => "date", call => \&getsetup);
+	hook(type => "preprocess", id => "date", call => \&preprocess);
 }
 
 sub getsetup () {
