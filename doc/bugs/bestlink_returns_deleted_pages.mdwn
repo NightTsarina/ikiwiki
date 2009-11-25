@@ -1,0 +1,54 @@
+To reproduce: 
+
+1. Add the backlinkbug plugin below to ikiwiki. 
+2. Create a page named test.mdwn somewhere in the wiki. 
+3. Refresh ikiwiki in verbose mode. Pages whose bestlink is the test.mwdn page will be printed to the terminal.
+4. Delete test.mdwn.
+5. Refresh ikiwiki in verbose mode again. The same pages will be printed to the terminal again.
+6. Refresh ikiwiki in verbose mode another time. Now no pages will be printed.
+
+bestlink() checks %links (and %pagecase) to confirm the existance of the page.
+However, find_del_files() does not remove the deleted page from %links (and %pagecase).
+
+Since find_del_files removes the deleted page from %pagesources and %destsources,
+won't it make sense for bestlink() to check %pagesources first? --[[harishcm]]
+
+
+----
+
+    #!/usr/bin/perl
+    # Plugin to reproduce bestlink returning deleted pages. 
+    # Run with ikiwiki in verbose mode.
+    
+    package IkiWiki::Plugin::bestlinkbug;
+    
+    use warnings;
+    use strict;
+    use IkiWiki 3.00;
+    
+    sub import {
+    	hook(type => "getsetup", id => "bestlinkbug", call => \&getsetup);
+    	hook(type => "needsbuild", id => "bestlinkbug", call => \&needsbuild);
+    }
+    
+    sub getsetup () {
+    	return
+    		plugin => {
+    			safe => 1,
+    			rebuild => 0,
+    		},
+    }
+    
+    sub needsbuild (@) {
+    	my $needsbuild=shift;
+    	
+    	foreach my $page (keys %pagestate) {
+    		my $testpage=bestlink($page, "test") || next;
+    		
+    		debug("$page");
+    	}
+    }	
+    
+    1
+
+
