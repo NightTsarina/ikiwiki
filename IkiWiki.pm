@@ -1081,11 +1081,10 @@ sub htmllink ($$$;@) {
 	}
 
 	my @attrs;
-	if (defined $opts{rel}) {
-		push @attrs, ' rel="'.$opts{rel}.'"';
-	}
-	if (defined $opts{class}) {
-		push @attrs, ' class="'.$opts{class}.'"';
+	foreach my $attr (qw{rel class title}) {
+		if (defined $opts{$attr}) {
+			push @attrs, " $attr=\"".$opts{attr}.'"';
+		}
 	}
 
 	return "<a href=\"$bestlink\"@attrs>$linktext</a>";
