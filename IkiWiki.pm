@@ -1083,7 +1083,7 @@ sub htmllink ($$$;@) {
 	my @attrs;
 	foreach my $attr (qw{rel class title}) {
 		if (defined $opts{$attr}) {
-			push @attrs, " $attr=\"".$opts{attr}.'"';
+			push @attrs, " $attr=\"$opts{$attr}\"";
 		}
 	}
 

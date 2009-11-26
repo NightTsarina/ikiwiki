@@ -128,7 +128,8 @@ sub format_month (@) {
 		$url = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$params{year}/".$params{month},
 			noimageinline => 1,
-			linktext => " $monthname ");
+			linktext => $monthname,
+			title => $monthname);
 	}
 	add_depends($params{page}, "$archivebase/$params{year}/$params{month}",
 		deptype("presence"));
@@ -136,7 +137,8 @@ sub format_month (@) {
 		$purl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$pyear/$pmonth",
 			noimageinline => 1,
-			linktext => "\&larr");
+			linktext => "\&larr",
+			title => $pmonthname);
 	}
 	add_depends($params{page}, "$archivebase/$pyear/$pmonth",
 		deptype("presence"));
@@ -144,7 +146,8 @@ sub format_month (@) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$nyear/$nmonth",
 			noimageinline => 1,
-			linktext => "\&rarr");
+			linktext => "\&rarr",
+			title => $nmonthname);
 	}
 	add_depends($params{page}, "$archivebase/$nyear/$nmonth",
 		deptype("presence"));
@@ -173,7 +176,7 @@ EOF
 		my $dowabbr = POSIX::strftime("%a", @day);
 		$downame{$dow % 7}=$downame;
 		$dowabbr{$dow % 7}=$dowabbr;
-		$calendar.= qq{\t\t<th class="month-calendar-day-head $downame">$dowabbr</th>\n};
+		$calendar.= qq{\t\t<th class="month-calendar-day-head $downame" title="$downame">$dowabbr</th>\n};
 	}
 
 	$calendar.=<<EOF;
@@ -191,7 +194,7 @@ EOF
 	# nothing has been printed, or else we are in the middle of a row.
 	for (my $day = 1; $day <= month_days(year => $params{year}, month => $params{month});
 	     $day++, $wday++, $wday %= 7) {
-		# At tihs point, on a week_start_day, we close out a row,
+		# At this point, on a week_start_day, we close out a row,
 		# and start a new one -- unless it is week_start_day on the
 		# first, where we do not close a row -- since none was started.
 		if ($wday == $week_start_day) {
@@ -200,7 +203,8 @@ EOF
 		}
 		
 		my $tag;
-		if (defined $linkcache{"$params{year}/$params{month}/$day"}) {
+		my $key="$params{year}/$params{month}/$day";
+		if (defined $linkcache{$key}) {
 			if ($day == $today) {
 				$tag='month-calendar-day-this-day';
 			}
@@ -209,9 +213,10 @@ EOF
 			}
 			$calendar.=qq{\t\t<td class="$tag $downame{$wday}">};
 			$calendar.=htmllink($params{page}, $params{destpage}, 
-				$linkcache{"$params{year}/$params{month}/$day"},
+				$linkcache{$key},
 				noimageinline => 1,
-				"linktext" => "$day");
+				linktext => $day,
+				title => pagetitle(IkiWiki::basename($linkcache{$key})));
 			$calendar.=qq{</td>\n};
 		}
 		else {
@@ -276,21 +281,24 @@ sub format_year (@) {
 		$url = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$params{year}",
 			noimageinline => 1,
-			linktext => "$params{year}");
+			linktext => $params{year},
+			title => $params{year});
 	}
 	add_depends($params{page}, "$archivebase/$params{year}", deptype("presence"));
 	if (exists $pagesources{"$archivebase/$pyear"}) {
 		$purl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$pyear",
 			noimageinline => 1,
-			linktext => "\&larr;");
+			linktext => "\&larr;",
+			title => $pyear);
 	}
 	add_depends($params{page}, "$archivebase/$pyear", deptype("presence"));
 	if (exists $pagesources{"$archivebase/$nyear"}) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$nyear",
 			noimageinline => 1,
-			linktext => "\&rarr;");
+			linktext => "\&rarr;",
+			title => $nyear);
 	}
 	add_depends($params{page}, "$archivebase/$nyear", deptype("presence"));
 
@@ -333,7 +341,8 @@ EOF
 			$murl = htmllink($params{page}, $params{destpage}, 
 				"$archivebase/$params{year}/$mtag",
 				noimageinline => 1,
-				linktext => "$monthabbr");
+				linktext => $monthabbr,
+				title => $monthname);
 			$calendar.=qq{\t<td class="$tag">};
 			$calendar.=$murl;
 			$calendar.=qq{\t</td>\n};
