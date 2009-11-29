@@ -1,0 +1,17 @@
+One of the good things about [PmWiki](http://www.pmwiki.org) is the ability to treat arbitrary markup as directives.
+In ikiwiki, all directives have the same format:
+
+\[[!name arguments]]
+
+But with PmWiki, directives can be added to the engine (with the "Markup" hook) with the usual name and function passing, but also with a regexp which has capturing parentheses, and the results of the match are passed to the given function.
+Would it be possible to alter the "preprocess" hook to have an optional regex argument which acted in a similar fashion?
+
+For example, one could then write a plugin which would treat
+
+Category: Foo, Bar
+
+as a tag, by using a regex such as /^Category:\s*([\w\s,]+)$/; the result "Foo, Bar" could then be further processed by the hook function.
+
+This could also make it easier to support more styles of markup, rather than having to do all the processing in "htmlize" and/or "filter".
+
+-- [[KathrynAndersen]]
