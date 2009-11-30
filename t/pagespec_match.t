@@ -49,9 +49,13 @@ $links{"bugs/foo"}=[qw{bugs/done}];
 $links{"bugs/done"}=[];
 $links{"bugs/bar"}=[qw{done}];
 $links{"done"}=[];
+$links{"done"}=[];
 $links{"examples/softwaresite/bugs/fails_to_frobnicate"}=[qw{done}];
 $links{"examples/softwaresite/bugs/done"}=[];
 $links{"ook"}=[qw{/blog/tags/foo}];
+foreach my $p (keys %links) {
+	$pagesources{$p}="$p.mdwn";
+}
 
 ok(pagespec_match("foo", "link(bar)"), "link");
 ok(pagespec_match("foo", "link(ba?)"), "glob link");

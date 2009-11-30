@@ -11,11 +11,11 @@ sub test ($$$) {
 	my @existing_pages=@{shift()};
 	
 	%IkiWiki::pagecase=();
-	%links=();
+	%pagesources=();
 	$IkiWiki::config{userdir}="foouserdir";
 	foreach my $page (@existing_pages) {
 		$IkiWiki::pagecase{lc $page}=$page;
-		$links{$page}=[];
+		$pagesources{$page}="$page.mdwn";
 	}
 
 	return bestlink($page, $link);
