@@ -881,7 +881,7 @@ sub bestlink ($$) {
 		$l.="/" if length $l;
 		$l.=$link;
 
-		if (exists $links{$l}) {
+		if (exists $pagesources{$l}) {
 			return $l;
 		}
 		elsif (exists $pagecase{lc $l}) {
@@ -891,7 +891,7 @@ sub bestlink ($$) {
 
 	if (length $config{userdir}) {
 		my $l = "$config{userdir}/".lc($link);
-		if (exists $links{$l}) {
+		if (exists $pagesources{$l}) {
 			return $l;
 		}
 		elsif (exists $pagecase{lc $l}) {

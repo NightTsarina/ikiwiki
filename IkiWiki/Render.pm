@@ -392,25 +392,37 @@ sub find_del_files ($) {
 				push @internal_del, $pagesources{$page};
 			}
 			else {
-				debug(sprintf(gettext("removing old page %s"), $page));
 				push @del, $pagesources{$page};
 			}
 			$links{$page}=[];
 			$renderedfiles{$page}=[];
 			$pagemtime{$page}=0;
-			foreach my $old (@{$oldrenderedfiles{$page}}) {
-				prune($config{destdir}."/".$old);
-			}
-			delete $pagesources{$page};
-			foreach my $source (keys %destsources) {
-				if ($destsources{$source} eq $page) {
-					delete $destsources{$source};
-				}
-			}
 		}
 	}
 
 	return \@del, \@internal_del;
+}
+
+sub remove_del (@) {
+	foreach my $file (@_) {
+		my $page=pagename($file);
+		if (isinternal($page)) {
+			debug(sprintf(gettext("removing old page %s"), $page));
+		}
+	
+		foreach my $old (@{$oldrenderedfiles{$page}}) {
+			prune($config{destdir}."/".$old);
+		}
+
+		foreach my $source (keys %destsources) {
+			if ($destsources{$source} eq $page) {
+				delete $destsources{$source};
+			}
+		}
+	
+		delete $pagecase{lc $page};
+		delete $pagesources{$page};
+	}
 }
 
 sub find_changed ($) {
@@ -633,6 +645,8 @@ sub refresh () {
 	}
 
 	calculate_links();
+	
+	remove_del(@$del, @$internal_del);
 
 	foreach my $file (@$changed) {
 		render($file, sprintf(gettext("building %s"), $file));
