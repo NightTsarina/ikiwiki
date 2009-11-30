@@ -359,7 +359,7 @@ sub preprocess_inline (@) {
 					if ($config{discussion}) {
 						if ($page !~ /.*\/\Q$config{discussionpage}\E$/ &&
 						    (length $config{cgiurl} ||
-						     exists $links{$page."/".$config{discussionpage}})) {
+						     exists $pagesources{$page."/".$config{discussionpage}})) {
 							$template->param(have_actions => 1);
 							$template->param(discussionlink =>
 								htmllink($page,
