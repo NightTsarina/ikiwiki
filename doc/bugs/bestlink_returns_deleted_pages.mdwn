@@ -13,6 +13,20 @@ However, find_del_files() does not remove the deleted page from %links (and %pag
 Since find_del_files removes the deleted page from %pagesources and %destsources,
 won't it make sense for bestlink() to check %pagesources first? --[[harishcm]]
 
+> This same problem turned out to also be the root of half of ikiwiki's
+> second-oldest bug, [[bestlink_change_update_issue]].
+> 
+> Fixing it is really a bit involved, see commit
+> f1ddf4bd98821a597d8fa1532092f09d3d9b5483. The fix I committed fixes
+> bestlink to not return deleted pages, but only *after* the needsbuild and
+> scan hooks are called. So I was able to fix it for every case except the
+> one you gave! Sorry for that. To fix it during beedsbuild and scan, 
+> a much more involved approach would be needed. AFAICS, no existing plugin
+> in ikiwiki uses bestlink in needsbuild or scan though.
+> 
+> If the other half of [[bestlink_change_update_issue]] is fixed, 
+> maybe by keeping a copy of the old backlinks info, then that fix could be
+> applied here too. --[[Joey]]
 
 ----
 
