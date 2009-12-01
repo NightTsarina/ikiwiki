@@ -1,0 +1,16 @@
+## security
+
+I'm curious what the security implications of having this plugin on a
+publically writable wiki are.
+
+First, it looks like the way it looks up the stylesheet file will happily
+use a regular .mdwn wiki page as the stylsheet. Which means any user can
+create a stylesheet and have it be used, without needing permission to
+upload arbitrary files. That probably needs to be fixed; one way would be
+to mandate that the `srcfile` has a `.xsl` extension.
+
+Secondly, if an attacker is able to upload a stylesheet file somehow, could
+this be used to attack the server where it is built? I know that xslt is
+really a full programming language, so I assume at least DOS attacks are
+possible. Can it also read other arbitrary files, run other programs, etc?
+--[[Joey]] 
