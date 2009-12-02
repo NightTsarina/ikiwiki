@@ -406,7 +406,7 @@ sub find_del_files ($) {
 sub remove_del (@) {
 	foreach my $file (@_) {
 		my $page=pagename($file);
-		if (isinternal($page)) {
+		if (! isinternal($page)) {
 			debug(sprintf(gettext("removing old page %s"), $page));
 		}
 	
