@@ -396,8 +396,14 @@ sub preprocess (@) {
 	}
 	elsif ($params{type} eq 'year' && $params{year} == $thisyear) {
 		# calendar for current year, updates 1st of next month
-		$pagestate{$params{destpage}}{calendar}{nextchange}=
-			timelocal(0, 0, 0, 1, $thismonth+1-1, $params{year});
+		if ($thismonth < 12) {
+			$pagestate{$params{destpage}}{calendar}{nextchange}=
+				timelocal(0, 0, 0, 1, $thismonth+1-1, $params{year});
+		}
+		else {
+			$pagestate{$params{destpage}}{calendar}{nextchange}=
+				timelocal(0, 0, 0, 1, 1-1, $params{year}+1);
+		}
 	}
 	elsif ($params{type} eq 'year' && $params{year} > $thisyear) {
 		# calendar for upcoming year, updates 1st of that year
