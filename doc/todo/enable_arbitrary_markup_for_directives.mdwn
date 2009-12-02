@@ -36,3 +36,12 @@ This could also make it easier to support more styles of markup, rather than hav
 
 >>You have some good points.  I was aware of using filter, but it didn't occur to me that one could use sanitize to do processing also, probably because "sanitize" brought to mind removing harmful content rather than doing other alterations.
 >>It has also occurred to me, on further thought, that if one wants one's chosen markup to actually be processed during the "preprocess" stage, that one could do so by converting the chosen markup to directive-style markup during the "filter" stage and then processing the directive during the "preprocess" stage as per usual.  Is there a tag for "no longer on the wishlist?". --[[KathrynAndersen]]
+
+>>> Yeah, sanitize is a misleading name for the relatively few things that
+>>> use it this way.
+>>>
+>>> While you could do a filter to preprocess step, it is a bit
+>>> of a long way round, since filter always runs just before 
+>>> preprocess.
+>>> 
+>>> Anyway, guess this is [[done]] --[[Joey]] 
