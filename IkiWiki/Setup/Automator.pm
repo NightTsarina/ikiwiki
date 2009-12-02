@@ -72,6 +72,9 @@ sub import (@) {
 		elsif ($config{rcs} eq 'mercurial') {
 			# TODO
 		}
+		elsif ($config{rcs} eq 'cvs') {
+			$config{cvs_wrapper}=$config{repository}."/CVSROOT/post-commit";
+		}
 		else {
 			error sprintf(gettext("unsupported revision control system %s"),
 			       	$config{rcs});
