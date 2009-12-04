@@ -73,7 +73,7 @@ sub darcs_rev($) {
 	my $file = shift; # Relative to the repodir.
 	my $repodir = $config{srcdir};
 
-	return "" if (! file_in_vc($repodir, $file));
+	return "" unless file_in_vc($repodir, $file);
 	my $hash = darcs_info('hash', $repodir, $file);
 	return defined $hash ? $hash : "";
 }
