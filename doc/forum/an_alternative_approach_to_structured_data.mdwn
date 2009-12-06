@@ -1,0 +1,17 @@
+Looking at the discussion about [[todo/structured_page_data]], it looks a bit like folks are bogged down in figuring out what *markup* to use for structured page data, something I doubt that people will really agree on.  And thus, little progress is made.
+
+I propose that, rather than worry about what the data looks like, that we take a similar approach
+to the way Revision Control Systems are used in ikiwiki: a front-end + back-end approach.
+The front-end would be a common interface, where queries are made about the structured data,
+and there would be any number of back-ends, which could use whatever markup or format that they desired.
+
+To that purpose, I've written the [[plugins/contrib/field]] plugin for a possible front-end.
+I called it "field" because each page could be considered a "record" where one could request the values of "fields" of that record.
+The idea is that back-end plugins would register functions which can be called when the value of a field is desired.
+
+This is gone into in more depth on the plugin page itself, but I would appreciate feedback and improvements on the approach.
+I think it could be really powerful and useful, especially if it becomes part of ikiwiki proper.
+
+--[[KathrynAndersen]]
+
+> It looks like an interesting idea.  I don't have time right now to look at it in depth, but it looks interesting. -- [[Will]]
