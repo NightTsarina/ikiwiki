@@ -5,16 +5,17 @@ Currently, the levels=X parameter lets you tweak how deep it will go for small h
 > This change to toc.pm should do it. --[[KathrynAndersen]]
 
 	56,57c56,57
-	<       my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
-	<       my $curlevel=$startlevel-1;
+	<       my $curlevel;
+	<       my $startlevel=0;
 	---
-	>       my $curlevel;
-	>       my $startlevel=0;
-	70d69
-	<                       # unless we're given startlevel as a parameter
-	75,79d73
-	<                       elsif (defined $params{startlevel}
-	<                              and $level < $params{startlevel})
-	<                       {
-	<                           return;
-	<                       }
+	>       my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
+	>       my $curlevel=$startlevel-1;
+	69a70
+	>                       # unless we're given startlevel as a parameter
+	73a75,79
+	>                       elsif (defined $params{startlevel}
+	>                              and $level < $params{startlevel})
+	>                       {
+	>                           return;
+	>                       }
+
