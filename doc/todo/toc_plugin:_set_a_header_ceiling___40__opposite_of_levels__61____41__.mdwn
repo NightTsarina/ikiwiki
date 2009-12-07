@@ -1,3 +1,20 @@
 It would be nice if the [[plugins/toc]] plugin let you specify a header level "ceiling" above which (or above and including which) the headers would not be incorporated into the toc.
 
 Currently, the levels=X parameter lets you tweak how deep it will go for small headers, but I'd like to chop off the h1's (as I use them for my page title) -- [[Jon]]
+
+> This change to toc.pm should do it. --[[KathrynAndersen]]
+
+	56,57c56,57
+	<       my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
+	<       my $curlevel=$startlevel-1;
+	---
+	>       my $curlevel;
+	>       my $startlevel=0;
+	70d69
+	<                       # unless we're given startlevel as a parameter
+	75,79d73
+	<                       elsif (defined $params{startlevel}
+	<                              and $level < $params{startlevel})
+	<                       {
+	<                           return;
+	<                       }
