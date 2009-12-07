@@ -28,6 +28,9 @@ while (<IN>) {
 			print "$remote failed\n";
 		}
 		$error |= $r;
+		
+		# drop stale tracking branches
+		system("git", "remote", "prune", $remote);
 	}
 }
 close IN;
