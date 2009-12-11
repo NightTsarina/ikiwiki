@@ -4,6 +4,12 @@ Currently, the levels=X parameter lets you tweak how deep it will go for small h
 
 > This change to toc.pm should do it. --[[KathrynAndersen]]
 
+> > The patch looks vaguely OK to me but it's hard to tell without
+> > context. It'd be much easier to review if you used unified diff
+> > (`diff -u`), which is what `git diff` defaults to - almost all
+> > projects prefer to receive changes as unified diffs (or as
+> > branches in their chosen VCS, which is [[git]] here). --[[smcv]]
+
 	56,57c56,57
 	<       my $curlevel;
 	<       my $startlevel=0;
@@ -19,3 +25,4 @@ Currently, the levels=X parameter lets you tweak how deep it will go for small h
 	>                           return;
 	>                       }
 
+[[!tag patch]]
