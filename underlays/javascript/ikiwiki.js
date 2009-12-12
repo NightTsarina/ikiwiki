@@ -10,11 +10,13 @@ if (document.addEventListener) {
 // other browsers
 window.onload = run_hooks_onload;
 
+var onload_done = 0;
+
 function run_hooks_onload() {
 	// avoid firing twice
-	if (arguments.callee.done)
+	if (onload_done)
 		return;
-	arguments.callee.done = true;
+	onload_done = true;
 
 	run_hooks("onload");
 }
