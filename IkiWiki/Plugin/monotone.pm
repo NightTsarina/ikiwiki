@@ -228,7 +228,7 @@ sub read_certs ($$) {
 	my @ret;
 
 	my $line = $results[0];
-	while ($line =~ m/\s+key\s"(.*?)"\nsignature\s"(ok|bad|unknown)"\n\s+name\s"(.*?)"\n\s+value\s"(.*?)"\n\s+trust\s"(trusted|untrusted)"\n/sg) {
+	while ($line =~ m/\s+key\s["\[](.*?)[\]"]\nsignature\s"(ok|bad|unknown)"\n\s+name\s"(.*?)"\n\s+value\s"(.*?)"\n\s+trust\s"(trusted|untrusted)"\n/sg) {
 		push @ret, {
 			key => $1,
 			signature => $2,
