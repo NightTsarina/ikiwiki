@@ -112,7 +112,7 @@ sub formbuilder (@) {
 
 	return if ! defined $form->field("do") || ($form->field("do") ne "edit" && $form->field("do") ne "create") ;
 
-	my $filename=$q->param('attachment');
+	my $filename=Encode::decode_utf8($q->param('attachment'));
 	if (defined $filename && length $filename &&
             ($form->submitted eq "Upload Attachment" || $form->submitted eq "Save Page")) {
 		my $session=$params{session};
@@ -189,9 +189,10 @@ sub formbuilder (@) {
 		IkiWiki::saveindex();
 	}
 	elsif ($form->submitted eq "Insert Links") {
-		my $page=quotemeta($q->param("page"));
+		my $page=quotemeta(Encode::decode_utf8($q->param("page")));
 		my $add="";
 		foreach my $f ($q->param("attachment_select")) {
+			$f=Encode::decode_utf8($f);
 			$f=~s/^$page\///;
 			$add.="[[$f]]\n";
 		}
