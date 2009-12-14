@@ -166,7 +166,7 @@ sub formbuilder (@) {
 			removal_confirm($q, $session, 0, $form->field("page"));
 		}
 		elsif ($form->submitted eq "Remove Attachments") {
-			my @selected=$q->param("attachment_select");
+			my @selected=map { Encode::decode_utf8($_) } $q->param("attachment_select");
 			if (! @selected) {
 				error(gettext("Please select the attachments to remove."));
 			}
@@ -187,7 +187,7 @@ sub sessioncgi ($$) {
 			postremove($session);
 		}
 		elsif ($form->submitted eq 'Remove' && $form->validate) {
-			my @pages=$q->param("page");
+			my @pages=$form->field("page");
 	
 			# Validate removal by checking that the page exists,
 			# and that the user is allowed to edit(/remove) it.
@@ -237,7 +237,7 @@ sub sessioncgi ($$) {
 			}
 		}
 		else {
-			removal_confirm($q, $session, 0, $q->param("page"));
+			removal_confirm($q, $session, 0, $form->field("page"));
 		}
 
 		exit 0;
