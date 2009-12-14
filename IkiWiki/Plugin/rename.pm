@@ -235,6 +235,7 @@ sub formbuilder (@) {
 
 	if (defined $form->field("do") && ($form->field("do") eq "edit" ||
 	    $form->field("do") eq "create")) {
+    		IkiWiki::decode_form_utf8($form);
 		my $q=$params{cgi};
 		my $session=$params{session};
 
@@ -242,7 +243,7 @@ sub formbuilder (@) {
 			rename_start($q, $session, 0, $form->field("page"));
 		}
 		elsif ($form->submitted eq "Rename Attachment") {
-			my @selected=$q->param("attachment_select");
+			my @selected=map { Encode::decode_utf8($_) } $q->param("attachment_select");
 			if (@selected > 1) {
 				error(gettext("Only one attachment can be renamed at a time."));
 			}
@@ -278,7 +279,7 @@ sub sessioncgi ($$) {
 
 	if ($q->param("do") eq 'rename') {
         	my $session=shift;
-		my ($form, $buttons)=rename_form($q, $session, $q->param("page"));
+		my ($form, $buttons)=rename_form($q, $session, Encode::decode_utf8($q->param("page")));
 		IkiWiki::decode_form_utf8($form);
 
 		if ($form->submitted eq 'Cancel') {
@@ -290,9 +291,9 @@ sub sessioncgi ($$) {
 
 			# These untaints are safe because of the checks
 			# performed in check_canrename later.
-			my $src=$q->param("page");
+			my $src=$form->field("page");
 			my $srcfile=IkiWiki::possibly_foolish_untaint($pagesources{$src});
-			my $dest=IkiWiki::possibly_foolish_untaint(titlepage($q->param("new_name")));
+			my $dest=IkiWiki::possibly_foolish_untaint(titlepage($form->field("new_name")));
 			my $destfile=$dest;
 			if (! $q->param("attachment")) {
 				my $type=$q->param('type');
