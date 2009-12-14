@@ -1407,7 +1407,7 @@ sub check_content (@) {
 		my %old=map { $_ => 1 }
 		        split("\n", readfile(srcfile($pagesources{$params{page}})));
 		foreach my $line (split("\n", $params{content})) {
-			push @diff, $line if ! exists $old{$_};
+			push @diff, $line if ! exists $old{$line};
 		}
 		$params{diff}=join("\n", @diff);
 	}
