@@ -235,11 +235,15 @@ sub cgi_prefs ($$) {
 	showform($form, $buttons, $session, $q);
 }
 
-sub cgi_custom_failure ($$) {
-	my $header=shift;
+sub cgi_custom_failure ($$$) {
+	my $q=shift;
+	my $httpstatus=shift;
 	my $message=shift;
 
-	print $header;
+	print $q->header(
+		-status => $httpstatus,
+		-charset => 'utf-8',
+	);
 	print $message;
 
 	# Internet Explod^Hrer won't show custom 404 responses
@@ -274,7 +278,7 @@ sub check_banned ($$) {
 		$session->delete();
 		cgi_savesession($session);
 		cgi_custom_failure(
-			$q->header(-status => "403 Forbidden"),
+			$q, "403 Forbidden",
 			gettext("You are banned."));
 	}
 }

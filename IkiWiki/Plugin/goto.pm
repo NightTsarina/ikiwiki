@@ -51,7 +51,8 @@ sub cgi_goto ($;$) {
 
 	if (! length $link) {
 		IkiWiki::cgi_custom_failure(
-			$q->header(-status => "404 Not Found"),
+			$q,
+			"404 Not Found",
 			IkiWiki::misctemplate(gettext("missing page"),
 				"<p>".
 				sprintf(gettext("The page %s does not exist."),

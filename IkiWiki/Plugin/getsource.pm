@@ -58,7 +58,8 @@ sub cgi_getsource ($) {
 
 	if (! exists $pagesources{$page}) {
 		IkiWiki::cgi_custom_failure(
-			$cgi->header(-status => "404 Not Found"),
+			$cgi,
+			"404 Not Found",
 			IkiWiki::misctemplate(gettext("missing page"),
 				"<p>".
 				sprintf(gettext("The page %s does not exist."),
