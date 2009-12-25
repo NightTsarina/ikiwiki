@@ -10,19 +10,38 @@ Currently, the levels=X parameter lets you tweak how deep it will go for small h
 > > projects prefer to receive changes as unified diffs (or as
 > > branches in their chosen VCS, which is [[git]] here). --[[smcv]]
 
-	56,57c56,57
-	<       my $curlevel;
-	<       my $startlevel=0;
-	---
-	>       my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
-	>       my $curlevel=$startlevel-1;
-	69a70
-	>                       # unless we're given startlevel as a parameter
-	73a75,79
-	>                       elsif (defined $params{startlevel}
-	>                              and $level < $params{startlevel})
-	>                       {
-	>                           return;
-	>                       }
+> > > Done. -- [[KathrynAndersen]]
+
+
+	--- /files/git/other/ikiwiki/IkiWiki/Plugin/toc.pm	2009-11-16 12:44:00.352050178 +1100
+	+++ toc.pm	2009-12-26 06:36:06.686512552 +1100
+	@@ -53,8 +53,8 @@
+	 	my $page="";
+	 	my $index="";
+	 	my %anchors;
+	-	my $curlevel;
+	-	my $startlevel=0;
+	+	my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
+	+	my $curlevel=$startlevel-1;
+	 	my $liststarted=0;
+	 	my $indent=sub { "\t" x $curlevel };
+	 	$p->handler(start => sub {
+	@@ -67,10 +67,16 @@
+	 	
+	 			# Take the first header level seen as the topmost level,
+	 			# even if there are higher levels seen later on.
+	+			# unless we're given startlevel as a parameter
+	 			if (! $startlevel) {
+	 				$startlevel=$level;
+	 				$curlevel=$startlevel-1;
+	 			}
+	+			elsif (defined $params{startlevel}
+	+			       and $level < $params{startlevel})
+	+			{
+	+			    return;
+	+			}
+	 			elsif ($level < $startlevel) {
+	 				$level=$startlevel;
+	 			}
 
 [[!tag patch]]
