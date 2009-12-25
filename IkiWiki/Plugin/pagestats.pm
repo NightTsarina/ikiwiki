@@ -63,6 +63,16 @@ sub preprocess (@) {
 		$max = $counts{$page} if $counts{$page} > $max;
 	}
 
+	if (exists $params{show}) {
+		my $i=0;
+		my %show;
+		foreach my $key (sort { $counts{$b} <=> $counts{$a} } keys %counts) {
+			last if ++$i > $params{show};
+			$show{$key}=$counts{$key};
+		}
+		%counts=%show;
+	}
+
 	if ($style eq 'table') {
 		return "<table class='pageStats'>\n".
 			join("\n", map {
