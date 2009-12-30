@@ -12,3 +12,12 @@ title is specified, to retain the current behavior of the default title
 being "comment N".
 
 What do you think [[smcv]]? --[[Joey]] 
+
+> I had to use md5sums, as sha1sum perl module may not be available and I
+> didn't want to drag it in. But I think that's ok; this doesn't need to be
+> cryptographically secure and even the chances of being able to
+> purposefully cause a md5 collision and thus an undesired merge conflict
+> are quite low since it modifies the input text and adds a date stamp to
+> it.
+>
+> Anyway, I think it's good, [[[done]] --[[Joey]] 

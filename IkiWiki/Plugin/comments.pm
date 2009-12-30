@@ -377,8 +377,6 @@ sub editcomment ($$) {
 	IkiWiki::check_canedit($page, $cgi, $session);
 	$postcomment=0;
 
-	my $location=unique_comment_location($page, $config{srcdir});
-
 	my $content = "[[!comment format=$type\n";
 
 	# FIXME: handling of double quotes probably wrong?
@@ -410,8 +408,11 @@ sub editcomment ($$) {
 	my $subject = $form->field('subject');
 	if (defined $subject && length $subject) {
 		$subject =~ s/"/&quot;/g;
-		$content .= " subject=\"$subject\"\n";
 	}
+	else {
+		$subject = "comment ".(num_comments($page, $config{srcdir}) + 1);
+	}
+	$content .= " subject=\"$subject\"\n";
 
 	$content .= " date=\"" . decode_utf8(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime)) . "\"\n";
 
@@ -420,6 +421,8 @@ sub editcomment ($$) {
 	$editcontent =~ s/\r/\n/g;
 	$editcontent =~ s/"/\\"/g;
 	$content .= " content=\"\"\"\n$editcontent\n\"\"\"]]\n";
+
+	my $location=unique_comment_location($page, $content, $config{srcdir});
 
 	# This is essentially a simplified version of editpage:
 	# - the user does not control the page that's created, only the parent
@@ -458,7 +461,7 @@ sub editcomment ($$) {
 
 		if (! $ok) {
 			my $penddir=$config{wikistatedir}."/comments_pending";
-			$location=unique_comment_location($page, $penddir);
+			$location=unique_comment_location($page, $content, $penddir);
 			writefile("$location._comment", $penddir, $content);
 			IkiWiki::printheader($session);
 			print IkiWiki::misctemplate(gettext(gettext("comment stored for moderation")),
@@ -554,7 +557,7 @@ sub commentmoderation ($$) {
 				if ($action eq 'Accept') {
 					my $content=eval { readfile($file) };
 					next if $@; # file vanished since form was displayed
-					my $dest=unique_comment_location($page, $config{srcdir})."._comment";
+					my $dest=unique_comment_location($page, $content, $config{srcdir})."._comment";
 					writefile($dest, $config{srcdir}, $content);
 					if ($config{rcs} and $config{comments_commit}) {
 						IkiWiki::rcs_add($dest);
@@ -813,15 +816,28 @@ sub pagetemplate (@) {
 	}
 }
 
-sub unique_comment_location ($) {
+sub num_comments ($$) {
 	my $page=shift;
 	my $dir=shift;
 
+	my @comments=glob("$dir/$page/$config{comments_pagename}*._comment");
+	return @comments;
+}
+
+sub unique_comment_location ($$$) {
+	my $page=shift;
+
+	eval q{use Digest::MD5 'md5_hex'};
+	error($@) if $@;
+	my $content_md5=md5_hex(shift);
+
+	my $dir=shift;
+
 	my $location;
-	my $i = 0;
+	my $i = num_comments($page, $dir);
 	do {
 		$i++;
-		$location = "$page/$config{comments_pagename}$i";
+		$location = "$page/$config{comments_pagename}${i}_${content_md5}";
 	} while (-e "$dir/$location._comment");
 
 	return $location;
