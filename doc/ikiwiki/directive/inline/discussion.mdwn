@@ -132,9 +132,7 @@ Else can you please suggest a smarter way of getting certain data out from pages
 Reading the documentation I would think that `feedshow` does not
 influence `show`.
 
-	 [[!inline pages="./blog/*" archive=yes quick=yes feedshow=10 sort=title reverse=yes]]
-
-> Somehow the line above is not displayed correctly.
+	\[[!inline pages="./blog/*" archive=yes quick=yes feedshow=10 sort=title reverse=yes]]
 
 Only ten pages are listed in this example although `archive` is set to
 yes. Removing `feedshow=10` all matching pages are shown.
@@ -144,3 +142,5 @@ Is that behaviour intended?
 > Is something going wrong because `quick="yes"` [[»turns off generation of any feeds«|inline]]? --[[PaulePanter]]
 
 --[[PaulePanter]]
+
+>> Bug was that if feedshow was specified without show it limited to it incorrectly. Fixed. --[[Joey]] 

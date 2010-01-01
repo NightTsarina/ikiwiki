@@ -209,7 +209,7 @@ sub preprocess_inline (@) {
 		if ($params{show}) {
 			$num=$params{show};
 		}
-		if ($params{feedshow} && $num < $params{feedshow}) {
+		if ($params{feedshow} && $num < $params{feedshow} && $num > 0) {
 			$num=$params{feedshow};
 		}
 		if ($params{skip} && $num) {
