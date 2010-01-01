@@ -7,9 +7,7 @@ graph showing the links between a set of pages in the wiki. Example usage:
 
 Only links between mapped pages will be shown; links pointing to or from
 unmapped pages will be omitted. If the pages to include are not specified,
-the links between all pages (and other files) in the wiki are mapped. For
-best results, only a small set of pages should be mapped, since otherwise
-the map can become very large, unwieldy, and complicated.
+the links between all pages (and other files) in the wiki are mapped. 
 
 Here are descriptions of all the supported parameters to the `linkmap`
 directive:
@@ -18,5 +16,14 @@ directive:
 * `height`, `width` - Limit the size of the map to a given height and width,
   in inches. Both must be specified for the limiting to take effect, otherwise
   the map's size is not limited.
+* `connected` - Controls whether to include pages on the map that link to
+  no other pages (connected=no, the default), or to only show pages that
+  link to others (connected=yes).
+
+For best results, only a small set of pages should be mapped, since
+otherwise the map can become very large, unwieldy, and complicated.
+If too many pages are included, the map may get so large that graphviz
+cannot render it. Using the `connected` parameter is a good way to prune
+out pages that clutter the map.
 
 [[!meta robots="noindex, follow"]]
