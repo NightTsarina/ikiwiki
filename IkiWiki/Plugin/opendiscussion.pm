@@ -23,7 +23,7 @@ sub canedit ($$) {
 	my $cgi=shift;
 	my $session=shift;
 
-	return "" if $page=~/(\/|^)\Q$config{discussionpage}\E$/;
+	return "" if $page=~/(\/|^)\Q$config{discussionpage}\E$/i;
 	return undef;
 }
 
