@@ -137,7 +137,7 @@ sub format_month (@) {
 		$purl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$pyear/$pmonth",
 			noimageinline => 1,
-			linktext => "\&larr",
+			linktext => "\&larr;",
 			title => $pmonthname);
 	}
 	add_depends($params{page}, "$archivebase/$pyear/$pmonth",
@@ -146,7 +146,7 @@ sub format_month (@) {
 		$nurl = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$nyear/$nmonth",
 			noimageinline => 1,
-			linktext => "\&rarr",
+			linktext => "\&rarr;",
 			title => $nmonthname);
 	}
 	add_depends($params{page}, "$archivebase/$nyear/$nmonth",
