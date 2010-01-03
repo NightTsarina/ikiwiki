@@ -8,3 +8,11 @@ required for those.
 and a whitelist of OpenIDs in `locked_pages`...)
 
 --[[schmonz]]
+
+> The only way I can see to support this combination is for httpauth with
+> cgiauthurl to work more like other actual login types. Which would mean
+> that on editing a page that needs authentication, ikiwiki would redirect
+> them to the Signin page, which would then have a link they could follow
+> to bounce through the cgiauthurl and actually sign in. This would be
+> significantly different than the regular httpauth process, in which the
+> user signs in in passing. --[[Joey]]
