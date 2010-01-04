@@ -7,6 +7,7 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "getsetup", id => "lockedit", call => \&getsetup);
+	hook(type => "checkconfig", id => "lockedit", call => \&checkconfig);
 	hook(type => "canedit", id => "lockedit", call => \&canedit);
 }
 
@@ -24,6 +25,12 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 0,
 		},
+}
+
+sub checkconfig () {
+	if (! exists $IkiWiki::hooks{auth}) {
+		error gettext("lockedit plugin is enabled, but no authentication plugins are enabled");
+	}
 }
 
 sub canedit ($$) {
