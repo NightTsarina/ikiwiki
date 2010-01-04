@@ -369,9 +369,12 @@ sub preprocess_inline (@) {
 									forcesubpage => 1));
 						}
 					}
-					if (length $config{cgiurl} && defined $type) {
+					if (length $config{cgiurl} &&
+					    defined $type &&
+					    IkiWiki->can("cgi_editpage")) {
 						$template->param(have_actions => 1);
 						$template->param(editurl => cgiurl(do => "edit", page => $page));
+
 					}
 				}
 	
