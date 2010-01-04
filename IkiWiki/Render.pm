@@ -78,11 +78,14 @@ sub genpage ($$) {
 	my $actions=0;
 
 	if (length $config{cgiurl}) {
-		$template->param(editurl => cgiurl(do => "edit", page => $page))
-			if IkiWiki->can("cgi_editpage");
-		$template->param(prefsurl => cgiurl(do => "prefs"))
-			if exists $hooks{auth};
-		$actions++;
+		if (IkiWiki->can("cgi_editpage")) {
+			$template->param(editurl => cgiurl(do => "edit", page => $page));
+			$actions++;
+		}
+		if (exists $hooks{auth}) {
+			$template->param(prefsurl => cgiurl(do => "prefs"));
+			$actions++;
+		}
 	}
 		
 	if (defined $config{historyurl} && length $config{historyurl}) {
