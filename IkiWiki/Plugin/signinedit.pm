@@ -29,6 +29,7 @@ sub canedit ($$$) {
 	# signin can override this.
         if (! defined $session->param("name") ||
             ! IkiWiki::userinfo_get($session->param("name"), "regdate")) {
+	        return "" unless exists $IkiWiki::hooks{auth};
 		return sub { IkiWiki::needsignin($cgi, $session) };
 	}
 	else {
