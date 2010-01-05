@@ -24,3 +24,13 @@ and a whitelist of OpenIDs in `locked_pages`...)
 >> the current page can be edited by the current user (if any)? What
 >> if there were a way to require particular auth plugins for particular
 >> PageSpecs? --[[schmonz]]
+
+>>> The decision about whether a user can edit a page is made by plugins
+>>> such as signinedit and lockedit, that also use canedit hooks to redirect
+>>> the user to a signin page if necessary.
+>>> 
+>>> A tweak on my earlier suggestion would be to have httpauth notice when the 
+>>> Signin page is being built and immediatly redirect to the cgiauthurl
+>>> before the page can be shown to the user. This would, though, not play
+>>> well with other authentication methods like openid, since the user
+>>> would never see the Signin form. --[[Joey]]
