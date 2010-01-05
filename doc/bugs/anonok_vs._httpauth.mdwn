@@ -36,12 +36,12 @@ and a whitelist of OpenIDs in `locked_pages`...)
 >>> would never see the Signin form. --[[Joey]]
 
 >>>> Would I be able to do what I want with a local plugin that
->>>> knows my auth requirements and abuses canedit -- e.g., if the page
->>>> matches */Discussion, redirect to Signin form, else httpauth? --[[schmonz]]
+>>>> abuses canedit (and auth) to reach in and call the appropriate
+>>>> plugin's auth method -- e.g., if the page matches */Discussion,
+>>>> call `openid:auth()`, else `httpauth:auth()`? --[[schmonz]]
 
->>>>> If you wanted users to need to login with openid or passwordauth
->>>>> for discussion pages, you could do that. That seems it would be
->>>>> annoying for httpauth users (who were not current authed) though,
->>>>> as they would then see the openid signin form. 
->>>>> 
+>>>>> That seems it would be
+>>>>> annoying for httpauth users (who were not currently authed),
+>>>>> as they would then see the openid signin form when going to edit a
+>>>>> Discussion page.
 >>>>> --[[Joey]]
