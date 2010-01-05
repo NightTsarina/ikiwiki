@@ -155,16 +155,23 @@ sub preprocess (@) {
 		'" height="'.$dheight.'"'.
 		(exists $params{alt} ? ' alt="'.$params{alt}.'"' : '').
 		(exists $params{title} ? ' title="'.$params{title}.'"' : '').
-		(exists $params{align} ? ' align="'.$params{align}.'"' : '').
 		(exists $params{class} ? ' class="'.$params{class}.'"' : '').
 		(exists $params{id} ? ' id="'.$params{id}.'"' : '').
 		' />';
 
 	if (! defined $params{link} || lc($params{link}) eq 'yes') {
-		$imgtag='<a href="'.$fileurl.'">'.$imgtag.'</a>';
+		if (exists $params{caption} || !exists $params{align}) {
+			$imgtag='<a href="'.$fileurl.'">'.$imgtag.'</a>';
+		} else {
+			$imgtag='<a href="'.$fileurl.'" class="align-'.$params{align}.'">'.$imgtag.'</a>';
+		}
 	}
 	elsif ($params{link} =~ /^\w+:\/\//) {
-		$imgtag='<a href="'.$params{link}.'">'.$imgtag.'</a>';
+		if (exists $params{caption} || !exists $params{align}) {
+			$imgtag='<a href="'.$params{link}.'">'.$imgtag.'</a>';
+		} else {
+			$imgtag='<a href="'.$params{link}.'" class="align-'.$params{align}.'">'.$imgtag.'</a>';
+		}
 	}
 	else {
 		my $b = bestlink($params{page}, $params{link});
@@ -173,12 +180,16 @@ sub preprocess (@) {
 			add_depends($params{page}, $b, deptype("presence"));
 			$imgtag=htmllink($params{page}, $params{destpage},
 				$params{link}, linktext => $imgtag,
-				noimageinline => 1);
+				noimageinline => 1,
+				(exists $params{caption} || !exists $params{align}) ?
+					() : (class => 'align-'.$params{align}));
 		}
 	}
 
 	if (exists $params{caption}) {
-		return '<table class="img">'.
+		return '<table class="img'.
+			(exists $params{align} ? ' align-'.$params{align} : '').
+			'">'.
 			'<caption>'.$params{caption}.'</caption>'.
 			'<tr><td>'.$imgtag.'</td></tr>'.
 			'</table>';
