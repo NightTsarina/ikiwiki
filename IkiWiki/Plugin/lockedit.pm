@@ -7,7 +7,6 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "getsetup", id => "lockedit", call => \&getsetup);
-	hook(type => "checkconfig", id => "lockedit", call => \&checkconfig);
 	hook(type => "canedit", id => "lockedit", call => \&canedit);
 }
 
@@ -27,12 +26,6 @@ sub getsetup () {
 		},
 }
 
-sub checkconfig () {
-	if (! exists $IkiWiki::hooks{auth}) {
-		error gettext("lockedit plugin is enabled, but no authentication plugins are enabled");
-	}
-}
-
 sub canedit ($$) {
 	my $page=shift;
 	my $cgi=shift;
@@ -46,8 +39,9 @@ sub canedit ($$) {
 		    user => $session->param("name"),
 		    ip => $ENV{REMOTE_ADDR},
 	    )) {
-		if (! defined $user ||
-		    ! IkiWiki::userinfo_get($session->param("name"), "regdate")) {
+		if ((! defined $user ||
+		    ! IkiWiki::userinfo_get($session->param("name"), "regdate")) &&
+		    exists $IkiWiki::hooks{auth}) {
 			return sub { IkiWiki::needsignin($cgi, $session) };
 		}
 		else {
