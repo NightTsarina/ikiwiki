@@ -224,7 +224,7 @@ sub preprocess {
 		$pagestate{$page}{meta}{title} = $params{subject};
 	}
 
-	if ($params{page} =~ m/\/(\Q$config{comments_pagename}\E\d+)$/) {
+	if ($params{page} =~ m/\/\Q$config{comments_pagename}\E\d+_/) {
 		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page}), undef, 1).
 			"#".page_to_id($params{page});
 	}
