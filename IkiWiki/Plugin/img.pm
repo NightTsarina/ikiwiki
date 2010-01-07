@@ -159,21 +159,20 @@ sub preprocess (@) {
 		(exists $params{id} ? ' id="'.$params{id}.'"' : '').
 		' />';
 
+	my $alignclass=exists $params{align} ? "align-$params{align}" : "";
+
+	my $link;
 	if (! defined $params{link} || lc($params{link}) eq 'yes') {
-		if (exists $params{caption} || !exists $params{align}) {
-			$imgtag='<a href="'.$fileurl.'">'.$imgtag.'</a>';
-		}
-		else {
-			$imgtag='<a href="'.$fileurl.'" class="align-'.$params{align}.'">'.$imgtag.'</a>';
-		}
+		$link=$fileurl;
 	}
 	elsif ($params{link} =~ /^\w+:\/\//) {
-		if (exists $params{caption} || !exists $params{align}) {
-			$imgtag='<a href="'.$params{link}.'">'.$imgtag.'</a>';
-		}
-		else {
-			$imgtag='<a href="'.$params{link}.'" class="align-'.$params{align}.'">'.$imgtag.'</a>';
-		}
+		$link=$params{link};
+	}
+
+	if (defined $link) {
+		$imgtag='<a href="'.$link.'"'.
+			(!exists $params{caption} && $alignclass ? ' class="'.$alignclass.'"' : '').
+			'>'.$imgtag.'</a>';
 	}
 	else {
 		my $b = bestlink($params{page}, $params{link});
@@ -183,14 +182,15 @@ sub preprocess (@) {
 			$imgtag=htmllink($params{page}, $params{destpage},
 				$params{link}, linktext => $imgtag,
 				noimageinline => 1,
-				(exists $params{caption} || !exists $params{align}) ?
-					() : (class => 'align-'.$params{align}));
+				(!exists $params{caption} && $alignclass) ?
+					(class => $alignclass) : (),
+			);
 		}
 	}
 
 	if (exists $params{caption}) {
 		return '<table class="img'.
-			(exists $params{align} ? ' align-'.$params{align} : '').
+			($alignclass ? ' '.$alignclass : '').
 			'">'.
 			'<caption>'.$params{caption}.'</caption>'.
 			'<tr><td>'.$imgtag.'</td></tr>'.
