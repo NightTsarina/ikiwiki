@@ -162,14 +162,16 @@ sub preprocess (@) {
 	if (! defined $params{link} || lc($params{link}) eq 'yes') {
 		if (exists $params{caption} || !exists $params{align}) {
 			$imgtag='<a href="'.$fileurl.'">'.$imgtag.'</a>';
-		} else {
+		}
+		else {
 			$imgtag='<a href="'.$fileurl.'" class="align-'.$params{align}.'">'.$imgtag.'</a>';
 		}
 	}
 	elsif ($params{link} =~ /^\w+:\/\//) {
 		if (exists $params{caption} || !exists $params{align}) {
 			$imgtag='<a href="'.$params{link}.'">'.$imgtag.'</a>';
-		} else {
+		}
+		else {
 			$imgtag='<a href="'.$params{link}.'" class="align-'.$params{align}.'">'.$imgtag.'</a>';
 		}
 	}
