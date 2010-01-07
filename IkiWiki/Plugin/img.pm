@@ -162,7 +162,7 @@ sub preprocess (@) {
 	my $alignclass=exists $params{align} ? "align-$params{align}" : "";
 
 	my $link;
-	if (! defined $params{link} || lc($params{link}) eq 'yes') {
+	if (! defined $params{link}) {
 		$link=$fileurl;
 	}
 	elsif ($params{link} =~ /^\w+:\/\//) {
