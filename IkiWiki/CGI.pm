@@ -65,8 +65,9 @@ sub decode_form_utf8 ($) {
 	if ($] >= 5.01) {
 		my $form = shift;
 		foreach my $f ($form->field) {
+			my @value=map { decode_utf8($_) } $form->field($f);
 			$form->field(name  => $f,
-			             value => decode_utf8($form->field($f)),
+			             value => \@value,
 		                     force => 1,
 			);
 		}
