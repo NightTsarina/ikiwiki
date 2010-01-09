@@ -139,7 +139,11 @@ sub showfields ($$$@) {
 		my $value=$config{$key};
 
 		if ($info{safe} && (ref $value eq 'ARRAY' || ref $info{example} eq 'ARRAY')) {
-			$value=[(ref $value eq 'ARRAY' ? @{$value} : ""), "", ""]; # blank items for expansion
+			$value=[(ref $value eq 'ARRAY' ? map { Encode::encode_utf8($_) }  @{$value} : ""),
+				"", ""]; # blank items for expansion
+		}
+		else {
+			$value=Encode::encode_utf8($value);
 		}
 
 		if ($info{type} eq "string") {
@@ -290,7 +294,6 @@ sub showform ($$) {
 		shift->(form => $form, cgi => $cgi, session => $session,
 			buttons => $buttons);
 	});
-	IkiWiki::decode_form_utf8($form);
 
 	my %fields=showfields($form, undef, undef, IkiWiki::getsetup());
 	
@@ -308,6 +311,8 @@ sub showform ($$) {
 			$fields{$_}=$shown{$_} foreach keys %shown;
 		}
 	}
+
+	IkiWiki::decode_form_utf8($form);
 	
 	if ($form->submitted eq "Cancel") {
 		IkiWiki::redirect($cgi, $config{url});
