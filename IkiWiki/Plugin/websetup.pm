@@ -362,7 +362,11 @@ sub showform ($$) {
 				@value=sort grep { length $_ } @value;
 				my @oldvalue=sort grep { length $_ }
 					(defined $config{$key} ? @{$config{$key}} : ());
-				if ((@oldvalue) == (@value)) {
+				my $same=(@oldvalue) == (@value);
+				for (my $x=0; $same && $x < @value; $x++) {
+					$same=0 if $value[$x] ne $oldvalue[$x];
+				}
+				if ($same) {
 					delete $rebuild{$field};
 				}
 				else {
