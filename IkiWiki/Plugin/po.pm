@@ -63,6 +63,8 @@ sub import {
 	inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
 	$origsubs{'rootpage'}=\&IkiWiki::rootpage;
 	inject(name => "IkiWiki::rootpage", call => \&myrootpage);
+	$origsubs{'isselflink'}=\&IkiWiki::isselflink;
+	inject(name => "IkiWiki::isselflink", call => \&myisselflink);
 }
 
 
@@ -669,6 +671,17 @@ sub myrootpage (@) {
 		$rootpage=masterpage($params{page});
 	}
 	return $rootpage;
+}
+
+sub myisselflink ($$) {
+	my $page=shift;
+	my $link=shift;
+
+	return 1 if $origsubs{'isselflink'}->($page, $link);
+	if (istranslation($page)) {
+		return $origsubs{'isselflink'}->(masterpage($page), $link);
+        }
+	return;
 }
 
 # ,----
