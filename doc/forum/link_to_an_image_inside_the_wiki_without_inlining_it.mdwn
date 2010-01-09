@@ -7,3 +7,35 @@ I tought this:
 would work, but it doesn't.
 
 Any hints?
+
+> Well, currently the syntax above will display the image
+> inline with the specified link text used as an alt attribute. Although
+> that does not seem to be documented anywhere.
+> 
+> A few places that use that (found with `git grep '\[\[' | egrep 'png|gif|jpeg|jpg' |grep \|`):
+> 
+> * [[logos]] uses it to provide useful alt texts for the logos. (This
+>   could easily be changed to use [[ikiwiki/directives/img]] though.)
+> * The `change.tmpl` template uses it to display 
+>   the [[diff|wikiicons/diff.png]] with a very useful "diff" alt text.
+>   Using [[ikiwiki/directives/img]] here would mean that the
+>   [[ikiwiki/plugins/recentchanges]] plugin would depend upon the img
+>   plugin.
+> 
+> I do like your suggestion, it makes more sense than the current behavior.
+> I'm not sure the transition pain to get from here to there is worth it,
+> though.
+> 
+> More broadly, if I were writing ikiwiki now, I might choose to leave out the
+> auto-inlining of images altogether. In practice, it has added a certian level
+> of complexity to ikiwiki, with numerous plugins needing to specify
+> `noimageinline` to avoid accidentially inlining an image. And there has not
+> been a lot of payoff from having the auto-inlining feature implicitly
+> available most places. And the img directive allows much needed control over
+> display, so it would be better for users to not have to worry about its
+> lesser cousin. But the transition from here to *there* would be another order
+> of pain.
+> 
+> Anyway, the cheap and simple answer to your question is to use html
+> or markdown instead of a [[ikiwiki/wikilink]]. Ie, 
+> `[look at this](img/lolcat.jpg)`. --[[Joey]]
