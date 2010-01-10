@@ -9,7 +9,6 @@ use IPC::Open2;
 sub import {
 	hook(type => "getsetup", id => "linkmap", call => \&getsetup);
 	hook(type => "preprocess", id => "linkmap", call => \&preprocess);
-	hook(type => "format", id => "linkmap", call => \&format);
 }
 
 sub getsetup () {
@@ -21,34 +20,13 @@ sub getsetup () {
 }
 
 my $mapnum=0;
-my %maps;
 
 sub preprocess (@) {
 	my %params=@_;
 
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Can't just return the linkmap here, since the htmlscrubber
-	# scrubs out all <object> tags (with good reason!)
-	# Instead, insert a placeholder tag, which will be expanded during
-	# formatting.
 	$mapnum++;
-	$maps{$mapnum}=\%params;
-	return "<div class=\"linkmap$mapnum\"></div>";
-}
-
-sub format (@) {
-        my %params=@_;
-
-	$params{content}=~s/<div class=\"linkmap(\d+)"><\/div>/genmap($1)/eg;
-
-        return $params{content};
-}
-
-sub genmap ($) {
-	my $mapnum=shift;
-	return "" unless exists $maps{$mapnum};
-	my %params=%{$maps{$mapnum}};
 	my $connected=IkiWiki::yesno($params{connected});
 
 	# Get all the items to map.
@@ -102,10 +80,10 @@ sub genmap ($) {
 	close OUT || error gettext("failed to run dot");
 
 	local $/=undef;
-	my $ret="<object data=\"".urlto($dest, $params{destpage}).
-	       "\" type=\"image/png\" usemap=\"#linkmap$mapnum\">\n".
-	        <IN>.
-	        "</object>";
+	my $ret="<img src=\"".urlto($dest, $params{destpage}).
+	       "\" alt=\"".gettext("linkmap").
+	       "\" usemap=\"#linkmap$mapnum\" />\n".
+	        <IN>;
 	close IN || error gettext("failed to run dot");
 	
 	waitpid $pid, 0;
