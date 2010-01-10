@@ -49,7 +49,7 @@ Any hints? --[[jerojasro]]
 >>> * Have things that are wikilink-aware (like [[plugins/brokenlinks]]
 >>>   treat your link to the image as a wikilink. 
 >>> * Use standard wikilink path stuff (and not have to worry about 
->>>   a raw html link breaking if the page it's on is inlined, for
+>>>   a relative html link breaking if the page it's on is inlined, for
 >>>   example).
 >>>
 >>> I can help you bang that plugin into shape if need be. --[[Joey]] 
@@ -60,3 +60,10 @@ Any hints? --[[jerojasro]]
 >>>> Get the "plugin" [here](http://devnull.li/~jerojasro/files/linktoimgonly.pm), see the broken 
 >>>> links generated [here](http://devnull.li/~jerojasro/blog/posts/job_offers/) and the source 
 >>>> file for that page [here](http://git.devnull.li/cgi-bin/gitweb.cgi?p=blog-jerojasro.git;a=blob;f=posts/job_offers.mdwn;hb=HEAD) --[[jerojasro]]
+
+>>>>> Use this --[[Joey]] 
+
+	return htmllink($params{page}, $params{destpage}, $params{"img"},
+	    linktext => $params{text},
+	    noimageinline => 1);
+
