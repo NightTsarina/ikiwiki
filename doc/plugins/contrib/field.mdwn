@@ -13,6 +13,9 @@ IkiWiki::Plugin::field - front-end for per-page record fields.
     # simple registration
     field_register => [qw{meta}],
 
+    # allow the config to be queried as a field
+    field_allow_config => 1,
+
 ## DESCRIPTION
 
 This plugin is meant to be used in conjunction with other plugins
@@ -32,7 +35,16 @@ a given page.  This can be used in three ways:
 
 The following options can be set in the ikiwiki setup file.
 
+**field_allow_config**
+
+    field_allow_config => 1,
+
+Allow the $config hash to be queried like any other field; the 
+keys of the config hash are the field names.
+
 **field_register**
+
+    field_register => [qw{meta}],
 
 A list of plugin-IDs to register.  This assumes that the plugins in
 question store data in the %pagestatus hash using the ID of that plugin,
@@ -46,11 +58,16 @@ registered with the "field" plugin.
 
 The "field" PageSpec function can be used to match the value of a field for a page.
 
-field(*name* *glob*)
+**field(*name* *glob*)**
 
 For example:
 
 field(bar Foo*) will match if the "bar" field starts with "Foo".
+
+**destfield(*name* *glob*)**
+
+is the same, except that it tests the destination page (that is, in cases
+when the source page is being included in another page).
 
 ## FUNCTIONS
 
