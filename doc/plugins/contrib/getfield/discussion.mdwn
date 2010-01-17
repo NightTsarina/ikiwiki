@@ -9,6 +9,11 @@ Like you mentioned in [[ftemplate]] IIRC, it'll only work on the same page. If i
 
 >> I don't know the internals very well, I think that's how other plugins do it. *goes to check* Usually it's a `foreach` loop, and use a `pagestate{foo}` to check the page's status/state. There's also some stuff like 'pagespec_match_list($params{page}` ... they do slightly different thing depending on need. --[[SR|users/simonraven]]
 
+>>> No, I meant what markup I should use; the actual implementation probably wouldn't be too difficult.
+
+>>> The current markup is {{$*fieldname*}}; what you're wanting, perhaps it should be represented like {{$*pagename*:*fieldname*}}, or {{$*pagename*::*fieldname*}} or something else...
+>>> -- [[KathrynAndersen]]
+
 > I'm also working on a "report" plugin, which will basically apply a template like [[ftemplate]] does, but to a list of pages given from a pagespec, rather than the current page.
 
 > -- [[users/KathrynAndersen]]
