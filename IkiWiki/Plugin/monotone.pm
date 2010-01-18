@@ -558,7 +558,8 @@ sub rcs_recentchanges ($) {
 					# from the changelog
 					if ($cert->{key} eq $config{mtnkey}) {
 						$committype = "web";
-					} else {
+					}
+					else {
 						$committype = "mtn";
 					}
 				} elsif ($cert->{name} eq "date") {

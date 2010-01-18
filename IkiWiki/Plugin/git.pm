@@ -419,7 +419,10 @@ sub git_sha1 (;$) {
 		'--', $file);
 	if ($sha1) {
 		($sha1) = $sha1 =~ m/($sha1_pattern)/; # sha1 is untainted now
-	} else { debug("Empty sha1sum for '$file'.") }
+	}
+	else {
+		debug("Empty sha1sum for '$file'.");
+	}
 	return defined $sha1 ? $sha1 : q{};
 }
 
