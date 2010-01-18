@@ -51,7 +51,7 @@ sub check_canremove ($$$) {
 			IkiWiki::Plugin::attachment::check_canattach($session, $page, $file);
 		}
 		else {
-			error("renaming of attachments is not allowed");
+			error("removal of attachments is not allowed");
 		}
 	}
 
