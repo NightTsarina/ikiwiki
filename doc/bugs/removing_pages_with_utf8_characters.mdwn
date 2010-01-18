@@ -2,6 +2,10 @@ I have a page with the name "umläute". When I try to remove it, ikiwiki says:
 
 Error: ?umlÃ¤ute does not exist 
 
+> I'm curious about the '?' in the "?umlÃ¤ute" message. Suggests that the
+> filename starts with another strange character. Can I get a copy of a
+> git repository or tarball containing this file? --[[Joey]] 
+
 I wrote the following patch, which seems to work on my machine. I'm running on FreeBSD 6.3-RELEASE with ikiwiki-3.20100102.3 and perl-5.8.9_3.
 
     --- remove.pm.orig      2009-12-14 23:26:20.000000000 +0100
@@ -16,3 +20,9 @@ I wrote the following patch, which seems to work on my machine. I'm running on F
                                     # This untaint is safe because of the
 
 
+> The problem with this patch is that, in a recent fix to the same
+> plugin, I made `@pages` come from `$form->field("page")`, and
+> that, in turn is already run through `decode_form_utf8` just above the
+> code you patched. So I need to understand why that is apparently not
+> working for you. (It works fine for me, even when deleting a file named 
+> "umläute" --[[Joey]] 
