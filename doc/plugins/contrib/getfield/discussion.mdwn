@@ -1,0 +1,28 @@
+## Templating, and other uses
+
+Like you mentioned in [[ftemplate]] IIRC, it'll only work on the same page. If it can be made to work anywhere, or from a specific place in the wiki - configurable, possibly - you'll have something very similar to mediawiki's templates. I can already think of a few uses for this combined with [[template]] ;) . --[[SR|users/simonraven]]
+
+> Yes, I mentioned "only current page" in the "LIMITATIONS" section.
+
+> What do you think would be a good syntax for querying other pages?
+> It needs to resolve to a single page, though I guess using "bestlink" to find the closest page would mean that one didn't have to spell out the whole page.
+
+>> I don't know the internals very well, I think that's how other plugins do it. *goes to check* Usually it's a `foreach` loop, and use a `pagestate{foo}` to check the page's status/state. There's also some stuff like 'pagespec_match_list($params{page}` ... they do slightly different thing depending on need. --[[SR|users/simonraven]]
+
+>>> No, I meant what markup I should use; the actual implementation probably wouldn't be too difficult.
+
+>>> The current markup is {{$*fieldname*}}; what you're wanting, perhaps it should be represented like {{$*pagename*:*fieldname*}}, or {{$*pagename*::*fieldname*}} or something else...
+>>> -- [[KathrynAndersen]]
+
+>>>> Oh. Hmm. I like your idea actually, or alternately, in keeping more with other plugins, doing it like {{pagename/fieldname}}. The meaning of the separator is less clear with /, but avoids potential issues with filename clashes that have a colon in them. It also keeps a certain logic - at least to me. Either way, I think both are good choices. [[SR|users/simonraven]]
+
+>>>>> What about using {{pagename#fieldname}}? The meaning of the hash in URLs sort of fits with what is needed here (reference to a 'named' thing within the page) and it won't conflict with actual hash usages (unless we expect different named parts of pages to define different values for the same field ...)
+>>>>> -- [[Oblomov]]
+>>>>>> That's a good one too. --[[simonraven]]
+
+
+> I'm also working on a "report" plugin, which will basically apply a template like [[ftemplate]] does, but to a list of pages given from a pagespec, rather than the current page.
+
+> -- [[users/KathrynAndersen]]
+
+>> Ooh, sounds nice :) . --[[SR|users/simonraven]]

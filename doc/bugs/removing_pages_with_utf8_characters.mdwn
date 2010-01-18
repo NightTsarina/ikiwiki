@@ -1,0 +1,18 @@
+I have a page with the name "umläute". When I try to remove it, ikiwiki says:
+
+Error: ?umlÃ¤ute does not exist 
+
+I wrote the following patch, which seems to work on my machine. I'm running on FreeBSD 6.3-RELEASE with ikiwiki-3.20100102.3 and perl-5.8.9_3.
+
+    --- remove.pm.orig      2009-12-14 23:26:20.000000000 +0100
+    +++ remove.pm   2010-01-18 17:49:39.000000000 +0100
+    @@ -193,6 +193,7 @@
+                            # and that the user is allowed to edit(/remove) it.
+                            my @files;
+                            foreach my $page (@pages) {
+    +                               $page = Encode::decode_utf8($page);
+                                    check_canremove($page, $q, $session);
+     
+                                    # This untaint is safe because of the
+
+
