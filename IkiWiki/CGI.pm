@@ -52,7 +52,7 @@ sub redirect ($$) {
 }
 
 sub decode_cgi_utf8 ($) {
-	# decode_form_utf8 method is needed for 5.10
+	# decode_form_utf8 method is needed for 5.01
 	if ($] < 5.01) {
 		my $cgi = shift;
 		foreach my $f ($cgi->param) {
