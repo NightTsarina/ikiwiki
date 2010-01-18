@@ -15,7 +15,8 @@ sub printheader ($) {
 	if ($config{sslcookie}) {
 		print $session->header(-charset => 'utf-8',
 			-cookie => $session->cookie(-httponly => 1, -secure => 1));
-	} else {
+	}
+	else {
 		print $session->header(-charset => 'utf-8',
 			-cookie => $session->cookie(-httponly => 1));
 	}
