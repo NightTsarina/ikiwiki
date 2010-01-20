@@ -51,6 +51,9 @@ sub checkconfig () {
 			wrappermode => (defined $config{git_wrappermode} ? $config{git_wrappermode} : "06755"),
 		};
 	}
+
+	# Avoid notes, parser does not handle and they only slow things down.
+	$ENV{GIT_NOTES_REF}="";
 	
 	# Run receive test only if being called by the wrapper, and not
 	# when generating same.
