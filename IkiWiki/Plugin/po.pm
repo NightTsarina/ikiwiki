@@ -1057,11 +1057,8 @@ sub commit_and_refresh ($$) {
 	IkiWiki::saveindex();
 }
 
-# on success, returns the filtered content.
-# on error, if $nonfatal, warn and return undef; else, error out.
-sub po_to_markup ($$;$) {
+sub po_to_markup ($$) {
 	my ($page, $content) = (shift, shift);
-	my $nonfatal = shift;
 
 	$content = '' unless defined $content;
 	$content = decode_utf8(encode_utf8($content));
@@ -1084,10 +1081,6 @@ sub po_to_markup ($$;$) {
 
 	my $fail = sub ($) {
 		my $msg = "po(po_to_markup) - $page : " . shift;
-		if ($nonfatal) {
-			warn $msg;
-			return undef;
-		}
 		error($msg, sub { unlink $infile, $outfile});
 	};
 
@@ -1108,8 +1101,7 @@ sub po_to_markup ($$;$) {
 	$doc->write($outfile)
 		or return $fail->(sprintf(gettext("failed to write %s"), $outfile));
 
-	$content = readfile($outfile)
-		or return $fail->(sprintf(gettext("failed to read %s"), $outfile));
+	$content = readfile($outfile);
 
 	# Unlinking should happen automatically, thanks to File::Temp,
 	# but it does not work here, probably because of the way writefile()
