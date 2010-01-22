@@ -1,0 +1,10 @@
+        " NOTE: the root of the wiki is considered the first directory that contains a
+        " .ikiwiki folder, except $HOME/.ikiwiki (the usual ikiwiki libdir)
+
+That's not going to work in all situations; for example, with an ikiwiki which uses git as the backend, the normal setup is that one has
+
+* a bare git repository
+* a git repository which ikiwiki builds the wiki from (which has a .ikiwiki directory in it)
+* an *additional* git repository cloned from the bare repository, which is used for making changes from the command-line rather than the web.  It is this repository in which one would be editing files with vim, and *this* repository does not have a .ikiwiki directory in it.  It does have a .git directory in the root, however, so I suppose you could use that as a method of detection of a root directory, but of course that would only work for git repositories.
+
+-- [[KathrynAndersen]]
