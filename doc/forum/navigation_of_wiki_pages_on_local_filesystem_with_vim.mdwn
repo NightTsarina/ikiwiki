@@ -1,0 +1,72 @@
+I wrote a vim function to help me navigate the wiki when I'm editing it. It extends the 'gf' (goto file) functionality. Once installed, you place the cursor on a wiki page name and press 'gf' (without the quotes); if the file exists, it gets loaded.
+
+This function takes into account the ikiwiki linking rules when deciding which file to go to.
+
+let me know what you think
+
+To enable this functionality, paste the code below in your `.vim/ftplugin/ikiwiki.vim` file
+
+    " returns the directory which can be considered the root of the wiki the
+    " current buffer belongs to, or an empty string if we are not inside an
+    " ikiwiki wiki
+    "
+    " NOTE: the root of the wiki is considered the first directory that contains a
+    " .ikiwiki folder, except $HOME/.ikiwiki (the usual ikiwiki libdir)
+    "
+    " if you can think of a better heuristic to get ikiwiki's root, let me know!
+    function! GetWikiRootDir()
+      let check_str = '%:p:h'
+      let pos_wiki_root = expand(check_str)
+      while pos_wiki_root != '/'
+        if isdirectory(pos_wiki_root . '/.ikiwiki') && pos_wiki_root != $HOME
+          return pos_wiki_root
+        endif
+        let check_str = check_str . ':h'
+        let pos_wiki_root = expand(check_str)
+      endwhile
+      if isdirectory('/.ikiwiki')
+        return '/'
+      endif
+      return ''
+    endfunction
+    
+    " This function searches for a .mdwn file (<a:name>.mdwn) using the ikiwiki
+    " WikiLink rules and returns its full path.
+    "
+    " The rules are the following
+    "
+    " if the filename starts with '/', use as base dir the root directory of the
+    " wiki
+    "
+    " if not:
+    "
+    " try first ./<bufname>/<a:name>.mdwn
+    " then for  ./<a:name>.mdwn
+    " then for  <root_of_wiki>/<a:name>.mdwn
+    "
+    " return the first one that exists
+    "
+    " the base path (. above) is the directory that contains the current buffer
+    "
+    function! FileForWikiLink(name)
+      let target_fname=a:name . ".mdwn"
+      let wikiroot_dir = GetWikiRootDir()
+      if match(target_fname, '^/') >= 0
+        return wikiroot_dir . target_fname
+      endif
+      let subdir_file = expand('%:p:r') . "/" . target_fname
+      let currdir_file = expand('%:p:h') . "/" . target_fname
+      let wikiroot_file = wikiroot_dir . "/" . target_fname
+      if filewritable(subdir_file)
+        return subdir_file
+      endif
+      if filewritable(currdir_file)
+        return currdir_file
+      endif
+      if filewritable(wikiroot_file)
+        return wikiroot_file
+      endif
+      return a:name
+    endfunction
+    
+    setlocal includeexpr=FileForWikiLink(v:fname)
