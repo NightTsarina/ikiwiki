@@ -19,3 +19,10 @@ What am I doing wrong? The wiki is at
 > * Check if something is breaking pruning of disallowed files:
 >   `perl -le 'use IkiWiki; %config=IkiWiki::defaultconfig(); print ! IkiWiki::file_pruned("index")'`
 > --[[Joey]] 
+
+>>Both seem to run fine:
+
+    onderka@atrey:~$ perl -le 'print int "index"=~/^([-[:alnum:]+\/.:_]+)$/'
+    1
+    onderka@atrey:~$ perl -le 'use IkiWiki; %config=IkiWiki::defaultconfig(); print ! IkiWiki::file_pruned("index")'
+    1
