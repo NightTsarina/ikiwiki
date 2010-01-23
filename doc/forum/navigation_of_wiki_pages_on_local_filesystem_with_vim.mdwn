@@ -2,6 +2,14 @@ I wrote a vim function to help me navigate the wiki when I'm editing it. It exte
 
 This function takes into account the ikiwiki linking rules when deciding which file to go to.
 
+> 'gf' gets in the way when there are directories with the same name of a wiki page. The 
+> function below doesn't implement the linking rules properly (test the link (ignoring case),
+> if there is no match ascend the dir. hierarchy and start over, until we reach the root of
+> the wiki). I'm rewriting it to follow these rules properly
+> 
+> I think the page for [[LinkingRules|ikiwiki/subpage/linkingrules]] should say that ikiwiki **ascends**
+> the dir. hierarchy when looking for a wikilink, not that it **descends** it. Am I correct? --[[jerojasro]]
+
 let me know what you think
 
 To enable this functionality, paste the code below in your `.vim/ftplugin/ikiwiki.vim` file
