@@ -25,6 +25,10 @@ sub getsetup () {
 sub preprocess (@) {
 	my %params=@_;
 
+	# This needs to run even in scan mode, in order to process
+	# links and other metadata included via the template.
+	my $scan=! defined wantarray;
+
 	if (! exists $params{id}) {
 		error gettext("missing id parameter")
 	}
@@ -58,24 +62,23 @@ sub preprocess (@) {
 	$params{basename}=IkiWiki::basename($params{page});
 
 	foreach my $param (keys %params) {
+		my $value=IkiWiki::preprocess($params{page}, $params{destpage},
+		          IkiWiki::filter($params{page}, $params{destpagea},
+		          $params{$param}), $scan);
 		if ($template->query(name => $param)) {
 			$template->param($param =>
 				IkiWiki::htmlize($params{page}, $params{destpage},
 					pagetype($pagesources{$params{page}}),
-					$params{$param}));
+					$value));
 		}
 		if ($template->query(name => "raw_$param")) {
-			$template->param("raw_$param" => $params{$param});
+			$template->param("raw_$param" => $value);
 		}
 	}
 
-	# This needs to run even in scan mode, in order to process
-	# links and other metadata includes via the template.
-	my $scan=! defined wantarray;
-
 	return IkiWiki::preprocess($params{page}, $params{destpage},
-		IkiWiki::filter($params{page}, $params{destpage},
-		$template->output), $scan);
+	       IkiWiki::filter($params{page}, $params{destpage},
+	       $template->output), $scan);
 }
 
 1
