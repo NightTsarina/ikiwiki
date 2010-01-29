@@ -26,6 +26,10 @@ sub preprocess (@) {
 	my ($image) = $_[0] =~ /$config{wiki_file_regexp}/; # untaint
 	my %params=@_;
 
+	if (! defined $image) {
+		error("bad image filename");
+	}
+
 	if (exists $imgdefaults{$params{page}}) {
 		foreach my $key (keys %{$imgdefaults{$params{page}}}) {
 			if (! exists $params{$key}) {
