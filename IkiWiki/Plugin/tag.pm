@@ -36,6 +36,13 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
+		tag_autocreate => {
+			type => "boolean",
+			example => 0,
+			description => "Autocreate new tag pages",
+			safe => 1,
+			rebuild => 1,
+		},
 }
 
 sub tagpage ($) {
@@ -59,6 +66,21 @@ sub taglink ($$$;@) {
 	return htmllink($page, $destpage, tagpage($tag), %opts);
 }
 
+sub gentag ($) {
+	my $tag=shift;
+	if (defined $config{tag_autocreate} && $config{tag_autocreate}) {
+		my $tagfile = newpagefile(tagpage($tag), $config{default_pageext});
+		$tagfile=~s/^\///;
+		return if (srcfile($tagfile,1));
+
+		debug(sprintf(gettext("creating tag page %s"), $tag));
+
+		my $template=template("autotag.tmpl");
+		$template->param(tag => $tag);
+		writefile($tagfile, $config{srcdir}, $template->output);
+	}
+}
+
 sub preprocess_tag (@) {
 	if (! @_) {
 		return "";
@@ -72,6 +94,10 @@ sub preprocess_tag (@) {
 	foreach my $tag (keys %params) {
 		$tag=linkpage($tag);
 		$tags{$page}{$tag}=1;
+
+		# add tagpage if necessary
+		gentag($tag);
+
 		# hidden WikiLink
 		add_link($page, tagpage($tag));
 	}
