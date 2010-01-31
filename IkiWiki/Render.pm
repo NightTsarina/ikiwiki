@@ -642,6 +642,20 @@ sub refresh () {
 		scan($file);
 	}
 
+	while (my $autofile = shift (@autofiles)) {
+		my $page=pagename($autofile);
+		if ($pages->{$page}) {
+			debug(sprintf(gettext("%s has multiple possible source pages"), $page));
+		}
+		$pages->{$page}=1;
+
+		push @{$files}, $autofile;
+		push @{$new}, $autofile if find_new_files([$autofile]);
+		push @{$changed}, $autofile if find_changed([$autofile]);
+
+		scan($autofile);
+	}
+
 	calculate_links();
 	
 	remove_del(@$del, @$internal_del);
