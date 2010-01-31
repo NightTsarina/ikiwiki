@@ -78,6 +78,8 @@ sub gentag ($) {
 		my $template=template("autotag.tmpl");
 		$template->param(tag => $tag);
 		writefile($tagfile, $config{srcdir}, $template->output);
+
+		IkiWiki::add_autofile("$config{srcdir}/$tagfile");
 	}
 }
 
