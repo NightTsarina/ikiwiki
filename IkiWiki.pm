@@ -14,7 +14,7 @@ use open qw{:utf8 :std};
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
 	    %pagesources %destsources %depends %depends_simple %hooks
-	    %forcerebuild %loaded_plugins};
+	    %forcerebuild %loaded_plugins @autofiles};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage deptype
@@ -1896,6 +1896,14 @@ sub add_link ($$) {
 
 	push @{$links{$page}}, $link
 		unless grep { $_ eq $link } @{$links{$page}};
+}
+
+sub add_autofile ($) {
+	my $addfile=shift;
+	my ($file,$page) = verify_src_file($addfile,$config{srcdir});
+	if ($page) {
+		push @autofiles, $file;
+	}
 }
 
 sub pagespec_translate ($) {
