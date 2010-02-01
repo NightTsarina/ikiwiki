@@ -60,3 +60,36 @@ the plugin has, as of now, two problems:
 
 >> when I wrote the plugin I also considered the possibility of creating files (and their dirs, if necessary) 
 >> from new wikilinks; the changes needed to get that working are fairly small -- [[jerojasro]]
+
+> Seems about ready for me to think about pulling it into ikiwiki
+> alongside [[tips/vim_syntax_highlighting/ikiwiki.vim]]. If you'll
+> please slap a license on it. :) --[[Joey]] 
+> 
+> Also, I have a possible other approach for finding ikiwiki's root. One
+> could consider that any subdirectory of an ikiwiki wiki is itself
+> a standalone wiki, though probably one missing a toplevel index page.
+> The relative wikilinks work such that this assumption makes sense;
+> you can build any subdirectory with ikiwiki and probably get something
+> reasonable with links that work, etc.
+> 
+> So, if that's the case, then one could say that the directory that the
+> user considers to be the toplevel of their wiki is really also a subwiki,
+> enclosed in a succession of parents that go all the way down to the root
+> directory (or alternatively, to the user's home directory). I think that
+> logically makes some sense.
+> 
+> And if that's the case, you can resolve an absolute link by looking for
+> the page closest to the root that matches the link.
+> 
+> It may even make sense to change ikiwiki's own handling of "absolute"
+> links to work that way. But even without changing ikiwiki, I think it
+> would be a reasonable thing for vim to do. It would only fail in two
+> unusual circumstances:
+> 
+> 1. There is a file further down, outside what the user considers
+>    the wiki, that matches. Say a `$HOME/index.mdwn`
+> 2. An absolute link is broken in that the page linked to does
+>    not exist in the root of the wiki. But it does exist in a subdir, 
+>    and vim would go to that file.
+> 
+> --[[Joey]] 
