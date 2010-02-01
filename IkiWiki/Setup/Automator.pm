@@ -15,6 +15,7 @@ sub ask ($$) {
 	my ($question, $default)=@_;
 
 	my $r=Term::ReadLine->new("ikiwiki");
+	$r->ornaments("md,me");
 	$r->readline(encode_utf8($question)." ", $default);
 }
 
