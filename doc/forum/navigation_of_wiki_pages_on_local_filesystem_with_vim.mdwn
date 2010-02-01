@@ -15,69 +15,48 @@ This function takes into account the ikiwiki linking rules when deciding which f
 
 let me know what you think
 
-To enable this functionality, paste the code below in your `.vim/ftplugin/ikiwiki.vim` file
+>         " NOTE: the root of the wiki is considered the first directory that contains a
+>         " .ikiwiki folder, except $HOME/.ikiwiki (the usual ikiwiki libdir)
+> 
+> That's not going to work in all situations; for example, with an ikiwiki which uses git as the backend, the normal setup is that one has
+> 
+> * a bare git repository
+> * a git repository which ikiwiki builds the wiki from (which has a .ikiwiki directory in it)
+> * an *additional* git repository cloned from the bare repository, which is used for making changes from the command-line rather than the web.  It is this repository in which one would be editing files with vim, and *this* repository does not have a .ikiwiki directory in it.  It does have a .git directory in the root, however, so I suppose you could use that as a method of detection of a root directory, but of course that would only work for git repositories.
+> 
+> -- [[KathrynAndersen]]
+> 
+>> You are completely right; all of my wikis are compiled both locally and
+>> remotely, and so the local repo also has a `.ikiwiki` folder. And that's not the
+>> "usual" setup.
+>> 
+>> checking for a `.git` dir would not work when the wiki's source files aren't
+>> located at the root of the repo.
+>> 
+>> So, besides of doing a `touch .ikiwiki` at the root of the wiki in your local
+>> repo, do you see any alternative?
+>> 
+>> -- [[jerojasro]]
 
-    " returns the directory which can be considered the root of the wiki the
-    " current buffer belongs to, or an empty string if we are not inside an
-    " ikiwiki wiki
-    "
-    " NOTE: the root of the wiki is considered the first directory that contains a
-    " .ikiwiki folder, except $HOME/.ikiwiki (the usual ikiwiki libdir)
-    "
-    " if you can think of a better heuristic to get ikiwiki's root, let me know!
-    function! GetWikiRootDir()
-      let check_str = '%:p:h'
-      let pos_wiki_root = expand(check_str)
-      while pos_wiki_root != '/'
-        if isdirectory(pos_wiki_root . '/.ikiwiki') && pos_wiki_root != $HOME
-          return pos_wiki_root
-        endif
-        let check_str = check_str . ':h'
-        let pos_wiki_root = expand(check_str)
-      endwhile
-      if isdirectory('/.ikiwiki')
-        return '/'
-      endif
-      return ''
-    endfunction
-    
-    " This function searches for a .mdwn file (<a:name>.mdwn) using the ikiwiki
-    " WikiLink rules and returns its full path.
-    "
-    " The rules are the following
-    "
-    " if the filename starts with '/', use as base dir the root directory of the
-    " wiki
-    "
-    " if not:
-    "
-    " try first ./<bufname>/<a:name>.mdwn
-    " then for  ./<a:name>.mdwn
-    " then for  <root_of_wiki>/<a:name>.mdwn
-    "
-    " return the first one that exists
-    "
-    " the base path (. above) is the directory that contains the current buffer
-    "
-    function! FileForWikiLink(name)
-      let target_fname=a:name . ".mdwn"
-      let wikiroot_dir = GetWikiRootDir()
-      if match(target_fname, '^/') >= 0
-        return wikiroot_dir . target_fname
-      endif
-      let subdir_file = expand('%:p:r') . "/" . target_fname
-      let currdir_file = expand('%:p:h') . "/" . target_fname
-      let wikiroot_file = wikiroot_dir . "/" . target_fname
-      if filewritable(subdir_file)
-        return subdir_file
-      endif
-      if filewritable(currdir_file)
-        return currdir_file
-      endif
-      if filewritable(wikiroot_file)
-        return wikiroot_file
-      endif
-      return a:name
-    endfunction
-    
-    setlocal includeexpr=FileForWikiLink(v:fname)
+well. I've rewritten the whole thing, to take into account:
+  
+  * file matching ignoring case (MyPage matches mypage.mdwn)
+  * checking all the way down (up) to the root of the wiki (if there is a link `\[[foo]]` on `a/b/page`),
+  try `a/b/page/foo`, then `a/b/foo`, and so on, up to `foo`
+  * the alternate name for a page: when looking for the file for `\[[foo]]`, try both `foo.mdwn` and `foo/index.mdwn`
+
+you can find the file [here](http://git.devnull.li/cgi-bin/gitweb.cgi?p=vim-jerojasro.git;a=blob;f=.vim/ftplugin/ikiwiki_nav.vim;hb=HEAD). To use it, place it in `$HOME/.vim/ftplugin`. After that, hitting `<CR>` (Enter) in normal mode over a wikilink will take you to that page, if it exists.
+
+the plugin has, as of now, two problems:
+ 
+  * doesn't work with wikilinks that take more than one line (though this isn't really that bad)
+  * it assumes that the root of the wiki is the first directory down the filesystem hierarchy that 
+  has a `.ikiwiki` folder on it. If your copy of the wiki doesn't have it, you must create it for 
+  the plugin to work
+
+-- [[jerojasro]]
+
+> Interesting. I was at one point looking at "potwiki.vim", which implements a local wiki and follows CamelCase links, creating new files where necessary etc., to see if it could be adapted for ikiwiki (See [[tips/vim syntax highlighting/discussion]]). I didn't get anywhere. -- [[Jon]]
+
+>> when I wrote the plugin I also considered the possibility of creating files (and their dirs, if necessary) 
+>> from new wikilinks; the changes needed to get that working are fairly small -- [[jerojasro]]
