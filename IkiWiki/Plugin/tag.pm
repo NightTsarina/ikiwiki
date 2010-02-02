@@ -79,7 +79,7 @@ sub gentag ($) {
 		$template->param(tag => $tag);
 		writefile($tagfile, $config{srcdir}, $template->output);
 
-		IkiWiki::add_autofile("$config{srcdir}/$tagfile");
+		add_autofile("$config{srcdir}/$tagfile");
 	}
 }
 

@@ -23,7 +23,7 @@ our @EXPORT = qw(hook debug error template htmlpage deptype
 		 htmllink readfile writefile pagetype srcfile pagename
 		 displaytime will_render gettext urlto targetpage
 		 add_underlay pagetitle titlepage linkpage newpagefile
-		 inject add_link
+		 inject add_link add_autofile
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
