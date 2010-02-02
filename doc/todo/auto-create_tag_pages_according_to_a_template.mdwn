@@ -160,3 +160,35 @@ wrong direction.
 * Proper documentation.
 
 --[[David_Riebenbauer]]
+
+> Starting review of this. Some of your commits are to very delicate,
+> optimised, and security-sensitive ground, so I have to look at them very
+> carefully. --[[Joey]]
+> 
+> * In the refactoring in f3abeac919c4736429bd3362af6edf51ede8e7fe,
+>   you introduced at least 2 bugs, one a possible security hole.
+>   Now one part of the code tests `if ($file)` and the other
+>   caller tests `if ($f)`. These two tests both tested `if (! defined $f)`
+>   before. Notice that the variable needs to be the untainted variable
+>   for both. Also notice that `if ($f)` fails if `$f` contains `0`,
+>   which is a very common perl gotcha.
+> * Your refactored code changes `-l $_ || -d _` to `-l $file || -d $file`.
+>   The latter makes one more stat system call; note the use of a
+>   bare `_` in the first to make perl reuse the stat buffer.
+> * (As a matter of style, could you put a space after the commas in your
+>   perl?)
+> 
+> I'd like to cherry-pick the above commit, once it's in shape, before
+> looking at the rest in detail. So just a few other things that stood out.
+> 
+> * Commit 4af4d26582f0c2b915d7102fb4a604b176385748 seems unnecessary.
+>   `srcfile($file, 1)` already is documented to return undef if the
+>   file does not exist. (But without the second parameter, it throws
+>   an error.)
+>
+> * Commit f58f3e1bec41ccf9316f37b014ce0b373c8e49e1 adds a line
+>   that is intented by a space, not a tab.
+> 
+> * Commit f58f3e1bec41ccf9316f37b014ce0b373c8e49e1 says that auto-added
+>   files will be recreated if the user deletes them. That seems bad.
+>   `autoindex` goes to some trouble to not recreate deleted files.
