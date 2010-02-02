@@ -123,3 +123,40 @@ On the second extra pass, it doesn't notice that it has to update the "?"-link. 
                 }
 
 is not satisfied for the newly created tag page. I shall put debug msgs into Render.pm to find out better how it works. --Ivan Z.
+
+---
+
+I've made another attempt at fixiing this
+
+The current progress can be found at my [git repository][gitweb] on branch
+`autotag`:
+
+	git://git.liegesta.at/git/ikiwiki
+
+[gitweb]: http://git.liegesta.at/?p=ikiwiki.git;a=shortlog;h=refs/heads/autotag (gitweb for branch autotag)
+
+It's not entirely finished yet, but already quite usable. Testing and comments
+on code quality, implementation details, as well as other patches would be
+appreciated.
+
+Here's what it does right now:
+
+* enabled by setting `tag_autocreate=1` in the configuration.
+* Tag pages will be created in `tagbase` from the template `autotag.tmpl`.
+* Will correctly render all links, and dependencies. Well, AFAIK.
+* When a tag page is deleted it will automatically recreated from template. (I
+consider this a feature, not a bug)
+* Requires a rebuild on first use.
+* Adds a function `add_autofile()` to the plugin API, to do all this.
+
+Todo/Bugs:
+
+* Will still create a page even if there's a page other than `$tag` under
+`tagbase` satisfying the tag link.
+* Call from `IkiWiki.pm` to `Render.pm`, which adds a module dependency in the
+wrong direction.
+* Add files to RCS.
+* Unit tests.
+* Proper documentation.
+
+--[[David_Riebenbauer]]
