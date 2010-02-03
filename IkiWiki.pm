@@ -744,10 +744,7 @@ sub srcfile_stat {
 }
 
 sub srcfile ($;$) {
-	if (my @stat=srcfile_stat(@_)) {
-		return $stat[0];
-	}
-	return undef
+	return (srcfile_stat(@_))[0];
 }
 
 sub add_underlay ($) {
