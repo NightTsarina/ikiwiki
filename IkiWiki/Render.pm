@@ -284,7 +284,7 @@ sub verify_src_file ($$) {
 	my $file=decode_utf8(shift);
 	my $dir=shift;
 
-	return if -l $file || -d $file;
+	return if -l $file || -d _;
 	$file=~s/^\Q$dir\E\/?//;
 	return if ! length $file;
 	my $page = pagename($file);
@@ -294,11 +294,11 @@ sub verify_src_file ($$) {
 		return;
 	}
 
-	my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
-	if (! defined $f) {
+	my ($file_untainted) = $file =~ /$config{wiki_file_regexp}/; # untaint
+	if (! defined $file_untainted) {
 		warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
 	}
-	return ($file,$page,$f);
+	return ($file_untainted, $page);
 }
 
 sub find_src_files () {
@@ -309,8 +309,8 @@ sub find_src_files () {
 	find({
 		no_chdir => 1,
 		wanted => sub {
-			my ($file,$page,$f) = verify_src_file($_,$config{srcdir});
-			if ($file) {
+			my ($file, $page) = verify_src_file($_, $config{srcdir});
+			if (defined $file) {
 				push @files, $file;
 				if ($pages{$page}) {
 					debug(sprintf(gettext("%s has multiple possible source pages"), $page));
@@ -323,14 +323,14 @@ sub find_src_files () {
 		find({
 			no_chdir => 1,
 			wanted => sub {
-				my ($file,$page,$f) = verify_src_file($_,$dir);
-				if ($f) {
+				my ($file, $page) = verify_src_file($_, $dir);
+				if (defined $file) {
 					# avoid underlaydir override
 					# attacks; see security.mdwn
-					if (! -l "$config{srcdir}/$f" &&
+					if (! -l "$config{srcdir}/$file" &&
 					    ! -e _) {
 						if (! $pages{$page}) {
-							push @files, $f;
+							push @files, $file;
 							$pages{$page}=1;
 						}
 					}
