@@ -71,15 +71,14 @@ sub gentag ($) {
 	if (defined $config{tag_autocreate} && $config{tag_autocreate}) {
 		my $tagfile = newpagefile(tagpage($tag), $config{default_pageext});
 		$tagfile=~s/^\///;
-		return if (srcfile($tagfile,1));
+
+		return if (! add_autofile($tagfile));
 
 		debug(sprintf(gettext("creating tag page %s"), $tag));
 
 		my $template=template("autotag.tmpl");
 		$template->param(tag => $tag);
 		writefile($tagfile, $config{srcdir}, $template->output);
-
-		add_autofile("$config{srcdir}/$tagfile");
 	}
 }
 

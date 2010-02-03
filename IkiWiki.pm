@@ -1897,9 +1897,14 @@ sub add_link ($$) {
 }
 
 sub add_autofile ($) {
-	my $addfile=shift;
-	my ($file,$page) = verify_src_file($addfile,$config{srcdir});
-	if ($page) {
+	my $autofile=shift;
+
+	if (srcfile($autofile, 1)) {
+		return 0;
+	}
+
+	my ($file, $page) = verify_src_file("$config{srcdir}/$autofile", $config{srcdir});
+	if (defined $file) {
 		push @autofiles, $file;
 	}
 }
