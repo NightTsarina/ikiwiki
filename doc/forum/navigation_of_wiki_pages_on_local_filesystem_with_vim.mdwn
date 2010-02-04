@@ -64,6 +64,9 @@ the plugin has, as of now, two problems:
 > Seems about ready for me to think about pulling it into ikiwiki
 > alongside [[tips/vim_syntax_highlighting/ikiwiki.vim]]. If you'll
 > please slap a license on it. :) --[[Joey]] 
+>
+>> GPL version 2 or later (if that doesn't cause any problems here). I'll add it
+>> to the file --[[jerojasro]]
 > 
 > Also, I have a possible other approach for finding ikiwiki's root. One
 > could consider that any subdirectory of an ikiwiki wiki is itself
@@ -80,6 +83,10 @@ the plugin has, as of now, two problems:
 > 
 > And if that's the case, you can resolve an absolute link by looking for
 > the page closest to the root that matches the link.
+>
+>> I like your idea; it doesn't alter the matching of the relative links, and
+>> should work fine with absolute links too. I'll implement it, though I see
+>> some potential (but small) issues with it --[[jerojasro]]
 > 
 > It may even make sense to change ikiwiki's own handling of "absolute"
 > links to work that way. But even without changing ikiwiki, I think it
@@ -93,3 +100,7 @@ the plugin has, as of now, two problems:
 >    and vim would go to that file.
 > 
 > --[[Joey]] 
+>
+>> your approach will add more noise when the plugin grows the page-creation
+>> feature, since there will be no real root to limit the possible locations for
+>> the new page. But it is far better than demanding for a `.ikiwiki` dir --[[jerojasro]]
