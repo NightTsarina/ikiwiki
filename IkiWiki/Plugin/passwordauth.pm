@@ -206,21 +206,35 @@ sub formbuilder_setup (@) {
 			}
 		}
 	}
-	elsif ($form->title eq "preferences" &&
-	       ! IkiWiki::openiduser($session->param("name"))) {
-		$form->field(name => "name", disabled => 1, 
-			value => $session->param("name"), force => 1,
-			fieldset => "login");
-		$form->field(name => "password", type => "password",
-			fieldset => "login",
-			validate => sub {
-				shift eq $form->field("confirm_password");
-			}),
-		$form->field(name => "confirm_password", type => "password",
-			fieldset => "login",
-			validate => sub {
-				shift eq $form->field("password");
-			}),
+	elsif ($form->title eq "preferences") {
+		my $user=$session->param("name");
+		if (! IkiWiki::openiduser($user)) {
+			$form->field(name => "name", disabled => 1, 
+				value => $user, force => 1,
+				fieldset => "login");
+			$form->field(name => "password", type => "password",
+				fieldset => "login",
+				validate => sub {
+					shift eq $form->field("confirm_password");
+				});
+			$form->field(name => "confirm_password", type => "password",
+				fieldset => "login",
+				validate => sub {
+					shift eq $form->field("password");
+				});
+			
+			my $userpage=$config{userdir} ? $config{userdir}."/".$user : $user;
+			if (exists $pagesources{$userpage}) {
+				$form->text(gettext("Your user page: ").
+					htmllink("", "", $userpage,
+						noimageinline => 1));
+			}
+			else {
+				$form->text("<a href=\"".
+					IkiWiki::cgiurl(do => "edit", page => $userpage).
+					"\">".gettext("Create your user page")."</a>");
+			}
+		}
 	}
 }
 
