@@ -223,7 +223,7 @@ sub formbuilder_setup (@) {
 					shift eq $form->field("password");
 				});
 			
-			my $userpage=$config{userdir} ? $config{userdir}."/".$user : $user;
+			my $userpage=IkiWiki::userpage($user);
 			if (exists $pagesources{$userpage}) {
 				$form->text(gettext("Your user page: ").
 					htmllink("", "", $userpage,

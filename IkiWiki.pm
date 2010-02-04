@@ -1090,6 +1090,11 @@ sub htmllink ($$$;@) {
 	return "<a href=\"$bestlink\"@attrs>$linktext</a>";
 }
 
+sub userpage ($) {
+	my $user=shift;
+	return length $config{userdir} ? "$config{userdir}/$user" : $user;
+}
+
 sub openiduser ($) {
 	my $user=shift;
 

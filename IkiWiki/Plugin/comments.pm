@@ -171,9 +171,8 @@ sub preprocess {
 		else {
 			$commentauthorurl = IkiWiki::cgiurl(
 				do => 'goto',
-				page => (length $config{userdir}
-					? "$config{userdir}/$commentuser"
-					: "$commentuser"));
+				page => IkiWiki::userpage($commentuser)
+			);
 
 			$commentauthor = $commentuser;
 		}

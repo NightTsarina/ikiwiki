@@ -245,8 +245,9 @@ sub cgi_editpage ($$) {
 					push @page_locs, $dir.$page;
 				}
 			
-				push @page_locs, "$config{userdir}/$page"
-					if length $config{userdir};
+				my $userpage=IkiWiki::userpage($page);
+				push @page_locs, $userpage
+					if ! grep { $_ eq $userpage } @page_locs;
 			}
 
 			@page_locs = grep {

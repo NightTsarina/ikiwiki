@@ -124,7 +124,7 @@ sub store ($$$) {
 	elsif (length $config{cgiurl}) {
 		$change->{authorurl} = IkiWiki::cgiurl(
 			do => "goto",
-			page => (length $config{userdir} ? "$config{userdir}/" : "").$change->{author},
+			page => IkiWiki::userpage($change->{author}),
 		);
 	}
 
