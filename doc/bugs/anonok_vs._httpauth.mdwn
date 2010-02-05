@@ -58,3 +58,45 @@ and a whitelist of OpenIDs in `locked_pages`...)
 >> On reflection, I've stopped being bothered by the
 >> redirect-to-signin-page approach. (It only needs to happen once per
 >> browser session, anyway.) Can we try that? --[[schmonz]]
+
+Here is an attempt. With this httpauth will only redirect to the
+`cgiauth_url` when a page is edited, and it will defer to other plugins
+like anonok first. I have not tested this. --[[Joey]] 
+
+<pre>
+diff --git a/IkiWiki/Plugin/httpauth.pm b/IkiWiki/Plugin/httpauth.pm
+index 127c321..c181164 100644
+--- a/IkiWiki/Plugin/httpauth.pm
++++ b/IkiWiki/Plugin/httpauth.pm
+@@ -9,6 +9,8 @@ use IkiWiki 3.00;
+ sub import {
+ 	hook(type => "getsetup", id => "httpauth", call => \&getsetup);
+ 	hook(type => "auth", id => "httpauth", call => \&auth);
++	hook(type => "canedit", id => "httpauth", call => \&canedit,
++		last => 1);
+ }
+ 
+ sub getsetup () {
+@@ -33,10 +35,20 @@ sub auth ($$) {
+ 	if (defined $cgi->remote_user()) {
+ 		$session->param("name", $cgi->remote_user());
+ 	}
+-	elsif (defined $config{cgiauthurl}) {
++}
++
++sub canedit ($$$) {
++	my $page=shift;
++	my $cgi=shift;
++	my $session=shift;
++
++	if (! defined $cgi->remote_user() && defined $config{cgiauthurl}) {
+ 		IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$cgi->query_string());
+ 		exit;
+ 	}
++	else {
++		return undef;
++	}
+}
+ 
+ 1
+</pre>
