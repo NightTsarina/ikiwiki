@@ -165,7 +165,7 @@ wrong direction.
 > optimised, and security-sensitive ground, so I have to look at them very
 > carefully. --[[Joey]]
 > 
-> * In the refactoring in f3abeac919c4736429bd3362af6edf51ede8e7fe,
+> * In the refactoring in [f3abeac919c4736429bd3362af6edf51ede8e7fe][],
 >   you introduced at least 2 bugs, one a possible security hole.
 >   Now one part of the code tests `if ($file)` and the other
 >   caller tests `if ($f)`. These two tests both tested `if (! defined $f)`
@@ -181,14 +181,18 @@ wrong direction.
 > I'd like to cherry-pick the above commit, once it's in shape, before
 > looking at the rest in detail. So just a few other things that stood out.
 > 
-> * Commit 4af4d26582f0c2b915d7102fb4a604b176385748 seems unnecessary.
+> * Commit [4af4d26582f0c2b915d7102fb4a604b176385748][] seems unnecessary.
 >   `srcfile($file, 1)` already is documented to return undef if the
 >   file does not exist. (But without the second parameter, it throws
 >   an error.)
 >
-> * Commit f58f3e1bec41ccf9316f37b014ce0b373c8e49e1 adds a line
+> * Commit [f58f3e1bec41ccf9316f37b014ce0b373c8e49e1][] adds a line
 >   that is intented by a space, not a tab.
 > 
-> * Commit f58f3e1bec41ccf9316f37b014ce0b373c8e49e1 says that auto-added
+> * Commit [f58f3e1bec41ccf9316f37b014ce0b373c8e49e1][] says that auto-added
 >   files will be recreated if the user deletes them. That seems bad.
 >   `autoindex` goes to some trouble to not recreate deleted files.
+
+[f3abeac919c4736429bd3362af6edf51ede8e7fe]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f3abeac919c4736429bd3362af6edf51ede8e7fe (commitdiff for f3abeac919c4736429bd3362af6edf51ede8e7fe)
+[4af4d26582f0c2b915d7102fb4a604b176385748]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=4af4d26582f0c2b915d7102fb4a604b176385748 (commitdiff for 4af4d26582f0c2b915d7102fb4a604b176385748)
+[f58f3e1bec41ccf9316f37b014ce0b373c8e49e1]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f58f3e1bec41ccf9316f37b014ce0b373c8e49e1 (commitdiff for f58f3e1bec41ccf9316f37b014ce0b373c8e49e1)
