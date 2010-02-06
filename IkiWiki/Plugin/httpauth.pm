@@ -9,8 +9,6 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "getsetup", id => "httpauth", call => \&getsetup);
 	hook(type => "auth", id => "httpauth", call => \&auth);
-	hook(type => "canedit", id => "httpauth", call => \&canedit,
-		last => 1);
 }
 
 sub getsetup () {
@@ -35,19 +33,9 @@ sub auth ($$) {
 	if (defined $cgi->remote_user()) {
 		$session->param("name", $cgi->remote_user());
 	}
-}
-
-sub canedit ($$$) {
-	my $page=shift;
-	my $cgi=shift;
-	my $session=shift;
-
-	if (! defined $cgi->remote_user() && defined $config{cgiauthurl}) {
+	elsif (defined $config{cgiauthurl}) {
 		IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$cgi->query_string());
 		exit;
-	}
-	else {
-		return undef;
 	}
 }
 
