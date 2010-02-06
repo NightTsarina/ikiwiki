@@ -7,7 +7,8 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "getsetup", id => "opendiscussion", call => \&getsetup);
-	hook(type => "canedit", id => "opendiscussion", call => \&canedit);
+	hook(type => "canedit", id => "opendiscussion", call => \&canedit,
+		first => 1);
 }
 
 sub getsetup () {
