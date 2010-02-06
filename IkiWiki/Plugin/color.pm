@@ -10,6 +10,15 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "preprocess", id => "color", call => \&preprocess);
 	hook(type => "format",     id => "color", call => \&format);
+	hook(type => "getsetup",   id => "color", call => \&getsetup);
+}
+
+sub getsetup () {
+	return
+		plugin => {
+			safe => 1,
+			rebuild => undef,
+		},
 }
 
 sub preserve_style ($$$) {
