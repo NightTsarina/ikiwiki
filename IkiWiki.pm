@@ -1103,11 +1103,10 @@ sub openiduser ($) {
 		my $display;
 
 		if (Net::OpenID::VerifiedIdentity->can("DisplayOfURL")) {
-			# this works in at least 2.x
 			$display = Net::OpenID::VerifiedIdentity::DisplayOfURL($user);
 		}
 		else {
-			# this only works in 1.x
+			# backcompat with old version
 			my $oid=Net::OpenID::VerifiedIdentity->new(identity => $user);
 			$display=$oid->display;
 		}
