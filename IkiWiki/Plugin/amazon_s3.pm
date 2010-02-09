@@ -133,6 +133,10 @@ sub getbucket {
 	}
 
 	if (! $bucket) {
+		# Try to use existing bucket.
+		$bucket=$s3->bucket($config{amazon_s3_bucket});
+	}
+	if (! $bucket) {
 		error(gettext("Failed to create S3 bucket: ").
 			$s3->err.": ".$s3->errstr."\n");
 	}
@@ -178,7 +182,7 @@ sub writefile ($$$;$$) {
 
 	# First, write the file to disk.
 	my $ret=$IkiWiki::Plugin::amazon_s3::subs{'IkiWiki::writefile'}->($file, $destdir, $content, $binary, $writer);
-		
+
 	my @keys=IkiWiki::Plugin::amazon_s3::file2keys("$destdir/$file");
 
 	# Store the data in S3.
