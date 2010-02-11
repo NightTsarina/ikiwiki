@@ -75,13 +75,16 @@ sub formbuilder_setup (@) {
 	}
 }
 
+sub need_httpauth_pagespec () {
+	return defined $config{httpauth_pagespec} &&
+	       length $config{httpauth_pagespec} &&
+	       defined $config{cgiauthurl};
+}
+
 sub test_httpauth_pagespec ($) {
 	my $page=shift;
 
-	return defined $config{httpauth_pagespec} &&
-	       length $config{httpauth_pagespec} &&
-	       defined $config{cgiauthurl} &&
-	       pagespec_match($page, $config{httpauth_pagespec});
+	pagespec_match($page, $config{httpauth_pagespec});
 }
 
 sub canedit ($$$) {
@@ -89,7 +92,9 @@ sub canedit ($$$) {
 	my $cgi=shift;
 	my $session=shift;
 
-	if (! defined $cgi->remote_user() && test_httpauth_pagespec($page)) {
+	if (! defined $cgi->remote_user() &&
+	    need_httpauth_pagespec() &&
+    	    ! test_httpauth_pagespec($page)) {
 		return sub {
 			IkiWiki::redirect($cgi, 
 				$config{cgiauthurl}.'?'.$cgi->query_string());
@@ -106,6 +111,7 @@ sub pagetemplate (@_) {
 	my $template=$params{template};
 
 	if ($template->param("editurl") &&
+	    need_httpauth_pagespec() &&
 	    test_httpauth_pagespec($params{page})) {
 		# go directly to cgiauthurl when editing a page matching
 		# the pagespec
