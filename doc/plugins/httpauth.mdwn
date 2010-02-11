@@ -24,3 +24,12 @@ A typical setup is to make an `auth` subdirectory, and symlink `ikiwiki.cgi`
 into it. Then configure the web server to require authentication only for
 access to the `auth` subdirectory. Then `cgiauthurl` is pointed at this
 symlink.
+
+## using only httpauth for some pages
+
+If you want to only use httpauth for editing some pages, while allowing
+other authentication methods to be used for other pages, you can
+configure `httpauth_pagespec` in the setup file. This makes Edit
+links on pages that match the [[ikiwiki/PageSpec]] automatically use
+the `cgiauthurl`, and prevents matching pages from being edited by
+users authentication via other methods.

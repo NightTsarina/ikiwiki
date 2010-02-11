@@ -941,7 +941,12 @@ sub linkpage ($) {
 sub cgiurl (@) {
 	my %params=@_;
 
-	return $config{cgiurl}."?".
+	my $cgiurl=$config{cgiurl};
+	if (exists $params{cgiurl}) {
+		$cgiurl=$params{cgiurl};
+		delete $params{cgiurl};
+	}
+	return $cgiurl."?".
 		join("&amp;", map $_."=".uri_escape_utf8($params{$_}), keys %params);
 }
 

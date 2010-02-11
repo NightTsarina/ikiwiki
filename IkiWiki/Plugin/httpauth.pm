@@ -9,10 +9,10 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "getsetup", id => "httpauth", call => \&getsetup);
 	hook(type => "auth", id => "httpauth", call => \&auth);
-	hook(type => "canedit", id => "httpauth", call => \&canedit,
-		last => 1);
 	hook(type => "formbuilder_setup", id => "httpauth",
 		call => \&formbuilder_setup);
+	hook(type => "canedit", id => "httpauth", call => \&canedit);
+	hook(type => "pagetemplate", id => "httpauth", call => \&pagetemplate);
 }
 
 sub getsetup () {
@@ -28,13 +28,20 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 0,
 		},
+		httpauth_pagespec => {
+			type => "pagespec",
+			example => "!*/Discussion",
+			description => "PageSpec of pages where only httpauth will be used for authentication",
+			safe => 0,
+			rebuild => 0,
+		},
 }
 			
-sub redir_cgiauthurl ($$) {
+sub redir_cgiauthurl ($;@) {
 	my $cgi=shift;
-	my $params=shift;
 
-	IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$params);
+	IkiWiki::redirect($cgi, 
+		IkiWiki::cgiurl(cgiurl => $config{cgiauthurl}, @_));
 	exit;
 }
 
@@ -44,19 +51,6 @@ sub auth ($$) {
 
 	if (defined $cgi->remote_user()) {
 		$session->param("name", $cgi->remote_user());
-	}
-}
-
-sub canedit ($$$) {
-	my $page=shift;
-	my $cgi=shift;
-	my $session=shift;
-
-	if (! defined $cgi->remote_user() && defined $config{cgiauthurl}) {
-		return sub { redir_cgiauthurl($cgi, $cgi->query_string()) };
-	}
-	else {
-		return undef;
 	}
 }
 
@@ -74,9 +68,50 @@ sub formbuilder_setup (@) {
 		push @$buttons, $button_text;
 
 		if ($form->submitted && $form->submitted eq $button_text) {
-			redir_cgiauthurl($cgi, "do=postsignin");
-			exit;
+			# bounce thru cgiauthurl and then back to
+			# the stored postsignin action
+			redir_cgiauthurl($cgi, do => "postsignin");
 		}
+	}
+}
+
+sub test_httpauth_pagespec ($) {
+	my $page=shift;
+
+	return defined $config{httpauth_pagespec} &&
+	       length $config{httpauth_pagespec} &&
+	       defined $config{cgiauthurl} &&
+	       pagespec_match($page, $config{httpauth_pagespec});
+}
+
+sub canedit ($$$) {
+	my $page=shift;
+	my $cgi=shift;
+	my $session=shift;
+
+	if (! defined $cgi->remote_user() && test_httpauth_pagespec($page)) {
+		return sub {
+			IkiWiki::redirect($cgi, 
+				$config{cgiauthurl}.'?'.$cgi->query_string());
+			exit;
+		};
+	}
+	else {
+		return undef;
+	}
+}
+
+sub pagetemplate (@_) {
+	my %params=@_;
+	my $template=$params{template};
+
+	if ($template->param("editurl") &&
+	    test_httpauth_pagespec($params{page})) {
+		# go directly to cgiauthurl when editing a page matching
+		# the pagespec
+		$template->param(editurl => IkiWiki::cgiurl(
+			cgiurl => $config{cgiauthurl},
+			do => "edit", page => $params{page}));
 	}
 }
 
