@@ -11,6 +11,8 @@ sub import {
 	hook(type => "auth", id => "httpauth", call => \&auth);
 	hook(type => "canedit", id => "httpauth", call => \&canedit,
 		last => 1);
+	hook(type => "formbuilder_setup", id => "httpauth",
+		call => \&formbuilder_setup);
 }
 
 sub getsetup () {
@@ -26,6 +28,14 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 0,
 		},
+}
+			
+sub redir_cgiauthurl ($$) {
+	my $cgi=shift;
+	my $params=shift;
+
+	IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$params);
+	exit;
 }
 
 sub auth ($$) {
@@ -43,13 +53,30 @@ sub canedit ($$$) {
 	my $session=shift;
 
 	if (! defined $cgi->remote_user() && defined $config{cgiauthurl}) {
-		return sub {
-			IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$cgi->query_string());
-			exit;
-		};
+		return sub { redir_cgiauthurl($cgi, $cgi->query_string()) };
 	}
 	else {
 		return undef;
+	}
+}
+
+sub formbuilder_setup (@) {
+	my %params=@_;
+
+	my $form=$params{form};
+	my $session=$params{session};
+	my $cgi=$params{cgi};
+	my $buttons=$params{buttons};
+
+	if ($form->title eq "signin" &&
+	    ! defined $cgi->remote_user() && defined $config{cgiauthurl}) {
+		my $button_text="Login with HTTP auth";
+		push @$buttons, $button_text;
+
+		if ($form->submitted && $form->submitted eq $button_text) {
+			redir_cgiauthurl($cgi, "do=postsignin");
+			exit;
+		}
 	}
 }
 

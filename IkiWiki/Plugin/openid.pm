@@ -56,7 +56,7 @@ sub formbuilder_setup (@) {
 		# OpenID fieldset.
 		$form->fieldsets("OpenID");
 
- 		$form->field(
+		$form->field(
 			name => "openid_url",
 			label => gettext("Log in with")." ".htmllink("", "", "ikiwiki/OpenID", noimageinline => 1),
 			fieldset => "OpenID",
