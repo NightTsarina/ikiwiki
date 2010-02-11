@@ -109,12 +109,8 @@ index 127c321..a18f8ca 100644
 
 >> Refreshed above patch to fix that. --[[Joey]] 
 
->> Remaining issue: Since both signinedit and httpauth have canedit hooks that
->> run "last", behavior will vary depending on which wins and really goes
->> last. So mixing this with openid or passwordauth won't work yet, though
->> it will work mixed with anonok.
->>
->> Seems like what needs to happen is for httpauth's canedit to run before
->> signinedit's, however it still needs to run relatively late; after eg,
->> anonok's hook. Better hook ordering needed. I knew we'd need it sooner
->> or later! --[[Joey]] 
+>> Remaining issue: This patch will work with anonok, but not openid or
+>> passwordauth, both of which want to display a login page at the same
+>> time that httpauth is redirecting to the cgiauthurl. As mentioned above,
+>> the only way to deal with that would be to add a link to the signin page
+>> that does the httpauth signin. --[[Joey]] 
