@@ -65,7 +65,7 @@ like anonok first. I have not tested this. --[[Joey]]
 
 <pre>
 diff --git a/IkiWiki/Plugin/httpauth.pm b/IkiWiki/Plugin/httpauth.pm
-index 127c321..c181164 100644
+index 127c321..a18f8ca 100644
 --- a/IkiWiki/Plugin/httpauth.pm
 +++ b/IkiWiki/Plugin/httpauth.pm
 @@ -9,6 +9,8 @@ use IkiWiki 3.00;
@@ -77,11 +77,13 @@ index 127c321..c181164 100644
  }
  
  sub getsetup () {
-@@ -33,10 +35,20 @@ sub auth ($$) {
+@@ -33,9 +35,21 @@ sub auth ($$) {
  	if (defined $cgi->remote_user()) {
  		$session->param("name", $cgi->remote_user());
  	}
 -	elsif (defined $config{cgiauthurl}) {
+-		IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$cgi->query_string());
+-		exit;
 +}
 +
 +sub canedit ($$$) {
@@ -90,16 +92,29 @@ index 127c321..c181164 100644
 +	my $session=shift;
 +
 +	if (! defined $cgi->remote_user() && defined $config{cgiauthurl}) {
- 		IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$cgi->query_string());
- 		exit;
- 	}
++		return sub {
++			IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$cgi->query_string());
++			exit;
++		};
++	}
 +	else {
 +		return undef;
-+	}
-}
+ 	}
+ }
  
- 1
 </pre>
 
 > With `anonok` enabled, this works for anonymous editing of an
 > existing Discussion page. auth is still needed to create one. --[[schmonz]]
+
+>> Refreshed above patch to fix that. --[[Joey]] 
+
+>> Remaining issue: Since both signinedit and httpauth have canedit hooks that
+>> run "last", behavior will vary depending on which wins and really goes
+>> last. So mixing this with openid or passwordauth won't work yet, though
+>> it will work mixed with anonok.
+>>
+>> Seems like what needs to happen is for httpauth's canedit to run before
+>> signinedit's, however it still needs to run relatively late; after eg,
+>> anonok's hook. Better hook ordering needed. I knew we'd need it sooner
+>> or later! --[[Joey]] 
