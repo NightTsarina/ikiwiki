@@ -272,8 +272,10 @@ sub cgi_editpage ($$) {
 				check_canedit($_, $q, $session, 1)
 			} @page_locs;
 			if (! @editable_locs) {
-				# let it throw an error this time
-				map { check_canedit($_, $q, $session) } @page_locs;
+				# now let it throw an error, or prompt for
+				# login
+				map { check_canedit($_, $q, $session) }
+					($best_loc, @page_locs);
 			}
 			
 			my @page_types;
