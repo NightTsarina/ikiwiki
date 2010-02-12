@@ -524,17 +524,17 @@ describes the plugin as a whole. For example:
 This hook is used to inject C code (which it returns) into the `main`
 function of the ikiwiki wrapper when it is being generated.
 
-### Exported variables
+## Exported variables
 
 Several variables are exported to your plugin when you `use IkiWiki;`
 
-#### %config
+### %config
 
 A plugin can access the wiki's configuration via the `%config`
 hash. The best way to understand the contents of the hash is to look at
 your ikiwiki setup file, which sets the hash content to configure the wiki.
 
-#### %pagestate
+### %pagestate
 
 The `%pagestate` hash can be used by plugins to save state that they will need
 next time ikiwiki is run. The hash holds per-page state, so to set a value,
@@ -552,7 +552,7 @@ When pages are deleted, ikiwiki automatically deletes their pagestate too.
 Note that page state does not persist across wiki rebuilds, only across
 wiki updates.
 
-#### %wikistate
+### %wikistate
 
 The `%wikistate` hash can be used by a plugin to store persistant state
 that is not bound to any one page. To set a value, use
@@ -561,13 +561,13 @@ serialize, `$key` is any string you like, and `$id` must be the same as the
 "id" parameter passed to `hook()` when registering the plugin, so that the
 state can be dropped if the plugin is no longer used.
 
-#### %links
+### %links
 
 The `%links` hash can be used to look up the names of each page that
 a page links to. The name of the page is the key; the value is an array
 reference. Do not modify this hash directly; call `add_link()`.
 
-#### %destsources
+### %destsources
 
 The `%destsources` hash records the name of the source file used to
 create each destination file. The key is the output filename (ie,
@@ -575,15 +575,15 @@ create each destination file. The key is the output filename (ie,
 from (eg, "foo.mdwn"). Note that a single source file may create multiple
 destination files. Do not modify this hash directly; call `will_render()`.
 
-#### %pagesources
+### %pagesources
 
 The `%pagesources` has can be used to look up the source filename
 of a page. So the key is the page name, and the value is the source
 filename. Do not modify this hash.
 
-### Library functions
+## Library functions
 
-#### `hook(@)`
+### `hook(@)`
 
 Hook into ikiwiki's processing. See the discussion of hooks above.
 
@@ -592,12 +592,12 @@ named `no_override` is supported, If it's set to a true value, then this hook
 will not override any existing hook with the same id. This is useful if
 the id can be controled by the user.
 
-#### `debug($)`
+### `debug($)`
 
 Logs a debugging message. These are supressed unless verbose mode is turned
 on.
 
-#### `error($;$)`
+### `error($;$)`
 
 Aborts with an error message. If the second parameter is passed, it is a
 function that is called after the error message is printed, to do any final
@@ -611,13 +611,13 @@ In other hooks, error() is a fatal error, so use with care. Try to avoid
 dying on bad input when building a page, as that will halt
 the entire wiki build and make the wiki unusable.
 
-#### `template($;@)`
+### `template($;@)`
 
 Creates and returns a [[!cpan HTML::Template]] object. The first parameter
 is the name of the file in the template directory. The optional remaining
 parameters are passed to `HTML::Template->new`.
 
-#### `htmlpage($)`
+### `htmlpage($)`
 
 Passed a page name, returns the base name that will be used for a the html
 page created from it. (Ie, it appends ".html".)
@@ -625,7 +625,7 @@ page created from it. (Ie, it appends ".html".)
 Use this when constructing the filename of a html file. Use `urlto` when
 generating a link to a page.
 
-#### `pagespec_match_list($$;@)`
+### `pagespec_match_list($$;@)`
 
 Passed a page name, and [[ikiwiki/PageSpec]], returns a list of pages
 in the wiki that match the [[ikiwiki/PageSpec]]. 
@@ -656,7 +656,7 @@ Additional named parameters can be specified:
 Any other named parameters are passed on to `pagespec_match`, to further
 limit the match.
 
-#### `add_depends($$;$)`
+### `add_depends($$;$)`
 
 Makes the specified page depend on the specified [[ikiwiki/PageSpec]].
 
@@ -678,7 +678,7 @@ The most often used is "location", which specifies the location the
 PageSpec should match against. If not passed, relative PageSpecs will match
 relative to the top of the wiki.
 
-#### `deptype(@)`
+### `deptype(@)`
 
 Use this function to generate ikiwiki's internal representation of a
 dependency type from one or more of these keywords:
@@ -730,7 +730,7 @@ control some options. These are:
 * class - set to add a css class to the link
 * title - set to add a title attribute to the link
 
-#### `readfile($;$)`
+### `readfile($;$)`
 
 Given a filename, reads and returns the entire file.
 
@@ -739,7 +739,7 @@ in binary mode.
 
 A failure to read the file will result in it dying with an error.
 
-#### `writefile($$$;$$)`
+### `writefile($$$;$$)`
 
 Given a filename, a directory to put it in, and the file's content,
 writes a file. 
@@ -767,7 +767,7 @@ generally the directory parameter is a trusted toplevel directory like
 the srcdir or destdir, and any subdirectories of this are included in the
 filename parameter.
 
-#### `will_render($$)`
+### `will_render($$)`
 
 Given a page name and a destination file name (not including the base
 destination directory), register that the page will result in that file
@@ -783,34 +783,34 @@ Ikiwiki uses this information to automatically clean up rendered files when
 the page that rendered them goes away or is changed to no longer render
 them. will_render also does a few important security checks.
 
-#### `pagetype($)`
+### `pagetype($)`
 
 Given the name of a source file, returns the type of page it is, if it's
 a type that ikiwiki knowns how to htmlize. Otherwise, returns undef.
 
-#### `pagename($)`
+### `pagename($)`
 
 Given the name of a source file, returns the name of the wiki page
 that corresponds to that file.
 
-#### `pagetitle($)`
+### `pagetitle($)`
 
 Give the name of a wiki page, returns a version suitable to be displayed as
 the page's title. This is accomplished by de-escaping escaped characters in
 the page name. "_" is replaced with a space, and '__NN__' is replaced by 
 the UTF character with code NN.
 
-#### `titlepage($)`
+### `titlepage($)`
 
 This performs the inverse of `pagetitle`, ie, it converts a page title into
 a wiki page name.
 
-#### `linkpage($)`
+### `linkpage($)`
 
 This converts text that could have been entered by the user as a
 [[ikiwiki/WikiLink]] into a wiki page name.
 
-#### `srcfile($;$)`
+### `srcfile($;$)`
 
 Given the name of a source file in the wiki, searches for the file in
 the source directory and the underlay directories (most recently added
@@ -820,7 +820,7 @@ Normally srcfile will fail with an error message if the source file cannot
 be found. The second parameter can be set to a true value to make it return
 undef instead.
 
-#### `add_underlay($)`
+### `add_underlay($)`
 
 Adds a directory to the set of underlay directories that ikiwiki will
 search for files.
@@ -828,18 +828,18 @@ search for files.
 If the directory name is not absolute, ikiwiki will assume it is in
 the parent directory of the configured underlaydir.
 
-#### `displaytime($;$)`
+### `displaytime($;$)`
 
 Given a time, formats it for display.
 
 The optional second parameter is a strftime format to use to format the
 time.
 
-#### `gettext`
+### `gettext`
 
 This is the standard gettext function, although slightly optimised.
 
-#### `urlto($$;$)`
+### `urlto($$;$)`
 
 Construct a relative url to the first parameter from the page named by the
 second. The first parameter can be either a page name, or some other
@@ -848,13 +848,13 @@ destination file, as registered by `will_render`.
 If the third parameter is passed and is true, an absolute url will be
 constructed instead of the default relative url.
 
-#### `newpagefile($$)`
+### `newpagefile($$)`
 
 This can be called when creating a new page, to determine what filename
 to save the page to. It's passed a page name, and its type, and returns
 the name of the file to create, relative to the srcdir.
 
-#### `targetpage($$;$)`
+### `targetpage($$;$)`
 
 Passed a page and an extension, returns the filename that page will be
 rendered to.
@@ -863,7 +863,7 @@ Optionally, a third parameter can be passed, to specify the preferred
 filename of the page. For example, `targetpage("foo", "rss", "feed")`
 will yield something like `foo/feed.rss`.
 
-#### `add_link($$)`
+### `add_link($$)`
 
 This adds a link to `%links`, ensuring that duplicate links are not
 added. Pass it the page that contains the link, and the link text.
