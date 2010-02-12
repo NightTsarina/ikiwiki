@@ -11,8 +11,8 @@ sub import {
 	hook(type => "auth", id => "httpauth", call => \&auth);
 	hook(type => "formbuilder_setup", id => "httpauth",
 		call => \&formbuilder_setup);
-	hook(type => "canedit", id => "httpauth", call => \&canedit);
-	hook(type => "pagetemplate", id => "httpauth", call => \&pagetemplate);
+	hook(type => "canedit", id => "httpauth", call => \&canedit,
+		first => 1);
 }
 
 sub getsetup () {
@@ -41,7 +41,9 @@ sub redir_cgiauthurl ($;@) {
 	my $cgi=shift;
 
 	IkiWiki::redirect($cgi, 
-		IkiWiki::cgiurl(cgiurl => $config{cgiauthurl}, @_));
+		@_ > 1 ? IkiWiki::cgiurl(cgiurl => $config{cgiauthurl}, @_)
+		       : $config{cgiauthurl}."?@_"
+	);
 	exit;
 }
 
@@ -75,16 +77,11 @@ sub formbuilder_setup (@) {
 	}
 }
 
-sub need_httpauth_pagespec () {
-	return defined $config{httpauth_pagespec} &&
-	       length $config{httpauth_pagespec} &&
-	       defined $config{cgiauthurl};
-}
-
 sub test_httpauth_pagespec ($) {
 	my $page=shift;
 
-	pagespec_match($page, $config{httpauth_pagespec});
+	return (
+       );
 }
 
 sub canedit ($$$) {
@@ -93,31 +90,17 @@ sub canedit ($$$) {
 	my $session=shift;
 
 	if (! defined $cgi->remote_user() &&
-	    need_httpauth_pagespec() &&
-    	    ! test_httpauth_pagespec($page)) {
+	    defined $config{httpauth_pagespec} &&
+	    length $config{httpauth_pagespec} &&
+	    defined $config{cgiauthurl} &&
+	    pagespec_match($page, $config{httpauth_pagespec})) {
 		return sub {
-			IkiWiki::redirect($cgi, 
-				$config{cgiauthurl}.'?'.$cgi->query_string());
-			exit;
+			# bounce thru cgiauthurl and back to edit action
+			redir_cgiauthurl($cgi, $cgi->query_string());
 		};
 	}
 	else {
 		return undef;
-	}
-}
-
-sub pagetemplate (@_) {
-	my %params=@_;
-	my $template=$params{template};
-
-	if ($template->param("editurl") &&
-	    need_httpauth_pagespec() &&
-	    test_httpauth_pagespec($params{page})) {
-		# go directly to cgiauthurl when editing a page matching
-		# the pagespec
-		$template->param(editurl => IkiWiki::cgiurl(
-			cgiurl => $config{cgiauthurl},
-			do => "edit", page => $params{page}));
 	}
 }
 
