@@ -31,7 +31,7 @@ they're the same as far as how they hook into ikiwiki. This document will
 explain how to write both sorts of plugins, albeit with an emphasis on perl
 plugins.
 
-## Considerations
+## Remember: Ikiwiki is a compiler
 
 One thing to keep in mind when writing a plugin is that ikiwiki is a wiki
 *compiler*. So plugins influence pages when they are built, not when they
@@ -40,7 +40,23 @@ example, will insert the build time. Also, as a compiler, ikiwiki avoids
 rebuilding pages unless they have changed, so a plugin that prints some
 random or changing thing on a page will generate a static page that won't
 change until ikiwiki rebuilds the page for some other reason, like the page
-being edited.
+being edited. The [[tutorial]] has some other examples of ways that ikiwiki
+being a compiler may trip up the unwary.
+
+## Plugin interface
+
+To import the ikiwiki plugin interface:
+
+	use IkiWiki '3.00';
+
+This will import several variables and functions into your plugin's
+namespace. These variables and functions are the ones most plugins need,
+and a special effort will be made to avoid changing them in incompatible
+ways, and to document any changes that have to be made in the future.
+
+Note that IkiWiki also provides other variables and functions that are not
+exported by default. No guarantee is made about these in the future, so if
+it's not exported, the wise choice is to not use it.
 
 ## Registering plugins
 
@@ -508,28 +524,17 @@ describes the plugin as a whole. For example:
 This hook is used to inject C code (which it returns) into the `main`
 function of the ikiwiki wrapper when it is being generated.
 
-## Plugin interface
+### Exported variables
 
-To import the ikiwiki plugin interface:
+Several variables are exported to your plugin when you `use IkiWiki;`
 
-	use IkiWiki '3.00';
-
-This will import several variables and functions into your plugin's
-namespace. These variables and functions are the ones most plugins need,
-and a special effort will be made to avoid changing them in incompatible
-ways, and to document any changes that have to be made in the future.
-
-Note that IkiWiki also provides other variables and functions that are not
-exported by default. No guarantee is made about these in the future, so if
-it's not exported, the wise choice is to not use it.
-
-### %config
+#### %config
 
 A plugin can access the wiki's configuration via the `%config`
 hash. The best way to understand the contents of the hash is to look at
 your ikiwiki setup file, which sets the hash content to configure the wiki.
 
-### %pagestate
+#### %pagestate
 
 The `%pagestate` hash can be used by plugins to save state that they will need
 next time ikiwiki is run. The hash holds per-page state, so to set a value,
@@ -547,7 +552,7 @@ When pages are deleted, ikiwiki automatically deletes their pagestate too.
 Note that page state does not persist across wiki rebuilds, only across
 wiki updates.
 
-### %wikistate
+#### %wikistate
 
 The `%wikistate` hash can be used by a plugin to store persistant state
 that is not bound to any one page. To set a value, use
@@ -556,19 +561,25 @@ serialize, `$key` is any string you like, and `$id` must be the same as the
 "id" parameter passed to `hook()` when registering the plugin, so that the
 state can be dropped if the plugin is no longer used.
 
-### Other variables
+#### %links
 
-If your plugin needs to access data about other pages in the wiki. It can
-use the following hashes, using a page name as the key:
+The `%links` hash can be used to look up the names of each page that
+a page links to. The name of the page is the key; the value is an array
+reference. Do not modify this hash directly; call `add_link()`.
 
-* `%links` lists the names of each page that a page links to, in an array
-  reference.
-* `%destsources` contains the name of the source file used to create each
-  destination file.
-* `%pagesources` contains the name of the source file for each page.
+#### %destsources
 
-Also, the `%IkiWiki::version` variable contains the version number for the
-ikiwiki program.
+The `%destsources` hash records the name of the source file used to
+create each destination file. The key is the output filename (ie,
+"foo/index.html"), and the value is the source filename that it was built
+from (eg, "foo.mdwn"). Note that a single source file may create multiple
+destination files. Do not modify this hash directly; call `will_render()`.
+
+#### %pagesources
+
+The `%pagesources` has can be used to look up the source filename
+of a page. So the key is the page name, and the value is the source
+filename. Do not modify this hash.
 
 ### Library functions
 
@@ -613,22 +624,6 @@ page created from it. (Ie, it appends ".html".)
 
 Use this when constructing the filename of a html file. Use `urlto` when
 generating a link to a page.
-
-### `deptype(@)`
-
-Use this function to generate ikiwiki's internal representation of a
-dependency type from one or more of these keywords:
-
-* `content` is the default. Any change to the content
-  of a page triggers the dependency.
-* `presence` is only triggered by a change to the presence
-  of a page.
-* `links` is only triggered by a change to the links of a page.
-  This includes when a link is added, removed, or changes what
-  it points to due to other changes. It does not include the
-  addition or removal of a duplicate link.
-
-If multiple types are specified, they are combined.
 
 #### `pagespec_match_list($$;@)`
 
@@ -682,6 +677,22 @@ Additional named parameters can be passed, to further limit the match.
 The most often used is "location", which specifies the location the
 PageSpec should match against. If not passed, relative PageSpecs will match
 relative to the top of the wiki.
+
+#### `deptype(@)`
+
+Use this function to generate ikiwiki's internal representation of a
+dependency type from one or more of these keywords:
+
+* `content` is the default. Any change to the content
+  of a page triggers the dependency.
+* `presence` is only triggered by a change to the presence
+  of a page.
+* `links` is only triggered by a change to the links of a page.
+  This includes when a link is added, removed, or changes what
+  it points to due to other changes. It does not include the
+  addition or removal of a duplicate link.
+
+If multiple types are specified, they are combined.
 
 #### `bestlink($$)`
 
