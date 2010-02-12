@@ -121,8 +121,10 @@ sub getsetup () {
         $config{syslog}=$syslog;
 
 	return map { sort { $a->[0] cmp $b->[0] } @{$sections{$_}} }
-		sort { # core first, then alphabetical
+		sort { # core first, other last, otherwise alphabetical
 			($b eq "core") <=> ($a eq "core")
+			   ||
+			($a eq "other") <=> ($b eq "other")
 			   ||
 			$a cmp $b
 		} keys %sections;

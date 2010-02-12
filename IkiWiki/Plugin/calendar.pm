@@ -38,6 +38,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 		archivebase => {
 			type => "string",

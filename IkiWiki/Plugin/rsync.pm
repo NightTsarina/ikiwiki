@@ -16,7 +16,6 @@ sub getsetup () {
 		plugin => {
 			safe => 0,
 			rebuild => 0,
-			section => "special-purpose",
 		},
 		rsync_command => {
 			type => "string",

@@ -45,7 +45,6 @@ sub getsetup () {
 		plugin => {
 			safe => 0,
 			rebuild => 0,
-			section => "special-purpose",
 		},
 		amazon_s3_key_id => {
 			type => "string",

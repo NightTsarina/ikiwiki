@@ -18,7 +18,6 @@ sub getsetup () {
 		plugin => {
 			safe => 0,
 			rebuild => undef,
-			section => "special-purpose",
 		},
 		add_underlays => {
 			type => "string",
