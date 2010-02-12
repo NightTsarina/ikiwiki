@@ -9,15 +9,72 @@ Ikiwiki is a compiler
 One thing to keep in mind when writing a plugin is that ikiwiki is a wiki
 *compiler*. So plugins influence pages when they are built, not when they
 are loaded. A plugin that inserts the current time into a page, for
-example, will insert the build time. Also, as a compiler, ikiwiki avoids
-rebuilding pages unless they have changed, so a plugin that prints some
-random or changing thing on a page will generate a static page that won't
-change until ikiwiki rebuilds the page for some other reason, like the page
-being edited. The [[tutorial]] has some other examples of ways that ikiwiki
-being a compiler may trip up the unwary.
+example, will insert the build time.
+
+Also, as a compiler, ikiwiki avoids rebuilding pages unless they have
+changed, so a plugin that prints some random or changing thing on a page
+will generate a static page that won't change until ikiwiki rebuilds the
+page for some other reason, like the page being edited.
+
+The [[tutorial]] has some other examples of ways that ikiwiki being a
+compiler may trip up the unwary.
 """]]
 
 [[!toc levels=2]]
+
+## Highlevel view of ikiwiki
+
+Ikiwiki mostly has two modes of operation. It can either be running
+as a compiler, building or updating a wiki; or as a cgi program, providing
+user interface for editing pages, etc. Almost everything ikiwiki does
+is accomplished by calling various hooks provided by plugins.
+
+### compiler
+
+As a compiler, starts by calling the `refresh` hook. Then it checks
+the wiki's source to find new or changed pages. The `needsbuild` hook is
+then called to allow manipulation of the list of pages that need to be
+built. 
+
+Now that it knows what pages it needs to build, ikiwiki runs two
+compile passes. First, it runs `scan` hooks, which collect metadata about
+the pages. Then it runs a page rendering pipeline, by calling in turn these
+hooks: `filter`, `preprocess`, `linkify`, `htmlize`, `postscan`,
+`pagetemplate`, `sanitize`, `format`.
+
+After all necessary pages are built, it calls the `change` hook. Finally,
+if a page is was deleted, the `delete` hook is called, and the files that
+page had previously produced are removed.
+
+### cgi
+
+The flow between hooks when ikiwiki is run as a cgi is best illistrated by
+an example.
+
+* *Alice browses to a page and clicks Edit.*
+* Ikiwiki is run as a cgi. It assigns Alice a session cookie, and,
+  by calling the `auth` hooks, sees that she is not yet logged in.
+* The `sessioncgi` hooks are then called, and one of them,
+  from the [[editpage]] plugin, notices that the cgi has been told "do=edit".
+* The [[editpage]] plugin calls the `canedit` hook to check if this
+  page edit is allowed. The [[signinedit]] plugin has a hook that says not:
+  Alice is not signed in.
+* The [[signinedit]] plugin then launches the signin process. A signin
+  page is built by calling the `formbuilder_setup` hook.
+* *Alice signs in with her openid.*
+* The [[openid]] plugin's `formbuilder` hook sees that an openid was
+  entered in the signin form, and redirects to Alice's openid provider.
+* Alice's openid provider calls back to ikiwiki. The [[openid]] plugin
+  has an `auth` hook that finishes the openid signin process.
+* Signin complete, ikiwiki returns to what Alice was doing before; editing
+  a page.
+* Now all the `canedit` hooks are happy. The [[editpage]] plugin calls
+  `formbuilder_setup` to display the page editing form.
+* *Alice saves her change to the page.*
+* The [[editpage]] plugin's `formbuilder` hook sees that the Save button
+  was pressed, and calls the `checkcontent` and `editcontent` hooks.
+  Then it saves the page to disk, and branches into the compiler part
+  of ikiwiki to refresh the wiki.
 
 ## Types of plugins
 
@@ -530,13 +587,13 @@ function of the ikiwiki wrapper when it is being generated.
 
 Several variables are exported to your plugin when you `use IkiWiki;`
 
-### %config
+### `%config`
 
 A plugin can access the wiki's configuration via the `%config`
 hash. The best way to understand the contents of the hash is to look at
 your ikiwiki setup file, which sets the hash content to configure the wiki.
 
-### %pagestate
+### `%pagestate`
 
 The `%pagestate` hash can be used by plugins to save state that they will need
 next time ikiwiki is run. The hash holds per-page state, so to set a value,
@@ -554,7 +611,7 @@ When pages are deleted, ikiwiki automatically deletes their pagestate too.
 Note that page state does not persist across wiki rebuilds, only across
 wiki updates.
 
-### %wikistate
+### `%wikistate`
 
 The `%wikistate` hash can be used by a plugin to store persistant state
 that is not bound to any one page. To set a value, use
@@ -563,7 +620,7 @@ serialize, `$key` is any string you like, and `$id` must be the same as the
 "id" parameter passed to `hook()` when registering the plugin, so that the
 state can be dropped if the plugin is no longer used.
 
-### %links
+### `%links`
 
 The `%links` hash can be used to look up the names of each page that
 a page links to. The name of the page is the key; the value is an array
@@ -571,7 +628,15 @@ reference. Do not modify this hash directly; call `add_link()`.
 
 	$links{"foo"} = ["bar", "baz"];
 
-### %destsources
+### `%pagesources`
+
+The `%pagesources` has can be used to look up the source filename
+of a page. So the key is the page name, and the value is the source
+filename. Do not modify this hash.
+
+	$pagesources{"foo"} = "foo.mdwn";
+
+### `%destsources`
 
 The `%destsources` hash records the name of the source file used to
 create each destination file. The key is the output filename (ie,
@@ -581,15 +646,9 @@ destination files. Do not modify this hash directly; call `will_render()`.
 	
 	$destsources{"foo/index.html"} = "foo.mdwn";
 
-### %pagesources
-
-The `%pagesources` has can be used to look up the source filename
-of a page. So the key is the page name, and the value is the source
-filename. Do not modify this hash.
-
-	$pagesources{"foo"} = "foo.mdwn";
-
 ## Library functions
+
+Several functions are exported to your plugin when you `use IkiWiki;`
 
 ### `hook(@)`
 
