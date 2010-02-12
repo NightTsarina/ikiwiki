@@ -85,7 +85,8 @@ sub getsetup () {
 	return
 		plugin => {
 			safe => 0,
-			rebuild => 1,
+			rebuild => 1, # format plugin
+			section => "format",
 		},
 		po_master_language => {
 			type => "string",

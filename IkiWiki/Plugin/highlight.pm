@@ -23,6 +23,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 1, # format plugin
+			section => "format",
 		},
 		tohighlight => {
 			type => "string",

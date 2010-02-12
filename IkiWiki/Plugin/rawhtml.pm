@@ -16,6 +16,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 1, # changes file types
+			section => "format",
 		},
 }
 

@@ -33,7 +33,7 @@ def _to_dict(args):
     return dict((k, v) for k, v in zip(*[iter(args)]*2))
 
 def getsetup(proxy, *kwargs):
-    return 'plugin', { 'safe' : 1, 'rebuild' : 1 }
+    return 'plugin', { 'safe' : 1, 'rebuild' : 1, 'section' : 'format' }
 
 import sys
 def debug(s):

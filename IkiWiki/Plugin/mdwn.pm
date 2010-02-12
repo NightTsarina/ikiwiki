@@ -16,7 +16,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 1, # format plugin
-			section => "core",
+			section => "format",
 		},
 		multimarkdown => {
 			type => "boolean",
