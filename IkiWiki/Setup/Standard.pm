@@ -104,7 +104,7 @@ sub gendump ($) {
 		if (@{$section_plugins{$section}} == 1) {
 			push @ret, "", "\t".("#" x 70), "\t# $section plugins",
 				sub {
-					wrap("\t#   (", "\t#   ",
+					wrap("\t#   (", "\t#    ",
 						join(", ", @{$section_plugins{$section}})).")"
 				},
 				"\t".("#" x 70);
