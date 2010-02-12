@@ -31,7 +31,7 @@ is accomplished by calling various hooks provided by plugins.
 
 ### compiler
 
-As a compiler, starts by calling the `refresh` hook. Then it checks
+As a compiler, ikiwiki starts by calling the `refresh` hook. Then it checks
 the wiki's source to find new or changed pages. The `needsbuild` hook is
 then called to allow manipulation of the list of pages that need to be
 built. 
@@ -48,10 +48,11 @@ page had previously produced are removed.
 
 ### cgi
 
-The flow between hooks when ikiwiki is run as a cgi is best illistrated by
+The flow between hooks when ikiwiki is run as a cgi is best illustrated by
 an example.
 
-* *Alice browses to a page and clicks Edit.*
+Alice browses to a page and clicks Edit.
+
 * Ikiwiki is run as a cgi. It assigns Alice a session cookie, and,
   by calling the `auth` hooks, sees that she is not yet logged in.
 * The `sessioncgi` hooks are then called, and one of them,
@@ -61,7 +62,9 @@ an example.
   Alice is not signed in.
 * The [[signinedit]] plugin then launches the signin process. A signin
   page is built by calling the `formbuilder_setup` hook.
-* *Alice signs in with her openid.*
+
+Alice signs in with her openid.
+
 * The [[openid]] plugin's `formbuilder` hook sees that an openid was
   entered in the signin form, and redirects to Alice's openid provider.
 * Alice's openid provider calls back to ikiwiki. The [[openid]] plugin
@@ -70,7 +73,9 @@ an example.
   a page.
 * Now all the `canedit` hooks are happy. The [[editpage]] plugin calls
   `formbuilder_setup` to display the page editing form.
-* *Alice saves her change to the page.*
+
+Alice saves her change to the page.
+
 * The [[editpage]] plugin's `formbuilder` hook sees that the Save button
   was pressed, and calls the `checkcontent` and `editcontent` hooks.
   Then it saves the page to disk, and branches into the compiler part
