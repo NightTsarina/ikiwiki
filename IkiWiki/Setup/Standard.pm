@@ -102,12 +102,12 @@ sub gendump ($) {
 		my $section=$s{plugin}->{section};
 		push @{$section_plugins{$section}}, $plugin;
 		if (@{$section_plugins{$section}} == 1) {
-			push @ret, "", "\t#", "\t# $section plugins",
+			push @ret, "", "\t".("#" x 70), "\t# $section plugins",
 				sub {
 					wrap("\t#   (", "\t#   ",
 						join(", ", @{$section_plugins{$section}})).")"
 				},
-				"\t#";
+				"\t".("#" x 70);
 		}
 
 		my @values=dumpvalues(\%setup, @{$setup});
