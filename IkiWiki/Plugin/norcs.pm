@@ -25,6 +25,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => 0,
+			section => "rcs",
 		},
 }
 

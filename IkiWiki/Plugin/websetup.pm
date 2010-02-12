@@ -18,6 +18,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "web",
 		},
 		websetup_force_plugins => {
 			type => "string",

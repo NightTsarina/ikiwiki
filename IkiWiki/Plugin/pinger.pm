@@ -21,6 +21,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "special-purpose",
 		},
 		pinger_timeout => {
 			type => "integer",
