@@ -44,7 +44,8 @@ Some more elaborate limits can be added to what matches using these functions:
   metadata, matching the specified glob.
 * "`user(username)`" - tests whether a modification is being made by a
   user with the specified username. If openid is enabled, an openid can also
-  be put here.
+  be put here. Glob patterns can be used in the username. For example, 
+  to match all openid users, use `user(*://.*)`
 * "`admin()`" - tests whether a modification is being made by one of the
   wiki admins.
 * "`ip(address)`" - tests whether a modification is being made from the

@@ -2266,11 +2266,13 @@ sub match_user ($$;@) {
 	my $user=shift;
 	my %params=@_;
 	
+	my $regexp=IkiWiki::glob2re($user);
+	
 	if (! exists $params{user}) {
 		return IkiWiki::ErrorReason->new("no user specified");
 	}
 
-	if (defined $params{user} && lc $params{user} eq lc $user) {
+	if (defined $params{user} && $params{user}=~/^$regexp$/i) {
 		return IkiWiki::SuccessReason->new("user is $user");
 	}
 	elsif (! defined $params{user}) {
