@@ -3,7 +3,7 @@ written to extend ikiwiki in many ways. Despite the length of this page,
 it's not really hard. This page is a complete reference to everything a
 plugin might want to do. There is also a quick [[tutorial]].
 
-[[!template type="note" text="""
+[[!template id="note" text="""
 Ikiwiki is a compiler
 
 One thing to keep in mind when writing a plugin is that ikiwiki is a wiki
@@ -569,6 +569,8 @@ The `%links` hash can be used to look up the names of each page that
 a page links to. The name of the page is the key; the value is an array
 reference. Do not modify this hash directly; call `add_link()`.
 
+	$links{"foo"} = ["bar", "baz"];
+
 ### %destsources
 
 The `%destsources` hash records the name of the source file used to
@@ -576,12 +578,16 @@ create each destination file. The key is the output filename (ie,
 "foo/index.html"), and the value is the source filename that it was built
 from (eg, "foo.mdwn"). Note that a single source file may create multiple
 destination files. Do not modify this hash directly; call `will_render()`.
+	
+	$destsources{"foo/index.html"} = "foo.mdwn";
 
 ### %pagesources
 
 The `%pagesources` has can be used to look up the source filename
 of a page. So the key is the page name, and the value is the source
 filename. Do not modify this hash.
+
+	$pagesources{"foo"} = "foo.mdwn";
 
 ## Library functions
 
