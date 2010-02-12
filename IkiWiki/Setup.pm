@@ -103,7 +103,7 @@ sub getsetup () {
 			# hashref between array and hash)
 			my %s=@s;
 			if (! exists $s{plugin} || ! $s{plugin}->{section}) {
-				$s{plugin}->{section}="misc";
+				$s{plugin}->{section}="other";
 			}
 
 			# only the selected rcs plugin is included
