@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 70;
+use Test::More tests => 72;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -46,6 +46,8 @@ ok(! pagespec_match("somepage", "user(frodo)", user => "Sam"));
 ok(pagespec_match("somepage", "user(*o)", user => "Bilbo"));
 ok(pagespec_match("somepage", "user(*o)", user => "frodo"));
 ok(! pagespec_match("somepage", "user(*o)", user => "Sam"));
+ok(pagespec_match("somepage", "user(http://*.myopenid.com/)", user => "http://foo.myopenid.com/"));
+ok(pagespec_match("somepage", "user(*://*)", user => "http://foo.myopenid.com/"));
 
 # The link and backlink stuff needs this.
 $config{userdir}="";
