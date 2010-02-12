@@ -457,6 +457,12 @@ describing the option. There can also be an item named "plugin", which
 describes the plugin as a whole. For example:
 
                 return
+			plugin => {
+				description => "description of this plugin",
+				safe => 1,
+				rebuild => 1,
+				section => "misc",
+			},
 			option_foo => {
 				type => "boolean",
 				description => "enable foo?",
@@ -470,11 +476,6 @@ describes the plugin as a whole. For example:
 				description => "option bar",
 				safe => 1,
 				rebuild => 0,
-			},
-			plugin => {
-				description => "description of this plugin",
-				safe => 1,
-				rebuild => 1,
 			},
 
 * `type` can be "boolean", "string", "integer", "pagespec",
@@ -496,6 +497,8 @@ describes the plugin as a whole. For example:
   the plugin) will require a wiki rebuild, false if no rebuild is needed,
   and undef if a rebuild could be needed in some circumstances, but is not
   strictly required.
+* `section` can optionally specify which section in the config file
+  the plugin fits in.
 
 ### genwrapper
 

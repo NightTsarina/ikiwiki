@@ -15,6 +15,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "auth",
 		},
 		locked_pages => {
 			type => "pagespec",

@@ -36,6 +36,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		mercurial_wrapper => {
 			type => "string",

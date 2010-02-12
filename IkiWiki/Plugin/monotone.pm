@@ -68,6 +68,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		mtn_wrapper => {
 			type => "string",

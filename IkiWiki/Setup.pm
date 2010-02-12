@@ -77,7 +77,6 @@ sub merge ($) {
 sub getsetup () {
 	# Gets all available setup data from all plugins. Returns an
 	# ordered list of [plugin, setup] pairs.
-	my @ret;
 
         # disable logging to syslog while dumping, broken plugins may
 	# whine when loaded
@@ -85,27 +84,48 @@ sub getsetup () {
         $config{syslog}=undef;
 
 	# Load all plugins, so that all setup options are available.
-	my @plugins=grep { $_ ne $config{rcs} } sort(IkiWiki::listplugins());
-	unshift @plugins, $config{rcs} if $config{rcs}; # rcs plugin 1st
+	my @plugins=IkiWiki::listplugins();
 	foreach my $plugin (@plugins) {
 		eval { IkiWiki::loadplugin($plugin) };
 		if (exists $IkiWiki::hooks{checkconfig}{$plugin}{call}) {
 			my @s=eval { $IkiWiki::hooks{checkconfig}{$plugin}{call}->() };
 		}
 	}
-
+	
+	my %sections;
 	foreach my $plugin (@plugins) {
 		if (exists $IkiWiki::hooks{getsetup}{$plugin}{call}) {
 			# use an array rather than a hash, to preserve order
 			my @s=eval { $IkiWiki::hooks{getsetup}{$plugin}{call}->() };
 			next unless @s;
-			push @ret, [ $plugin, \@s ],
+
+			# set default section value (note use of shared
+			# hashref between array and hash)
+			my %s=@s;
+			if (! exists $s{plugin} || ! $s{plugin}->{section}) {
+				$s{plugin}->{section}="misc";
+			}
+
+			# only the selected rcs plugin is included
+			if ($config{rcs} && $plugin eq $config{rcs}) {
+				$s{plugin}->{section}="core";
+			}
+			elsif ($s{plugin}->{section} eq "rcs") {
+				next;
+			}
+
+			push @{$sections{$s{plugin}->{section}}}, [ $plugin, \@s ];
 		}
 	}
 	
         $config{syslog}=$syslog;
 
-	return @ret;
+	return map { sort { $a->[0] cmp $b->[0] } @{$sections{$_}} }
+		sort { # core first, then alphabetical
+			($b eq "core") <=> ($a eq "core")
+			   ||
+			$a cmp $b
+		} keys %sections;
 }
 
 sub dump ($) {

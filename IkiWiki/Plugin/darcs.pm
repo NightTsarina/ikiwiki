@@ -92,6 +92,7 @@ sub getsetup() {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		darcs_wrapper => {
 			type => "string",

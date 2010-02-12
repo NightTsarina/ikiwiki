@@ -18,6 +18,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "auth",
 		},
 		blogspam_pagespec => {
 			type => 'pagespec',

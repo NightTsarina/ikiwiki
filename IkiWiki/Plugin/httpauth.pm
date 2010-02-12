@@ -20,6 +20,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "auth",
 		},
 		cgiauthurl => {
 			type => "string",

@@ -40,6 +40,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "core",
 		},
 		htmlscrubber_skip => {
 			type => "pagespec",

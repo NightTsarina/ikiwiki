@@ -19,6 +19,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "auth",
 		},
 		account_creation_password => {
 			type => "string",

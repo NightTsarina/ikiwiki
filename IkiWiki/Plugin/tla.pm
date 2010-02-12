@@ -34,6 +34,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		tla_wrapper => {
 			type => "string",
