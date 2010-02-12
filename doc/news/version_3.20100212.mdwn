@@ -1,0 +1,26 @@
+ikiwiki 3.20100212 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * template: Preprocess parameters before htmlizing.
+   * img: Fix a bug that could taint @links with undef values.
+   * setup automator: Configure Term::Readline to use bold for prompt, rather
+     than default underline. Closes: #[517656](http://bugs.debian.org/517656)
+   * Allow jumping directly into account registration process by going to
+     ikiwiki.cgi?do=register
+   * Improve display of openid in preferences page.
+   * Add link to userpage (or creation link) to top of preferences page.
+   * opendiscussion: This plugin will also now allow posting comments
+     to otherwise locked-down sites.
+   * auto-blog.setup: Lock all pages, so only admin can post to the blog
+     by default, and enable opendiscussion so others can comment.
+   * Fix color and format plugins to appear in the websetup interface.
+   * amazon\_s3: Fix to support the EU S3 datacenter, which is more picky
+     about attempts to create already existing buckets.
+   * httpauth: When cgiauthurl is configured, httpauth can now be used
+     alongside other authentication methods (like openid or anonok). Rather
+     than always redirect to the cgiauthurl for authentication, there is now
+     a button on the login form to use it.
+   * httpauth: Add httpauth\_pagespec setting that can be used to limit
+     pages to only being edited via users authed with httpauth.
+   * Allow globs to be used in user() pagespecs.
+   * Group related plugins into sections in the setup file, and drop
+     unused rcs plugins from the setup file."""]]
