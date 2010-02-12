@@ -536,7 +536,7 @@ The data returned is a list of `%config` options, followed by a hash
 describing the option. There can also be an item named "plugin", which
 describes the plugin as a whole. For example:
 
-                return
+		return
 			plugin => {
 				description => "description of this plugin",
 				safe => 1,
@@ -736,7 +736,7 @@ By default, dependencies are full content dependencies, meaning that the
 page will be updated whenever anything matching the PageSpec is modified.
 This can be overridden by passing a `deptype` value as the third parameter.
 
-#### `pagespec_match($$;@)`
+### `pagespec_match($$;@)`
 
 Passed a page name, and [[ikiwiki/PageSpec]], returns a true value if the
 [[ikiwiki/PageSpec]] matches the page.
@@ -766,7 +766,7 @@ dependency type from one or more of these keywords:
 
 If multiple types are specified, they are combined.
 
-#### `bestlink($$)`
+### `bestlink($$)`
 
 Given a page and the text of a link on the page, determine which
 existing page that link best points to. Prefers pages under a
@@ -774,7 +774,7 @@ subdirectory with the same name as the source page, failing that
 goes down the directory tree to the base looking for matching
 pages, as described in [[ikiwiki/SubPage/LinkingRules]].
 
-#### `htmllink($$$;@)`
+### `htmllink($$$;@)`
 
 Many plugins need to generate html links and add them to a page. This is
 done by using the `htmllink` function. The usual way to call
