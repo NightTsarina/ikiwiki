@@ -138,9 +138,9 @@ sub showfields ($$$@) {
 
 		my $value=$config{$key};
 
-		if ($info{safe} && (ref $value eq 'ARRAY' || ref $info{example} eq 'ARRAY')) {
-			$value=[(ref $value eq 'ARRAY' ? map { Encode::encode_utf8($_) }  @{$value} : ""),
-				"", ""]; # blank items for expansion
+		if (ref $value eq 'ARRAY' || ref $info{example} eq 'ARRAY') {
+			$value=[(ref $value eq 'ARRAY' ? map { Encode::encode_utf8($_) }  @{$value} : "")];
+			push @$value, "", "" if $info{safe}; # blank items for expansion
 		}
 		else {
 			$value=Encode::encode_utf8($value);
