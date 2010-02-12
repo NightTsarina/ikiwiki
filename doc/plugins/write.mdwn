@@ -3,6 +3,20 @@ written to extend ikiwiki in many ways. Despite the length of this page,
 it's not really hard. This page is a complete reference to everything a
 plugin might want to do. There is also a quick [[tutorial]].
 
+[[!template type="note" text="""
+Ikiwiki is a compiler
+
+One thing to keep in mind when writing a plugin is that ikiwiki is a wiki
+*compiler*. So plugins influence pages when they are built, not when they
+are loaded. A plugin that inserts the current time into a page, for
+example, will insert the build time. Also, as a compiler, ikiwiki avoids
+rebuilding pages unless they have changed, so a plugin that prints some
+random or changing thing on a page will generate a static page that won't
+change until ikiwiki rebuilds the page for some other reason, like the page
+being edited. The [[tutorial]] has some other examples of ways that ikiwiki
+being a compiler may trip up the unwary.
+"""]]
+
 [[!toc levels=2]]
 
 ## Types of plugins
@@ -30,18 +44,6 @@ Despite these two types of plugins having such different interfaces,
 they're the same as far as how they hook into ikiwiki. This document will
 explain how to write both sorts of plugins, albeit with an emphasis on perl
 plugins.
-
-## Remember: Ikiwiki is a compiler
-
-One thing to keep in mind when writing a plugin is that ikiwiki is a wiki
-*compiler*. So plugins influence pages when they are built, not when they
-are loaded. A plugin that inserts the current time into a page, for
-example, will insert the build time. Also, as a compiler, ikiwiki avoids
-rebuilding pages unless they have changed, so a plugin that prints some
-random or changing thing on a page will generate a static page that won't
-change until ikiwiki rebuilds the page for some other reason, like the page
-being edited. The [[tutorial]] has some other examples of ways that ikiwiki
-being a compiler may trip up the unwary.
 
 ## Plugin interface
 
