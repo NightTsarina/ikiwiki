@@ -742,28 +742,24 @@ sub pagetemplate (@) {
 		}
 	}
 
-	if ($template->query(name => 'commentsurl')) {
-		if ($shown) {
+	if ($shown) {
+		if ($template->query(name => 'commentsurl')) {
 			$template->param(commentsurl =>
 				urlto($page, undef, 1).'#comments');
 		}
-	}
 
-	if ($template->query(name => 'atomcommentsurl') && $config{usedirs}) {
-		if ($shown) {
+		if ($template->query(name => 'atomcommentsurl') && $config{usedirs}) {
 			# This will 404 until there are some comments, but I
 			# think that's probably OK...
 			$template->param(atomcommentsurl =>
 				urlto($page, undef, 1).'comments.atom');
 		}
-	}
 
-	if ($template->query(name => 'commentslink')) {
 		# XXX Would be nice to say how many comments there are in
 		# the link. But, to update the number, blog pages
 		# would have to update whenever comments of any inlines
 		# page are added, which is not currently done.
-		if ($shown) {
+		if ($template->query(name => 'commentslink')) {
 			$template->param(commentslink =>
 				htmllink($page, $params{destpage}, $page,
 					linktext => gettext("Comments"),
