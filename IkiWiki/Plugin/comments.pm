@@ -736,9 +736,7 @@ sub pagetemplate (@) {
 		}
 
 		if ($shown && commentsopen($page)) {
-			my $addcommenturl = IkiWiki::cgiurl(do => 'comment',
-				page => $page);
-			$template->param(addcommenturl => $addcommenturl);
+			$template->param(addcommenturl => addcommenturl($page));
 		}
 	}
 
@@ -755,16 +753,26 @@ sub pagetemplate (@) {
 				urlto($page, undef, 1).'comments.atom');
 		}
 
-		# XXX Would be nice to say how many comments there are in
-		# the link. But, to update the number, blog pages
-		# would have to update whenever comments of any inlines
-		# page are added, which is not currently done.
 		if ($template->query(name => 'commentslink')) {
-			$template->param(commentslink =>
-				htmllink($page, $params{destpage}, $page,
-					linktext => gettext("Comments"),
+			my $num=num_comments($page, $config{srcdir});
+			my $link;
+			if ($num > 0) {
+				$link = htmllink($page, $params{destpage}, $page,
+					linktext => sprintf(ngettext("%i comment", "%i comments", $num), $num),
 					anchor => "comments",
-					noimageinline => 1));
+					noimageinline => 1
+				);
+			}
+			elsif (commentsopen($page)) {
+				$link = "<a href=\"".addcommenturl($page)."\">".
+					#translators: Here "Comment" is a verb;
+					#translators: the user clicks on it to
+					#translators: post a comment.
+					gettext("Comment").
+					"</a>";
+			}
+			$template->param(commentslink => $link)
+				if defined $link;
 		}
 	}
 
@@ -810,6 +818,12 @@ sub pagetemplate (@) {
 			page => $page));
 		$template->param(have_actions => 1);
 	}
+}
+
+sub addcommenturl ($) {
+	my $page=shift;
+
+	return IkiWiki::cgiurl(do => 'comment', page => $page);
 }
 
 sub num_comments ($$) {
