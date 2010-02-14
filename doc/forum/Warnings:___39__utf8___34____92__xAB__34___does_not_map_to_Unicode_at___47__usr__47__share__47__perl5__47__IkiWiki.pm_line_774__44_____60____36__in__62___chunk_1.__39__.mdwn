@@ -13,3 +13,24 @@ Is there a way to have ikiwiki output the position, where it encounters the char
 
 Probably all this has to do with locale-settings, and usage of mixed locales in a distributed setup ...
 I'd rather cleanup some of the file(name)s  of unexpected characters. --[[jwalzer]]
+
+--------
+
+**Update** : So I took the chance to insert debug into ikiwiki.pm:
+
+     root@novalis:/usr/share/perl5# diff -p /tmp/IkiWiki.orig.pm IkiWiki.pm 
+     *** /tmp/IkiWiki.orig.pm        Sun Feb 14 15:16:08 2010
+     --- IkiWiki.pm  Sun Feb 14 15:16:28 2010
+     *************** sub readfile ($;$$) {
+     *** 768,773 ****
+     --- 768,774 ----
+             }
+       
+             local $/=undef;
+     +       debug("opening File: $file:");
+             open (my $in, "<", $file) || error("failed to read $file: $!");
+             binmode($in) if ($binary);
+             return \*$in if $wantfd;
+
+
+But what I see now is not quite helpful, as it seems, STDERR and DEBUG are asyncronous, so they mix up in a way, that I can't really see, whats the problem ...  Maybe I'm better off for troubleshooting, to insert an printf to strerr to have it in the same stream.. --[[jwalzer]]
