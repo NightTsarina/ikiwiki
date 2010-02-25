@@ -80,7 +80,7 @@ my %highlighters;
 
 # Parse highlight's config file to get extension => language mappings.
 sub read_filetypes () {
-	open (IN, $filetypes);
+	open (IN, $filetypes) || error("$filetypes: $!");
 	while (<IN>) {
 		chomp;
 		if (/^\$ext\((.*)\)=(.*)$/) {
