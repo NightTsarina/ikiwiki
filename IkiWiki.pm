@@ -1220,7 +1220,7 @@ sub preprocess ($$$;$$) {
 				(?:
 					"""(.*?)"""	# 2: triple-quoted value
 				|
-					"([^"]+)"	# 3: single-quoted value
+					"([^"]*?)"	# 3: single-quoted value
 				|
 					(\S+)		# 4: unquoted value
 				)
@@ -1306,7 +1306,7 @@ sub preprocess ($$$;$$) {
 					(?:
 						""".*?"""	# triple-quoted value
 						|
-						"[^"]+"		# single-quoted value
+						"[^"]*?"	# single-quoted value
 						|
 						[^"\s\]]+	# unquoted value
 					)
@@ -1329,7 +1329,7 @@ sub preprocess ($$$;$$) {
 					(?:
 						""".*?"""	# triple-quoted value
 						|
-						"[^"]+"		# single-quoted value
+						"[^"]*?"	# single-quoted value
 						|
 						[^"\s\]]+	# unquoted value
 					)
