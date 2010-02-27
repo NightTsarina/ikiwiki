@@ -40,17 +40,19 @@ sub import (@) {
 	my $this=shift;
 	IkiWiki::Setup::merge({@_});
 
-	# Avoid overwriting any existing files.
-	foreach my $key (qw{srcdir destdir repository dumpsetup}) {
-		next unless exists $config{$key};
-		my $add="";
-		my $dir=IkiWiki::dirname($config{$key})."/";
-		my $base=IkiWiki::basename($config{$key});
-		while (-e $dir.$add.$base) {
-			$add=1 if ! $add;
-			$add++;
+	if (! $config{force_overwrite}) {
+		# Avoid overwriting any existing files.
+		foreach my $key (qw{srcdir destdir repository dumpsetup}) {
+			next unless exists $config{$key};
+			my $add="";
+			my $dir=IkiWiki::dirname($config{$key})."/";
+			my $base=IkiWiki::basename($config{$key});
+			while (-e $dir.$add.$base) {
+				$add=1 if ! $add;
+				$add++;
+			}
+			$config{$key}=$dir.$add.$base;
 		}
-		$config{$key}=$dir.$add.$base;
 	}
 	
 	# Set up wrapper
