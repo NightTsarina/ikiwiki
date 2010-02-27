@@ -144,7 +144,7 @@ sub import (@) {
 
 	# Create admin user(s).
 	foreach my $admin (@{$config{adminuser}}) {
-		next if $admin=~/^http\?:\/\//; # openid
+		next if defined IkiWiki::openiduser($admin);
 		
 		# Prompt for password w/o echo.
 		my ($password, $password2);
