@@ -37,6 +37,7 @@ sub getconfig () {
 			"syslog!" => \$config{syslog},
 			"rebuild!" => \$config{rebuild},
 			"refresh!" => \$config{refresh},
+			"clean!" => \$config{clean},
 			"post-commit" => \$config{post_commit},
 			"render=s" => \$config{render},
 			"wrappers!" => \$config{genwrappers},
@@ -135,6 +136,7 @@ sub main () {
 
 		if (@{$config{wrappers}} && 
 		    ! $config{render} && ! $config{dumpsetup} &&
+		    ! $config{clean} &&
 		    ((! $config{refresh} && ! $config{post_commit})
 		     || $config{genwrappers})) {
 			debug(gettext("generating wrappers.."));
@@ -159,7 +161,7 @@ sub main () {
 		
 		# setup implies a wiki rebuild by default
 		if (! $config{refresh} && ! $config{render} &&
-		    ! $config{post_commit}) {
+		    ! $config{post_commit} && ! $config{clean}) {
 			$config{rebuild}=1;
 		}
 	}
@@ -189,6 +191,14 @@ sub main () {
 	}
 	elsif ($config{post_commit} && ! commit_hook_enabled()) {
 		# do nothing
+	}
+	elsif ($config{clean}) {
+		require IkiWiki::Render;
+		foreach my $wrapper (@{$config{wrappers}}) {
+			prune($wrapper->{wrapper});
+		}
+		clean_rendered();
+		system("rm", "-rf", $config{wikistatedir});
 	}
 	else {
 		if ($config{rebuild}) {

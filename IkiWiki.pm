@@ -409,6 +409,13 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
+	clean => {
+		type => "internal",
+		default => 0,
+		description => "running in clean mode",
+		safe => 0,
+		rebuild => 0,
+	},
 	refresh => {
 		type => "internal",
 		default => 0,

@@ -51,7 +51,7 @@ docwiki: ikiwiki.out
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup docwiki.setup -refresh
 
 extra_clean:
-	rm -rf html doc/.ikiwiki
+	$(PERL) -I. $(extramodules) $(tflag) ikiwiki.in -libdir . -setup docwiki.setup -clean
 	rm -f *.man ikiwiki.out ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
 

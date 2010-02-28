@@ -50,6 +50,14 @@ These options control the mode that ikiwiki operates in.
   If used with --setup --refresh, this makes it also update any configured
   wrappers.
 
+* --clean
+
+  This makes ikiwiki clean up by removing any files it denerated in the 
+  `destination` directory, as well as any configured wrappers, and the
+  `.ikiwiki` state directory. This is mostly useful if you're running
+  ikiwiki in a Makefile to build documentation and want a corresponding
+  `clean` target.
+
 * --cgi
 
   Enable [[CGI]] mode. In cgi mode ikiwiki runs as a cgi script, and

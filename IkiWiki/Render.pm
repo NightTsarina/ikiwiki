@@ -683,6 +683,17 @@ sub refresh () {
 	}
 }
 
+sub clean_rendered {
+	lockwiki();
+	loadindex();
+	remove_unrendered();
+	foreach my $page (keys %oldrenderedfiles) {
+		foreach my $file (@{$oldrenderedfiles{$page}}) {
+			prune($config{destdir}."/".$file);
+		}
+	}
+}
+
 sub commandline_render () {
 	lockwiki();
 	loadindex();
