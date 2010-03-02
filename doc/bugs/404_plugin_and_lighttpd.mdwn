@@ -3,3 +3,11 @@ Lighttpd apparently sets REDIRECT_STATUS=200 for the server.error-handler-404 pa
 I was able to fix my server to check the REQUEST_URI for ikiwiki.cgi and to continue processing if it was not found, passing $ENV{SEVER_NAME} . $ENV{REQUEST_URI} as the first parameter to cgi_page_from_404. However, my perl is terrible and I just made it work rather than figuring out exactly what to do to get it to work on both lighttpd and apache.
 
 This is with lighttpd 1.4.19 on Debian.
+
+> /cgi-bin/ikiwiki.cgi?do=goto also provides redirection in the same way,
+> if that's any help? You might need to set the lighttpd 404 handler to
+> that, then compose REDIRECT_URL from other variables if necessary.
+>
+> I originally wrote the plugin for Apache; [[weakish]] contributed the
+> lighttpd docs and might know more about how to make it work there.
+> --[[smcv]]
