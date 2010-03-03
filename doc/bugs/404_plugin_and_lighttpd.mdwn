@@ -11,3 +11,25 @@ This is with lighttpd 1.4.19 on Debian.
 > I originally wrote the plugin for Apache; [[weakish]] contributed the
 > lighttpd docs and might know more about how to make it work there.
 > --[[smcv]]
+
+>> As I said, I got it working for me, but somebody who knows perl should probably look at it with the aim of making it work for everyone.
+>> I considered having lighttpd construct a proper url for the 404 redirect itself, but I don't know if it can do something like that or not.
+>> For what it's worth, here's the change I made to the module:
+
+    sub cgi ($) {
+            my $cgi=shift;
+            if ($ENV{REQUEST_URI} !~ /ikiwiki\.cgi/) {
+                    my $page = cgi_page_from_404(
+                            Encode::decode_utf8($ENV{SERVER_NAME} . $ENV{REQUEST_URI}),
+                            $config{url}, $config{usedirs});
+                    IkiWiki::Plugin::goto::cgi_goto($cgi, $page);
+            }
+    
+    #       if (exists $ENV{REDIRECT_STATUS} &&
+    #           $ENV{REDIRECT_STATUS} eq '404') {
+    #               my $page = cgi_page_from_404(
+    #                       Encode::decode_utf8($ENV{REDIRECT_URL}),
+    #                       $config{url}, $config{usedirs});
+    #               IkiWiki::Plugin::goto::cgi_goto($cgi, $page);
+    #       }
+    }
