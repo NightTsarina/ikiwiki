@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.14159\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-02-12 16:48-0500\n"
+"POT-Creation-Date: 2010-03-02 22:18-0500\n"
 "PO-Revision-Date: 2009-07-23 01:07+0100\n"
 "Last-Translator: Kurt Gramlich <kurt@skolelinux.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -56,7 +56,7 @@ msgstr "Einstellungen gespeichert."
 msgid "You are banned."
 msgstr "Sie sind ausgeschlossen worden."
 
-#: ../IkiWiki/CGI.pm:411 ../IkiWiki/CGI.pm:412 ../IkiWiki.pm:1273
+#: ../IkiWiki/CGI.pm:411 ../IkiWiki/CGI.pm:412 ../IkiWiki.pm:1280
 msgid "Error"
 msgstr "Fehler"
 
@@ -137,7 +137,7 @@ msgstr "erstelle neue Seite %s"
 msgid "deleting bucket.."
 msgstr "lösche Behälter (bucket)..."
 
-#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:206
+#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:216
 msgid "done"
 msgstr "fertig"
 
@@ -261,8 +261,19 @@ msgstr "Kommentar-Moderation"
 msgid "comment moderation"
 msgstr "Kommentar-Moderation"
 
-#: ../IkiWiki/Plugin/comments.pm:769
-msgid "Comments"
+#: ../IkiWiki/Plugin/comments.pm:761
+#, fuzzy, perl-format
+msgid "%i comment"
+msgid_plural "%i comments"
+msgstr[0] "Kommentare"
+msgstr[1] "Kommentare"
+
+#. translators: Here "Comment" is a verb;
+#. translators: the user clicks on it to
+#. translators: post a comment.
+#: ../IkiWiki/Plugin/comments.pm:771
+#, fuzzy
+msgid "Comment"
 msgstr "Kommentare"
 
 #: ../IkiWiki/Plugin/conditional.pm:28 ../IkiWiki/Plugin/cutpaste.pm:31
@@ -1096,7 +1107,7 @@ msgstr "erzeuge %s, die von %s abhängt"
 msgid "building %s, to update its backlinks"
 msgstr "erzeuge %s, um dessen Rückverweise zu aktualisieren"
 
-#: ../IkiWiki/Render.pm:696
+#: ../IkiWiki/Render.pm:707
 #, perl-format
 msgid "ikiwiki: cannot build %s"
 msgstr "ikiwiki: kann %s nicht erzeugen"
@@ -1113,16 +1124,16 @@ msgid "you must enter a wikiname (that contains alphanumerics)"
 msgstr ""
 "Sie müssen einen Wiki-Namen eingeben (der alphanumerische Zeichen enthält)"
 
-#: ../IkiWiki/Setup/Automator.pm:80
+#: ../IkiWiki/Setup/Automator.pm:82
 #, perl-format
 msgid "unsupported revision control system %s"
 msgstr "nicht unterstütztes Versionskontrollsystem %s"
 
-#: ../IkiWiki/Setup/Automator.pm:106
+#: ../IkiWiki/Setup/Automator.pm:108
 msgid "failed to set up the repository with ikiwiki-makerepo"
 msgstr "erstellen des Depots mit ikiwiki-makerepo ist fehlgeschlagen"
 
-#: ../IkiWiki/Setup/Automator.pm:124
+#: ../IkiWiki/Setup/Automator.pm:126
 #, perl-format
 msgid "** Disabling plugin %s, since it is failing with this message:"
 msgstr ""
@@ -1162,19 +1173,19 @@ msgstr "Aufruf: ikiwiki [Optionen] Quelle Ziel"
 msgid "       ikiwiki --setup configfile"
 msgstr "       ikiwiki --setup Konfigurationsdatei"
 
-#: ../ikiwiki.in:91
+#: ../ikiwiki.in:92
 msgid "usage: --set var=value"
 msgstr "Aufruf: --set Variable=Wert"
 
-#: ../ikiwiki.in:140
+#: ../ikiwiki.in:142
 msgid "generating wrappers.."
 msgstr "erzeuge Wrapper.."
 
-#: ../ikiwiki.in:195
+#: ../ikiwiki.in:205
 msgid "rebuilding wiki.."
 msgstr "erzeuge Wiki neu.."
 
-#: ../ikiwiki.in:198
+#: ../ikiwiki.in:208
 msgid "refreshing wiki.."
 msgstr "aktualisiere Wiki.."
 
@@ -1182,41 +1193,41 @@ msgstr "aktualisiere Wiki.."
 msgid "Discussion"
 msgstr "Diskussion"
 
-#: ../IkiWiki.pm:507
+#: ../IkiWiki.pm:514
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr ""
 "Es muss eine URL zum Wiki mit --url angegeben werden, wenn --cgi verwandt "
 "wird"
 
-#: ../IkiWiki.pm:553
+#: ../IkiWiki.pm:560
 msgid "cannot use multiple rcs plugins"
 msgstr ""
 "Es können nicht mehrere Versionskontrollsystem-Erweiterungen verwandt werden"
 
-#: ../IkiWiki.pm:582
+#: ../IkiWiki.pm:589
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr "Laden der für %s benötigten externen Erweiterung fehlgeschlagen: %s"
 
-#: ../IkiWiki.pm:1255
+#: ../IkiWiki.pm:1262
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "Präprozessorschleife auf %s in Tiefe %i erkannt"
 
-#: ../IkiWiki.pm:1854
+#: ../IkiWiki.pm:1877
 msgid "yes"
 msgstr "ja"
 
-#: ../IkiWiki.pm:1997
+#: ../IkiWiki.pm:2020
 msgid "Sort::Naturally needed for title_natural sort"
 msgstr "Sort::Naturally wird benötigt für title_natural sort"
 
-#: ../IkiWiki.pm:2008
+#: ../IkiWiki.pm:2031
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "Unbekannter Sortierungstyp %s"
 
-#: ../IkiWiki.pm:2027
+#: ../IkiWiki.pm:2050
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "Kann die Seiten nicht zuordnen: %s"
