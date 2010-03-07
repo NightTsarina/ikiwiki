@@ -4,9 +4,11 @@ What might be causing this exception and how I might go about debugging exceptio
 
 > Appears to be coming from your xapian omega cgi binary. If you
 > run `strings /usr/lib/cgi-bin/omega/omega` you can see it has
-> "Exception: " in it.
+> "Exception: " in it, and I have found some similar (but not identical)
+> error messages from xapian in a web search.
 > 
 > I don´t know what to suggest, other than upgrade/downgrade/reinstall
-> xapian-omega. You could try rebuilding your wiki in case it is somehow
+> xapian-omega, and contacting the xapian developers for debugging.
+> You could try rebuilding your wiki in case it is somehow
 > caused by a problem with the xapian database. Failing everything, you
 > could switch to [[google_search_plugin|plugins/google]]. --[[Joey]] 
