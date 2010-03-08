@@ -12,3 +12,5 @@ What might be causing this exception and how I might go about debugging exceptio
 > You could try rebuilding your wiki in case it is somehow
 > caused by a problem with the xapian database. Failing everything, you
 > could switch to [[google_search_plugin|plugins/google]]. --[[Joey]] 
+
+>> Thanks, Joey. With your help I was able to figure out what was wrong. It's a fun little bug (or feature): the title of my wiki had string `$this` in title and that's what was causing the omega binary to choke. My wiki's title was inserted without escaping into the query template used by omega. Omega treated `$this` in the title as a function name and threw an exception because no such function was defined. To avoid this behavior, I used an html entity in the title, so `$this` became `&#36;this`. I don't think that the wiki title should be inserted into the template without escaping - it can produce an error that's not trivial to debug. If users want to modify the html in the title, they should be editing respective templates, not typing html in the wiki title input. What do you think? --[[dkobozev]]
