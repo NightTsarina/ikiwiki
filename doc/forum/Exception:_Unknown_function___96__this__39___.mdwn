@@ -27,3 +27,26 @@ What might be causing this exception and how I might go about debugging exceptio
 >>>>> I don't see how that's relevant. It would help if you showed me
 >>>>> exactly something that could be inserted into a page to cause the
 >>>>> problem. --[[Joey]] 
+
+>>>>>> Correct me if I'm wrong: ikiwiki generates an Omega template from its own templates, such as searchquery.tmpl and puts it into {$srcdir}/.ikiwiki/xapian/templates/query. Omega has its own template syntax, where function names are prefixed with dollar signs (`$`). So, when I call my wiki `$foobar`, ikiwiki generates an Omega template that looks like this snippet:
+
+    <div id="container">
+        <div class="pageheader">
+            <div class="header">
+            <span>
+            <a href="http://example.com">$foobar</    a>/search
+            </span>
+            </div>
+        </div> <!-- .pageheader -->
+    
+        <div id="content">
+            $setmap{prefix,title,S}
+    $setmap{prefix,link,XLINK}
+    $set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
+    ${
+    $def{PREV,
+    $if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
+    SRC="/images/xapian-omega/prev.png" BORDER=0 HEIGHT=30 WIDTH=30>,
+    <IMG ALT="" SRC="/images/xapian-omega/prevoff.png" HEIGHT=30 WIDTH=30>}
+
+>>>>>> So `$foobar` clashes with Omega's template tags. Does this help?
