@@ -28,7 +28,7 @@ won't it make sense for bestlink() to check %pagesources first? --[[harishcm]]
 > maybe by keeping a copy of the old backlinks info, then that fix could be
 > applied here too. --[[Joey]]
 
->> Cool that was fast! Well at least half the bug is solved :) For now I'll
+>> Cool that was fast! Well at least half the <a href="http://www.college-paper.org/custom-essay.html college essay">college essay</a> bug is solved :) For now I'll
 >> probably try using a workaround if using bestlink within the needsbuild
 >> or scan hooks. Maybe by testing if pagemtime equals zero. --[[harishcm]]
 
@@ -48,8 +48,8 @@ won't it make sense for bestlink() to check %pagesources first? --[[harishcm]]
     use IkiWiki 3.00;
     
     sub import {
-    	hook(type => "getsetup", id => "bestlinkbug", call => \&getsetup);
-    	hook(type => "needsbuild", id => "bestlinkbug", call => \&needsbuild);
+    	hook(type => "getsetup", id => "bestlinkbug", call => &getsetup);
+    	hook(type => "needsbuild", id => "bestlinkbug", call => &needsbuild);
     }
     
     sub getsetup () {
