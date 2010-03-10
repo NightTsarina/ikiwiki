@@ -855,7 +855,7 @@ sub unique_comment_location ($$$) {
 
 sub page_to_id ($) {
 	# Converts a comment page name into a unique, legal html id
-	# addtibute value, that can be used as an anchor to link to the
+	# attribute value, that can be used as an anchor to link to the
 	# comment.
 	my $page=shift;
 
