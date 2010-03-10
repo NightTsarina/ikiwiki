@@ -839,7 +839,7 @@ sub unique_comment_location ($$$) {
 
 	eval q{use Digest::MD5 'md5_hex'};
 	error($@) if $@;
-	my $content_md5=md5_hex(shift);
+	my $content_md5=md5_hex(Encode::encode_utf8(shift));
 
 	my $dir=shift;
 
@@ -862,7 +862,7 @@ sub page_to_id ($) {
 	eval q{use Digest::MD5 'md5_hex'};
 	error($@) if $@;
 
-	return "comment-".md5_hex($page);
+	return "comment-".md5_hex(Encode::encode_utf8(($page));
 }
 	
 package IkiWiki::PageSpec;

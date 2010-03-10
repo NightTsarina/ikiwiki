@@ -8,6 +8,7 @@ use strict;
 use Digest::MD5 qw(md5_hex);
 use File::Temp qw(tempdir);
 use HTML::Entities;
+use Encode;
 use IkiWiki 3.00;
 
 my $default_prefix = <<EOPREFIX;
@@ -103,7 +104,7 @@ sub create ($$$) {
 		$height = 12;
 	}
 
-	my $digest = md5_hex($code, $height);
+	my $digest = md5_hex(Encode::encode_utf8($code), $height);
 
 	my $imglink= $params->{page} . "/$digest.png";
 	my $imglog =  $params->{page} .  "/$digest.log";
