@@ -1,6 +1,14 @@
 ikiwiki (3.20100303) UNRELEASED; urgency=low
 
   * Fix utf8 issues in calls to md5_hex.
+  * moderatedcomments: Added moderate_pagespec that can be used
+    to control which users or comment locations are moderated.
+    This can be used, just for example, to moderate http://myopenid.com/*
+    if you're getting a lot of spammers from one particular openid
+    provider (who should perhaps answer your emails about them),
+    while not moderating other users.
+  * moderatedcomments: The moderate_users setting is deprecated. Instead,
+    set moderate_pagespec to "!admin()" or "user(*)" instead.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 09 Mar 2010 19:46:35 -0500
 
