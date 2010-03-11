@@ -110,6 +110,7 @@ sub index (@) {
 	# data used by omega
 	# Decode html entities in it, since omega re-encodes them.
 	eval q{use HTML::Entities};
+	error $@ if $@;
 	$doc->set_data(
 		"url=".urlto($params{page}, "")."\n".
 		"sample=".decode_entities($sample)."\n".
@@ -214,9 +215,19 @@ sub setupfiles () {
 		writefile("omega.conf", $config{wikistatedir}."/xapian",
 			"database_dir .\n".
 			"template_dir ./templates\n");
+		
+		# Avoid omega interpreting anything in the misctemplate
+		# as an omegascript command.
+		my $misctemplate=IkiWiki::misctemplate(gettext("search"), "\0");
+		eval q{use HTML::Entities};
+		error $@ if $@;
+		$misctemplate=encode_entities($misctemplate, '\$');
+
+		my $querytemplate=readfile(IkiWiki::template_file("searchquery.tmpl"));
+		$misctemplate=~s/\0/$querytemplate/;
+
 		writefile("query", $config{wikistatedir}."/xapian/templates",
-			IkiWiki::misctemplate(gettext("search"),
-				readfile(IkiWiki::template_file("searchquery.tmpl"))));
+			$misctemplate);
 		$setup=1;
 	}
 }
