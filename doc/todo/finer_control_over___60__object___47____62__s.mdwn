@@ -27,12 +27,42 @@ For Ikiwiki, it may be nice to be able to restrict [URI's][URI] (as required by 
 
 [[wishlist]]
 
-> SVG can contain embedded javascript. The spec that you link to contains
+> SVG can contain embedded javascript.
+
+>> Indeed.
+
+>> So, a more general tool (`XML::Scrubber`?) will be necessary to
+>> refine both [XHTML][] and SVG.
+
+>> &hellip; And to leave [MathML][] as is (?.)
+
+>> &mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
+
+> The spec that you link to contains
 > examples of objects that contain python scripts, Microsoft OLE 
 > objects, and Java. And then there's flash. I don't think ikiwiki can
 > assume all the possibilities are handled securely, particularly WRT XSS
 > attacks.
 > --[[Joey]]
+
+>> I've scanned over all the `object` examples in the specification and
+>> all of those that hold references to code (as opposed to data) have a
+>> distinguishing `classid` attribute.
+
+>> While I won't assert that it's impossible to reference code with
+>> `data` (and, thanks to `text/xhtml+xml` and `image/svg+xml`, it is
+>> *not* impossible), throwing away any of the &ldquo;insecure&rdquo;
+>> attributes listed above together with limiting the possible URI's
+>> (i.&nbsp;e., only *local* and certain `data:` ones for `data` and
+>> `usemap`) should make `object` almost as harmless as, say, `img`.
+
+>> (Though it certainly won't solve the [[SVG_problem|/todo/SVG]] being
+>> restricted in such a way.)
+
+>> Of the remaining issues I could only think of recursive
+>> `object` &mdash; the one that references its container document.
+
+>> &mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
 
 ## See also
 
@@ -43,6 +73,8 @@ For Ikiwiki, it may be nice to be able to restrict [URI's][URI] (as required by 
 * [Uniform Resource Identifier &mdash; the free encyclopedia][URI]
 
 [HTML::Scrubber]: http://search.cpan.org/~podmaster/HTML-Scrubber-0.08/Scrubber.pm
+[MathML]: http://en.wikipedia.org/wiki/MathML
 [objects-html]: http://www.w3.org/TR/1999/REC-html401-19991224/struct/objects.html
 [RFC 2397]: http://tools.ietf.org/html/rfc2397
 [URI]: http://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+[XHTML]: http://en.wikipedia.org/wiki/XHTML
