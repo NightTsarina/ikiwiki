@@ -57,9 +57,22 @@ For Ikiwiki, it may be nice to be able to restrict [URI's][URI] (as required by 
 >> `usemap`) should make `object` almost as harmless as, say, `img`.
 
 >>> But with local data, one could not embed youtube videos, which surely
->>> is the most obvious use case? Note that youtube embedding uses an
+>>> is the most obvious use case?
+
+>>>> Allowing a &ldquo;remote&rdquo; object to render on one's page is a
+     security issue by itself.
+     Though, of course, having an explicit whitelist of URI's may make
+     this issue more tolerable.
+     &mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
+
+>>> Note that youtube embedding uses an
 >>> object element with no classid. The swf file is provided via an
 >>> enclosed param element. --[[Joey]]
+
+>>>> I've just checked a random video on YouTube and I see that the
+     `.swf` file is provided via an enclosed `embed` element.  Whether
+     to allow those or not is a different issue.
+     &mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
 
 >> (Though it certainly won't solve the [[SVG_problem|/todo/SVG]] being
 >> restricted in such a way.)
