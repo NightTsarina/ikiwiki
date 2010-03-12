@@ -427,3 +427,15 @@ enabling TeX configuration options that disallow unsafe TeX commands.
 The fix was released on 30 Aug 2009 in version 3.1415926, and was
 backported to stable in version 2.53.4. If you use the teximg plugin,
 I recommend upgrading. ([[!cve CVE-2009-2944]])
+
+## javascript insertion via svg uris
+
+Ivan Shmakov pointed out that the htmlscrubber allowed `data:image/*` urls,
+including `data:image/svg+xml`. But svg can contain javascript, so that is
+unsafe.
+
+This hole was discovered on 12 March 2010 and fixed the same day
+with the release of ikiwiki 3.20100312.
+A fix was also backported to Debian etch, as version 2.53.5. I recommend
+upgrading to one of these versions if your wiki can be edited by third
+parties.

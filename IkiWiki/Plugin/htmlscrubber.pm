@@ -30,9 +30,9 @@ sub import {
 		"msnim", "notes", "rsync", "secondlife", "skype", "ssh",
 		"sftp", "smb", "sms", "snews", "webcal", "ymsgr",
 	);
-	# data is a special case. Allow data:image/*, but
-	# disallow data:text/javascript and everything else.
-	$safe_url_regexp=qr/^(?:(?:$uri_schemes):|data:image\/|[^:]+(?:$|\/))/i;
+	# data is a special case. Allow a few data:image/ types,
+	# but disallow data:text/javascript and everything else.
+	$safe_url_regexp=qr/^(?:(?:$uri_schemes):|data:image\/(?:png|jpeg|gif)|[^:]+(?:$|\/))/i;
 }
 
 sub getsetup () {
