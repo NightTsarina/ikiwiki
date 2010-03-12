@@ -862,7 +862,7 @@ sub page_to_id ($) {
 	eval q{use Digest::MD5 'md5_hex'};
 	error($@) if $@;
 
-	return "comment-".md5_hex(Encode::encode_utf8(($page));
+	return "comment-".md5_hex(Encode::encode_utf8(($page)));
 }
 	
 package IkiWiki::PageSpec;
