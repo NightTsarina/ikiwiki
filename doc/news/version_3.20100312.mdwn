@@ -1,0 +1,16 @@
+ikiwiki 3.20100312 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Fix utf8 issues in calls to md5\_hex.
+   * moderatedcomments: Added moderate\_pagespec that can be used
+     to control which users or comment locations are moderated.
+     This can be used, just for example, to moderate "user(http://myopenid.com/*)"
+     if you're getting a lot of spammers from one particular openid
+     provider (who should perhaps answer your emails about them),
+     while not moderating other users.
+   * moderatedcomments: The moderate\_users setting is deprecated. Instead,
+     set moderate\_pagespec to "!admin()" or "user(*)".
+   * Fix missing span on recentchanges page template.
+   * search: Avoid '$' in the wikiname appearing unescaped on omega's
+     query template, where it might crash omega.
+   * htmlscrubber: Security fix: In data:image/* uris, only allow a few
+     whitelisted image types. No svg."""]]
