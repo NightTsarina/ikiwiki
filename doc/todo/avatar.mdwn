@@ -1,35 +1,24 @@
 [[!tag wishlist]]
 
 It would be nice if ikiwiki, particularly [[plugins/comments]]
-supported user avatar icons. I was considering adding a directive for this,
-as designed below.
+supported user avatar icons.
 
-However, there is no *good* service for mapping openids to avatars --
-openavatar has many issues, including not supporting delegated openids, and
-after trying it, I don't trust it to push users toward. 
-Perhaps instead ikiwiki could get the email address from the openid
-provider, though I think the perl openid modules don't support the openid
-2.x feature that allows that.
-
-At the moment, working on this doesn't feel like a good use of my time.
---[[Joey]]
-
-Hmm.. unless is just always used a single provider (gravatar) and hashed
-the openid. Then wavatars could be used to get a unique avatar per openid
-at least. --[[Joey]] 
-
-----
-
-The directive displays a small avatar image for a user. Pass it the
-email address, openid, or wiki username of the user.
+Idea is to add a directive that displays a small avatar image for a user.
+Pass it the email address, openid, or wiki username of the user.
 
 	\[[!avatar user@example.com]]
 	\[[!avatar http://joey.kitenet.net/]]
 	\[[!avatar user]]
 
+These directives can then be hand-inserted onto pages, or more likely,
+included in eg, a comment post via a template. Possibly included in a
+recentchanges page item via that template too?
+
 The avatars are provided by various sites. For email addresses, it uses a
 [gravatar](http://gravatar.com/). For openid,
-[openavatar](http://www.openvatar.com/) is used. For a wiki username, the
+[openavatar](http://www.openvatar.com/) could used, but I am not very happy
+with it; probably better to just get the email via SREG (as is done now for
+openid), and use that. For a wiki username, the
 user's email address is looked up and the gravatar for that user is
 displayed. (Of course, the user has to have filled in their email address
 on their Preferences page for that to work.)
