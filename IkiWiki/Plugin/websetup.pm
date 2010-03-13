@@ -27,6 +27,13 @@ sub getsetup () {
 			safe => 0,
 			rebuild => 0,
 		},
+		websetup_unsafe => {
+			type => "string",
+			example => [],
+			description => "list of additional setup field keys to treat as unsafe",
+			safe => 0,
+			rebuild => 0,
+		},
 		websetup_show_unsafe => {
 			type => "boolean",
 			example => 1,
@@ -57,6 +64,12 @@ sub formatexample ($$) {
 	}
 }
 
+sub issafe ($) {
+	my $key=shift;
+
+	return ! grep { $_ eq $key } @{$config{websetup_unsafe}};
+}
+
 sub showfields ($$$@) {
 	my $form=shift;
 	my $plugin=shift;
@@ -78,7 +91,8 @@ sub showfields ($$$@) {
 		# XXX hashes not handled yet
 		next if ref $config{$key} && ref $config{$key} eq 'HASH' || ref $info{example} eq 'HASH';
 		# maybe skip unsafe settings
-		next if ! $info{safe} && ! ($config{websetup_show_unsafe} && $config{websetup_advanced});
+		next if ! ($config{websetup_show_unsafe} && $config{websetup_advanced}) &&
+			(! $info{safe} || ! issafe($key));
 		# maybe skip advanced settings
 		next if $info{advanced} && ! $config{websetup_advanced};
 		# these are handled specially, so don't show
@@ -156,7 +170,7 @@ sub showfields ($$$@) {
 
 		if (ref $value eq 'ARRAY' || ref $info{example} eq 'ARRAY') {
 			$value=[(ref $value eq 'ARRAY' ? map { Encode::encode_utf8($_) }  @{$value} : "")];
-			push @$value, "", "" if $info{safe}; # blank items for expansion
+			push @$value, "", "" if $info{safe} && issafe($key); # blank items for expansion
 		}
 		else {
 			$value=Encode::encode_utf8($value);
@@ -210,7 +224,7 @@ sub showfields ($$$@) {
 			}
 		}
 		
-		if (! $info{safe}) {
+		if (! $info{safe} || ! issafe($key)) {
 			$form->field(name => $name, disabled => 1);
 		}
 		else {
@@ -346,7 +360,7 @@ sub showform ($$) {
 				@value=0;
 			}
 		
-			if (! $info{safe}) {
+			if (! $info{safe} || ! issafe($key)) {
 	 			error("unsafe field $key"); # should never happen
 			}
 		
