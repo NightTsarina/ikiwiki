@@ -57,4 +57,14 @@ What might be causing this exception and how I might go about debugging exceptio
 >>>>>>> misunderstanding. I've put in a complete fix for this problem.
 >>>>>>> if this was in [[bugs]], I'd close it. :) --[[Joey]] 
 
+>>>>>>>> Rather than escaping `$` as an HTML entity, it would be more natural
+>>>>>>>> to escape it as `$$` (since you are escaping it for Omega, not for
+>>>>>>>> the web browser.
+>>>>>>>>
+>>>>>>>> Also if ikiwiki can put arbitrary text inside the parameters of an
+>>>>>>>> OmegaScript command, you should also escape `{`, `}` and `,` as
+>>>>>>>> `$(`, `$)` and `$.`.  It's only necessary to do so inside the
+>>>>>>>> parameters of a command, but it will work and be easier to escape
+>>>>>>>> them in any substituted text. --OllyBetts
+
 [[done]]
