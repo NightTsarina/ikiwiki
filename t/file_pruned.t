@@ -1,12 +1,13 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 26;
+use Test::More tests => 27;
 
 BEGIN { use_ok("IkiWiki"); }
 
 %config=IkiWiki::defaultconfig();
 
+ok(IkiWiki::file_pruned("src/.htaccess", "src"));
 ok(IkiWiki::file_pruned("src/.ikiwiki/", "src"));
 ok(IkiWiki::file_pruned("src/.ikiwiki/index", "src"));
 ok(IkiWiki::file_pruned("src/CVS/foo", "src"));
