@@ -1819,6 +1819,7 @@ sub deptype (@) {
 	return $deptype;
 }
 
+my $file_prune_regexp;
 sub file_pruned ($;$) {
 	my $file=shift;
 	if (@_) {
@@ -1833,8 +1834,11 @@ sub file_pruned ($;$) {
 		return 0 if $file =~ m/$config{include}/;
 	}
 
-	my $regexp='('.join('|', @{$config{wiki_file_prune_regexps}}).')';
-	return $file =~ m/$regexp/;
+	if (! defined $file_prune_regexp) {
+		$file_prune_regexp='('.join('|', @{$config{wiki_file_prune_regexps}}).')';
+		$file_prune_regexp=qr/$file_prune_regexp/;
+	}
+	return $file =~ m/$file_prune_regexp/;
 }
 
 sub define_gettext () {
