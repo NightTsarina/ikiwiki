@@ -15,13 +15,19 @@ included in eg, a comment post via a template. Possibly included in a
 recentchanges page item via that template too?
 
 The avatars are provided by various sites. For email addresses, it uses a
-[gravatar](http://gravatar.com/). For openid,
-[openavatar](http://www.openvatar.com/) could used, but I am not very happy
-with it; probably better to just get the email via SREG (as is done now for
-openid), and use that. For a wiki username, the
+[gravatar](http://gravatar.com/). For a wiki username, the
 user's email address is looked up and the gravatar for that user is
 displayed. (Of course, the user has to have filled in their email address
 on their Preferences page for that to work.)
+
+For openid, openavatar sucked and is now dead. So we need to use an email
+address instead, I guess. Problem is that the email address of a given
+openid is only known when that user is logged in and making a change.
+And we don't want to leak an openid user's email into a page either.
+Hmm. Suppose the gravatar hash could be calculated from the email address
+and embedded instead of the openid?
+
+Or, for openid, could use <http://paulisageek.com/openidavatar>.
 
 An optional second parameter can be included, containing additional
 options to pass in the 

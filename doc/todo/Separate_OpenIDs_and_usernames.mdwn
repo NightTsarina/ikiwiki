@@ -13,8 +13,9 @@ A slightly more complex next step would be to request sreg from the provider and
 > implemented as a badly-done wart on the side of their regular login
 > system.
 > 
-> Openid Simple Registration is now used to populate the userdb with the
-> email address for openid users.
+> The openid plugin now attempts to get an email and a username, and stores
+> them in the session database for later use (ie, when the user edits a
+> page).
 > 
 > I am considering displaying the userid or fullname, if available,
 > instead of the munged openid url in recentchanges. It would be nice
@@ -23,7 +24,9 @@ A slightly more complex next step would be to request sreg from the provider and
 > while still keeping the openid of the committer in there too.
 > Perhaps something like this (for git): --[[Joey]] 
 > 
->	Author: Joey Hess <http://joey.kitenet.net/@web>
+>	Author: Joey Hess &lt;http://joey.kitenet.net/@web&gt;
+> 
+> 
 
 Unfortunately I don't speak Perl, so hopefully someone thinks these suggestions are good enough to code up. I've hacked on openid code in Ruby before, so hopefully these changes aren't all that difficult to implement. Even if you don't get any data via sreg, you're no worse off than where you are now, so I don't think there'd need to be much in the way of error/sanity-checking of returned data. If it's null or not available then no big deal, typing in a username is no sweat.
 
