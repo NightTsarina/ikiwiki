@@ -65,6 +65,9 @@ sub getconfig () {
 			"exclude=s@" => sub {
 				push @{$config{wiki_file_prune_regexps}}, $_[1];
 			},
+			"include=s@" => sub {
+				$config{include}=defined $config{include} && length $config{include} ? "$config{include}|$_[1]" : $_[1];
+			},
 			"adminuser=s@" => sub {
 				push @{$config{adminuser}}, $_[1]
 			},

@@ -334,6 +334,15 @@ sub getsetup () {
 		safe => 0, # paranoia
 		rebuild => 0,
 	},
+	include => {
+		type => "string",
+		default => undef,
+		example => '^\.htaccess$',
+		description => "regexp of normally ignored source files to include",
+		advanced => 1,
+		safe => 0, # regexp
+		rebuild => 1,
+	},
 	exclude => {
 		type => "string",
 		default => undef,
@@ -1818,6 +1827,10 @@ sub file_pruned ($;$) {
 		my $base=File::Spec->canonpath(shift);
 		return if $file eq $base;
 		$file =~ s#^\Q$base\E/+##;
+	}
+
+	if (defined $config{include} && length $config{include}) {
+		return 0 if $file =~ m/$config{include}/;
 	}
 
 	my $regexp='('.join('|', @{$config{wiki_file_prune_regexps}}).')';
