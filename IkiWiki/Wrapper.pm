@@ -76,8 +76,8 @@ EOF
 	{
 		int fd=open("$config{wikistatedir}/cgilock", O_CREAT | O_RDWR, 0666);
 		if (fd != -1 && flock(fd, LOCK_EX) == 0) {
-			char *fd_s;
-			asprintf(&fd_s, "%i", fd);
+			char *fd_s=malloc(8);
+			sprintf(fd_s, "%i", fd);
 			setenv("IKIWIKI_CGILOCK_FD", fd_s, 1);
 		}
 	}
@@ -105,7 +105,7 @@ extern char **environ;
 char *newenviron[$#envsave+6];
 int i=0;
 
-addenv(char *var, char *val) {
+void addenv(char *var, char *val) {
 	char *s=malloc(strlen(var)+1+strlen(val)+1);
 	if (!s)
 		perror("malloc");
