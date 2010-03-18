@@ -346,7 +346,7 @@ sub getsetup () {
 	exclude => {
 		type => "string",
 		default => undef,
-		example => '^*\.private$',
+		example => '^(*\.private|Makefile)$',
 		description => "regexp of files that should be skipped",
 		advanced => 1,
 		safe => 0, # regexp
