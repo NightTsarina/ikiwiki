@@ -68,5 +68,12 @@ used by the ikiwiki CGI, and another which you can use for updating via
 git).
 
 When you want to update the server from the laptop, do a `git push` from
-within the laptop's bare repository, and likewise do a `git pull` to update
-the laptop from the server.
+within the laptop's bare repository.
+
+To update the laptop from the server, add a section for the laptop to the config file of the server's bare repository:
+
+	[remote "laptop"]
+        	fetch = +refs/*:refs/*
+        	url = me@laptop:/path/to/bare/repository
+
+Then do a `git push laptop` from within the server's bare repository.
