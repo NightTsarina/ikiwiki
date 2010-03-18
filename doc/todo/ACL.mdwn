@@ -21,6 +21,11 @@ something, that I think is very valuable.
 >>>> Which would rule out openid, or other fun forms of auth. And routing all access
 >>>> through the CGI sort of defeats the purpose of ikiwiki. --[[Ethan]]
 
+>>>>> I think what Joey is suggesting is to use apache ACLs in conjunction
+>>>>> with basic HTTP auth to control read access, and ikiwiki can use the
+>>>>> information via the httpauth plugin for other ACLs (write, admin). But
+>>>>> yes, that would rule out non-httpauth mechanisms. -- [[Jon]]
+
 Also see [[!debbug 443346]].
 
 > Just a few quick thoughts about this:
