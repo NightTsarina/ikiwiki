@@ -338,7 +338,7 @@ sub getsetup () {
 		type => "string",
 		default => undef,
 		example => '^\.htaccess$',
-		description => "regexp of normally ignored source files to include",
+		description => "regexp of normally excluded files to include",
 		advanced => 1,
 		safe => 0, # regexp
 		rebuild => 1,
@@ -346,8 +346,8 @@ sub getsetup () {
 	exclude => {
 		type => "string",
 		default => undef,
-		example => '\.wav$',
-		description => "regexp of source files to ignore",
+		example => '^*\.private$',
+		description => "regexp of files that should be skipped",
 		advanced => 1,
 		safe => 0, # regexp
 		rebuild => 1,
