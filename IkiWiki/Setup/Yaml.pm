@@ -5,17 +5,21 @@ package IkiWiki::Setup::Yaml;
 use warnings;
 use strict;
 use IkiWiki;
-use YAML;
 
 sub loaddump ($$) {
 	my $class=shift;
 	my $content=shift;
 
+	eval q{use YAML};
+	die $@ if $@;
 	IkiWiki::Setup::merge(Load($content));
 }
 
 sub gendump ($@) {
 	my $class=shift;
+	
+	eval q{use YAML};
+	die $@ if $@;
 
 	"# IkiWiki::Setup::Yaml - YAML formatted setup file",
 	"#",
