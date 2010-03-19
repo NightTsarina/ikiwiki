@@ -12,20 +12,15 @@ sub import {
 	IkiWiki::Setup::merge($_[1]);
 }
 
-sub gendump ($$) {
+sub gendump ($@) {
 	my $class=shift;
-	my $description=shift;
 
 	"#!/usr/bin/perl",
-	"# $description",
 	"#",
-	"# Passing this to ikiwiki --setup will make ikiwiki generate",
-	"# wrappers and build the wiki.",
-	"#",
-	"# Remember to re-run ikiwiki --setup any time you edit this file.",
+	(map { "# $_" } @_),
 	"use IkiWiki::Setup::Standard {",
 	IkiWiki::Setup::commented_dump(\&dumpline),
-	"}";
+	"}"
 }
 
 sub dumpline ($$$$) {

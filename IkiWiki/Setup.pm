@@ -52,7 +52,14 @@ sub dump ($) {
 	
 	eval qq{require $config{setuptype}};
 	error $@ if $@;
-	my @dump=$config{setuptype}->gendump("Setup file for ikiwiki.");
+	my @dump=$config{setuptype}->gendump(
+		"Setup file for ikiwiki.",
+		"",
+		"Passing this to ikiwiki --setup will make ikiwiki generate",
+		"wrappers and build the wiki.",
+		"",
+		"Remember to re-run ikiwiki --setup any time you edit this file.",
+	);
 
 	open (OUT, ">", $file) || die "$file: $!";
 	print OUT "$_\n" foreach @dump;
