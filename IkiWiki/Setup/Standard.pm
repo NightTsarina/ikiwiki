@@ -1,6 +1,4 @@
 #!/usr/bin/perl
-# Standard ikiwiki setup module.
-# Parameters to import should be all the standard ikiwiki config stuff.
 
 package IkiWiki::Setup::Standard;
 
@@ -8,6 +6,7 @@ use warnings;
 use strict;
 use IkiWiki;
 
+# Parameters to import should be all the standard ikiwiki config, in a hash.
 sub import {
 	IkiWiki::Setup::merge($_[1]);
 }
