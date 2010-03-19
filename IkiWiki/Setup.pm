@@ -166,8 +166,9 @@ sub getsetup () {
 		} keys %sections;
 }
 
-sub commented_dump ($) {
+sub commented_dump ($$) {
 	my $dumpline=shift;
+	my $indent=shift;
 
 	my %setup=(%config);
 	my @ret;
@@ -179,7 +180,7 @@ sub commented_dump ($) {
 	die $@ if $@;
 
 	my %section_plugins;
-	push @ret, commented_dumpvalues($dumpline, \%setup, IkiWiki::getsetup());
+	push @ret, commented_dumpvalues($dumpline, $indent, \%setup, IkiWiki::getsetup());
 	foreach my $pair (IkiWiki::Setup::getsetup()) {
 		my $plugin=$pair->[0];
 		my $setup=$pair->[1];
@@ -187,25 +188,26 @@ sub commented_dump ($) {
 		my $section=$s{plugin}->{section};
 		push @{$section_plugins{$section}}, $plugin;
 		if (@{$section_plugins{$section}} == 1) {
-			push @ret, "", "\t".("#" x 70), "\t# $section plugins",
+			push @ret, "", $indent.("#" x 70), "$indent# $section plugins",
 				sub {
-					wrap("\t#   (", "\t#    ",
+					wrap("$indent#   (", "$indent#    ",
 						join(", ", @{$section_plugins{$section}})).")"
 				},
-				"\t".("#" x 70);
+				$indent.("#" x 70);
 		}
 
-		my @values=commented_dumpvalues($dumpline, \%setup, @{$setup});
+		my @values=commented_dumpvalues($dumpline, $indent, \%setup, @{$setup});
 		if (@values) {
-			push @ret, "", "\t# $plugin plugin", @values;
+			push @ret, "", "$indent# $plugin plugin", @values;
 		}
 	}
 
 	return map { ref $_ ? $_->() : $_ } @ret;
 }
 
-sub commented_dumpvalues ($$@) {
+sub commented_dumpvalues ($$$@) {
 	my $dumpline=shift;
+	my $indent=shift;
 	my $setup=shift;
 	my @ret;
 	while (@_) {
@@ -214,7 +216,7 @@ sub commented_dumpvalues ($$@) {
 
 		next if $key eq "plugin" || $info{type} eq "internal";
 		
-		push @ret, "\t# ".$info{description} if exists $info{description};
+		push @ret, "$indent# ".$info{description} if exists $info{description};
 		
 		if (exists $setup->{$key} && defined $setup->{$key}) {
 			push @ret, $dumpline->($key, $setup->{$key}, $info{type}, "");

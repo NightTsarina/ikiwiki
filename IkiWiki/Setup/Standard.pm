@@ -18,7 +18,7 @@ sub gendump ($@) {
 	"#",
 	(map { "# $_" } @_),
 	"use IkiWiki::Setup::Standard {",
-	IkiWiki::Setup::commented_dump(\&dumpline),
+	IkiWiki::Setup::commented_dump(\&dumpline, "\t"),
 	"}"
 }
 
