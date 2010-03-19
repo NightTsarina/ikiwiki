@@ -39,7 +39,7 @@ sub dumpline ($$$$) {
 	my $dump=Dump({$key => $value});
 	chomp $dump;
 	if (length $prefix) {
-		$dump=join("", map { $prefix.$_ } split(/\n/, $dump));
+		$dump=join("\n", map { $prefix.$_ } split(/\n/, $dump));
 	}
 	return $dump;
 }
