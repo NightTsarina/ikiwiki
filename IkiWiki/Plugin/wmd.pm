@@ -4,7 +4,6 @@ package IkiWiki::Plugin::wmd;
 use warnings;
 use strict;
 use IkiWiki 3.00;
-use POSIX;
 use Encode;
 
 sub import {

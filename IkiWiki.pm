@@ -7,7 +7,7 @@ use strict;
 use Encode;
 use HTML::Entities;
 use URI::Escape q{uri_escape_utf8};
-use POSIX;
+use POSIX ();
 use Storable;
 use open qw{:utf8 :std};
 

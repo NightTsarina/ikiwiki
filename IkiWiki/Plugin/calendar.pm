@@ -22,7 +22,7 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use Time::Local;
-use POSIX;
+use POSIX ();
 
 my $time=time;
 my @now=localtime($time);

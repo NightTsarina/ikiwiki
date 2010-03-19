@@ -5,7 +5,7 @@ use warnings;
 no warnings 'redefine';
 use strict;
 use IkiWiki 3.00;
-use POSIX;
+use POSIX ();
 use Encode;
 
 sub import {
