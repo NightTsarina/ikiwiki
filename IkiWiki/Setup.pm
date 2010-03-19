@@ -28,7 +28,7 @@ sub load ($;$) {
 	}
 	close IN;
 
-	if ($content=~/(use\s+)?(IkiWiki::Setup::\w+)/) {
+	if ($content=~/(use\s+)?IkiWiki::Setup::(\w+)/) {
 		$config{setuptype}=$2;
 		if ($1) {
 			error sprintf(gettext("cannot load %s in safe mode"), $file)
@@ -37,9 +37,9 @@ sub load ($;$) {
 			error("$file: ".$@) if $@;
 		}
 		else {
-			eval qq{require $config{setuptype}};
+			eval qq{require IkiWiki::Setup::$config{setuptype}};
 			error $@ if $@;
-			$config{setuptype}->loaddump(IkiWiki::possibly_foolish_untaint($content));
+			"IkiWiki::Setup::$config{setuptype}"->loaddump(IkiWiki::possibly_foolish_untaint($content));
 		}
 	}
 	else {
@@ -50,9 +50,9 @@ sub load ($;$) {
 sub dump ($) {
 	my $file=IkiWiki::possibly_foolish_untaint(shift);
 	
-	eval qq{require $config{setuptype}};
+	eval qq{require IkiWiki::Setup::$config{setuptype}};
 	error $@ if $@;
-	my @dump=$config{setuptype}->gendump(
+	my @dump="IkiWiki::Setup::$config{setuptype}"->gendump(
 		"Setup file for ikiwiki.",
 		"",
 		"Passing this to ikiwiki --setup will make ikiwiki generate",

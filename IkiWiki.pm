@@ -469,7 +469,7 @@ sub getsetup () {
 	},
 	setuptype => {
 		type => "internal",
-		default => "IkiWiki::Setup::Standard",
+		default => "Standard",
 		description => "perl class to use to dump setup file",
 		safe => 0,
 		rebuild => 0,
