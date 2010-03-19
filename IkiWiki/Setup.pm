@@ -13,28 +13,28 @@ use open qw{:utf8 :std};
 use File::Spec;
 
 sub load ($;$) {
-	my $setup=IkiWiki::possibly_foolish_untaint(shift);
+	my $file=IkiWiki::possibly_foolish_untaint(shift);
 	my $safemode=shift;
 
-	$config{setupfile}=File::Spec->rel2abs($setup);
+	$config{setupfile}=File::Spec->rel2abs($file);
 
 	#translators: The first parameter is a filename, and the second
 	#translators: is a (probably not translated) error message.
-	open (IN, $setup) || error(sprintf(gettext("cannot read %s: %s"), $setup, $!));
+	open (IN, $file) || error(sprintf(gettext("cannot read %s: %s"), $file, $!));
 	my $content;
 	{
 		local $/=undef;
-		$content=<IN> || error("$setup: $!");
+		$content=<IN> || error("$file: $!");
 	}
 	close IN;
 
 	if ($content=~/(use\s+)?(IkiWiki::Setup::\w+)/) {
 		$config{setuptype}=$2;
 		if ($1) {
-			error sprintf(gettext("cannot load %s in safe mode"), $setup)
+			error sprintf(gettext("cannot load %s in safe mode"), $file)
 				if $safemode;
 			eval IkiWiki::possibly_foolish_untaint($content);
-			error("$setup: ".$@) if $@;
+			error("$file: ".$@) if $@;
 		}
 		else {
 			eval qq{require $config{setuptype}};
@@ -43,8 +43,20 @@ sub load ($;$) {
 		}
 	}
 	else {
-		error sprintf(gettext("failed to parse %s"), $setup);
+		error sprintf(gettext("failed to parse %s"), $file);
 	}
+}
+
+sub dump ($) {
+	my $file=IkiWiki::possibly_foolish_untaint(shift);
+	
+	eval qq{require $config{setuptype}};
+	error $@ if $@;
+	my @dump=$config{setuptype}->gendump("Setup file for ikiwiki.");
+
+	open (OUT, ">", $file) || die "$file: $!";
+	print OUT "$_\n" foreach @dump;
+	close OUT;
 }
 
 sub merge ($) {
@@ -147,16 +159,68 @@ sub getsetup () {
 		} keys %sections;
 }
 
-sub dump ($) {
-	my $file=IkiWiki::possibly_foolish_untaint(shift);
-	
-	eval qq{require $config{setuptype}};
-	error $@ if $@;
-	my @dump=$config{setuptype}->gendump("Setup file for ikiwiki.");
+sub commented_dump ($) {
+	my $dumpline=shift;
 
-	open (OUT, ">", $file) || die "$file: $!";
-	print OUT "$_\n" foreach @dump;
-	close OUT;
+	my %setup=(%config);
+	my @ret;
+	
+	# disable logging to syslog while dumping
+	$config{syslog}=undef;
+
+	eval q{use Text::Wrap};
+	die $@ if $@;
+
+	my %section_plugins;
+	push @ret, commented_dumpvalues($dumpline, \%setup, IkiWiki::getsetup());
+	foreach my $pair (IkiWiki::Setup::getsetup()) {
+		my $plugin=$pair->[0];
+		my $setup=$pair->[1];
+		my %s=@{$setup};
+		my $section=$s{plugin}->{section};
+		push @{$section_plugins{$section}}, $plugin;
+		if (@{$section_plugins{$section}} == 1) {
+			push @ret, "", "\t".("#" x 70), "\t# $section plugins",
+				sub {
+					wrap("\t#   (", "\t#    ",
+						join(", ", @{$section_plugins{$section}})).")"
+				},
+				"\t".("#" x 70);
+		}
+
+		my @values=commented_dumpvalues($dumpline, \%setup, @{$setup});
+		if (@values) {
+			push @ret, "", "\t# $plugin plugin", @values;
+		}
+	}
+
+	return map { ref $_ ? $_->() : $_ } @ret;
+}
+
+sub commented_dumpvalues ($$@) {
+	my $dumpline=shift;
+	my $setup=shift;
+	my @ret;
+	while (@_) {
+		my $key=shift;
+		my %info=%{shift()};
+
+		next if $key eq "plugin" || $info{type} eq "internal";
+		
+		push @ret, "\t# ".$info{description} if exists $info{description};
+		
+		if (exists $setup->{$key} && defined $setup->{$key}) {
+			push @ret, $dumpline->($key, $setup->{$key}, $info{type}, "");
+			delete $setup->{$key};
+		}
+		elsif (exists $info{example}) {
+			push @ret, $dumpline->($key, $info{example}, $info{type}, "#");
+		}
+		else {
+			push @ret, $dumpline->($key, "", $info{type}, "#");
+		}
+	}
+	return @ret;
 }
 
 1

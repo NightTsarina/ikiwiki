@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 # Standard ikiwiki setup module.
-# Parameters to import should be all the standard ikiwiki config stuff,
-# plus an array of wrappers to set up.
+# Parameters to import should be all the standard ikiwiki config stuff.
 
 package IkiWiki::Setup::Standard;
 
@@ -11,6 +10,22 @@ use IkiWiki;
 
 sub import {
 	IkiWiki::Setup::merge($_[1]);
+}
+
+sub gendump ($$) {
+	my $class=shift;
+	my $description=shift;
+
+	"#!/usr/bin/perl",
+	"# $description",
+	"#",
+	"# Passing this to ikiwiki --setup will make ikiwiki generate",
+	"# wrappers and build the wiki.",
+	"#",
+	"# Remember to re-run ikiwiki --setup any time you edit this file.",
+	"use IkiWiki::Setup::Standard {",
+	IkiWiki::Setup::commented_dump(\&dumpline),
+	"}";
 }
 
 sub dumpline ($$$$) {
@@ -55,81 +70,6 @@ sub dumpline ($$$$) {
 	}
 	
 	return "\t$prefix$key => $dumpedvalue,";
-}
-
-sub dumpvalues ($@) {
-	my $setup=shift;
-	my @ret;
-	while (@_) {
-		my $key=shift;
-		my %info=%{shift()};
-
-		next if $key eq "plugin" || $info{type} eq "internal";
-		
-		push @ret, "\t# ".$info{description} if exists $info{description};
-		
-		if (exists $setup->{$key} && defined $setup->{$key}) {
-			push @ret, dumpline($key, $setup->{$key}, $info{type}, "");
-			delete $setup->{$key};
-		}
-		elsif (exists $info{example}) {
-			push @ret, dumpline($key, $info{example}, $info{type}, "#");
-		}
-		else {
-			push @ret, dumpline($key, "", $info{type}, "#");
-		}
-	}
-	return @ret;
-}
-
-sub gendump ($$) {
-	my $class=shift;
-	my $description=shift;
-
-	my %setup=(%config);
-	my @ret;
-	
-	# disable logging to syslog while dumping
-	$config{syslog}=undef;
-
-	eval q{use Text::Wrap};
-	die $@ if $@;
-
-	my %section_plugins;
-	push @ret, dumpvalues(\%setup, IkiWiki::getsetup());
-	foreach my $pair (IkiWiki::Setup::getsetup()) {
-		my $plugin=$pair->[0];
-		my $setup=$pair->[1];
-		my %s=@{$setup};
-		my $section=$s{plugin}->{section};
-		push @{$section_plugins{$section}}, $plugin;
-		if (@{$section_plugins{$section}} == 1) {
-			push @ret, "", "\t".("#" x 70), "\t# $section plugins",
-				sub {
-					wrap("\t#   (", "\t#    ",
-						join(", ", @{$section_plugins{$section}})).")"
-				},
-				"\t".("#" x 70);
-		}
-
-		my @values=dumpvalues(\%setup, @{$setup});
-		if (@values) {
-			push @ret, "", "\t# $plugin plugin", @values;
-		}
-	}
-
-	unshift @ret,
-		"#!/usr/bin/perl",
-		"# $description",
-		"#",
-		"# Passing this to ikiwiki --setup will make ikiwiki generate",
-		"# wrappers and build the wiki.",
-		"#",
-		"# Remember to re-run ikiwiki --setup any time you edit this file.",
-		"use IkiWiki::Setup::Standard {";
-	push @ret, "}";
-
-	return map { ref $_ ? $_->() : $_ } @ret;
 }
 
 1
