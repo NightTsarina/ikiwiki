@@ -51,7 +51,7 @@ sub darcs_info ($$$) {
 	return $_;
 }
 
-sub file_in_vc($$) {
+sub file_in_vc ($$) {
 	my $repodir = shift;
 	my $file = shift;
 
@@ -69,7 +69,7 @@ sub file_in_vc($$) {
 	return $found;
 }
 
-sub darcs_rev($) {
+sub darcs_rev ($) {
 	my $file = shift; # Relative to the repodir.
 	my $repodir = $config{srcdir};
 
@@ -78,7 +78,7 @@ sub darcs_rev($) {
 	return defined $hash ? $hash : "";
 }
 
-sub checkconfig() {
+sub checkconfig () {
 	if (defined $config{darcs_wrapper} && length $config{darcs_wrapper}) {
 		push @{$config{wrappers}}, {
 			wrapper => $config{darcs_wrapper},
@@ -87,7 +87,7 @@ sub checkconfig() {
 	}
 }
 
-sub getsetup() {
+sub getsetup () {
 	return
 		plugin => {
 			safe => 0, # rcs plugin
@@ -238,7 +238,7 @@ sub rcs_commit ($$$;$$) {
 	}
 }
 
-sub rcs_commit_staged($$$) {
+sub rcs_commit_staged ($$$) {
 	my ($message, $user, $ipaddr) = @_;
 
 	my $author;
