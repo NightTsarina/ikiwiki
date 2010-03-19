@@ -1,6 +1,8 @@
 #!/usr/bin/perl
-# Ikiwiki setup files are perl files that 'use IkiWiki::Setup::foo',
-# passing it some sort of configuration data.
+# Ikiwiki setup files can be perl files that 'use IkiWiki::Setup::foo',
+# passing it some sort of configuration data. Or, they can contain
+# the module name at the top, without the 'use', and the whole file is
+# then fed into that module.
 
 package IkiWiki::Setup;
 
@@ -10,24 +12,39 @@ use IkiWiki;
 use open qw{:utf8 :std};
 use File::Spec;
 
-sub load ($) {
+sub load ($;$) {
 	my $setup=IkiWiki::possibly_foolish_untaint(shift);
+	my $safemode=shift;
+
 	$config{setupfile}=File::Spec->rel2abs($setup);
 
 	#translators: The first parameter is a filename, and the second
 	#translators: is a (probably not translated) error message.
 	open (IN, $setup) || error(sprintf(gettext("cannot read %s: %s"), $setup, $!));
-	my $code;
+	my $content;
 	{
 		local $/=undef;
-		$code=<IN> || error("$setup: $!");
+		$content=<IN> || error("$setup: $!");
 	}
-	
-	($code)=$code=~/(.*)/s;
 	close IN;
 
-	eval $code;
-	error("$setup: ".$@) if $@;
+	if ($content=~/(use\s+)?(IkiWiki::Setup::\w+)/) {
+		$config{setuptype}=$2;
+		if ($1) {
+			error sprintf(gettext("cannot load %s in safe mode"), $setup)
+				if $safemode;
+			eval IkiWiki::possibly_foolish_untaint($content);
+			error("$setup: ".$@) if $@;
+		}
+		else {
+			eval qq{require $config{setuptype}};
+			error $@ if $@;
+			$config{setuptype}->loaddump(IkiWiki::possibly_foolish_untaint($content));
+		}
+	}
+	else {
+		error sprintf(gettext("failed to parse %s"), $setup);
+	}
 }
 
 sub merge ($) {
@@ -133,8 +150,9 @@ sub getsetup () {
 sub dump ($) {
 	my $file=IkiWiki::possibly_foolish_untaint(shift);
 	
-	require IkiWiki::Setup::Standard;
-	my @dump=IkiWiki::Setup::Standard::gendump("Setup file for ikiwiki.");
+	eval qq{require $config{setuptype}};
+	error $@ if $@;
+	my @dump=$config{setuptype}->gendump("Setup file for ikiwiki.");
 
 	open (OUT, ">", $file) || die "$file: $!";
 	print OUT "$_\n" foreach @dump;

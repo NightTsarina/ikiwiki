@@ -467,6 +467,13 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
+	setuptype => {
+		type => "internal",
+		default => "IkiWiki::Setup::Standard",
+		description => "perl class to use to dump setup file",
+		safe => 0,
+		rebuild => 0,
+	},
 	allow_symlinks_before_srcdir => {
 		type => "boolean",
 		default => 0,

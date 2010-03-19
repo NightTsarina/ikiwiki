@@ -82,8 +82,10 @@ sub dumpvalues ($@) {
 	return @ret;
 }
 
-sub gendump ($) {
+sub gendump ($$) {
+	my $class=shift;
 	my $description=shift;
+
 	my %setup=(%config);
 	my @ret;
 	
