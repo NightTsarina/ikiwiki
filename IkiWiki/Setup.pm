@@ -28,7 +28,7 @@ sub load ($;$) {
 	}
 	close IN;
 
-	if ($content=~/(use\s+)?IkiWiki::Setup::(\w+)/) {
+	if ($content=~/((?:use|require)\s+)?IkiWiki::Setup::(\w+)/) {
 		$config{setuptype}=$2;
 		if ($1) {
 			error sprintf(gettext("cannot load %s in safe mode"), $file)
