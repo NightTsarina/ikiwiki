@@ -38,8 +38,8 @@ sub sanitize_wikiname ($) {
 
 sub import (@) {
 	my $this=shift;
-	IkiWiki::Setup::merge({@_});
 	$config{setuptype}='Standard';
+	IkiWiki::Setup::merge({@_});
 
 	if (! $config{force_overwrite}) {
 		# Avoid overwriting any existing files.
