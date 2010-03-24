@@ -90,6 +90,12 @@ sub preprocess (@) {
 	# Metadata collection that needs to happen during the scan pass.
 	if ($key eq 'title') {
 		$pagestate{$page}{meta}{title}=HTML::Entities::encode_numeric($value);
+		if (exists $params{sort}) {
+			$pagestate{$page}{meta}{titlesort}=$params{sort};
+		}
+		else {
+			$pagestate{$page}{meta}{titlesort}=$value;
+		}
 		return "";
 	}
 	elsif ($key eq 'description') {
@@ -283,18 +289,18 @@ sub pagetemplate (@) {
 	}
 }
 
-sub title {
-	my $title = $pagestate{$_[0]}{meta}{title};
+sub titlesort {
+	my $key = $pagestate{$_[0]}{meta}{titlesort};
 
-	if (defined $title) {
-		return $title;
+	if (defined $key) {
+		return $key;
 	}
 
 	return pagetitle(IkiWiki::basename($_[0]));
 }
 
 sub sort_meta_title {
-	return title($_[0]) cmp title($_[1]);
+	return titlesort($_[0]) cmp titlesort($_[1]);
 }
 
 sub match {

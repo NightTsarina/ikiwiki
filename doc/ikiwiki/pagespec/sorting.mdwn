@@ -5,13 +5,14 @@ orders can be specified.
 
 * `age` - List pages from the most recently created to the oldest.
 * `mtime` - List pages with the most recently modified first.
-* `title` - Order by title.
+* `title` - Order by title (page name).
 * `title_natural` - Only available if [[!cpan Sort::Naturally]] is
   installed. Orders by title, but numbers in the title are treated
   as such, ("1 2 9 10 20" instead of "1 10 2 20 9")
 [[!if test="enabled(meta)" then="""
-* `meta_title` - Order by the full title set by the `\[[!meta title="foo"]]`
-  [[ikiwiki/directive]].
+* `meta_title` - Order according to the `\[[!meta title="foo" sort="bar"]]`
+  or `\[[!meta title="foo"]]` [[ikiwiki/directive]], or the page name if no
+  full title was set.
 """]]
 
 Plugins can add additional sort orders, so more might be available on this
