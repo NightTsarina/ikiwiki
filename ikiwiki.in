@@ -104,7 +104,7 @@ sub getconfig () {
 				eval q{use YAML::Any};
 				eval q{use YAML} if $@;
 				die $@ if $@;
-				$config{$var}=Load($val);
+				$config{$var}=Load($val."\n");
 			},
 			"version" => sub {
 				print "ikiwiki version $IkiWiki::version\n";
