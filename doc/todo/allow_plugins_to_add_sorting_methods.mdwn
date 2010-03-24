@@ -1,0 +1,47 @@
+[[!template id=gitbranch branch=smcv/sort-hooks author="[[Simon_McVittie|smcv]]"]]
+[[!tag patch]]
+
+The available [[ikiwiki/pagespec/sorting]] methods are currently hard-coded in
+IkiWiki.pm, making it difficult to add any extra sorting mechanisms. I've
+prepared a branch which adds 'sort' as a hook type and uses it to implement a
+new `meta_title` sort type.
+
+Someone could use this hook to make `\[[!inline sort=title]]` prefer the meta
+title over the page name, but for compatibility, I'm not going to (I do wonder
+whether it would be worth making sort=name an alias for the current sort=title,
+and changing the meaning of sort=title in 4.0, though).
+
+Gitweb:
+<http://git.pseudorandom.co.uk/smcv/ikiwiki.git?a=shortlog;h=refs/heads/sort-hooks>
+
+## Documentation extracted from the branch
+
+### sort hook (added to [[plugins/write]])
+
+       hook(type => "sort", id => "foo", call => \&sort_by_foo);
+
+This hook adds an additional [[ikiwiki/pagespec/sorting]] order or overrides
+an existing one. The callback is given two page names as arguments, and
+returns negative, zero or positive if the first page should come before,
+close to (i.e. undefined order), or after the second page.
+
+For instance, the built-in `title` sort order could be reimplemented as
+
+       sub sort_by_title {
+               pagetitle(basename($_[0])) cmp pagetitle(basename($_[1]));
+       }
+
+### meta_title sort order (conditionally added to [[ikiwiki/pagespec/sorting]])
+
+* `meta_title` - Order according to the `\[[!meta title="foo" sort="bar"]]`
+  or `\[[!meta title="foo"]]` [[ikiwiki/directive]], or the page name if no
+  full title was set.
+
+### meta title sort parameter (added to [[ikiwiki/directive/meta]])
+
+An optional `sort` parameter will be used preferentially when
+[[ikiwiki/pagespec/sorting]] by `meta_title`:
+
+       \[[!meta title="The Beatles" sort="Beatles, The"]]
+
+       \[[!meta title="David Bowie" sort="Bowie, David"]]
