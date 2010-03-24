@@ -102,6 +102,7 @@ sub getconfig () {
 					die gettext("usage: --set-yaml var=value"), "\n";
 				}
 				eval q{use YAML::Any};
+				eval q{use YAML} if $@;
 				die $@ if $@;
 				$config{$var}=Load($val);
 			},

@@ -11,6 +11,7 @@ sub loaddump ($$) {
 	my $content=shift;
 
 	eval q{use YAML::Any};
+	eval q{use YAML} if $@;
 	die $@ if $@;
 	IkiWiki::Setup::merge(Load($content));
 }
@@ -19,6 +20,7 @@ sub gendump ($@) {
 	my $class=shift;
 	
 	eval q{use YAML::Any};
+	eval q{use YAML} if $@;
 	die $@ if $@;
 
 	"# IkiWiki::Setup::Yaml - YAML formatted setup file",
