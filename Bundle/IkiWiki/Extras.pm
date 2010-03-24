@@ -35,6 +35,7 @@ Text::WikiCreole
 Term::ReadLine::Gnu
 HTML::Tree
 Sort::Naturally
+YAML
 
 =head1 AUTHOR
 
