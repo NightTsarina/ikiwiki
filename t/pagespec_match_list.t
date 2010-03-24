@@ -1,13 +1,15 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 88;
+use Test::More tests => 89;
 
 BEGIN { use_ok("IkiWiki"); }
 
 %config=IkiWiki::defaultconfig();
 $config{srcdir}=$config{destdir}="/dev/null";
 IkiWiki::checkconfig();
+
+hook(type => "sort", id => "path", call => sub { $_[0] cmp $_[1] });
 
 %pagesources=(
 	foo => "foo.mdwn",
@@ -34,6 +36,8 @@ is_deeply([pagespec_match_list("foo", "post/*", sort => "title", num => 50)],
 is_deeply([pagespec_match_list("foo", "post/*", sort => "title",
                          filter => sub { $_[0] =~ /3/}) ],
 	["post/1", "post/2"]);
+is_deeply([pagespec_match_list("foo", "*", sort => "path", num => 2)],
+	["bar", "foo"]);
 my $r=eval { pagespec_match_list("foo", "beep") };
 ok(eval { pagespec_match_list("foo", "beep") } == 0);
 ok(! $@, "does not fail with error when unable to match anything");

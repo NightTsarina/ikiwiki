@@ -2035,7 +2035,11 @@ sub pagespec_match_list ($$;@) {
 
 	if (defined $params{sort}) {
 		my $f;
-		if ($params{sort} eq 'title') {
+
+		if (exists $hooks{sort}{$params{sort}}{call}) {
+			$f = sub { $hooks{sort}{$params{sort}}{call}($a, $b) };
+		}
+		elsif ($params{sort} eq 'title') {
 			$f=sub { pagetitle(basename($a)) cmp pagetitle(basename($b)) };
 		}
 		elsif ($params{sort} eq 'title_natural') {

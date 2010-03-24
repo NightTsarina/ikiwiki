@@ -588,6 +588,21 @@ describes the plugin as a whole. For example:
 This hook is used to inject C code (which it returns) into the `main`
 function of the ikiwiki wrapper when it is being generated.
 
+### sort
+
+	hook(type => "sort", id => "foo", call => \&sort_by_foo);
+
+This hook adds an additional [[ikiwiki/pagespec/sorting]] order or overrides
+an existing one. The callback is given two page names as arguments, and
+returns negative, zero or positive if the first page should come before,
+close to (i.e. undefined order), or after the second page.
+
+For instance, the built-in `title` sort order could be reimplemented as
+
+	sub sort_by_title {
+		pagetitle(basename($_[0])) cmp pagetitle(basename($_[1]));
+	}
+
 ## Exported variables
 
 Several variables are exported to your plugin when you `use IkiWiki;`
