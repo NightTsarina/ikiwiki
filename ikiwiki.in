@@ -96,6 +96,15 @@ sub getconfig () {
 				}
 				$config{$var}=$val;
 			},
+			"set-yaml=s" => sub {
+				my ($var, $val)=split('=', $_[1], 2);
+				if (! defined $var || ! defined $val) {
+					die gettext("usage: --set-yaml var=value"), "\n";
+				}
+				eval q{use YAML::Any};
+				die $@ if $@;
+				$config{$var}=Load($val);
+			},
 			"version" => sub {
 				print "ikiwiki version $IkiWiki::version\n";
 				exit;
