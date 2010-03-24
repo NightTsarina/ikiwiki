@@ -25,6 +25,21 @@ misunderstood the details of how the built-in function `sort` works when using
 `$a` and `$b`. The newer version has been tested, and has a regression test for
 its core functionality.)
 
+This hook *isn't* (yet) sufficient to implement [[plugins/contrib/report]]'s
+NIH'd sorting mechanisms:
+
+* `report` can sort by any [[plugins/contrib/field]], whereas this one has a
+  finite number of hooks: if the `field` plugin's functionality is desirable,
+  perhaps parameterized sort mechanisms similar to pagespec match functions
+  would be useful? Then the `field` plugin could register
+  `hook(type => "sort", id => "field")` and you could have
+  `\[[!inline ... sort="field(Mood)"]]` or something?
+
+* `report` can sort by multiple criteria, with independent direction-changing:
+  if this is desirable, perhaps `pagespec_match_list` could be enhanced to
+  interpret `sort="x -y z(w)"` as sorting by (pseudocode)
+  `{ $cmp_x->($a, $b) || (-$cmp_y->($a, $b)) || $cmp_z->($a, $b, "w") }`?
+
 ## Documentation extracted from the branch
 
 ### sort hook (added to [[plugins/write]])
