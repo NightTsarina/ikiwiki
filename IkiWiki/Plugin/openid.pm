@@ -116,23 +116,25 @@ sub validate ($$$;$) {
 
 	# Ask for client to provide a name and email, if possible.
 	# Try sreg and ax
-	$claimed_identity->set_extension_args(
-		'http://openid.net/extensions/sreg/1.1',
-		{
-			optional => 'email,fullname,nickname',
-		},
-	);
-	$claimed_identity->set_extension_args(
-		'http://openid.net/srv/ax/1.0',
-		{
-			mode => 'fetch_request',
-			'required' => 'email,fullname,nickname,firstname',
-			'type.email' => "http://schema.openid.net/contact/email",
-			'type.fullname' => "http://axschema.org/namePerson",
-			'type.nickname' => "http://axschema.org/namePerson/friendly",
-			'type.firstname' => "http://axschema.org/namePerson/first",
-		},
-	);
+	if ($claimed_identity->can("set_extension_args")) {
+		$claimed_identity->set_extension_args(
+			'http://openid.net/extensions/sreg/1.1',
+			{
+				optional => 'email,fullname,nickname',
+			},
+		);
+		$claimed_identity->set_extension_args(
+			'http://openid.net/srv/ax/1.0',
+			{
+				mode => 'fetch_request',
+				'required' => 'email,fullname,nickname,firstname',
+				'type.email' => "http://schema.openid.net/contact/email",
+				'type.fullname' => "http://axschema.org/namePerson",
+				'type.nickname' => "http://axschema.org/namePerson/friendly",
+				'type.firstname' => "http://axschema.org/namePerson/first",
+			},
+		);
+	}
 
 	my $check_url = $claimed_identity->check_url(
 		return_to => IkiWiki::cgiurl(do => "postsignin"),
@@ -161,10 +163,13 @@ sub auth ($$) {
 		elsif (my $vident = $csr->verified_identity) {
 			$session->param(name => $vident->url);
 
-			my @extensions=grep { defined } (
-				$vident->signed_extension_fields('http://openid.net/extensions/sreg/1.1'),
-				$vident->signed_extension_fields('http://openid.net/srv/ax/1.0'),
-			);
+			my @extensions;
+			if ($vident->can("signed_extension_fields")) {
+				@extensions=grep { defined } (
+					$vident->signed_extension_fields('http://openid.net/extensions/sreg/1.1'),
+					$vident->signed_extension_fields('http://openid.net/srv/ax/1.0'),
+				);
+			}
 			foreach my $ext (@extensions) {
 				foreach my $field (qw{value.email email}) {
 					if (exists $ext->{$field} &&
