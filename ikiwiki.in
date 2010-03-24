@@ -103,8 +103,8 @@ sub getconfig () {
 				}
 				eval q{use YAML::Any};
 				eval q{use YAML} if $@;
-				$YAML::Syck::ImplicitUnicode=1;
 				die $@ if $@;
+				eval q{$YAML::Syck::ImplicitUnicode=1};
 				$config{$var}=Load($val."\n");
 			},
 			"version" => sub {
