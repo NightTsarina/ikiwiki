@@ -40,6 +40,8 @@ NIH'd sorting mechanisms:
   interpret `sort="x -y z(w)"` as sorting by (pseudocode)
   `{ $cmp_x->($a, $b) || (-$cmp_y->($a, $b)) || $cmp_z->($a, $b, "w") }`?
 
+>> I wonder if IkiWiki would benefit from the concept of a "sortspec", like a [[ikiwiki/PageSpec]] but dedicated to sorting lists of pages rather than defining lists of pages?  Rather than defining a sort-hook, define a SortSpec class, and enable people to add their own sort methods as functions defined inside that class, similarly to the way they can add their own pagespec definitions. --[[KathrynAndersen]]
+
 ## Documentation extracted from the branch
 
 ### sort hook (added to [[plugins/write]])
