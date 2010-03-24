@@ -13,6 +13,7 @@ sub import {
 	hook(type => "needsbuild", id => "meta", call => \&needsbuild);
 	hook(type => "preprocess", id => "meta", call => \&preprocess, scan => 1);
 	hook(type => "pagetemplate", id => "meta", call => \&pagetemplate);
+	hook(type => "sort", id => "meta_title", call => \&sort_meta_title);
 }
 
 sub getsetup () {
@@ -280,6 +281,20 @@ sub pagetemplate (@) {
 			$template->param($field => htmlize($page, $destpage, $pagestate{$page}{meta}{$field}));
 		}
 	}
+}
+
+sub title {
+	my $title = $pagestate{$_[0]}{meta}{title};
+
+	if (defined $title) {
+		return $title;
+	}
+
+	return pagetitle(IkiWiki::basename($_[0]));
+}
+
+sub sort_meta_title {
+	return title($_[0]) cmp title($_[1]);
 }
 
 sub match {
