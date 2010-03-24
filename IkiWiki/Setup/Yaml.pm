@@ -13,6 +13,7 @@ sub loaddump ($$) {
 	eval q{use YAML::Any};
 	eval q{use YAML} if $@;
 	die $@ if $@;
+	$YAML::Syck::ImplicitUnicode=1;
 	IkiWiki::Setup::merge(Load($content));
 }
 
