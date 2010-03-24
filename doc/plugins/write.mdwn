@@ -593,7 +593,9 @@ function of the ikiwiki wrapper when it is being generated.
 	hook(type => "sort", id => "foo", call => \&sort_by_foo);
 
 This hook adds an additional [[ikiwiki/pagespec/sorting]] order or overrides
-an existing one. The callback is given two page names as arguments, and
+an existing one.
+
+The callback is given two page names followed by the parameter as arguments, and
 returns negative, zero or positive if the first page should come before,
 close to (i.e. undefined order), or after the second page.
 
@@ -601,6 +603,19 @@ For instance, the built-in `title` sort order could be reimplemented as
 
 	sub sort_by_title {
 		pagetitle(basename($_[0])) cmp pagetitle(basename($_[1]));
+	}
+
+and to sort by an arbitrary `meta` value, you could use:
+
+	# usage: sort="meta(description)"
+	sub sort_by_meta {
+		my $param = $_[2];
+		error "sort=meta requires a parameter" unless defined $param;
+		my $left = $pagestate{$_[0]}{meta}{$param};
+		$left = "" unless defined $left;
+		my $right = $pagestate{$_[1]}{meta}{$param};
+		$right = "" unless defined $right;
+		return $left cmp $right;
 	}
 
 ## Exported variables

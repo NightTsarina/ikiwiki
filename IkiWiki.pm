@@ -2005,6 +2005,64 @@ sub pagespec_match ($$;@) {
 	return $sub->($page, @params);
 }
 
+sub get_sort_function {
+	my $method = $_[0];
+
+	if ($method =~ m/\s/) {
+		my @methods = map { get_sort_function($_) } split(' ', $method);
+
+		return sub {
+			foreach my $method (@methods) {
+				my $answer = $method->($_[0], $_[1]);
+				return $answer if $answer;
+			}
+
+			return 0;
+		};
+	}
+
+	my $sense = 1;
+
+	if ($method =~ s/^-//) {
+		$sense = -1;
+	}
+
+	my $token = $method;
+	my $parameter = undef;
+
+	if ($method =~ m/^(\w+)\((.*)\)$/) {
+		$token = $1;
+		$parameter = $2;
+	}
+
+	if (exists $hooks{sort}{$token}{call}) {
+		my $callback = $hooks{sort}{$token}{call};
+		return sub { $sense * $callback->($_[0], $_[1], $parameter) };
+	}
+
+	if ($method eq 'title') {
+		return sub { $sense * (pagetitle(basename($_[0])) cmp pagetitle(basename($_[1]))) };
+	}
+
+	if ($method eq 'title_natural') {
+		eval q{use Sort::Naturally};
+		if ($@) {
+			error(gettext("Sort::Naturally needed for title_natural sort"));
+		}
+		return sub { $sense * Sort::Naturally::ncmp(pagetitle(basename($_[0])), pagetitle(basename($_[1]))) };
+	}
+
+	if ($method eq 'mtime') {
+		return sub { $sense * ($pagemtime{$_[1]} <=> $pagemtime{$_[0]}) };
+	}
+
+	if ($method eq 'age') {
+		return sub { $sense * ($pagectime{$_[1]} <=> $pagectime{$_[0]}) };
+	}
+
+	error sprintf(gettext("unknown sort type %s"), $method);
+}
+
 sub pagespec_match_list ($$;@) {
 	my $page=shift;
 	my $pagespec=shift;
@@ -2034,31 +2092,9 @@ sub pagespec_match_list ($$;@) {
 	}
 
 	if (defined $params{sort}) {
-		my $f;
+		my $f = get_sort_function($params{sort});
 
-		if (exists $hooks{sort}{$params{sort}}{call}) {
-			$f = sub { $hooks{sort}{$params{sort}}{call}($a, $b) };
-		}
-		elsif ($params{sort} eq 'title') {
-			$f=sub { pagetitle(basename($a)) cmp pagetitle(basename($b)) };
-		}
-		elsif ($params{sort} eq 'title_natural') {
-			eval q{use Sort::Naturally};
-			if ($@) {
-				error(gettext("Sort::Naturally needed for title_natural sort"));
-			}
-			$f=sub { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) };
-                }
-		elsif ($params{sort} eq 'mtime') {
-			$f=sub { $pagemtime{$b} <=> $pagemtime{$a} };
-		}
-		elsif ($params{sort} eq 'age') {
-			$f=sub { $pagectime{$b} <=> $pagectime{$a} };
-		}
-		else {
-			error sprintf(gettext("unknown sort type %s"), $params{sort});
-		}
-		@candidates = sort { &$f } @candidates;
+		@candidates = sort { $f->($a, $b) } @candidates;
 	}
 
 	@candidates=reverse(@candidates) if $params{reverse};
