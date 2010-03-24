@@ -27,3 +27,27 @@ I have written additional plugins which integrate with the [[plugins/contrib/fie
 * [[plugins/contrib/ymlfront]] - looks for YAML-format data at the front of a page; this is just one possible back-end for the structured data
 
 --[[KathrynAndersen]]
+
+> I'm not an IkiWiki committer ([[Joey]] is the only one I think)
+> but I really like the look of this scheme. In particular,
+> having `getfield` interop with `field` without being *part of*
+> `field` makes me happy, since I'm not very keen on `getfield`'s
+> syntax (i.e. "ugh, yet another mini-markup-language without a
+> proper escaping mechanism"), but this way people can experiment
+> with different syntaxes while keeping `field` for the
+> behind-the-scenes bits.
+>
+> My [[plugins/contrib/album]] plugin could benefit from
+> integration with [[field]] for photos' captions and so on,
+> probably... I'll try to work on that at some point.
+>
+> [[plugins/contrib/report]] may be doing too much, though:
+> it seems to be an variation on `\[[inline archive="yes"]]`,
+> with an enhanced version of sorting, a mini version of
+> [[todo/wikitrails]], and some other misc. I suspect it could
+> usefully be divided up into discrete features? One good way
+> to do that might be to shuffle bits of its functionality into
+> the IkiWiki distribution and/or separate plugins, until there's
+> nothing left in `report` itself and it can just go away.
+>
+> --[[smcv]]
