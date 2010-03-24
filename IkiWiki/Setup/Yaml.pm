@@ -19,10 +19,6 @@ sub loaddump ($$) {
 sub gendump ($@) {
 	my $class=shift;
 	
-	eval q{use YAML::Any};
-	eval q{use YAML} if $@;
-	die $@ if $@;
-
 	"# IkiWiki::Setup::Yaml - YAML formatted setup file",
 	"#",
 	(map { "# $_" } @_),
@@ -37,7 +33,11 @@ sub dumpline ($$$$) {
 	my $type=shift;
 	my $prefix=shift;
 	
+	eval q{use YAML::Old};
+	eval q{use YAML} if $@;
+	die $@ if $@;
 	$YAML::UseHeader=0;
+
 	my $dump=Dump({$key => $value});
 	chomp $dump;
 	if (length $prefix) {
