@@ -2,6 +2,9 @@ Using the attachment plugin, when filecheck was checking the mime-type of the at
 
 It turns out that the filecheck plugin couldn't find the file, because it was merely using the $pagesources hash, rather than finding the absolute path of the file in question.
 
+> I don't understand why the file was not in `%pagesources`. Do you?
+> --[[Joey]] 
+
 The following patch fixes the problem:
 
 	diff --git a/IkiWiki/Plugin/filecheck.pm b/IkiWiki/Plugin/filecheck.pm
