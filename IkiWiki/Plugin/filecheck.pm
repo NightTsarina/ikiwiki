@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 
-my %units=( #{{{	# size in bytes
+my %units=(		# size in bytes
 	B		=> 1,
 	byte		=> 1,
 	KB		=> 2 ** 10,

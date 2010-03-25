@@ -308,7 +308,7 @@ sub pagetemplate (@) {
 	if (ishomepage($page) && $template->query(name => "title")) {
 		$template->param(title => $config{wikiname});
 	}
-} # }}}
+}
 
 # Add the renamed page translations to the list of to-be-renamed pages.
 sub renamepages (@) {

@@ -162,7 +162,7 @@ sub rcs_remove ($) {
 	error("rcs_remove not implemented for tla"); # TODO
 }
 
-sub rcs_rename ($$) { # {{{a
+sub rcs_rename ($$) {
 	my ($src, $dest) = @_;
 
 	error("rcs_rename not implemented for tla"); # TODO
