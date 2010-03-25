@@ -44,10 +44,13 @@ NIH'd sorting mechanisms:
 
 >> I wonder if IkiWiki would benefit from the concept of a "sortspec", like a [[ikiwiki/PageSpec]] but dedicated to sorting lists of pages rather than defining lists of pages?  Rather than defining a sort-hook, define a SortSpec class, and enable people to add their own sort methods as functions defined inside that class, similarly to the way they can add their own pagespec definitions. --[[KathrynAndersen]]
 
->>> I'd be inclined to think that's overkill, but it probably wouldn't be
->>> all that hard to implement... Joey? Any thoughts? --s
+>>> [[!template id=gitbranch branch=smcv/sort-package author="[[Simon_McVittie|smcv]]"]]
+>>> I'd be inclined to think that's overkill, but it wasn't very hard to
+>>> implement, and in a way is more elegant. I set it up so sort mechanisms
+>>> share the `IkiWiki::PageSpec` package, but with a `cmp_` prefix. Gitweb:
+>>> <http://git.pseudorandom.co.uk/smcv/ikiwiki.git?a=shortlog;h=refs/heads/sort-package>
 
-## Documentation extracted from the branch
+## Documentation from sort-hooks branch
 
 ### sort hook (added to [[plugins/write]])
 
@@ -100,3 +103,31 @@ An optional `sort` parameter will be used preferentially when
        \[[!meta title="The Beatles" sort="Beatles, The"]]
 
        \[[!meta title="David Bowie" sort="Bowie, David"]]
+
+## Documentation from sort-hooks branch
+
+The changes to [[ikiwiki/pagespec/sorting]] are the same.
+The changes to [[plugins/write]] are replaced by:
+
+### Sorting plugins
+
+Similarly, it's possible to write plugins that add new functions as
+[[ikiwiki/pagespec/sorting]] methods. To achieve this, add a function to
+the IkiWiki::PageSpec package named `cmp_foo`, which will be used when sorting
+by `foo` or `foo(...)` is requested.
+
+The function will be passed three or more parameters. The first two are
+page names, and the third is `undef` if invoked as `foo`, or the parameter
+`"bar"` if invoked as `foo(bar)`. It may also be passed additional, named
+parameters.
+
+It should return the same thing as Perl's `cmp` and `<=>` operators: negative
+if the first argument is less than the second, positive if the first argument
+is greater, or zero if they are considered equal. It may also raise an
+error using `error`, for instance if it needs a parameter but one isn't
+provided.
+
+You can also define a function called `check_cmp_foo` in the same package.
+If you do, it will be called while preparing to sort by `foo` or `foo(bar)`,
+with argument `undef` or `"bar"` respectively; it may raise an error using
+`error`, if sorting like that isn't going to work.
