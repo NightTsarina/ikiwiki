@@ -1,0 +1,23 @@
+Using the attachment plugin, when filecheck was checking the mime-type of the attachment before allowing the attachment to be removed, it was returning with an error saying that the mime-type of the file was "unknown" (when the mime-type definitely was known!)
+
+It turns out that the filecheck plugin couldn't find the file, because it was merely using the $pagesources hash, rather than finding the absolute path of the file in question.
+
+The following patch fixes the problem:
+
+	diff --git a/IkiWiki/Plugin/filecheck.pm b/IkiWiki/Plugin/filecheck.pm
+	index 01d4909..1cec0cf 100644
+	--- a/IkiWiki/Plugin/filecheck.pm
+	+++ b/IkiWiki/Plugin/filecheck.pm
+	@@ -118,6 +118,10 @@ sub match_mimetype ($$;@) {
+	 	if (! defined $file) {
+	 		return IkiWiki::ErrorReason->new("no file specified");
+	 	}
+	+	if (! -e $file) {
+	+	    # get the absolute path of the file if you can't find it
+	+	    $file = IkiWiki::srcfile($file);
+	+	}
+	 
+	 	# Use ::magic to get the mime type, the idea is to only trust
+	 	# data obtained by examining the actual file contents.
+
+[[!tag patch]]
