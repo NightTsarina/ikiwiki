@@ -10,6 +10,11 @@ It turns out that the filecheck plugin couldn't find the file, because it was me
 >> But if it is given `/path/to/srcdir/foo/bar.gif` instead, then it *can* find the file, and returns the mime-type correctly.
 >> --[[KathrynAndersen]]
 
+>>> Ok, so it's not removal specific, can in fact be triggered by using
+>>> testpagespec (or really anything besides attachment, which passes
+>>> the filename parameter). Nor is it limited to mimetype, all the tests in 
+>>> filecheck have the problem. [[Fixed|done]] --[[Joey]] 
+
 The following patch fixes the problem:
 
 	diff --git a/IkiWiki/Plugin/filecheck.pm b/IkiWiki/Plugin/filecheck.pm
