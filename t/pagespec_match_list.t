@@ -9,7 +9,11 @@ BEGIN { use_ok("IkiWiki"); }
 $config{srcdir}=$config{destdir}="/dev/null";
 IkiWiki::checkconfig();
 
-hook(type => "sort", id => "path", call => sub { $_[0] cmp $_[1] });
+{
+	package IkiWiki::PageSpec;
+
+	sub cmp_path { $_[0] cmp $_[1] }
+}
 
 %pagesources=(
 	foo => "foo.mdwn",

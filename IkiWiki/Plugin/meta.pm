@@ -13,7 +13,6 @@ sub import {
 	hook(type => "needsbuild", id => "meta", call => \&needsbuild);
 	hook(type => "preprocess", id => "meta", call => \&preprocess, scan => 1);
 	hook(type => "pagetemplate", id => "meta", call => \&pagetemplate);
-	hook(type => "sort", id => "meta_title", call => \&sort_meta_title);
 }
 
 sub getsetup () {
@@ -299,10 +298,6 @@ sub titlesort {
 	return pagetitle(IkiWiki::basename($_[0]));
 }
 
-sub sort_meta_title {
-	return titlesort($_[0]) cmp titlesort($_[1]);
-}
-
 sub match {
 	my $field=shift;
 	my $page=shift;
@@ -351,6 +346,12 @@ sub match_license ($$;@) {
 
 sub match_copyright ($$;@) {
 	IkiWiki::Plugin::meta::match("copyright", @_);
+}
+
+sub cmp_meta_title {
+	IkiWiki::Plugin::meta::titlesort($_[0])
+	cmp
+	IkiWiki::Plugin::meta::titlesort($_[1])
 }
 
 1

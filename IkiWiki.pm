@@ -37,6 +37,7 @@ our $DEPEND_LINKS=4;
 # Optimisation.
 use Memoize;
 memoize("abs2rel");
+memoize("cmpspec_translate");
 memoize("pagespec_translate");
 memoize("template_file");
 
@@ -1934,6 +1935,70 @@ sub add_link ($$) {
 		unless grep { $_ eq $link } @{$links{$page}};
 }
 
+sub cmpspec_translate ($) {
+	my $spec = shift;
+
+	my $code = "";
+	my @data;
+	while ($spec =~ m{
+		\s*
+		(-?)		# group 1: perhaps negated
+		\s*
+		(		# group 2: a word
+			\w+\([^\)]*\)	# command(params)
+			|
+			[^\s]+		# or anything else
+		)
+		\s*
+	}gx) {
+		my $negated = $1;
+		my $word = $2;
+		my $params = undef;
+
+		if ($word =~ m/^(\w+)\((.*)\)$/) {
+			# command with parameters
+			$params = $2;
+			$word = $1;
+		}
+		elsif ($word !~ m/^\w+$/) {
+			error(sprintf(gettext("invalid sort type %s"), $word));
+		}
+
+		if (length $code) {
+			$code .= " || ";
+		}
+
+		if ($negated) {
+			$code .= "-";
+		}
+
+		if (exists $IkiWiki::PageSpec::{"cmp_$word"}) {
+			if (exists $IkiWiki::PageSpec::{"check_cmp_$word"}) {
+				$IkiWiki::PageSpec::{"check_cmp_$word"}->($params);
+			}
+
+			if (defined $params) {
+				push @data, $params;
+				$code .= "IkiWiki::PageSpec::cmp_$word(\@_, \$data[$#data])";
+			}
+			else {
+				$code .= "IkiWiki::PageSpec::cmp_$word(\@_, undef)";
+			}
+		}
+		else {
+			error(sprintf(gettext("unknown sort type %s"), $word));
+		}
+	}
+
+	if (! length $code) {
+		# undefined sorting method... sort arbitrarily
+		return sub { 0 };
+	}
+
+	no warnings;
+	return eval 'sub { '.$code.' }';
+}
+
 sub pagespec_translate ($) {
 	my $spec=shift;
 
@@ -2005,64 +2070,6 @@ sub pagespec_match ($$;@) {
 	return $sub->($page, @params);
 }
 
-sub get_sort_function {
-	my $method = $_[0];
-
-	if ($method =~ m/\s/) {
-		my @methods = map { get_sort_function($_) } split(' ', $method);
-
-		return sub {
-			foreach my $method (@methods) {
-				my $answer = $method->($_[0], $_[1]);
-				return $answer if $answer;
-			}
-
-			return 0;
-		};
-	}
-
-	my $sense = 1;
-
-	if ($method =~ s/^-//) {
-		$sense = -1;
-	}
-
-	my $token = $method;
-	my $parameter = undef;
-
-	if ($method =~ m/^(\w+)\((.*)\)$/) {
-		$token = $1;
-		$parameter = $2;
-	}
-
-	if (exists $hooks{sort}{$token}{call}) {
-		my $callback = $hooks{sort}{$token}{call};
-		return sub { $sense * $callback->($_[0], $_[1], $parameter) };
-	}
-
-	if ($method eq 'title') {
-		return sub { $sense * (pagetitle(basename($_[0])) cmp pagetitle(basename($_[1]))) };
-	}
-
-	if ($method eq 'title_natural') {
-		eval q{use Sort::Naturally};
-		if ($@) {
-			error(gettext("Sort::Naturally needed for title_natural sort"));
-		}
-		return sub { $sense * Sort::Naturally::ncmp(pagetitle(basename($_[0])), pagetitle(basename($_[1]))) };
-	}
-
-	if ($method eq 'mtime') {
-		return sub { $sense * ($pagemtime{$_[1]} <=> $pagemtime{$_[0]}) };
-	}
-
-	if ($method eq 'age') {
-		return sub { $sense * ($pagectime{$_[1]} <=> $pagectime{$_[0]}) };
-	}
-
-	error sprintf(gettext("unknown sort type %s"), $method);
-}
-
 sub pagespec_match_list ($$;@) {
 	my $page=shift;
 	my $pagespec=shift;
@@ -2092,7 +2099,7 @@ sub pagespec_match_list ($$;@) {
 	}
 
 	if (defined $params{sort}) {
-		my $f = get_sort_function($params{sort});
+		my $f = cmpspec_translate($params{sort});
 
 		@candidates = sort { $f->($a, $b) } @candidates;
 	}
@@ -2405,6 +2412,26 @@ sub match_ip ($$;@) {
 	else {
 		return IkiWiki::FailReason->new("IP is $params{ip}, not $ip");
 	}
+}
+
+sub cmp_title {
+	IkiWiki::pagetitle(IkiWiki::basename($_[0]))
+	cmp
+	IkiWiki::pagetitle(IkiWiki::basename($_[1]))
+}
+
+sub cmp_mtime { $IkiWiki::pagemtime{$_[1]} <=> $IkiWiki::pagemtime{$_[0]} }
+sub cmp_age { $IkiWiki::pagectime{$_[1]} <=> $IkiWiki::pagectime{$_[0]} }
+
+sub check_cmp_title_natural {
+	eval q{use Sort::Naturally};
+	if ($@) {
+		error(gettext("Sort::Naturally needed for title_natural sort"));
+	}
+}
+sub cmp_title_natural {
+	Sort::Naturally::ncmp(IkiWiki::pagetitle(IkiWiki::basename($_[0])),
+		IkiWiki::pagetitle(IkiWiki::basename($_[1])))
 }
 
 1
