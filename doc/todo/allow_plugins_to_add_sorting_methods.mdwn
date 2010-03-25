@@ -40,7 +40,12 @@ NIH'd sorting mechanisms:
   interpret `sort="x -y z(w)"` as sorting by (pseudocode)
   `{ $cmp_x->($a, $b) || (-$cmp_y->($a, $b)) || $cmp_z->($a, $b, "w") }`?
 
+> I've now added both of these features to the sort-hooks branch. --[[smcv]]
+
 >> I wonder if IkiWiki would benefit from the concept of a "sortspec", like a [[ikiwiki/PageSpec]] but dedicated to sorting lists of pages rather than defining lists of pages?  Rather than defining a sort-hook, define a SortSpec class, and enable people to add their own sort methods as functions defined inside that class, similarly to the way they can add their own pagespec definitions. --[[KathrynAndersen]]
+
+>>> I'd be inclined to think that's overkill, but it probably wouldn't be
+>>> all that hard to implement... Joey? Any thoughts? --s
 
 ## Documentation extracted from the branch
 
@@ -49,7 +54,9 @@ NIH'd sorting mechanisms:
        hook(type => "sort", id => "foo", call => \&sort_by_foo);
 
 This hook adds an additional [[ikiwiki/pagespec/sorting]] order or overrides
-an existing one. The callback is given two page names as arguments, and
+an existing one.
+
+The callback is given two page names followed by the parameter as arguments, and
 returns negative, zero or positive if the first page should come before,
 close to (i.e. undefined order), or after the second page.
 
@@ -59,11 +66,31 @@ For instance, the built-in `title` sort order could be reimplemented as
                pagetitle(basename($_[0])) cmp pagetitle(basename($_[1]));
        }
 
+and to sort by an arbitrary `meta` value, you could use:
+
+       # usage: sort="meta(description)"
+       sub sort_by_meta {
+               my $param = $_[2];
+               error "sort=meta requires a parameter" unless defined $param;
+               my $left = $pagestate{$_[0]}{meta}{$param};
+               $left = "" unless defined $left;
+               my $right = $pagestate{$_[1]}{meta}{$param};
+               $right = "" unless defined $right;
+               return $left cmp $right;
+       }
+
+
 ### meta_title sort order (conditionally added to [[ikiwiki/pagespec/sorting]])
 
 * `meta_title` - Order according to the `\[[!meta title="foo" sort="bar"]]`
   or `\[[!meta title="foo"]]` [[ikiwiki/directive]], or the page name if no
   full title was set.
+
+### Multiple sort orders (added to [[ikiwiki/pagespec/sorting]])
+
+In addition, you can combine several sort orders and/or reverse the order of
+sorting, with a string like `age -title` (which would sort by age, then by
+title in reverse order if two pages have the same age).
 
 ### meta title sort parameter (added to [[ikiwiki/directive/meta]])
 
