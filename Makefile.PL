@@ -28,15 +28,16 @@ W3M_CGI_BIN?=$(PREFIX)/lib/w3m/cgi-bin
 
 tflag=$(shell if [ -n "$$NOTAINT" ] && [ "$$NOTAINT" != 1 ]; then printf -- "-T"; fi)
 extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:NYTProf"; fi)
+outprogs=ikiwiki.out ikiwiki-transition.out ikiwiki-calendar.out
 
-ikiwiki.out: ikiwiki.in
-	./pm_filter $(PREFIX) $(VER) $(PROBABLE_INST_LIB) < ikiwiki.in > ikiwiki.out
-	chmod +x ikiwiki.out
+%.out: %.in
+	./pm_filter $(PREFIX) $(VER) $(PROBABLE_INST_LIB) < $< > $@
+	chmod +x $@
 
 ikiwiki.setup: ikiwiki.out
 	HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -dumpsetup ikiwiki.setup
 
-extra_build: ikiwiki.out ikiwiki.setup docwiki
+extra_build: $(outprogs) ikiwiki.setup docwiki
 	./mdwn2man ikiwiki 1 doc/usage.mdwn > ikiwiki.man
 	./mdwn2man ikiwiki-mass-rebuild 8 doc/ikiwiki-mass-rebuild.mdwn > ikiwiki-mass-rebuild.man
 	./mdwn2man ikiwiki-makerepo 1 doc/ikiwiki-makerepo.mdwn > ikiwiki-makerepo.man
@@ -52,7 +53,7 @@ docwiki: ikiwiki.out
 
 extra_clean:
 	$(PERL) -I. $(extramodules) $(tflag) ikiwiki.in -libdir . -setup docwiki.setup -clean
-	rm -f *.man ikiwiki.out ikiwiki.setup plugins/*.pyc
+	rm -f *.man $(outprogs) ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
 
 underlay_install:
@@ -115,8 +116,9 @@ extra_install: underlay_install
 	install ikiwiki-w3m.cgi $(DESTDIR)$(W3M_CGI_BIN)
 
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install ikiwiki.out $(DESTDIR)$(PREFIX)/bin/ikiwiki
-	install ikiwiki-makerepo ikiwiki-transition ikiwiki-update-wikilist ikiwiki-calendar $(DESTDIR)$(PREFIX)/bin/
+	for prog in $(outprogs); do \
+		install $$prog $(DESTDIR)$(PREFIX)/bin/$$(shell echo $$prog | sed 's/\.out//'); \
+	done
 
 	$(MAKE) -C po install DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
 	
