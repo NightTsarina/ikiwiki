@@ -1,0 +1,62 @@
+Having tried out `field`, some comments (from [[smcv]]):
+
+The general concept looks great.
+
+The `pagetemplate` hook seems quite namespace-polluting: on a site containing
+a list of books, I'd like to have an `author` field, but that would collide
+with IkiWiki's use of `<TMPL_VAR AUTHOR>` for the author of the *page*
+(i.e. me). Perhaps it'd be better if the pagetemplate hook was only active for
+`<TMPL_VAR FIELD_AUTHOR>` or something? (For those who want the current
+behaviour, an auxiliary plugin would be easy.)
+
+From a coding style point of view, the `$CamelCase` variable names aren't
+IkiWiki style, and the `match_foo` functions look as though they could benefit
+from being thin wrappers around a common `&IkiWiki::Plugin::field::match`
+function (see `meta` for a similar approach).
+
+I think the documentation would probably be clearer in a less manpage-like
+and more ikiwiki-like style?
+
+If one of my branches from [[todo/allow_plugins_to_add_sorting_methods]] is
+accepted, a `field()` cmp type would mean that [[plugins/contrib/report]] can
+stop reimplementing sorting. Here's the implementation I'm using, with
+your "sortspec" concept (a sort-hook would be very similar): if merged,
+I think it should just be part of `field` rather than a separate plugin.
+
+	# Copyright © 2010 Simon McVittie, released under GNU LGPL >= 2.1
+	package IkiWiki::Plugin::fieldsort;
+	use warnings;
+	use strict;
+	use IkiWiki 3.00;
+	use IkiWiki::Plugin::field;
+
+	sub import {
+		hook(type => "getsetup", id => "fieldsort",  call => \&getsetup);
+	}
+
+	sub getsetup () {
+		return
+			plugin => {
+				safe => 1,
+				rebuild => undef,
+			},
+	}
+
+	package IkiWiki::PageSpec;
+
+	sub check_cmp_field {
+		if (!length $_[0]) {
+			error("sort=field requires a parameter");
+		}
+	}
+
+	sub cmp_field {
+		my $left = IkiWiki::Plugin::field::field_get_value($_[2], $_[0]);
+		my $right = IkiWiki::Plugin::field::field_get_value($_[2], $_[1]);
+
+		$left = "" unless defined $left;
+		$right = "" unless defined $right;
+		return $left cmp $right;
+	}
+
+	1;
