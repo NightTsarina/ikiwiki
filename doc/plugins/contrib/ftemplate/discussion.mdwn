@@ -1,6 +1,13 @@
-Is this actually necessary? Doesn't the combination of [[plugins/template]]
-with [[plugins/contrib/field]]'s `pagetemplate` hook provide the same
-functionality? I suppose one missing thing is that `ftemplate` looks in
+I initially thought this wasn't actually necessary - the combination
+of [[plugins/template]] with [[plugins/contrib/field]]'s `pagetemplate`
+hook ought to provide the same functionality. However, `template`
+doesn't run `pagetemplate` hooks; a more general version of this
+plugin would be to have a variant of `template` that runs `pagetemplate`
+hooks (probably easiest to just patch `template` to implement a
+second directive, or have a special parameter `run_hooks="yes"`,
+or something).
+
+Another missing thing is that `ftemplate` looks in
 the "system" templates directories, not just in the wiki, but that
-seems orthogonal (and might even be a good enhancement to `template`).
+seems orthogonal (and might be a good enhancement to `template` anyway).
 --[[smcv]]
