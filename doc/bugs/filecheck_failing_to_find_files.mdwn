@@ -21,7 +21,9 @@ It turns out that the filecheck plugin couldn't find the file, because it was me
 >>>> The reason my patch worked is because, rather than checking whether a filename was passed in before applying IkiWiki::srcfile to the filename, it checks whether the file can be found, and if it cannot be found, then it applies IkiWiki::srcfile to the filename.
 >>>> --[[KathrynAndersen]]
 
->>>>> Can you test if this patch fixes that? --[[Joey]] 
+>>>>> Can you test if this patch fixes that? --[[Joey]]
+
+>>>>>> Yes, it works! --[[KathrynAndersen]]
 
 <pre>
 diff --git a/IkiWiki/Plugin/remove.pm b/IkiWiki/Plugin/remove.pm
