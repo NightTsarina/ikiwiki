@@ -1,0 +1,23 @@
+Wow, this plugin does a lot... it seems to be `inline` (but without the feeds
+or the ability to not have `archive="yes"`), plus part of
+[[plugins/contrib/trail]], plus some sorting, plus an ingenious workaround
+for template evaluation being relatively stateless.
+
+A large part of this plugin would just fall off if one of the versions of
+"[[todo/allow_plugins_to_add_sorting_methods]]" was merged, which was a
+large part of the idea of that feature request :-) To make use of that
+you'd have to use `pagespec_match_list` in the trail case too, but that's
+easy enough - just add `list => [@the_trail_pages]` to the arguments.
+
+Another large part would fall off if this plugin required, and internally
+invoked, `inline` (like my `comments` plugin does) - `inline` runs
+`pagetemplate` hooks, and in particular, it'll run the `field` hook.
+Alternatively, this plugin could invoke `pagetemplate` hooks itself,
+removing the special case for `field`.
+
+Perhaps the `headers` thing could migrate into inline somehow? That might
+lead to making inline too big, though.
+
+Is the intention that the `trail` part is a performance hack, or a way
+to select pages? How does it relate to [[todo/wikitrails]] or
+[[plugins/contrib/trail]]? --[[smcv]]
