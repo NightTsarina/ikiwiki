@@ -1,0 +1,18 @@
+The [[bugs]] page, at least before I commit this, has a bug at the top that
+has been modified to link to done, and ikiwiki's dependency calculations
+failed to notice and update the bugs page. Looking at the indexdb, I saw
+that the page was not included in the `depends_simple` of the bugs page. 
+
+I was able to replicate the problem locally by starting off with the page
+not marked done (when it did appear in the bugs page `depends_simple`
+(appropriatly as a link dependency, since a change to the page removing the
+link would make it match)), then removing the done link. 
+
+At that point, it vanished from `depends_simple`. Presumably because
+the main (pagespec) depends for the bugs page now matched it, as a content
+dependency. But, it seems to me it should still be listed in
+`depends_simple` here. This, I think, is the cause of the bug.
+
+Then re-add the done link, and the dependency calc code breaks down,
+not noticing that bugs dependeded on the page and needs to be updated.
+--[[Joey]]
