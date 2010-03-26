@@ -50,7 +50,7 @@ sub check_canrename ($$$$$$) {
 	IkiWiki::check_canedit($src, $q, $session);
 	if ($attachment) {
 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
-			IkiWiki::Plugin::attachment::check_canattach($session, $src, $srcfile);
+			IkiWiki::Plugin::attachment::check_canattach($session, $src, "$config{srcdir}/$srcfile");
 		}
 		else {
 			error("renaming of attachments is not allowed");
@@ -85,7 +85,7 @@ sub check_canrename ($$$$$$) {
 		if ($attachment) {
 			# Note that $srcfile is used here, not $destfile,
 			# because it wants the current file, to check it.
-			IkiWiki::Plugin::attachment::check_canattach($session, $dest, $srcfile);
+			IkiWiki::Plugin::attachment::check_canattach($session, $dest, "$config{srcdir}/$srcfile");
 		}
 	}
 

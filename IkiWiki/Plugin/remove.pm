@@ -49,7 +49,7 @@ sub check_canremove ($$$) {
 	# This is sorta overkill, but better safe than sorry.
 	if (! defined pagetype($pagesources{$page})) {
 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
-			IkiWiki::Plugin::attachment::check_canattach($session, $page, $file);
+			IkiWiki::Plugin::attachment::check_canattach($session, $page, "$config{srcdir}/$file");
 		}
 		else {
 			error("removal of attachments is not allowed");
