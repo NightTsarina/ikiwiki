@@ -21,20 +21,41 @@ It turns out that the filecheck plugin couldn't find the file, because it was me
 >>>> The reason my patch worked is because, rather than checking whether a filename was passed in before applying IkiWiki::srcfile to the filename, it checks whether the file can be found, and if it cannot be found, then it applies IkiWiki::srcfile to the filename.
 >>>> --[[KathrynAndersen]]
 
-The following patch fixes the problem:
+>>>>> Can you test if this patch fixes that? --[[Joey]] 
 
-	diff --git a/IkiWiki/Plugin/filecheck.pm b/IkiWiki/Plugin/filecheck.pm
-	index 01d4909..1cec0cf 100644
-	--- a/IkiWiki/Plugin/filecheck.pm
-	+++ b/IkiWiki/Plugin/filecheck.pm
-	@@ -118,6 +118,10 @@ sub match_mimetype ($$;@) {
-	 	if (! defined $file) {
-	 		return IkiWiki::ErrorReason->new("no file specified");
-	 	}
-	+	if (! -e $file) {
-	+	    # get the absolute path of the file if you can't find it
-	+	    $file = IkiWiki::srcfile($file);
-	+	}
-	 
-	 	# Use ::magic to get the mime type, the idea is to only trust
-	 	# data obtained by examining the actual file contents.
+<pre>
+diff --git a/IkiWiki/Plugin/remove.pm b/IkiWiki/Plugin/remove.pm
+index f59d026..0fc180f 100644
+--- a/IkiWiki/Plugin/remove.pm
++++ b/IkiWiki/Plugin/remove.pm
+@@ -49,7 +49,7 @@ sub check_canremove ($$$) {
+ 	# This is sorta overkill, but better safe than sorry.
+ 	if (! defined pagetype($pagesources{$page})) {
+ 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
+-			IkiWiki::Plugin::attachment::check_canattach($session, $page, $file);
++			IkiWiki::Plugin::attachment::check_canattach($session, $page, "$config{srcdir}/$file");
+ 		}
+ 		else {
+ 			error("removal of attachments is not allowed");
+diff --git a/IkiWiki/Plugin/rename.pm b/IkiWiki/Plugin/rename.pm
+index 3908443..1a9da63 100644
+--- a/IkiWiki/Plugin/rename.pm
++++ b/IkiWiki/Plugin/rename.pm
+@@ -50,7 +50,7 @@ sub check_canrename ($$$$$$) {
+ 	IkiWiki::check_canedit($src, $q, $session);
+ 	if ($attachment) {
+ 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
+-			IkiWiki::Plugin::attachment::check_canattach($session, $src, $srcfile);
++			IkiWiki::Plugin::attachment::check_canattach($session, $src, "$config{srcdir}/$srcfile");
+ 		}
+ 		else {
+ 			error("renaming of attachments is not allowed");
+@@ -85,7 +85,7 @@ sub check_canrename ($$$$$$) {
+ 		if ($attachment) {
+ 			# Note that $srcfile is used here, not $destfile,
+ 			# because it wants the current file, to check it.
+-			IkiWiki::Plugin::attachment::check_canattach($session, $dest, $srcfile);
++			IkiWiki::Plugin::attachment::check_canattach($session, $dest, "$config{srcdir}/$srcfile");
+ 		}
+ 	}
+</pre>
