@@ -124,9 +124,10 @@ sub import (@) {
 				IkiWiki::run_hooks(checkconfig => sub { shift->() });
 			};
 			if ($@) {
+				my $err=$@;
 				print STDERR sprintf(gettext("** Disabling plugin %s, since it is failing with this message:"),
 					$plugin)."\n";
-				print STDERR "$@\n";
+				print STDERR "$err\n";
 				push @{$bakconfig{disable_plugins}}, $plugin;
 			}
 		}
