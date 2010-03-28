@@ -101,6 +101,7 @@ EOF
 #include <string.h>
 #include <sys/file.h>
 
+extern char **environ;
 char *newenviron[$#envsave+6];
 int i=0;
 
@@ -121,12 +122,17 @@ $envsave
 	newenviron[i++]="HOME=$ENV{HOME}";
 	newenviron[i++]="WRAPPED_OPTIONS=$configstring";
 
+#ifdef __TINYC__
 	if (clearenv() != 0) {
 		perror("clearenv");
 		exit(1);
 	}
 	for (; i>0; i--)
 		putenv(newenviron[i-1]);
+#else
+	newenviron[i]=NULL;
+	environ=newenviron;
+#endif
 
 	if (setregid(getegid(), -1) != 0 &&
 	    setregid(getegid(), -1) != 0) {
