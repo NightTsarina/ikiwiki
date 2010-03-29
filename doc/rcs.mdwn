@@ -7,10 +7,27 @@ Ikiwiki started out supporting only [[Subversion|svn]], but the interface
 ikiwiki uses to a revision control system is sufficiently simple and
 generic that it can be adapted to work with many systems by writing a
 [[plugin|plugins/write]]. [[Subversion|svn]] is still a recommended choice;
-[[git]] is another well-tested option.
+[[git]] is another well-tested option. 
 
-These are all the supported revision control systems:
-[[!inline pages="rcs/* and !*/Discussion and !rcs/details" archive=yes]]
+While all supported revision control systems work well enough for basic use,
+some advanced or special features are not supported in all of them.
+Lack of support in [[ikiwiki-makerepo]] or auto.setup can make it harder to
+set up a wiki using that revision control system. The `rcs_commit_staged`
+hook is needed to use [[plugins/attachments]] or [[plugins/comments]]. And so
+on. The table below summarises this for each revision control system and links
+to more information about each.
+
+[[!table data="""
+feature             |[[git]]|[[svn]]|[[bzr]]   |[[monotone]]|[[mercurial]]|[[darcs]]|[[tla]]   |[[cvs]]
+[[ikiwiki-makerepo]]|yes    |yes    |yes       |yes         |yes          |yes      |no        |yes
+auto.setup          |yes    |yes    |incomplete|yes         |incomplete   |yes      |incomplete|yes
+`rcs_commit_staged` |yes    |yes    |yes       |yes         |no           |yes      |no        |yes
+`rcs_rename`        |yes    |yes    |yes       |yes         |no           |yes      |no        |yes
+`rcs_remove`        |yes    |yes    |yes       |yes         |no           |yes      |no        |yes
+`rcs_diff`          |yes    |yes    |yes       |yes         |no           |yes      |yes       |yes
+anonymous push      |yes    |no     |no        |no          |no           |no       |no        |no
+conflict handling   |yes    |yes    |yes       |buggy       |yes          |yes      |yes       |yes
+"""]]
 
 There is a page with [[details]] about how the different systems work with
 ikiwiki, for the curious.
