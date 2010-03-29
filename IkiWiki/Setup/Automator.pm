@@ -78,6 +78,10 @@ sub import (@) {
 			# TODO
 			print STDERR "warning: do not know how to set up the mercurial_wrapper hook!\n";
 		}
+		elsif ($config{rcs} eq 'tla') {
+			# TODO
+			print STDERR "warning: do not know how to set up the tla_wrapper hook!\n";
+		}
 		elsif ($config{rcs} eq 'cvs') {
 			$config{cvs_wrapper}=$config{repository}."/CVSROOT/post-commit";
 		}
