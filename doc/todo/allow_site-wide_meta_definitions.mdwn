@@ -36,6 +36,30 @@ definitions essentially.
 >> I've made may not be acceptable, though -- I'd appreciate someone providing
 >> some feedback on that hunk!
 
+>>> Well, re that hunk, taint checking is currently disabled, but
+>>> if the perl bug that disallows it is fixed and it is turned back on,
+>>> the hash values will remain tainted, which will probably lead to
+>>> problems.
+>>>
+>>> I'm also leery of using such a complex data structure in config.
+>>> The websetup plugin would be hard pressed to provide a UI for such a
+>>> data structure. (It lacks even UI for a single hash ref yet, let alone
+>>> a list.)
+>>> 
+>>> Also, it seems sorta wrong to have two so very different syntaxes to 
+>>> represent the same meta data. A user without a lot of experience will
+>>> be hard pressed to map from a directive to this in the setup file.
+>>>
+>>> All of which leads me to think the setup file could just contain
+>>> a text that could hold meta directives. Which generalizes really to
+>>> a text that contains any directives, and is, perhaps appended to the
+>>> top of every page. Which nearly generalizes to the sidebar plugin,
+>>> or perhaps something more general than that... 
+>>>
+>>> However, excessive generalization is the root of all evil, so 
+>>> I'm not necessarily saying that's a good idea. Indeed, my memory
+>>> concerns below invalidate this idea pretty well. --[[Joey]] 
+
     diff --git a/IkiWiki/Plugin/meta.pm b/IkiWiki/Plugin/meta.pm
     index 6fe9cda..2f8c098 100644
     --- a/IkiWiki/Plugin/meta.pm
@@ -125,6 +149,10 @@ definitions essentially.
 >> are only relevant to defined fields that you wouldn't want to specify a
 >> global default for anyway.
 >>
+>>> I generally agree with this. It is *possible* that meta would have a new
+>>> field added, that takes parameters and make sense to use globally.
+>>> --[[Joey]] 
+>>
 >> Due to this, and the added complexity of the second patch (having to adjust
 >> `IkiWiki/Setup.pm`), I think the first patch makes more sense. I've thus
 >> reverted to it here.
@@ -183,3 +211,21 @@ definitions essentially.
 >>> ikiwiki for the break, and now I've returned to watching recentchanges.
 >>> Hopefully I'll be back in the mix soon, too. In the meantime, Joey, have
 >>> you had a chance to look at this yet? -- [[Jon]]
+
+>>> For this to work with websetup and --dumpsetup, it needs to define the
+>>> `meta_*` settings in the getsetup function.
+>>>
+>>> I also have some concerns about both these patches, since both throw
+>>> a lot of redundant data at meta, which then stores it in a very redundant
+>>> way. Specifically, meta populates a per-page `%metaheaders` hash
+>>> as well as storing per-page metadata in `%pagestate`. So, if you have
+>>> a wiki with a thousand pages, and you add a 1k site-wide license text,
+>>> that will bloat the memory usage of ikiwiki by in excess of 2
+>>> megabytes. It will also cause ikiwiki to write a similar amount more data
+>>> to its state file which has to be loaded back in each
+>>> run.
+>>>
+>>> Seems that this could be managed much more efficiently by having
+>>> meta special-case the site-wide settings, not store them in these
+>>> per-page data structures, and just make them be used if no per-page
+>>> metadata of the given type is present. --[[Joey]]
