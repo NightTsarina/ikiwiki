@@ -1796,7 +1796,7 @@ sub add_depends ($$;$) {
 
 	# Add explicit dependencies for influences.
 	my $sub=pagespec_translate($pagespec);
-	return if $@;
+	return unless defined $sub;
 	foreach my $p (keys %pagesources) {
 		my $r=$sub->($p, location => $page);
 		my $i=$r->influences;
@@ -2001,7 +2001,7 @@ sub pagespec_match ($$;@) {
 
 	my $sub=pagespec_translate($spec);
 	return IkiWiki::ErrorReason->new("syntax error in pagespec \"$spec\"")
-		if $@ || ! defined $sub;
+		if ! defined $sub;
 	return $sub->($page, @params);
 }
 
@@ -2019,7 +2019,7 @@ sub pagespec_match_list ($$;@) {
 
 	my $sub=pagespec_translate($pagespec);
 	error "syntax error in pagespec \"$pagespec\""
-		if $@ || ! defined $sub;
+		if ! defined $sub;
 
 	my @candidates;
 	if (exists $params{list}) {
@@ -2092,8 +2092,7 @@ sub pagespec_match_list ($$;@) {
 sub pagespec_valid ($) {
 	my $spec=shift;
 
-	my $sub=pagespec_translate($spec);
-	return ! $@;
+	return defined pagespec_translate($spec);
 }
 
 sub glob2re ($) {
