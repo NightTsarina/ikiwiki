@@ -18,6 +18,17 @@ removing the special case for `field`.
 Perhaps the `headers` thing could migrate into inline somehow? That might
 lead to making inline too big, though.
 
+> I think inline is *already* too big, honestly. --[[KathrynAndersen]]
+
 Is the intention that the `trail` part is a performance hack, or a way
 to select pages? How does it relate to [[todo/wikitrails]] or
 [[plugins/contrib/trail]]? --[[smcv]]
+
+> The `trail` part is *both* a performance hack, and a way to select pages.  I have over 5000 pages on my site, I need all the performance hacks I can get.
+> For the performance hack, it is a way of reducing the need to iterate through every single page in the wiki in order to find matching pages.
+> For the way-to-select-pages, yes, it is intended to be similar to [[todo/wikitrails]] and [[plugins/contrib/trail]] (and will be more similar with the new release which will be happening soon; it will add prev_* and next_* variables).
+> The idea is that, rather than having to add special "trail" links on PageA to indicate that a page is part of the trail,
+> it takes advantage of the `%links` hash, which already contains, for each page, an array of the links from that page to other pages.  No need for special markup, just use what's there; a trail is defined as "all the pages linked to from page X", and since it's an array, it has an order already.
+> But to avoid that being too limiting, one can use a `pages=...` pagespec to filter that list to a subset; only the pages one is interested in.
+> And one can also sort it, if one so desires.
+> --[[KathrynAndersen]] 
