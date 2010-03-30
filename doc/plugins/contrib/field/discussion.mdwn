@@ -13,6 +13,19 @@ behaviour, an auxiliary plugin would be easy.)
 >It's not like one is going to lose the fields defined by the meta plugin; if "author" is defined by \[[!meta author=...]] then that's what will be found by "field" (provided the "meta" plugin is registered; that's what the "field_register" option is for).
 >--[[KathrynAndersen]]
 
+>> Hmm. I suppose if you put the title (or whatever) in the YAML, then
+>> "almost" all the places in IkiWiki that respect titles will do the
+>> right thing due to the pagetemplate hook, with the exception being
+>> anything that has special side-effects inside `meta` (like `date`),
+>> or anything that looks in `$pagestate{foo}{meta}` directly
+>> (like `map`). Is your plan that `meta` should register itself by
+>> default, and `map` and friends should be adapted to
+>> work based on `getfield()` instead of `$pagestate{foo}{meta}`, then?
+>>
+>> (On the site I mentioned, I'm using an unmodified version of `field`,
+>> and currently working around the collision by tagging books' pages
+>> with `bookauthor` instead of `author` in the YAML.) --s
+
 From a coding style point of view, the `$CamelCase` variable names aren't
 IkiWiki style, and the `match_foo` functions look as though they could benefit
 from being thin wrappers around a common `&IkiWiki::Plugin::field::match`
@@ -23,13 +36,20 @@ and more ikiwiki-like style?
 
 > I don't think ikiwiki *has* a "style" for docs, does it?  So I followed the Perl Module style. And I'm rather baffled as to why having the docs laid out in clear sections... make them less clear. --[[KathrynAndersen]]
 
+>> I keep getting distracted by the big shouty headings :-)
+>> I suppose what I was really getting at was that when this plugin
+>> is merged, its docs will end up split between its plugin
+>> page, [[plugins/write]] and [[ikiwiki/PageSpec]]; on some of the
+>> contrib plugins I've added I've tried to separate the docs
+>> according to how they'll hopefully be laid out after merge. --s
+
 If one of my branches from [[todo/allow_plugins_to_add_sorting_methods]] is
 accepted, a `field()` cmp type would mean that [[plugins/contrib/report]] can
 stop reimplementing sorting. Here's the implementation I'm using, with
 your "sortspec" concept (a sort-hook would be very similar): if merged,
 I think it should just be part of `field` rather than a separate plugin.
 
-	# Copyright © 2010 Simon McVittie, released under GNU LGPL >= 2.1
+	# Copyright © 2010 Simon McVittie, released under GNU GPL >= 2
 	package IkiWiki::Plugin::fieldsort;
 	use warnings;
 	use strict;
