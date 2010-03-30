@@ -9,6 +9,10 @@ with IkiWiki's use of `<TMPL_VAR AUTHOR>` for the author of the *page*
 `<TMPL_VAR FIELD_AUTHOR>` or something? (For those who want the current
 behaviour, an auxiliary plugin would be easy.)
 
+> No, please.  The idea is to be *able* to override field names if one wishes to, and choose, for yourself, non-colliding field names if one wishes not to.  I don't wish to lose the power of being able to, say, define a page title with YAML format if I want to, or to write a site-specific plugin which calculates a page title, or other nifty things.
+>It's not like one is going to lose the fields defined by the meta plugin; if "author" is defined by \[[!meta author=...]] then that's what will be found by "field" (provided the "meta" plugin is registered; that's what the "field_register" option is for).
+>--[[KathrynAndersen]]
+
 From a coding style point of view, the `$CamelCase` variable names aren't
 IkiWiki style, and the `match_foo` functions look as though they could benefit
 from being thin wrappers around a common `&IkiWiki::Plugin::field::match`
@@ -16,6 +20,8 @@ function (see `meta` for a similar approach).
 
 I think the documentation would probably be clearer in a less manpage-like
 and more ikiwiki-like style?
+
+> I don't think ikiwiki *has* a "style" for docs, does it?  So I followed the Perl Module style. And I'm rather baffled as to why having the docs laid out in clear sections... make them less clear. --[[KathrynAndersen]]
 
 If one of my branches from [[todo/allow_plugins_to_add_sorting_methods]] is
 accepted, a `field()` cmp type would mean that [[plugins/contrib/report]] can
