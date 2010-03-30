@@ -7,7 +7,11 @@ hooks (probably easiest to just patch `template` to implement a
 second directive, or have a special parameter `run_hooks="yes"`,
 or something).
 
+> I got the impression that `pagetemplate` hooks are intended to be completely independent of `template` variables; page-template is for the actual `page.tmpl` template, while `template` is for other templates which are used inside the page content.  So I don't understand why one would need a run_hooks option. --[[KathrynAndersen]]
+
 Another missing thing is that `ftemplate` looks in
 the "system" templates directories, not just in the wiki, but that
 seems orthogonal (and might be a good enhancement to `template` anyway).
 --[[smcv]]
+
+> Yes, I added that because I wanted the option of not having to make all my templates work as wiki pages also. --[[KathrynAndersen]]
