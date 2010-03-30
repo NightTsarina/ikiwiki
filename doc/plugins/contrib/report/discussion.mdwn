@@ -20,6 +20,13 @@ lead to making inline too big, though.
 
 > I think inline is *already* too big, honestly. --[[KathrynAndersen]]
 
+>> A fair point; perhaps my complaint should be that *inline* does
+>> too many orthogonal things. I suppose the headers feature wouldn't
+>> really make sense in an inline that didn't have `archive="yes"`,
+>> so it'd make sense to recommend this plugin as a replacement
+>> for inlining with archive=yes (for which I now realise "inline"
+>> is the wrong verb anyway :-) ) --s
+
 Is the intention that the `trail` part is a performance hack, or a way
 to select pages? How does it relate to [[todo/wikitrails]] or
 [[plugins/contrib/trail]]? --[[smcv]]
@@ -32,3 +39,18 @@ to select pages? How does it relate to [[todo/wikitrails]] or
 > But to avoid that being too limiting, one can use a `pages=...` pagespec to filter that list to a subset; only the pages one is interested in.
 > And one can also sort it, if one so desires.
 > --[[KathrynAndersen]] 
+
+>> That's an interesting approach to trails; I'd missed the fact that
+>> links are already ordered.
+>>
+>> This does have the same problems as tags, though: see
+>> [[bugs/tagged()_matching_wikilinks]] and
+>> [[todo/matching_different_kinds_of_links]]. I suppose the question
+>> now is whether new code should be consistent with `tag` (and
+>> potentially be fixed at the same time as tag itself), or try to
+>> avoid those problems?
+>>
+>> The combination of `trail` with another pagespec in this plugin
+>> does provide a neat way for it to work around having unwanted
+>> pages in the report, by limiting by a suitable tag or subdirectory
+>> or something. --s
