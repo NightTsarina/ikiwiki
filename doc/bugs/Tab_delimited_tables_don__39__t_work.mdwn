@@ -4,3 +4,17 @@ Table directive should support tab-delimited data, especially important since th
 1	2
 2	4
 """]]
+
+> They do work, but C-style backslash escapes aren't recognised,
+> so the syntax `delimiter="\t"` (as in your test case) looks
+> for the literal string `\t`. Replacing `\t` with a literal
+> tab character makes it work - here's a test (I changed the data
+> to make the table layout more obvious):
+>
+> [[!table format=dsv delimiter="	" data="""
+left	2
+2	right
+alpha	beta
+"""]]
+>
+> So, I think this can be considered [[not_a_bug|done]]? --[[smcv]]
