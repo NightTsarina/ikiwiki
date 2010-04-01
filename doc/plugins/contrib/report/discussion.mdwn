@@ -67,3 +67,9 @@ to select pages? How does it relate to [[todo/wikitrails]] or
 >>>> page has no more than one value for each field?
 >>>> [[todo/Matching_different_kinds_of_links]] has some thoughts about
 >>>> how it could be implemented, though. --s
+
+>>>>> You have a point there.  I'm not sure what would be better: to add the concept of arrays/sets to `field`, or to think of tags as a special case.  Problem is, I find tags as they currently exist to be too limiting.  I prefer something that can be used for Faceted Tagging <http://en.wikipedia.org/wiki/Faceted_classification>; that is, things like Author:Fred Nurk, Genre:Historical, Rating:Good, and so on.  Of course, that doesn't mean that each tag is limited to only one value, either; just to take the above examples, something might have more than one author, or have multiple genres (such as Historical + Romance).
+
+>>>>> It might be that adding arrays to the `field` plugin is a good way to go: after all, even though field=value is the most common, with the flexibility of things like YAML, one could define all sorts of things.  What I'm not so sure about is how to return the values when queried, since some things would be expecting scalars all the time.  Ah, perhaps I could use wantarray?
+>>>>> Is there a way of checking a HTML::Template template to see if it expecting an array for a particular value?
+>>>>> --[[KathrynAndersen]]
