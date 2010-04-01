@@ -60,3 +60,10 @@ to select pages? How does it relate to [[todo/wikitrails]] or
 >>> Either that, or somehow combine tagging with fields, such that one could declare a tag, and it would create both a link and a field with a given value.  (I've been working on something like that, but it still has bugs).
 >>> That way, the test for whether something is tagged would be something like "link(tag/foo) and field(tag foo)".
 >>> --K.A.
+
+>>>> I can see that this'd work well for 1:1 relationships like next
+>>>> and previous, but I don't think that'd work for pages with more than
+>>>> one tag - as far as I can see, `field`'s data model is that each
+>>>> page has no more than one value for each field?
+>>>> [[todo/Matching_different_kinds_of_links]] has some thoughts about
+>>>> how it could be implemented, though. --s
