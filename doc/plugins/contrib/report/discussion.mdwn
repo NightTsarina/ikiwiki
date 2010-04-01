@@ -27,6 +27,8 @@ lead to making inline too big, though.
 >> for inlining with archive=yes (for which I now realise "inline"
 >> is the wrong verb anyway :-) ) --s
 
+>>> I think *inline* would be a bit less unwieldy if there was some way of factoring out the feed stuff into a separate plugin, but I don't know if that's possible. --K.A.
+
 Is the intention that the `trail` part is a performance hack, or a way
 to select pages? How does it relate to [[todo/wikitrails]] or
 [[plugins/contrib/trail]]? --[[smcv]]
@@ -54,3 +56,7 @@ to select pages? How does it relate to [[todo/wikitrails]] or
 >> does provide a neat way for it to work around having unwanted
 >> pages in the report, by limiting by a suitable tag or subdirectory
 >> or something. --s
+
+>>> Either that, or somehow combine tagging with fields, such that one could declare a tag, and it would create both a link and a field with a given value.  (I've been working on something like that, but it still has bugs).
+>>> That way, the test for whether something is tagged would be something like "link(tag/foo) and field(tag foo)".
+>>> --K.A.
