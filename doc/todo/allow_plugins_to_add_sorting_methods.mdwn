@@ -50,6 +50,21 @@ NIH'd sorting mechanisms:
 >>> share the `IkiWiki::PageSpec` package, but with a `cmp_` prefix. Gitweb:
 >>> <http://git.pseudorandom.co.uk/smcv/ikiwiki.git?a=shortlog;h=refs/heads/sort-package>
 
+>>>> I agree it seems more elegant, so I have focused on it.
+>>>>
+>>>> I don't know about reusing `IkiWiki::PageSpec` for this.
+>>>>
+>>>> I would be inclined to drop the `check_` stuff.
+>>>>
+>>>> Wouldn't it make sense to have `meta(title)` instead
+>>>> of `meta_title`?
+>>>>
+>>>> As I read the regexp in `cmpspec_translate`, the "command"
+>>>> is required to have params. They should be optional, 
+>>>> to match the documentation and because most sort methods
+>>>> do not need parameters.
+>>>> --[[Joey]]
+
 ## Documentation from sort-hooks branch
 
 ### sort hook (added to [[plugins/write]])
