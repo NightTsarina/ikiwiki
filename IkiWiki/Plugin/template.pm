@@ -42,7 +42,7 @@ sub preprocess (@) {
 		$template_file=srcfile($pagesources{$template_page});
 	}
 	else {
-		$template_file=template_file("$params{id}.tmpl")
+		$template_file=IkiWiki::template_file("$params{id}.tmpl")
 	}
 	return sprintf(gettext("template %s not found"),
 		htmllink($params{page}, $params{destpage}, "/".$template_page))
