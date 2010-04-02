@@ -97,21 +97,46 @@ Ordinary [[WikiLinks|ikiwiki/WikiLink]] appear in `%links`, but not in
 An optional third parameter sets the link type (`undef` produces an ordinary
 [[ikiwiki/WikiLink]]).
 
-> Some code refers to `oldtypedlinks`, and other to `oldlinktypes`.
-> 
-> I'm curious what your reasoning was for adding a new variable
-> rather than using `pagestate`. Was it only because you needed
-> the `old` version to detect change, or was there other complexity?
-> 
-> I have not convinced myself this is a real problem, but..
-> If a page has a typed link, there seems to be no way to tell
-> if it also has a separate, regular link. `add_link` will add
-> to `@links` when adding a typed, or untyped link. If only untyped
-> links were recorded there, one could tell the difference. But then
-> typed links would not show up at all in eg, a linkmap,
-> unless it was changed to check for typed links too.
-> (Or, regular links could be recorded in typedlinks too,
-> with a empty type. (Bloaty.))
-> 
-> I suspect we could get away without having `tagged_is_strict`
-> without too much transitional trouble. --[[Joey]]
+## Review
+
+Some code refers to `oldtypedlinks`, and other to `oldlinktypes`. --[[Joey]]
+
+> Oops, I'll fix that. That must mean missing test coverage, too :-(
+> --s
+
+I'm curious what your reasoning was for adding a new variable
+rather than using `pagestate`. Was it only because you needed
+the `old` version to detect change, or was there other complexity?
+--J
+
+> You seemed to be more in favour of adding it to the core in
+> your proposal above, so I assumed that'd be more likely to be
+> accepted :-) I don't mind one way or the other - `%typedlinks`
+> costs one core variable, but saves one level of hash nesting. If
+> you're not sure either, then I think the decision should come down
+> to which one is easier to document clearly - I'm still unhappy with
+> my docs for `%typedlinks`, so I'll try to write docs for it as
+> `pagestate` and see if they work any better. --s
+
+I have not convinced myself this is a real problem, but..
+If a page has a typed link, there seems to be no way to tell
+if it also has a separate, regular link. `add_link` will add
+to `@links` when adding a typed, or untyped link. If only untyped
+links were recorded there, one could tell the difference. But then
+typed links would not show up at all in eg, a linkmap,
+unless it was changed to check for typed links too.
+(Or, regular links could be recorded in typedlinks too,
+with a empty type. (Bloaty.)) --J
+
+> I think I like the semantics as-is - I can't think of any
+> reason why you'd want to ask the question "does A link to B,
+> not counting tags and other typed links?". A typed link is
+> still a link, in my mind at least. --s
+
+I suspect we could get away without having `tagged_is_strict`
+without too much transitional trouble. --[[Joey]]
+
+> If you think so, I can delete about 5 LoC. I don't particularly
+> care either way; [[Jon]] expressed concern about people relying
+> on the current semantics, on one of the pages requesting this
+> change. --s
