@@ -37,7 +37,13 @@ sub preprocess (@) {
 	my $template_page="templates/$params{id}";
 	add_depends($params{page}, $template_page);
 
-	my $template_file=$pagesources{$template_page};
+	my $template_file;
+	if (exists $pagesources{$template_page}) {
+		$template_file=srcfile($pagesources{$template_page});
+	}
+	else {
+		$template_file=template_file("$params{id}.tmpl")
+	}
 	return sprintf(gettext("template %s not found"),
 		htmllink($params{page}, $params{destpage}, "/".$template_page))
 			unless defined $template_file;
@@ -50,7 +56,7 @@ sub preprocess (@) {
 	                        $$text_ref=&Encode::decode_utf8($$text_ref);
 				chomp $$text_ref;
 	                },
-	                filename => srcfile($template_file),
+	                filename => $template_file,
        			die_on_bad_params => 0,
 			no_includes => 1,
 			blind_cache => 1,
