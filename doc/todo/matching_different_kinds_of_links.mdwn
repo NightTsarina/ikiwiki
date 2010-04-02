@@ -96,3 +96,22 @@ Ordinary [[WikiLinks|ikiwiki/WikiLink]] appear in `%links`, but not in
  
 An optional third parameter sets the link type (`undef` produces an ordinary
 [[ikiwiki/WikiLink]]).
+
+> Some code refers to `oldtypedlinks`, and other to `oldlinktypes`.
+> 
+> I'm curious what your reasoning was for adding a new variable
+> rather than using `pagestate`. Was it only because you needed
+> the `old` version to detect change, or was there other complexity?
+> 
+> I have not convinced myself this is a real problem, but..
+> If a page has a typed link, there seems to be no way to tell
+> if it also has a separate, regular link. `add_link` will add
+> to `@links` when adding a typed, or untyped link. If only untyped
+> links were recorded there, one could tell the difference. But then
+> typed links would not show up at all in eg, a linkmap,
+> unless it was changed to check for typed links too.
+> (Or, regular links could be recorded in typedlinks too,
+> with a empty type. (Bloaty.))
+> 
+> I suspect we could get away without having `tagged_is_strict`
+> without too much transitional trouble. --[[Joey]]
