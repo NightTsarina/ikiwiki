@@ -1,0 +1,30 @@
+ikiwiki 3.20100403 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * websetup: Add websetup\_unsafe to allow marking other settings
+     as unsafe.
+   * Improve openid url munging; do not display anchors and cgi parameters,
+     as used by yahoo and google urls.
+   * Add complete German basewiki and directives translation done by
+     Sebastian Kuhnert.
+   * Add a include setting, which can be used to make ikiwiki process
+     wiki source files, such as .htaccess, that would normally be skipped
+     for security or other reasons. Closes: #[447267](http://bugs.debian.org/447267)
+     (Thanks to Aaron Wilson for the original patch.)
+   * Add support for setup files written in YAML.
+   * Add --set-yaml switch for setting more complex config file options.
+   * filecheck: Fix bugs that prevented the pagespecs from matching when
+     not called by attachment plugin.
+   * Fix incorrect influence info returned by a failing link() pagespec,
+     that could lead to bad dependency handling in certian situations.
+   * Add preprocessed 'use lib' line to ikiwiki-transition and ikiwiki-calendar
+     if necessary for unusual install.
+   * auto-blog.setup: Set tagbase by default, since most bloggers will want it.
+   * Allow wrappers to be built using tcc. (Workaround #452876)
+   * openid: Use Openid Simple Registration or OpenID Attribute Exchange
+     to get the user's email address and username. (Neither is yet
+     used, but they are available in the session object now.)
+   * page.tmpl: Add Cache-Control must-revalidate to ensure that users
+     (especially of Firefox) see fresh page content.
+   * htmlscrubber: Allow colons in urls after '?'
+   * template: Search for templates in the templatedir, if they are not
+     found as pages in the wiki."""]]
