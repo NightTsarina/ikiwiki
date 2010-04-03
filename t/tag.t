@@ -12,7 +12,6 @@ ok(! system("rm -rf t/tmp; mkdir t/tmp"));
 
 $config{userdir} = "users";
 $config{tagbase} = "tags";
-$config{tagged_is_strict} = 1;
 
 %oldrenderedfiles=%pagectime=();
 %pagesources=%pagemtime=%oldlinks=%links=%depends=%typedlinks=%oldtypedlinks=

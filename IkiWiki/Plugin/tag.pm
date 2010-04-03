@@ -34,13 +34,6 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
-		tagged_is_strict => {
-			type => "boolean",
-			default => 0,
-			description => "if 1, tagged() doesn't match normal WikiLinks to tag pages",
-			safe => 1,
-			rebuild => 1,
-		},
 }
 
 sub tagpage ($) {
@@ -132,15 +125,7 @@ sub pagetemplate (@) {
 package IkiWiki::PageSpec;
 
 sub match_tagged ($$;@) {
-	my $page = shift;
-	my $glob = shift;
-
-	if ($IkiWiki::config{tagged_is_strict}) {
-		return match_link($page, IkiWiki::Plugin::tag::tagpage($glob), linktype => 'tag');
-	}
-	else {
-		return match_link($page, IkiWiki::Plugin::tag::tagpage($glob));
-	}
+	return match_link($_[0], IkiWiki::Plugin::tag::tagpage($_[1]), linktype => 'tag');
 }
 
 1
