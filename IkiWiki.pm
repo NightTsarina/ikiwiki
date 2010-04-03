@@ -2259,17 +2259,6 @@ sub match_link ($$;@) {
 	return IkiWiki::FailReason->new("$page does not link to $link$qualifier", $page => $IkiWiki::DEPEND_LINKS, "" => 1);
 }
 
-sub match_typedlink($$;@) {
-	my $page = shift;
-	my $args = shift;
-
-	if ($args =~ /^(\w+)\s+(.*)$/) {
-		return match_link($page, $2, @_, linktype => $1);
-	}
-
-	return IkiWiki::ErrorReason->new("typedlink expects e.g. 'tag *' but got: $args");
-}
-
 sub match_backlink ($$;@) {
 	my $ret=match_link($_[1], $_[0], @_);
 	$ret->influences($_[1] => $IkiWiki::DEPEND_LINKS);
