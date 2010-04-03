@@ -2423,15 +2423,4 @@ sub cmp_title {
 sub cmp_mtime { $IkiWiki::pagemtime{$_[1]} <=> $IkiWiki::pagemtime{$_[0]} }
 sub cmp_age { $IkiWiki::pagectime{$_[1]} <=> $IkiWiki::pagectime{$_[0]} }
 
-sub check_cmp_title_natural {
-	eval q{use Sort::Naturally};
-	if ($@) {
-		error(gettext("Sort::Naturally needed for title_natural sort"));
-	}
-}
-sub cmp_title_natural {
-	Sort::Naturally::ncmp(IkiWiki::pagetitle(IkiWiki::basename($_[0])),
-		IkiWiki::pagetitle(IkiWiki::basename($_[1])))
-}
-
 1
