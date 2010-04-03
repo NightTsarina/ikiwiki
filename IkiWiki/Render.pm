@@ -392,9 +392,7 @@ sub find_del_files ($) {
 			else {
 				push @del, $pagesources{$page};
 			}
-			$dellinks{$page}= $links{$page};
 			$links{$page}=[];
-			$delrenderedfiles{$page}= $renderedfiles{$page};
 			$renderedfiles{$page}=[];
 			$pagemtime{$page}=0;
 		}
@@ -644,14 +642,8 @@ sub refresh () {
 		scan($file);
 	}
 
-	my %del_hash = map {$_, 1} @$del;
 	while (my $autofile = shift (@autofiles)) {
 		my $page=pagename($autofile);
-    if (exists $del_hash{$page}) {
-			$links{$page}= $dellinks{$page};
-			$renderedfiles{$page}= $delrenderedfiles{$page};
-			delete $del_hash{$page};
-		}
 		if ($pages->{$page}) {
 			debug(sprintf(gettext("%s has multiple possible source pages"), $page));
 		}
@@ -663,7 +655,6 @@ sub refresh () {
 
 		scan($autofile);
 	}
-	$del = [keys %del_hash];
 
 	calculate_links();
 	

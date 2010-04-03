@@ -14,8 +14,7 @@ use open qw{:utf8 :std};
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
 	    %pagesources %destsources %depends %depends_simple %hooks
-	    %forcerebuild %loaded_plugins @autofiles %dellinks
-	    %delrenderedfiles};
+	    %forcerebuild %loaded_plugins @autofiles};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage deptype
