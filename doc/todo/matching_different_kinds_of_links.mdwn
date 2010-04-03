@@ -104,6 +104,8 @@ Some code refers to `oldtypedlinks`, and other to `oldlinktypes`. --[[Joey]]
 > Oops, I'll fix that. That must mean missing test coverage, too :-(
 > --s
 
+>> A test suite for the dependency resolver *would* be nice. --[[Joey]]
+
 I'm curious what your reasoning was for adding a new variable
 rather than using `pagestate`. Was it only because you needed
 the `old` version to detect change, or was there other complexity?
@@ -133,6 +135,8 @@ with a empty type. (Bloaty.)) --J
 > not counting tags and other typed links?". A typed link is
 > still a link, in my mind at least. --s
 
+>> Me neither, let's not worry about it. --[[Joey]] 
+
 I suspect we could get away without having `tagged_is_strict`
 without too much transitional trouble. --[[Joey]]
 
@@ -149,3 +153,6 @@ to set that link type, and its own pagespec function to match it.
 I wonder whether to make a `typedlink` plugin that has the typedlink
 pagespec match function and a new `\[[!typedlink to="foo" type="bar"]]`
 though... --[[smcv]]
+
+> I agree, per-type matchers are more friendly and I'm not enamored of the
+> multi-parameter pagespec syntax. --[[Joey]]
