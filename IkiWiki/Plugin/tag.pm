@@ -72,7 +72,7 @@ sub gentag ($) {
 		my $tagfile = newpagefile(tagpage($tag), $config{default_pageext});
 		$tagfile=~s/^\///;
 
-		return if (! add_autofile($tagfile));
+		return if (! add_autofile($tagfile, "tag"));
 
 		debug(sprintf(gettext("creating tag page %s"), $tag));
 

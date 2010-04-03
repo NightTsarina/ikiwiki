@@ -637,12 +637,14 @@ sub refresh () {
 	my ($changed, $internal_changed)=find_changed($files);
 	run_hooks(needsbuild => sub { shift->($changed) });
 	my $oldlink_targets=calculate_old_links($changed, $del);
+	%del_hash = map { $_ => 1 } @{$del};
 
 	foreach my $file (@$changed) {
 		scan($file);
 	}
 
-	while (my $autofile = shift (@autofiles)) {
+	while (my $autofile = shift @{[keys %autofiles]}) {
+		my $plugin=$autofiles{$autofile};
 		my $page=pagename($autofile);
 		if ($pages->{$page}) {
 			debug(sprintf(gettext("%s has multiple possible source pages"), $page));
@@ -654,6 +656,7 @@ sub refresh () {
 		push @{$changed}, $autofile if find_changed([$autofile]);
 
 		scan($autofile);
+		delete $autofiles{$autofile};
 	}
 
 	calculate_links();
