@@ -1973,10 +1973,6 @@ sub cmpspec_translate ($) {
 		}
 
 		if (exists $IkiWiki::PageSpec::{"cmp_$word"}) {
-			if (exists $IkiWiki::PageSpec::{"check_cmp_$word"}) {
-				$IkiWiki::PageSpec::{"check_cmp_$word"}->($params);
-			}
-
 			if (defined $params) {
 				push @data, $params;
 				$code .= "IkiWiki::PageSpec::cmp_$word(\@_, \$data[$#data])";

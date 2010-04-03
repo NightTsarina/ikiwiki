@@ -1128,11 +1128,6 @@ is greater, or zero if they are considered equal. It may also raise an
 error using `error`, for instance if it needs a parameter but one isn't
 provided.
 
-You can also define a function called `check_cmp_foo` in the same package.
-If you do, it will be called while preparing to sort by `foo` or `foo(bar)`,
-with argument `undef` or `"bar"` respectively; it may raise an error using
-`error`, if sorting like that isn't going to work.
-
 ### Setup plugins
 
 The ikiwiki setup file is loaded using a pluggable mechanism. If you look
