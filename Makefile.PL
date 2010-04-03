@@ -29,6 +29,7 @@ W3M_CGI_BIN?=$(PREFIX)/lib/w3m/cgi-bin
 tflag=$(shell if [ -n "$$NOTAINT" ] && [ "$$NOTAINT" != 1 ]; then printf -- "-T"; fi)
 extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:NYTProf"; fi)
 outprogs=ikiwiki.out ikiwiki-transition.out ikiwiki-calendar.out
+scripts=ikiwiki-update-wikilist ikiwiki-makerepo
 
 %.out: %.in
 	./pm_filter $(PREFIX) $(VER) $(PROBABLE_INST_LIB) < $< > $@
@@ -116,8 +117,8 @@ extra_install: underlay_install
 	install ikiwiki-w3m.cgi $(DESTDIR)$(W3M_CGI_BIN)
 
 	install -d $(DESTDIR)$(PREFIX)/bin
-	for prog in $(outprogs); do \
-		install $$prog $(DESTDIR)$(PREFIX)/bin/$$(shell echo $$prog | sed 's/\.out//'); \
+	for prog in $(outprogs) $(scripts); do \
+		install $$prog $(DESTDIR)$(PREFIX)/bin/$$(echo $$prog | sed 's/\.out//'); \
 	done
 
 	$(MAKE) -C po install DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
