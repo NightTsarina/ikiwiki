@@ -99,20 +99,28 @@ That earlier version of the branch is also available for comparison:
 
 >>>>> Perhaps. I do like the simplicity of [[KathrynAndersen]]'s syntax
 >>>>> from [[plugins/contrib/report]] (which I copied verbatim, except for
->>>>> turning sort-by-`field` into a parameterized spec), and I can't really
->>>>> think of any sensible way to combine sort specs other than "sort by a,
->>>>> break ties by b, ...", possibly with some reversals thrown in.
+>>>>> turning sort-by-`field` into a parameterized spec).
 >>>>>
->>>>> If no other combinations do make sense, is your proposal that "then"
->>>>> is entirely redundant (easy, just make it a predefined sort spec that
->>>>> returns 0!), or that it's mandatory "punctuation" (add an explicit
->>>>> check, or make "then" expand to "||" and let Perl fail to compile
->>>>> the generated code if it's omitted)?
+>>>>> If we're getting into English-like (or at least SQL-like) queries,
+>>>>> it might make sense to change the signature of the hook function
+>>>>> so it's a function to return a key, e.g.
+>>>>> `sub key_age { return -%pagemtime{$_[0]) }`. Then we could sort like
+>>>>> this:
 >>>>>
->>>>> It is a little unfortunate that reversal has to move into the sort
->>>>> spec - I prefer `reverse=yes` - but that's necessary for multi-level
->>>>> sorting. I can see your point about ascending/descending being more
->>>>> obvious to look at, but they're also considerably more verbose.
+>>>>>     field(artistsort) or field(artist) or constant(Various Artists) then meta(titlesort) or meta(title) or title
+>>>>>
+>>>>> with "or" binding more closely than "then". Does this seem valuable?
+>>>>> I think the implementation would be somewhat more difficult. and
+>>>>> it's probably getting too complicated to be worthwhile, though?
+>>>>> (The keys that actually benefit from this could just
+>>>>> have smarter cmp functions, I think.)
+>>>>>
+>>>>> If the hooks return keys rather than cmp results, then we could even
+>>>>> have "lowercase" as an adjective used like "ascending"... maybe.
+>>>>> However, there are two types of adjective here: "lowercase"
+>>>>> really applies to the keys, whereas "ascending" applies to the "cmp"
+>>>>> result. Again, I think this is getting too complex, and could just
+>>>>> be solved with smarter cmp functions.
 >>>>>
 >>>>> Unfortunately, `sort="ascending mtime"` actually sorts by *descending*
 >>>>> timestamp (but`sort=age` is fine, because `age` could be defined as
