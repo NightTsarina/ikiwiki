@@ -10,7 +10,7 @@ $config{srcdir}=$config{destdir}="/dev/null";
 IkiWiki::checkconfig();
 
 {
-	package IkiWiki::PageSpec;
+	package IkiWiki::SortSpec;
 
 	sub cmp_path { $_[0] cmp $_[1] }
 }

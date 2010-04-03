@@ -37,7 +37,7 @@ our $DEPEND_LINKS=4;
 # Optimisation.
 use Memoize;
 memoize("abs2rel");
-memoize("cmpspec_translate");
+memoize("sortspec_translate");
 memoize("pagespec_translate");
 memoize("template_file");
 
@@ -1935,7 +1935,7 @@ sub add_link ($$) {
 		unless grep { $_ eq $link } @{$links{$page}};
 }
 
-sub cmpspec_translate ($) {
+sub sortspec_translate ($) {
 	my $spec = shift;
 
 	my $code = "";
@@ -1972,13 +1972,13 @@ sub cmpspec_translate ($) {
 			$code .= "-";
 		}
 
-		if (exists $IkiWiki::PageSpec::{"cmp_$word"}) {
+		if (exists $IkiWiki::SortSpec::{"cmp_$word"}) {
 			if (defined $params) {
 				push @data, $params;
-				$code .= "IkiWiki::PageSpec::cmp_$word(\@_, \$data[$#data])";
+				$code .= "IkiWiki::SortSpec::cmp_$word(\@_, \$data[$#data])";
 			}
 			else {
-				$code .= "IkiWiki::PageSpec::cmp_$word(\@_, undef)";
+				$code .= "IkiWiki::SortSpec::cmp_$word(\@_, undef)";
 			}
 		}
 		else {
@@ -2095,7 +2095,7 @@ sub pagespec_match_list ($$;@) {
 	}
 
 	if (defined $params{sort}) {
-		my $f = cmpspec_translate($params{sort});
+		my $f = sortspec_translate($params{sort});
 
 		@candidates = sort { $f->($a, $b) } @candidates;
 	}
@@ -2409,6 +2409,8 @@ sub match_ip ($$;@) {
 		return IkiWiki::FailReason->new("IP is $params{ip}, not $ip");
 	}
 }
+
+package IkiWiki::SortSpec;
 
 sub cmp_title {
 	IkiWiki::pagetitle(IkiWiki::basename($_[0]))

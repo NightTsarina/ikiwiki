@@ -348,6 +348,8 @@ sub match_copyright ($$;@) {
 	IkiWiki::Plugin::meta::match("copyright", @_);
 }
 
+package IkiWiki::SortSpec;
+
 sub cmp_meta_title {
 	IkiWiki::Plugin::meta::titlesort($_[0])
 	cmp

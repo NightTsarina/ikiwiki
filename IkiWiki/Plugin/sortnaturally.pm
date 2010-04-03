@@ -22,7 +22,7 @@ sub checkconfig () {
 	error $@ if $@;
 }
 
-package IkiWiki::PageSpec;
+package IkiWiki::SortSpec;
 
 sub cmp_title_natural {
 	Sort::Naturally::ncmp(IkiWiki::pagetitle(IkiWiki::basename($_[0])),
