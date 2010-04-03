@@ -140,3 +140,12 @@ without too much transitional trouble. --[[Joey]]
 > care either way; [[Jon]] expressed concern about people relying
 > on the current semantics, on one of the pages requesting this
 > change. --s
+
+I might have been wrong to introduce `typedlink(tag foo)`. It's not
+very user-friendly, and is more useful as a backend for other plugins
+that as a feature in its own right - any plugin introducing a link
+type will probably also want to have its own preprocessor directive
+to set that link type, and its own pagespec function to match it.
+I wonder whether to make a `typedlink` plugin that has the typedlink
+pagespec match function and a new `\[[!typedlink to="foo" type="bar"]]`
+though... --[[smcv]]
