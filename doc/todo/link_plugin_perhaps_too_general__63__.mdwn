@@ -1,0 +1,25 @@
+[[!tag wishlist blue-sky]]
+(This isn't important to me - I don't use MediaWiki or Creole syntax myself -
+but just thinking out loud...)
+
+The [[ikiwiki/wikilink]] syntax IkiWiki uses sometimes conflicts with page
+languages' syntax (notably, [[plugins/contrib/MediaWiki]] and [[plugins/Creole]]
+want their wikilinks the other way round, like
+`\[[plugins/write|how to write a plugin]]`). It would be nice if there was
+some way for page language plugins to opt in/out of the normal wiki link
+processing - then MediaWiki and Creole could have their own `linkify` hook
+that was only active for *their* page types, and used the appropriate
+syntax.
+
+In [[todo/matching_different_kinds_of_links]] I wondered about adding a
+`\[[!typedlink to="foo" type="bar"]]` directive. This made me wonder whether
+a core `\[[!link]]` directive would be useful; this could be a fallback for
+page types where a normal wikilink can't be done for whatever reason, and
+could also provide extension points more easily than WikiLinks' special
+syntax with extra punctuation, which doesn't really scale?
+
+Straw-man:
+
+    \[[!link to="ikiwiki/wikilink" desc="WikiLinks"]]
+
+--[[smcv]]
