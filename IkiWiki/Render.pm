@@ -511,13 +511,13 @@ sub link_types_changed ($$) {
 
 	while (my ($type, $links) = each %$new) {
 		foreach my $link (keys %$links) {
-			return 1 unless exists $old{$type}{$link};
+			return 1 unless exists $old->{$type}{$link};
 		}
 	}
 
 	while (my ($type, $links) = each %$old) {
 		foreach my $link (keys %$links) {
-			return 1 unless exists $new{$type}{$link};
+			return 1 unless exists $new->{$type}{$link};
 		}
 	}
 
@@ -554,7 +554,7 @@ sub calculate_changed_links ($$$) {
 		# we currently assume that changing the type of a link doesn't
 		# change backlinks
 		if (!exists $linkchangers{lc($page)}) {
-			if (link_types_changed($typedlinks{$page}, $oldlinktypes{$page})) {
+			if (link_types_changed($typedlinks{$page}, $oldtypedlinks{$page})) {
 				$linkchangers{lc($page)}=1;
 			}
 		}
