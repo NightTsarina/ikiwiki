@@ -89,8 +89,8 @@ sub preprocess (@) {
 	# Metadata collection that needs to happen during the scan pass.
 	if ($key eq 'title') {
 		$pagestate{$page}{meta}{title}=HTML::Entities::encode_numeric($value);
-		if (exists $params{sort}) {
-			$pagestate{$page}{meta}{titlesort}=$params{sort};
+		if (exists $params{sortas}) {
+			$pagestate{$page}{meta}{titlesort}=$params{sortas};
 		}
 		else {
 			$pagestate{$page}{meta}{titlesort}=$value;
@@ -122,8 +122,8 @@ sub preprocess (@) {
 	}
 	elsif ($key eq 'author') {
 		$pagestate{$page}{meta}{author}=$value;
-		if (exists $params{sort}) {
-			$pagestate{$page}{meta}{authorsort}=$params{sort};
+		if (exists $params{sortas}) {
+			$pagestate{$page}{meta}{authorsort}=$params{sortas};
 		}
 		else {
 			$pagestate{$page}{meta}{authorsort}=$value;
