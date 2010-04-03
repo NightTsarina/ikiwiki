@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Ikiwiki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-02 22:18-0500\n"
+"POT-Creation-Date: 2010-04-03 14:18-0400\n"
 "PO-Revision-Date: 2009-08-16 11:01+0100\n"
 "Last-Translator: Luca Bruno <lucab@debian.org>\n"
 "Language-Team: Italian TP <tp@lists.linux.it>\n"
@@ -53,7 +53,7 @@ msgstr "Preferenze salvate."
 msgid "You are banned."
 msgstr "Avete ricevuto un ban."
 
-#: ../IkiWiki/CGI.pm:411 ../IkiWiki/CGI.pm:412 ../IkiWiki.pm:1280
+#: ../IkiWiki/CGI.pm:411 ../IkiWiki/CGI.pm:412 ../IkiWiki.pm:1296
 msgid "Error"
 msgstr "Errore"
 
@@ -135,7 +135,7 @@ msgstr "creazione nuova pagina %s"
 msgid "deleting bucket.."
 msgstr "eliminazione contenitore..."
 
-#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:216
+#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:230
 msgid "done"
 msgstr "fatto"
 
@@ -243,7 +243,7 @@ msgstr "Aggiunto commento"
 msgid "Added a comment: %s"
 msgstr "Aggiunto commento: %s"
 
-#: ../IkiWiki/Plugin/comments.pm:528 ../IkiWiki/Plugin/websetup.pm:256
+#: ../IkiWiki/Plugin/comments.pm:528 ../IkiWiki/Plugin/websetup.pm:270
 msgid "you are not logged in as an admin"
 msgstr "non siete autenticati come amministratore"
 
@@ -501,7 +501,7 @@ msgstr "Mirror"
 msgid "Mirror"
 msgstr "Mirror"
 
-#: ../IkiWiki/Plugin/moderatedcomments.pm:42
+#: ../IkiWiki/Plugin/moderatedcomments.pm:57
 #, fuzzy
 msgid "comment needs moderation"
 msgstr "moderazione commento"
@@ -888,12 +888,12 @@ msgstr "impossibile leggere %s"
 msgid "rsync_command exited %d"
 msgstr ""
 
-#: ../IkiWiki/Plugin/search.pm:183
+#: ../IkiWiki/Plugin/search.pm:184
 #, perl-format
 msgid "need Digest::SHA1 to index %s"
 msgstr "è necessario Digest::SHA1 per l'indice di %s"
 
-#: ../IkiWiki/Plugin/search.pm:218
+#: ../IkiWiki/Plugin/search.pm:221
 msgid "search"
 msgstr "cerca"
 
@@ -975,54 +975,54 @@ msgstr "errore di interpretazione alla riga %d: %s"
 msgid "missing id parameter"
 msgstr "parametro id mancante"
 
-#: ../IkiWiki/Plugin/template.pm:41
+#: ../IkiWiki/Plugin/template.pm:47
 #, perl-format
 msgid "template %s not found"
 msgstr "modello %s non trovato"
 
-#: ../IkiWiki/Plugin/template.pm:60
+#: ../IkiWiki/Plugin/template.pm:66
 msgid "failed to process:"
 msgstr "errore nell'elaborazione:"
 
-#: ../IkiWiki/Plugin/teximg.pm:71
+#: ../IkiWiki/Plugin/teximg.pm:72
 msgid "missing tex code"
 msgstr "codice tex mancante"
 
-#: ../IkiWiki/Plugin/teximg.pm:123
+#: ../IkiWiki/Plugin/teximg.pm:124
 msgid "failed to generate image from code"
 msgstr "impossibile generare l'immagine dal codice"
 
-#: ../IkiWiki/Plugin/websetup.pm:91
+#: ../IkiWiki/Plugin/websetup.pm:105
 #, fuzzy, perl-format
 msgid "%s plugin:"
 msgstr "plugin"
 
-#: ../IkiWiki/Plugin/websetup.pm:107
+#: ../IkiWiki/Plugin/websetup.pm:121
 #, fuzzy, perl-format
 msgid "%s plugins"
 msgstr "plugin"
 
-#: ../IkiWiki/Plugin/websetup.pm:121
+#: ../IkiWiki/Plugin/websetup.pm:135
 #, perl-format
 msgid "enable %s?"
 msgstr "abilitare %s?"
 
-#: ../IkiWiki/Plugin/websetup.pm:260
+#: ../IkiWiki/Plugin/websetup.pm:274
 msgid "setup file for this wiki is not known"
 msgstr "il file di setup di questo wiki non è noto"
 
-#: ../IkiWiki/Plugin/websetup.pm:276
+#: ../IkiWiki/Plugin/websetup.pm:290
 msgid "main"
 msgstr "principale"
 
-#: ../IkiWiki/Plugin/websetup.pm:419
+#: ../IkiWiki/Plugin/websetup.pm:433
 msgid ""
 "The configuration changes shown below require a wiki rebuild to take effect."
 msgstr ""
 "Le sottostanti modifiche alla configurazione richiedono la ricompilazione "
 "del wiki."
 
-#: ../IkiWiki/Plugin/websetup.pm:423
+#: ../IkiWiki/Plugin/websetup.pm:437
 msgid ""
 "For the configuration changes shown below to fully take effect, you may need "
 "to rebuild the wiki."
@@ -1030,7 +1030,7 @@ msgstr ""
 "Affinché le sottostanti modifiche alla configurazione abbiano effetto, "
 "occorre ricostruire il wiki."
 
-#: ../IkiWiki/Plugin/websetup.pm:460
+#: ../IkiWiki/Plugin/websetup.pm:474
 #, perl-format
 msgid "Error: %s exited nonzero (%s). Discarding setup changes."
 msgstr "Errore: %s è terminato con errore (%s). Modifiche al setup scartate."
@@ -1101,25 +1101,35 @@ msgstr "ikiwiki: impossibile compilare %s"
 
 #. translators: The first parameter is a filename, and the second
 #. translators: is a (probably not translated) error message.
-#: ../IkiWiki/Setup.pm:19
+#: ../IkiWiki/Setup.pm:23
 #, perl-format
 msgid "cannot read %s: %s"
 msgstr "impossibile leggere %s: %s"
+
+#: ../IkiWiki/Setup.pm:34
+#, fuzzy, perl-format
+msgid "cannot load %s in safe mode"
+msgstr "impossibile leggere %s: %s"
+
+#: ../IkiWiki/Setup.pm:46
+#, fuzzy, perl-format
+msgid "failed to parse %s"
+msgstr "impossibile aggiornare %s"
 
 #: ../IkiWiki/Setup/Automator.pm:34
 msgid "you must enter a wikiname (that contains alphanumerics)"
 msgstr "occorre inserire un wikiname (contente caratteri alfanumerici)"
 
-#: ../IkiWiki/Setup/Automator.pm:82
+#: ../IkiWiki/Setup/Automator.pm:89
 #, perl-format
 msgid "unsupported revision control system %s"
 msgstr "sistema di controllo di revisione %s non supportato"
 
-#: ../IkiWiki/Setup/Automator.pm:108
+#: ../IkiWiki/Setup/Automator.pm:115
 msgid "failed to set up the repository with ikiwiki-makerepo"
 msgstr "impossibile creare un repository tramite ikiwiki-makerepo"
 
-#: ../IkiWiki/Setup/Automator.pm:126
+#: ../IkiWiki/Setup/Automator.pm:134
 #, perl-format
 msgid "** Disabling plugin %s, since it is failing with this message:"
 msgstr ""
@@ -1139,13 +1149,13 @@ msgid "wrapper filename not specified"
 msgstr "nome del file del contenitore non specificato"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:149
+#: ../IkiWiki/Wrapper.pm:159
 #, perl-format
 msgid "failed to compile %s"
 msgstr "errore nel compilare %s"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:169
+#: ../IkiWiki/Wrapper.pm:179
 #, perl-format
 msgid "successfully generated %s"
 msgstr "%s generato con successo"
@@ -1158,19 +1168,24 @@ msgstr "utilizzo: ikiwiki [opzioni] sorgente destinazione"
 msgid "       ikiwiki --setup configfile"
 msgstr "       ikiwiki --setup configfile"
 
-#: ../ikiwiki.in:92
+#: ../ikiwiki.in:95
 msgid "usage: --set var=value"
 msgstr "utilizzo: --set var=valore"
 
-#: ../ikiwiki.in:142
+#: ../ikiwiki.in:102
+#, fuzzy
+msgid "usage: --set-yaml var=value"
+msgstr "utilizzo: --set var=valore"
+
+#: ../ikiwiki.in:156
 msgid "generating wrappers.."
 msgstr "generazione contenitori..."
 
-#: ../ikiwiki.in:205
+#: ../ikiwiki.in:219
 msgid "rebuilding wiki.."
 msgstr "ricostruzione wiki..."
 
-#: ../ikiwiki.in:208
+#: ../ikiwiki.in:222
 msgid "refreshing wiki.."
 msgstr "aggiornamento wiki..."
 
@@ -1178,38 +1193,38 @@ msgstr "aggiornamento wiki..."
 msgid "Discussion"
 msgstr "Discussione"
 
-#: ../IkiWiki.pm:514
+#: ../IkiWiki.pm:530
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr "Occorre specificare l'url del wiki tramite --url quando si usa --cgi"
 
-#: ../IkiWiki.pm:560
+#: ../IkiWiki.pm:576
 msgid "cannot use multiple rcs plugins"
 msgstr "impossibile usare più plugin rcs"
 
-#: ../IkiWiki.pm:589
+#: ../IkiWiki.pm:605
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr "impossibile caricare il plugin esterno per il plugin %s: %s"
 
-#: ../IkiWiki.pm:1262
+#: ../IkiWiki.pm:1278
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "ciclo del preprocessore individuato su %s alla profondità %i"
 
-#: ../IkiWiki.pm:1877
+#: ../IkiWiki.pm:1901
 msgid "yes"
 msgstr "sì"
 
-#: ../IkiWiki.pm:2020
+#: ../IkiWiki.pm:2044
 msgid "Sort::Naturally needed for title_natural sort"
 msgstr "Sort::Naturally è richiesto per l'ordinamento title_natural"
 
-#: ../IkiWiki.pm:2031
+#: ../IkiWiki.pm:2055
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "ordinamento %s sconosciuto"
 
-#: ../IkiWiki.pm:2050
+#: ../IkiWiki.pm:2074
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "impossibile trovare pagine corrispondenti: %s"

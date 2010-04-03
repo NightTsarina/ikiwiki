@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 1.51\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-02 22:18-0500\n"
+"POT-Creation-Date: 2010-04-03 14:18-0400\n"
 "PO-Revision-Date: 2007-04-27 22:05+0200\n"
 "Last-Translator: Pawel Tecza <ptecza@net.icm.edu.pl>\n"
 "Language-Team: Debian L10n Polish <debian-l10n-polish@lists.debian.org>\n"
@@ -57,7 +57,7 @@ msgstr "Preferencje zapisane."
 msgid "You are banned."
 msgstr "Twój dostęp został zabroniony przez administratora."
 
-#: ../IkiWiki/CGI.pm:411 ../IkiWiki/CGI.pm:412 ../IkiWiki.pm:1280
+#: ../IkiWiki/CGI.pm:411 ../IkiWiki/CGI.pm:412 ../IkiWiki.pm:1296
 msgid "Error"
 msgstr "Błąd"
 
@@ -139,7 +139,7 @@ msgstr "tworzenie nowej strony %s"
 msgid "deleting bucket.."
 msgstr ""
 
-#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:216
+#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:230
 msgid "done"
 msgstr "gotowe"
 
@@ -248,7 +248,7 @@ msgstr ""
 msgid "Added a comment: %s"
 msgstr ""
 
-#: ../IkiWiki/Plugin/comments.pm:528 ../IkiWiki/Plugin/websetup.pm:256
+#: ../IkiWiki/Plugin/comments.pm:528 ../IkiWiki/Plugin/websetup.pm:270
 msgid "you are not logged in as an admin"
 msgstr ""
 
@@ -520,7 +520,7 @@ msgstr "Kopie lustrzane"
 msgid "Mirror"
 msgstr "Kopia lustrzana"
 
-#: ../IkiWiki/Plugin/moderatedcomments.pm:42
+#: ../IkiWiki/Plugin/moderatedcomments.pm:57
 msgid "comment needs moderation"
 msgstr ""
 
@@ -898,12 +898,12 @@ msgstr "awaria w trakcie odczytu %s: %s"
 msgid "rsync_command exited %d"
 msgstr ""
 
-#: ../IkiWiki/Plugin/search.pm:183
+#: ../IkiWiki/Plugin/search.pm:184
 #, perl-format
 msgid "need Digest::SHA1 to index %s"
 msgstr ""
 
-#: ../IkiWiki/Plugin/search.pm:218
+#: ../IkiWiki/Plugin/search.pm:221
 msgid "search"
 msgstr ""
 
@@ -995,61 +995,61 @@ msgstr "awaria w trakcie przetwarzania linii %d: %s"
 msgid "missing id parameter"
 msgstr "brakujący parametr id"
 
-#: ../IkiWiki/Plugin/template.pm:41
+#: ../IkiWiki/Plugin/template.pm:47
 #, perl-format
 msgid "template %s not found"
 msgstr "nieznaleziony szablon %s"
 
-#: ../IkiWiki/Plugin/template.pm:60
+#: ../IkiWiki/Plugin/template.pm:66
 #, fuzzy
 msgid "failed to process:"
 msgstr "awaria w trakcie przetwarzania:"
 
-#: ../IkiWiki/Plugin/teximg.pm:71
+#: ../IkiWiki/Plugin/teximg.pm:72
 #, fuzzy
 msgid "missing tex code"
 msgstr "brakujące wartości"
 
-#: ../IkiWiki/Plugin/teximg.pm:123
+#: ../IkiWiki/Plugin/teximg.pm:124
 #, fuzzy
 msgid "failed to generate image from code"
 msgstr "awaria w trakcie zmiany rozmiaru: %s"
 
-#: ../IkiWiki/Plugin/websetup.pm:91
+#: ../IkiWiki/Plugin/websetup.pm:105
 #, perl-format
 msgid "%s plugin:"
 msgstr ""
 
-#: ../IkiWiki/Plugin/websetup.pm:107
+#: ../IkiWiki/Plugin/websetup.pm:121
 #, perl-format
 msgid "%s plugins"
 msgstr ""
 
-#: ../IkiWiki/Plugin/websetup.pm:121
+#: ../IkiWiki/Plugin/websetup.pm:135
 #, perl-format
 msgid "enable %s?"
 msgstr ""
 
-#: ../IkiWiki/Plugin/websetup.pm:260
+#: ../IkiWiki/Plugin/websetup.pm:274
 msgid "setup file for this wiki is not known"
 msgstr ""
 
-#: ../IkiWiki/Plugin/websetup.pm:276
+#: ../IkiWiki/Plugin/websetup.pm:290
 msgid "main"
 msgstr ""
 
-#: ../IkiWiki/Plugin/websetup.pm:419
+#: ../IkiWiki/Plugin/websetup.pm:433
 msgid ""
 "The configuration changes shown below require a wiki rebuild to take effect."
 msgstr ""
 
-#: ../IkiWiki/Plugin/websetup.pm:423
+#: ../IkiWiki/Plugin/websetup.pm:437
 msgid ""
 "For the configuration changes shown below to fully take effect, you may need "
 "to rebuild the wiki."
 msgstr ""
 
-#: ../IkiWiki/Plugin/websetup.pm:460
+#: ../IkiWiki/Plugin/websetup.pm:474
 #, perl-format
 msgid "Error: %s exited nonzero (%s). Discarding setup changes."
 msgstr ""
@@ -1118,25 +1118,35 @@ msgstr "ikiwiki: awaria w trakcie tworzenia %s"
 
 #. translators: The first parameter is a filename, and the second
 #. translators: is a (probably not translated) error message.
-#: ../IkiWiki/Setup.pm:19
+#: ../IkiWiki/Setup.pm:23
 #, perl-format
 msgid "cannot read %s: %s"
 msgstr "awaria w trakcie odczytu %s: %s"
+
+#: ../IkiWiki/Setup.pm:34
+#, fuzzy, perl-format
+msgid "cannot load %s in safe mode"
+msgstr "awaria w trakcie odczytu %s: %s"
+
+#: ../IkiWiki/Setup.pm:46
+#, fuzzy, perl-format
+msgid "failed to parse %s"
+msgstr "awaria w trakcie kompilowania %s"
 
 #: ../IkiWiki/Setup/Automator.pm:34
 msgid "you must enter a wikiname (that contains alphanumerics)"
 msgstr ""
 
-#: ../IkiWiki/Setup/Automator.pm:82
+#: ../IkiWiki/Setup/Automator.pm:89
 #, perl-format
 msgid "unsupported revision control system %s"
 msgstr ""
 
-#: ../IkiWiki/Setup/Automator.pm:108
+#: ../IkiWiki/Setup/Automator.pm:115
 msgid "failed to set up the repository with ikiwiki-makerepo"
 msgstr ""
 
-#: ../IkiWiki/Setup/Automator.pm:126
+#: ../IkiWiki/Setup/Automator.pm:134
 #, perl-format
 msgid "** Disabling plugin %s, since it is failing with this message:"
 msgstr ""
@@ -1155,13 +1165,13 @@ msgid "wrapper filename not specified"
 msgstr "nieokreślona nazwa pliku osłony"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:149
+#: ../IkiWiki/Wrapper.pm:159
 #, perl-format
 msgid "failed to compile %s"
 msgstr "awaria w trakcie kompilowania %s"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:169
+#: ../IkiWiki/Wrapper.pm:179
 #, perl-format
 msgid "successfully generated %s"
 msgstr "pomyślnie utworzono %s"
@@ -1174,19 +1184,23 @@ msgstr "użycie: ikiwiki [parametry] źródło cel"
 msgid "       ikiwiki --setup configfile"
 msgstr ""
 
-#: ../ikiwiki.in:92
+#: ../ikiwiki.in:95
 msgid "usage: --set var=value"
 msgstr ""
 
-#: ../ikiwiki.in:142
+#: ../ikiwiki.in:102
+msgid "usage: --set-yaml var=value"
+msgstr ""
+
+#: ../ikiwiki.in:156
 msgid "generating wrappers.."
 msgstr "tworzenie osłon..."
 
-#: ../ikiwiki.in:205
+#: ../ikiwiki.in:219
 msgid "rebuilding wiki.."
 msgstr "przebudowywanie wiki..."
 
-#: ../ikiwiki.in:208
+#: ../ikiwiki.in:222
 msgid "refreshing wiki.."
 msgstr "odświeżanie wiki..."
 
@@ -1194,40 +1208,40 @@ msgstr "odświeżanie wiki..."
 msgid "Discussion"
 msgstr "Dyskusja"
 
-#: ../IkiWiki.pm:514
+#: ../IkiWiki.pm:530
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr ""
 "Użycie parametru --cgi wymaga podania adresu URL do wiki za pomocą parametru "
 "--url"
 
-#: ../IkiWiki.pm:560
+#: ../IkiWiki.pm:576
 msgid "cannot use multiple rcs plugins"
 msgstr ""
 
-#: ../IkiWiki.pm:589
+#: ../IkiWiki.pm:605
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr ""
 
-#: ../IkiWiki.pm:1262
+#: ../IkiWiki.pm:1278
 #, fuzzy, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "polecenie preprocesora %s wykryte w %s na głębokości %i"
 
-#: ../IkiWiki.pm:1877
+#: ../IkiWiki.pm:1901
 msgid "yes"
 msgstr ""
 
-#: ../IkiWiki.pm:2020
+#: ../IkiWiki.pm:2044
 msgid "Sort::Naturally needed for title_natural sort"
 msgstr ""
 
-#: ../IkiWiki.pm:2031
+#: ../IkiWiki.pm:2055
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "nieznany sposób sortowania %s"
 
-#: ../IkiWiki.pm:2050
+#: ../IkiWiki.pm:2074
 #, fuzzy, perl-format
 msgid "cannot match pages: %s"
 msgstr "awaria w trakcie odczytu %s: %s"

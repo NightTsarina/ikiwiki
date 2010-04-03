@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-02 22:18-0500\n"
+"POT-Creation-Date: 2010-04-03 14:18-0400\n"
 "PO-Revision-Date: 2009-09-11 20:23+0200\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
@@ -55,7 +55,7 @@ msgstr "Nastavení uloženo."
 msgid "You are banned."
 msgstr "Jste vyhoštěni."
 
-#: ../IkiWiki/CGI.pm:411 ../IkiWiki/CGI.pm:412 ../IkiWiki.pm:1280
+#: ../IkiWiki/CGI.pm:411 ../IkiWiki/CGI.pm:412 ../IkiWiki.pm:1296
 msgid "Error"
 msgstr "Chyba"
 
@@ -136,7 +136,7 @@ msgstr "vytvářím novou stránku %s"
 msgid "deleting bucket.."
 msgstr "mažu bucket..."
 
-#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:216
+#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:230
 msgid "done"
 msgstr "hotovo"
 
@@ -244,7 +244,7 @@ msgstr "Přidán komentář"
 msgid "Added a comment: %s"
 msgstr "Přidán komentář: %s"
 
-#: ../IkiWiki/Plugin/comments.pm:528 ../IkiWiki/Plugin/websetup.pm:256
+#: ../IkiWiki/Plugin/comments.pm:528 ../IkiWiki/Plugin/websetup.pm:270
 msgid "you are not logged in as an admin"
 msgstr "nejste přihlášeni jako správce"
 
@@ -498,7 +498,7 @@ msgstr "Zrcadla"
 msgid "Mirror"
 msgstr "Zrcadlo"
 
-#: ../IkiWiki/Plugin/moderatedcomments.pm:42
+#: ../IkiWiki/Plugin/moderatedcomments.pm:57
 #, fuzzy
 msgid "comment needs moderation"
 msgstr "schvalování komentářů"
@@ -877,12 +877,12 @@ msgstr "nepodařilo se přečíst %s"
 msgid "rsync_command exited %d"
 msgstr ""
 
-#: ../IkiWiki/Plugin/search.pm:183
+#: ../IkiWiki/Plugin/search.pm:184
 #, perl-format
 msgid "need Digest::SHA1 to index %s"
 msgstr "pro indexování %s je potřeba Digest::SHA1"
 
-#: ../IkiWiki/Plugin/search.pm:218
+#: ../IkiWiki/Plugin/search.pm:221
 msgid "search"
 msgstr "hledání"
 
@@ -964,52 +964,52 @@ msgstr "zpracovávání selhalo na řádku %d: %s"
 msgid "missing id parameter"
 msgstr "chybí parametr id"
 
-#: ../IkiWiki/Plugin/template.pm:41
+#: ../IkiWiki/Plugin/template.pm:47
 #, perl-format
 msgid "template %s not found"
 msgstr "šablona %s nebyla nalezena"
 
-#: ../IkiWiki/Plugin/template.pm:60
+#: ../IkiWiki/Plugin/template.pm:66
 msgid "failed to process:"
 msgstr "nepodařilo se zpracovat:"
 
-#: ../IkiWiki/Plugin/teximg.pm:71
+#: ../IkiWiki/Plugin/teximg.pm:72
 msgid "missing tex code"
 msgstr "chybí TeXový kód"
 
-#: ../IkiWiki/Plugin/teximg.pm:123
+#: ../IkiWiki/Plugin/teximg.pm:124
 msgid "failed to generate image from code"
 msgstr "z kódu se nepodařilo vygenerovat obrázek"
 
-#: ../IkiWiki/Plugin/websetup.pm:91
+#: ../IkiWiki/Plugin/websetup.pm:105
 #, fuzzy, perl-format
 msgid "%s plugin:"
 msgstr "modul"
 
-#: ../IkiWiki/Plugin/websetup.pm:107
+#: ../IkiWiki/Plugin/websetup.pm:121
 #, fuzzy, perl-format
 msgid "%s plugins"
 msgstr "moduly"
 
-#: ../IkiWiki/Plugin/websetup.pm:121
+#: ../IkiWiki/Plugin/websetup.pm:135
 #, perl-format
 msgid "enable %s?"
 msgstr "povolit %s?"
 
-#: ../IkiWiki/Plugin/websetup.pm:260
+#: ../IkiWiki/Plugin/websetup.pm:274
 msgid "setup file for this wiki is not known"
 msgstr "konfigurační soubor této wiki je neznámý"
 
-#: ../IkiWiki/Plugin/websetup.pm:276
+#: ../IkiWiki/Plugin/websetup.pm:290
 msgid "main"
 msgstr "hlavní"
 
-#: ../IkiWiki/Plugin/websetup.pm:419
+#: ../IkiWiki/Plugin/websetup.pm:433
 msgid ""
 "The configuration changes shown below require a wiki rebuild to take effect."
 msgstr "Níže uvedené změny v konfiguraci se projeví až po znovusestavení wiki."
 
-#: ../IkiWiki/Plugin/websetup.pm:423
+#: ../IkiWiki/Plugin/websetup.pm:437
 msgid ""
 "For the configuration changes shown below to fully take effect, you may need "
 "to rebuild the wiki."
@@ -1017,7 +1017,7 @@ msgstr ""
 "Aby se níže uvedené změny v konfiguraci zcela projevily, budete možná muset "
 "znovusestavit wiki."
 
-#: ../IkiWiki/Plugin/websetup.pm:460
+#: ../IkiWiki/Plugin/websetup.pm:474
 #, perl-format
 msgid "Error: %s exited nonzero (%s). Discarding setup changes."
 msgstr ""
@@ -1090,25 +1090,35 @@ msgstr "ikiwiki: nelze sestavit %s"
 
 #. translators: The first parameter is a filename, and the second
 #. translators: is a (probably not translated) error message.
-#: ../IkiWiki/Setup.pm:19
+#: ../IkiWiki/Setup.pm:23
 #, perl-format
 msgid "cannot read %s: %s"
 msgstr "nemohu číst %s: %s"
+
+#: ../IkiWiki/Setup.pm:34
+#, fuzzy, perl-format
+msgid "cannot load %s in safe mode"
+msgstr "nemohu číst %s: %s"
+
+#: ../IkiWiki/Setup.pm:46
+#, fuzzy, perl-format
+msgid "failed to parse %s"
+msgstr "nepodařilo se aktualizovat %s"
 
 #: ../IkiWiki/Setup/Automator.pm:34
 msgid "you must enter a wikiname (that contains alphanumerics)"
 msgstr "musíte zadat název wiki (který obsahuje alfanumerické znaky)"
 
-#: ../IkiWiki/Setup/Automator.pm:82
+#: ../IkiWiki/Setup/Automator.pm:89
 #, perl-format
 msgid "unsupported revision control system %s"
 msgstr "nepodporovaný systém pro správu verzí: %s"
 
-#: ../IkiWiki/Setup/Automator.pm:108
+#: ../IkiWiki/Setup/Automator.pm:115
 msgid "failed to set up the repository with ikiwiki-makerepo"
 msgstr "nepodařilo se nastavit repositář pomocí ikiwiki-makerepo"
 
-#: ../IkiWiki/Setup/Automator.pm:126
+#: ../IkiWiki/Setup/Automator.pm:134
 #, perl-format
 msgid "** Disabling plugin %s, since it is failing with this message:"
 msgstr "** Deaktivuji modul %s, protože selhává s touto hláškou:"
@@ -1127,13 +1137,13 @@ msgid "wrapper filename not specified"
 msgstr "jméno souboru s obalem nebylo zadáno"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:149
+#: ../IkiWiki/Wrapper.pm:159
 #, perl-format
 msgid "failed to compile %s"
 msgstr "nelze zkompilovat %s"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:169
+#: ../IkiWiki/Wrapper.pm:179
 #, perl-format
 msgid "successfully generated %s"
 msgstr "%s byl úspěšně vytvořen"
@@ -1146,19 +1156,24 @@ msgstr "použití: ikiwiki [volby] zdroj cíl"
 msgid "       ikiwiki --setup configfile"
 msgstr "       ikiwiki --setup konfigurační.soubor"
 
-#: ../ikiwiki.in:92
+#: ../ikiwiki.in:95
 msgid "usage: --set var=value"
 msgstr "použití: --set proměnná=hodnota"
 
-#: ../ikiwiki.in:142
+#: ../ikiwiki.in:102
+#, fuzzy
+msgid "usage: --set-yaml var=value"
+msgstr "použití: --set proměnná=hodnota"
+
+#: ../ikiwiki.in:156
 msgid "generating wrappers.."
 msgstr "generuji obaly..."
 
-#: ../ikiwiki.in:205
+#: ../ikiwiki.in:219
 msgid "rebuilding wiki.."
 msgstr "znovusestavuji wiki..."
 
-#: ../ikiwiki.in:208
+#: ../ikiwiki.in:222
 msgid "refreshing wiki.."
 msgstr "obnovuji wiki..."
 
@@ -1166,38 +1181,38 @@ msgstr "obnovuji wiki..."
 msgid "Discussion"
 msgstr "Diskuse"
 
-#: ../IkiWiki.pm:514
+#: ../IkiWiki.pm:530
 msgid "Must specify url to wiki with --url when using --cgi"
 msgstr "Při použití --cgi musíte pomocí --url zadat url k wiki"
 
-#: ../IkiWiki.pm:560
+#: ../IkiWiki.pm:576
 msgid "cannot use multiple rcs plugins"
 msgstr "nelze použít několik rcs modulů"
 
-#: ../IkiWiki.pm:589
+#: ../IkiWiki.pm:605
 #, perl-format
 msgid "failed to load external plugin needed for %s plugin: %s"
 msgstr "nepodařilo se nahrát externí modul vyžadovaný modulem %s: %s"
 
-#: ../IkiWiki.pm:1262
+#: ../IkiWiki.pm:1278
 #, perl-format
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "Byla rozpoznána smyčka na %s v hloubce %i"
 
-#: ../IkiWiki.pm:1877
+#: ../IkiWiki.pm:1901
 msgid "yes"
 msgstr "ano"
 
-#: ../IkiWiki.pm:2020
+#: ../IkiWiki.pm:2044
 msgid "Sort::Naturally needed for title_natural sort"
 msgstr "Pro řazení pomocí title_natural je nutný modul Sort::Naturally"
 
-#: ../IkiWiki.pm:2031
+#: ../IkiWiki.pm:2055
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "neznámý typ řazení %s"
 
-#: ../IkiWiki.pm:2050
+#: ../IkiWiki.pm:2074
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "nelze vybrat stránky: %s"
