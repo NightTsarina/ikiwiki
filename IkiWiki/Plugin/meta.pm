@@ -122,6 +122,12 @@ sub preprocess (@) {
 	}
 	elsif ($key eq 'author') {
 		$pagestate{$page}{meta}{author}=$value;
+		if (exists $params{sort}) {
+			$pagestate{$page}{meta}{authorsort}=$params{sort};
+		}
+		else {
+			$pagestate{$page}{meta}{authorsort}=$value;
+		}
 		# fallthorough
 	}
 	elsif ($key eq 'authorurl') {
@@ -288,14 +294,31 @@ sub pagetemplate (@) {
 	}
 }
 
-sub titlesort {
-	my $key = $pagestate{$_[0]}{meta}{titlesort};
+sub get_sort_key {
+	my $page = $_[0];
+	my $meta = $_[1];
 
-	if (defined $key) {
-		return $key;
+	# e.g. titlesort (also makes sense for author)
+	my $key = $pagestate{$page}{meta}{$meta . "sort"};
+	return $key if defined $key;
+
+	# e.g. title
+	$key = $pagestate{$page}{meta}{$meta};
+	return $key if defined $key;
+
+	# fall back to closer-to-core things
+	if ($meta eq 'title') {
+		return pagetitle(IkiWiki::basename($page));
 	}
-
-	return pagetitle(IkiWiki::basename($_[0]));
+	elsif ($meta eq 'date') {
+		return $IkiWiki::pagectime{$page};
+	}
+	elsif ($meta eq 'updated') {
+		return $IkiWiki::pagemtime{$page};
+	}
+	else {
+		return '';
+	}
 }
 
 sub match {
@@ -350,10 +373,27 @@ sub match_copyright ($$;@) {
 
 package IkiWiki::SortSpec;
 
+sub cmp_meta {
+	my $left = $_[0];
+	my $right = $_[1];
+	my $meta = $_[2];
+	error(gettext("sort=meta requires a parameter")) unless defined $meta;
+
+	if ($meta eq 'updated' || $meta eq 'date') {
+		return IkiWiki::Plugin::meta::get_sort_key($left, $meta)
+			<=>
+			IkiWiki::Plugin::meta::get_sort_key($right, $meta);
+	}
+
+	return IkiWiki::Plugin::meta::get_sort_key($left, $meta)
+		cmp
+		IkiWiki::Plugin::meta::get_sort_key($right, $meta);
+}
+
+# A prototype of how sort=title could behave in 4.0 or something
 sub cmp_meta_title {
-	IkiWiki::Plugin::meta::titlesort($_[0])
-	cmp
-	IkiWiki::Plugin::meta::titlesort($_[1])
+	$_[2] = 'title';
+	return cmp_meta(@_);
 }
 
 1
