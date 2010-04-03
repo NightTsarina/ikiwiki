@@ -164,7 +164,11 @@ wrong direction.
 > Starting review of this. Some of your commits are to very delicate,
 > optimised, and security-sensitive ground, so I have to look at them very
 > carefully. --[[Joey]]
-> 
+
+>> First of, sorry that it took me so damn long to answer. I didn't lose
+>> interest but it took a while for me to find the time and motivation
+>> to address you suggestions. --[[David_Riebenbauer]]
+
 > * In the refactoring in [f3abeac919c4736429bd3362af6edf51ede8e7fe][],
 >   you introduced at least 2 bugs, one a possible security hole.
 >   Now one part of the code tests `if ($file)` and the other
@@ -177,7 +181,11 @@ wrong direction.
 >   bare `_` in the first to make perl reuse the stat buffer.
 > * (As a matter of style, could you put a space after the commas in your
 >   perl?)
-> 
+
+>> The first two points should be addressed in
+>> [da5d29f95f6e693e8c14be1b896cf25cf4fdb3c0][]. And sure, I can add the
+>> spaces. --[[David_Riebenbauer]]
+
 > I'd like to cherry-pick the above commit, once it's in shape, before
 > looking at the rest in detail. So just a few other things that stood out.
 > 
@@ -185,14 +193,27 @@ wrong direction.
 >   `srcfile($file, 1)` already is documented to return undef if the
 >   file does not exist. (But without the second parameter, it throws
 >   an error.)
->
+
+>> You're right. I must have been some confused by some other promplem I
+>> introduced then. Reverted. --[[David_Riebenbauer]]
+
 > * Commit [f58f3e1bec41ccf9316f37b014ce0b373c8e49e1][] adds a line
 >   that is intented by a space, not a tab.
-> 
+
+>> Sorry, That one was reverted anyway. --[[David_Riebenbauer]]
+
 > * Commit [f58f3e1bec41ccf9316f37b014ce0b373c8e49e1][] says that auto-added
 >   files will be recreated if the user deletes them. That seems bad.
 >   `autoindex` goes to some trouble to not recreate deleted files.
 
+>> I reverted the commit and addressed the issue in
+>> [a358d74bef51dae31332ff27e897fe04834571e6][] and
+>> [981400177d68a279f485727be3f013e68f0bf691][].
+ --[[David_Riebenbauer]]
+
 [f3abeac919c4736429bd3362af6edf51ede8e7fe]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f3abeac919c4736429bd3362af6edf51ede8e7fe (commitdiff for f3abeac919c4736429bd3362af6edf51ede8e7fe)
 [4af4d26582f0c2b915d7102fb4a604b176385748]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=4af4d26582f0c2b915d7102fb4a604b176385748 (commitdiff for 4af4d26582f0c2b915d7102fb4a604b176385748)
 [f58f3e1bec41ccf9316f37b014ce0b373c8e49e1]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f58f3e1bec41ccf9316f37b014ce0b373c8e49e1 (commitdiff for f58f3e1bec41ccf9316f37b014ce0b373c8e49e1)
+[da5d29f95f6e693e8c14be1b896cf25cf4fdb3c0]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=da5d29f95f6e693e8c14be1b896cf25cf4fdb3c0 (commitdiff for da5d29f95f6e693e8c14be1b896cf25cf4fdb3c0)
+[a358d74bef51dae31332ff27e897fe04834571e6]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=a358d74bef51dae31332ff27e897fe04834571e6 (commitdiff for a358d74bef51dae31332ff27e897fe04834571e6)
+[981400177d68a279f485727be3f013e68f0bf691]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=981400177d68a279f485727be3f013e68f0bf691 (commitdiff for 981400177d68a279f485727be3f013e68f0bf691)
