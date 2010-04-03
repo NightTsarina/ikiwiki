@@ -40,6 +40,8 @@ That earlier version of the branch is also available for comparison:
 
 >>>>>> `SortSpec` --[[Joey]] 
 
+>>>>>>> Done. --s
+
 >>>> I would be inclined to drop the `check_` stuff. --[[Joey]] 
 
 >>>>> It basically exists to support `title_natural`, to avoid
@@ -54,6 +56,8 @@ That earlier version of the branch is also available for comparison:
 >>>>>> loaded. There could be some evalation overhead in `eval q{use foo}`,
 >>>>>> if so it would be worth addressing across the whole codebase.
 >>>>>> --[[Joey]] 
+>>>>>>
+>>>>>>> check_cmp_foo now dropped. --s
 >>>>>
 >>>>> The former function could be achieved at a small
 >>>>> compatibility cost by putting `title_natural` in a new
@@ -65,6 +69,8 @@ That earlier version of the branch is also available for comparison:
 >>>>>> Yes! (Assuming it does not make sense to support
 >>>>>> natural order sort of other keys than the title, at least..)
 >>>>>>  --[[Joey]]
+
+>>>>>>> Done. I added some NEWS.Debian for it, too. --s
 
 >>>> Wouldn't it make sense to have `meta(title)` instead
 >>>> of `meta_title`? --[[Joey]]
@@ -89,6 +95,11 @@ That earlier version of the branch is also available for comparison:
 >>>>> displaying meta-titles, does look quite odd. --s
 
 >>>>>> Agreed. --[[Joey]]
+
+>>>>>>> I've implemented meta(title). meta(author) also has the
+>>>>>>> `sortas` special case; meta(updated) and meta(date)
+>>>>>>> should also work how you'd expect them to (but they're
+>>>>>>> earliest-first, unlike age). --s
 
 >>>> As I read the regexp in `cmpspec_translate`, the "command"
 >>>> is required to have params. They should be optional, 
@@ -150,6 +161,10 @@ That earlier version of the branch is also available for comparison:
 >>>>>
 >>>>>> I think you've convinced me that ascending/descending impose too
 >>>>>> much semantics on it, so "-" is better. --[[Joey]]
+
+>>>>>>> I've kept the semantics from `report` as-is, then:
+>>>>>>> e.g. `sort="age -title"`. --s
+
 >>>>>
 >>>>> Perhaps we could borrow from `meta updated` and use `update_age`?
 >>>>> `updateage` would perhaps be a more normal IkiWiki style - but that
@@ -160,18 +175,22 @@ That earlier version of the branch is also available for comparison:
 >>>>> I'm sure there's a much better word, but I can't see it. Do you have
 >>>>> a better idea? --s
 
+[Regarding the `meta title=foo sort=bar` special case]
+
+> I feel it sould be clearer to call that "sortas", since "sort=" is used
+> to specify a sort method in other directives. --[[Joey]]
+>> Done. --[[smcv]]
+
 ## Documentation from sort-package branch
 
-### meta_title sort order (conditionally added to [[ikiwiki/pagespec/sorting]])
+### advanced sort orders (conditionally added to [[ikiwiki/pagespec/sorting]])
 
-* `meta_title` - Order according to the `\[[!meta title="foo" sort="bar"]]`
+* `title_natural` - Orders by title, but numbers in the title are treated
+  as such, ("1 2 9 10 20" instead of "1 10 2 20 9")
+* `meta(title)` - Order according to the `\[[!meta title="foo" sortas="bar"]]`
   or `\[[!meta title="foo"]]` [[ikiwiki/directive]], or the page name if no
-  full title was set.
-
-  > I feel it sould be clearer to call that "sortas", since "sort=" is used
-  > to specify a sort method in other directives. --[[Joey]]
-
-  >> Fair enough, that's easy to do. --[[smcv]]
+  full title was set. `meta(author)`, `meta(date)`, `meta(updated)`, etc.
+  also work.
 
 ### Multiple sort orders (added to [[ikiwiki/pagespec/sorting]])
 
@@ -179,23 +198,29 @@ In addition, you can combine several sort orders and/or reverse the order of
 sorting, with a string like `age -title` (which would sort by age, then by
 title in reverse order if two pages have the same age).
 
-### meta title sort parameter (added to [[ikiwiki/directive/meta]])
+### meta sortas parameter (added to [[ikiwiki/directive/meta]])
+
+[in title]
 
 An optional `sort` parameter will be used preferentially when
-[[ikiwiki/pagespec/sorting]] by `meta_title`:
+[[ikiwiki/pagespec/sorting]] by `meta(title)`:
 
        \[[!meta title="The Beatles" sort="Beatles, The"]]
 
        \[[!meta title="David Bowie" sort="Bowie, David"]]
 
-> I now realise that `author` should also have this, again for use
-> with (Western) names. --s
+[in author]
+
+  An optional `sortas` parameter will be used preferentially when
+  [[ikiwiki/pagespec/sorting]] by `meta(author)`:
+
+        \[[!meta author="Joey Hess" sortas="Hess, Joey"]]
 
 ### Sorting plugins (added to [[plugins/write]])
 
 Similarly, it's possible to write plugins that add new functions as
 [[ikiwiki/pagespec/sorting]] methods. To achieve this, add a function to
-the IkiWiki::PageSpec package named `cmp_foo`, which will be used when sorting
+the IkiWiki::SortSpec package named `cmp_foo`, which will be used when sorting
 by `foo` or `foo(...)` is requested.
 
 The function will be passed three or more parameters. The first two are
@@ -208,8 +233,3 @@ if the first argument is less than the second, positive if the first argument
 is greater, or zero if they are considered equal. It may also raise an
 error using `error`, for instance if it needs a parameter but one isn't
 provided.
-
-You can also define a function called `check_cmp_foo` in the same package.
-If you do, it will be called while preparing to sort by `foo` or `foo(bar)`,
-with argument `undef` or `"bar"` respectively; it may raise an error using
-`error`, if sorting like that isn't going to work.
