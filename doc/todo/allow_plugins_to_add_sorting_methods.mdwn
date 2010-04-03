@@ -38,7 +38,9 @@ That earlier version of the branch is also available for comparison:
 >>>>> [[ikiwiki/pagespec]], and decided that yes, sorting is
 >>>>> a bit like a pagespec :-) Which name would you prefer? --s
 
->>>> I would be inclined to drop the `check_` stuff. --J
+>>>>>> `SortSpec` --[[Joey]] 
+
+>>>> I would be inclined to drop the `check_` stuff. --[[Joey]] 
 
 >>>>> It basically exists to support `title_natural`, to avoid
 >>>>> firing up the whole import mechanism on every `cmp`
@@ -48,6 +50,11 @@ That earlier version of the branch is also available for comparison:
 >>>>> [[field|plugins/contrib/field/discussion]], fail early
 >>>>> (again, not so valuable).
 >>>>>
+>>>>>> AFAIK, `use foo` has very low overhead when the module is already
+>>>>>> loaded. There could be some evalation overhead in `eval q{use foo}`,
+>>>>>> if so it would be worth addressing across the whole codebase.
+>>>>>> --[[Joey]] 
+>>>>>
 >>>>> The former function could be achieved at a small
 >>>>> compatibility cost by putting `title_natural` in a new
 >>>>> `sortnatural` plugin (that fails to load if you don't
@@ -55,8 +62,12 @@ That earlier version of the branch is also available for comparison:
 >>>>> have happened if `title_natural` was written after this
 >>>>> code had been merged, I suspect. Would you prefer this? --s
 
+>>>>>> Yes! (Assuming it does not make sense to support
+>>>>>> natural order sort of other keys than the title, at least..)
+>>>>>>  --[[Joey]]
+
 >>>> Wouldn't it make sense to have `meta(title)` instead
->>>> of `meta_title`? --J
+>>>> of `meta_title`? --[[Joey]]
 
 >>>>> Yes, you're right. I added parameters to support `field`,
 >>>>> and didn't think about making `meta` use them too.
@@ -77,10 +88,12 @@ That earlier version of the branch is also available for comparison:
 >>>>> same place as the meta-title, but occasionally not), while
 >>>>> displaying meta-titles, does look quite odd. --s
 
+>>>>>> Agreed. --[[Joey]]
+
 >>>> As I read the regexp in `cmpspec_translate`, the "command"
 >>>> is required to have params. They should be optional, 
 >>>> to match the documentation and because most sort methods
->>>> do not need parameters. --J
+>>>> do not need parameters. --[[Joey]]
 
 >>>>> No, `$2` is either `\w+\([^\)]*\)` or `[^\s]+` (with the
 >>>>> latter causing an error later if it doesn't also match `\w+`).
@@ -122,6 +135,9 @@ That earlier version of the branch is also available for comparison:
 >>>>> result. Again, I think this is getting too complex, and could just
 >>>>> be solved with smarter cmp functions.
 >>>>>
+>>>>>> I agree. (Also, I think returning keys may make it harder to write
+>>>>>> smarter cmp functions.) --[[Joey]] 
+>>>>>
 >>>>> Unfortunately, `sort="ascending mtime"` actually sorts by *descending*
 >>>>> timestamp (but`sort=age` is fine, because `age` could be defined as
 >>>>> now minus `ctime`). `sort=freshness` isn't right either, because
@@ -131,6 +147,9 @@ That earlier version of the branch is also available for comparison:
 >>>>> think we really want different sort types to have different default
 >>>>> directions - it seems clearer to have `ascending` always be a no-op,
 >>>>> and `descending` always negate.
+>>>>>
+>>>>>> I think you've convinced me that ascending/descending impose too
+>>>>>> much semantics on it, so "-" is better. --[[Joey]]
 >>>>>
 >>>>> Perhaps we could borrow from `meta updated` and use `update_age`?
 >>>>> `updateage` would perhaps be a more normal IkiWiki style - but that
