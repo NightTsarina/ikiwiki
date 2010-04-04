@@ -73,26 +73,26 @@ sub bzr_log ($) {
 	my @infos = ();
 	my $key = undef;
 
-	my $hash = {};
+	my %info;
 	while (<$out>) {
 		my $line = $_;
 		my ($value);
 		if ($line =~ /^message:/) {
 			$key = "message";
-			$$hash{$key} = "";
+			$info{$key} = "";
 		}
 		elsif ($line =~ /^(modified|added|renamed|renamed and modified|removed):/) {
 			$key = "files";
-			unless (defined($$hash{$key})) { $$hash{$key} = ""; }
+			unless (defined($info{$key})) { $info{$key} = ""; }
 		}
 		elsif (defined($key) and $line =~ /^  (.*)/) {
-			$$hash{$key} .= "$1\n";
+			$info{$key} .= "$1\n";
 		}
 		elsif ($line eq "------------------------------------------------------------\n") {
-			if (keys %$hash) {
-				push (@infos, $hash);
+			if (keys %info) {
+				push (@infos, {%info});
 			}
-			$hash = {};
+			%info = ();
 			$key = undef;
 		}
 		elsif ($line =~ /: /) {
@@ -104,7 +104,7 @@ sub bzr_log ($) {
 			else {
 				($key, $value) = split /: +/, $line, 2;
 			}
-			$$hash{$key} = $value;
+			$info{$key} = $value;
 		}
 	}
 	close $out;
