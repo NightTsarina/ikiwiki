@@ -106,6 +106,10 @@ Some code refers to `oldtypedlinks`, and other to `oldlinktypes`. --[[Joey]]
 
 >> A test suite for the dependency resolver *would* be nice. --[[Joey]]
 
+>>> Bug fixed, I think. A test suite for the dependency resolver seems
+>>> more ambitious than I want to get into right now, but I added a
+>>> unit test for this part of it... --s
+
 I'm curious what your reasoning was for adding a new variable
 rather than using `pagestate`. Was it only because you needed
 the `old` version to detect change, or was there other complexity?
@@ -119,6 +123,17 @@ the `old` version to detect change, or was there other complexity?
 > to which one is easier to document clearly - I'm still unhappy with
 > my docs for `%typedlinks`, so I'll try to write docs for it as
 > `pagestate` and see if they work any better. --s
+
+>> On reflection, I don't think it's any better as a pagestate, and
+>> the contents of pagestates (so far) aren't documented for other
+>> plugins' consumption, so I'm inclined to leave it as-is, unless
+>> you want to veto that. Loose rationale: it needs special handling
+>> in the core to be a dependency type (I re-used the existing link
+>> type), it's API beyond a single plugin, and it's really part of
+>> the core parallel to pagestate rather than being tied to a
+>> specific plugin. Also, I'd need to special-case it to have
+>> ikiwiki not delete it from the index, unless I introduced a
+>> dummy typedlinks plugin (or just hook) that did nothing... --s
 
 I have not convinced myself this is a real problem, but..
 If a page has a typed link, there seems to be no way to tell
@@ -145,6 +160,8 @@ without too much transitional trouble. --[[Joey]]
 > on the current semantics, on one of the pages requesting this
 > change. --s
 
+>> Removed in a newer version of the branch. --s
+
 I might have been wrong to introduce `typedlink(tag foo)`. It's not
 very user-friendly, and is more useful as a backend for other plugins
 that as a feature in its own right - any plugin introducing a link
@@ -156,3 +173,6 @@ though... --[[smcv]]
 
 > I agree, per-type matchers are more friendly and I'm not enamored of the
 > multi-parameter pagespec syntax. --[[Joey]]
+
+>> Removed in a newer version of the branch. I re-introduced it as a
+>> plugin in `smcv/typedlink`, but I don't think we really need it. --s
