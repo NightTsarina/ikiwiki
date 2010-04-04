@@ -73,7 +73,7 @@ sub bzr_log ($) {
 	my @infos = ();
 	my $key = undef;
 
-    my $hash = {};
+	my $hash = {};
 	while (<$out>) {
 		my $line = $_;
 		my ($value);
@@ -89,10 +89,10 @@ sub bzr_log ($) {
 			$$hash{$key} .= "$1\n";
 		}
 		elsif ($line eq "------------------------------------------------------------\n") {
-		    if (keys %$hash) {
-    		    push (@infos, $hash);
-		    }
-    		$hash = {};
+			if (keys %$hash) {
+				push (@infos, $hash);
+			}
+			$hash = {};
 			$key = undef;
 		}
 		elsif ($line =~ /: /) {
@@ -100,11 +100,12 @@ sub bzr_log ($) {
 			if ($line =~ /^revno: (\d+)/) {
 			    $key = "revno";
 			    $value = $1;
-			} else {
-    			($key, $value) = split /: +/, $line, 2;
-    		}
+			}
+			else {
+				($key, $value) = split /: +/, $line, 2;
+			}
 			$$hash{$key} = $value;
-		} 
+		}
 	}
 	close $out;
 
@@ -222,7 +223,7 @@ sub rcs_recentchanges ($) {
 	foreach my $info (bzr_log($out)) {
 		my @pages = ();
 		my @message = ();
-        
+
 		foreach my $msgline (split(/\n/, $info->{message})) {
 			push @message, { line => $msgline };
 		}
