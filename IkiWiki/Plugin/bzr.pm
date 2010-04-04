@@ -83,15 +83,13 @@ sub bzr_log ($) {
 		}
 		elsif ($line =~ /^(modified|added|renamed|renamed and modified|removed):/) {
 			$key = "files";
-			unless (defined($info{$key})) { $info{$key} = ""; }
+			$info{$key} = "" unless defined $info{$key};
 		}
 		elsif (defined($key) and $line =~ /^  (.*)/) {
 			$info{$key} .= "$1\n";
 		}
 		elsif ($line eq "------------------------------------------------------------\n") {
-			if (keys %info) {
-				push (@infos, {%info});
-			}
+			push @infos, {%info} if keys %info;
 			%info = ();
 			$key = undef;
 		}
