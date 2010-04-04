@@ -3,6 +3,10 @@ Version 2.0 of bzr seems to break the bzr plugin.
 I traced this to the bzr_log method in the plugin, and patching that seems to fix it. The plugin just needs to parse the input little bit differently.
 --liw
 
+> Patch applied, [[done]] (but, it would be good if it could be tested with
+> an older bzr, and it's a pity bzr's human-targeted log has to be parsed,
+> I assume there is no machine-targeted version?) --[[Joey]] 
+
     From fb897114124e627fd3acf5af8e784c9a77419a81 Mon Sep 17 00:00:00 2001
     From: Lars Wirzenius <liw@liw.fi>
     Date: Sun, 4 Apr 2010 21:05:07 +1200
