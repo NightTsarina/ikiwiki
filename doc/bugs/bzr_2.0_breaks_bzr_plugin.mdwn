@@ -1,0 +1,3 @@
+Version 2.0 of bzr seems to break the bzr plugin.
+
+I traced this to the bzr_log method in the plugin, and patching that seems to fix it. The plugin just needs to parse the input little bit differently.
