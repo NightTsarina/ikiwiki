@@ -106,6 +106,7 @@ sub bzr_log ($) {
 		}
 	}
 	close $out;
+	push @infos, {%info} if keys %info;
 
 	return @infos;
 }
