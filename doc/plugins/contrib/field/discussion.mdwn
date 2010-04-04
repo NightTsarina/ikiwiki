@@ -68,15 +68,13 @@ I think it should just be part of `field` rather than a separate plugin.
 			},
 	}
 
-	package IkiWiki::PageSpec;
+	package IkiWiki::SortSpec;
 
-	sub check_cmp_field {
+	sub cmp_field {
 		if (!length $_[0]) {
 			error("sort=field requires a parameter");
 		}
-	}
 
-	sub cmp_field {
 		my $left = IkiWiki::Plugin::field::field_get_value($_[2], $_[0]);
 		my $right = IkiWiki::Plugin::field::field_get_value($_[2], $_[1]);
 
