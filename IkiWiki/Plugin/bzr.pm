@@ -73,28 +73,37 @@ sub bzr_log ($) {
 	my @infos = ();
 	my $key = undef;
 
+    my $hash = {};
 	while (<$out>) {
 		my $line = $_;
 		my ($value);
 		if ($line =~ /^message:/) {
 			$key = "message";
-			$infos[$#infos]{$key} = "";
+			$$hash{$key} = "";
 		}
 		elsif ($line =~ /^(modified|added|renamed|renamed and modified|removed):/) {
 			$key = "files";
-			unless (defined($infos[$#infos]{$key})) { $infos[$#infos]{$key} = ""; }
+			unless (defined($$hash{$key})) { $$hash{$key} = ""; }
 		}
 		elsif (defined($key) and $line =~ /^  (.*)/) {
-			$infos[$#infos]{$key} .= "$1\n";
+			$$hash{$key} .= "$1\n";
 		}
 		elsif ($line eq "------------------------------------------------------------\n") {
+		    if (keys %$hash) {
+    		    push (@infos, $hash);
+		    }
+    		$hash = {};
 			$key = undef;
-			push (@infos, {});
 		}
-		else {
+		elsif ($line =~ /: /) {
 			chomp $line;
-				($key, $value) = split /: +/, $line, 2;
-			$infos[$#infos]{$key} = $value;
+			if ($line =~ /^revno: (\d+)/) {
+			    $key = "revno";
+			    $value = $1;
+			} else {
+    			($key, $value) = split /: +/, $line, 2;
+    		}
+			$$hash{$key} = $value;
 		} 
 	}
 	close $out;
