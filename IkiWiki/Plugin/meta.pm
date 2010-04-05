@@ -131,7 +131,7 @@ sub preprocess (@) {
 			$pagestate{$page}{meta}{authorsort}=$params{sortas};
 		}
 		else {
-			$pagestate{$page}{meta}{authorsort}=$value;
+			delete $pagestate{$page}{meta}{authorsort};
 		}
 		# fallthorough
 	}
