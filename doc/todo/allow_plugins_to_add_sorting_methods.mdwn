@@ -181,6 +181,20 @@ That earlier version of the branch is also available for comparison:
 > to specify a sort method in other directives. --[[Joey]]
 >> Done. --[[smcv]]
 
+## speed
+
+I notice the implementation does not use the magic `$a` and `$b` globals.
+That nasty perl optimisation is still worthwhile:
+
+	perl -e 'use warnings; use strict; use Benchmark; sub a { $a <=> $b } sub b ($$) { $_[0] <=> $_[1] }; my @list=reverse(1..9999); timethese(10000, {a => sub {my @f=sort a @list}, b => sub {my @f=sort b  @list}, c => => sub {my @f=sort { b($a,$b) } @list}})'
+	Benchmark: timing 10000 iterations of a, b, c...
+	         a: 80 wallclock secs (76.74 usr +  0.05 sys = 76.79 CPU) @ 130.23/s (n=10000)
+	         b: 112 wallclock secs (106.14 usr +  0.20 sys = 106.34 CPU) @ 94.04/s (n=10000)
+                 c: 330 wallclock secs (320.25 usr +  0.17 sys = 320.42 CPU) @ 31.21/s (n=10000)
+
+Unfortunatly, I think that c is closest to the new implementation.
+--[[Joey]]
+
 ## Documentation from sort-package branch
 
 ### advanced sort orders (conditionally added to [[ikiwiki/pagespec/sorting]])
