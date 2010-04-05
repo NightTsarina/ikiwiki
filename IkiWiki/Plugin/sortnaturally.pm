@@ -25,8 +25,8 @@ sub checkconfig () {
 package IkiWiki::SortSpec;
 
 sub cmp_title_natural {
-	Sort::Naturally::ncmp(IkiWiki::pagetitle(IkiWiki::basename($_[0])),
-		IkiWiki::pagetitle(IkiWiki::basename($_[1])))
+	Sort::Naturally::ncmp(IkiWiki::pagetitle(IkiWiki::basename($a)),
+		IkiWiki::pagetitle(IkiWiki::basename($b)))
 }
 
 1;

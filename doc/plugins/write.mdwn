@@ -1117,16 +1117,16 @@ Similarly, it's possible to write plugins that add new functions as
 the IkiWiki::SortSpec package named `cmp_foo`, which will be used when sorting
 by `foo` or `foo(...)` is requested.
 
-The function will be passed three or more parameters. The first two are
-page names, and the third is `undef` if invoked as `foo`, or the parameter
-`"bar"` if invoked as `foo(bar)`. It may also be passed additional, named
-parameters.
+The names of pages to be compared are in the global variables `$a` and `$b`
+in the IkiWiki::SortSpec package. The function should return the same thing
+as Perl's `cmp` and `<=>` operators: negative if `$a` is less than `$b`,
+positive if `$a` is greater, or zero if they are considered equal. It may
+also raise an error using `error`, for instance if it needs a parameter but
+one isn't provided.
 
-It should return the same thing as Perl's `cmp` and `<=>` operators: negative
-if the first argument is less than the second, positive if the first argument
-is greater, or zero if they are considered equal. It may also raise an
-error using `error`, for instance if it needs a parameter but one isn't
-provided.
+The function will also be passed one or more parameters. The first is
+`undef` if invoked as `foo`, or the parameter `"bar"` if invoked as `foo(bar)`;
+it may also be passed additional, named parameters.
 
 ### Setup plugins
 

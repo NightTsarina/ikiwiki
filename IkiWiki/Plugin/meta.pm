@@ -374,25 +374,23 @@ sub match_copyright ($$;@) {
 package IkiWiki::SortSpec;
 
 sub cmp_meta {
-	my $left = $_[0];
-	my $right = $_[1];
-	my $meta = $_[2];
+	my $meta = $_[0];
 	error(gettext("sort=meta requires a parameter")) unless defined $meta;
 
 	if ($meta eq 'updated' || $meta eq 'date') {
-		return IkiWiki::Plugin::meta::get_sort_key($left, $meta)
+		return IkiWiki::Plugin::meta::get_sort_key($a, $meta)
 			<=>
-			IkiWiki::Plugin::meta::get_sort_key($right, $meta);
+			IkiWiki::Plugin::meta::get_sort_key($b, $meta);
 	}
 
-	return IkiWiki::Plugin::meta::get_sort_key($left, $meta)
+	return IkiWiki::Plugin::meta::get_sort_key($a, $meta)
 		cmp
-		IkiWiki::Plugin::meta::get_sort_key($right, $meta);
+		IkiWiki::Plugin::meta::get_sort_key($b, $meta);
 }
 
 # A prototype of how sort=title could behave in 4.0 or something
 sub cmp_meta_title {
-	$_[2] = 'title';
+	$_[0] = 'title';
 	return cmp_meta(@_);
 }
 

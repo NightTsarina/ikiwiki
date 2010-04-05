@@ -1975,10 +1975,10 @@ sub sortspec_translate ($) {
 		if (exists $IkiWiki::SortSpec::{"cmp_$word"}) {
 			if (defined $params) {
 				push @data, $params;
-				$code .= "IkiWiki::SortSpec::cmp_$word(\@_, \$data[$#data])";
+				$code .= "IkiWiki::SortSpec::cmp_$word(\$data[$#data])";
 			}
 			else {
-				$code .= "IkiWiki::SortSpec::cmp_$word(\@_, undef)";
+				$code .= "IkiWiki::SortSpec::cmp_$word(undef)";
 			}
 		}
 		else {
@@ -2095,9 +2095,8 @@ sub pagespec_match_list ($$;@) {
 	}
 
 	if (defined $params{sort}) {
-		my $f = sortspec_translate($params{sort});
-
-		@candidates = sort { $f->($a, $b) } @candidates;
+		@candidates = IkiWiki::SortSpec::sort_pages($params{sort},
+			@candidates);
 	}
 
 	@candidates=reverse(@candidates) if $params{reverse};
@@ -2412,13 +2411,23 @@ sub match_ip ($$;@) {
 
 package IkiWiki::SortSpec;
 
-sub cmp_title {
-	IkiWiki::pagetitle(IkiWiki::basename($_[0]))
-	cmp
-	IkiWiki::pagetitle(IkiWiki::basename($_[1]))
+# This is in the SortSpec namespace so that the $a and $b that sort() uses
+# $IkiWiki::SortSpec::a and $IkiWiki::SortSpec::b, so that plugins' cmp
+# functions can access them easily.
+sub sort_pages
+{
+	my $f = IkiWiki::sortspec_translate(shift);
+
+	return sort $f @_;
 }
 
-sub cmp_mtime { $IkiWiki::pagemtime{$_[1]} <=> $IkiWiki::pagemtime{$_[0]} }
-sub cmp_age { $IkiWiki::pagectime{$_[1]} <=> $IkiWiki::pagectime{$_[0]} }
+sub cmp_title {
+	IkiWiki::pagetitle(IkiWiki::basename($a))
+	cmp
+	IkiWiki::pagetitle(IkiWiki::basename($b))
+}
+
+sub cmp_mtime { $IkiWiki::pagemtime{$b} <=> $IkiWiki::pagemtime{$a} }
+sub cmp_age { $IkiWiki::pagectime{$b} <=> $IkiWiki::pagectime{$a} }
 
 1

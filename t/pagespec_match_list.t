@@ -12,7 +12,7 @@ IkiWiki::checkconfig();
 {
 	package IkiWiki::SortSpec;
 
-	sub cmp_path { $_[0] cmp $_[1] }
+	sub cmp_path { $a cmp $b }
 }
 
 %pagesources=(
