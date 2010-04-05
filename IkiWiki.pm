@@ -1164,7 +1164,7 @@ sub htmlize ($$$$) {
 	my $content=shift;
 	
 	my $oneline = $content !~ /\n/;
-
+	
 	if (exists $hooks{htmlize}{$type}) {
 		$content=$hooks{htmlize}{$type}{call}->(
 			page => $page,
@@ -1185,10 +1185,9 @@ sub htmlize ($$$$) {
 	
 	if ($oneline) {
 		# hack to get rid of enclosing junk added by markdown
-		# and other htmlizers
+		# and other htmlizers/sanitizers
 		$content=~s/^<p>//i;
-		$content=~s/<\/p>$//i;
-		chomp $content;
+		$content=~s/<\/p>\n*$//i;
 	}
 
 	return $content;
