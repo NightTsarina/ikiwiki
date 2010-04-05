@@ -195,6 +195,28 @@ That nasty perl optimisation is still worthwhile:
 Unfortunatly, I think that c is closest to the new implementation.
 --[[Joey]]
 
+> Unfortunately, `$a` isn't always `$main::a` - it's `$Package::a` where
+> `Package` is the call site of the sort call. This was a showstopper when
+> `sort` was a hook implemented in many packages, but now that it's a
+> `SortSpec`, I may be able to fix this by putting a `sort` wrapper in the
+> `SortSpec` namespace, so it's like this:
+>
+>     sub sort ($@)
+>     {
+>         my $cmp = shift;
+>         return sort $cmp @_;
+>     }
+>
+> which would mean that the comparison used `$IkiWiki::SortSpec::a`.
+>
+> I do notice that `pagespec_match_list` performs the sort before the
+> filter by pagespec. Is this a deliberate design choice, or
+> coincidence? I can see that when `limit` is used, this could be
+> used to only run the pagespec match function until `limit` pages
+> have been selected, but the cost is that every page in the wiki
+> is sorted. Or, it might be useful to do the filtering first, then
+> sort the sub-list thus produced, then finally apply the limit? --s
+
 ## Documentation from sort-package branch
 
 ### advanced sort orders (conditionally added to [[ikiwiki/pagespec/sorting]])
