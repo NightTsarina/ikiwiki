@@ -88,12 +88,17 @@ sub preprocess (@) {
 
 	# Metadata collection that needs to happen during the scan pass.
 	if ($key eq 'title') {
-		$pagestate{$page}{meta}{title}=HTML::Entities::encode_numeric($value);
+		my $encoded = HTML::Entities::encode_numeric($value);
+		$pagestate{$page}{meta}{title} = $encoded;
+
 		if (exists $params{sortas}) {
 			$pagestate{$page}{meta}{titlesort}=$params{sortas};
 		}
-		else {
+		elsif ($encoded ne $value) {
 			$pagestate{$page}{meta}{titlesort}=$value;
+		}
+		else {
+			delete $pagestate{$page}{meta}{titlesort};
 		}
 		return "";
 	}
