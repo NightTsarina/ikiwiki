@@ -165,7 +165,6 @@ That earlier version of the branch is also available for comparison:
 >>>>>>> I've kept the semantics from `report` as-is, then:
 >>>>>>> e.g. `sort="age -title"`. --s
 
->>>>>
 >>>>> Perhaps we could borrow from `meta updated` and use `update_age`?
 >>>>> `updateage` would perhaps be a more normal IkiWiki style - but that
 >>>>> makes me think that updateage is a quantity analagous to tonnage or
@@ -190,7 +189,7 @@ That nasty perl optimisation is still worthwhile:
 	Benchmark: timing 10000 iterations of a, b, c...
 	         a: 80 wallclock secs (76.74 usr +  0.05 sys = 76.79 CPU) @ 130.23/s (n=10000)
 	         b: 112 wallclock secs (106.14 usr +  0.20 sys = 106.34 CPU) @ 94.04/s (n=10000)
-                 c: 330 wallclock secs (320.25 usr +  0.17 sys = 320.42 CPU) @ 31.21/s (n=10000)
+	         c: 330 wallclock secs (320.25 usr +  0.17 sys = 320.42 CPU) @ 31.21/s (n=10000)
 
 Unfortunatly, I think that c is closest to the new implementation.
 --[[Joey]]
@@ -216,6 +215,10 @@ Unfortunatly, I think that c is closest to the new implementation.
 > have been selected, but the cost is that every page in the wiki
 > is sorted. Or, it might be useful to do the filtering first, then
 > sort the sub-list thus produced, then finally apply the limit? --s
+
+>> Yes, it was deliberate, pagespec matching can be expensive enough that
+>> needing to sort a lot of pages seems likely to be less work. (I don't
+>> remember what benchmarking was done though.) --[[Joey]] 
 
 ## Documentation from sort-package branch
 
