@@ -39,7 +39,14 @@ sub filter (@) {
 	my %params = @_;
 	my $content = $params{content};
 
-	if (defined $pagesources{$params{page}} && $pagesources{$params{page}} =~ /\.txt$/) {
+	if (defined $pagesources{$params{page}} &&
+	    $pagesources{$params{page}} =~ /\.txt$/) {
+		if ($pagesources{$params{page}} eq 'robots.txt' &&
+		    $params{page} eq $params{destpage}) {
+			will_render($params{page}, 'robots.txt');
+			writefile('robots.txt', $config{destdir}, $content);
+		}
+
 		encode_entities($content, "<>&");
 		if ($findurl) {
 			my $finder = URI::Find->new(sub {
