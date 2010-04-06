@@ -94,3 +94,18 @@ field-etc branch in git://git.pseudorandom.co.uk/git/smcv/ikiwiki.git (gitweb:
 --[[smcv]]
 
 > Can do for the field plugin (delete one line? Easy.)  Will push when I get to a better connection.  --[[KathrynAndersen]]
+
+----
+
+Disclaimer: I've only looked at this plugin and ymlfront, not other related
+stuff yet. (I quite like ymlfront, so I looked at this as its dependency. :)
+I also don't want to annoy you with a lot of design discussion 
+if your main goal was to write a plugin that did exactly what you wanted.
+
+My first question is: Why we need another plugin storing metadata
+about the page, when we already have the meta plugin? Much of the
+complication around the field plugin has to do with it accessing info
+belonging to the meta plugin, and generalizing that to be able to access
+info stored by other plugins too. (But I don't see any other plugins that
+currently store such info). Then too, it raises points of confusion like
+smcv's discuission of field author vs meta author above. --[[Joey]] 
