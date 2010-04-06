@@ -553,7 +553,8 @@ sub genfeed ($$$$$@) {
 
 		if (exists $pagestate{$p}) {
 			if (exists $pagestate{$p}{meta}{guid}) {
-				$itemtemplate->param(guid => $pagestate{$p}{meta}{guid});
+				eval q{use HTML::Entities};
+				$itemtemplate->param(guid => HTML::Entities::encode_numeric($pagestate{$p}{meta}{guid}));
 			}
 
 			if (exists $pagestate{$p}{meta}{updated}) {
