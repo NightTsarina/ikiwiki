@@ -21,7 +21,9 @@ behaviour, an auxiliary plugin would be easy.)
 >> (like `map`). Is your plan that `meta` should register itself by
 >> default, and `map` and friends should be adapted to
 >> work based on `getfield()` instead of `$pagestate{foo}{meta}`, then?
->>
+
+>>> Based on `field_get_value()`, yes.  That would be my ideal.  Do you think I should implement that as an ikiwiki branch? --[[KathrynAndersen]]
+
 >> (On the site I mentioned, I'm using an unmodified version of `field`,
 >> and currently working around the collision by tagging books' pages
 >> with `bookauthor` instead of `author` in the YAML.) --s
@@ -94,6 +96,7 @@ field-etc branch in git://git.pseudorandom.co.uk/git/smcv/ikiwiki.git (gitweb:
 --[[smcv]]
 
 > Can do for the field plugin (delete one line? Easy.)  Will push when I get to a better connection.  --[[KathrynAndersen]]
+>> Done! -K.A.
 
 ----
 
@@ -109,3 +112,16 @@ belonging to the meta plugin, and generalizing that to be able to access
 info stored by other plugins too. (But I don't see any other plugins that
 currently store such info). Then too, it raises points of confusion like
 smcv's discuission of field author vs meta author above. --[[Joey]] 
+
+> The point is exactly in the generalization, to provide a uniform interface for accessing structured data, no matter what the source of it, whether that be the meta plugin or some other plugin.
+
+> There were a few reasons for this:
+
+>1. In converting my site over from PmWiki, I needed something that was equivalent to PmWiki's Page-Text-Variables (which is how PmWiki implements structured data).
+>2. I also wanted an equivalent of PmWiki's Page-Variables, which, rather than being simple variables, are the return-value of a function.  This gives one a lot of power, because one can do calculations, derive one thing from another.  Heck, just being able to have a "basename" variable is useful.
+>3. I noticed that in the discussion about structured data, it was mired down in disagreements about what form the structured data should take; I wanted to overcome that hurdle by decoupling the form from the content.
+>4. I actually use this to solve (1), because, while I do use ymlfront, initially my pages were in PmWiki format (I wrote (another) unreleased plugin which parses PmWiki format) including PmWiki's Page-Text-Variables for structured data.  So I needed something that could deal with multiple formats.
+
+> So, yes, it does cater to mostly my personal needs, but I think it is more generally useful, also.
+> --[[KathrynAndersen]]
+
