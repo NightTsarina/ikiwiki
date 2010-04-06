@@ -1,0 +1,20 @@
+For security reasons, symlinks are disabled in IkiWiki.  That's fair enough, but that means that some problems, which one could otherwise solve by using a symlink, cannot be solved. The specfic problem in this case is that all underlays are placed at the root of the wiki, when it could be more convenient to place some underlays in specific sub-directories.
+
+Use-case 1 (to keep things tidy):
+
+Currently IkiWiki has some javascript files in `underlays/javascript`; that directory is given as one of the underlay directories.  Thus, all the javascript files appear in the root of the generated site.  But it would be tidier if one could say "put the contents of *this* underlaydir under the `js` directory".
+
+Use-case 2 (a read-only external dir):
+
+Suppose I want to include a subset of `/usr/local/share/docs` on my wiki, say the docs about `foo`.  But I want them to be under the `docs/foo` sub-directory on the generated site.  Currently I can't do that.  If I give `/usr/local/share/docs/foo` as an underlaydir, then the contents of that will be in the root of the site, rather than under `docs/foo`.  And if I give `/usr/local/share/docs` as an underlaydir, then the contents of the `foo` dir will be under `foo`, but it will also include every other thing in `/usr/local/share/docs`.
+
+Since we can't use symlinks in an underlay dir to link to these directories, then perhaps one could give a specific underlay dir a specific prefix, which defines the sub-directory that the underlay should appear in.
+
+I'm not sure how this would be implemented, but I guess it could be configured something like this:
+
+    prefixed_underlay => {
+         'js' => '/usr/local/share/ikiwiki/javascript',
+         'docs/foo' => '/usr/local/share/docs/foo',
+    }
+
+[[!taglink wishlist]]
