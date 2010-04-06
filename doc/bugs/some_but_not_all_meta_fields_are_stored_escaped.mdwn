@@ -31,3 +31,9 @@ Points of extra subtlety:
   double-escaped on any page that inlines them in `quick=yes` mode, and
   is rebuilt for some other reason. The failure mode is too much escaping
   rather than too little, so it shouldn't be a security problem.
+
+* Reverting this change, if applied, is more dangerous; until the wiki is
+  rebuilt, any titles, descriptions and GUIDs on unchanged pages that
+  contained markup could appear unescaped on any page that inlines them
+  in `quick=yes` mode, and is rebuilt for some other reason. The failure
+  mode here would be too little escaping, i.e. cross-site scripting.
