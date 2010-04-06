@@ -176,3 +176,15 @@ though... --[[smcv]]
 
 >> Removed in a newer version of the branch. I re-introduced it as a
 >> plugin in `smcv/typedlink`, but I don't think we really need it. --s
+
+----
+
+I am ready to merge this, but I noticed one problem -- since `match_tagged`
+now only matches pages with the tag linktype, a wiki will need to be
+rebuilt on upgrade in order to get the linktype of existing tags in it
+recorded. So there needs to be a NEWS item about this and
+the postinst modified to force the rebuild.
+
+Also, the ready branch adds `typedlink()` to [[ikiwiki/pagespec]],
+but you removed that feature as documented above.
+--[[Joey]]
