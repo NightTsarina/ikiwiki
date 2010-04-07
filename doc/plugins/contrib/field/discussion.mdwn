@@ -24,9 +24,63 @@ behaviour, an auxiliary plugin would be easy.)
 
 >>> Based on `field_get_value()`, yes.  That would be my ideal.  Do you think I should implement that as an ikiwiki branch? --[[KathrynAndersen]]
 
+>>>> This doesn't solve cases where certain fields are treated specially; for
+>>>> instance, putting a `\[[!meta permalink]]` on a page is not the same as
+>>>> putting it in `ymlfront` (in the latter case you won't get your
+>>>> `<link>` header), and putting `\[[!meta date]]` is not the same as putting
+>>>> `date` in `ymlfront` (in the latter case, `%pagectime` won't be changed).
+>>>>
+>>>> One way to resolve that would be to have `ymlfront`, or similar, be a
+>>>> front-end for `meta` rather than for `field`, and call
+>>>> `IkiWiki::Plugin::meta::preprocess` (or a refactored-out function that's
+>>>> similar).
+>>>>
+>>>> There are also some cross-site scripting issues (see below)... --[[smcv]]
+
 >> (On the site I mentioned, I'm using an unmodified version of `field`,
 >> and currently working around the collision by tagging books' pages
 >> with `bookauthor` instead of `author` in the YAML.) --s
+
+>> Revisiting this after more thought, the problem here is similar to the
+>> possibility that a wiki user adds a `meta` shortcut
+>> to [[shortcuts]], or conversely, that a plugin adds a `cpan` directive
+>> that conflicts with the `cpan` shortcut that pages already use. (In the
+>> case of shortcuts, this is resolved by having plugin-defined directives
+>> always win.) For plugin-defined meta keywords this is the plugin
+>> author's/wiki admin's problem - just don't enable conflicting plugins! -
+>> but it gets scary when you start introducing things like `ymlfront`, which
+>> allow arbitrary, wiki-user-defined fields, even ones that subvert
+>> other plugins' assumptions.
+>>
+>> The `pagetemplate` hook is particularly alarming because page templates are
+>> evaluated in many contexts, not all of which are subject to the
+>> htmlscrubber or escaping; because the output from `field` isn't filtered,
+>> prefixed or delimited, when combined with an arbitrary-key-setting plugin
+>> like `ymlfront` it can interfere with other plugins' expectations
+>> and potentially cause cross-site scripting exploits. For instance, `inline`
+>> has a `pagetemplate` hook which defines the `FEEDLINKS` template variable
+>> to be a blob of HTML to put in the `<head>` of the page. As a result, this
+>> YAML would be bad:
+>>
+>>     ---
+>>     FEEDLINKS: <script>alert('code injection detected')</script>
+>>     ---
+>>
+>> (It might require a different case combination due to implementation
+>> details, I'm not sure.)
+>>
+>> It's difficult for `field` to do anything about this, because it doesn't
+>> know whether a field is meant to be plain text, HTML, a URL, or something
+>> else.
+>>
+>> If `field`'s `pagetemplate` hook did something more limiting - like
+>> only emitting template variables starting with `field_`, or from some
+>> finite set, or something - then this would cease to be a problem, I think?
+>>
+>> `ftemplate` and `getfield` don't have this problem, as far as I can see,
+>> because their output is in contexts where the user could equally well have
+>> written raw HTML directly; the user can cause themselves confusion, but
+>> can't cause harmful output. --[[smcv]]
 
 From a coding style point of view, the `$CamelCase` variable names aren't
 IkiWiki style, and the `match_foo` functions look as though they could benefit
@@ -125,3 +179,59 @@ smcv's discuission of field author vs meta author above. --[[Joey]]
 > So, yes, it does cater to mostly my personal needs, but I think it is more generally useful, also.
 > --[[KathrynAndersen]]
 
+>> Is it fair to say, then, that `field`'s purpose is to take other
+>> plugins' arbitrary per-page data, and present it as a single
+>> merged/flattened string => string map per page? From the plugins
+>> here, things you then use that merged map for include:
+>>
+>> * sorting - stolen by [[todo/allow_plugins_to_add_sorting_methods]]
+>> * substitution into pages with Perl-like syntax - `getfield`
+>> * substitution into wiki-defined templates - the `pagetemplate`
+>>   hook
+>> * substitution into user-defined templates - `ftemplate`
+>>
+>> As I mentioned above, the flattening can cause collisions (and in the
+>> `pagetemplate` case, even security problems).
+>>
+>> I wonder whether conflating Page Text Variables with Page Variables
+>> causes `field` to be more general than it needs to be?
+>> To define a Page Variable (function-like field), you need to write
+>> a plugin containing that Perl function; if we assume that `field`
+>> or something resembling it gets merged into ikiwiki, then it's
+>> reasonable to expect third-party plugins to integrate with whatever
+>> scaffolding there is for these (either in an enabled-by-default
+>> plugin that most people are expected to leave enabled, like `meta`
+>> now, or in the core), and it doesn't seem onerous to expect each
+>> plugin that wants to participate in this mechanism to have code to
+>> do so. While it's still contrib, `field` could just have a special case
+>> for the meta plugin, rather than the converse?
+>>
+>> If Page Text Variables are limited to being simple strings as you
+>> suggest over in [[forum/an_alternative_approach_to_structured_data]],
+>> then they're functionally similar to `meta` fields, so one way to
+>> get their functionality would be to extend `meta` so that
+>>
+>>     \[[!meta badger="mushroom"]]
+>>
+>> (for an unrecognised keyword `badger`) would store
+>> `$pagestate{$page}{meta}{badger} = "mushroom"`? Getting this to
+>> appear in templates might be problematic, because a naive
+>> `pagetemplate` hook would have the same problem that `field` combined
+>> with `ymlfront` currently does.
+>>
+>> One disadvantage that would appear if the function-like and
+>> meta-like fields weren't in the same namespace would be that it
+>> wouldn't be possible to switch a field from being meta-like to being
+>> function-like without changing any wiki content that referenced it.
+>>
+>> Perhaps meta-like fields should just *be* `meta` (with the above
+>> enhancement), as a trivial case of function-like fields? That would
+>> turn `ymlfront` into an alternative syntax for `meta`, I think?
+>> That, in turn, would hopefully solve the special-fields problem,
+>> by just delegating it to meta. I've been glad of the ability to define
+>> new ad-hoc fields with this plugin without having to write an extra plugin
+>> to do so (listing books with a `bookauthor` and sorting them by
+>> `"field(bookauthor) title"`), but that'd be just as easy if `meta`
+>> accepted ad-hoc fields?
+>>
+>> --[[smcv]]
