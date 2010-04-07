@@ -13,7 +13,7 @@ sub getsetup {
 	return
 		plugin => {
 			safe => 1,
-			rebuild => 1,
+			rebuild => undef,
 		},
 }
 
