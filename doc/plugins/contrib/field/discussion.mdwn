@@ -239,13 +239,60 @@ smcv's discuission of field author vs meta author above. --[[Joey]]
 >>> set values in pagetemplate which are prefixed with *field_*.  I don't think
 >>> this is quite satisfactory, since that would still mean that people could
 >>> put un-scrubbed values into a pagetemplate, albeit they would be values
->>> named field_foo, etc.
+>>> named field_foo, etc. --[[KathrynAndersen]]
+
+>>>> They can already do similar; `PERMALINK` is pre-sanitized to
+>>>> ensure that it's a "safe" URL, but if an extremely confused wiki admin was
+>>>> to put `COPYRIGHT` in their RSS/Atom feed's `<link>`, a malicious user
+>>>> could put an unsafe (e.g. Javascript) URL in there (`COPYRIGHT` *is*
+>>>> HTML-scrubbed, but "javascript:alert('pwned!')" is just text as far as a
+>>>> HTML sanitizer is concerned, so it passes straight through). The solution
+>>>> is to not use variables in situations where that variable would be
+>>>> inappropriate. Because `field` is so generic, the definition of what's
+>>>> appropriate is difficult. --[[smcv]]
 
 >>> An alternative solution would be to classify field registration as "secure"
 >>> and "insecure".  Sources such as ymlfront would be insecure, sources such
 >>> as concon (or the $config hash) would be secure, since they can't be edited
 >>> as pages.  Then, when doing pagetemplate substitution (but not ftemplate
 >>> substitution) the insecure sources could be HTML-escaped.
+>>> --[[KathrynAndersen]]
+
+>>>> Whether you trust the supplier of data seems orthogonal to whether its value
+>>>> is (meant to be) interpreted as plain text, HTML, a URL or what?
+>>>>
+>>>> Even in cases where you trust the supplier, you need to escape things
+>>>> suitably for the context, not for security but for correctness. The
+>>>> definition of the value, and the context it's being used in, changes the
+>>>> processing you need to do. An incomplete list:
+>>>>
+>>>> * HTML used as HTML needs to be html-scrubbed if and only if untrusted
+>>>> * URLs used as URLs need to be put through `safeurl()` if and only if
+>>>>   untrusted
+>>>> * HTML used as plain text needs tags removed regardless
+>>>> * URLs used as plain text are safe
+>>>> * URLs or plain text used in HTML need HTML-escaping (and URLs also need
+>>>>   `safeurl()` if untrusted)
+>>>> * HTML or plain text used in URLs need URL-escaping (and the resulting
+>>>>   URL might need sanitizing too?)
+>>>>
+>>>> I can't immediately think of other data types we'd be interested in beyond
+>>>> text, HTML and URL, but I'm sure there are plenty.
+>>>>
+>>>> One reasonable option would be to declare that `field` takes text-valued
+>>>> fields, in which case either consumers need to escape
+>>>> it with `<TMPL_VAR FIELD_FOO ESCAPE=HTML>`, and not interpret it as a URL
+>>>> without first checking `safeurl`), or the pagetemplate hook needs to
+>>>> pre-escape.
+>>>>
+>>>> Another reasonable option would be to declare that `field` takes raw HTML,
+>>>> in which case consumers need to only use it in contexts that will be
+>>>> HTML-scrubbed (but it becomes unsuitable for using as text - problematic
+>>>> for text-based things like sorting or URLs, and not ideal for searching).
+>>>>
+>>>> You could even let each consumer choose how it's going to use the field,
+>>>> by having the `foo` field generate `TEXT_FOO` and `HTML_FOO` variables?
+>>>> --[[smcv]]
 
 >>> Another problem, as you point out, is special-case fields, such as a number of
 >>> those defined by `meta`, which have side-effects associated with them, more
