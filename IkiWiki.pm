@@ -2435,10 +2435,8 @@ sub match_ip ($$;@) {
 package IkiWiki::SortSpec;
 
 # This is in the SortSpec namespace so that the $a and $b that sort() uses
-# $IkiWiki::SortSpec::a and $IkiWiki::SortSpec::b, so that plugins' cmp
-# functions can access them easily.
-sub sort_pages
-{
+# are easily available in this namespace, for cmp functions to use them.
+sub sort_pages {
 	my $f = IkiWiki::sortspec_translate(shift);
 
 	return sort $f @_;

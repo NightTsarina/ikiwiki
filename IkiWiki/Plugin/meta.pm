@@ -300,8 +300,8 @@ sub pagetemplate (@) {
 }
 
 sub get_sort_key {
-	my $page = $_[0];
-	my $meta = $_[1];
+	my $page = shift;
+	my $meta = shift;
 
 	# e.g. titlesort (also makes sense for author)
 	my $key = $pagestate{$page}{meta}{$meta . "sort"};
@@ -379,7 +379,7 @@ sub match_copyright ($$;@) {
 package IkiWiki::SortSpec;
 
 sub cmp_meta {
-	my $meta = $_[0];
+	my $meta = shift;
 	error(gettext("sort=meta requires a parameter")) unless defined $meta;
 
 	if ($meta eq 'updated' || $meta eq 'date') {
