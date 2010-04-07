@@ -37,6 +37,7 @@ our $DEPEND_LINKS=4;
 # Optimisation.
 use Memoize;
 memoize("abs2rel");
+memoize("sortspec_translate");
 memoize("pagespec_translate");
 memoize("template_file");
 
@@ -1950,6 +1951,66 @@ sub add_link ($$;$) {
 	}
 }
 
+sub sortspec_translate ($) {
+	my $spec = shift;
+
+	my $code = "";
+	my @data;
+	while ($spec =~ m{
+		\s*
+		(-?)		# group 1: perhaps negated
+		\s*
+		(		# group 2: a word
+			\w+\([^\)]*\)	# command(params)
+			|
+			[^\s]+		# or anything else
+		)
+		\s*
+	}gx) {
+		my $negated = $1;
+		my $word = $2;
+		my $params = undef;
+
+		if ($word =~ m/^(\w+)\((.*)\)$/) {
+			# command with parameters
+			$params = $2;
+			$word = $1;
+		}
+		elsif ($word !~ m/^\w+$/) {
+			error(sprintf(gettext("invalid sort type %s"), $word));
+		}
+
+		if (length $code) {
+			$code .= " || ";
+		}
+
+		if ($negated) {
+			$code .= "-";
+		}
+
+		if (exists $IkiWiki::SortSpec::{"cmp_$word"}) {
+			if (defined $params) {
+				push @data, $params;
+				$code .= "IkiWiki::SortSpec::cmp_$word(\$data[$#data])";
+			}
+			else {
+				$code .= "IkiWiki::SortSpec::cmp_$word(undef)";
+			}
+		}
+		else {
+			error(sprintf(gettext("unknown sort type %s"), $word));
+		}
+	}
+
+	if (! length $code) {
+		# undefined sorting method... sort arbitrarily
+		return sub { 0 };
+	}
+
+	no warnings;
+	return eval 'sub { '.$code.' }';
+}
+
 sub pagespec_translate ($) {
 	my $spec=shift;
 
@@ -2050,27 +2111,8 @@ sub pagespec_match_list ($$;@) {
 	}
 
 	if (defined $params{sort}) {
-		my $f;
-		if ($params{sort} eq 'title') {
-			$f=sub { pagetitle(basename($a)) cmp pagetitle(basename($b)) };
-		}
-		elsif ($params{sort} eq 'title_natural') {
-			eval q{use Sort::Naturally};
-			if ($@) {
-				error(gettext("Sort::Naturally needed for title_natural sort"));
-			}
-			$f=sub { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) };
-                }
-		elsif ($params{sort} eq 'mtime') {
-			$f=sub { $pagemtime{$b} <=> $pagemtime{$a} };
-		}
-		elsif ($params{sort} eq 'age') {
-			$f=sub { $pagectime{$b} <=> $pagectime{$a} };
-		}
-		else {
-			error sprintf(gettext("unknown sort type %s"), $params{sort});
-		}
-		@candidates = sort { &$f } @candidates;
+		@candidates = IkiWiki::SortSpec::sort_pages($params{sort},
+			@candidates);
 	}
 
 	@candidates=reverse(@candidates) if $params{reverse};
@@ -2389,5 +2431,26 @@ sub match_ip ($$;@) {
 		return IkiWiki::FailReason->new("IP is $params{ip}, not $ip");
 	}
 }
+
+package IkiWiki::SortSpec;
+
+# This is in the SortSpec namespace so that the $a and $b that sort() uses
+# $IkiWiki::SortSpec::a and $IkiWiki::SortSpec::b, so that plugins' cmp
+# functions can access them easily.
+sub sort_pages
+{
+	my $f = IkiWiki::sortspec_translate(shift);
+
+	return sort $f @_;
+}
+
+sub cmp_title {
+	IkiWiki::pagetitle(IkiWiki::basename($a))
+	cmp
+	IkiWiki::pagetitle(IkiWiki::basename($b))
+}
+
+sub cmp_mtime { $IkiWiki::pagemtime{$b} <=> $IkiWiki::pagemtime{$a} }
+sub cmp_age { $IkiWiki::pagectime{$b} <=> $IkiWiki::pagectime{$a} }
 
 1

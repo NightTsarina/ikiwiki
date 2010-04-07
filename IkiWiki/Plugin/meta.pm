@@ -88,7 +88,18 @@ sub preprocess (@) {
 
 	# Metadata collection that needs to happen during the scan pass.
 	if ($key eq 'title') {
-		$pagestate{$page}{meta}{title}=HTML::Entities::encode_numeric($value);
+		my $encoded = HTML::Entities::encode_numeric($value);
+		$pagestate{$page}{meta}{title} = $encoded;
+
+		if (exists $params{sortas}) {
+			$pagestate{$page}{meta}{titlesort}=$params{sortas};
+		}
+		elsif ($encoded ne $value) {
+			$pagestate{$page}{meta}{titlesort}=$value;
+		}
+		else {
+			delete $pagestate{$page}{meta}{titlesort};
+		}
 		return "";
 	}
 	elsif ($key eq 'description') {
@@ -116,6 +127,12 @@ sub preprocess (@) {
 	}
 	elsif ($key eq 'author') {
 		$pagestate{$page}{meta}{author}=$value;
+		if (exists $params{sortas}) {
+			$pagestate{$page}{meta}{authorsort}=$params{sortas};
+		}
+		else {
+			delete $pagestate{$page}{meta}{authorsort};
+		}
 		# fallthorough
 	}
 	elsif ($key eq 'authorurl') {
@@ -282,6 +299,33 @@ sub pagetemplate (@) {
 	}
 }
 
+sub get_sort_key {
+	my $page = $_[0];
+	my $meta = $_[1];
+
+	# e.g. titlesort (also makes sense for author)
+	my $key = $pagestate{$page}{meta}{$meta . "sort"};
+	return $key if defined $key;
+
+	# e.g. title
+	$key = $pagestate{$page}{meta}{$meta};
+	return $key if defined $key;
+
+	# fall back to closer-to-core things
+	if ($meta eq 'title') {
+		return pagetitle(IkiWiki::basename($page));
+	}
+	elsif ($meta eq 'date') {
+		return $IkiWiki::pagectime{$page};
+	}
+	elsif ($meta eq 'updated') {
+		return $IkiWiki::pagemtime{$page};
+	}
+	else {
+		return '';
+	}
+}
+
 sub match {
 	my $field=shift;
 	my $page=shift;
@@ -330,6 +374,29 @@ sub match_license ($$;@) {
 
 sub match_copyright ($$;@) {
 	IkiWiki::Plugin::meta::match("copyright", @_);
+}
+
+package IkiWiki::SortSpec;
+
+sub cmp_meta {
+	my $meta = $_[0];
+	error(gettext("sort=meta requires a parameter")) unless defined $meta;
+
+	if ($meta eq 'updated' || $meta eq 'date') {
+		return IkiWiki::Plugin::meta::get_sort_key($a, $meta)
+			<=>
+			IkiWiki::Plugin::meta::get_sort_key($b, $meta);
+	}
+
+	return IkiWiki::Plugin::meta::get_sort_key($a, $meta)
+		cmp
+		IkiWiki::Plugin::meta::get_sort_key($b, $meta);
+}
+
+# A prototype of how sort=title could behave in 4.0 or something
+sub cmp_meta_title {
+	$_[0] = 'title';
+	return cmp_meta(@_);
 }
 
 1

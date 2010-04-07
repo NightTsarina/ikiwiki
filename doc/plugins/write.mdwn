@@ -1129,6 +1129,24 @@ For example, "backlink(foo)" is influenced by the contents of page foo;
 they match; "created_before(foo)" is influenced by the metadata of foo;
 while "glob(*)" is not influenced by the contents of any page.
 
+### Sorting plugins
+
+Similarly, it's possible to write plugins that add new functions as
+[[ikiwiki/pagespec/sorting]] methods. To achieve this, add a function to
+the IkiWiki::SortSpec package named `cmp_foo`, which will be used when sorting
+by `foo` or `foo(...)` is requested.
+
+The names of pages to be compared are in the global variables `$a` and `$b`
+in the IkiWiki::SortSpec package. The function should return the same thing
+as Perl's `cmp` and `<=>` operators: negative if `$a` is less than `$b`,
+positive if `$a` is greater, or zero if they are considered equal. It may
+also raise an error using `error`, for instance if it needs a parameter but
+one isn't provided.
+
+The function will also be passed one or more parameters. The first is
+`undef` if invoked as `foo`, or the parameter `"bar"` if invoked as `foo(bar)`;
+it may also be passed additional, named parameters.
+
 ### Setup plugins
 
 The ikiwiki setup file is loaded using a pluggable mechanism. If you look

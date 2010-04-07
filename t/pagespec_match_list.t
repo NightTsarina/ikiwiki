@@ -1,13 +1,19 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 88;
+use Test::More tests => 90;
 
 BEGIN { use_ok("IkiWiki"); }
 
 %config=IkiWiki::defaultconfig();
 $config{srcdir}=$config{destdir}="/dev/null";
 IkiWiki::checkconfig();
+
+{
+	package IkiWiki::SortSpec;
+
+	sub cmp_path { $a cmp $b }
+}
 
 %pagesources=(
 	foo => "foo.mdwn",
@@ -18,6 +24,13 @@ IkiWiki::checkconfig();
 	"post/2" => "post/2.mdwn",
 	"post/3" => "post/3.mdwn",
 );
+$IkiWiki::pagectime{foo} = 2;
+$IkiWiki::pagectime{foo2} = 2;
+$IkiWiki::pagectime{foo3} = 1;
+$IkiWiki::pagectime{bar} = 3;
+$IkiWiki::pagectime{"post/1"} = 6;
+$IkiWiki::pagectime{"post/2"} = 6;
+$IkiWiki::pagectime{"post/3"} = 6;
 $links{foo}=[qw{post/1 post/2}];
 $links{foo2}=[qw{bar}];
 $links{foo3}=[qw{bar}];
@@ -34,6 +47,11 @@ is_deeply([pagespec_match_list("foo", "post/*", sort => "title", num => 50)],
 is_deeply([pagespec_match_list("foo", "post/*", sort => "title",
                          filter => sub { $_[0] =~ /3/}) ],
 	["post/1", "post/2"]);
+is_deeply([pagespec_match_list("foo", "*", sort => "path", num => 2)],
+	["bar", "foo"]);
+is_deeply([pagespec_match_list("foo", "foo* or bar*",
+		sort => "-age title")], # oldest first, break ties by title
+	["foo3", "foo", "foo2", "bar"]);
 my $r=eval { pagespec_match_list("foo", "beep") };
 ok(eval { pagespec_match_list("foo", "beep") } == 0);
 ok(! $@, "does not fail with error when unable to match anything");
