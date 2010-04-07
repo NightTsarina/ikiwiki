@@ -289,10 +289,11 @@ smcv's discuission of field author vs meta author above. --[[Joey]]
 >>>>> Mind you, for trusted sources, since the person writing the page template and the person providing the variable are the same, they themselves would know whether the value will be treated as HTML, plain text, or a URL, and thus could do the needed escaping themselves when writing down the value.
 
 >>>>> Looking at the content of the default `page.tmpl` let's see what variables fall into which categories:
->>>>> * Used as URL: BASEURL, EDITURL, PARENTLINKS->URL, RECENTCHANGESURL, HISTORYURL, GETSOURCEURL, PREFSURL, OTHERLANGUAGES->URL, ADDCOMMENTURL, BACKLINKS->URL, MORE_BACKLINKS->URL
->>>>> * Used as part of a URL: FAVICON, LOCAL_CSS
->>>>> * Needs to be HTML-escaped: TITLE
->>>>> * Used as-is (as HTML): FEEDLINKS, RELVCS, META, PERCENTTRANSLATED, SEARCHFORM, COMMENTSLINK, DISCUSSIONLINK, OTHERLANGUAGES->PERCENT, SIDEBAR, CONTENT, COMMENTS, TAGS->LINK, COPYRIGHT, LICENSE, MTIME, EXTRAFOOTER
+
+>>>>> * **Used as URL:** BASEURL, EDITURL, PARENTLINKS->URL, RECENTCHANGESURL, HISTORYURL, GETSOURCEURL, PREFSURL, OTHERLANGUAGES->URL, ADDCOMMENTURL, BACKLINKS->URL, MORE_BACKLINKS->URL
+>>>>> * **Used as part of a URL:** FAVICON, LOCAL_CSS
+>>>>> * **Needs to be HTML-escaped:** TITLE
+>>>>> * **Used as-is (as HTML):** FEEDLINKS, RELVCS, META, PERCENTTRANSLATED, SEARCHFORM, COMMENTSLINK, DISCUSSIONLINK, OTHERLANGUAGES->PERCENT, SIDEBAR, CONTENT, COMMENTS, TAGS->LINK, COPYRIGHT, LICENSE, MTIME, EXTRAFOOTER
 
 >>>>> This looks as if only TITLE needs HTML-escaping all the time, and that the URLS all end with "URL" in their name.  Unfortunately the FAVICON and LOCAL_CSS which are part of URLS don't have "URL" in their name, though that's fair enough, since they aren't full URLs.
 
