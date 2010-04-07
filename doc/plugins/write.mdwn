@@ -734,7 +734,10 @@ Additional named parameters can be specified:
 * `filter` is a reference to a function, that is called and passed a page,
   and returns true if the page should be filtered out of the list.
 * `sort` specifies a sort order for the list. See
-  [[ikiwiki/PageSpec/sorting]] for the avilable sort methods.
+  [[ikiwiki/PageSpec/sorting]] for the avilable sort methods. Note that
+  if a sort method is specified that depends on the
+  page content (such as 'meta(foo)'), the deptype needs to be set to
+  a content dependency.
 * `reverse` if true, sorts in reverse.
 * `num` if nonzero, specifies the maximum number of matching pages that
   will be returned.
