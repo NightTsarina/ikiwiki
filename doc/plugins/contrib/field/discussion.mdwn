@@ -224,3 +224,32 @@ smcv's discuission of field author vs meta author above. --[[Joey]]
 >> accepted ad-hoc fields?
 >>
 >> --[[smcv]]
+
+>>> Your point above about cross-site scripting is a valid one, and something I
+>>> hadn't thought of (oops).
+
+>>> I still want to be able to populate pagetemplate templates with field, because I
+>>> use it for a number of things, such as setting which CSS files to use for a
+>>> given page, and, as I said, for titles.  But apart from the titles, I
+>>> realize I've been setting them in places other than the page data itself.
+>>> (Another unreleased plugin, `concon`, uses Config::Context to be able to
+>>> set variables on a per-site, per-directory and a per-page basis).
+
+>>> The first possible solution is what you suggested above: for field to only
+>>> set values in pagetemplate which are prefixed with *field_*.  I don't think
+>>> this is quite satisfactory, since that would still mean that people could
+>>> put un-scrubbed values into a pagetemplate, albeit they would be values
+>>> named field_foo, etc.
+
+>>> An alternative solution would be to classify field registration as "secure"
+>>> and "insecure".  Sources such as ymlfront would be insecure, sources such
+>>> as concon (or the $config hash) would be secure, since they can't be edited
+>>> as pages.  Then, when doing pagetemplate substitution (but not ftemplate
+>>> substitution) the insecure sources could be HTML-escaped.
+
+>>> Another problem, as you point out, is special-case fields, such as a number of
+>>> those defined by `meta`, which have side-effects associated with them, more
+>>> than just providing a value to pagetemplate.  Perhaps `meta` should deal with
+>>> the side-effects, but use `field` as an interface to get the values of those special fields.
+
+>>> --[[KathrynAndersen]]
