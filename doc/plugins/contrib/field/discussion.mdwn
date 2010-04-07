@@ -131,8 +131,8 @@ I think it should just be part of `field` rather than a separate plugin.
 			error("sort=field requires a parameter");
 		}
 
-		my $left = IkiWiki::Plugin::field::field_get_value($_[2], $_[0]);
-		my $right = IkiWiki::Plugin::field::field_get_value($_[2], $_[1]);
+		my $left = IkiWiki::Plugin::field::field_get_value($_[0], $a);
+		my $right = IkiWiki::Plugin::field::field_get_value($_[0], $b);
 
 		$left = "" unless defined $left;
 		$right = "" unless defined $right;
@@ -140,17 +140,6 @@ I think it should just be part of `field` rather than a separate plugin.
 	}
 
 	1;
-
--------
-
-Bug report: `field` has an unnecessary `use YAML::Any`, presumably from before
-you separated out `ymlfront`. Trivial patch available from
-field-etc branch in git://git.pseudorandom.co.uk/git/smcv/ikiwiki.git (gitweb:
-<http://git.pseudorandom.co.uk/smcv/ikiwiki.git?a=shortlog;h=refs/heads/field-etc>)
---[[smcv]]
-
-> Can do for the field plugin (delete one line? Easy.)  Will push when I get to a better connection.  --[[KathrynAndersen]]
->> Done! -K.A.
 
 ----
 
