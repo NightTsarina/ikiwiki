@@ -278,13 +278,34 @@ smcv's discuission of field author vs meta author above. --[[Joey]]
 >>>>
 >>>> I can't immediately think of other data types we'd be interested in beyond
 >>>> text, HTML and URL, but I'm sure there are plenty.
->>>>
+
+>>>>> But isn't this a problem with anything that uses pagetemplates?  Or is
+>>>>> the point that, with plugins other than `field`, they all know,
+>>>>> beforehand, the names of all the fields that they are dealing with, and
+>>>>> thus the writer of the plugin knows which treatment each particular field
+>>>>> needs?  For example, that `meta` knows that `title` needs to be
+>>>>> HTML-escaped, and that `baseurl` doesn't.  In that case, yes, I see the problem.
+>>>>> It's a tricky one.  It isn't as if there's only ever going to be a fixed set of fields that need different treatment, either.  Because the site admin is free to add whatever fields they like to the page template (if they aren't using the default one, that is.  I'm not using the default one myself).
+>>>>> Mind you, for trusted sources, since the person writing the page template and the person providing the variable are the same, they themselves would know whether the value will be treated as HTML, plain text, or a URL, and thus could do the needed escaping themselves when writing down the value.
+
+>>>>> Looking at the content of the default `page.tmpl` let's see what variables fall into which categories:
+>>>>> * Used as URL: BASEURL, EDITURL, PARENTLINKS->URL, RECENTCHANGESURL, HISTORYURL, GETSOURCEURL, PREFSURL, OTHERLANGUAGES->URL, ADDCOMMENTURL, BACKLINKS->URL, MORE_BACKLINKS->URL
+>>>>> * Used as part of a URL: FAVICON, LOCAL_CSS
+>>>>> * Needs to be HTML-escaped: TITLE
+>>>>> * Used as-is (as HTML): FEEDLINKS, RELVCS, META, PERCENTTRANSLATED, SEARCHFORM, COMMENTSLINK, DISCUSSIONLINK, OTHERLANGUAGES->PERCENT, SIDEBAR, CONTENT, COMMENTS, TAGS->LINK, COPYRIGHT, LICENSE, MTIME, EXTRAFOOTER
+
+>>>>> This looks as if only TITLE needs HTML-escaping all the time, and that the URLS all end with "URL" in their name.  Unfortunately the FAVICON and LOCAL_CSS which are part of URLS don't have "URL" in their name, though that's fair enough, since they aren't full URLs.
+
+>>>>>  --K.A.
+
 >>>> One reasonable option would be to declare that `field` takes text-valued
 >>>> fields, in which case either consumers need to escape
 >>>> it with `<TMPL_VAR FIELD_FOO ESCAPE=HTML>`, and not interpret it as a URL
 >>>> without first checking `safeurl`), or the pagetemplate hook needs to
 >>>> pre-escape.
->>>>
+
+>>>>> Since HTML::Template does have the ability to do ESCAPE=HTML/URL/JS, why not take advantage of that? Some things, like TITLE, probably should have ESCAPE=HTML all the time; that would solve the "to escape or not to escape" problem that `meta` has with titles. After all, when one *sorts* by title, one doesn't really want HTML-escaping in it; only when one uses it in a template. -- K.A.
+
 >>>> Another reasonable option would be to declare that `field` takes raw HTML,
 >>>> in which case consumers need to only use it in contexts that will be
 >>>> HTML-scrubbed (but it becomes unsuitable for using as text - problematic
@@ -293,6 +314,8 @@ smcv's discuission of field author vs meta author above. --[[Joey]]
 >>>> You could even let each consumer choose how it's going to use the field,
 >>>> by having the `foo` field generate `TEXT_FOO` and `HTML_FOO` variables?
 >>>> --[[smcv]]
+
+>>>>> Something similar is already done in `template` and `ftemplate` with the `raw_` prefix, which determines whether the variable should have `htmlize` run over it first before the value is applied to the template.  Of course, that isn't scrubbing or escaping, because with those templates, the scrubbing is done afterwards as part of the normal processing.
 
 >>> Another problem, as you point out, is special-case fields, such as a number of
 >>> those defined by `meta`, which have side-effects associated with them, more
