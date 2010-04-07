@@ -4,7 +4,7 @@ use strict;
 use IkiWiki;
 
 package IkiWiki; # use internal variables
-use Test::More tests => 27;
+use Test::More tests => 31;
 
 $config{wikistatedir}="/tmp/ikiwiki-test.$$";
 system "rm -rf $config{wikistatedir}";
@@ -31,6 +31,7 @@ $renderedfiles{"bar"}=["bar.html", "bar.rss", "sparkline-foo.gif"];
 $renderedfiles{"bar.png"}=["bar.png"];
 $links{"Foo"}=["bar.png"];
 $links{"bar"}=["Foo", "new-page"];
+$typedlinks{"bar"}={tag => {"Foo" => 1}};
 $links{"bar.png"}=[];
 $depends{"Foo"}={};
 $depends{"bar"}={"foo*" => 1};
@@ -45,7 +46,7 @@ ok(-s "$config{wikistatedir}/indexdb", "index file created");
 
 # Clear state.
 %oldrenderedfiles=%pagectime=();
-%pagesources=%pagemtime=%oldlinks=%links=%depends=
+%pagesources=%pagemtime=%oldlinks=%links=%depends=%typedlinks=%oldtypedlinks=
 %destsources=%renderedfiles=%pagecase=%pagestate=();
 
 ok(loadindex(), "load index");
@@ -104,10 +105,16 @@ is_deeply(\%destsources, {
 	"sparkline-foo.gif" => "bar",
 	"bar.png" => "bar.png",
 }, "%destsources generated correctly");
+is_deeply(\%typedlinks, {
+	bar => {tag => {"Foo" => 1}},
+}, "%typedlinks loaded correctly");
+is_deeply(\%oldtypedlinks, {
+	bar => {tag => {"Foo" => 1}},
+}, "%oldtypedlinks loaded correctly");
 
 # Clear state.
 %oldrenderedfiles=%pagectime=();
-%pagesources=%pagemtime=%oldlinks=%links=%depends=
+%pagesources=%pagemtime=%oldlinks=%links=%depends=%typedlinks=%oldtypedlinks=
 %destsources=%renderedfiles=%pagecase=%pagestate=();
 
 # When state is loaded for a wiki rebuild, only ctime and oldrenderedfiles
@@ -140,5 +147,9 @@ is_deeply(\%pagecase, {
 }, "%pagecase generated correctly");
 is_deeply(\%destsources, {
 }, "%destsources generated correctly");
+is_deeply(\%typedlinks, {
+}, "%typedlinks cleared correctly");
+is_deeply(\%oldtypedlinks, {
+}, "%oldtypedlinks cleared correctly");
 
 system "rm -rf $config{wikistatedir}";

@@ -6,8 +6,6 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 
-my %tags;
-
 sub import {
 	hook(type => "getopt", id => "tag", call => \&getopt);
 	hook(type => "getsetup", id => "tag", call => \&getsetup);
@@ -71,9 +69,8 @@ sub preprocess_tag (@) {
 
 	foreach my $tag (keys %params) {
 		$tag=linkpage($tag);
-		$tags{$page}{$tag}=1;
 		# hidden WikiLink
-		add_link($page, tagpage($tag));
+		add_link($page, tagpage($tag), 'tag');
 	}
 		
 	return "";
@@ -87,15 +84,13 @@ sub preprocess_taglink (@) {
 	return join(" ", map {
 		if (/(.*)\|(.*)/) {
 			my $tag=linkpage($2);
-			$tags{$params{page}}{$tag}=1;
-			add_link($params{page}, tagpage($tag));
+			add_link($params{page}, tagpage($tag), 'tag');
 			return taglink($params{page}, $params{destpage}, $tag,
 				linktext => pagetitle($1));
 		}
 		else {
 			my $tag=linkpage($_);
-			$tags{$params{page}}{$tag}=1;
-			add_link($params{page}, tagpage($tag));
+			add_link($params{page}, tagpage($tag), 'tag');
 			return taglink($params{page}, $params{destpage}, $tag);
 		}
 	}
@@ -110,17 +105,19 @@ sub pagetemplate (@) {
 	my $destpage=$params{destpage};
 	my $template=$params{template};
 
+	my $tags = $typedlinks{$page}{tag};
+
 	$template->param(tags => [
 		map { 
 			link => taglink($page, $destpage, $_, rel => "tag")
-		}, sort keys %{$tags{$page}}
-	]) if exists $tags{$page} && %{$tags{$page}} && $template->query(name => "tags");
+		}, sort keys %$tags
+	]) if defined $tags && %$tags && $template->query(name => "tags");
 
 	if ($template->query(name => "categories")) {
 		# It's an rss/atom template. Add any categories.
-		if (exists $tags{$page} && %{$tags{$page}}) {
+		if (defined $tags && %$tags) {
 			$template->param(categories => [map { category => $_ },
-				sort keys %{$tags{$page}}]);
+				sort keys %$tags]);
 		}
 	}
 }
@@ -128,9 +125,7 @@ sub pagetemplate (@) {
 package IkiWiki::PageSpec;
 
 sub match_tagged ($$;@) {
-	my $page = shift;
-	my $glob = shift;
-	return match_link($page, IkiWiki::Plugin::tag::tagpage($glob));
+	return match_link($_[0], IkiWiki::Plugin::tag::tagpage($_[1]), linktype => 'tag');
 }
 
 1

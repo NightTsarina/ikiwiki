@@ -633,6 +633,22 @@ reference. Do not modify this hash directly; call `add_link()`.
 
 	$links{"foo"} = ["bar", "baz"];
 
+### `%typedlinks`
+
+The `%typedlinks` hash records links of specific types. Do not modify this
+hash directly; call `add_link()`. The keys are page names, and the values
+are hash references. In each page's hash reference, the keys are link types
+defined by plugins, and the values are hash references with link targets
+as keys, and 1 as a dummy value, something like this:
+
+	$typedlinks{"foo"} = {
+		tag => { short_word => 1, metasyntactic_variable => 1 },
+		next_page => { bar => 1 },
+	};
+
+Ordinary [[WikiLinks|ikiwiki/WikiLink]] appear in `%links`, but not in
+`%typedlinks`.
+
 ### `%pagesources`
 
 The `%pagesources` has can be used to look up the source filename
@@ -939,10 +955,13 @@ Optionally, a third parameter can be passed, to specify the preferred
 filename of the page. For example, `targetpage("foo", "rss", "feed")`
 will yield something like `foo/feed.rss`.
 
-### `add_link($$)`
+### `add_link($$;$)`
 
 This adds a link to `%links`, ensuring that duplicate links are not
 added. Pass it the page that contains the link, and the link text.
+
+An optional third parameter sets the link type (`undef` produces an ordinary
+[[ikiwiki/WikiLink]]).
 
 ## Miscellaneous
 

@@ -167,6 +167,7 @@ sub scan ($) {
 		else {
 			$links{$page}=[];
 		}
+		delete $typedlinks{$page};
 
 		run_hooks(scan => sub {
 			shift->(
@@ -398,6 +399,7 @@ sub find_del_files ($) {
 				push @del, $pagesources{$page};
 			}
 			$links{$page}=[];
+			delete $typedlinks{$page};
 			$renderedfiles{$page}=[];
 			$pagemtime{$page}=0;
 		}
@@ -499,6 +501,29 @@ sub remove_unrendered () {
 	}
 }
 
+sub link_types_changed ($$) {
+	# each is of the form { type => { link => 1 } }
+	my $new = shift;
+	my $old = shift;
+
+	return 0 if !defined $new && !defined $old;
+	return 1 if !defined $new || !defined $old;
+
+	while (my ($type, $links) = each %$new) {
+		foreach my $link (keys %$links) {
+			return 1 unless exists $old->{$type}{$link};
+		}
+	}
+
+	while (my ($type, $links) = each %$old) {
+		foreach my $link (keys %$links) {
+			return 1 unless exists $new->{$type}{$link};
+		}
+	}
+
+	return 0;
+}
+
 sub calculate_changed_links ($$$) {
 	my ($changed, $del, $oldlink_targets)=@_;
 
@@ -524,6 +549,14 @@ sub calculate_changed_links ($$$) {
 				$backlinkchanged{$target}=1;
 			}
 			$linkchangers{lc($page)}=1;
+		}
+
+		# we currently assume that changing the type of a link doesn't
+		# change backlinks
+		if (!exists $linkchangers{lc($page)}) {
+			if (link_types_changed($typedlinks{$page}, $oldtypedlinks{$page})) {
+				$linkchangers{lc($page)}=1;
+			}
 		}
 	}
 

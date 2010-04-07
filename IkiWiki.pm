@@ -14,7 +14,7 @@ use open qw{:utf8 :std};
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
 	    %pagesources %destsources %depends %depends_simple %hooks
-	    %forcerebuild %loaded_plugins};
+	    %forcerebuild %loaded_plugins %typedlinks %oldtypedlinks};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage deptype
@@ -24,7 +24,7 @@ our @EXPORT = qw(hook debug error template htmlpage deptype
 		 add_underlay pagetitle titlepage linkpage newpagefile
 		 inject add_link
                  %config %links %pagestate %wikistate %renderedfiles
-                 %pagesources %destsources);
+                 %pagesources %destsources %typedlinks);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
 our $version='unknown'; # VERSION_AUTOREPLACE done by Makefile, DNE
 our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
@@ -1502,7 +1502,7 @@ sub loadindex () {
 	if (! $config{rebuild}) {
 		%pagesources=%pagemtime=%oldlinks=%links=%depends=
 		%destsources=%renderedfiles=%pagecase=%pagestate=
-		%depends_simple=();
+		%depends_simple=%typedlinks=%oldtypedlinks=();
 	}
 	my $in;
 	if (! open ($in, "<", "$config{wikistatedir}/indexdb")) {
@@ -1568,6 +1568,14 @@ sub loadindex () {
 			if (exists $d->{state}) {
 				$pagestate{$page}=$d->{state};
 			}
+			if (exists $d->{typedlinks}) {
+				$typedlinks{$page}=$d->{typedlinks};
+
+				while (my ($type, $links) = each %{$typedlinks{$page}}) {
+					next unless %$links;
+					$oldtypedlinks{$page}{$type} = {%$links};
+				}
+			}
 		}
 		$oldrenderedfiles{$page}=[@{$d->{dest}}];
 	}
@@ -1614,6 +1622,10 @@ sub saveindex () {
 
 		if (exists $depends_simple{$page}) {
 			$index{page}{$src}{depends_simple} = $depends_simple{$page};
+		}
+
+		if (exists $typedlinks{$page} && %{$typedlinks{$page}}) {
+			$index{page}{$src}{typedlinks} = $typedlinks{$page};
 		}
 
 		if (exists $pagestate{$page}) {
@@ -1925,12 +1937,17 @@ sub inject {
 	use warnings;
 }
 
-sub add_link ($$) {
+sub add_link ($$;$) {
 	my $page=shift;
 	my $link=shift;
+	my $type=shift;
 
 	push @{$links{$page}}, $link
 		unless grep { $_ eq $link } @{$links{$page}};
+
+	if (defined $type) {
+		$typedlinks{$page}{$type}{$link} = 1;
+	}
 }
 
 sub pagespec_translate ($) {
@@ -2211,6 +2228,11 @@ sub match_link ($$;@) {
 
 	$link=derel($link, $params{location});
 	my $from=exists $params{location} ? $params{location} : '';
+	my $linktype=$params{linktype};
+	my $qualifier='';
+	if (defined $linktype) {
+		$qualifier=" with type $linktype";
+	}
 
 	my $links = $IkiWiki::links{$page};
 	return IkiWiki::FailReason->new("$page has no links", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
@@ -2218,19 +2240,22 @@ sub match_link ($$;@) {
 	my $bestlink = IkiWiki::bestlink($from, $link);
 	foreach my $p (@{$links}) {
 		if (length $bestlink) {
-			return IkiWiki::SuccessReason->new("$page links to $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
-				if $bestlink eq IkiWiki::bestlink($page, $p);
+			if ((!defined $linktype || exists $IkiWiki::typedlinks{$page}{$linktype}{$p}) && $bestlink eq IkiWiki::bestlink($page, $p)) {
+				return IkiWiki::SuccessReason->new("$page links to $link$qualifier", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
+			}
 		}
 		else {
-			return IkiWiki::SuccessReason->new("$page links to page $p matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
-				if match_glob($p, $link, %params);
+			if ((!defined $linktype || exists $IkiWiki::typedlinks{$page}{$linktype}{$p}) && match_glob($p, $link, %params)) {
+				return IkiWiki::SuccessReason->new("$page links to page $p$qualifier, matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
+			}
 			my ($p_rel)=$p=~/^\/?(.*)/;
 			$link=~s/^\///;
-			return IkiWiki::SuccessReason->new("$page links to page $p_rel matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
-				if match_glob($p_rel, $link, %params);
+			if ((!defined $linktype || exists $IkiWiki::typedlinks{$page}{$linktype}{$p_rel}) && match_glob($p_rel, $link, %params)) {
+				return IkiWiki::SuccessReason->new("$page links to page $p_rel$qualifier, matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
+			}
 		}
 	}
-	return IkiWiki::FailReason->new("$page does not link to $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1);
+	return IkiWiki::FailReason->new("$page does not link to $link$qualifier", $page => $IkiWiki::DEPEND_LINKS, "" => 1);
 }
 
 sub match_backlink ($$;@) {
