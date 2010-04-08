@@ -217,6 +217,16 @@ definitions essentially.
 
 >>> For this to work with websetup and --dumpsetup, it needs to define the
 >>> `meta_*` settings in the getsetup function.
+>>>> 
+>>>> I think this will be problematic with the current implementation of this
+>>>> patch. The datatype here is an array of hash references, with each hash
+>>>> having a variable (and arbitrary) number of key/value pairs.  I can't
+>>>> think of an intuitive way of implementing a way of editing such a
+>>>> datatype in the web interface, let alone registering the option in
+>>>> getsetup.
+>>>> 
+>>>> Perhaps a limited set of defined meta values could be exposed via
+>>>> websetup (the obvious ones: author, copyright, license, etc.) -- [[Jon]]
 >>>
 >>> I also have some concerns about both these patches, since both throw
 >>> a lot of redundant data at meta, which then stores it in a very redundant
@@ -232,6 +242,5 @@ definitions essentially.
 >>> meta special-case the site-wide settings, not store them in these
 >>> per-page data structures, and just make them be used if no per-page
 >>> metadata of the given type is present. --[[Joey]]
-
->>>> Thanks for the review - these are all valid points. I'll get working
->>>> on a revised patch. -- [[Jon]]
+>>>> 
+>>>> that should be easy enough to do. I will work on a patch. -- [[Jon]]

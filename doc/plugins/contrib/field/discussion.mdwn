@@ -224,3 +224,103 @@ smcv's discuission of field author vs meta author above. --[[Joey]]
 >> accepted ad-hoc fields?
 >>
 >> --[[smcv]]
+
+>>> Your point above about cross-site scripting is a valid one, and something I
+>>> hadn't thought of (oops).
+
+>>> I still want to be able to populate pagetemplate templates with field, because I
+>>> use it for a number of things, such as setting which CSS files to use for a
+>>> given page, and, as I said, for titles.  But apart from the titles, I
+>>> realize I've been setting them in places other than the page data itself.
+>>> (Another unreleased plugin, `concon`, uses Config::Context to be able to
+>>> set variables on a per-site, per-directory and a per-page basis).
+
+>>> The first possible solution is what you suggested above: for field to only
+>>> set values in pagetemplate which are prefixed with *field_*.  I don't think
+>>> this is quite satisfactory, since that would still mean that people could
+>>> put un-scrubbed values into a pagetemplate, albeit they would be values
+>>> named field_foo, etc. --[[KathrynAndersen]]
+
+>>>> They can already do similar; `PERMALINK` is pre-sanitized to
+>>>> ensure that it's a "safe" URL, but if an extremely confused wiki admin was
+>>>> to put `COPYRIGHT` in their RSS/Atom feed's `<link>`, a malicious user
+>>>> could put an unsafe (e.g. Javascript) URL in there (`COPYRIGHT` *is*
+>>>> HTML-scrubbed, but "javascript:alert('pwned!')" is just text as far as a
+>>>> HTML sanitizer is concerned, so it passes straight through). The solution
+>>>> is to not use variables in situations where that variable would be
+>>>> inappropriate. Because `field` is so generic, the definition of what's
+>>>> appropriate is difficult. --[[smcv]]
+
+>>> An alternative solution would be to classify field registration as "secure"
+>>> and "insecure".  Sources such as ymlfront would be insecure, sources such
+>>> as concon (or the $config hash) would be secure, since they can't be edited
+>>> as pages.  Then, when doing pagetemplate substitution (but not ftemplate
+>>> substitution) the insecure sources could be HTML-escaped.
+>>> --[[KathrynAndersen]]
+
+>>>> Whether you trust the supplier of data seems orthogonal to whether its value
+>>>> is (meant to be) interpreted as plain text, HTML, a URL or what?
+>>>>
+>>>> Even in cases where you trust the supplier, you need to escape things
+>>>> suitably for the context, not for security but for correctness. The
+>>>> definition of the value, and the context it's being used in, changes the
+>>>> processing you need to do. An incomplete list:
+>>>>
+>>>> * HTML used as HTML needs to be html-scrubbed if and only if untrusted
+>>>> * URLs used as URLs need to be put through `safeurl()` if and only if
+>>>>   untrusted
+>>>> * HTML used as plain text needs tags removed regardless
+>>>> * URLs used as plain text are safe
+>>>> * URLs or plain text used in HTML need HTML-escaping (and URLs also need
+>>>>   `safeurl()` if untrusted)
+>>>> * HTML or plain text used in URLs need URL-escaping (and the resulting
+>>>>   URL might need sanitizing too?)
+>>>>
+>>>> I can't immediately think of other data types we'd be interested in beyond
+>>>> text, HTML and URL, but I'm sure there are plenty.
+
+>>>>> But isn't this a problem with anything that uses pagetemplates?  Or is
+>>>>> the point that, with plugins other than `field`, they all know,
+>>>>> beforehand, the names of all the fields that they are dealing with, and
+>>>>> thus the writer of the plugin knows which treatment each particular field
+>>>>> needs?  For example, that `meta` knows that `title` needs to be
+>>>>> HTML-escaped, and that `baseurl` doesn't.  In that case, yes, I see the problem.
+>>>>> It's a tricky one.  It isn't as if there's only ever going to be a fixed set of fields that need different treatment, either.  Because the site admin is free to add whatever fields they like to the page template (if they aren't using the default one, that is.  I'm not using the default one myself).
+>>>>> Mind you, for trusted sources, since the person writing the page template and the person providing the variable are the same, they themselves would know whether the value will be treated as HTML, plain text, or a URL, and thus could do the needed escaping themselves when writing down the value.
+
+>>>>> Looking at the content of the default `page.tmpl` let's see what variables fall into which categories:
+
+>>>>> * **Used as URL:** BASEURL, EDITURL, PARENTLINKS->URL, RECENTCHANGESURL, HISTORYURL, GETSOURCEURL, PREFSURL, OTHERLANGUAGES->URL, ADDCOMMENTURL, BACKLINKS->URL, MORE_BACKLINKS->URL
+>>>>> * **Used as part of a URL:** FAVICON, LOCAL_CSS
+>>>>> * **Needs to be HTML-escaped:** TITLE
+>>>>> * **Used as-is (as HTML):** FEEDLINKS, RELVCS, META, PERCENTTRANSLATED, SEARCHFORM, COMMENTSLINK, DISCUSSIONLINK, OTHERLANGUAGES->PERCENT, SIDEBAR, CONTENT, COMMENTS, TAGS->LINK, COPYRIGHT, LICENSE, MTIME, EXTRAFOOTER
+
+>>>>> This looks as if only TITLE needs HTML-escaping all the time, and that the URLS all end with "URL" in their name.  Unfortunately the FAVICON and LOCAL_CSS which are part of URLS don't have "URL" in their name, though that's fair enough, since they aren't full URLs.
+
+>>>>>  --K.A.
+
+>>>> One reasonable option would be to declare that `field` takes text-valued
+>>>> fields, in which case either consumers need to escape
+>>>> it with `<TMPL_VAR FIELD_FOO ESCAPE=HTML>`, and not interpret it as a URL
+>>>> without first checking `safeurl`), or the pagetemplate hook needs to
+>>>> pre-escape.
+
+>>>>> Since HTML::Template does have the ability to do ESCAPE=HTML/URL/JS, why not take advantage of that? Some things, like TITLE, probably should have ESCAPE=HTML all the time; that would solve the "to escape or not to escape" problem that `meta` has with titles. After all, when one *sorts* by title, one doesn't really want HTML-escaping in it; only when one uses it in a template. -- K.A.
+
+>>>> Another reasonable option would be to declare that `field` takes raw HTML,
+>>>> in which case consumers need to only use it in contexts that will be
+>>>> HTML-scrubbed (but it becomes unsuitable for using as text - problematic
+>>>> for text-based things like sorting or URLs, and not ideal for searching).
+>>>>
+>>>> You could even let each consumer choose how it's going to use the field,
+>>>> by having the `foo` field generate `TEXT_FOO` and `HTML_FOO` variables?
+>>>> --[[smcv]]
+
+>>>>> Something similar is already done in `template` and `ftemplate` with the `raw_` prefix, which determines whether the variable should have `htmlize` run over it first before the value is applied to the template.  Of course, that isn't scrubbing or escaping, because with those templates, the scrubbing is done afterwards as part of the normal processing.
+
+>>> Another problem, as you point out, is special-case fields, such as a number of
+>>> those defined by `meta`, which have side-effects associated with them, more
+>>> than just providing a value to pagetemplate.  Perhaps `meta` should deal with
+>>> the side-effects, but use `field` as an interface to get the values of those special fields.
+
+>>> --[[KathrynAndersen]]
