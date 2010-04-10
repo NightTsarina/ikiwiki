@@ -20,6 +20,9 @@ Points of extra subtlety:
   that that's what Xapian wants anyway (which is why I didn't change it),
   but I could be wrong...
 
+  > AFAICS, this if anything, fixes a bug, xapian definitely expects
+  > unescaped text here. --[[Joey]] 
+
 * Page descriptions in the HTML `<head>` were previously double-escaped:
   the description was stored escaped with numeric entities, then that was
   output with a second layer of escaping! In this branch, I just emit
@@ -37,3 +40,5 @@ Points of extra subtlety:
   contained markup could appear unescaped on any page that inlines them
   in `quick=yes` mode, and is rebuilt for some other reason. The failure
   mode here would be too little escaping, i.e. cross-site scripting.
+
+[[!tag done]]
