@@ -221,9 +221,9 @@ sub preprocess {
 	}
 
 	if (defined $params{subject}) {
-		# encode title the same way meta does
+		# decode title the same way meta does
 		eval q{use HTML::Entities};
-		$pagestate{$page}{meta}{title} = HTML::Entities::encode_numeric(decode_entities($params{subject}));
+		$pagestate{$page}{meta}{title} = decode_entities($params{subject});
 	}
 
 	if ($params{page} =~ m/\/\Q$config{comments_pagename}\E\d+_/) {
