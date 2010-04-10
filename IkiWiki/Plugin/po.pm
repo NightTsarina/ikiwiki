@@ -133,6 +133,7 @@ sub checkconfig () {
 				      $field, 'po'));
 		}
 	}
+	delete $config{po_slave_languages}{$config{po_master_language}{code}};;
 
 	map {
 		islanguagecode($_)
@@ -174,7 +175,6 @@ sub checkconfig () {
 		if ($config{po_master_language}{code} ne 'en') {
 			# Add underlay containing translated source files
 			# for the master language.
-print STDERR "added underlay locale/$config{po_master_language}{code}/$underlay\n";
 			add_underlay("locale/$config{po_master_language}{code}/$underlay")
 				if -d "$config{underlaydirbase}/locale/$config{po_master_language}{code}/$underlay";
 		}
