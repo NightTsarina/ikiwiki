@@ -1,0 +1,33 @@
+I benchmarked a build of a large wiki (my home wiki), and it was spending
+quite a lot of time sorting; `CORE::sort` was called only 1138 times, but
+still flagged as the #1 time sink. (I'm not sure I trust NYTProf fully
+about that FWIW, since it also said 27238263 calls to `cmp_age` were
+the #3 timesink, and I suspect it may not entirely accurately measure
+the overhead of so many short function calls.)
+
+`pagespec_match_list` currently always sorts *all* pages first, and then
+finds the top M that match the pagespec. That's innefficient when M is
+small (as for example in a typical blog, where only 20 posts are shown,
+out of maybe thousands).
+
+As [[smcv]] noted, It could be flipped, so the pagespec is applied first,
+and then sort the smaller matching set. But, checking pagespecs is likely
+more expensive than sorting. (Also, influence calculation complicates
+doing that, since only influences for the M returned pages should be tracked.)
+
+Another option, when there is a limit on M pages to return, might be to
+cull the M top pages without sorting the rest. This could be done using
+a variant of Ye Olde Bubble Sort. Take the first M pages, and (quick)sort.
+Then for each of the rest, check if it is higher than the Mth page.
+If it is, bubble it up so it's sorted.
+If not, throw it out (that's the fast bit and why this is not O(N^2)).
+
+This would be bad when M is very large, and particularly, of course, when
+there is no limit and all pages are being matched on. (For example, an
+archive page shows all pages that match a pagespec specifying a creation
+date range.) Well, in this case, it *does* make sense to flip it, limit by
+pagespe first, and do a (quick)sort second. (No influence complications,
+either.)
+
+Adding these special cases will be more complicated, but I think the best
+of both worlds. --[[Joey]]
