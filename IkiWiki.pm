@@ -1951,8 +1951,9 @@ sub add_link ($$;$) {
 	}
 }
 
-sub sortspec_translate ($) {
+sub sortspec_translate ($$) {
 	my $spec = shift;
+	my $reverse = shift;
 
 	my $code = "";
 	my @data;
@@ -2005,6 +2006,10 @@ sub sortspec_translate ($) {
 	if (! length $code) {
 		# undefined sorting method... sort arbitrarily
 		return sub { 0 };
+	}
+
+	if ($reverse) {
+		$code="-($code)";
 	}
 
 	no warnings;
@@ -2109,18 +2114,20 @@ sub pagespec_match_list ($$;@) {
 			? grep { ! $params{filter}->($_) } keys %pagesources
 			: keys %pagesources;
 	}
-
-	if (defined $params{sort}) {
-		@candidates = IkiWiki::SortSpec::sort_pages($params{sort},
-			@candidates);
+	
+	my $num=$params{num};
+	my $sort=$params{sort};
+	my $reverse=$params{reverse};
+	# when only the top matches will be returned, it's efficient to
+	# sort before matching to pagespec,
+	if (defined $num && defined $sort) {
+		@candidates=IkiWiki::SortSpec::sort_pages(
+			$sort, $reverse, @candidates);
 	}
-
-	@candidates=reverse(@candidates) if $params{reverse};
 	
 	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
 	
 	# clear params, remainder is passed to pagespec
-	my $num=$params{num};
 	delete @params{qw{num deptype reverse sort filter list}};
 	
 	my @matches;
@@ -2144,7 +2151,15 @@ sub pagespec_match_list ($$;@) {
 		$depends_simple{$page}{lc $k} |= $i->{$k};
 	}
 
-	return @matches;
+	# when all matches will be returned, it's efficient to
+	# sort after matching
+	if (! defined $num && defined $sort) {
+		return IkiWiki::SortSpec::sort_pages(
+			$sort, $reverse, @matches);
+	}
+	else {
+		return @matches;
+	}
 }
 
 sub pagespec_valid ($) {
@@ -2437,9 +2452,8 @@ package IkiWiki::SortSpec;
 # This is in the SortSpec namespace so that the $a and $b that sort() uses
 # are easily available in this namespace, for cmp functions to use them.
 sub sort_pages {
-	my $f = IkiWiki::sortspec_translate(shift);
-
-	return sort $f @_;
+	my $f=IkiWiki::sortspec_translate(shift, shift);
+	sort $f @_
 }
 
 sub cmp_title {

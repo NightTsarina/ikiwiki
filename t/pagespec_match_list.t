@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 90;
+use Test::More tests => 92;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -38,12 +38,16 @@ $links{foo3}=[qw{bar}];
 is_deeply([pagespec_match_list("foo", "bar")], ["bar"]);
 is_deeply([sort(pagespec_match_list("foo", "* and !post/*"))], ["bar", "foo", "foo2", "foo3"]);
 is_deeply([sort(pagespec_match_list("foo", "post/*"))], ["post/1", "post/2", "post/3"]);
+is_deeply([pagespec_match_list("foo", "post/*", sort => "title")],
+	["post/1", "post/2", "post/3"]);
 is_deeply([pagespec_match_list("foo", "post/*", sort => "title", reverse => 1)],
 	["post/3", "post/2", "post/1"]);
 is_deeply([pagespec_match_list("foo", "post/*", sort => "title", num => 2)],
 	["post/1", "post/2"]);
 is_deeply([pagespec_match_list("foo", "post/*", sort => "title", num => 50)],
 	["post/1", "post/2", "post/3"]);
+is_deeply([pagespec_match_list("foo", "post/*", sort => "title", num => 50, reverse => 1)],
+	["post/3", "post/2", "post/1"]);
 is_deeply([pagespec_match_list("foo", "post/*", sort => "title",
                          filter => sub { $_[0] =~ /3/}) ],
 	["post/1", "post/2"]);
