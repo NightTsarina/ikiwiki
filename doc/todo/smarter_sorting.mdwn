@@ -16,15 +16,9 @@ more expensive than sorting. (Also, influence calculation complicates
 doing that.)
 
 Another option, when there is a limit on M pages to return, might be to
-cull the M top pages without sorting the rest. This could be done using
-a variant of Ye Olde Bubble Sort. Take the first M pages, and (quick)sort.
-Then for each of the rest, check if it is higher than the Mth page.
-If it is, bubble it up so it's sorted.
-If not, throw it out (that's the fast bit and why this is not O(N^2)).
+cull the M top pages without sorting the rest.
 
-> The patch below implements this, perhaps not as efficiently as possible.
-> It speeds up building just the top page of my blog by 1 second (out of
-> 18).
+> The patch below implements this.
 > 
 > But, I have not thought enough about influence calculation.
 > I need to figure out which pagespec matches influences need to be
@@ -36,6 +30,11 @@ If not, throw it out (that's the fast bit and why this is not O(N^2)).
 > zero) number of failed matches. New code does not accumulate influences
 > from all the top successful matches, only an arbitrary group of
 > successes and some failures.
+> 
+> Also, by the time I finished this, it was not measuarably faster than 
+> the old method. At least not with a few thousand pages; it
+> might be worth revisiting this sometime for many more pages? [[done]]
+> --[[Joey]] 
 
 <pre>
 diff --git a/IkiWiki.pm b/IkiWiki.pm
