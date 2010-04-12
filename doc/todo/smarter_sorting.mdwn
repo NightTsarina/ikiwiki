@@ -13,7 +13,7 @@ out of maybe thousands).
 As [[smcv]] noted, It could be flipped, so the pagespec is applied first,
 and then sort the smaller matching set. But, checking pagespecs is likely
 more expensive than sorting. (Also, influence calculation complicates
-doing that, since only influences for the M returned pages should be tracked.)
+doing that.)
 
 Another option, when there is a limit on M pages to return, might be to
 cull the M top pages without sorting the rest. This could be done using
@@ -21,6 +21,111 @@ a variant of Ye Olde Bubble Sort. Take the first M pages, and (quick)sort.
 Then for each of the rest, check if it is higher than the Mth page.
 If it is, bubble it up so it's sorted.
 If not, throw it out (that's the fast bit and why this is not O(N^2)).
+
+> The patch below implements this, perhaps not as efficiently as possible.
+> It speeds up building just the top page of my blog by 1 second (out of
+> 18). It's probably buggy.
+> 
+> But, I have not thought enough about influence calculation.
+> I need to figure out which pagespec matches influences need to be
+> accumulated for in order to determine all possible influences of a
+> pagespec are known.
+> 
+> The old code accumulates influences from matching all successful pages
+> up to the num cutoff, as well as influences from an arbitrary (sometimes
+> zero) number of failed matches. New code does not accumulate influences
+> from all the top successful matches, only an arbitrary group of
+> successes and some failures.
+
+<pre>
+diff --git a/IkiWiki.pm b/IkiWiki.pm
+index 1730e47..6798799 100644
+--- a/IkiWiki.pm
++++ b/IkiWiki.pm
+@@ -2122,36 +2122,53 @@ sub pagespec_match_list ($$;@) {
+ 	my $num=$params{num};
+ 	delete @params{qw{num deptype reverse sort filter list}};
+ 	
+-	# when only the top matches will be returned, it's efficient to
+-	# sort before matching to pagespec,
+-	if (defined $num && defined $sort) {
+-		@candidates=IkiWiki::SortSpec::sort_pages(
+-			$sort, @candidates);
+-	}
+-	
++	# Find the first num matches (or all), before sorting.
+ 	my @matches;
+-	my $firstfail;
+ 	my $count=0;
+ 	my $accum=IkiWiki::SuccessReason->new();
+-	foreach my $p (@candidates) {
+-		my $r=$sub->($p, %params, location => $page);
++	my $i;
++	for ($i=0; $i < @candidates; $i++) {
++		my $r=$sub->($candidates[$i], %params, location => $page);
+ 		error(sprintf(gettext("cannot match pages: %s"), $r))
+ 			if $r->isa("IkiWiki::ErrorReason");
+ 		$accum |= $r;
+ 		if ($r) {
+-			push @matches, $p;
++			push @matches, $candidates[$i];
+ 			last if defined $num && ++$count == $num;
+ 		}
+ 	}
+ 
++	# We have num natches, but they may not be the best.
++	# Efficiently find and add the rest, without sorting the full list of
++	# candidates.
++	if (defined $num && defined $sort) {
++		@matches=IkiWiki::SortSpec::sort_pages($sort, @matches);
++
++		for ($i++; $i < @candidates; $i++) {
++			# Comparing candidate with lowest match is cheaper,
++			# so it's done before testing against pagespec.
++			if (IkiWiki::SortSpec::cmptwo($candidates[$i], $matches[-1], $sort) < 0 &&
++			    $sub->($candidates[$i], %params, location => $page)
++			) {
++				# this could be done less expensively
++				# using a binary search
++				for (my $j=0; $j < @matches; $j++) {
++					if (IkiWiki::SortSpec::cmptwo($candidates[$i], $matches[$j], $sort) < 0) {
++						$matches[$j]=$candidates[$i];
++						last;
++					}
++				}
++			}
++		}
++	}
++
+ 	# Add simple dependencies for accumulated influences.
+-	my $i=$accum->influences;
+-	foreach my $k (keys %$i) {
+-		$depends_simple{$page}{lc $k} |= $i->{$k};
++	my $inf=$accum->influences;
++	foreach my $k (keys %$inf) {
++		$depends_simple{$page}{lc $k} |= $inf->{$k};
+ 	}
+ 
+-	# when all matches will be returned, it's efficient to
+-	# sort after matching
++	# Sort if we didn't already.
+ 	if (! defined $num && defined $sort) {
+ 		return IkiWiki::SortSpec::sort_pages(
+ 			$sort, @matches);
+@@ -2455,6 +2472,12 @@ sub sort_pages {
+ 	sort $f @_
+ }
+ 
++sub cmptwo {
++	$a=$_[0];
++	$b=$_[1];
++	$_[2]->();
++}
++
+ sub cmp_title {
+ 	IkiWiki::pagetitle(IkiWiki::basename($a))
+ 	cmp
+</pre>
 
 This would be bad when M is very large, and particularly, of course, when
 there is no limit and all pages are being matched on. (For example, an
