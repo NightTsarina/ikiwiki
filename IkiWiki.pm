@@ -2102,6 +2102,8 @@ sub pagespec_match_list ($$;@) {
 	my $sub=pagespec_translate($pagespec);
 	error "syntax error in pagespec \"$pagespec\""
 		if ! defined $sub;
+	my $sort=sortspec_translate($params{sort}, $params{reverse})
+		if defined $params{sort};
 
 	my @candidates;
 	if (exists $params{list}) {
@@ -2115,20 +2117,17 @@ sub pagespec_match_list ($$;@) {
 			: keys %pagesources;
 	}
 	
+	# clear params, remainder is passed to pagespec
+	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
 	my $num=$params{num};
-	my $sort=$params{sort};
-	my $reverse=$params{reverse};
+	delete @params{qw{num deptype reverse sort filter list}};
+	
 	# when only the top matches will be returned, it's efficient to
 	# sort before matching to pagespec,
 	if (defined $num && defined $sort) {
 		@candidates=IkiWiki::SortSpec::sort_pages(
-			$sort, $reverse, @candidates);
+			$sort, @candidates);
 	}
-	
-	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
-	
-	# clear params, remainder is passed to pagespec
-	delete @params{qw{num deptype reverse sort filter list}};
 	
 	my @matches;
 	my $firstfail;
@@ -2155,7 +2154,7 @@ sub pagespec_match_list ($$;@) {
 	# sort after matching
 	if (! defined $num && defined $sort) {
 		return IkiWiki::SortSpec::sort_pages(
-			$sort, $reverse, @matches);
+			$sort, @matches);
 	}
 	else {
 		return @matches;
@@ -2452,7 +2451,7 @@ package IkiWiki::SortSpec;
 # This is in the SortSpec namespace so that the $a and $b that sort() uses
 # are easily available in this namespace, for cmp functions to use them.
 sub sort_pages {
-	my $f=IkiWiki::sortspec_translate(shift, shift);
+	my $f=shift;
 	sort $f @_
 }
 
