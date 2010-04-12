@@ -24,7 +24,7 @@ If not, throw it out (that's the fast bit and why this is not O(N^2)).
 
 > The patch below implements this, perhaps not as efficiently as possible.
 > It speeds up building just the top page of my blog by 1 second (out of
-> 18). It's probably buggy.
+> 18).
 > 
 > But, I have not thought enough about influence calculation.
 > I need to figure out which pagespec matches influences need to be
@@ -39,10 +39,10 @@ If not, throw it out (that's the fast bit and why this is not O(N^2)).
 
 <pre>
 diff --git a/IkiWiki.pm b/IkiWiki.pm
-index 1730e47..6798799 100644
+index 1730e47..bc8b23d 100644
 --- a/IkiWiki.pm
 +++ b/IkiWiki.pm
-@@ -2122,36 +2122,53 @@ sub pagespec_match_list ($$;@) {
+@@ -2122,36 +2122,54 @@ sub pagespec_match_list ($$;@) {
  	my $num=$params{num};
  	delete @params{qw{num deptype reverse sort filter list}};
  	
@@ -89,7 +89,8 @@ index 1730e47..6798799 100644
 +				# using a binary search
 +				for (my $j=0; $j < @matches; $j++) {
 +					if (IkiWiki::SortSpec::cmptwo($candidates[$i], $matches[$j], $sort) < 0) {
-+						$matches[$j]=$candidates[$i];
++						splice @matches, $j, $#matches-$j+1, $candidates[$i],
++							@matches[$j..$#matches-1];
 +						last;
 +					}
 +				}
@@ -112,7 +113,7 @@ index 1730e47..6798799 100644
  	if (! defined $num && defined $sort) {
  		return IkiWiki::SortSpec::sort_pages(
  			$sort, @matches);
-@@ -2455,6 +2472,12 @@ sub sort_pages {
+@@ -2455,6 +2473,12 @@ sub sort_pages {
  	sort $f @_
  }
  
