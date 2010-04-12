@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 92;
+use Test::More tests => 94;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -132,3 +132,14 @@ foreach my $spec ("nosuchpage or link(bar)", "link(bar) or nosuchpage",
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 }
+
+my @ps;
+foreach my $p (100..500) {
+	$IkiWiki::pagectime{"p/$p"} = $p;
+	$pagesources{"p/$p"} = "p/$p.mdwn";
+	unshift @ps, "p/$p";
+}
+is_deeply([pagespec_match_list("foo", "p/*", sort => "age")],
+	[@ps]);
+is_deeply([pagespec_match_list("foo", "p/*", sort => "age", num => 20)],
+	[@ps[0..19]]);
