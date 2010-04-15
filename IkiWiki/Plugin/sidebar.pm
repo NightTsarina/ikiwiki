@@ -23,7 +23,7 @@ sub getsetup () {
 		global_sidebars => {
 			type => "boolean",
 			examples => 1,
-			description => "show sidebar page on all pages?"
+			description => "show sidebar page on all pages?",
 			safe => 1,
 			rebuild => 1,
 		},
@@ -36,20 +36,22 @@ sub preprocess (@) {
 	my $content=shift;
 	shift;
 
-	if (! defined $content) {
-		error(gettext("sidebar content not specified"));
-	}
-
 	my $page=$params{page};
 	return "" unless $page eq $params{destpage};
-	my $file = $pagesources{$page};
-	my $type = pagetype($file);
+	
+	if (! defined $content) {
+		$pagesidebar{$page}=undef;
+	}
+	else {
+		my $file = $pagesources{$page};
+		my $type = pagetype($file);
 
-	$pagesidebar{$page}=
-		IkiWiki::htmlize($page, $page, $type,
-		IkiWiki::linkify($page, $page,
-		IkiWiki::preprocess($page, $page,
-		IkiWiki::filter($page, $page, $content))));
+		$pagesidebar{$page}=
+			IkiWiki::htmlize($page, $page, $type,
+			IkiWiki::linkify($page, $page,
+			IkiWiki::preprocess($page, $page,
+			IkiWiki::filter($page, $page, $content))));
+	}
 
 	return "";
 }
@@ -60,9 +62,10 @@ my $oldcontent;
 sub sidebar_content ($) {
 	my $page=shift;
 	
-	return $pagesidebar{$page} if exists $pagesidebar{$page};
+	return $pagesidebar{$page} if defined $pagesidebar{$page};
 
-	return if defined $config{global_sidebars} && !$config{global_sidebars};
+	return if ! exists $pagesidebar{$page} && 
+		defined $config{global_sidebars} && ! $config{global_sidebars};
 
 	my $sidebar_page=bestlink($page, "sidebar") || return;
 	my $sidebar_file=$pagesources{$sidebar_page} || return;
