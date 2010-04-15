@@ -20,6 +20,13 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
+		global_sidebars => {
+			type => "boolean",
+			examples => 1,
+			description => "show sidebar page on all pages?"
+			safe => 1,
+			rebuild => 1,
+		},
 }
 
 my %pagesidebar;
@@ -54,6 +61,8 @@ sub sidebar_content ($) {
 	my $page=shift;
 	
 	return $pagesidebar{$page} if exists $pagesidebar{$page};
+
+	return if defined $config{global_sidebars} && !$config{global_sidebars};
 
 	my $sidebar_page=bestlink($page, "sidebar") || return;
 	my $sidebar_file=$pagesources{$sidebar_page} || return;
