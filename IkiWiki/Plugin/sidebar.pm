@@ -33,13 +33,11 @@ my %pagesidebar;
 
 sub preprocess (@) {
 	my %params=@_;
-	my $content=shift;
-	shift;
 
 	my $page=$params{page};
 	return "" unless $page eq $params{destpage};
 	
-	if (! defined $content) {
+	if (! defined $params{content}) {
 		$pagesidebar{$page}=undef;
 	}
 	else {
@@ -50,7 +48,7 @@ sub preprocess (@) {
 			IkiWiki::htmlize($page, $page, $type,
 			IkiWiki::linkify($page, $page,
 			IkiWiki::preprocess($page, $page,
-			IkiWiki::filter($page, $page, $content))));
+			IkiWiki::filter($page, $page, $params{content}))));
 	}
 
 	return "";
