@@ -15,7 +15,10 @@ GetOptions(
 	"force" => \$force,
 ) || usage();
 my $setup=shift		|| usage();
-my $pagespec=shift;
+my $pagespec;
+if (@ARGV && $ARGV[0] !~ /^\d+$/) {
+	$pagespec=shift;
+}
 my $startyear=shift	|| 1900+(localtime(time))[5];
 my $endyear=shift	|| $startyear;
 
