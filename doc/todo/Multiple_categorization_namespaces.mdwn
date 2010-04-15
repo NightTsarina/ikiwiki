@@ -1,0 +1,24 @@
+I came across this when working on converting my old blog into an ikiwiki, but I think it could be of more general use.
+
+The background: I have a (currently suspended, waiting to be converted) blog on the [il Cannocchiale](http://www.ilcannocchiale.it) hosting platform. Aside from the usual metatadata (title, author), il Cannocchiale also provides tags and two additional categorization namespaces: a blog-specific user-defind "column" (Rubrica) and a platform-wide "category" (Categoria). The latter is used to group and label a couple of platform-wide lists of latest posts, the former may be used in many different ways (e.g. multi-author blogs could have one column per author or so, or as a form of 'macro-tagging'). Columns are also a little more sophisticated than classical tags because you can assign them a subtitle too.
+
+When I started working on the conversion, my first idea was to convert Rubriche to subdirectories of an ikiwiki blog. However, this left me with a few annoying things: when rebuilding links from the import, I had to (programmatically) dive into each subdirectory to see where each post was; this would also be problematic for future posting, too. It also meant that moving a post from a Robrica to the other would break all links (unless ikiwiki has a way to fix this automagically). And I wasn't too keen on the fact that the Rubrica would come up in the URL of the post. And finally, of course, I couldn't use this to preserve the Categoria metadata.
+
+Another solution I thought about was to use special deeper tags for the Rubrica and Categoria (like: `\[[!tag "Rubrica/Some name"]]`), but this is horrible, clumsy, and makes special treatment of these tags a PITN (for example you wouldn't want the Rubrica to be displayed together with the other tags, and you would want it displayed somewhere else like next to the title of the post). This solution however looks to me as the proper path, as long as tags could support totally separate namespaces. I have a tentative implementation of this `tagtype` feature at [my git clone of ikiwiki](http://git.oblomov.eu/ikiwiki).
+
+The feature is currently implemented as follows: a `tagtypes` config options takes an array of strings: the tag types to be defined _aside from the usual tags_. Each tag type automatically provides a new directive which sets up tags that different from standard tags by having a different tagbase (the same as the tagtype) and link type (again, the same as the tagtype) (a TODO item for this would to make the directive, tagbase and link type customizable). For example, for my imported blog I would define
+
+    tagtypes => [qw{Categoria Rubrica}]
+
+and then in the blog posts I would have stuff like
+
+    \[[!Categoria "LAVORO/Vita da impiegato"]]
+    \[[!Rubrica "Il mio mondo"]]
+    \[[!meta title="Blah blah"]]
+    \[[!meta author="oblomov"]]
+
+    The body of the article
+
+    \[[!tag a bunch of tags]]
+
+and the tags would appear at the bottom of the post, the Rubrica next to the title, etc. All of this information would end up as categories in the feeds (although I would like to rework that code to make use of namespaces, terms and labels in a different way).
