@@ -4,9 +4,15 @@ This directive can generate stats about how pages link to each other. It can
 produce either a tag cloud, or a table counting the number of links to each
 page.
 
-Here's how to use it to create a [[tag]] cloud:
+Here's how to use it to create a [[tag]] cloud, with tags sized based
+on frequency of use:
 
 	\[[!pagestats pages="tags/*"]]
+
+Here's how to create a list of tags, sized by use as they would be in a
+cloud.
+	
+	\[[!pagestats style="list" pages="tags/*"]]
 
 And here's how to create a table of all the pages on the wiki:
 
@@ -27,5 +33,8 @@ pages. For instance, to show a table of the top ten pages with the most
 links:
 
 	\[[!pagestats style="table" show="10"]]
+
+The optional `class` parameter can be used to control the class
+of the generated tag cloud `div` or page stats `table`.
 
 [[!meta robots="noindex, follow"]]

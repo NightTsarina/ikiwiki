@@ -1,9 +1,13 @@
-[[!pagestats pages="./tags/*" among="./posts/*"]]
+[[!template id=note text="""
 
-Welcome to my blog.
+* [[Tags]]: [[!pagestats style="list" pages="./tags/*" among="./posts/*"]]
+* [[Recent_Comments|comments]]
+* [[Archives]]
 
-Have a look at the most recent posts below, or browse the tag cloud on the
-right. Archives of all [[posts]] and all [[comments]] are also available.
+[[!if test="enabled(calendar)" then="""
+[[!calendar pages="./posts/* and !*/Discussion"]]
+
+"""]]
 
 [[!inline pages="./posts/* and !*/Discussion" show="10"
 actions=yes rootpage="posts"]]
