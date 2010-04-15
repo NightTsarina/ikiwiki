@@ -15,7 +15,7 @@ GetOptions(
 	"force" => \$force,
 ) || usage();
 my $setup=shift		|| usage();
-my $pagespec=shift	|| "*";
+my $pagespec=shift;
 my $startyear=shift	|| 1900+(localtime(time))[5];
 my $endyear=shift	|| $startyear;
 
@@ -26,6 +26,10 @@ IkiWiki::checkconfig();
 
 my $archivebase = 'archives';
 $archivebase = $config{archivebase} if defined $config{archivebase};
+
+if (! defined $pagespec) {
+	$pagespec=$config{archive_pagespec} || "*";
+}
 
 sub writearchive ($$;$) {
 	my $template=template(shift);

@@ -16,9 +16,11 @@ You must specify the setup file for your wiki. The pages will
 be created inside its `srcdir`, beneath the `archivebase`
 directory used by the calendar plugin (default "archives").
 
-You will probably want to specify a [[ikiwiki/PageSpec]]
-to control which pages are included on the calendars. The
-default is all pages. To limit it to only posts in a blog,
+To control which pages are included on the calendars,
+a [[ikiwiki/PageSpec]] can be specified. The default is
+all pages, or the pages specified by the `comments_pagespec`
+setting in the config file. A pagespec can also be specified
+on the command line. To limit it to only posts in a blog,
 use something like "posts/* and !*/Discussion".
 
 It defaults to creating calendar pages for the current
