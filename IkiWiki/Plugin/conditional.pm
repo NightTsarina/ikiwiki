@@ -30,7 +30,7 @@ sub preprocess_if (@) {
 	}
 
 	my $result=0;
-	if (! IkiWiki::yesno($params{all}) ||
+	if ((exists $params{all} && ! IkiWiki::yesno($params{all})) ||
 	    # An optimisation to avoid needless looping over every page
 	    # for simple uses of some of the tests.
 	    $params{test} =~ /^([\s\!()]*((enabled|sourcepage|destpage|included)\([^)]*\)|(and|or))[\s\!()]*)+$/) {
