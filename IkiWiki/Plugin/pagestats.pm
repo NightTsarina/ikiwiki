@@ -107,7 +107,7 @@ sub preprocess (@) {
 
 		}
 		if ($style eq 'list') {
-			$res = "</ul>\n";
+			$res .= "</ul>\n";
 		}
 		else {
 			$res .= "</div>\n";
