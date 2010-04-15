@@ -22,3 +22,14 @@ and then in the blog posts I would have stuff like
     \[[!tag a bunch of tags]]
 
 and the tags would appear at the bottom of the post, the Rubrica next to the title, etc. All of this information would end up as categories in the feeds (although I would like to rework that code to make use of namespaces, terms and labels in a different way).
+
+> Note [[plugins/contrib/report/discussion]].  To quote myself from the latter page:
+> *I find tags as they currently exist to be too limiting. I prefer something that can be used for Faceted Tagging http://en.wikipedia.org/wiki/Faceted_classification; that is, things like Author:Fred Nurk, Genre:Historical, Rating:Good, and so on. Of course, that doesn't mean that each tag is limited to only one value, either; just to take the above examples, something might have more than one author, or have multiple genres (such as Historical + Romance).*
+
+> So you aren't the only one who wants to do more with tags, but I don't think that adding a new directive for each tag type is the way to go; I think it would be simpler to just have one directive, and take advantage of the new [[matching different kinds of links]] functionality, and enhance the tag directive.
+> Perhaps something like this:
+
+	     \[[!tag categorica="LAVORO/Vita da impiegato" rubrica="Il mio mondo"]]
+
+> Part of my thinking in this is to also combine tags with [[plugins/contrib/field]], so that the tags for a page could be queried and displayed; that way, one could put them wherever you wanted on the page, using any of [[plugins/contrib/getfield]], [[plugins/contrib/ftemplate]], or [[plugins/contrib/report]].
+> --[[KathrynAndersen]]
