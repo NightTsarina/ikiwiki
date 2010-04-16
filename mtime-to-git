@@ -1,0 +1,14 @@
+#!/bin/sh
+# Sets mtimes of all files in the tree their last change date
+# based on git's log. Useful to avoid too new dates after a
+# fresh checkout, which lead to ikiwiki unnecessarily rebuilding
+# basewiki files on upgrade.
+if [ -d .git ]; then
+	for file in $(git ls-files); do
+		date="$(git log -1 --date=rfc "$file" | grep ^Date: | sed -e 's/Date://')"
+		if [ -n "$date" ]; then
+			echo "$date $file"
+			touch -d"$date" $file
+		fi
+	done
+fi
