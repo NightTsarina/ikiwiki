@@ -164,11 +164,11 @@ sub format_month (@) {
 	# Start producing the month calendar
 	$calendar=<<EOF;
 <table class="month-calendar">
-	<caption class="month-calendar-head">
-	$purl
-	$url
-	$nurl
-	</caption>
+	<tr>
+	<th class="month-calendar-arrow">$purl</th>
+	<th class="month-calendar-head" colspan="5">$url</th>
+	<th class="month-calendar-arrow">$nurl</th>
+	</tr>
 	<tr>
 EOF
 
@@ -312,13 +312,14 @@ sub format_year (@) {
 	add_depends($params{page}, "$archivebase/$nyear", deptype("presence"));
 
 	# Start producing the year calendar
+	my $m=$params{months_per_row}-2;
 	$calendar=<<EOF;
 <table class="year-calendar">
-	<caption class="year-calendar-head">
-	$purl
-	$url
-	$nurl
-	</caption>
+	<tr>
+	<th class="year-calendar-arrow">$purl</th>
+ 	<th class="year-calendar-head" colspan="$m">$url</th>
+	<th class="year-calendar-arrow">$nurl</th>
+	</tr>
 	<tr>
 		<th class="year-calendar-subhead" colspan="$params{months_per_row}">Months</th>
 	</tr>
