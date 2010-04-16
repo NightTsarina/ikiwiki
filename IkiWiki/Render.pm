@@ -352,6 +352,8 @@ sub find_new_files ($) {
 	my @new;
 	my @internal_new;
 
+	my $times_noted;
+
 	foreach my $file (@$files) {
 		my $page=pagename($file);
 		if (exists $pagesources{$page} && $pagesources{$page} ne $file) {
@@ -363,7 +365,12 @@ sub find_new_files ($) {
 			if (isinternal($page)) {
 				push @internal_new, $file;
 			}
-			else {
+			elsif ($config{rcs}) {
+				if (! $times_noted) {
+					debug(sprintf(gettext("querying %s for file creation and modification times.."), $config{rcs}));
+					$times_noted=1;
+				}
+
 				push @new, $file;
 				if ($config{gettime} && -e "$config{srcdir}/$file") {
 					eval {
@@ -377,7 +384,7 @@ sub find_new_files ($) {
 					}
 					my $mtime;
 					eval {
-						my $mtime=rcs_getmtime("$config{srcdir}/$file");
+						$mtime=rcs_getmtime("$config{srcdir}/$file");
 					};
 					if ($@) {
 						print STDERR $@;

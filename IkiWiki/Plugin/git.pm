@@ -616,27 +616,51 @@ sub rcs_diff ($) {
 	}
 }
 
-sub rcs_getctime ($) {
+{
+my %time_cache;
+
+sub findtimes ($$) {
 	my $file=shift;
+	my $id=shift; # 0 = mtime ; 1 = ctime
+
 	# Remove srcdir prefix
 	$file =~ s/^\Q$config{srcdir}\E\/?//;
 
-	my @raw_lines = run_or_die('git', 'log', 
-		'--follow', '--no-merges',
-		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
-		'-r', '--', $file);
-	my @ci;
-	while (my $parsed = parse_diff_tree("", \@raw_lines)) {
-		push @ci, $parsed;
+	if (! keys %time_cache) {
+		my $date;
+		foreach my $line (run_or_die('git', 'log',
+				'--pretty=format:%ct',
+				'--name-only', '--relative')) {
+			if (! defined $date && $line =~ /^(\d+)$/) {
+				$date=$line;
+			}
+			elsif (! length $line) {
+				$date=undef;
+			}
+			else {
+				if (! $time_cache{$line}) {
+					$time_cache{$line}[0]=$date; # mtime
+				}
+				$time_cache{$line}[1]=$date; # ctime
+			}
+		}
 	}
-	my $ctime = $ci[$#ci]->{'author_epoch'};
-	debug("ctime for '$file': ". localtime($ctime));
 
-	return $ctime;
+	return exists $time_cache{$file} ? $time_cache{$file}[$id] : 0;
+}
+
+}
+
+sub rcs_getctime ($) {
+	my $file=shift;
+
+	return findtimes($file, 1);
 }
 
 sub rcs_getmtime ($) {
-	error "rcs_getmtime is not implemented for git\n"; # TODO
+	my $file=shift;
+
+	return findtimes($file, 0);
 }
 
 sub rcs_receive () {

@@ -47,8 +47,15 @@ ikiwiki (3.20100415) UNRELEASED; urgency=low
   * Rename --getctime to --gettime. (The old name still works for
     backwards compatability.)
   * --gettime now also looks up last modification time.
+  * Automatically run --gettime the first time ikiwiki is run on 
+    a given srcdir.
   * Add rcs_getmtime to plugin API; currently only implemented
     for git.
+  * Optimise --gettime for git, so it's appropriatly screamingly
+    fast. (This could be done for other backends too.)
+  * However, --gettime for git no longer follows renames.
+  * Use above to fix up timestamps on docwiki, as well as ensure that
+    timestamps on basewiki files shipped in the deb are sane.
 
  -- Joey Hess <joeyh@debian.org>  Sun, 04 Apr 2010 12:17:11 -0400
 

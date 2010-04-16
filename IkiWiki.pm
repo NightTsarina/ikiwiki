@@ -442,7 +442,6 @@ sub getsetup () {
 	},
 	gettime => {
 		type => "internal",
-		default => 0,
 		description => "running in gettime mode",
 		safe => 0,
 		rebuild => 0,
@@ -1512,6 +1511,7 @@ sub loadindex () {
 			open ($in, "<", "$config{wikistatedir}/indexdb") || return;
 		}
 		else {
+			$config{gettime}=1; # first build
 			return;
 		}
 	}
