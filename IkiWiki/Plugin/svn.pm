@@ -350,8 +350,17 @@ sub rcs_diff ($) {
 	return `svnlook diff $config{svnrepo} -r$rev --no-diff-deleted`;
 }
 
-sub rcs_getctime ($) {
+{
+
+my ($lastfile, $lastmtime, $lastctime);
+
+sub findtimes ($) {
 	my $file=shift;
+
+	if ($lastfile eq $file) {
+		return $lastmtime, $lastctime;
+	}
+	$lastfile=$file;
 
 	my $svn_log_infoline=qr/^r\d+\s+\|\s+[^\s]+\s+\|\s+(\d+-\d+-\d+\s+\d+:\d+:\d+\s+[-+]?\d+).*/;
 		
@@ -360,28 +369,39 @@ sub rcs_getctime ($) {
 		exec("svn", "log", $file) || error("svn log $file failed to run");
 	}
 
-	my $date;
+	my ($cdate, $mdate);
 	while (<SVNLOG>) {
 		if (/$svn_log_infoline/) {
-			$date=$1;
+			$cdate=$1;
+			$mdate=$1 unless defined $mdate;
 	    	}
 	}
-	close SVNLOG || warn "svn log $file exited $?";
+	close SVNLOG || error "svn log $file exited $?";
 
-	if (! defined $date) {
-		warn "failed to parse svn log for $file\n";
-		return 0;
+	if (! defined $cdate) {
+		error "failed to parse svn log for $file\n";
 	}
 		
 	eval q{use Date::Parse};
 	error($@) if $@;
-	$date=str2time($date);
-	debug("found ctime ".localtime($date)." for $file");
-	return $date;
+	
+	$lastctime=str2time($cdate);
+	$lastmtime=str2time($mdate);
+	return $lastmtime, $lastctime;
+}
+
+}
+
+sub rcs_getctime ($) {
+	my $file=shift;
+
+	return (findtimes($file))[1];
 }
 
 sub rcs_getmtime ($) {
-	error "rcs_getmtime is not implemented for svn\n"; # TODO
+	my $file=shift;
+
+	return (findtimes($file))[0];
 }
 
 1
