@@ -49,6 +49,7 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 }
 
 sub genwrapper () {
@@ -483,6 +484,10 @@ sub rcs_getctime ($) {
 	$date=str2time($date, 'UTC');
 	debug("found ctime ".localtime($date)." for $file");
 	return $date;
+}
+
+sub rcs_getmtime ($) {
+	error "rcs_getmtime is not implemented for cvs\n"; # TODO
 }
 
 1

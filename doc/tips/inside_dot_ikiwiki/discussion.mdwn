@@ -6,14 +6,15 @@ My database appears corrupted:
 No idea how this happened.  I've blown it away and recreated it but, for future reference, is there any less violent way to recover from this situation?  I miss having the correct created and last edited times.  --[[sabr]]
 > update: fixed ctimes and mtimes using [these instructions](http://u32.net/Mediawiki_Conversion/Git_Import/#Correct%20Creation%20and%20Last%20Edited%20time) --[[sabr]]
 
-> That's overly complex. Just run `ikiwiki -setup your.setup -getctime`. 
+> That's overly complex. Just run `ikiwiki -setup your.setup -gettime`. 
 > BTW, I'd be interested in examining such a corrupt storable file to try
 > to see what happened to it. --[[Joey]]
 
->> --getctime appears to only set the last edited date.  It's not supposed to set the creation date, is it?  The only place that info is stored is in the git repo.
+>> --gettime appears to only set the last edited date.  It's not supposed to set the creation date, is it?  The only place that info is stored is in the git repo.
 
 >>> Pulling the page creation date out of the git history is exactly what
->>> --getctime does. --[[Joey]]
+>>> --gettime does. (It used to be called --getctime, and only do that; now
+>>> it also pulls out the last modified date). --[[Joey]]
 
 >> Alas, I seem to have lost the bad index file to periodic /tmp wiping; I'll send it to you if it happens again.  --[[sabr]]
 

@@ -320,13 +320,11 @@ also be configured using a setup file.
   intercepted. If you enable this option then you must run at least the 
   CGI portion of ikiwiki over SSL.
 
-* --getctime
+* --gettime
 
-  Pull creation time for each new page out of the revision control
-  system. This rarely used option provides a way to get the real creation
-  times of items in weblogs, such as when building a wiki from a new
-  VCS checkout. It is unoptimised and quite slow. It is best used
-  with --rebuild, to force ikiwiki to get the ctime for all pages.
+  Extract creation and modification times for each new page from the
+  the revision control's log. This is done automatically when building a
+  wiki for the first time, so you normally do not need to use this option.
 
 * --set var=value
   

@@ -25,6 +25,7 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 	hook(type => "rcs", id => "rcs_receive", call => \&rcs_receive);
 }
 
@@ -632,6 +633,10 @@ sub rcs_getctime ($) {
 	debug("ctime for '$file': ". localtime($ctime));
 
 	return $ctime;
+}
+
+sub rcs_getmtime ($) {
+	error "rcs_getmtime is not implemented for git\n"; # TODO
 }
 
 sub rcs_receive () {

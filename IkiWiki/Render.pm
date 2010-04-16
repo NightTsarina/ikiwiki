@@ -365,13 +365,25 @@ sub find_new_files ($) {
 			}
 			else {
 				push @new, $file;
-				if ($config{getctime} && -e "$config{srcdir}/$file") {
+				if ($config{gettime} && -e "$config{srcdir}/$file") {
 					eval {
-						my $time=rcs_getctime("$config{srcdir}/$file");
-						$pagectime{$page}=$time;
+						my $ctime=rcs_getctime("$config{srcdir}/$file");
+						if ($ctime > 0) {
+							$pagectime{$page}=$ctime;
+						}
 					};
 					if ($@) {
 						print STDERR $@;
+					}
+					my $mtime;
+					eval {
+						my $mtime=rcs_getmtime("$config{srcdir}/$file");
+					};
+					if ($@) {
+						print STDERR $@;
+					}
+					elsif ($mtime > 0) {
+						utime($mtime, $mtime, "$config{srcdir}/$file");
 					}
 				}
 			}

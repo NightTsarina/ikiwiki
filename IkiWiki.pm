@@ -440,10 +440,10 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
-	getctime => {
+	gettime => {
 		type => "internal",
 		default => 0,
-		description => "running in getctime mode",
+		description => "running in gettime mode",
 		safe => 0,
 		rebuild => 0,
 	},
@@ -1788,6 +1788,10 @@ sub rcs_diff ($) {
 
 sub rcs_getctime ($) {
 	$hooks{rcs}{rcs_getctime}{call}->(@_);
+}
+
+sub rcs_getmtime ($) {
+	$hooks{rcs}{rcs_getmtime}{call}->(@_);
 }
 
 sub rcs_receive () {

@@ -20,15 +20,17 @@ Do I have it right?
 > Some VCS, like git, set the file mtimes to the current time
 > when making a new checkout, so they will be lost if you do that.
 > The creation times can be retrived using the `--getctime` option.
-> I suppose it might be nice if there were a `--getmtime` that pulled
-> true modification times out of the VCS, but I haven't found it a big
-> deal in practice for the last modification times to be updated to the
-> current time when rebuilding a wiki like this. --[[Joey]] 
+> --[[Joey]] 
 >
 > > Thanks for the clarification. I ran some tests of my own to make sure I understand it right, and I'm satisfied
 > > that the order of posts in my blog can be retrieved from the VCS using the `--getctime` option, at least if I
 > > choose to order my posts by creation time rather than modification time. But I now know that I can't rely on
 > > page modification times in ikiwiki as these can be lost permanently.
+> 
+> > > Update: It's now renamed to `--gettime`, and pulls both the creation
+> > > and modification times. Also, per [[todo/auto_getctime_on_fresh_build]],
+> > > this is now done automatically the first time ikiwiki builds a
+> > > srcdir. So, no need to worry about this any more! --[[Joey]] 
 > >
 > > I would suggest that there should at least be a `--getmtime` option like you describe, and perhaps that 
 > > `--getctime` and `--getmtime` be _on by default_. In my opinion the creation times and modification times of 
@@ -91,19 +93,6 @@ Do I have it right?
 > A quick workaround for me to get modification times right is the following
 > little zsh script, which unfortunately only works for git:
 
-    #!/usr/bin/env zsh
-    
-    set +x
-    
-    for FILE in **/*(.); do
-      TIMES="`git log --pretty=format:%ai $FILE`"
-      MTIME="`echo $TIMES | head -n1`"
-    
-      if [ ! -z $MTIME ]; then
-        echo  touch -m -d "$MTIME" $FILE
-        touch -m -d "$MTIME" $FILE
-      fi
-    
-    done
+>> Elided; no longer needed since --gettime does that, and much faster! --[[Joey]] 
 
 > --[[David_Riebenbauer]]
