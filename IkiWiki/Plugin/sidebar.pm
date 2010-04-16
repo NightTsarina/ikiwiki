@@ -60,7 +60,7 @@ my $oldcontent;
 sub sidebar_content ($) {
 	my $page=shift;
 	
-	return $pagesidebar{$page} if defined $pagesidebar{$page};
+	return delete $pagesidebar{$page} if defined $pagesidebar{$page};
 
 	return if ! exists $pagesidebar{$page} && 
 		defined $config{global_sidebars} && ! $config{global_sidebars};
@@ -97,11 +97,10 @@ sub sidebar_content ($) {
 sub pagetemplate (@) {
 	my %params=@_;
 
-	my $page=$params{page};
 	my $template=$params{template};
-	
-	if ($template->query(name => "sidebar")) {
-		my $content=sidebar_content($page);
+	if ($params{destpage} eq $params{page} &&
+	    $template->query(name => "sidebar")) {
+		my $content=sidebar_content($params{destpage});
 		if (defined $content && length $content) {
 		        $template->param(sidebar => $content);
 		}
