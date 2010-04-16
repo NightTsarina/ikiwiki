@@ -51,3 +51,22 @@ and the tags would appear at the bottom of the post, the Rubrica next to the tit
 >> I would like to point out however that there are some functional differences between categorization metadata vs other metadata that might suggest to keep fields and (my extended) tags separate. For examples, in feeds you'd want all categorization metadata to fall in one place, with some appropriate manipulation (which I still have to implement, by the way), while things like author or title would go to the corresponding feed item properties. Although it all would be possible with appropriate report or template juggling, having such default metadata handled natively looks like a bonus to me.
 
 >>> Whereas I prefer being able to control such things with templates, because it gives more flexibility AND control. - K.A.
+
+>>>> Flexibility and control is good for tuning and power-usage, but sensible defaults are a must for a platform to be usable out of the box without much intervention. Moreover, there's a possible problem with what kind of data must be passed over to templates.
+
+Aside from the name of the plugin (and thus of the main directive), which could be `tag`, `meta`, `field` or whatever (maybe extending `meta` would be the most sensible choice), the features we want are
+
+  1. allow multiple values per type/attribute/field/whatever (fields currently only allows one)
+  2. allow both hidden and visible references (à la tag vs taglink)
+  3. allow each type/attribute/field to be exposed under multiple queries (e.g. tags and categories; this is mostly important for backwards compatibility, not sure if it might have other uses too)
+  4. allow arbitrary types/attributes/fields/whatever (even 'undefined' ones)
+
+Each type/attribute/field/whatever (predefined, user-defined, arbitrary) would thus have the following parameters:
+
+  * `directive` : the name of the directive that can be used to set the value as a hidden reference; we can discuss whether, for pre- or user-defined types, it being undef means no directive or a default directive matching the attribute name would be defined.
+  * `linkdirective` : the name of the directive that can be used for a visible reference; no such directive would be defined by default
+  * `linktype` : link type for (hidden and visible) references
+  * `linkbase` : akin to the tagbase parameter
+  * `queries` : list of template queries this type/attribute/field/whatever is exposed to
+
+Where this approach is limiting is on the kind of data that is passed to (template) queries. The value of the metadata fields might need some massaging (e.g. compare how tags are passed to tags queries vs cateogires queries). I have problems on picturing an easy way to make this possible user-side (i.e. via templates and not in Perl modules). Suggestions welcome.
