@@ -217,19 +217,39 @@ wrong direction.
 >>>   is (nearly) guaranteed to exist; this one attaches the record of
 >>>   deletions to the deleted page's page state. Won't that tend to result
 >>>   in losing the record along with the deleted page?
->>>
+
+>>>> This is probably on of the harder things to do, 'cause there are (most of the
+>>>> time) several pages that are responsible for the creation of a single tag page.
+>>>> Of course I could attach the info to all of them.
+
+>>>> With current behaviour I think the information in `%pagestate` is kept around
+>>>> regardless whether the corresponding page exists or not.
+>>>> --[[David_Riebenbauer]]
+
 >>> * `autoindex` forgets that a page was deleted when that page is
 >>>   re-created
->>>
+
+>>>> Yes, I forgot about that and that is a bug. I'll fix that.
+>>>> --[[David_Riebenbauer]]
+
 >>> * `autoindex` forgets that a page was deleted when it's no longer needed
 >>>   anyway (this may be harder for `autotag`?)
->>>
+
+>>>> I don't think so. AFAIK ikiwiki can detect whether there are taglinks to a page
+>>>> anyway, so it should be quite easy. I'll try to implement that too.
+>>>> --[[David_Riebenbauer]]
+
 >>> It'd probably be an interesting test of the core change to port
 >>> `autoindex` to use it? (Adding the file to the RCS would be
 >>> necessary to get parity with `autoindex`.) --[[smcv]]
 
+>>>> Good suggestion. Adding the files to RCS is on my todo list anyway.
+>>>> --[[David_Riebenbauer]]
+
 > Regarding the call from `IkiWiki.pm` to `Render.pm`, wouldn't this be
 > quite easy to solve by moving `verify_src_file` to IkiWiki.pm? --[[smcv]]
+
+>> True. I'll do that. --[[David_Riebenbauer]]
 
 [f3abeac919c4736429bd3362af6edf51ede8e7fe]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f3abeac919c4736429bd3362af6edf51ede8e7fe (commitdiff for f3abeac919c4736429bd3362af6edf51ede8e7fe)
 [4af4d26582f0c2b915d7102fb4a604b176385748]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=4af4d26582f0c2b915d7102fb4a604b176385748 (commitdiff for 4af4d26582f0c2b915d7102fb4a604b176385748)
