@@ -211,6 +211,26 @@ wrong direction.
 >> [981400177d68a279f485727be3f013e68f0bf691][].
  --[[David_Riebenbauer]]
 
+>>> This doesn't seem to have all the refinements that autoindex has:
+>>>
+>>> * `autoindex` attaches the record of deletions to the `index` page, which
+>>>   is (nearly) guaranteed to exist; this one attaches the record of
+>>>   deletions to the deleted page's page state. Won't that tend to result
+>>>   in losing the record along with the deleted page?
+>>>
+>>> * `autoindex` forgets that a page was deleted when that page is
+>>>   re-created
+>>>
+>>> * `autoindex` forgets that a page was deleted when it's no longer needed
+>>>   anyway (this may be harder for `autotag`?)
+>>>
+>>> It'd probably be an interesting test of the core change to port
+>>> `autoindex` to use it? (Adding the file to the RCS would be
+>>> necessary to get parity with `autoindex`.) --[[smcv]]
+
+> Regarding the call from `IkiWiki.pm` to `Render.pm`, wouldn't this be
+> quite easy to solve by moving `verify_src_file` to IkiWiki.pm? --[[smcv]]
+
 [f3abeac919c4736429bd3362af6edf51ede8e7fe]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f3abeac919c4736429bd3362af6edf51ede8e7fe (commitdiff for f3abeac919c4736429bd3362af6edf51ede8e7fe)
 [4af4d26582f0c2b915d7102fb4a604b176385748]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=4af4d26582f0c2b915d7102fb4a604b176385748 (commitdiff for 4af4d26582f0c2b915d7102fb4a604b176385748)
 [f58f3e1bec41ccf9316f37b014ce0b373c8e49e1]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f58f3e1bec41ccf9316f37b014ce0b373c8e49e1 (commitdiff for f58f3e1bec41ccf9316f37b014ce0b373c8e49e1)
