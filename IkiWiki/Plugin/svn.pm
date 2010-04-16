@@ -357,7 +357,7 @@ my ($lastfile, $lastmtime, $lastctime);
 sub findtimes ($) {
 	my $file=shift;
 
-	if ($lastfile eq $file) {
+	if (defined $lastfile && $lastfile eq $file) {
 		return $lastmtime, $lastctime;
 	}
 	$lastfile=$file;
