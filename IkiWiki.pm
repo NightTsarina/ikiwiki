@@ -14,7 +14,8 @@ use open qw{:utf8 :std};
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
 	    %pagesources %destsources %depends %depends_simple %hooks
-	    %forcerebuild %loaded_plugins %typedlinks %oldtypedlinks};
+	    %forcerebuild %loaded_plugins %typedlinks %oldtypedlinks
+	    %autofiles %del_hash};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage deptype
@@ -22,7 +23,7 @@ our @EXPORT = qw(hook debug error template htmlpage deptype
 		 htmllink readfile writefile pagetype srcfile pagename
 		 displaytime will_render gettext ngettext urlto targetpage
 		 add_underlay pagetitle titlepage linkpage newpagefile
-		 inject add_link
+		 inject add_link add_autofile
                  %config %links %pagestate %wikistate %renderedfiles
                  %pagesources %destsources %typedlinks);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
@@ -2018,6 +2019,30 @@ sub sortspec_translate ($$) {
 
 	no warnings;
 	return eval 'sub { '.$code.' }';
+}
+
+sub add_autofile ($$) {
+	my $autofile=shift;
+	my $plugin=shift;
+
+	if (srcfile($autofile, 1)) {
+		return 0;
+	}
+
+	my ($file, $page) = verify_src_file("$config{srcdir}/$autofile", $config{srcdir});
+
+	if ((!defined $file) ||
+	(exists $pagestate{$page}{$plugin}{autofile_deleted})) {
+		return 0;
+	}
+
+	if (exists $del_hash{$file}) {
+		$pagestate{$page}{$plugin}{autofile_deleted}=1;
+		return 0;
+	}
+
+	$autofiles{$file}=$plugin;
+	return 1;
 }
 
 sub pagespec_translate ($) {

@@ -281,6 +281,27 @@ sub srcdir_check () {
 	
 }
 
+sub verify_src_file ($$) {
+	my $file=decode_utf8(shift);
+	my $dir=shift;
+
+	return if -l $file || -d _;
+	$file=~s/^\Q$dir\E\/?//;
+	return if ! length $file;
+	my $page = pagename($file);
+	if (! exists $pagesources{$page} &&
+		file_pruned($file)) {
+		$File::Find::prune=1;
+		return;
+	}
+
+	my ($file_untainted) = $file =~ /$config{wiki_file_regexp}/; # untaint
+	if (! defined $file_untainted) {
+		warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
+	}
+	return ($file_untainted, $page);
+}
+
 sub find_src_files () {
 	my @files;
 	my %pages;
@@ -289,22 +310,9 @@ sub find_src_files () {
 	find({
 		no_chdir => 1,
 		wanted => sub {
-			my $file=decode_utf8($_);
-			$file=~s/^\Q$config{srcdir}\E\/?//;
-			return if -l $_ || -d _ || ! length $file;
-			my $page = pagename($file);
-			if (! exists $pagesources{$page} &&
-			    file_pruned($file)) {
-				$File::Find::prune=1;
-				return;
-			}
-
-			my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
-			if (! defined $f) {
-				warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
-			}
-			else {
-				push @files, $f;
+			my ($file, $page) = verify_src_file($_, $config{srcdir});
+			if (defined $file) {
+				push @files, $file;
 				if ($pages{$page}) {
 					debug(sprintf(gettext("%s has multiple possible source pages"), $page));
 				}
@@ -316,27 +324,14 @@ sub find_src_files () {
 		find({
 			no_chdir => 1,
 			wanted => sub {
-				my $file=decode_utf8($_);
-				$file=~s/^\Q$dir\E\/?//;
-				return if -l $_ || -d _ || ! length $file;
-				my $page=pagename($file);
-				if (! exists $pagesources{$page} &&
-				    file_pruned($file)) {
-					$File::Find::prune=1;
-					return;
-				}
-
-				my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
-				if (! defined $f) {
-					warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
-				}
-				else {
+				my ($file, $page) = verify_src_file($_, $dir);
+				if (defined $file) {
 					# avoid underlaydir override
 					# attacks; see security.mdwn
-					if (! -l "$config{srcdir}/$f" && 
+					if (! -l "$config{srcdir}/$file" &&
 					    ! -e _) {
 						if (! $pages{$page}) {
-							push @files, $f;
+							push @files, $file;
 							$pages{$page}=1;
 						}
 					}
@@ -694,9 +689,26 @@ sub refresh () {
 	my ($changed, $internal_changed)=find_changed($files);
 	run_hooks(needsbuild => sub { shift->($changed) });
 	my $oldlink_targets=calculate_old_links($changed, $del);
+	%del_hash = map { $_ => 1 } @{$del};
 
 	foreach my $file (@$changed) {
 		scan($file);
+	}
+
+	while (my $autofile = shift @{[keys %autofiles]}) {
+		my $plugin=$autofiles{$autofile};
+		my $page=pagename($autofile);
+		if ($pages->{$page}) {
+			debug(sprintf(gettext("%s has multiple possible source pages"), $page));
+		}
+		$pages->{$page}=1;
+
+		push @{$files}, $autofile;
+		push @{$new}, $autofile if find_new_files([$autofile]);
+		push @{$changed}, $autofile if find_changed([$autofile]);
+
+		scan($autofile);
+		delete $autofiles{$autofile};
 	}
 
 	calculate_links();
