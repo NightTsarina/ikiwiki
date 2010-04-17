@@ -286,8 +286,10 @@ sub rcs_diff ($) {
 	}
 }
 
-sub extract_timestamp ($) {
-	my ($out) = @_;
+sub extract_timestamp (@) {
+	# XXX filename passes through the shell here, should try to avoid
+	# that just in case
+	open (my $out, "@_ |");
 	my @log = bzr_log($out);
 
 	if (length @log < 1) {
@@ -297,28 +299,22 @@ sub extract_timestamp ($) {
 	eval q{use Date::Parse};
 	error($@) if $@;
 	
-	my $ctime = str2time($log[0]->{"timestamp"});
-	return $ctime;
+	my $time = str2time($log[0]->{"timestamp"});
+	return $time;
 }
 
 sub rcs_getctime ($) {
 	my ($file) = @_;
 
-	# XXX filename passes through the shell here, should try to avoid
-	# that just in case
 	my @cmdline = ("bzr", "log", "--forward", "--limit", '1', "$config{srcdir}/$file");
-	open (my $out, "@cmdline |");
-	return extract_timestamp($out);
+	return extract_timestamp(@cmdline);
 }
 
 sub rcs_getmtime ($) {
 	my ($file) = @_;
 
-	# XXX filename passes through the shell here, should try to avoid
-	# that just in case
 	my @cmdline = ("bzr", "log", "--limit", '1', "$config{srcdir}/$file");
-	open (my $out, "@cmdline |");
-	return extract_timestamp($out);
+	return extract_timestamp(@cmdline);
 }
 
 1
