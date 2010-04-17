@@ -966,6 +966,22 @@ added. Pass it the page that contains the link, and the link text.
 An optional third parameter sets the link type. If not specified,
 it is an ordinary [[ikiwiki/WikiLink]].
 
+### `add_autofile($$$)`
+
+Sometimes you may want to add a file to the `srcdir`. For example,
+[[plugins/tag]] pages can be automatically created as needed. This function
+can be used to do that. 
+
+The three parameters are the filename to add, the name of the plugin,
+and a callback function. The callback will be called if it is appropriate
+to automatically add the file, and should then take care of creating it,
+and doing anything else it needs to (such as checking it into revision
+control). Note that the callback may not always be called. For example,
+if an automatically added file is deleted by the user, ikiwiki will avoid
+re-adding it again.
+
+This function needs to be called during the scan hook, or earlier to work.
+
 ## Miscellaneous
 
 ### Internal use pages
