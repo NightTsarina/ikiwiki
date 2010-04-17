@@ -12,20 +12,20 @@ use Storable;
 use open qw{:utf8 :std};
 
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
-	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
-	    %pagesources %destsources %depends %depends_simple %hooks
-	    %forcerebuild %loaded_plugins %typedlinks %oldtypedlinks
-	    %autofiles %del_hash};
+	%pagestate %wikistate %renderedfiles %oldrenderedfiles
+	%pagesources %destsources %depends %depends_simple %hooks
+	%forcerebuild %loaded_plugins %typedlinks %oldtypedlinks
+	%autofiles %del_hash};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage deptype
-                 add_depends pagespec_match pagespec_match_list bestlink
-		 htmllink readfile writefile pagetype srcfile pagename
-		 displaytime will_render gettext ngettext urlto targetpage
-		 add_underlay pagetitle titlepage linkpage newpagefile
-		 inject add_link add_autofile
-                 %config %links %pagestate %wikistate %renderedfiles
-                 %pagesources %destsources %typedlinks);
+	add_depends pagespec_match pagespec_match_list bestlink
+	htmllink readfile writefile pagetype srcfile pagename
+	displaytime will_render gettext ngettext urlto targetpage
+	add_underlay pagetitle titlepage linkpage newpagefile
+	inject add_link add_autofile
+	%config %links %pagestate %wikistate %renderedfiles
+	%pagesources %destsources %typedlinks);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
 our $version='unknown'; # VERSION_AUTOREPLACE done by Makefile, DNE
 our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
@@ -1891,7 +1891,7 @@ sub define_gettext () {
 			return shift;
 		}
 	};
-  	*ngettext=sub {
+	*ngettext=sub {
 		$getobj->() if $getobj;
 		if ($gettext_obj) {
 			$gettext_obj->nget(@_);

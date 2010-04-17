@@ -43,7 +43,7 @@ sub backlinks ($) {
 	my @links;
 	foreach my $p (backlink_pages($page)) {
 		my $href=urlto($p, $page);
-                
+
 		# Trim common dir prefixes from both pages.
 		my $p_trimmed=$p;
 		my $page_trimmed=$page;
