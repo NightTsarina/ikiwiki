@@ -15,7 +15,7 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	%pagestate %wikistate %renderedfiles %oldrenderedfiles
 	%pagesources %destsources %depends %depends_simple %hooks
 	%forcerebuild %loaded_plugins %typedlinks %oldtypedlinks
-	%autofiles %del_hash};
+	%autofiles};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error template htmlpage deptype
@@ -1956,6 +1956,15 @@ sub add_link ($$;$) {
 	}
 }
 
+sub add_autofile ($$$) {
+	my $file=shift;
+	my $plugin=shift;
+	my $generator=shift;
+	
+	$autofiles{$file}{plugin}=$plugin;
+	$autofiles{$file}{generator}=$generator;
+}
+
 sub sortspec_translate ($$) {
 	my $spec = shift;
 	my $reverse = shift;
@@ -2019,30 +2028,6 @@ sub sortspec_translate ($$) {
 
 	no warnings;
 	return eval 'sub { '.$code.' }';
-}
-
-sub add_autofile ($$) {
-	my $autofile=shift;
-	my $plugin=shift;
-
-	if (srcfile($autofile, 1)) {
-		return 0;
-	}
-
-	my ($file, $page) = verify_src_file("$config{srcdir}/$autofile", $config{srcdir});
-
-	if ((!defined $file) ||
-	(exists $pagestate{$page}{$plugin}{autofile_deleted})) {
-		return 0;
-	}
-
-	if (exists $del_hash{$file}) {
-		$pagestate{$page}{$plugin}{autofile_deleted}=1;
-		return 0;
-	}
-
-	$autofiles{$file}=$plugin;
-	return 1;
 }
 
 sub pagespec_translate ($) {

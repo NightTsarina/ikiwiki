@@ -680,6 +680,37 @@ sub render_backlinks ($) {
 	}
 }
 
+sub gen_autofile ($$$) {
+	my $autofile=shift;
+	my $pages=shift;
+	my $del=shift;
+	
+	if (srcfile($autofile, 1)) {
+		return 0;
+	}
+
+	my ($file, $page) = verify_src_file("$config{srcdir}/$autofile", $config{srcdir});
+	
+	if ((!defined $file) ||
+	    (exists $wikistate{$autofiles{$autofile}{plugin}}{autofile_deleted})) {
+		return 0;
+	}
+	
+	if ($pages->{$page}) {
+		return 0;
+	}
+
+	if (grep { $_ eq $file } @$del) {
+		$wikistate{$autofiles{$autofile}{generator}}{autofile_deleted}=1;
+		return 0;
+	}
+
+	$autofiles{$autofile}{generator}->();
+	$pages->{$page}=1;
+	return 1;
+}
+
+
 sub refresh () {
 	srcdir_check();
 	run_hooks(refresh => sub { shift->() });
@@ -689,26 +720,19 @@ sub refresh () {
 	my ($changed, $internal_changed)=find_changed($files);
 	run_hooks(needsbuild => sub { shift->($changed) });
 	my $oldlink_targets=calculate_old_links($changed, $del);
-	%del_hash = map { $_ => 1 } @{$del};
 
 	foreach my $file (@$changed) {
 		scan($file);
 	}
 
-	while (my $autofile = shift @{[keys %autofiles]}) {
-		my $plugin=$autofiles{$autofile};
-		my $page=pagename($autofile);
-		if ($pages->{$page}) {
-			debug(sprintf(gettext("%s has multiple possible source pages"), $page));
+	foreach my $autofile (keys %autofiles) {
+		if (gen_autofile($autofile, $pages, $del)) {
+			push @{$files}, $autofile;
+			push @{$new}, $autofile if find_new_files([$autofile]);
+			push @{$changed}, $autofile if find_changed([$autofile]);
+			
+			scan($autofile);
 		}
-		$pages->{$page}=1;
-
-		push @{$files}, $autofile;
-		push @{$new}, $autofile if find_new_files([$autofile]);
-		push @{$changed}, $autofile if find_changed([$autofile]);
-
-		scan($autofile);
-		delete $autofiles{$autofile};
 	}
 
 	calculate_links();

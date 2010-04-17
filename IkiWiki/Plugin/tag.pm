@@ -70,13 +70,13 @@ sub gentag ($) {
 		my $tagfile = newpagefile(tagpage($tag), $config{default_pageext});
 		$tagfile=~s/^\///;
 
-		return if (! add_autofile($tagfile, "tag"));
+		add_autofile($tagfile, sub {
+			debug(sprintf(gettext("creating tag page %s"), $tag));
 
-		debug(sprintf(gettext("creating tag page %s"), $tag));
-
-		my $template=template("autotag.tmpl");
-		$template->param(tag => $tag);
-		writefile($tagfile, $config{srcdir}, $template->output);
+			my $template=template("autotag.tmpl");
+			$template->param(tag => $tag);
+			writefile($tagfile, $config{srcdir}, $template->output);
+		});
 	}
 }
 
