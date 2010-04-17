@@ -43,7 +43,7 @@ sub getsetup () {
 		},
 }
 
-sub tagpage ($) {
+sub taglink ($) {
 	my $tag=shift;
 	
 	if ($tag !~ m{^\.?/} &&
@@ -55,20 +55,28 @@ sub tagpage ($) {
 	return $tag;
 }
 
-sub taglink ($$$;@) {
+sub htmllink_tag ($$$;@) {
 	my $page=shift;
 	my $destpage=shift;
 	my $tag=shift;
 	my %opts=@_;
 
-	return htmllink($page, $destpage, tagpage($tag), %opts);
+	return htmllink($page, $destpage, taglink($tag), %opts);
 }
 
 sub gentag ($) {
 	my $tag=shift;
+
 	if ($config{tag_autocreate}) {
-		my $tagfile = newpagefile(tagpage($tag), $config{default_pageext});
-		$tagfile=~s/^\///;
+		my $tagpage=taglink($tag);
+		if ($tagpage=~/^\.\/(.*)/) {
+			$tagpage=$1;
+		}
+		else {
+			$tagpage=~s/^\///;
+		}
+
+		my $tagfile = newpagefile($tagpage, $config{default_pageext});
 
 		add_autofile($tagfile, "tag", sub {
 			debug(sprintf(gettext("creating tag page %s"), $tag));
@@ -94,7 +102,7 @@ sub preprocess_tag (@) {
 		$tag=linkpage($tag);
 		
 		# hidden WikiLink
-		add_link($page, tagpage($tag), 'tag');
+		add_link($page, taglink($tag), 'tag');
 		
 		gentag($tag);
 	}
@@ -110,16 +118,16 @@ sub preprocess_taglink (@) {
 	return join(" ", map {
 		if (/(.*)\|(.*)/) {
 			my $tag=linkpage($2);
-			add_link($params{page}, tagpage($tag), 'tag');
+			add_link($params{page}, taglink($tag), 'tag');
 			gentag($tag);
-			return taglink($params{page}, $params{destpage}, $tag,
+			return htmllink_tag($params{page}, $params{destpage}, $tag,
 				linktext => pagetitle($1));
 		}
 		else {
 			my $tag=linkpage($_);
-			add_link($params{page}, tagpage($tag), 'tag');
+			add_link($params{page}, taglink($tag), 'tag');
 			gentag($tag);
-			return taglink($params{page}, $params{destpage}, $tag);
+			return htmllink_tag($params{page}, $params{destpage}, $tag);
 		}
 	}
 	grep {
@@ -137,7 +145,7 @@ sub pagetemplate (@) {
 
 	$template->param(tags => [
 		map { 
-			link => taglink($page, $destpage, $_, rel => "tag")
+			link => htmllink_tag($page, $destpage, $_, rel => "tag")
 		}, sort keys %$tags
 	]) if defined $tags && %$tags && $template->query(name => "tags");
 
@@ -153,7 +161,7 @@ sub pagetemplate (@) {
 package IkiWiki::PageSpec;
 
 sub match_tagged ($$;@) {
-	return match_link($_[0], IkiWiki::Plugin::tag::tagpage($_[1]), linktype => 'tag');
+	return match_link($_[0], IkiWiki::Plugin::tag::taglink($_[1]), linktype => 'tag');
 }
 
 1
