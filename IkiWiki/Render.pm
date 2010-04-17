@@ -282,7 +282,7 @@ sub srcdir_check () {
 }
 
 sub verify_src_file ($$) {
-	my $file=decode_utf8(shift);
+	my $file=shift;
 	my $dir=shift;
 
 	return if -l $file || -d _;
@@ -310,7 +310,7 @@ sub find_src_files () {
 	find({
 		no_chdir => 1,
 		wanted => sub {
-			my ($file, $page) = verify_src_file($_, $config{srcdir});
+			my ($file, $page) = verify_src_file(decode_utf8($_), $config{srcdir});
 			if (defined $file) {
 				push @files, $file;
 				if ($pages{$page}) {
@@ -324,7 +324,7 @@ sub find_src_files () {
 		find({
 			no_chdir => 1,
 			wanted => sub {
-				my ($file, $page) = verify_src_file($_, $dir);
+				my ($file, $page) = verify_src_file(decode_utf8($_), $dir);
 				if (defined $file) {
 					# avoid underlaydir override
 					# attacks; see security.mdwn
