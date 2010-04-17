@@ -291,7 +291,6 @@ sub verify_src_file ($$) {
 	my $page = pagename($file);
 	if (! exists $pagesources{$page} &&
 		file_pruned($file)) {
-		$File::Find::prune=1;
 		return;
 	}
 
@@ -318,6 +317,9 @@ sub find_src_files () {
 				}
 				$pages{$page}=1;
 			}
+			else {
+				$File::Find::prune=1;
+			}
 		},
 	}, $config{srcdir});
 	foreach my $dir (@{$config{underlaydirs}}, $config{underlaydir}) {
@@ -335,6 +337,9 @@ sub find_src_files () {
 							$pages{$page}=1;
 						}
 					}
+				}
+				else {
+					$File::Find::prune=1;
 				}
 			},
 		}, $dir);
