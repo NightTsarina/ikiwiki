@@ -45,7 +45,7 @@ sub getsetup () {
 
 sub tagpage ($) {
 	my $tag=shift;
-			
+	
 	if ($tag !~ m{^\.?/} &&
 	    defined $config{tagbase}) {
 		$tag="/".$config{tagbase}."/".$tag;
@@ -96,7 +96,6 @@ sub preprocess_tag (@) {
 		# hidden WikiLink
 		add_link($page, tagpage($tag), 'tag');
 		
-		# add tagpage if necessary
 		gentag($tag);
 	}
 		
@@ -112,12 +111,14 @@ sub preprocess_taglink (@) {
 		if (/(.*)\|(.*)/) {
 			my $tag=linkpage($2);
 			add_link($params{page}, tagpage($tag), 'tag');
+			gentag($tag);
 			return taglink($params{page}, $params{destpage}, $tag,
 				linktext => pagetitle($1));
 		}
 		else {
 			my $tag=linkpage($_);
 			add_link($params{page}, tagpage($tag), 'tag');
+			gentag($tag);
 			return taglink($params{page}, $params{destpage}, $tag);
 		}
 	}
