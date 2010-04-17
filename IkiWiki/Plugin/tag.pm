@@ -37,9 +37,9 @@ sub getsetup () {
 		tag_autocreate => {
 			type => "boolean",
 			example => 0,
-			description => "Autocreate new tag pages",
+			description => "autocreate new tag pages?",
 			safe => 1,
-			rebuild => 1,
+			rebuild => undef,
 		},
 }
 
@@ -66,7 +66,7 @@ sub taglink ($$$;@) {
 
 sub gentag ($) {
 	my $tag=shift;
-	if (defined $config{tag_autocreate} && $config{tag_autocreate}) {
+	if ($config{tag_autocreate}) {
 		my $tagfile = newpagefile(tagpage($tag), $config{default_pageext});
 		$tagfile=~s/^\///;
 
