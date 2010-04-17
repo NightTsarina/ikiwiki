@@ -355,7 +355,7 @@ sub getsetup () {
 	},
 	wiki_file_prune_regexps => {
 		type => "internal",
-		default => [qr/(^|\/)\.\.(\/|$)/, qr/^\./, qr/\/\./,
+		default => [qr/(^|\/)\.\.(\/|$)/, qr/^\//, qr/^\./, qr/\/\./,
 			qr/\.x?html?$/, qr/\.ikiwiki-new$/,
 			qr/(^|\/).svn\//, qr/.arch-ids\//, qr/{arch}\//,
 			qr/(^|\/)_MTN\//, qr/(^|\/)_darcs\//,

@@ -338,7 +338,7 @@ sub editcomment ($$) {
 	my $page = $form->field('page');
 	$page = IkiWiki::possibly_foolish_untaint($page);
 	if (! defined $page || ! length $page ||
-		IkiWiki::file_pruned($page, $config{srcdir})) {
+		IkiWiki::file_pruned($page)) {
 		error(gettext("bad page name"));
 	}
 
@@ -548,7 +548,7 @@ sub commentmoderation ($$) {
 				# pending comment before untainting.
 				my ($f)= $id =~ /$config{wiki_file_regexp}/;
 				if (! defined $f || ! length $f ||
-				    IkiWiki::file_pruned($f, $config{srcdir})) {
+				    IkiWiki::file_pruned($f)) {
 					error("illegal file");
 				}
 

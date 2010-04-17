@@ -94,7 +94,7 @@ sub cgi_editpage ($$) {
 	$page=possibly_foolish_untaint($page);
 	my $absolute=($page =~ s#^/+##);
 	if (! defined $page || ! length $page ||
-	    file_pruned($page, $config{srcdir})) {
+	    file_pruned($page)) {
 		error(gettext("bad page name"));
 	}
 
@@ -220,7 +220,7 @@ sub cgi_editpage ($$) {
 			my $best_loc;
 			if (! defined $from || ! length $from ||
 			    $from ne $form->field('from') ||
-			    file_pruned($from, $config{srcdir}) ||
+			    file_pruned($from) ||
 			    $from=~/^\// || 
 			    $absolute ||
 			    $form->submitted) {
