@@ -56,17 +56,31 @@ and the tags would appear at the bottom of the post, the Rubrica next to the tit
 
 Aside from the name of the plugin (and thus of the main directive), which could be `tag`, `meta`, `field` or whatever (maybe extending `meta` would be the most sensible choice), the features we want are
 
-  1. allow multiple values per type/attribute/field/whatever (fields currently only allows one)
-  2. allow both hidden and visible references (à la tag vs taglink)
-  3. allow each type/attribute/field to be exposed under multiple queries (e.g. tags and categories; this is mostly important for backwards compatibility, not sure if it might have other uses too)
-  4. allow arbitrary types/attributes/fields/whatever (even 'undefined' ones)
+1. allow multiple values per type/attribute/field/whatever (fields currently only allows one)
+   * Agreed about multiple values; I've been considering whether I should add that to `field`. -- K.A.
+2. allow both hidden and visible references (a la tag vs taglink)
+   * Hidden and visible references; that's fair enough too.  My approach with `ymlfront` and `getfield` is that the YAML code is hidden, and the display is done with `getfield`, but there's no reason not to use additional approaches. -- K.A.
+3. allow each type/attribute/field to be exposed under multiple queries (e.g. tags and categories; this is mostly important for backwards compatibility, not sure if it might have other uses too)
+   * I'm not sure what you mean here. -- K.A.
+     * Typical example is tags: they are accessible both as `tags` and as `categories`, although the way they are presented changes a little -- G.B.
+4. allow arbitrary types/attributes/fields/whatever (even 'undefined' ones)
+   * Are you saying that these must be typed, or are you saying that they can be user-defined? -- K.A.
+     * I am saying that the user should be able to define (e.g. in the config) some set of types/fields/attributes/whatever, following the specification illustrated below, but also be able to use something like `\[[!meta somefield="somevalue"]]` where `somefield` was never defined before. In this case `somefield` will have some default values for the properties described in the spec below. -- G.B.
 
 Each type/attribute/field/whatever (predefined, user-defined, arbitrary) would thus have the following parameters:
 
-  * `directive` : the name of the directive that can be used to set the value as a hidden reference; we can discuss whether, for pre- or user-defined types, it being undef means no directive or a default directive matching the attribute name would be defined.
-  * `linkdirective` : the name of the directive that can be used for a visible reference; no such directive would be defined by default
-  * `linktype` : link type for (hidden and visible) references
-  * `linkbase` : akin to the tagbase parameter
-  * `queries` : list of template queries this type/attribute/field/whatever is exposed to
+* `directive` : the name of the directive that can be used to set the value as a hidden reference; we can discuss whether, for pre- or user-defined types, it being undef means no directive or a default directive matching the attribute name would be defined.
+  * I still want there to be able to be enough flexibility in the concept to enable plugins such as `yamlfront`, which sets the data using YAML format, rather than using directives. -- K.A.
+     * The possibility to use a directive does not preclude other ways of defining the field values. IOW, even if the directive `somefield` is defined, the user would still be able to use the syntax `\[[!meta somefield="somevalue"]]`, or any other syntax (such as YAML). -- G.B.
+* `linkdirective` : the name of the directive that can be used for a visible reference; no such directive would be defined by default
+* `linktype` : link type for (hidden and visible) references
+  * Is this the equivalent to "field name"? -- K.A.
+     * This would be such by default, but it could be set to something different. [[Typed links|matching_different_kinds_of_links]] is a very recent ikiwiki feature. -- G.B.
+* `linkbase` : akin to the tagbase parameter
+  * Is this a field-name -> directory mapping? -- K.A.
+     * yes, with each directory having one page per value. It might not make sense for all fields, of course -- G.B.
+* `queries` : list of template queries this type/attribute/field/whatever is exposed to
+  * I'm not sure what you mean here. -- K.A.
+     * as mentioned before, some fields may be made accessible through different template queries, in different form. This is the case already for tags, that also come up in the `categories` query (used by Atom and RSS feeds). -- G.B.
 
-Where this approach is limiting is on the kind of data that is passed to (template) queries. The value of the metadata fields might need some massaging (e.g. compare how tags are passed to tags queries vs cateogires queries). I have problems on picturing an easy way to make this possible user-side (i.e. via templates and not in Perl modules). Suggestions welcome.
+Where this approach is limiting is on the kind of data that is passed to (template) queries. The value of the metadata fields might need some massaging (e.g. compare how tags are passed to tags queries vs cateogires queries, or also see what is done with the fields in the current `meta` plugin). I have problems on picturing an easy way to make this possible user-side (i.e. via templates and not in Perl modules). Suggestions welcome.
