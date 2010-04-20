@@ -634,34 +634,35 @@ sub render_dependent ($$$$$$$) {
 							if ($type == $IkiWiki::DEPEND_LINKS) {
 								next unless $linkchangers->{lc($page)};
 							}
-							return $page;
+							$reason=$page;
+							return 1;
 						}
 					}
 					return undef;
 				};
 
 				if ($depends{$p}{$dep} & $IkiWiki::DEPEND_CONTENT) {
-					last if $reason =
-						$in->(\@changed, $IkiWiki::DEPEND_CONTENT);
-					last if $internal_dep && ($reason =
+					last if $in->(\@changed, $IkiWiki::DEPEND_CONTENT);
+					last if $internal_dep && (
 						$in->($internal_new, $IkiWiki::DEPEND_CONTENT) ||
 						$in->($internal_del, $IkiWiki::DEPEND_CONTENT) ||
-						$in->($internal_changed, $IkiWiki::DEPEND_CONTENT));
+						$in->($internal_changed, $IkiWiki::DEPEND_CONTENT)
+					);
 				}
 				if ($depends{$p}{$dep} & $IkiWiki::DEPEND_PRESENCE) {
-					last if $reason = 
-						$in->(\@exists_changed, $IkiWiki::DEPEND_PRESENCE);
-					last if $internal_dep && ($reason =
+					last if $in->(\@exists_changed, $IkiWiki::DEPEND_PRESENCE);
+					last if $internal_dep && (
 						$in->($internal_new, $IkiWiki::DEPEND_PRESENCE) ||
-						$in->($internal_del, $IkiWiki::DEPEND_PRESENCE));
+						$in->($internal_del, $IkiWiki::DEPEND_PRESENCE)
+					);
 				}
 				if ($depends{$p}{$dep} & $IkiWiki::DEPEND_LINKS) {
-					last if $reason =
-						$in->(\@changed, $IkiWiki::DEPEND_LINKS);
-					last if $internal_dep && ($reason =
+					last if $in->(\@changed, $IkiWiki::DEPEND_LINKS);
+					last if $internal_dep && (
 						$in->($internal_new, $IkiWiki::DEPEND_LINKS) ||
 						$in->($internal_del, $IkiWiki::DEPEND_LINKS) ||
-						$in->($internal_changed, $IkiWiki::DEPEND_LINKS));
+						$in->($internal_changed, $IkiWiki::DEPEND_LINKS)
+					);
 				}
 			}
 		}
