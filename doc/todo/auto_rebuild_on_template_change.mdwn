@@ -25,11 +25,15 @@ used. Although, having every page declare an explicit dep on `page.tmpl`
 is perhaps a bit much; might be better to implement a special case for that
 one. Also, having the templates be copied to `destdir` is not desirable.
 
-The risk is that a site might have `allowed_attachments` set to "templates/*"
-or "*.tmpl" something like that. I think such a configuration is the *only*
-risk, and it's unlikely enough that a NEWS warning should suffice.
+The risk is that a site might have `allowed_attachments` set to
+`templates/*` or `*.tmpl` something like that. I think such a configuration
+is the *only* risk, and it's unlikely enough that a NEWS warning should
+suffice.
 
 (This would also help to clear up the tricky disctinction between
 wikitemplates and in-wiki templates.)
 
 > But would this require that templates be parseable as wiki pages?  Because that would be a nuisance. --[[KathrynAndersen]]
+
+>> It would be better for them not to be rendered separately at all.
+>> --[[Joey]]  
