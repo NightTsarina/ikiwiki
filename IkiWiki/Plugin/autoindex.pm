@@ -36,13 +36,17 @@ sub refresh () {
 
 	my (%pages, %dirs);
 	foreach my $dir ($config{srcdir}, @{$config{underlaydirs}}, $config{underlaydir}) {
+		require File::Spec;
+		$dir=File::Spec->canonpath($dir);
+
 		find({
 			no_chdir => 1,
 			wanted => sub {
-				my $file=decode_utf8($_);
+				my $file=File::Spec->canonpath(decode_utf8($_));
+				return if $file eq $dir;
 				$file=~s/^\Q$dir\E\/?//;
 				return unless length $file;
-				if (IkiWiki::file_pruned($_)) {
+				if (IkiWiki::file_pruned($file)) {
 					$File::Find::prune=1;
 				}
 				elsif (! -l $_) {
