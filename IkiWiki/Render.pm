@@ -366,13 +366,13 @@ sub find_new_files ($) {
 				push @internal_new, $file;
 			}
 			elsif ($config{rcs}) {
-				if (! $times_noted) {
-					debug(sprintf(gettext("querying %s for file creation and modification times.."), $config{rcs}));
-					$times_noted=1;
-				}
-
 				push @new, $file;
 				if ($config{gettime} && -e "$config{srcdir}/$file") {
+					if (! $times_noted) {
+						debug(sprintf(gettext("querying %s for file creation and modification times.."), $config{rcs}));
+						$times_noted=1;
+					}
+
 					eval {
 						my $ctime=rcs_getctime("$config{srcdir}/$file");
 						if ($ctime > 0) {
