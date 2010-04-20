@@ -221,7 +221,6 @@ sub cgi_editpage ($$) {
 			if (! defined $from || ! length $from ||
 			    $from ne $form->field('from') ||
 			    file_pruned($from) ||
-			    $from=~/^\// || 
 			    $absolute ||
 			    $form->submitted) {
 				@page_locs=$best_loc=$page;
