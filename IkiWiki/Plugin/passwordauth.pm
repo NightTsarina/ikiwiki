@@ -105,11 +105,13 @@ sub formbuilder_setup (@) {
 	my $session=$params{session};
 	my $cgi=$params{cgi};
 
-	if ($form->title eq "signin" || $form->title eq "register" || $cgi->param("do") eq "register") {
+	my $do_register=defined $cgi->param("do") && $cgi->param("do") eq "register";
+
+	if ($form->title eq "signin" || $form->title eq "register" || $do_register) {
 		$form->field(name => "name", required => 0);
 		$form->field(name => "password", type => "password", required => 0);
 		
-		if ($form->submitted eq "Register" || $form->submitted eq "Create Account" || $cgi->param("do") eq "register") {
+		if ($form->submitted eq "Register" || $form->submitted eq "Create Account" || $do_register) {
 			$form->field(name => "confirm_password", type => "password");
 			$form->field(name => "account_creation_password", type => "password")
 				 if (defined $config{account_creation_password} &&
@@ -247,8 +249,10 @@ sub formbuilder (@) {
 	my $cgi=$params{cgi};
 	my $buttons=$params{buttons};
 
+	my $do_register=defined $cgi->param("do") && $cgi->param("do") eq "register";
+
 	if ($form->title eq "signin" || $form->title eq "register") {
-		if (($form->submitted && $form->validate) || $cgi->param("do") eq "register") {
+		if (($form->submitted && $form->validate) || $do_register) {
 			if ($form->submitted eq 'Login') {
 				$session->param("name", $form->field("name"));
 				IkiWiki::cgi_postsignin($cgi, $session);
@@ -311,7 +315,7 @@ sub formbuilder (@) {
 				$form->field(name => "name", required => 0);
 				push @$buttons, "Reset Password";
 			}
-			elsif ($form->submitted eq "Register" || $cgi->param("do") eq "register") {
+			elsif ($form->submitted eq "Register" || $do_register) {
 				@$buttons="Create Account";
 			}
 		}
