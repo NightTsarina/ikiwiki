@@ -24,7 +24,8 @@ register dependencies on `page.tmpl`, `inlinepage.tmpl`, etc, as they're
 used. Although, having every page declare an explicit dep on `page.tmpl`
 is perhaps a bit much; might be better to implement a special case for that
 one. Also, having the templates be copied to `destdir` is not desirable.
-(However, if they're not copied, wikilinks to them will be broken. Hmm.)
+In a sense, these template would be like internal pages, except not wiki
+pages, but raw files.
 
 The risk is that a site might have `allowed_attachments` set to
 `templates/*` or `*.tmpl` something like that. I think such a configuration
