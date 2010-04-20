@@ -40,14 +40,12 @@ sub refresh () {
 			no_chdir => 1,
 			wanted => sub {
 				$_=decode_utf8($_);
-				if (IkiWiki::file_pruned($_, $dir)) {
+				if (IkiWiki::file_pruned($_)) {
 					$File::Find::prune=1;
 				}
 				elsif (! -l $_) {
 					my ($f)=/$config{wiki_file_regexp}/; # untaint
 					return unless defined $f;
-					$f=~s/^\Q$dir\E\/?//;
-					return unless length $f;
 					return if $f =~ /\._([^.]+)$/; # skip internal page
 					if (! -d _) {
 						$pages{pagename($f)}=1;
