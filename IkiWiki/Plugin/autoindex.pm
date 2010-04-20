@@ -39,12 +39,14 @@ sub refresh () {
 		find({
 			no_chdir => 1,
 			wanted => sub {
-				$_=decode_utf8($_);
+				my $file=decode_utf8($_);
+				$file=~s/^\Q$dir\E\/?//;
+				return unless length $file;
 				if (IkiWiki::file_pruned($_)) {
 					$File::Find::prune=1;
 				}
 				elsif (! -l $_) {
-					my ($f)=/$config{wiki_file_regexp}/; # untaint
+					my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
 					return unless defined $f;
 					return if $f =~ /\._([^.]+)$/; # skip internal page
 					if (! -d _) {

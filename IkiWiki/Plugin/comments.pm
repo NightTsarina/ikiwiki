@@ -644,13 +644,14 @@ sub comments_pending () {
 	find({
 		no_chdir => 1,
 		wanted => sub {
-			$_=decode_utf8($_);
+			my $file=decode_utf8($_);
+			$file=~s/^\Q$dir\E\/?//;
+			return unless length $file;
 			if (IkiWiki::file_pruned($_)) {
 				$File::Find::prune=1;
 			}
 			elsif (! -l $_ && ! -d _) {
-				$File::Find::prune=0;
-				my ($f)=/$config{wiki_file_regexp}/; # untaint
+				my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
 				if (defined $f && $f =~ /\Q._comment\E$/) {
 					my $ctime=(stat($f))[10];
                                         push @ret, [$f, $ctime];
