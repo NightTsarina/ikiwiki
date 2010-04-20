@@ -80,9 +80,14 @@ Each type/attribute/field/whatever (predefined, user-defined, arbitrary) would t
   * Is this a field-name -> directory mapping? -- K.A.
      * yes, with each directory having one page per value. It might not make sense for all fields, of course -- G.B.
          * (nods) I've been working on something similar with my unreleased `tagger` module. In that, by default, the field-name maps to the closest wiki-page of the same name.  Thus, if one had the field "genre=poetry" on the page fiction/stories/mary/lamb, then that would map to fiction/genre/poetry if fiction/genre existed. --K.A.
+             * that's the idea. In your case you could have the linkbase of genre be fiction/genre, and it would be created if it was missing. -- G.B.
 * `queries` : list of template queries this type/attribute/field/whatever is exposed to
   * I'm not sure what you mean here. -- K.A.
      * as mentioned before, some fields may be made accessible through different template queries, in different form. This is the case already for tags, that also come up in the `categories` query (used by Atom and RSS feeds). -- G.B.
          * Ah, do you mean that the input value is the same, but the output format is different?  Like the difference between TMPL_VAR NAME="FOO" and TMPL_VAR NAME="raw_FOO"; one is htmlized, and the other is not. -- K.A.
+              * Actually this is about the same information appearing in different queries (e.g. NAME="FOO" and NAME="BAR"). Example: say that I defined a "Rubrica" field. I would want both tags and categories to appear in `categories` template query, but only tags would appear in the `tags` query, and only Rubrica values to appear in `rubrica` queries. The issue of different output formats was presented in the next paragraph instead. -- G.B.
 
 Where this approach is limiting is on the kind of data that is passed to (template) queries. The value of the metadata fields might need some massaging (e.g. compare how tags are passed to tags queries vs cateogires queries, or also see what is done with the fields in the current `meta` plugin). I have problems on picturing an easy way to make this possible user-side (i.e. via templates and not in Perl modules). Suggestions welcome.
+
+One possibility could be to have the `queries` configuration allow a hash mapping query names to functions that would transform the data. Lacking that possibility, we might have to leave some predefined fields to have custom Perl-side treatment and leave custom fields to be untransformable.
+
