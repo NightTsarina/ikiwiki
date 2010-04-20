@@ -70,7 +70,7 @@ sub index (@) {
 
 	# A unique pageterm is used to identify the document for a page.
 	my $pageterm=pageterm($params{page});
-	return $params{content} unless defined $pageterm;
+	return unless defined $pageterm;
 	
 	my $db=xapiandb();
 	my $doc=Search::Xapian::Document->new();

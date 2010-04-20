@@ -92,9 +92,9 @@ sub cgi_editpage ($$) {
 	# wiki_file_regexp.
 	my ($page)=$form->field('page')=~/$config{wiki_file_regexp}/;
 	$page=possibly_foolish_untaint($page);
-	my $absolute=($page =~ s#^/+##);
+	my $absolute=($page =~ s#^/+##); # absolute name used to force location
 	if (! defined $page || ! length $page ||
-	    file_pruned($page, $config{srcdir})) {
+	    file_pruned($page)) {
 		error(gettext("bad page name"));
 	}
 
@@ -220,8 +220,7 @@ sub cgi_editpage ($$) {
 			my $best_loc;
 			if (! defined $from || ! length $from ||
 			    $from ne $form->field('from') ||
-			    file_pruned($from, $config{srcdir}) ||
-			    $from=~/^\// || 
+			    file_pruned($from) ||
 			    $absolute ||
 			    $form->submitted) {
 				@page_locs=$best_loc=$page;

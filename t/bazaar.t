@@ -12,7 +12,7 @@ BEGIN {
 		}
 	}
 }
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -59,6 +59,9 @@ is($changes[1]{pages}[0]{"page"}, "test1");
 
 my $ctime = IkiWiki::rcs_getctime("test2.mdwn");
 ok($ctime >= time() - 20);
+
+my $mtime = IkiWiki::rcs_getmtime("test2.mdwn");
+ok($mtime >= time() - 20);
 
 writefile('test3.mdwn', $config{srcdir}, $test1);
 IkiWiki::rcs_add("test3.mdwn");

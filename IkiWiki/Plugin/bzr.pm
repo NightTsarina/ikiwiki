@@ -286,14 +286,10 @@ sub rcs_diff ($) {
 	}
 }
 
-sub rcs_getctime ($) {
-	my ($file) = @_;
-
+sub extract_timestamp (@) {
 	# XXX filename passes through the shell here, should try to avoid
 	# that just in case
-	my @cmdline = ("bzr", "log", "--limit", '1', "$config{srcdir}/$file");
-	open (my $out, "@cmdline |");
-
+	open (my $out, "@_ |");
 	my @log = bzr_log($out);
 
 	if (length @log < 1) {
@@ -303,12 +299,22 @@ sub rcs_getctime ($) {
 	eval q{use Date::Parse};
 	error($@) if $@;
 	
-	my $ctime = str2time($log[0]->{"timestamp"});
-	return $ctime;
+	my $time = str2time($log[0]->{"timestamp"});
+	return $time;
+}
+
+sub rcs_getctime ($) {
+	my ($file) = @_;
+
+	my @cmdline = ("bzr", "log", "--forward", "--limit", '1', "$config{srcdir}/$file");
+	return extract_timestamp(@cmdline);
 }
 
 sub rcs_getmtime ($) {
-	error "rcs_getmtime is not implemented for bzr\n"; # TODO
+	my ($file) = @_;
+
+	my @cmdline = ("bzr", "log", "--limit", '1', "$config{srcdir}/$file");
+	return extract_timestamp(@cmdline);
 }
 
 1

@@ -63,7 +63,7 @@ sub file_in_vc ($$) {
 	}
 	my $found=0;
 	while (<DARCS_MANIFEST>) {
-		$found = 1, last if /^(\.\/)?$file$/;
+		$found = 1 if /^(\.\/)?$file$/;
 	}
 	close(DARCS_MANIFEST) or error("'darcs query manifest' exited " . $?);
 
