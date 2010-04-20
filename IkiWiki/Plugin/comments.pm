@@ -338,7 +338,7 @@ sub editcomment ($$) {
 	my $page = $form->field('page');
 	$page = IkiWiki::possibly_foolish_untaint($page);
 	if (! defined $page || ! length $page ||
-		IkiWiki::file_pruned($page, $config{srcdir})) {
+		IkiWiki::file_pruned($page)) {
 		error(gettext("bad page name"));
 	}
 
@@ -548,7 +548,7 @@ sub commentmoderation ($$) {
 				# pending comment before untainting.
 				my ($f)= $id =~ /$config{wiki_file_regexp}/;
 				if (! defined $f || ! length $f ||
-				    IkiWiki::file_pruned($f, $config{srcdir})) {
+				    IkiWiki::file_pruned($f)) {
 					error("illegal file");
 				}
 
@@ -644,18 +644,14 @@ sub comments_pending () {
 	find({
 		no_chdir => 1,
 		wanted => sub {
-			$_=decode_utf8($_);
-			if (IkiWiki::file_pruned($_, $dir)) {
-				$File::Find::prune=1;
-			}
-			elsif (! -l $_ && ! -d _) {
-				$File::Find::prune=0;
-				my ($f)=/$config{wiki_file_regexp}/; # untaint
-				if (defined $f && $f =~ /\Q._comment\E$/) {
-					my $ctime=(stat($f))[10];
-					$f=~s/^\Q$dir\E\/?//;
-                                        push @ret, [$f, $ctime];
-				}
+			my $file=decode_utf8($_);
+			$file=~s/^\Q$dir\E\/?//;
+			return if ! length $file || IkiWiki::file_pruned($file)
+				|| -l $_ || -d _ || $file !~ /\Q._comment\E$/;
+			my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
+			if (defined $f) {
+				my $ctime=(stat($_))[10];
+				push @ret, [$f, $ctime];
 			}
 		}
 	}, $dir);

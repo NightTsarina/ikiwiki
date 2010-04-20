@@ -137,7 +137,7 @@ sub formbuilder (@) {
 		$filename=linkpage(IkiWiki::possibly_foolish_untaint(
 				attachment_location($form->field('page')).
 				IkiWiki::basename($filename)));
-		if (IkiWiki::file_pruned($filename, $config{srcdir})) {
+		if (IkiWiki::file_pruned($filename)) {
 			error(gettext("bad attachment filename"));
 		}
 		
