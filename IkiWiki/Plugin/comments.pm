@@ -646,16 +646,12 @@ sub comments_pending () {
 		wanted => sub {
 			my $file=decode_utf8($_);
 			$file=~s/^\Q$dir\E\/?//;
-			return unless length $file;
-			if (IkiWiki::file_pruned($_)) {
-				$File::Find::prune=1;
-			}
-			elsif (! -l $_ && ! -d _) {
-				my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
-				if (defined $f && $f =~ /\Q._comment\E$/) {
-					my $ctime=(stat($_))[10];
-                                        push @ret, [$f, $ctime];
-				}
+			return if ! length $file || IkiWiki::file_pruned($file)
+				|| -l $_ || -d _ || $file !~ /\Q._comment\E$/;
+			my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
+			if (defined $f) {
+				my $ctime=(stat($_))[10];
+				push @ret, [$f, $ctime];
 			}
 		}
 	}, $dir);
