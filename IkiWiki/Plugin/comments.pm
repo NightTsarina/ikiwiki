@@ -653,7 +653,7 @@ sub comments_pending () {
 			elsif (! -l $_ && ! -d _) {
 				my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
 				if (defined $f && $f =~ /\Q._comment\E$/) {
-					my $ctime=(stat($f))[10];
+					my $ctime=(stat($_))[10];
                                         push @ret, [$f, $ctime];
 				}
 			}
