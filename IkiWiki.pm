@@ -1843,15 +1843,8 @@ sub deptype (@) {
 }
 
 my $file_prune_regexp;
-sub file_pruned ($;$) {
+sub file_pruned ($) {
 	my $file=shift;
-	if (@_) {
-		require File::Spec;
-		$file=File::Spec->canonpath($file);
-		my $base=File::Spec->canonpath(shift);
-		return if $file eq $base;
-		$file =~ s#^\Q$base\E/+##;
-	}
 
 	if (defined $config{include} && length $config{include}) {
 		return 0 if $file =~ m/$config{include}/;
