@@ -431,7 +431,7 @@ sub remove_del (@) {
 	foreach my $file (@_) {
 		my $page=pagename($file);
 		if (! isinternal($page)) {
-			debug(sprintf(gettext("removing old page %s"), $page));
+			debug(sprintf(gettext("removing obsolete %s"), $page));
 		}
 	
 		foreach my $old (@{$oldrenderedfiles{$page}}) {
