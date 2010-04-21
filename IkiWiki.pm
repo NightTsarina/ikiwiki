@@ -1089,11 +1089,11 @@ sub htmllink ($$$;@) {
 			my $cgilink = "";
 			if (length $config{cgiurl}) {
 				$cgilink = "<a href=\"".
-				cgiurl(
-					do => "create",
-					page => lc($link),
-					from => $lpage
-				)."\" rel=\"nofollow\">?</a>";
+					cgiurl(
+						do => "create",
+						page => lc($link),
+						from => $lpage
+					)."\" rel=\"nofollow\">?</a>";
 			}
 			return "<span class=\"createlink\">$cgilink$linktext</span>"
 		}
