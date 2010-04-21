@@ -15,86 +15,7 @@ A new setting is used to enable or disable auto-create tag pages, `tag_autocreat
 The new tag file is created during the preprocess phase. 
 The new tag file is then complied during the change phase.
 
-_tag.pm from version 3.01_
-
-
-	--- tag.pm      2009-02-06 10:26:03.000000000 -0700
-	+++ tag_new.pm  2009-02-06 12:17:19.000000000 -0700
-	@@ -14,6 +14,7 @@
-			hook(type => "preprocess", id => "tag", call => \&preprocess_tag, scan => 1);
-			hook(type => "preprocess", id => "taglink", call => \&preprocess_taglink, scan => 1);
-			hook(type => "pagetemplate", id => "tag", call => \&pagetemplate);
-	+       hook(type => "change", id => "tag", call => \&change);
-	 }
-	 
-	 sub getopt () {
-	@@ -36,6 +37,36 @@
-							safe => 1,
-							rebuild => 1,
-					},
-	+               tag_autocreate => {
-	+                       type => "boolean",
-	+                       example => 0,
-	+                       description => "Auto-create the new tag pages, uses autotagpage.tmpl ",
-	+                       safe => 1,
-	+                       rebulid => 1,
-	+               },
-	+}
-	+
-	+my $autocreated_page = 0;
-	+
-	+sub gen_tag_page($)    {
-	+       my $tag=shift;
-	+
-	+       my $tag_file=$tag.'.'.$config{default_pageext};
-	+       return if (-f $config{srcdir}.$tag_file);
-	+
-	+       my $template=template("autotagpage.tmpl");
-	+       $template->param(tag => $tag);
-	+       writefile($tag_file, $config{srcdir}, $template->output);
-	+       $autocreated_page = 1;
-	+
-	+       if ($config{rcs}) {
-	+               IkiWiki::disable_commit_hook();
-	+               IkiWiki::rcs_add($tag_file);
-	+               IkiWiki::rcs_commit_staged(
-	+                       gettext("Automatic tag page generation"),
-	+                       undef, undef);
-	+               IkiWiki::enable_commit_hook();
-	+       }
-	 }
-	 
-	 sub tagpage ($) {
-	@@ -47,6 +78,10 @@
-					$tag=~y#/#/#s; # squash dups
-			}
-	 
-	+       if (defined $config{tag_autocreate} && $config{tag_autocreate} ) {
-	+               gen_tag_page($tag);
-	+       }
-	+
-			return $tag;
-	 }
-	 
-	@@ -125,4 +160,18 @@
-			}
-	 }
-	 
-	+sub change(@) {
-	+       return unless($autocreated_page);
-	+       $autocreated_page = 0;
-	+
-	+       # This refresh/saveindex is to complie the autocreated tag pages
-	+       IkiWiki::refresh();
-	+       IkiWiki::saveindex();
-	+
-	+       # This refresh/saveindex is to fix the Tags link
-	+       # With out this additional refresh/saveindex the tag link displays ?tag
-	+       IkiWiki::refresh();
-	+       IkiWiki::saveindex();
-	+}
-	+
-
+*see git history of this page if you want the patch --[[smcv]]*
 
 This uses a [[template|wikitemplates]] called `autotagpage.tmpl`, here is my template file:
 
@@ -250,6 +171,44 @@ wrong direction. (fixed --[[Joey]] )
 >>>> Yes, I forgot about that and that is a bug. I'll fix that.
 >>>> --[[David_Riebenbauer]]
 
+>>>>> In my branch, it keeps a list of autofiles that were created,
+>>>>> not deleted. And I think that turns out to be necessary, really.
+>>>>> However, I see no way to clean out that list on deletion and
+>>>>> manual recreation -- it still needs to remember it was once an autofile,
+>>>>> in order to avoid recreating it if it's deleted yet again. --[[Joey]]
+
+>>>>>> Are these really the semantics we want? It seems strange to me
+>>>>>> that this:
+>>>>>>
+>>>>>> * tag a page as foo
+>>>>>> * tags/foo automatically appears
+>>>>>> * delete tags/foo
+>>>>>> * create tags/foo manually
+>>>>>> * delete tags/foo again
+>>>>>> * tags/foo isn't automatically created
+>>>>>>
+>>>>>> isn't the same as this:
+>>>>>>
+>>>>>> * create tags/foo
+>>>>>> * delete tags/foo
+>>>>>> * tag a page as foo
+>>>>>> * tags/foo automatically appears
+>>>>>>
+>>>>>> or even this:
+>>>>>>
+>>>>>> * create tags/foo
+>>>>>> * tag a page as foo
+>>>>>> * delete tags/foo
+>>>>>> * tags/foo automatically appears (?)
+>>>>>>
+>>>>>> --[[smcv]]
+
+>>>>>>> I agree that the last of these is not desired. It could be avoided
+>>>>>>> by extending the list of autofiles to include those that were not
+>>>>>>> created due to the file/page already existing.
+>>>>>>> 
+>>>>>>> Hmm, that would fix the previous scenario too. --[[Joey]] 
+
 >>> * `autoindex` forgets that a page was deleted when it's no longer needed
 >>>   anyway (this may be harder for `autotag`?)
 
@@ -264,26 +223,23 @@ wrong direction. (fixed --[[Joey]] )
 >>>> Good suggestion. Adding the files to RCS is on my todo list anyway.
 >>>> --[[David_Riebenbauer]]
 
+>>>>> I think it may be better to allow the `add_autofile` caller
+>>>>> to specify if it is added to RCS. In my branch, it can do
+>>>>> so by just making the callback it registers call `rcs_add`; 
+>>>>> and I have tag do this. Other plugins might want autofiles
+>>>>> that do not get checked in, conceivably.
+>>>>> --[[Joey]] 
+
 > Regarding the call from `IkiWiki.pm` to `Render.pm`, wouldn't this be
 > quite easy to solve by moving `verify_src_file` to IkiWiki.pm? --[[smcv]]
 
 >> True. I'll do that. --[[David_Riebenbauer]]
+>> Fixed in my branch --[[Joey]]
 
 [[!template id=gitbranch branch=origin/autotag author="[[Joey]]"]]
 I've pushed an autotag branch of my own, which refactors
-things a bit. It is untested so far though. --[[Joey]]
-
----
-
-Known bugs in my branch (probably also in David's):
-
-* Does not remember that a tag was deleted.
-  
-  The code to do that only works if, at the same time the tag
-  is deleted, one of the pages that has the tag is modified.
-  That's because `add_autofile` needs to be called before it's
-  aware the autofile exists, and if it's not aware, it does not
-  record it as a deleted autofile.
+things a bit and fixes bugs around deletion/recreation.
+I've tested it somewhat. --[[Joey]]
 
 [f3abeac919c4736429bd3362af6edf51ede8e7fe]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f3abeac919c4736429bd3362af6edf51ede8e7fe (commitdiff for f3abeac919c4736429bd3362af6edf51ede8e7fe)
 [4af4d26582f0c2b915d7102fb4a604b176385748]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=4af4d26582f0c2b915d7102fb4a604b176385748 (commitdiff for 4af4d26582f0c2b915d7102fb4a604b176385748)

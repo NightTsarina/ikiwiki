@@ -517,7 +517,7 @@ sub link_types_changed ($$) {
 	my $old = shift;
 
 	return 0 if !defined $new && !defined $old;
-	return 1 if !defined $new || !defined $old;
+	return 1 if (!defined $new && %$old) || (!defined $old && %$new);
 
 	while (my ($type, $links) = each %$new) {
 		foreach my $link (keys %$links) {
