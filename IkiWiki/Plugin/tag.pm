@@ -170,8 +170,8 @@ package IkiWiki::PageSpec;
 
 sub match_tagged ($$;@) {
 	my $page=shift;
-	my $glob=shift;
-	return match_link($page, IkiWiki::Plugin::tag::taglink($glob), linktype => 'tag', @_);
+	my $glob=IkiWiki::Plugin::tag::taglink(shift);
+	return match_link($page, $glob, linktype => 'tag', @_);
 }
 
 1
