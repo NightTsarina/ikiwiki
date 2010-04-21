@@ -83,7 +83,8 @@ sub gentag ($) {
 			debug($message);
 
 			my $template=template("autotag.tmpl");
-			$template->param(tag => $tag);
+			$template->param(tag => IkiWiki::basename($tag));
+			$template->param(tagpage => $tagpage);
 			writefile($tagfile, $config{srcdir}, $template->output);
 			if ($config{rcs}) {
 				IkiWiki::disable_commit_hook();
