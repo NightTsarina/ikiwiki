@@ -1087,14 +1087,16 @@ sub htmllink ($$$;@) {
 		$bestlink=htmlpage($bestlink);
 
 		if (! $destsources{$bestlink}) {
-			return $linktext unless length $config{cgiurl};
-			return "<span class=\"createlink\"><a href=\"".
-				cgiurl(
-					do => "create",
-					page => lc($link),
-					from => $lpage
-				).
-				"\" rel=\"nofollow\">?</a>$linktext</span>"
+			my $cgilink = "";
+			if (length $config{cgiurl}) {
+				$cgilink = "<a href=\"".
+					cgiurl(
+						do => "create",
+						page => lc($link),
+						from => $lpage
+					)."\" rel=\"nofollow\">?</a>";
+			}
+			return "<span class=\"createlink\">$cgilink$linktext</span>"
 		}
 	}
 	
