@@ -281,68 +281,59 @@ sub srcdir_check () {
 	
 }
 
-sub verify_src_file ($$) {
-	my $file=shift;
-	my $dir=shift;
-
-	return if -l $file || -d _;
-	$file=~s/^\Q$dir\E\/?//;
-	return if ! length $file;
-	my $page = pagename($file);
-	if (! exists $pagesources{$page} &&
-		file_pruned($file)) {
-		return;
-	}
-
-	my ($file_untainted) = $file =~ /$config{wiki_file_regexp}/; # untaint
-	if (! defined $file_untainted) {
-		warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
-	}
-	return ($file_untainted, $page);
-}
-
 sub find_src_files () {
 	my @files;
 	my %pages;
 	eval q{use File::Find};
 	error($@) if $@;
+
+	my ($page, $dir, $underlay);
+	my $helper=sub {
+		my $file=decode_utf8($_);
+
+		return if -l $file || -d _;
+		$file=~s/^\Q$dir\E\/?//;
+		return if ! length $file;
+		$page = pagename($file);
+		if (! exists $pagesources{$page} &&
+		    file_pruned($file)) {
+			$File::Find::prune=1;
+			return;
+		}
+
+		my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
+		if (! defined $f) {
+			warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
+		}
+	
+		if ($underlay) {
+			# avoid underlaydir override attacks; see security.mdwn
+			if (! -l "$config{srcdir}/$f" && ! -e _) {
+				if (! $pages{$page}) {
+					push @files, $f;
+					$pages{$page}=1;
+				}
+			}
+		}
+		else {
+			push @files, $f;
+			if ($pages{$page}) {
+				debug(sprintf(gettext("%s has multiple possible source pages"), $page));
+			}
+			$pages{$page}=1;
+		}
+	};
+
 	find({
 		no_chdir => 1,
-		wanted => sub {
-			my ($file, $page) = verify_src_file(decode_utf8($_), $config{srcdir});
-			if (defined $file) {
-				push @files, $file;
-				if ($pages{$page}) {
-					debug(sprintf(gettext("%s has multiple possible source pages"), $page));
-				}
-				$pages{$page}=1;
-			}
-			else {
-				$File::Find::prune=1;
-			}
-		},
-	}, $config{srcdir});
-	foreach my $dir (@{$config{underlaydirs}}, $config{underlaydir}) {
+		wanted => $helper,
+	}, $dir=$config{srcdir});
+	$underlay=1;
+	foreach (@{$config{underlaydirs}}, $config{underlaydir}) {
 		find({
 			no_chdir => 1,
-			wanted => sub {
-				my ($file, $page) = verify_src_file(decode_utf8($_), $dir);
-				if (defined $file) {
-					# avoid underlaydir override
-					# attacks; see security.mdwn
-					if (! -l "$config{srcdir}/$file" &&
-					    ! -e _) {
-						if (! $pages{$page}) {
-							push @files, $file;
-							$pages{$page}=1;
-						}
-					}
-				}
-				else {
-					$File::Find::prune=1;
-				}
-			},
-		}, $dir);
+			wanted => $helper,
+		}, $dir=$_);
 	};
 	return \@files, \%pages;
 }
@@ -691,24 +682,28 @@ sub gen_autofile ($$$) {
 	my $pages=shift;
 	my $del=shift;
 	
-	if (srcfile($autofile, 1)) {
-		return 0;
+	if (srcfile($autofile, 1) || file_pruned($autofile)) {
+		return;
+	}
+	
+	my $file="$config{srcdir}/$autofile" =~ /$config{wiki_file_regexp}/; # untaint
+	if (! defined $file || -l $file || -d _ || -e _) {
+		return;
 	}
 
-	my ($file, $page) = verify_src_file("$config{srcdir}/$autofile", $config{srcdir});
-	
 	if ((!defined $file) ||
 	    (exists $wikistate{$autofiles{$autofile}{plugin}}{autofile_deleted})) {
-		return 0;
+		return;
 	}
 	
+	my $page = pagename($file);
 	if ($pages->{$page}) {
-		return 0;
+		return;
 	}
 
 	if (grep { $_ eq $file } @$del) {
-		$wikistate{$autofiles{$autofile}{generator}}{autofile_deleted}=1;
-		return 0;
+		$wikistate{$autofiles{$autofile}{plugin}}{autofile_deleted}=1;
+		return;
 	}
 
 	$autofiles{$autofile}{generator}->();
