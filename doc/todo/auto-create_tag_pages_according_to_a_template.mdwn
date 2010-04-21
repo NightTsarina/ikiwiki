@@ -250,6 +250,12 @@ wrong direction. (fixed --[[Joey]] )
 >>>> Yes, I forgot about that and that is a bug. I'll fix that.
 >>>> --[[David_Riebenbauer]]
 
+>>>>> In my branch, it keeps a list of autofiles that were created,
+>>>>> not deleted. And I think that turns out to be necessary, really.
+>>>>> However, I see no way to clean out that list on deletion and
+>>>>> manual recreation -- it still needs to remember it was once an autofile,
+>>>>> in order to avoid recreating it if it's deleted yet again. --[[Joey]]
+
 >>> * `autoindex` forgets that a page was deleted when it's no longer needed
 >>>   anyway (this may be harder for `autotag`?)
 
@@ -264,6 +270,13 @@ wrong direction. (fixed --[[Joey]] )
 >>>> Good suggestion. Adding the files to RCS is on my todo list anyway.
 >>>> --[[David_Riebenbauer]]
 
+>>>>> I think it may be better to allow the `add_autofile` caller
+>>>>> to specify if it is added to RCS. In my branch, it can do
+>>>>> so by just making the callback it registers call `rcs_add`; 
+>>>>> and I have tag do this. Other plugins might want autofiles
+>>>>> that do not get checked in, conceivably.
+>>>>> --[[Joey]] 
+
 > Regarding the call from `IkiWiki.pm` to `Render.pm`, wouldn't this be
 > quite easy to solve by moving `verify_src_file` to IkiWiki.pm? --[[smcv]]
 
@@ -271,19 +284,8 @@ wrong direction. (fixed --[[Joey]] )
 
 [[!template id=gitbranch branch=origin/autotag author="[[Joey]]"]]
 I've pushed an autotag branch of my own, which refactors
-things a bit. It is untested so far though. --[[Joey]]
-
----
-
-Known bugs in my branch (probably also in David's):
-
-* Does not remember that a tag was deleted.
-  
-  The code to do that only works if, at the same time the tag
-  is deleted, one of the pages that has the tag is modified.
-  That's because `add_autofile` needs to be called before it's
-  aware the autofile exists, and if it's not aware, it does not
-  record it as a deleted autofile.
+things a bit and fixes bugs around deletion/recreation.
+I've tested it somewhat. --[[Joey]]
 
 [f3abeac919c4736429bd3362af6edf51ede8e7fe]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f3abeac919c4736429bd3362af6edf51ede8e7fe (commitdiff for f3abeac919c4736429bd3362af6edf51ede8e7fe)
 [4af4d26582f0c2b915d7102fb4a604b176385748]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=4af4d26582f0c2b915d7102fb4a604b176385748 (commitdiff for 4af4d26582f0c2b915d7102fb4a604b176385748)
