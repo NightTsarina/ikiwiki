@@ -681,18 +681,18 @@ sub gen_autofile ($$$) {
 	my $autofile=shift;
 	my $pages=shift;
 	my $del=shift;
-	
+
 	if (srcfile($autofile, 1) || file_pruned($autofile)) {
 		return;
 	}
 	
-	my $file="$config{srcdir}/$autofile" =~ /$config{wiki_file_regexp}/; # untaint
+	my ($file)="$config{srcdir}/$autofile" =~ /$config{wiki_file_regexp}/; # untaint
 	if (! defined $file || -l $file || -d _ || -e _) {
 		return;
 	}
 
 	if ((!defined $file) ||
-	    (exists $wikistate{$autofiles{$autofile}{plugin}}{autofile_deleted})) {
+	    (exists $wikistate{$autofiles{$autofile}{plugin}}{deleted_autofile}{$autofile})) {
 		return;
 	}
 	
@@ -701,8 +701,8 @@ sub gen_autofile ($$$) {
 		return;
 	}
 
-	if (grep { $_ eq $file } @$del) {
-		$wikistate{$autofiles{$autofile}{plugin}}{autofile_deleted}=1;
+	if (grep { $_ eq $autofile } @$del) {
+		$wikistate{$autofiles{$autofile}{plugin}}{deleted_autofile}{$autofile}=1;
 		return;
 	}
 
