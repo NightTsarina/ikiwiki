@@ -125,7 +125,9 @@ sub pagetemplate (@) {
 package IkiWiki::PageSpec;
 
 sub match_tagged ($$;@) {
-	return match_link($_[0], IkiWiki::Plugin::tag::tagpage($_[1]), linktype => 'tag');
+	my $page=shift;
+	my $glob=shift;
+	return match_link($page, IkiWiki::Plugin::tag::tagpage($glob), linktype => 'tag', @_);
 }
 
 1
