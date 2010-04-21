@@ -692,7 +692,7 @@ sub gen_autofile ($$$) {
 	}
 
 	if ((!defined $file) ||
-	    (exists $wikistate{$autofiles{$autofile}{plugin}}{deleted_autofile}{$autofile})) {
+	    (exists $wikistate{$autofiles{$autofile}{plugin}}{autofile}{$autofile})) {
 		return;
 	}
 	
@@ -702,11 +702,11 @@ sub gen_autofile ($$$) {
 	}
 
 	if (grep { $_ eq $autofile } @$del) {
-		$wikistate{$autofiles{$autofile}{plugin}}{deleted_autofile}{$autofile}=1;
 		return;
 	}
 
 	$autofiles{$autofile}{generator}->();
+	$wikistate{$autofiles{$autofile}{plugin}}{autofile}{$autofile}=1;
 	$pages->{$page}=1;
 	return 1;
 }
