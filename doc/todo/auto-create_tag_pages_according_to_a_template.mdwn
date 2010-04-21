@@ -177,6 +177,32 @@ wrong direction. (fixed --[[Joey]] )
 >>>>> manual recreation -- it still needs to remember it was once an autofile,
 >>>>> in order to avoid recreating it if it's deleted yet again. --[[Joey]]
 
+>>>>>> Are these really the semantics we want? It seems strange to me
+>>>>>> that this:
+>>>>>>
+>>>>>> * tag a page as foo
+>>>>>> * tags/foo automatically appears
+>>>>>> * delete tags/foo
+>>>>>> * create tags/foo manually
+>>>>>> * delete tags/foo again
+>>>>>> * tags/foo isn't automatically created
+>>>>>>
+>>>>>> isn't the same as this:
+>>>>>>
+>>>>>> * create tags/foo
+>>>>>> * delete tags/foo
+>>>>>> * tag a page as foo
+>>>>>> * tags/foo automatically appears
+>>>>>>
+>>>>>> or even this:
+>>>>>>
+>>>>>> * create tags/foo
+>>>>>> * tag a page as foo
+>>>>>> * delete tags/foo
+>>>>>> * tags/foo automatically appears (?)
+>>>>>>
+>>>>>> --[[smcv]]
+
 >>> * `autoindex` forgets that a page was deleted when it's no longer needed
 >>>   anyway (this may be harder for `autotag`?)
 
