@@ -152,12 +152,12 @@ consider this a feature, not a bug)
 Todo/Bugs:
 
 * Will still create a page even if there's a page other than `$tag` under
-`tagbase` satisfying the tag link.
+`tagbase` satisfying the tag link. (details? --[[Joey]])
 * Call from `IkiWiki.pm` to `Render.pm`, which adds a module dependency in the
-wrong direction.
+wrong direction. (fixed --[[Joey]] )
 * Add files to RCS.
 * Unit tests.
-* Proper documentation.
+* Proper documentation. (fixed (mostly) --[[Joey]])
 
 --[[David_Riebenbauer]]
 
@@ -273,9 +273,17 @@ wrong direction.
 I've pushed an autotag branch of my own, which refactors
 things a bit. It is untested so far though. --[[Joey]]
 
-* `verify_src_file` only called from Render.pm
-* Gets rid of `%del_files`.
-* Uses `%wikistate`.
+---
+
+Known bugs in my branch (probably also in David's):
+
+* Does not remember that a tag was deleted.
+  
+  The code to do that only works if, at the same time the tag
+  is deleted, one of the pages that has the tag is modified.
+  That's because `add_autofile` needs to be called before it's
+  aware the autofile exists, and if it's not aware, it does not
+  record it as a deleted autofile.
 
 [f3abeac919c4736429bd3362af6edf51ede8e7fe]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f3abeac919c4736429bd3362af6edf51ede8e7fe (commitdiff for f3abeac919c4736429bd3362af6edf51ede8e7fe)
 [4af4d26582f0c2b915d7102fb4a604b176385748]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=4af4d26582f0c2b915d7102fb4a604b176385748 (commitdiff for 4af4d26582f0c2b915d7102fb4a604b176385748)

@@ -47,13 +47,13 @@ ikiwiki (3.20100415) UNRELEASED; urgency=low
   * calendarmonth.tmpl: The month calendar is now put in a sidebar.
   * calendar: Improved display of arrows.
   * Rename --getctime to --gettime. (The old name still works for
-    backwards compatability.)
+    backwards compatibility.)
   * --gettime now also looks up last modification time.
   * Automatically run --gettime the first time ikiwiki is run on 
     a given srcdir. (Use --no-gettime to disable.)
   * Add rcs_getmtime to plugin API; currently only implemented
     for git and svn.
-  * Optimise --gettime for git, so it's appropriatly screamingly
+  * Optimise --gettime for git, so it's appropriately screamingly
     fast. (This could be done for most other backends too.)
   * However, --gettime for git no longer follows renames. That would
     be slow, and whether a renamed wiki page is the same page is really
@@ -1148,7 +1148,7 @@ ikiwiki (2.55) unstable; urgency=low
   * attachment: Do not escape _ when determining attachment filenames.
   * Rebuild pages that change their type. (Gabriel McManus)
   * monotone: Add support for rename, delete, and also diff. (William Uther)
-  * toggle: Fix incompatability between javascript and webkit.
+  * toggle: Fix incompatibility between javascript and webkit.
   * bzr: Add support for rename and delete. (Jelmer Vernooij)
   * attachment: Use relative paths when inserting links.
   * toggle: Fix for when html got tidied. Closes: #492529 (Enrico Zini)
@@ -2135,7 +2135,7 @@ ikiwiki (2.6) unstable; urgency=low
     - relax asumption about the possible submit values (use "Save Page"
       explicitly);
     - de-hardcode the submit buttons from the editpage template
-      (This was needed for compatability with a bug in CGI::FormBuilder
+      (This was needed for compatibility with a bug in CGI::FormBuilder
       3.0401, but ikiwiki already needs a newer version.)
   * Pass buttons to all other formbuilder_setup hooks too.
   * Add color parameter to postsparkline. Closes: #438900
@@ -2184,7 +2184,7 @@ ikiwiki (2.4) unstable; urgency=low
 
   * Make the toc plugin use html-compatible anchors. This is necessary since
     most web sites serve ikiwiki xhtml files as text/html and mozilla browsers
-    get confused. So it's best for ikiwiki to follow the compatability
+    get confused. So it's best for ikiwiki to follow the compatibility
     recommendations in appendix C of the XHTML spec. Closes: #432045
   * Support building on systems that lack asprintf.
   * mercurial getctime is currently broken, apparently by some change in
@@ -2682,7 +2682,7 @@ ikiwiki (1.41) unstable; urgency=low
   * Gettext 1.04 or up is needed for the OO interface that ikiwiki needs,
     if an older version is installed, just don't gettext strings, instead of
     crashing.
-  * Added smileys for Moin Moin compatability.
+  * Added smileys for Moin Moin compatibility.
   * Fix handling of discussion links on discussion pages when l10n is used.
   * Make gitorigin_branch and gitmaster_branch configurable via the setup
     file. Closes: #408599
@@ -2990,7 +2990,7 @@ ikiwiki (1.29) unstable; urgency=low
   * Note that plugins that accessed this variable will need to be updated!
     The plugin interface has been increased to version 1.01 for this change.
     As few plugins use %renderedfiles I haven't done anything else to ensure
-    compatability of old plugins.
+    compatibility of old plugins.
   * Add will_render function to the plugin interface, used to register that a
     page renders a destination file, and do some security checks. Previously
     but no longer rendered files will be cleaned up.
@@ -3328,7 +3328,7 @@ ikiwiki (1.13) unstable; urgency=low
     treating the GlobList as a very limited microlanguage that is transformed
     to perl code that does the matching.
   * The old GlobList format is deprecated, and I encourage users to switch to
-    using the new PageSpec format. Compatability with the old format will be
+    using the new PageSpec format. Compatibility with the old format will be
     removed at some point, possibly by 2.0.
   * Wiki rebuild needed on upgrade to this version due to PageSpec change.
   * Add support for creation_month and creation_year to PageSpec.
@@ -3387,7 +3387,7 @@ ikiwiki (1.11) unstable; urgency=low
     This will be the page that a source page will be part of, which is
     different than the source page for inlined pages.
   * Audited all plugins to endure they pass (page, destpage) to htmllink
-    appropriatly. This means inlining of various plugins will not work
+    appropriately. This means inlining of various plugins will not work
     properly, with correct links generated.
 
  -- Joey Hess <joeyh@debian.org>  Thu, 27 Jul 2006 20:51:23 -0400
