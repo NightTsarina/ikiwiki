@@ -33,3 +33,15 @@ I have tried rebuilding on my squeeze system and still comments don't appear. An
 <http://natalian.org/comments/>
 
 I was worried is was due to a time skew problem I was experiencing on my VPS in the last month, though the time is right now and still comments do not appear on blog posts like <http://natalian.org/archives/2010/03/25/BBC_News_complaints/>
+
+# Getting closer
+
+    hendry@webconverger templates$ for i in *.tmpl; do ./test-template.perl $i || echo $i has an error; done
+    HTML::Template->new() : At least one <TMPL_IF> or <TMPL_UNLESS> not terminated at end of file! at /usr/share/perl5/HTML/Template.pm line 2351.
+    page.tmpl has an error
+    hendry@webconverger templates$ cat test-template.perl 
+    #!/usr/bin/perl
+    use HTML::Template;
+    my $htc = HTML::Template->new(filename => "$ARGV[0]");
+
+I think the problem was before that it was `<TMPL_IF COMMENTS>` and now it is `<TMPL_IF NAME="COMMENTS">` ?
