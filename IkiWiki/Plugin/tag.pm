@@ -79,11 +79,18 @@ sub gentag ($) {
 		my $tagfile = newpagefile($tagpage, $config{default_pageext});
 
 		add_autofile($tagfile, "tag", sub {
-			debug(sprintf(gettext("creating tag page %s"), $tag));
+			my $message=sprintf(gettext("creating tag page %s"), $tag);
+			debug($message);
 
 			my $template=template("autotag.tmpl");
 			$template->param(tag => $tag);
 			writefile($tagfile, $config{srcdir}, $template->output);
+			if ($config{rcs}) {
+				IkiWiki::disable_commit_hook();
+				IkiWiki::rcs_add($tagfile);
+				IkiWiki::rcs_commit_staged($message, undef, undef);
+				IkiWiki::enable_commit_hook();
+			}
 		});
 	}
 }
