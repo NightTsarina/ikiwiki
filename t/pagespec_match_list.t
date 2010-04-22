@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 107;
+use Test::More tests => 115;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -27,6 +27,8 @@ IkiWiki::checkconfig();
 $IkiWiki::pagectime{foo} = 2;
 $IkiWiki::pagectime{foo2} = 2;
 $IkiWiki::pagectime{foo3} = 1;
+$IkiWiki::pagectime{foo4} = 1;
+$IkiWiki::pagectime{foo5} = 1;
 $IkiWiki::pagectime{bar} = 3;
 $IkiWiki::pagectime{"post/1"} = 6;
 $IkiWiki::pagectime{"post/2"} = 6;
@@ -69,12 +71,28 @@ foreach my $spec ("* and link(bar)", "* or link(bar)") {
 	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_PRESENCE);
 	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
 	ok($IkiWiki::depends_simple{foo2}{foo2} == $IkiWiki::DEPEND_LINKS);
+	ok($IkiWiki::depends_simple{foo2}{foo} != $IkiWiki::DEPEND_LINKS);
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 	pagespec_match_list("foo3", $spec, deptype => deptype("links"));
 	ok($IkiWiki::depends{foo3}{$spec} & $IkiWiki::DEPEND_LINKS);
 	ok(! ($IkiWiki::depends{foo3}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_PRESENCE)));
 	ok($IkiWiki::depends_simple{foo3}{foo3} == $IkiWiki::DEPEND_LINKS);
+	ok($IkiWiki::depends_simple{foo3}{foo} != $IkiWiki::DEPEND_LINKS);
+	%IkiWiki::depends_simple=();
+	%IkiWiki::depends=();
+}
+# Above we tested that a link pagespec is influenced
+# by the pages that currently contain the link.
+
+# Oppositely, a pagespec that tests for pages that do not have a link
+# is not influenced by pages that currently contain the link, but
+# is instead influenced by pages that currently do not (but that
+# could be changed to have it).
+foreach my $spec ("* and !link(bar)", "* and !(!(!link(bar)))") {
+	pagespec_match_list("foo2", $spec);
+	ok($IkiWiki::depends_simple{foo2}{foo2} != $IkiWiki::DEPEND_LINKS);
+	ok($IkiWiki::depends_simple{foo2}{foo} == $IkiWiki::DEPEND_LINKS);
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 }

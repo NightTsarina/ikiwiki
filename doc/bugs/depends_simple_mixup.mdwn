@@ -44,8 +44,10 @@ is modified to add the link, the regular dependency calculation code
 didn't notice, since the pagespec no longer matched.
 
 In this case, `depends_simple` needs to contain all pages
-that do *not* match `link_done)`, but before my change, it contained
+that do *not* match `link(done)`, but before my change, it contained
 all pages that *do* match. After my change, it contained all pages.
+
+----
 
 So, seems what is needed is a way for influence info to be manipulated by
 the boolean operations that are applied. One way would be to have two
@@ -58,7 +60,25 @@ Then, when NOTting a `*Reason`, swap the two sets of influences.
 When ANDing/ORing, combine the individual sets. Querying the object for
 influences should return only the successful influences.
 
-In light of this, commit f2b3d1341447cbf29189ab490daae418fbe5d02d seems
+----
+
+Would it be possible to avoid the complication of maintianing two sets of
+influence info? 
+
+Well, notice that the influence of `pagespec_match($page, "link(done)")`
+is $page. Iff the match succeeds.
+
+Also, the influence of `pagespec_match($page, "!link(done)")` is
+$page. Iff the (overall) match succeeds.
+
+Does that hold for all cases? If so, the code that populates
+`depends_simple` could just test if the pagespec was successful, and
+if not, avoid adding $page influences, while still adding any other, 
+non-$page influences.
+
+----
+
+Hmm, commit f2b3d1341447cbf29189ab490daae418fbe5d02d seems
 thuroughly wrong. So, what about influence info for other matches
 like `!author(foo)` etc? Currently, none is returned, but it should
 be a content influence. (Backlink influence data is ok.)
