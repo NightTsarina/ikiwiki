@@ -2221,7 +2221,7 @@ sub merge_influences {
 	my $anded=shift;
 
 	if (! $anded || (($this || %{$this->[1]}) &&
-	                ($other || %{$other->[1]}))) {
+	                 ($other || %{$other->[1]}))) {
 		foreach my $influence (keys %{$other->[1]}) {
 			$this->[1]{$influence} |= $other->[1]{$influence};
 		}
