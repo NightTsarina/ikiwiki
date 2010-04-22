@@ -57,3 +57,8 @@ For failed `match_link`, the failed influence would be the page.
 Then, when NOTting a `*Reason`, swap the two sets of influences.
 When ANDing/ORing, combine the individual sets. Querying the object for
 influences should return only the successful influences.
+
+In light of this, commit f2b3d1341447cbf29189ab490daae418fbe5d02d seems
+thuroughly wrong. So, what about influence info for other matches
+like `!author(foo)` etc? Currently, none is returned, but it should
+be a content influence. What about backlink influence data?
