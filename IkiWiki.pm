@@ -1818,10 +1818,12 @@ sub add_depends ($$;$) {
 	foreach my $p (keys %pagesources) {
 		my $r=$sub->($p, location => $page);
 		my $i=$r->influences;
+		my $static=$r->influences_static;
 		foreach my $k (keys %$i) {
+			next unless $r || $static || $k eq $page;
 			$depends_simple{$page}{lc $k} |= $i->{$k};
 		}
-		last if $r->influences_static;
+		last if $static;
 	}
 
 	$depends{$page}{$pagespec} |= $deptype;
@@ -2136,6 +2138,9 @@ sub pagespec_match_list ($$;@) {
 		my $r=$sub->($p, %params, location => $page);
 		error(sprintf(gettext("cannot match pages: %s"), $r))
 			if $r->isa("IkiWiki::ErrorReason");
+		unless ($r) {
+			$r->remove_influence($p);
+		}
 		$accum |= $r;
 		if ($r) {
 			push @matches, $p;
@@ -2230,6 +2235,13 @@ sub merge_influences {
 		# influence blocker
 		$this->[1]={};
 	}
+}
+
+sub remove_influence {
+	my $this=shift;
+	my $torm=shift;
+
+	delete $this->[1]{$torm};
 }
 
 package IkiWiki::ErrorReason;
