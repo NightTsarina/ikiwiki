@@ -157,13 +157,6 @@ sub getsetup () {
 		safe => 0, # path
 		rebuild => 1,
 	},
-	templatedirs => {
-		type => "internal",
-		default => [],
-		description => "additional directories containing template files",
-		safe => 0,
-		rebuild => 0,
-	},
 	underlaydir => {
 		type => "string",
 		default => "$installdir/share/ikiwiki/basewiki",
@@ -1661,7 +1654,7 @@ sub saveindex () {
 sub template_file ($) {
 	my $template=shift;
 
-	foreach my $dir ($config{templatedir}, @{$config{templatedirs}},
+	foreach my $dir ($config{templatedir},
 	                 "$installdir/share/ikiwiki/templates") {
 		return "$dir/$template" if -e "$dir/$template";
 	}

@@ -27,14 +27,6 @@ sub getsetup () {
 			safe => 0,
 			rebuild => 1,
 		},
-		add_templates => {
-			type => "string",
-			example => ["$ENV{HOME}/.ikiwiki/templates"],
-			description => "extra template directories to add",
-			advanced => 1,
-			safe => 0,
-			rebuild => 1,
-		},
 }
 
 sub checkconfig () {
@@ -42,9 +34,6 @@ sub checkconfig () {
 		foreach my $dir (@{$config{add_underlays}}) {
 			add_underlay($dir);
 		}
-	}
-	if ($config{add_templates}) {
-		push @{$config{templatedirs}}, @{$config{add_templates}};
 	}
 }
 
