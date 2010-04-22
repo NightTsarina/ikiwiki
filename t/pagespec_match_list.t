@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 94;
+use Test::More tests => 107;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -80,7 +80,7 @@ foreach my $spec ("* and link(bar)", "* or link(bar)") {
 }
 
 # a pagespec with backlinks() will add as an influence the page with the links
-foreach my $spec ("bar or (backlink(foo) and !*.png)", "backlink(foo)") {
+foreach my $spec ("bar or (backlink(foo) and !*.png)", "backlink(foo)", "!backlink(foo)") {
 	pagespec_match_list("foo2", $spec, deptype => deptype("presence"));
 	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_PRESENCE);
 	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
