@@ -346,11 +346,11 @@ sub match {
 			return IkiWiki::SuccessReason->new("$re matches $field of $page", $page => $IkiWiki::DEPEND_CONTENT, "" => 1);
 		}
 		else {
-			return IkiWiki::FailReason->new("$re does not match $field of $page", "" => 1);
+			return IkiWiki::FailReason->new("$re does not match $field of $page", $page => $IkiWiki::DEPEND_CONTENT, "" => 1);
 		}
 	}
 	else {
-		return IkiWiki::FailReason->new("$page does not have a $field", "" => 1);
+		return IkiWiki::FailReason->new("$page does not have a $field", $page => $IkiWiki::DEPEND_CONTENT);
 	}
 }
 
