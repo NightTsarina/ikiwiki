@@ -1,19 +1,26 @@
 ikiwiki (3.20100406) unstable; urgency=low
-  
-  The title_natural sort method (as used by the inline directive, etc)
-  have been moved to the new sortnaturally plugin, which is not enabled
-  by default since it requires the Sort::Naturally perl module.
+
+  This version of ikiwiki has a lot of changes that you need to know about.
+
+  The --getctime switch is renamed to --gettimes, and it also gets the 
+  file modification time. And it's a lot faster (when using git). But
+  the really important change is, you don't have to remember to use this
+  switch. Now ikiwiki will do it when it needs to.
 
   Starting from this version, the `tagged()` pagespec only matches tags,
   not regular wikilinks. If your wiki accidentially relied on the old,
   buggy behavior, you might need to change pagespecs to use `link()`.
+
+  The title_natural sort method (as used by the inline directive, etc)
+  have been moved to the new sortnaturally plugin, which is not enabled
+  by default since it requires the Sort::Naturally perl module.
 
   Due to the above and other changes, all wikis need to be rebuilt on
   upgrade to this version. If you listed your wiki in /etc/ikiwiki/wikilist
   this will be done automatically when the Debian package is upgraded. Or
   use ikiwiki-mass-rebuild to force a rebuild.
 
- -- Simon McVittie <smcv@debian.org>  Tue, 06 Apr 2010 20:53:07 +0100
+ -- Joey Hess <joeyh@debian.org>  Wed, 21 Apr 2010 20:31:29 -0400
 
 ikiwiki (3.20091017) unstable; urgency=low
 
