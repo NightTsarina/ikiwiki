@@ -18,8 +18,8 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	%autofiles};
 
 use Exporter q{import};
-our @EXPORT = qw(hook debug error template htmlpage deptype
-	add_depends pagespec_match pagespec_match_list bestlink
+our @EXPORT = qw(hook debug error htmlpage template template_depends
+	deptype add_depends pagespec_match pagespec_match_list bestlink
 	htmllink readfile writefile pagetype srcfile pagename
 	displaytime will_render gettext ngettext urlto targetpage
 	add_underlay pagetitle titlepage linkpage newpagefile
@@ -1652,47 +1652,58 @@ sub saveindex () {
 }
 
 sub template_file ($) {
-	my $template=shift;
+	my $name=shift;
 
+	my $template=srcfile("templates/$name", 1);
+	return $template if defined $template;
+	
 	foreach my $dir ($config{templatedir},
 	                 "$installdir/share/ikiwiki/templates") {
-		return "$dir/$template" if -e "$dir/$template";
+		return "$dir/$name" if -e "$dir/$name";
 	}
 	return;
 }
 
 sub template_params (@) {
-	my $filename=template_file(shift);
-
-	if (! defined $filename) {
-		return if wantarray;
-		return "";
-	}
-
-	my @ret=(
-		filter => sub {
-			my $text_ref = shift;
-			${$text_ref} = decode_utf8(${$text_ref});
-		},
-		filename => $filename,
-		loop_context_vars => 1,
-		die_on_bad_params => 0,
-		@_
-	);
-	return wantarray ? @ret : {@ret};
+	filter => sub {
+		my $text_ref = shift;
+		${$text_ref} = decode_utf8(${$text_ref});
+	},
+	loop_context_vars => 1,
+	die_on_bad_params => 0,
+	@_,
+	no_includes => 1,
 }
 
 sub template ($;@) {
 	require HTML::Template;
-	return HTML::Template->new(template_params(@_));
+	return HTML::Template->new(template_params(
+		filename => template_file(shift),
+		@_
+	));
+}
+
+sub template_depends ($$;@) {
+	my $name=shift;
+	my $page=shift;
+
+	if (defined $page) {
+		add_depends($page, "templates/$name");
+	}
+	my $filename=template_file($name);
+
+	require HTML::Template;
+	return HTML::Template->new(template_params(
+		filename => $filename,
+		@_
+	));
 }
 
 sub misctemplate ($$;@) {
 	my $title=shift;
 	my $pagebody=shift;
 	
-	my $template=template("misc.tmpl");
-	$template->param(
+	my $template=template("misc.tmpl",
 		title => $title,
 		indexlink => indexlink(),
 		wikiname => $config{wikiname},

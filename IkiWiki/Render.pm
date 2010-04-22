@@ -74,7 +74,9 @@ sub genpage ($$) {
 			$templatefile=$file;
 		}
 	});
-	my $template=template(defined $templatefile ? $templatefile : 'page.tmpl', blind_cache => 1);
+	my $template=template_depends(
+		defined $templatefile ? $templatefile : 'page.tmpl', $page,
+		blind_cache => 1);
 	my $actions=0;
 
 	if (length $config{cgiurl}) {

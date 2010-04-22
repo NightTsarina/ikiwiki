@@ -274,7 +274,7 @@ sub editcomment ($$) {
 		action => $config{cgiurl},
 		header => 0,
 		table => 0,
-		template => scalar IkiWiki::template_params('editcomment.tmpl'),
+		template => template('editcomment.tmpl'),
 	);
 
 	IkiWiki::decode_form_utf8($form);

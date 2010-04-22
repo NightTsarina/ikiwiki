@@ -299,7 +299,7 @@ sub preprocess_inline (@) {
 	    (exists $params{postform} && yesno($params{postform}))) &&
 	    IkiWiki->can("cgi_editpage")) {
 		# Add a blog post form, with feed buttons.
-		my $formtemplate=template("blogpost.tmpl", blind_cache => 1);
+		my $formtemplate=template_depends("blogpost.tmpl", $params{page}, blind_cache => 1);
 		$formtemplate->param(cgiurl => $config{cgiurl});
 		$formtemplate->param(rootpage => rootpage(%params));
 		$formtemplate->param(rssurl => $rssurl) if $feeds && $rss;
@@ -320,19 +320,23 @@ sub preprocess_inline (@) {
 	}
 	elsif ($feeds && !$params{preview} && ($emptyfeeds || @feedlist)) {
 		# Add feed buttons.
-		my $linktemplate=template("feedlink.tmpl", blind_cache => 1);
+		my $linktemplate=template_depends("feedlink.tmpl", $params{page}, blind_cache => 1);
 		$linktemplate->param(rssurl => $rssurl) if $rss;
 		$linktemplate->param(atomurl => $atomurl) if $atom;
 		$ret.=$linktemplate->output;
 	}
 	
 	if (! $feedonly) {
-		require HTML::Template;
-		my @params=IkiWiki::template_params($params{template}.".tmpl", blind_cache => 1);
-		if (! @params) {
-			error sprintf(gettext("nonexistant template %s"), $params{template});
+		my $template;
+		if (! $raw) {
+			eval {
+				$template=template_depends($params{template}.".tmpl", $params{page},
+					blind_cache => 1);
+			};
+			if (! $@ || ! $template) {
+				error sprintf(gettext("nonexistant template %s"), $params{template});
+			}
 		}
-		my $template=HTML::Template->new(@params) unless $raw;
 		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));
 	
 		foreach my $page (@list) {
@@ -534,7 +538,7 @@ sub genfeed ($$$$$@) {
 	
 	my $url=URI->new(encode_utf8(urlto($page,"",1)));
 	
-	my $itemtemplate=template($feedtype."item.tmpl", blind_cache => 1);
+	my $itemtemplate=template_depends($feedtype."item.tmpl", $page, blind_cache => 1);
 	my $content="";
 	my $lasttime = 0;
 	foreach my $p (@pages) {
@@ -598,7 +602,7 @@ sub genfeed ($$$$$@) {
 		$lasttime = $pagemtime{$p} if $pagemtime{$p} > $lasttime;
 	}
 
-	my $template=template($feedtype."page.tmpl", blind_cache => 1);
+	my $template=template_depends($feedtype."page.tmpl", $page, blind_cache => 1);
 	$template->param(
 		title => $page ne "index" ? pagetitle($page) : $config{wikiname},
 		wikiname => $config{wikiname},

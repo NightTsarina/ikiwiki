@@ -36,7 +36,7 @@ sub pagetemplate (@) {
 	# Add search box to page header.
 	if ($template->query(name => "searchform")) {
 		if (! defined $form) {
-			my $searchform = template("googleform.tmpl", blind_cache => 1);
+			my $searchform = template_depends("googleform.tmpl", $page, blind_cache => 1);
 			$searchform->param(url => $config{url});
 			$form=$searchform->output;
 		}

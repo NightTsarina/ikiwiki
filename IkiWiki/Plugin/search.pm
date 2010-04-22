@@ -52,7 +52,7 @@ sub pagetemplate (@) {
 	# Add search box to page header.
 	if ($template->query(name => "searchform")) {
 		if (! defined $form) {
-			my $searchform = template("searchform.tmpl", blind_cache => 1);
+			my $searchform = template_depends("searchform.tmpl", $page, blind_cache => 1);
 			$searchform->param(searchaction => $config{cgiurl});
 			$form=$searchform->output;
 		}

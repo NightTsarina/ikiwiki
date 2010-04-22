@@ -705,6 +705,14 @@ Creates and returns a [[!cpan HTML::Template]] object. The first parameter
 is the name of the file in the template directory. The optional remaining
 parameters are passed to `HTML::Template->new`.
 
+### `template_depends($$;@)`
+
+Use this instead of `template()` if the content of a template is being
+included into a page. This causes the page to depend on the template,
+so it will be updated if the template is modified.
+
+Like `template()`, except the second parameter is the page.
+
 ### `htmlpage($)`
 
 Passed a page name, returns the base name that will be used for a the html
