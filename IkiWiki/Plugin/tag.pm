@@ -36,7 +36,7 @@ sub getsetup () {
 		},
 		tag_autocreate => {
 			type => "boolean",
-			example => 0,
+			example => 1,
 			description => "autocreate new tag pages?",
 			safe => 1,
 			rebuild => undef,
@@ -67,7 +67,8 @@ sub htmllink_tag ($$$;@) {
 sub gentag ($) {
 	my $tag=shift;
 
-	if ($config{tag_autocreate}) {
+	if ($config{tag_autocreate} ||
+	    ($config{tagbase} && ! defined $config{tag_autocreate})) {
 		my $tagpage=taglink($tag);
 		if ($tagpage=~/^\.\/(.*)/) {
 			$tagpage=$1;
