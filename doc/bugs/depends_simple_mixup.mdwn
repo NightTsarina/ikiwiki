@@ -18,6 +18,42 @@ not noticing that bugs dependeded on the page and needs to be updated.
 
 Ok.. Turns out this was not a problem with the actual influences
 calculation or dependency calculation code. Whew! `match_link`
-just didn't set the influence correctly when failing. [[fixed|done]]
+just didn't set the influence correctly when failing. fixed
 
 --[[Joey]]
+
+---
+
+Update: Reopening this because the fix for it rather sucks.
+
+I made `match_link` return on failure an influence of
+type DEPEND_LINKS. So, a tag page that inlines `tagged(foo)`
+gets a `depends_simple` built up that contains link dependencies for
+*every* page in the wiki. A very bloaty way to represent the dependency!
+
+Per [[dependency_types]], `link(done)` only needs to list in
+`depends_simple` the pages that currently match. If a page is modified
+to add the link, the regular dependency calculation code notices that
+a new page matches. If a page that had the link is modified to remove it,
+the `depends_simple` lets ikiwiki remember that the now non-matching page
+matched before.
+
+Where that fell down was `!link(done)`. A page matching that was not added
+to `depends_simple`, because the `link(done)` did not match it. If the page
+is modified to add the link, the regular dependency calculation code
+didn't notice, since the pagespec no longer matched.
+
+In this case, `depends_simple` needs to contain all pages
+that do *not* match `link_done)`, but before my change, it contained
+all pages that *do* match. After my change, it contained all pages.
+
+So, seems what is needed is a way for influence info to be manipulated by
+the boolean operations that are applied. One way would be to have two
+sets of influences be returned, one for successful matches, and one for
+failed matches. Normally, these would be the same. For successful
+`match_link`, the successful influence would be the page.
+For failed `match_link`, the failed influence would be the page.
+
+Then, when NOTting a `*Reason`, swap the two sets of influences.
+When ANDing/ORing, combine the individual sets. Querying the object for
+influences should return only the successful influences.
