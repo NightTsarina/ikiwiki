@@ -1664,23 +1664,8 @@ sub template_file ($) {
 	return;
 }
 
-sub template_params (@) {
-	filter => sub {
-		my $text_ref = shift;
-		${$text_ref} = decode_utf8(${$text_ref});
-	},
-	loop_context_vars => 1,
-	die_on_bad_params => 0,
-	@_,
-	no_includes => 1,
-}
-
 sub template ($;@) {
-	require HTML::Template;
-	return HTML::Template->new(template_params(
-		filename => template_file(shift),
-		@_
-	));
+	template_depends(shift, undef, @_);
 }
 
 sub template_depends ($$;@) {
@@ -1693,10 +1678,17 @@ sub template_depends ($$;@) {
 	my $filename=template_file($name);
 
 	require HTML::Template;
-	return HTML::Template->new(template_params(
+	return HTML::Template->new(
+		filter => sub {
+			my $text_ref = shift;
+			${$text_ref} = decode_utf8(${$text_ref});
+		},
+		loop_context_vars => 1,
+		die_on_bad_params => 0,
 		filename => $filename,
-		@_
-	));
+		@_,
+		no_includes => 1,
+	);
 }
 
 sub misctemplate ($$;@) {
