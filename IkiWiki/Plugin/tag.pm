@@ -39,7 +39,7 @@ sub getsetup () {
 sub tagpage ($) {
 	my $tag=shift;
 			
-	if ($tag !~ m{^\.?/} &&
+	if ($tag !~ m{^/} &&
 	    defined $config{tagbase}) {
 		$tag="/".$config{tagbase}."/".$tag;
 		$tag=~y#/#/#s; # squash dups
