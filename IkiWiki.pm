@@ -2148,7 +2148,7 @@ sub pagespec_match_list ($$;@) {
 		my $r=$sub->($p, %params, location => $page);
 		error(sprintf(gettext("cannot match pages: %s"), $r))
 			if $r->isa("IkiWiki::ErrorReason");
-		unless ($r) {
+		unless ($r || $r->influences_static) {
 			$r->remove_influence($p);
 		}
 		$accum |= $r;
