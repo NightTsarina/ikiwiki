@@ -34,11 +34,18 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
+		tag_autocreate => {
+			type => "boolean",
+			example => 1,
+			description => "autocreate new tag pages?",
+			safe => 1,
+			rebuild => undef,
+		},
 }
 
-sub tagpage ($) {
+sub taglink ($) {
 	my $tag=shift;
-			
+	
 	if ($tag !~ m{^/} &&
 	    defined $config{tagbase}) {
 		$tag="/".$config{tagbase}."/".$tag;
@@ -48,13 +55,46 @@ sub tagpage ($) {
 	return $tag;
 }
 
-sub taglink ($$$;@) {
+sub htmllink_tag ($$$;@) {
 	my $page=shift;
 	my $destpage=shift;
 	my $tag=shift;
 	my %opts=@_;
 
-	return htmllink($page, $destpage, tagpage($tag), %opts);
+	return htmllink($page, $destpage, taglink($tag), %opts);
+}
+
+sub gentag ($) {
+	my $tag=shift;
+
+	if ($config{tag_autocreate} ||
+	    ($config{tagbase} && ! defined $config{tag_autocreate})) {
+		my $tagpage=taglink($tag);
+		if ($tagpage=~/^\.\/(.*)/) {
+			$tagpage=$1;
+		}
+		else {
+			$tagpage=~s/^\///;
+		}
+
+		my $tagfile = newpagefile($tagpage, $config{default_pageext});
+
+		add_autofile($tagfile, "tag", sub {
+			my $message=sprintf(gettext("creating tag page %s"), $tagpage);
+			debug($message);
+
+			my $template=template("autotag.tmpl");
+			$template->param(tagname => IkiWiki::basename($tag));
+			$template->param(tag => $tag);
+			writefile($tagfile, $config{srcdir}, $template->output);
+			if ($config{rcs}) {
+				IkiWiki::disable_commit_hook();
+				IkiWiki::rcs_add($tagfile);
+				IkiWiki::rcs_commit_staged($message, undef, undef);
+				IkiWiki::enable_commit_hook();
+			}
+		});
+	}
 }
 
 sub preprocess_tag (@) {
@@ -69,8 +109,11 @@ sub preprocess_tag (@) {
 
 	foreach my $tag (keys %params) {
 		$tag=linkpage($tag);
+		
 		# hidden WikiLink
-		add_link($page, tagpage($tag), 'tag');
+		add_link($page, taglink($tag), 'tag');
+		
+		gentag($tag);
 	}
 		
 	return "";
@@ -84,14 +127,16 @@ sub preprocess_taglink (@) {
 	return join(" ", map {
 		if (/(.*)\|(.*)/) {
 			my $tag=linkpage($2);
-			add_link($params{page}, tagpage($tag), 'tag');
-			return taglink($params{page}, $params{destpage}, $tag,
+			add_link($params{page}, taglink($tag), 'tag');
+			gentag($tag);
+			return htmllink_tag($params{page}, $params{destpage}, $tag,
 				linktext => pagetitle($1));
 		}
 		else {
 			my $tag=linkpage($_);
-			add_link($params{page}, tagpage($tag), 'tag');
-			return taglink($params{page}, $params{destpage}, $tag);
+			add_link($params{page}, taglink($tag), 'tag');
+			gentag($tag);
+			return htmllink_tag($params{page}, $params{destpage}, $tag);
 		}
 	}
 	grep {
@@ -109,7 +154,7 @@ sub pagetemplate (@) {
 
 	$template->param(tags => [
 		map { 
-			link => taglink($page, $destpage, $_, rel => "tag")
+			link => htmllink_tag($page, $destpage, $_, rel => "tag")
 		}, sort keys %$tags
 	]) if defined $tags && %$tags && $template->query(name => "tags");
 
@@ -126,8 +171,8 @@ package IkiWiki::PageSpec;
 
 sub match_tagged ($$;@) {
 	my $page=shift;
-	my $glob=shift;
-	return match_link($page, IkiWiki::Plugin::tag::tagpage($glob), linktype => 'tag', @_);
+	my $glob=IkiWiki::Plugin::tag::taglink(shift);
+	return match_link($page, $glob, linktype => 'tag', @_);
 }
 
 1

@@ -43,7 +43,7 @@ sub backlinks ($) {
 	my @links;
 	foreach my $p (backlink_pages($page)) {
 		my $href=urlto($p, $page);
-                
+
 		# Trim common dir prefixes from both pages.
 		my $p_trimmed=$p;
 		my $page_trimmed=$page;
@@ -286,63 +286,54 @@ sub find_src_files () {
 	my %pages;
 	eval q{use File::Find};
 	error($@) if $@;
+
+	my ($page, $dir, $underlay);
+	my $helper=sub {
+		my $file=decode_utf8($_);
+
+		return if -l $file || -d _;
+		$file=~s/^\Q$dir\E\/?//;
+		return if ! length $file;
+		$page = pagename($file);
+		if (! exists $pagesources{$page} &&
+		    file_pruned($file)) {
+			$File::Find::prune=1;
+			return;
+		}
+
+		my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
+		if (! defined $f) {
+			warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
+		}
+	
+		if ($underlay) {
+			# avoid underlaydir override attacks; see security.mdwn
+			if (! -l "$config{srcdir}/$f" && ! -e _) {
+				if (! $pages{$page}) {
+					push @files, $f;
+					$pages{$page}=1;
+				}
+			}
+		}
+		else {
+			push @files, $f;
+			if ($pages{$page}) {
+				debug(sprintf(gettext("%s has multiple possible source pages"), $page));
+			}
+			$pages{$page}=1;
+		}
+	};
+
 	find({
 		no_chdir => 1,
-		wanted => sub {
-			my $file=decode_utf8($_);
-			$file=~s/^\Q$config{srcdir}\E\/?//;
-			return if -l $_ || -d _ || ! length $file;
-			my $page = pagename($file);
-			if (! exists $pagesources{$page} &&
-			    file_pruned($file)) {
-				$File::Find::prune=1;
-				return;
-			}
-
-			my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
-			if (! defined $f) {
-				warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
-			}
-			else {
-				push @files, $f;
-				if ($pages{$page}) {
-					debug(sprintf(gettext("%s has multiple possible source pages"), $page));
-				}
-				$pages{$page}=1;
-			}
-		},
-	}, $config{srcdir});
-	foreach my $dir (@{$config{underlaydirs}}, $config{underlaydir}) {
+		wanted => $helper,
+	}, $dir=$config{srcdir});
+	$underlay=1;
+	foreach (@{$config{underlaydirs}}, $config{underlaydir}) {
 		find({
 			no_chdir => 1,
-			wanted => sub {
-				my $file=decode_utf8($_);
-				$file=~s/^\Q$dir\E\/?//;
-				return if -l $_ || -d _ || ! length $file;
-				my $page=pagename($file);
-				if (! exists $pagesources{$page} &&
-				    file_pruned($file)) {
-					$File::Find::prune=1;
-					return;
-				}
-
-				my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
-				if (! defined $f) {
-					warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
-				}
-				else {
-					# avoid underlaydir override
-					# attacks; see security.mdwn
-					if (! -l "$config{srcdir}/$f" && 
-					    ! -e _) {
-						if (! $pages{$page}) {
-							push @files, $f;
-							$pages{$page}=1;
-						}
-					}
-				}
-			},
-		}, $dir);
+			wanted => $helper,
+		}, $dir=$_);
 	};
 	return \@files, \%pages;
 }
@@ -686,6 +677,49 @@ sub render_backlinks ($) {
 	}
 }
 
+sub gen_autofile ($$$) {
+	my $autofile=shift;
+	my $pages=shift;
+	my $del=shift;
+
+	if (file_pruned($autofile)) {
+		return;
+	}
+
+	my ($file)="$config{srcdir}/$autofile" =~ /$config{wiki_file_regexp}/; # untaint
+	if (! defined $file) {
+		return;
+	}
+
+	# Remember autofiles that were tried, and never try them again later.
+	if (exists $wikistate{$autofiles{$autofile}{plugin}}{autofile}{$autofile}) {
+		return;
+	}
+	$wikistate{$autofiles{$autofile}{plugin}}{autofile}{$autofile}=1;
+
+	if (srcfile($autofile, 1) || file_pruned($autofile)) {
+		return;
+	}
+	
+	if (-l $file || -d _ || -e _) {
+		return;
+	}
+
+	my $page = pagename($file);
+	if ($pages->{$page}) {
+		return;
+	}
+
+	if (grep { $_ eq $autofile } @$del) {
+		return;
+	}
+
+	$autofiles{$autofile}{generator}->();
+	$pages->{$page}=1;
+	return 1;
+}
+
+
 sub refresh () {
 	srcdir_check();
 	run_hooks(refresh => sub { shift->() });
@@ -698,6 +732,16 @@ sub refresh () {
 
 	foreach my $file (@$changed) {
 		scan($file);
+	}
+
+	foreach my $autofile (keys %autofiles) {
+		if (gen_autofile($autofile, $pages, $del)) {
+			push @{$files}, $autofile;
+			push @{$new}, $autofile if find_new_files([$autofile]);
+			push @{$changed}, $autofile if find_changed([$autofile]);
+			
+			scan($autofile);
+		}
 	}
 
 	calculate_links();
