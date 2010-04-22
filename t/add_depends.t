@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 38;
+use Test::More tests => 40;
 
 BEGIN { use_ok("IkiWiki"); }
 %config=IkiWiki::defaultconfig();
@@ -60,3 +60,11 @@ ok(! ($IkiWiki::depends{foo0}{"*"} & $IkiWiki::DEPEND_PRESENCE));
 ok(add_depends("foo9", "*", deptype("monkey")));
 ok($IkiWiki::depends{foo9}{"*"} & $IkiWiki::DEPEND_CONTENT);
 ok(! ($IkiWiki::depends{foo9}{"*"} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_LINKS)));
+
+# Influences are added for dependencies involving links.
+$pagesources{"foo"}="foo.mdwn";
+$links{foo}=[qw{bar}]; 
+$pagesources{"bar"}="bar.mdwn";
+$links{bar}=[qw{}];
+ok(add_depends("foo", "link(bar) and backlink(meep)"));
+ok($IkiWiki::depends_simple{foo}{foo} == $IkiWiki::DEPEND_LINKS);

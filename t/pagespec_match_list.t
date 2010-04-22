@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 115;
+use Test::More tests => 126;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -71,19 +71,27 @@ foreach my $spec ("* and link(bar)", "* or link(bar)") {
 	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_PRESENCE);
 	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
 	ok($IkiWiki::depends_simple{foo2}{foo2} == $IkiWiki::DEPEND_LINKS);
-	ok($IkiWiki::depends_simple{foo2}{foo} != $IkiWiki::DEPEND_LINKS);
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 	pagespec_match_list("foo3", $spec, deptype => deptype("links"));
 	ok($IkiWiki::depends{foo3}{$spec} & $IkiWiki::DEPEND_LINKS);
 	ok(! ($IkiWiki::depends{foo3}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_PRESENCE)));
 	ok($IkiWiki::depends_simple{foo3}{foo3} == $IkiWiki::DEPEND_LINKS);
-	ok($IkiWiki::depends_simple{foo3}{foo} != $IkiWiki::DEPEND_LINKS);
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 }
-# Above we tested that a link pagespec is influenced
-# by the pages that currently contain the link.
+
+# A link pagespec is influenced by the pages that currently contain the link.
+# It is not influced by pages that do not currently contain the link,
+# because if those pages were changed to contain it, regular dependency
+# handling would be triggered.
+foreach my $spec ("* and link(bar)", "link(bar)", "no_such_page or link(bar)") {
+	pagespec_match_list("foo2", $spec);
+	ok($IkiWiki::depends_simple{foo2}{foo2} == $IkiWiki::DEPEND_LINKS);
+	ok(! exists $IkiWiki::depends_simple{foo2}{foo}, $spec);
+	%IkiWiki::depends_simple=();
+	%IkiWiki::depends=();
+}
 
 # Oppositely, a pagespec that tests for pages that do not have a link
 # is not influenced by pages that currently contain the link, but
@@ -91,8 +99,8 @@ foreach my $spec ("* and link(bar)", "* or link(bar)") {
 # could be changed to have it).
 foreach my $spec ("* and !link(bar)", "* and !(!(!link(bar)))") {
 	pagespec_match_list("foo2", $spec);
-	ok($IkiWiki::depends_simple{foo2}{foo2} != $IkiWiki::DEPEND_LINKS);
-	ok($IkiWiki::depends_simple{foo2}{foo} == $IkiWiki::DEPEND_LINKS);
+	ok(! exists $IkiWiki::depends_simple{foo2}{foo2});
+	ok($IkiWiki::depends_simple{foo2}{foo} == $IkiWiki::DEPEND_LINKS, $spec);
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 }
@@ -103,12 +111,14 @@ foreach my $spec ("bar or (backlink(foo) and !*.png)", "backlink(foo)", "!backli
 	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_PRESENCE);
 	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_CONTENT | $IkiWiki::DEPEND_LINKS)));
 	ok($IkiWiki::depends_simple{foo2}{foo} == $IkiWiki::DEPEND_LINKS);
+	ok(! exists $IkiWiki::depends_simple{foo2}{foo2});
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 	pagespec_match_list("foo2", $spec, deptype => deptype("links"));
 	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_LINKS);
 	ok(! ($IkiWiki::depends{foo2}{$spec} & ($IkiWiki::DEPEND_PRESENCE | $IkiWiki::DEPEND_CONTENT)));
 	ok($IkiWiki::depends_simple{foo2}{foo} == $IkiWiki::DEPEND_LINKS);
+	ok(! exists $IkiWiki::depends_simple{foo2}{foo2});
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 	pagespec_match_list("foo2", $spec, deptype => deptype("presence", "links"));
@@ -116,6 +126,7 @@ foreach my $spec ("bar or (backlink(foo) and !*.png)", "backlink(foo)", "!backli
 	ok($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_LINKS);
 	ok(! ($IkiWiki::depends{foo2}{$spec} & $IkiWiki::DEPEND_CONTENT));
 	ok($IkiWiki::depends_simple{foo2}{foo} == $IkiWiki::DEPEND_LINKS);
+	ok(! exists $IkiWiki::depends_simple{foo2}{foo2});
 	%IkiWiki::depends_simple=();
 	%IkiWiki::depends=();
 	pagespec_match_list("foo2", $spec);
