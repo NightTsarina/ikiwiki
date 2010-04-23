@@ -297,7 +297,7 @@ value is ignored.
 
 	hook(type => "pagetemplate", id => "foo", call => \&pagetemplate);
 
-[[Templates|wikitemplates]] are filled out for many different things in
+[[Templates]] are filled out for many different things in
 ikiwiki, like generating a page, or part of a blog page, or an rss feed, or
 a cgi. This hook allows modifying the variables available on those
 templates. The function is passed named parameters. The "page" and
@@ -313,7 +313,7 @@ a new custom parameter to the template.
 
 	hook(type => "templatefile", id => "foo", call => \&templatefile);
 
-This hook allows plugins to change the [[template|wikitemplates]] that is
+This hook allows plugins to change the [[template|templates]] that is
 used for a page in the wiki. The hook is passed a "page" parameter, and
 should return the name of the template file to use (relative to the
 template directory), or undef if it doesn't want to change the default
