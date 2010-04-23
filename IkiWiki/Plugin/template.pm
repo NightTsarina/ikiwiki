@@ -41,7 +41,7 @@ sub preprocess (@) {
 			blind_cache => 1);
 	};
 	if ($@) {
-		error gettext("failed to process:")." $@";
+		error gettext("failed to process template:")." $@";
 	}
 	if (! $template) {
 		error sprintf(gettext("%s not found"),

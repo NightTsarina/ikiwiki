@@ -329,11 +329,16 @@ sub preprocess_inline (@) {
 	if (! $feedonly) {
 		my $template;
 		if (! $raw) {
+			# cannot use wiki pages as templates; template not sanitized due to
+			# format hook hack
 			eval {
 				$template=template_depends($params{template}.".tmpl", $params{page},
 					blind_cache => 1);
 			};
-			if ($@ || ! $template) {
+			if ($@) {
+				error gettext("failed to process template:")." $@";
+			}
+			if (! $template) {
 				error sprintf(gettext("template %s not found"), $params{template}.".tmpl");
 			}
 		}
