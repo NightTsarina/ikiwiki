@@ -62,3 +62,15 @@ Have started working on this.
 >>>>>> it'd either be necessary to make them be internal pages
 >>>>>> (templates/inlinepage._tmpl) or special-case them in some other way.
 >>>>>> --[[smcv]]
+
+>>>>>>> In my branch, I left in support for the templatedir, and also
+>>>>>>> /usr/share/ikiwiki/templates. So, users do not have to put their
+>>>>>>> custom templates in templates/ in the wiki. If they do, 
+>>>>>>> the templates are copied to the destdir like other non-wiki page files
+>>>>>>> are. The templates are not wiki pages, except those used by a few
+>>>>>>> things like the [[plugins/template]] plugin.
+>>>>>>> 
+>>>>>>> That seems acceptable, since users probably don't need to modify
+>>>>>>> many templates, so the clutter is small. (Especially when
+>>>>>>> compared to the other clutter the basewiki always puts in destdir.)
+>>>>>>> This could be revisted later. --[[Joey]] 
