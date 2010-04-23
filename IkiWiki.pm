@@ -1654,7 +1654,7 @@ sub saveindex () {
 sub template_file ($) {
 	my $name=shift;
 	
-	my $tpage="templates/$name";
+	my $tpage=($name =~ /^\//) ? $name : "templates/$name";
 	if ($name !~ /\.tmpl$/ && exists $pagesources{$tpage}) {
 		$tpage=$pagesources{$tpage};
 		$name.=".tmpl";
@@ -1665,6 +1665,8 @@ sub template_file ($) {
 		return $template, $tpage if wantarray;
 		return $template;
 	}
+
+	$name=~s:/::; # avoid path traversal
 	
 	foreach my $dir ($config{templatedir},
 	                 "$installdir/share/ikiwiki/templates") {

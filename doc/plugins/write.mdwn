@@ -705,12 +705,14 @@ Creates and returns a [[!cpan HTML::Template]] object. The first parameter
 is the name of the template file. The optional remaining parameters are
 passed to `HTML::Template->new`.
 
-The template file is first looked for in the templates/ subdirectory of the
-srcdir. Failing that, it is looked for in the templatedir. Typically
-the filename will have a ".tmpl" extension. If a filename with no extension
-is passed, a wiki page in templates/ with its name is used as the template.
-That should only be done for templates which it is safe to let wiki users
-edit.
+Normally, the template file is first looked for in the templates/ subdirectory
+of the srcdir. Failing that, it is looked for in the templatedir.
+
+Wiki pages can be used as templates. This should be done only for templates
+which it is safe to let wiki users edit. Enable it by passing a filename
+with no ".tmpl" extension. Template pages are normally looked for in
+the templates/ directory. If the page name starts with "/", a page
+elsewhere in the wiki can be used.
 
 ### `template_depends($$;@)`
 
