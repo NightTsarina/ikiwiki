@@ -333,8 +333,8 @@ sub preprocess_inline (@) {
 				$template=template_depends($params{template}.".tmpl", $params{page},
 					blind_cache => 1);
 			};
-			if (! $@ || ! $template) {
-				error sprintf(gettext("nonexistant template %s"), $params{template});
+			if ($@ || ! $template) {
+				error sprintf(gettext("nonexistant template %s.tmpl"), $params{template});
 			}
 		}
 		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));
