@@ -74,9 +74,16 @@ sub genpage ($$) {
 			$templatefile=$file;
 		}
 	});
-	my $template=template_depends(
-		defined $templatefile ? $templatefile : 'page.tmpl', $page,
-		blind_cache => 1);
+	my $template;
+	if (defined $templatefile) {
+		$template=template_depends($templatefile, $page,
+			blind_cache => 1);
+	}
+	else {
+		# no explicit depends as special case
+		$template=template('page.tmpl', 
+			blind_cache => 1);
+	}
 	my $actions=0;
 
 	if (length $config{cgiurl}) {
@@ -763,8 +770,14 @@ sub refresh () {
 	foreach my $file (@$new, @$del) {
 		render_linkers($file);
 	}
-	
-	if (@$changed || @$internal_changed ||
+
+	if ($rendered{"templates/page.tmpl"}) {
+		foreach my $f (@$files) {
+			next if $f eq "templates/page.tmpl";
+			render($f, sprintf(gettext("building %s, which depends on %s"), $f, "templates/page.tmpl"));
+		}
+	}
+	elsif (@$changed || @$internal_changed ||
 	    @$del || @$internal_del || @$internal_new) {
 		1 while render_dependent($files, $new, $internal_new,
 			$del, $internal_del, $internal_changed,
