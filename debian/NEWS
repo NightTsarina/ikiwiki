@@ -6,6 +6,10 @@ ikiwiki (3.20100422) unstable; urgency=low
   of your wiki. (For example, templates/page.tmpl.) When these templates
   are changed, ikiwiki will automatically rebuild pages that use them.
 
+  Allowing untrusted users to upload attachments with the ".tmpl"
+  extension is not recommended, as that allows anyone to change
+  a wiki's templates.
+
   The --getctime switch is renamed to --gettimes, and it also gets the 
   file modification time. And it's a lot faster (when using git). But
   the really important change is, you don't have to remember to use this
