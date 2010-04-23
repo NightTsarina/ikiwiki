@@ -5,7 +5,6 @@ package IkiWiki::Plugin::template;
 use warnings;
 use strict;
 use IkiWiki 3.00;
-use HTML::Template;
 use Encode;
 
 sub import {
@@ -34,36 +33,20 @@ sub preprocess (@) {
 		error gettext("missing id parameter")
 	}
 
-	my $template_page="templates/$params{id}";
-	add_depends($params{page}, $template_page);
-
-	my $template_file;
-	if (exists $pagesources{$template_page}) {
-		$template_file=srcfile($pagesources{$template_page});
-	}
-	else {
-		$template_file=IkiWiki::template_file("$params{id}.tmpl")
-	}
-	return sprintf(gettext("template %s not found"),
-		htmllink($params{page}, $params{destpage}, "/".$template_page))
-			unless defined $template_file;
-
+	# The bare id is used, so a page templates/$id will be used as 
+	# the template.
 	my $template;
 	eval {
-		$template=HTML::Template->new(
-	        	filter => sub {
-	                        my $text_ref = shift;
-	                        $$text_ref=&Encode::decode_utf8($$text_ref);
-				chomp $$text_ref;
-	                },
-	                filename => $template_file,
-       			die_on_bad_params => 0,
-			no_includes => 1,
-			blind_cache => 1,
-		);
+		$template=template_depends($params{id}, $params{page},
+			blind_cache => 1);
 	};
 	if ($@) {
-		error gettext("failed to process:")." $@"
+		error gettext("failed to process:")." $@";
+	}
+	if (! $template) {
+		error sprintf(gettext("%s not found"),
+			htmllink($params{page}, $params{destpage},
+				"/templates/$params{id}"))
 	}
 
 	$params{basename}=IkiWiki::basename($params{page});
