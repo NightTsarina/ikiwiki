@@ -702,8 +702,15 @@ the entire wiki build and make the wiki unusable.
 ### `template($;@)`
 
 Creates and returns a [[!cpan HTML::Template]] object. The first parameter
-is the name of the file in the template directory. The optional remaining
-parameters are passed to `HTML::Template->new`.
+is the name of the template file. The optional remaining parameters are
+passed to `HTML::Template->new`.
+
+The template file is first looked for in the templates/ subdirectory of the
+srcdir. Failing that, it is looked for in the templatedir. Typically
+the filename will have a ".tmpl" extension. If a filename with no extension
+is passed, a wiki page in templates/ with its name is used as the template.
+That should only be done for templates which it is safe to let wiki users
+edit.
 
 ### `template_depends($$;@)`
 

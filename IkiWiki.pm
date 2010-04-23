@@ -1653,9 +1653,18 @@ sub saveindex () {
 
 sub template_file ($) {
 	my $name=shift;
+	
+	my $tpage="templates/$name";
+	if ($name !~ /\.tmpl$/ && exists $pagesources{$tpage}) {
+		$tpage=$pagesources{$tpage};
+		$name.=".tmpl";
+	}
 
-	my $template=srcfile("templates/$name", 1);
-	return $template if defined $template;
+	my $template=srcfile($tpage, 1);
+	if (defined $template) {
+		return $template, $tpage if wantarray;
+		return $template;
+	}
 	
 	foreach my $dir ($config{templatedir},
 	                 "$installdir/share/ikiwiki/templates") {
@@ -1664,18 +1673,16 @@ sub template_file ($) {
 	return;
 }
 
-sub template ($;@) {
-	template_depends(shift, undef, @_);
-}
-
 sub template_depends ($$;@) {
 	my $name=shift;
 	my $page=shift;
-
-	if (defined $page) {
-		add_depends($page, "templates/$name");
+	
+	my ($filename, $tpage)=template_file($name);
+	if (defined $page && defined $tpage) {
+		add_depends($page, $tpage);
 	}
-	my $filename=template_file($name);
+
+	return unless defined $filename;
 
 	require HTML::Template;
 	return HTML::Template->new(
@@ -1689,6 +1696,10 @@ sub template_depends ($$;@) {
 		@_,
 		no_includes => 1,
 	);
+}
+
+sub template ($;@) {
+	template_depends(shift, undef, @_);
 }
 
 sub misctemplate ($$;@) {
