@@ -24,3 +24,8 @@ if I first remove the old ikiwiki installation, nor does it fail with
 3.20100403 or newer installed at /opt/ikiwiki.  Hence this is not
 really a critical bug, although it's somewhat perplexing to me why it
 ought to make a difference.
+
+> So, using INSTALL_BASE causes a 'use lib' to be hardcoded into the `.out`
+> files; which overrides the -libdir and the -I, and so the old version
+> of IkiWiki.pm is used.
+> [[fixed|done]] --[[Joey]] 

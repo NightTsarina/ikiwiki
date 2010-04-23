@@ -36,7 +36,7 @@ scripts=ikiwiki-update-wikilist ikiwiki-makerepo
 	chmod +x $@
 
 ikiwiki.setup: ikiwiki.out
-	HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -dumpsetup ikiwiki.setup
+	PERL5LIB=. HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -dumpsetup ikiwiki.setup
 
 extra_build: $(outprogs) ikiwiki.setup docwiki
 	./mdwn2man ikiwiki 1 doc/usage.mdwn > ikiwiki.man
@@ -50,10 +50,10 @@ extra_build: $(outprogs) ikiwiki.setup docwiki
 	rm -f ikiwiki.spec.bkp
 	
 docwiki: ikiwiki.out
-	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup docwiki.setup -refresh
+	PERL5LIB=. $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -setup docwiki.setup -refresh
 
 extra_clean:
-	$(PERL) -I. $(extramodules) $(tflag) ikiwiki.in -libdir . -setup docwiki.setup -clean
+	PERL5LIB=. $(PERL) -I. $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -clean
 	rm -f *.man $(outprogs) ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
 
