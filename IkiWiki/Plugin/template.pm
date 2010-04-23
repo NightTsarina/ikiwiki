@@ -33,7 +33,7 @@ sub preprocess (@) {
 		error gettext("missing id parameter")
 	}
 
-	# The bare id is used, so a page templates/$id will be used as 
+	# The bare id is used, so a page templates/$id can be used as 
 	# the template.
 	my $template;
 	eval {
