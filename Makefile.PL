@@ -57,6 +57,10 @@ extra_clean:
 	rm -f *.man $(outprogs) ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
 
+# Joey uses this before committing.
+myclean: clean
+	git checkout po ikiwiki.spec
+
 underlay_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki
 	for dir in `cd underlays && find . -follow -type d ! -regex '.*\.svn.*'`; do \
