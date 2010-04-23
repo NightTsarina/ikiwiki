@@ -1661,16 +1661,20 @@ sub template_file ($) {
 	}
 
 	my $template=srcfile($tpage, 1);
-	if (defined $template) {
-		return $template, $tpage if wantarray;
-		return $template;
+	if (! defined $template) {
+		$name=~s:/::; # avoid path traversal
+		foreach my $dir ($config{templatedir},
+		                 "$installdir/share/ikiwiki/templates") {
+			if (-e "$dir/$name") {
+				$template="$dir/$name";
+				last;
+			}
+		}
 	}
 
-	$name=~s:/::; # avoid path traversal
-	
-	foreach my $dir ($config{templatedir},
-	                 "$installdir/share/ikiwiki/templates") {
-		return "$dir/$name" if -e "$dir/$name";
+	if (defined $template) {	
+		return $template, $tpage if wantarray;
+		return $template;
 	}
 	return;
 }
