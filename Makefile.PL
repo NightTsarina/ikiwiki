@@ -35,8 +35,8 @@ scripts=ikiwiki-update-wikilist ikiwiki-makerepo
 	./pm_filter $(PREFIX) $(VER) $(PROBABLE_INST_LIB) < $< > $@
 	chmod +x $@
 
-ikiwiki.setup: ikiwiki.out
-	PERL5LIB=. HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -dumpsetup ikiwiki.setup
+ikiwiki.setup:
+	HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -dumpsetup ikiwiki.setup
 
 extra_build: $(outprogs) ikiwiki.setup docwiki
 	./mdwn2man ikiwiki 1 doc/usage.mdwn > ikiwiki.man
@@ -49,11 +49,11 @@ extra_build: $(outprogs) ikiwiki.setup docwiki
 	sed -i.bkp "s/Version:.*/Version: $$(perl -e '$$_=<>;print m/\((.*?)\)/'<debian/changelog)/" ikiwiki.spec
 	rm -f ikiwiki.spec.bkp
 	
-docwiki: ikiwiki.out
-	PERL5LIB=. $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -setup docwiki.setup -refresh
+docwiki:
+	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -refresh
 
 extra_clean:
-	PERL5LIB=. $(PERL) -I. $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -clean
+	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -clean
 	rm -f *.man $(outprogs) ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
 
