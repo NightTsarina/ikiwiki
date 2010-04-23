@@ -334,7 +334,7 @@ sub preprocess_inline (@) {
 					blind_cache => 1);
 			};
 			if ($@ || ! $template) {
-				error sprintf(gettext("nonexistant template %s.tmpl"), $params{template});
+				error sprintf(gettext("template %s not found"), $params{template}.".tmpl");
 			}
 		}
 		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));
