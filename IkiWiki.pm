@@ -1712,7 +1712,8 @@ sub misctemplate ($$;@) {
 	my $title=shift;
 	my $pagebody=shift;
 	
-	my $template=template("misc.tmpl",
+	my $template=template("misc.tmpl");
+	$template->param(
 		title => $title,
 		indexlink => indexlink(),
 		wikiname => $config{wikiname},
