@@ -567,7 +567,7 @@ sub mybestlink ($$) {
 	my $link=shift;
 
 	return $origsubs{'bestlink'}->($page, $link)
-		if $config{po_link_to} eq "default";
+		if defined $config{po_link_to} && $config{po_link_to} eq "default";
 
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
 	my @caller = caller(1);
@@ -585,7 +585,7 @@ sub mybeautify_urlpath ($) {
 	my $url=shift;
 
 	my $res=$origsubs{'beautify_urlpath'}->($url);
-	if ($config{po_link_to} eq "negotiated") {
+	if (defined $config{po_link_to} && $config{po_link_to} eq "negotiated") {
 		$res =~ s!/\Qindex.$config{po_master_language}{code}.$config{htmlext}\E$!/!;
 		$res =~ s!/\Qindex.$config{htmlext}\E$!/!;
 		map {
@@ -729,6 +729,7 @@ sub istranslatablefile ($) {
 	my $type=pagetype($file);
 	return 0 if ! defined $type || $type eq 'po';
 	return 0 if $file =~ /\.pot$/;
+	return 0 if ! defined $config{po_translatable_pages};
 	return 1 if pagespec_match(pagename($file), $config{po_translatable_pages});
 	return;
 }
