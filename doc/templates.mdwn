@@ -2,7 +2,7 @@
 you can fully customise this site.
 
 [[!if test="enabled(template)" then="""
-## The template directive
+## template pages
 
 The template directive allows wiki pages to be used as templates,
 filled out and inserted into other pages in the wiki.
@@ -12,21 +12,32 @@ filled out and inserted into other pages in the wiki.
 sort=title template=titlepage
 rootpage=templates postformtext="Add a new template named:"]]
 """]]
+[[!if test="enabled(template)" then="""
+[[!template id=note text="This note box is built using the
+[[note]] template!"]]
+[[!template id=popup mouseover="popup example" popup="This popup is built using
+the [[popup]] template!"]]
+"""]]
 
 [[!if test="enabled(edittemplate)" then="""
-## The edittemplate directive
+## edit templates
 
 The edittemplate directive can be used to make new pages default to
 containing text from a template, which can be filled as out the page is
 edited.
 """]]
 
-## Wiki templates
+## wiki templates
 
 These templates are used to build the wiki. The aim is to keep almost all
 html out of ikiwiki and in the templates.
 
-* `page.tmpl` - Used for displaying all regular wiki pages.
+* `page.tmpl` - Used for displaying all regular wiki pages. This is the
+  key template customize.
+[[!if test="enabled(pagetemplate)" then="""
+  (The pagetemplate directive can be used to make a page use a
+  different template than `page.tmpl`.)
+"""]]
 * `misc.tmpl` - Generic template used for any page that doesn't
   have a custom template.
 * `rsspage.tmpl` - Used for generating rss feeds for blogs.
@@ -57,13 +68,6 @@ html out of ikiwiki and in the templates.
   `editcomment.tmpl` `commentmoderation.tmpl`, `renamesummary.tmpl`,
   `passwordmail.tmpl` - Parts of ikiwiki's user interface; do not
   normally need to be customised.
-
-[[!if test="enabled(pagetemplate)" then="""
-## The pagetemplate directive
-
-The pagetemplate directive can allow individual pages to use a
-different template than `page.tmpl`.
-"""]]
 
 ## Template locations
 
