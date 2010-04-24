@@ -1654,7 +1654,7 @@ sub saveindex () {
 sub template_file ($) {
 	my $name=shift;
 	
-	my $tpage=($name =~ /^\//) ? $name : "templates/$name";
+	my $tpage=($name =~ s/^\///) ? $name : "templates/$name";
 	if ($name !~ /\.tmpl$/ && exists $pagesources{$tpage}) {
 		$tpage=$pagesources{$tpage};
 		$name.=".tmpl";
