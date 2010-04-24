@@ -701,9 +701,11 @@ the entire wiki build and make the wiki unusable.
 
 ### `template($;@)`
 
-Creates and returns a [[!cpan HTML::Template]] object. The first parameter
-is the name of the template file. The optional remaining parameters are
-passed to `HTML::Template->new`.
+Creates and returns a [[!cpan HTML::Template]] object. (In a list context,
+returns the parameters needed to construct the obhect.) 
+
+The first parameter is the name of the template file. The optional remaining
+parameters are passed to `HTML::Template->new`.
 
 Normally, the template file is first looked for in the templates/ subdirectory
 of the srcdir. Failing that, it is looked for in the templatedir.

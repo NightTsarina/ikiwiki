@@ -78,7 +78,7 @@ sub cgi_editpage ($$) {
 		action => $config{cgiurl},
 		header => 0,
 		table => 0,
-		template => template("editpage.tmpl"),
+		template => { template("editpage.tmpl") },
 	);
 	
 	decode_form_utf8($form);

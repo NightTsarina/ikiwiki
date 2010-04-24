@@ -1690,8 +1690,7 @@ sub template_depends ($$;@) {
 
 	return unless defined $filename;
 
-	require HTML::Template;
-	return HTML::Template->new(
+	my @opts=(
 		filter => sub {
 			my $text_ref = shift;
 			${$text_ref} = decode_utf8(${$text_ref});
@@ -1702,6 +1701,10 @@ sub template_depends ($$;@) {
 		@_,
 		no_includes => 1,
 	);
+	return @opts if wantarray;
+
+	require HTML::Template;
+	return HTML::Template->new(@opts);
 }
 
 sub template ($;@) {
