@@ -56,12 +56,14 @@ sub preprocess (@) {
 		          IkiWiki::filter($params{page}, $params{destpagea},
 		          $params{$param}), $scan);
 		if ($template->query(name => $param)) {
-			$template->param($param =>
-				IkiWiki::htmlize($params{page}, $params{destpage},
+			my $htmlvalue=IkiWiki::htmlize($params{page}, $params{destpage},
 					pagetype($pagesources{$params{page}}),
-					$value));
+					$value);
+			chomp $htmlvalue;
+			$template->param($param => $htmlvalue);
 		}
 		if ($template->query(name => "raw_$param")) {
+			chomp $value;
 			$template->param("raw_$param" => $value);
 		}
 	}
