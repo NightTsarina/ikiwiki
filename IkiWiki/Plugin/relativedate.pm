@@ -37,9 +37,9 @@ sub include_javascript ($;$) {
 	my $page=shift;
 	my $absolute=shift;
 	
-	return '<script src="'.urlto("ikiwiki.js", $page, $absolute).
+	return '<script src="'.urlto("ikiwiki/ikiwiki.js", $page, $absolute).
 		'" type="text/javascript" charset="utf-8"></script>'."\n".
-		'<script src="'.urlto("relativedate.js", $page, $absolute).
+		'<script src="'.urlto("ikiwiki/relativedate.js", $page, $absolute).
 		'" type="text/javascript" charset="utf-8"></script>';
 }
 
