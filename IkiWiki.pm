@@ -152,7 +152,7 @@ sub getsetup () {
 	templatedir => {
 		type => "string",
 		default => "$installdir/share/ikiwiki/templates",
-		description => "location of template files",
+		description => "additional directory to search for template files",
 		advanced => 1,
 		safe => 0, # path
 		rebuild => 1,
