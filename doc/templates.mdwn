@@ -23,8 +23,8 @@ The template directive allows wiki pages to be used as templates,
 filled out and inserted into other pages in the wiki.
 """]]
 [[!if test="enabled(template) and enabled(inline)" then="""
-[[!inline pages="templates/* and !*/discussion" feeds=no archive=yes
-sort=title template=titlepage
+[[!inline pages="templates/* and !*.tmpl and !*/discussion"
+feeds=no archive=yes sort=title template=titlepage
 rootpage=templates postformtext="Add a new template named:"]]
 """]]
 
