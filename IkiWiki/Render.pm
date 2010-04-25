@@ -591,13 +591,18 @@ sub render_dependent ($$$$$$$) {
 	
 	my %lc_changed = map { lc(pagename($_)) => 1 } @changed;
 	my %lc_exists_changed = map { lc(pagename($_)) => 1 } @exists_changed;
+
+	my $mass_reason;
+	foreach my $p ("page.tmpl", keys %{$depends_simple{""}}) {
+		$mass_reason=$p if $rendered{$p};
+	}
 	 
 	foreach my $f (@$files) {
 		next if $rendered{$f};
 		my $p=pagename($f);
-		my $reason = undef;
-	
-		if (exists $depends_simple{$p}) {
+		my $reason = $mass_reason;
+
+		if (exists $depends_simple{$p} && ! defined $reason) {
 			foreach my $d (keys %{$depends_simple{$p}}) {
 				if (($depends_simple{$p}{$d} & $IkiWiki::DEPEND_CONTENT &&
 				     $lc_changed{$d})
@@ -771,13 +776,7 @@ sub refresh () {
 		render_linkers($file);
 	}
 
-	if ($rendered{"templates/page.tmpl"}) {
-		foreach my $f (@$files) {
-			next if $f eq "templates/page.tmpl";
-			render($f, sprintf(gettext("building %s, which depends on %s"), $f, "templates/page.tmpl"));
-		}
-	}
-	elsif (@$changed || @$internal_changed ||
+	if (@$changed || @$internal_changed ||
 	    @$del || @$internal_del || @$internal_new) {
 		1 while render_dependent($files, $new, $internal_new,
 			$del, $internal_del, $internal_changed,

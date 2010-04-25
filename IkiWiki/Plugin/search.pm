@@ -41,6 +41,10 @@ sub checkconfig () {
 	if (! defined $config{omega_cgi}) {
 		$config{omega_cgi}="/usr/lib/cgi-bin/omega/omega";
 	}
+
+	# This is a mass dependency, so if the search form template
+	# changes, every page is rebuilt.
+	add_depends("", "searchform.tmpl");
 }
 
 my $form;
@@ -52,7 +56,7 @@ sub pagetemplate (@) {
 	# Add search box to page header.
 	if ($template->query(name => "searchform")) {
 		if (! defined $form) {
-			my $searchform = template_depends("searchform.tmpl", $page, blind_cache => 1);
+			my $searchform = template("searchform.tmpl", blind_cache => 1);
 			$searchform->param(searchaction => $config{cgiurl});
 			$form=$searchform->output;
 		}
