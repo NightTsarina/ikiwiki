@@ -593,7 +593,7 @@ sub render_dependent ($$$$$$$) {
 	my %lc_exists_changed = map { lc(pagename($_)) => 1 } @exists_changed;
 
 	foreach my $p ("templates/page.tmpl", keys %{$depends_simple{""}}) {
-		if ($rendered{$p}) {
+		if ($rendered{$p} || grep { $_ eq $p } @$del) {
 			foreach my $f (@$files) {
 				next if $rendered{$f};
 				render($f, sprintf(gettext("building %s, which depends on %s"), $f, $p));
