@@ -592,15 +592,20 @@ sub render_dependent ($$$$$$$) {
 	my %lc_changed = map { lc(pagename($_)) => 1 } @changed;
 	my %lc_exists_changed = map { lc(pagename($_)) => 1 } @exists_changed;
 
-	my $mass_reason;
-	foreach my $p ("page.tmpl", keys %{$depends_simple{""}}) {
-		$mass_reason=$p if $rendered{$p};
+	foreach my $p ("templates/page.tmpl", keys %{$depends_simple{""}}) {
+		if ($rendered{$p}) {
+			foreach my $f (@$files) {
+				next if $rendered{$f};
+				render($f, sprintf(gettext("building %s, which depends on %s"), $f, $p));
+			}
+			return 0;
+		}
 	}
 	 
 	foreach my $f (@$files) {
 		next if $rendered{$f};
 		my $p=pagename($f);
-		my $reason = $mass_reason;
+		my $reason = undef;
 
 		if (exists $depends_simple{$p} && ! defined $reason) {
 			foreach my $d (keys %{$depends_simple{$p}}) {

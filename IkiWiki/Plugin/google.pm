@@ -28,7 +28,7 @@ sub checkconfig () {
 	
 	# This is a mass dependency, so if the search form template
 	# changes, every page is rebuilt.
-	add_depends("", "googleform.tmpl");
+	add_depends("", "templates/googleform.tmpl");
 }
 
 my $form;
