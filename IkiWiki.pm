@@ -1531,8 +1531,8 @@ sub loadindex () {
 		my $d=$pages->{$src};
 		my $page=pagename($src);
 		$pagectime{$page}=$d->{ctime};
+		$pagesources{$page}=$src;
 		if (! $config{rebuild}) {
-			$pagesources{$page}=$src;
 			$pagemtime{$page}=$d->{mtime};
 			$renderedfiles{$page}=$d->{dest};
 			if (exists $d->{links} && ref $d->{links}) {
