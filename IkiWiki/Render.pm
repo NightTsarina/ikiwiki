@@ -409,7 +409,7 @@ sub find_del_files ($) {
 	my @del;
 	my @internal_del;
 
-	foreach my $page (keys %pagectime) {
+	foreach my $page (keys %pagesources) {
 		if (! $pages->{$page}) {
 			if (isinternal($page)) {
 				push @internal_del, $pagesources{$page};
