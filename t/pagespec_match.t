@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 75;
+use Test::More tests => 85;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -66,7 +66,21 @@ $links{"ook"}=[qw{/blog/tags/foo}];
 foreach my $p (keys %links) {
 	$pagesources{$p}="$p.mdwn";
 }
+$pagesources{"foo.png"}="foo.png";
+$pagesources{"foo"}="foo.mdwn";
+$IkiWiki::hooks{htmlize}{mdwn}={};
 
+ok(pagespec_match("foo", "foo"), "simple");
+ok(! pagespec_match("foo", "bar"), "simple fail");
+ok(pagespec_match("foo", "foo"), "simple glob");
+ok(pagespec_match("foo", "f*"), "simple glob fail");
+ok(pagespec_match("foo", "page(foo)"), "page()");
+print pagespec_match("foo", "page(foo)")."\n";
+ok(! pagespec_match("foo", "page(bar)"), "page() fail");
+ok(! pagespec_match("foo.png", "page(foo.png)"), "page() fails on non-page");
+ok(! pagespec_match("foo.png", "page(foo*)"), "page() fails on non-page glob");
+ok(pagespec_match("foo", "page(foo)"), "page() glob");
+ok(pagespec_match("foo", "page(f*)"), "page() glob fail");
 ok(pagespec_match("foo", "link(bar)"), "link");
 ok(pagespec_match("foo", "link(ba?)"), "glob link");
 ok(! pagespec_match("foo", "link(quux)"), "failed link");

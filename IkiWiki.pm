@@ -2299,7 +2299,11 @@ sub match_glob ($$;@) {
 
 	my $regexp=IkiWiki::glob2re($glob);
 	if ($page=~/^$regexp$/i) {
-		if (! IkiWiki::isinternal($page) || $params{internal}) {
+		if ($params{onlypage} &&
+		    ! defined IkiWiki::pagetype($IkiWiki::pagesources{$page})) {
+			return IkiWiki::FailReason->new("$page is not a page");
+		}
+		elsif (! IkiWiki::isinternal($page) || $params{internal}) {
 			return IkiWiki::SuccessReason->new("$glob matches $page");
 		}
 		else {
@@ -2313,6 +2317,10 @@ sub match_glob ($$;@) {
 
 sub match_internal ($$;@) {
 	return match_glob($_[0], $_[1], @_, internal => 1)
+}
+
+sub match_page ($$;@) {
+	return match_glob($_[0], $_[1], @_, onlypage => 1)
 }
 
 sub match_link ($$;@) {
