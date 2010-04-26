@@ -376,6 +376,10 @@ sub match_copyright ($$;@) {
 	IkiWiki::Plugin::meta::match("copyright", @_);
 }
 
+sub match_guid ($$;@) {
+	IkiWiki::Plugin::meta::match("guid", @_);
+}
+
 package IkiWiki::SortSpec;
 
 sub cmp_meta {
