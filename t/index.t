@@ -117,11 +117,14 @@ is_deeply(\%oldtypedlinks, {
 %pagesources=%pagemtime=%oldlinks=%links=%depends=%typedlinks=%oldtypedlinks=
 %destsources=%renderedfiles=%pagecase=%pagestate=();
 
-# When state is loaded for a wiki rebuild, only ctime and oldrenderedfiles
-# are retained.
+# When state is loaded for a wiki rebuild, only ctime, oldrenderedfiles,
+# and pagesources are retained.
 $config{rebuild}=1;
 ok(loadindex(), "load index");
 is_deeply(\%pagesources, {
+	Foo => "Foo.mdwn",
+	bar => "bar.mdwn",
+	"bar.png" => "bar.png",
 }, "%pagesources loaded correctly");
 is_deeply(\%pagemtime, {
 }, "%pagemtime loaded correctly");
@@ -143,7 +146,10 @@ is_deeply(\%depends, {
 }, "%depends loaded correctly");
 is_deeply(\%pagestate, {
 }, "%pagestate loaded correctly");
-is_deeply(\%pagecase, {
+is_deeply(\%pagecase, { # generated implicitly since pagesources is loaded
+	foo => "Foo",
+	bar => "bar",
+	"bar.png" => "bar.png"
 }, "%pagecase generated correctly");
 is_deeply(\%destsources, {
 }, "%destsources generated correctly");
