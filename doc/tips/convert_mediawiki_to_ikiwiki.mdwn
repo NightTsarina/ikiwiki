@@ -48,10 +48,7 @@ in HTML, you may need to add further processing to the last line.
 
 Note that by default, `Special:Allpages` will only list pages in the main
 namespace. You need to add a `&namespace=XX` argument to get pages in a
-different namespace. The following numbers correspond to common namespaces:
-
- * 10 - templates (`Template:foo`)
- * 14 - categories (`Category:bar`)
+different namespace. (See below for the default list of namespaces)
 
 Note that the page names obtained this way will not include any namespace
 specific prefix: e.g. `Category:` will be stripped off.
@@ -59,7 +56,28 @@ specific prefix: e.g. `Category:` will be stripped off.
 ### Querying the database
 
 If you have access to the relational database in which your mediawiki data is
-stored, it is possible to derive a list of page names from this.
+stored, it is possible to derive a list of page names from this. With mediawiki's
+MySQL backend, the page table is, appropriately enough, called `table`:
+
+    SELECT page_namespace, page_title FROM page;
+
+As with the previous method, you will need to do some filtering based on the
+namespace.
+
+### namespaces
+
+The list of default namespaces in mediawiki is available from <http://www.mediawiki.org/wiki/Manual:Namespace#Built-in_namespaces>. Here are reproduced the ones you are most likely to encounter if you are running a small mediawiki install for your own purposes:
+
+[[!table data="""
+Index   | Name         | Example
+0       | Main         | Foo
+1       | Talk         | Talk:Foo
+2       | User         | User:Jon
+3       | User talk    | User_talk:Jon
+6       | File         | File:Barack_Obama_signature.svg
+10      | Template     | Template:Prettytable
+14      | Category     | Category:Pages_needing_review
+"""]]
 
 ## Step 2: fetching the page data
 
