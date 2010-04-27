@@ -1,0 +1,111 @@
+News for ikiwiki 3.20100427:
+
+   This version of ikiwiki has a lot of changes that you need to know about.
+   Now you can include customised versions of templates in the source
+   of your wiki. (For example, templates/page.tmpl.) When these templates
+   are changed, ikiwiki will automatically rebuild pages that use them.
+   Allowing untrusted users to upload attachments with the ".tmpl"
+   extension is not recommended, as that allows anyone to change
+   a wiki's templates.
+   The --getctime switch is renamed to --gettimes, and it also gets the
+   file modification time. And it's a lot faster (when using git). But
+   the really important change is, you don't have to remember to use this
+   switch. Now ikiwiki will do it when it needs to.
+   At last, the "tagged()" pagespec only matches tags, not regular wikilinks.
+   If your wiki accidentially relied on the old, buggy behavior, you might
+   need to change its pagespecs to use "link()".
+   Many of your wishes have been answered: Now tag pages can automatically be
+   created when new tags are used. This feature is enabled by default if you
+   have configured a tagbase. It can be turned on or off using the
+   tag\_autocreate setting.
+   These changes may also affect some users:
+   * The title\_natural sort method (as used by the inline directive, etc)
+     has been moved to the new sortnaturally plugin, which is not enabled
+     by default since it requires the Sort::Naturally perl module.
+   * TMPL\_INCLUDE is no longer supported in any template used by ikiwiki.
+     It used to be allowed in certian templates, but not in others.
+   * The add\_templates option has been removed from the underlay plugin.
+     If you used this option, you can instead use templates/ subdirectories
+     inside underlay directories added by the add\_underlays option.
+   Due to the above and other changes, all wikis need to be rebuilt on
+   upgrade to this version. If you listed your wiki in /etc/ikiwiki/wikilist
+   this will be done automatically when the Debian package is upgraded. Or
+   use ikiwiki-mass-rebuild to force a rebuild.
+
+ikiwiki 3.20100427 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+ * [ Joey Hess ]
+   * tag: Automatic creation of tag pages can now be enabled using
+     the tag\_autocreate setting. (David Riebenbauer)
+   * Customised templates can now be included in the source of wikis
+     (and also in underlays), and dependencies on them are tracked.
+   * TMPL\_INCLUDE is no longer supported in any template.
+   * underlay: Removed the add\_templates option.
+   * Add template\_depends function to plugin API.
+   * bzr: Fix bzr log parsing to work with bzr 2.0. (liw)
+   * comments: Fix missing entity encoding in title.
+   * txt: Add a special case for robots.txt.
+ * [ Simon McVittie ]
+   * Add support for link types, and make the the tagged() pagespec only
+     match tags, not regular links (a bugfix).
+   * Rebuild wikis on upgrade to this version to get tag link types recorded
+     correctly.
+   * Revamp sorting system; allow new sort methods to be added by plugins,
+     and add a "sortspec" syntax that can combine, reverse, etc sort methods.
+   * meta: Add `meta(author)`, `meta(title)` etc sortspecs to allow sorting
+     by metadata.
+   * meta: Add optional sortas parameter to author and title meta directives.
+     This can be used to get names sorted by last name without displaying
+     them last name first.
+   * sortnaturally: New plugin; the title\_natural sort method has moved here.
+   * meta: store fields consistently unescaped, and escape on use.
+     (A wiki rebuild is also needed due to this change.)
+ * [ Joey Hess ]
+   * Update dependency for git-core to git transition.
+   * po: Check that translated underlay directories exist before using them
+     for master language.
+   * po: Configuring the same language as master and slave confuses processing;
+     so filter out such a misconfiguration.
+   * calendar: Add archive\_pagespec, which is used by ikiwiki-calendar to
+     specify which pages to include on the calendar archive pages.
+     (The pagespec can still also be specified on the ikiwiki-calendar command
+     line.)
+   * pagestats: Class parameter can be used to override default class for
+     custom styling.
+   * pagestats: Use style=list to get a list of tags, scaled by use like
+     in a tag cloud. This is useful to put in a sidebar.
+   * Rework example blog front page.
+   * CSS and templates for sidebar changed to use a class, not an id.
+   * sidebar: Now a sidebar directive can be used to override the sidebar
+     shown on a page.
+   * Enable calendar and sidebar in auto-blog.setup.
+   * sidebar: Add global\_sidebars setting.
+   * conditional: Fix bug that forced "all" mode off by default.
+   * calendarmonth.tmpl: The month calendar is now put in a sidebar.
+   * calendar: Improved display of arrows.
+   * Rename --getctime to --gettime. (The old name still works for
+     backwards compatibility.)
+   * --gettime now also looks up last modification time.
+   * Automatically run --gettime the first time ikiwiki is run on
+     a given srcdir. (Use --no-gettime to disable.)
+   * Add rcs\_getmtime to plugin API; currently only implemented
+     for git and svn.
+   * Optimise --gettime for git, so it's appropriately screamingly
+     fast. (This could be done for most other backends too.)
+   * However, --gettime for git no longer follows renames. That would
+     be slow, and whether a renamed wiki page is the same page is really
+     an iffy thing.
+   * Use above to fix up timestamps on docwiki, as well as ensure that
+     timestamps on basewiki files shipped in the deb are sane.
+   * autoindex: Switch to using %wikistate instead of abusing
+     $pagestate{index}.
+   * bzr: Support rcs\_getmtime, and fix rcs\_getctime implementation
+     (Jelmer Vernooij)
+   * Quite a lot of new optimisations, and one major fix to a recent
+     performance regression.
+   * Moved javascript files under the ikiwiki/ directory, to avoid cluttering
+     the top of the web root. This is another things that requires a wiki
+     rebuild on upgrade to this version.
+   * Fix removal of rendered files in rebuild mode.
+   * Add page() PageSpec, which is like glob() but matches only pages,
+     not other files."""]]
