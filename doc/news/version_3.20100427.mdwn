@@ -1,36 +1,44 @@
-News for ikiwiki 3.20100427:
+This version of ikiwiki has a lot of changes that you need to know about.
 
-   This version of ikiwiki has a lot of changes that you need to know about.
-   Now you can include customised versions of templates in the source
-   of your wiki. (For example, templates/page.tmpl.) When these templates
-   are changed, ikiwiki will automatically rebuild pages that use them.
-   Allowing untrusted users to upload attachments with the ".tmpl"
-   extension is not recommended, as that allows anyone to change
-   a wiki's templates.
-   The --getctime switch is renamed to --gettimes, and it also gets the
-   file modification time. And it's a lot faster (when using git). But
-   the really important change is, you don't have to remember to use this
-   switch. Now ikiwiki will do it when it needs to.
-   At last, the "tagged()" pagespec only matches tags, not regular wikilinks.
-   If your wiki accidentially relied on the old, buggy behavior, you might
-   need to change its pagespecs to use "link()".
-   Many of your wishes have been answered: Now tag pages can automatically be
-   created when new tags are used. This feature is enabled by default if you
-   have configured a tagbase. It can be turned on or off using the
-   tag\_autocreate setting.
-   These changes may also affect some users:
-   * The title\_natural sort method (as used by the inline directive, etc)
-     has been moved to the new sortnaturally plugin, which is not enabled
-     by default since it requires the Sort::Naturally perl module.
-   * TMPL\_INCLUDE is no longer supported in any template used by ikiwiki.
-     It used to be allowed in certian templates, but not in others.
-   * The add\_templates option has been removed from the underlay plugin.
-     If you used this option, you can instead use templates/ subdirectories
-     inside underlay directories added by the add\_underlays option.
-   Due to the above and other changes, all wikis need to be rebuilt on
-   upgrade to this version. If you listed your wiki in /etc/ikiwiki/wikilist
-   this will be done automatically when the Debian package is upgraded. Or
-   use ikiwiki-mass-rebuild to force a rebuild.
+Now you can include customised versions of templates in the source
+of your wiki. (For example, templates/page.tmpl.) When these templates
+are changed, ikiwiki will automatically rebuild pages that use them.
+
+Allowing untrusted users to upload attachments with the ".tmpl"
+extension is not recommended, as that allows anyone to change
+a wiki's templates.
+
+The --getctime switch is renamed to --gettimes, and it also gets the 
+file modification time. And it's a lot faster (when using git). But
+the really important change is, you don't have to remember to use this
+switch. Now ikiwiki will do it when it needs to.
+
+At last, the "tagged()" pagespec only matches tags, not regular wikilinks.
+If your wiki accidentially relied on the old, buggy behavior, you might
+need to change its pagespecs to use "link()".
+
+Many of your wishes have been answered: Now tag pages can automatically be
+created when new tags are used. This feature is enabled by default if you
+have configured a tagbase. It can be turned on or off using the
+`tag_autocreate` setting.
+
+These changes may also affect some users:
+
+* The `title_natural` sort method (as used by the inline directive, etc)
+  has been moved to the new sortnaturally plugin, which is not enabled
+  by default since it requires the Sort::Naturally perl module.
+
+* `TMPL_INCLUDE` is no longer supported in any template used by ikiwiki.
+  It used to be allowed in certian templates, but not in others.
+
+* The `add_templates` option has been removed from the underlay plugin.
+  If you used this option, you can instead use templates/ subdirectories
+  inside underlay directories added by the `add_underlays` option.
+
+Due to the above and other changes, all wikis need to be rebuilt on
+upgrade to this version. If you listed your wiki in /etc/ikiwiki/wikilist
+this will be done automatically when the Debian package is upgraded. Or
+use ikiwiki-mass-rebuild to force a rebuild.
 
 ikiwiki 3.20100427 released with [[!toggle text="these changes"]]
 [[!toggleable text="""
