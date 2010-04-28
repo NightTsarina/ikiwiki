@@ -1661,7 +1661,11 @@ sub template_file ($) {
 	}
 
 	my $template=srcfile($tpage, 1);
-	if (! defined $template) {
+	if (defined $template) {
+		return $template, $tpage, 1 if wantarray;
+		return $template;
+	}
+	else {
 		$name=~s:/::; # avoid path traversal
 		foreach my $dir ($config{templatedir},
 		                 "$installdir/share/ikiwiki/templates") {
@@ -1670,12 +1674,12 @@ sub template_file ($) {
 				last;
 			}
 		}
+		if (defined $template) {	
+			return $template, $tpage if wantarray;
+			return $template;
+		}
 	}
 
-	if (defined $template) {	
-		return $template, $tpage if wantarray;
-		return $template;
-	}
 	return;
 }
 
@@ -1683,7 +1687,7 @@ sub template_depends ($$;@) {
 	my $name=shift;
 	my $page=shift;
 	
-	my ($filename, $tpage)=template_file($name);
+	my ($filename, $tpage, $untrusted)=template_file($name);
 	if (defined $page && defined $tpage) {
 		add_depends($page, $tpage);
 	}
@@ -1699,7 +1703,7 @@ sub template_depends ($$;@) {
 		die_on_bad_params => 0,
 		filename => $filename,
 		@_,
-		no_includes => 1,
+		($untrusted ? (no_includes => 1) : ()),
 	);
 	return @opts if wantarray;
 
