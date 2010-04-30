@@ -5,7 +5,6 @@ package IkiWiki;
 use warnings;
 use strict;
 use Encode;
-use HTML::Entities;
 use URI::Escape q{uri_escape_utf8};
 use POSIX ();
 use Storable;
