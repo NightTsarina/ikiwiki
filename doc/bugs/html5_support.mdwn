@@ -9,9 +9,66 @@ HTML5](http://www.w3.org/TR/html5-diff/).
 * [ikiwiki instance with HTML5 templates](http://natalian.org)
 * [HTML5 outliner tool](http://gsnedders.html5.org/outliner/) -- to check you have the structure of your markup correct
 
+> Kai, thanks enormously for working on this. I switched a page to 
+> the html5 doctype today, and was rather pleasently suprised that it
+> validated, except for the new Cache-Control meta tag. Now I see you're
+> well ahead of me. --[[Joey]] 
+> 
+> So, how should ikiwiki support html5? There are basically 3 approaches:
+> 
+> 1. Allow users to add html5 tags to their existing xhtml pages.
+>    What has been done so far, can be extended. Basically works 
+>    in browsers, if you don't care about standards. A good prerequisite
+>    for anything else, anyway.
+> 2. Switch to html5 in eg, ikiwiki 4; users have to deal with
+>    any custom markup on their pages/templates that breaks then.
+> 3. Have both a html5 and a xhtml mode, allow user to select.
+>
+> The third option seems fairly tractable from what I see here and in 
+> your branch. You made only relatively minor changes to 10 templates.
+> It would probably not be too dreadful to put them in ifdefs.
+> 
+> Some of your changes are obvious, like using the new `time` and
+> and `article` elements. Others less so, and I'm particularly
+> puzzled by these:
+> 
+> * Removing the value="Submit" from the button on the 
+>   commentmoderation form.
+> * Removing feedlink.tmpl. What?!
+> * Using a `h2` for the header of inlinepage.tmpl and page.tmpl, rather
+>   than the styled span. Ikiwiki has
+>   [[a_reason|todo/Option_to_make_title_an_h1?]] for not
+>   using real `hN` for the header atop a page and here.
+>   AFAICS, html5 does not invalidate that.
+> * Removing Editurl from inlinepage.tmpl actions. I assume 
+>   this is your own preference, needs to be removed from branch
+>   before I can use it.
+> * Removing the pageheader, content, and footer divs
+>   which are all used by style.css.
+>   Perhaps, the style sheet needs to be updated to use
+>   the new elements, like the `footer` and `header`.
+> * Removal of the favicon from page.tmpl. Surely html5 supports?
+> * Removal of BASEURL from page.tmpl, apparently a mistake.
+> * Removal of the `/` between wiki title and page title.
+>   Personal preference.
+> * Removal of `comments` div, which is there to be styled.
+> * Why use a `p` rather than the `div` for `addcomments`?
+> * Moving the action bar to the bottom of the page.
+>   Personal preference.
+> * Clearly searchquery.tmpl has no business using bad old `center`
+>   tag, but something should still be done to replace it.
+> 
+> (BTW, it would be helpful if you could re-merge master into your branch
+> as it is a bit diverged now.) --[[Joey]] 
+
 # htmlscrubber.pm needs to not scrub new HTML5 elements
 
 * [new elements](http://www.w3.org/TR/html5-diff/#new-elements)
+
+> Most of these can be supported trivially, since they are just semantic
+> markup. Make a list of these, and their attributes (and which attributes
+> can contain urls or other javascript injection mechanisms), and I can add
+> them. Others, like `embed`, and `canvas` are *scary*. --[[Joey]]
 
 # HTML5 Validation and t/html.t
 
@@ -24,6 +81,9 @@ with a network dependency.
 In the future, hopefully ikiwiki can test for valid HTML5 using [Relax NG
 schema](http://syntax.whattf.org/) using a Debian package tool
 [rnv](http://packages.qa.debian.org/r/rnv.html).
+
+> Validation in the test suite is nice, but I am willing to lose those
+> tests for a while. --[[Joey]] 
 
 # HTML5 migration issues
 
@@ -45,3 +105,6 @@ As a workaround:
 
 	au:~% grep timeformat natalian.setup
 	timeformat => '%Y-%m-%d',
+
+> Also, the [[plugins/relativedate]] plugin needs to be updated to 
+> support relatatizing the contents of time elements. --[[Joey]] 
