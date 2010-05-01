@@ -107,7 +107,7 @@ sub scrubber {
 				placeholder min max step low high optimum
 				form required autocomplete novalidate pattern
 				list formenctype formmethod formnovalidate
-				formtarget reversed spellcheck open
+				formtarget reversed spellcheck open hidden
 			} ),
 			"/" => 1, # emit proper <hr /> XHTML
 			href => $safe_url_regexp,
