@@ -4,23 +4,26 @@
 <input type="hidden" name="do" value="commentmoderation" />
 <input type="hidden" name="sid" value="<TMPL_VAR SID>" />
 <input type="submit" value="Submit" />
-<input type="checkbox" name="rejectalldefer" value="1" />Reject
-all comments marked <em>Defer</em>
-<br />  
+<input type="checkbox" name="rejectalldefer" value="1" />
+<label for="rejectalldefer">Reject all comments marked <em>Defer</em></label>
+<br />
 <TMPL_LOOP NAME="COMMENTS">
 <div>
 <div>
 <TMPL_VAR VIEW>
 </div>
-<input type="radio" value="Defer" name="<TMPL_VAR ID>" checked />Defer
-<input type="radio" value="Accept" name="<TMPL_VAR ID>" />Accept
-<input type="radio" value="Reject" name="<TMPL_VAR ID>" />Reject
+<input type="radio" value="Defer" name="<TMPL_VAR ID>" checked="checked" />
+<label for="Defer">Defer</label>
+<input type="radio" value="Accept" name="<TMPL_VAR ID>" />
+<label for="Accept">Accept</label>
+<input type="radio" value="Reject" name="<TMPL_VAR ID>" />
+<label for="Reject">Reject</label>
 </div>
 <br />
 </TMPL_LOOP>
 <input type="submit" value="Submit" />
-<input type="checkbox" name="rejectalldefer" value="1" />Reject
-all comments marked <em>Defer</em>
+<input type="checkbox" name="rejectalldefer" value="1" />
+<label for="rejectalldefer">Reject all comments marked <em>Defer</em></label>
 </form>
 <TMPL_ELSE>
 <p>
