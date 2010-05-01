@@ -85,7 +85,7 @@ sub scrubber {
 
 			video audio source section nav article aside hgroup
 			header footer figure figcaption time mark canvas
-			datalist
+			datalist progress meter ruby rt rp details summary
 		}],
 		default => [undef, { (
 			map { $_ => 1 } qw{
@@ -104,10 +104,10 @@ sub scrubber {
 
 				autofocus autoplay preload loopstart
 				loopend end playcount controls pubdate
-				placeholder min max step form required
-				autocomplete novalidate pattern list
-				formenctype formmethod formnovalidate
-				formtarget reversed
+				placeholder min max step low high optimum
+				form required autocomplete novalidate pattern
+				list formenctype formmethod formnovalidate
+				formtarget reversed spellcheck open
 			} ),
 			"/" => 1, # emit proper <hr /> XHTML
 			href => $safe_url_regexp,

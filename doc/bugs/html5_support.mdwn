@@ -68,23 +68,29 @@ HTML5](http://www.w3.org/TR/html5-diff/).
 > * Use nav for the actionbar
 > * Use placeholder in the search box. Allows closing
 >   [[this_todo|Add_label_to_search_form_input_field]]
+> * Use details tag instead of the javascript in the toggle plugin. 
+>   (Need to wait on browser support probably.)
 > --[[Joey]] 
 
 # htmlscrubber.pm needs to not scrub new HTML5 elements
 
 * [new elements](http://www.w3.org/TR/html5-diff/#new-elements)
 
-> Most of these can be supported trivially, since they are just semantic
-> markup. Make a list of these, and their attributes (and which attributes
-> can contain urls or other javascript injection mechanisms), and I can add
-> them. (Added several now.) Others, like `embed` are *scary*. --[[Joey]]
-
+> Many added now.
+>
+> Things I left out, too hard to understand today:
+> Attributes contenteditabl, contextmenu,
+> data-*, draggable, hidden, role, aria-*. Tags command, keygen,
+> output.
+> 
+> Clearly unsafe: embed.
+> 
+> Apparently cannot be used w/o javascript: menu.
+> 
 > I have not added the new `ping` attribute, because parsing a
 > space-separeated list of urls to avoid javascript injection is annoying, 
 > and the attribute seems generally dubious.
-> 
-> Need to understand better the attributes contenteditabl, contextmenu,
-> data-*, draggable, hidden, role, aria-*. Have not added those. --[[Joey]] 
+>  --[[Joey]] 
 
 # HTML5 Validation and t/html.t
 
