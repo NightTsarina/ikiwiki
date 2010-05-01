@@ -103,7 +103,7 @@ sub scrubber {
 
 				autofocus autoplay preload loopstart
 				loopend end playcount controls pubdate
-				placeholder min max step
+				placeholder min max step form required
 			} ),
 			"/" => 1, # emit proper <hr /> XHTML
 			href => $safe_url_regexp,
