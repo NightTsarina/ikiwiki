@@ -85,6 +85,7 @@ sub scrubber {
 
 			video audio source section nav article aside hgroup
 			header footer figure figcaption time mark canvas
+			datalist
 		}],
 		default => [undef, { (
 			map { $_ => 1 } qw{
@@ -104,11 +105,15 @@ sub scrubber {
 				autofocus autoplay preload loopstart
 				loopend end playcount controls pubdate
 				placeholder min max step form required
+				autocomplete novalidate pattern list
+				formenctype formmethod formnovalidate
+				formtarget reversed
 			} ),
 			"/" => 1, # emit proper <hr /> XHTML
 			href => $safe_url_regexp,
 			src => $safe_url_regexp,
 			action => $safe_url_regexp,
+			formaction => $safe_url_regexp,
 			cite => $safe_url_regexp,
 			longdesc => $safe_url_regexp,
 			poster => $safe_url_regexp,
