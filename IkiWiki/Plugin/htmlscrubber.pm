@@ -72,7 +72,7 @@ sub scrubber {
 	eval q{use HTML::Scrubber};
 	error($@) if $@;
 	# Lists based on http://feedparser.org/docs/html-sanitization.html
-	# With html 5 video and audio tags added.
+	# With html5 tags added.
 	$_scrubber = HTML::Scrubber->new(
 		allow => [qw{
 			a abbr acronym address area b big blockquote br br/
@@ -82,7 +82,9 @@ sub scrubber {
 			menu ol optgroup option p p/ pre q s samp select small
 			span strike strong sub sup table tbody td textarea
 			tfoot th thead tr tt u ul var
-			video audio
+
+			video audio section nav article aside hgroup header
+			footer time mark
 		}],
 		default => [undef, { (
 			map { $_ => 1 } qw{
@@ -98,8 +100,9 @@ sub scrubber {
 				selected shape size span start summary
 				tabindex target title type valign
 				value vspace width
+
 				autoplay loopstart loopend end
-				playcount controls 
+				playcount controls pubdate
 			} ),
 			"/" => 1, # emit proper <hr /> XHTML
 			href => $safe_url_regexp,
