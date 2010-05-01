@@ -101,8 +101,9 @@ sub scrubber {
 				tabindex target title type valign
 				value vspace width
 
-				autoplay preload loopstart loopend end
-				playcount controls pubdate placeholder
+				autofocus autoplay preload loopstart
+				loopend end playcount controls pubdate
+				placeholder min max step
 			} ),
 			"/" => 1, # emit proper <hr /> XHTML
 			href => $safe_url_regexp,
