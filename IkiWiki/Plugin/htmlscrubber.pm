@@ -102,7 +102,7 @@ sub scrubber {
 				value vspace width
 
 				autoplay preload loopstart loopend end
-				playcount controls pubdate
+				playcount controls pubdate placeholder
 			} ),
 			"/" => 1, # emit proper <hr /> XHTML
 			href => $safe_url_regexp,
