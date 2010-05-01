@@ -84,7 +84,7 @@ sub scrubber {
 			tfoot th thead tr tt u ul var
 
 			video audio source section nav article aside hgroup
-			header footer time mark canvas
+			header footer figure figcaption time mark canvas
 		}],
 		default => [undef, { (
 			map { $_ => 1 } qw{
