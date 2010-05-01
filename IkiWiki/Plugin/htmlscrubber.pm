@@ -83,8 +83,8 @@ sub scrubber {
 			span strike strong sub sup table tbody td textarea
 			tfoot th thead tr tt u ul var
 
-			video audio section nav article aside hgroup header
-			footer time mark
+			video audio source section nav article aside hgroup
+			header footer time mark canvas
 		}],
 		default => [undef, { (
 			map { $_ => 1 } qw{
@@ -101,7 +101,7 @@ sub scrubber {
 				tabindex target title type valign
 				value vspace width
 
-				autoplay loopstart loopend end
+				autoplay preload loopstart loopend end
 				playcount controls pubdate
 			} ),
 			"/" => 1, # emit proper <hr /> XHTML
