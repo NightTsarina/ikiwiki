@@ -234,6 +234,13 @@ sub getsetup () {
 		safe => 1,
 		rebuild => 1,
 	},
+	html5 => {
+		type => "boolean",
+		default => 0,
+		description => "generate HTML5? (experimental)",
+		safe => 1,
+		rebuild => 1,
+	},
 	sslcookie => {
 		type => "boolean",
 		default => 0,
@@ -1725,6 +1732,7 @@ sub misctemplate ($$;@) {
 		wikiname => $config{wikiname},
 		pagebody => $pagebody,
 		baseurl => baseurl(),
+		html5 => $config{html5},
 		@_,
 	);
 	run_hooks(pagetemplate => sub {

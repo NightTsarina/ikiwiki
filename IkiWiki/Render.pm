@@ -138,6 +138,7 @@ sub genpage ($$) {
 		mtime => displaytime($pagemtime{$page}),
 		ctime => displaytime($pagectime{$page}),
 		baseurl => baseurl($page),
+		html5 => $config{html5},
 	);
 
 	run_hooks(pagetemplate => sub {
