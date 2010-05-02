@@ -672,7 +672,7 @@ sub previewcomment ($$$) {
 
 	my $template = template("comment.tmpl");
 	$template->param(content => $preview);
-	$template->param(ctime => displaytime($time));
+	$template->param(ctime => displaytime($time, undef, 1));
 
 	IkiWiki::run_hooks(pagetemplate => sub {
 		shift->(page => $location,

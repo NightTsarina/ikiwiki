@@ -998,10 +998,18 @@ sub abs2rel ($$) {
 	return $ret;
 }
 
-sub displaytime ($;$) {
+sub displaytime ($;$$) {
 	# Plugins can override this function to mark up the time to
 	# display.
-	return '<span class="date">'.formattime(@_).'</span>';
+	my $time=formattime($_[0], $_[1]);
+	if ($config{html5}) {
+		return '<time datetime="'.date_3339($_[0]).'"'.
+			($_[2] ? ' pubdate' : '').
+			'>'.$time.'</time>';
+	}
+	else {
+		return '<span class="date">'.$time.'</span>';
+	}
 }
 
 sub formattime ($;$) {
@@ -1015,6 +1023,16 @@ sub formattime ($;$) {
 	# strftime doesn't know about encodings, so make sure
 	# its output is properly treated as utf8
 	return decode_utf8(POSIX::strftime($format, localtime($time)));
+}
+
+sub date_3339 ($) {
+	my $time=shift;
+
+	my $lc_time=POSIX::setlocale(&POSIX::LC_TIME);
+	POSIX::setlocale(&POSIX::LC_TIME, "C");
+	my $ret=POSIX::strftime("%Y-%m-%dT%H:%M:%SZ", gmtime($time));
+	POSIX::setlocale(&POSIX::LC_TIME, $lc_time);
+	return $ret;
 }
 
 sub beautify_urlpath ($) {

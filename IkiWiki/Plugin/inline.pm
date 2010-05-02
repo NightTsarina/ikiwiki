@@ -358,7 +358,7 @@ sub preprocess_inline (@) {
 				$template->param(pageurl => urlto($page, $params{destpage}));
 				$template->param(inlinepage => $page);
 				$template->param(title => pagetitle(basename($page)));
-				$template->param(ctime => displaytime($pagectime{$page}, $params{timeformat}));
+				$template->param(ctime => displaytime($pagectime{$page}, $params{timeformat}, 1));
 				$template->param(mtime => displaytime($pagemtime{$page}, $params{timeformat}));
 				$template->param(first => 1) if $page eq $list[0];
 				$template->param(last => 1) if $page eq $list[$#list];
@@ -496,16 +496,6 @@ sub date_822 ($) {
 	my $lc_time=POSIX::setlocale(&POSIX::LC_TIME);
 	POSIX::setlocale(&POSIX::LC_TIME, "C");
 	my $ret=POSIX::strftime("%a, %d %b %Y %H:%M:%S %z", localtime($time));
-	POSIX::setlocale(&POSIX::LC_TIME, $lc_time);
-	return $ret;
-}
-
-sub date_3339 ($) {
-	my $time=shift;
-
-	my $lc_time=POSIX::setlocale(&POSIX::LC_TIME);
-	POSIX::setlocale(&POSIX::LC_TIME, "C");
-	my $ret=POSIX::strftime("%Y-%m-%dT%H:%M:%SZ", gmtime($time));
 	POSIX::setlocale(&POSIX::LC_TIME, $lc_time);
 	return $ret;
 }

@@ -43,9 +43,10 @@ sub include_javascript ($;$) {
 		'" type="text/javascript" charset="utf-8"></script>';
 }
 
-sub mydisplaytime ($;$) {
+sub mydisplaytime ($;$$) {
 	my $time=shift;
 	my $format=shift;
+	my $pubdate=shift;
 
 	# This needs to be in a form that can be parsed by javascript.
 	# Being fairly human readable is also nice, as it will be exposed
@@ -53,8 +54,16 @@ sub mydisplaytime ($;$) {
 	my $gmtime=decode_utf8(POSIX::strftime("%a, %d %b %Y %H:%M:%S %z",
 			localtime($time)));
 
-	return '<span class="relativedate" title="'.$gmtime.'">'.
-		IkiWiki::formattime($time, $format).'</span>';
+	my $mid=' class="relativedate" title="'.$gmtime.'">'.
+		IkiWiki::formattime($time, $format);
+
+	if ($config{html5}) {
+		return '<time datetime="'.IkiWiki::date_3339($time).'"'.
+			($pubdate ? ' pubdate' : '').$mid.'</time>';
+	}
+	else {
+		return '<span'.$mid.'</span>';
+	}
 }
 
 1
