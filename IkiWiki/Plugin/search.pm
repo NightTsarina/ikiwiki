@@ -58,6 +58,7 @@ sub pagetemplate (@) {
 		if (! defined $form) {
 			my $searchform = template("searchform.tmpl", blind_cache => 1);
 			$searchform->param(searchaction => $config{cgiurl});
+			$searchform->param(html5 => $config{html5});
 			$form=$searchform->output;
 		}
 

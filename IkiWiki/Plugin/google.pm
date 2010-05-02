@@ -42,6 +42,7 @@ sub pagetemplate (@) {
 		if (! defined $form) {
 			my $searchform = template("googleform.tmpl", blind_cache => 1);
 			$searchform->param(url => $config{url});
+			$searchform->param(html5 => $config{html5});
 			$form=$searchform->output;
 		}
 
