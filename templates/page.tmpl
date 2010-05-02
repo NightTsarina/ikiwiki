@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 </TMPL_IF>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<TMPL_IF HTML5><meta charset="utf-8" /><TMPL_ELSE><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /></TMPL_IF>
 <meta http-equiv="Cache-Control" content="must-revalidate" />
 <title><TMPL_VAR TITLE></title>
 <TMPL_IF NAME="FAVICON">
@@ -26,8 +26,8 @@
 </head>
 <body>
 
-<div class="pageheader">
-<div class="header">
+<TMPL_IF HTML5><article class="pageheader"><TMPL_ELSE><div class="pageheader"></TMPL_IF>
+<TMPL_IF HTML5><header class="header"><TMPL_ELSE><div class="header"></TMPL_IF>
 <span>
 <span class="parentlinks">
 <TMPL_LOOP NAME="PARENTLINKS">
@@ -40,14 +40,14 @@
 &nbsp;(<TMPL_VAR NAME="PERCENTTRANSLATED">%)
 </TMPL_IF>
 </span>
-</span><!--.header-->
+</span>
 <TMPL_IF NAME="SEARCHFORM">
 <TMPL_VAR SEARCHFORM>
 </TMPL_IF>
-</div>
+<TMPL_IF HTML5></header><TMPL_ELSE></div></TMPL_IF>
 
 <TMPL_IF NAME="HAVE_ACTIONS">
-<div class="actions">
+<TMPL_IF HTML5><nav class="actions"><TMPL_ELSE><div class="actions"></TMPL_IF>
 <ul>
 <TMPL_IF NAME="EDITURL">
 <li><a href="<TMPL_VAR EDITURL>" rel="nofollow">Edit</a></li>
@@ -72,11 +72,11 @@
 </TMPL_IF>
 </TMPL_IF>
 </ul>
-</div>
+<TMPL_IF HTML5></nav><TMPL_ELSE></div></TMPL_IF>
 </TMPL_IF>
 
 <TMPL_IF NAME="OTHERLANGUAGES">
-<div id="otherlanguages">
+<TMPL_IF HTML5><nav class="otherlanguages"><TMPL_ELSE><div class="otherlanguages"></TMPL_IF>
 <ul>
 <TMPL_LOOP NAME="OTHERLANGUAGES">
 <li>
@@ -89,23 +89,22 @@
 </li>
 </TMPL_LOOP>
 </ul>
-</div> <!-- #otherlanguages -->
+<TMPL_IF HTML5></nav><TMPL_ELSE></div></TMPL_IF>
 </TMPL_IF>
 
-</div> <!-- .pageheader -->
+<TMPL_IF HTML5></header><TMPL_ELSE></div></TMPL_IF>
 
 <TMPL_IF SIDEBAR>
-<div class="sidebar">
+<TMPL_IF HTML5><aside class="sidebar"><TMPL_ELSE><div class="sidebar"></TMPL_IF>
 <TMPL_VAR SIDEBAR>
-</div>
+<TMPL_IF HTML5></aside><TMPL_ELSE></div></TMPL_IF>
 </TMPL_IF>
 
-<div id="content">
+<TMPL_IF HTML5><article id="content"><TMPL_ELSE><div id="content"></TMPL_IF>
 <TMPL_VAR CONTENT>
-</div>
 
 <TMPL_IF COMMENTS>
-<div id="comments">
+<TMPL_IF HTML5><aside id="comments"><TMPL_ELSE><div id="comments"></TMPL_IF>
 <TMPL_VAR COMMENTS>
 <TMPL_IF ADDCOMMENTURL>
 <div class="addcomment">
@@ -114,23 +113,25 @@
 <TMPL_ELSE>
 <div class="addcomment">Comments on this page are closed.</div>
 </TMPL_IF>
-</div>
+<TMPL_IF HTML5></aside><TMPL_ELSE></div></TMPL_IF>
 </TMPL_IF>
 
-<div id="footer" class="pagefooter">
-<div id="pageinfo">
+<TMPL_IF HTML5></article><TMPL_ELSE></div></TMPL_IF>
+
+<TMPL_IF HTML5><footer id="footer" class="pagefooter"><TMPL_ELSE><div id="footer" class="pagefooter"></TMPL_IF>
+<TMPL_IF HTML5><nav id="pageinfo"><TMPL_ELSE><div id="pageinfo"></TMPL_IF>
 
 <TMPL_IF NAME="TAGS">
-<div class="tags">
+<TMPL_IF HTML5><nav class="tags"><TMPL_ELSE><div class="tags"></TMPL_IF>
 Tags:
 <TMPL_LOOP NAME="TAGS">
 <TMPL_VAR LINK>
 </TMPL_LOOP>
-</div>
+<TMPL_IF HTML5></nav><TMPL_ELSE></div></TMPL_IF>
 </TMPL_IF>
 
 <TMPL_IF NAME="BACKLINKS">
-<div id="backlinks">
+<TMPL_IF HTML5><nav id="backlinks"><TMPL_ELSE><div id="backlinks"></TMPL_IF>
 Links:
 <TMPL_LOOP NAME="BACKLINKS">
 <a href="<TMPL_VAR URL>"><TMPL_VAR PAGE></a>
@@ -144,7 +145,7 @@ Links:
 </span>
 </span>
 </TMPL_IF>
-</div><!-- #backlinks -->
+<TMPL_IF HTML5></nav><TMPL_ELSE></div></TMPL_IF>
 </TMPL_IF>
 
 <TMPL_IF COPYRIGHT>
@@ -166,10 +167,10 @@ Last edited <TMPL_VAR MTIME>
 <!-- Created <TMPL_VAR CTIME> -->
 </div>
 
-</div><!-- #pageinfo -->
+<TMPL_IF HTML5></nav><TMPL_ELSE></div></TMPL_IF>
 <TMPL_IF EXTRAFOOTER><TMPL_VAR EXTRAFOOTER></TMPL_IF>
 <!-- from <TMPL_VAR WIKINAME> -->
-</div><!-- .pagefooter #footer -->
+<TMPL_IF HTML5></footer><TMPL_ELSE></div></TMPL_IF>
 
 </body>
 </html>
