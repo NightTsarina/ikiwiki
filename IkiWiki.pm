@@ -238,6 +238,7 @@ sub getsetup () {
 		type => "boolean",
 		default => 0,
 		description => "generate HTML5? (experimental)",
+		advanced => 1,
 		safe => 1,
 		rebuild => 1,
 	},
