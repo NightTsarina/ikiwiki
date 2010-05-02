@@ -362,6 +362,7 @@ sub preprocess_inline (@) {
 				$template->param(mtime => displaytime($pagemtime{$page}, $params{timeformat}));
 				$template->param(first => 1) if $page eq $list[0];
 				$template->param(last => 1) if $page eq $list[$#list];
+				$template->param(html5 => $config{html5});
 	
 				if ($actions) {
 					my $file = $pagesources{$page};

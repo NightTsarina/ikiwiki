@@ -1,20 +1,20 @@
-<div class="comment" id="<TMPL_VAR NAME=COMMENTID>">
+<TMPL_IF HTML5><article class="comment" id="<TMPL_VAR NAME=COMMENTID>">
+<TMPL_ELSE><div class="comment" id="<TMPL_VAR NAME=COMMENTID>"></TMPL_IF>
 
-<div class="comment-subject">
+<TMPL_IF HTML5><header class="comment-subject"><TMPL_ELSE><div class="comment-subject"></TMPL_IF>
 <TMPL_IF PERMALINK>
 <a href="<TMPL_VAR PERMALINK>"><TMPL_VAR TITLE></a>
 <TMPL_ELSE>
 <TMPL_VAR TITLE>
 </TMPL_IF>
-</div>
+<TMPL_IF HTML5></header><TMPL_ELSE></div></TMPL_IF>
 
-<div class="inlinecontent">
+<TMPL_IF HTML5><section class="inlinecontent"><TMPL_ELSE><div class="inlinecontent"></TMPL_IF>
 <TMPL_VAR CONTENT>
-</div>
+<TMPL_IF HTML5></section><TMPL_ELSE></div></TMPL_IF>
 
-<div class="comment-header">
+<TMPL_IF HTML5><header class="comment-header"><TMPL_ELSE><div class="comment-header"></TMPL_IF>
 Comment by
-
 <TMPL_IF NAME="COMMENTUSER">
 <TMPL_IF NAME="COMMENTOPENID">
 <span class="author" title="OpenID">
@@ -29,10 +29,10 @@ Comment by
 </TMPL_IF>
 </span>
 </TMPL_IF>
-<TMPL_ELSE><!-- !COMMENTUSER -->
+<TMPL_ELSE>
 <TMPL_IF NAME=COMMENTIP>
 <span class="author" title="Unauthenticated, from <TMPL_VAR NAME=COMMENTIP>">
-<TMPL_ELSE><!-- !COMMENTIP -->
+<TMPL_ELSE>
 <span class="author" title="Unauthenticated, from unknown IP address">
 </TMPL_IF>
 <TMPL_IF NAME="AUTHORURL">
@@ -41,19 +41,18 @@ Comment by
 <TMPL_VAR NAME=AUTHOR>
 </TMPL_IF>
 </span>
-</TMPL_IF><!-- !COMMENTUSER -->
-
+</TMPL_IF>
 &mdash; <TMPL_VAR CTIME>
-</div>
+<TMPL_IF HTML5></header><TMPL_ELSE></div></TMPL_IF>
 
 <TMPL_IF NAME="HAVE_ACTIONS">
-<div class="actions">
+<TMPL_IF HTML5><nav class="actions"><TMPL_ELSE><div class="actions"></TMPL_IF>
 <ul>
 <TMPL_IF NAME="REMOVEURL">
 <li><a href="<TMPL_VAR REMOVEURL>" rel="nofollow">Remove comment</a></li>
 </TMPL_IF>
 </ul>
-</div><!--.actions-->
+<TMPL_IF HTML5></nav><TMPL_ELSE></div></TMPL_IF>
 </TMPL_IF>
 
-</div><!--.comment-->
+<TMPL_IF HTML5></article><TMPL_ELSE></div></TMPL_IF>
