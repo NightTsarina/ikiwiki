@@ -112,7 +112,14 @@ sub genpage ($$) {
 		}
 	}
 
-	if ($actions) {
+	my @actions;
+	run_hooks(pageactions => sub {
+		push @actions, map { { action => $_ } } 
+			grep { defined } shift->(page => $page);
+	});
+	$template->param(actions => \@actions);
+
+	if ($actions || @actions) {
 		$template->param(have_actions => 1);
 	}
 

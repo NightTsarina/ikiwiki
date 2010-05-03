@@ -319,6 +319,15 @@ should return the name of the template file to use (relative to the
 template directory), or undef if it doesn't want to change the default
 ("page.tmpl").
 
+### pageactions
+
+	hook(type => "pageactions", id => "foo", call => \&pageactions);
+
+This hook allows plugins to add arbitrary actions to the action bar on a
+page (next to Edit, RecentChanges, etc). The hook is passed a "page"
+parameter, and can return a list of html fragments to add to the action
+bar.
+
 ### sanitize
 
 	hook(type => "sanitize", id => "foo", call => \&sanitize);

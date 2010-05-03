@@ -24,6 +24,7 @@ sub import {
 	hook(type => "format", id => "skeleton", call => \&format);
 	hook(type => "pagetemplate", id => "skeleton", call => \&pagetemplate);
 	hook(type => "templatefile", id => "skeleton", call => \&templatefile);
+	hook(type => "pageactions", id => "skeleton", call => \&pageactions);
 	hook(type => "delete", id => "skeleton", call => \&delete);
 	hook(type => "change", id => "skeleton", call => \&change);
 	hook(type => "cgi", id => "skeleton", call => \&cgi);
@@ -144,6 +145,14 @@ sub templatefile (@) {
 	my $page=$params{page};
 	
 	debug("skeleton plugin running as a templatefile hook");
+}
+
+sub pageactions (@) {
+	my %params=@_;
+	my $page=$params{page};
+
+	debug("skeleton plugin running as a pageactions hook");
+	return ();
 }
 
 sub delete (@) {
