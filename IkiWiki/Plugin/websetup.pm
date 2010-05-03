@@ -503,9 +503,10 @@ sub formbuilder_setup (@) {
 	my %params=@_;
 
 	my $form=$params{form};
-	if ($form->title eq "preferences") {
-		push @{$params{buttons}}, "Wiki Setup";
-		if ($form->submitted && $form->submitted eq "Wiki Setup") {
+	if ($form->title eq "preferences" &&
+	    IkiWiki::is_admin($params{session}->param("name"))) {
+		push @{$params{buttons}}, "Setup";
+		if ($form->submitted && $form->submitted eq "Setup") {
 			showform($params{cgi}, $params{session});
 			exit;
 		}
