@@ -102,7 +102,7 @@ sub showfields ($$$@) {
 	}
 
 	my $section=defined $plugin
-		? sprintf(gettext("%s plugin:"), $plugininfo{section}).$plugin
+		? sprintf(gettext("%s plugin:"), $plugininfo{section})." ".$plugin
 		: "main";
 	my %enabledfields;
 	my $shownfields=0;
