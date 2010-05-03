@@ -265,6 +265,8 @@ sub showform ($$) {
 	my $cgi=shift;
 	my $session=shift;
 
+	IkiWiki::needsignin($cgi, $session);
+
 	if (! defined $session->param("name") || 
 	    ! IkiWiki::is_admin($session->param("name"))) {
 		error(gettext("you are not logged in as an admin"));
