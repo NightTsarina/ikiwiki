@@ -1,0 +1,17 @@
+What is the way to tell wrappers that PERL5LIB should include ~/bin directories?
+
+Having this in the wiki.setup doesn't help anymore:
+
+        # environment variables
+        ENV => {
+          PATH => '/home/user/bin/bin:/usr/local/bin:/usr/bin:/bin:/usr/games:/home/user/ikiwiki/usr/bin/:/home/user/ikiwiki/usr/sbin/:/home/user/bin/bin/:~/bin/bin/',
+          PERL5LIB => '/home/user/bin/share/perl/5.10.0:/home/user/bin/lib/perl/5.10.0'
+        },
+
+Or at least I get CGI errors and running ikiwiki.cgi manually fails too:
+
+        Use of uninitialized value $tainted in pattern match (m//) at /usr/share/perl5/IkiWiki.pm line 233.
+        Argument "" isn't numeric in umask at /usr/share/perl5/IkiWiki.pm line 139.
+        Undefined subroutine &IkiWiki::cgierror called at /home/user/bin/bin/ikiwiki line 199.
+
+Server has an older ikiwiki installed but I'd like to use a newer version from git, and I don't have root access.
