@@ -1,0 +1,46 @@
+(split from [[Problems_with_graphviz.pm_plug-in]])
+
+[graphviz] generates image URLs relative to the page being rendered, which means the URLs wont work when previewing a graph from the CGI script.
+
+>> Here is an updated patch againt ikiwiki-2.5:
+
+>>> Applied, thanks. --[[Joey]]
+
+    --- IkiWiki/Plugin/graphviz.pm.orig	2007-07-27 11:35:05.000000000 +0200
+    +++ IkiWiki/Plugin/graphviz.pm	2007-07-27 11:36:02.000000000 +0200
+    @@ -69,7 +69,12 @@ sub render_graph (\%) {
+     		}
+     	}
+     
+    -	return "<img src=\"".urlto($dest, $params{page})."\" />\n";
+    +	if ($params{preview}) {
+    +		return "<img src=\"".urlto($dest, "")."\" />\n";
+    +	}
+    +	else {
+    +		return "<img src=\"".urlto($dest, $params{page})."\" />\n";
+    +	}
+     }
+     
+     sub graph (@) {
+
+
+>> --[[HenrikBrixAndersen]]
+
+>>> Despite this patch I am still experiencing the problem. Normal page source for a graph contains:
+
+    &lt;div id="content"&gt;
+    &lt;p&gt;&lt;img src="./graph-c9fd2a197322feb417bdedbca5e99f5aa65b3f06.png" /&gt;&lt;/p&gt;
+    
+    &lt;/div&gt;
+
+>>> preview contains
+
+    &lt;div id="preview"&gt;
+    &lt;p&gt;&lt;img src="./demo/diagrams/graph-c9fd2a197322feb417bdedbca5e99f5aa65b3f06.png" /&gt;&lt;/p&gt;
+    
+    &lt;/div&gt;
+
+>>> I don't quite understand why, this makes sense from the CGI path (in my
+>>> case from the root of the site). The browsers appear to be trying to fetch
+>>> `/demo/diagrams/demo/diagrams/graph-c9fd2a197322feb417bdedbca5e99f5aa65b3f06.png`
+>>> (i.e., prepending the required relpath twice). -- [[Jon]]

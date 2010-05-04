@@ -9,30 +9,11 @@ The graphviz.pm plug-in currently attempts to read PNG data in UTF-8 mode, which
 
 It also generates image URLs relative to the page being rendered, which means the URLs wont work when previewing a graph from the CGI script.
 
+(preview bug split to [[Problems_with_graphviz.pm_plug-in_previews]])
+
 >> Here is an updated patch againt ikiwiki-2.5:
 
 >>> [[Applied|done]], thanks. --[[Joey]]
-
-    --- IkiWiki/Plugin/graphviz.pm.orig	2007-07-27 11:35:05.000000000 +0200
-    +++ IkiWiki/Plugin/graphviz.pm	2007-07-27 11:36:02.000000000 +0200
-    @@ -69,7 +69,12 @@ sub render_graph (\%) {
-     		}
-     	}
-     
-    -	return "<img src=\"".urlto($dest, $params{page})."\" />\n";
-    +	if ($params{preview}) {
-    +		return "<img src=\"".urlto($dest, "")."\" />\n";
-    +	}
-    +	else {
-    +		return "<img src=\"".urlto($dest, $params{page})."\" />\n";
-    +	}
-     }
-     
-     sub graph (@) {
-
-
->> --[[HenrikBrixAndersen]]
-
 
 The patch below fixes these two issues.
 
