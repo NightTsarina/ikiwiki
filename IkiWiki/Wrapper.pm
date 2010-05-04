@@ -123,6 +123,7 @@ $envsave
 	newenviron[i++]="WRAPPED_OPTIONS=$configstring";
 
 #ifdef __TINYC__
+	/* old tcc versions do not support modifying environ directly */
 	if (clearenv() != 0) {
 		perror("clearenv");
 		exit(1);
