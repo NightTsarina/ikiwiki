@@ -15,3 +15,19 @@ Or at least I get CGI errors and running ikiwiki.cgi manually fails too:
         Undefined subroutine &IkiWiki::cgierror called at /home/user/bin/bin/ikiwiki line 199.
 
 Server has an older ikiwiki installed but I'd like to use a newer version from git, and I don't have root access.
+
+> You can't set `PERL5LIB` in `ENV` in a setup file, because ikiwiki is already
+> running before it reads that, and so it has little effect. Your error
+> messages do look like a new bin/ikiwiki is using an old version of
+> `IkiWiki.pm`.
+> 
+> The thing to do is set `INSTALL_BASE` when you're installing ikiwiki from
+> source. Like so:
+
+        cd ikiwiki
+        perl Makefile.PL INSTALL_BASE=$HOME PREFIX=
+	make install
+
+> Then `$HOME/bin/ikiwiki` will have hardcoded into it to look
+> for ikiwiki's perl modules in `$HOME/lib/perl5/`
+> (This is documented in the README file by the way.) --[[Joey]] 
