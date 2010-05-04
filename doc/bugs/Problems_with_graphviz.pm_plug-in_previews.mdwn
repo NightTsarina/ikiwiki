@@ -44,3 +44,11 @@
 >>> case from the root of the site). The browsers appear to be trying to fetch
 >>> `/demo/diagrams/demo/diagrams/graph-c9fd2a197322feb417bdedbca5e99f5aa65b3f06.png`
 >>> (i.e., prepending the required relpath twice). -- [[Jon]]
+
+>>>> Yeah, that patch may have been right once, but it's wrong now;
+>>>> preview mode uses `<base>` to make urls work the same as they would
+>>>> when viewing the html page. 
+>>>>
+>>>> Perhaps this was not noticed for a while while because it only
+>>>> shows up if previewing an *unchanged* graph on a page that has already
+>>>> been built before. Fixed now. [[done]] --[[Joey]] 
