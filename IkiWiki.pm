@@ -1757,7 +1757,6 @@ sub misctemplate ($$;@) {
 		baseurl => baseurl(),
 		html5 => $config{html5},
 		have_actions => 0, # force off
-		searchform => 0,   # ditto
 		parentlinks => [{  # override
 			url => $config{url},
 			page => $config{wikiname},
