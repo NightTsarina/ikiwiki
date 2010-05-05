@@ -146,7 +146,6 @@ sub genpage ($$) {
 		mtime => displaytime($pagemtime{$page}),
 		ctime => displaytime($pagectime{$page}, undef, 1),
 		baseurl => baseurl($page),
-		have_footer => 1,
 		html5 => $config{html5},
 	);
 
