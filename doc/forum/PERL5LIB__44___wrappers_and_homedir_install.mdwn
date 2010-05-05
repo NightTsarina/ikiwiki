@@ -26,8 +26,13 @@ Server has an older ikiwiki installed but I'd like to use a newer version from g
 
         cd ikiwiki
         perl Makefile.PL INSTALL_BASE=$HOME PREFIX=
-	make install
+        make install
 
 > Then `$HOME/bin/ikiwiki` will have hardcoded into it to look
 > for ikiwiki's perl modules in `$HOME/lib/perl5/`
 > (This is documented in the README file by the way.) --[[Joey]] 
+
+>> Ok, *perl Makefile.PL INSTALL_BASE=$HOME/bin PREFIX=* finally did it for me. I tried too many things with
+>> these paths so I wasn't sure which actually worked. After that I did 
+>> *$ ikiwiki --setup www.setup --wrappers --rebuild*. Somehow in this update mess I seem to have lost the user
+>> accounts, maybe the --rebuild was too much.
