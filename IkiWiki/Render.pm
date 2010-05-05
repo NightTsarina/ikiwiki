@@ -321,6 +321,7 @@ sub find_src_files () {
 		my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
 		if (! defined $f) {
 			warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
+			return;
 		}
 	
 		if ($underlay) {
