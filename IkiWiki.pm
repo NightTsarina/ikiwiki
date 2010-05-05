@@ -1744,7 +1744,7 @@ sub misctemplate ($$;@) {
 	my $title=shift;
 	my $content=shift;
 	
-	my $template=template("misc.tmpl") || template("page.tmpl");
+	my $template=template("page.tmpl");
 
 	run_hooks(pagetemplate => sub {
 		shift->(page => "", destpage => "", template => $template);
