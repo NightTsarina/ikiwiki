@@ -133,8 +133,8 @@
 <TMPL_IF HTML5></section><TMPL_ELSE></div></TMPL_IF>
 </TMPL_IF>
 
-<TMPL_IF HAVE_FOOTER>
 <TMPL_IF HTML5><footer id="footer" class="pagefooter"><TMPL_ELSE><div id="footer" class="pagefooter"></TMPL_IF>
+<TMPL_IF ISPAGE>
 <TMPL_IF HTML5><nav id="pageinfo"><TMPL_ELSE><div id="pageinfo"></TMPL_IF>
 
 <TMPL_IF NAME="TAGS">
@@ -184,10 +184,10 @@ Last edited <TMPL_VAR MTIME>
 </div>
 
 <TMPL_IF HTML5></nav><TMPL_ELSE></div></TMPL_IF>
+</TMPL_IF>
 <TMPL_IF EXTRAFOOTER><TMPL_VAR EXTRAFOOTER></TMPL_IF>
 <!-- from <TMPL_VAR WIKINAME> -->
 <TMPL_IF HTML5></footer><TMPL_ELSE></div></TMPL_IF>
-</TMPL_IF>
 
 <TMPL_IF HTML5></article><TMPL_ELSE></div></TMPL_IF>
 
