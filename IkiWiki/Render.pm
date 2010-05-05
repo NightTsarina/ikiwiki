@@ -138,6 +138,7 @@ sub genpage ($$) {
 		title => $page eq 'index' 
 			? $config{wikiname} 
 			: pagetitle(basename($page)),
+		ispage => 1,
 		wikiname => $config{wikiname},
 		content => $content,
 		backlinks => $backlinks,
@@ -145,6 +146,7 @@ sub genpage ($$) {
 		mtime => displaytime($pagemtime{$page}),
 		ctime => displaytime($pagectime{$page}, undef, 1),
 		baseurl => baseurl($page),
+		have_footer => 1,
 		html5 => $config{html5},
 	);
 
