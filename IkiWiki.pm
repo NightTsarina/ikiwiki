@@ -1742,21 +1742,29 @@ sub template ($;@) {
 
 sub misctemplate ($$;@) {
 	my $title=shift;
-	my $pagebody=shift;
+	my $content=shift;
 	
-	my $template=template("misc.tmpl");
-	$template->param(
-		title => $title,
-		indexlink => indexlink(),
-		wikiname => $config{wikiname},
-		pagebody => $pagebody,
-		baseurl => baseurl(),
-		html5 => $config{html5},
-		@_,
-	);
+	my $template=template("misc.tmpl") || template("page.tmpl");
+
 	run_hooks(pagetemplate => sub {
 		shift->(page => "", destpage => "", template => $template);
 	});
+
+	$template->param(
+		title => $title,
+		wikiname => $config{wikiname},
+		content => $content,
+		baseurl => baseurl(),
+		html5 => $config{html5},
+		have_actions => 0, # force off
+		searchform => 0,   # ditto
+		parentlinks => [{  # override
+			url => $config{url},
+			page => $config{wikiname},
+		}],
+		@_,
+	);
+
 	return $template->output;
 }
 
