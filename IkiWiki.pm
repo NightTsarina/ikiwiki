@@ -1747,6 +1747,7 @@ sub misctemplate ($$;@) {
 	});
 
 	$template->param(
+		dynamic => 1,
 		title => $title,
 		wikiname => $config{wikiname},
 		content => $content,

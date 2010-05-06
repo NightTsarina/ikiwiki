@@ -138,7 +138,6 @@ sub genpage ($$) {
 		title => $page eq 'index' 
 			? $config{wikiname} 
 			: pagetitle(basename($page)),
-		ispage => 1,
 		wikiname => $config{wikiname},
 		content => $content,
 		backlinks => $backlinks,

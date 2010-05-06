@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 </TMPL_IF>
 <head>
-<TMPL_UNLESS ISPAGE>
+<TMPL_IF DYNAMIC>
 <TMPL_IF FORCEBASEURL><base href="<TMPL_VAR FORCEBASEURL>" /><TMPL_ELSE>
 <TMPL_IF BASEURL><base href="<TMPL_VAR BASEURL>" /></TMPL_IF>
 </TMPL_IF>
@@ -48,7 +48,7 @@
 </TMPL_IF>
 </span>
 </span>
-<TMPL_IF ISPAGE>
+<TMPL_UNLESS DYNAMIC>
 <TMPL_IF SEARCHFORM>
 <TMPL_VAR SEARCHFORM>
 </TMPL_IF>
@@ -132,7 +132,7 @@
 </TMPL_IF>
 
 <TMPL_IF HTML5><footer id="footer" class="pagefooter"><TMPL_ELSE><div id="footer" class="pagefooter"></TMPL_IF>
-<TMPL_IF ISPAGE>
+<TMPL_UNLESS DYNAMIC>
 <TMPL_IF HTML5><nav id="pageinfo"><TMPL_ELSE><div id="pageinfo"></TMPL_IF>
 
 <TMPL_IF TAGS>
