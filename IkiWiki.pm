@@ -1401,10 +1401,6 @@ sub filter ($$$) {
 	return $content;
 }
 
-sub indexlink () {
-	return "<a href=\"$config{url}\">$config{wikiname}</a>";
-}
-
 sub check_canedit ($$$;$) {
 	my $page=shift;
 	my $q=shift;

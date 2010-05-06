@@ -148,7 +148,6 @@ sub cgi_editpage ($$) {
 	$form->field(name => "editcontent", type => "textarea", rows => 20,
 		cols => 80);
 	$form->tmpl_param("can_commit", $config{rcs});
-	$form->tmpl_param("indexlink", indexlink());
 	$form->tmpl_param("helponformattinglink",
 		htmllink($page, $page, "ikiwiki/formatting",
 			noimageinline => 1,
