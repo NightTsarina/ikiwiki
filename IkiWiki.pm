@@ -1748,16 +1748,12 @@ sub misctemplate ($$;@) {
 
 	$template->param(
 		dynamic => 1,
+		have_actions => 0, # force off
 		title => $title,
 		wikiname => $config{wikiname},
 		content => $content,
 		baseurl => baseurl(),
 		html5 => $config{html5},
-		have_actions => 0, # force off
-		parentlinks => [{  # override
-			url => $config{url},
-			page => $config{wikiname},
-		}],
 		@_,
 	);
 
