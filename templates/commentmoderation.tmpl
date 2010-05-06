@@ -1,4 +1,4 @@
-<TMPL_IF NAME="COMMENTS">
+<TMPL_IF COMMENTS>
 <br />
 <form action="<TMPL_VAR CGIURL>" method="post">
 <input type="hidden" name="do" value="commentmoderation" />
@@ -7,7 +7,7 @@
 <input type="checkbox" name="rejectalldefer" value="1" />
 <label for="rejectalldefer">Reject all comments marked <em>Defer</em></label>
 <br />
-<TMPL_LOOP NAME="COMMENTS">
+<TMPL_LOOP COMMENTS>
 <div>
 <div>
 <TMPL_VAR VIEW>

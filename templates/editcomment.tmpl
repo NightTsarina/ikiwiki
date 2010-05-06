@@ -4,11 +4,11 @@
 <TMPL_VAR FIELD-DO>
 <TMPL_VAR FIELD-SID>
 <TMPL_VAR FIELD-PAGE>
-<TMPL_UNLESS NAME=USERNAME>
-<TMPL_IF NAME=ALLOWAUTHOR>
-Name: <TMPL_VAR NAME=FIELD-AUTHOR> (optional, or
+<TMPL_UNLESS USERNAME>
+<TMPL_IF ALLOWAUTHOR>
+Name: <TMPL_VAR FIELD-AUTHOR> (optional, or
 <a href="<TMPL_VAR SIGNINURL>">signin</a>)<br />
-Website: <TMPL_VAR NAME=FIELD-URL> (optional)<br />
+Website: <TMPL_VAR FIELD-URL> (optional)<br />
 <TMPL_ELSE>
 (You might want to <a href="<TMPL_VAR SIGNINURL>">Signin</a> first?)<br />
 </TMPL_IF>
@@ -16,10 +16,10 @@ Website: <TMPL_VAR NAME=FIELD-URL> (optional)<br />
 Subject: <TMPL_VAR FIELD-SUBJECT><br />
 <TMPL_VAR FIELD-EDITCONTENT><br />
 <TMPL_VAR FORM-SUBMIT> <TMPL_VAR FIELD-TYPE> <TMPL_VAR HELPONFORMATTINGLINK><br />
-<TMPL_VAR NAME="FORM-END">
+<TMPL_VAR FORM-END>
 <TMPL_VAR WMD_PREVIEW>
 
-<TMPL_IF NAME="PAGE_PREVIEW">
+<TMPL_IF PAGE_PREVIEW>
 <hr />
 <div class="header">
 <span>Comment preview:</span>
