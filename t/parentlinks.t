@@ -21,7 +21,6 @@ IkiWiki::checkconfig();
 # Test data
 $expected{'parentlinks'} =
   {
-   "" => [],
    "ikiwiki" => [],
    "ikiwiki/pagespec" =>
      [ {depth => 0, height => 2, },
