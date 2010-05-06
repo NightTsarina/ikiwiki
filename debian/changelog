@@ -4,6 +4,14 @@ ikiwiki (3.20100505) UNRELEASED; urgency=low
     a single template, page.tmpl.
   * If you have a locally customised page.tmpl, it needs to be updated
     to set <base> when BASEURL or FORCEBAREURL is set.
+  * comments: Comments pending moderation are now stored in the srcdir
+    alongside accepted comments, but with a `._comment_pending` extension.
+  * This allows easier byhand moderation, as the "_pending" need
+    only be stripped off and the comment be committed to version control.
+  * The `comment_pending()` pagespec can be used to match such unmoderated
+    comments, which makes it easy to add a feed of them, or a counter
+    indicating how many there are.
+  * Belatedly added a `comment()` pagespec.
 
  -- Joey Hess <joeyh@debian.org>  Wed, 05 May 2010 18:07:29 -0400
 

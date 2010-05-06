@@ -1,5 +1,11 @@
 ikiwiki (3.20100505) UNRELEASED; urgency=low
 
+  There is a new "comment()" pagespec, that can be used to match a comment
+  on a page. It is recommended it be used instead of the old
+  method of using a pagespec such as "internal(comment_*)" to match
+  things that looked like comments. The old pagespec will now also match
+  comments that are held for moderation; likely not what you want.
+
   There is a significant change to the page.tmpl template in this version.
   If you have locally modified versions of that template, you will need
   to update it to contain the following in the HTML <head>:

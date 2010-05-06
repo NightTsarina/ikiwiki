@@ -26,8 +26,11 @@ sub import {
 	hook(type => "preprocess", id => '_comment', call => \&preprocess);
 	hook(type => "sessioncgi", id => 'comment', call => \&sessioncgi);
 	hook(type => "htmlize", id => "_comment", call => \&htmlize);
+	hook(type => "htmlize", id => "_comment_pending",
+		call => \&htmlize_pending);
 	hook(type => "pagetemplate", id => "comments", call => \&pagetemplate);
-	hook(type => "formbuilder_setup", id => "comments", call => \&formbuilder_setup);
+	hook(type => "formbuilder_setup", id => "comments",
+		call => \&formbuilder_setup);
 	# Load goto to fix up user page links for logged-in commenters
 	IkiWiki::loadplugin("goto");
 	IkiWiki::loadplugin("inline");
@@ -102,6 +105,14 @@ sub checkconfig () {
 sub htmlize {
 	my %params = @_;
 	return $params{content};
+}
+
+sub htmlize_pending {
+	my %params = @_;
+	return sprintf(gettext("comment pending %s"),
+		'<a href="'.
+		IkiWiki::cgiurl(do => "commentmoderation").'">'.
+		gettext("moderation").'</a>');
 }
 
 # FIXME: copied verbatim from meta
@@ -462,9 +473,15 @@ sub editcomment ($$) {
 		$postcomment=0;
 
 		if (! $ok) {
-			my $penddir=$config{wikistatedir}."/comments_pending";
-			$location=unique_comment_location($page, $content, $penddir);
-			writefile("$location._comment", $penddir, $content);
+			$location=unique_comment_location($page, $content, $config{srcdir});
+			writefile("$location._comment_pending", $config{srcdir}, $content);
+
+			# Refresh so anything that deals with pending
+			# comments can be updated.
+			require IkiWiki::Render;
+			IkiWiki::refresh();
+			IkiWiki::saveindex();
+
 			IkiWiki::printheader($session);
 			print IkiWiki::misctemplate(gettext(gettext("comment stored for moderation")),
 				"<p>".
@@ -540,21 +557,24 @@ sub commentmoderation ($$) {
 		my %vars=$cgi->Vars;
 		my $added=0;
 		foreach my $id (keys %vars) {
-			if ($id =~ /(.*)\Q._comment\E$/) {
+			if ($id =~ /(.*)\Q._comment(?:_pending)?\E$/) {
 				my $action=$cgi->param($id);
 				next if $action eq 'Defer' && ! $rejectalldefer;
 
 				# Make sure that the id is of a legal
-				# pending comment before untainting.
-				my ($f)= $id =~ /$config{wiki_file_regexp}/;
+				# pending comment.
+				my ($f) = $id =~ /$config{wiki_file_regexp}/;
 				if (! defined $f || ! length $f ||
 				    IkiWiki::file_pruned($f)) {
 					error("illegal file");
 				}
 
-				my $page=IkiWiki::possibly_foolish_untaint(IkiWiki::dirname($1));
-				my $file="$config{wikistatedir}/comments_pending/".
-					IkiWiki::possibly_foolish_untaint($id);
+				my $page=IkiWiki::dirname($f);
+				my $file="$config{srcdir}/$f";
+				if (! -e $file) {
+					# old location
+					$file="$config{wikistatedir}/comments_pending/".$f;
+				}
 
 				if ($action eq 'Accept') {
 					my $content=eval { readfile($file) };
@@ -567,9 +587,6 @@ sub commentmoderation ($$) {
 					$added++;
 				}
 
-				# This removes empty subdirs, so the
-				# .ikiwiki/comments_pending dir will
-				# go away when all are moderated.
 				require IkiWiki::Render;
 				IkiWiki::prune($file);
 			}
@@ -596,15 +613,14 @@ sub commentmoderation ($$) {
 	}
 
 	my @comments=map {
-		my ($id, $ctime)=@{$_};
-		my $file="$config{wikistatedir}/comments_pending/$id";
-		my $content=readfile($file);
+		my ($id, $dir, $ctime)=@{$_};
+		my $content=readfile("$dir/$id");
 		my $preview=previewcomment($content, $id,
-			IkiWiki::dirname($_), $ctime);
+			$id, $ctime);
 		{
 			id => $id,
 			view => $preview,
-		} 
+		}
 	} sort { $b->[1] <=> $a->[1] } comments_pending();
 
 	my $template=template("commentmoderation.tmpl");
@@ -635,26 +651,35 @@ sub formbuilder_setup (@) {
 }
 
 sub comments_pending () {
-	my $dir="$config{wikistatedir}/comments_pending/";
-	return unless -d $dir;
-
 	my @ret;
+
 	eval q{use File::Find};
 	error($@) if $@;
-	find({
-		no_chdir => 1,
-		wanted => sub {
-			my $file=decode_utf8($_);
-			$file=~s/^\Q$dir\E\/?//;
-			return if ! length $file || IkiWiki::file_pruned($file)
-				|| -l $_ || -d _ || $file !~ /\Q._comment\E$/;
-			my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
-			if (defined $f) {
-				my $ctime=(stat($_))[10];
-				push @ret, [$f, $ctime];
+
+	my $find_comments=sub {
+		my $dir=shift;
+		my $extension=shift;
+		return unless -d $dir;
+		find({
+			no_chdir => 1,
+			wanted => sub {
+				my $file=decode_utf8($_);
+				$file=~s/^\Q$dir\E\/?//;
+				return if ! length $file || IkiWiki::file_pruned($file)
+					|| -l $_ || -d _ || $file !~ /\Q$extension\E$/;
+				my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
+				if (defined $f) {
+					my $ctime=(stat($_))[10];
+					push @ret, [$f, $dir, $ctime];
+				}
 			}
-		}
-	}, $dir);
+		}, $dir);
+	};
+	
+	$find_comments->($config{srcdir}, "._comment_pending");
+	# old location
+	$find_comments->("$config{wikistatedir}/comments_pending/",
+		"._comment");
 
 	return @ret;
 }
@@ -689,7 +714,7 @@ sub previewcomment ($$$) {
 sub commentsshown ($) {
 	my $page=shift;
 
-	return ! pagespec_match($page, "internal(*/$config{comments_pagename}*)",
+	return ! pagespec_match($page, "comment(*)",
 	                        location => $page) &&
 	       pagespec_match($page, $config{comments_pagespec},
 	                      location => $page);
@@ -719,7 +744,7 @@ sub pagetemplate (@) {
 		my $comments = undef;
 		if ($shown) {
 			$comments = IkiWiki::preprocess_inline(
-				pages => "internal($page/$config{comments_pagename}*)",
+				pages => "comment($page)",
 				template => 'comment',
 				show => 0,
 				reverse => 'yes',
@@ -847,7 +872,8 @@ sub unique_comment_location ($$$) {
 	do {
 		$i++;
 		$location = "$page/$config{comments_pagename}${i}_${content_md5}";
-	} while (-e "$dir/$location._comment");
+	} while (-e "$dir/$location._comment" ||
+	         -e "$dir/$location._comment_pending");
 
 	return $location;
 }
@@ -873,7 +899,35 @@ sub match_postcomment ($$;@) {
 	if (! $postcomment) {
 		return IkiWiki::FailReason->new("not posting a comment");
 	}
-	return match_glob($page, $glob);
+	return match_glob($page, $glob, @_);
+}
+
+sub match_comment ($$;@) {
+	my $page = shift;
+	my $glob = shift;
+
+	my $match=match_glob($page, "$glob/*", @_);
+	if ($match) {
+		my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
+		if ($type ne "_comment") {
+			return IkiWiki::FailReason->new("$page is not a comment");
+		}
+	}
+	return $match;
+}
+
+sub match_comment_pending ($$;@) {
+	my $page = shift;
+	my $glob = shift;
+
+	my $match=match_glob($page, "$glob/*", @_);
+	if ($match) {
+		my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
+		if ($type ne "_comment_pending") {
+			return IkiWiki::FailReason->new("$page is not a pending comment");
+		}
+	}
+	return $match;
 }
 
 1
