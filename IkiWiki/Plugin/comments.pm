@@ -907,9 +907,9 @@ sub match_comment ($$;@) {
 	my $glob = shift;
 
 	my $match=match_glob($page, "$glob/*", internal => 1, @_);
-	if ($match) {
+	if ($match && exists $IkiWiki::pagesources{$page}) {
 		my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
-		if ($type ne "_comment") {
+		if (defined $type && $type ne "_comment") {
 			return IkiWiki::FailReason->new("$page is not a comment");
 		}
 	}
@@ -921,9 +921,9 @@ sub match_comment_pending ($$;@) {
 	my $glob = shift;
 
 	my $match=match_glob($page, "$glob/*", internal => 1, @_);
-	if ($match) {
+	if ($match && $IkiWiki::pagesources{$page}) {
 		my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
-		if ($type ne "_comment_pending") {
+		if (defined $type && $type ne "_comment_pending") {
 			return IkiWiki::FailReason->new("$page is not a pending comment");
 		}
 	}
