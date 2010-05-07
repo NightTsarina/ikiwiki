@@ -4,22 +4,37 @@
 <TMPL_VAR FIELD-DO>
 <TMPL_VAR FIELD-SID>
 <TMPL_VAR FIELD-PAGE>
-<TMPL_UNLESS USERNAME>
-<TMPL_IF ALLOWAUTHOR>
-Name: <TMPL_VAR FIELD-AUTHOR> (optional, or
-<a href="<TMPL_VAR SIGNINURL>">signin</a>)<br />
-Website: <TMPL_VAR FIELD-URL> (optional)<br />
+<ol class="form">
+<TMPL_UNLESS NAME=USERNAME>
+<TMPL_IF NAME=ALLOWAUTHOR>
+<li>
+<label for="author" class="block">Name:</label>
+<TMPL_VAR NAME=FIELD-AUTHOR> (optional, or <a href="<TMPL_VAR SIGNINURL>">signin</a>)
+</li>
+<li>
+<label for="url" class="block">Website:</label>
+<TMPL_VAR NAME=FIELD-URL> (optional)
+</li>
 <TMPL_ELSE>
-(You might want to <a href="<TMPL_VAR SIGNINURL>">Signin</a> first?)<br />
+<li>
+(You might want to <a href="<TMPL_VAR SIGNINURL>">Signin</a> first?)
+</li>
 </TMPL_IF>
 </TMPL_UNLESS>
-Subject: <TMPL_VAR FIELD-SUBJECT><br />
+<li>
+<label for="subject" class="block">Subject:</label>
+<TMPL_VAR FIELD-SUBJECT><br />
+</li>
+<li>
+<label for="editcontent" class="block">Comment:</label>
 <TMPL_VAR FIELD-EDITCONTENT><br />
+</li>
+</ol>
 <TMPL_VAR FORM-SUBMIT> <TMPL_VAR FIELD-TYPE> <TMPL_VAR HELPONFORMATTINGLINK><br />
-<TMPL_VAR FORM-END>
+<TMPL_VAR NAME="FORM-END">
 <TMPL_VAR WMD_PREVIEW>
 
-<TMPL_IF PAGE_PREVIEW>
+<TMPL_IF NAME="PAGE_PREVIEW">
 <hr />
 <div class="header">
 <span>Comment preview:</span>
