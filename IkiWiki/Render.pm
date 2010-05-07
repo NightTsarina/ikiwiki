@@ -641,7 +641,7 @@ sub render_dependent ($$$$$$$) {
 				# only consider internal files
 				# if the page explicitly depends
 				# on such files
-				my $internal_dep=$dep =~ /internal\(/;
+				my $internal_dep=$dep =~ /(?:internal|comment|comment_pending)\(/;
 
 				my $in=sub {
 					my $list=shift;
