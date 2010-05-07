@@ -801,7 +801,7 @@ sub refresh () {
 	remove_unrendered();
 
 	if (@$del) {
-		run_hooks(delete => sub { shift->(@$del) });
+		run_hooks(delete => sub { shift->(@$del, @$internal_del) });
 	}
 	if (%rendered) {
 		run_hooks(change => sub { shift->(keys %rendered) });
