@@ -108,7 +108,7 @@ sub cgi_signin ($$) {
 		action => $config{cgiurl},
 		header => 0,
 		template => {type => 'div'},
-		stylesheet => baseurl()."style.css",
+		stylesheet => 1,
 	);
 	my $buttons=["Login"];
 	
@@ -187,7 +187,7 @@ sub cgi_prefs ($$) {
 		params => $q,
 		action => $config{cgiurl},
 		template => {type => 'div'},
-		stylesheet => baseurl()."style.css",
+		stylesheet => 1,
 		fieldsets => [
 			[login => gettext("Login")],
 			[preferences => gettext("Preferences")],

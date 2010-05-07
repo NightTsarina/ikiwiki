@@ -293,7 +293,7 @@ sub showform ($$) {
 		],
 		action => $config{cgiurl},
 		template => {type => 'div'},
-		stylesheet => IkiWiki::baseurl()."style.css",
+		stylesheet => 1,
 	);
 	
 	$form->field(name => "do", type => "hidden", value => "setup",
