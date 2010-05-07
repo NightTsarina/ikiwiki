@@ -63,7 +63,7 @@ sub genpage ($$) {
 	my $content=shift;
 	
 	run_hooks(indexhtml => sub {
-		shift->(page => $page, content => $content);
+		shift->(page => $page, destpage => $page, content => $content);
 	});
 
 	my $templatefile;

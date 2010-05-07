@@ -10,7 +10,7 @@ sub import {
 	hook(type => "getsetup", id => "search", call => \&getsetup);
 	hook(type => "checkconfig", id => "search", call => \&checkconfig);
 	hook(type => "pagetemplate", id => "search", call => \&pagetemplate);
-	hook(type => "indexhtml", id => "search", call => \&index);
+	hook(type => "indexhtml", id => "search", call => \&indexhtml);
 	hook(type => "delete", id => "search", call => \&delete);
 	hook(type => "cgi", id => "search", call => \&cgi);
 }
@@ -68,7 +68,7 @@ sub pagetemplate (@) {
 
 my $scrubber;
 my $stemmer;
-sub index (@) {
+sub indexhtml (@) {
 	my %params=@_;
 
 	setupfiles();
@@ -117,7 +117,7 @@ sub index (@) {
 	eval q{use HTML::Entities};
 	error $@ if $@;
 	$doc->set_data(
-		"url=".urlto($params{page}, "")."\n".
+		"url=".urlto($params{destpage}, "")."\n".
 		"sample=".decode_entities($sample)."\n".
 		"caption=".decode_entities($caption)."\n".
 		"modtime=$IkiWiki::pagemtime{$params{page}}\n".
