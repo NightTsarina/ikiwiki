@@ -1,0 +1,30 @@
+<script type="text/javascript" src="ikiwiki/openid-selector/jquery.js"></script>
+<script type="text/javascript" src="ikiwiki/openid-selector/openid-jquery.js"></script>
+<script type="text/javascript">
+$(document).ready(function() {
+	openid.init('openid_url');
+});
+</script>
+	
+<TMPL_IF OPENID_ERROR>
+<div class="error"><TMPL_VAR OPENID_ERROR></span>
+</TMPL_IF>
+</div>
+
+<form action="<TMPL_VAR CGIURL>" method="get" id="openid_form">
+	<input type="hidden" name="do" value="signin" />
+	<input type="hidden" name="action" value="verify" />
+ 	<div id="openid_choice">
+		<p><TMPL_VAR LOGINLABEL>:</p>
+		<div id="openid_btns">
+		</div>
+		<TMPL_IF NONOPENIDURL>
+		<a href="<TMPL_VAR NONOPENIDURL>">local account</a>
+		</TMPL_IF>
+	</div>
+	
+	<span id="openid_input_area">
+		<input id="openid_url" name="openid_url" type="text" value="<TMPL_VAR OPENID_URL>"/>
+		<input id="openid_submit" type="submit" value="Login"/>
+	</span>
+</form>

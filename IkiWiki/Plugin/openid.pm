@@ -7,11 +7,24 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
+	hook(type => "checkconfig", id => "openid", call => \&checkconfig);
 	hook(type => "getopt", id => "openid", call => \&getopt);
 	hook(type => "getsetup", id => "openid", call => \&getsetup);
 	hook(type => "auth", id => "openid", call => \&auth);
 	hook(type => "formbuilder_setup", id => "openid",
 		call => \&formbuilder_setup, last => 1);
+}
+
+sub checkconfig () {
+	if ($config{cgi}) {
+		# Intercept normal signin form, so the openid selector
+		# can be displayed.
+		require IkiWiki::CGI;
+		my $real_cgi_signin=\&IkiWiki::cgi_signin;
+		inject(name => "IkiWiki::cgi_signin", call => sub ($$) {
+				openid_selector($real_cgi_signin, @_);
+		});
+	}
 }
 
 sub getopt () {
@@ -37,6 +50,39 @@ sub getsetup () {
 		},
 }
 
+sub openid_selector {
+	my $real_cgi_signin=shift;
+        my $q=shift;
+        my $session=shift;
+
+	my $openid_url=$q->param('openid_url');
+	my $openid_error;
+
+	if (defined $q->param("action") && $q->param("action") eq "verify") {
+		validate($q, $session, $openid_url, sub {
+			$openid_error=shift;
+		});
+	}
+	elsif ($q->param("do") eq "signin" || ! load_openid_module()) {
+		$real_cgi_signin->($q, $session);
+		exit;
+	}
+
+	my $template=IkiWiki::template("openid-selector.tmpl");
+	$template->param(
+		cgiurl => $config{cgiurl},
+		(defined $openid_error ? (openid_error => $openid_error) : ()),
+		(defined $openid_url ? (openid_url => $openid_url) : ()),
+		# TODO only if other auth methods are available
+		nonopenidurl => IkiWiki::cgiurl(do => "signin"),
+		loginlabel => loginlabel(),
+	);
+
+	IkiWiki::printheader($session);
+	print IkiWiki::misctemplate("signin", $template->output);
+	exit;
+}
+
 sub formbuilder_setup (@) {
 	my %params=@_;
 
@@ -45,13 +91,7 @@ sub formbuilder_setup (@) {
 	my $cgi=$params{cgi};
 	
 	if ($form->title eq "signin") {
-		# Give up if module is unavailable to avoid
-		# needing to depend on it.
-		eval q{use Net::OpenID::Consumer};
-		if ($@) {
-			debug("unable to load Net::OpenID::Consumer, not enabling OpenID login ($@)");
-			return;
-		}
+		return unless load_openid_module();
 
 		# This avoids it displaying a redundant label for the
 		# OpenID fieldset.
@@ -59,7 +99,7 @@ sub formbuilder_setup (@) {
 
 		$form->field(
 			name => "openid_url",
-			label => gettext("Log in with")." ".htmllink("", "", "ikiwiki/OpenID", noimageinline => 1),
+			label => loginlabel(),
 			fieldset => "OpenID",
 			size => 30,
 			comment => ($config{openidsignup} ? " | <a href=\"$config{openidsignup}\">".gettext("Get an OpenID")."</a>" : "")
@@ -72,7 +112,10 @@ sub formbuilder_setup (@) {
 			$form->field(
 				name => "openid_url",
 				validate => sub {
-					validate($cgi, $session, shift, $form);
+					validate($cgi, $session, shift, sub {
+						# Display error in the form.
+						$form->field(name => "openid_url", comment => shift);
+					});
 				},
 			);
 			# Skip all other required fields in this case.
@@ -98,15 +141,14 @@ sub validate ($$$;$) {
 	my $q=shift;
 	my $session=shift;
 	my $openid_url=shift;
-	my $form=shift;
+	my $errhandler=shift;
 
 	my $csr=getobj($q, $session);
 
 	my $claimed_identity = $csr->claimed_identity($openid_url);
 	if (! $claimed_identity) {
-		if ($form) {
-			# Put the error in the form and fail validation.
-			$form->field(name => "openid_url", comment => $csr->err);
+		if ($errhandler) {
+			$errhandler->($csr->err);
 			return 0;
 		}
 		else {
@@ -228,6 +270,20 @@ sub getobj ($$) {
 		consumer_secret => sub { return shift()+$secret },
 		required_root => $config{cgiurl},
 	);
+}
+
+sub load_openid_module {
+	# Give up if module is unavailable to avoid needing to depend on it.
+	eval q{use Net::OpenID::Consumer};
+	if ($@) {
+		debug("unable to load Net::OpenID::Consumer, not enabling OpenID login ($@)");
+		return;
+	}
+	return 1;
+}
+
+sub loginlabel {
+	return gettext("Log in with")." ".htmllink("", "", "ikiwiki/OpenID", noimageinline => 1);
 }
 
 1

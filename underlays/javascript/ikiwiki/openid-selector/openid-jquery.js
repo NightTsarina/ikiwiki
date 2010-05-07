@@ -170,11 +170,11 @@ var openid = {
     },
     setOpenIdUrl: function (url) {
     
-    	var hidden = document.getElementById(this.input_id);
-    	if (hidden != null) {
-    		hidden.value = url;
+	var hidden = $('#'+this.input_id);
+	if (hidden.length > 0) {
+		hidden.value = url;
     	} else {
-    		$('#openid_form').append('<input type="hidden" id="' + this.input_id + '" name="' + this.input_id + '" value="'+url+'"/>');
+		$('#openid_form').append('<input style="display:none" id="' + this.input_id + '" name="' + this.input_id + '" value="'+url+'"/>');
     	}
     },
     highlight: function (box_id) {
