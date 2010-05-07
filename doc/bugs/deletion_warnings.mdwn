@@ -2,6 +2,9 @@ Seen while deleting a blog's calendar pages:
 
 --[[Joey]] 
 
+[[done]] -- the new `page()` pagespec needed to check if there was a source
+file for the page, and was leaking undef.
+
 <pre>
    427250f..ff6c054  master     -> origin/master
 Use of uninitialized value $file in pattern match (m//) at /usr/share/perl5/IkiWiki.pm line 688.
