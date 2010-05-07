@@ -109,7 +109,7 @@ sub htmlize {
 
 sub htmlize_pending {
 	my %params = @_;
-	return sprintf(gettext("comment pending %s"),
+	return sprintf(gettext("this comment needs %s"),
 		'<a href="'.
 		IkiWiki::cgiurl(do => "commentmoderation").'">'.
 		gettext("moderation").'</a>');
