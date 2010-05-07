@@ -904,28 +904,30 @@ sub match_comment ($$;@) {
 	my $page = shift;
 	my $glob = shift;
 
-	my $match=match_glob($page, "$glob/*", internal => 1, @_);
-	if ($match && exists $IkiWiki::pagesources{$page}) {
-		my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
-		if (defined $type && $type ne "_comment") {
-			return IkiWiki::FailReason->new("$page is not a comment");
-		}
+	if (! IkiWiki::isinternal($page)) {
+		return IkiWiki::FailReason->new("$page is not a comment");
 	}
-	return $match;
+	my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
+	if (defined $type && $type ne "_comment") {
+		return IkiWiki::FailReason->new("$page is not a comment");
+	}
+
+	return match_glob($page, "$glob/*", internal => 1, @_);
 }
 
 sub match_comment_pending ($$;@) {
 	my $page = shift;
 	my $glob = shift;
-
-	my $match=match_glob($page, "$glob/*", internal => 1, @_);
-	if ($match && $IkiWiki::pagesources{$page}) {
-		my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
-		if (defined $type && $type ne "_comment_pending") {
-			return IkiWiki::FailReason->new("$page is not a pending comment");
-		}
+	
+	if (! IkiWiki::isinternal($page)) {
+		return IkiWiki::FailReason->new("$page is not a pending comment");
 	}
-	return $match;
+	my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
+	if (defined $type && $type ne "_comment_pending") {
+		return IkiWiki::FailReason->new("$page is not a pending comment");
+	}
+
+	return match_glob($page, "$glob/*", internal => 1, @_);
 }
 
 1
