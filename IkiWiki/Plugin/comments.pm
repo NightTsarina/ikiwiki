@@ -251,6 +251,10 @@ sub sessioncgi ($$) {
 	elsif ($do eq 'commentmoderation') {
 		commentmoderation($cgi, $session);
 	}
+	elsif ($do eq 'commentsignin') {
+		IkiWiki::cgi_signin($cgi, $session);
+		exit;
+	}
 }
 
 # Mostly cargo-culted from IkiWiki::plugin::editpage
@@ -328,7 +332,7 @@ sub editcomment ($$) {
 
 	if (! defined $session->param('name')) {
 		# Make signinurl work and return here.
-		$form->tmpl_param(signinurl => IkiWiki::cgiurl(do => 'signin'));
+		$form->tmpl_param(signinurl => IkiWiki::cgiurl(do => 'commentsignin'));
 		$session->param(postsignin => $ENV{QUERY_STRING});
 		IkiWiki::cgi_savesession($session);
 	}
