@@ -2342,12 +2342,12 @@ sub match_glob ($$;@) {
 }
 
 sub match_internal ($$;@) {
-	return match_glob($_[0], $_[1], @_, internal => 1)
+	return match_glob(shift, shift, @_, internal => 1)
 }
 
 sub match_page ($$;@) {
 	my $page=shift;
-	my $match=match_glob($page, $_[1], @_);
+	my $match=match_glob($page, shift, @_);
 	if ($match && ! defined IkiWiki::pagetype($IkiWiki::pagesources{$page})) {
 		return IkiWiki::FailReason->new("$page is not a page");
 	}
