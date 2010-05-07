@@ -473,7 +473,7 @@ sub editcomment ($$) {
 		$postcomment=0;
 
 		if (! $ok) {
-			$location=unique_comment_location($page, $content, $config{srcdir});
+			$location=unique_comment_location($page, $content, $config{srcdir}, "._comment_pending");
 			writefile("$location._comment_pending", $config{srcdir}, $content);
 
 			# Refresh so anything that deals with pending
@@ -858,22 +858,20 @@ sub num_comments ($$) {
 	return @comments;
 }
 
-sub unique_comment_location ($$$) {
+sub unique_comment_location ($$$$) {
 	my $page=shift;
-
 	eval q{use Digest::MD5 'md5_hex'};
 	error($@) if $@;
 	my $content_md5=md5_hex(Encode::encode_utf8(shift));
-
 	my $dir=shift;
+	my $ext=shift || "._comment";
 
 	my $location;
 	my $i = num_comments($page, $dir);
 	do {
 		$i++;
 		$location = "$page/$config{comments_pagename}${i}_${content_md5}";
-	} while (-e "$dir/$location._comment" ||
-	         -e "$dir/$location._comment_pending");
+	} while (-e "$dir/$location$ext");
 
 	return $location;
 }
