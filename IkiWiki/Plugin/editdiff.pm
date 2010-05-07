@@ -71,7 +71,7 @@ sub formbuilder_setup {
 		$content=~s/\r/\n/g;
 
 		my $diff = diff(srcfile($pagesources{$page}), $content);
-		$form->tmpl_param("page_preview", $diff);
+		$form->tmpl_param("page_diff", $diff);
 	}
 }
 

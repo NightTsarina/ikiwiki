@@ -126,7 +126,7 @@ sub rename_form ($$$) {
 		javascript => 0,
 		params => $q,
 		action => $config{cgiurl},
-		stylesheet => IkiWiki::baseurl()."style.css",
+		stylesheet => 1,
 		fields => [qw{do page new_name attachment}],
 	);
 	

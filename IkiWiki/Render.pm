@@ -62,8 +62,8 @@ sub genpage ($$) {
 	my $page=shift;
 	my $content=shift;
 	
-	run_hooks(postscan => sub {
-		shift->(page => $page, content => $content);
+	run_hooks(indexhtml => sub {
+		shift->(page => $page, destpage => $page, content => $content);
 	});
 
 	my $templatefile;
@@ -800,8 +800,8 @@ sub refresh () {
 	render_backlinks($backlinkchanged);
 	remove_unrendered();
 
-	if (@$del) {
-		run_hooks(delete => sub { shift->(@$del) });
+	if (@$del || @$internal_del) {
+		run_hooks(delete => sub { shift->(@$del, @$internal_del) });
 	}
 	if (%rendered) {
 		run_hooks(change => sub { shift->(keys %rendered) });

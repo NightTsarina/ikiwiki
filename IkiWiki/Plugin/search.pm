@@ -10,7 +10,7 @@ sub import {
 	hook(type => "getsetup", id => "search", call => \&getsetup);
 	hook(type => "checkconfig", id => "search", call => \&checkconfig);
 	hook(type => "pagetemplate", id => "search", call => \&pagetemplate);
-	hook(type => "postscan", id => "search", call => \&index);
+	hook(type => "indexhtml", id => "search", call => \&indexhtml);
 	hook(type => "delete", id => "search", call => \&delete);
 	hook(type => "cgi", id => "search", call => \&cgi);
 }
@@ -68,7 +68,7 @@ sub pagetemplate (@) {
 
 my $scrubber;
 my $stemmer;
-sub index (@) {
+sub indexhtml (@) {
 	my %params=@_;
 
 	setupfiles();
@@ -112,12 +112,17 @@ sub index (@) {
 	}
 	$sample=~s/\n/ /g;
 	
+	my $url=urlto($params{destpage}, "");
+	if (defined $pagestate{$params{page}}{meta}{permalink}) {
+		$url=$pagestate{$params{page}}{meta}{permalink}
+	}
+
 	# data used by omega
 	# Decode html entities in it, since omega re-encodes them.
 	eval q{use HTML::Entities};
 	error $@ if $@;
 	$doc->set_data(
-		"url=".urlto($params{page}, "")."\n".
+		"url=".$url."\n".
 		"sample=".decode_entities($sample)."\n".
 		"caption=".decode_entities($caption)."\n".
 		"modtime=$IkiWiki::pagemtime{$params{page}}\n".

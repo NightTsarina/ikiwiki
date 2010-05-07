@@ -12,6 +12,12 @@ ikiwiki (3.20100505) UNRELEASED; urgency=low
     comments, which makes it easy to add a feed of them, or a counter
     indicating how many there are.
   * Belatedly added a `comment()` pagespec.
+  * Gave comment and page editing forms some CSS and accessability love.
+  * Renamed postscan hook to indexhtml, to reflect its changed position,
+    and typical use.
+  * inline: Call indexhtml when inlining internal pages, so their
+    text can be indexed for searching.
+  * Delete hooks are passed deleted internal pages. 
 
  -- Joey Hess <joeyh@debian.org>  Wed, 05 May 2010 18:07:29 -0400
 

@@ -476,6 +476,13 @@ sub get_inline_content ($$) {
 		       filter($page, $destpage,
 		       readfile(srcfile($file))))));
 		$nested--;
+		if (isinternal($page)) {
+			# make inlined text of internal pages searchable
+			run_hooks(indexhtml => sub {
+				shift->(page => $page, destpage => $page,
+					content => $ret);
+			});
+		}
 	}
 	
 	if ($cached_destpage ne $destpage) {
