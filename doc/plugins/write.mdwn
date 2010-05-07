@@ -39,7 +39,7 @@ built.
 Now that it knows what pages it needs to build, ikiwiki runs two
 compile passes. First, it runs `scan` hooks, which collect metadata about
 the pages. Then it runs a page rendering pipeline, by calling in turn these
-hooks: `filter`, `preprocess`, `linkify`, `htmlize`, `postscan`,
+hooks: `filter`, `preprocess`, `linkify`, `htmlize`, `indexhtml`,
 `pagetemplate`, `sanitize`, `format`.
 
 After all necessary pages are built, it calls the `change` hook. Finally,
@@ -282,9 +282,9 @@ like `Makefile` that have no extension.
 If `hook` is passed an optional "longname" parameter, this value is used
 when prompting a user to choose a page type on the edit page form.
 
-### postscan
+### indexhtml
 
-	hook(type => "postscan", id => "foo", call => \&postscan);
+	hook(type => "indexhtml", id => "foo", call => \&indexhtml);
 
 This hook is called once the page has been converted to html (but before
 the generated html is put in a template). The most common use is to

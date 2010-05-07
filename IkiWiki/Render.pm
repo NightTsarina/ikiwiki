@@ -62,7 +62,7 @@ sub genpage ($$) {
 	my $page=shift;
 	my $content=shift;
 	
-	run_hooks(postscan => sub {
+	run_hooks(indexhtml => sub {
 		shift->(page => $page, content => $content);
 	});
 

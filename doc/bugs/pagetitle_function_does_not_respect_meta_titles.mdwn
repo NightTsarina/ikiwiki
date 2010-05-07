@@ -144,7 +144,7 @@ So, looking at your meta branch: --[[Joey]]
   has no title, then A will display the link as "B". Now page B is modified
   and a title is added. Nothing updates "A".
   The added overhead of rebuilding every page that links to B when B is
-  changed (as the `postscan` hook of the po plugin does) is IMHO a killer.
+  changed (as the `indexhtml` hook of the po plugin does) is IMHO a killer.
   That could be hundreds or thousands of pages, making interactive editing
   way slow. This is probably the main reason I had not attempted this whole
   thing myself. IMHO this calls for some kind of intellegent dependency

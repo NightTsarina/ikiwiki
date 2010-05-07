@@ -10,7 +10,7 @@ sub import {
 	hook(type => "getsetup", id => "search", call => \&getsetup);
 	hook(type => "checkconfig", id => "search", call => \&checkconfig);
 	hook(type => "pagetemplate", id => "search", call => \&pagetemplate);
-	hook(type => "postscan", id => "search", call => \&index);
+	hook(type => "indexhtml", id => "search", call => \&index);
 	hook(type => "delete", id => "search", call => \&delete);
 	hook(type => "cgi", id => "search", call => \&cgi);
 }
