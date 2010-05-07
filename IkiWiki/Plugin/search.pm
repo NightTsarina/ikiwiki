@@ -112,12 +112,17 @@ sub indexhtml (@) {
 	}
 	$sample=~s/\n/ /g;
 	
+	my $url=urlto($params{destpage}, "");
+	if (defined $pagestate{$params{page}}{meta}{permalink}) {
+		$url=$pagestate{$params{page}}{meta}{permalink}
+	}
+
 	# data used by omega
 	# Decode html entities in it, since omega re-encodes them.
 	eval q{use HTML::Entities};
 	error $@ if $@;
 	$doc->set_data(
-		"url=".urlto($params{destpage}, "")."\n".
+		"url=".$url."\n".
 		"sample=".decode_entities($sample)."\n".
 		"caption=".decode_entities($caption)."\n".
 		"modtime=$IkiWiki::pagemtime{$params{page}}\n".
