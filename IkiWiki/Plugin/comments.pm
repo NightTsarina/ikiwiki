@@ -906,7 +906,7 @@ sub match_comment ($$;@) {
 	my $page = shift;
 	my $glob = shift;
 
-	my $match=match_glob($page, "$glob/*", @_);
+	my $match=match_glob($page, "$glob/*", internal => 1, @_);
 	if ($match) {
 		my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
 		if ($type ne "_comment") {
@@ -920,7 +920,7 @@ sub match_comment_pending ($$;@) {
 	my $page = shift;
 	my $glob = shift;
 
-	my $match=match_glob($page, "$glob/*", @_);
+	my $match=match_glob($page, "$glob/*", internal => 1, @_);
 	if ($match) {
 		my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
 		if ($type ne "_comment_pending") {
