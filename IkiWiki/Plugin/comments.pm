@@ -557,7 +557,7 @@ sub commentmoderation ($$) {
 		my %vars=$cgi->Vars;
 		my $added=0;
 		foreach my $id (keys %vars) {
-			if ($id =~ /(.*)\Q._comment(?:_pending)?\E$/) {
+			if ($id =~ /(.*)\._comment(?:_pending)?$/) {
 				my $action=$cgi->param($id);
 				next if $action eq 'Defer' && ! $rejectalldefer;
 
@@ -621,7 +621,7 @@ sub commentmoderation ($$) {
 			id => $id,
 			view => $preview,
 		}
-	} sort { $b->[1] <=> $a->[1] } comments_pending();
+	} sort { $b->[2] <=> $a->[2] } comments_pending();
 
 	my $template=template("commentmoderation.tmpl");
 	$template->param(
