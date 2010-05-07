@@ -800,7 +800,7 @@ sub refresh () {
 	render_backlinks($backlinkchanged);
 	remove_unrendered();
 
-	if (@$del) {
+	if (@$del || @$internal_del) {
 		run_hooks(delete => sub { shift->(@$del, @$internal_del) });
 	}
 	if (%rendered) {
