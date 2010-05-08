@@ -23,9 +23,9 @@ sub checkconfig () {
 		# 
 		# When other auth hooks are registered, give the selector
 		# a reference to the normal signin form.
+		require IkiWiki::CGI;
 		my $real_cgi_signin;
 		if (keys %{$IkiWiki::hooks{auth}} > 1) {
-			require IkiWiki::CGI;
 			$real_cgi_signin=\&IkiWiki::cgi_signin;
 		}
 		inject(name => "IkiWiki::cgi_signin", call => sub ($$) {
