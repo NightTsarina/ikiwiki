@@ -132,12 +132,12 @@ sub format_month (@) {
 	$archivebase = $params{archivebase} if defined $params{archivebase};
   
 	# Calculate URL's for monthly archives.
-	my ($url, $purl, $nurl)=("$monthname",'','');
+	my ($url, $purl, $nurl)=("$monthname $params{year}",'','');
 	if (exists $pagesources{"$archivebase/$params{year}/$params{month}"}) {
 		$url = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$params{year}/".$params{month},
 			noimageinline => 1,
-			linktext => $monthname,
+			linktext => "$monthname $params{year}",
 			title => $monthname);
 	}
 	add_depends($params{page}, "$archivebase/$params{year}/$params{month}",
@@ -396,15 +396,20 @@ sub preprocess (@) {
 	$params{year}  = $thisyear	unless defined $params{year};
 	$params{month} = $thismonth	unless defined $params{month};
 
-	my $relativemonth=0;
-	if ($params{month} < 1) {
-		$params{month}=$thismonth+$params{month};
-		$relativemonth=1;
-	}
 	my $relativeyear=0;
 	if ($params{year} < 1) {
-		$params{year}=$thisyear+$params{year};
 		$relativeyear=1;
+		$params{year}=$thisyear+$params{year};
+	}
+	my $relativemonth=0;
+	if ($params{month} < 1) {
+		$relativemonth=1;
+		my $monthoff=$params{month};
+		$params{month}=($thismonth+$monthoff) % 12;
+		$params{month}=12 if $params{month}==0;
+		my $yearoff=POSIX::ceil(($thismonth-$params{month}) / -12)
+			- int($monthoff / 12);
+		$params{year}-=$yearoff;
 	}
 	
 	$params{month} = sprintf("%02d", $params{month});
