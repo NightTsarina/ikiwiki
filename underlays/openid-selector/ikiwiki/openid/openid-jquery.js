@@ -16,59 +16,59 @@ var providers_large = {
     },    
     aol: {
         name: 'AOL',     
-        label: 'Enter your AOL screenname.',
+        label: 'Enter your AOL screenname:',
         url: 'http://openid.aol.com/{username}'
     },
     verisign: {
         name: 'Verisign',
-        label: 'Your Verisign username',
+        label: 'Enter your Verisign username:',
         url: 'http://{username}.pip.verisignlabs.com/'
     },
     openid: {
         name: 'OpenID',     
-        label: 'Enter your OpenID.',
+        label: 'Enter your OpenID:',
         url: null
     }
 };
 var providers_small = {
     myopenid: {
         name: 'MyOpenID',
-        label: 'Enter your MyOpenID username.',
+        label: 'Enter your MyOpenID username:',
         url: 'http://{username}.myopenid.com/'
     },
     livejournal: {
         name: 'LiveJournal',
-        label: 'Enter your Livejournal username.',
+        label: 'Enter your Livejournal username:',
         url: 'http://{username}.livejournal.com/'
     },
     flickr: {
         name: 'Flickr',        
-        label: 'Enter your Flickr username.',
+        label: 'Enter your Flickr username:',
         url: 'http://flickr.com/{username}/'
     },
     technorati: {
         name: 'Technorati',
-        label: 'Enter your Technorati username.',
+        label: 'Enter your Technorati username:',
         url: 'http://technorati.com/people/technorati/{username}/'
     },
     wordpress: {
         name: 'Wordpress',
-        label: 'Enter your Wordpress.com username.',
+        label: 'Enter your Wordpress.com username:',
         url: 'http://{username}.wordpress.com/'
     },
     blogger: {
         name: 'Blogger',
-        label: 'Your Blogger account',
+        label: 'Enter your Blogger account:',
         url: 'http://{username}.blogspot.com/'
     },
     vidoop: {
         name: 'Vidoop',
-        label: 'Your Vidoop username',
+        label: 'Enter your Vidoop username:',
         url: 'http://{username}.myvidoop.com/'
     },
     claimid: {
         name: 'ClaimID',
-        label: 'Your ClaimID username',
+        label: 'Enter your ClaimID username:',
         url: 'http://claimid.com/{username}'
     }
 };
