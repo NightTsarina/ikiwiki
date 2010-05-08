@@ -87,7 +87,6 @@ sub openid_selector {
 		(defined $openid_error ? (openid_error => $openid_error) : ()),
 		(defined $openid_url ? (openid_url => $openid_url) : ()),
 		($real_cgi_signin ? (nonopenidurl => IkiWiki::cgiurl(do => "signin")) : ()),
-		loginlabel => loginlabel(),
 	);
 
 	IkiWiki::printheader($session);
@@ -256,10 +255,6 @@ sub load_openid_module {
 		return;
 	}
 	return 1;
-}
-
-sub loginlabel {
-	return gettext("Log in with")." ".htmllink("", "", "ikiwiki/OpenID", noimageinline => 1);
 }
 
 1
