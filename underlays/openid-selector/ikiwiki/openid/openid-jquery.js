@@ -246,13 +246,13 @@ var openid = {
 		var label = provider['label'];
 		var style = '';
 		
-		if (label) {
-			html = '<p>' + label + '</p>';
-		}
 		if (provider['name'] == 'OpenID') {
 			id = this.input_id;
 			value = '';
 			style = 'background:#FFF url(wikiicons/openidlogin-bg.gif) no-repeat scroll 0 50%; padding-left:18px;';
+		}
+		if (label) {
+			html = '<label for="'+ id +'" class="block">' + label + '</label>';
 		}
 		html += '<input id="'+id+'" type="text" style="'+style+'" name="'+id+'" value="'+value+'" />' + 
 					'<input id="openid_submit" type="submit" value="Login"/>';
