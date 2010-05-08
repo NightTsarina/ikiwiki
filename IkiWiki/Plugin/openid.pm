@@ -68,6 +68,7 @@ sub openid_selector {
 	if (! load_openid_module()) {
 		if ($real_cgi_signin) {
 			$real_cgi_signin->($q, $session);
+			exit;
 		}
 		error(sprintf(gettext("failed to load openid module: "), @_));
 	}
