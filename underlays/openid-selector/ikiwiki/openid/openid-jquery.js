@@ -221,7 +221,7 @@ var openid = {
 		if (provider['name'] == 'OpenID') {
 			id = this.input_id;
 			value = '';
-			style = 'background:#FFF url('+this.img_path+'openid-inputicon.gif) no-repeat scroll 0 50%; padding-left:18px;';
+			style = 'background:#FFF url(wikiicons/openidlogin-bg.gif) no-repeat scroll 0 50%; padding-left:18px;';
 		}
 		html += '<input id="'+id+'" type="text" style="'+style+'" name="'+id+'" value="'+value+'" />' + 
 					'<input id="openid_submit" type="submit" value="Sign-In"/>';
