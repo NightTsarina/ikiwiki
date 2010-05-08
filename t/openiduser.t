@@ -12,7 +12,7 @@ BEGIN {
 	else {
 		eval q{use Test::More tests => 11};
 	}
-	use_ok("IkiWiki::Plugin::openid");
+	use_ok("IkiWiki");
 }
 
 # Some typical examples:
