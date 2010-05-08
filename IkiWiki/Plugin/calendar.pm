@@ -373,6 +373,16 @@ EOF
 	return $calendar;
 }
 
+sub setnextchange ($$) {
+	my $page=shift;
+	my $timestamp=shift;
+
+	if (! exists $pagestate{$page}{calendar}{nextchange} ||
+	    $pagestate{$page}{calendar}{nextchange} > $timestamp) {
+		$pagestate{$page}{calendar}{nextchange}=$timestamp;
+	}
+}
+
 sub preprocess (@) {
 	my %params=@_;
 
@@ -402,18 +412,18 @@ sub preprocess (@) {
 	if ($params{type} eq 'month' && $params{year} == $thisyear
 	    && $params{month} == $thismonth) {
 		# calendar for current month, updates next midnight
-		$pagestate{$params{destpage}}{calendar}{nextchange}=($time
+		setnextchange($params{destpage}, ($time
 			+ (60 - $now[0])		# seconds
 			+ (59 - $now[1]) * 60		# minutes
 			+ (23 - $now[2]) * 60 * 60	# hours
-		);
+		));
 	}
 	elsif ($params{type} eq 'month' &&
 	       (($params{year} == $thisyear && $params{month} > $thismonth) ||
 	        $params{year} > $thisyear)) {
 		# calendar for upcoming month, updates 1st of that month
-		$pagestate{$params{destpage}}{calendar}{nextchange}=
-			timelocal(0, 0, 0, 1, $params{month}-1, $params{year});
+		setnextchange($params{destpage},
+			timelocal(0, 0, 0, 1, $params{month}-1, $params{year}));
 	}
 	elsif (($params{type} eq 'year' && $params{year} == $thisyear) ||
 	       $relativemonth) {
@@ -421,24 +431,24 @@ sub preprocess (@) {
 		# Any calendar relative to the current month also updates
 		# then.
 		if ($thismonth < 12) {
-			$pagestate{$params{destpage}}{calendar}{nextchange}=
-				timelocal(0, 0, 0, 1, $thismonth+1-1, $params{year});
+			setnextchange($params{destpage},
+				timelocal(0, 0, 0, 1, $thismonth+1-1, $params{year}));
 		}
 		else {
-			$pagestate{$params{destpage}}{calendar}{nextchange}=
-				timelocal(0, 0, 0, 1, 1-1, $params{year}+1);
+			setnextchange($params{destpage},
+				timelocal(0, 0, 0, 1, 1-1, $params{year}+1));
 		}
 	}
 	elsif ($relativeyear) {
 		# Any calendar relative to the current year updates 1st
 		# of next year.
-		$pagestate{$params{destpage}}{calendar}{nextchange}=
-			timelocal(0, 0, 0, 1, 1-1, $thisyear+1);
+		setnextchange($params{destpage},
+			timelocal(0, 0, 0, 1, 1-1, $thisyear+1));
 	}
 	elsif ($params{type} eq 'year' && $params{year} > $thisyear) {
 		# calendar for upcoming year, updates 1st of that year
-		$pagestate{$params{destpage}}{calendar}{nextchange}=
-			timelocal(0, 0, 0, 1, 1-1, $params{year});
+		setnextchange($params{destpage},
+			timelocal(0, 0, 0, 1, 1-1, $params{year}));
 	}
 	else {
 		# calendar for past month or year, does not need
