@@ -22,7 +22,7 @@ sub printheader ($) {
 	}
 }
 
-sub showform ($$$$;@) {
+sub prepform {
 	my $form=shift;
 	my $buttons=shift;
 	my $session=shift;
@@ -34,6 +34,16 @@ sub showform ($$$$;@) {
 				buttons => $buttons);
 		});
 	}
+
+	return $form;
+}
+
+sub showform ($$$$;@) {
+	my $form=prepform(@_);
+	shift;
+	my $buttons=shift;
+	my $session=shift;
+	my $cgi=shift;
 
 	printheader($session);
 	print misctemplate($form->title, $form->render(submit => $buttons), @_);
@@ -90,9 +100,10 @@ sub needsignin ($$) {
 	}
 }
 
-sub cgi_signin ($$) {
+sub cgi_signin ($$;$) {
 	my $q=shift;
 	my $session=shift;
+	my $returnhtml=shift;
 
 	decode_cgi_utf8($q);
 	eval q{use CGI::FormBuilder};
@@ -112,9 +123,6 @@ sub cgi_signin ($$) {
 	);
 	my $buttons=["Login"];
 	
-	if ($q->param("do") ne "signin" && !$form->submitted) {
-		$form->text(gettext("You need to log in first."));
-	}
 	$form->field(name => "do", type => "hidden", value => "signin",
 		force => 1);
 	
@@ -127,6 +135,11 @@ sub cgi_signin ($$) {
 
 	if ($form->submitted) {
 		$form->validate;
+	}
+
+	if ($returnhtml) {
+		$form=prepform($form, $buttons, $session, $q);
+		return $form->render(submit => $buttons);
 	}
 
 	showform($form, $buttons, $session, $q);

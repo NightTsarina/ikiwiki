@@ -62,17 +62,13 @@ sub openid_selector {
 			$openid_error=shift;
 		});
 	}
-	elsif ($q->param("do") eq "signin" && $real_cgi_signin) {
-		$real_cgi_signin->($q, $session);
-		exit;
-	}
 
 	my $template=IkiWiki::template("openid-selector.tmpl");
 	$template->param(
 		cgiurl => $config{cgiurl},
 		(defined $openid_error ? (openid_error => $openid_error) : ()),
 		(defined $openid_url ? (openid_url => $openid_url) : ()),
-		($real_cgi_signin ? (nonopenidurl => IkiWiki::cgiurl(do => "signin")) : ()),
+		($real_cgi_signin ? (nonopenidform => $real_cgi_signin->($q, $session, 1)) : ()),
 	);
 
 	IkiWiki::printheader($session);

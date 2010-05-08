@@ -82,8 +82,9 @@ var openid = {
 	input_id: null,
 	provider_url: null,
 	provider_id: null,
+	localsignin_id: null,
 	
-    init: function(input_id, localloginurl) {
+    init: function(input_id, localsignin_id) {
         
         var openid_btns = $('#openid_btns');
         
@@ -105,13 +106,14 @@ var openid = {
 	           	openid_btns.append(this.getBoxHTML(providers_small[id], 'small'));
 	        }
         }
-	if (localloginurl != "") {
+	if (localsignin_id != "") {
+		this.localsignin_id=localsignin_id;
            	openid_btns.append(
-        		'<a href="' + localloginurl + '"' +
+        		'<a href="javascript: openid.signin(\'localsignin\');"' +
         		' style="background: #FFF" ' +
-        		'class="openid_small_btn">' +
+        		'class="localsignin openid_small_btn">' +
 			'<img alt="" width="16" height="16" src="favicon.ico" />' +
-			' Local Account' +
+			' other' +
 			'</a>'
 		);
 	}
@@ -143,7 +145,20 @@ var openid = {
     },
     /* Provider image click */
     signin: function(box_id, onload) {
-    
+
+	if (box_id == 'localsignin') {
+	    	this.highlight(box_id);
+		$('#openid_input_area').empty();
+		$('#'+this.localsignin_id).show();
+		this.setCookie(box_id);
+		return;
+	}
+	else {
+		if (this.localsignin_id) {
+			$('#'+this.localsignin_id).hide();
+		}
+	}
+
     	var provider = providers[box_id];
   		if (! provider) {
   			return;
