@@ -386,8 +386,19 @@ sub preprocess (@) {
 	$params{year}  = $thisyear	unless defined $params{year};
 	$params{month} = $thismonth	unless defined $params{month};
 
+	my $relativemonth=0;
+	if ($params{month} < 1) {
+		$params{month}=$thismonth+$params{month};
+		$relativemonth=1;
+	}
+	my $relativeyear=0;
+	if ($params{year} < 1) {
+		$params{year}=$thisyear+$params{year};
+		$relativeyear=1;
+	}
+	
 	$params{month} = sprintf("%02d", $params{month});
-			
+	
 	if ($params{type} eq 'month' && $params{year} == $thisyear
 	    && $params{month} == $thismonth) {
 		# calendar for current month, updates next midnight
@@ -404,8 +415,11 @@ sub preprocess (@) {
 		$pagestate{$params{destpage}}{calendar}{nextchange}=
 			timelocal(0, 0, 0, 1, $params{month}-1, $params{year});
 	}
-	elsif ($params{type} eq 'year' && $params{year} == $thisyear) {
-		# calendar for current year, updates 1st of next month
+	elsif (($params{type} eq 'year' && $params{year} == $thisyear) ||
+	       $relativemonth) {
+		# Calendar for current year updates 1st of next month.
+		# Any calendar relative to the current month also updates
+		# then.
 		if ($thismonth < 12) {
 			$pagestate{$params{destpage}}{calendar}{nextchange}=
 				timelocal(0, 0, 0, 1, $thismonth+1-1, $params{year});
@@ -414,6 +428,12 @@ sub preprocess (@) {
 			$pagestate{$params{destpage}}{calendar}{nextchange}=
 				timelocal(0, 0, 0, 1, 1-1, $params{year}+1);
 		}
+	}
+	elsif ($relativeyear) {
+		# Any calendar relative to the current year updates 1st
+		# of next year.
+		$pagestate{$params{destpage}}{calendar}{nextchange}=
+			timelocal(0, 0, 0, 1, 1-1, $thisyear+1);
 	}
 	elsif ($params{type} eq 'year' && $params{year} > $thisyear) {
 		# calendar for upcoming year, updates 1st of that year
@@ -426,7 +446,6 @@ sub preprocess (@) {
 		delete $pagestate{$params{destpage}}{calendar};
 	}
 
-	# Calculate month names for next month, and previous months
 	my $calendar="";
 	if ($params{type} eq 'month') {
 		$calendar=format_month(%params);
