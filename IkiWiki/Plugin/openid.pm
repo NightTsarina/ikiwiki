@@ -92,7 +92,7 @@ sub formbuilder_setup (@) {
 		$form->field(name => "openid_identifier", disabled => 1,
 			label => htmllink("", "", "ikiwiki/OpenID", noimageinline => 1),
 			value => $session->param("name"), 
-			size => 50, force => 1,
+			size => length($session->param("name")), force => 1,
 			fieldset => "login");
 		$form->field(name => "email", type => "hidden");
 	}
