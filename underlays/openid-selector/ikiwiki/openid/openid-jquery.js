@@ -31,28 +31,16 @@ var providers_small = {
         url: 'http://{username}.livejournal.com/'
     },
     flickr: {
-        name: 'Flickr',        
+	name: 'Flickr',        
 	icon: 'http://flickr.com/favicon.ico',
-        label: 'Enter your Flickr username:',
-        url: 'http://flickr.com/{username}/'
+	label: 'Enter your Flickr username:',
+	url: 'http://flickr.com/photos/{username}/'
     },
     wordpress: {
         name: 'Wordpress',
 	icon: 'https://ddgw.s3.amazonaws.com/wordpress.org.ico',
         label: 'Enter your Wordpress.com username:',
         url: 'http://{username}.wordpress.com/'
-    },
-    blogger: {
-        name: 'Blogger',
-	icon: 'http://blogger.com/favicon.ico',
-        label: 'Enter your Blogger account:',
-        url: 'http://{username}.blogspot.com/'
-    },
-    technorati: {
-        name: 'Technorati',
-	icon: 'http://technorati.com/favicon.ico',
-        label: 'Enter your Technorati username:',
-        url: 'http://technorati.com/people/technorati/{username}/'
     },
     myopenid: {
         name: 'MyOpenID',
@@ -69,7 +57,7 @@ var providers_small = {
     aol: {
         name: 'AOL',     
 	icon: 'http://aol.com/favicon.ico',
-        label: 'Enter your AOL screenname:',
+        label: 'Enter your AOL username:',
         url: 'http://openid.aol.com/{username}'
     },
     verisign: {
