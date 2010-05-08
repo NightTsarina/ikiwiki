@@ -97,16 +97,6 @@ var openid = {
            	openid_btns.append(this.getBoxHTML(providers_large[id], 'large'));
         }
 
-	if (localloginurl != "") {
-           	openid_btns.append(
-        		'<a href="' + localloginurl + '"' +
-        		' style="background: #FFF" ' +
-        		'class="openid_large_btn">' +
-			'<img alt="" width="16" height="16" src="favicon.ico" />' +
-			' Local Account' +
-			'</a>'
-		);
-	}
         if (providers_small) {
         	openid_btns.append('<br/>');
         	
@@ -115,6 +105,16 @@ var openid = {
 	           	openid_btns.append(this.getBoxHTML(providers_small[id], 'small'));
 	        }
         }
+	if (localloginurl != "") {
+           	openid_btns.append(
+        		'<a href="' + localloginurl + '"' +
+        		' style="background: #FFF" ' +
+        		'class="openid_small_btn">' +
+			'<img alt="" width="16" height="16" src="favicon.ico" />' +
+			' Local Account' +
+			'</a>'
+		);
+	}
         
         $('#openid_form').submit(this.submit);
         
