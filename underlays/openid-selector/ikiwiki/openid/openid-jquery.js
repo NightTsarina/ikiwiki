@@ -150,15 +150,16 @@ var openid = {
   		}
 		
 		this.highlight(box_id);
-		this.setCookie(box_id);
 		
 		this.provider_id = box_id;
 		this.provider_url = provider['url'];
 		
 		// prompt user for input?
 		if (provider['label']) {
+			this.setCookie(box_id);
 			this.useInputBox(provider);
 		} else {
+			this.setCookie('');
 			$('#openid_input_area').empty();
 			if (! onload) {
 				$('#openid_form').submit();
