@@ -8,69 +8,76 @@ This code is licenced under the New BSD License.
 var providers_large = {
     google: {
         name: 'Google',
+	icon: 'http://google.com/favicon.ico',
         url: 'https://www.google.com/accounts/o8/id'
     },
     yahoo: {
         name: 'Yahoo',      
+	icon: 'http://yahoo.com/favicon.ico',
         url: 'http://me.yahoo.com/'
     },    
-    aol: {
-        name: 'AOL',     
-        label: 'Enter your AOL screenname:',
-        url: 'http://openid.aol.com/{username}'
-    },
-    verisign: {
-        name: 'Verisign',
-        label: 'Enter your Verisign username:',
-        url: 'http://{username}.pip.verisignlabs.com/'
-    },
     openid: {
         name: 'OpenID',     
+	icon: 'wikiicons/openidlogin-bg.gif',
         label: 'Enter your OpenID:',
         url: null
-    }
+    },
 };
 var providers_small = {
-    myopenid: {
-        name: 'MyOpenID',
-        label: 'Enter your MyOpenID username:',
-        url: 'http://{username}.myopenid.com/'
-    },
     livejournal: {
         name: 'LiveJournal',
+	icon: 'http://livejournal.com/favicon.ico',
         label: 'Enter your Livejournal username:',
         url: 'http://{username}.livejournal.com/'
     },
     flickr: {
         name: 'Flickr',        
+	icon: 'http://flickr.com/favicon.ico',
         label: 'Enter your Flickr username:',
         url: 'http://flickr.com/{username}/'
     },
-    technorati: {
-        name: 'Technorati',
-        label: 'Enter your Technorati username:',
-        url: 'http://technorati.com/people/technorati/{username}/'
-    },
     wordpress: {
         name: 'Wordpress',
+	icon: 'https://ddgw.s3.amazonaws.com/wordpress.org.ico',
         label: 'Enter your Wordpress.com username:',
         url: 'http://{username}.wordpress.com/'
     },
     blogger: {
         name: 'Blogger',
+	icon: 'http://blogger.com/favicon.ico',
         label: 'Enter your Blogger account:',
         url: 'http://{username}.blogspot.com/'
     },
-    vidoop: {
-        name: 'Vidoop',
-        label: 'Enter your Vidoop username:',
-        url: 'http://{username}.myvidoop.com/'
+    technorati: {
+        name: 'Technorati',
+	icon: 'http://technorati.com/favicon.ico',
+        label: 'Enter your Technorati username:',
+        url: 'http://technorati.com/people/technorati/{username}/'
+    },
+    myopenid: {
+        name: 'MyOpenID',
+	icon: 'http://myopenid.com/favicon.ico',
+        label: 'Enter your MyOpenID username:',
+        url: 'http://{username}.myopenid.com/'
     },
     claimid: {
         name: 'ClaimID',
+	icon: 'http://claimid.com/favicon.ico',
         label: 'Enter your ClaimID username:',
         url: 'http://claimid.com/{username}'
-    }
+    },
+    aol: {
+        name: 'AOL',     
+	icon: 'http://aol.com/favicon.ico',
+        label: 'Enter your AOL screenname:',
+        url: 'http://openid.aol.com/{username}'
+    },
+    verisign: {
+        name: 'Verisign',
+	icon: 'http://verisign.com/favicon.ico',
+        label: 'Enter your Verisign username:',
+        url: 'http://{username}.pip.verisignlabs.com/'
+    },
 };
 var providers = $.extend({}, providers_large, providers_small);
 
@@ -88,7 +95,7 @@ var openid = {
 	provider_url: null,
 	provider_id: null,
 	
-    init: function(input_id) {
+    init: function(input_id, localloginurl) {
         
         var openid_btns = $('#openid_btns');
         
@@ -99,15 +106,25 @@ var openid = {
         
         // add box for each provider
         for (id in providers_large) {
-        
-           	openid_btns.append(this.getBoxHTML(providers_large[id], 'large', '.gif'));
+           	openid_btns.append(this.getBoxHTML(providers_large[id], 'large'));
         }
+
+	if (localloginurl != "") {
+           	openid_btns.append(
+        		'<a href="' + localloginurl + '"' +
+        		' style="background: #FFF" ' +
+        		'class="openid_large_btn">' +
+			'<img alt="" width="24" height="24" src="favicon.ico" />' +
+			' Local Account' +
+			'</a>'
+		);
+	}
         if (providers_small) {
         	openid_btns.append('<br/>');
         	
 	        for (id in providers_small) {
 	        
-	           	openid_btns.append(this.getBoxHTML(providers_small[id], 'small', '.ico'));
+	           	openid_btns.append(this.getBoxHTML(providers_small[id], 'small'));
 	        }
         }
         
@@ -118,12 +135,22 @@ var openid = {
         	this.signin(box_id, true);
         }  
     },
-    getBoxHTML: function(provider, box_size, image_ext) {
-            
+    getBoxHTML: function(provider, box_size) {
+	var label="";
+	var title=""
+	if (box_size == 'large') {
+		label=' ' + provider["name"];
+	}
+	else {
+		title=' title="'+provider["name"]+'"';
+	}
         var box_id = provider["name"].toLowerCase();
-        return '<a title="'+provider["name"]+'" href="javascript: openid.signin(\''+ box_id +'\');"' +
-        		' style="background: #FFF url(' + this.img_path + box_id + image_ext+') no-repeat center center" ' + 
-        		'class="' + box_id + ' openid_' + box_size + '_btn"></a>';    
+        return '<a' + title +' href="javascript: openid.signin(\''+ box_id +'\');"' +
+        		' style="background: #FFF" ' + 
+        		'class="' + box_id + ' openid_' + box_size + '_btn">' +
+			'<img alt="" width="24" height="24" src="' + provider["icon"] + '" />' +
+			label +
+			'</a>';
     
     },
     /* Provider image click */
@@ -224,7 +251,7 @@ var openid = {
 			style = 'background:#FFF url(wikiicons/openidlogin-bg.gif) no-repeat scroll 0 50%; padding-left:18px;';
 		}
 		html += '<input id="'+id+'" type="text" style="'+style+'" name="'+id+'" value="'+value+'" />' + 
-					'<input id="openid_submit" type="submit" value="Sign-In"/>';
+					'<input id="openid_submit" type="submit" value="Login"/>';
 		
 		input_area.empty();
 		input_area.append(html);
