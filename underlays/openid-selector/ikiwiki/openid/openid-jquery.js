@@ -114,7 +114,7 @@ var openid = {
         		'<a href="' + localloginurl + '"' +
         		' style="background: #FFF" ' +
         		'class="openid_large_btn">' +
-			'<img alt="" width="24" height="24" src="favicon.ico" />' +
+			'<img alt="" width="16" height="16" src="favicon.ico" />' +
 			' Local Account' +
 			'</a>'
 		);
@@ -148,7 +148,7 @@ var openid = {
         return '<a' + title +' href="javascript: openid.signin(\''+ box_id +'\');"' +
         		' style="background: #FFF" ' + 
         		'class="' + box_id + ' openid_' + box_size + '_btn">' +
-			'<img alt="" width="24" height="24" src="' + provider["icon"] + '" />' +
+			'<img alt="" width="16" height="16" src="' + provider["icon"] + '" />' +
 			label +
 			'</a>';
     
