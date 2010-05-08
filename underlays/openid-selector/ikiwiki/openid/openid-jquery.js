@@ -30,23 +30,17 @@ var providers_small = {
         label: 'Enter your Livejournal username:',
         url: 'http://{username}.livejournal.com/'
     },
+    flickr: {
+	name: 'Flickr',        
+	icon: 'http://flickr.com/favicon.ico',
+	label: 'Enter your Flickr username:',
+	url: 'http://flickr.com/photos/{username}/'
+    },
     wordpress: {
         name: 'Wordpress',
 	icon: 'https://ddgw.s3.amazonaws.com/wordpress.org.ico',
         label: 'Enter your Wordpress.com username:',
         url: 'http://{username}.wordpress.com/'
-    },
-    gmail: {
-	name: 'Gmail',
-	icon: 'http://mail.google.com/favicon.ico',
-	label: 'Enter your Gmail address:',
-	url: 'http://google.com/profiles/{email_username}/'
-    },
-    flickr: {
-	name: 'Flickr',
-	icon: 'http://www.flickr.com/favicon.ico',
-	label: 'Enter your Flickr username:',
-	url: 'http://flickr.com/photos/{username}/'
     },
     myopenid: {
         name: 'MyOpenID',
@@ -178,7 +172,6 @@ var openid = {
     	var url = openid.provider_url; 
     	if (url) {
     		url = url.replace('{username}', $('#openid_username').val());
-    		url = url.replace('{email_username}', $('#openid_username').val().split('@')[0]);
     		openid.setOpenIdUrl(url);
     	}
     	if(openid.ajaxHandler) {
