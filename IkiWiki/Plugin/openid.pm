@@ -9,7 +9,6 @@ use IkiWiki 3.00;
 sub import {
 	add_underlay("openid-selector");
 	hook(type => "checkconfig", id => "openid", call => \&checkconfig);
-	hook(type => "getopt", id => "openid", call => \&getopt);
 	hook(type => "getsetup", id => "openid", call => \&getsetup);
 	hook(type => "auth", id => "openid", call => \&auth);
 	hook(type => "formbuilder_setup", id => "openid",
@@ -34,26 +33,12 @@ sub checkconfig () {
 	}
 }
 
-sub getopt () {
-	eval q{use Getopt::Long};
-	error($@) if $@;
-	Getopt::Long::Configure('pass_through');
-	GetOptions("openidsignup=s" => \$config{openidsignup});
-}
-
 sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
 			rebuild => 0,
 			section => "auth",
-		},
-		openidsignup => {
-			type => "string",
-			example => "http://myopenid.com/",
-			description => "an url where users can signup for an OpenID",
-			safe => 1,
-			rebuild => 0,
 		},
 }
 

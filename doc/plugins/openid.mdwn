@@ -11,17 +11,5 @@ The [[!cpan LWPx::ParanoidAgent]] perl module is used if available, for
 added security. Finally, the [[!cpan Crypt::SSLeay]] perl module is needed
 to support users entering "https" OpenID urls.
 
-This plugin has a configuration option. You can set `--openidsignup`
-to the url of a third-party site where users can sign up for an OpenID. If
-it's set, the signin page will link to that site.
-
-This plugin supports the
-[myopenid.com affiliate program](http://myopenid.com/affiliate),
-which can be used to help users sign up for an OpenID and log into your
-site in a single, unified process. When you create the affiliate, specify a
-login url like `http://example.com/ikiwiki.cgi?do=continue`. Once the
-affiliate is created, set `openidsignup` to point to the affiliate's signup
-url.
-
 This plugin is enabled by default, but can be turned off if you want to
 only use some other form of authentication, such as [[passwordauth]].
