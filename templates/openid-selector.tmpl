@@ -10,6 +10,13 @@ $(document).ready(function() {
 	<fieldset>
 		<legend>Select your account provider</legend>
 
+		<noscript>
+		<ul>
+		<TMPL_IF NONOPENIDURL>
+		<li><a href="<TMPL_VAR NONOPENIDURL>">Local Account</a></li>
+		</TMPL_IF>
+		<li>OpenID:</div>
+		</noscript>
 		<input type="hidden" name="do" value="signin" />
 		<input type="hidden" name="action" value="verify" />
 		<div id="openid_choice">
@@ -22,5 +29,9 @@ $(document).ready(function() {
 		<TMPL_IF OPENID_ERROR>
 		<div class="error"><TMPL_VAR OPENID_ERROR></div>
 		</TMPL_IF>
+		<noscript>
+		</li>
+		</ul>
+		</noscript>
 	</fieldset>
 </form>
