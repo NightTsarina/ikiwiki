@@ -59,7 +59,7 @@ sub mydisplaytime ($;$$) {
 
 	if ($config{html5}) {
 		return '<time datetime="'.IkiWiki::date_3339($time).'"'.
-			($pubdate ? ' pubdate' : '').$mid.'</time>';
+			($pubdate ? ' pubdate="pubdate"' : '').$mid.'</time>';
 	}
 	else {
 		return '<span'.$mid.'</span>';

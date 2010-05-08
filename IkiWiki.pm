@@ -1004,7 +1004,7 @@ sub displaytime ($;$$) {
 	my $time=formattime($_[0], $_[1]);
 	if ($config{html5}) {
 		return '<time datetime="'.date_3339($_[0]).'"'.
-			($_[2] ? ' pubdate' : '').
+			($_[2] ? ' pubdate="pubdate"' : '').
 			'>'.$time.'</time>';
 	}
 	else {
