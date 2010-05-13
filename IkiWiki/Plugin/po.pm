@@ -51,18 +51,20 @@ sub import {
 	hook(type => "formbuilder_setup", id => "po", call => \&formbuilder_setup, last => 1);
 	hook(type => "formbuilder", id => "po", call => \&formbuilder);
 
-	$origsubs{'bestlink'}=\&IkiWiki::bestlink;
-	inject(name => "IkiWiki::bestlink", call => \&mybestlink);
-	$origsubs{'beautify_urlpath'}=\&IkiWiki::beautify_urlpath;
-	inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath);
-	$origsubs{'targetpage'}=\&IkiWiki::targetpage;
-	inject(name => "IkiWiki::targetpage", call => \&mytargetpage);
-	$origsubs{'urlto'}=\&IkiWiki::urlto;
-	inject(name => "IkiWiki::urlto", call => \&myurlto);
-	$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
-	inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
-	$origsubs{'rootpage'}=\&IkiWiki::rootpage;
-	inject(name => "IkiWiki::rootpage", call => \&myrootpage);
+	if (! %origsubs) {
+		$origsubs{'bestlink'}=\&IkiWiki::bestlink;
+		inject(name => "IkiWiki::bestlink", call => \&mybestlink);
+		$origsubs{'beautify_urlpath'}=\&IkiWiki::beautify_urlpath;
+		inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath);
+		$origsubs{'targetpage'}=\&IkiWiki::targetpage;
+		inject(name => "IkiWiki::targetpage", call => \&mytargetpage);
+		$origsubs{'urlto'}=\&IkiWiki::urlto;
+		inject(name => "IkiWiki::urlto", call => \&myurlto);
+		$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
+		inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
+		$origsubs{'rootpage'}=\&IkiWiki::rootpage;
+		inject(name => "IkiWiki::rootpage", call => \&myrootpage);
+	}
 }
 
 
