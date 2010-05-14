@@ -131,6 +131,8 @@ sub rename_form ($$$) {
 	);
 	
 	$f->field(name => "do", type => "hidden", value => "rename", force => 1);
+	$f->field(name => "sid", type => "hidden", value => $session->id,
+		force => 1);
 	$f->field(name => "page", type => "hidden", value => $page, force => 1);
 	$f->field(name => "new_name", value => pagetitle($page, 1), size => 60);
 	if (!$q->param("attachment")) {
@@ -286,6 +288,8 @@ sub sessioncgi ($$) {
 			postrename($session);
 		}
 		elsif ($form->submitted eq 'Rename' && $form->validate) {
+			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+
 			# Queue of rename actions to perfom.
 			my @torename;
 

@@ -107,6 +107,8 @@ sub confirmation_form ($$) {
 		fields => [qw{do page}],
 	);
 	
+	$f->field(name => "sid", type => "hidden", value => $session->id,
+		force => 1);
 	$f->field(name => "do", type => "hidden", value => "remove", force => 1);
 
 	return $f, ["Remove", "Cancel"];
@@ -188,6 +190,8 @@ sub sessioncgi ($$) {
 			postremove($session);
 		}
 		elsif ($form->submitted eq 'Remove' && $form->validate) {
+			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+
 			my @pages=$form->field("page");
 	
 			# Validate removal by checking that the page exists,
