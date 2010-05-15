@@ -11,7 +11,8 @@ sub import {
 	hook(type => "getsetup", id => "recentchanges", call => \&getsetup);
 	hook(type => "checkconfig", id => "recentchanges", call => \&checkconfig);
 	hook(type => "refresh", id => "recentchanges", call => \&refresh);
-	hook(type => "pageactions", id => "recentchanges", call => \&pageactions);
+	hook(type => "pageactions", id => "recentchanges", call => \&pageactions,
+		first => 1);
 	hook(type => "pagetemplate", id => "recentchanges", call => \&pagetemplate);
 	hook(type => "htmlize", id => "_change", call => \&htmlize);
 	# Load goto to fix up links from recentchanges
