@@ -11,6 +11,7 @@ sub import {
 	hook(type => "getsetup", id => "recentchanges", call => \&getsetup);
 	hook(type => "checkconfig", id => "recentchanges", call => \&checkconfig);
 	hook(type => "refresh", id => "recentchanges", call => \&refresh);
+	hook(type => "pageactions", id => "recentchanges", call => \&pageactions);
 	hook(type => "pagetemplate", id => "recentchanges", call => \&pagetemplate);
 	hook(type => "htmlize", id => "_change", call => \&htmlize);
 	# Load goto to fix up links from recentchanges
@@ -61,14 +62,27 @@ sub refresh ($) {
 }
 
 # Enable the recentchanges link on wiki pages.
+sub pageactions (@) {
+	my %params=@_;
+	my $page=$params{page};
+
+	if (defined $config{recentchangespage} && $config{rcs} &&
+	    $page ne $config{recentchangespage}) {
+		return htmllink($page, $page, $config{recentchangespage},
+			gettext("RecentChanges"));
+	}
+}
+
+# Backwards compatability for templates still using
+# RECENTCHANGESURL.
 sub pagetemplate (@) {
 	my %params=@_;
 	my $template=$params{template};
 	my $page=$params{page};
 
 	if (defined $config{recentchangespage} && $config{rcs} &&
-	    $page ne $config{recentchangespage} &&
-	    $template->query(name => "recentchangesurl")) {
+	    $template->query(name => "recentchangesurl") &&
+	    $page ne $config{recentchangespage}) {
 		$template->param(recentchangesurl => urlto($config{recentchangespage}, $page));
 		$template->param(have_actions => 1);
 	}

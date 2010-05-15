@@ -1748,7 +1748,6 @@ sub misctemplate ($$;@) {
 
 	$template->param(
 		dynamic => 1,
-		have_actions => 0, # force off
 		title => $title,
 		wikiname => $config{wikiname},
 		content => $content,
@@ -1756,6 +1755,16 @@ sub misctemplate ($$;@) {
 		html5 => $config{html5},
 		@_,
 	);
+	
+	my @actions;
+	run_hooks(pageactions => sub {
+		push @actions, map { { action => $_ } } 
+			grep { defined } shift->(page => "");
+	});
+	$template->param(actions => \@actions);
+	if (@actions) {
+		$template->param(have_actions => 1);
+	}
 
 	return $template->output;
 }
