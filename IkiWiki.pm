@@ -1755,18 +1755,32 @@ sub misctemplate ($$;@) {
 		html5 => $config{html5},
 		@_,
 	);
+
+	templateactions($template, "");
 	
+	return $template->output;
+}
+
+sub templateactions ($$) {
+	my $template=shift;
+	my $page=shift;
+
+	my $have_actions=0;
 	my @actions;
 	run_hooks(pageactions => sub {
 		push @actions, map { { action => $_ } } 
-			grep { defined } shift->(page => "");
+			grep { defined } shift->(page => $page);
 	});
 	$template->param(actions => \@actions);
-	if (@actions) {
-		$template->param(have_actions => 1);
+
+	if ($config{cgiurl} && exists $hooks{auth}) {
+		$template->param(prefsurl => cgiurl(do => "prefs"));
+		$have_actions=1;
 	}
 
-	return $template->output;
+	if ($have_actions || @actions) {
+		$template->param(have_actions => 1);
+	}
 }
 
 sub hook (@) {

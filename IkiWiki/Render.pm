@@ -84,19 +84,14 @@ sub genpage ($$) {
 		$template=template('page.tmpl', 
 			blind_cache => 1);
 	}
-	my $actions=0;
 
+	my $actions=0;
 	if (length $config{cgiurl}) {
 		if (IkiWiki->can("cgi_editpage")) {
 			$template->param(editurl => cgiurl(do => "edit", page => $page));
 			$actions++;
 		}
-		if (exists $hooks{auth}) {
-			$template->param(prefsurl => cgiurl(do => "prefs"));
-			$actions++;
-		}
 	}
-		
 	if (defined $config{historyurl} && length $config{historyurl}) {
 		my $u=$config{historyurl};
 		$u=~s/\[\[file\]\]/$pagesources{$page}/g;
@@ -111,17 +106,10 @@ sub genpage ($$) {
 			$actions++;
 		}
 	}
-
-	my @actions;
-	run_hooks(pageactions => sub {
-		push @actions, map { { action => $_ } } 
-			grep { defined } shift->(page => $page);
-	});
-	$template->param(actions => \@actions);
-
-	if ($actions || @actions) {
+	if ($actions) {
 		$template->param(have_actions => 1);
 	}
+	templateactions($template, $page);
 
 	my @backlinks=sort { $a->{page} cmp $b->{page} } backlinks($page);
 	my ($backlinks, $more_backlinks);
