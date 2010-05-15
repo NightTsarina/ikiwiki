@@ -70,7 +70,7 @@ sub pageactions (@) {
 	if (defined $config{recentchangespage} && $config{rcs} &&
 	    $page ne $config{recentchangespage}) {
 		return htmllink($page, $page, $config{recentchangespage},
-			gettext("RecentChanges"));
+			linktext => gettext("RecentChanges"));
 	}
 }
 
