@@ -229,7 +229,8 @@ sub setupfiles () {
 		# Avoid omega interpreting anything in the misctemplate
 		# as an omegascript command.
 		my $misctemplate=IkiWiki::misctemplate(gettext("search"), "\0",
-			searching => 1);
+			searchform => "", # avoid showing the small search form
+		);
 		eval q{use HTML::Entities};
 		error $@ if $@;
 		$misctemplate=encode_entities($misctemplate, '\$');

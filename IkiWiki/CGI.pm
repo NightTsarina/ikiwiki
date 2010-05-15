@@ -247,7 +247,9 @@ sub cgi_prefs ($$) {
 		$form->text(gettext("Preferences saved."));
 	}
 	
-	showform($form, $buttons, $session, $q);
+	showform($form, $buttons, $session, $q,
+		prefsurl => "", # avoid showing the preferences link
+	);
 }
 
 sub cgi_custom_failure ($$$) {

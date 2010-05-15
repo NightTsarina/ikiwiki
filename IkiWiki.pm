@@ -1745,6 +1745,7 @@ sub misctemplate ($$;@) {
 	run_hooks(pagetemplate => sub {
 		shift->(page => "", destpage => "", template => $template);
 	});
+	templateactions($template, "");
 
 	$template->param(
 		dynamic => 1,
@@ -1755,8 +1756,6 @@ sub misctemplate ($$;@) {
 		html5 => $config{html5},
 		@_,
 	);
-
-	templateactions($template, "");
 	
 	return $template->output;
 }
