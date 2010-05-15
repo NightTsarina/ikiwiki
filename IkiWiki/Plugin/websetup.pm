@@ -450,8 +450,8 @@ sub showform ($$) {
 			IkiWiki::unlockwiki();
 
 			# Print the top part of a standard misctemplate,
-			# then show the rebuild or refresh.
-			my $divider="xxx";
+			# then show the rebuild or refresh, live.
+			my $divider="\0";
 			my $html=IkiWiki::misctemplate("setup", $divider);
 			IkiWiki::printheader($session);
 			my ($head, $tail)=split($divider, $html, 2);
