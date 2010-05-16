@@ -22,7 +22,7 @@ sub getsetup () {
 		},
 		global_sidebars => {
 			type => "boolean",
-			examples => 1,
+			example => 1,
 			description => "show sidebar page on all pages?",
 			safe => 1,
 			rebuild => 1,
