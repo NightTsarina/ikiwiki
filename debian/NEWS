@@ -1,17 +1,18 @@
 ikiwiki (3.20100515) unstable; urgency=low
 
-  There is a significant change to the page.tmpl template in this version,
-  (and several less significant changes). If you have a locally modified
-  version of that template, you will need to update it at least to
-  contain the following in the HTML <head>:
+  There are two significant changes to the page.tmpl template in this version.
+  If you have a locally modified version of that template, you will need to
+  update it at least to contain the following in the HTML <head>:
 
     <TMPL_IF DYNAMIC>
     <TMPL_IF FORCEBASEURL><base href="<TMPL_VAR FORCEBASEURL>" /><TMPL_ELSE>
     <TMPL_IF BASEURL><base href="<TMPL_VAR BASEURL>" /></TMPL_IF>
     </TMPL_IF>
     </TMPL_IF>
+
+  Also, the footer should be wrapped in <TMPL_UNLESS DYNAMIC> ... </TMPL_UNLESS>
   
-  Also, there is a new "comment()" pagespec, that can be used to match a
+  There is a new "comment()" pagespec, that can be used to match a
   comment on a page. It is recommended it be used instead of the old
   method of using a pagespec such as "internal(comment_*)" to match
   things that looked like comments. The old pagespec will now also match
