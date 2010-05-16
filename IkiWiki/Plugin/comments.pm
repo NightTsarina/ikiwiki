@@ -742,7 +742,6 @@ sub pagetemplate (@) {
 	             $template->query(name => 'commentsurl') ||
 	             $template->query(name => 'atomcommentsurl') ||
 	             $template->query(name => 'comments')) &&
-	            length $page && # not dynamic
 	            commentsshown($page);
 
 	if ($template->query(name => 'comments')) {
