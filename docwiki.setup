@@ -29,7 +29,8 @@ use IkiWiki::Setup::Standard {
 	usedirs => 0,
 	prefix_directives => 1,
 	add_plugins => [qw{goodstuff version haiku polygen fortune table}],
-	disable_plugins => [qw{recentchanges}], # not appropriate for doc dir
+	# not appropriate for doc dir
+	disable_plugins => [qw{recentchanges openid}],
 	rcs => $rcs,
 	gitorigin_branch => '', # don't pull during build
 }
