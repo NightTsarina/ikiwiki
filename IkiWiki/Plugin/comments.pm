@@ -859,7 +859,7 @@ sub num_comments ($$) {
 	my $dir=shift;
 
 	my @comments=glob("$dir/$page/$config{comments_pagename}*._comment");
-	return @comments;
+	return int @comments;
 }
 
 sub unique_comment_location ($$$$) {
