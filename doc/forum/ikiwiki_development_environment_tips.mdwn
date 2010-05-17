@@ -1,3 +1,5 @@
 I haven't settled on a comfortable/flexible/quick development environment for hacking on ikiwiki.  The VM I host my web pages on is not fast enough to use for RAD and ikiwiki. For developing plugins, it seems a bit heavy-weight to clone the entire ikiwiki repository. I haven't managed to get into a habit of running a cloned version of ikiwiki from it's own dir, rather than installing it (If that's even possible).  The ikiwiki site source (source ./doc) is quite large and not a great testbed for hacking (e.g. if you are working on a plugin you need a tailored test suite for that plugin).
 
 Does anyone have a comfortable setup or tips they would like to share? -- [[Jon]]
+
+> I've just been setting `libdir` in an existing wiki's setup file. When the plugin's in a decent state, I copy it over to a git checkout and commit. For the plugins I've been working on (auth and VCS), this has been just fine. Are you looking for something more? --[[schmonz]]
