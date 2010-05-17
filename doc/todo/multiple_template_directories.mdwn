@@ -13,3 +13,35 @@ ought to do the trick.
 > considered [[done]].  
 
 I have a use case for this, a site composed of blogs and wikis, templates divided in three categories : common, blog and wiki. The only solution I found is maintaining hard links, being able to have multiple template dirs would obviously be better. -- Changaco
+
+> [[plugins/underlay]] used to allow adding extra templatedirs, but Joey
+> removed that functionality when he made templates search the wiki's
+> own `templates` directory.
+>
+> You can get a 3-level hierarchy like this:
+>
+> * instance-specific overrides: $srcdir/templates
+> * common to the entire site: a directory that is the value of all
+>   instances' `templatedir` parameters
+> * common to every ikiwiki in the world: /usr/share/ikiwiki/templates
+>   (implicitly searched)
+>
+> (by "instance" I mean an instance of ikiwiki - a .setup file, basically.)
+>
+> For a more complex hierarchy you'd need the old [[plugins/underlay]]
+> functionality, i.e. you'd need to (ask Joey to) revert the patch that
+> removed it. For instance, if anyone has a hierarchy like this, then
+> they need the old functionality back in order to split the template
+> search path for the things marked `(???)`:
+>
+>     every ikiwiki in the world (/usr/share/ikiwiki/templates)
+>     \--- your site (???)
+>         \--- your blogs (???)
+>              \--- travel blog ($srcdir/templates)
+>              \--- code blog ($srcdir/templates)
+>         \--- your wikis (???)
+>              \--- travel wiki ($srcdir/templates)
+>              \--- code wiki ($srcdir/templates)
+>
+> This looks pretty hypothetical to me, though...
+> --[[smcv]]
