@@ -3,3 +3,17 @@ I haven't settled on a comfortable/flexible/quick development environment for ha
 Does anyone have a comfortable setup or tips they would like to share? -- [[Jon]]
 
 > I've just been setting `libdir` in an existing wiki's setup file. When the plugin's in a decent state, I copy it over to a git checkout and commit. For the plugins I've been working on (auth and VCS), this has been just fine. Are you looking for something more? --[[schmonz]]
+
+>> I think this suffers from two problems. Firstly, unless you are tracking git
+>> master in your existing wiki, there's the possibility that your plugin will
+>> not work with a more modern version of ikiwiki (or that it would benefit
+>> from using a newly added utility subroutine or similar). Second, sometimes I
+>> find that even writing a plugin can involve making minor changes outside of
+>> the plugin code (bug fixes, or moving functionality about). So, I think
+>> having some kind of environment built around a git checkout is best.
+>> 
+>> However, this does not address the issue of the tedium writing/maintaining a
+>> setup file for testing things.
+>>
+>> I think I might personally benefit from a more consistent environment (I
+>> move from machine-to-machine frequently). -- [[Jon]]

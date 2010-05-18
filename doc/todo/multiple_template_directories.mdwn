@@ -50,3 +50,24 @@ I have a use case for this, a site composed of blogs and wikis, templates divide
 >> multiple template directories is still present. Just put them in 
 >> the templates/ subdirectory of multiple underlay directories instead.
 >> --[[Joey]]
+
+>>>Thanks, I didn't realize this was possible. Problem solved. -- Changaco
+
+>>>> We can consider this [[done]], then. For reference, the solution
+>>>> to the hierarchy I mentioned above would be:
+>>>>
+>>>>     all your sites have $your_underlay as an underlay
+>>>>
+>>>>     the blogs and wikis all have $blog_underlay or $wiki_underlay
+>>>>     (as appropriate) as a higher priority underlay
+>>>>
+>>>>     every ikiwiki in the world (/usr/share/ikiwiki/templates)
+>>>>     \--- your site ($your_underlay/templates, or templatedir)
+>>>>         \--- your blogs ($blog_underlay/templates)
+>>>>              \--- travel blog ($srcdir/templates)
+>>>>              \--- code blog ($srcdir/templates)
+>>>>         \--- your wikis ($wiki_underlay/templates)
+>>>>              \--- travel wiki ($srcdir/templates)
+>>>>              \--- code wiki ($srcdir/templates)
+>>>>
+>>>> --[[smcv]]
