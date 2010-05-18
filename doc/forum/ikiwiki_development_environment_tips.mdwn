@@ -7,7 +7,13 @@ Does anyone have a comfortable setup or tips they would like to share? -- [[Jon]
 >> I think this suffers from two problems. Firstly, unless you are tracking git
 >> master in your existing wiki, there's the possibility that your plugin will
 >> not work with a more modern version of ikiwiki (or that it would benefit
->> from using a newly added utility subroutine or similar). Second, sometimes I
+>> from using a newly added utility subroutine or similar). 
+
+>>> Unlikely. I don't make changes to the plugin interface that break
+>>> existing plugins. (Might change non-exported `IkiWiki::` things
+>>> from time to time.) --[[Joey]] 
+
+>> Second, sometimes I
 >> find that even writing a plugin can involve making minor changes outside of
 >> the plugin code (bug fixes, or moving functionality about). So, I think
 >> having some kind of environment built around a git checkout is best.
@@ -17,3 +23,22 @@ Does anyone have a comfortable setup or tips they would like to share? -- [[Jon]
 >>
 >> I think I might personally benefit from a more consistent environment (I
 >> move from machine-to-machine frequently). -- [[Jon]]
+
+> If you set `libdir` to point to a checkout of ikiwiki's git repository,
+> it will override use of the installed version of ikiwiki, so ikiwiki will
+> immediatly use any changed or new `.pm` files (with the exception of
+> IkiWiki.pm), and you can use git to manage it all without an installation
+> step. If I am modifying IkiWiki.pm, I generally symlink it from
+> `/usr/share/perl5/IkiWiki.pm` to my git reporisitory. Granted, not ideal.
+> 
+> I often use my laptop's local version of my personal wiki for testing.
+> It has enough stuff that I can easily test most things, and if I need
+> a test page I just dump test cases on the sandbox. I can make
+> any changes necessary during testing and then `git reset --hard
+> origin/master` to avoid publishing them.
+> 
+> If the thing I'm testing involves templates, or underlays, 
+> I will instead use ikiwiki's `docwiki.setup` for testing, modifying it as
+> needed, since it is preconfigured to use the templates and underlays
+> from ikiwiki's source repository.
+> --[[Joey]]
