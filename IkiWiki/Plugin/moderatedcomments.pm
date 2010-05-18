@@ -19,7 +19,7 @@ sub getsetup () {
 		},
 		moderate_pagespec => {
 			type => 'pagespec',
-			example => 'user(http://*)',
+			example => '*',
 			description => 'PageSpec matching users or comment locations to moderate',
 			link => 'ikiwiki/PageSpec',
 			safe => 1,
