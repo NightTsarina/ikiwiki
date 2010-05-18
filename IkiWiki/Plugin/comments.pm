@@ -908,10 +908,12 @@ sub match_comment ($$;@) {
 	my $page = shift;
 	my $glob = shift;
 
-	if (! IkiWiki::isinternal($page)) {
-		return IkiWiki::FailReason->new("$page is not a comment");
-	}
-	my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
+	# To see if it's a comment, check the source file type.
+	# Deal with comments that were just deleted.
+	my $source=exists $IkiWiki::pagesources{$page} ?
+		$IkiWiki::pagesources{$page} :
+		$IkiWiki::delpagesources{$page};
+	my $type=IkiWiki::pagetype($source);
 	if (defined $type && $type ne "_comment") {
 		return IkiWiki::FailReason->new("$page is not a comment");
 	}
@@ -923,10 +925,10 @@ sub match_comment_pending ($$;@) {
 	my $page = shift;
 	my $glob = shift;
 	
-	if (! IkiWiki::isinternal($page)) {
-		return IkiWiki::FailReason->new("$page is not a pending comment");
-	}
-	my $type=IkiWiki::pagetype($IkiWiki::pagesources{$page});
+	my $source=exists $IkiWiki::pagesources{$page} ?
+		$IkiWiki::pagesources{$page} :
+		$IkiWiki::delpagesources{$page};
+	my $type=IkiWiki::pagetype($source);
 	if (defined $type && $type ne "_comment_pending") {
 		return IkiWiki::FailReason->new("$page is not a pending comment");
 	}

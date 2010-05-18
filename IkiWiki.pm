@@ -12,9 +12,9 @@ use open qw{:utf8 :std};
 
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	%pagestate %wikistate %renderedfiles %oldrenderedfiles
-	%pagesources %destsources %depends %depends_simple @mass_depends 
-	%hooks %forcerebuild %loaded_plugins %typedlinks %oldtypedlinks
-	%autofiles};
+	%pagesources %delpagesources %destsources %depends %depends_simple
+	@mass_depends %hooks %forcerebuild %loaded_plugins %typedlinks
+	%oldtypedlinks %autofiles};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error htmlpage template template_depends

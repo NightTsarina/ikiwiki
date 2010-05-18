@@ -442,6 +442,7 @@ sub remove_del (@) {
 		}
 	
 		delete $pagecase{lc $page};
+		$delpagesources{$page}=$pagesources{$page};
 		delete $pagesources{$page};
 	}
 }
