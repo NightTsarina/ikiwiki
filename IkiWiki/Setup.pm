@@ -33,6 +33,7 @@ sub load ($;$) {
 		if ($1) {
 			error sprintf(gettext("cannot load %s in safe mode"), $file)
 				if $safemode;
+			no warnings;
 			eval IkiWiki::possibly_foolish_untaint($content);
 			error("$file: ".$@) if $@;
 		}
