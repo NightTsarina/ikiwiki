@@ -91,3 +91,13 @@ Where this approach is limiting is on the kind of data that is passed to (templa
 
 One possibility could be to have the `queries` configuration allow a hash mapping query names to functions that would transform the data. Lacking that possibility, we might have to leave some predefined fields to have custom Perl-side treatment and leave custom fields to be untransformable.
 
+-----
+
+I've now updated the [[plugins/contrib/field]] plugin to have:
+
+* arrays (multi-valued fields)
+* the "linkbase" option as mentioned above (called field_tags), where the linktype is the field name.
+
+I've also updated [[plugins/contrib/ftemplate]] and [[plugins/contrib/report]] to be able to use multi-valued fields, and [[plugins/contrib/ymlfront]] to correctly return multi-valued fields when they are requested.
+
+--[[KathrynAndersen]]
