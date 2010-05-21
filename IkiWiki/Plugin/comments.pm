@@ -913,7 +913,7 @@ sub match_comment ($$;@) {
 	my $source=exists $IkiWiki::pagesources{$page} ?
 		$IkiWiki::pagesources{$page} :
 		$IkiWiki::delpagesources{$page};
-	my $type=IkiWiki::pagetype($source);
+	my $type=defined $source ? IkiWiki::pagetype($source) : undef;
 	if (! defined $type || $type ne "_comment") {
 		return IkiWiki::FailReason->new("$page is not a comment");
 	}
@@ -928,7 +928,7 @@ sub match_comment_pending ($$;@) {
 	my $source=exists $IkiWiki::pagesources{$page} ?
 		$IkiWiki::pagesources{$page} :
 		$IkiWiki::delpagesources{$page};
-	my $type=IkiWiki::pagetype($source);
+	my $type=defined $source ? IkiWiki::pagetype($source) : undef;
 	if (! defined $type || $type ne "_comment_pending") {
 		return IkiWiki::FailReason->new("$page is not a pending comment");
 	}
