@@ -32,13 +32,13 @@ function showDates() {
 	setTimeout(showDates,30000); // keep updating every 30s
 }
 
-var timeUnits = new Array;
-timeUnits['minute'] = 60;
-timeUnits['hour'] = timeUnits['minute'] * 60;
-timeUnits['day'] = timeUnits['hour'] * 24;
-timeUnits['month'] = timeUnits['day'] * 30;
-timeUnits['year'] = timeUnits['day'] * 364;
-var timeUnitOrder = ['year', 'month', 'day', 'hour', 'minute'];
+var timeUnits = [
+	{ unit: 'year',		seconds: 60 * 60 * 24 * 364 },
+	{ unit: 'month',	seconds: 60 * 60 * 24 * 30 },
+	{ unit: 'day',		seconds: 60 * 60 * 24 },
+	{ unit: 'hour',		seconds: 60 * 60 },
+	{ unit: 'minute',	seconds: 60 },
+];
 
 function relativeDate(date) {
 	var now = new Date();
@@ -47,20 +47,19 @@ function relativeDate(date) {
 
 	// hack to avoid reading just in the future if there is a minor
 	// amount of clock slip
-	if (offset >= 0 && seconds < 30 * timeUnits['minute']) {
+	if (offset >= 0 && seconds < 30 * 60 * 60) {
 		return "just now";
 	}
 
 	var ret = "";
 	var shown = 0;
-	for (i = 0; i < timeUnitOrder.length; i++) {
-		var unit = timeUnitOrder[i];
-		if (seconds >= timeUnits[unit]) {
-			var num = Math.floor(seconds / timeUnits[unit]);
-			seconds -= num * timeUnits[unit];
+	for (i = 0; i < timeUnits.length; i++) {
+		if (seconds >= timeUnits[i].seconds) {
+			var num = Math.floor(seconds / timeUnits[i].seconds);
+			seconds -= num * timeUnits[i].seconds;
 			if (ret)
 				ret += "and ";
-			ret += num + " " + unit + (num > 1 ? "s" : "") + " ";
+			ret += num + " " + timeUnits[i].unit + (num > 1 ? "s" : "") + " ";
 
 			if (++shown == 2)
 				break;
