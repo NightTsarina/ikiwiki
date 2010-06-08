@@ -178,3 +178,12 @@ done instead of the timestamp when the commit was done.  Is this
 intentional?  Otherwise I could supply a patch.
 
 --[[tschwinge]]
+
+> In order to be nice and fast, the git backend runs git log once
+> and records data for all files. Rather than looking at the log for a
+> given file. So amoung other things, it does not follow renames.
+> 
+> AFAICS, git log only shows merges modifying files if it was a conflicted
+> merge. As the file is then actually modified to resolve the merge
+> I think it makes sense to count the merge as the last modification in
+> that case. --[[Joey]] 
