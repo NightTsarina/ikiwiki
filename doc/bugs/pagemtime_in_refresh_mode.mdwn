@@ -12,3 +12,17 @@ relevant: `if (! $pagemtime{$page}) { [...]`.
 How would you like to tackle this?
 
 --[[tschwinge]]
+
+> This could be done via a `needsbuild` hook. The hook is passed 
+> the list of changed files, and it should be safe to call `rcs_getmtime`
+> and update the `pagemtime` for each.
+> 
+> That lets the feature be done by a plugin, which seems good, since
+> `rcs_getmtime` varies between very slow and not very fast, depending on 
+> VCS.
+> 
+> AFAICS, the only use case for doing this is if you commit changes and
+> then delay pushing them to a DVCS repo. Since then the file mtime will
+> be when the change was pushed, not when it was committed. But I've
+> generally felt that recording when a change was published to the repo
+> of a wiki as its mtime is good enough. --[[Joey]] 
