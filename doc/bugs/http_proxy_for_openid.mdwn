@@ -22,8 +22,7 @@ Note that using $ua->proxy(['https'], ...); won't work, you get a "Not Implement
 
 Also note that the proxy won't work with liblwpx-paranoidagent-perl, I had to remove liblwpx-paranoidagent-perl first.
 
-Please get the patch from the *.mdwn source.
-
+<pre>
 louie:/usr/share/perl5/IkiWiki/Plugin# diff -u openid.pm.old openid.pm
 --- openid.pm.old	2008-10-26 12:18:58.094489360 +1100
 +++ openid.pm	2008-10-26 12:40:05.763429880 +1100
@@ -42,6 +41,11 @@ louie:/usr/share/perl5/IkiWiki/Plugin# diff -u openid.pm.old openid.pm
  	# Store the secret in the session.
  	my $secret=$session->param("openid_secret");
  	if (! defined $secret) {
-
+</pre>
 
 Brian May
+
+> Rather than adding config file settings for every useful environment 
+> variable, there is a ENV config file setting that can be used to set
+> any environment variables you like. So, no changed needed. [[done]]
+> --[[Joey]] 
