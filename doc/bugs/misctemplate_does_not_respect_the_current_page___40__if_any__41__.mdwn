@@ -18,6 +18,12 @@ But it causes some nasty bugs for plugins that use the pagetemplate hook. It is 
 * -> Problem: 404, the browser goes to "/bar/foo" 
 * -> Was expected: the browser goes to "/foo"
 
+> You must have a locally modified `page.tmpl` that omits the "TMPL_IF DYNAMIC"
+> that adds a `<base>` tag. That is needed to make all links displayed by
+> cgis work reliably. Not just in this page editing case.
+> The [[version_3.20100515]] announcment mentions that you need to
+> update old `page.tmpl` files to include that on upgrade. --[[Joey]]
+
 ### A second example
 
 * create "/bar/sidebar.mdwn" with "world"
@@ -28,6 +34,10 @@ But it causes some nasty bugs for plugins that use the pagetemplate hook. It is 
 * -> Problem: the sidebar now shows the foo link (it is the root sidebar!)
 * -> Was expecte : the sidebar displays "world"
 
+> One could argue that the behavior here is right, or wrong. 
+> Is a page edit page really the same as the page being edited?
+> The next case is more clear.. --[[Joey]]
+
 ### A last example
 
 * with the web browser edit the page "bar"
@@ -35,6 +45,8 @@ But it causes some nasty bugs for plugins that use the pagetemplate hook. It is 
 * click preview
 * -> Problem: the sidebar still displays the foo link
 * -> Was expected: the sidebar display "goodby"
+
+> I think this is worth fixing. --[[Joey]]
 
 ## Some superficial hacking
 
@@ -47,4 +59,9 @@ With the following workaround hacks, I manage to solve the 3 examples shown abov
 <pre>my %params=@_;
 shift->(page => $params{page}, destpage => $params{destpage}, template => $template);</pre>
 
-I do not guarantee (I do not even expect) that it is the proper way to solve this bug but it may help developers to find and solve the real problem. 
+I do not guarantee (I do not even expect) that it is the proper way to solve
+this bug but it may help developers to find and solve the real problem. 
+
+> Oh, it's pretty reasonable. I don't think it breaks anything. :)
+> [[done]]
+> --[[Joey]] 

@@ -1739,11 +1739,20 @@ sub template ($;@) {
 sub misctemplate ($$;@) {
 	my $title=shift;
 	my $content=shift;
+	my %params=@_;
 	
 	my $template=template("page.tmpl");
 
+	my $page="";
+	if (exists $params{page}) {
+		$page=delete $params{page};
+	}
 	run_hooks(pagetemplate => sub {
-		shift->(page => "", destpage => "", template => $template);
+		shift->(
+			page => $page,
+			destpage => $page,
+			template => $template,
+		);
 	});
 	templateactions($template, "");
 
@@ -1754,7 +1763,7 @@ sub misctemplate ($$;@) {
 		content => $content,
 		baseurl => baseurl(),
 		html5 => $config{html5},
-		@_,
+		%params,
 	);
 	
 	return $template->output;
