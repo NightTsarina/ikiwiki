@@ -170,10 +170,8 @@ sub cgi_editpage ($$) {
 		$previewing=1;
 
 		my $new=not exists $pagesources{$page};
-		if ($new) {
-			# temporarily record its type
-			$pagesources{$page}=$page.".".$type;
-		}
+		# temporarily record its type
+		$pagesources{$page}=$page.".".$type if $new;
 		my %wasrendered=map { $_ => 1 } @{$renderedfiles{$page}};
 
 		my $content=$form->field('editcontent');
@@ -198,18 +196,17 @@ sub cgi_editpage ($$) {
 		});
 		$form->tmpl_param("page_preview", $preview);
 		
-		if ($new) {
-			delete $pagesources{$page};
-		}
-
 		# Previewing may have created files on disk.
 		# Keep a list of these to be deleted later.
 		my %previews = map { $_ => 1 } @{$wikistate{editpage}{previews}};
 		foreach my $f (@{$renderedfiles{$page}}) {
 			$previews{$f}=1 unless $wasrendered{$f};
 		}
+
+		# Throw out any other state changes made during previewing,
+		# and save the previews list.
+		loadindex();
 		@{$wikistate{editpage}{previews}} = keys %previews;
-		$renderedfiles{$page}=[keys %wasrendered];
 		saveindex();
 	}
 	elsif ($form->submitted eq "Save Page") {
