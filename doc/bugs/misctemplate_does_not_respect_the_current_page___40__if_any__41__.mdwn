@@ -1,0 +1,50 @@
+I really like the new approach to having only one main template "page.tmpl". For instance, it improves previews during edits.
+But it causes some nasty bugs for plugins that use the pagetemplate hook. It is especially visible with the [[plugins/sidebar]] plugin.
+
+## Some examples
+
+### A first example
+
+* activate sidebars globally and cgi
+* create "/sidebar.mdwn" with "[<span></span>[foo]]" inside
+* create "/foo.mdwn" with "hello!" inside
+* create "/bar.mdwn"
+* run ikiwiki
+* with the web browser, go to the page "bar"
+* notice the sidebar, click on "foo"
+* notice the page "foo" is now displayed (hello!)
+* return the the page "bar" and click "edit"
+* notice the sidebar is still here, click on the "foo"
+* -> Problem: 404, the browser goes to "/bar/foo" 
+* -> Was expected: the browser goes to "/foo"
+
+### A second example
+
+* create "/bar/sidebar.mdwn" with "world"
+* run ikiwiki
+* with the web browser, go to the page "bar"
+* notice the sidebar displays "world"
+* click "edit"
+* -> Problem: the sidebar now shows the foo link (it is the root sidebar!)
+* -> Was expecte : the sidebar displays "world"
+
+### A last example
+
+* with the web browser edit the page "bar"
+* type <code>[<span></span>[!sidebar content="goodby"]]</code>
+* click preview
+* -> Problem: the sidebar still displays the foo link
+* -> Was expected: the sidebar display "goodby"
+
+## Some superficial hacking
+
+With the following workaround hacks, I manage to solve the 3 examples shown above:
+
+1- edit IkiWiki/Plugin/editpage.pm and call showform with additional page and destpage parameters:
+<pre>showform($form, \@buttons, $session, $q, forcebaseurl => $baseurl, page => $page, destpage => $page);</pre>
+
+2- edit /usr/share/perl5/IkiWiki.pm and modify the misctemplate function to use the given page and destpage:
+<pre>my %params=@_;
+shift->(page => $params{page}, destpage => $params{destpage}, template => $template);</pre>
+
+I do not guarantee (I do not even expect) that it is the proper way to solve this bug but it may help developers to find and solve the real problem. 
