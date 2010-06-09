@@ -153,6 +153,7 @@ sub cgi_editpage ($$) {
 			noimageinline => 1,
 			linktext => "FormattingHelp"));
 	
+	my $previewing=0;
 	if ($form->submitted eq "Cancel") {
 		if ($form->field("do") eq "create" && defined $from) {
 			redirect($q, urlto($from, undef, 1));
@@ -166,6 +167,8 @@ sub cgi_editpage ($$) {
 		exit;
 	}
 	elsif ($form->submitted eq "Preview") {
+		$previewing=1;
+
 		my $new=not exists $pagesources{$page};
 		if ($new) {
 			# temporarily record its type
@@ -255,7 +258,7 @@ sub cgi_editpage ($$) {
 			if (! @page_locs) {
 				# hmm, someone else made the page in the
 				# meantime?
-				if ($form->submitted eq "Preview") {
+				if ($previewing) {
 					# let them go ahead with the edit
 					# and resolve the conflict at save
 					# time
@@ -313,7 +316,9 @@ sub cgi_editpage ($$) {
 		}
 		
 		showform($form, \@buttons, $session, $q,
-			forcebaseurl => $baseurl, page => $page);
+			forcebaseurl => $baseurl,
+			($previewing ? (page => $page) : ()),
+		);
 	}
 	else {
 		# save page
@@ -331,7 +336,7 @@ sub cgi_editpage ($$) {
 			$form->field(name => "type", type => 'hidden');
 			$form->title(sprintf(gettext("editing %s"), $page));
 			showform($form, \@buttons, $session, $q,
-				forcebaseurl => $baseurl, page => $page);
+				forcebaseurl => $baseurl);
 			exit;
 		}
 		elsif ($form->field("do") eq "create" && $exists) {
@@ -346,7 +351,7 @@ sub cgi_editpage ($$) {
 				         "\n\n\n".$form->field("editcontent"),
 				force => 1);
 			showform($form, \@buttons, $session, $q,
-				forcebaseurl => $baseurl, page => $page);
+				forcebaseurl => $baseurl);
 			exit;
 		}
 			
@@ -387,7 +392,7 @@ sub cgi_editpage ($$) {
 			$form->field(name => "type", type => 'hidden');
 			$form->title(sprintf(gettext("editing %s"), $page));
 			showform($form, \@buttons, $session, $q,
-				forcebaseurl => $baseurl, page => $page);
+				forcebaseurl => $baseurl);
 			exit;
 		}
 		
@@ -426,7 +431,7 @@ sub cgi_editpage ($$) {
 			$form->field(name => "type", type => 'hidden');
 			$form->title(sprintf(gettext("editing %s"), $page));
 			showform($form, \@buttons, $session, $q,
-				forcebaseurl => $baseurl, page => $page);
+				forcebaseurl => $baseurl);
 		}
 		else {
 			# The trailing question mark tries to avoid broken

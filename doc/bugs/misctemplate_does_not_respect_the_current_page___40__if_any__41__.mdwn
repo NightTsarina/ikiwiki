@@ -34,9 +34,10 @@ But it causes some nasty bugs for plugins that use the pagetemplate hook. It is 
 * -> Problem: the sidebar now shows the foo link (it is the root sidebar!)
 * -> Was expecte : the sidebar displays "world"
 
-> One could argue that the behavior here is right, or wrong. 
-> Is a page edit page really the same as the page being edited?
-> The next case is more clear.. --[[Joey]]
+> I think it's a misconception to think that the page editing page is the same
+> as the page it's editing. If you were deleting that page, would you expect
+> the "are you sure" confirmation page to display the page's sidebar?
+> --[[Joey]]
 
 ### A last example
 
@@ -46,7 +47,12 @@ But it causes some nasty bugs for plugins that use the pagetemplate hook. It is 
 * -> Problem: the sidebar still displays the foo link
 * -> Was expected: the sidebar display "goodby"
 
-> I think this is worth fixing. --[[Joey]]
+> In the specific case of previewing, it is indeed a bug that the
+> right sidebar is not displayed. And replacing the regular sidebar 
+> with the one from the previewed page is probably the best we can do..
+> displaying 2 sidebars would be confusing, and the `page.tmpl` can
+> put the sidebar anywhere so we can't just display the preview sidebar
+> next to the rest of the page preview. --[[Joey]]
 
 ## Some superficial hacking
 
@@ -63,5 +69,6 @@ I do not guarantee (I do not even expect) that it is the proper way to solve
 this bug but it may help developers to find and solve the real problem. 
 
 > Oh, it's pretty reasonable. I don't think it breaks anything. :)
+> I modified it a bit, and explicitly made it *not* "fix" the second example.
 > [[done]]
 > --[[Joey]] 
