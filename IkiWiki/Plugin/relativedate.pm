@@ -49,10 +49,13 @@ sub mydisplaytime ($;$$) {
 	my $pubdate=shift;
 
 	# This needs to be in a form that can be parsed by javascript.
-	# Being fairly human readable is also nice, as it will be exposed
-	# as the title if javascript is not available.
+	# (Being fairly human readable is also nice, as it will be exposed
+	# as the title if javascript is not available.)
+	my $lc_time=POSIX::setlocale(&POSIX::LC_TIME);
+	POSIX::setlocale(&POSIX::LC_TIME, "C");
 	my $gmtime=decode_utf8(POSIX::strftime("%a, %d %b %Y %H:%M:%S %z",
 			localtime($time)));
+	POSIX::setlocale(&POSIX::LC_TIME, $lc_time);
 
 	my $mid=' class="relativedate" title="'.$gmtime.'">'.
 		IkiWiki::formattime($time, $format);
