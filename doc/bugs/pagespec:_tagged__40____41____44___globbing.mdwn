@@ -14,3 +14,16 @@ I did not yet do any testing to figure out when this broke.
 > 
 > This could be as simple as you having not rebuilt the wiki 
 > on upgrade to the version that tracks tagged links. --[[Joey]]
+
+>> Yes, it is a globbing issue:
+
+>>     \[[!map pages="tagged(open_i*ue_gdb)" show=title]]
+
+>> ... doesn't show anything.
+
+>>     \[[!map pages="tagged(open_issue_gdb)" show=title]]
+
+>> ... does show a map of eight pages.  Also, it's working fine on the
+>> autotags pages.
+
+>> --[[tschwinge]]
