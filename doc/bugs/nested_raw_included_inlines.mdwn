@@ -32,3 +32,20 @@ Am I missing something? Is this a bug or Ikiwiki not supposed to support this us
 > currently merges pagespecs, though - maybe the patches I suggested for
 > [[separating_and_uniquifying_pagespecs|todo/should_optimise_pagespecs]]
 > would help? --[[smcv]]
+
+>> That, or something seems to have helped in the meantime...
+>> Actually, I think it was the [[transitive_dependencies]] support
+>> that did it, though smcv's pagespec stuff was also a crucial improvement.
+>> 
+>> Anyhoo:
+
+	joey@gnu:~/tmp>touch testcase/page2.mdwn 
+	joey@gnu:~/tmp>ikiwiki -v testcase html 
+	refreshing wiki..
+	scanning page2.mdwn
+	building page2.mdwn
+	building page1.mdwn, which depends on page2
+	building page0.mdwn, which depends on page1
+	done
+
+>> I happily think this is [[done]] --[[Joey]]
