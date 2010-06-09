@@ -158,7 +158,8 @@ sub preprocess (@) {
 			writefile($fn, $config{destdir}, $png, 1);
 		}
 		else {
-			# can't write the file, so embed it in a data uri
+			# in preview mode, embed the image in a data uri
+			# to avoid temp file clutter
 			eval q{use MIME::Base64};
 		        error($@) if $@;
 			return "<img src=\"data:image/png;base64,".

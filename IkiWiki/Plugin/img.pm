@@ -121,7 +121,8 @@ sub preprocess (@) {
 				$r = $im->Resize(geometry => "${w}x${h}");
 				error sprintf(gettext("failed to resize: %s"), $r) if $r;
 
-				# don't actually write file in preview mode
+				# don't actually write resized file in preview mode;
+				# rely on width and height settings
 				if (! $params{preview}) {
 					my @blob = $im->ImageToBlob();
 					writefile($imglink, $config{destdir}, $blob[0], 1);
