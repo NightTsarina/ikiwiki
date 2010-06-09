@@ -115,9 +115,6 @@ sub preprocess (@) {
 				$im = Image::Magick->new;
 				$r = $im->Read($outfile);
 				error sprintf(gettext("failed to read %s: %s"), $outfile, $r) if $r;
-		
-				$dwidth = $im->Get("width");
-				$dheight = $im->Get("height");
 			}
 			else {
 				($dwidth, $dheight)=($w, $h);
@@ -133,6 +130,9 @@ sub preprocess (@) {
 					$imglink = $file;
 				}
 			}
+			
+			$dwidth = $im->Get("width") unless defined $dwidth;
+			$dheight = $im->Get("height") unless defined $dheight;
 		}
 	}
 	else {
