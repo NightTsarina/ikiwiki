@@ -191,6 +191,15 @@ intentional?  Otherwise I could supply a patch.
 >> That'd be reasonable, but `git log` will also show merges that are not
 >> conflicting (as in my case).
 
+>>> Actually when displaying a merge, `git log --stat` only lists files that
+>>> were actually modified in a new way as part of the merge resolution.
+>>> Ie, if the merge resolution only joins together some of the parent
+>>> hunks, the file is not listed as having been modified.
+>>>
+>>> So, no, ikiwiki's use of git log will not show files modified in
+>>> non-conflicting merges.
+>>> --[[Joey]]
+
 >> Yet, I'm not totally disagreeing with your choice.  With this `git
 >> log` invocation, you're not able to tell from its output whether a
 >> conflict was resolved or not.
