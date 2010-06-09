@@ -2397,18 +2397,20 @@ sub match_link ($$;@) {
 		unless $links && @{$links};
 	my $bestlink = IkiWiki::bestlink($from, $link);
 	foreach my $p (@{$links}) {
+		next unless (! defined $linktype || exists $IkiWiki::typedlinks{$page}{$linktype}{$p});
+
 		if (length $bestlink) {
-			if ((!defined $linktype || exists $IkiWiki::typedlinks{$page}{$linktype}{$p}) && $bestlink eq IkiWiki::bestlink($page, $p)) {
+			if ($bestlink eq IkiWiki::bestlink($page, $p)) {
 				return IkiWiki::SuccessReason->new("$page links to $link$qualifier", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 			}
 		}
 		else {
-			if ((!defined $linktype || exists $IkiWiki::typedlinks{$page}{$linktype}{$p}) && match_glob($p, $link, %params)) {
+			if (match_glob($p, $link, %params)) {
 				return IkiWiki::SuccessReason->new("$page links to page $p$qualifier, matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 			}
 			my ($p_rel)=$p=~/^\/?(.*)/;
 			$link=~s/^\///;
-			if ((!defined $linktype || exists $IkiWiki::typedlinks{$page}{$linktype}{$p_rel}) && match_glob($p_rel, $link, %params)) {
+			if (match_glob($p_rel, $link, %params)) {
 				return IkiWiki::SuccessReason->new("$page links to page $p_rel$qualifier, matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 			}
 		}
