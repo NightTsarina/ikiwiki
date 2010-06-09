@@ -433,7 +433,8 @@ sub editcomment ($$) {
 
 	$content .= " date=\"" . decode_utf8(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime)) . "\"\n";
 
-	my $editcontent = $form->field('editcontent') || '';
+	my $editcontent = $form->field('editcontent');
+	$editcontent="" if ! defined $editcontent;
 	$editcontent =~ s/\r\n/\n/g;
 	$editcontent =~ s/\r/\n/g;
 	$editcontent =~ s/"/\\"/g;
