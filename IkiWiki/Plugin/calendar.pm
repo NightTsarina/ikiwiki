@@ -123,6 +123,7 @@ sub format_month (@) {
 	}
 
 	# Find out month names for this, next, and previous months
+	my $monthabbrev=POSIX::strftime("%b", @monthstart);
 	my $monthname=POSIX::strftime("%B", @monthstart);
 	my $pmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$pmonth-1,$pyear-1900)));
 	my $nmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$nmonth-1,$nyear-1900)));
@@ -137,7 +138,7 @@ sub format_month (@) {
 		$url = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$params{year}/".$params{month},
 			noimageinline => 1,
-			linktext => "$monthname $params{year}",
+			linktext => "$monthabbrev $params{year}",
 			title => $monthname);
 	}
 	add_depends($params{page}, "$archivebase/$params{year}/$params{month}",
@@ -182,7 +183,7 @@ EOF
 	for my $dow ($week_start_day..$week_start_day+6) {
 		my @day=localtime(timelocal(0,0,0,$start_day++,$params{month}-1,$params{year}-1900));
 		my $downame = POSIX::strftime("%A", @day);
-		my $dowabbr = POSIX::strftime("%a", @day);
+		my $dowabbr = substr($downame, 0, 1);
 		$downame{$dow % 7}=$downame;
 		$dowabbr{$dow % 7}=$dowabbr;
 		$calendar.= qq{\t\t<th class="month-calendar-day-head $downame" title="$downame">$dowabbr</th>\n};
