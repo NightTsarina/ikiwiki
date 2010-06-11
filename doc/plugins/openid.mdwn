@@ -13,3 +13,19 @@ to support users entering "https" OpenID urls.
 
 This plugin is enabled by default, but can be turned off if you want to
 only use some other form of authentication, such as [[passwordauth]].
+
+## options
+
+These options do not normally need to be set, but can be useful in
+certian setups.
+
+* `openid_realm` can be used to control the scope of the openid request.
+  It defaults to the `cgiurl` (or `openid_cgiurl` if set); only allowing
+  ikiwiki's [[CGI]] to authenticate. If you have multiple ikiwiki instances,
+  or other things using openid on the same site, you may choose to put them
+  all in the same realm to improve the user's openid experience.
+
+* `openid_cgiurl` can be used to cause a different than usual `cgiurl`
+  to be used when doing openid authentication. The `openid_cgiurl` must
+  point to an ikiwiki [[CGI]], and it will need to match the `openid_realm`
+  to work.

@@ -40,6 +40,18 @@ sub getsetup () {
 			rebuild => 0,
 			section => "auth",
 		},
+		openid_realm => {
+			type => "string",
+			description => "url of openid realm (default is cgiurl)",
+			safe => 0,
+			rebuild => 0,
+		},
+		openid_cgiurl => {
+			type => "string",
+			description => "url to ikiwiki cgi to use for openid authentication (default is cgiurl)",
+			safe => 0,
+			rebuild => 0,
+		},
 }
 
 sub openid_selector {
@@ -135,9 +147,15 @@ sub validate ($$$;$) {
 		);
 	}
 
+	my $cgiurl=$config{openid_cgiurl};
+	$cgiurl=$config{cgiurl} if ! defined $cgiurl;
+
+	my $trust_root=$config{openid_realm};
+	$trust_root=$cgiurl if ! defined $trust_root;
+
 	my $check_url = $claimed_identity->check_url(
-		return_to => IkiWiki::cgiurl(do => "postsignin"),
-		trust_root => $config{cgiurl},
+		return_to => "$cgiurl?do=postsignin",
+		trust_root => $trust_root,
 		delayed_return => 1,
 	);
 	# Redirect the user to the OpenID server, which will
@@ -220,12 +238,15 @@ sub getobj ($$) {
 		$secret=rand;
 		$session->param(openid_secret => $secret);
 	}
+	
+	my $cgiurl=$config{openid_cgiurl};
+	$cgiurl=$config{cgiurl} if ! defined $cgiurl;
 
 	return Net::OpenID::Consumer->new(
 		ua => $ua,
 		args => $q,
 		consumer_secret => sub { return shift()+$secret },
-		required_root => $config{cgiurl},
+		required_root => $cgiurl,
 	);
 }
 
