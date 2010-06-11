@@ -42,7 +42,7 @@ sub getsetup () {
 		},
 		openid_realm => {
 			type => "string",
-			description => "url of openid realm (default is cgiurl)",
+			description => "url pattern of openid realm (default is cgiurl)",
 			safe => 0,
 			rebuild => 0,
 		},
