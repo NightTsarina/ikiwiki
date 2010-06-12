@@ -225,8 +225,7 @@ sub attachment_list ($) {
 	my @ret;
 	foreach my $f (values %pagesources) {
 		if (! defined pagetype($f) &&
-		    $f=~m/^\Q$loc\E[^\/]+$/ &&
-		    -e "$config{srcdir}/$f") {
+		    $f=~m/^\Q$loc\E[^\/]+$/) {
 			push @ret, {
 				"field-select" => '<input type="checkbox" name="attachment_select" value="'.$f.'" />',
 				link => htmllink($page, $page, $f, noimageinline => 1),
