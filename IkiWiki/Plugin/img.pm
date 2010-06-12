@@ -156,14 +156,18 @@ sub preprocess (@) {
 		$imgurl="$config{url}/$imglink";
 	}
 
+	my $attrs='';
+	foreach my $attr (qw{alt title class id hspace vspace}) {
+		if (exists $params{$attr}) {
+			$attrs.=" $attr=\"$params{$attr}\"";
+		}
+	}
+	
 	my $imgtag='<img src="'.$imgurl.
 		'" width="'.$dwidth.
 		'" height="'.$dheight.'"'.
-		(exists $params{alt} ? ' alt="'.$params{alt}.'"' : '').
-		(exists $params{title} ? ' title="'.$params{title}.'"' : '').
-		(exists $params{class} ? ' class="'.$params{class}.'"' : '').
+		$attrs.
 		(exists $params{align} && ! exists $params{caption} ? ' align="'.$params{align}.'"' : '').
-		(exists $params{id} ? ' id="'.$params{id}.'"' : '').
 		' />';
 
 	my $link;
