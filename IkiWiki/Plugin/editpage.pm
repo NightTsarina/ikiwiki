@@ -64,7 +64,7 @@ sub cgi_editpage ($$) {
 
 	decode_cgi_utf8($q);
 
-	my @fields=qw(do rcsinfo subpage from page type editcontent comments);
+	my @fields=qw(do rcsinfo subpage from page type editcontent editmessage);
 	my @buttons=("Save Page", "Preview", "Cancel");
 	eval q{use CGI::FormBuilder};
 	error($@) if $@;
@@ -144,7 +144,7 @@ sub cgi_editpage ($$) {
 	$form->field(name => "subpage", type => 'hidden');
 	$form->field(name => "page", value => $page, force => 1);
 	$form->field(name => "type", value => $type, force => 1);
-	$form->field(name => "comments", type => "text", size => 80);
+	$form->field(name => "editmessage", type => "text", size => 80);
 	$form->field(name => "editcontent", type => "textarea", rows => 20,
 		cols => 80);
 	$form->tmpl_param("can_commit", $config{rcs});
@@ -353,9 +353,9 @@ sub cgi_editpage ($$) {
 		}
 			
 		my $message="";
-		if (defined $form->field('comments') &&
-		    length $form->field('comments')) {
-			$message=$form->field('comments');
+		if (defined $form->field('editmessage') &&
+		    length $form->field('editmessage')) {
+			$message=$form->field('editmessage');
 		}
 		
 		my $content=$form->field('editcontent');
