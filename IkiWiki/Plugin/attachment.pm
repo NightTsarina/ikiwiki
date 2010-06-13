@@ -195,7 +195,14 @@ sub formbuilder (@) {
 		foreach my $f ($q->param("attachment_select")) {
 			$f=Encode::decode_utf8($f);
 			$f=~s/^$page\///;
-			$add.="[[$f]]\n";
+			if (IkiWiki::isinlinableimage($f) &&
+			    UNIVERSAL::can("IkiWiki::Plugin::img", "import")) {
+				$add.='[[!img '.$f.' align="right" size="" alt=""]]';
+			}
+			else {
+				$add.="[[$f]]";
+			}
+			$add.="\n";
 		}
 		$form->field(name => 'editcontent',
 			value => $form->field('editcontent')."\n\n".$add,
