@@ -22,18 +22,20 @@ easy to learn. All you really need to know to modify templates is this:
 The template directive allows wiki pages to be used as templates,
 filled out and inserted into other pages in the wiki.
 """]]
-[[!if test="enabled(template) and enabled(inline)" then="""
-[[!inline pages="templates/* and !*.tmpl and !*/discussion"
-feeds=no archive=yes sort=title template=titlepage
-rootpage=templates postformtext="Add a new template named:"]]
-"""]]
 
 [[!if test="enabled(edittemplate)" then="""
-## edit templates
+## default content for new pages
 
 The edittemplate directive can be used to make new pages default to
-containing text from a template, which can be filled as out the page is
+containing text from a template page, which can be filled as out the page is
 edited.
+"""]]
+
+[[!if test="(enabled(template) or enabled(edittemplate)
+and enabled(inline)" then="""
+[[!inline pages="templates/* and !*.tmpl and !templates/*/* and !*/discussion"
+feeds=no archive=yes sort=title template=titlepage
+rootpage=templates postformtext="Add a new template named:"]]
 """]]
 
 ## wiki templates

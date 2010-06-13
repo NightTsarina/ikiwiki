@@ -56,10 +56,15 @@ sub preprocess (@) {
 	}
 
 	my $link=linkpage($params{template});
+	add_depends($params{page}, $link, deptype("presence"));
 	my $bestlink=bestlink($params{page}, $link);
+	if (! length $bestlink) {
+		add_depends($params{page}, "templates/$link", deptype("presence"));
+		$link="/templates/".$link;
+		$bestlink=bestlink($params{page}, $link);
+	}
 	$pagestate{$params{page}}{edittemplate}{$params{match}}=$bestlink;
 
-	add_depends($params{page}, $link, deptype("presence"));
 	return "" if ($params{silent} && IkiWiki::yesno($params{silent})) &&
 		length $bestlink;
 	return sprintf(gettext("edittemplate %s registered for %s"),
