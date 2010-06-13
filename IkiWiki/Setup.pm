@@ -123,7 +123,7 @@ sub getsetup () {
 	# Load all plugins, so that all setup options are available.
 	my @plugins=IkiWiki::listplugins();
 	foreach my $plugin (@plugins) {
-		eval { IkiWiki::loadplugin($plugin) };
+		eval { IkiWiki::loadplugin($plugin, 1) };
 		if (exists $IkiWiki::hooks{checkconfig}{$plugin}{call}) {
 			my @s=eval { $IkiWiki::hooks{checkconfig}{$plugin}{call}->() };
 		}

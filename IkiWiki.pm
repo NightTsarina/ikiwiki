@@ -592,10 +592,11 @@ sub loadplugins () {
 	return 1;
 }
 
-sub loadplugin ($) {
+sub loadplugin ($;$) {
 	my $plugin=shift;
+	my $force=shift;
 
-	return if grep { $_ eq $plugin} @{$config{disable_plugins}};
+	return if ! $force && grep { $_ eq $plugin} @{$config{disable_plugins}};
 
 	foreach my $dir (defined $config{libdir} ? possibly_foolish_untaint($config{libdir}) : undef,
 	                 "$installdir/lib/ikiwiki") {
