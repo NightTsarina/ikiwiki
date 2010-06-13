@@ -39,7 +39,7 @@ sub preprocess (@) {
 		}
 	}
 
-	if (! exists $params{size}) {
+	if (! exists $params{size} || ! length $params{size}) {
 		$params{size}='full';
 	}
 
