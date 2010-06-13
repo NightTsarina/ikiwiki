@@ -253,12 +253,8 @@ sub enable_plugin ($) {
 sub disable_plugin ($) {
 	my $plugin=shift;
 
-	if (grep { $_ eq $plugin } @{$config{add_plugins}}) {
-		$config{add_plugins}=[grep { $_ ne $plugin } @{$config{add_plugins}}];
-	}
-	else {
-		push @{$config{disable_plugins}}, $plugin;
-	}
+	$config{add_plugins}=[grep { $_ ne $plugin } @{$config{add_plugins}}];
+	push @{$config{disable_plugins}}, $plugin;
 }
 
 sub showform ($$) {
