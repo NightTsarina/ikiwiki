@@ -537,7 +537,7 @@ sub editcomment ($$) {
 	}
 	else {
 		IkiWiki::showform ($form, \@buttons, $session, $cgi,
-			forcebaseurl => $baseurl);
+			forcebaseurl => $baseurl, page => $page);
 	}
 
 	exit;

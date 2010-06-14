@@ -313,9 +313,7 @@ sub cgi_editpage ($$) {
 		}
 		
 		showform($form, \@buttons, $session, $q,
-			forcebaseurl => $baseurl,
-			($previewing ? (page => $page) : ()),
-		);
+			forcebaseurl => $baseurl, page => $page);
 	}
 	else {
 		# save page
@@ -333,7 +331,7 @@ sub cgi_editpage ($$) {
 			$form->field(name => "type", type => 'hidden');
 			$form->title(sprintf(gettext("editing %s"), $page));
 			showform($form, \@buttons, $session, $q,
-				forcebaseurl => $baseurl);
+				forcebaseurl => $baseurl, page => $page);
 			exit;
 		}
 		elsif ($form->field("do") eq "create" && $exists) {
@@ -348,7 +346,7 @@ sub cgi_editpage ($$) {
 				         "\n\n\n".$form->field("editcontent"),
 				force => 1);
 			showform($form, \@buttons, $session, $q,
-				forcebaseurl => $baseurl);
+				forcebaseurl => $baseurl, page => $page);
 			exit;
 		}
 			
@@ -389,7 +387,7 @@ sub cgi_editpage ($$) {
 			$form->field(name => "type", type => 'hidden');
 			$form->title(sprintf(gettext("editing %s"), $page));
 			showform($form, \@buttons, $session, $q,
-				forcebaseurl => $baseurl);
+				forcebaseurl => $baseurl, page => $page);
 			exit;
 		}
 		
@@ -428,7 +426,7 @@ sub cgi_editpage ($$) {
 			$form->field(name => "type", type => 'hidden');
 			$form->title(sprintf(gettext("editing %s"), $page));
 			showform($form, \@buttons, $session, $q,
-				forcebaseurl => $baseurl);
+				forcebaseurl => $baseurl, page => $page);
 		}
 		else {
 			# The trailing question mark tries to avoid broken
