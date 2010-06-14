@@ -19,16 +19,17 @@ easy to learn. All you really need to know to modify templates is this:
 [[!if test="enabled(template)" then="""
 ## template pages
 
-The template directive allows wiki pages to be used as templates,
-filled out and inserted into other pages in the wiki.
+The [[!iki ikiwiki/directive/template desc="template directive"]] allows
+wiki pages to be used as templates, filled out and inserted into other
+pages in the wiki.
 """]]
 
 [[!if test="enabled(edittemplate)" then="""
 ## default content for new pages
 
-The edittemplate directive can be used to make new pages default to
-containing text from a template page, which can be filled as out the page is
-edited.
+The [[!iki ikiwiki/directive/template desc="edittemplate directive"]] can
+be used to make new pages default to containing text from a template
+page, which can be filled as out the page is edited.
 """]]
 
 [[!if test="(enabled(template) or enabled(edittemplate))
@@ -45,8 +46,8 @@ html out of ikiwiki and in the templates.
 
 * `page.tmpl` - Used for displaying all regular wiki pages. This is the
   key template to customise. [[!if test="enabled(pagetemplate)" then="""
-  (The pagetemplate directive can be used to make a page use a
-  different template than `page.tmpl`.)"""]]
+  (The [[!iki ikiwiki/directive/template desc="pagetemplate directive"]]
+  can be used to make a page use a different template than `page.tmpl`.)"""]]
 * `rsspage.tmpl` - Used for generating rss feeds for blogs.
 * `rssitem.tmpl` - Used for generating individual items on rss feeds.
 * `atompage.tmpl` - Used for generating atom feeds for blogs.
