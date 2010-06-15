@@ -49,7 +49,7 @@ sub getsetup () {
 		},
 		archive_pagespec => {
 			type => "pagespec",
-			example => "posts/* and !*/Discussion",
+			example => "page(posts/*) and !*/Discussion",
 			description => "PageSpec of pages to include in the archives; used by ikiwiki-calendar command",
 			link => 'ikiwiki/PageSpec',
 			safe => 1,
