@@ -292,11 +292,16 @@ sub find_src_files () {
 	eval q{use File::Find};
 	error($@) if $@;
 
+	eval q{use Cwd};
+	die $@ if $@;
+	my $origdir=getcwd();
+	my $abssrcdir=Cwd::abs_path($config{srcdir});
+
 	my ($page, $underlay);
 	my $helper=sub {
 		my $file=decode_utf8($_);
 		return if -l $file || -d _;
-		$file=~s/^\Q.\/\E//;
+		$file=~s/^\.\///;
 		return if ! length $file;
 		$page = pagename($file);
 		if (! exists $pagesources{$page} &&
@@ -313,7 +318,7 @@ sub find_src_files () {
 	
 		if ($underlay) {
 			# avoid underlaydir override attacks; see security.mdwn
-			if (! -l "$config{srcdir}/$f" && ! -e _) {
+			if (! -l "$abssrcdir/$f" && ! -e _) {
 				if (! $pages{$page}) {
 					push @files, $f;
 					$pages{$page}=1;
@@ -328,10 +333,6 @@ sub find_src_files () {
 			$pages{$page}=1;
 		}
 	};
-
-	eval q{use Cwd};
-	die $@ if $@;
-	my $origdir=getcwd();
 
 	chdir($config{srcdir}) || die "chdir: $!";
 	find({

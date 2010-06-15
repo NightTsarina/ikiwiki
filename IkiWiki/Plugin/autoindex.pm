@@ -33,18 +33,19 @@ sub genindex ($) {
 sub refresh () {
 	eval q{use File::Find};
 	error($@) if $@;
+	eval q{use Cwd};
+	error($@) if $@;
+	my $origdir=getcwd();
 
 	my (%pages, %dirs);
 	foreach my $dir ($config{srcdir}, @{$config{underlaydirs}}, $config{underlaydir}) {
-		require File::Spec;
-		$dir=File::Spec->canonpath($dir);
+		chdir($dir) || die "chdir: $!";
 
 		find({
 			no_chdir => 1,
 			wanted => sub {
-				my $file=File::Spec->canonpath(decode_utf8($_));
-				return if $file eq $dir;
-				$file=~s/^\Q$dir\E\/?//;
+				my $file=decode_utf8($_);
+				$file=~s/^\.\/?//;
 				return unless length $file;
 				if (IkiWiki::file_pruned($file)) {
 					$File::Find::prune=1;
@@ -61,7 +62,9 @@ sub refresh () {
 					}
 				}
 			}
-		}, $dir);
+		}, '.');
+
+		chdir($origdir) || die "chdir: $!";
 	}
 	
 	my %deleted;

@@ -660,16 +660,22 @@ sub comments_pending () {
 
 	eval q{use File::Find};
 	error($@) if $@;
+	eval q{use Cwd};
+	error($@) if $@;
+	my $origdir=getcwd();
 
 	my $find_comments=sub {
 		my $dir=shift;
 		my $extension=shift;
 		return unless -d $dir;
+
+		chdir($dir) || die "chdir: $!";
+
 		find({
 			no_chdir => 1,
 			wanted => sub {
 				my $file=decode_utf8($_);
-				$file=~s/^\Q$dir\E\/?//;
+				$file=~s/^\.\///;
 				return if ! length $file || IkiWiki::file_pruned($file)
 					|| -l $_ || -d _ || $file !~ /\Q$extension\E$/;
 				my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
@@ -678,7 +684,9 @@ sub comments_pending () {
 					push @ret, [$f, $dir, $ctime];
 				}
 			}
-		}, $dir);
+		}, ".");
+
+		chdir($origdir) || die "chdir: $!";
 	};
 	
 	$find_comments->($config{srcdir}, "._comment_pending");
