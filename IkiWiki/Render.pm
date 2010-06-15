@@ -292,12 +292,11 @@ sub find_src_files () {
 	eval q{use File::Find};
 	error($@) if $@;
 
-	my ($page, $dir, $underlay);
+	my ($page, $underlay);
 	my $helper=sub {
 		my $file=decode_utf8($_);
-
 		return if -l $file || -d _;
-		$file=~s/^\Q$dir\E\/?//;
+		$file=~s/^\Q.\/\E//;
 		return if ! length $file;
 		$page = pagename($file);
 		if (! exists $pagesources{$page} &&
@@ -330,17 +329,27 @@ sub find_src_files () {
 		}
 	};
 
+	eval q{use Cwd};
+	die $@ if $@;
+	my $origdir=getcwd();
+
+	chdir($config{srcdir}) || die "chdir: $!";
 	find({
 		no_chdir => 1,
 		wanted => $helper,
-	}, $dir=$config{srcdir});
+	}, '.');
+	chdir($origdir) || die "chdir: $!";
+
 	$underlay=1;
 	foreach (@{$config{underlaydirs}}, $config{underlaydir}) {
+		chdir($_) || die "chdir: $!";
 		find({
 			no_chdir => 1,
 			wanted => $helper,
-		}, $dir=$_);
+		}, '.');
+		chdir($origdir) || die "chdir: $!";
 	};
+
 	return \@files, \%pages;
 }
 
