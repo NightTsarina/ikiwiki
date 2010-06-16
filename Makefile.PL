@@ -75,6 +75,7 @@ underlay_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive
 	for file in doc/ikiwiki/directive/*; do \
 		if [ -f "$$file" ]; then \
+			cp -aL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive 2>/dev/null || \
 			install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive; \
 		fi \
 	done
@@ -86,6 +87,7 @@ underlay_install:
 			if echo "$$file" | grep -q style.css; then \
 				(cat doc/style.css; cat $$file) >> $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme/style.css; \
 			elif [ -f "$$file" ]; then \
+				cp -aL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file 2>/dev/null || \
 				install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file; \
 			fi \
 		done; \
