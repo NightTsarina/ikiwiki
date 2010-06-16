@@ -1,0 +1,19 @@
+It seems as if windows clients (IE) submit filenames with backslash as directory separator.
+(no surprise :-).
+
+But the attachment plugin translates these backslashes to underscore, making the
+whole path a filename.
+
+This little hack fixed the backslash problem, although I wonder if that
+really is the problem?
+(Everything works perfectly from linux clients of course. :-)
+
+	sub basename ($) {
+		my $file=shift;
+
+		$file=~s!.*/+!!;
+		$file=~s!.*\\+!!;
+		return $file;
+	}
+
+Should probably be `$file=~s!.*[/\\]+!!` :-)
