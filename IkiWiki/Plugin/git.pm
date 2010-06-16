@@ -280,11 +280,35 @@ sub merge_past ($$$) {
 	return $conflict;
 }
 
-sub parse_diff_tree ($@) {
+{
+my $prefix;
+sub decode_git_file ($) {
+	my $file=shift;
+
+	# git does not output utf-8 filenames, but instead
+	# double-quotes them with the utf-8 characters
+	# escaped as \nnn\nnn.
+	if ($file =~ m/^"(.*)"$/) {
+		($file=$1) =~ s/\\([0-7]{1,3})/chr(oct($1))/eg;
+	}
+
+	# strip prefix if in a subdir
+	if (! defined $prefix) {
+		$prefix = run_or_die('git', 'rev-parse', '--show-prefix');
+		if (! defined $prefix) {
+			$prefix="";
+		}
+	}
+	$file =~ s/^\Q$prefix\E//;
+
+	return decode("utf8", $file);
+}
+}
+
+sub parse_diff_tree ($) {
 	# Parse the raw diff tree chunk and return the info hash.
 	# See git-diff-tree(1) for the syntax.
-
-	my ($prefix, $dt_ref) = @_;
+	my $dt_ref = shift;
 
 	# End of stream?
 	return if !defined @{ $dt_ref } ||
@@ -367,16 +391,9 @@ sub parse_diff_tree ($@) {
 			my $sha1_to = shift(@tmp);
 			my $status = shift(@tmp);
 
-			# git does not output utf-8 filenames, but instead
-			# double-quotes them with the utf-8 characters
-			# escaped as \nnn\nnn.
-			if ($file =~ m/^"(.*)"$/) {
-				($file=$1) =~ s/\\([0-7]{1,3})/chr(oct($1))/eg;
-			}
-			$file =~ s/^\Q$prefix\E//;
 			if (length $file) {
 				push @{ $ci{'details'} }, {
-					'file'      => decode("utf8", $file),
+					'file'      => decode_git_file($file),
 					'sha1_from' => $sha1_from[0],
 					'sha1_to'   => $sha1_to,
 					'mode_from' => $mode_from[0],
@@ -403,10 +420,9 @@ sub git_commit_info ($;$) {
 	my @raw_lines = run_or_die('git', 'log', @opts,
 		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
 		'-r', $sha1, '--', '.');
-	my ($prefix) = run_or_die('git', 'rev-parse', '--show-prefix');
 
 	my @ci;
-	while (my $parsed = parse_diff_tree(($prefix or ""), \@raw_lines)) {
+	while (my $parsed = parse_diff_tree(\@raw_lines)) {
 		push @ci, $parsed;
 	}
 
@@ -638,10 +654,12 @@ sub findtimes ($$) {
 				$date=undef;
 			}
 			else {
-				if (! $time_cache{$line}) {
-					$time_cache{$line}[0]=$date; # mtime
+				my $f=decode_git_file($line);
+
+				if (! $time_cache{$f}) {
+					$time_cache{$f}[0]=$date; # mtime
 				}
-				$time_cache{$line}[1]=$date; # ctime
+				$time_cache{$f}[1]=$date; # ctime
 			}
 		}
 	}
