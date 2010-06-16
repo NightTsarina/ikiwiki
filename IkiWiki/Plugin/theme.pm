@@ -22,7 +22,7 @@ sub getsetup () {
 			example => "actiontabs",
 			description => "name of theme to enable",
 			safe => 1,
-			rebuild => 0,
+			rebuild => 1,
 		},
 }
 
