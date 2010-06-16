@@ -300,6 +300,7 @@ sub find_src_files () {
 	my ($page, $underlay);
 	my $helper=sub {
 		my $file=decode_utf8($_);
+
 		return if -l $file || -d _;
 		$file=~s/^\.\///;
 		return if ! length $file;
@@ -363,6 +364,35 @@ sub find_new_files ($) {
 
 	foreach my $file (@$files) {
 		my $page=pagename($file);
+
+		if ($config{rcs} && $config{gettime} &&
+		    -e "$config{srcdir}/$file") {
+			if (! $times_noted) {
+				debug(sprintf(gettext("querying %s for file creation and modification times.."), $config{rcs}));
+				$times_noted=1;
+			}
+
+			eval {
+				my $ctime=rcs_getctime("$config{srcdir}/$file");
+				if ($ctime > 0) {
+					$pagectime{$page}=$ctime;
+				}
+			};
+			if ($@) {
+				print STDERR $@;
+			}
+			my $mtime;
+			eval {
+				$mtime=rcs_getmtime("$config{srcdir}/$file");
+			};
+			if ($@) {
+				print STDERR $@;
+			}
+			elsif ($mtime > 0) {
+				utime($mtime, $mtime, "$config{srcdir}/$file");
+			}
+		}
+
 		if (exists $pagesources{$page} && $pagesources{$page} ne $file) {
 			# the page has changed its type
 			$forcerebuild{$page}=1;
@@ -372,34 +402,8 @@ sub find_new_files ($) {
 			if (isinternal($page)) {
 				push @internal_new, $file;
 			}
-			elsif ($config{rcs}) {
+			else {
 				push @new, $file;
-				if ($config{gettime} && -e "$config{srcdir}/$file") {
-					if (! $times_noted) {
-						debug(sprintf(gettext("querying %s for file creation and modification times.."), $config{rcs}));
-						$times_noted=1;
-					}
-
-					eval {
-						my $ctime=rcs_getctime("$config{srcdir}/$file");
-						if ($ctime > 0) {
-							$pagectime{$page}=$ctime;
-						}
-					};
-					if ($@) {
-						print STDERR $@;
-					}
-					my $mtime;
-					eval {
-						$mtime=rcs_getmtime("$config{srcdir}/$file");
-					};
-					if ($@) {
-						print STDERR $@;
-					}
-					elsif ($mtime > 0) {
-						utime($mtime, $mtime, "$config{srcdir}/$file");
-					}
-				}
 			}
 			$pagecase{lc $page}=$page;
 			if (! exists $pagectime{$page}) {
