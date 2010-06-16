@@ -2,7 +2,7 @@
  *
  *    Copyright (C) 2010 Bernd Zeimetz
  *       Licensed under same license as ikiwiki: GPL v2 or later
- *       
+ *
  *     Parts of this file are based on the awesome YUI,
  *     these parts will stay under the BSD license,
  *     but you're free to apply the GPLv2 to them, of course.
@@ -17,9 +17,9 @@ Code licensed under the BSD License:
 http://developer.yahoo.net/yui/license.txt
 version: 2.5.1
 */
-body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,textarea,p,blockquote,th,td{margin:0;padding:0;}
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,legend,p,blockquote,th,td{margin:0;padding:0;}
 table{border-collapse:collapse;border-spacing:0;}
-fieldset,img{border:0;}
+img{border:0;}
 address,caption,cite,code,dfn,em,strong,th,var{font-style:normal;font-weight:normal;}
 li{list-style:none;}
 caption,th{text-align:left;}
@@ -64,15 +64,15 @@ body{text-align:left;}
 */
 h1 {
 	/*18px via YUI Fonts CSS foundation*/
-	font-size:138.5%;  
+	font-size:138.5%;
 }
 h2 {
 	/*16px via YUI Fonts CSS foundation*/
-	font-size:123.1%; 
+	font-size:123.1%;
 }
 h3 {
 	/*14px via YUI Fonts CSS foundation*/
-	font-size:108%;  
+	font-size:108%;
 }
 h1,h2,h3 {
 	/* top & bottom margin based on font size */
@@ -80,13 +80,13 @@ h1,h2,h3 {
 }
 h1,h2,h3,h4,h5,h6,strong {
 	/*bringing boldness back to headers and the strong element*/
-	font-weight:bold; 
+	font-weight:bold;
 }
 abbr,acronym {
 	/*indicating to users that more info is available */
 	border-bottom:1px dotted #000;
 	cursor:help;
-} 
+}
 em {
 	/*bringing italics back to the em element*/
 	font-style:italic;
@@ -101,7 +101,7 @@ ol,ul,dl {
 }
 ol li {
 	/*giving OL's LIs generated numbers*/
-	list-style: decimal outside;	
+	list-style: decimal outside;
 }
 ul li {
 	/*giving UL's LIs generated disc markers*/
@@ -131,9 +131,8 @@ p,fieldset,table,pre {
 	/*so things don't run into each other*/
 	margin-bottom:1em;
 }
-/* setting a consistent width, 160px; 
-   control of type=file still not possible */
-input[type=text],input[type=password],textarea {
+
+#searchbox {
 	width:21.5em;*width:21em;
 }
 
@@ -150,7 +149,7 @@ input[type=text],input[type=password],textarea {
 
 html, body {
 	color:#000;
-	/* background-image: url('_images/body_background.png');
+	/* background-image: url('body_background.png');
 	background-repeat: repeat; */
 	background-color: #8da1b8;
 }
@@ -171,7 +170,7 @@ body {
 }
 
 .pageheader {
-	background-image: url('_images/header_background.png');
+	background-image: url('header_background.png');
 	background-repeat: repeat-x;
 	height: 100px;
 	padding-left: 1em;
@@ -200,7 +199,7 @@ body {
 
 .pageheader .header .title, .pageheader .header .parentlinks, .pageheader .actions ul li, .pageheader .header span {
 	padding: 0.25em 0.25em 0.25em 0.25em;
-	background-image: url('_images/background_darkness.png');
+	background-image: url('background_darkness.png');
 	background-repeat: repeat;
 	color: white;
 }
@@ -230,7 +229,6 @@ body {
 }
 
 .sidebar h2 {
-/*	border-bottom: border-bottom-width, border-bottom-style, and border-bottom-color. */
 	border-bottom: ridge #eee;
 	padding-right: 0;
 }
@@ -245,12 +243,8 @@ body {
 	margin-bottom: 2em;
 }
 
-.inlinecontent {
-	border-bottom: 1px dotted #315485;
-}
-
 .inlinefooter {
-	clear: none;
+	border-top: 1px dotted #315485;
 }
 
 .inlinefooter .pagedate, .inlinefooter .tags {
@@ -263,20 +257,8 @@ body {
 	padding: 0.22em;
 }
 
-.curriculumvitae .noprint {
-	margin-bottom: 2em;
-}
-.curriculumvitae .floatright {
-	float: right;
-	clear: none;
-}
-
-pre {
-	overflow: auto;
-}
-
 @media print {
-	.curriculumvitae .noprint, .sidebar, .page .pageheader .header .parentlinks {
+	.sidebar, .page .pageheader .header .parentlinks {
 		content:".";
 		display:block;
 		height:0;
