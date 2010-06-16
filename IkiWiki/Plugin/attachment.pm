@@ -134,9 +134,12 @@ sub formbuilder (@) {
 			}
 		}
 
+		$filename=IkiWiki::basename($filename);
+		$filename=~s/.*\\+(.+)/$1/; # hello, windows
+
 		$filename=linkpage(IkiWiki::possibly_foolish_untaint(
 				attachment_location($form->field('page')).
-				IkiWiki::basename($filename)));
+				$filename));
 		if (IkiWiki::file_pruned($filename)) {
 			error(gettext("bad attachment filename"));
 		}

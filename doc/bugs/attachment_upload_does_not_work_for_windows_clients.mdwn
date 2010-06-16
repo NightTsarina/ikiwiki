@@ -4,6 +4,13 @@ It seems as if windows clients (IE) submit filenames with backslash as directory
 But the attachment plugin translates these backslashes to underscore, making the
 whole path a filename.
 
+> As far as I can see, that just means that the file will be saved with
+> a filename something like `c:__92__My_Documents__92__somefile`.
+> I don't see any "does not work" here. Error message?
+> 
+> Still, I don't mind adding a special case, though obviously not in
+> `basename`. [[done]] --[[Joey]] 
+
 This little hack fixed the backslash problem, although I wonder if that
 really is the problem?
 (Everything works perfectly from linux clients of course. :-)
