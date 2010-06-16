@@ -78,7 +78,19 @@ underlay_install:
 			install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive; \
 		fi \
 	done
-	
+
+	# Themes have their style.css appended to the normal one.
+	for theme in themes/*; do \
+		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme; \
+		for file in $$theme/*; do \
+			if echo "$$file" | grep -q style.css; then \
+				(cat doc/style.css; cat $$file) >> $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme/style.css; \
+			elif [ -f "$$file" ]; then \
+				install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file; \
+			fi \
+		done; \
+	done
+
 extra_install: underlay_install
 	# Install example sites.
 	for dir in `cd doc/examples; find . -type d ! -regex '.*\.svn.*'`; do \
