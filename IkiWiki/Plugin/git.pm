@@ -294,7 +294,7 @@ sub decode_git_file ($) {
 
 	# strip prefix if in a subdir
 	if (! defined $prefix) {
-		$prefix = run_or_die('git', 'rev-parse', '--show-prefix');
+		($prefix) = run_or_die('git', 'rev-parse', '--show-prefix');
 		if (! defined $prefix) {
 			$prefix="";
 		}
