@@ -669,7 +669,7 @@ sub comments_pending () {
 		my $extension=shift;
 		return unless -d $dir;
 
-		chdir($dir) || die "chdir: $!";
+		chdir($dir) || die "chdir $dir: $!";
 
 		find({
 			no_chdir => 1,
@@ -686,7 +686,7 @@ sub comments_pending () {
 			}
 		}, ".");
 
-		chdir($origdir) || die "chdir: $!";
+		chdir($origdir) || die "chdir $origdir: $!";
 	};
 	
 	$find_comments->($config{srcdir}, "._comment_pending");

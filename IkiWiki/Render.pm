@@ -335,21 +335,22 @@ sub find_src_files () {
 		}
 	};
 
-	chdir($config{srcdir}) || die "chdir: $!";
+	chdir($config{srcdir}) || die "chdir $config{srcdir}: $!";
 	find({
 		no_chdir => 1,
 		wanted => $helper,
 	}, '.');
-	chdir($origdir) || die "chdir: $!";
+	chdir($origdir) || die "chdir $origdir: $!";
 
 	$underlay=1;
 	foreach (@{$config{underlaydirs}}, $config{underlaydir}) {
-		chdir($_) || die "chdir: $!";
-		find({
-			no_chdir => 1,
-			wanted => $helper,
-		}, '.');
-		chdir($origdir) || die "chdir: $!";
+		if (chdir($_)) {
+			find({
+				no_chdir => 1,
+				wanted => $helper,
+			}, '.');
+			chdir($origdir) || die "chdir: $!";
+		}
 	};
 
 	return \@files, \%pages;

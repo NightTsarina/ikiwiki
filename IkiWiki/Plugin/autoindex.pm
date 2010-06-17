@@ -39,7 +39,7 @@ sub refresh () {
 
 	my (%pages, %dirs);
 	foreach my $dir ($config{srcdir}, @{$config{underlaydirs}}, $config{underlaydir}) {
-		chdir($dir) || die "chdir: $!";
+		chdir($dir) || next;
 
 		find({
 			no_chdir => 1,
@@ -64,7 +64,7 @@ sub refresh () {
 			}
 		}, '.');
 
-		chdir($origdir) || die "chdir: $!";
+		chdir($origdir) || die "chdir $origdir: $!";
 	}
 	
 	my %deleted;
