@@ -37,15 +37,21 @@ body {
 
 .pageheader {
 	margin: 0;
-	padding: 1em 2em 0 2em;
+	padding: 1em 2em;
+	position: relative;
+	overflow: hidden;
 	background: #eee;
 	border-color: #999;
 	border-style: none none solid none;
 	border-width: 1px;
 }
 
+.pageheader .header {
+	float: left;
+	font-size: 120%;
+}
+
 .header {
-	font-size: 100%;
 	font-weight: normal;
 }
 
@@ -53,16 +59,25 @@ body {
 	display: block;
 	margin-top: .2em;
 	font: 140% sans-serif;
-	text-transform: capitalize;
+}
+
+#searchform {
+	position: absolute;
+	top: 1em;
+	right: 2em;
 }
 
 .actions {
+	position: absolute;
+	bottom: 0;
+	right: 2em;
+	width: 100%;
 	text-align: right;
 	padding: 0;
 }
 
 #content, #comments, #footer {
-  	margin: 1em 2em;
+	margin: 1em 2em;
 }
 
 #pageinfo {
@@ -78,7 +93,6 @@ body {
 
 .inlineheader {
 	font-size: 120%;
-	font-weight: normal;
 }
 
 h1 { font: 120% sans-serif }
@@ -96,7 +110,6 @@ h4, h5, h6 { font: small-caps 100% sans-serif }
 }
 
 .actions ul {
-	font-size: 75%;
 	padding: 0;
 	border-style: none;
 }
