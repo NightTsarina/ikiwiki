@@ -45,3 +45,13 @@ On [Google Webmaster tools](https://www.google.com/webmasters/tools) you can sub
 [Google should grok feeds as sitemaps.](http://www.google.com/support/webmasters/bin/answer.py?answer=34654) Or rather [[plugins/inline]] should be improved to support the [sitemap protocol](http://sitemaps.org/protocol.php) natively.
 
 -- [[Hendry]]
+
+
+Took me a minute to figure this out so I figured I'd share the steps I took:
+
+* Added rss=>1 and allowrss=>1 to my setup file
+* Created a new page where the RSS would be created with this content, replacing "first_page" with the page in my wiki with the earliest date:
+
+<pre>
+\[\[!inline  pages="* and !*/Discussion and created_after(first_page)" archive="yes" rss="yes" ]]
+</pre>
