@@ -236,15 +236,13 @@ sub rcs_diff ($) {
 sub rcs_getctime ($) {
 	my ($file) = @_;
 
-	# XXX filename passes through the shell here, should try to avoid
-	# that just in case
 	my @cmdline = ("hg", "-R", $config{srcdir}, "log", "-v",
-		"--style", "default", "$config{srcdir}/$file");
-	open (my $out, "@cmdline |");
+		"--style", "default", $file);
+	open (my $out, "-|", @cmdline);
 
-	my @log = mercurial_log($out);
+	my @log = (mercurial_log($out));
 
-	if (length @log < 1) {
+	if (@log < 1) {
 		return 0;
 	}
 
