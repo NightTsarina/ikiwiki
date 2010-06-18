@@ -287,9 +287,7 @@ sub rcs_diff ($) {
 }
 
 sub extract_timestamp (@) {
-	# XXX filename passes through the shell here, should try to avoid
-	# that just in case
-	open (my $out, "@_ |");
+	open (my $out, "-|", @_);
 	my @log = bzr_log($out);
 
 	if (length @log < 1) {
