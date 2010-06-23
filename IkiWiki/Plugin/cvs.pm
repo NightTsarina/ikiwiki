@@ -305,7 +305,7 @@ sub rcs_rename ($$) {
 	rcs_remove($src);
 }
 
-sub rcs_recentchanges($) {
+sub rcs_recentchanges ($) {
 	my $num = shift;
 	my @ret;
 
