@@ -114,12 +114,11 @@ sub store ($$$) {
 	];
 	push @{$change->{pages}}, { link => '...' } if $is_excess;
 
-	# See if the committer is an openid.
 	$change->{author}=$change->{user};
 	my $oiduser=eval { IkiWiki::openiduser($change->{user}) };
 	if (defined $oiduser) {
 		$change->{authorurl}=$change->{user};
-		$change->{user}=$oiduser;
+		$change->{user}=defined $change->{usershort} ? $change->{usershort} : $oiduser;
 	}
 	elsif (length $config{cgiurl}) {
 		$change->{authorurl} = IkiWiki::cgiurl(

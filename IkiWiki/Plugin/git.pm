@@ -342,8 +342,9 @@ sub parse_diff_tree ($) {
 			$ci{ "${who}_epoch" } = $epoch;
 			$ci{ "${who}_tz"    } = $tz;
 
-			if ($name =~ m/^[^<]+\s+<([^@>]+)/) {
-				$ci{"${who}_username"} = $1;
+			if ($name =~ m/^([^<]+)\s+<([^@>]+)/) {
+				$ci{"${who}_name"} = $1;
+				$ci{"${who}_username"} = $2;
 			}
 			elsif ($name =~ m/^([^<]+)\s+<>$/) {
 				$ci{"${who}_username"} = $1;
@@ -588,9 +589,14 @@ sub rcs_recentchanges ($) {
 			push @messages, { line => $line };
 		}
 
-		my $user=$ci->{'author_username'};
+		my $user=$ci->{'author_name'};
+		my $usershort=$ci->{'author_username'};
 		my $web_commit = ($ci->{'author'} =~ /\@web>/);
-		
+
+		if ($usershort =~ /:\/\//) {
+			$usershort=undef; # url; not really short
+		}
+
 		# compatability code for old web commit messages
 		if (! $web_commit &&
 		      defined $messages[0] &&
@@ -603,6 +609,7 @@ sub rcs_recentchanges ($) {
 		push @rets, {
 			rev        => $sha1,
 			user       => $user,
+			usershort  => $usershort,
 			committype => $web_commit ? "web" : "git",
 			when       => $when,
 			message    => [@messages],
