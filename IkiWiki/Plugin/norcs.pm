@@ -38,13 +38,13 @@ sub rcs_prepedit ($) {
 	return ""
 }
 
-sub rcs_commit ($$$;$$) {
-	my ($file, $message, $rcstoken, $user, $ipaddr) = @_;
+sub rcs_commit ($$$;$$$) {
+	my ($file, $message, $rcstoken, $user, $ipaddr, $emailuser) = @_;
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$) {
-	my ($message, $user, $ipaddr)=@_;
+sub rcs_commit_staged ($$$;$) {
+	my ($message, $user, $ipaddr, $emailuser)=@_;
 	return undef # success
 }
 

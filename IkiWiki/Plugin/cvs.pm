@@ -183,7 +183,7 @@ sub rcs_prepedit ($) {
 	return defined $rev ? $rev : "";
 }
 
-sub rcs_commit ($$$;$$) {
+sub rcs_commit ($$$;$$$) {
 	# Tries to commit the page; returns undef on _success_ and
 	# a version of the page with the rcs's conflict markers on failure.
 	# The file is relative to the srcdir.
@@ -192,6 +192,7 @@ sub rcs_commit ($$$;$$) {
 	my $rcstoken=shift;
 	my $user=shift;
 	my $ipaddr=shift;
+	my $emailuser=shift;
 
 	return unless cvs_is_controlling;
 
@@ -224,10 +225,10 @@ sub rcs_commit ($$$;$$) {
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged ($$$;$) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr)=@_;
+	my ($message, $user, $ipaddr, $emailuser)=@_;
 
 	if (defined $user) {
 		$message="web commit by $user".(length $message ? ": $message" : "");

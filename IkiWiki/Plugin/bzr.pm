@@ -137,8 +137,8 @@ sub bzr_author ($$) {
 	}
 }
 
-sub rcs_commit ($$$;$$) {
-	my ($file, $message, $rcstoken, $user, $ipaddr) = @_;
+sub rcs_commit ($$$;$$$) {
+	my ($file, $message, $rcstoken, $user, $ipaddr, $emailuser) = @_;
 
 	$user = bzr_author($user, $ipaddr);
 
@@ -156,10 +156,10 @@ sub rcs_commit ($$$;$$) {
 	return undef; # success
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged ($$$;$) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr)=@_;
+	my ($message, $user, $ipaddr, $emailuser)=@_;
 
 	$user = bzr_author($user, $ipaddr);
 

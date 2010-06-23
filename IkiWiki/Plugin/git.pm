@@ -464,12 +464,12 @@ sub rcs_prepedit ($) {
 	return git_sha1($file);
 }
 
-sub rcs_commit ($$$;$$) {
+sub rcs_commit ($$$;$$$) {
 	# Try to commit the page; returns undef on _success_ and
 	# a version of the page with the rcs's conflict markers on
 	# failure.
 
-	my ($file, $message, $rcstoken, $user, $ipaddr) = @_;
+	my ($file, $message, $rcstoken, $user, $ipaddr, $emailuser) = @_;
 
 	# Check to see if the page has been changed by someone else since
 	# rcs_prepedit was called.
@@ -485,10 +485,10 @@ sub rcs_commit ($$$;$$) {
 	return rcs_commit_staged($message, $user, $ipaddr);
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged ($$$;$) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr)=@_;
+	my ($message, $user, $ipaddr, $emailuser)=@_;
 
 	# Set the commit author and email to the web committer.
 	my %env=%ENV;

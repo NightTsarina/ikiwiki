@@ -140,11 +140,11 @@ sub rcs_prepedit ($) {
 	return $rev;
 }
 
-sub rcs_commit ($$$;$$) {
+sub rcs_commit ($$$;$$$) {
 	# Commit the page.  Returns 'undef' on success and a version of the page
 	# with conflict markers on failure.
 
-	my ($file, $message, $rcstoken, $user, $ipaddr) = @_;
+	my ($file, $message, $rcstoken, $user, $ipaddr, $emailuser) = @_;
 
 	# Compute if the "revision" of $file changed.
 	my $changed = darcs_rev($file) ne $rcstoken;
@@ -239,8 +239,8 @@ sub rcs_commit ($$$;$$) {
 	}
 }
 
-sub rcs_commit_staged ($$$) {
-	my ($message, $user, $ipaddr) = @_;
+sub rcs_commit_staged ($$$;$) {
+	my ($message, $user, $ipaddr, $emailuser) = @_;
 
 	my $author;
 	if (defined $user) {

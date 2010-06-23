@@ -98,12 +98,13 @@ sub rcs_prepedit ($) {
 	}
 }
 
-sub rcs_commit ($$$;$$) {
+sub rcs_commit ($$$;$$$) {
 	my $file=shift;
 	my $message=shift;
 	my $rcstoken=shift;
 	my $user=shift;
 	my $ipaddr=shift;
+	my $emailuser=shift;
 
 	if (defined $user) {
 		$message="web commit by $user".(length $message ? ": $message" : "");
@@ -139,10 +140,10 @@ sub rcs_commit ($$$;$$) {
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged ($$$;$) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr)=@_;
+	my ($message, $user, $ipaddr, $emailuser)=@_;
 	
 	error("rcs_commit_staged not implemented for tla"); # TODO
 }
