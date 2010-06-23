@@ -64,22 +64,32 @@ sub checkconfig () {
 	}
 }
 
-sub is_externallink ($$) {
+sub is_externallink ($$;$) {
 	my $page = shift;
 	my $url = shift;
+	my $anchor = shift;
+	
+	if (defined $anchor) {
+		$url.="#".$anchor;
+	}
+
 	if ($url =~ /$email_regexp/) {
 		# url looks like an email address, so we assume it
 		# is supposed to be an external link if there is no
 		# page with that name.
-		$url =~ s/#.*//;
 		return (! (bestlink($page, linkpage($url))))
 	}
 	return ($url =~ /$url_regexp/)
 }
 
-sub externallink ($;@) {
+sub externallink ($$;$) {
 	my $url = shift;
+	my $anchor = shift;
 	my $pagetitle = shift;
+
+	if (defined $anchor) {
+		$url.="#".$anchor;
+	}
 
 	# build pagetitle
 	if (! $pagetitle) {
@@ -106,15 +116,15 @@ sub linkify (@) {
 	$params{content} =~ s{(\\?)$link_regexp}{
 		defined $2
 			? ( $1 
-				? "[[$2|$3".($4 ? "#$4" : "")."]]" 
-				: is_externallink($page, $3 . ($4 ? "#$4" : ""))
-					? externallink("$3" . ($4 ? "#$4" : ""), $2)
+				? "[[$2|$3".(defined $4 ? "#$4" : "")."]]" 
+				: is_externallink($page, $3, $4)
+					? externallink($3, $4, $2)
 					: htmllink($page, $destpage, linkpage($3),
 						anchor => $4, linktext => pagetitle($2)))
 			: ( $1 
-				? "[[$3".($4 ? "#$4" : "")."]]"
-				: is_externallink($page, $3 . ($4 ? "#$4" : ""))
-					? externallink("$3" . ($4 ? "#$4" : ""))
+				? "[[$3".(defined $4 ? "#$4" : "")."]]"
+				: is_externallink($page, $3, $4)
+					? externallink($3, $4)
 					: htmllink($page, $destpage, linkpage($3),
 						anchor => $4))
 	}eg;
@@ -128,7 +138,7 @@ sub scan (@) {
 	my $content=$params{content};
 
 	while ($content =~ /(?<!\\)$link_regexp/g) {
-		if (! is_externallink($page, $2 . ($3 ? "#$3" : ""))) {
+		if (! is_externallink($page, $2, $3)) {
 			add_link($page, linkpage($2));
 		}
 	}
@@ -141,7 +151,7 @@ sub renamepage (@) {
 	my $new=$params{newpage};
 
 	$params{content} =~ s{(?<!\\)$link_regexp}{
-		if (! is_externallink($page, $2 . ($3 ? "#$3" : ""))) {
+		if (! is_externallink($page, $2, $3)) {
 			my $linktext=$2;
 			my $link=$linktext;
 			if (bestlink($page, linkpage($linktext)) eq $old) {
