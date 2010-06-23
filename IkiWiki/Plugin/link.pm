@@ -64,21 +64,23 @@ sub checkconfig () {
 	}
 }
 
-sub is_externallink ($$;$) {
+sub is_externallink ($$;$$) {
 	my $page = shift;
 	my $url = shift;
 	my $anchor = shift;
+	my $force = shift;
 	
 	if (defined $anchor) {
 		$url.="#".$anchor;
 	}
 
-	if ($url =~ /$email_regexp/) {
+	if (! $force && $url =~ /$email_regexp/) {
 		# url looks like an email address, so we assume it
 		# is supposed to be an external link if there is no
 		# page with that name.
 		return (! (bestlink($page, linkpage($url))))
 	}
+
 	return ($url =~ /$url_regexp/)
 }
 
@@ -138,7 +140,7 @@ sub scan (@) {
 	my $content=$params{content};
 
 	while ($content =~ /(?<!\\)$link_regexp/g) {
-		if (! is_externallink($page, $2, $3)) {
+		if (! is_externallink($page, $2, $3, 1)) {
 			add_link($page, linkpage($2));
 		}
 	}
