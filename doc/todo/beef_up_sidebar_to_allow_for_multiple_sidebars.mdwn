@@ -19,6 +19,21 @@ those contents instead.
 
 >>>> Ping for [[Joey]]. Do you have any comment? I could improve it if there is things you do not like. I prefer to have such a feature integrated upstream. --[[JeanPrivat]]
 
+>>>>> The code is fine.
+>>>>>
+>>>>> I did think about having it examine
+>>>>> the `page.tmpl` for parameters with names like `FOO_SIDEBAR`
+>>>>> and automatically enable page `foo` as a sidebar in that case,
+>>>>> instead of using the setup file to enable. But I'm not sure about
+>>>>> that idea..
+>>>>> 
+>>>>> The full compliment of sidebars would be a header, a footer,
+>>>>> a left, and a right sidebar. It would make sense to go ahead
+>>>>> and add the parameters to `page.tmpl` so enabling each just works,
+>>>>> and add whatever basic CSS makes sense. Although I don't know
+>>>>> if I want to try to get a 3 column CSS going, so perhaps leave the
+>>>>> left sidebar out of that.
+
 <pre>
 --- /usr/share/perl5/IkiWiki/Plugin/sidebar.pm	2010-02-11 22:53:17.000000000 -0500
 +++ plugins/IkiWiki/Plugin/sidebar.pm	2010-02-27 09:54:12.524412391 -0500
