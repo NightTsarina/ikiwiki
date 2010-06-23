@@ -396,14 +396,11 @@ sub rcs_getctime ($) {
 	eval q{use XML::Simple};
 	local $/=undef;
 
-	my $filer=substr($file, length($config{srcdir}));
-	$filer =~ s:^[/]+::;
-
 	my $child = open(LOG, "-|");
 	if (! $child) {
 		exec("darcs", "changes", "--xml", "--reverse",
-			"--repodir", $config{srcdir}, $filer)
-		|| error("'darcs changes $filer' failed to run");
+			"--repodir", $config{srcdir}, $file)
+		|| error("'darcs changes $file' failed to run");
 	}
 
 	my $data;
@@ -418,7 +415,7 @@ sub rcs_getctime ($) {
 	my $datestr = $log->{patch}[0]->{local_date};
 
 	if (! defined $datestr) {
-		warn "failed to get ctime for $filer";
+		warn "failed to get ctime for $file";
 		return 0;
 	}
 

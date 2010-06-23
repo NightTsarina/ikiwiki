@@ -366,7 +366,7 @@ sub findtimes ($) {
 		
 	my $child = open(SVNLOG, "-|");
 	if (! $child) {
-		exec("svn", "log", $file) || error("svn log $file failed to run");
+		exec("svn", "log", "$config{srcdir}/$file") || error("svn log failed to run");
 	}
 
 	my ($cdate, $mdate);
@@ -376,10 +376,10 @@ sub findtimes ($) {
 			$mdate=$1 unless defined $mdate;
 	    	}
 	}
-	close SVNLOG || error "svn log $file exited $?";
+	close SVNLOG || error "svn log exited $?";
 
 	if (! defined $cdate) {
-		error "failed to parse svn log for $file\n";
+		error "failed to parse svn log for $file";
 	}
 		
 	eval q{use Date::Parse};

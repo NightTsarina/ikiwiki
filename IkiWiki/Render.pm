@@ -374,7 +374,7 @@ sub find_new_files ($) {
 			}
 
 			eval {
-				my $ctime=rcs_getctime("$config{srcdir}/$file");
+				my $ctime=rcs_getctime($file);
 				if ($ctime > 0) {
 					$pagectime{$page}=$ctime;
 				}
@@ -384,7 +384,7 @@ sub find_new_files ($) {
 			}
 			my $mtime;
 			eval {
-				$mtime=rcs_getmtime("$config{srcdir}/$file");
+				$mtime=rcs_getmtime($file);
 			};
 			if ($@) {
 				print STDERR $@;

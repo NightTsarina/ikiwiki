@@ -658,9 +658,6 @@ sub findtimes ($$) {
 	my $file=shift;
 	my $id=shift; # 0 = mtime ; 1 = ctime
 
-	# Remove srcdir prefix
-	$file =~ s/^\Q$config{srcdir}\E\/?//;
-
 	if (! keys %time_cache) {
 		my $date;
 		foreach my $line (run_or_die('git', 'log',

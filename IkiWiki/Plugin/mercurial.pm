@@ -237,7 +237,7 @@ sub rcs_getctime ($) {
 	my ($file) = @_;
 
 	my @cmdline = ("hg", "-R", $config{srcdir}, "log", "-v",
-		"--style", "default", $file);
+		"--style", "default", "$config{srcdir}/$file");
 	open (my $out, "-|", @cmdline);
 
 	my @log = (mercurial_log($out));
