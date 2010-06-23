@@ -297,7 +297,7 @@ sub formbuilder (@) {
 					),
 					wikiurl => $config{url},
 					wikiname => $config{wikiname},
-					REMOTE_ADDR => $ENV{REMOTE_ADDR},
+					remote_addr => $session->remote_addr(),
 				);
 				
 				eval q{use Mail::Sendmail};

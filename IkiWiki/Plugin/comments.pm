@@ -402,8 +402,8 @@ sub editcomment ($$) {
 		$username =~ s/"/&quot;/g;
 		$content .= " username=\"$username\"\n";
 	}
-	elsif (defined $ENV{REMOTE_ADDR}) {
-		my $ip = $ENV{REMOTE_ADDR};
+	elsif (defined $session->remote_addr()) {
+		my $ip = $session->remote_addr();
 		if ($ip =~ m/^([.0-9]+)$/) {
 			$content .= " ip=\"$1\"\n";
 		}
@@ -514,7 +514,8 @@ sub editcomment ($$) {
 			IkiWiki::rcs_add($file);
 			IkiWiki::disable_commit_hook();
 			$conflict = IkiWiki::rcs_commit_staged($message,
-				$session->param('name'), $ENV{REMOTE_ADDR});
+				$session->param('name'),
+				$session->remote_addr());
 			IkiWiki::enable_commit_hook();
 			IkiWiki::rcs_update();
 		}
@@ -603,7 +604,8 @@ sub commentmoderation ($$) {
 				my $message = gettext("Comment moderation");
 				IkiWiki::disable_commit_hook();
 				$conflict=IkiWiki::rcs_commit_staged($message,
-					$session->param('name'), $ENV{REMOTE_ADDR});
+					$session->param('name'),
+					$session->remote_addr());
 				IkiWiki::enable_commit_hook();
 				IkiWiki::rcs_update();
 			}

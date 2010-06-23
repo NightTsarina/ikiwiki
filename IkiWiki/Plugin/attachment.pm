@@ -58,7 +58,7 @@ sub check_canattach ($$;$) {
 			$config{allowed_attachments},
 			file => $file,
 			user => $session->param("name"),
-			ip => $ENV{REMOTE_ADDR},
+			ip => $session->remote_addr(),
 		);
 	}
 
@@ -185,7 +185,8 @@ sub formbuilder (@) {
 			IkiWiki::disable_commit_hook();
 			IkiWiki::rcs_commit($filename, gettext("attachment upload"),
 				IkiWiki::rcs_prepedit($filename),
-				$session->param("name"), $ENV{REMOTE_ADDR});
+				$session->param("name"),
+				$session->remote_addr());
 			IkiWiki::enable_commit_hook();
 			IkiWiki::rcs_update();
 		}

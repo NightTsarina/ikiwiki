@@ -57,7 +57,6 @@ sub test () {
 	eval q{use CGI};
 	error($@) if $@;
 	my $cgi=CGI->new;
-	$ENV{REMOTE_ADDR}='unknown' unless exists $ENV{REMOTE_ADDR};
 
 	# And dummy up a session object.
 	require IkiWiki::CGI;

@@ -38,7 +38,7 @@ sub canedit ($$) {
 	if (defined $config{locked_pages} && length $config{locked_pages} &&
 	    pagespec_match($page, $config{locked_pages},
 		    user => $session->param("name"),
-		    ip => $ENV{REMOTE_ADDR},
+		    ip => $session->remote_addr(),
 	    )) {
 		if ((! defined $user ||
 		    ! IkiWiki::userinfo_get($session->param("name"), "regdate")) &&

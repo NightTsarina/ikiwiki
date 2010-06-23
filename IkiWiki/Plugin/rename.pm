@@ -350,7 +350,9 @@ sub sessioncgi ($$) {
 			}
 			IkiWiki::rcs_commit_staged(
 				sprintf(gettext("rename %s to %s"), $srcfile, $destfile),
-				$session->param("name"), $ENV{REMOTE_ADDR}) if $config{rcs};
+				$session->param("name"),
+				$session->remote_addr(),
+			) if $config{rcs};
 
 			# Then link fixups.
 			foreach my $rename (@torename) {
@@ -575,8 +577,8 @@ sub fixlinks ($$$) {
 					$file,
 					sprintf(gettext("update for rename of %s to %s"), $rename->{srcfile}, $rename->{destfile}),
 					$token,
-					$session->param("name"), 
-					$ENV{REMOTE_ADDR}
+					$session->param("name"),
+					$session->remote_addr(),
 				);
 				push @fixedlinks, $page if ! defined $conflict;
 			}

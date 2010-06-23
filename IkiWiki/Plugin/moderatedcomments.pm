@@ -48,11 +48,11 @@ sub checkcontent (@) {
 	}
 
 	my $session=$params{session};
-	my $user=$session->param("name") if $session;
+	my $user=$session->param("name");
 	if (pagespec_match($params{page}, $config{moderate_pagespec},
 			location => $params{page},
 			(defined $user ? (user => $user) : ()),
-			(defined $ENV{REMOTE_ADDR} ? (ip => $ENV{REMOTE_ADDR}) : ()),
+			(defined $session->remote_addr() ? (ip => $session->remote_addr()) : ()),
 	)) {
 		return gettext("comment needs moderation");
 	}

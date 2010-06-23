@@ -403,7 +403,8 @@ sub cgi_editpage ($$) {
 			disable_commit_hook();
 			$conflict=rcs_commit($file, $message,
 				$form->field("rcsinfo"),
-				$session->param("name"), $ENV{REMOTE_ADDR});
+				$session->param("name"),
+				$session->remote_addr());
 			enable_commit_hook();
 			rcs_update();
 		}

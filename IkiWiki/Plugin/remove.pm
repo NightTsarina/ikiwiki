@@ -214,7 +214,8 @@ sub sessioncgi ($$) {
 					IkiWiki::rcs_remove($file);
 				}
 				IkiWiki::rcs_commit_staged(gettext("removed"),
-					$session->param("name"), $ENV{REMOTE_ADDR});
+					$session->param("name"),
+					$session->remote_addr());
 				IkiWiki::enable_commit_hook();
 				IkiWiki::rcs_update();
 			}

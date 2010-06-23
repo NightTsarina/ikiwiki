@@ -283,7 +283,7 @@ sub check_banned ($$) {
 
 	foreach my $b (@{$config{banned_users}}) {
 		if (pagespec_match("", $b,
-			ip => $ENV{REMOTE_ADDR},
+			ip => $session->remote_addr(),
 			name => defined $name ? $name : "",
 		)) {
 			$banned=1;
