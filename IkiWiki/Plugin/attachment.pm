@@ -183,10 +183,12 @@ sub formbuilder (@) {
 		if ($config{rcs}) {
 			IkiWiki::rcs_add($filename);
 			IkiWiki::disable_commit_hook();
-			IkiWiki::rcs_commit($filename, gettext("attachment upload"),
-				IkiWiki::rcs_prepedit($filename),
-				$session->param("name"),
-				$session->remote_addr());
+			IkiWiki::rcs_commit(
+				file => $filename,
+				message => gettext("attachment upload"),
+				token => IkiWiki::rcs_prepedit($filename),
+				session => $session,
+			);
 			IkiWiki::enable_commit_hook();
 			IkiWiki::rcs_update();
 		}

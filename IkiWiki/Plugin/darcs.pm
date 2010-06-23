@@ -140,14 +140,31 @@ sub rcs_prepedit ($) {
 	return $rev;
 }
 
-sub rcs_commit ($$$;$$$) {
+sub commitauthor (@) {
+	my %params=@_;
+	
+	my $author="anon\@web";
+	if (defined $params{session}) {
+		if (defined $params{session}->param("name")) {
+			return $params{session}->param("name").'@web';
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			return $params{session}->remote_addr().'@web';
+		}
+	}
+	return 'anon@web';
+}
+
+sub rcs_commit (@) {
 	# Commit the page.  Returns 'undef' on success and a version of the page
 	# with conflict markers on failure.
+	my %params=@_;
 
-	my ($file, $message, $rcstoken, $user, $ipaddr, $emailuser) = @_;
+	my ($file, $message, $token) =
+		($params{file}, $params{message}, $params{token});
 
 	# Compute if the "revision" of $file changed.
-	my $changed = darcs_rev($file) ne $rcstoken;
+	my $changed = darcs_rev($file) ne $token;
 
 	# Yes, the following is a bit convoluted.
 	if ($changed) {
@@ -155,7 +172,7 @@ sub rcs_commit ($$$;$$$) {
 		rename("$config{srcdir}/$file", "$config{srcdir}/$file.save") or
 			error("failed to rename $file to $file.save: $!");
 
-		# Roll the repository back to $rcstoken.
+		# Roll the repository back to $token.
 
 		# TODO.  Can we be sure that no changes are lost?  I think that
 		# we can, if we make sure that the 'darcs push' below will always
@@ -166,37 +183,28 @@ sub rcs_commit ($$$;$$$) {
 		# TODO: 'yes | ...' needed?  Doesn't seem so.
 		silentsystem('darcs', "revert", "--repodir", $config{srcdir}, "--all") == 0 ||
 			error("'darcs revert' failed");
-		# Remove all patches starting at $rcstoken.
+		# Remove all patches starting at $token.
 		my $child = open(DARCS_OBLITERATE, "|-");
 		if (! $child) {
 			open(STDOUT, ">/dev/null");
 			exec('darcs', "obliterate", "--repodir", $config{srcdir},
-			   "--match", "hash " . $rcstoken) and
+			   "--match", "hash " . $token) and
 			   error("'darcs obliterate' failed");
 		}
 		1 while print DARCS_OBLITERATE "y";
 		close(DARCS_OBLITERATE);
-		# Restore the $rcstoken one.
+		# Restore the $token one.
 		silentsystem('darcs', "pull", "--quiet", "--repodir", $config{srcdir},
-			"--match", "hash " . $rcstoken, "--all") == 0 ||
+			"--match", "hash " . $token, "--all") == 0 ||
 			error("'darcs pull' failed");
 	
-		# We're back at $rcstoken.  Re-install the modified file.
+		# We're back at $token.  Re-install the modified file.
 		rename("$config{srcdir}/$file.save", "$config{srcdir}/$file") or
 			error("failed to rename $file.save to $file: $!");
 	}
 
 	# Record the changes.
-	my $author;
-	if (defined $user) {
-		$author = "$user\@web";
-	}
-	elsif (defined $ipaddr) {
-		$author = "$ipaddr\@web";
-	}
-	else {
-		$author = "anon\@web";
-	}
+	my $author=commitauthor(%params);
 	if (!defined $message || !length($message)) {
 		$message = "empty message";
 	}
@@ -211,13 +219,13 @@ sub rcs_commit ($$$;$$$) {
 
 	# If this updating yields any conflicts, we'll record them now to resolve
 	# them.  If nothing is recorded, there are no conflicts.
-	$rcstoken = darcs_rev($file);
+	$token = darcs_rev($file);
 	# TODO: Use only the first line here, i.e. only the patch name?
 	writefile("$file.log", $config{srcdir}, 'resolve conflicts: ' . $message);
 	silentsystem('darcs', 'record', '--repodir', $config{srcdir}, '--all',
 		'-m', 'resolve conflicts: ' . $message, '--author', $author, $file) == 0 ||
 		error("'darcs record' failed");
-	my $conflicts = darcs_rev($file) ne $rcstoken;
+	my $conflicts = darcs_rev($file) ne $token;
 	unlink("$config{srcdir}/$file.log") or
 		error("failed to remove '$file.log'");
 
@@ -239,25 +247,18 @@ sub rcs_commit ($$$;$$$) {
 	}
 }
 
-sub rcs_commit_staged ($$$;$) {
-	my ($message, $user, $ipaddr, $emailuser) = @_;
+sub rcs_commit_staged (@) {
+	my %params=@_;
 
-	my $author;
-	if (defined $user) {
-		$author = "$user\@web";
-	}
-	elsif (defined $ipaddr) {
-		$author = "$ipaddr\@web";
-	}
-	else {
-		$author = "anon\@web";
-	}
-	if (!defined $message || !length($message)) {
-		$message = "empty message";
+	my $author=commitauthor(%params);
+	if (!defined $params{message} || !length($params{message})) {
+		$params{message} = "empty message";
 	}
 
-	silentsystem('darcs', "record", "--repodir", $config{srcdir}, "-a", "-A", $author,
-		"-m", $message)	== 0 || error("'darcs record' failed");
+	silentsystem('darcs', "record", "--repodir", $config{srcdir},
+		"-a", "-A", $author,
+		"-m", $params{message},
+	) == 0 || error("'darcs record' failed");
 
 	# Push the changes to the main repository.
 	silentsystem('darcs', 'push', '--quiet', '--repodir', $config{srcdir}, '--all') == 0 ||

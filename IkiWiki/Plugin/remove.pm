@@ -213,9 +213,10 @@ sub sessioncgi ($$) {
 				foreach my $file (@files) {
 					IkiWiki::rcs_remove($file);
 				}
-				IkiWiki::rcs_commit_staged(gettext("removed"),
-					$session->param("name"),
-					$session->remote_addr());
+				IkiWiki::rcs_commit_staged(
+					message => gettext("removed"),
+					session => $session,
+				);
 				IkiWiki::enable_commit_hook();
 				IkiWiki::rcs_update();
 			}

@@ -401,10 +401,12 @@ sub cgi_editpage ($$) {
 			# signaling to it that it should not try to
 			# do anything.
 			disable_commit_hook();
-			$conflict=rcs_commit($file, $message,
-				$form->field("rcsinfo"),
-				$session->param("name"),
-				$session->remote_addr());
+			$conflict=rcs_commit(
+				file => $file,
+				message => $message,
+				token => $form->field("rcsinfo"),
+				session => $session,
+			);
 			enable_commit_hook();
 			rcs_update();
 		}

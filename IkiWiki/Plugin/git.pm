@@ -464,43 +464,55 @@ sub rcs_prepedit ($) {
 	return git_sha1($file);
 }
 
-sub rcs_commit ($$$;$$$) {
+sub rcs_commit (@) {
 	# Try to commit the page; returns undef on _success_ and
 	# a version of the page with the rcs's conflict markers on
 	# failure.
-
-	my ($file, $message, $rcstoken, $user, $ipaddr, $emailuser) = @_;
+	my %params=@_;
 
 	# Check to see if the page has been changed by someone else since
 	# rcs_prepedit was called.
-	my $cur    = git_sha1($file);
-	my ($prev) = $rcstoken =~ /^($sha1_pattern)$/; # untaint
+	my $cur    = git_sha1($params{file});
+	my ($prev) = $params{token} =~ /^($sha1_pattern)$/; # untaint
 
 	if (defined $cur && defined $prev && $cur ne $prev) {
-		my $conflict = merge_past($prev, $file, $dummy_commit_msg);
+		my $conflict = merge_past($prev, $params{file}, $dummy_commit_msg);
 		return $conflict if defined $conflict;
 	}
 
-	rcs_add($file);	
-	return rcs_commit_staged($message, $user, $ipaddr);
+	rcs_add($params{file});
+	return rcs_commit_staged(
+		message => $params{message},
+		session => $params{session},
+	);
 }
 
-sub rcs_commit_staged ($$$;$) {
+sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr, $emailuser)=@_;
-
-	# Set the commit author and email to the web committer.
+	my %params=@_;
+	
 	my %env=%ENV;
-	if (defined $user || defined $ipaddr) {
-		my $u=encode_utf8(defined $user ? $user : $ipaddr);
-		$ENV{GIT_AUTHOR_NAME}=$u;
-		$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
+
+	if (defined $params{session}) {
+		# Set the commit author and email based on web session info.
+		my $u;
+		if (defined $params{session}->param("name")) {
+			$u=$params{session}->param("name");
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			$u=$params{session}->remote_addr();
+		}
+		if (defined $u) {
+			$u=encode_utf8($u);
+			$ENV{GIT_AUTHOR_NAME}=$u;
+			$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
+		}
 	}
 
-	$message = IkiWiki::possibly_foolish_untaint($message);
+	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
 	my @opts;
-	if ($message !~ /\S/) {
+	if ($params{message} !~ /\S/) {
 		# Force git to allow empty commit messages.
 		# (If this version of git supports it.)
 		my ($version)=`git --version` =~ /git version (.*)/;
@@ -508,13 +520,13 @@ sub rcs_commit_staged ($$$;$) {
 			push @opts, '--cleanup=verbatim';
 		}
 		else {
-			$message.=".";
+			$params{message}.=".";
 		}
 	}
 	push @opts, '-q';
 	# git commit returns non-zero if file has not been really changed.
 	# so we should ignore its exit status (hence run_or_non).
-	if (run_or_non('git', 'commit', @opts, '-m', $message)) {
+	if (run_or_non('git', 'commit', @opts, '-m', $params{message})) {
 		if (length $config{gitorigin_branch}) {
 			run_or_cry('git', 'push', $config{gitorigin_branch});
 		}

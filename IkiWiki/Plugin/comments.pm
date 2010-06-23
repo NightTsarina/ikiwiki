@@ -513,9 +513,10 @@ sub editcomment ($$) {
 
 			IkiWiki::rcs_add($file);
 			IkiWiki::disable_commit_hook();
-			$conflict = IkiWiki::rcs_commit_staged($message,
-				$session->param('name'),
-				$session->remote_addr());
+			$conflict = IkiWiki::rcs_commit_staged(
+				message => $message,
+				session => $session,
+			);
 			IkiWiki::enable_commit_hook();
 			IkiWiki::rcs_update();
 		}
@@ -603,9 +604,10 @@ sub commentmoderation ($$) {
 			if ($config{rcs} and $config{comments_commit}) {
 				my $message = gettext("Comment moderation");
 				IkiWiki::disable_commit_hook();
-				$conflict=IkiWiki::rcs_commit_staged($message,
-					$session->param('name'),
-					$session->remote_addr());
+				$conflict=IkiWiki::rcs_commit_staged(
+					message => $message,
+					session => $session,
+				);
 				IkiWiki::enable_commit_hook();
 				IkiWiki::rcs_update();
 			}

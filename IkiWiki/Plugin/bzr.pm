@@ -123,8 +123,13 @@ sub rcs_prepedit ($) {
 	return "";
 }
 
-sub bzr_author ($$) {
-	my ($user, $ipaddr) = @_;
+sub bzr_author ($) {
+	my $session=shift;
+
+	return unless defined $session;
+
+	my $user=$session->param("name");
+	my $ipaddr=$session->remote_addr();
 
 	if (defined $user) {
 		return IkiWiki::possibly_foolish_untaint($user);
@@ -137,18 +142,19 @@ sub bzr_author ($$) {
 	}
 }
 
-sub rcs_commit ($$$;$$$) {
-	my ($file, $message, $rcstoken, $user, $ipaddr, $emailuser) = @_;
+sub rcs_commit (@) {
+	my %params=@_;
 
-	$user = bzr_author($user, $ipaddr);
+	my $user=bzr_author($params{session});
 
-	$message = IkiWiki::possibly_foolish_untaint($message);
-	if (! length $message) {
-		$message = "no message given";
+	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
+	if (! length $params{message}) {
+		$params{message} = "no message given";
 	}
 
-	my @cmdline = ("bzr", "commit", "--quiet", "-m", $message, "--author", $user,
-	               $config{srcdir}."/".$file);
+	my @cmdline = ("bzr", "commit", "--quiet", "-m", $params{message},
+	               (defined $user ? ("--author", $user) : ()),
+	               $config{srcdir}."/".$params{file});
 	if (system(@cmdline) != 0) {
 		warn "'@cmdline' failed: $!";
 	}
@@ -156,19 +162,18 @@ sub rcs_commit ($$$;$$$) {
 	return undef; # success
 }
 
-sub rcs_commit_staged ($$$;$) {
-	# Commits all staged changes. Changes can be staged using rcs_add,
-	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr, $emailuser)=@_;
+sub rcs_commit_staged (@) {
+	my %params=@_;
 
-	$user = bzr_author($user, $ipaddr);
+	my $user=bzr_author($params{session});
 
-	$message = IkiWiki::possibly_foolish_untaint($message);
-	if (! length $message) {
-		$message = "no message given";
+	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
+	if (! length $params{message}) {
+		$params{message} = "no message given";
 	}
 
-	my @cmdline = ("bzr", "commit", "--quiet", "-m", $message, "--author", $user,
+	my @cmdline = ("bzr", "commit", "--quiet", "-m", $params{message},
+	               (defined $user ? ("--author", $user) : ()),
 	               $config{srcdir});
 	if (system(@cmdline) != 0) {
 		warn "'@cmdline' failed: $!";

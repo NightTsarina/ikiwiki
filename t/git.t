@@ -38,7 +38,11 @@ is($changes[0]{pages}[0]{"page"}, ".gitignore");
 my $test1 = readfile("t/test1.mdwn");
 writefile('test1.mdwn', $config{srcdir}, $test1);
 IkiWiki::rcs_add("test1.mdwn");
-IkiWiki::rcs_commit("test1.mdwn", "Added the first page", "moo");
+IkiWiki::rcs_commit(
+	file => "test1.mdwn",
+	message => "Added the first page",
+	token => "moo",
+);
 
 @changes = IkiWiki::rcs_recentchanges(3);
 
@@ -68,7 +72,7 @@ is($changes[1]{pages}[0]{"page"}, "test1");
 writefile('test3.mdwn', $config{srcdir}, $test1);
 IkiWiki::rcs_add("test3.mdwn");
 IkiWiki::rcs_rename("test3.mdwn", "test4.mdwn");
-IkiWiki::rcs_commit_staged("Added the 4th page", "moo", "Joe User");
+IkiWiki::rcs_commit_staged(message => "Added the 4th page");
 
 @changes = IkiWiki::rcs_recentchanges(4);
 
@@ -77,7 +81,7 @@ is($changes[0]{pages}[0]{"page"}, "test4");
 
 ok(mkdir($config{srcdir}."/newdir"));
 IkiWiki::rcs_rename("test4.mdwn", "newdir/test5.mdwn");
-IkiWiki::rcs_commit_staged("Added the 5th page", "moo", "Joe User");
+IkiWiki::rcs_commit_staged(message => "Added the 5th page");
 
 @changes = IkiWiki::rcs_recentchanges(4);
 
@@ -85,6 +89,6 @@ is($#changes, 3);
 is($changes[0]{pages}[0]{"page"}, "newdir/test5");
 
 IkiWiki::rcs_remove("newdir/test5.mdwn");
-IkiWiki::rcs_commit_staged("Remove the 5th page", "moo", "Joe User");
+IkiWiki::rcs_commit_staged(message => "Remove the 5th page");
 
 system "rm -rf $dir";

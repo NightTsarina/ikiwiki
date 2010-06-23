@@ -1051,18 +1051,20 @@ token, that will be passed into `rcs_commit` when committing. For example,
 it might return the current revision ID of the file, and use that
 information later when merging changes.
 
-#### `rcs_commit($$$;$$$)`
+#### `rcs_commit(@)`
 
-Passed a file, message, token (from `rcs_prepedit`), user, ip address,
-and optionally the username component of the committer's email address.
+Passed named parameters: `file`, `message`, `token` (from `rcs_prepedit`),
+and `session` (optional).
+
 Should try to commit the file. Returns `undef` on *success* and a version
 of the page with the rcs's conflict markers on failure.
 
-#### `rcs_commit_staged($$$;$)`
+#### `rcs_commit_staged(@)`
 
-Passed a message, user, ip address, and optionally the username component of
-the committer's email address. Should commit all staged changes.
-Returns undef on success, and an error message on failure.
+Passed named parameters: `message`, and `session` (optional).
+
+Should commit all staged changes. Returns undef on success, and an
+error message on failure.
 
 Changes can be staged by calls to `rcs_add`, `rcs_remove`, and
 `rcs_rename`.

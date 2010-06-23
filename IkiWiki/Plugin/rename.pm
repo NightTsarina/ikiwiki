@@ -349,9 +349,8 @@ sub sessioncgi ($$) {
 				$pagesources{$rename->{src}}=$rename->{destfile};
 			}
 			IkiWiki::rcs_commit_staged(
-				sprintf(gettext("rename %s to %s"), $srcfile, $destfile),
-				$session->param("name"),
-				$session->remote_addr(),
+				message => sprintf(gettext("rename %s to %s"), $srcfile, $destfile),
+				session => $session,
 			) if $config{rcs};
 
 			# Then link fixups.

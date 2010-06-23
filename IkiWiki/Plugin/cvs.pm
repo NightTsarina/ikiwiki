@@ -183,41 +183,47 @@ sub rcs_prepedit ($) {
 	return defined $rev ? $rev : "";
 }
 
-sub rcs_commit ($$$;$$$) {
+sub commitmessage (@) {
+	my %params=@_;
+	
+	if (defined $params{session}) {
+		if (defined $params{session}->param("name")) {
+			return "web commit by ".
+				$params{session}->param("name").
+				(length $params{message} ? ": $params{message}" : "");
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			return "web commit from ".
+				$params{session}->remote_addr().
+				(length $params{message} ? ": $params{message}" : "");
+		}
+	}
+	return $params{message};
+}
+
+sub rcs_commit (@) {
 	# Tries to commit the page; returns undef on _success_ and
 	# a version of the page with the rcs's conflict markers on failure.
 	# The file is relative to the srcdir.
-	my $file=shift;
-	my $message=shift;
-	my $rcstoken=shift;
-	my $user=shift;
-	my $ipaddr=shift;
-	my $emailuser=shift;
+	my %params=@_;
 
 	return unless cvs_is_controlling;
 
-	if (defined $user) {
-		$message="web commit by $user".(length $message ? ": $message" : "");
-	}
-	elsif (defined $ipaddr) {
-		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
-	}
-
 	# Check to see if the page has been changed by someone
 	# else since rcs_prepedit was called.
-	my ($oldrev)=$rcstoken=~/^([0-9]+)$/; # untaint
-	my $rev=cvs_info("Repository revision", "$config{srcdir}/$file");
+	my ($oldrev)=$params{token}=~/^([0-9]+)$/; # untaint
+	my $rev=cvs_info("Repository revision", "$config{srcdir}/$params{file}");
 	if (defined $rev && defined $oldrev && $rev != $oldrev) {
 		# Merge their changes into the file that we've
 		# changed.
-		cvs_runcvs('update', $file) ||
+		cvs_runcvs('update', $params{file}) ||
 			warn("cvs merge from $oldrev to $rev failed\n");
 	}
 
 	if (! cvs_runcvs('commit', '-m',
-			 IkiWiki::possibly_foolish_untaint $message)) {
-		my $conflict=readfile("$config{srcdir}/$file");
-		cvs_runcvs('update', '-C', $file) ||
+			 IkiWiki::possibly_foolish_untaint(commitmessage(%params)))) {
+		my $conflict=readfile("$config{srcdir}/$params{file}");
+		cvs_runcvs('update', '-C', $params{file}) ||
 			warn("cvs revert failed\n");
 		return $conflict;
 	}
@@ -225,20 +231,13 @@ sub rcs_commit ($$$;$$$) {
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$;$) {
+sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr, $emailuser)=@_;
-
-	if (defined $user) {
-		$message="web commit by $user".(length $message ? ": $message" : "");
-	}
-	elsif (defined $ipaddr) {
-		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
-	}
+	my %params=@_;
 
 	if (! cvs_runcvs('commit', '-m',
-			 IkiWiki::possibly_foolish_untaint $message)) {
+			 IkiWiki::possibly_foolish_untaint(commitmessage(%params)))) {
 		warn "cvs staged commit failed\n";
 		return 1; # failure
 	}

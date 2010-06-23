@@ -90,7 +90,7 @@ sub gentag ($) {
 			if ($config{rcs}) {
 				IkiWiki::disable_commit_hook();
 				IkiWiki::rcs_add($tagfile);
-				IkiWiki::rcs_commit_staged($message, undef, undef);
+				IkiWiki::rcs_commit_staged(message => $message);
 				IkiWiki::enable_commit_hook();
 			}
 		});

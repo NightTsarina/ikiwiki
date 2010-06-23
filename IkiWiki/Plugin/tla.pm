@@ -98,19 +98,23 @@ sub rcs_prepedit ($) {
 	}
 }
 
-sub rcs_commit ($$$;$$$) {
-	my $file=shift;
-	my $message=shift;
-	my $rcstoken=shift;
-	my $user=shift;
-	my $ipaddr=shift;
-	my $emailuser=shift;
+sub rcs_commit (@) {
+	my %params=@_;
 
-	if (defined $user) {
-		$message="web commit by $user".(length $message ? ": $message" : "");
-	}
-	elsif (defined $ipaddr) {
-		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
+	my ($file, $message, $rcstoken)=
+		($params{file}, $params{message}, $params{token});
+
+	if (defined $params{session}) {
+		if (defined $params{session}->param("name")) {
+			$message="web commit by ".
+				$params{session}->param("name").
+				(length $message ? ": $message" : "");
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			$message="web commit from ".
+				$params{session}->remote_addr().
+				(length $message ? ": $message" : "");
+		}
 	}
 
 	if (-d "$config{srcdir}/{arch}") {
@@ -140,10 +144,10 @@ sub rcs_commit ($$$;$$$) {
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$;$) {
+sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr, $emailuser)=@_;
+	my %params=@_;
 	
 	error("rcs_commit_staged not implemented for tla"); # TODO
 }

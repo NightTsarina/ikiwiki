@@ -293,32 +293,33 @@ sub rcs_prepedit ($) {
 	return get_rev();
 }
 
-sub rcs_commit ($$$;$$$) {
+sub commitauthor (@) {
+	my %params=@_;
+
+	if (defined $params{session}) {
+		if (defined $params{session}->param("name")) {
+			return "Web user: " . $params{session}->param("name");
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			return "Web IP: " . $params{session}->remote_addr();
+		}
+	}
+	return "Web: Anonymous";
+}
+
+
+sub rcs_commit (@) {
 	# Tries to commit the page; returns undef on _success_ and
 	# a version of the page with the rcs's conflict markers on failure.
 	# The file is relative to the srcdir.
-	my $file=shift;
-	my $message=shift;
-	my $rcstoken=shift;
-	my $user=shift;
-	my $ipaddr=shift;
-	my $emailuser=shift;
-	my $author;
+	my %params=@_;
 
-	if (defined $user) {
-		$author="Web user: " . $user;
-	}
-	elsif (defined $ipaddr) {
-		$author="Web IP: " . $ipaddr;
-	}
-	else {
-		$author="Web: Anonymous";
-	}
+	my $author=IkiWiki::possibly_foolish_untaint(commitauthor(%params)),
 
 	chdir $config{srcdir}
 	    or error("Cannot chdir to $config{srcdir}: $!");
 
-	my ($oldrev)= $rcstoken=~ m/^($sha1_pattern)$/; # untaint
+	my ($oldrev) = $params{token} =~ m/^($sha1_pattern)$/; # untaint
 	my $rev = get_rev();
 	if (defined $rev && defined $oldrev && $rev ne $oldrev) {
 		my $automator = Monotone->new();
@@ -327,8 +328,8 @@ sub rcs_commit ($$$;$$$) {
 		# Something has been committed, has this file changed?
 		my ($out, $err);
 		$automator->setOpts("r", $oldrev, "r", $rev);
-		($out, $err) = $automator->call("content_diff", $file);
-		debug("Problem committing $file") if ($err ne "");
+		($out, $err) = $automator->call("content_diff", $params{file});
+		debug("Problem committing $params{file}") if ($err ne "");
 		my $diff = $out;
 		
 		if ($diff) {
@@ -337,11 +338,11 @@ sub rcs_commit ($$$;$$$) {
 			#
 			# first get the contents
 			debug("File changed: forming branch");
-			my $newfile=readfile("$config{srcdir}/$file");
+			my $newfile=readfile("$config{srcdir}/$params{file}");
 			
 			# then get the old content ID from the diff
-			if ($diff !~ m/^---\s$file\s+($sha1_pattern)$/m) {
-				error("Unable to find previous file ID for $file");
+			if ($diff !~ m/^---\s$params{file}\s+($sha1_pattern)$/m) {
+				error("Unable to find previous file ID for $params{file}");
 			}
 			my $oldFileID = $1;
 
@@ -352,13 +353,13 @@ sub rcs_commit ($$$;$$$) {
 			my $branch = $1;
 
 			# then put the new content into the DB (and record the new content ID)
-			my $newRevID = commit_file_to_new_rev($automator, $file, $oldFileID, $newfile, $oldrev, $branch, $author, $message);
+			my $newRevID = commit_file_to_new_rev($automator, $params{file}, $oldFileID, $newfile, $oldrev, $branch, $author, $params{message});
 
 			$automator->close();
 
 			# if we made it to here then the file has been committed... revert the local copy
-			if (system("mtn", "--root=$config{mtnrootdir}", "revert", $file) != 0) {
-				debug("Unable to revert $file after merge on conflicted commit!");
+			if (system("mtn", "--root=$config{mtnrootdir}", "revert", $params{file}) != 0) {
+				debug("Unable to revert $params{file} after merge on conflicted commit!");
 			}
 			debug("Divergence created! Attempting auto-merge.");
 
@@ -407,7 +408,7 @@ sub rcs_commit ($$$;$$$) {
 				# for cleanup note, this relies on the fact
 				# that ikiwiki seems to call rcs_prepedit()
 				# again after we return
-				return readfile("$config{srcdir}/$file");
+				return readfile("$config{srcdir}/$params{file}");
 			}
 			return undef;
 		}
@@ -419,11 +420,12 @@ sub rcs_commit ($$$;$$$) {
 
 	if (system("mtn", "--root=$config{mtnrootdir}", "commit", "--quiet",
 	           "--author", $author, "--key", $config{mtnkey}, "-m",
-		   IkiWiki::possibly_foolish_untaint($message), $file) != 0) {
+	           IkiWiki::possibly_foolish_untaint($params{message}),
+	           $params{file}) != 0) {
 		debug("Traditional commit failed! Returning data as conflict.");
-		my $conflict=readfile("$config{srcdir}/$file");
+		my $conflict=readfile("$config{srcdir}/$params{file}");
 		if (system("mtn", "--root=$config{mtnrootdir}", "revert",
-		           "--quiet", $file) != 0) {
+		           "--quiet", $params{file}) != 0) {
 			debug("monotone revert failed");
 		}
 		return $conflict;
@@ -439,32 +441,21 @@ sub rcs_commit ($$$;$$$) {
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$;$) {
+sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr, $emailuser)=@_;
-	
+	my %params=@_;
+
 	# Note - this will also commit any spurious changes that happen to be
 	# lying around in the working copy.  There shouldn't be any, but...
 	
 	chdir $config{srcdir}
 	    or error("Cannot chdir to $config{srcdir}: $!");
 
-	my $author;
-
-	if (defined $user) {
-		$author="Web user: " . $user;
-	}
-	elsif (defined $ipaddr) {
-		$author="Web IP: " . $ipaddr;
-	}
-	else {
-		$author="Web: Anonymous";
-	}
-
 	if (system("mtn", "--root=$config{mtnrootdir}", "commit", "--quiet",
-	           "--author", $author, "--key", $config{mtnkey}, "-m",
-		   IkiWiki::possibly_foolish_untaint($message)) != 0) {
+	           "--author", IkiWiki::possibly_foolish_untaint(commitauthor(%params)),
+	           "--key", $config{mtnkey}, "-m",
+		   IkiWiki::possibly_foolish_untaint($params{message})) != 0) {
 		error("Monotone commit failed");
 	}
 }

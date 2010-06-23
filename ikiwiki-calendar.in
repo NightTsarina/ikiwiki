@@ -59,7 +59,7 @@ foreach my $y ($startyear..$endyear) {
 	}
 }
 
-IkiWiki::rcs_commit_staged(gettext("calendar update"), undef, undef)
+IkiWiki::rcs_commit_staged(message => gettext("calendar update"))
 	if $config{rcs};
 
 exec("ikiwiki", "-setup", $setup, "-refresh");

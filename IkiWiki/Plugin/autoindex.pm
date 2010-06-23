@@ -117,8 +117,8 @@ sub refresh () {
 		}
 		if ($config{rcs}) {
 			IkiWiki::rcs_commit_staged(
-				gettext("automatic index generation"),
-				undef, undef);
+				message => gettext("automatic index generation"),
+			);
 			IkiWiki::enable_commit_hook();
 		}
 	}

@@ -1840,11 +1840,11 @@ sub rcs_prepedit ($) {
 	$hooks{rcs}{rcs_prepedit}{call}->(@_);
 }
 
-sub rcs_commit ($$$;$$) {
+sub rcs_commit (@) {
 	$hooks{rcs}{rcs_commit}{call}->(@_);
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged (@) {
 	$hooks{rcs}{rcs_commit_staged}{call}->(@_);
 }
 
