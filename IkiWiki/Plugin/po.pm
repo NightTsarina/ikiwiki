@@ -429,8 +429,7 @@ sub change (@) {
 
 	if ($updated_po_files) {
 		commit_and_refresh(
-			gettext("updated PO files"),
-			"IkiWiki::Plugin::po::change");
+			gettext("updated PO files"));
 	}
 }
 
@@ -1035,17 +1034,18 @@ sub deletetranslations ($) {
 
 	if (@todelete) {
 		commit_and_refresh(
-			gettext("removed obsolete PO files"),
-			"IkiWiki::Plugin::po::deletetranslations");
+			gettext("removed obsolete PO files"));
 	}
 }
 
-sub commit_and_refresh ($$) {
-	my ($msg, $author) = (shift, shift);
+sub commit_and_refresh ($) {
+	my $msg = shift;
 
 	if ($config{rcs}) {
 		IkiWiki::disable_commit_hook();
-		IkiWiki::rcs_commit_staged($msg, $author, "127.0.0.1");
+		IkiWiki::rcs_commit_staged(
+			message => $msg,
+		);
 		IkiWiki::enable_commit_hook();
 		IkiWiki::rcs_update();
 	}
