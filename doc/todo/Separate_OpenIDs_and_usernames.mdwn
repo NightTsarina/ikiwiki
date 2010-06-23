@@ -38,10 +38,13 @@ A slightly more complex next step would be to request sreg from the provider and
 > * Change `rcs_commit` and `rcs_commit_staged` to take a session object,
 >   instead of just a userid. (For back-compat, if the parameter is 
 >   not an object, it's a userid.) Bump ikiwiki plugin interface version.
+>   (done)
 > * Modify all RCS plugins to include the session username somewhere
 >   in the commit, and parse it back out in `rcs_recentchanges`.
+>   (done for git only so far)
 > * Modify recentchanges plugin to display the username instead of the
 >   `openiduser`.
+>   (done)
 > * Modify comment plugin to put the session username in the comment
 >   template instead of the `openiduser`.
 

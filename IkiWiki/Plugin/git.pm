@@ -506,6 +506,11 @@ sub rcs_commit_staged (@) {
 		if (defined $u) {
 			$u=encode_utf8($u);
 			$ENV{GIT_AUTHOR_NAME}=$u;
+		}
+		if (defined $params{session}->param("username")) {
+			$u=encode_utf8($params{session}->param("username"));
+		}
+		if (defined $u) {
 			$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
 		}
 	}

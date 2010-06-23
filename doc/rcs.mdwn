@@ -10,13 +10,8 @@ generic that it can be adapted to work with many systems by writing a
 
 While all supported revision control systems work well enough for basic
 use, some advanced or special features are not supported in all of them.
-Lack of support in [[ikiwiki-makerepo]] or auto.setup can make it harder to
-set up a wiki using that revision control system. The `rcs_commit_staged`
-hook is needed to use [[attachments|plugins/attachment]] or
-[[plugins/comments]]. `rcs_getctime` may be implemented in a fast way
-(ie, one log lookup for all files), or very slowly (one lookup per file).
-And so on. The table below summarises this for each revision control
-system and links to more information about each.
+The table below summarises this for each revision control system and
+links to more information about each.
 
 [[!table data="""
 feature             |[[git]]|[[svn]]|[[bzr]]   |[[monotone]]|[[mercurial]]|[[darcs]]|[[tla]]   |[[cvs]]
@@ -30,7 +25,18 @@ auto.setup          |yes    |yes    |incomplete|yes         |incomplete   |yes  
 `rcs_getmtime`      |fast   |slow   |slow      |no          |no           |no       |no        |no
 anonymous push      |yes    |no     |no        |no          |no           |no       |no        |no
 conflict handling   |yes    |yes    |yes       |buggy       |yes          |yes      |yes       |yes
+openid username     |yes    |no     |no        |no          |no           |no       |no        |no
 """]]
+
+Notes:
+
+* Lack of support in [[ikiwiki-makerepo]] or auto.setup can make it harder to
+  set up a wiki using that revision control system.
+* The `rcs_commit_staged` hook is needed to use [[attachments|plugins/attachment]]
+  or [[plugins/comments]].
+* `rcs_getctime` and `rcs_getmtime` may be implemented in a fast way (ie, one log
+  lookup for all files), or very slowly (one lookup per file).
+* Openid username support allows avoiding display of Google's ugly openids.
 
 There is a page with [[details]] about how the different systems work with
 ikiwiki, for the curious.
