@@ -1,0 +1,29 @@
+ikiwiki 3.20100623 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * openid: Add openid\_realm and openid\_cgiurl configuration options,
+     useful in a few edge case setups.
+   * attachment: Show files from underlay in attachments list.
+   * img: Support hspace and vspace attributes.
+   * editpage: Rename "comments" field to avoid CSS conflict with the
+     comments div.
+   * edittemplate: Make silent mode not disable display when the template
+     page does not exist, so it can be easily created.
+   * edittemplate: Look for template pages under templates/ like everything
+     else (still looks in old location for backwards compatibility).
+   * attachment: When inserting links, insert img directives for images,
+     if that plugin is enabled.
+   * websetup: Allow enabling plugins listed in disable\_plugins.
+   * editpage, comments: Fix broken links in sidebar (due to forcebaseurl).
+     (Thanks, privat)
+   * calendar: Tune archive\_pagespec to only match pages, not other files.
+   * Fix issues with combining unicode srcdirs and source files.
+     (Workaround bug #586045)
+   * Make --gettime be honored after initial setup.
+   * git: Fix --gettime to properly support utf8 filenames.
+   * attachment: Support Windows paths when taking basename of client-supplied
+     file name.
+   * theme: New plugin, allows easily themeing a site via the underlay.
+   * Added actiontabs theme by Svend Sorensen.
+   * Added blueview theme by Bernd Zeimetz.
+   * mercurial: Fix buggy getctime code. Closes: #[586279](http://bugs.debian.org/586279)
+   * link: Enhanced to handle URLs and email addresses. (Bernd Zeimetz)"""]]
