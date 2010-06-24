@@ -459,7 +459,9 @@ sub rcs_diff ($) {
 }
 
 sub rcs_getctime ($) {
-	my $file=$config{srcdir}."/".shift();
+	my $file=shift;
+
+	local $CWD = $config{srcdir};
 
 	my $cvs_log_infoline=qr/^date: (.+);\s+author/;
 
