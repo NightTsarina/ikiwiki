@@ -606,12 +606,16 @@ sub rcs_recentchanges ($) {
 			push @messages, { line => $line };
 		}
 
-		my $user=$ci->{'author_name'};
-		my $usershort=$ci->{'author_username'};
+		my $user=$ci->{'author_username'};
 		my $web_commit = ($ci->{'author'} =~ /\@web>/);
+		my $nickname;
 
-		if ($usershort =~ /:\/\//) {
-			$usershort=undef; # url; not really short
+		# Set nickname only if a non-url author_username is available,
+		# and author_name is an url.
+		if ($user !~ /:\/\// && defined $ci->{'author_name'} &&
+		    $ci->{'author_name'} =~ /:\/\//) {
+			$nickname=$user;
+			$user=$ci->{'author_name'};
 		}
 
 		# compatability code for old web commit messages
@@ -626,7 +630,7 @@ sub rcs_recentchanges ($) {
 		push @rets, {
 			rev        => $sha1,
 			user       => $user,
-			usershort  => $usershort,
+			nickname   => $nickname,
 			committype => $web_commit ? "web" : "git",
 			when       => $when,
 			message    => [@messages],

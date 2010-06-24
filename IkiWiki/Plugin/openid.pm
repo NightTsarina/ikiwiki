@@ -187,16 +187,16 @@ sub auth ($$) {
 					$vident->signed_extension_fields('http://openid.net/srv/ax/1.0'),
 				);
 			}
-			my $username;
+			my $nickname;
 			foreach my $ext (@extensions) {
 				foreach my $field (qw{value.email email}) {
 					if (exists $ext->{$field} &&
 					    defined $ext->{$field} &&
 					    length $ext->{$field}) {
 						$session->param(email => $ext->{$field});
-						if (! defined $username &&
+						if (! defined $nickname &&
 						    $ext->{$field}=~/(.+)@.+/) {
-							$username = $1;
+							$nickname = $1;
 						}
 						last;
 					}
@@ -205,14 +205,14 @@ sub auth ($$) {
 					if (exists $ext->{$field} &&
 					    defined $ext->{$field} &&
 					    length $ext->{$field}) {
-						$username=$ext->{$field};
+						$nickname=$ext->{$field};
 						last;
 					}
 				}
 			}
-			if (defined $username) {
-				$username=~s/\s+/_/g;
-				$session->param(username => $username);
+			if (defined $nickname) {
+				$nickname=~s/\s+/_/g;
+				$session->param(nickname => $nickname);
 			}
 		}
 		else {

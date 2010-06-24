@@ -1,12 +1,16 @@
 ikiwiki (3.20100624) UNRELEASED; urgency=low
 
-  * API: Add new optional field usershort to rcs_recentchanges.
+  * Changes to avoid display of ugly google openids, by displaying
+    a username taken from openid.
+  * API: Add new optional field nickname to rcs_recentchanges.
   * API: rcs_commit and rcs_commit_staged are now passed named
     parameters.
+  * openid: Store nickname based on username or email provided from
+    openid provider.
+  * git: Record the nickname from openid in the git author email.
+  * comment: Record the username from openid in the comment page.
   * Fixed some confusion and bugginess about whether
     rcs_getctime/rcs_getmtime were passed absolute or relative filenames.
-  * git: Record the username from openid in the git author email.
-    (This avoids display of ugly google openids.)
 
  -- Joey Hess <joeyh@debian.org>  Wed, 23 Jun 2010 15:30:04 -0400
 

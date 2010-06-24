@@ -177,7 +177,7 @@ sub preprocess {
 		if (defined $oiduser) {
 			# looks like an OpenID
 			$commentauthorurl = $commentuser;
-			$commentauthor = $oiduser;
+			$commentauthor = (defined $params{nickname} && length $params{nickname}) ? $params{nickname} : $oiduser;
 			$commentopenid = $commentuser;
 		}
 		else {
@@ -396,11 +396,15 @@ sub editcomment ($$) {
 
 	my $content = "[[!comment format=$type\n";
 
-	# FIXME: handling of double quotes probably wrong?
 	if (defined $session->param('name')) {
 		my $username = $session->param('name');
 		$username =~ s/"/&quot;/g;
 		$content .= " username=\"$username\"\n";
+	}
+	if (defined $session->param('nickname')) {
+		my $nickname = $session->param('nickname');
+		$nickname =~ s/"/&quot;/g;
+		$content .= " nickname=\"$nickname\"\n";
 	}
 	elsif (defined $session->remote_addr()) {
 		my $ip = $session->remote_addr();

@@ -118,7 +118,7 @@ sub store ($$$) {
 	my $oiduser=eval { IkiWiki::openiduser($change->{user}) };
 	if (defined $oiduser) {
 		$change->{authorurl}=$change->{user};
-		$change->{user}=defined $change->{usershort} ? $change->{usershort} : $oiduser;
+		$change->{user}=defined $change->{nickname} ? $change->{nickname} : $oiduser;
 	}
 	elsif (length $config{cgiurl}) {
 		$change->{authorurl} = IkiWiki::cgiurl(
