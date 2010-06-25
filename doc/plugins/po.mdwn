@@ -54,10 +54,10 @@ Supported languages
 `po_slave_languages` is used to set the list of supported "slave"
 languages, such as:
 
-        po_slave_languages => { 'fr' => 'Français',
+        po_slave_languages => [ 'fr' => 'Français',
                                 'es' => 'Español',
                                 'de' => 'Deutsch',
-        }
+        ]
 
 Decide which pages are translatable
 -----------------------------------
@@ -253,15 +253,6 @@ once [[intrigeri]]'s `meta` branch is merged.
 
 An integration branch, called `meta-po`, merges [[intrigeri]]'s `po`
 and `meta` branches, and thus has this additional features.
-
-Language display order
-----------------------
-
-Jonas pointed out that one might want to control the order that links to
-other languages are listed, for various reasons. Currently, there is no
-order, as `po_slave_languages` is a hash. It would need to be converted
-to an array to support this. (If twere done, twere best done quickly.)
---[[Joey]] 
 
 Pagespecs
 ---------
