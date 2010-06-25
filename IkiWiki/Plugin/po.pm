@@ -243,6 +243,10 @@ sub filter (@) {
 	my $page = $params{page};
 	my $destpage = $params{destpage};
 	my $content = $params{content};
+
+	my @caller = caller(4);
+        return $content unless $caller[3] ne "IkiWiki::render";
+
 	if (istranslation($page) && ! alreadyfiltered($page, $destpage)) {
 		$content = po_to_markup($page, $content);
 		setalreadyfiltered($page, $destpage);
