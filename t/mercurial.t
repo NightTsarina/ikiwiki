@@ -6,10 +6,13 @@ BEGIN {
 	$dir = "/tmp/ikiwiki-test-hg.$$";
 	my $hg=`which hg`;
 	chomp $hg;
-	if (! -x $hg || ! mkdir($dir)) {
+	if (! -x $hg) {
 		eval q{
-			use Test::More skip_all => "hg not available or could not make test dir"
+			use Test::More skip_all => "hg not available"
 		}
+	}
+	if (! mkdir($dir)) {
+		die $@;
 	}
 }
 use Test::More tests => 11;
