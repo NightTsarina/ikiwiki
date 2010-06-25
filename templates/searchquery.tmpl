@@ -33,7 +33,7 @@ $def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
 
 <FORM NAME=P METHOD=GET 
 ACTION="$html{$env{CGIURL}}" TARGET="_top">
-<center>
+<div style="text-align:center">
 <INPUT NAME=P VALUE="$html{$query}" SIZE=65>
 <INPUT TYPE=SUBMIT VALUE="Search">
 $env{HELPLINK}
@@ -54,7 +54,7 @@ $if{$not{$msizeexact},
   $nice{$add{$topdoc,1}}$if{$ne{$add{$topdoc,1},$last},-$nice{$last}} of exactly $nice{$msize} matches}
 }
 <hr>
-</center>
+</div>
 $list{$map{$queryterms,$list{$html{$uniq{$unstem{$_}}},<b>,</b>/<b>,</b>}:&nbsp;$nice{$freq{$_}}},Term frequencies: ,$. ,}
 <br><small>Search took $time seconds</small>
 <table>
@@ -77,8 +77,9 @@ $percentage% relevant$. matching:
 <i>$list{$map{$terms,$html{$prettyterm{$_}}},$. ,</i> and <i>}</i></small>${for lynx:}<p></td></tr>}
 </table>
 
-<br><center>
+<br />
 
+<div style="text-align:center">
 ${suppress next, prev, and page links if there's only one page}
 $if{$ne{$lastpage,1},
 $set{a,$if{$opt{pagelink_height}, HEIGHT=$opt{pagelink_height}}$if{$opt{pagelink_width}, WIDTH=$opt{pagelink_width}}}
@@ -97,7 +98,7 @@ $if{$ne{$opt{y},$lastpage},...}
 $NEXT
 }
 }}
-</center><br>
+</div><br />
 $if{$dbname,<INPUT TYPE=hidden NAME=DB VALUE="$html{$dbname}">}
 $if{$ne{$topdoc,0},<INPUT TYPE=hidden NAME=TOPDOC VALUE=$topdoc>}
 $if{$ne{$hitsperpage,10},<INPUT TYPE=hidden NAME=HITSPERPAGE VALUE=$hitsperpage>}

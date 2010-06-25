@@ -1,0 +1,15 @@
+[[!tag wishlist]]
+
+`CDATE_3339`, `CDATE_822`, `MDATE_3339` and `MDATE_822` template variables would be useful for evey page, at least for my templates with Dublin Core metadata.
+
+I tried to pick the relevant lines of the [[inline|plugins/inline]] plugin and hack it into a custom plugin, but it failed miserably because of my obvious lack of perl litteracy...
+
+Anyway, I'm sure this is almost nothing...
+
+* `sub date_822 ($) {}`
+* `sub date_3339 ($) {}`
+* and something like `$template->param('cdate_822' => date_822($IkiWiki::pagectime{$page}));`
+
+Anyone can fill the missing lines?
+
+-- [[nil]]

@@ -5,7 +5,7 @@ use warnings;
 no warnings 'redefine';
 use strict;
 use IkiWiki 3.00;
-use POSIX;
+use POSIX ();
 use Encode;
 
 sub import {
@@ -37,24 +37,36 @@ sub include_javascript ($;$) {
 	my $page=shift;
 	my $absolute=shift;
 	
-	return '<script src="'.urlto("ikiwiki.js", $page, $absolute).
+	return '<script src="'.urlto("ikiwiki/ikiwiki.js", $page, $absolute).
 		'" type="text/javascript" charset="utf-8"></script>'."\n".
-		'<script src="'.urlto("relativedate.js", $page, $absolute).
+		'<script src="'.urlto("ikiwiki/relativedate.js", $page, $absolute).
 		'" type="text/javascript" charset="utf-8"></script>';
 }
 
-sub mydisplaytime ($;$) {
+sub mydisplaytime ($;$$) {
 	my $time=shift;
 	my $format=shift;
+	my $pubdate=shift;
 
 	# This needs to be in a form that can be parsed by javascript.
-	# Being fairly human readable is also nice, as it will be exposed
-	# as the title if javascript is not available.
+	# (Being fairly human readable is also nice, as it will be exposed
+	# as the title if javascript is not available.)
+	my $lc_time=POSIX::setlocale(&POSIX::LC_TIME);
+	POSIX::setlocale(&POSIX::LC_TIME, "C");
 	my $gmtime=decode_utf8(POSIX::strftime("%a, %d %b %Y %H:%M:%S %z",
 			localtime($time)));
+	POSIX::setlocale(&POSIX::LC_TIME, $lc_time);
 
-	return '<span class="relativedate" title="'.$gmtime.'">'.
-		IkiWiki::formattime($time, $format).'</span>';
+	my $mid=' class="relativedate" title="'.$gmtime.'">'.
+		IkiWiki::formattime($time, $format);
+
+	if ($config{html5}) {
+		return '<time datetime="'.IkiWiki::date_3339($time).'"'.
+			($pubdate ? ' pubdate="pubdate"' : '').$mid.'</time>';
+	}
+	else {
+		return '<span'.$mid.'</span>';
+	}
 }
 
 1

@@ -1,3 +1,9 @@
-This page will show all comments made to posts in my [[blog|index]].
+[[!sidebar content="""
+[[!inline pages="comment_pending(./posts/*)" feedfile=pendingmoderation
+description="comments pending moderation" show=-1]]
+Comments in the moderation queue:
+[[!pagecount pages="comment_pending(./posts/*)"]]
+"""]]
 
-[[!inline pages="./posts/*/Discussion or internal(./posts/*/comment_*)"]]
+Recent comments on posts in the [[blog|index]]:
+[[!inline pages="./posts/*/Discussion or comment(./posts/*)"]]

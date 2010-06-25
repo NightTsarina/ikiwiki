@@ -51,20 +51,22 @@ sub import {
 	hook(type => "formbuilder_setup", id => "po", call => \&formbuilder_setup, last => 1);
 	hook(type => "formbuilder", id => "po", call => \&formbuilder);
 
-	$origsubs{'bestlink'}=\&IkiWiki::bestlink;
-	inject(name => "IkiWiki::bestlink", call => \&mybestlink);
-	$origsubs{'beautify_urlpath'}=\&IkiWiki::beautify_urlpath;
-	inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath);
-	$origsubs{'targetpage'}=\&IkiWiki::targetpage;
-	inject(name => "IkiWiki::targetpage", call => \&mytargetpage);
-	$origsubs{'urlto'}=\&IkiWiki::urlto;
-	inject(name => "IkiWiki::urlto", call => \&myurlto);
-	$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
-	inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
-	$origsubs{'rootpage'}=\&IkiWiki::rootpage;
-	inject(name => "IkiWiki::rootpage", call => \&myrootpage);
-	$origsubs{'isselflink'}=\&IkiWiki::isselflink;
-	inject(name => "IkiWiki::isselflink", call => \&myisselflink);
+	if (! %origsubs) {
+		$origsubs{'bestlink'}=\&IkiWiki::bestlink;
+		inject(name => "IkiWiki::bestlink", call => \&mybestlink);
+		$origsubs{'beautify_urlpath'}=\&IkiWiki::beautify_urlpath;
+		inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath);
+		$origsubs{'targetpage'}=\&IkiWiki::targetpage;
+		inject(name => "IkiWiki::targetpage", call => \&mytargetpage);
+		$origsubs{'urlto'}=\&IkiWiki::urlto;
+		inject(name => "IkiWiki::urlto", call => \&myurlto);
+		$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
+		inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
+		$origsubs{'rootpage'}=\&IkiWiki::rootpage;
+		inject(name => "IkiWiki::rootpage", call => \&myrootpage);
+		$origsubs{'isselflink'}=\&IkiWiki::isselflink;
+		inject(name => "IkiWiki::isselflink", call => \&myisselflink);
+	}
 }
 
 
@@ -87,7 +89,8 @@ sub getsetup () {
 	return
 		plugin => {
 			safe => 0,
-			rebuild => 1,
+			rebuild => 1, # format plugin
+			section => "format",
 		},
 		po_master_language => {
 			type => "string",
@@ -134,6 +137,7 @@ sub checkconfig () {
 				      $field, 'po'));
 		}
 	}
+	delete $config{po_slave_languages}{$config{po_master_language}{code}};;
 
 	map {
 		islanguagecode($_)
@@ -175,7 +179,8 @@ sub checkconfig () {
 		if ($config{po_master_language}{code} ne 'en') {
 			# Add underlay containing translated source files
 			# for the master language.
-			add_underlay("locale/$config{po_master_language}{code}/$underlay");
+			add_underlay("locale/$config{po_master_language}{code}/$underlay")
+				if -d "$config{underlaydirbase}/locale/$config{po_master_language}{code}/$underlay";
 		}
 	}
 }
@@ -309,7 +314,7 @@ sub pagetemplate (@) {
 	if (ishomepage($page) && $template->query(name => "title")) {
 		$template->param(title => $config{wikiname});
 	}
-} # }}}
+}
 
 # Add the renamed page translations to the list of to-be-renamed pages.
 sub renamepages (@) {
@@ -426,8 +431,7 @@ sub change (@) {
 
 	if ($updated_po_files) {
 		commit_and_refresh(
-			gettext("updated PO files"),
-			"IkiWiki::Plugin::po::change");
+			gettext("updated PO files"));
 	}
 }
 
@@ -566,7 +570,7 @@ sub mybestlink ($$) {
 	my $link=shift;
 
 	return $origsubs{'bestlink'}->($page, $link)
-		if $config{po_link_to} eq "default";
+		if defined $config{po_link_to} && $config{po_link_to} eq "default";
 
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
 	my @caller = caller(1);
@@ -584,7 +588,7 @@ sub mybeautify_urlpath ($) {
 	my $url=shift;
 
 	my $res=$origsubs{'beautify_urlpath'}->($url);
-	if ($config{po_link_to} eq "negotiated") {
+	if (defined $config{po_link_to} && $config{po_link_to} eq "negotiated") {
 		$res =~ s!/\Qindex.$config{po_master_language}{code}.$config{htmlext}\E$!/!;
 		$res =~ s!/\Qindex.$config{htmlext}\E$!/!;
 		map {
@@ -739,6 +743,7 @@ sub istranslatablefile ($) {
 	my $type=pagetype($file);
 	return 0 if ! defined $type || $type eq 'po';
 	return 0 if $file =~ /\.pot$/;
+	return 0 if ! defined $config{po_translatable_pages};
 	return 1 if pagespec_match(pagename($file), $config{po_translatable_pages});
 	return;
 }
@@ -1042,17 +1047,18 @@ sub deletetranslations ($) {
 
 	if (@todelete) {
 		commit_and_refresh(
-			gettext("removed obsolete PO files"),
-			"IkiWiki::Plugin::po::deletetranslations");
+			gettext("removed obsolete PO files"));
 	}
 }
 
-sub commit_and_refresh ($$) {
-	my ($msg, $author) = (shift, shift);
+sub commit_and_refresh ($) {
+	my $msg = shift;
 
 	if ($config{rcs}) {
 		IkiWiki::disable_commit_hook();
-		IkiWiki::rcs_commit_staged($msg, $author, "127.0.0.1");
+		IkiWiki::rcs_commit_staged(
+			message => $msg,
+		);
 		IkiWiki::enable_commit_hook();
 		IkiWiki::rcs_update();
 	}
@@ -1070,11 +1076,8 @@ sub commit_and_refresh ($$) {
 	IkiWiki::saveindex();
 }
 
-# on success, returns the filtered content.
-# on error, if $nonfatal, warn and return undef; else, error out.
-sub po_to_markup ($$;$) {
+sub po_to_markup ($$) {
 	my ($page, $content) = (shift, shift);
-	my $nonfatal = shift;
 
 	$content = '' unless defined $content;
 	$content = decode_utf8(encode_utf8($content));
@@ -1097,10 +1100,6 @@ sub po_to_markup ($$;$) {
 
 	my $fail = sub ($) {
 		my $msg = "po(po_to_markup) - $page : " . shift;
-		if ($nonfatal) {
-			warn $msg;
-			return undef;
-		}
 		error($msg, sub { unlink $infile, $outfile});
 	};
 
@@ -1121,8 +1120,7 @@ sub po_to_markup ($$;$) {
 	$doc->write($outfile)
 		or return $fail->(sprintf(gettext("failed to write %s"), $outfile));
 
-	$content = readfile($outfile)
-		or return $fail->(sprintf(gettext("failed to read %s"), $outfile));
+	$content = readfile($outfile);
 
 	# Unlinking should happen automatically, thanks to File::Temp,
 	# but it does not work here, probably because of the way writefile()

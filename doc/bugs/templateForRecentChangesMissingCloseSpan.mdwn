@@ -1,0 +1,26 @@
+In the template for ikiwiki's recent changes page
+
+     /usr/share/ikiwiki/templates/change.tmpl
+
+there is a missing </span> tag after the
+
+     <span class="changedate"><TMPL_VAR COMMITDATE>
+
+This results in the recentchanges/ page being invalid and rendering quite horrifyingly in Internet Exploder.
+
+[I'm running](http://wiki.shlrm.org) (linked so you can see the one I'm running if you need to) the latest version of ikiwiki, and I note that it's broken on [ikiwiki.info](http://validator.w3.org/check?uri=http%3A%2F%2Fikiwiki.info%2Frecentchanges%2F&charset=%28detect+automatically%29&doctype=Inline&group=0&user-agent=W3C_Validator%2F1.767) too :)
+
+[This one on debian](https://www.icanttype.org/recentchanges/) is somehow [valid](http://validator.w3.org/check?uri=https%3A%2F%2Fwww.icanttype.org%2F%2Frecentchanges%2F&charset=%28detect+automatically%29&doctype=Inline&group=0&user-agent=W3C_Validator%2F1.767), although it's using the same template. Perhaps there's an additional scrubbing going on his end.
+
+Thanks,
+David
+
+PS: I have fixed the template by hand on my server, so it will validate, however ikiwiki.info will not.
+
+> [[!template id="gitbranch" branch=smcv/trivia author="[[smcv]]"]] [[!tag patch]]
+> Enabling either [[plugins/htmltidy]] or [[plugins/htmlbalance]] will automatically fix unbalanced
+> markup like this; using [[plugins/comments]] without having one or other of those is a bad idea
+> from the point of view of avoiding comment forgery, which is probably why icanttype.org works
+> correctly. Anyway, I've fixed this in a branch: Joey, care to review smcv/trivia? --[[smcv]]
+
+[[done]], thanks guys --[[Joey]]

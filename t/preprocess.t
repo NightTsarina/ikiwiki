@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 21;
+use Test::More tests => 31;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -26,6 +26,16 @@ is(IkiWiki::preprocess("foo", "foo", "[[foo ]]", 0, 0), "foo()", "simple");
 is(IkiWiki::preprocess("foo", "foo", "[[!foo ]]", 0, 0), "foo()", "prefixed");
 is(IkiWiki::preprocess("foo", "foo", "[[!foo]]", 0, 0), "[[!foo]]", "prefixed, no space");
 is(IkiWiki::preprocess("foo", "foo", "[[foo a=1]]", 0, 0), "foo(a => 1)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a="1"]]}, 0, 0), "foo(a => 1)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a="""1"""]]}, 0, 0), "foo(a => 1)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a=""]]}, 0, 0), "foo(a)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a="" b="1"]]}, 0, 0), "foo(a, b => 1)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a=""""""]]}, 0, 0), "foo(a)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a="""""" b="1"]]}, 0, 0), "foo(a, b => 1)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a="""""" b="""1"""]]}, 0, 0), "foo(a, b => 1)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a="""""" b=""""""]]}, 0, 0), "foo(a, b)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a="" b=""""""]]}, 0, 0), "foo(a, b)");
+is(IkiWiki::preprocess("foo", "foo", q{[[foo a="" b="""1"""]]}, 0, 0), "foo(a, b => 1)");
 is(IkiWiki::preprocess("foo", "foo", "[[foo a=\"1 2 3 4\"]]", 0, 0), "foo(a => 1 2 3 4)");
 is(IkiWiki::preprocess("foo", "foo", "[[foo ]] then [[foo a=2]]", 0, 0),
 	"foo() then foo(a => 2)");

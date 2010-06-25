@@ -18,6 +18,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "web",
 		},
 }
 
@@ -48,10 +49,10 @@ sub check_canremove ($$$) {
 	# This is sorta overkill, but better safe than sorry.
 	if (! defined pagetype($pagesources{$page})) {
 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
-			IkiWiki::Plugin::attachment::check_canattach($session, $page, $file);
+			IkiWiki::Plugin::attachment::check_canattach($session, $page, "$config{srcdir}/$file");
 		}
 		else {
-			error("renaming of attachments is not allowed");
+			error("removal of attachments is not allowed");
 		}
 	}
 
@@ -102,10 +103,12 @@ sub confirmation_form ($$) {
 		javascript => 0,
 		params => $q,
 		action => $config{cgiurl},
-		stylesheet => IkiWiki::baseurl()."style.css",
+		stylesheet => 1,
 		fields => [qw{do page}],
 	);
 	
+	$f->field(name => "sid", type => "hidden", value => $session->id,
+		force => 1);
 	$f->field(name => "do", type => "hidden", value => "remove", force => 1);
 
 	return $f, ["Remove", "Cancel"];
@@ -187,6 +190,8 @@ sub sessioncgi ($$) {
 			postremove($session);
 		}
 		elsif ($form->submitted eq 'Remove' && $form->validate) {
+			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+
 			my @pages=$form->field("page");
 	
 			# Validate removal by checking that the page exists,
@@ -208,8 +213,10 @@ sub sessioncgi ($$) {
 				foreach my $file (@files) {
 					IkiWiki::rcs_remove($file);
 				}
-				IkiWiki::rcs_commit_staged(gettext("removed"),
-					$session->param("name"), $ENV{REMOTE_ADDR});
+				IkiWiki::rcs_commit_staged(
+					message => gettext("removed"),
+					session => $session,
+				);
 				IkiWiki::enable_commit_hook();
 				IkiWiki::rcs_update();
 			}

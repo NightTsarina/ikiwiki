@@ -20,6 +20,7 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 }
 
 sub checkconfig () {
@@ -36,6 +37,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		bzr_wrapper => {
 			type => "string",
@@ -72,31 +74,40 @@ sub bzr_log ($) {
 	my @infos = ();
 	my $key = undef;
 
+	my %info;
 	while (<$out>) {
 		my $line = $_;
 		my ($value);
 		if ($line =~ /^message:/) {
 			$key = "message";
-			$infos[$#infos]{$key} = "";
+			$info{$key} = "";
 		}
 		elsif ($line =~ /^(modified|added|renamed|renamed and modified|removed):/) {
 			$key = "files";
-			unless (defined($infos[$#infos]{$key})) { $infos[$#infos]{$key} = ""; }
+			$info{$key} = "" unless defined $info{$key};
 		}
 		elsif (defined($key) and $line =~ /^  (.*)/) {
-			$infos[$#infos]{$key} .= "$1\n";
+			$info{$key} .= "$1\n";
 		}
 		elsif ($line eq "------------------------------------------------------------\n") {
+			push @infos, {%info} if keys %info;
+			%info = ();
 			$key = undef;
-			push (@infos, {});
 		}
-		else {
+		elsif ($line =~ /: /) {
 			chomp $line;
+			if ($line =~ /^revno: (\d+)/) {
+			    $key = "revno";
+			    $value = $1;
+			}
+			else {
 				($key, $value) = split /: +/, $line, 2;
-			$infos[$#infos]{$key} = $value;
-		} 
+			}
+			$info{$key} = $value;
+		}
 	}
 	close $out;
+	push @infos, {%info} if keys %info;
 
 	return @infos;
 }
@@ -112,8 +123,13 @@ sub rcs_prepedit ($) {
 	return "";
 }
 
-sub bzr_author ($$) {
-	my ($user, $ipaddr) = @_;
+sub bzr_author ($) {
+	my $session=shift;
+
+	return unless defined $session;
+
+	my $user=$session->param("name");
+	my $ipaddr=$session->remote_addr();
 
 	if (defined $user) {
 		return IkiWiki::possibly_foolish_untaint($user);
@@ -126,18 +142,19 @@ sub bzr_author ($$) {
 	}
 }
 
-sub rcs_commit ($$$;$$) {
-	my ($file, $message, $rcstoken, $user, $ipaddr) = @_;
+sub rcs_commit (@) {
+	my %params=@_;
 
-	$user = bzr_author($user, $ipaddr);
+	my $user=bzr_author($params{session});
 
-	$message = IkiWiki::possibly_foolish_untaint($message);
-	if (! length $message) {
-		$message = "no message given";
+	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
+	if (! length $params{message}) {
+		$params{message} = "no message given";
 	}
 
-	my @cmdline = ("bzr", "commit", "--quiet", "-m", $message, "--author", $user,
-	               $config{srcdir}."/".$file);
+	my @cmdline = ("bzr", "commit", "--quiet", "-m", $params{message},
+	               (defined $user ? ("--author", $user) : ()),
+	               $config{srcdir}."/".$params{file});
 	if (system(@cmdline) != 0) {
 		warn "'@cmdline' failed: $!";
 	}
@@ -145,19 +162,18 @@ sub rcs_commit ($$$;$$) {
 	return undef; # success
 }
 
-sub rcs_commit_staged ($$$) {
-	# Commits all staged changes. Changes can be staged using rcs_add,
-	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr)=@_;
+sub rcs_commit_staged (@) {
+	my %params=@_;
 
-	$user = bzr_author($user, $ipaddr);
+	my $user=bzr_author($params{session});
 
-	$message = IkiWiki::possibly_foolish_untaint($message);
-	if (! length $message) {
-		$message = "no message given";
+	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
+	if (! length $params{message}) {
+		$params{message} = "no message given";
 	}
 
-	my @cmdline = ("bzr", "commit", "--quiet", "-m", $message, "--author", $user,
+	my @cmdline = ("bzr", "commit", "--quiet", "-m", $params{message},
+	               (defined $user ? ("--author", $user) : ()),
 	               $config{srcdir});
 	if (system(@cmdline) != 0) {
 		warn "'@cmdline' failed: $!";
@@ -212,7 +228,7 @@ sub rcs_recentchanges ($) {
 	foreach my $info (bzr_log($out)) {
 		my @pages = ();
 		my @message = ();
-        
+
 		foreach my $msgline (split(/\n/, $info->{message})) {
 			push @message, { line => $msgline };
 		}
@@ -275,14 +291,8 @@ sub rcs_diff ($) {
 	}
 }
 
-sub rcs_getctime ($) {
-	my ($file) = @_;
-
-	# XXX filename passes through the shell here, should try to avoid
-	# that just in case
-	my @cmdline = ("bzr", "log", "--limit", '1', "$config{srcdir}/$file");
-	open (my $out, "@cmdline |");
-
+sub extract_timestamp (@) {
+	open (my $out, "-|", @_);
 	my @log = bzr_log($out);
 
 	if (length @log < 1) {
@@ -292,8 +302,22 @@ sub rcs_getctime ($) {
 	eval q{use Date::Parse};
 	error($@) if $@;
 	
-	my $ctime = str2time($log[0]->{"timestamp"});
-	return $ctime;
+	my $time = str2time($log[0]->{"timestamp"});
+	return $time;
+}
+
+sub rcs_getctime ($) {
+	my ($file) = @_;
+
+	my @cmdline = ("bzr", "log", "--forward", "--limit", '1', "$config{srcdir}/$file");
+	return extract_timestamp(@cmdline);
+}
+
+sub rcs_getmtime ($) {
+	my ($file) = @_;
+
+	my @cmdline = ("bzr", "log", "--limit", '1', "$config{srcdir}/$file");
+	return extract_timestamp(@cmdline);
 }
 
 1

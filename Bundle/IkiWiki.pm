@@ -20,7 +20,7 @@ Text::Markdown
 HTML::Scrubber
 HTML::Template
 HTML::Parser
-URI
+URI 1.36
 XML::Simple
 Date::Parse
 CGI::FormBuilder

@@ -25,6 +25,7 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 	hook(type => "rcs", id => "rcs_receive", call => \&rcs_receive);
 }
 
@@ -51,6 +52,9 @@ sub checkconfig () {
 			wrappermode => (defined $config{git_wrappermode} ? $config{git_wrappermode} : "06755"),
 		};
 	}
+
+	# Avoid notes, parser does not handle and they only slow things down.
+	$ENV{GIT_NOTES_REF}="";
 	
 	# Run receive test only if being called by the wrapper, and not
 	# when generating same.
@@ -65,6 +69,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		git_wrapper => {
 			type => "string",
@@ -275,11 +280,35 @@ sub merge_past ($$$) {
 	return $conflict;
 }
 
-sub parse_diff_tree ($@) {
+{
+my $prefix;
+sub decode_git_file ($) {
+	my $file=shift;
+
+	# git does not output utf-8 filenames, but instead
+	# double-quotes them with the utf-8 characters
+	# escaped as \nnn\nnn.
+	if ($file =~ m/^"(.*)"$/) {
+		($file=$1) =~ s/\\([0-7]{1,3})/chr(oct($1))/eg;
+	}
+
+	# strip prefix if in a subdir
+	if (! defined $prefix) {
+		($prefix) = run_or_die('git', 'rev-parse', '--show-prefix');
+		if (! defined $prefix) {
+			$prefix="";
+		}
+	}
+	$file =~ s/^\Q$prefix\E//;
+
+	return decode("utf8", $file);
+}
+}
+
+sub parse_diff_tree ($) {
 	# Parse the raw diff tree chunk and return the info hash.
 	# See git-diff-tree(1) for the syntax.
-
-	my ($prefix, $dt_ref) = @_;
+	my $dt_ref = shift;
 
 	# End of stream?
 	return if !defined @{ $dt_ref } ||
@@ -313,8 +342,9 @@ sub parse_diff_tree ($@) {
 			$ci{ "${who}_epoch" } = $epoch;
 			$ci{ "${who}_tz"    } = $tz;
 
-			if ($name =~ m/^[^<]+\s+<([^@>]+)/) {
-				$ci{"${who}_username"} = $1;
+			if ($name =~ m/^([^<]+)\s+<([^@>]+)/) {
+				$ci{"${who}_name"} = $1;
+				$ci{"${who}_username"} = $2;
 			}
 			elsif ($name =~ m/^([^<]+)\s+<>$/) {
 				$ci{"${who}_username"} = $1;
@@ -362,16 +392,9 @@ sub parse_diff_tree ($@) {
 			my $sha1_to = shift(@tmp);
 			my $status = shift(@tmp);
 
-			# git does not output utf-8 filenames, but instead
-			# double-quotes them with the utf-8 characters
-			# escaped as \nnn\nnn.
-			if ($file =~ m/^"(.*)"$/) {
-				($file=$1) =~ s/\\([0-7]{1,3})/chr(oct($1))/eg;
-			}
-			$file =~ s/^\Q$prefix\E//;
 			if (length $file) {
 				push @{ $ci{'details'} }, {
-					'file'      => decode("utf8", $file),
+					'file'      => decode_git_file($file),
 					'sha1_from' => $sha1_from[0],
 					'sha1_to'   => $sha1_to,
 					'mode_from' => $mode_from[0],
@@ -398,10 +421,9 @@ sub git_commit_info ($;$) {
 	my @raw_lines = run_or_die('git', 'log', @opts,
 		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
 		'-r', $sha1, '--', '.');
-	my ($prefix) = run_or_die('git', 'rev-parse', '--show-prefix');
 
 	my @ci;
-	while (my $parsed = parse_diff_tree(($prefix or ""), \@raw_lines)) {
+	while (my $parsed = parse_diff_tree(\@raw_lines)) {
 		push @ci, $parsed;
 	}
 
@@ -419,7 +441,10 @@ sub git_sha1 (;$) {
 		'--', $file);
 	if ($sha1) {
 		($sha1) = $sha1 =~ m/($sha1_pattern)/; # sha1 is untainted now
-	} else { debug("Empty sha1sum for '$file'.") }
+	}
+	else {
+		debug("Empty sha1sum for '$file'.");
+	}
 	return defined $sha1 ? $sha1 : q{};
 }
 
@@ -439,43 +464,60 @@ sub rcs_prepedit ($) {
 	return git_sha1($file);
 }
 
-sub rcs_commit ($$$;$$) {
+sub rcs_commit (@) {
 	# Try to commit the page; returns undef on _success_ and
 	# a version of the page with the rcs's conflict markers on
 	# failure.
-
-	my ($file, $message, $rcstoken, $user, $ipaddr) = @_;
+	my %params=@_;
 
 	# Check to see if the page has been changed by someone else since
 	# rcs_prepedit was called.
-	my $cur    = git_sha1($file);
-	my ($prev) = $rcstoken =~ /^($sha1_pattern)$/; # untaint
+	my $cur    = git_sha1($params{file});
+	my ($prev) = $params{token} =~ /^($sha1_pattern)$/; # untaint
 
 	if (defined $cur && defined $prev && $cur ne $prev) {
-		my $conflict = merge_past($prev, $file, $dummy_commit_msg);
+		my $conflict = merge_past($prev, $params{file}, $dummy_commit_msg);
 		return $conflict if defined $conflict;
 	}
 
-	rcs_add($file);	
-	return rcs_commit_staged($message, $user, $ipaddr);
+	rcs_add($params{file});
+	return rcs_commit_staged(
+		message => $params{message},
+		session => $params{session},
+	);
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr)=@_;
-
-	# Set the commit author and email to the web committer.
+	my %params=@_;
+	
 	my %env=%ENV;
-	if (defined $user || defined $ipaddr) {
-		my $u=encode_utf8(defined $user ? $user : $ipaddr);
-		$ENV{GIT_AUTHOR_NAME}=$u;
-		$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
+
+	if (defined $params{session}) {
+		# Set the commit author and email based on web session info.
+		my $u;
+		if (defined $params{session}->param("name")) {
+			$u=$params{session}->param("name");
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			$u=$params{session}->remote_addr();
+		}
+		if (defined $u) {
+			$u=encode_utf8($u);
+			$ENV{GIT_AUTHOR_NAME}=$u;
+		}
+		if (defined $params{session}->param("nickname")) {
+			$u=encode_utf8($params{session}->param("nickname"));
+		}
+		if (defined $u) {
+			$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
+		}
 	}
 
-	$message = IkiWiki::possibly_foolish_untaint($message);
+	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
 	my @opts;
-	if ($message !~ /\S/) {
+	if ($params{message} !~ /\S/) {
 		# Force git to allow empty commit messages.
 		# (If this version of git supports it.)
 		my ($version)=`git --version` =~ /git version (.*)/;
@@ -483,13 +525,13 @@ sub rcs_commit_staged ($$$) {
 			push @opts, '--cleanup=verbatim';
 		}
 		else {
-			$message.=".";
+			$params{message}.=".";
 		}
 	}
 	push @opts, '-q';
 	# git commit returns non-zero if file has not been really changed.
 	# so we should ignore its exit status (hence run_or_non).
-	if (run_or_non('git', 'commit', @opts, '-m', $message)) {
+	if (run_or_non('git', 'commit', @opts, '-m', $params{message})) {
 		if (length $config{gitorigin_branch}) {
 			run_or_cry('git', 'push', $config{gitorigin_branch});
 		}
@@ -566,7 +608,16 @@ sub rcs_recentchanges ($) {
 
 		my $user=$ci->{'author_username'};
 		my $web_commit = ($ci->{'author'} =~ /\@web>/);
-		
+		my $nickname;
+
+		# Set nickname only if a non-url author_username is available,
+		# and author_name is an url.
+		if ($user !~ /:\/\// && defined $ci->{'author_name'} &&
+		    $ci->{'author_name'} =~ /:\/\//) {
+			$nickname=$user;
+			$user=$ci->{'author_name'};
+		}
+
 		# compatability code for old web commit messages
 		if (! $web_commit &&
 		      defined $messages[0] &&
@@ -579,6 +630,7 @@ sub rcs_recentchanges ($) {
 		push @rets, {
 			rev        => $sha1,
 			user       => $user,
+			nickname   => $nickname,
 			committype => $web_commit ? "web" : "git",
 			when       => $when,
 			message    => [@messages],
@@ -608,23 +660,50 @@ sub rcs_diff ($) {
 	}
 }
 
+{
+my %time_cache;
+
+sub findtimes ($$) {
+	my $file=shift;
+	my $id=shift; # 0 = mtime ; 1 = ctime
+
+	if (! keys %time_cache) {
+		my $date;
+		foreach my $line (run_or_die('git', 'log',
+				'--pretty=format:%ct',
+				'--name-only', '--relative')) {
+			if (! defined $date && $line =~ /^(\d+)$/) {
+				$date=$line;
+			}
+			elsif (! length $line) {
+				$date=undef;
+			}
+			else {
+				my $f=decode_git_file($line);
+
+				if (! $time_cache{$f}) {
+					$time_cache{$f}[0]=$date; # mtime
+				}
+				$time_cache{$f}[1]=$date; # ctime
+			}
+		}
+	}
+
+	return exists $time_cache{$file} ? $time_cache{$file}[$id] : 0;
+}
+
+}
+
 sub rcs_getctime ($) {
 	my $file=shift;
-	# Remove srcdir prefix
-	$file =~ s/^\Q$config{srcdir}\E\/?//;
 
-	my @raw_lines = run_or_die('git', 'log', 
-		'--follow', '--no-merges',
-		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
-		'-r', '--', $file);
-	my @ci;
-	while (my $parsed = parse_diff_tree("", \@raw_lines)) {
-		push @ci, $parsed;
-	}
-	my $ctime = $ci[$#ci]->{'author_epoch'};
-	debug("ctime for '$file': ". localtime($ctime));
+	return findtimes($file, 1);
+}
 
-	return $ctime;
+sub rcs_getmtime ($) {
+	my $file=shift;
+
+	return findtimes($file, 0);
 }
 
 sub rcs_receive () {

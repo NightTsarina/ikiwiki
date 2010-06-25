@@ -60,15 +60,15 @@ sub refresh ($) {
 	}
 }
 
-# Enable the recentchanges link on wiki pages.
+# Enable the recentchanges link.
 sub pagetemplate (@) {
 	my %params=@_;
 	my $template=$params{template};
 	my $page=$params{page};
 
 	if (defined $config{recentchangespage} && $config{rcs} &&
-	    $page ne $config{recentchangespage} &&
-	    $template->query(name => "recentchangesurl")) {
+	    $template->query(name => "recentchangesurl") &&
+	    $page ne $config{recentchangespage}) {
 		$template->param(recentchangesurl => urlto($config{recentchangespage}, $page));
 		$template->param(have_actions => 1);
 	}
@@ -114,17 +114,16 @@ sub store ($$$) {
 	];
 	push @{$change->{pages}}, { link => '...' } if $is_excess;
 
-	# See if the committer is an openid.
 	$change->{author}=$change->{user};
 	my $oiduser=eval { IkiWiki::openiduser($change->{user}) };
 	if (defined $oiduser) {
 		$change->{authorurl}=$change->{user};
-		$change->{user}=$oiduser;
+		$change->{user}=defined $change->{nickname} ? $change->{nickname} : $oiduser;
 	}
 	elsif (length $config{cgiurl}) {
 		$change->{authorurl} = IkiWiki::cgiurl(
 			do => "goto",
-			page => (length $config{userdir} ? "$config{userdir}/" : "").$change->{author},
+			page => IkiWiki::userpage($change->{author}),
 		);
 	}
 

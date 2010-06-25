@@ -23,6 +23,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "web",
 		},
 }
 
@@ -55,11 +56,17 @@ sub preprocess (@) {
 	}
 
 	my $link=linkpage($params{template});
+	add_depends($params{page}, $link, deptype("presence"));
 	my $bestlink=bestlink($params{page}, $link);
+	if (! length $bestlink) {
+		add_depends($params{page}, "templates/$link", deptype("presence"));
+		$link="/templates/".$link;
+		$bestlink=bestlink($params{page}, $link);
+	}
 	$pagestate{$params{page}}{edittemplate}{$params{match}}=$bestlink;
 
-	return "" if ($params{silent} && IkiWiki::yesno($params{silent}));
-	add_depends($params{page}, $link, deptype("presence"));
+	return "" if ($params{silent} && IkiWiki::yesno($params{silent})) &&
+		length $bestlink;
 	return sprintf(gettext("edittemplate %s registered for %s"),
 		htmllink($params{page}, $params{destpage}, $link),
 	       	$params{match});
@@ -113,28 +120,18 @@ sub filltemplate ($$) {
 	my $template_page=shift;
 	my $page=shift;
 
-	my $template_file=$pagesources{$template_page};
-	if (! defined $template_file) {
-		return;
-	}
-
 	my $template;
 	eval {
-		$template=HTML::Template->new(
-			filter => sub {
-				my $text_ref = shift;
-				$$text_ref=&Encode::decode_utf8($$text_ref);
-				chomp $$text_ref;
-			},
-			filename => srcfile($template_file),
-			die_on_bad_params => 0,
-			no_includes => 1,
-		);
+		# force page name absolute so it doesn't look in templates/
+		$template=template("/".$template_page);
 	};
 	if ($@) {
 		# Indicate that the earlier preprocessor directive set 
 		# up a template that doesn't work.
-		return "[[!pagetemplate ".gettext("failed to process")." $@]]";
+		return "[[!pagetemplate ".gettext("failed to process template:")." $@]]";
+	}
+	if (! defined $template) {
+		return;
 	}
 
 	$template->param(name => $page);

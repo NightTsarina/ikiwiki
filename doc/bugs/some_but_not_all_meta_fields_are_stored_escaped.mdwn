@@ -1,0 +1,44 @@
+[[!template id=gitbranch branch=smcv/unescaped-meta author="[[Simon_McVittie|smcv]]"]]
+[[!tag patch]]
+(Warning: this branch has not been tested thoroughly.)
+
+While discussing the [[plugins/meta]] plugin on IRC, Joey pointed out that
+it stores most meta fields unescaped, but 'title', 'guid' and 'description'
+are special-cased and stored escaped (with numeric XML/HTML entities). This
+is to avoid emitting markup in the `<title>` of a HTML page, or in an RSS/Atom
+feed, neither of which are subject to the [[plugins/htmlscrubber]].
+
+However, having the meta fields "partially escaped" like this is somewhat
+error-prone. Joey suggested that perhaps everything should be stored
+unescaped, and the escaping should be done on output; this branch
+implements that.
+
+Points of extra subtlety:
+
+* The title given to the [[plugins/search]] plugin was previously HTML;
+  now it's plain text, potentially containing markup characters. I suspect
+  that that's what Xapian wants anyway (which is why I didn't change it),
+  but I could be wrong...
+
+  > AFAICS, this if anything, fixes a bug, xapian definitely expects
+  > unescaped text here. --[[Joey]] 
+
+* Page descriptions in the HTML `<head>` were previously double-escaped:
+  the description was stored escaped with numeric entities, then that was
+  output with a second layer of escaping! In this branch, I just emit
+  the page description escaped once, as was presumably the intention.
+
+* It's safe to apply this change to a wiki and neglect to rebuild it
+  (assuming I implemented it correctly!), but until the wiki is rebuilt,
+  titles, descriptions and GUIDs for unchanged pages will appear
+  double-escaped on any page that inlines them in `quick=yes` mode, and
+  is rebuilt for some other reason. The failure mode is too much escaping
+  rather than too little, so it shouldn't be a security problem.
+
+* Reverting this change, if applied, is more dangerous; until the wiki is
+  rebuilt, any titles, descriptions and GUIDs on unchanged pages that
+  contained markup could appear unescaped on any page that inlines them
+  in `quick=yes` mode, and is rebuilt for some other reason. The failure
+  mode here would be too little escaping, i.e. cross-site scripting.
+
+[[!tag done]]

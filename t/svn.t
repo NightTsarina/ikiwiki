@@ -36,7 +36,11 @@ system "svn co file://$svnrepo/trunk $config{srcdir} >/dev/null";
 my $test1 = readfile("t/test1.mdwn");
 writefile('test1.mdwn', $config{srcdir}, $test1);
 IkiWiki::rcs_add("test1.mdwn");
-IkiWiki::rcs_commit("test1.mdwn", "Added the first page", "moo");
+IkiWiki::rcs_commit(
+	file => "test1.mdwn",
+	message => "Added the first page",
+	token => "moo",
+);
 
 my @changes;
 @changes = IkiWiki::rcs_recentchanges(3);

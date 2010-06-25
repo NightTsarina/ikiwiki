@@ -20,6 +20,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "core",
 		},
 }
 
@@ -87,15 +88,21 @@ sub preprocess (@) {
 
 	# Metadata collection that needs to happen during the scan pass.
 	if ($key eq 'title') {
-		$pagestate{$page}{meta}{title}=HTML::Entities::encode_numeric($value);
+		$pagestate{$page}{meta}{title}=$value;
+		if (exists $params{sortas}) {
+			$pagestate{$page}{meta}{titlesort}=$params{sortas};
+		}
+		else {
+			delete $pagestate{$page}{meta}{titlesort};
+		}
 		return "";
 	}
 	elsif ($key eq 'description') {
-		$pagestate{$page}{meta}{description}=HTML::Entities::encode_numeric($value);
+		$pagestate{$page}{meta}{description}=$value;
 		# fallthrough
 	}
 	elsif ($key eq 'guid') {
-		$pagestate{$page}{meta}{guid}=HTML::Entities::encode_numeric($value);
+		$pagestate{$page}{meta}{guid}=$value;
 		# fallthrough
 	}
 	elsif ($key eq 'license') {
@@ -115,6 +122,12 @@ sub preprocess (@) {
 	}
 	elsif ($key eq 'author') {
 		$pagestate{$page}{meta}{author}=$value;
+		if (exists $params{sortas}) {
+			$pagestate{$page}{meta}{authorsort}=$params{sortas};
+		}
+		else {
+			delete $pagestate{$page}{meta}{authorsort};
+		}
 		# fallthorough
 	}
 	elsif ($key eq 'authorurl') {
@@ -263,12 +276,17 @@ sub pagetemplate (@) {
 		$template->param(meta => join("\n", grep { (! $seen{$_}) && ($seen{$_}=1) } @{$metaheaders{$page}}));
 	}
 	if (exists $pagestate{$page}{meta}{title} && $template->query(name => "title")) {
-		$template->param(title => $pagestate{$page}{meta}{title});
+		$template->param(title => HTML::Entities::encode_numeric($pagestate{$page}{meta}{title}));
 		$template->param(title_overridden => 1);
 	}
 
-	foreach my $field (qw{author authorurl description permalink}) {
+	foreach my $field (qw{author authorurl permalink}) {
 		$template->param($field => $pagestate{$page}{meta}{$field})
+			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);
+	}
+
+	foreach my $field (qw{description}) {
+		$template->param($field => HTML::Entities::encode_numeric($pagestate{$page}{meta}{$field}))
 			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);
 	}
 
@@ -278,6 +296,33 @@ sub pagetemplate (@) {
 		     $pagestate{$page}{meta}{$field} ne $pagestate{$destpage}{meta}{$field})) {
 			$template->param($field => htmlize($page, $destpage, $pagestate{$page}{meta}{$field}));
 		}
+	}
+}
+
+sub get_sort_key {
+	my $page = shift;
+	my $meta = shift;
+
+	# e.g. titlesort (also makes sense for author)
+	my $key = $pagestate{$page}{meta}{$meta . "sort"};
+	return $key if defined $key;
+
+	# e.g. title
+	$key = $pagestate{$page}{meta}{$meta};
+	return $key if defined $key;
+
+	# fall back to closer-to-core things
+	if ($meta eq 'title') {
+		return pagetitle(IkiWiki::basename($page));
+	}
+	elsif ($meta eq 'date') {
+		return $IkiWiki::pagectime{$page};
+	}
+	elsif ($meta eq 'updated') {
+		return $IkiWiki::pagemtime{$page};
+	}
+	else {
+		return '';
 	}
 }
 
@@ -301,11 +346,11 @@ sub match {
 			return IkiWiki::SuccessReason->new("$re matches $field of $page", $page => $IkiWiki::DEPEND_CONTENT, "" => 1);
 		}
 		else {
-			return IkiWiki::FailReason->new("$re does not match $field of $page", "" => 1);
+			return IkiWiki::FailReason->new("$re does not match $field of $page", $page => $IkiWiki::DEPEND_CONTENT, "" => 1);
 		}
 	}
 	else {
-		return IkiWiki::FailReason->new("$page does not have a $field", "" => 1);
+		return IkiWiki::FailReason->new("$page does not have a $field", $page => $IkiWiki::DEPEND_CONTENT);
 	}
 }
 
@@ -329,6 +374,33 @@ sub match_license ($$;@) {
 
 sub match_copyright ($$;@) {
 	IkiWiki::Plugin::meta::match("copyright", @_);
+}
+
+sub match_guid ($$;@) {
+	IkiWiki::Plugin::meta::match("guid", @_);
+}
+
+package IkiWiki::SortSpec;
+
+sub cmp_meta {
+	my $meta = shift;
+	error(gettext("sort=meta requires a parameter")) unless defined $meta;
+
+	if ($meta eq 'updated' || $meta eq 'date') {
+		return IkiWiki::Plugin::meta::get_sort_key($a, $meta)
+			<=>
+			IkiWiki::Plugin::meta::get_sort_key($b, $meta);
+	}
+
+	return IkiWiki::Plugin::meta::get_sort_key($a, $meta)
+		cmp
+		IkiWiki::Plugin::meta::get_sort_key($b, $meta);
+}
+
+# A prototype of how sort=title could behave in 4.0 or something
+sub cmp_meta_title {
+	$_[0] = 'title';
+	return cmp_meta(@_);
 }
 
 1

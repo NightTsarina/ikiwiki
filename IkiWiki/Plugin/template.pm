@@ -5,7 +5,6 @@ package IkiWiki::Plugin::template;
 use warnings;
 use strict;
 use IkiWiki 3.00;
-use HTML::Template;
 use Encode;
 
 sub import {
@@ -19,63 +18,59 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
 sub preprocess (@) {
 	my %params=@_;
 
+	# This needs to run even in scan mode, in order to process
+	# links and other metadata included via the template.
+	my $scan=! defined wantarray;
+
 	if (! exists $params{id}) {
 		error gettext("missing id parameter")
 	}
 
-	my $template_page="templates/$params{id}";
-	add_depends($params{page}, $template_page);
-
-	my $template_file=$pagesources{$template_page};
-	return sprintf(gettext("template %s not found"),
-		htmllink($params{page}, $params{destpage}, "/".$template_page))
-			unless defined $template_file;
-
+	# The bare id is used, so a page templates/$id can be used as 
+	# the template.
 	my $template;
 	eval {
-		$template=HTML::Template->new(
-	        	filter => sub {
-	                        my $text_ref = shift;
-	                        $$text_ref=&Encode::decode_utf8($$text_ref);
-				chomp $$text_ref;
-	                },
-	                filename => srcfile($template_file),
-       			die_on_bad_params => 0,
-			no_includes => 1,
-			blind_cache => 1,
-		);
+		$template=template_depends($params{id}, $params{page},
+			blind_cache => 1);
 	};
 	if ($@) {
-		error gettext("failed to process:")." $@"
+		error gettext("failed to process template:")." $@";
+	}
+	if (! $template) {
+		error sprintf(gettext("%s not found"),
+			htmllink($params{page}, $params{destpage},
+				"/templates/$params{id}"))
 	}
 
 	$params{basename}=IkiWiki::basename($params{page});
 
 	foreach my $param (keys %params) {
+		my $value=IkiWiki::preprocess($params{page}, $params{destpage},
+		          IkiWiki::filter($params{page}, $params{destpage},
+		          $params{$param}), $scan);
 		if ($template->query(name => $param)) {
-			$template->param($param =>
-				IkiWiki::htmlize($params{page}, $params{destpage},
+			my $htmlvalue=IkiWiki::htmlize($params{page}, $params{destpage},
 					pagetype($pagesources{$params{page}}),
-					$params{$param}));
+					$value);
+			chomp $htmlvalue;
+			$template->param($param => $htmlvalue);
 		}
 		if ($template->query(name => "raw_$param")) {
-			$template->param("raw_$param" => $params{$param});
+			chomp $value;
+			$template->param("raw_$param" => $value);
 		}
 	}
 
-	# This needs to run even in scan mode, in order to process
-	# links and other metadata includes via the template.
-	my $scan=! defined wantarray;
-
 	return IkiWiki::preprocess($params{page}, $params{destpage},
-		IkiWiki::filter($params{page}, $params{destpage},
-		$template->output), $scan);
+	       IkiWiki::filter($params{page}, $params{destpage},
+	       $template->output), $scan);
 }
 
 1

@@ -27,6 +27,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
@@ -74,7 +75,7 @@ sub preprocess (@) {
 	}
 
 	if ($style eq 'table') {
-		return "<table class='pageStats'>\n".
+		return "<table class='".(exists $params{class} ? $params{class} : "pageStats")."'>\n".
 			join("\n", map {
 				"<tr><td>".
 				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1).
@@ -86,16 +87,31 @@ sub preprocess (@) {
 	else {
 		# In case of misspelling, default to a page cloud
 
-		my $res = "<div class='pagecloud'>\n";
+		my $res;
+		if ($style eq 'list') {
+			$res = "<ul class='".(exists $params{class} ? $params{class} : "list")."'>\n";
+		}
+		else {
+			$res = "<div class='".(exists $params{class} ? $params{class} : "pagecloud")."'>\n";
+		}
 		foreach my $page (sort keys %counts) {
 			next unless $counts{$page} > 0;
 
 			my $class = $classes[$counts{$page} * scalar(@classes) / ($max + 1)];
+			
+			$res.="<li>" if $style eq 'list';
 			$res .= "<span class=\"$class\">".
 			        htmllink($params{page}, $params{destpage}, $page).
 			        "</span>\n";
+			$res.="</li>" if $style eq 'list';
+
 		}
-		$res .= "</div>\n";
+		if ($style eq 'list') {
+			$res .= "</ul>\n";
+		}
+		else {
+			$res .= "</div>\n";
+		}
 
 		return $res;
 	}

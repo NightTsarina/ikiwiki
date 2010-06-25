@@ -49,6 +49,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "core",
 		},
 		rss => {
 			type => "boolean",
@@ -159,7 +160,7 @@ sub preprocess_inline (@) {
 	my $rss=(($config{rss} || $config{allowrss}) && exists $params{rss}) ? yesno($params{rss}) : $config{rss};
 	my $atom=(($config{atom} || $config{allowatom}) && exists $params{atom}) ? yesno($params{atom}) : $config{atom};
 	my $quick=exists $params{quick} ? yesno($params{quick}) : 0;
-	my $feeds=! $nested && (exists $params{feeds} ? yesno($params{feeds}) : !$quick);
+	my $feeds=! $nested && (exists $params{feeds} ? yesno($params{feeds}) : !$quick && ! $raw);
 	my $emptyfeeds=exists $params{emptyfeeds} ? yesno($params{emptyfeeds}) : 1;
 	my $feedonly=yesno($params{feedonly});
 	if (! exists $params{show} && ! $archive) {
@@ -298,7 +299,7 @@ sub preprocess_inline (@) {
 	    (exists $params{postform} && yesno($params{postform}))) &&
 	    IkiWiki->can("cgi_editpage")) {
 		# Add a blog post form, with feed buttons.
-		my $formtemplate=template("blogpost.tmpl", blind_cache => 1);
+		my $formtemplate=template_depends("blogpost.tmpl", $params{page}, blind_cache => 1);
 		$formtemplate->param(cgiurl => $config{cgiurl});
 		$formtemplate->param(rootpage => rootpage(%params));
 		$formtemplate->param(rssurl => $rssurl) if $feeds && $rss;
@@ -319,19 +320,28 @@ sub preprocess_inline (@) {
 	}
 	elsif ($feeds && !$params{preview} && ($emptyfeeds || @feedlist)) {
 		# Add feed buttons.
-		my $linktemplate=template("feedlink.tmpl", blind_cache => 1);
+		my $linktemplate=template_depends("feedlink.tmpl", $params{page}, blind_cache => 1);
 		$linktemplate->param(rssurl => $rssurl) if $rss;
 		$linktemplate->param(atomurl => $atomurl) if $atom;
 		$ret.=$linktemplate->output;
 	}
 	
 	if (! $feedonly) {
-		require HTML::Template;
-		my @params=IkiWiki::template_params($params{template}.".tmpl", blind_cache => 1);
-		if (! @params) {
-			error sprintf(gettext("nonexistant template %s"), $params{template});
+		my $template;
+		if (! $raw) {
+			# cannot use wiki pages as templates; template not sanitized due to
+			# format hook hack
+			eval {
+				$template=template_depends($params{template}.".tmpl", $params{page},
+					blind_cache => 1);
+			};
+			if ($@) {
+				error gettext("failed to process template:")." $@";
+			}
+			if (! $template) {
+				error sprintf(gettext("template %s not found"), $params{template}.".tmpl");
+			}
 		}
-		my $template=HTML::Template->new(@params) unless $raw;
 		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));
 	
 		foreach my $page (@list) {
@@ -348,10 +358,11 @@ sub preprocess_inline (@) {
 				$template->param(pageurl => urlto($page, $params{destpage}));
 				$template->param(inlinepage => $page);
 				$template->param(title => pagetitle(basename($page)));
-				$template->param(ctime => displaytime($pagectime{$page}, $params{timeformat}));
+				$template->param(ctime => displaytime($pagectime{$page}, $params{timeformat}, 1));
 				$template->param(mtime => displaytime($pagemtime{$page}, $params{timeformat}));
 				$template->param(first => 1) if $page eq $list[0];
 				$template->param(last => 1) if $page eq $list[$#list];
+				$template->param(html5 => $config{html5});
 	
 				if ($actions) {
 					my $file = $pagesources{$page};
@@ -465,6 +476,13 @@ sub get_inline_content ($$) {
 		       filter($page, $destpage,
 		       readfile(srcfile($file))))));
 		$nested--;
+		if (isinternal($page)) {
+			# make inlined text of internal pages searchable
+			run_hooks(indexhtml => sub {
+				shift->(page => $page, destpage => $page,
+					content => $ret);
+			});
+		}
 	}
 	
 	if ($cached_destpage ne $destpage) {
@@ -486,16 +504,6 @@ sub date_822 ($) {
 	my $lc_time=POSIX::setlocale(&POSIX::LC_TIME);
 	POSIX::setlocale(&POSIX::LC_TIME, "C");
 	my $ret=POSIX::strftime("%a, %d %b %Y %H:%M:%S %z", localtime($time));
-	POSIX::setlocale(&POSIX::LC_TIME, $lc_time);
-	return $ret;
-}
-
-sub date_3339 ($) {
-	my $time=shift;
-
-	my $lc_time=POSIX::setlocale(&POSIX::LC_TIME);
-	POSIX::setlocale(&POSIX::LC_TIME, "C");
-	my $ret=POSIX::strftime("%Y-%m-%dT%H:%M:%SZ", gmtime($time));
 	POSIX::setlocale(&POSIX::LC_TIME, $lc_time);
 	return $ret;
 }
@@ -533,7 +541,7 @@ sub genfeed ($$$$$@) {
 	
 	my $url=URI->new(encode_utf8(urlto($page,"",1)));
 	
-	my $itemtemplate=template($feedtype."item.tmpl", blind_cache => 1);
+	my $itemtemplate=template_depends($feedtype."item.tmpl", $page, blind_cache => 1);
 	my $content="";
 	my $lasttime = 0;
 	foreach my $p (@pages) {
@@ -552,7 +560,8 @@ sub genfeed ($$$$$@) {
 
 		if (exists $pagestate{$p}) {
 			if (exists $pagestate{$p}{meta}{guid}) {
-				$itemtemplate->param(guid => $pagestate{$p}{meta}{guid});
+				eval q{use HTML::Entities};
+				$itemtemplate->param(guid => HTML::Entities::encode_numeric($pagestate{$p}{meta}{guid}));
 			}
 
 			if (exists $pagestate{$p}{meta}{updated}) {
@@ -596,7 +605,7 @@ sub genfeed ($$$$$@) {
 		$lasttime = $pagemtime{$p} if $pagemtime{$p} > $lasttime;
 	}
 
-	my $template=template($feedtype."page.tmpl", blind_cache => 1);
+	my $template=template_depends($feedtype."page.tmpl", $page, blind_cache => 1);
 	$template->param(
 		title => $page ne "index" ? pagetitle($page) : $config{wikiname},
 		wikiname => $config{wikiname},

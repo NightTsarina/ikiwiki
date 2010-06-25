@@ -5,26 +5,26 @@ package IkiWiki;
 use warnings;
 use strict;
 use Encode;
-use HTML::Entities;
 use URI::Escape q{uri_escape_utf8};
-use POSIX;
+use POSIX ();
 use Storable;
 use open qw{:utf8 :std};
 
 use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
-	    %pagestate %wikistate %renderedfiles %oldrenderedfiles
-	    %pagesources %destsources %depends %depends_simple %hooks
-	    %forcerebuild %loaded_plugins};
+	%pagestate %wikistate %renderedfiles %oldrenderedfiles
+	%pagesources %delpagesources %destsources %depends %depends_simple
+	@mass_depends %hooks %forcerebuild %loaded_plugins %typedlinks
+	%oldtypedlinks %autofiles};
 
 use Exporter q{import};
-our @EXPORT = qw(hook debug error template htmlpage deptype
-                 add_depends pagespec_match pagespec_match_list bestlink
-		 htmllink readfile writefile pagetype srcfile pagename
-		 displaytime will_render gettext urlto targetpage
-		 add_underlay pagetitle titlepage linkpage newpagefile
-		 inject add_link
-                 %config %links %pagestate %wikistate %renderedfiles
-                 %pagesources %destsources);
+our @EXPORT = qw(hook debug error htmlpage template template_depends
+	deptype add_depends pagespec_match pagespec_match_list bestlink
+	htmllink readfile writefile pagetype srcfile pagename
+	displaytime will_render gettext ngettext urlto targetpage
+	add_underlay pagetitle titlepage linkpage newpagefile
+	inject add_link add_autofile
+	%config %links %pagestate %wikistate %renderedfiles
+	%pagesources %destsources %typedlinks);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
 our $version='unknown'; # VERSION_AUTOREPLACE done by Makefile, DNE
 our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
@@ -37,6 +37,7 @@ our $DEPEND_LINKS=4;
 # Optimisation.
 use Memoize;
 memoize("abs2rel");
+memoize("sortspec_translate");
 memoize("pagespec_translate");
 memoize("template_file");
 
@@ -150,17 +151,10 @@ sub getsetup () {
 	templatedir => {
 		type => "string",
 		default => "$installdir/share/ikiwiki/templates",
-		description => "location of template files",
+		description => "additional directory to search for template files",
 		advanced => 1,
 		safe => 0, # path
 		rebuild => 1,
-	},
-	templatedirs => {
-		type => "internal",
-		default => [],
-		description => "additional directories containing template files",
-		safe => 0,
-		rebuild => 0,
 	},
 	underlaydir => {
 		type => "string",
@@ -237,6 +231,14 @@ sub getsetup () {
 		type => "string",
 		default => gettext("Discussion"),
 		description => "name of Discussion pages",
+		safe => 1,
+		rebuild => 1,
+	},
+	html5 => {
+		type => "boolean",
+		default => 0,
+		description => "generate HTML5? (experimental)",
+		advanced => 1,
 		safe => 1,
 		rebuild => 1,
 	},
@@ -334,18 +336,27 @@ sub getsetup () {
 		safe => 0, # paranoia
 		rebuild => 0,
 	},
+	include => {
+		type => "string",
+		default => undef,
+		example => '^\.htaccess$',
+		description => "regexp of normally excluded files to include",
+		advanced => 1,
+		safe => 0, # regexp
+		rebuild => 1,
+	},
 	exclude => {
 		type => "string",
 		default => undef,
-		example => '\.wav$',
-		description => "regexp of source files to ignore",
+		example => '^(*\.private|Makefile)$',
+		description => "regexp of files that should be skipped",
 		advanced => 1,
 		safe => 0, # regexp
 		rebuild => 1,
 	},
 	wiki_file_prune_regexps => {
 		type => "internal",
-		default => [qr/(^|\/)\.\.(\/|$)/, qr/^\./, qr/\/\./,
+		default => [qr/(^|\/)\.\.(\/|$)/, qr/^\//, qr/^\./, qr/\/\./,
 			qr/\.x?html?$/, qr/\.ikiwiki-new$/,
 			qr/(^|\/).svn\//, qr/.arch-ids\//, qr/{arch}\//,
 			qr/(^|\/)_MTN\//, qr/(^|\/)_darcs\//,
@@ -409,6 +420,13 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
+	clean => {
+		type => "internal",
+		default => 0,
+		description => "running in clean mode",
+		safe => 0,
+		rebuild => 0,
+	},
 	refresh => {
 		type => "internal",
 		default => 0,
@@ -423,10 +441,9 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
-	getctime => {
+	gettime => {
 		type => "internal",
-		default => 0,
-		description => "running in getctime mode",
+		description => "running in gettime mode",
 		safe => 0,
 		rebuild => 0,
 	},
@@ -448,6 +465,13 @@ sub getsetup () {
 		type => "internal",
 		default => undef,
 		description => "path to setup file",
+		safe => 0,
+		rebuild => 0,
+	},
+	setuptype => {
+		type => "internal",
+		default => "Standard",
+		description => "perl class to use to dump setup file",
 		safe => 0,
 		rebuild => 0,
 	},
@@ -568,10 +592,11 @@ sub loadplugins () {
 	return 1;
 }
 
-sub loadplugin ($) {
+sub loadplugin ($;$) {
 	my $plugin=shift;
+	my $force=shift;
 
-	return if grep { $_ eq $plugin} @{$config{disable_plugins}};
+	return if ! $force && grep { $_ eq $plugin} @{$config{disable_plugins}};
 
 	foreach my $dir (defined $config{libdir} ? possibly_foolish_untaint($config{libdir}) : undef,
 	                 "$installdir/lib/ikiwiki") {
@@ -941,7 +966,12 @@ sub linkpage ($) {
 sub cgiurl (@) {
 	my %params=@_;
 
-	return $config{cgiurl}."?".
+	my $cgiurl=$config{cgiurl};
+	if (exists $params{cgiurl}) {
+		$cgiurl=$params{cgiurl};
+		delete $params{cgiurl};
+	}
+	return $cgiurl."?".
 		join("&amp;", map $_."=".uri_escape_utf8($params{$_}), keys %params);
 }
 
@@ -969,10 +999,18 @@ sub abs2rel ($$) {
 	return $ret;
 }
 
-sub displaytime ($;$) {
+sub displaytime ($;$$) {
 	# Plugins can override this function to mark up the time to
 	# display.
-	return '<span class="date">'.formattime(@_).'</span>';
+	my $time=formattime($_[0], $_[1]);
+	if ($config{html5}) {
+		return '<time datetime="'.date_3339($_[0]).'"'.
+			($_[2] ? ' pubdate="pubdate"' : '').
+			'>'.$time.'</time>';
+	}
+	else {
+		return '<span class="date">'.$time.'</span>';
+	}
 }
 
 sub formattime ($;$) {
@@ -986,6 +1024,16 @@ sub formattime ($;$) {
 	# strftime doesn't know about encodings, so make sure
 	# its output is properly treated as utf8
 	return decode_utf8(POSIX::strftime($format, localtime($time)));
+}
+
+sub date_3339 ($) {
+	my $time=shift;
+
+	my $lc_time=POSIX::setlocale(&POSIX::LC_TIME);
+	POSIX::setlocale(&POSIX::LC_TIME, "C");
+	my $ret=POSIX::strftime("%Y-%m-%dT%H:%M:%SZ", gmtime($time));
+	POSIX::setlocale(&POSIX::LC_TIME, $lc_time);
+	return $ret;
 }
 
 sub beautify_urlpath ($) {
@@ -1065,14 +1113,16 @@ sub htmllink ($$$;@) {
 		$bestlink=htmlpage($bestlink);
 
 		if (! $destsources{$bestlink}) {
-			return $linktext unless length $config{cgiurl};
-			return "<span class=\"createlink\"><a href=\"".
-				cgiurl(
-					do => "create",
-					page => lc($link),
-					from => $lpage
-				).
-				"\" rel=\"nofollow\">?</a>$linktext</span>"
+			my $cgilink = "";
+			if (length $config{cgiurl}) {
+				$cgilink = "<a href=\"".
+					cgiurl(
+						do => "create",
+						page => lc($link),
+						from => $lpage
+					)."\" rel=\"nofollow\">?</a>";
+			}
+			return "<span class=\"createlink\">$cgilink$linktext</span>"
 		}
 	}
 	
@@ -1097,6 +1147,11 @@ sub htmllink ($$$;@) {
 	return "<a href=\"$bestlink\"@attrs>$linktext</a>";
 }
 
+sub userpage ($) {
+	my $user=shift;
+	return length $config{userdir} ? "$config{userdir}/$user" : $user;
+}
+
 sub openiduser ($) {
 	my $user=shift;
 
@@ -1105,11 +1160,10 @@ sub openiduser ($) {
 		my $display;
 
 		if (Net::OpenID::VerifiedIdentity->can("DisplayOfURL")) {
-			# this works in at least 2.x
 			$display = Net::OpenID::VerifiedIdentity::DisplayOfURL($user);
 		}
 		else {
-			# this only works in 1.x
+			# backcompat with old version
 			my $oid=Net::OpenID::VerifiedIdentity->new(identity => $user);
 			$display=$oid->display;
 		}
@@ -1122,7 +1176,7 @@ sub openiduser ($) {
 		# Convert "http://somehost.com/user" to "user [somehost.com]".
 		# (also "https://somehost.com/user/")
 		if ($display !~ /\[/) {
-			$display=~s/^https?:\/\/(.+)\/([^\/]+)\/?$/$2 [$1]/;
+			$display=~s/^https?:\/\/(.+)\/([^\/#?]+)\/?(?:[#?].*)?$/$2 [$1]/;
 		}
 		$display=~s!^https?://!!; # make sure this is removed
 		eval q{use CGI 'escapeHTML'};
@@ -1132,23 +1186,6 @@ sub openiduser ($) {
 	return;
 }
 
-sub userlink ($) {
-	my $user=shift;
-
-	my $oiduser=eval { openiduser($user) };
-	if (defined $oiduser) {
-		return "<a href=\"$user\">$oiduser</a>";
-	}
-	else {
-		eval q{use CGI 'escapeHTML'};
-		error($@) if $@;
-
-		return htmllink("", "", escapeHTML(
-			length $config{userdir} ? $config{userdir}."/".$user : $user
-		), noimageinline => 1);
-	}
-}
-
 sub htmlize ($$$$) {
 	my $page=shift;
 	my $destpage=shift;
@@ -1156,7 +1193,7 @@ sub htmlize ($$$$) {
 	my $content=shift;
 	
 	my $oneline = $content !~ /\n/;
-
+	
 	if (exists $hooks{htmlize}{$type}) {
 		$content=$hooks{htmlize}{$type}{call}->(
 			page => $page,
@@ -1177,10 +1214,9 @@ sub htmlize ($$$$) {
 	
 	if ($oneline) {
 		# hack to get rid of enclosing junk added by markdown
-		# and other htmlizers
+		# and other htmlizers/sanitizers
 		$content=~s/^<p>//i;
-		$content=~s/<\/p>$//i;
-		chomp $content;
+		$content=~s/<\/p>\n*$//i;
 	}
 
 	return $content;
@@ -1235,7 +1271,7 @@ sub preprocess ($$$;$$) {
 				(?:
 					"""(.*?)"""	# 2: triple-quoted value
 				|
-					"([^"]+)"	# 3: single-quoted value
+					"([^"]*?)"	# 3: single-quoted value
 				|
 					(\S+)		# 4: unquoted value
 				)
@@ -1321,7 +1357,7 @@ sub preprocess ($$$;$$) {
 					(?:
 						""".*?"""	# triple-quoted value
 						|
-						"[^"]+"		# single-quoted value
+						"[^"]*?"	# single-quoted value
 						|
 						[^"\s\]]+	# unquoted value
 					)
@@ -1344,7 +1380,7 @@ sub preprocess ($$$;$$) {
 					(?:
 						""".*?"""	# triple-quoted value
 						|
-						"[^"]+"		# single-quoted value
+						"[^"]*?"	# single-quoted value
 						|
 						[^"\s\]]+	# unquoted value
 					)
@@ -1371,10 +1407,6 @@ sub filter ($$$) {
 	});
 
 	return $content;
-}
-
-sub indexlink () {
-	return "<a href=\"$config{url}\">$config{wikiname}</a>";
 }
 
 sub check_canedit ($$$;$) {
@@ -1495,7 +1527,7 @@ sub loadindex () {
 	if (! $config{rebuild}) {
 		%pagesources=%pagemtime=%oldlinks=%links=%depends=
 		%destsources=%renderedfiles=%pagecase=%pagestate=
-		%depends_simple=();
+		%depends_simple=%typedlinks=%oldtypedlinks=();
 	}
 	my $in;
 	if (! open ($in, "<", "$config{wikistatedir}/indexdb")) {
@@ -1504,6 +1536,7 @@ sub loadindex () {
 			open ($in, "<", "$config{wikistatedir}/indexdb") || return;
 		}
 		else {
+			$config{gettime}=1; # first build
 			return;
 		}
 	}
@@ -1527,8 +1560,8 @@ sub loadindex () {
 		my $d=$pages->{$src};
 		my $page=pagename($src);
 		$pagectime{$page}=$d->{ctime};
+		$pagesources{$page}=$src;
 		if (! $config{rebuild}) {
-			$pagesources{$page}=$src;
 			$pagemtime{$page}=$d->{mtime};
 			$renderedfiles{$page}=$d->{dest};
 			if (exists $d->{links} && ref $d->{links}) {
@@ -1560,6 +1593,14 @@ sub loadindex () {
 			}
 			if (exists $d->{state}) {
 				$pagestate{$page}=$d->{state};
+			}
+			if (exists $d->{typedlinks}) {
+				$typedlinks{$page}=$d->{typedlinks};
+
+				while (my ($type, $links) = each %{$typedlinks{$page}}) {
+					next unless %$links;
+					$oldtypedlinks{$page}{$type} = {%$links};
+				}
 			}
 		}
 		$oldrenderedfiles{$page}=[@{$d->{dest}}];
@@ -1609,6 +1650,10 @@ sub saveindex () {
 			$index{page}{$src}{depends_simple} = $depends_simple{$page};
 		}
 
+		if (exists $typedlinks{$page} && %{$typedlinks{$page}}) {
+			$index{page}{$src}{typedlinks} = $typedlinks{$page};
+		}
+
 		if (exists $pagestate{$page}) {
 			foreach my $id (@hookids) {
 				foreach my $key (keys %{$pagestate{$page}{$id}}) {
@@ -1636,58 +1681,122 @@ sub saveindex () {
 }
 
 sub template_file ($) {
-	my $template=shift;
-
-	foreach my $dir ($config{templatedir}, @{$config{templatedirs}},
-	                 "$installdir/share/ikiwiki/templates") {
-		return "$dir/$template" if -e "$dir/$template";
+	my $name=shift;
+	
+	my $tpage=($name =~ s/^\///) ? $name : "templates/$name";
+	if ($name !~ /\.tmpl$/ && exists $pagesources{$tpage}) {
+		$tpage=$pagesources{$tpage};
+		$name.=".tmpl";
 	}
+
+	my $template=srcfile($tpage, 1);
+	if (defined $template) {
+		return $template, $tpage, 1 if wantarray;
+		return $template;
+	}
+	else {
+		$name=~s:/::; # avoid path traversal
+		foreach my $dir ($config{templatedir},
+		                 "$installdir/share/ikiwiki/templates") {
+			if (-e "$dir/$name") {
+				$template="$dir/$name";
+				last;
+			}
+		}
+		if (defined $template) {	
+			return $template, $tpage if wantarray;
+			return $template;
+		}
+	}
+
 	return;
 }
 
-sub template_params (@) {
-	my $filename=template_file(shift);
-
-	if (! defined $filename) {
-		return if wantarray;
-		return "";
+sub template_depends ($$;@) {
+	my $name=shift;
+	my $page=shift;
+	
+	my ($filename, $tpage, $untrusted)=template_file($name);
+	if (defined $page && defined $tpage) {
+		add_depends($page, $tpage);
 	}
 
-	my @ret=(
+	return unless defined $filename;
+
+	my @opts=(
 		filter => sub {
 			my $text_ref = shift;
 			${$text_ref} = decode_utf8(${$text_ref});
 		},
-		filename => $filename,
 		loop_context_vars => 1,
 		die_on_bad_params => 0,
-		@_
+		filename => $filename,
+		@_,
+		($untrusted ? (no_includes => 1) : ()),
 	);
-	return wantarray ? @ret : {@ret};
+	return @opts if wantarray;
+
+	require HTML::Template;
+	return HTML::Template->new(@opts);
 }
 
 sub template ($;@) {
-	require HTML::Template;
-	return HTML::Template->new(template_params(@_));
+	template_depends(shift, undef, @_);
 }
 
 sub misctemplate ($$;@) {
 	my $title=shift;
-	my $pagebody=shift;
+	my $content=shift;
+	my %params=@_;
 	
-	my $template=template("misc.tmpl");
-	$template->param(
-		title => $title,
-		indexlink => indexlink(),
-		wikiname => $config{wikiname},
-		pagebody => $pagebody,
-		baseurl => baseurl(),
-		@_,
-	);
+	my $template=template("page.tmpl");
+
+	my $page="";
+	if (exists $params{page}) {
+		$page=delete $params{page};
+	}
 	run_hooks(pagetemplate => sub {
-		shift->(page => "", destpage => "", template => $template);
+		shift->(
+			page => $page,
+			destpage => $page,
+			template => $template,
+		);
 	});
+	templateactions($template, "");
+
+	$template->param(
+		dynamic => 1,
+		title => $title,
+		wikiname => $config{wikiname},
+		content => $content,
+		baseurl => baseurl(),
+		html5 => $config{html5},
+		%params,
+	);
+	
 	return $template->output;
+}
+
+sub templateactions ($$) {
+	my $template=shift;
+	my $page=shift;
+
+	my $have_actions=0;
+	my @actions;
+	run_hooks(pageactions => sub {
+		push @actions, map { { action => $_ } } 
+			grep { defined } shift->(page => $page);
+	});
+	$template->param(actions => \@actions);
+
+	if ($config{cgiurl} && exists $hooks{auth}) {
+		$template->param(prefsurl => cgiurl(do => "prefs"));
+		$have_actions=1;
+	}
+
+	if ($have_actions || @actions) {
+		$template->param(have_actions => 1);
+	}
 }
 
 sub hook (@) {
@@ -1738,11 +1847,11 @@ sub rcs_prepedit ($) {
 	$hooks{rcs}{rcs_prepedit}{call}->(@_);
 }
 
-sub rcs_commit ($$$;$$) {
+sub rcs_commit (@) {
 	$hooks{rcs}{rcs_commit}{call}->(@_);
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged (@) {
 	$hooks{rcs}{rcs_commit_staged}{call}->(@_);
 }
 
@@ -1770,6 +1879,10 @@ sub rcs_getctime ($) {
 	$hooks{rcs}{rcs_getctime}{call}->(@_);
 }
 
+sub rcs_getmtime ($) {
+	$hooks{rcs}{rcs_getmtime}{call}->(@_);
+}
+
 sub rcs_receive () {
 	$hooks{rcs}{rcs_receive}{call}->();
 }
@@ -1788,14 +1901,16 @@ sub add_depends ($$;$) {
 
 	# Add explicit dependencies for influences.
 	my $sub=pagespec_translate($pagespec);
-	return if $@;
+	return unless defined $sub;
 	foreach my $p (keys %pagesources) {
 		my $r=$sub->($p, location => $page);
 		my $i=$r->influences;
+		my $static=$r->influences_static;
 		foreach my $k (keys %$i) {
+			next unless $r || $static || $k eq $page;
 			$depends_simple{$page}{lc $k} |= $i->{$k};
 		}
-		last if $r->influences_static;
+		last if $static;
 	}
 
 	$depends{$page}{$pagespec} |= $deptype;
@@ -1818,49 +1933,66 @@ sub deptype (@) {
 	return $deptype;
 }
 
-sub file_pruned ($;$) {
+my $file_prune_regexp;
+sub file_pruned ($) {
 	my $file=shift;
-	if (@_) {
-		require File::Spec;
-		$file=File::Spec->canonpath($file);
-		my $base=File::Spec->canonpath(shift);
-		return if $file eq $base;
-		$file =~ s#^\Q$base\E/+##;
+
+	if (defined $config{include} && length $config{include}) {
+		return 0 if $file =~ m/$config{include}/;
 	}
 
-	my $regexp='('.join('|', @{$config{wiki_file_prune_regexps}}).')';
-	return $file =~ m/$regexp/;
+	if (! defined $file_prune_regexp) {
+		$file_prune_regexp='('.join('|', @{$config{wiki_file_prune_regexps}}).')';
+		$file_prune_regexp=qr/$file_prune_regexp/;
+	}
+	return $file =~ m/$file_prune_regexp/;
 }
 
 sub define_gettext () {
 	# If translation is needed, redefine the gettext function to do it.
 	# Otherwise, it becomes a quick no-op.
-	no warnings 'redefine';
+	my $gettext_obj;
+	my $getobj;
 	if ((exists $ENV{LANG} && length $ENV{LANG}) ||
 	    (exists $ENV{LC_ALL} && length $ENV{LC_ALL}) ||
 	    (exists $ENV{LC_MESSAGES} && length $ENV{LC_MESSAGES})) {
-	    	*gettext=sub {
-			my $gettext_obj=eval q{
+	    	$getobj=sub {
+			$gettext_obj=eval q{
 				use Locale::gettext q{textdomain};
 				Locale::gettext->domain('ikiwiki')
 			};
-
-			if ($gettext_obj) {
-				$gettext_obj->get(shift);
-			}
-			else {
-				return shift;
-			}
 		};
 	}
-	else {
-		*gettext=sub { return shift };
-	}
+
+	no warnings 'redefine';
+	*gettext=sub {
+		$getobj->() if $getobj;
+		if ($gettext_obj) {
+			$gettext_obj->get(shift);
+		}
+		else {
+			return shift;
+		}
+	};
+	*ngettext=sub {
+		$getobj->() if $getobj;
+		if ($gettext_obj) {
+			$gettext_obj->nget(@_);
+		}
+		else {
+			return ($_[2] == 1 ? $_[0] : $_[1])
+		}
+	};
 }
 
 sub gettext {
 	define_gettext();
 	gettext(@_);
+}
+
+sub ngettext {
+	define_gettext();
+	ngettext(@_);
 }
 
 sub yesno ($) {
@@ -1894,12 +2026,91 @@ sub inject {
 	use warnings;
 }
 
-sub add_link ($$) {
+sub add_link ($$;$) {
 	my $page=shift;
 	my $link=shift;
+	my $type=shift;
 
 	push @{$links{$page}}, $link
 		unless grep { $_ eq $link } @{$links{$page}};
+
+	if (defined $type) {
+		$typedlinks{$page}{$type}{$link} = 1;
+	}
+}
+
+sub add_autofile ($$$) {
+	my $file=shift;
+	my $plugin=shift;
+	my $generator=shift;
+	
+	$autofiles{$file}{plugin}=$plugin;
+	$autofiles{$file}{generator}=$generator;
+}
+
+sub sortspec_translate ($$) {
+	my $spec = shift;
+	my $reverse = shift;
+
+	my $code = "";
+	my @data;
+	while ($spec =~ m{
+		\s*
+		(-?)		# group 1: perhaps negated
+		\s*
+		(		# group 2: a word
+			\w+\([^\)]*\)	# command(params)
+			|
+			[^\s]+		# or anything else
+		)
+		\s*
+	}gx) {
+		my $negated = $1;
+		my $word = $2;
+		my $params = undef;
+
+		if ($word =~ m/^(\w+)\((.*)\)$/) {
+			# command with parameters
+			$params = $2;
+			$word = $1;
+		}
+		elsif ($word !~ m/^\w+$/) {
+			error(sprintf(gettext("invalid sort type %s"), $word));
+		}
+
+		if (length $code) {
+			$code .= " || ";
+		}
+
+		if ($negated) {
+			$code .= "-";
+		}
+
+		if (exists $IkiWiki::SortSpec::{"cmp_$word"}) {
+			if (defined $params) {
+				push @data, $params;
+				$code .= "IkiWiki::SortSpec::cmp_$word(\$data[$#data])";
+			}
+			else {
+				$code .= "IkiWiki::SortSpec::cmp_$word(undef)";
+			}
+		}
+		else {
+			error(sprintf(gettext("unknown sort type %s"), $word));
+		}
+	}
+
+	if (! length $code) {
+		# undefined sorting method... sort arbitrarily
+		return sub { 0 };
+	}
+
+	if ($reverse) {
+		$code="-($code)";
+	}
+
+	no warnings;
+	return eval 'sub { '.$code.' }';
 }
 
 sub pagespec_translate ($) {
@@ -1969,7 +2180,7 @@ sub pagespec_match ($$;@) {
 
 	my $sub=pagespec_translate($spec);
 	return IkiWiki::ErrorReason->new("syntax error in pagespec \"$spec\"")
-		if $@ || ! defined $sub;
+		if ! defined $sub;
 	return $sub->($page, @params);
 }
 
@@ -1987,7 +2198,9 @@ sub pagespec_match_list ($$;@) {
 
 	my $sub=pagespec_translate($pagespec);
 	error "syntax error in pagespec \"$pagespec\""
-		if $@ || ! defined $sub;
+		if ! defined $sub;
+	my $sort=sortspec_translate($params{sort}, $params{reverse})
+		if defined $params{sort};
 
 	my @candidates;
 	if (exists $params{list}) {
@@ -2000,38 +2213,18 @@ sub pagespec_match_list ($$;@) {
 			? grep { ! $params{filter}->($_) } keys %pagesources
 			: keys %pagesources;
 	}
-
-	if (defined $params{sort}) {
-		my $f;
-		if ($params{sort} eq 'title') {
-			$f=sub { pagetitle(basename($a)) cmp pagetitle(basename($b)) };
-		}
-		elsif ($params{sort} eq 'title_natural') {
-			eval q{use Sort::Naturally};
-			if ($@) {
-				error(gettext("Sort::Naturally needed for title_natural sort"));
-			}
-			$f=sub { Sort::Naturally::ncmp(pagetitle(basename($a)), pagetitle(basename($b))) };
-                }
-		elsif ($params{sort} eq 'mtime') {
-			$f=sub { $pagemtime{$b} <=> $pagemtime{$a} };
-		}
-		elsif ($params{sort} eq 'age') {
-			$f=sub { $pagectime{$b} <=> $pagectime{$a} };
-		}
-		else {
-			error sprintf(gettext("unknown sort type %s"), $params{sort});
-		}
-		@candidates = sort { &$f } @candidates;
-	}
-
-	@candidates=reverse(@candidates) if $params{reverse};
-	
-	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
 	
 	# clear params, remainder is passed to pagespec
+	$depends{$page}{$pagespec} |= ($params{deptype} || $DEPEND_CONTENT);
 	my $num=$params{num};
 	delete @params{qw{num deptype reverse sort filter list}};
+	
+	# when only the top matches will be returned, it's efficient to
+	# sort before matching to pagespec,
+	if (defined $num && defined $sort) {
+		@candidates=IkiWiki::SortSpec::sort_pages(
+			$sort, @candidates);
+	}
 	
 	my @matches;
 	my $firstfail;
@@ -2041,6 +2234,9 @@ sub pagespec_match_list ($$;@) {
 		my $r=$sub->($p, %params, location => $page);
 		error(sprintf(gettext("cannot match pages: %s"), $r))
 			if $r->isa("IkiWiki::ErrorReason");
+		unless ($r || $r->influences_static) {
+			$r->remove_influence($p);
+		}
 		$accum |= $r;
 		if ($r) {
 			push @matches, $p;
@@ -2054,14 +2250,21 @@ sub pagespec_match_list ($$;@) {
 		$depends_simple{$page}{lc $k} |= $i->{$k};
 	}
 
-	return @matches;
+	# when all matches will be returned, it's efficient to
+	# sort after matching
+	if (! defined $num && defined $sort) {
+		return IkiWiki::SortSpec::sort_pages(
+			$sort, @matches);
+	}
+	else {
+		return @matches;
+	}
 }
 
 sub pagespec_valid ($) {
 	my $spec=shift;
 
-	my $sub=pagespec_translate($spec);
-	return ! $@;
+	return defined pagespec_translate($spec);
 }
 
 sub glob2re ($) {
@@ -2119,7 +2322,7 @@ sub merge_influences {
 	my $anded=shift;
 
 	if (! $anded || (($this || %{$this->[1]}) &&
-	                ($other || %{$other->[1]}))) {
+	                 ($other || %{$other->[1]}))) {
 		foreach my $influence (keys %{$other->[1]}) {
 			$this->[1]{$influence} |= $other->[1]{$influence};
 		}
@@ -2128,6 +2331,13 @@ sub merge_influences {
 		# influence blocker
 		$this->[1]={};
 	}
+}
+
+sub remove_influence {
+	my $this=shift;
+	my $torm=shift;
+
+	delete $this->[1]{$torm};
 }
 
 package IkiWiki::ErrorReason;
@@ -2143,7 +2353,7 @@ sub derel ($$) {
 	if ($path =~ m!^\./!) {
 		$from=~s#/?[^/]+$## if defined $from;
 		$path=~s#^\./##;
-		$path="$from/$path" if length $from;
+		$path="$from/$path" if defined $from && length $from;
 	}
 
 	return $path;
@@ -2171,7 +2381,19 @@ sub match_glob ($$;@) {
 }
 
 sub match_internal ($$;@) {
-	return match_glob($_[0], $_[1], @_, internal => 1)
+	return match_glob(shift, shift, @_, internal => 1)
+}
+
+sub match_page ($$;@) {
+	my $page=shift;
+	my $match=match_glob($page, shift, @_);
+	if ($match && ! (exists $IkiWiki::pagesources{$page}
+	    && defined IkiWiki::pagetype($IkiWiki::pagesources{$page}))) {
+		return IkiWiki::FailReason->new("$page is not a page");
+	}
+	else {
+		return $match;
+	}
 }
 
 sub match_link ($$;@) {
@@ -2181,26 +2403,36 @@ sub match_link ($$;@) {
 
 	$link=derel($link, $params{location});
 	my $from=exists $params{location} ? $params{location} : '';
+	my $linktype=$params{linktype};
+	my $qualifier='';
+	if (defined $linktype) {
+		$qualifier=" with type $linktype";
+	}
 
 	my $links = $IkiWiki::links{$page};
-	return IkiWiki::FailReason->new("$page has no links", "" => 1)
+	return IkiWiki::FailReason->new("$page has no links", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
 		unless $links && @{$links};
 	my $bestlink = IkiWiki::bestlink($from, $link);
 	foreach my $p (@{$links}) {
+		next unless (! defined $linktype || exists $IkiWiki::typedlinks{$page}{$linktype}{$p});
+
 		if (length $bestlink) {
-			return IkiWiki::SuccessReason->new("$page links to $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
-				if $bestlink eq IkiWiki::bestlink($page, $p);
+			if ($bestlink eq IkiWiki::bestlink($page, $p)) {
+				return IkiWiki::SuccessReason->new("$page links to $link$qualifier", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
+			}
 		}
 		else {
-			return IkiWiki::SuccessReason->new("$page links to page $p matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
-				if match_glob($p, $link, %params);
+			if (match_glob($p, $link, %params)) {
+				return IkiWiki::SuccessReason->new("$page links to page $p$qualifier, matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
+			}
 			my ($p_rel)=$p=~/^\/?(.*)/;
 			$link=~s/^\///;
-			return IkiWiki::SuccessReason->new("$page links to page $p_rel matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
-				if match_glob($p_rel, $link, %params);
+			if (match_glob($p_rel, $link, %params)) {
+				return IkiWiki::SuccessReason->new("$page links to page $p_rel$qualifier, matching $link", $page => $IkiWiki::DEPEND_LINKS, "" => 1)
+			}
 		}
 	}
-	return IkiWiki::FailReason->new("$page does not link to $link", "" => 1);
+	return IkiWiki::FailReason->new("$page does not link to $link$qualifier", $page => $IkiWiki::DEPEND_LINKS, "" => 1);
 }
 
 sub match_backlink ($$;@) {
@@ -2250,7 +2482,7 @@ sub match_created_after ($$;@) {
 }
 
 sub match_creation_day ($$;@) {
-	if ((gmtime($IkiWiki::pagectime{shift()}))[3] == shift) {
+	if ((localtime($IkiWiki::pagectime{shift()}))[3] == shift) {
 		return IkiWiki::SuccessReason->new('creation_day matched');
 	}
 	else {
@@ -2259,7 +2491,7 @@ sub match_creation_day ($$;@) {
 }
 
 sub match_creation_month ($$;@) {
-	if ((gmtime($IkiWiki::pagectime{shift()}))[4] + 1 == shift) {
+	if ((localtime($IkiWiki::pagectime{shift()}))[4] + 1 == shift) {
 		return IkiWiki::SuccessReason->new('creation_month matched');
 	}
 	else {
@@ -2268,7 +2500,7 @@ sub match_creation_month ($$;@) {
 }
 
 sub match_creation_year ($$;@) {
-	if ((gmtime($IkiWiki::pagectime{shift()}))[5] + 1900 == shift) {
+	if ((localtime($IkiWiki::pagectime{shift()}))[5] + 1900 == shift) {
 		return IkiWiki::SuccessReason->new('creation_year matched');
 	}
 	else {
@@ -2281,11 +2513,13 @@ sub match_user ($$;@) {
 	my $user=shift;
 	my %params=@_;
 	
+	my $regexp=IkiWiki::glob2re($user);
+	
 	if (! exists $params{user}) {
 		return IkiWiki::ErrorReason->new("no user specified");
 	}
 
-	if (defined $params{user} && lc $params{user} eq lc $user) {
+	if (defined $params{user} && $params{user}=~/^$regexp$/i) {
 		return IkiWiki::SuccessReason->new("user is $user");
 	}
 	elsif (! defined $params{user}) {
@@ -2332,5 +2566,23 @@ sub match_ip ($$;@) {
 		return IkiWiki::FailReason->new("IP is $params{ip}, not $ip");
 	}
 }
+
+package IkiWiki::SortSpec;
+
+# This is in the SortSpec namespace so that the $a and $b that sort() uses
+# are easily available in this namespace, for cmp functions to use them.
+sub sort_pages {
+	my $f=shift;
+	sort $f @_
+}
+
+sub cmp_title {
+	IkiWiki::pagetitle(IkiWiki::basename($a))
+	cmp
+	IkiWiki::pagetitle(IkiWiki::basename($b))
+}
+
+sub cmp_mtime { $IkiWiki::pagemtime{$b} <=> $IkiWiki::pagemtime{$a} }
+sub cmp_age { $IkiWiki::pagectime{$b} <=> $IkiWiki::pagectime{$a} }
 
 1

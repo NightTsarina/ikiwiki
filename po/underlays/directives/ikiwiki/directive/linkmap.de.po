@@ -1,0 +1,99 @@
+# German translation of directives/ikiwiki/directive/linkmap page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-03-12 09:29+0530\n"
+"PO-Revision-Date: 2010-03-14 14:03+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `linkmap` directive is supplied by the [[!iki plugins/linkmap "
+"desc=linkmap]] plugin."
+msgstr ""
+"Die `linkmap`-Anweisung wird durch die [[!iki plugins/linkmap "
+"desc=linkmap]]-Erweiterung bereitgestellt."
+
+#. type: Plain text
+msgid ""
+"This directive uses [graphviz](http://www.graphviz.org/) to generate a graph "
+"showing the links between a set of pages in the wiki. Example usage:"
+msgstr ""
+"Diese Anweisung verwendet [graphviz](http://www.graphviz.org/), um einen "
+"Graph mit den Links zwischen den Seiten im Wiki zu erstellen. Beispiel:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!linkmap pages=\"* and !blog/* and !*/Discussion\"]]\n"
+msgstr "\t\\[[!linkmap pages=\"* and !blog/* and !*/Discussion\"]]\n"
+
+#. type: Plain text
+msgid ""
+"Only links between mapped pages will be shown; links pointing to or from "
+"unmapped pages will be omitted. If the pages to include are not specified, "
+"the links between all pages (and other files) in the wiki are mapped."
+msgstr ""
+"Nur Links zwischen den angegebenen Seiten werden angezeigt; Links die auf "
+"andere Seiten zeigen werden ausgelassen. Wenn die einzuschließenden Seiten "
+"nicht angegeben werden, werden Links zwischen allen Seiten (und anderen "
+"Dateien) im Wiki angezeigt."
+
+#. type: Plain text
+msgid ""
+"Here are descriptions of all the supported parameters to the `linkmap` "
+"directive:"
+msgstr ""
+"Hier die Beschreibung aller unterstützter Parameter der `linkmap`-Anweisung:"
+
+#. type: Bullet: '* '
+msgid "`pages` - A [[ikiwiki/PageSpec]] of the pages to map."
+msgstr "`pages` - Eine [[ikiwiki/PageSpec]] der darzustellenden Seiten."
+
+#. type: Bullet: '* '
+msgid ""
+"`height`, `width` - Limit the size of the map to a given height and width, "
+"in inches. Both must be specified for the limiting to take effect, otherwise "
+"the map's size is not limited."
+msgstr ""
+"`height`, `width` - Begrenzt die Größe der erzeugten Graphik auf die (in "
+"Inch) angegebene Breite und Höne. Beide müssen angegeben werden, damit die "
+"Beschränkung wirksam wird."
+
+#. type: Bullet: '* '
+msgid ""
+"`connected` - Controls whether to include pages on the map that link to no "
+"other pages (connected=no, the default), or to only show pages that link to "
+"others (connected=yes)."
+msgstr ""
+"`connected` - Steuert ob auch Seiten dargestellt werden, die keinen Link zu "
+"anderen Seiten enthalten (`connected=no`, die Voreinstellung), oder ob nur "
+"Seiten angezeigt werden, die auf andere verlinken (`connected=yes`)."
+
+#. type: Plain text
+msgid ""
+"For best results, only a small set of pages should be mapped, since "
+"otherwise the map can become very large, unwieldy, and complicated.  If too "
+"many pages are included, the map may get so large that graphviz cannot "
+"render it. Using the `connected` parameter is a good way to prune out pages "
+"that clutter the map."
+msgstr ""
+"Um die besten Ergebnisse zu erzielen, sollte nur eine kleine Teilmenge der "
+"Seiten angegeben werden, da die erzeugte Karte sonst groß, unhandlich und "
+"kompliziert wird. Wenn zu viele Seiten angegeben werden, kann die Karte zu "
+"kompliziert werden, als dass graphviz sie noch rendern könnte. Der Parameter "
+"`connected` ist ein guter Weg Seiten loszuwerden, die die Karte "
+"unübersichtlich machen."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+

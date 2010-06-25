@@ -1,0 +1,304 @@
+[[!tag patch]]
+
+The available [[ikiwiki/pagespec/sorting]] methods are currently hard-coded in
+IkiWiki.pm, making it difficult to add any extra sorting mechanisms. I've
+prepared a branch which adds 'sort' as a hook type and uses it to implement a
+new `meta_title` sort type.
+
+Someone could use this hook to make `\[[!inline sort=title]]` prefer the meta
+title over the page name, but for compatibility, I'm not going to (I do wonder
+whether it would be worth making sort=name an alias for the current sort=title,
+and changing the meaning of sort=title in 4.0, though).
+
+> What compatability concerns, exactly, are there that prevent making that
+> change now? --[[Joey]] 
+
+*[sort-hooks branch now withdrawn in favour of sort-package --s]*
+
+I briefly tried to turn *all* the current sort types into hook functions, and
+have some of them pre-registered, but decided that probably wasn't a good idea.
+That earlier version of the branch is also available for comparison:
+
+*[also withdrawn in favour of sort-package --s]*
+
+>> I wonder if IkiWiki would benefit from the concept of a "sortspec", like a [[ikiwiki/PageSpec]] but dedicated to sorting lists of pages rather than defining lists of pages?  Rather than defining a sort-hook, define a SortSpec class, and enable people to add their own sort methods as functions defined inside that class, similarly to the way they can add their own pagespec definitions. --[[KathrynAndersen]]
+
+>>> [[!template id=gitbranch branch=smcv/ready/sort-package author="[[Simon_McVittie|smcv]]"]]
+>>> I'd be inclined to think that's overkill, but it wasn't very hard to
+>>> implement, and in a way is more elegant. I set it up so sort mechanisms
+>>> share the `IkiWiki::PageSpec` package, but with a `cmp_` prefix. Gitweb:
+>>> <http://git.pseudorandom.co.uk/smcv/ikiwiki.git?a=shortlog;h=refs/heads/sort-package>
+
+>>>> I agree it seems more elegant, so I have focused on it.
+>>>>
+>>>> I don't know about reusing `IkiWiki::PageSpec` for this.
+>>>> --[[Joey]]
+
+>>>>> Fair enough, `IkiWiki::SortSpec::cmp_foo` would be just
+>>>>> as easy, or `IkiWiki::Sorting::cmp_foo` if you don't like
+>>>>> introducing "sort spec" in the API. I took a cue from
+>>>>> [[ikiwiki/pagespec/sorting]] being a subpage of
+>>>>> [[ikiwiki/pagespec]], and decided that yes, sorting is
+>>>>> a bit like a pagespec :-) Which name would you prefer? --s
+
+>>>>>> `SortSpec` --[[Joey]] 
+
+>>>>>>> [[Done]]. --s
+
+>>>> I would be inclined to drop the `check_` stuff. --[[Joey]] 
+
+>>>>> It basically exists to support `title_natural`, to avoid
+>>>>> firing up the whole import mechanism on every `cmp`
+>>>>> (although I suppose that could just be a call to a
+>>>>> memoized helper function). It also lets sort specs that
+>>>>> *must* have a parameter, like
+>>>>> [[field|plugins/contrib/field/discussion]], fail early
+>>>>> (again, not so valuable).
+>>>>>
+>>>>>> AFAIK, `use foo` has very low overhead when the module is already
+>>>>>> loaded. There could be some evalation overhead in `eval q{use foo}`,
+>>>>>> if so it would be worth addressing across the whole codebase.
+>>>>>> --[[Joey]] 
+>>>>>>
+>>>>>>> check_cmp_foo now dropped. --s
+>>>>>
+>>>>> The former function could be achieved at a small
+>>>>> compatibility cost by putting `title_natural` in a new
+>>>>> `sortnatural` plugin (that fails to load if you don't
+>>>>> have `title_natural`), if you'd prefer - that's what would
+>>>>> have happened if `title_natural` was written after this
+>>>>> code had been merged, I suspect. Would you prefer this? --s
+
+>>>>>> Yes! (Assuming it does not make sense to support
+>>>>>> natural order sort of other keys than the title, at least..)
+>>>>>>  --[[Joey]]
+
+>>>>>>> Done. I added some NEWS.Debian for it, too. --s
+
+>>>> Wouldn't it make sense to have `meta(title)` instead
+>>>> of `meta_title`? --[[Joey]]
+
+>>>>> Yes, you're right. I added parameters to support `field`,
+>>>>> and didn't think about making `meta` use them too.
+>>>>> However, `title` does need a special case to make it
+>>>>> default to the basename instead of the empty string.
+>>>>>
+>>>>> Another special case for `title` is to use `titlesort`
+>>>>> first (the name `titlesort` is derived from Ogg/FLAC
+>>>>> tags, which can have `titlesort` and `artistsort`).
+>>>>> I could easily extend that to other metas, though;
+>>>>> in fact, for e.g. book lists it would be nice for
+>>>>> `field(bookauthor)` to behave similarly, so you can
+>>>>> display "Douglas Adams" but sort by "Adams, Douglas".
+>>>>>
+>>>>> `meta_title` is also meant to be a prototype of how
+>>>>> `sort=title` could behave in 4.0 or something - sorting
+>>>>> by page name (which usually sorts in approximately the
+>>>>> same place as the meta-title, but occasionally not), while
+>>>>> displaying meta-titles, does look quite odd. --s
+
+>>>>>> Agreed. --[[Joey]]
+
+>>>>>>> I've implemented meta(title). meta(author) also has the
+>>>>>>> `sortas` special case; meta(updated) and meta(date)
+>>>>>>> should also work how you'd expect them to (but they're
+>>>>>>> earliest-first, unlike age). --s
+
+>>>> As I read the regexp in `cmpspec_translate`, the "command"
+>>>> is required to have params. They should be optional, 
+>>>> to match the documentation and because most sort methods
+>>>> do not need parameters. --[[Joey]]
+
+>>>>> No, `$2` is either `\w+\([^\)]*\)` or `[^\s]+` (with the
+>>>>> latter causing an error later if it doesn't also match `\w+`).
+>>>>> This branch doesn't add any parameterized sort methods,
+>>>>> in fact, although I did provide one on
+>>>>> [[field's_discussion_page|plugins/contrib/report/discussion]]. --s
+
+>>>> I wonder if it would make sense to add some combining keywords, so
+>>>> a sortspec reads like `sort="age then ascending title"`
+>>>> In a way, this reduces the amount of syntax that needs to be learned.
+>>>> I like the "then" (and it could allow other operations than
+>>>> simple combination, if any others make sense). Not so sure about the
+>>>> "ascending", which could be "reverse" instead, but "descending age" and
+>>>> "ascending age" both seem useful to be able to explicitly specify.
+>>>> --[[Joey]]
+
+>>>>> Perhaps. I do like the simplicity of [[KathrynAndersen]]'s syntax
+>>>>> from [[plugins/contrib/report]] (which I copied verbatim, except for
+>>>>> turning sort-by-`field` into a parameterized spec).
+>>>>>
+>>>>> If we're getting into English-like (or at least SQL-like) queries,
+>>>>> it might make sense to change the signature of the hook function
+>>>>> so it's a function to return a key, e.g.
+>>>>> `sub key_age { return -%pagemtime{$_[0]) }`. Then we could sort like
+>>>>> this:
+>>>>>
+>>>>>     field(artistsort) or field(artist) or constant(Various Artists) then meta(titlesort) or meta(title) or title
+>>>>>
+>>>>> with "or" binding more closely than "then". Does this seem valuable?
+>>>>> I think the implementation would be somewhat more difficult. and
+>>>>> it's probably getting too complicated to be worthwhile, though?
+>>>>> (The keys that actually benefit from this could just
+>>>>> have smarter cmp functions, I think.)
+>>>>>
+>>>>> If the hooks return keys rather than cmp results, then we could even
+>>>>> have "lowercase" as an adjective used like "ascending"... maybe.
+>>>>> However, there are two types of adjective here: "lowercase"
+>>>>> really applies to the keys, whereas "ascending" applies to the "cmp"
+>>>>> result. Again, I think this is getting too complex, and could just
+>>>>> be solved with smarter cmp functions.
+>>>>>
+>>>>>> I agree. (Also, I think returning keys may make it harder to write
+>>>>>> smarter cmp functions.) --[[Joey]] 
+>>>>>
+>>>>> Unfortunately, `sort="ascending mtime"` actually sorts by *descending*
+>>>>> timestamp (but`sort=age` is fine, because `age` could be defined as
+>>>>> now minus `ctime`). `sort=freshness` isn't right either, because
+>>>>> "sort by freshness" seems as though it ought to mean freshest first,
+>>>>> but "sort by ascending freshness" means put the least fresh first. If
+>>>>> we have ascending and descending keywords which are optional, I don't
+>>>>> think we really want different sort types to have different default
+>>>>> directions - it seems clearer to have `ascending` always be a no-op,
+>>>>> and `descending` always negate.
+>>>>>
+>>>>>> I think you've convinced me that ascending/descending impose too
+>>>>>> much semantics on it, so "-" is better. --[[Joey]]
+
+>>>>>>> I've kept the semantics from `report` as-is, then:
+>>>>>>> e.g. `sort="age -title"`. --s
+
+>>>>> Perhaps we could borrow from `meta updated` and use `update_age`?
+>>>>> `updateage` would perhaps be a more normal IkiWiki style - but that
+>>>>> makes me think that updateage is a quantity analagous to tonnage or
+>>>>> voltage, with more or less recently updated pages being said to have
+>>>>> more or less updateage. I don't know whether that's good or bad :-)
+>>>>>
+>>>>> I'm sure there's a much better word, but I can't see it. Do you have
+>>>>> a better idea? --s
+
+[Regarding the `meta title=foo sort=bar` special case]
+
+> I feel it sould be clearer to call that "sortas", since "sort=" is used
+> to specify a sort method in other directives. --[[Joey]]
+>> Done. --[[smcv]]
+
+## speed
+
+I notice the implementation does not use the magic `$a` and `$b` globals.
+That nasty perl optimisation is still worthwhile:
+
+	perl -e 'use warnings; use strict; use Benchmark; sub a { $a <=> $b } sub b ($$) { $_[0] <=> $_[1] }; my @list=reverse(1..9999); timethese(10000, {a => sub {my @f=sort a @list}, b => sub {my @f=sort b  @list}, c => => sub {my @f=sort { b($a,$b) } @list}})'
+	Benchmark: timing 10000 iterations of a, b, c...
+	         a: 80 wallclock secs (76.74 usr +  0.05 sys = 76.79 CPU) @ 130.23/s (n=10000)
+	         b: 112 wallclock secs (106.14 usr +  0.20 sys = 106.34 CPU) @ 94.04/s (n=10000)
+	         c: 330 wallclock secs (320.25 usr +  0.17 sys = 320.42 CPU) @ 31.21/s (n=10000)
+
+Unfortunatly, I think that c is closest to the new implementation.
+--[[Joey]]
+
+> Unfortunately, `$a` isn't always `$main::a` - it's `$Package::a` where
+> `Package` is the call site of the sort call. This was a showstopper when
+> `sort` was a hook implemented in many packages, but now that it's a
+> `SortSpec`, I may be able to fix this by putting a `sort` wrapper in the
+> `SortSpec` namespace, so it's like this:
+>
+>     sub sort ($@)
+>     {
+>         my $cmp = shift;
+>         return sort $cmp @_;
+>     }
+>
+> which would mean that the comparison used `$IkiWiki::SortSpec::a`.
+> --s
+
+>> I've now done this. On a wiki with many [[plugins/contrib/album]]s
+>> (a full rebuild takes half an hour!), I tested a refresh after
+>> `touch tags/*.mdwn` (my tag pages contain inlines of the form
+>> `tagged(foo)` sorted by date, so they exercise sorting).
+>> I also tried removing sorting from `pagespec_match_list`
+>> altogether, as an upper bound for how fast we can possibly make it.
+>>
+>> * `master` at branch point: 63.72user 0.29system
+>> * `master` at branch point: 63.91user 0.37system
+>> * my branch, with `@_`: 65.28user 0.29system
+>> * my branch, with `@_`: 65.21user 0.28system
+>> * my branch, with `$a`: 64.09user 0.28system
+>> * my branch, with `$a`: 63.83user 0.36system
+>> * not sorted at all: 58.99user 0.29system
+>> * not sorted at all: 58.92user 0.29system
+>>
+>> --s
+
+> I do notice that `pagespec_match_list` performs the sort before the
+> filter by pagespec. Is this a deliberate design choice, or
+> coincidence? I can see that when `limit` is used, this could be
+> used to only run the pagespec match function until `limit` pages
+> have been selected, but the cost is that every page in the wiki
+> is sorted. Or, it might be useful to do the filtering first, then
+> sort the sub-list thus produced, then finally apply the limit? --s
+
+>> Yes, it was deliberate, pagespec matching can be expensive enough that
+>> needing to sort a lot of pages seems likely to be less work. (I don't
+>> remember what benchmarking was done though.) --[[Joey]]
+
+>>> We discussed this on IRC and Joey pointed out that this also affects
+>>> dependency calculation, so I'm not going to get into this now... --s
+
+Joey pointed out on IRC that the `titlesort` feature duplicates all the
+meta titles. I did that in order to sort by the unescaped version, but
+I've now changed the branch to only store that if it makes a difference.
+--s
+
+## Documentation from sort-package branch
+
+### advanced sort orders (conditionally added to [[ikiwiki/pagespec/sorting]])
+
+* `title_natural` - Orders by title, but numbers in the title are treated
+  as such, ("1 2 9 10 20" instead of "1 10 2 20 9")
+* `meta(title)` - Order according to the `\[[!meta title="foo" sortas="bar"]]`
+  or `\[[!meta title="foo"]]` [[ikiwiki/directive]], or the page name if no
+  full title was set. `meta(author)`, `meta(date)`, `meta(updated)`, etc.
+  also work.
+
+### Multiple sort orders (added to [[ikiwiki/pagespec/sorting]])
+
+In addition, you can combine several sort orders and/or reverse the order of
+sorting, with a string like `age -title` (which would sort by age, then by
+title in reverse order if two pages have the same age).
+
+### meta sortas parameter (added to [[ikiwiki/directive/meta]])
+
+[in title]
+
+An optional `sort` parameter will be used preferentially when
+[[ikiwiki/pagespec/sorting]] by `meta(title)`:
+
+       \[[!meta title="The Beatles" sort="Beatles, The"]]
+
+       \[[!meta title="David Bowie" sort="Bowie, David"]]
+
+[in author]
+
+  An optional `sortas` parameter will be used preferentially when
+  [[ikiwiki/pagespec/sorting]] by `meta(author)`:
+
+        \[[!meta author="Joey Hess" sortas="Hess, Joey"]]
+
+### Sorting plugins (added to [[plugins/write]])
+
+Similarly, it's possible to write plugins that add new functions as
+[[ikiwiki/pagespec/sorting]] methods. To achieve this, add a function to
+the IkiWiki::SortSpec package named `cmp_foo`, which will be used when sorting
+by `foo` or `foo(...)` is requested.
+
+The names of pages to be compared are in the global variables `$a` and `$b`
+in the IkiWiki::SortSpec package. The function should return the same thing
+as Perl's `cmp` and `<=>` operators: negative if `$a` is less than `$b`,
+positive if `$a` is greater, or zero if they are considered equal. It may
+also raise an error using `error`, for instance if it needs a parameter but
+one isn't provided.
+
+The function will also be passed one or more parameters. The first is
+`undef` if invoked as `foo`, or the parameter `"bar"` if invoked as `foo(bar)`;
+it may also be passed additional, named parameters.

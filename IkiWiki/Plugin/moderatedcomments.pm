@@ -15,11 +15,13 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "auth",
 		},
-		moderate_users => {
-			type => 'boolean',
-			example => 1,
-			description => 'Moderate comments of logged-in users?',
+		moderate_pagespec => {
+			type => 'pagespec',
+			example => '*',
+			description => 'PageSpec matching users or comment locations to moderate',
+			link => 'ikiwiki/PageSpec',
 			safe => 1,
 			rebuild => 0,
 		},
@@ -31,14 +33,32 @@ sub checkcontent (@) {
 	# only handle comments	
 	return undef unless pagespec_match($params{page}, "postcomment(*)",
 	                	location => $params{page});
+	
+	# backwards compatability
+	if (exists $config{moderate_users} &&
+	    ! exists $config{moderate_pagespec}) {
+		$config{moderate_pagespec} = $config{moderate_users}
+			? "!admin()"
+			: "!user(*)";
+	}
 
-	# admins and maybe users can comment w/o moderation
+	# default is to moderate all except admins
+	if (! exists $config{moderate_pagespec}) {
+		$config{moderate_pagespec}="!admin()";
+	}
+
 	my $session=$params{session};
-	my $user=$session->param("name") if $session;
-	return undef if defined $user && (IkiWiki::is_admin($user) ||
-		(exists $config{moderate_users} && ! $config{moderate_users}));
-
-	return gettext("comment needs moderation");
+	my $user=$session->param("name");
+	if (pagespec_match($params{page}, $config{moderate_pagespec},
+			location => $params{page},
+			(defined $user ? (user => $user) : ()),
+			(defined $session->remote_addr() ? (ip => $session->remote_addr()) : ()),
+	)) {
+		return gettext("comment needs moderation");
+	}
+	else {
+		return undef;
+	}
 }
 
 1

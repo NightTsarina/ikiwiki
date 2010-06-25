@@ -1,0 +1,14 @@
+It should be possible to use anonymous git push to post comments
+(created, say, by a ikiwiki-comment program). Currently, that is not
+allowed, because users cannot edit, or create internal page files.
+But, comments in allowed locations are an exception to that rule, and 
+that exception should be communicated somehow to `IkiWiki::Receive`.
+--[[Joey]] 
+
+> Complications include: 
+> 
+> * Hard to see a way to prevent users from committing a comment that
+>   claims to be written by someone else.
+> * `checkcontent` hooks need to be run, but can't accept a comment
+>   for later moderation, since it's coming in as part of a commit.
+>   Best they could do is reject the commit.

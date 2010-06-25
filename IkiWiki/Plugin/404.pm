@@ -21,6 +21,7 @@ sub getsetup () {
 			# server admin action too
 			safe => 0,
 			rebuild => 0,
+			section => "web",
 		}
 }
 

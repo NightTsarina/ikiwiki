@@ -14,6 +14,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "web",
 		}
 }
 
@@ -40,14 +41,15 @@ sub cgi_goto ($;$) {
 
 	IkiWiki::loadindex();
 
-	# If the page is internal (like a comment), see if it has a
-	# permalink. Comments do.
-	if (IkiWiki::isinternal($page) &&
-	    defined $pagestate{$page}{meta}{permalink}) {
-	    	IkiWiki::redirect($q, $pagestate{$page}{meta}{permalink});
+	my $link;
+	if (! IkiWiki::isinternal($page)) {
+		$link = bestlink("", $page);
 	}
-
-	my $link = bestlink("", $page);
+	elsif (defined $pagestate{$page}{meta}{permalink}) {
+		# Can only redirect to an internal page if it has a
+		# permalink.
+		IkiWiki::redirect($q, $pagestate{$page}{meta}{permalink});
+	}
 
 	if (! length $link) {
 		IkiWiki::cgi_custom_failure(

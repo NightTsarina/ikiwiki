@@ -20,10 +20,11 @@ sub import {
 	hook(type => "scan", id => "skeleton", call => \&scan);
 	hook(type => "htmlize", id => "skeleton", call => \&htmlize);
 	hook(type => "sanitize", id => "skeleton", call => \&sanitize);
-	hook(type => "postscan", id => "skeleton", call => \&postscan);
+	hook(type => "indexhtml", id => "skeleton", call => \&indexhtml);
 	hook(type => "format", id => "skeleton", call => \&format);
 	hook(type => "pagetemplate", id => "skeleton", call => \&pagetemplate);
 	hook(type => "templatefile", id => "skeleton", call => \&templatefile);
+	hook(type => "pageactions", id => "skeleton", call => \&pageactions);
 	hook(type => "delete", id => "skeleton", call => \&delete);
 	hook(type => "change", id => "skeleton", call => \&change);
 	hook(type => "cgi", id => "skeleton", call => \&cgi);
@@ -69,7 +70,7 @@ sub refresh () {
 	debug("skeleton plugin refresh");
 }
 
-sub needsbuild () {
+sub needsbuild ($) {
 	debug("skeleton plugin needsbuild");
 }
 
@@ -117,10 +118,10 @@ sub sanitize (@) {
 	return $params{content};
 }
 
-sub postscan (@) {
+sub indexhtml (@) {
 	my %params=@_;
 	
-	debug("skeleton plugin running as postscan");
+	debug("skeleton plugin running as indexhtml");
 }
 
 sub format (@) {
@@ -144,6 +145,14 @@ sub templatefile (@) {
 	my $page=$params{page};
 	
 	debug("skeleton plugin running as a templatefile hook");
+}
+
+sub pageactions (@) {
+	my %params=@_;
+	my $page=$params{page};
+
+	debug("skeleton plugin running as a pageactions hook");
+	return ();
 }
 
 sub delete (@) {

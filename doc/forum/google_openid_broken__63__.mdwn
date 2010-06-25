@@ -50,3 +50,30 @@ The openid is
 <https://www.google.com/accounts/o8/id?id=AItOawltlTwUCL_Fr1siQn94GV65-XwQH5XSku4>
 (what a mouthfull!), and I don't know who that is or how to use it since it
 points to a fairly useless xml document, rather than a web page. --[[Joey]]
+
+> That string is what's received via the discovery protocol. The user logging in with a Google account is not supposed to write that when logging in, but rather <https://www.google.com/accounts/o8/id>. The OpenID client library will accept that and redirect the user to a sign in page, which will return that string as the OpenID. It's not really usable as an identifier for edits and whatnots, but an alternative would be to use the attribute exchange extension to get the email address and display that. See <http://code.google.com/apis/accounts/docs/OpenID.html#Parameters>.
+
+> Yahoo's OpenID implementation works alike, but I haven't looked at it as much. It uses <https://me.yahoo.com/> to receive the endpoint.
+
+> I've added buttons that submit the two above URLs for logging in with a Google and Yahoo OpenID, respectively, to my locally changed OpenID login plugin.
+
+> Using the Google profile page as the OpenID is really orthogonal to the above. --[[kaol]]
+
+>> First, I don't accept that the openid google returns from their 
+>> generic signin url *has* to be so freaking ugly. For contrast, 
+>> look at the openid you log in as if you use the yahoo url.
+>> <https://me.yahoo.com/joeyhess#35f22>. Nice and clean, now
+>> munged by ikiwiki to "joeyhess [me.yahoo.com]".
+>> 
+>> Displaying email addresses is not really an option, because ikiwiki
+>> can't leak user email addresses like that. Displaying nicknames or
+>> usernames is, see [[todo/Separate_OpenIDs_and_usernames]].
+>>
+>> It would probably be good if the openid plugin could be configured with
+>> a list of generic openid urls, so it can add quick login buttons using
+>> those urls.
+>>
+>> The ugly google url will still be exposed here and there where
+>> a unique user id is needed. That can be avoided by not using the generic
+>> <https://www.google.com/accounts/o8/id>, but instead your own profile
+>> like <http://www.google.com/profiles/joeyhess>. --[[Joey]] 

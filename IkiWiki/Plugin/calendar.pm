@@ -22,7 +22,7 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use Time::Local;
-use POSIX;
+use POSIX ();
 
 my $time=time;
 my @now=localtime($time);
@@ -38,6 +38,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 		archivebase => {
 			type => "string",
@@ -45,6 +46,14 @@ sub getsetup () {
 			description => "base of the archives hierarchy",
 			safe => 1,
 			rebuild => 1,
+		},
+		archive_pagespec => {
+			type => "pagespec",
+			example => "page(posts/*) and !*/Discussion",
+			description => "PageSpec of pages to include in the archives; used by ikiwiki-calendar command",
+			link => 'ikiwiki/PageSpec',
+			safe => 1,
+			rebuild => 0,
 		},
 }
 
@@ -114,6 +123,7 @@ sub format_month (@) {
 	}
 
 	# Find out month names for this, next, and previous months
+	my $monthabbrev=POSIX::strftime("%b", @monthstart);
 	my $monthname=POSIX::strftime("%B", @monthstart);
 	my $pmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$pmonth-1,$pyear-1900)));
 	my $nmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$nmonth-1,$nyear-1900)));
@@ -123,12 +133,12 @@ sub format_month (@) {
 	$archivebase = $params{archivebase} if defined $params{archivebase};
   
 	# Calculate URL's for monthly archives.
-	my ($url, $purl, $nurl)=("$monthname",'','');
+	my ($url, $purl, $nurl)=("$monthname $params{year}",'','');
 	if (exists $pagesources{"$archivebase/$params{year}/$params{month}"}) {
 		$url = htmllink($params{page}, $params{destpage}, 
 			"$archivebase/$params{year}/".$params{month},
 			noimageinline => 1,
-			linktext => $monthname,
+			linktext => "$monthabbrev $params{year}",
 			title => $monthname);
 	}
 	add_depends($params{page}, "$archivebase/$params{year}/$params{month}",
@@ -155,11 +165,11 @@ sub format_month (@) {
 	# Start producing the month calendar
 	$calendar=<<EOF;
 <table class="month-calendar">
-	<caption class="month-calendar-head">
-	$purl
-	$url
-	$nurl
-	</caption>
+	<tr>
+	<th class="month-calendar-arrow">$purl</th>
+	<th class="month-calendar-head" colspan="5">$url</th>
+	<th class="month-calendar-arrow">$nurl</th>
+	</tr>
 	<tr>
 EOF
 
@@ -173,7 +183,7 @@ EOF
 	for my $dow ($week_start_day..$week_start_day+6) {
 		my @day=localtime(timelocal(0,0,0,$start_day++,$params{month}-1,$params{year}-1900));
 		my $downame = POSIX::strftime("%A", @day);
-		my $dowabbr = POSIX::strftime("%a", @day);
+		my $dowabbr = substr($downame, 0, 1);
 		$downame{$dow % 7}=$downame;
 		$dowabbr{$dow % 7}=$dowabbr;
 		$calendar.= qq{\t\t<th class="month-calendar-day-head $downame" title="$downame">$dowabbr</th>\n};
@@ -303,13 +313,14 @@ sub format_year (@) {
 	add_depends($params{page}, "$archivebase/$nyear", deptype("presence"));
 
 	# Start producing the year calendar
+	my $m=$params{months_per_row}-2;
 	$calendar=<<EOF;
 <table class="year-calendar">
-	<caption class="year-calendar-head">
-	$purl
-	$url
-	$nurl
-	</caption>
+	<tr>
+	<th class="year-calendar-arrow">$purl</th>
+ 	<th class="year-calendar-head" colspan="$m">$url</th>
+	<th class="year-calendar-arrow">$nurl</th>
+	</tr>
 	<tr>
 		<th class="year-calendar-subhead" colspan="$params{months_per_row}">Months</th>
 	</tr>
@@ -363,6 +374,16 @@ EOF
 	return $calendar;
 }
 
+sub setnextchange ($$) {
+	my $page=shift;
+	my $timestamp=shift;
+
+	if (! exists $pagestate{$page}{calendar}{nextchange} ||
+	    $pagestate{$page}{calendar}{nextchange} > $timestamp) {
+		$pagestate{$page}{calendar}{nextchange}=$timestamp;
+	}
+}
+
 sub preprocess (@) {
 	my %params=@_;
 
@@ -376,39 +397,64 @@ sub preprocess (@) {
 	$params{year}  = $thisyear	unless defined $params{year};
 	$params{month} = $thismonth	unless defined $params{month};
 
+	my $relativeyear=0;
+	if ($params{year} < 1) {
+		$relativeyear=1;
+		$params{year}=$thisyear+$params{year};
+	}
+	my $relativemonth=0;
+	if ($params{month} < 1) {
+		$relativemonth=1;
+		my $monthoff=$params{month};
+		$params{month}=($thismonth+$monthoff) % 12;
+		$params{month}=12 if $params{month}==0;
+		my $yearoff=POSIX::ceil(($thismonth-$params{month}) / -12)
+			- int($monthoff / 12);
+		$params{year}-=$yearoff;
+	}
+	
 	$params{month} = sprintf("%02d", $params{month});
-			
+	
 	if ($params{type} eq 'month' && $params{year} == $thisyear
 	    && $params{month} == $thismonth) {
 		# calendar for current month, updates next midnight
-		$pagestate{$params{destpage}}{calendar}{nextchange}=($time
+		setnextchange($params{destpage}, ($time
 			+ (60 - $now[0])		# seconds
 			+ (59 - $now[1]) * 60		# minutes
 			+ (23 - $now[2]) * 60 * 60	# hours
-		);
+		));
 	}
 	elsif ($params{type} eq 'month' &&
 	       (($params{year} == $thisyear && $params{month} > $thismonth) ||
 	        $params{year} > $thisyear)) {
 		# calendar for upcoming month, updates 1st of that month
-		$pagestate{$params{destpage}}{calendar}{nextchange}=
-			timelocal(0, 0, 0, 1, $params{month}-1, $params{year});
+		setnextchange($params{destpage},
+			timelocal(0, 0, 0, 1, $params{month}-1, $params{year}));
 	}
-	elsif ($params{type} eq 'year' && $params{year} == $thisyear) {
-		# calendar for current year, updates 1st of next month
+	elsif (($params{type} eq 'year' && $params{year} == $thisyear) ||
+	       $relativemonth) {
+		# Calendar for current year updates 1st of next month.
+		# Any calendar relative to the current month also updates
+		# then.
 		if ($thismonth < 12) {
-			$pagestate{$params{destpage}}{calendar}{nextchange}=
-				timelocal(0, 0, 0, 1, $thismonth+1-1, $params{year});
+			setnextchange($params{destpage},
+				timelocal(0, 0, 0, 1, $thismonth+1-1, $params{year}));
 		}
 		else {
-			$pagestate{$params{destpage}}{calendar}{nextchange}=
-				timelocal(0, 0, 0, 1, 1-1, $params{year}+1);
+			setnextchange($params{destpage},
+				timelocal(0, 0, 0, 1, 1-1, $params{year}+1));
 		}
+	}
+	elsif ($relativeyear) {
+		# Any calendar relative to the current year updates 1st
+		# of next year.
+		setnextchange($params{destpage},
+			timelocal(0, 0, 0, 1, 1-1, $thisyear+1));
 	}
 	elsif ($params{type} eq 'year' && $params{year} > $thisyear) {
 		# calendar for upcoming year, updates 1st of that year
-		$pagestate{$params{destpage}}{calendar}{nextchange}=
-			timelocal(0, 0, 0, 1, 1-1, $params{year});
+		setnextchange($params{destpage},
+			timelocal(0, 0, 0, 1, 1-1, $params{year}));
 	}
 	else {
 		# calendar for past month or year, does not need
@@ -416,7 +462,6 @@ sub preprocess (@) {
 		delete $pagestate{$params{destpage}}{calendar};
 	}
 
-	# Calculate month names for next month, and previous months
 	my $calendar="";
 	if ($params{type} eq 'month') {
 		$calendar=format_month(%params);

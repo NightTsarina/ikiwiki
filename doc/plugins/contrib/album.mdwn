@@ -9,9 +9,11 @@ thoughts about this plugin).
 This plugin formats a collection of images into a photo album,
 in the same way as many websites: good examples include the
 PHP application [Gallery](http://gallery.menalto.com/), Flickr,
-and Facebook's Photos "application". I've called it `album`
-to distinguish it from [[contrib/gallery|plugins/contrib/gallery]],
-although `gallery` might well be a better name for this functionality.
+and Facebook's Photos "application".
+
+I've called it `album` to distinguish it from
+[[contrib/gallery|plugins/contrib/gallery]], although `gallery` might well be
+a better name for this functionality.
 
 The web UI I'm trying to achieve consists of one
 [HTML page of thumbnails](http://www.pseudorandom.co.uk/2008/2008-03-08-panic-cell-gig/)
@@ -26,83 +28,129 @@ individual photos can't be bookmarked in a meaningful way, and
 the best it can do as a fallback for non-Javascript browsers
 is to provide a direct link to the image.)
 
-## Writing the viewers
+<h2 id="album"><code>album</code> directive</h2>
 
-    \[[!albumimage image=foo.jpg album=myalbum
-        title=...
-        caption=...
-        copyright=...
-        size=...
-        viewertemplate=...
-    ]]
+Each page containing an `album` directive is treated as a photo album.
 
-Each viewer contains one `\[[!albumimage]]` directive. This
-sets the `image` filename, the `album` in which this image appears,
-and an optional `caption`, and can override the `size` at which to
-display the image and the `viewertemplate` to use to display the
-image.
+Every image attached to an album or its subpages is considered to be part of
+the album. A "viewer" page, with the wiki's default page extension, will be
+generated to display the image, if there isn't already a page of the same
+name as the image: for instance, if `debconf` is an album and
+`debconf/tuesday/p100.jpg` exists, then `debconf/tuesday/p100.mdwn` might
+be created.
 
-It can also have `title`, `copyright` and `date` parameters, which
-are short-cuts for [[ikiwiki/directive/meta]] directives.
+There's currently a hard-coded list of extensions that are treated as images:
+`png`, `gif`, `jpg`, `jpeg` or `mov` files. More image and video types could
+be added in future. Videos aren't currently handled very well;
+ideally, something like totem-video-thumbnailer would be used.
 
-The viewer can also have any other content, but typically the
-directive will be the only thing there.
+The `album` directive also produces an [[ikiwiki/directive/inline]] which
+automatically includes all the viewers for this album, except those that
+will appear in an <a href="#albumsection">albumsection</a> (if every image
+is in a section, then the `album` directive won't have any visible effect).
 
-Eventually, there will be a specialized CGI user interface to
-edit all the photos of an album at once, upload a new photo
-(which will attach the photo but also write out a viewer page
-for it), or mark an already-uploaded photo as a member of an
-album (which is done by writing out a viewer page for it).
+The `inline` is in `archive` and `quick` mode, but can include some
+extra information about the images, including file size and a thumbnail made
+using [[ikiwiki/directive/img]]). The default template is `albumitem.tmpl`,
+which takes advantage of these things.
 
-The `\[[!albumimage]]` directive is replaced by an
-[[ikiwiki/directive/img]], wrapped in some formatting using a
-template (by default `albumviewer.tmpl`). The template can (and
-should) also include "next photo", "previous photo" and
-"up to gallery" links.
+<h2 id="albumsection"><code>albumsection</code> directive</h2>
 
-The next/previous links are themselves implemented by
-[[inlining|ikiwiki/directive/inline]] the next or previous
-photo, using a special template (by default `albumnext.tmpl`
-or `albumprev.tmpl`), in `archive`/`quick` mode.
+The `albumsection` directive is used to split an album into sections. It can
+only appear on a page that also has the <a href="#album">album</a> directive.
 
-> With hindsight, using an inline here is wrong - I should just
-> run hooks and fill in the template within the album plugin.
-> inline has some specialized functionality that's overkill
-> here, and its delayed HTML substitution breaks the ability
-> to have previous/up/next links both above and below the
-> photo, for instance. --[[smcv]]
+The `filter` parameter is a [[ikiwiki/PageSpec]] against which viewer pages
+are matched. The `albumsection` directive displays all the images that match
+the filter, and the `album` directive displays any leftover images, like
+this:
 
-## Writing the album
-
-The album contains one `\[[!album]]` directive. It may also
-contain any number of `\[[!albumsection]]` directives, for
-example the demo album linked above could look like:
+    # Holiday photos
 
     \[[!album]]
-    <!-- replaced with one uncategorized photo -->
+    <!-- replaced with a list of any uncategorized photos, which might be
+         empty -->
 
-    ## Gamarra
+    ## People
 
-    \[[!albumsection filter="link(gamarra)"]]
-    <!-- all the Gamarra photos -->
+    \[[!albumsection filter="tagged(people)"]]
+    <!-- replaced with a list of photos tagged 'people', including
+         any that are also tagged 'landscapes' -->
 
-    ## Smokescreen
+    ## Landscapes
 
-    \[[!albumsection filter="link(smokescreen)"]]
-    <!-- all the Smokescreen photos -->
+    \[[!albumsection filter="tagged(landscapes)"]]
+    <!-- replaced with a list of photos tagged 'landscapes', including
+         any that are also tagged 'people' -->
 
-    ...
+<h2 id="albumimage"><code>albumimage</code> directive</h2>
 
-The `\[[!album]]` directive is replaced by an
-[[ikiwiki/directive/inline]] which automatically includes every
-page that has an `\[[!albumimage]]` directive linking it to this
-album, except those that will appear in an `\[[!albumsection]]`.
+Each viewer page produced by the <a href="#album">album</a> directive
+contains an `albumimage` directive, which is replaced by an
+[[ikiwiki/directive/img]], wrapped in some formatting using a
+template (by default it's `albumviewer.tmpl`). That template can also include
+links to the next photo, the previous photo and the album it's in; the default
+template has all of these.
 
-The `inline` is in `archive`/`quick` mode, but includes some
-extra information about the images, including file size and a
-thumbnail (again, made using [[ikiwiki/directive/img]]). The
-default template is `albumitem.tmpl`, which takes advantage
-of these things.
+The next/previous links are themselves implemented by evaluating a template,
+either `albumnext.tmpl` or `albumprev.tmpl` by default.
 
-Each `\[[!albumsection]]` is replaced by a similar inline, which
-selects a subset of the photos in the album.
+The directive can also have parameters:
+
+* `title`, `copyright` and `date` are short-cuts for the corresponding
+  [[ikiwiki/directive/meta]] directives
+
+* `caption` sets a caption which is displayed in the album and viewer
+  pages
+
+The viewer page can also have other contents before or after the actual
+image viewer.
+
+## Bugs
+
+* The plugin doesn't do anything special to handle albums that are subpages
+  of each other. If, say, `debconf` and `debconf/monday` are both albums,
+  then `debconf/monday/p100.jpg` will currently be assigned to one or the
+  other, arbitrarily.
+
+* The plugin doesn't do anything special to handle photos with similar names.
+  If you have `p100.jpg` and `p100.png`, one will get a viewer page called
+  `p100` and the other will be ignored.
+
+* If there's no `albumimage` in a viewer page, one should probably be appended
+  automatically.
+
+## TODO
+
+* The documentation should mention how to replicate the appearance of
+  `album` and `albumsection` using an `inline` of viewer pages.
+
+* The documentation should mention all the template variables and
+  all the parameters.
+
+* The generated viewer page should include most or all of the possible
+  parameters to the `albumimage` directive, with empty values, as a
+  template for editing.
+
+* The generated viewer page should extract as much metadata as possible from
+  the photo's EXIF tags (creation/modification dates, author, title, caption,
+  copyright). [[smcv]] has a half-written implementation which runs
+  `scanimage` hooks, and has an `exiftool` plugin using [[!cpan Image::ExifTool]]
+  as a reference implementation of that hook.
+
+* There should be an option to reduce the size of photos and write them into
+  an underlay, for this workflow:
+
+  * your laptop's local ikiwiki has two underlays, `photos` and `webphotos`
+  * `photos` contains full resolution photos with EXIF tags
+  * for each photo that exists in `photos` but not in `webphotos`, the album
+    plugin automatically resamples it down to a web-compatible resolution
+    ([[smcv]] uses up to 640x640), optimizes it with `jpegoptim`, strips out
+    all EXIF tags, and and writes it into the corresponding location
+    in `webphotos`
+  * `webphotos` is what you rsync to the web server
+  * the web server's ikiwiki only has `webphotos` as an underlay
+
+* Eventually, there could be a specialized CGI user interface to batch-edit
+  all the photos of an album (so for each photo, you get an edit box each for
+  title, author, copyright etc.) - this would work by making programmatic
+  edits to all the `albumimage` directives.

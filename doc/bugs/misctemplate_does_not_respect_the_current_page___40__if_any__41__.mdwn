@@ -1,0 +1,101 @@
+I really like the new approach to having only one main template "page.tmpl". For instance, it improves previews during edits.
+But it causes some nasty bugs for plugins that use the pagetemplate hook. It is especially visible with the [[plugins/sidebar]] plugin.
+
+## Some examples
+
+### A first example
+
+* activate sidebars globally and cgi
+* create "/sidebar.mdwn" with "[<span></span>[foo]]" inside
+* create "/foo.mdwn" with "hello!" inside
+* create "/bar.mdwn"
+* run ikiwiki
+* with the web browser, go to the page "bar"
+* notice the sidebar, click on "foo"
+* notice the page "foo" is now displayed (hello!)
+* return the the page "bar" and click "edit"
+* notice the sidebar is still here, click on the "foo"
+* -> Problem: 404, the browser goes to "/bar/foo" 
+* -> Was expected: the browser goes to "/foo"
+
+> You must have a locally modified `page.tmpl` that omits the "TMPL_IF DYNAMIC"
+> that adds a `<base>` tag. That is needed to make all links displayed by
+> cgis work reliably. Not just in this page editing case.
+> The [[version_3.20100515]] announcment mentions that you need to
+> update old `page.tmpl` files to include that on upgrade. --[[Joey]]
+
+>> I followed the anouncment. I also disabled my custom page.tmpl to confirm the bug. I even produced a step-by-step example to reproduce the bug.
+>> In fact, the base tag work for the page links (the content part) but did not works for the sidebar links (the sidebar part) since the sidebar links are generated in the context of the root page.
+>> In the examble above:
+>>
+>> * base="http://www.example.com/bar" relative_link_in_bar=''something" -> absolute_link_in_bar = "http://www.example.com/bar/something" (that is fine)
+>> * base="http://www.example.com/bar" relative_link_in_sidebar="foo" (because generated in the context of the root page) -> absolute_link_in_sidebar = "http://www.example.com/bar/foo" (that is not fine)
+>>
+>> The fix commited work for previewing, but not in other cases : links are still broken. Please juste follow the example step-by-step to reproduce it (I just retried it with a "fixed" version: Debian 3.20100610). If you cannot reproduce, please say it explicitely instead of guessing about my innability to read changelogs. -- [[JeanPrivat]]
+
+>>> Sorry if my not seeing the bug offended you. [[Fixed|done]] --[[Joey]] 
+
+>>>> Thanks! --[[JeanPrivat]] (I'm not offended)
+
+### A second example
+
+* create "/bar/sidebar.mdwn" with "world"
+* run ikiwiki
+* with the web browser, go to the page "bar"
+* notice the sidebar displays "world"
+* click "edit"
+* -> Problem: the sidebar now shows the foo link (it is the root sidebar!)
+* -> Was expecte : the sidebar displays "world"
+
+> I think it's a misconception to think that the page editing page is the same
+> as the page it's editing. If you were deleting that page, would you expect
+> the "are you sure" confirmation page to display the page's sidebar?
+> --[[Joey]]
+
+>> It is a very good point and could be argued:
+>>
+>> * for dynamic page, is the root context more legitimate than the current page context?
+>> * when clicking the Edit link, does the user expect to remain in the "same page"?
+>>
+>> But, as far as something sensible is displayed and that the links work. I'm OK with any choice. -- [[JeanPrivat]]
+
+### A last example
+
+* with the web browser edit the page "bar"
+* type <code>[<span></span>[!sidebar content="goodby"]]</code>
+* click preview
+* -> Problem: the sidebar still displays the foo link
+* -> Was expected: the sidebar display "goodby"
+
+> In the specific case of previewing, it is indeed a bug that the
+> right sidebar is not displayed. And replacing the regular sidebar 
+> with the one from the previewed page is probably the best we can do..
+> displaying 2 sidebars would be confusing, and the `page.tmpl` can
+> put the sidebar anywhere so we can't just display the preview sidebar
+> next to the rest of the page preview. --[[Joey]]
+
+>> The behavior is fine for me. However, some nitpicking (fell free to ingore) :
+>>
+>> * If the sidebar is replaced (making the previewing in-place), for consitency, should not the previewed content also shown in-place ? i.e. above the form part
+>> * there is no way to come back (without saving or canceling) to the root context (e.g. displaying the root sidebar) i.e. some sort of unpreviewing.
+>>
+>> -- [[JeanPrivat]]
+
+## Some superficial hacking
+
+With the following workaround hacks, I manage to solve the 3 examples shown above:
+
+1- edit IkiWiki/Plugin/editpage.pm and call showform with additional page and destpage parameters:
+<pre>showform($form, \@buttons, $session, $q, forcebaseurl => $baseurl, page => $page, destpage => $page);</pre>
+
+2- edit /usr/share/perl5/IkiWiki.pm and modify the misctemplate function to use the given page and destpage:
+<pre>my %params=@_;
+shift->(page => $params{page}, destpage => $params{destpage}, template => $template);</pre>
+
+I do not guarantee (I do not even expect) that it is the proper way to solve
+this bug but it may help developers to find and solve the real problem. 
+
+> Oh, it's pretty reasonable. I don't think it breaks anything. :)
+> I modified it a bit, and explicitly made it *not* "fix" the second example.
+> --[[Joey]] 
+>> I removed the done tag (I suspect it is the way to reopen bugs) -- [[JeanPrivat]]

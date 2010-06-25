@@ -1,0 +1,69 @@
+Although I have comments enabled and I have been using them successfully for ages now, I've come to notice that they have stopped working in the last week or two.
+
+I am running version 3.20100312 with the following configuration:
+
+<http://static.natalian.org/2010-03-27/natalian.txt>
+
+In my (HTML5 modified page.tmpl) it doesn't seem to enter the "TMPL_IF COMMENTS" block anymore. I tried the stock page.tmpl and they didn't seem to work either, so the variable name hasn't changed has it?
+
+Any other ideas? With thanks,
+
+	comments_pagespec => 'archives/* and !*/Discussion',
+
+> Your setup file only allows comments to pages under archives. That 
+> seems unlikely to be right, so I guess it is causing your problem.
+> --[[Joey]] 
+
+That's the only place where I want comments. <http://natalian.org/archives/>
+Has the pagespec changed? Is it `archives/*/*` or something like that?
+
+It worked just fine with this configuration. I swear I have not modified it. :) -- [[Kai Hendry]]
+
+> No changes that I can think of. 'archives/*' will match *all* pages under
+> archives. Anyway, I can see in your site's rss feed that comments are
+> enabled for posts, since they have comments tags there. And
+> in fact I see comments on eg
+> <http://natalian.org/archives/2010/03/25/BBC_News_complaints/>.
+> 
+> So I suspect you have simply not rebuilt your wiki after making some
+> change that fixed the comments, and so only newer pages are getting them.
+> --[[Joey]]
+
+I have tried rebuilding on my squeeze system and still comments don't appear. Any clues how to debug this?
+<http://natalian.org/comments/>
+
+I was worried is was due to a time skew problem I was experiencing on my VPS in the last month, though the time is right now and still comments do not appear on blog posts like <http://natalian.org/archives/2010/03/25/BBC_News_complaints/>
+
+# Debugging templates
+
+`sudo apt-get install libhtml-template-compiled-perl`
+
+    hendry@webconverger templates$ cat test-template.perl
+    #!/usr/bin/perl
+    use HTML::Template::Compiled;
+    local $HTML::Template::Compiled::DEBUG = 1;
+    my $htc = HTML::Template::Compiled->new(
+             filename => "$ARGV[0]",
+    );
+    eval {  
+            print $htc->output;
+    };
+    if ($@) {
+            # reports as text
+            my $msg = $htc->debug_code;
+            # reports as a html table
+            my $msg_html = $htc->debug_code('html');
+    }
+    hendry@webconverger templates$ ./test-template.perl page.tmpl
+    Missing closing tag for 'IF' atend of page.tmpl line 159
+
+
+I think the problem was before that it was `<TMPL_IF COMMENTS>` and now it is `<TMPL_IF NAME="COMMENTS">` ?
+
+
+
+# Solved
+
+A merge with the templates in master with my [html5](http://git.webconverger.org/?p=ikiwiki;a=shortlog;h=refs/heads/html5) branch looks like it has solved the problem. Also see [[bugs/html5_support]].
+
+[[bugs/done]]

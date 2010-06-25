@@ -7,6 +7,16 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "preprocess", id => "format", call => \&preprocess);
+	hook(type => "getsetup",   id => "format", call => \&getsetup);
+}
+
+sub getsetup () {
+	return
+		plugin => {
+			safe => 1,
+			rebuild => undef,
+			section => "widget",
+		},
 }
 
 sub preprocess (@) {

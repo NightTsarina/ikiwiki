@@ -19,6 +19,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "web",
 		},
 		allowed_attachments => {
 			type => "pagespec",
@@ -57,7 +58,7 @@ sub check_canattach ($$;$) {
 			$config{allowed_attachments},
 			file => $file,
 			user => $session->param("name"),
-			ip => $ENV{REMOTE_ADDR},
+			ip => $session->remote_addr(),
 		);
 	}
 
@@ -133,10 +134,13 @@ sub formbuilder (@) {
 			}
 		}
 
+		$filename=IkiWiki::basename($filename);
+		$filename=~s/.*\\+(.+)/$1/; # hello, windows
+
 		$filename=linkpage(IkiWiki::possibly_foolish_untaint(
 				attachment_location($form->field('page')).
-				IkiWiki::basename($filename)));
-		if (IkiWiki::file_pruned($filename, $config{srcdir})) {
+				$filename));
+		if (IkiWiki::file_pruned($filename)) {
 			error(gettext("bad attachment filename"));
 		}
 		
@@ -179,9 +183,12 @@ sub formbuilder (@) {
 		if ($config{rcs}) {
 			IkiWiki::rcs_add($filename);
 			IkiWiki::disable_commit_hook();
-			IkiWiki::rcs_commit($filename, gettext("attachment upload"),
-				IkiWiki::rcs_prepedit($filename),
-				$session->param("name"), $ENV{REMOTE_ADDR});
+			IkiWiki::rcs_commit(
+				file => $filename,
+				message => gettext("attachment upload"),
+				token => IkiWiki::rcs_prepedit($filename),
+				session => $session,
+			);
 			IkiWiki::enable_commit_hook();
 			IkiWiki::rcs_update();
 		}
@@ -194,7 +201,14 @@ sub formbuilder (@) {
 		foreach my $f ($q->param("attachment_select")) {
 			$f=Encode::decode_utf8($f);
 			$f=~s/^$page\///;
-			$add.="[[$f]]\n";
+			if (IkiWiki::isinlinableimage($f) &&
+			    UNIVERSAL::can("IkiWiki::Plugin::img", "import")) {
+				$add.='[[!img '.$f.' align="right" size="" alt=""]]';
+			}
+			else {
+				$add.="[[$f]]";
+			}
+			$add.="\n";
 		}
 		$form->field(name => 'editcontent',
 			value => $form->field('editcontent')."\n\n".$add,
@@ -224,8 +238,7 @@ sub attachment_list ($) {
 	my @ret;
 	foreach my $f (values %pagesources) {
 		if (! defined pagetype($f) &&
-		    $f=~m/^\Q$loc\E[^\/]+$/ &&
-		    -e "$config{srcdir}/$f") {
+		    $f=~m/^\Q$loc\E[^\/]+$/) {
 			push @ret, {
 				"field-select" => '<input type="checkbox" name="attachment_select" value="'.$f.'" />',
 				link => htmllink($page, $page, $f, noimageinline => 1),

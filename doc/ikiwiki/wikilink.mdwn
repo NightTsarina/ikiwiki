@@ -9,9 +9,6 @@ wikilink, just prefix it with a `\`, like `\\[[WikiLink]]`.
 There are some special [[SubPage/LinkingRules]] that come into play when
 linking between [[SubPages|SubPage]].
 
-Also, if the file linked to by a WikiLink looks like an image, it will
-be displayed inline on the page.
-
 WikiLinks are matched with page names in a case-insensitive manner, so you
 don't need to worry about getting the case the same, and can capitalise
 links at the start of a sentence, and so on.
@@ -23,14 +20,10 @@ page, but the link will appear like this: [[foo_bar|SandBox]].
 To link to an anchor inside a page, you can use something like
 `\[[WikiLink#foo]]` .
 
-## Directives and WikiLinks
+If the file linked to by a WikiLink looks like an image, it will
+be displayed inline on the page.
 
-ikiwiki has two syntaxes for
-[[directives|directive]].  The older syntax
-used spaces to distinguish between directives and
-wikilinks; as a result, with that syntax in use, you cannot use spaces
-in WikiLinks, and must replace spaces with underscores.  The newer
-syntax, enabled with the `prefix_directives` option in an ikiwiki
-setup file, prefixes directives with `!`, and thus does not prevent
-links with spaces.  Future versions of ikiwiki will turn this option
-on by default.
+---
+
+You can also put an url in a WikiLink, to link to an external page.
+Email addresses can also be used to generate a mailto link.

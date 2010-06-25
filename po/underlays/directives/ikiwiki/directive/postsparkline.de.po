@@ -1,0 +1,149 @@
+# German translation of directives/ikiwiki/directive/postsparkline page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-03-12 09:29+0530\n"
+"PO-Revision-Date: 2010-03-14 14:07+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `postsparkline` directive is supplied by the [[!iki "
+"plugins/postsparkline desc=postsparkline]] plugin."
+msgstr ""
+"Die `postsparkline`-Anweisung wird durch die [[!iki "
+"plugins/postsparkline desc=postsparkline]]-Erweiterung bereitgestellt."
+
+#. type: Plain text
+msgid ""
+"This directive uses the [[!iki plugins/sparkline desc=sparkline]] plugin to "
+"create a [[sparkline]] of statistics about a set of pages, such as posts to "
+"a blog."
+msgstr ""
+"Diese Anweisung verwendet die [[!iki plugins/sparkline "
+"desc=sparkline]]-Erweiterung, um eine [[sparkline]] mit Statistiken über "
+"bestimmte Seiten anzuzeigen, etwa über Einträge in einem Blog."
+
+#. type: Title #
+#, no-wrap
+msgid "examples"
+msgstr "Beispiele"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\tPost interval: \n"
+"\t\\[[!postsparkline pages=\"blog/* and !*/Discussion\" max=100\n"
+"\tformula=interval style=bar barwidth=2 barspacing=1 height=13]]\n"
+msgstr ""
+"\tIntervall der Einträge: \n"
+"\t\\[[!postsparkline pages=\"blog/* and !*/Discussion\" max=100\n"
+"\tformula=interval style=bar barwidth=2 barspacing=1 height=13]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\tPosts per month this year: \n"
+"\t\\[[!postsparkline pages=\"blog/* and !*/Discussion\" max=12\n"
+"\tformula=permonth style=bar barwidth=2 barspacing=1 height=13]]\n"
+msgstr ""
+"\tEinträge pro Monat in diesem Jahr: \n"
+"\t\\[[!postsparkline pages=\"blog/* and !*/Discussion\" max=12\n"
+"\tformula=permonth style=bar barwidth=2 barspacing=1 height=13]]\n"
+
+#. type: Title #
+#, no-wrap
+msgid "usage"
+msgstr "Verwendung"
+
+#. type: Plain text
+msgid ""
+"All options aside from the `pages`, `max`, `formula`, `time`, and `color` "
+"options are the same as in [[sparkline]] directive."
+msgstr ""
+"Alle Parameter außer `pages`, `max`, `formula`, `time` und `color` sind die "
+"gleichen wie in der [[sparkline]]-Anweisung."
+
+#. type: Plain text
+msgid ""
+"You don't need to specify any data points (though you can if you want to).  "
+"Instead, data points are automatically generated based on the creation times "
+"of pages matched by the specified `pages` [[ikiwiki/PageSpec]]. A maximum of "
+"`max` data points will be generated."
+msgstr ""
+"Es müssen keine Datenpunkte angegeben werden (auch wenn dies möglich ist). "
+"Stattdessen werden die Datenpunkte ausgehend vom Erstellungsdatum der durch "
+"`pages` angegebenen Seiten (eine [[ikiwiki/PageSpec]]) automatisch generiert."
+" Es werden höchstens `max` Datenpunkte erzeugt."
+
+#. type: Plain text
+msgid ""
+"The `formula` parameter controls the formula used to generate data points.  "
+"Available formulae:"
+msgstr ""
+"Der Parameter `formula` steuert die Formel, mit der die Datenpunkte erzeugt "
+"werden. Verfügbare Formeln:"
+
+#. type: Bullet: '* '
+msgid ""
+"`interval` - The height of each point represents how long it has been since "
+"the previous post."
+msgstr ""
+"`interval` - Die Höhe jedes Punkts steht für den zeitlichen Abstand zum "
+"vorherigen Eintrag."
+
+#. type: Bullet: '* '
+msgid ""
+"`perday` - Each point represents a day; the height represents how many posts "
+"were made that day."
+msgstr ""
+"`perday` - Jeder Punkt entspricht einem Tag; die Höhe stellt die Anzahl der "
+"an diesem Tag gemachten Einträge dar."
+
+#. type: Bullet: '* '
+msgid ""
+"`permonth` - Each point represents a month; the height represents how many "
+"posts were made that month."
+msgstr ""
+"`permonth` - Jeder Punkt entspricht einem Monat; die Höhe stellt die Anzahl "
+"der in diesem Monat gemachten Einträge dar."
+
+#. type: Bullet: '* '
+msgid ""
+"`peryear` - Each point represents a year; the height represents how many "
+"posts were made that year."
+msgstr ""
+"`peryear` -  Jeder Punkt entspricht einem Jahr; die Höhe stellt die Anzahl "
+"der in diesem Jahr gemachten Einträge dar."
+
+#. type: Plain text
+msgid ""
+"The `time` parameter has a default value of \"ctime\", since formulae use "
+"the creation times of pages by default. If you instead want them to use the "
+"modification times of pages, set it to \"mtime\"."
+msgstr ""
+"Der Parameter `time` hat standardmäßig den Wert `ctime` und es werden die "
+"Erstellungszeiten der Seiten verwendet. Sollen stattdessen die "
+"Änderungszeiten verwendet werden, kann `mtime` angegeben werden."
+
+#. type: Plain text
+msgid ""
+"To change the color used to draw the sparkline, use the `color` parameter.  "
+"For example, \"color=red\"."
+msgstr ""
+"Die Farbe der sparkline kann mit dem Parameter `color` verändert werden, "
+"etwa durch `color=red`."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+

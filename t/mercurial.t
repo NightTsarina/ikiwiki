@@ -22,13 +22,22 @@ $config{srcdir} = "$dir/repo";
 IkiWiki::loadplugins();
 IkiWiki::checkconfig();
 
+use CGI::Session;
+my $session=CGI::Session->new;
+$session->param("name", "Joe User");
+
 system "hg init $config{srcdir}";
 
 # Web commit
 my $test1 = readfile("t/test1.mdwn");
 writefile('test1.mdwn', $config{srcdir}, $test1);
 IkiWiki::rcs_add("test1.mdwn");
-IkiWiki::rcs_commit("test1.mdwn", "Added the first page", "moo", "Joe User");
+IkiWiki::rcs_commit(
+	file => "test1.mdwn",
+	message => "Added the first page",
+	token => "moo",
+	session => $session,
+);
 
 my @changes;
 @changes = IkiWiki::rcs_recentchanges(3);

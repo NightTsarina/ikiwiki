@@ -4,8 +4,6 @@ package IkiWiki::Plugin::wmd;
 use warnings;
 use strict;
 use IkiWiki 3.00;
-use POSIX;
-use Encode;
 
 sub import {
 	add_underlay("wmd");
@@ -17,6 +15,8 @@ sub getsetup () {
 	return
 		plugin => {
 			safe => 1,
+			rebuild => 0,
+			section => "web",
 		},
 }
 

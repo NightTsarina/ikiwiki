@@ -1,0 +1,28 @@
+I'd like a way to always ask the RCS (Git) to update a file's mtime in
+refresh mode.  This is currently only done on the first build, and later
+for `--gettime --rebuild`.  But always rebuilding is too heavy-weight for
+this use-case.  My options are to either manually set the mtime before
+refreshing, or to have ikiwiki do it at command.  I used to do the
+former, but would now like the latter, as ikiwiki now generally does this
+timestamp handling.
+
+From a quick look, the code in `IkiWiki/Render.pm:find_new_files` is
+relevant: `if (! $pagemtime{$page}) { [...]`.
+
+How would you like to tackle this?
+
+--[[tschwinge]]
+
+> This could be done via a `needsbuild` hook. The hook is passed 
+> the list of changed files, and it should be safe to call `rcs_getmtime`
+> and update the `pagemtime` for each.
+> 
+> That lets the feature be done by a plugin, which seems good, since
+> `rcs_getmtime` varies between very slow and not very fast, depending on 
+> VCS.
+> 
+> AFAICS, the only use case for doing this is if you commit changes and
+> then delay pushing them to a DVCS repo. Since then the file mtime will
+> be when the change was pushed, not when it was committed. But I've
+> generally felt that recording when a change was published to the repo
+> of a wiki as its mtime is good enough. --[[Joey]] 

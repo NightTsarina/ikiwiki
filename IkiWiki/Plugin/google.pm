@@ -17,6 +17,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 1,
+			section => "web",
 		},
 }
 
@@ -24,6 +25,10 @@ sub checkconfig () {
 	if (! length $config{url}) {
 		error(sprintf(gettext("Must specify %s when using the %s plugin"), "url", 'google'));
 	}
+	
+	# This is a mass dependency, so if the search form template
+	# changes, every page is rebuilt.
+	add_depends("", "templates/googleform.tmpl");
 }
 
 my $form;
@@ -37,6 +42,7 @@ sub pagetemplate (@) {
 		if (! defined $form) {
 			my $searchform = template("googleform.tmpl", blind_cache => 1);
 			$searchform->param(url => $config{url});
+			$searchform->param(html5 => $config{html5});
 			$form=$searchform->output;
 		}
 

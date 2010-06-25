@@ -18,6 +18,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "auth",
 		},
 		blogspam_pagespec => {
 			type => 'pagespec',
@@ -57,6 +58,7 @@ sub checkconfig () {
 
 sub checkcontent (@) {
 	my %params=@_;
+	my $session=$params{session};
 	
  	if (exists $config{blogspam_pagespec}) {
 		return undef
@@ -87,7 +89,7 @@ sub checkcontent (@) {
 	push @options, "exclude=stopwords";
 
 	my %req=(
-		ip => $ENV{REMOTE_ADDR},
+		ip => $session->remote_addr(),
 		comment => defined $params{diff} ? $params{diff} : $params{content},
 		subject => defined $params{subject} ? $params{subject} : "",
 		name => defined $params{author} ? $params{author} : "",

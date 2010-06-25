@@ -1,0 +1,8 @@
+[[plugins/edittemplate]] looks for the specified template relative to the
+page the directive appears on. Which can be handy, eg, make a
+blog/mytemplate and put the directive on blog, and it will find
+"mytemplate". However, it can also be confusing, since other templates
+always are looked for in `templates/`.
+
+I think it should probably fall back to looking for `templates/$foo`.
+--[[Joey]] 

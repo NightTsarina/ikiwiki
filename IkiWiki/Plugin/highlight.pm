@@ -23,6 +23,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 1, # format plugin
+			section => "format",
 		},
 		tohighlight => {
 			type => "string",
@@ -79,7 +80,7 @@ my %highlighters;
 
 # Parse highlight's config file to get extension => language mappings.
 sub read_filetypes () {
-	open (IN, $filetypes);
+	open (IN, $filetypes) || error("$filetypes: $!");
 	while (<IN>) {
 		chomp;
 		if (/^\$ext\((.*)\)=(.*)$/) {

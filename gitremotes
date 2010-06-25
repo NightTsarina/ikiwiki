@@ -16,7 +16,10 @@ while (<IN>) {
 		my ($oldurl)=$info=~/URL: (.*)/m;
 		if ($oldurl ne $url) {
 			system("git remote rm $remote 2>/dev/null");
-			system("git", "remote", "add", "-f", $remote, $url)
+			system("git", "remote", "add", $remote, $url);
+			system("git", "config", "remote.$remote.tagopt",
+				"--no-tags");
+			system("git", "fetch", $remote);
 		}
 	}
 }

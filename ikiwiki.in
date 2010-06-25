@@ -7,7 +7,7 @@ package IkiWiki;
 use warnings;
 use strict;
 use lib '.'; # For use in nonstandard directory, munged by Makefile.
-use IkiWiki;
+use IkiWiki 3.00;
 
 sub usage () {
 	die gettext("usage: ikiwiki [options] source dest"), "\n",
@@ -37,13 +37,15 @@ sub getconfig () {
 			"syslog!" => \$config{syslog},
 			"rebuild!" => \$config{rebuild},
 			"refresh!" => \$config{refresh},
+			"clean!" => \$config{clean},
 			"post-commit" => \$config{post_commit},
 			"render=s" => \$config{render},
 			"wrappers!" => \$config{genwrappers},
 			"wrappergroup=s" => \$config{wrappergroup},
 			"usedirs!" => \$config{usedirs},
 			"prefix-directives!" => \$config{prefix_directives},
-			"getctime" => \$config{getctime},
+			"getctime" => \$config{gettime},
+			"gettime!" => \$config{gettime},
 			"numbacklinks=i" => \$config{numbacklinks},
 			"rcs=s" => \$config{rcs},
 			"no-rcs" => sub { $config{rcs}="" },
@@ -63,6 +65,9 @@ sub getconfig () {
 			"libdir=s" => \$config{libdir},
 			"exclude=s@" => sub {
 				push @{$config{wiki_file_prune_regexps}}, $_[1];
+			},
+			"include=s@" => sub {
+				$config{include}=defined $config{include} && length $config{include} ? "$config{include}|$_[1]" : $_[1];
 			},
 			"adminuser=s@" => sub {
 				push @{$config{adminuser}}, $_[1]
@@ -91,6 +96,17 @@ sub getconfig () {
 					die gettext("usage: --set var=value"), "\n";
 				}
 				$config{$var}=$val;
+			},
+			"set-yaml=s" => sub {
+				my ($var, $val)=split('=', $_[1], 2);
+				if (! defined $var || ! defined $val) {
+					die gettext("usage: --set-yaml var=value"), "\n";
+				}
+				eval q{use YAML::Any};
+				eval q{use YAML} if $@;
+				die $@ if $@;
+				eval q{$YAML::Syck::ImplicitUnicode=1};
+				$config{$var}=Load($val."\n");
 			},
 			"version" => sub {
 				print "ikiwiki version $IkiWiki::version\n";
@@ -135,6 +151,7 @@ sub main () {
 
 		if (@{$config{wrappers}} && 
 		    ! $config{render} && ! $config{dumpsetup} &&
+		    ! $config{clean} &&
 		    ((! $config{refresh} && ! $config{post_commit})
 		     || $config{genwrappers})) {
 			debug(gettext("generating wrappers.."));
@@ -159,7 +176,7 @@ sub main () {
 		
 		# setup implies a wiki rebuild by default
 		if (! $config{refresh} && ! $config{render} &&
-		    ! $config{post_commit}) {
+		    ! $config{post_commit} && ! $config{clean}) {
 			$config{rebuild}=1;
 		}
 	}
@@ -189,6 +206,14 @@ sub main () {
 	}
 	elsif ($config{post_commit} && ! commit_hook_enabled()) {
 		# do nothing
+	}
+	elsif ($config{clean}) {
+		require IkiWiki::Render;
+		foreach my $wrapper (@{$config{wrappers}}) {
+			prune($wrapper->{wrapper});
+		}
+		clean_rendered();
+		system("rm", "-rf", $config{wikistatedir});
 	}
 	else {
 		if ($config{rebuild}) {

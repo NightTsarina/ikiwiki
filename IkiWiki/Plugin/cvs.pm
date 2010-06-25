@@ -49,6 +49,7 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 }
 
 sub genwrapper () {
@@ -85,6 +86,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		cvsrepo => {
 			type => "string",
@@ -181,40 +183,47 @@ sub rcs_prepedit ($) {
 	return defined $rev ? $rev : "";
 }
 
-sub rcs_commit ($$$;$$) {
+sub commitmessage (@) {
+	my %params=@_;
+	
+	if (defined $params{session}) {
+		if (defined $params{session}->param("name")) {
+			return "web commit by ".
+				$params{session}->param("name").
+				(length $params{message} ? ": $params{message}" : "");
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			return "web commit from ".
+				$params{session}->remote_addr().
+				(length $params{message} ? ": $params{message}" : "");
+		}
+	}
+	return $params{message};
+}
+
+sub rcs_commit (@) {
 	# Tries to commit the page; returns undef on _success_ and
 	# a version of the page with the rcs's conflict markers on failure.
 	# The file is relative to the srcdir.
-	my $file=shift;
-	my $message=shift;
-	my $rcstoken=shift;
-	my $user=shift;
-	my $ipaddr=shift;
+	my %params=@_;
 
 	return unless cvs_is_controlling;
 
-	if (defined $user) {
-		$message="web commit by $user".(length $message ? ": $message" : "");
-	}
-	elsif (defined $ipaddr) {
-		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
-	}
-
 	# Check to see if the page has been changed by someone
 	# else since rcs_prepedit was called.
-	my ($oldrev)=$rcstoken=~/^([0-9]+)$/; # untaint
-	my $rev=cvs_info("Repository revision", "$config{srcdir}/$file");
+	my ($oldrev)=$params{token}=~/^([0-9]+)$/; # untaint
+	my $rev=cvs_info("Repository revision", "$config{srcdir}/$params{file}");
 	if (defined $rev && defined $oldrev && $rev != $oldrev) {
 		# Merge their changes into the file that we've
 		# changed.
-		cvs_runcvs('update', $file) ||
+		cvs_runcvs('update', $params{file}) ||
 			warn("cvs merge from $oldrev to $rev failed\n");
 	}
 
 	if (! cvs_runcvs('commit', '-m',
-			 IkiWiki::possibly_foolish_untaint $message)) {
-		my $conflict=readfile("$config{srcdir}/$file");
-		cvs_runcvs('update', '-C', $file) ||
+			 IkiWiki::possibly_foolish_untaint(commitmessage(%params)))) {
+		my $conflict=readfile("$config{srcdir}/$params{file}");
+		cvs_runcvs('update', '-C', $params{file}) ||
 			warn("cvs revert failed\n");
 		return $conflict;
 	}
@@ -222,20 +231,13 @@ sub rcs_commit ($$$;$$) {
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr)=@_;
-
-	if (defined $user) {
-		$message="web commit by $user".(length $message ? ": $message" : "");
-	}
-	elsif (defined $ipaddr) {
-		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
-	}
+	my %params=@_;
 
 	if (! cvs_runcvs('commit', '-m',
-			 IkiWiki::possibly_foolish_untaint $message)) {
+			 IkiWiki::possibly_foolish_untaint(commitmessage(%params)))) {
 		warn "cvs staged commit failed\n";
 		return 1; # failure
 	}
@@ -303,7 +305,7 @@ sub rcs_rename ($$) {
 	rcs_remove($src);
 }
 
-sub rcs_recentchanges($) {
+sub rcs_recentchanges ($) {
 	my $num = shift;
 	my @ret;
 
@@ -459,6 +461,8 @@ sub rcs_diff ($) {
 sub rcs_getctime ($) {
 	my $file=shift;
 
+	local $CWD = $config{srcdir};
+
 	my $cvs_log_infoline=qr/^date: (.+);\s+author/;
 
 	open CVSLOG, "cvs -Q log -r1.1 '$file' |"
@@ -482,6 +486,10 @@ sub rcs_getctime ($) {
 	$date=str2time($date, 'UTC');
 	debug("found ctime ".localtime($date)." for $file");
 	return $date;
+}
+
+sub rcs_getmtime ($) {
+	error "rcs_getmtime is not implemented for cvs\n"; # TODO
 }
 
 1

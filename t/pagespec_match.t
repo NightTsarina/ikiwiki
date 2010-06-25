@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 64;
+use Test::More tests => 85;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -40,11 +40,21 @@ ok(! pagespec_match("foo", "foo and bar"), "foo and bar");
 ok(pagespec_match("{f}oo", "{*}*"), "curly match");
 ok(! pagespec_match("foo", "{*}*"), "curly !match");
 
+ok(pagespec_match("somepage", "user(frodo)", user => "frodo"));
+ok(pagespec_match("somepage", "user(frodo)", user => "Frodo"));
+ok(! pagespec_match("somepage", "user(frodo)", user => "Sam"));
+ok(pagespec_match("somepage", "user(*o)", user => "Bilbo"));
+ok(pagespec_match("somepage", "user(*o)", user => "frodo"));
+ok(! pagespec_match("somepage", "user(*o)", user => "Sam"));
+ok(pagespec_match("somepage", "user(http://*.myopenid.com/)", user => "http://foo.myopenid.com/"));
+ok(pagespec_match("somepage", "user(*://*)", user => "http://foo.myopenid.com/"));
+
 # The link and backlink stuff needs this.
 $config{userdir}="";
 $links{foo}=[qw{bar baz}];
 $links{bar}=[];
 $links{baz}=[];
+$links{meh}=[];
 $links{"bugs/foo"}=[qw{bugs/done}];
 $links{"bugs/done"}=[];
 $links{"bugs/bar"}=[qw{done}];
@@ -56,7 +66,21 @@ $links{"ook"}=[qw{/blog/tags/foo}];
 foreach my $p (keys %links) {
 	$pagesources{$p}="$p.mdwn";
 }
+$pagesources{"foo.png"}="foo.png";
+$pagesources{"foo"}="foo.mdwn";
+$IkiWiki::hooks{htmlize}{mdwn}={};
 
+ok(pagespec_match("foo", "foo"), "simple");
+ok(! pagespec_match("foo", "bar"), "simple fail");
+ok(pagespec_match("foo", "foo"), "simple glob");
+ok(pagespec_match("foo", "f*"), "simple glob fail");
+ok(pagespec_match("foo", "page(foo)"), "page()");
+print pagespec_match("foo", "page(foo)")."\n";
+ok(! pagespec_match("foo", "page(bar)"), "page() fail");
+ok(! pagespec_match("foo.png", "page(foo.png)"), "page() fails on non-page");
+ok(! pagespec_match("foo.png", "page(foo*)"), "page() fails on non-page glob");
+ok(pagespec_match("foo", "page(foo)"), "page() glob");
+ok(pagespec_match("foo", "page(f*)"), "page() glob fail");
 ok(pagespec_match("foo", "link(bar)"), "link");
 ok(pagespec_match("foo", "link(ba?)"), "glob link");
 ok(! pagespec_match("foo", "link(quux)"), "failed link");
@@ -73,6 +97,7 @@ ok(! pagespec_match("bar", ""), "empty pagespec should match nothing");
 ok(! pagespec_match("bar", "    	"), "blank pagespec should match nothing");
 ok(pagespec_match("ook", "link(blog/tags/foo)"), "link internal absolute success");
 ok(pagespec_match("ook", "link(/blog/tags/foo)"), "link explicit absolute success");
+ok(pagespec_match("meh", "!link(done)"), "negated failing match is a success");
 
 $IkiWiki::pagectime{foo}=1154532692; # Wed Aug  2 11:26 EDT 2006
 $IkiWiki::pagectime{bar}=1154532695; # after
@@ -113,3 +138,7 @@ $i=pagespec_match("foo", "link(baz) and created_after(bar)")->influences;
 is(join(",", sort keys %$i), 'bar,foo', "influences add up over OR");
 $i=pagespec_match("foo", "!link(baz) and !created_after(bar)")->influences;
 is(join(",", sort keys %$i), 'bar,foo', "influences unaffected by negation");
+$i=pagespec_match("foo", "!link(baz) and !created_after(bar)")->influences;
+is(join(",", sort keys %$i), 'bar,foo', "influences unaffected by negation");
+$i=pagespec_match("meh", "!link(done)")->influences;
+is(join(",", sort keys %$i), 'meh', "a negated, failing link test is successful, so the page is a link influence");

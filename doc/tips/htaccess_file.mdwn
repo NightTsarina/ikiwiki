@@ -1,0 +1,27 @@
+If you try to include a `.htaccess` file in your wiki's source, in order to
+configure the web server, you'll find that ikiwiki excludes it from
+processing. In fact, ikiwiki excludes any file starting with a dot, as well
+as a lot of other files, for good security reasons.
+
+You can tell ikiwiki not to exclude the .htaccess file by adding this to
+your setup file:
+
+	include => '^\.htaccess$',
+
+Caution! Before you do that, please think for a minute about who can edit
+your wiki. Are attachment uploads enabled? Can users commit changes
+directly to the version control system? Do you trust everyone who can
+make a change to not do Bad Things with the htaccess file? Do you trust
+everyone who *might* be able to make a change in the future? Note that a
+determined attacker who can write to the htaccess file can probably get a
+shell on your web server.
+
+If any of these questions have given you pause, I suggest you find a
+different way to configure the web server. One way is to not put the
+`.htaccess` file under ikiwiki's control, and just manually install it
+in the destdir. --[[Joey]]
+
+[Apache's documentation](http://httpd.apache.org/docs/2.2/howto/htaccess.html)
+says:
+> In general, you should never use .htaccess files unless you don't have
+> access to the main server configuration file.

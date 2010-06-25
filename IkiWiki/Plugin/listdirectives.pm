@@ -19,6 +19,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 		directive_description_dir => {
 			type => "string",

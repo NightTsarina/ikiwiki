@@ -1,3 +1,14 @@
+### Sorting
+
+Is there a way to have the generated maps sorted by *title* instead of *filename* when show=title is used?
+Thanks 
+
+-- Thiana
+
+> [[bugs/map_sorts_by_pagename_and_not_title_when_show__61__title_is_used]] --[[Joey]] 
+
+----
+
 Question: Is there a way to generate a listing that shows *both* title and description meta information? Currently, a \[\[!map ...]] shows only one of the two, but I'd like to generate a navigation that looks like a description list. For example:
 
  * This is the title meta information.
@@ -72,3 +83,15 @@ Is there any way to do that?  I don't mind mucking around with `\[[!meta]]` on e
 >>> I think that the ideas and code in
 >>> [[todo/tracking_bugs_with_dependencies]] might also handle this case.
 >>> --[[Joey]]
+
+----
+
+I feel like this should be obvious, but I can't figure out how to sort numerically. 
+
+I have `map pages="./* and !*/Discussion and !*/sidebar"`  and a bunch of pages with names like 1, 2, 3, 11, 12, 1/1.1, 12/12.3 etc. I want to sort them numerically. I see lots of conversation implying there's a simple way to do it, but not how.
+
+> No, you can't: map can't currently use a non-default sort order. If it
+> could, then you could use [[plugins/sortnaturally]]. There's a
+> [[feature_request|todo/sort_parameter_for_map_plugin_and_directive]];
+> [[a_bug_references_it|bugs/map_sorts_by_pagename_and_not_title_when_show=title_is_used]].
+> --[[smcv]]

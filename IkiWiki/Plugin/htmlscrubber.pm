@@ -30,9 +30,9 @@ sub import {
 		"msnim", "notes", "rsync", "secondlife", "skype", "ssh",
 		"sftp", "smb", "sms", "snews", "webcal", "ymsgr",
 	);
-	# data is a special case. Allow data:image/*, but
-	# disallow data:text/javascript and everything else.
-	$safe_url_regexp=qr/^(?:(?:$uri_schemes):|data:image\/|[^:]+(?:$|\/))/i;
+	# data is a special case. Allow a few data:image/ types,
+	# but disallow data:text/javascript and everything else.
+	$safe_url_regexp=qr/^(?:(?:$uri_schemes):|data:image\/(?:png|jpeg|gif)|[^:]+(?:$|[\/\?]))/i;
 }
 
 sub getsetup () {
@@ -40,6 +40,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "core",
 		},
 		htmlscrubber_skip => {
 			type => "pagespec",
@@ -71,7 +72,7 @@ sub scrubber {
 	eval q{use HTML::Scrubber};
 	error($@) if $@;
 	# Lists based on http://feedparser.org/docs/html-sanitization.html
-	# With html 5 video and audio tags added.
+	# With html5 tags added.
 	$_scrubber = HTML::Scrubber->new(
 		allow => [qw{
 			a abbr acronym address area b big blockquote br br/
@@ -81,7 +82,10 @@ sub scrubber {
 			menu ol optgroup option p p/ pre q s samp select small
 			span strike strong sub sup table tbody td textarea
 			tfoot th thead tr tt u ul var
-			video audio
+
+			video audio source section nav article aside hgroup
+			header footer figure figcaption time mark canvas
+			datalist progress meter ruby rt rp details summary
 		}],
 		default => [undef, { (
 			map { $_ => 1 } qw{
@@ -97,13 +101,19 @@ sub scrubber {
 				selected shape size span start summary
 				tabindex target title type valign
 				value vspace width
-				autoplay loopstart loopend end
-				playcount controls 
+
+				autofocus autoplay preload loopstart
+				loopend end playcount controls pubdate
+				placeholder min max step low high optimum
+				form required autocomplete novalidate pattern
+				list formenctype formmethod formnovalidate
+				formtarget reversed spellcheck open hidden
 			} ),
 			"/" => 1, # emit proper <hr /> XHTML
 			href => $safe_url_regexp,
 			src => $safe_url_regexp,
 			action => $safe_url_regexp,
+			formaction => $safe_url_regexp,
 			cite => $safe_url_regexp,
 			longdesc => $safe_url_regexp,
 			poster => $safe_url_regexp,

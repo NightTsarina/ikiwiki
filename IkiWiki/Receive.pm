@@ -57,7 +57,6 @@ sub test () {
 	eval q{use CGI};
 	error($@) if $@;
 	my $cgi=CGI->new;
-	$ENV{REMOTE_ADDR}='unknown' unless exists $ENV{REMOTE_ADDR};
 
 	# And dummy up a session object.
 	require IkiWiki::CGI;
@@ -82,7 +81,7 @@ sub test () {
 		my ($file)=$change->{file}=~/$config{wiki_file_regexp}/;
 		$file=IkiWiki::possibly_foolish_untaint($file);
 		if (! defined $file || ! length $file ||
-		    IkiWiki::file_pruned($file, $config{srcdir})) {
+		    IkiWiki::file_pruned($file)) {
 			error(gettext("bad file name %s"), $file);
 		}
 

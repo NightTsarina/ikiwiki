@@ -17,6 +17,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
@@ -133,9 +134,12 @@ sub sessioncgi ($$) {
 		$oldchoice=$session->param($choice_param);
 		if ($config{rcs}) {
 			IkiWiki::disable_commit_hook();
-			IkiWiki::rcs_commit($pagesources{$page}, "poll vote ($choice)",
-				IkiWiki::rcs_prepedit($pagesources{$page}),
-				$session->param("name"), $ENV{REMOTE_ADDR});
+			IkiWiki::rcs_commit(
+				file => $pagesources{$page},
+				message => "poll vote ($choice)",
+				token => IkiWiki::rcs_prepedit($pagesources{$page}),
+				session => $session,
+			);
 			IkiWiki::enable_commit_hook();
 			IkiWiki::rcs_update();
 		}

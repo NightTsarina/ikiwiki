@@ -1,4 +1,346 @@
-ikiwiki (3.20100104) UNRELEASED; urgency=low
+ikiwiki (3.20100624) UNRELEASED; urgency=low
+
+  * Changes to avoid display of ugly google openids, by displaying
+    a username taken from openid.
+  * API: Add new optional field nickname to rcs_recentchanges.
+  * API: rcs_commit and rcs_commit_staged are now passed named
+    parameters.
+  * openid: Store nickname based on username or email provided from
+    openid provider.
+  * git: Record the nickname from openid in the git author email.
+  * comment: Record the username from openid in the comment page.
+  * Fixed some confusion and bugginess about whether
+    rcs_getctime/rcs_getmtime were passed absolute or relative filenames.
+    (Make it relative like everything else.)
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 23 Jun 2010 15:30:04 -0400
+
+ikiwiki (3.20100623) unstable; urgency=low
+
+  * openid: Add openid_realm and openid_cgiurl configuration options,
+    useful in a few edge case setups.
+  * attachment: Show files from underlay in attachments list.
+  * img: Support hspace and vspace attributes.
+  * editpage: Rename "comments" field to avoid CSS conflict with the
+    comments div.
+  * edittemplate: Make silent mode not disable display when the template
+    page does not exist, so it can be easily created.
+  * edittemplate: Look for template pages under templates/ like everything
+    else (still looks in old location for backwards compatibility).
+  * attachment: When inserting links, insert img directives for images,
+    if that plugin is enabled.
+  * websetup: Allow enabling plugins listed in disable_plugins.
+  * editpage, comments: Fix broken links in sidebar (due to forcebaseurl).
+    (Thanks, privat)
+  * calendar: Tune archive_pagespec to only match pages, not other files.
+  * Fix issues with combining unicode srcdirs and source files.
+    (Workaround bug #586045)
+  * Make --gettime be honored after initial setup.
+  * git: Fix --gettime to properly support utf8 filenames.
+  * attachment: Support Windows paths when taking basename of client-supplied
+    file name.
+  * theme: New plugin, allows easily themeing a site via the underlay.
+  * Added actiontabs theme by Svend Sorensen.
+  * Added blueview theme by Bernd Zeimetz.
+  * mercurial: Fix buggy getctime code. Closes: #586279
+  * link: Enhanced to handle URLs and email addresses. (Bernd Zeimetz)
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 23 Jun 2010 14:10:26 -0400
+
+ikiwiki (3.20100610) unstable; urgency=low
+
+  * creation_day() etc use local time, not gmtime. To match calendars, which
+    use local time.
+  * img: Fill in missing height or width when scaling image.
+  * Remove example blog tag pages; allow autotag creation to create them
+    when used.
+  * Fix support for globbing in tagged() pagespecs.
+  * Fix display of sidebar when previewing page edit. (Thanks, privat)
+  * relativedate: Fix problem with localised dates not working.
+  * editpage: Avoid storing accidental state changes when previewing pages.
+  * page.tmpl: Add a div around the page content, and comments, to aide in
+    sidebar styling.
+  * style.css: Improvements to make floating sidebar fit much better on
+    pages with inlines.
+  * calendar: Shorten day names, and improve styling of month calendar.
+  * style.css: Reduced sidebar width back to 20ex from 30; the month calendar
+    will now fit in the smaller width, and 30 was feeling too large.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 10 Jun 2010 14:24:05 -0400
+
+ikiwiki (3.20100518.2) unstable; urgency=low
+
+  * Fix a typo in the last release.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 18 May 2010 14:17:01 -0400
+
+ikiwiki (3.20100518) unstable; urgency=low
+
+  * page.tmpl: Accidentially broke po plugin's otherlanguages list styling
+    when modifying for html5; now fixed.
+  * Fix a bug that prevented matching deleted comments, and so did not update
+    pages that had contained them.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 18 May 2010 13:37:39 -0400
+
+ikiwiki (3.20100515) unstable; urgency=low
+
+  * Removed misc.tmpl. Now to theme ikiwiki, you only need to customise
+    a single template, page.tmpl.
+  * If you have a locally customised page.tmpl, it needs to be updated
+    to set <base> when BASEURL or FORCEBASEURL is set.
+  * comments: Comments pending moderation are now stored in the srcdir
+    alongside accepted comments, but with a `._comment_pending` extension.
+    This allows easier byhand moderation, as the "_pending" need
+    only be stripped off and the comment be committed to version control.
+  * The `comment_pending()` pagespec can be used to match such unmoderated
+    comments, which makes it easy to add a feed of them, or a counter
+    indicating how many there are.
+  * Belatedly added a `comment()` pagespec.
+  * Gave comment and page editing forms some CSS and accessability love.
+  * Renamed postscan hook to indexhtml, to reflect its changed position,
+    and typical use.
+  * inline: Call indexhtml when inlining internal pages, so their
+    text can be indexed for searching.
+  * Delete hooks are passed deleted internal pages. 
+  * openid: Incorporated a fancy openid-selector signin form.
+    (Based on http://code.google.com/p/openid-selector/)
+  * openid: Use "openid_identifier" as the form field, as required
+    by OpenID Authentication v2.0 spec.
+  * Removed the openidsignup option. Instead, my recommendation is to
+    leave passwordauth enabled and let people who don't have an openid use it.
+    The openid selector form avoids the UI annoyance of having both openid
+    and passwordauth on one form.
+  * calendar: Allow negative month to be specified. -1 is last month, etc.
+    (And also negative years.)
+  * calendar: Display year in title of month calendar.
+  * Use xhtml friendly pubdate setting.
+  * remove, rename: Add guards against XSRF attacks.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 15 May 2010 21:00:45 -0400
+
+ikiwiki (3.20100504) unstable; urgency=low
+
+  * Add parameter to displaytime to specify that it is a pubdate,
+    and in html5 mode, use time tag.
+  * Add placeholder text in search form (in html5 mode only).
+  * In html5 mode, use all the nice new semantic tags. Care was taken
+    to not change the id/class named used in the CSS, so only CSS
+    that refers to tag types needed to be changed.
+  * Add ACTIONS variable to page.tmpl, which allows plugins to add arbitrary
+    links to the action bar without modifying the template further.
+    (COMMENTSLINK and DISCUSSIONLINK could be folded into this, but
+    are kept separate for now to avoid breaking modified templates.)
+  * websetup: Only display Setup button on admins' preferences page. 
+  * graphviz: Fix display of preexisting images in preview mode.
+  * Fixes a bug in skipping of illegal source files introduced in 
+    3.20100427.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 04 May 2010 20:26:20 -0400
+
+ikiwiki (3.20100501) unstable; urgency=low
+
+  * TMPL_INCLUDE re-enabled for templates read from the templatedir.
+    (But not in-wiki templates.)
+  * Version dependency on liburi-perl to >= 1.36; previous versions
+    did not support building urls from utf-8 strings. Closes: #579713
+  * Ikiwiki can be configured to generate html5 instead of the default xhtml
+    1.0. The html5 output mode is experimental, not yet fully standards
+    compliant, and will be subject to rapid change.
+  * htmlscrubber: Allow html5 semantic tags: section, nav, article, aside
+    hgroup, header, footer, figure, figcaption, time, mark
+  * htmlscrubber: Also allow some other html5 tags: canvas, progress, meter,
+    ruby, rt, rp, details, summary, datalist.
+  * htmlscrubber: Round out html5 video support with the preload
+    attribute and the source tag.
+  * htmlscrubber: Allow the html5 form attributes: placeholder, autofocus,
+    min, max, step, required, autocomplete, novalidate, pattern, list,
+    and form. (Also the form* override attributes for input and buttons.)
+  * htmlscrubber: Allow additional misc html5 attributes: reversed,
+    spellcheck, and hidden.
+  * template: Fix typo.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 01 May 2010 20:49:28 -0400
+
+ikiwiki (3.20100427) unstable; urgency=low
+
+  [ Joey Hess ]
+  * tag: Automatic creation of tag pages can now be enabled using
+    the tag_autocreate setting. (David Riebenbauer)
+  * Customised templates can now be included in the source of wikis
+    (and also in underlays), and dependencies on them are tracked.
+  * TMPL_INCLUDE is no longer supported in any template.
+  * underlay: Removed the add_templates option.
+  * Add template_depends function to plugin API.
+  * bzr: Fix bzr log parsing to work with bzr 2.0. (liw)
+  * comments: Fix missing entity encoding in title.
+  * txt: Add a special case for robots.txt.
+
+  [ Simon McVittie ]
+  * Add support for link types, and make the the tagged() pagespec only
+    match tags, not regular links (a bugfix).
+  * Rebuild wikis on upgrade to this version to get tag link types recorded
+    correctly.
+  * Revamp sorting system; allow new sort methods to be added by plugins,
+    and add a "sortspec" syntax that can combine, reverse, etc sort methods.
+  * meta: Add `meta(author)`, `meta(title)` etc sortspecs to allow sorting
+    by metadata.
+  * meta: Add optional sortas parameter to author and title meta directives.
+    This can be used to get names sorted by last name without displaying
+    them last name first.
+  * sortnaturally: New plugin; the title_natural sort method has moved here.
+  * meta: store fields consistently unescaped, and escape on use.
+    (A wiki rebuild is also needed due to this change.)
+
+  [ Joey Hess ]
+  * Update dependency for git-core to git transition.
+  * po: Check that translated underlay directories exist before using them
+    for master language.
+  * po: Configuring the same language as master and slave confuses processing;
+    so filter out such a misconfiguration.
+  * calendar: Add archive_pagespec, which is used by ikiwiki-calendar to
+    specify which pages to include on the calendar archive pages.
+    (The pagespec can still also be specified on the ikiwiki-calendar command
+    line.)
+  * pagestats: Class parameter can be used to override default class for
+    custom styling.
+  * pagestats: Use style=list to get a list of tags, scaled by use like
+    in a tag cloud. This is useful to put in a sidebar.
+  * Rework example blog front page.
+  * CSS and templates for sidebar changed to use a class, not an id.
+  * sidebar: Now a sidebar directive can be used to override the sidebar
+    shown on a page.
+  * Enable calendar and sidebar in auto-blog.setup.
+  * sidebar: Add global_sidebars setting.
+  * conditional: Fix bug that forced "all" mode off by default.
+  * calendarmonth.tmpl: The month calendar is now put in a sidebar.
+  * calendar: Improved display of arrows.
+  * Rename --getctime to --gettime. (The old name still works for
+    backwards compatibility.)
+  * --gettime now also looks up last modification time.
+  * Automatically run --gettime the first time ikiwiki is run on 
+    a given srcdir. (Use --no-gettime to disable.)
+  * Add rcs_getmtime to plugin API; currently only implemented
+    for git and svn.
+  * Optimise --gettime for git, so it's appropriately screamingly
+    fast. (This could be done for most other backends too.)
+  * However, --gettime for git no longer follows renames. That would
+    be slow, and whether a renamed wiki page is the same page is really
+    an iffy thing.
+  * Use above to fix up timestamps on docwiki, as well as ensure that
+    timestamps on basewiki files shipped in the deb are sane.
+  * autoindex: Switch to using %wikistate instead of abusing
+    $pagestate{index}.
+  * bzr: Support rcs_getmtime, and fix rcs_getctime implementation
+    (Jelmer Vernooij)
+  * Quite a lot of new optimisations, and one major fix to a recent
+    performance regression.
+  * Moved javascript files under the ikiwiki/ directory, to avoid cluttering
+    the top of the web root. This is another things that requires a wiki
+    rebuild on upgrade to this version.
+  * Fix removal of rendered files in rebuild mode.
+  * Add page() PageSpec, which is like glob() but matches only pages, 
+    not other files.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 27 Apr 2010 00:00:00 -0400
+
+ikiwiki (3.20100403) unstable; urgency=low
+
+  * websetup: Add websetup_unsafe to allow marking other settings
+    as unsafe.
+  * Improve openid url munging; do not display anchors and cgi parameters,
+    as used by yahoo and google urls.
+  * Add complete German basewiki and directives translation done by
+    Sebastian Kuhnert.
+  * Add a include setting, which can be used to make ikiwiki process
+    wiki source files, such as .htaccess, that would normally be skipped
+    for security or other reasons. Closes: #447267
+    (Thanks to Aaron Wilson for the original patch.)
+  * Add support for setup files written in YAML.
+  * Add --set-yaml switch for setting more complex config file options.
+  * filecheck: Fix bugs that prevented the pagespecs from matching when
+    not called by attachment plugin.
+  * Fix incorrect influence info returned by a failing link() pagespec,
+    that could lead to bad dependency handling in certian situations.
+  * Add preprocessed 'use lib' line to ikiwiki-transition and ikiwiki-calendar
+    if necessary for unusual install.
+  * auto-blog.setup: Set tagbase by default, since most bloggers will want it.
+  * Allow wrappers to be built using tcc. (Workaround #452876)
+  * openid: Use Openid Simple Registration or OpenID Attribute Exchange
+    to get the user's email address and username. (Neither is yet
+    used, but they are available in the session object now.)
+  * page.tmpl: Add Cache-Control must-revalidate to ensure that users
+    (especially of Firefox) see fresh page content.
+  * htmlscrubber: Allow colons in urls after '?'
+  * template: Search for templates in the templatedir, if they are not
+    found as pages in the wiki.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 03 Apr 2010 14:17:28 -0400
+
+ikiwiki (3.20100312) unstable; urgency=HIGH
+
+  * Fix utf8 issues in calls to md5_hex.
+  * moderatedcomments: Added moderate_pagespec that can be used
+    to control which users or comment locations are moderated.
+    This can be used, just for example, to moderate "user(http://myopenid.com/*)"
+    if you're getting a lot of spammers from one particular openid
+    provider (who should perhaps answer your emails about them),
+    while not moderating other users.
+  * moderatedcomments: The moderate_users setting is deprecated. Instead,
+    set moderate_pagespec to "!admin()" or "user(*)".
+  * Fix missing span on recentchanges page template.
+  * search: Avoid '$' in the wikiname appearing unescaped on omega's
+    query template, where it might crash omega.
+  * htmlscrubber: Security fix: In data:image/* uris, only allow a few
+    whitelisted image types. No svg.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 09 Mar 2010 19:46:35 -0500
+
+ikiwiki (3.20100302) unstable; urgency=low
+
+  * comments: Display number of comments in comment action link.
+  * Rebuild wikis on upgrade to this version to get the comment counts
+    added to existing pages.
+  * Loosen regexp, to allow empty quoted parameters in directives.
+  * Add force_overwrite setting to make setup automator overwrite existing
+    files/directories.
+  * Fix admin openid detection in setup automator, and avoid prompting
+    for a password.
+  * Add new --clean option; this makes ikiwiki remove all built
+    files in the destdir, as well as wrappers and the .ikiwiki directory.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 02 Mar 2010 22:17:30 -0500
+
+ikiwiki (3.20100212) unstable; urgency=low
+
+  * template: Preprocess parameters before htmlizing.
+  * img: Fix a bug that could taint @links with undef values.
+  * setup automator: Configure Term::Readline to use bold for prompt, rather
+    than default underline. Closes: #517656
+  * Allow jumping directly into account registration process by going to 
+    ikiwiki.cgi?do=register
+  * Improve display of openid in preferences page.
+  * Add link to userpage (or creation link) to top of preferences page.
+  * opendiscussion: This plugin will also now allow posting comments
+    to otherwise locked-down sites. 
+  * auto-blog.setup: Lock all pages, so only admin can post to the blog
+    by default, and enable opendiscussion so others can comment.
+  * Fix color and format plugins to appear in the websetup interface.
+  * amazon_s3: Fix to support the EU S3 datacenter, which is more picky
+    about attempts to create already existing buckets.
+  * httpauth: When cgiauthurl is configured, httpauth can now be used
+    alongside other authentication methods (like openid or anonok). Rather
+    than always redirect to the cgiauthurl for authentication, there is now
+    a button on the login form to use it.
+  * httpauth: Add httpauth_pagespec setting that can be used to limit
+    pages to only being edited via users authed with httpauth.
+  * Allow globs to be used in user() pagespecs.
+  * Group related plugins into sections in the setup file, and drop
+    unused rcs plugins from the setup file.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 12 Feb 2010 16:45:50 -0500
+
+ikiwiki (3.20100122) unstable; urgency=low
 
   * inline: Avoid showing edit links if page editing is disabled.
     (Sjoerd)
@@ -6,8 +348,15 @@ ikiwiki (3.20100104) UNRELEASED; urgency=low
     are disabled.
   * comments: Fix permalinks for comments using new conflict-free filenames.
   * img: Support alignment of images with captions. (Giuseppe Bilotta)
+  * websetup: Fix utf-8 problems.
+  * websetup: Fix bug in array change detection.
+  * linkmap: Simplify and improve browser compatibility by using an img, 
+    not object tag.
+  * git: The new git-notes feature in git 1.6.6 changes git log output
+    in a way that broke ikiwiki's parser if notes are added to commits.
+  * po: Avoid crash when a page is empty.
 
- -- Joey Hess <joeyh@debian.org>  Mon, 04 Jan 2010 12:53:24 -0500
+ -- Joey Hess <joeyh@debian.org>  Fri, 22 Jan 2010 16:02:36 -0500
 
 ikiwiki (3.20100102.3) unstable; urgency=low
 
@@ -258,7 +607,7 @@ ikiwiki (3.141592) unstable; urgency=low
 
   * Add new hooks: canremove, canrename, rename. (intrigeri)
   * rename: Refactor subpage rename handling code into rename hook. (intrigeri)
-  * po: New plugin<F11>, suporting translation of wiki pages using po files.
+  * po: New plugin, suporting translation of wiki pages using po files.
     (intrigeri)
   * Add build machinery to build po files to translate the underlay wikis,
   * Add further build machinery to generate translated underlays from
@@ -976,7 +1325,7 @@ ikiwiki (2.55) unstable; urgency=low
   * attachment: Do not escape _ when determining attachment filenames.
   * Rebuild pages that change their type. (Gabriel McManus)
   * monotone: Add support for rename, delete, and also diff. (William Uther)
-  * toggle: Fix incompatability between javascript and webkit.
+  * toggle: Fix incompatibility between javascript and webkit.
   * bzr: Add support for rename and delete. (Jelmer Vernooij)
   * attachment: Use relative paths when inserting links.
   * toggle: Fix for when html got tidied. Closes: #492529 (Enrico Zini)
@@ -1963,7 +2312,7 @@ ikiwiki (2.6) unstable; urgency=low
     - relax asumption about the possible submit values (use "Save Page"
       explicitly);
     - de-hardcode the submit buttons from the editpage template
-      (This was needed for compatability with a bug in CGI::FormBuilder
+      (This was needed for compatibility with a bug in CGI::FormBuilder
       3.0401, but ikiwiki already needs a newer version.)
   * Pass buttons to all other formbuilder_setup hooks too.
   * Add color parameter to postsparkline. Closes: #438900
@@ -2012,7 +2361,7 @@ ikiwiki (2.4) unstable; urgency=low
 
   * Make the toc plugin use html-compatible anchors. This is necessary since
     most web sites serve ikiwiki xhtml files as text/html and mozilla browsers
-    get confused. So it's best for ikiwiki to follow the compatability
+    get confused. So it's best for ikiwiki to follow the compatibility
     recommendations in appendix C of the XHTML spec. Closes: #432045
   * Support building on systems that lack asprintf.
   * mercurial getctime is currently broken, apparently by some change in
@@ -2510,7 +2859,7 @@ ikiwiki (1.41) unstable; urgency=low
   * Gettext 1.04 or up is needed for the OO interface that ikiwiki needs,
     if an older version is installed, just don't gettext strings, instead of
     crashing.
-  * Added smileys for Moin Moin compatability.
+  * Added smileys for Moin Moin compatibility.
   * Fix handling of discussion links on discussion pages when l10n is used.
   * Make gitorigin_branch and gitmaster_branch configurable via the setup
     file. Closes: #408599
@@ -2818,7 +3167,7 @@ ikiwiki (1.29) unstable; urgency=low
   * Note that plugins that accessed this variable will need to be updated!
     The plugin interface has been increased to version 1.01 for this change.
     As few plugins use %renderedfiles I haven't done anything else to ensure
-    compatability of old plugins.
+    compatibility of old plugins.
   * Add will_render function to the plugin interface, used to register that a
     page renders a destination file, and do some security checks. Previously
     but no longer rendered files will be cleaned up.
@@ -3156,7 +3505,7 @@ ikiwiki (1.13) unstable; urgency=low
     treating the GlobList as a very limited microlanguage that is transformed
     to perl code that does the matching.
   * The old GlobList format is deprecated, and I encourage users to switch to
-    using the new PageSpec format. Compatability with the old format will be
+    using the new PageSpec format. Compatibility with the old format will be
     removed at some point, possibly by 2.0.
   * Wiki rebuild needed on upgrade to this version due to PageSpec change.
   * Add support for creation_month and creation_year to PageSpec.
@@ -3215,7 +3564,7 @@ ikiwiki (1.11) unstable; urgency=low
     This will be the page that a source page will be part of, which is
     different than the source page for inlined pages.
   * Audited all plugins to endure they pass (page, destpage) to htmllink
-    appropriatly. This means inlining of various plugins will not work
+    appropriately. This means inlining of various plugins will not work
     properly, with correct links generated.
 
  -- Joey Hess <joeyh@debian.org>  Thu, 27 Jul 2006 20:51:23 -0400

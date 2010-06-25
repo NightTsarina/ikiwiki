@@ -20,6 +20,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
@@ -80,9 +81,9 @@ sub include_javascript ($;$) {
 	my $page=shift;
 	my $absolute=shift;
 	
-	return '<script src="'.urlto("ikiwiki.js", $page, $absolute).
+	return '<script src="'.urlto("ikiwiki/ikiwiki.js", $page, $absolute).
 		'" type="text/javascript" charset="utf-8"></script>'."\n".
-		'<script src="'.urlto("toggle.js", $page, $absolute).
+		'<script src="'.urlto("ikiwiki/toggle.js", $page, $absolute).
 		'" type="text/javascript" charset="utf-8"></script>';
 }
 

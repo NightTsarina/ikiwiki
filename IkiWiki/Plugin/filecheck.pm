@@ -5,7 +5,7 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 
-my %units=( #{{{	# size in bytes
+my %units=(		# size in bytes
 	B		=> 1,
 	byte		=> 1,
 	KB		=> 2 ** 10,
@@ -75,9 +75,9 @@ sub match_maxsize ($$;@) {
 	}
 
 	my %params=@_;
-	my $file=exists $params{file} ? $params{file} : $IkiWiki::pagesources{$page};
+	my $file=exists $params{file} ? $params{file} : IkiWiki::srcfile($IkiWiki::pagesources{$page});
 	if (! defined $file) {
-		return IkiWiki::ErrorReason->new("no file specified");
+		return IkiWiki::ErrorReason->new("file does not exist");
 	}
 
 	if (-s $file > $maxsize) {
@@ -96,9 +96,9 @@ sub match_minsize ($$;@) {
 	}
 
 	my %params=@_;
-	my $file=exists $params{file} ? $params{file} : $IkiWiki::pagesources{$page};
+	my $file=exists $params{file} ? $params{file} : IkiWiki::srcfile($IkiWiki::pagesources{$page});
 	if (! defined $file) {
-		return IkiWiki::ErrorReason->new("no file specified");
+		return IkiWiki::ErrorReason->new("file does not exist");
 	}
 
 	if (-s $file < $minsize) {
@@ -114,9 +114,9 @@ sub match_mimetype ($$;@) {
 	my $wanted=shift;
 
 	my %params=@_;
-	my $file=exists $params{file} ? $params{file} : $IkiWiki::pagesources{$page};
+	my $file=exists $params{file} ? $params{file} : IkiWiki::srcfile($IkiWiki::pagesources{$page});
 	if (! defined $file) {
-		return IkiWiki::ErrorReason->new("no file specified");
+		return IkiWiki::ErrorReason->new("file does not exist");
 	}
 
 	# Use ::magic to get the mime type, the idea is to only trust
@@ -147,9 +147,9 @@ sub match_virusfree ($$;@) {
 	my $wanted=shift;
 
 	my %params=@_;
-	my $file=exists $params{file} ? $params{file} : $IkiWiki::pagesources{$page};
+	my $file=exists $params{file} ? $params{file} : IkiWiki::srcfile($IkiWiki::pagesources{$page});
 	if (! defined $file) {
-		return IkiWiki::ErrorReason->new("no file specified");
+		return IkiWiki::ErrorReason->new("file does not exist");
 	}
 
 	if (! exists $IkiWiki::config{virus_checker} ||
