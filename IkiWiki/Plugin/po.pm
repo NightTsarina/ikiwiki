@@ -245,7 +245,10 @@ sub filter (@) {
 	my $content = $params{content};
 
 	my @caller = caller(4);
-        return $content unless $caller[3] ne "IkiWiki::render";
+        unless ($caller[3] eq "IkiWiki::render" ||
+                $caller[3] eq 'IkiWiki::Plugin::sidebar::sidebar_content') {
+		return $content;
+	}
 
 	if (istranslation($page) && ! alreadyfiltered($page, $destpage)) {
 		$content = po_to_markup($page, $content);
