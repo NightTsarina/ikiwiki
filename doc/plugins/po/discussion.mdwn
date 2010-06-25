@@ -150,6 +150,23 @@ The following analysis was done with his help.
   variables; according to [[Joey]], this is "Freaky code, but seems ok
   due to use of `quotementa`".
 
+##### Locale::Po4a::Xhtml
+
+* does not run any external program
+* does not build regexp's from untrusted variables
+
+=> Seems safe as far as the `includessi` option is disabled; the po
+plugin explicitly disables it.
+
+Relies on Locale::Po4a::Xml` to do most of the work.
+
+##### Locale::Po4a::Xml
+
+* does not run any external program
+* the `includeexternal` option makes it able to read external files;
+  the po plugin explicitly disables it
+* untrusted variables are escaped when used to build regexp's
+
 ##### Text::WrapI18N
 
 `Text::WrapI18N` can cause DoS

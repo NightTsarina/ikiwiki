@@ -869,8 +869,8 @@ sub refreshpot ($) {
 	my $masterfile=shift;
 
 	my $potfile=potfile($masterfile);
-	my %options = ("markdown" => (pagetype($masterfile) eq 'mdwn') ? 1 : 0);
-	my $doc=Locale::Po4a::Chooser::new('text',%options);
+	my $doc=Locale::Po4a::Chooser::new(po4a_type($masterfile),
+					   po4a_options($masterfile));
 	$doc->{TT}{utf_mode} = 1;
 	$doc->{TT}{file_in_charset} = 'utf-8';
 	$doc->{TT}{file_out_charset} = 'utf-8';
@@ -961,10 +961,8 @@ sub percenttranslated ($) {
 	return gettext("N/A") unless istranslation($page);
 	my $file=srcfile($pagesources{$page});
 	my $masterfile = srcfile($pagesources{masterpage($page)});
-	my %options = (
-		"markdown" => (pagetype($masterfile) eq 'mdwn') ? 1 : 0,
-	);
-	my $doc=Locale::Po4a::Chooser::new('text',%options);
+	my $doc=Locale::Po4a::Chooser::new(po4a_type($masterfile),
+					   po4a_options($masterfile));
 	$doc->process(
 		'po_in_name'	=> [ $file ],
 		'file_in_name'	=> [ $masterfile ],
@@ -1115,10 +1113,8 @@ sub po_to_markup ($$) {
 		or return $fail->(sprintf(gettext("failed to write %s"), $infile));
 
 	my $masterfile = srcfile($pagesources{masterpage($page)});
-	my %options = (
-		"markdown" => (pagetype($masterfile) eq 'mdwn') ? 1 : 0,
-	);
-	my $doc=Locale::Po4a::Chooser::new('text',%options);
+	my $doc=Locale::Po4a::Chooser::new(po4a_type($masterfile),
+					   po4a_options($masterfile));
 	$doc->process(
 		'po_in_name'	=> [ $infile ],
 		'file_in_name'	=> [ $masterfile ],
@@ -1179,6 +1175,37 @@ sub isvalidpo ($) {
 	}
 	return IkiWiki::FailReason->new(gettext("invalid gettext data, go back ".
 					"to previous page to continue edit"));
+}
+
+sub po4a_type ($) {
+	my $file = shift;
+
+	my $pagetype = pagetype($file);
+	if ($pagetype eq 'html') {
+		return 'xhtml';
+        }
+	return 'text';
+}
+
+sub po4a_options($) {
+	my $file = shift;
+
+	my %options;
+	my $pagetype = pagetype($file);
+
+	if ($pagetype eq 'html') {
+		# how to disable options is not consistent across po4a modules
+		$options{includessi} = '';
+		$options{includeexternal} = 0;
+        }
+	elsif ($pagetype eq 'mdwn') {
+		$options{markdown} = 1;
+        }
+        else {
+		$options{markdown} = 0;
+        }
+
+	return %options;
 }
 
 # ,----
