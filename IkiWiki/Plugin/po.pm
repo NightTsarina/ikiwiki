@@ -902,15 +902,15 @@ sub refreshpot ($) {
 	my $doc=Locale::Po4a::Chooser::new(po4a_type($masterfile),
 					   po4a_options($masterfile));
 	$doc->{TT}{utf_mode} = 1;
-	$doc->{TT}{file_in_charset} = 'utf-8';
-	$doc->{TT}{file_out_charset} = 'utf-8';
+	$doc->{TT}{file_in_charset} = 'UTF-8';
+	$doc->{TT}{file_out_charset} = 'UTF-8';
 	$doc->read($masterfile);
 	# let's cheat a bit to force porefs option to be passed to
 	# Locale::Po4a::Po; this is undocument use of internal
 	# Locale::Po4a::TransTractor's data, compulsory since this module
 	# prevents us from using the porefs option.
 	$doc->{TT}{po_out}=Locale::Po4a::Po->new({ 'porefs' => 'none' });
-	$doc->{TT}{po_out}->set_charset('utf-8');
+	$doc->{TT}{po_out}->set_charset('UTF-8');
 	# do the actual work
 	$doc->parse;
 	IkiWiki::prep_writefile(basename($potfile),dirname($potfile));
@@ -996,8 +996,8 @@ sub percenttranslated ($) {
 	$doc->process(
 		'po_in_name'	=> [ $file ],
 		'file_in_name'	=> [ $masterfile ],
-		'file_in_charset'  => 'utf-8',
-		'file_out_charset' => 'utf-8',
+		'file_in_charset'  => 'UTF-8',
+		'file_out_charset' => 'UTF-8',
 	) or error("po(percenttranslated) ".
 		   sprintf(gettext("failed to translate %s"), $page));
 	my ($percent,$hit,$queries) = $doc->stats();
@@ -1143,8 +1143,8 @@ sub po_to_markup ($$) {
 	$doc->process(
 		'po_in_name'	=> [ $infile ],
 		'file_in_name'	=> [ $masterfile ],
-		'file_in_charset'  => 'utf-8',
-		'file_out_charset' => 'utf-8',
+		'file_in_charset'  => 'UTF-8',
+		'file_out_charset' => 'UTF-8',
 	) or return $fail->(gettext("failed to translate"));
 	$doc->write($outfile)
 		or return $fail->(sprintf(gettext("failed to write %s"), $outfile));
