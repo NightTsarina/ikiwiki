@@ -34,6 +34,8 @@ those contents instead.
 >>>>> if I want to try to get a 3 column CSS going, so perhaps leave the
 >>>>> left sidebar out of that.
 
+-------------------
+
 <pre>
 --- /usr/share/perl5/IkiWiki/Plugin/sidebar.pm	2010-02-11 22:53:17.000000000 -0500
 +++ plugins/IkiWiki/Plugin/sidebar.pm	2010-02-27 09:54:12.524412391 -0500
@@ -84,5 +86,40 @@ those contents instead.
  	}
  }
 </pre>
+
+----------------------------------------
+## Further thoughts about this
+
+(since the indentation level was getting rather high.)
+
+What about using pagespecs in the config to map pages and sidebar pages together?  Something like this:
+
+<pre>
+	sidebar_pagespec => {
+	    "foo/*" => 'sidebars/foo_sidebar',
+	    "bar/* and !bar/*/*' => 'bar/bar_top_sidebar',
+	    "* and !foo/* and !bar/*" => 'sidebars/general_sidebar',
+	},
+</pre>
+
+One could do something similar for *pageheader*, *pagefooter* and *rightbar* if desired.
+
+Another thing which I find compelling - but probably because I am using [[plugins/contrib/field]] - is to be able to treat the included page as if it were *part* of the page it was included into, rather than as an included page.  I mean things like \[[!if ...]] would test against the page name of the page it's included into rather than the name of the sidebar/header/footer page.  It's even more powerful if one combines this with field/getfield/ftemplate/report, since one could make "generic" headers and footers that could apply to a whole set of pages.
+
+Header example:
+<pre>
+#{{$title}}
+\[[!ftemplate id="nice_data_table"]]
+</pre>
+
+Footer example:
+<pre>
+------------
+\[[!report template="footer_trail" trail="trailpage" here_only=1]]
+</pre>
+
+(Yes, I am already doing something like this on my own site.  It's like the PmWiki concept of GroupHeader/GroupFooter)
+
+-- [[KathrynAndersen]]
 
 [[!tag wishlist]]
