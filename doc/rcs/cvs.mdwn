@@ -20,8 +20,9 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
  * creates a repository,
  * imports `$SRCDIR` into top-level module `ikiwiki` (vendor tag IKIWIKI, release tag PRE_CVS),
  * configures the post-commit hook in `CVSROOT/loginfo`.
-* CVS multi-directory commits happen separately; the post-commit hook sees only the first directory's changes in time for [[recentchanges|plugins/recentchanges]]. The next run of `ikiwiki --setup` will correctly re-render such a recentchanges entry. It should be possible to solve this problem with NetBSD's `commit_prep` and `log_accum` scripts (see below).
 
 ### To do
-* Instead of resource-intensively scraping changesets with `cvsps`, have `ikiwiki-makerepo` set up NetBSD-like `log_accum` and `commit_prep` scripts that coalesce and keep records of commits. `cvsps` can be used as a fallback for repositories without such records.
+* Have `ikiwiki-makerepo` set up NetBSD-like `log_accum` and `commit_prep` scripts that coalesce commits into changesets. Reasons:
+    7. Obviates the need to scrape the repo's complete history to determine the last N changesets. (Repositories without such records can fall back on the `cvsps` and `File::ReadBackwards` code.)
+    7. Arranges for ikiwiki to be run once per changeset, rather than CVS's once per committed file (!), which is a waste at best and bug-inducing at worst. (Currently, on multi-directory commits, only the first directory's changes get mentioned in [[recentchanges|plugins/recentchanges]].)
 * Perhaps prevent web edits from attempting to create `.../CVS/foo.mdwn` (and `.../cvs/foo.mdwn` on case-insensitive filesystems); thanks to the CVS metadata directory, the attempt will fail anyway (and much more confusingly) if we don't.

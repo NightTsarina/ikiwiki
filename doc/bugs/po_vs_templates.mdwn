@@ -1,0 +1,17 @@
+The po plugin's protection against processing loops (i.e. the
+alreadyfiltered stuff) is playing against us: the template plugin
+triggers a filter hooks run with the very same ($page, $destpage)
+arguments pair that is used to identify an already filtered page.
+
+Processing an included template can then mark the whole translation
+page as already filtered, which prevented `po_to_markup` to be called on
+the PO content.
+
+Symptoms: the unprocessed gettext file goes unfiltered to the
+generated HTML.
+
+This has been fixed in my po branch.
+
+-- [[intrigeri]]
+
+[[!tag patch]]
