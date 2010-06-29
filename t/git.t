@@ -7,10 +7,13 @@ BEGIN {
 	$dir="/tmp/ikiwiki-test-git.$$";
 	my $git=`which git`;
 	chomp $git;
-	if (! -x $git || ! mkdir($dir)) {
+	if (! -x $git) {
 		eval q{
-			use Test::More skip_all => "git not available or could not make test dir"
+			use Test::More skip_all => "git not available"
 		}
+	}
+	if (! mkdir($dir)) {
+		die $@;
 	}
 }
 use Test::More tests => 18;

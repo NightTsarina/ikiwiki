@@ -8,10 +8,13 @@ BEGIN {
 	chomp $cvs;
 	my $cvsps=`which cvsps`;
 	chomp $cvsps;
-	if (! -x $cvs || ! -x $cvsps || ! mkdir($dir)) {
+	if (! -x $cvs || ! -x $cvsps) {
 		eval q{
-			use Test::More skip_all => "cvs or cvsps not available or could not make test dir"
+			use Test::More skip_all => "cvs or cvsps not available"
 		}
+	}
+	if (! mkdir($dir)) {
+		die $@;
 	}
 	foreach my $module ('File::ReadBackwards', 'File::MimeInfo') {
 		eval qq{use $module};

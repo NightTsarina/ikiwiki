@@ -6,10 +6,13 @@ BEGIN {
 	$dir = "/tmp/ikiwiki-test-bzr.$$";
 	my $bzr=`which bzr`;
 	chomp $bzr;
-	if (! -x $bzr || ! mkdir($dir)) {
+	if (! -x $bzr) {
 		eval q{
-			use Test::More skip_all => "bzr not available or could not make test dir"
+			use Test::More skip_all => "bzr not available"
 		}
+	}
+	if (! mkdir($dir)) {
+		die $@;
 	}
 }
 use Test::More tests => 17;

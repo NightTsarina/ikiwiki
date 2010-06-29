@@ -8,10 +8,13 @@ BEGIN {
 	chomp $svn;
 	my $svnadmin=`which svnadmin`;
 	chomp $svnadmin;
-	if (! -x $svn || ! -x $svnadmin || ! mkdir($dir)) {
+	if (! -x $svn || ! -x $svnadmin) {
 		eval q{
-			use Test::More skip_all => "svn not available or could not make test dir"
+			use Test::More skip_all => "svn or svnadmin not available"
 		}
+	}
+	if (! mkdir($dir)) {
+		die $@;
 	}
 }
 use Test::More tests => 12;
