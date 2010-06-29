@@ -1291,4 +1291,19 @@ sub match_currentlang ($$;@) {
 	}
 }
 
+sub match_needstranslation ($$;@) {
+	my $page=shift;
+
+	my $percenttranslated=IkiWiki::Plugin::po::percenttranslated($page);
+	if ($percenttranslated eq 'N/A') {
+		return IkiWiki::FailReason->new("file is not a translation page");
+	}
+	elsif ($percenttranslated < 100) {
+		return IkiWiki::SuccessReason->new("file has $percenttranslated translated");
+        }
+	else {
+		return IkiWiki::FailReason->new("file is fully translated");
+	}
+}
+
 1
