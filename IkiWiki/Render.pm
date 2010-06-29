@@ -232,7 +232,7 @@ sub render ($$) {
 			linkify($page, $page,
 			preprocess($page, $page,
 			filter($page, $page,
-			readfile($srcfile)))));
+			readfile($srcfile), 'fullpage'))));
 		
 		my $output=htmlpage($page);
 		writefile($output, $config{destdir}, genpage($page, $content));
@@ -837,7 +837,7 @@ sub commandline_render () {
 	my $content=readfile($srcfile);
 	my $page=pagename($file);
 	$pagesources{$page}=$file;
-	$content=filter($page, $page, $content);
+	$content=filter($page, $page, $content, 'fullpage');
 	$content=preprocess($page, $page, $content);
 	$content=linkify($page, $page, $content);
 	$content=htmlize($page, $page, $type, $content);

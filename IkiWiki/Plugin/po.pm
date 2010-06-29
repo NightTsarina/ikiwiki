@@ -259,11 +259,9 @@ sub filter (@) {
 	my $page = $params{page};
 	my $destpage = $params{destpage};
 	my $content = $params{content};
+	my $fullpage = $params{fullpage};
 
-	my @caller = caller(4);
-	# FIXME: need to whitelist inline as well?
-        unless ($caller[3] eq "IkiWiki::render" ||
-                $caller[3] eq 'IkiWiki::Plugin::sidebar::sidebar_content') {
+	unless ($fullpage) {
 		return $content;
 	}
 

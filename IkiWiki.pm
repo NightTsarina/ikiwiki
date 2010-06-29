@@ -1396,14 +1396,16 @@ sub preprocess ($$$;$$) {
 	return $content;
 }
 
-sub filter ($$$) {
+sub filter ($$$;$) {
 	my $page=shift;
 	my $destpage=shift;
 	my $content=shift;
+	my $fullpage=shift;
+	$fullpage = 0 unless defined $fullpage;
 
 	run_hooks(filter => sub {
 		$content=shift->(page => $page, destpage => $destpage, 
-			content => $content);
+			content => $content, fullpage => $fullpage);
 	});
 
 	return $content;
