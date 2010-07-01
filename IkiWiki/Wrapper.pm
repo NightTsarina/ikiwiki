@@ -73,15 +73,21 @@ EOF
 		# otherwise. The fd of the lock is stored in
 		# IKIWIKI_CGILOCK_FD so unlockwiki can close it.
 		$pre_exec=<<"EOF";
-	{
-		int fd=open("$config{wikistatedir}/cgilock", O_CREAT | O_RDWR, 0666);
-		if (fd != -1 && flock(fd, LOCK_EX) == 0) {
-			char *fd_s=malloc(8);
-			sprintf(fd_s, "%i", fd);
-			setenv("IKIWIKI_CGILOCK_FD", fd_s, 1);
-		}
+	lockfd=open("$config{wikistatedir}/cgilock", O_CREAT | O_RDWR, 0666);
+	if (lockfd != -1 && flock(lockfd, LOCK_EX) == 0) {
+		char *fd_s=malloc(8);
+		sprintf(fd_s, "%i", lockfd);
+		setenv("IKIWIKI_CGILOCK_FD", fd_s, 1);
 	}
 EOF
+	}
+
+	my $set_background_command='';
+	if (defined $config{wrapper_background_command} &&
+	    length $config{wrapper_background_command}) {
+	    	my $background_command=delete $config{wrapper_background_command};
+		$set_background_command=~s/"/\\"/g;
+		$set_background_command='#define BACKGROUND_COMMAND "'.$background_command.'"';
 	}
 
 	$Data::Dumper::Indent=0; # no newlines
@@ -114,6 +120,7 @@ void addenv(char *var, char *val) {
 }
 
 int main (int argc, char **argv) {
+	int lockfd=-1;
 	char *s;
 
 $check_commit_hook
@@ -147,9 +154,40 @@ $envsave
 	}
 
 $pre_exec
+
+$set_background_command
+#ifdef BACKGROUND_COMMAND
+	if (lockfd != -1) {
+		close(lockfd);
+	}
+
+	pid_t pid=fork();
+	if (pid == -1) {
+		perror("fork");
+		exit(1);
+	}
+	else if (pid == 0) {
+		execl("$this", "$this", NULL);
+		perror("exec $this");
+		exit(1);		
+	}
+	else {
+		waitpid(pid, NULL, 0);
+
+		if (daemon(1, 0) == 0) {
+			system(BACKGROUND_COMMAND);
+			exit(0);
+		}
+		else {
+			perror("daemon");
+			exit(1);
+		}
+	}
+#else
 	execl("$this", "$this", NULL);
 	perror("exec $this");
 	exit(1);
+#endif
 }
 EOF
 

@@ -441,6 +441,13 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
+	wrapper_background_command => {
+		type => "internal",
+		default => '',
+		description => "background shell command to run",
+		safe => 0,
+		rebuild => 0,
+	},
 	gettime => {
 		type => "internal",
 		description => "running in gettime mode",
