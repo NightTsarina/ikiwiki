@@ -865,7 +865,7 @@ sub otherlanguages_pages ($) {
         my %ret;
 	map {
 		$ret{$_} = otherlanguage_page($page, $_)
-	} otherlanguages_codes($page);
+	} @{otherlanguages_codes($page)};
 
 	return \%ret;
 }
