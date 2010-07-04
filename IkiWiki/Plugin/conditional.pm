@@ -59,8 +59,7 @@ sub preprocess_if (@) {
 	else {
 		$ret="";
 	}
-	return IkiWiki::preprocess($params{page}, $params{destpage}, 
-		IkiWiki::filter($params{page}, $params{destpage}, $ret));
+	return IkiWiki::preprocess($params{page}, $params{destpage}, $ret);
 }
 
 package IkiWiki::PageSpec;

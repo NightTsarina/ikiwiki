@@ -142,8 +142,6 @@ sub preprocess {
 	}
 	$content =~ s/\\"/"/g;
 
-	$content = IkiWiki::filter($page, $params{destpage}, $content);
-
 	if ($config{comments_allowdirectives}) {
 		$content = IkiWiki::preprocess($page, $params{destpage},
 			$content);
