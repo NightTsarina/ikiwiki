@@ -569,6 +569,7 @@ sub commentmoderation ($$) {
 		my $added=0;
 		foreach my $id (keys %vars) {
 			if ($id =~ /(.*)\._comment(?:_pending)?$/) {
+				$id=decode_utf8($id);
 				my $action=$cgi->param($id);
 				next if $action eq 'Defer' && ! $rejectalldefer;
 
