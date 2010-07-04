@@ -266,6 +266,14 @@ to an array to support this. (If twere done, twere best done quickly.)
 > Done in my po branch, preserving backward compatibility. Please
 > review :) --[[intrigeri]]
 
+>> Right, well my immediate concern is that using an array to hold
+>> hash-like pairs is not very clear to the user. It will be displayed
+>> in a confusing way by websetup; dumping a setup file will probably
+>> also cause it to be formatted in a confusing way. And the code
+>> seems to assume that the array length is even, and probably blows
+>> up if it is not.. and the value is marked safe so websetup can be
+>> used to modify it and break that way too. --[[Joey]] 
+
 Pagespecs
 ---------
 
