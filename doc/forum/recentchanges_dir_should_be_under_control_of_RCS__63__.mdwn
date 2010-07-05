@@ -31,3 +31,19 @@ to find a reason of problem with my Ikiwiki?
 My best regards,
 Pawel
 
+> No, the recentchanges pages are automatically generated and should not
+> themselves be in revision control.
+> 
+> Ikiwiki has recently started automatically enabing `--gettime`, but
+> it should not do it every time, but only on the initial build
+> of a wiki. It will print "querying svn for file creation and modification
+> times.." when it does this. If it's doing it every time, something
+> is wrong. (Specifically, `.ikiwiki/indexdb` must be missing somehow.)
+> 
+> The support for svn with --gettime is rather poor. (While with git it is
+> quite fast.) But as it's only supposed to happen on the first build,
+> I haven't tried to speed it up. It would be hard to do it fast with svn.
+> It would be possible to avoid the warning message above, or even skip
+> processing files in directories not checked into svn -- but I'd much
+> rather understand why you are seeing this happen on repeated builds.
+> --[[Joey]]
