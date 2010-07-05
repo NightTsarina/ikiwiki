@@ -1,0 +1,33 @@
+Hello Joey,
+
+I noticed that my Ikiwiki started to rebuild pages very slowly after my last changes
+when I upgraded Ikiwiki to version 3.20100623. Now I have the latest release 3.20100704,
+but it doesn't help me.
+
+I started to debug the problem and I found that I can see a lot of messages
+like below when I try to rebuild my wiki manually:
+
+    svn: '/path/to/ikiwiki/trunk/pages/ostatnie_zmiany' is not a working copy
+    svn: Can't open file '/path/to/ikiwiki/trunk/pages/ostatnie_zmiany/.svn/entries': No such file or directory
+    svn log exited 256
+
+"ostatnie_zmiany" is a value of `recentchangespage` parameter in my
+`ikiwiki.setup` file. It is not under control Subversion I use for Ikiwiki:
+
+    $ svn status pages/ostatnie_zmiany
+    ?      pages/ostatnie_zmiany
+
+    $ ls pages/ostatnie_zmiany/*._change |wc -l
+    100
+
+`recentchangesnum` parameter has value 100 for me and I noticed that my Ikiwiki
+takes a lot of time to parse all `._change` files. Finally it doesn't refresh
+/ostatnie_zmiany.html page.
+
+Do you think I should add `ostatnie_zmiany` directory under control of my
+Subversion repo? If it's not necessary, could you please give me any hint
+to find a reason of problem with my Ikiwiki?
+
+My best regards,
+Pawel
+
