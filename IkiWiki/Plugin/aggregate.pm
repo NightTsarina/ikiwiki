@@ -359,9 +359,14 @@ sub savestate () {
 
 	my $timestamp=undef;
 	foreach my $feed (keys %feeds) {
-		my $t=$feeds{$feed}->{lastupdate}+$feeds{$feed}->{updateinterval};
-		if (! defined $timestamp || $timestamp > $t) {
-			$timestamp=$t;
+		if (defined $feeds{$feed}->{lastupdate}) {
+			my $t=$feeds{$feed}->{lastupdate}+$feeds{$feed}->{updateinterval};
+			if (! defined $timestamp || $timestamp > $t) {
+				$timestamp=$t;
+			}
+		}
+		else {
+			$timestamp=0;
 		}
 	}
 	$newfile=~s/\.new$/time/;
