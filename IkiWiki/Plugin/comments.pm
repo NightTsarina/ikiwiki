@@ -22,6 +22,7 @@ sub import {
 	hook(type => "checkconfig", id => 'comments',  call => \&checkconfig);
 	hook(type => "getsetup", id => 'comments',  call => \&getsetup);
 	hook(type => "preprocess", id => 'comment', call => \&preprocess);
+	hook(type => "preprocess", id => 'commentmoderation', call => \&preprocess_moderation);
 	# here for backwards compatability with old comments
 	hook(type => "preprocess", id => '_comment', call => \&preprocess);
 	hook(type => "sessioncgi", id => 'comment', call => \&sessioncgi);
@@ -249,6 +250,22 @@ sub preprocess {
 	}
 
 	return $content;
+}
+
+sub preprocess_moderation {
+	my %params = @_;
+
+	$params{desc}=gettext("Comment Moderation")
+		unless defined $params{desc};
+
+	if (length $config{cgiurl}) {
+		return '<a href="'.
+			IkiWiki::cgiurl(do => 'commentmoderation').
+			'">'.$params{desc}.'</a>';
+	}
+	else {
+		return $params{desc};
+	}
 }
 
 sub sessioncgi ($$) {
