@@ -47,3 +47,34 @@ Pawel
 > processing files in directories not checked into svn -- but I'd much
 > rather understand why you are seeing this happen on repeated builds.
 > --[[Joey]]
+
+>> Thanks a lot for your reply! I've just checked my `rebuild-pages.sh`
+>> script and discovered that it contains
+>> `/usr/bin/ikiwiki --setup ikiwiki.setup --gettime` command... :D
+>> The warnings disappeared when I removed `--gettime` parameter.
+>> Sorry for confusing! :)
+>>
+>> I have `.ikiwiki/indexdb` file here, but I noticed that it has been
+>> modified about 1 minute **after** last Subversion commit:
+>>
+>>     $ LANG=C svn up
+>>     At revision 5951.
+>>    
+>>     $ LANG=C svn log -r 5951
+>>     ------------------------------------------------------------------------
+>>     r5951 | svn | 2010-07-06 09:02:30 +0200 (Tue, 06 Jul 2010) | 1 line
+>>     
+>>     web commit by xahil
+>>     ------------------------------------------------------------------------
+>>    
+>>     $ LANG=C stat pages/.ikiwiki/indexdb 
+>>       File: `pages/.ikiwiki/indexdb'
+>>       Size: 184520    	Blocks: 368        IO Block: 131072 regular file
+>>     Device: 2bh/43d	Inode: 1931145     Links: 1
+>>     Access: (0644/-rw-r--r--)  Uid: ( 1005/     svn)   Gid: ( 1005/     svn)
+>>     Access: 2010-07-06 12:06:24.000000000 +0200
+>>     Modify: 2010-07-06 09:03:38.000000000 +0200
+>>     Change: 2010-07-06 09:03:38.000000000 +0200
+>>
+>> I believe it's the time I have to wait to see that my wiki page has been rebuilt.
+>> Do you have any idea how to find a reason of that delay? --[[Paweł|ptecza]]
