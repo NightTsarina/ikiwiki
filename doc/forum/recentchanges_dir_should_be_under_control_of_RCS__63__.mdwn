@@ -78,3 +78,15 @@ Pawel
 >>
 >> I believe it's the time I have to wait to see that my wiki page has been rebuilt.
 >> Do you have any idea how to find a reason of that delay? --[[Paweł|ptecza]]
+
+>>> Well, I hope that your svn post-commit hook is not running your
+>>> `rebuild-pages.sh`. That script rebuilds everything, rather than just
+>>> refreshing what's been changed.
+>>>
+>>> Using subversion is not asking for speed. Especially if your svn
+>>> repository is on a remote host. You might try disabling
+>>> recentchanges and see if that speeds up the refreshes (it will avoid
+>>> one `svn log`).
+>>>
+>>> Otherwise, take a look at [[tips/optimising_ikiwiki]]
+>>> for some advice on things that can make ikiwiki run slowly. --[[Joey]]
