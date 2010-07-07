@@ -1,0 +1,9 @@
+Enable [[plugins/lockedit]] in your setup file.
+
+For example:
+
+    add_plugins => [qw{goodstuff table rawhtml template embed typography sidebar img remove lockedit}],
+
+And to only allow admin users to edit the page, simply specify a pagespec for everything in the .setup:
+
+    locked_pages => '*',
