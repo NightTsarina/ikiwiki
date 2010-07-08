@@ -75,7 +75,8 @@ sub dump ($) {
 	}
 	else {
 		waitpid $pid, 0;
-		exit $? if $?;
+		exit($? >> 8) if $? >> 8;
+		exit(1) if $?;
 	}
 }
 
