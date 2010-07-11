@@ -141,6 +141,9 @@ sub checkconfig () {
 
 	if (ref $config{po_slave_languages} eq 'ARRAY') {
 		my %slaves;
+		if (@{$config{po_slave_languages}} % 2 != 0) {
+			error(sprintf(gettext("The %s field is invalid."), 'po_slave_languages'));
+                }
 		for (my $i=0; $i<@{$config{po_slave_languages}}; $i = $i + 2) {
 			$slaves{$config{po_slave_languages}->[$i]} = $config{po_slave_languages}->[$i + 1];
 			push @slavelanguages, $config{po_slave_languages}->[$i];
