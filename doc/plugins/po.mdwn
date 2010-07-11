@@ -254,6 +254,26 @@ once [[intrigeri]]'s `meta` branch is merged.
 An integration branch, called `meta-po`, merges [[intrigeri]]'s `po`
 and `meta` branches, and thus has this additional features.
 
+Language display order
+----------------------
+
+Jonas pointed out that one might want to control the order that links to
+other languages are listed, for various reasons. Currently, there is no
+order, as `po_slave_languages` is a hash. It would need to be converted
+to an array to support this. (If twere done, twere best done quickly.)
+--[[Joey]] 
+
+> Done in my po branch, preserving backward compatibility. Please
+> review :) --[[intrigeri]]
+
+>> Right, well my immediate concern is that using an array to hold
+>> hash-like pairs is not very clear to the user. It will be displayed
+>> in a confusing way by websetup; dumping a setup file will probably
+>> also cause it to be formatted in a confusing way. And the code
+>> seems to assume that the array length is even, and probably blows
+>> up if it is not.. and the value is marked safe so websetup can be
+>> used to modify it and break that way too. --[[Joey]] 
+
 Pagespecs
 ---------
 
@@ -283,6 +303,12 @@ underlay, and the underlays lack translation to a given language.
 
 > Any simple testcase to reproduce it, please? I've never seen this
 > happen yet. --[[intrigeri]]
+
+>> Sure, go here <http://l10n.ikiwiki.info/smiley/smileys/index.sv.html>
+>> (Currently 0% translateed) and see the 'WikiLink' link at the bottom,
+>> which goes to <http://l10n.ikiwiki.info/ikiwiki.cgi?page=ikiwiki/wikilink&from=smiley/smileys&do=create>
+>> Compare with eg, the 100% translated Dansk version, where
+>> the WikiLink link links to the English WikiLink page. --[[Joey]] 
 
 Double commits of po files
 --------------------------

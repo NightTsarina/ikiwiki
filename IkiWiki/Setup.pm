@@ -50,10 +50,8 @@ sub load ($;$) {
 
 sub dump ($) {
 	my $file=IkiWiki::possibly_foolish_untaint(shift);
-	
-	eval qq{require IkiWiki::Setup::$config{setuptype}};
-	error $@ if $@;
-	my @dump="IkiWiki::Setup::$config{setuptype}"->gendump(
+
+	my @header=(
 		"Setup file for ikiwiki.",
 		"",
 		"Passing this to ikiwiki --setup will make ikiwiki generate",
@@ -62,9 +60,24 @@ sub dump ($) {
 		"Remember to re-run ikiwiki --setup any time you edit this file.",
 	);
 
-	open (OUT, ">", $file) || die "$file: $!";
-	print OUT "$_\n" foreach @dump;
-	close OUT;
+	# Fork because dumping setup requires loading all plugins.
+	my $pid=fork();
+	if ($pid == 0) {
+		eval qq{require IkiWiki::Setup::$config{setuptype}};
+		error $@ if $@;
+		my @dump="IkiWiki::Setup::$config{setuptype}"->gendump(@header);
+	
+		open (OUT, ">", $file) || die "$file: $!";
+		print OUT "$_\n" foreach @dump;
+		close OUT;
+
+		exit 0;
+	}
+	else {
+		waitpid $pid, 0;
+		exit($? >> 8) if $? >> 8;
+		exit(1) if $?;
+	}
 }
 
 sub merge ($) {

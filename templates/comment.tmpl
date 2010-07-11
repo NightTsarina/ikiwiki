@@ -14,8 +14,8 @@
 <TMPL_IF HTML5></section><TMPL_ELSE></div></TMPL_IF>
 
 <TMPL_IF HTML5><header class="comment-header"><TMPL_ELSE><div class="comment-header"></TMPL_IF>
-Comment by
 <TMPL_IF COMMENTUSER>
+Comment by
 <TMPL_IF COMMENTOPENID>
 <span class="author" title="OpenID">
 <a href="<TMPL_VAR COMMENTOPENID>"><TMPL_VAR COMMENTAUTHOR></a>
@@ -30,6 +30,8 @@ Comment by
 </span>
 </TMPL_IF>
 <TMPL_ELSE>
+<TMPL_IF AUTHOR>
+Comment by
 <TMPL_IF COMMENTIP>
 <span class="author" title="Unauthenticated, from <TMPL_VAR COMMENTIP>">
 <TMPL_ELSE>
@@ -39,6 +41,7 @@ Comment by
 <a href="<TMPL_VAR AUTHORURL>"><TMPL_VAR AUTHOR></a>
 <TMPL_ELSE>
 <TMPL_VAR AUTHOR>
+</TMPL_IF>
 </TMPL_IF>
 </span>
 </TMPL_IF>

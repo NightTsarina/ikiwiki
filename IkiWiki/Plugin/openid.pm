@@ -211,7 +211,6 @@ sub auth ($$) {
 				}
 			}
 			if (defined $nickname) {
-				$nickname=~s/\s+/_/g;
 				$session->param(nickname => $nickname);
 			}
 		}

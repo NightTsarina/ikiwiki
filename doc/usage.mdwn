@@ -32,13 +32,21 @@ These options control the mode that ikiwiki operates in.
 
 * --setup setupfile
 
-  In setup mode, ikiwiki reads the config file, which is really a perl
-  program that can call ikiwiki internal functions.
-
   The default action when --setup is specified is to automatically generate
   wrappers for a wiki based on data in a setup file, and rebuild the wiki.
   If you only want to build any changed pages, you can use --refresh with
   --setup.
+
+* --changesetup setupfile
+
+  Reads the setup file, adds any configuration changes specified by other
+  options, and writes the new configuration back to the setup file. Also
+  updates any configured wrappers. In this mode, the wiki is not fully
+  rebuilt, unless you also add --rebuild.
+
+  Example, to enable some plugins:
+
+	ikiwiki --changesetup ~/ikiwiki.setup --plugin goodstuff --plugin calendar
 
 * --dumpsetup setupfile
 

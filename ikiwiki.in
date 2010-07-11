@@ -14,24 +14,32 @@ sub usage () {
 	    gettext("       ikiwiki --setup configfile"), "\n";
 }
 
+sub setup (@) {
+	require IkiWiki::Setup;
+	my $verbose=$config{verbose};
+	my $syslog=$config{syslog};
+	IkiWiki::Setup::load($_[1]);
+	$config{setupverbose}=$config{verbose};
+	$config{setupsyslog}=$config{syslog};
+	$config{verbose}=$verbose || $config{setupverbose};
+	$config{syslog}=$syslog;
+	$config{setup}=1;
+}
+
 sub getconfig () {
 	if (! exists $ENV{WRAPPED_OPTIONS}) {
 		%config=defaultconfig();
 		eval q{use Getopt::Long};
 		Getopt::Long::Configure('pass_through');
 		GetOptions(
-			"setup|s=s" => sub {
-				require IkiWiki::Setup;
-				my $verbose=$config{verbose};
-				my $syslog=$config{syslog};
-				IkiWiki::Setup::load($_[1]);
-				$config{setupverbose}=$config{verbose};
-				$config{setupsyslog}=$config{syslog};
-				$config{verbose}=$verbose || $config{setupverbose};
-				$config{syslog}=$syslog;
-				$config{setup}=1;
-			},
+			"setup|s=s" => \&setup,
 			"dumpsetup|s=s" => \$config{dumpsetup},
+			"changesetup|s=s" => sub {
+				$config{changesetup}=$_[1];
+				$config{genwrappers}=1;
+				$config{refresh}=1;
+				setup(@_);
+			},
 			"wikiname=s" => \$config{wikiname},
 			"verbose|v!" => \$config{verbose},
 			"syslog!" => \$config{syslog},
@@ -85,7 +93,8 @@ sub getconfig () {
 				$config{wrappermode}=possibly_foolish_untaint($_[1])
 			},
 			"plugin=s@" => sub {
-				push @{$config{add_plugins}}, $_[1];
+				push @{$config{add_plugins}}, $_[1]
+					unless grep { $_ eq $_[1] } @{$config{add_plugins}};
 			},
 			"disable-plugin=s@" => sub {
 				push @{$config{disable_plugins}}, $_[1];
@@ -179,6 +188,11 @@ sub main () {
 		    ! $config{post_commit} && ! $config{clean}) {
 			$config{rebuild}=1;
 		}
+	}
+
+	if ($config{changesetup}) {
+		require IkiWiki::Setup;
+		IkiWiki::Setup::dump($config{changesetup});
 	}
 
 	if ($config{dumpsetup}) {

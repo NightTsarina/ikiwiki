@@ -597,7 +597,10 @@ describes the plugin as a whole. For example:
 	hook(type => "genwrapper", id => "foo", call => \&genwrapper);
 
 This hook is used to inject C code (which it returns) into the `main`
-function of the ikiwiki wrapper when it is being generated.
+function of the ikiwiki wrapper when it is being generated. 
+
+The code runs before anything else -- in particular it runs before
+the suid wrapper has sanitized its environment.
 
 ## Exported variables
 

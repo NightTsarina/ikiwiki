@@ -41,6 +41,7 @@ sub checkconfig () {
 		push @{$config{wrappers}}, {
 			wrapper => $config{git_wrapper},
 			wrappermode => (defined $config{git_wrappermode} ? $config{git_wrappermode} : "06755"),
+			wrapper_background_command => $config{git_wrapper_background_command},
 		};
 	}
 
@@ -76,6 +77,13 @@ sub getsetup () {
 			example => "/git/wiki.git/hooks/post-update",
 			description => "git hook to generate",
 			safe => 0, # file
+			rebuild => 0,
+		},
+		git_wrapper_background_command => {
+			type => "string",
+			example => "git push github",
+			description => "shell command for git_wrapper to run, in the background",
+			safe => 0, # command
 			rebuild => 0,
 		},
 		git_wrappermode => {
@@ -509,6 +517,8 @@ sub rcs_commit_staged (@) {
 		}
 		if (defined $params{session}->param("nickname")) {
 			$u=encode_utf8($params{session}->param("nickname"));
+			$u=~s/\s+/_/g;
+			$u=~s/[^-_0-9[:alnum:]]+//g;
 		}
 		if (defined $u) {
 			$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
