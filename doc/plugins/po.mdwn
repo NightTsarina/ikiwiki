@@ -274,6 +274,29 @@ to an array to support this. (If twere done, twere best done quickly.)
 >> up if it is not.. and the value is marked safe so websetup can be
 >> used to modify it and break that way too. --[[Joey]] 
 
+>>> I have added a sanity check for the even array problem. This was
+>>> the easy part.
+>>>
+>>> About the hash-like vs. dump and websetup issue,
+>>> I can think of a few solutions:
+>>>
+>>> - keep the current hash-like pairs and unmark this setting as safe
+>>>   for websetup: this does not solve the dump setup issue, though;
+>>> - replace the array of pairs with an array of
+>>>   "LANGUAGECODE|LANGUAGENAME" elements, using a pipe or whatever
+>>>   separator seems adequate;
+>>> - add support for ordered hashes to `$config`, websetup and
+>>>   dumpsetup, using Tie-IxHash or any similar module;
+>>> - replace the array of hash-like pairs with an array of real
+>>>   pairs, such as `[ ['de', 'Deutsch'], ['fr', 'Français'] ]`; this
+>>>   brings once again the need for `$config` to support arrays of
+>>>   arrays, which I have already implemented in my mirrorlist branch
+>>>   (see [[todo/mirrorlist_with_per-mirror_usedirs_settings]] for
+>>>   details).
+>>>
+>>> Joey, which of these solutions do you prefer? Or another one?
+>>> I tend to prefer the last one. --[[intrigeri]]
+
 Pagespecs
 ---------
 
