@@ -211,7 +211,8 @@ sub auth ($$) {
 				}
 			}
 			if (defined $nickname) {
-				$session->param(nickname => $nickname);
+				$session->param(nickname =>
+					Encode::decode_utf8($nickname));
 			}
 		}
 		else {
