@@ -1082,6 +1082,8 @@ sub urlto ($$;$) {
 }
 
 sub isselflink ($$) {
+	# Plugins can override this function to support special types
+	# of selflinks.
 	my $page=shift;
 	my $link=shift;
 
