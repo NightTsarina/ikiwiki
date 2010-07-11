@@ -53,8 +53,7 @@ sub preprocess (@) {
 
 	foreach my $param (keys %params) {
 		my $value=IkiWiki::preprocess($params{page}, $params{destpage},
-		          IkiWiki::filter($params{page}, $params{destpage},
-		          $params{$param}), $scan);
+		          $params{$param}, $scan);
 		if ($template->query(name => $param)) {
 			my $htmlvalue=IkiWiki::htmlize($params{page}, $params{destpage},
 					pagetype($pagesources{$params{page}}),
@@ -69,8 +68,7 @@ sub preprocess (@) {
 	}
 
 	return IkiWiki::preprocess($params{page}, $params{destpage},
-	       IkiWiki::filter($params{page}, $params{destpage},
-	       $template->output), $scan);
+	       $template->output, $scan);
 }
 
 1

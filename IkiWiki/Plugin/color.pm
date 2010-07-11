@@ -61,12 +61,11 @@ sub replace_preserved_style ($) {
 sub preprocess (@) {
 	my %params = @_;
 
-	# Preprocess the text to expand any preprocessor directives
-	# embedded inside it.
-	$params{text} = IkiWiki::preprocess($params{page}, $params{destpage},
-				IkiWiki::filter($params{page}, $params{destpage}, $params{text}));
-
-	return preserve_style($params{foreground}, $params{background}, $params{text});
+	return preserve_style($params{foreground}, $params{background},
+		# Preprocess the text to expand any preprocessor directives
+		# embedded inside it.
+		IkiWiki::preprocess($params{page}, $params{destpage},
+			$params{text}));
 }
 
 sub format (@) {
