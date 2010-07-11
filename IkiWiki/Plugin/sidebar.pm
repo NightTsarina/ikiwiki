@@ -89,7 +89,7 @@ sub sidebar_content ($) {
 		return IkiWiki::htmlize($sidebar_page, $page, $sidebar_type,
 		       IkiWiki::linkify($sidebar_page, $page,
 		       IkiWiki::preprocess($sidebar_page, $page,
-		       IkiWiki::filter($sidebar_page, $page, $content, 'fullpage'))));
+		       IkiWiki::filter($sidebar_page, $page, $content))));
 	}
 
 }

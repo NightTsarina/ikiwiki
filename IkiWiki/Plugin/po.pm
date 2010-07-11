@@ -259,12 +259,6 @@ sub filter (@) {
 	my $page = $params{page};
 	my $destpage = $params{destpage};
 	my $content = $params{content};
-	my $fullpage = $params{fullpage};
-
-	unless ($fullpage) {
-		return $content;
-	}
-
 	if (istranslation($page) && ! alreadyfiltered($page, $destpage)) {
 		$content = po_to_markup($page, $content);
 		setalreadyfiltered($page, $destpage);

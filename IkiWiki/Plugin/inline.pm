@@ -403,7 +403,7 @@ sub preprocess_inline (@) {
 					      linkify($page, $params{destpage},
 					      preprocess($page, $params{destpage},
 					      filter($page, $params{destpage},
-					      readfile(srcfile($file)), 'fullpage')));
+					      readfile(srcfile($file)))));
 				}
 				else {
 					$ret.="\n".
@@ -474,7 +474,7 @@ sub get_inline_content ($$) {
 		       linkify($page, $destpage,
 		       preprocess($page, $destpage,
 		       filter($page, $destpage,
-		       readfile(srcfile($file)), 'fullpage'))));
+		       readfile(srcfile($file))))));
 		$nested--;
 		if (isinternal($page)) {
 			# make inlined text of internal pages searchable

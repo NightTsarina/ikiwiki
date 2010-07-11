@@ -187,7 +187,7 @@ sub cgi_editpage ($$) {
 		my $preview=htmlize($page, $page, $type,
 			linkify($page, $page,
 			preprocess($page, $page,
-			filter($page, $page, $content, 'fullpage'), 0, 1)));
+			filter($page, $page, $content), 0, 1)));
 		run_hooks(format => sub {
 			$preview=shift->(
 				page => $page,
