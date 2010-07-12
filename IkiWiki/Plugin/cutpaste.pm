@@ -50,8 +50,8 @@ sub preprocess_copy (@) {
 	$savedtext{$params{page}} = {} if not exists $savedtext{$params{"page"}};
 	$savedtext{$params{page}}->{$params{id}} = $params{text};
 
-	return IkiWiki::preprocess($params{page}, $params{destpage}, 
-		IkiWiki::filter($params{page}, $params{destpage}, $params{text})) if defined wantarray;
+	return IkiWiki::preprocess($params{page}, $params{destpage}, $params{text})
+		if defined wantarray;
 }
 
 sub preprocess_paste (@) {
@@ -70,8 +70,8 @@ sub preprocess_paste (@) {
 		error sprintf(gettext('no text was copied in this page with id %s'), $params{id});
 	}
 
-	return IkiWiki::preprocess($params{page}, $params{destpage}, 
-		IkiWiki::filter($params{page}, $params{destpage}, $savedtext{$params{page}}->{$params{id}}));
+	return IkiWiki::preprocess($params{page}, $params{destpage},
+		$savedtext{$params{page}}->{$params{id}});
 }
 
 1;
