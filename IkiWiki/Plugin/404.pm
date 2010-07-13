@@ -10,6 +10,7 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "cgi", id => '404',  call => \&cgi);
+	hook(type => "getsetup", id => '404',  call => \&getsetup);
 	IkiWiki::loadplugin("goto");
 }
 
