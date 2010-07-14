@@ -39,6 +39,19 @@ my %units=(		# size in bytes
 	#   -- Joey
 );
 
+sub import {
+	hook(type => "getsetup", id => "filecheck",  call => \&getsetup);
+}
+
+sub getsetup () {
+	return
+		plugin => {
+			safe => 1,
+			rebuild => undef,
+			section => "misc",
+		},
+}
+
 sub parsesize ($) {
 	my $size=shift;
 
