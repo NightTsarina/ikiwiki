@@ -49,6 +49,7 @@ held for moderation. (Or with the [[moderatedcomments]] plugin, all
 comments will be held.) Wiki admins can access the comment moderation queue
 via a button on their Preferences page.
 
+Comments pending moderation are not checked into revision control.
 To find unmoderated comments, `find /your/ikiwiki/srcdir -name '*._comment_pending'`
-
-They are not checked into revision control.
+To manually moderate a comment, just rename the file, removing the
+"_pending" from the end, and check it into revision control.
