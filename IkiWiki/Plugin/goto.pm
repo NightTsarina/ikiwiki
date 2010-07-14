@@ -7,6 +7,7 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "cgi", id => 'goto',  call => \&cgi);
+	hook(type => "getsetup", id => 'goto',  call => \&getsetup);
 }
 
 sub getsetup () {

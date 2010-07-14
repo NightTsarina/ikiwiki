@@ -9,6 +9,7 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "parentlinks", id => "parentlinks", call => \&parentlinks);
 	hook(type => "pagetemplate", id => "parentlinks", call => \&pagetemplate);
+	hook(type => "getsetup", id => "parentlinks", call => \&getsetup);
 }
 
 sub getsetup () {
