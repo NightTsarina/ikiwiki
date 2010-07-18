@@ -48,6 +48,22 @@ ok(! system("touch $srcdir/foo.mdwn"));
 ok(! system("touch $srcdir/foo.txt"));
 setupiki("conflicting page sources in setup");
 
+# Page and non-page file with same pagename.
+newsrcdir();
+ok(! system("touch $srcdir/foo.mdwn"));
+ok(! system("touch $srcdir/foo"));
+setupiki("conflicting page and non-page in setup");
+newsrcdir();
+ok(! system("touch $srcdir/foo.mdwn"));
+setupiki("initial setup");
+ok(! system("touch $srcdir/foo"));
+refreshiki("conflicting page added (non-page already existing) in refresh");
+newsrcdir();
+ok(! system("touch $srcdir/foo"));
+setupiki("initial setup");
+ok(! system("touch $srcdir/foo.mdwn"));
+refreshiki("conflicting non-page added (page already existing) in refresh");
+
 # Changing a page file into a non-page could also cause ikiwiki to fail.
 newsrcdir();
 ok(! system("touch $srcdir/foo.mdwn"));
