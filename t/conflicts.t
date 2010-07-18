@@ -2,7 +2,7 @@
 # Tests for bugs relating to conflicting files in the srcdir
 use warnings;
 use strict;
-use Test::More tests => 92;
+use Test::More tests => 106;
 
 # setup
 my $srcdir="t/tmp/src";
@@ -63,6 +63,19 @@ ok(! system("touch $srcdir/foo"));
 setupiki("initial setup");
 ok(! system("touch $srcdir/foo.mdwn"));
 refreshiki("conflicting non-page added (page already existing) in refresh");
+
+# Page that renders to a file that is also a subdirectory holding another
+# file.
+newsrcdir();
+ok(! system("touch $srcdir/foo.mdwn"));
+ok(! system("mkdir -p $srcdir/foo/index.html"));
+ok(! system("touch $srcdir/foo/index.html/bar.mdwn"));
+setupiki("conflicting page file and subdirectory");
+newsrcdir();
+ok(! system("touch $srcdir/foo.mdwn"));
+ok(! system("mkdir -p $srcdir/foo/index.html"));
+ok(! system("touch $srcdir/foo/index.html/bar"));
+setupiki("conflicting page file and subdirectory 2");
 
 # Changing a page file into a non-page could also cause ikiwiki to fail.
 newsrcdir();
