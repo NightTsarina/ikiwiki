@@ -28,6 +28,7 @@ use UNIVERSAL;
 my %translations;
 my @origneedsbuild;
 my %origsubs;
+my @slavelanguages; # orderer as in config po_slave_languages
 
 memoize("istranslatable");
 memoize("_istranslation");
@@ -64,6 +65,8 @@ sub import {
 		inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
 		$origsubs{'rootpage'}=\&IkiWiki::rootpage;
 		inject(name => "IkiWiki::rootpage", call => \&myrootpage);
+		$origsubs{'isselflink'}=\&IkiWiki::isselflink;
+		inject(name => "IkiWiki::isselflink", call => \&myisselflink);
 	}
 }
 
@@ -102,11 +105,11 @@ sub getsetup () {
 		},
 		po_slave_languages => {
 			type => "string",
-			example => {
+			example => [
 				'fr' => 'Français',
 				'es' => 'Español',
 				'de' => 'Deutsch'
-			},
+			],
 			description => "slave languages (PO files)",
 			safe => 1,
 			rebuild => 1,
@@ -135,6 +138,24 @@ sub checkconfig () {
 				      $field, 'po'));
 		}
 	}
+
+	if (ref $config{po_slave_languages} eq 'ARRAY') {
+		my %slaves;
+		if (@{$config{po_slave_languages}} % 2 != 0) {
+			error(sprintf(gettext("The %s field is invalid."), 'po_slave_languages'));
+                }
+		for (my $i=0; $i<@{$config{po_slave_languages}}; $i = $i + 2) {
+			$slaves{$config{po_slave_languages}->[$i]} = $config{po_slave_languages}->[$i + 1];
+			push @slavelanguages, $config{po_slave_languages}->[$i];
+                }
+		$config{po_slave_languages} = \%slaves;
+        }
+	elsif (ref $config{po_slave_languages} eq 'HASH') {
+		@slavelanguages = sort {
+			$config{po_slave_languages}->{$a} cmp $config{po_slave_languages}->{$b};
+		} keys %{$config{po_slave_languages}};
+        }
+
 	delete $config{po_slave_languages}{$config{po_master_language}{code}};;
 
 	map {
@@ -195,7 +216,7 @@ sub needsbuild () {
 
 	# make existing translations depend on the corresponding master page
 	foreach my $master (keys %translations) {
-		map add_depends($_, $master), values %{otherlanguages($master)};
+		map add_depends($_, $master), values %{otherlanguages_pages($master)};
 	}
 }
 
@@ -227,7 +248,7 @@ sub scan (@) {
 				# make sure any destpage's translations has
 				# $page in its backlinks
 				push @{$links{$page}},
-					values %{otherlanguages($destpage)};
+					values %{otherlanguages_pages($destpage)};
 			}
 		}
 	}
@@ -285,7 +306,7 @@ sub pagetemplate (@) {
 	}
 	if ($template->query(name => "otherlanguages")) {
 		$template->param(otherlanguages => [otherlanguagesloop($page)]);
-		map add_depends($page, $_), (values %{otherlanguages($page)});
+		map add_depends($page, $_), (values %{otherlanguages_pages($page)});
 	}
 	if ($config{discussion} && istranslation($page)) {
 		if ($page !~ /.*\/\Q$config{discussionpage}\E$/i &&
@@ -338,12 +359,12 @@ sub renamepages (@) {
 	return () unless istranslatable($torename{src});
 
 	my @ret;
-	my %otherpages=%{otherlanguages($torename{src})};
+	my %otherpages=%{otherlanguages_pages($torename{src})};
 	while (my ($lang, $otherpage) = each %otherpages) {
 		push @ret, {
 			src => $otherpage,
 			srcfile => $pagesources{$otherpage},
-			dest => otherlanguage($torename{dest}, $lang),
+			dest => otherlanguage_page($torename{dest}, $lang),
 			destfile => $torename{dest}.".".$lang.".po",
 			required => 0,
 		};
@@ -675,6 +696,17 @@ sub myrootpage (@) {
 	return $rootpage;
 }
 
+sub myisselflink ($$) {
+	my $page=shift;
+	my $link=shift;
+
+	return 1 if $origsubs{'isselflink'}->($page, $link);
+	if (istranslation($page)) {
+		return $origsubs{'isselflink'}->(masterpage($page), $link);
+        }
+	return;
+}
+
 # ,----
 # | Blackboxes for private data
 # `----
@@ -799,7 +831,7 @@ sub islanguagecode ($) {
 	return $code =~ /^[a-z]{2}$/;
 }
 
-sub otherlanguage ($$) {
+sub otherlanguage_page ($$) {
 	my $page=shift;
 	my $code=shift;
 
@@ -807,17 +839,31 @@ sub otherlanguage ($$) {
 	return masterpage($page) . '.' . $code;
 }
 
-sub otherlanguages ($) {
+# Returns the list of other languages codes: the master language comes first,
+# then the codes are ordered the same way as in po_slave_languages, if it is
+# an array, or in the language name lexical order, if it is a hash.
+sub otherlanguages_codes ($) {
 	my $page=shift;
 
-	my %ret;
-	return \%ret unless istranslation($page) || istranslatable($page);
+	my @ret;
+	return \@ret unless istranslation($page) || istranslatable($page);
 	my $curlang=lang($page);
 	foreach my $lang
-		($config{po_master_language}{code}, keys %{$config{po_slave_languages}}) {
+		($config{po_master_language}{code}, @slavelanguages) {
 		next if $lang eq $curlang;
-		$ret{$lang}=otherlanguage($page, $lang);
+		push @ret, $lang;
 	}
+	return \@ret;
+}
+
+sub otherlanguages_pages ($) {
+	my $page=shift;
+
+        my %ret;
+	map {
+		$ret{$_} = otherlanguage_page($page, $_)
+	} @{otherlanguages_codes($page)};
+
 	return \%ret;
 }
 
@@ -968,30 +1014,25 @@ sub otherlanguagesloop ($) {
 	my $page=shift;
 
 	my @ret;
-	my %otherpages=%{otherlanguages($page)};
-	while (my ($lang, $otherpage) = each %otherpages) {
-		if (istranslation($page) && masterpage($page) eq $otherpage) {
-			push @ret, {
-				url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
-				code => $lang,
-				language => languagename($lang),
-				master => 1,
-			};
-		}
-		elsif (istranslation($otherpage)) {
-			push @ret, {
-				url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
-				code => $lang,
-				language => languagename($lang),
-				percent => percenttranslated($otherpage),
-			}
+	if (istranslation($page)) {
+		push @ret, {
+			url => urlto_with_orig_beautiful_urlpath(masterpage($page), $page),
+			code => $config{po_master_language}{code},
+			language => $config{po_master_language}{name},
+			master => 1,
+		};
+	}
+	foreach my $lang (@{otherlanguages_codes($page)}) {
+		next if $lang eq $config{po_master_language}{code};
+		my $otherpage = otherlanguage_page($page, $lang);
+		push @ret, {
+			url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
+			code => $lang,
+			language => languagename($lang),
+			percent => percenttranslated($otherpage),
 		}
 	}
-	return sort {
-		return -1 if $a->{code} eq $config{po_master_language}{code};
-		return 1 if $b->{code} eq $config{po_master_language}{code};
-		return $a->{language} cmp $b->{language};
-	} @ret;
+	return @ret;
 }
 
 sub homepageurl (;$) {
