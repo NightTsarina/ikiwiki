@@ -28,7 +28,7 @@ use UNIVERSAL;
 my %translations;
 my @origneedsbuild;
 my %origsubs;
-my @slavelanguages; # orderer as in config po_slave_languages
+my @slavelanguages; # ordered as in config po_slave_languages
 
 memoize("istranslatable");
 memoize("_istranslation");
