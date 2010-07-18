@@ -5,10 +5,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki\n"
-"POT-Creation-Date: 2009-08-15 18:30-0300\n"
-"PO-Revision-Date: 2009-09-12 12:02+0200\n"
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2010-07-17 11:31+0200\n"
 "Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bits\n"
@@ -17,17 +18,26 @@ msgstr ""
 msgid ""
 "The `pagestats` directive is supplied by the [[!iki plugins/pagestats "
 "desc=pagestats]] plugin."
-msgstr "La directive `pagestats` est fournie par le module d'extension [[!iki plugins/pagestats desc=pagestats]]."
+msgstr ""
+"La directive `pagestats` est fournie par le module d'extension [[!iki "
+"plugins/pagestats desc=pagestats]]."
 
 #. type: Plain text
 msgid ""
 "This directive can generate stats about how pages link to each other. It can "
 "produce either a tag cloud, or a table counting the number of links to each "
 "page."
-msgstr "Cette directive permet de créer des statistiques sur les pages et la façon dont elles sont liées. Elle affiche soit un nuage d'étiquettes, soit un tableau montrant le nombre de liens de chaque page."
+msgstr ""
+"Cette directive permet de créer des statistiques sur les pages et la façon "
+"dont elles sont liées. Elle affiche soit un nuage d'étiquettes, soit un "
+"tableau montrant le nombre de liens de chaque page."
 
 #. type: Plain text
-msgid "Here's how to use it to create a [[tag]] cloud:"
+#, fuzzy
+#| msgid "Here's how to use it to create a [[tag]] cloud:"
+msgid ""
+"Here's how to use it to create a [[tag]] cloud, with tags sized based on "
+"frequency of use:"
 msgstr "Voici comment afficher un nuage d'étiquettes [[tag]] :"
 
 #. type: Plain text
@@ -36,8 +46,20 @@ msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
 msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
 
 #. type: Plain text
+msgid ""
+"Here's how to create a list of tags, sized by use as they would be in a "
+"cloud."
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgid "\t\\[[!pagestats style=\"list\" pages=\"tags/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+
+#. type: Plain text
 msgid "And here's how to create a table of all the pages on the wiki:"
-msgstr "Et voici comment créer le tableau :"
+msgstr "Et voici comment créer un tableau de toutes les pages du wiki :"
 
 #. type: Plain text
 #, no-wrap
@@ -46,10 +68,14 @@ msgstr "\t\\[[!pagestats style=\"table\"]]\n"
 
 #. type: Plain text
 msgid ""
-"The optional `among` parameter limits counting to pages that match a "
-"[[ikiwiki/PageSpec]]. For instance, to display a cloud of tags used on blog "
-"entries, you could use:"
-msgstr "Le paramètre facultatif `among` permet d'utiliser une spécification [[ikiwiki/PageSpec]] pour limiter l'ensemble des pages à compter. Par exemple, pour afficher un nuage avec les étiquettes utilisées dans un blog, on peut écrire : "
+"The optional `among` parameter limits the pages whose outgoing links are "
+"considered. For instance, to display a cloud of tags used on blog entries, "
+"while ignoring other pages that use those tags, you could use:"
+msgstr ""
+"Le paramètre facultatif `among` permet de limiter l'ensemble des pages à "
+"considérer. Par exemple, pour afficher un nuage avec les étiquettes "
+"utilisées dans un blog, tout en ignorant les autres pages qui ont ces "
+"étiquettes, on peut écrire : "
 
 #. type: Plain text
 #, no-wrap
@@ -57,13 +83,35 @@ msgid "\t\\[[!pagestats pages=\"tags/*\" among=\"blog/posts/*\"]]\n"
 msgstr "\t\\[[!pagestats pages=\"tags/*\" among=\"blog/posts/*\"]]\n"
 
 #. type: Plain text
-msgid "or to display a cloud of tags related to Linux, you could use:"
-msgstr "Pour afficher un nuage avec les étiquettes consacrées à Linux, écrivez :"
+msgid "Or to display a cloud of tags related to Linux, you could use:"
+msgstr ""
+"Pour afficher un nuage avec les étiquettes consacrées à Linux, écrivez :"
 
 #. type: Plain text
 #, no-wrap
 msgid "\t\\[[!pagestats pages=\"tags/* and not tags/linux\" among=\"tagged(linux)\"]]\n"
 msgstr "\t\\[[!pagestats pages=\"tags/* and not tags/linux\" among=\"tagged(linux)\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `show` parameter limits display to the specified number of "
+"pages. For instance, to show a table of the top ten pages with the most "
+"links:"
+msgstr ""
+"Le paramètre optionnel `show` permet d'afficher un nombre déterminé de "
+"pages. Par exemple, pour afficher les dix premières pages en terme de nombre "
+"de liens : "
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats style=\"table\" show=\"10\"]]\n"
+msgstr "\t\\[[!pagestats style=\"table\" show=\"10\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `class` parameter can be used to control the class of the "
+"generated tag cloud `div` or page stats `table`."
+msgstr ""
 
 #. type: Plain text
 #, no-wrap

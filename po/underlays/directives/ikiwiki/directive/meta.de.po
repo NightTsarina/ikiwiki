@@ -4,10 +4,11 @@
 # modification, are permitted under any circumstances. No warranty.
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2010-03-12 09:29+0530\n"
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
 "PO-Revision-Date: 2010-03-14 14:04+0530\n"
 "Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
 "Language-Team: None\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,8 +19,8 @@ msgid ""
 "The `meta` directive is supplied by the [[!iki plugins/meta desc=meta]] "
 "plugin."
 msgstr ""
-"Die `meta`-Anweisung wird durch die [[!iki plugins/meta desc=meta]]-Erweiterung "
-"bereitgestellt."
+"Die `meta`-Anweisung wird durch die [[!iki plugins/meta desc=meta]]-"
+"Erweiterung bereitgestellt."
 
 #. type: Plain text
 msgid ""
@@ -43,16 +44,17 @@ msgid ""
 "The first form sets a given field to a given value, while the second form "
 "also specifies some additional sub-parameters."
 msgstr ""
-"In der ersten Form wird das angegebene Feld auf den angegebenen Wert gesetzt. In "
-"der zweiten Form werden zusätzlich einige Unter-Parameter angegeben."
+"In der ersten Form wird das angegebene Feld auf den angegebenen Wert "
+"gesetzt. In der zweiten Form werden zusätzlich einige Unter-Parameter "
+"angegeben."
 
 #. type: Plain text
 msgid ""
 "The field values are treated as HTML entity-escaped text, so you can include "
 "a quote in the text by writing `&quot;` and so on."
 msgstr ""
-"Die Feldwerte können HTML-Entities enthalten, zum Beispiel kann durch `&quot;` "
-"ein Anführungszeichen eingefügt werden."
+"Die Feldwerte können HTML-Entities enthalten, zum Beispiel kann durch `&quot;"
+"` ein Anführungszeichen eingefügt werden."
 
 #. type: Plain text
 msgid "Supported fields:"
@@ -74,15 +76,30 @@ msgstr ""
 #. type: Plain text
 #, no-wrap
 msgid ""
-"  Note that if the title is overridden, a \"title_overridden\" variable "
-"will\n"
-"  be set to a true value in the template; this can be used to format "
-"things\n"
+"  Note that if the title is overridden, a \"title_overridden\" variable will\n"
+"  be set to a true value in the template; this can be used to format things\n"
 "  differently in this case.\n"
 msgstr ""
 "  Wenn der Titel so überschrieben wird, wird die Template-Variable\n"
 "  `title_overridden` auf wahr gesetzt. Eine Vorlage kann in diesem\n"
 "  Fall eine andere Darstellung wählen.\n"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  An optional `sortas` parameter will be used preferentially when\n"
+"  [[ikiwiki/pagespec/sorting]] by `meta(title)`:\n"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!meta title=\"The Beatles\" sortas=\"Beatles, The\"]]\n"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!meta title=\"David Bowie\" sortas=\"Bowie, David\"]]\n"
+msgstr ""
 
 #. type: Bullet: '* '
 msgid "license"
@@ -119,6 +136,18 @@ msgstr "`author`"
 #, no-wrap
 msgid "  Specifies the author of a page.\n"
 msgstr "  Gibt den Autor der Seite an.\n"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  An optional `sortas` parameter will be used preferentially when\n"
+"  [[ikiwiki/pagespec/sorting]] by `meta(author)`:\n"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!meta author=\"Joey Hess\" sortas=\"Hess, Joey\"]]\n"
+msgstr ""
 
 #. type: Bullet: '* '
 msgid "authorurl"
@@ -254,8 +283,7 @@ msgstr "`link`"
 #, no-wrap
 msgid ""
 "  Specifies a link to another page. This can be used as a way to make the\n"
-"  wiki treat one page as linking to another without displaying a "
-"user-visible\n"
+"  wiki treat one page as linking to another without displaying a user-visible\n"
 "  [[ikiwiki/WikiLink]]:\n"
 msgstr ""
 "  Gibt einen Link zu einer anderen Seite an. Auf diese Weise kann das Wiki\n"
@@ -277,20 +305,14 @@ msgstr ""
 
 #. type: Plain text
 #, no-wrap
-msgid ""
-"       \\[[!meta link=\"http://joeyh.myopenid.com/\" "
-"rel=\"openid.delegate\"]]\n"
-msgstr ""
-"       \\[[!meta link=\"http://joeyh.myopenid.com/\" "
-"rel=\"openid.delegate\"]]\n"
+msgid "       \\[[!meta link=\"http://joeyh.myopenid.com/\" rel=\"openid.delegate\"]]\n"
+msgstr "       \\[[!meta link=\"http://joeyh.myopenid.com/\" rel=\"openid.delegate\"]]\n"
 
 #. type: Plain text
-#:
 #, no-wrap
 msgid ""
 "  However, this latter syntax won't be allowed if the \n"
-"  [[!iki plugins/htmlscrubber desc=htmlscrubber]] plugin is enabled, since "
-"it can be used to\n"
+"  [[!iki plugins/htmlscrubber desc=htmlscrubber]] plugin is enabled, since it can be used to\n"
 "  insert unsafe content.\n"
 msgstr ""
 "  Allerdings ist diese zweite Syntax nicht erlaubt, wenn die\n"
@@ -335,12 +357,12 @@ msgstr "  \t\\[[!meta redir=\"http://beispiel.de/\"]]\n"
 #. type: Plain text
 #, no-wrap
 msgid ""
-"  For both cases, an anchor to jump to inside the destination page may also "
-"be\n"
+"  For both cases, an anchor to jump to inside the destination page may also be\n"
 "  specified using the common `#ANCHOR` syntax.\n"
 msgstr ""
 "  In beiden Fällen kann ein anzuspringender Anker auf der Zielseite\n"
-"  angegeben werden, indem die übliche `#ANKER`-Syntax verwendet wird.\n "
+"  angegeben werden, indem die übliche `#ANKER`-Syntax verwendet wird.\n"
+" "
 
 #. type: Bullet: '* '
 msgid "robots"
@@ -359,10 +381,8 @@ msgstr "        \\[[!meta robots=\"index, nofollow\"]]\n"
 #. type: Plain text
 #, no-wrap
 msgid ""
-"  Valid values for the attribute are: \"index\", \"noindex\", \"follow\", "
-"and\n"
-"  \"nofollow\". Multiple comma-separated values are allowed, but obviously "
-"only\n"
+"  Valid values for the attribute are: \"index\", \"noindex\", \"follow\", and\n"
+"  \"nofollow\". Multiple comma-separated values are allowed, but obviously only\n"
 "  some combinations make sense. If there is no robots meta tag, \"index,\n"
 "  follow\" is used as the default.\n"
 msgstr ""
@@ -387,8 +407,7 @@ msgid ""
 "  Specifies a globally unique ID for a page. This guid should be a URI\n"
 "  (in particular, it can be `urn:uuid:` followed by a UUID, as per\n"
 "  [[!rfc 4122]]), and it will be used to identify the page's entry in RSS\n"
-"  and Atom feeds. If not given, the default is to use the page's URL as "
-"its\n"
+"  and Atom feeds. If not given, the default is to use the page's URL as its\n"
 "  guid.\n"
 msgstr ""
 "  Gibt eine global einmalige ID für die Seite an. Diese guid sollte eine\n"
@@ -418,10 +437,8 @@ msgstr "`updated`"
 msgid ""
 "  Specifies a fake modification time for a page, to be output into RSS and\n"
 "  Atom feeds. This is useful to avoid flooding aggregators that sort by\n"
-"  modification time, like Planet: for instance, when editing an old blog "
-"post\n"
-"  to add tags, you could set `updated` to be one second later than the "
-"original\n"
+"  modification time, like Planet: for instance, when editing an old blog post\n"
+"  to add tags, you could set `updated` to be one second later than the original\n"
 "  value. The date/time can be given in any format that\n"
 "  [[!cpan TimeDate]] can understand, just like the `date` field.\n"
 msgstr ""
@@ -441,15 +458,13 @@ msgid ""
 "won't be allowed if the [[!iki plugins/htmlscrubber desc=htmlscrubber]] "
 "plugin is enabled, since it can be used to insert unsafe content."
 msgstr ""
-"Wenn das Feld nicht eines der oben vordefinierten ist, werden die Metadaten als "
-"&lt;meta&gt;-Header in die generierte Seite geschrieben. Dies ist allerdings "
-"nicht erlaubt, wenn die [[!iki plugins/htmlscrubber "
-"desc=htmlscrubber]]-Erweiterung aktiv ist, da auf diese Weise unsichere Inhalte "
-"eingefügt werden können."
+"Wenn das Feld nicht eines der oben vordefinierten ist, werden die Metadaten "
+"als &lt;meta&gt;-Header in die generierte Seite geschrieben. Dies ist "
+"allerdings nicht erlaubt, wenn die [[!iki plugins/htmlscrubber "
+"desc=htmlscrubber]]-Erweiterung aktiv ist, da auf diese Weise unsichere "
+"Inhalte eingefügt werden können."
 
 #. type: Plain text
 #, no-wrap
 msgid "[[!meta robots=\"noindex, follow\"]]\n"
 msgstr "[[!meta robots=\"noindex, follow\"]]\n"
-
-

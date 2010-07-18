@@ -4,10 +4,11 @@
 # modification, are permitted under any circumstances. No warranty.
 msgid ""
 msgstr ""
-"POT-Creation-Date: 2010-03-12 09:29+0530\n"
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
 "PO-Revision-Date: 2010-03-14 15:17+0530\n"
 "Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
 "Language-Team: None\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -42,24 +43,27 @@ msgstr ""
 "`allowed_attachments` verändert."
 
 #. type: Plain text
+#, fuzzy
+#| msgid ""
+#| "For example, to limit arbitrary files to 50 kilobytes, but allow larger "
+#| "mp3 files to be uploaded by joey into a specific directory, and check all "
+#| "attachments for viruses, something like this could be used:"
 msgid ""
-"For example, to limit arbitrary files to 50 kilobytes, but allow larger mp3 "
-"files to be uploaded by joey into a specific directory, and check all "
-"attachments for viruses, something like this could be used:"
+"For example, to limit most users to uploading small images, and nothing "
+"else, while allowing larger mp3 files to be uploaded by joey into a specific "
+"directory, and check all attachments for viruses, something like this could "
+"be used:"
 msgstr ""
-"Zum Beispiel können beliebige Dateien auf 50 Kilobyte beschränkt, "
-"aber größere mp3-Dateien von joey in einem bestimmten Verzeichnis erlaubt, "
-"und alle Anhänge nach Viren durchsucht werden, indem etwas wie "
-"das Folgende verwendet wird:"
+"Zum Beispiel können beliebige Dateien auf 50 Kilobyte beschränkt, aber "
+"größere mp3-Dateien von joey in einem bestimmten Verzeichnis erlaubt, und "
+"alle Anhänge nach Viren durchsucht werden, indem etwas wie das Folgende "
+"verwendet wird:"
 
 #. type: Plain text
-#, no-wrap
-msgid ""
-"\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) "
-"and maxsize(15mb)) or (!ispage() and maxsize(50kb)))\n"
-msgstr ""
-"\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) "
-"and maxsize(15mb)) or (!ispage() and maxsize(50kb)))\n"
+#, fuzzy, no-wrap
+#| msgid "\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) and maxsize(15mb)) or (!ispage() and maxsize(50kb)))\n"
+msgid "\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) and maxsize(15mb)) or (mimetype(image/*) and maxsize(50kb)))\n"
+msgstr "\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) and maxsize(15mb)) or (!ispage() and maxsize(50kb)))\n"
 
 #. type: Plain text
 msgid ""
@@ -72,12 +76,12 @@ msgstr ""
 #. type: Bullet: '* '
 msgid ""
 "\"`maxsize(size)`\" - tests whether the attachment is no larger than the "
-"specified size. The size defaults to being in bytes, but \"kb\", \"mb\", "
-"\"gb\" etc can be used to specify the units."
+"specified size. The size defaults to being in bytes, but \"kb\", \"mb\", \"gb"
+"\" etc can be used to specify the units."
 msgstr ""
 "\"`maxsize(size)`\" - prüft ob der Anhang nicht größer ist als angegeben. "
-"Die Größe wird standardmäßig in Bytes angegeben, aber `kb`, `mb`, "
-"`gb` und so weiter kann verwendet werden, um die Einheit anzugeben."
+"Die Größe wird standardmäßig in Bytes angegeben, aber `kb`, `mb`, `gb` und "
+"so weiter kann verwendet werden, um die Einheit anzugeben."
 
 #. type: Bullet: '* '
 msgid ""
@@ -118,5 +122,3 @@ msgstr ""
 #. type: Bullet: '* '
 msgid "\"`virusfree()`\" - checks the attachment with an antiviral program."
 msgstr "\"`virusfree()`\" - prüft den Anhang mit einem Virenscanner."
-
-

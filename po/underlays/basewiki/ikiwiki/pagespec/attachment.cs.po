@@ -6,10 +6,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki/basewiki\n"
-"POT-Creation-Date: 2009-08-28 02:48-0300\n"
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
 "PO-Revision-Date: 2009-08-27 09:04+0200\n"
 "Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
 "Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
+"Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -40,10 +41,16 @@ msgstr ""
 "`allowed_attachments` určovat, které typy příloh budou povoleny."
 
 #. type: Plain text
+#, fuzzy
+#| msgid ""
+#| "For example, to limit arbitrary files to 50 kilobytes, but allow larger "
+#| "mp3 files to be uploaded by joey into a specific directory, and check all "
+#| "attachments for viruses, something like this could be used:"
 msgid ""
-"For example, to limit arbitrary files to 50 kilobytes, but allow larger mp3 "
-"files to be uploaded by joey into a specific directory, and check all "
-"attachments for viruses, something like this could be used:"
+"For example, to limit most users to uploading small images, and nothing "
+"else, while allowing larger mp3 files to be uploaded by joey into a specific "
+"directory, and check all attachments for viruses, something like this could "
+"be used:"
 msgstr ""
 "Například pokud byste chtěli omezit všechny soubory na 50 kilobajtů s "
 "výjimkou větčích mp3 souborů nahraných uživatelem joey do specifického "
@@ -51,8 +58,9 @@ msgstr ""
 "virů, mohli byste použít něco jako:"
 
 #. type: Plain text
-#, no-wrap
-msgid "\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) and maxsize(15mb)) or (!ispage() and maxsize(50kb)))\n"
+#, fuzzy, no-wrap
+#| msgid "\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) and maxsize(15mb)) or (!ispage() and maxsize(50kb)))\n"
+msgid "\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) and maxsize(15mb)) or (mimetype(image/*) and maxsize(50kb)))\n"
 msgstr "\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) and maxsize(15mb)) or (!ispage() and maxsize(50kb)))\n"
 
 #. type: Plain text
