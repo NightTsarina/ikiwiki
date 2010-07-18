@@ -2,7 +2,7 @@
 # Tests for bugs relating to conflicting files in the srcdir
 use warnings;
 use strict;
-use Test::More tests => 48;
+use Test::More tests => 76;
 
 # setup
 my $srcdir="t/tmp/src";

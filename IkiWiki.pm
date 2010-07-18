@@ -879,7 +879,19 @@ sub will_render ($$;$) {
 	# Important security check.
 	if (-e "$config{destdir}/$dest" && ! $config{rebuild} &&
 	    ! grep { $_ eq $dest } (@{$renderedfiles{$page}}, @{$oldrenderedfiles{$page}}, @{$wikistate{editpage}{previews}})) {
-		error("$config{destdir}/$dest independently created, not overwriting with version from $page");
+		my $from_other_page=0;
+		foreach my $p (keys %renderedfiles) {
+			if (grep {
+				$_ eq $dest ||
+				dirname($_) eq $dest
+			    } @{$renderedfiles{$p}}) {
+				$from_other_page=1;
+				last;
+			}
+		}
+
+		error("$config{destdir}/$dest independently created, not overwriting with version from $page")
+			unless $from_other_page;
 	}
 
 	if (! $clear || $cleared{$page}) {
