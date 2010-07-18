@@ -823,6 +823,17 @@ sub prep_writefile ($$) {
 		if (-l "$destdir/$test") {
 			error("cannot write to a symlink ($test)");
 		}
+		if (-f _ && $test ne $file) {
+			# Remove conflicting file.
+			foreach my $p (keys %renderedfiles, keys %oldrenderedfiles) {
+				foreach my $f (@{$renderedfiles{$p}}, @{$oldrenderedfiles{$p}}) {
+					if ($f eq $test) {
+						unlink("$destdir/$test");
+						last;
+					}
+				}
+			}
+		}
 		$test=dirname($test);
 	}
 
@@ -876,11 +887,12 @@ sub will_render ($$;$) {
 	my $dest=shift;
 	my $clear=shift;
 
-	# Important security check.
+	# Important security check for independently created files.
 	if (-e "$config{destdir}/$dest" && ! $config{rebuild} &&
 	    ! grep { $_ eq $dest } (@{$renderedfiles{$page}}, @{$oldrenderedfiles{$page}}, @{$wikistate{editpage}{previews}})) {
 		my $from_other_page=0;
-		foreach my $p (keys %renderedfiles) {
+	    	# Expensive, but rarely runs.
+		foreach my $p (keys %renderedfiles, keys %oldrenderedfiles) {
 			if (grep {
 				$_ eq $dest ||
 				dirname($_) eq $dest
@@ -892,6 +904,19 @@ sub will_render ($$;$) {
 
 		error("$config{destdir}/$dest independently created, not overwriting with version from $page")
 			unless $from_other_page;
+	}
+
+	# If $dest exists as a directory, remove conflicting files in it
+	# rendered from other pages.
+	if (-d _) {
+		foreach my $p (keys %renderedfiles, keys %oldrenderedfiles) {
+			foreach my $f (@{$renderedfiles{$p}}, @{$oldrenderedfiles{$p}}) {
+				if ($f eq dirname($dest) || dirname($f) eq $dest) {
+					unlink("$config{destdir}/$f");
+					rmdir(dirname("$config{destdir}/$f"));
+				}
+			}
+		}
 	}
 
 	if (! $clear || $cleared{$page}) {
