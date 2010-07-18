@@ -911,7 +911,7 @@ sub will_render ($$;$) {
 	if (-d _) {
 		foreach my $p (keys %renderedfiles, keys %oldrenderedfiles) {
 			foreach my $f (@{$renderedfiles{$p}}, @{$oldrenderedfiles{$p}}) {
-				if ($f eq dirname($dest) || dirname($f) eq $dest) {
+				if (dirname($f) eq $dest) {
 					unlink("$config{destdir}/$f");
 					rmdir(dirname("$config{destdir}/$f"));
 				}
