@@ -2,7 +2,7 @@
 # Tests for bugs relating to conflicting files in the srcdir
 use warnings;
 use strict;
-use Test::More tests => 76;
+use Test::More tests => 92;
 
 # setup
 my $srcdir="t/tmp/src";
@@ -86,6 +86,13 @@ setupiki("initial setup");
 ok(! system("mkdir -p $srcdir/foo"));
 ok(! system("touch $srcdir/foo/index.html"));
 refreshiki("rawhtml file rendered same as existing page in refresh");
+# Moved when refreshing
+newsrcdir();
+ok(! system("touch $srcdir/foo.mdwn"));
+setupiki("initial setup");
+ok(! system("mkdir -p $srcdir/foo"));
+ok(! system("mv $srcdir/foo.mdwn $srcdir/foo/index.html"));
+refreshiki("existing page moved to rawhtml file in refresh");
 # Inverse added when refreshing
 newsrcdir();
 ok(! system("mkdir -p $srcdir/foo"));
@@ -93,6 +100,13 @@ ok(! system("touch $srcdir/foo/index.html"));
 setupiki("initial setup");
 ok(! system("touch $srcdir/foo.mdwn"));
 refreshiki("page rendered same as existing rawhtml file in refresh");
+# Inverse moved when refreshing
+newsrcdir();
+ok(! system("mkdir -p $srcdir/foo"));
+ok(! system("touch $srcdir/foo/index.html"));
+setupiki("initial setup");
+ok(! system("mv $srcdir/foo/index.html $srcdir/foo.mdwn"));
+refreshiki("rawhtml file moved to page in refresh");
 # Present during setup
 newsrcdir();
 ok(! system("touch $srcdir/foo.mdwn"));
