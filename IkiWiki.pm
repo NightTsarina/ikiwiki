@@ -884,7 +884,7 @@ sub will_render ($$;$) {
 			if (grep {
 				$_ eq $dest ||
 				dirname($_) eq $dest
-			    } @{$renderedfiles{$p}}) {
+			    } @{$renderedfiles{$p}}, @{$oldrenderedfiles{$p}}) {
 				$from_other_page=1;
 				last;
 			}
