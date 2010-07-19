@@ -1118,6 +1118,15 @@ sub urlto ($$;$) {
 	return beautify_urlpath($link);
 }
 
+sub isselflink ($$) {
+	# Plugins can override this function to support special types
+	# of selflinks.
+	my $page=shift;
+	my $link=shift;
+
+        return $page eq $link;
+}
+
 sub htmllink ($$$;@) {
 	my $lpage=shift; # the page doing the linking
 	my $page=shift; # the page that will contain the link (different for inline)
@@ -1143,7 +1152,7 @@ sub htmllink ($$$;@) {
 	}
 	
 	return "<span class=\"selflink\">$linktext</span>"
-		if length $bestlink && $page eq $bestlink &&
+		if length $bestlink && isselflink($page, $bestlink) &&
 		   ! defined $opts{anchor};
 	
 	if (! $destsources{$bestlink}) {

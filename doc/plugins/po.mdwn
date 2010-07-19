@@ -297,6 +297,10 @@ to an array to support this. (If twere done, twere best done quickly.)
 >>> Joey, which of these solutions do you prefer? Or another one?
 >>> I tend to prefer the last one. --[[intrigeri]]
 
+>>>> I prefer the pipe separator, I think. I'm concerned that there is 
+>>>> no way to really sanely represent complex data structures in web
+>>>> setup. --[[Joey]]
+
 Pagespecs
 ---------
 
@@ -350,6 +354,16 @@ update. --[[Joey]]
 > * The s/utf-8/UTF-8 part is fixed in my po branch.
 > * The ENCODING\n part is due to an inconsistency in po4a, which
 >   I've just send a patch for. --[[intrigeri]]
+
+New pages not translatable
+--------------------------
+
+Today I added a new English page to l10n.ikiwiki.info. When I saved,
+the page did not have the translation links at the top. I waited until
+the po plugin had, in the background, created the po files, and refreshed;
+still did not see the translation links. Only when I touched the page
+source and refreshed did it finally add the translation links. 
+I can reproduce this bug in a test site. --[[Joey]]
 
 Ugly messages with empty files
 ------------------------------

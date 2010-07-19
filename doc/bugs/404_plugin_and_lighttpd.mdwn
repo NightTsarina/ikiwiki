@@ -1,4 +1,4 @@
-Lighttpd apparently sets REDIRECT_STATUS=200 for the server.error-handler-404 page. This breaks the 404 plugin which checks this variable for 404 before processing the URI. It also doesn't seem to set REDIRECT_URL.
+Lighttpd apparently sets REDIRECT_STATUS=200 for the server.error-handler-404 page. This breaks the [[plugins/404]] plugin which checks this variable for 404 before processing the URI. It also doesn't seem to set REDIRECT_URL.
 
 I was able to fix my server to check the REQUEST_URI for ikiwiki.cgi and to continue processing if it was not found, passing $ENV{SEVER_NAME} . $ENV{REQUEST_URI} as the first parameter to cgi_page_from_404. However, my perl is terrible and I just made it work rather than figuring out exactly what to do to get it to work on both lighttpd and apache.
 
