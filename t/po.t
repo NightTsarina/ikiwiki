@@ -42,8 +42,8 @@ $config{po_slave_languages} = {
 $config{po_translatable_pages}='index or test1 or test2 or translatable';
 $config{po_link_to}='negotiated';
 IkiWiki::loadplugins();
-IkiWiki::checkconfig();
 ok(IkiWiki::loadplugin('po'), "po plugin loaded");
+IkiWiki::checkconfig();
 
 ### seed %pagesources and %pagecase
 $pagesources{'index'}='index.mdwn';
