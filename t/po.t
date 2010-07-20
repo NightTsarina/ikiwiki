@@ -17,7 +17,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 65;
+use Test::More tests => 68;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -90,6 +90,13 @@ ok(! IkiWiki::Plugin::po::istranslation('test2'), "test2 is not a translation");
 ok(! IkiWiki::Plugin::po::istranslatable('test3'), "test3 is not translatable");
 ok(! IkiWiki::Plugin::po::istranslation('test3'), "test3 is not a translation");
 }
+
+### pofiles
+
+my @pofiles = IkiWiki::Plugin::po::pofiles(srcfile("index.mdwn"));
+ok( @pofiles, "pofiles is defined");
+ok( @pofiles == 2, "pofiles has correct size");
+is_deeply(\@pofiles, ["$config{srcdir}/index.es.po", "$config{srcdir}/index.fr.po"], "pofiles content is correct");
 
 ### links
 require IkiWiki::Render;
