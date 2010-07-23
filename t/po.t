@@ -61,7 +61,7 @@ $pagesources{'translatable.fr'}='translatable.fr.po';
 $pagesources{'translatable.es'}='translatable.es.po';
 $pagesources{'nontranslatable'}='nontranslatable.mdwn';
 foreach my $page (keys %pagesources) {
-    $IkiWiki::pagecase{lc $page}=$page;
+	$IkiWiki::pagecase{lc $page}=$page;
 }
 
 ### populate srcdir
