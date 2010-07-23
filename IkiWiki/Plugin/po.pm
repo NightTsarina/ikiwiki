@@ -28,7 +28,7 @@ use UNIVERSAL;
 my %translations;
 my @origneedsbuild;
 my %origsubs;
-my @slavelanguages; # languages codes ordered as in config po_slave_languages
+my @slavelanguages; # language codes ordered as in config po_slave_languages
 
 memoize("istranslatable");
 memoize("_istranslation");
@@ -109,7 +109,7 @@ sub getsetup () {
 				'fr|Français',
 				'es|Español',
 				'de|Deutsch'
-                            ],
+			],
 			description => "slave languages (PO files)",
 			safe => 1,
 			rebuild => 1,
@@ -146,18 +146,18 @@ sub checkconfig () {
 			if (!defined $code || !defined $name) {
 				error(sprintf(gettext("%s has invalid syntax: must use CODE|NAME"),
 				              $pair));
-                        }
+			}
 			$slaves{$code} = $name;
 			push @slavelanguages, $code;
 
-                }
+		}
 		$config{po_slave_languages} = \%slaves;
-        }
+	}
 	elsif (ref $config{po_slave_languages} eq 'HASH') {
 		@slavelanguages = sort {
 			$config{po_slave_languages}->{$a} cmp $config{po_slave_languages}->{$b};
 		} keys %{$config{po_slave_languages}};
-        }
+	}
 
 	delete $config{po_slave_languages}{$config{po_master_language}{code}};;
 
@@ -558,7 +558,7 @@ sub formbuilder (@) {
 	# This cannot be done in the formbuilder_setup hook as the list of types is
 	# computed later.
 	if ($form->field("do") eq "create") {
-	        foreach my $field ($form->field) {
+		foreach my $field ($form->field) {
 			next unless "$field" eq "type";
 			next unless $field->type eq 'select';
 			my $orig_value = $field->value;
@@ -706,7 +706,7 @@ sub myisselflink ($$) {
 	return 1 if $origsubs{'isselflink'}->($page, $link);
 	if (istranslation($page)) {
 		return $origsubs{'isselflink'}->(masterpage($page), $link);
-        }
+	}
 	return;
 }
 
@@ -862,7 +862,7 @@ sub otherlanguages_codes ($) {
 sub otherlanguages_pages ($) {
 	my $page=shift;
 
-        my %ret;
+	my %ret;
 	map {
 		$ret{$_} = otherlanguage_page($page, $_)
 	} @{otherlanguages_codes($page)};
@@ -1194,7 +1194,7 @@ sub isvalidpo ($) {
 	unlink $infile;
 
 	if ($res) {
-	    return IkiWiki::SuccessReason->new("valid gettext data");
+		return IkiWiki::SuccessReason->new("valid gettext data");
 	}
 	return IkiWiki::FailReason->new(gettext("invalid gettext data, go back ".
 					"to previous page to continue edit"));
@@ -1206,7 +1206,7 @@ sub po4a_type ($) {
 	my $pagetype = pagetype($file);
 	if ($pagetype eq 'html') {
 		return 'xhtml';
-        }
+	}
 	return 'text';
 }
 
@@ -1220,13 +1220,13 @@ sub po4a_options($) {
 		# how to disable options is not consistent across po4a modules
 		$options{includessi} = '';
 		$options{includeexternal} = 0;
-        }
+	}
 	elsif ($pagetype eq 'mdwn') {
 		$options{markdown} = 1;
-        }
-        else {
+	}
+	else {
 		$options{markdown} = 0;
-        }
+	}
 
 	return %options;
 }
@@ -1301,11 +1301,11 @@ sub match_needstranslation ($$;@) {
 		}
 		elsif ($wanted > 100) {
 			return IkiWiki::FailReason->new("parameter is greater than 100");
-                }
-        }
-        else {
+		}
+	}
+	else {
 		$wanted=100;
-        }
+	}
 
 	my $percenttranslated=IkiWiki::Plugin::po::percenttranslated($page);
 	if ($percenttranslated eq 'N/A') {
@@ -1313,7 +1313,7 @@ sub match_needstranslation ($$;@) {
 	}
 	elsif ($percenttranslated < $wanted) {
 		return IkiWiki::SuccessReason->new("file has $percenttranslated translated");
-        }
+	}
 	else {
 		return IkiWiki::FailReason->new("file is translated enough");
 	}
