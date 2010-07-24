@@ -8,6 +8,26 @@ use File::Spec;
 use Data::Dumper;
 use IkiWiki;
 
+sub gen_wrappers () {
+	debug(gettext("generating wrappers.."));
+	my %origconfig=(%config);
+	foreach my $wrapper (@{$config{wrappers}}) {
+		%config=(%origconfig, %{$wrapper});
+		$config{verbose}=$config{setupverbose}
+			if exists $config{setupverbose};
+		$config{syslog}=$config{setupsyslog}
+			if exists $config{setupsyslog};
+		delete @config{qw(setupsyslog setupverbose wrappers genwrappers rebuild)};
+		checkconfig();
+		if (! $config{cgi} && ! $config{post_commit} &&
+		    ! $config{test_receive}) {
+			$config{post_commit}=1;
+		}
+		gen_wrapper();
+	}
+	%config=(%origconfig);
+}
+
 sub gen_wrapper () {
 	$config{srcdir}=File::Spec->rel2abs($config{srcdir});
 	$config{destdir}=File::Spec->rel2abs($config{destdir});
