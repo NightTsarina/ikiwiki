@@ -164,7 +164,7 @@ sub checkconfig () {
 	map {
 		islanguagecode($_)
 			or error(sprintf(gettext("%s is not a valid language code"), $_));
-	} ($config{po_master_language}{code}, keys %{$config{po_slave_languages}});
+	} ($config{po_master_language}{code}, @slavelanguages);
 
 	if (! exists $config{po_translatable_pages} ||
 	    ! defined $config{po_translatable_pages}) {
@@ -193,7 +193,7 @@ sub checkconfig () {
 		next if $underlay=~/^locale\//;
 
 		# Underlays containing the po files for slave languages.
-		foreach my $ll (keys %{$config{po_slave_languages}}) {
+		foreach my $ll (@slavelanguages) {
 			add_underlay("po/$ll/$underlay")
 				if -d "$config{underlaydirbase}/po/$ll/$underlay";
 		}
@@ -615,7 +615,7 @@ sub mybeautify_urlpath ($) {
 		$res =~ s!/\Qindex.$config{htmlext}\E$!/!;
 		map {
 			$res =~ s!/\Qindex.$_.$config{htmlext}\E$!/!;
-		} (keys %{$config{po_slave_languages}});
+		} @slavelanguages;
 	}
 	return $res;
 }
@@ -852,7 +852,7 @@ sub otherlanguages_codes ($) {
 	return \@ret unless istranslation($page) || istranslatable($page);
 	my $curlang=lang($page);
 	foreach my $lang
-		($config{po_master_language}{code}, keys %{$config{po_slave_languages}}) {
+		($config{po_master_language}{code}, @slavelanguages) {
 		next if $lang eq $curlang;
 		push @ret, $lang;
 	}
@@ -890,7 +890,7 @@ sub pofile ($$) {
 sub pofiles ($) {
 	my $masterfile=shift;
 
-	return map pofile($masterfile, $_), (keys %{$config{po_slave_languages}});
+	return map pofile($masterfile, $_), @slavelanguages;
 }
 
 sub refreshpot ($) {
@@ -1048,7 +1048,7 @@ sub ishomepage ($) {
 	my $page = shift;
 
 	return 1 if $page eq 'index';
-	map { return 1 if $page eq 'index.'.$_ } keys %{$config{po_slave_languages}};
+	map { return 1 if $page eq 'index.'.$_ } @slavelanguages;
 	return undef;
 }
 
@@ -1063,7 +1063,7 @@ sub deletetranslations ($) {
 		if (-e $absfile && ! -l $absfile && ! -d $absfile) {
 			push @todelete, $file;
 		}
-	} keys %{$config{po_slave_languages}};
+	} @slavelanguages;
 
 	map {
 		if ($config{rcs}) {
