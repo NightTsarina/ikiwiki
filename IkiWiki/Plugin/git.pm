@@ -109,7 +109,7 @@ sub getsetup () {
 		},
 		historyurl => {
 			type => "string",
-			example => "http://git.example.com/gitweb.cgi?p=wiki.git;a=history;f=[[file]]",
+			example => "http://git.example.com/gitweb.cgi?p=wiki.git;a=history;f=[[file]];hb=HEAD",
 			description => "gitweb url to show file history ([[file]] substituted)",
 			safe => 1,
 			rebuild => 1,
