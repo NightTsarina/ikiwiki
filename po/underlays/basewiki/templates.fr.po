@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki\n"
 "POT-Creation-Date: 2010-07-18 22:29+0000\n"
-"PO-Revision-Date: 2009-09-12 08:40+0200\n"
+"PO-Revision-Date: 2010-07-22 17:30+0200\n"
 "Last-Translator: Alexandre Dupas <alexandre.dupas@gmail.com>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
 "Language: fr\n"
@@ -19,6 +19,8 @@ msgid ""
 "[[Ikiwiki]] uses many templates for many purposes. By editing its templates, "
 "you can fully customise this site."
 msgstr ""
+"[[Ikiwiki]] se sert de modèles dans beaucoup de cas. En modifiant ces "
+"modèles, vous pouvez « personnaliser » ce wiki."
 
 #. type: Plain text
 msgid ""
@@ -27,6 +29,10 @@ msgid ""
 "first. Customised templates can also be placed inside the \"templates/\" "
 "directory in your wiki's source."
 msgstr ""
+"Les modèles sont situés dans le répertoire `/usr/share/ikiwiki/templates`. "
+"Le paramètre `templatedir` peut être utilisé pour commencer la recherche "
+"dans un autre répertoire. Des modèles personnalisés peuvent être placés dans "
+"dans le sous-répertoire `templates/` du répertoire source du wiki."
 
 #. type: Plain text
 msgid ""
@@ -34,19 +40,20 @@ msgid ""
 "things like conditionals and loops in templates and is pretty easy to learn. "
 "All you really need to know to modify templates is this:"
 msgstr ""
+"Ikiwiki utilise le module HTML::Template pour créer ses modèles. Ce module, "
+"facile à étudier, permet l'utilisation de conditions et de boucles. Voici ce "
+"que vous avez besoin de savoir :"
 
 #. type: Bullet: '* '
-#, fuzzy
 #| msgid ""
 #| "To insert the raw value of a variable, with wiki markup not yet converted "
 #| "to html, use `<TMPL_VAR raw_variable>`."
 msgid "To insert the value of a template variable, use `<TMPL_VAR variable>`."
 msgstr ""
-"Pour insérer la valeur brute d'une variable, sans que la syntaxe wiki soit "
-"convertie en html, utilisez `<TMPL_VAR raw_variable>`."
+"Pour insérer la valeur d'une variable, sans que la syntaxe wiki soit "
+"convertie en HTML, utilisez `<TMPL_VAR variable>`."
 
 #. type: Bullet: '* '
-#, fuzzy
 #| msgid ""
 #| "To make a block of text conditional on a variable being set use `<TMPL_IF "
 #| "NAME=\"variable\">text</TMPL_IF>`."
@@ -55,10 +62,9 @@ msgid ""
 "variable>text</TMPL_IF>`."
 msgstr ""
 "Pour écrire un bloc de texte si une variable est définie, utilisez `<TMPL_IF "
-"NAME=\"variable\">texte</TMPL_IF>`."
+"variable>texte</TMPL_IF>`."
 
 #. type: Bullet: '* '
-#, fuzzy
 #| msgid ""
 #| "To use one block of text if a variable is set and a second if it's not, "
 #| "use `<TMPL_IF NAME=\"variable\">text<TMPL_ELSE>other text</TMPL_IF>`"
@@ -67,19 +73,19 @@ msgid ""
 "`<TMPL_IF variable>text<TMPL_ELSE>other text</TMPL_IF>`"
 msgstr ""
 "Pour utiliser un bloc de texte si une variable est définie et un autre dans "
-"le cas contraire, utilisez `<TMPL_IF NAME=\"variable\">texte<TMPL_ELSE>autre "
-"texte</TMPL_IF>`"
+"le cas contraire, utilisez `<TMPL_IF variable>texte<TMPL_ELSE>autre texte</"
+"TMPL_IF>`"
 
 #. type: Plain text
-#, fuzzy, no-wrap
+#, no-wrap
 #| msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
 msgid "[[!if test=\"enabled(template)\" then=\"\"\"\n"
-msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(template)\" then=\"\"\"\n"
 
 #. type: Title ##
 #, no-wrap
 msgid "template pages"
-msgstr ""
+msgstr "pages modèles"
 
 #. type: Plain text
 msgid ""
@@ -87,17 +93,20 @@ msgid ""
 "wiki pages to be used as templates, filled out and inserted into other pages "
 "in the wiki."
 msgstr ""
+"La directive [[!iki ikiwiki/directive/template desc=\"template\"]] permet "
+"d'utiliser des pages de wiki comme modèles. Ces modèles peuvent être remplis "
+"et insérés dans d'autres pages du wiki."
 
 #. type: Plain text
-#, fuzzy, no-wrap
+#, no-wrap
 #| msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
 msgid "[[!if test=\"enabled(edittemplate)\" then=\"\"\"\n"
-msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(edittemplate)\" then=\"\"\"\n"
 
 #. type: Title ##
 #, no-wrap
 msgid "default content for new pages"
-msgstr ""
+msgstr "contenu par défaut des nouvelles pages"
 
 #. type: Plain text
 msgid ""
@@ -105,17 +114,22 @@ msgid ""
 "can be used to make new pages default to containing text from a template "
 "page, which can be filled out as the page is edited."
 msgstr ""
+"La directive [[!iki ikiwiki/directive/edittemplate desc=\"edittemplate\"]] "
+"permet que le contenu par défaut des nouvelles pages soit le texte d'une "
+"page modèle, qui peut être remplie en même temps que la page est modifiée."
 
 #. type: Plain text
-#, fuzzy, no-wrap
+#, no-wrap
 #| msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
 msgid ""
 "[[!if test=\"(enabled(template) or enabled(edittemplate))\n"
 "and enabled(inline)\" then=\"\"\"\n"
-msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgstr ""
+"[[!if test=\"enabled(template) or enabled(edittemplate))\n"
+"and enabled(inline)\" then=\"\"\"\n"
 
 #. type: Plain text
-#, fuzzy, no-wrap
+#, no-wrap
 #| msgid ""
 #| "[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
 #| "sort=title template=titlepage]]\n"
@@ -124,26 +138,31 @@ msgid ""
 "feeds=no archive=yes sort=title template=titlepage\n"
 "rootpage=templates postformtext=\"Add a new template named:\"]]\n"
 msgstr ""
-"[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
-"sort=title template=titlepage]]\n"
+"[[!inline pages=\"templates/* and !*.tmpl and !templates/*/* and !*/discussion\"\n"
+"feeds=no archive=yes sort=title template=titlepage\n"
+"rootpage=templates postformtext=\"Ajouter un nouveau modèle :\"]]\n"
 
 #. type: Title ##
-#, fuzzy, no-wrap
+#, no-wrap
 #| msgid "Using a template"
 msgid "wiki templates"
-msgstr "Utiliser un modèle"
+msgstr "modèles du wiki"
 
 #. type: Plain text
 msgid ""
 "These templates are used to build the wiki. The aim is to keep almost all "
 "html out of ikiwiki and in the templates."
 msgstr ""
+"Ces modèles permettent la construction du wiki. Le but est de mettre presque "
+"tout le formatage HTML dans des modèles, hors de ikiwiki."
 
 #. type: Bullet: '* '
 msgid ""
 "`page.tmpl` - Used for displaying all regular wiki pages. This is the key "
 "template to customise. [[!if test=\"enabled(pagetemplate)\" then=\"\"\""
 msgstr ""
+"`page.tmpl` - permet d'afficher toutes les pages normales du wiki. C'est le "
+"principal modèle à modifier. [[!if test=\"enabled(pagetemplate)\" then=\"\"\""
 
 #. type: Plain text
 #, no-wrap
@@ -179,6 +198,34 @@ msgid ""
 "  `passwordmail.tmpl`, `openid-selector.tmpl` - Parts of ikiwiki's user\n"
 "  interface; do not normally need to be customised.\n"
 msgstr ""
+"  (La directive [[!iki ikiwiki/directive/pagetemplate desc=\"pagetemplate\"]]\n"
+"  permet d'utiliser un modèle différent de `page.tmpl`.)\"\"\"]]\n"
+"* `rsspage.tmpl` - permet la création de flux RSS pour les blogs.\n"
+"* `rssitem.tmpl` - permet la création d'éléments individuels dans les flux RSS.\n"
+"* `atompage.tmpl` - permet la création de flux Atom pour les blogs.\n"
+"* `atomitem.tmpl` -  permet la création d'éléments individuels dans les flux Atom.\n"
+"* `inlinepage.tmpl` - permet l'affichage d'un message dans un blog.\n"
+"* `archivepage.tmpl` - permet de lister une page dans une page d'archive de blog.\n"
+"* `titlepage.tmpl` - permet de lister une page par son titre dans une page d'archive de blog.\n"
+"* `microblog.tmpl` - permet de montrer un message de microblog au fil du texte.\n"
+"* `blogpost.tmpl` - offre un formulaire pour ajouter un message dans un blog (avec des liens RSS/Atom)\n"
+"* `feedlink.tmpl` - permet d'ajouter des liens RSS/Atom quand `blogpost.tmpl` n'est pas utilisé.\n"
+"* `aggregatepost.tmpl` - modèle utilisé par le module aggregate pour créer une page de blog.\n"
+"* `searchform.tmpl`, `googleform.tmpl` - modèles utilisés par les modules search et.\n"
+"  google pour ajouter un formulaire de recherche dans les pages de wiki.\n"
+"* `searchquery.tmpl` - C'est un modèle Omega, utilisé par le module search.\n"
+"* `comment.tmpl` - modèle utilisé par le module comments pour afficher un commentaire.\n"
+"* `change.tmpl` - permet la création d'une page décrivant une modification du wiki.\n"
+"* `recentchanges.tmpl` - permet de lister une modification sur la page RecentChanges.\n"
+"* `autoindex.tmpl` - modèle utilisé par le module autoindex pour créer des pages d'index.\n"
+"* `autotag.tmpl` - modèle utilisé par le module tag pour créer des pages avec étiquette.\n"
+"* `calendarmonth.tmpl`, `calendaryear.tmpl` - modèles utilisés par le module ikiwiki-calendar pour\n"
+"  créer les pages d'archives des agendas.\n"
+"* `editpage.tmpl`, `editconflict.tmpl`, `editcreationconflict.tmpl`,\n"
+"  `editfailedsave.tmpl`, `editpagegone.tmpl`, `pocreatepage.tmpl`,\n"
+"  `editcomment.tmpl` `commentmoderation.tmpl`, `renamesummary.tmpl`,\n"
+"  `passwordmail.tmpl`, `openid-selector.tmpl` - modèles faisant partie de l'interface utilisateur\n"
+"  d'ikiwiki'. Il n'y a en général aucun besoin de les personnaliser.\n"
 
 #. type: Plain text
 #, no-wrap
@@ -210,8 +257,12 @@ msgstr "[[!meta robots=\"noindex, follow\"]]\n"
 #~ msgid "Using a template works like this:"
 #~ msgstr "Voici comment fonctionne un modèle :"
 
-#~ msgid "\t\\[[!template id=note text=\"\"\"Here is the text to insert into my note.\"\"\"]]\n"
-#~ msgstr "\t\\[[!template id=note text=\"\"\"Ici se trouve le texte à insérer dans ma note.\"\"\"]]\n"
+#~ msgid ""
+#~ "\t\\[[!template id=note text=\"\"\"Here is the text to insert into my "
+#~ "note.\"\"\"]]\n"
+#~ msgstr ""
+#~ "\t\\[[!template id=note text=\"\"\"Ici se trouve le texte à insérer dans "
+#~ "ma note.\"\"\"]]\n"
 
 #~ msgid ""
 #~ "This fills out the [[note]] template, filling in the `text` field with "
@@ -232,8 +283,12 @@ msgstr "[[!meta robots=\"noindex, follow\"]]\n"
 #~ "sur plusieurs lignes, de larges morceaux de texte mis en forme peuvent "
 #~ "être intégrés dans un modèle :"
 
-#~ msgid "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes=\"\"\"\n"
-#~ msgstr "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes=\"\"\"\n"
+#~ msgid ""
+#~ "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes="
+#~ "\"\"\"\n"
+#~ msgstr ""
+#~ "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes="
+#~ "\"\"\"\n"
 
 #~ msgid "\\[[Charley]]'s sister."
 #~ msgstr "soeur de \\[[Charley]]."

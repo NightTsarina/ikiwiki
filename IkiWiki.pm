@@ -1730,12 +1730,15 @@ sub template_file ($) {
 	my $name=shift;
 	
 	my $tpage=($name =~ s/^\///) ? $name : "templates/$name";
+	my $template;
 	if ($name !~ /\.tmpl$/ && exists $pagesources{$tpage}) {
-		$tpage=$pagesources{$tpage};
+		$template=srcfile($pagesources{$tpage}, 1);
 		$name.=".tmpl";
 	}
+	else {
+		$template=srcfile($tpage, 1);
+	}
 
-	my $template=srcfile($tpage, 1);
 	if (defined $template) {
 		return $template, $tpage, 1 if wantarray;
 		return $template;
