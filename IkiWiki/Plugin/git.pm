@@ -46,7 +46,9 @@ sub checkconfig () {
 	}
 
 	if (defined $config{git_test_receive_wrapper} &&
-	    length $config{git_test_receive_wrapper}) {
+	    length $config{git_test_receive_wrapper} &&
+	    defined $config{untrusted_committers} &&
+	    @{$config{untrusted_committers}}) {
 		push @{$config{wrappers}}, {
 			test_receive => 1,
 			wrapper => $config{git_test_receive_wrapper},
