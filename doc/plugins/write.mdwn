@@ -600,6 +600,13 @@ function of the ikiwiki wrapper when it is being generated.
 The code runs before anything else -- in particular it runs before
 the suid wrapper has sanitized its environment.
 
+### disable
+
+	hook(type => "disable", id => "foo", call => \&disable);
+
+This hook is only run when a previously enabled plugin gets disabled
+during ikiwiki setup. Plugins can use this to perform cleanups.
+
 ## Exported variables
 
 Several variables are exported to your plugin when you `use IkiWiki;`

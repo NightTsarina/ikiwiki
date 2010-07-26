@@ -124,6 +124,28 @@ sub merge ($) {
 	}
 }
 
+sub disabled_plugins (@) {
+	# Handles running disable hooks of plugins that were enabled
+	# previously, but got disabled when a new setup file was loaded.
+	if (exists $config{setupfile} && @_) {
+		# Fork a child to load the disabled plugins.
+		my $pid=fork();
+		if ($pid == 0) {
+			foreach my $plugin (@_) {
+				print STDERR "** plugin $plugin disabled\n";
+				eval { IkiWiki::loadplugin($plugin, 1) };
+				if (exists $IkiWiki::hooks{disable}{$plugin}{call}) {
+					eval { $IkiWiki::hooks{disable}{$plugin}{call}->() };
+				}
+			}
+			exit(0);
+		}
+		else {
+			waitpid $pid, 0;
+		}
+	}
+}
+
 sub getsetup () {
 	# Gets all available setup data from all plugins. Returns an
 	# ordered list of [plugin, setup] pairs.
@@ -134,6 +156,7 @@ sub getsetup () {
         $config{syslog}=undef;
 
 	# Load all plugins, so that all setup options are available.
+	my %original_loaded_plugins=%IkiWiki::loaded_plugins;
 	my @plugins=IkiWiki::listplugins();
 	foreach my $plugin (@plugins) {
 		eval { IkiWiki::loadplugin($plugin, 1) };
@@ -141,6 +164,7 @@ sub getsetup () {
 			my @s=eval { $IkiWiki::hooks{checkconfig}{$plugin}{call}->() };
 		}
 	}
+	%IkiWiki::loaded_plugins=%original_loaded_plugins;
 	
 	my %sections;
 	foreach my $plugin (@plugins) {

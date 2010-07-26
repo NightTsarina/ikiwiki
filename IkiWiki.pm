@@ -1596,6 +1596,12 @@ sub loadindex () {
 	if (exists $index->{version} && ! ref $index->{version}) {
 		$pages=$index->{page};
 		%wikistate=%{$index->{state}};
+		# Handle plugins that got disabled by loading a new setup.
+		if (exists $config{setupfile}) {
+			require IkiWiki::Setup;
+			IkiWiki::Setup::disabled_plugins(
+				grep { ! $loaded_plugins{$_} } keys %wikistate);
+		}
 	}
 	else {
 		$pages=$index;
@@ -1663,11 +1669,7 @@ sub loadindex () {
 sub saveindex () {
 	run_hooks(savestate => sub { shift->() });
 
-	my %hookids;
-	foreach my $type (keys %hooks) {
-		$hookids{$_}=1 foreach keys %{$hooks{$type}};
-	}
-	my @hookids=keys %hookids;
+	my @plugins=keys %loaded_plugins;
 
 	if (! -d $config{wikistatedir}) {
 		mkdir($config{wikistatedir});
@@ -1701,7 +1703,7 @@ sub saveindex () {
 		}
 
 		if (exists $pagestate{$page}) {
-			foreach my $id (@hookids) {
+			foreach my $id (@plugins) {
 				foreach my $key (keys %{$pagestate{$page}{$id}}) {
 					$index{page}{$src}{state}{$id}{$key}=$pagestate{$page}{$id}{$key};
 				}
@@ -1710,7 +1712,8 @@ sub saveindex () {
 	}
 
 	$index{state}={};
-	foreach my $id (@hookids) {
+	foreach my $id (@plugins) {
+		$index{state}{$id}={}; # used to detect disabled plugins
 		foreach my $key (keys %{$wikistate{$id}}) {
 			$index{state}{$id}{$key}=$wikistate{$id}{$key};
 		}

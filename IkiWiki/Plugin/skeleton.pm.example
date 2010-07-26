@@ -41,6 +41,7 @@ sub import {
 	hook(type => "rename", id => "skeleton", call => \&rename);
 	hook(type => "savestate", id => "skeleton", call => \&savestate);
 	hook(type => "genwrapper", id => "skeleton", call => \&genwrapper);
+	hook(type => "disable", id => "skeleton", call => \&disable);
 }
 
 sub getopt () {
@@ -252,6 +253,10 @@ sub savestate () {
 
 sub genwrapper () {
 	debug("skeleton plugin running in genwrapper");
+}
+
+sub savestate () {
+	debug("skeleton plugin running in disable");
 }
 
 1
