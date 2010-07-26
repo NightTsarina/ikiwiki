@@ -13,6 +13,7 @@ sub import {
 	hook(type => "indexhtml", id => "search", call => \&indexhtml);
 	hook(type => "delete", id => "search", call => \&delete);
 	hook(type => "cgi", id => "search", call => \&cgi);
+	hook(type => "disable", id => "search", call => \&disable);
 }
 
 sub getsetup () {
@@ -243,6 +244,12 @@ sub setupfiles () {
 		$setup=1;
 	}
 }
+}
+
+sub disable () {
+	if (-d $config{wikistatedir}."/xapian") {
+		system("rm", "-rf", $config{wikistatedir}."/xapian");
+	}
 }
 
 1
