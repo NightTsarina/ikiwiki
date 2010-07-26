@@ -132,7 +132,6 @@ sub disabled_plugins (@) {
 		my $pid=fork();
 		if ($pid == 0) {
 			foreach my $plugin (@_) {
-				print STDERR "** plugin $plugin disabled\n";
 				eval { IkiWiki::loadplugin($plugin, 1) };
 				if (exists $IkiWiki::hooks{disable}{$plugin}{call}) {
 					eval { $IkiWiki::hooks{disable}{$plugin}{call}->() };
