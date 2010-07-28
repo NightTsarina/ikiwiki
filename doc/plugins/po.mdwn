@@ -269,8 +269,8 @@ default when locking pages.) --[[Joey]]
 > language, and the ones that should not. The only solution I can see
 > to this surprising behaviour is: documentation. --[[intrigeri]]
 
-Edit links on untranslated pages
---------------------------------
+Edit links on some slave pages
+------------------------------
 
 If a page is not translated yet, the "translated" version of it
 displays wikilinks to other, existing (but not yet translated?)
@@ -294,6 +294,20 @@ underlay, and the underlays lack translation to a given language.
 >> which goes to <http://l10n.ikiwiki.info/ikiwiki.cgi?page=ikiwiki/wikilink&from=smiley/smileys&do=create>
 >> Compare with eg, the 100% translated Dansk version, where
 >> the WikiLink link links to the English WikiLink page. --[[Joey]] 
+
+>>> Seems not related to the page/string translation status: the 0%
+>>> translated Spanish version has the correct link, just like the
+>>> Dansk version => I'm changing the bug title accordingly.
+>>>
+>>> I tested forcing the sv html page to be rebuilt by translating a
+>>> string in it, it did not fix the bug. I did the same for the
+>>> Spanish page, it did not introduce the bug. So this is really
+>>> weird.
+>>>
+>>> The smiley underlay seems to be the only place where the wrong
+>>> thing happens: the basewiki underlay has similar examples
+>>> that do not exhibit this bug. An underlay linking to another might
+>>> be necessary to reproduce it. Going to dig deeper. --[[intrigeri]]
 
 Double commits of po files
 --------------------------
