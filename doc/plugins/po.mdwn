@@ -269,8 +269,8 @@ default when locking pages.) --[[Joey]]
 > language, and the ones that should not. The only solution I can see
 > to this surprising behaviour is: documentation. --[[intrigeri]]
 
-Edit links on some slave pages
-------------------------------
+l10n wiki misconfiguration
+--------------------------
 
 If a page is not translated yet, the "translated" version of it
 displays wikilinks to other, existing (but not yet translated?)
@@ -308,6 +308,22 @@ underlay, and the underlays lack translation to a given language.
 >>> thing happens: the basewiki underlay has similar examples
 >>> that do not exhibit this bug. An underlay linking to another might
 >>> be necessary to reproduce it. Going to dig deeper. --[[intrigeri]]
+
+>>>> After a few hours lost in the Perl debugger, I think I have found
+>>>> the root cause of the problem: in l10n wiki's configured
+>>>> `underlaydir`, the basewiki is present in every slave language
+>>>> that is enabled for this wiki *but* Swedish. With such a
+>>>> configuration, the `ikiwiki/wikilink` page indeed does not exist
+>>>> in Swedish language: no `ikiwiki/wikilink.sv.po` can be found
+>>>> where ikiwiki is looking. Have a look to
+>>>> <http://l10n.ikiwiki.info/ikiwiki/>, the basewiki is not
+>>>> available in Swedish language on this wiki. So this is not a po
+>>>> bug, but a configuration or directories layout issue. This is
+>>>> solved by adding the Swedish basewiki to the underlay dir, which
+>>>> is I guess not a possibility in the l10n wiki context. I guess
+>>>> this could be solved by adding `SRCDIR/basewiki` as an underlay
+>>>> to your l10n wiki configuration, possibly using the
+>>>> `add_underlays` configuration directive. --[[intrigeri]]
 
 Double commits of po files
 --------------------------
