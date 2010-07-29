@@ -235,39 +235,19 @@ When using po4a older than 0.35, it is recommended to uninstall
 `Text::WrapI18N` (Debian package `libtext-wrapi18n-perl`), in order to
 avoid a potential denial of service.
 
+BUGS
+====
+
+[[!map pages="bugs/po:*"]]
+
+[[!inline pages="bugs/po:* and !bugs/done and !link(bugs/done) and !bugs/*/*"
+feeds=no actions=no archive=yes show=0]]
+
 TODO
 ====
 
-Better links
-------------
-
-Once the fix to
-[[bugs/pagetitle_function_does_not_respect_meta_titles]] from
-[[intrigeri]]'s `meta` branch is merged into ikiwiki upstream, the
-generated links' text will be optionally based on the page titles set
-with the [[meta|plugins/meta]] plugin, and will thus be translatable.
-It will also allow displaying the translation status in links to slave
-pages. Both were implemented, and reverted in commit
-ea753782b222bf4ba2fb4683b6363afdd9055b64, which should be reverted
-once [[intrigeri]]'s `meta` branch is merged.
-
-An integration branch, called `meta-po`, merges [[intrigeri]]'s `po`
-and `meta` branches, and thus has this additional features.
-
-Pagespecs
----------
-
-I was suprised that, when using the map directive, a pagespec of "*"
-listed all the translated pages as well as regular pages. That can 
-make a big difference to an existing wiki when po is turned on,
-and seems generally not wanted.
-(OTOH, you do want to match translated pages by
-default when locking pages.) --[[Joey]]
-
-> Seems hard to me to sort apart the pagespec whose matching pages
-> list must be restricted to pages in the master (or current?)
-> language, and the ones that should not. The only solution I can see
-> to this surprising behaviour is: documentation. --[[intrigeri]]
+[[!inline pages="todo/po:* and !todo/done and !link(todo/done) and !todo/*/*"
+feeds=no actions=no archive=yes show=0]]
 
 l10n wiki misconfiguration
 --------------------------
@@ -324,68 +304,3 @@ underlay, and the underlays lack translation to a given language.
 >>>> this could be solved by adding `SRCDIR/basewiki` as an underlay
 >>>> to your l10n wiki configuration, possibly using the
 >>>> `add_underlays` configuration directive. --[[intrigeri]]
-
-Double commits of po files
---------------------------
-
-When adding a new english page, the po files are created, committed,
-and then committed again. The second commit makes this change:
-
-	-"Content-Type: text/plain; charset=utf-8\n"
-	-"Content-Transfer-Encoding: ENCODING"
-	+"Content-Type: text/plain; charset=UTF-8\n"
-	+"Content-Transfer-Encoding: ENCODING\n"
-
-Same thing happens when a change to an existing page triggers a po file
-update. --[[Joey]] 
-
-> * The s/utf-8/UTF-8 part has been fixed.
-> * The ENCODING\n part is due to an inconsistency in po4a, which
->   I've just send a patch for. --[[intrigeri]]
-
-New pages not translatable
---------------------------
-
-Today I added a new English page to l10n.ikiwiki.info. When I saved,
-the page did not have the translation links at the top. I waited until
-the po plugin had, in the background, created the po files, and refreshed;
-still did not see the translation links. Only when I touched the page
-source and refreshed did it finally add the translation links. 
-I can reproduce this bug in a test site. --[[Joey]]
-
-> I could reproduce this bug at some point during the merge of a buggy
-> version of my ordered slave languages patch, but I cannot anymore.
-> Could you please try again? --[[intrigeri]]
-
-Ugly messages with empty files
-------------------------------
-
-If there are empty .mdwn files, the po plugin displays some ugly messages.
-
-> This is due to a bug in po4a (not checking definedness of a
-> variable). One-liner patch sent. --[[intrigeri]]
-
-Remove po/pot files when disabling the po plugin?
--------------------------------------------------
-
-ikiwiki now has a `disable` hook. Should the po plugin remove the po
-files from the source repository when it has been disabled?
-
-Translation of directives
--------------------------
-
-If a translated page contains a directive, it may expand to some english
-text, or text in whatever single language ikiwiki is configured to "speak".
-
-Maybe there could be a way to switch ikiwiki to speaking another language
-when building a non-english page? Then the directives would get translated.
-
-(We also will need this in order to use translated templates, when they are
-available.)
-
-Documentation
--------------
-
-Maybe write separate documentation depending on the people it targets:
-translators, wiki administrators, hackers. This plugin may be complex
-enough to deserve this.
