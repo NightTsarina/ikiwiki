@@ -1,0 +1,32 @@
+Re the meta title escaping issue worked around by `change`. 
+
+>   I suppose this does not only affect meta, but other things
+>   at scan time too. Also, handling it only on rebuild feels
+>   suspicious -- a refresh could involve changes to multiple
+>   pages and trigger the same problem, I think. Also, exposing
+>   this rebuild to the user seems really ugly, not confidence inducing.
+>   
+>   So I wonder if there's a better way. Such as making po, at scan time,
+>   re-run the scan hooks, passing them modified content (either converted
+>   from po to mdwn or with the escaped stuff cheaply de-escaped). (Of
+>   course the scan hook would need to avoid calling itself!)
+> 
+>   (This doesn't need to block the merge, but I hope it can be addressed
+>   eventually..)
+>  
+> --[[Joey]] 
+>> 
+>> I'll think about it soon.
+>> 
+>> --[[intrigeri]]
+>>
+>>> Did you get a chance to? --[[Joey]] 
+
+>>>> I eventually did, and got rid of the ugly double rebuild of pages
+>>>> at build time. This involved adding a `rescan` hook. Rationale
+>>>> and details are in my po branch commit messages. I believe this
+>>>> new way of handling meta title escaping to be far more robust.
+>>>> Moreover this new implementation is more generic, feels more
+>>>> logical to me, and probably fixes other similar bugs outside the
+>>>> meta plugin scope. Please have a look when you can.
+>>>> --[[intrigeri]]
