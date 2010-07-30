@@ -280,7 +280,6 @@ sub rescan (@) {
 	my $page=$params{page};
 	my $content=$params{content};
 
-	return unless exists $config{rebuild} && $config{rebuild};
 	return unless istranslation($page);
 
 	$content = po_to_markup($page, $content);
