@@ -18,6 +18,7 @@ sub import {
 	hook(type => "filter", id => "skeleton", call => \&filter);
 	hook(type => "linkify", id => "skeleton", call => \&linkify);
 	hook(type => "scan", id => "skeleton", call => \&scan);
+	hook(type => "rescan", id => "skeleton", call => \&rescan);
 	hook(type => "htmlize", id => "skeleton", call => \&htmlize);
 	hook(type => "sanitize", id => "skeleton", call => \&sanitize);
 	hook(type => "indexhtml", id => "skeleton", call => \&indexhtml);
@@ -102,6 +103,12 @@ sub scan (@) {
 	my %params=@_;
 
 	debug("skeleton plugin running as scan");
+}
+
+sub rescan (@) {
+	my %params=@_;
+
+	debug("skeleton plugin running as rescan");
 }
 
 sub htmlize (@) {
