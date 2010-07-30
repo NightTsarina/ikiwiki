@@ -39,6 +39,7 @@ sub import {
 	hook(type => "checkconfig", id => "po", call => \&checkconfig);
 	hook(type => "needsbuild", id => "po", call => \&needsbuild);
 	hook(type => "scan", id => "po", call => \&scan, last => 1);
+	hook(type => "rescan", id => "po", call => \&rescan);
 	hook(type => "filter", id => "po", call => \&filter);
 	hook(type => "htmlize", id => "po", call => \&htmlize);
 	hook(type => "pagetemplate", id => "po", call => \&pagetemplate, last => 1);
@@ -272,6 +273,27 @@ sub filter (@) {
 	return $content;
 }
 
+# re-run the scan hooks and run the preprocess ones in scan
+# mode on the po-to-markup converted content
+sub rescan (@) {
+	my %params=@_;
+	my $page=$params{page};
+	my $content=$params{content};
+
+	return unless exists $config{rebuild} && $config{rebuild};
+	return unless istranslation($page);
+
+	$content = po_to_markup($page, $content);
+	require IkiWiki;
+	IkiWiki::run_hooks(scan => sub {
+		shift->(
+			page => $page,
+			content => $content,
+		);
+	});
+	IkiWiki::preprocess($page, $page, $content, 1);
+}
+
 sub htmlize (@) {
 	my %params=@_;
 
@@ -383,41 +405,6 @@ sub mydelete (@) {
 
 sub change (@) {
 	my @rendered=@_;
-
-	# All meta titles are first extracted at scan time, i.e. before we turn
-	# PO files back into translated markdown; escaping of double-quotes in
-	# PO files breaks the meta plugin's parsing enough to save ugly titles
-	# to %pagestate at this time.
-	#
-	# Then, at render time, every page passes in turn through the Great
-	# Rendering Chain (filter->preprocess->linkify->htmlize), and the meta
-	# plugin's preprocess hook is this time in a position to correctly
-	# extract the titles from slave pages.
-	#
-	# This is, unfortunately, too late: if the page A, linking to the page
-	# B, is rendered before B, it will display the wrongly-extracted meta
-	# title as the link text to B.
-	#
-	# On the one hand, such a corner case only happens on rebuild: on
-	# refresh, every rendered page is fixed to contain correct meta titles.
-	# On the other hand, it can take some time to get every page fixed.
-	# We therefore re-render every rendered page after a rebuild to fix them
-	# at once. As this more or less doubles the time needed to rebuild the
-	# wiki, we do so only when really needed.
-
-	if (@rendered
-	    && exists $config{rebuild} && defined $config{rebuild} && $config{rebuild}
-	    && UNIVERSAL::can("IkiWiki::Plugin::meta", "getsetup")
-	    && exists $config{meta_overrides_page_title}
-	    && defined $config{meta_overrides_page_title}
-	    && $config{meta_overrides_page_title}) {
-		debug(sprintf(gettext("rebuilding all pages to fix meta titles")));
-		resetalreadyfiltered();
-		require IkiWiki::Render;
-		foreach my $file (@rendered) {
-			IkiWiki::render($file, sprintf(gettext("building %s"), $file));
-		}
-	}
 
 	my $updated_po_files=0;
 
