@@ -37,10 +37,10 @@ sub render_graph (\%) {
 	$src .= "}\n";
 
 	# Use the sha1 of the graphviz code as part of its filename.
-	eval q{use Digest::SHA1};
+	eval q{use Digest::SHA};
 	error($@) if $@;
 	my $dest=$params{page}."/graph-".
-		IkiWiki::possibly_foolish_untaint(Digest::SHA1::sha1_hex($src)).
+		IkiWiki::possibly_foolish_untaint(Digest::SHA::sha1_hex($src)).
 		".png";
 	will_render($params{page}, $dest);
 
