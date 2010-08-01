@@ -30,3 +30,11 @@ Re the meta title escaping issue worked around by `change`.
 >>>> logical to me, and probably fixes other similar bugs outside the
 >>>> meta plugin scope. Please have a look when you can.
 >>>> --[[intrigeri]]
+
+>>>>> Glad you have tackled this. Looking at
+>>>>> 25447bccae0439ea56da7a788482a4807c7c459d,
+>>>>> I wonder how this rescan hook is different from a scan hook
+>>>>> with `last => 1` ? Ah, it comes *after* the preprocess hook
+>>>>> in scan mode. Hmm, I wonder if there's any reason to have 
+>>>>> the scan hook called before those as it does now. Reordering
+>>>>> those 2 lines could avoid adding a new hook. --[[Joey]]
