@@ -247,8 +247,8 @@ TODO
 [[!inline pages="todo/po:* and !todo/done and !link(todo/done) and !todo/*/*"
 feeds=no actions=no archive=yes show=0]]
 
-l10n wiki misconfiguration
---------------------------
+broken links to translatable basewiki pages that lack po files
+--------------------------------------------------------------
 
 If a page is not translated yet, the "translated" version of it
 displays wikilinks to other, existing (but not yet translated?)
@@ -306,3 +306,12 @@ underlay, and the underlays lack translation to a given language.
 >>>>> There is no complete Swedish underlay translation yet, so it is not
 >>>>> shipped in ikiwiki. I don't think it's a misconfiguration to use
 >>>>> a language that doesn't have translated underlays. --[[Joey]] 
+
+>>>>>> Ok. The problem is triggered when using a language that doesn't
+>>>>>> have translated underlays, *and* defining
+>>>>>> `po_translatable_pages` in a way that renders the base wiki
+>>>>>> pages translatable in po's view of things, which in turns makes
+>>>>>> the po plugin act as if the translation pages did exist,
+>>>>>> although they do not in this case. I still need to have a deep
+>>>>>> look at the underlays-related code you added to `po.pm` a while
+>>>>>> ago. Stay tuned. --[[intrigeri]]
