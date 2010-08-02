@@ -850,7 +850,10 @@ sub otherlanguages_codes ($) {
 	foreach my $lang
 		($config{po_master_language}{code}, @slavelanguages) {
 		next if $lang eq $curlang;
-		push @ret, $lang;
+		if ($lang eq $config{po_master_language}{code} ||
+		    istranslatedto(masterpage($page), $lang)) {
+			push @ret, $lang;
+		}
 	}
 	return \@ret;
 }
