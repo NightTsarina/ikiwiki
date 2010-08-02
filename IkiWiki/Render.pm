@@ -183,14 +183,6 @@ sub scan ($) {
 
 		# Preprocess in scan-only mode.
 		preprocess($page, $page, $content, 1);
-
-		run_hooks(rescan => sub {
-			shift->(
-				page => $page,
-				content => $content,
-			);
-		});
-
 	}
 	else {
 		will_render($file, $file, 1);
