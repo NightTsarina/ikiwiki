@@ -234,15 +234,15 @@ sub scan (@) {
 	my $content=$params{content};
 
 	if (istranslation($page)) {
-		foreach my $destpage (@{$links{$page}}) {
-			if (istranslatable($destpage)) {
-				# replace the occurence of $destpage in $links{$page}
-				for (my $i=0; $i<@{$links{$page}}; $i++) {
-					if (@{$links{$page}}[$i] eq $destpage) {
-						@{$links{$page}}[$i] = $destpage . '.' . lang($page);
-						last;
-					}
-				}
+		# replace the occurence of $destpage in $links{$page}
+		my @orig_links = @{$links{$page}};
+		$links{$page} = [];
+		foreach my $destpage (@orig_links) {
+			if (istranslatedto($destpage, lang($page))) {
+				add_link($page, $destpage . '.' . lang($page));
+			}
+			else {
+				add_link($page, $destpage);
 			}
 		}
 	}
@@ -251,8 +251,9 @@ sub scan (@) {
 			if (istranslatable($destpage)) {
 				# make sure any destpage's translations has
 				# $page in its backlinks
-				push @{$links{$page}},
-					values %{otherlanguages_pages($destpage)};
+				foreach my $link (values %{otherlanguages_pages($destpage)}) {
+					add_link($page, $link);
+                                }
 			}
 		}
 	}
