@@ -31,7 +31,6 @@ Requires:       perl(HTML::Scrubber)
 Requires:       perl(XML::Simple)
 Requires:       perl(CGI::FormBuilder)
 Requires:       perl(CGI::Session)
-Requires:       perl(Digest::SHA1)
 
 Requires:       python-docutils
 

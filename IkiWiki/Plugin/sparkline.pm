@@ -122,10 +122,10 @@ sub preprocess (@) {
 
 	# Use the sha1 of the php code that generates the sparkline as
 	# the base for its filename.
-	eval q{use Digest::SHA1};
+	eval q{use Digest::SHA};
         error($@) if $@;
 	my $fn=$params{page}."/sparkline-".
-		IkiWiki::possibly_foolish_untaint(Digest::SHA1::sha1_hex($php)).
+		IkiWiki::possibly_foolish_untaint(Digest::SHA::sha1_hex($php)).
 		".png";
 	will_render($params{page}, $fn);
 

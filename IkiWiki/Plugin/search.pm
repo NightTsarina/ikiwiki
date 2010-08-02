@@ -190,15 +190,15 @@ sub pageterm ($) {
 	# 240 is the number used by omindex to decide when to hash an
 	# overlong term. This does not use a compatible hash method though.
 	if (length $page > 240) {
-		eval q{use Digest::SHA1};
+		eval q{use Digest::SHA};
 		if ($@) {
-			debug("search: ".sprintf(gettext("need Digest::SHA1 to index %s"), $page)) if $@;
+			debug("search: ".sprintf(gettext("need Digest::SHA to index %s"), $page)) if $@;
 			return undef;
 		}
 
 		# Note no colon, therefore it's guaranteed to not overlap
 		# with a page with the same name as the hash..
-		return "U".lc(Digest::SHA1::sha1_hex($page));
+		return "U".lc(Digest::SHA::sha1_hex($page));
 	}
 	else {
 		return "U:".$page;
