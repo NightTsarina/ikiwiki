@@ -39,7 +39,6 @@ sub import {
 	hook(type => "checkconfig", id => "po", call => \&checkconfig);
 	hook(type => "needsbuild", id => "po", call => \&needsbuild);
 	hook(type => "scan", id => "po", call => \&scan, last => 1);
-	hook(type => "rescan", id => "po", call => \&rescan);
 	hook(type => "filter", id => "po", call => \&filter);
 	hook(type => "htmlize", id => "po", call => \&htmlize);
 	hook(type => "pagetemplate", id => "po", call => \&pagetemplate, last => 1);
@@ -224,16 +223,21 @@ sub needsbuild () {
 	}
 }
 
-# Massage the recorded state of internal links so that:
-# - it matches the actually generated links, rather than the links as written
-#   in the pages' source
-# - backlinks are consistent in all cases
 sub scan (@) {
 	my %params=@_;
 	my $page=$params{page};
 	my $content=$params{content};
+	my $run_by_po=$params{run_by_po};
 
-	if (istranslation($page)) {
+	# Massage the recorded state of internal links so that:
+	# - it matches the actually generated links, rather than the links as
+	#   written in the pages' source
+	# - backlinks are consistent in all cases
+
+	# A second scan pass is made over translation pages, so as an
+	# optimization, we only do so on the second pass in this case,
+	# i.e. when this hook is called by itself.
+	if ($run_by_po && istranslation($page)) {
 		# replace the occurence of $destpage in $links{$page}
 		my @orig_links = @{$links{$page}};
 		$links{$page} = [];
@@ -246,17 +250,34 @@ sub scan (@) {
 			}
 		}
 	}
-	elsif (! istranslatable($page) && ! istranslation($page)) {
+	# No second scan pass is done for a non-translation page, so
+	# links massaging must happen on first pass in this case.
+	elsif (! $run_by_po && ! istranslatable($page) && ! istranslation($page)) {
 		foreach my $destpage (@{$links{$page}}) {
 			if (istranslatable($destpage)) {
 				# make sure any destpage's translations has
 				# $page in its backlinks
 				foreach my $link (values %{otherlanguages_pages($destpage)}) {
 					add_link($page, $link);
-                                }
+				}
 			}
 		}
 	}
+
+	# Re-run the preprocess hooks in scan mode, then the scan hooks,
+	# over the po-to-markup converted content
+	return if $run_by_po; # avoid looping endlessly
+	return unless istranslation($page);
+	$content = po_to_markup($page, $content);
+	require IkiWiki;
+	IkiWiki::preprocess($page, $page, $content, 1);
+	IkiWiki::run_hooks(scan => sub {
+		shift->(
+			page => $page,
+			content => $content,
+			run_by_po => 1,
+		);
+	});
 }
 
 # We use filter to convert PO to the master page's format,
@@ -272,26 +293,6 @@ sub filter (@) {
 		setalreadyfiltered($page, $destpage);
 	}
 	return $content;
-}
-
-# re-run the scan hooks and run the preprocess ones in scan
-# mode on the po-to-markup converted content
-sub rescan (@) {
-	my %params=@_;
-	my $page=$params{page};
-	my $content=$params{content};
-
-	return unless istranslation($page);
-
-	$content = po_to_markup($page, $content);
-	require IkiWiki;
-	IkiWiki::run_hooks(scan => sub {
-		shift->(
-			page => $page,
-			content => $content,
-		);
-	});
-	IkiWiki::preprocess($page, $page, $content, 1);
 }
 
 sub htmlize (@) {
