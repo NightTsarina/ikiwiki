@@ -583,7 +583,7 @@ sub mybestlink ($$) {
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
 	my @caller = caller(1);
 	if (length $res
-	    && istranslatable($res)
+	    && istranslatedto($res, lang($page))
 	    && istranslation($page)
 	    &&  !(exists $caller[3] && defined $caller[3]
 		  && ($caller[3] eq "IkiWiki::PageSpec::match_link"))) {
@@ -762,6 +762,15 @@ sub istranslatable ($) {
 	$page=~s#^/##;
 	return 1 if istranslatablefile($pagesources{$page});
 	return;
+}
+
+sub istranslatedto ($$) {
+	my $page=shift;
+	my $destlang = shift;
+
+	$page=~s#^/##;
+	return 0 unless istranslatable($page);
+	exists $pagesources{otherlanguage_page($page, $destlang)};
 }
 
 sub _istranslation ($) {
