@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.141\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-22 16:50-0400\n"
+"POT-Creation-Date: 2010-08-04 09:22-0400\n"
 "PO-Revision-Date: 2010-07-17 18:13+0200\n"
 "Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
 "Language-Team: French <debian-l10n-french@lists.debian.org>\n"
@@ -135,7 +135,7 @@ msgstr "Création de la nouvelle page %s"
 msgid "deleting bucket.."
 msgstr "Suppression du compartiment S3 (« bucket »)..."
 
-#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:245
+#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:229
 msgid "done"
 msgstr "Terminé"
 
@@ -367,23 +367,23 @@ msgstr "Ce n'est pas une page."
 msgid "%s is an attachment, not a page."
 msgstr "%s est une pièce jointe, pas une page."
 
-#: ../IkiWiki/Plugin/git.pm:740 ../IkiWiki/Plugin/git.pm:758
+#: ../IkiWiki/Plugin/git.pm:742 ../IkiWiki/Plugin/git.pm:760
 #: ../IkiWiki/Receive.pm:129
 #, perl-format
 msgid "you are not allowed to change %s"
 msgstr "Vous n'êtes pas autorisé à modifier %s"
 
-#: ../IkiWiki/Plugin/git.pm:780
+#: ../IkiWiki/Plugin/git.pm:782
 #, perl-format
 msgid "you cannot act on a file with mode %s"
 msgstr "Vous ne pouvez pas modifier un fichier dont le mode est %s"
 
-#: ../IkiWiki/Plugin/git.pm:784
+#: ../IkiWiki/Plugin/git.pm:786
 msgid "you are not allowed to change file modes"
 msgstr "Vous n'êtes pas autorisé à modifier le mode des fichiers"
 
-#: ../IkiWiki/Plugin/google.pm:26 ../IkiWiki/Plugin/po.pm:136
-#: ../IkiWiki/Plugin/search.pm:37
+#: ../IkiWiki/Plugin/google.pm:26 ../IkiWiki/Plugin/po.pm:137
+#: ../IkiWiki/Plugin/search.pm:38
 #, perl-format
 msgid "Must specify %s when using the %s plugin"
 msgstr "Vous devez indiquer %s lors de l'utilisation du greffon %s."
@@ -510,7 +510,7 @@ msgstr "Page de redirection introuvable"
 msgid "redir cycle is not allowed"
 msgstr "Redirection cyclique non autorisée"
 
-#: ../IkiWiki/Plugin/meta.pm:387
+#: ../IkiWiki/Plugin/meta.pm:395
 #, fuzzy
 msgid "sort=meta requires a parameter"
 msgstr "les paramètres « from » et « to » sont nécessaires."
@@ -612,12 +612,17 @@ msgstr ""
 "Note : ancienne version de po4a détectée. Il est recommandé d'installer la "
 "version 0.35."
 
-#: ../IkiWiki/Plugin/po.pm:144
+#: ../IkiWiki/Plugin/po.pm:147
+#, perl-format
+msgid "%s has invalid syntax: must use CODE|NAME"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:166
 #, perl-format
 msgid "%s is not a valid language code"
 msgstr "%s n'est pas un code de langue valable"
 
-#: ../IkiWiki/Plugin/po.pm:156
+#: ../IkiWiki/Plugin/po.pm:178
 #, perl-format
 msgid ""
 "%s is not a valid value for po_link_to, falling back to po_link_to=default"
@@ -625,7 +630,7 @@ msgstr ""
 "%s n'est pas une valeur correcte pour po_link_to, retour à la valeur par "
 "défaut."
 
-#: ../IkiWiki/Plugin/po.pm:161
+#: ../IkiWiki/Plugin/po.pm:183
 msgid ""
 "po_link_to=negotiated requires usedirs to be enabled, falling back to "
 "po_link_to=default"
@@ -633,23 +638,23 @@ msgstr ""
 "po_link_to=negotiated nécessite que usedirs soit activé, retour à "
 "po_link_to=default."
 
-#: ../IkiWiki/Plugin/po.pm:392
+#: ../IkiWiki/Plugin/po.pm:414
 #, perl-format
 msgid "rebuilding all pages to fix meta titles"
 msgstr ""
 "Reconstruction de toutes les pages pour corriger les titres (greffon "
 "« meta »)."
 
-#: ../IkiWiki/Plugin/po.pm:396 ../IkiWiki/Render.pm:784
+#: ../IkiWiki/Plugin/po.pm:418 ../IkiWiki/Render.pm:784
 #, perl-format
 msgid "building %s"
 msgstr "construction de %s"
 
-#: ../IkiWiki/Plugin/po.pm:434
+#: ../IkiWiki/Plugin/po.pm:456
 msgid "updated PO files"
 msgstr "Fichiers PO mis à jour."
 
-#: ../IkiWiki/Plugin/po.pm:457
+#: ../IkiWiki/Plugin/po.pm:479
 msgid ""
 "Can not remove a translation. If the master page is removed, however, its "
 "translations will be removed as well."
@@ -657,7 +662,7 @@ msgstr ""
 "Impossible de supprimer cette traduction. Si la page maître est supprimée, "
 "alors ses traductions seront supprimées."
 
-#: ../IkiWiki/Plugin/po.pm:477
+#: ../IkiWiki/Plugin/po.pm:499
 msgid ""
 "Can not rename a translation. If the master page is renamed, however, its "
 "translations will be renamed as well."
@@ -665,50 +670,50 @@ msgstr ""
 "Impossible de renommer cette traduction. Si la page maître est renommée, "
 "alors ses traductions pourront être renommées."
 
-#: ../IkiWiki/Plugin/po.pm:888
+#: ../IkiWiki/Plugin/po.pm:924
 #, perl-format
 msgid "POT file (%s) does not exist"
 msgstr "Le fichier POT %s n'existe pas."
 
-#: ../IkiWiki/Plugin/po.pm:902
+#: ../IkiWiki/Plugin/po.pm:938
 #, perl-format
 msgid "failed to copy underlay PO file to %s"
 msgstr "Impossible de copier le fichier PO underlay dans %s"
 
-#: ../IkiWiki/Plugin/po.pm:911
+#: ../IkiWiki/Plugin/po.pm:947
 #, perl-format
 msgid "failed to update %s"
 msgstr "Impossible de mettre à jour %s"
 
-#: ../IkiWiki/Plugin/po.pm:917
+#: ../IkiWiki/Plugin/po.pm:953
 #, perl-format
 msgid "failed to copy the POT file to %s"
 msgstr "Impossible de copier le fichier POT dans %s"
 
-#: ../IkiWiki/Plugin/po.pm:953
+#: ../IkiWiki/Plugin/po.pm:989
 msgid "N/A"
 msgstr "N/A"
 
-#: ../IkiWiki/Plugin/po.pm:964
+#: ../IkiWiki/Plugin/po.pm:1000
 #, perl-format
 msgid "failed to translate %s"
 msgstr "Impossible de traduire %s"
 
-#: ../IkiWiki/Plugin/po.pm:1048
+#: ../IkiWiki/Plugin/po.pm:1079
 msgid "removed obsolete PO files"
 msgstr "Fichiers PO obsolètes supprimés."
 
-#: ../IkiWiki/Plugin/po.pm:1105 ../IkiWiki/Plugin/po.pm:1117
-#: ../IkiWiki/Plugin/po.pm:1156
+#: ../IkiWiki/Plugin/po.pm:1136 ../IkiWiki/Plugin/po.pm:1148
+#: ../IkiWiki/Plugin/po.pm:1187
 #, perl-format
 msgid "failed to write %s"
 msgstr "Impossible de modifier %s"
 
-#: ../IkiWiki/Plugin/po.pm:1115
+#: ../IkiWiki/Plugin/po.pm:1146
 msgid "failed to translate"
 msgstr "Impossible de traduire"
 
-#: ../IkiWiki/Plugin/po.pm:1168
+#: ../IkiWiki/Plugin/po.pm:1199
 msgid "invalid gettext data, go back to previous page to continue edit"
 msgstr ""
 "Données gettext incorrectes, retour à la page précédente pour la poursuite "
@@ -906,12 +911,12 @@ msgstr "Impossible d'exécuter la commande rsync : %s"
 msgid "rsync_command exited %d"
 msgstr "la commande rsync s'est terminée avec le code : %d"
 
-#: ../IkiWiki/Plugin/search.pm:194
-#, perl-format
-msgid "need Digest::SHA1 to index %s"
+#: ../IkiWiki/Plugin/search.pm:195
+#, fuzzy, perl-format
+msgid "need Digest::SHA to index %s"
 msgstr "Digest::SHA1 est nécessaire pour indexer %s"
 
-#: ../IkiWiki/Plugin/search.pm:231
+#: ../IkiWiki/Plugin/search.pm:232
 msgid "search"
 msgstr "recherche"
 
@@ -1163,28 +1168,32 @@ msgstr ""
 "** Désactivation du greffon %s, l'installation a échoué avec le message "
 "suivant :"
 
-#: ../IkiWiki/Wrapper.pm:16
+#: ../IkiWiki/Wrapper.pm:12
+msgid "generating wrappers.."
+msgstr "Création des fichiers CGI..."
+
+#: ../IkiWiki/Wrapper.pm:36
 #, perl-format
 msgid "%s doesn't seem to be executable"
 msgstr "%s ne semble pas être exécutable"
 
-#: ../IkiWiki/Wrapper.pm:20
+#: ../IkiWiki/Wrapper.pm:40
 msgid "cannot create a wrapper that uses a setup file"
 msgstr ""
 "Impossible de créer un fichier CGI utilisant un fichier de configuration"
 
-#: ../IkiWiki/Wrapper.pm:24
+#: ../IkiWiki/Wrapper.pm:44
 msgid "wrapper filename not specified"
 msgstr "Le nom du fichier CGI n'a pas été indiqué"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:198
+#: ../IkiWiki/Wrapper.pm:218
 #, perl-format
 msgid "failed to compile %s"
 msgstr "Échec de la compilation de %s"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:218
+#: ../IkiWiki/Wrapper.pm:238
 #, perl-format
 msgid "successfully generated %s"
 msgstr "%s a été créé avec succès"
@@ -1206,15 +1215,11 @@ msgstr "Syntaxe : -- set var=valeur"
 msgid "usage: --set-yaml var=value"
 msgstr "Syntaxe : -- set var=valeur"
 
-#: ../ikiwiki.in:166
-msgid "generating wrappers.."
-msgstr "Création des fichiers CGI..."
-
-#: ../ikiwiki.in:234
+#: ../ikiwiki.in:218
 msgid "rebuilding wiki.."
 msgstr "Reconstruction du wiki..."
 
-#: ../ikiwiki.in:237
+#: ../ikiwiki.in:221
 msgid "refreshing wiki.."
 msgstr "Rafraîchissement du wiki..."
 
@@ -1241,21 +1246,21 @@ msgstr "Impossible de charger le greffon externe nécessaire au greffon %s : %s
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "Une boucle de prétraitement a été détectée sur %s à hauteur de %i"
 
-#: ../IkiWiki.pm:2047
+#: ../IkiWiki.pm:2053
 msgid "yes"
 msgstr "oui"
 
-#: ../IkiWiki.pm:2124
+#: ../IkiWiki.pm:2130
 #, fuzzy, perl-format
 msgid "invalid sort type %s"
 msgstr "Type de tri %s inconnu"
 
-#: ../IkiWiki.pm:2145
+#: ../IkiWiki.pm:2151
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "Type de tri %s inconnu"
 
-#: ../IkiWiki.pm:2281
+#: ../IkiWiki.pm:2287
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "Impossible de trouver les pages %s"
