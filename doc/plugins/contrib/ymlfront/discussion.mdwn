@@ -1,13 +1,6 @@
-My field-etc branch in git://git.pseudorandom.co.uk/git/smcv/ikiwiki.git (gitweb:
-<http://git.pseudorandom.co.uk/smcv/ikiwiki.git?a=shortlog;h=refs/heads/field-etc>)
-has some fixes for compatibility with old YAML modules, mostly done by imitating
-Joey's code in IkiWiki::Setup::Yaml. Please consider merging :-) --[[smcv]]
+Now that I have implemented a \[[!ymlfront ...]] directive, I would like to remove support for the old "---" delimited format, because
 
-> I would if I could *find* it.  I checked out the "field-etc" branch, but I can't find the plugins in question under IkiWiki/Plugin; am I looking in the wrong place, or what?
-> --[[KathrynAndersen]]
+* it is fragile (easily breakable)
+* it is non-standard
 
->> Sorry, I accidentally removed `field-etc` by pushing with `--mirror` from a
->> different checkout. I've put it back; it's a branch from your `ikiplugins.git`,
->> so yes, the code should be in `IkiWiki/Plugin`. --[[smcv]]
-
->>> Done a while back, but now I've actually pushed to my repo. --[[KathrynAndersen]]
+Any objections?
