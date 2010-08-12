@@ -8,7 +8,7 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "getsetup", id => "flattr", call => \&getsetup);
 	hook(type => "preprocess", id => "flattr", call => \&preprocess);
-	hook(type => "format", id => "flattr", call => \&format);
+	hook(type => "sanitize", id => "flattr", call => \&sanitize, last => 1);
 }
 
 sub getsetup () {
@@ -54,17 +54,16 @@ sub preprocess (@) {
 		'</a>';
 }
 
-sub format (@) {
+sub sanitize (@) {
 	my %params=@_;
 
 	# Add flattr's javascript to pages with flattr buttons.
 	if ($flattr_pages{$params{page}}) {
-		if (! ($params{content}=~s!^(<body[^>]*>)!$1.flattrjs()!em)) {
-			# no <body> tag, probably in preview mode
-			$params{content}=flattrjs().$params{content};
-		}
+		return flattrjs().$params{content};
 	}
-	return $params{content};
+	else {
+		return $params{content};
+	}
 }
 
 my $js_cached;
