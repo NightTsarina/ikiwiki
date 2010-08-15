@@ -1,0 +1,24 @@
+The attachment plugin's Insert Links button currently only knows
+how to insert plain wikilinks and img directives (for images).
+
+[[wishlist]]: Generalize this, so a plugin can cause arbitrary text
+to be inserted for a particular file. --[[Joey]] 
+
+Design:
+
+Add an insertlinks hook. Each plugin using the hook would be called,
+and passed the filename of the attachment. If it knows how to handle
+the file type, it returns a the text that should be inserted on the page.
+If not, it returns undef, and the next plugin is tried.
+
+This would mean writing plugins in order to handle links for 
+special kinds of attachments. To avoid that for simple stuff,
+a fallback plugin could run last and look for a template
+named like `templates/embed_$extension`, and insert a directive like:
+
+	\[[!template id=embed_vp8 file=my_movie.vp8]]
+
+Then to handle a new file type, a user could just make a template
+that expands to some relevant html. In the example above,
+`templates/embed_vp8` could make a html5 video tag, possibly with some
+flash fallback code even.
