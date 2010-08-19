@@ -32,7 +32,7 @@ sub import {
 	);
 	# data is a special case. Allow a few data:image/ types,
 	# but disallow data:text/javascript and everything else.
-	$safe_url_regexp=qr/^(?:(?:$uri_schemes):|data:image\/(?:png|jpeg|gif)|[^:]+(?:$|[\/\?]))/i;
+	$safe_url_regexp=qr/^(?:(?:$uri_schemes):|data:image\/(?:png|jpeg|gif)|[^:]+(?:$|[\/\?#]))|^#/i;
 }
 
 sub getsetup () {
