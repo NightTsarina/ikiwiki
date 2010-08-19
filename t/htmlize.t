@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 26;
+use Test::More tests => 32;
 use Encode;
 
 BEGIN { use_ok("IkiWiki"); }
@@ -68,3 +68,21 @@ is(IkiWiki::htmlize("foo", "foo", "mdwn",
 is(IkiWiki::htmlize("foo", "foo", "mdwn",
 	q{<span class="foo">bar</span>}),
 	q{<span class="foo">bar</span>}, "class attribute allowed");
+is(IkiWiki::htmlize("foo", "foo", "mdwn",
+	q{<a href="aaa#foo">}),
+	q{<a href="aaa#foo">}, "simple anchor allowed");
+is(IkiWiki::htmlize("foo", "foo", "mdwn",
+	q{<a href="aaa#foo:bar">}),
+	q{<a href="aaa#foo:bar">}, "colon allowed in anchor");
+is(IkiWiki::htmlize("foo", "foo", "mdwn",
+	q{<a href="aaa?foo:bar">}),
+	q{<a href="aaa?foo:bar">}, "colon allowed in query string");
+is(IkiWiki::htmlize("foo", "foo", "mdwn",
+	q{<a href="foo:bar">}),
+	q{<a>}, "unknown protocol blocked");
+is(IkiWiki::htmlize("foo", "foo", "mdwn",
+	q{<a href="#foo">}),
+	q{<a href="#foo">}, "simple relative anchor allowed");
+is(IkiWiki::htmlize("foo", "foo", "mdwn",
+	q{<a href="#foo:bar">}),
+	q{<a href="#foo:bar">}, "colon in simple relative anchor allowed");
