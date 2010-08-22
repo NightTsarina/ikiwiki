@@ -1,0 +1,39 @@
+While toying around with some font sizes on my persona ikiwiki I discovered that some font sizes in the default CSS are fixed rather than relative. Here's a git patch that replaces them with relative font sizes (assuming the default 12pt/16px base font size recommended by the W3C):
+
+[[done]] --[[Joey]] 
+
+<pre>
+From 01c14db255bbb727d8dd1e72c3f6f2f25f07e757 Mon Sep 17 00:00:00 2001
+From: Giuseppe Bilotta &lt;giuseppe.bilotta@gmail.com&gt;
+Date: Tue, 17 Aug 2010 00:48:24 +0200
+Subject: [PATCH] Use relative font-sizes
+
+---
+ doc/style.css |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/doc/style.css b/doc/style.css
+index 66d962b..fa4b2a3 100644
+--- a/doc/style.css
++++ b/doc/style.css
+@@ -14,7 +14,7 @@ nav {
+ 
+ .header {
+ 	margin: 0;
+-	font-size: 22px;
++	font-size: 140%;
+ 	font-weight: bold;
+ 	line-height: 1em;
+ 	display: block;
+@@ -22,7 +22,7 @@ nav {
+ 
+ .inlineheader .author {
+ 	margin: 0;
+-	font-size: 18px;
++	font-size: 112%;
+ 	font-weight: bold;
+ 	display: block;
+ }
+-- 
+1.7.2.rc0.231.gc73d
+</pre>

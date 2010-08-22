@@ -7,7 +7,8 @@ status. These tests are mostly useful for the [[attachment]] plugin, and
 are documented [[here|ikiwiki/pagespec/attachment]].
 
 This plugin will use the [[!cpan File::MimeInfo::Magic]] perl module, if
-available, for mimetype checking.
+available, for mimetype checking. It falls back to using the `file` command
+if necessary for hard to detect files.
 
 The `virusfree` [[PageSpec|ikiwiki/pagespec/attachment]] requires that
 ikiwiki be configured with a virus scanner program via the `virus_checker`

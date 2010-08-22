@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.14159\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-22 16:50-0400\n"
+"POT-Creation-Date: 2010-08-04 09:22-0400\n"
 "PO-Revision-Date: 2009-07-23 01:07+0200\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
@@ -137,7 +137,7 @@ msgstr "opretter ny side %s"
 msgid "deleting bucket.."
 msgstr "sletter bundt.."
 
-#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:245
+#: ../IkiWiki/Plugin/amazon_s3.pm:38 ../ikiwiki.in:229
 msgid "done"
 msgstr "færdig"
 
@@ -374,23 +374,23 @@ msgstr "kan ikke få sider til at passe sammen: %s"
 msgid "%s is an attachment, not a page."
 msgstr "%s er ikke en redigérbar side"
 
-#: ../IkiWiki/Plugin/git.pm:740 ../IkiWiki/Plugin/git.pm:758
+#: ../IkiWiki/Plugin/git.pm:742 ../IkiWiki/Plugin/git.pm:760
 #: ../IkiWiki/Receive.pm:129
 #, perl-format
 msgid "you are not allowed to change %s"
 msgstr "Du har ikke lov til at ændre %s"
 
-#: ../IkiWiki/Plugin/git.pm:780
+#: ../IkiWiki/Plugin/git.pm:782
 #, perl-format
 msgid "you cannot act on a file with mode %s"
 msgstr "du kan ikke påvirke en fil med modus %s"
 
-#: ../IkiWiki/Plugin/git.pm:784
+#: ../IkiWiki/Plugin/git.pm:786
 msgid "you are not allowed to change file modes"
 msgstr "du har ikke lov til at ændre modus for filer"
 
-#: ../IkiWiki/Plugin/google.pm:26 ../IkiWiki/Plugin/po.pm:136
-#: ../IkiWiki/Plugin/search.pm:37
+#: ../IkiWiki/Plugin/google.pm:26 ../IkiWiki/Plugin/po.pm:137
+#: ../IkiWiki/Plugin/search.pm:38
 #, perl-format
 msgid "Must specify %s when using the %s plugin"
 msgstr "Skal angive %s når udvidelsen %s bruges"
@@ -517,7 +517,7 @@ msgstr "henvisningsside ikke fundet"
 msgid "redir cycle is not allowed"
 msgstr "ring af henvisninger er ikke tilladt"
 
-#: ../IkiWiki/Plugin/meta.pm:387
+#: ../IkiWiki/Plugin/meta.pm:395
 #, fuzzy
 msgid "sort=meta requires a parameter"
 msgstr "kræver 'from'- og 'to'-parametre"
@@ -615,12 +615,17 @@ msgstr "LWP ikke fundet, pinger ikke"
 msgid "warning: Old po4a detected! Recommend upgrade to 0.35."
 msgstr ""
 
-#: ../IkiWiki/Plugin/po.pm:144
+#: ../IkiWiki/Plugin/po.pm:147
+#, perl-format
+msgid "%s has invalid syntax: must use CODE|NAME"
+msgstr ""
+
+#: ../IkiWiki/Plugin/po.pm:166
 #, perl-format
 msgid "%s is not a valid language code"
 msgstr "%s er ikke en gyldig sprogkode"
 
-#: ../IkiWiki/Plugin/po.pm:156
+#: ../IkiWiki/Plugin/po.pm:178
 #, perl-format
 msgid ""
 "%s is not a valid value for po_link_to, falling back to po_link_to=default"
@@ -628,7 +633,7 @@ msgstr ""
 "%s er ikke en gyldig værdi for po_link_to, falder tilbage til "
 "po_link_to=default"
 
-#: ../IkiWiki/Plugin/po.pm:161
+#: ../IkiWiki/Plugin/po.pm:183
 msgid ""
 "po_link_to=negotiated requires usedirs to be enabled, falling back to "
 "po_link_to=default"
@@ -636,21 +641,21 @@ msgstr ""
 "po_link_to=negotiated kræver at usedirs er aktiveret, falder tilbage til "
 "po_link_to=default"
 
-#: ../IkiWiki/Plugin/po.pm:392
+#: ../IkiWiki/Plugin/po.pm:414
 #, perl-format
 msgid "rebuilding all pages to fix meta titles"
 msgstr "gendanner alle sider for at korrigere meta titler"
 
-#: ../IkiWiki/Plugin/po.pm:396 ../IkiWiki/Render.pm:784
+#: ../IkiWiki/Plugin/po.pm:418 ../IkiWiki/Render.pm:784
 #, perl-format
 msgid "building %s"
 msgstr "danner %s"
 
-#: ../IkiWiki/Plugin/po.pm:434
+#: ../IkiWiki/Plugin/po.pm:456
 msgid "updated PO files"
 msgstr "opdaterer PO-filer"
 
-#: ../IkiWiki/Plugin/po.pm:457
+#: ../IkiWiki/Plugin/po.pm:479
 msgid ""
 "Can not remove a translation. If the master page is removed, however, its "
 "translations will be removed as well."
@@ -658,7 +663,7 @@ msgstr ""
 "Kan ikke fjerne en oversættelse. Fjern i stedet hovedsiden, så fjernes dens "
 "oversættelser også."
 
-#: ../IkiWiki/Plugin/po.pm:477
+#: ../IkiWiki/Plugin/po.pm:499
 msgid ""
 "Can not rename a translation. If the master page is renamed, however, its "
 "translations will be renamed as well."
@@ -666,50 +671,50 @@ msgstr ""
 "Kan ikke omdøbe en oversættelse. Omdøb i stedet hovedsiden, så omdøbes dens "
 "oversættelser også."
 
-#: ../IkiWiki/Plugin/po.pm:888
+#: ../IkiWiki/Plugin/po.pm:924
 #, perl-format
 msgid "POT file (%s) does not exist"
 msgstr "POT-filen %s eksisterer ikke"
 
-#: ../IkiWiki/Plugin/po.pm:902
+#: ../IkiWiki/Plugin/po.pm:938
 #, fuzzy, perl-format
 msgid "failed to copy underlay PO file to %s"
 msgstr "kopiering af POT-filen til %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:911
+#: ../IkiWiki/Plugin/po.pm:947
 #, perl-format
 msgid "failed to update %s"
 msgstr "opdatering af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:917
+#: ../IkiWiki/Plugin/po.pm:953
 #, perl-format
 msgid "failed to copy the POT file to %s"
 msgstr "kopiering af POT-filen til %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:953
+#: ../IkiWiki/Plugin/po.pm:989
 msgid "N/A"
 msgstr "N/A"
 
-#: ../IkiWiki/Plugin/po.pm:964
+#: ../IkiWiki/Plugin/po.pm:1000
 #, perl-format
 msgid "failed to translate %s"
 msgstr "oversættelse af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:1048
+#: ../IkiWiki/Plugin/po.pm:1079
 msgid "removed obsolete PO files"
 msgstr "forældede PO filer fjernet"
 
-#: ../IkiWiki/Plugin/po.pm:1105 ../IkiWiki/Plugin/po.pm:1117
-#: ../IkiWiki/Plugin/po.pm:1156
+#: ../IkiWiki/Plugin/po.pm:1136 ../IkiWiki/Plugin/po.pm:1148
+#: ../IkiWiki/Plugin/po.pm:1187
 #, perl-format
 msgid "failed to write %s"
 msgstr "skrivning af %s mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:1115
+#: ../IkiWiki/Plugin/po.pm:1146
 msgid "failed to translate"
 msgstr "oversættelse mislykkedes"
 
-#: ../IkiWiki/Plugin/po.pm:1168
+#: ../IkiWiki/Plugin/po.pm:1199
 msgid "invalid gettext data, go back to previous page to continue edit"
 msgstr ""
 "forkert gettext-data, gå tilbage til forrige side og fortsæt redigering"
@@ -904,12 +909,12 @@ msgstr "læsning af %s mislykkedes"
 msgid "rsync_command exited %d"
 msgstr ""
 
-#: ../IkiWiki/Plugin/search.pm:194
-#, perl-format
-msgid "need Digest::SHA1 to index %s"
+#: ../IkiWiki/Plugin/search.pm:195
+#, fuzzy, perl-format
+msgid "need Digest::SHA to index %s"
 msgstr "behøver Digest::SHA1 til indeks %s"
 
-#: ../IkiWiki/Plugin/search.pm:231
+#: ../IkiWiki/Plugin/search.pm:232
 msgid "search"
 msgstr "søg"
 
@@ -1156,27 +1161,31 @@ msgstr "opsætning af depotet med ikiwiki-makerepo mislykkedes"
 msgid "** Disabling plugin %s, since it is failing with this message:"
 msgstr "** Deaktiverer udvidelse %s, da den fejler med denne besked:"
 
-#: ../IkiWiki/Wrapper.pm:16
+#: ../IkiWiki/Wrapper.pm:12
+msgid "generating wrappers.."
+msgstr "bygger wrappers.."
+
+#: ../IkiWiki/Wrapper.pm:36
 #, perl-format
 msgid "%s doesn't seem to be executable"
 msgstr "%s ser ikke ud til at kunne afvikles"
 
-#: ../IkiWiki/Wrapper.pm:20
+#: ../IkiWiki/Wrapper.pm:40
 msgid "cannot create a wrapper that uses a setup file"
 msgstr "kan ikke oprette en wrapper som bruger en opsætningsfil"
 
-#: ../IkiWiki/Wrapper.pm:24
+#: ../IkiWiki/Wrapper.pm:44
 msgid "wrapper filename not specified"
 msgstr "wrapper-navn ikke angivet"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:198
+#: ../IkiWiki/Wrapper.pm:218
 #, perl-format
 msgid "failed to compile %s"
 msgstr "kompilering af %s mislykkedes"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:218
+#: ../IkiWiki/Wrapper.pm:238
 #, perl-format
 msgid "successfully generated %s"
 msgstr "Korrekt bygget %s"
@@ -1198,15 +1207,11 @@ msgstr "brug: --set var=værdi"
 msgid "usage: --set-yaml var=value"
 msgstr "brug: --set var=værdi"
 
-#: ../ikiwiki.in:166
-msgid "generating wrappers.."
-msgstr "bygger wrappers.."
-
-#: ../ikiwiki.in:234
+#: ../ikiwiki.in:218
 msgid "rebuilding wiki.."
 msgstr "genopbygger wiki..."
 
-#: ../ikiwiki.in:237
+#: ../ikiwiki.in:221
 msgid "refreshing wiki.."
 msgstr "genopfrisker wiki..."
 
@@ -1233,21 +1238,21 @@ msgstr ""
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "forudberegningssløkke fundet på %s ved dybde %i"
 
-#: ../IkiWiki.pm:2047
+#: ../IkiWiki.pm:2053
 msgid "yes"
 msgstr "ja"
 
-#: ../IkiWiki.pm:2124
+#: ../IkiWiki.pm:2130
 #, fuzzy, perl-format
 msgid "invalid sort type %s"
 msgstr "ukendt sorteringsform %s"
 
-#: ../IkiWiki.pm:2145
+#: ../IkiWiki.pm:2151
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "ukendt sorteringsform %s"
 
-#: ../IkiWiki.pm:2281
+#: ../IkiWiki.pm:2287
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "kan ikke få sider til at passe sammen: %s"

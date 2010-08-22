@@ -1,4 +1,25 @@
-ikiwiki (3.20100723) UNRELEASED; urgency=low
+ikiwiki (3.20100816) UNRELEASED; urgency=low
+
+  * filecheck: Fall back to using the file command if the freedesktop
+    magic file cannot identify a file.
+  * flattr: New plugin. (Thanks to jaywalk for the initial implementation
+    at a flattr plugin! This one is less configurable, but simpler.)
+  * smiley: warn instead of error for missing smileys (Giuseppe Bilotta)
+  * openid: Syntax tweak to the javascript code to make it work with MSIE 7
+    (and MSIE 8 in compat mode). Thanks to Iain McLaren for reporting
+    the bug and providing access to debug it.
+  * style.css: Use relative, not absolute font sizes. Thanks, Giuseppe Bilotta.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 15 Aug 2010 11:45:48 -0400
+
+ikiwiki (3.20100815) unstable; urgency=medium
+
+  * Fix po test suite to not assume ikiwiki's underlay is already installed.
+    Closes: #593047
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 15 Aug 2010 11:42:55 -0400
+
+ikiwiki (3.20100804) unstable; urgency=low
 
   * template: Fix dependency tracking. Broken in version 3.20100427.
   * po: The po_slave_languages setting is now a list, so the order of
@@ -10,8 +31,10 @@ ikiwiki (3.20100723) UNRELEASED; urgency=low
     have been disabled.
   * Use Digest::SHA built into perl rather than external Digest::SHA1
     to simplify dependencies. Closes: #591040
+  * Fixes a bug that prevented matching deleted pages when using the page()
+    PageSpec.
 
- -- Joey Hess <joeyh@debian.org>  Fri, 23 Jul 2010 14:00:32 -0400
+ -- Joey Hess <joeyh@debian.org>  Wed, 04 Aug 2010 09:20:52 -0400
 
 ikiwiki (3.20100722) unstable; urgency=low
 

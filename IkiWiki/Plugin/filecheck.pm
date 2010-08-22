@@ -132,15 +132,28 @@ sub match_mimetype ($$;@) {
 		return IkiWiki::ErrorReason->new("file does not exist");
 	}
 
-	# Use ::magic to get the mime type, the idea is to only trust
-	# data obtained by examining the actual file contents.
+	# Get the mime type.
+	#
+	# First, try File::Mimeinfo. This is fast, but doesn't recognise
+	# all files.
 	eval q{use File::MimeInfo::Magic};
-	if ($@) {
-		return IkiWiki::ErrorReason->new("failed to load File::MimeInfo::Magic ($@); cannot check MIME type");
+	my $mimeinfo_ok=! $@;
+	my $mimetype;
+	if ($mimeinfo_ok) {
+		my $mimetype=File::MimeInfo::Magic::magic($file);
 	}
-	my $mimetype=File::MimeInfo::Magic::magic($file);
+
+	# Fall back to using file, which has a more complete
+	# magic database.
 	if (! defined $mimetype) {
-		$mimetype=File::MimeInfo::Magic::default($file);
+		open(my $file_h, "-|", "file", "-bi", $file);
+		$mimetype=<$file_h>;
+		close $file_h;
+	}
+	if (! defined $mimetype || $mimetype !~s /;.*//) {
+		# Fall back to default value.
+		$mimetype=File::MimeInfo::Magic::default($file)
+			if $mimeinfo_ok;
 		if (! defined $mimetype) {
 			$mimetype="unknown";
 		}

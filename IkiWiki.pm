@@ -2439,13 +2439,16 @@ sub match_internal ($$;@) {
 sub match_page ($$;@) {
 	my $page=shift;
 	my $match=match_glob($page, shift, @_);
-	if ($match && ! (exists $IkiWiki::pagesources{$page}
-	    && defined IkiWiki::pagetype($IkiWiki::pagesources{$page}))) {
-		return IkiWiki::FailReason->new("$page is not a page");
+	if ($match) {
+		my $source=exists $IkiWiki::pagesources{$page} ?
+			$IkiWiki::pagesources{$page} :
+			$IkiWiki::delpagesources{$page};
+		my $type=defined $source ? IkiWiki::pagetype($source) : undef;
+		if (! defined $type) {	
+			return IkiWiki::FailReason->new("$page is not a page");
+		}
 	}
-	else {
-		return $match;
-	}
+	return $match;
 }
 
 sub match_link ($$;@) {

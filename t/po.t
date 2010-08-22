@@ -31,6 +31,9 @@ my $dir = tempdir("ikiwiki-test-po.XXXXXXXXXX",
 %config=IkiWiki::defaultconfig();
 $config{srcdir} = "$dir/src";
 $config{destdir} = "$dir/dst";
+$config{destdir} = "$dir/dst";
+$config{underlaydirbase} = "/dev/null";
+$config{underlaydir} = "/dev/null";
 $config{discussion} = 0;
 $config{po_master_language} = { code => 'en',
 				name => 'English'
@@ -125,8 +128,8 @@ $config{po_link_to}='negotiated';
 $msgprefix="links (po_link_to=negotiated)";
 refresh_n_scan('index.mdwn', 'translatable.mdwn', 'nontranslatable.mdwn');
 is_deeply(\@{$links{'index'}}, ['translatable', 'nontranslatable'], "$msgprefix index");
-is_deeply(\@{$links{'index.es'}}, ['translatable.es', 'nontranslatable', 'SandBox', 'ikiwiki'], "$msgprefix index.es");
-is_deeply(\@{$links{'index.fr'}}, ['translatable.fr', 'nontranslatable', 'SandBox', 'ikiwiki'], "$msgprefix index.fr");
+is_deeply(\@{$links{'index.es'}}, ['translatable.es', 'nontranslatable'], "$msgprefix index.es");
+is_deeply(\@{$links{'index.fr'}}, ['translatable.fr', 'nontranslatable'], "$msgprefix index.fr");
 is_deeply(\@{$links{'translatable'}}, ['nontranslatable'], "$msgprefix translatable");
 is_deeply(\@{$links{'translatable.es'}}, ['nontranslatable'], "$msgprefix translatable.es");
 is_deeply(\@{$links{'translatable.fr'}}, ['nontranslatable'], "$msgprefix translatable.fr");
@@ -136,8 +139,8 @@ $config{po_link_to}='current';
 $msgprefix="links (po_link_to=current)";
 refresh_n_scan('index.mdwn', 'translatable.mdwn', 'nontranslatable.mdwn');
 is_deeply(\@{$links{'index'}}, ['translatable', 'nontranslatable'], "$msgprefix index");
-is_deeply(\@{$links{'index.es'}}, [ (map bestlink('index.es', $_), ('translatable.es', 'nontranslatable')), 'SandBox', 'ikiwiki'], "$msgprefix index.es");
-is_deeply(\@{$links{'index.fr'}}, [ (map bestlink('index.fr', $_), ('translatable.fr', 'nontranslatable')), 'SandBox', 'ikiwiki'], "$msgprefix index.fr");
+is_deeply(\@{$links{'index.es'}}, [ (map bestlink('index.es', $_), ('translatable.es', 'nontranslatable'))], "$msgprefix index.es");
+is_deeply(\@{$links{'index.fr'}}, [ (map bestlink('index.fr', $_), ('translatable.fr', 'nontranslatable'))], "$msgprefix index.fr");
 is_deeply(\@{$links{'translatable'}}, [bestlink('translatable', 'nontranslatable')], "$msgprefix translatable");
 is_deeply(\@{$links{'translatable.es'}}, ['nontranslatable'], "$msgprefix translatable.es");
 is_deeply(\@{$links{'translatable.fr'}}, ['nontranslatable'], "$msgprefix translatable.fr");
