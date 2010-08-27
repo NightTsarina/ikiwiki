@@ -1,8 +1,7 @@
 #!/usr/bin/perl
 # Parses list of remotes in doc/git.mdwn, configures git to use them
-# all, and fetches updates from them.
-
-my $error=0;
+# all. After running this, use "git remote update --prune" to pull
+# updates from all remotes.
 
 open (IN, "doc/git.mdwn") || die "doc/git.mdwn: $!";
 while (<IN>) {
@@ -17,13 +16,11 @@ while (<IN>) {
 		my ($oldurl)=$info=~/URL: (.*)/m;
 		if ($oldurl ne $url) {
 			system("git remote rm $remote 2>/dev/null");
-			$error |= system("git", "remote", "add", "-f", $remote, $url);
-		}
-		else {
-			$error |= system("git", "fetch", $remote);
+			system("git", "remote", "add", $remote, $url);
+			system("git", "config", "remote.$remote.tagopt",
+				"--no-tags");
+			system("git", "fetch", $remote);
 		}
 	}
 }
 close IN;
-
-exit $error;

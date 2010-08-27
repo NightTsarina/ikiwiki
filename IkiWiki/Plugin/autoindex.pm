@@ -33,21 +33,26 @@ sub genindex ($) {
 sub refresh () {
 	eval q{use File::Find};
 	error($@) if $@;
+	eval q{use Cwd};
+	error($@) if $@;
+	my $origdir=getcwd();
 
 	my (%pages, %dirs);
 	foreach my $dir ($config{srcdir}, @{$config{underlaydirs}}, $config{underlaydir}) {
+		chdir($dir) || next;
+
 		find({
 			no_chdir => 1,
 			wanted => sub {
-				$_=decode_utf8($_);
-				if (IkiWiki::file_pruned($_, $dir)) {
+				my $file=decode_utf8($_);
+				$file=~s/^\.\/?//;
+				return unless length $file;
+				if (IkiWiki::file_pruned($file)) {
 					$File::Find::prune=1;
 				}
 				elsif (! -l $_) {
-					my ($f)=/$config{wiki_file_regexp}/; # untaint
+					my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
 					return unless defined $f;
-					$f=~s/^\Q$dir\E\/?//;
-					return unless length $f;
 					return if $f =~ /\._([^.]+)$/; # skip internal page
 					if (! -d _) {
 						$pages{pagename($f)}=1;
@@ -57,12 +62,22 @@ sub refresh () {
 					}
 				}
 			}
-		}, $dir);
+		}, '.');
+
+		chdir($origdir) || die "chdir $origdir: $!";
 	}
 	
 	my %deleted;
-        if (ref $pagestate{index}{autoindex}{deleted}) {
-	       %deleted=%{$pagestate{index}{autoindex}{deleted}};
+	if (ref $wikistate{autoindex}{deleted}) {
+		%deleted=%{$wikistate{autoindex}{deleted}};
+	}
+        elsif (ref $pagestate{index}{autoindex}{deleted}) {
+		# compatability code
+		%deleted=%{$pagestate{index}{autoindex}{deleted}};
+		delete $pagestate{index}{autoindex};
+	}
+
+	if (keys %deleted) {
 		foreach my $dir (keys %deleted) {
 			# remove deleted page state if the deleted page is re-added,
 			# or if all its subpages are deleted
@@ -71,7 +86,7 @@ sub refresh () {
 				delete $deleted{$dir};
 			}
 		}
-		$pagestate{index}{autoindex}{deleted}=\%deleted;
+		$wikistate{autoindex}{deleted}=\%deleted;
 	}
 
 	my @needed;
@@ -82,10 +97,10 @@ sub refresh () {
 				# This page must have just been deleted, so
 				# don't re-add it. And remember it was
 				# deleted.
-				if (! ref $pagestate{index}{autoindex}{deleted}) {
-					$pagestate{index}{autoindex}{deleted}={};
+				if (! ref $wikistate{autoindex}{deleted}) {
+					$wikistate{autoindex}{deleted}={};
 				}
-				${$pagestate{index}{autoindex}{deleted}}{$dir}=1;
+				${$wikistate{autoindex}{deleted}}{$dir}=1;
 			}
 			else {
 				push @needed, $dir;
@@ -102,8 +117,8 @@ sub refresh () {
 		}
 		if ($config{rcs}) {
 			IkiWiki::rcs_commit_staged(
-				gettext("automatic index generation"),
-				undef, undef);
+				message => gettext("automatic index generation"),
+			);
 			IkiWiki::enable_commit_hook();
 		}
 	}

@@ -19,6 +19,7 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 }
 
 sub checkconfig () {
@@ -44,6 +45,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		svnrepo => {
 			type => "string",
@@ -142,43 +144,50 @@ sub rcs_prepedit ($) {
 	}
 }
 
-sub rcs_commit ($$$;$$) {
+sub commitmessage (@) {
+	my %params=@_;
+
+	if (defined $params{session}) {
+		if (defined $params{session}->param("name")) {
+			return "web commit by ".
+				$params{session}->param("name").
+				(length $params{message} ? ": $params{message}" : "");
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			return "web commit from ".
+				$params{session}->remote_addr().
+				(length $params{message} ? ": $params{message}" : "");
+		}
+	}
+	return $params{message};
+}
+
+sub rcs_commit (@) {
 	# Tries to commit the page; returns undef on _success_ and
 	# a version of the page with the rcs's conflict markers on failure.
 	# The file is relative to the srcdir.
-	my $file=shift;
-	my $message=shift;
-	my $rcstoken=shift;
-	my $user=shift;
-	my $ipaddr=shift;
-
-	if (defined $user) {
-		$message="web commit by $user".(length $message ? ": $message" : "");
-	}
-	elsif (defined $ipaddr) {
-		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
-	}
+	my %params=@_;
 
 	if (-d "$config{srcdir}/.svn") {
 		# Check to see if the page has been changed by someone
 		# else since rcs_prepedit was called.
-		my ($oldrev)=$rcstoken=~/^([0-9]+)$/; # untaint
-		my $rev=svn_info("Revision", "$config{srcdir}/$file");
+		my ($oldrev)=$params{token}=~/^([0-9]+)$/; # untaint
+		my $rev=svn_info("Revision", "$config{srcdir}/$params{file}");
 		if (defined $rev && defined $oldrev && $rev != $oldrev) {
 			# Merge their changes into the file that we've
 			# changed.
 			if (system("svn", "merge", "--quiet", "-r$oldrev:$rev",
-			           "$config{srcdir}/$file", "$config{srcdir}/$file") != 0) {
+			           "$config{srcdir}/$params{file}", "$config{srcdir}/$params{file}") != 0) {
 				warn("svn merge -r$oldrev:$rev failed\n");
 			}
 		}
 
 		if (system("svn", "commit", "--quiet", 
 		           "--encoding", "UTF-8", "-m",
-		           IkiWiki::possibly_foolish_untaint($message),
+		           IkiWiki::possibly_foolish_untaint(commitmessage(%params)),
 			   $config{srcdir}) != 0) {
-			my $conflict=readfile("$config{srcdir}/$file");
-			if (system("svn", "revert", "--quiet", "$config{srcdir}/$file") != 0) {
+			my $conflict=readfile("$config{srcdir}/$params{file}");
+			if (system("svn", "revert", "--quiet", "$config{srcdir}/$params{file}") != 0) {
 				warn("svn revert failed\n");
 			}
 			return $conflict;
@@ -187,21 +196,14 @@ sub rcs_commit ($$$;$$) {
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr)=@_;
-	
-	if (defined $user) {
-		$message="web commit by $user".(length $message ? ": $message" : "");
-	}
-	elsif (defined $ipaddr) {
-		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
-	}
+	my %params=@_;
 	
 	if (system("svn", "commit", "--quiet",
 	           "--encoding", "UTF-8", "-m",
-	           IkiWiki::possibly_foolish_untaint($message),
+	           IkiWiki::possibly_foolish_untaint(commitmessage(%params)),
 		   $config{srcdir}) != 0) {
 		warn("svn commit failed\n");
 		return 1; # failure	
@@ -348,34 +350,58 @@ sub rcs_diff ($) {
 	return `svnlook diff $config{svnrepo} -r$rev --no-diff-deleted`;
 }
 
-sub rcs_getctime ($) {
+{
+
+my ($lastfile, $lastmtime, $lastctime);
+
+sub findtimes ($) {
 	my $file=shift;
+
+	if (defined $lastfile && $lastfile eq $file) {
+		return $lastmtime, $lastctime;
+	}
+	$lastfile=$file;
 
 	my $svn_log_infoline=qr/^r\d+\s+\|\s+[^\s]+\s+\|\s+(\d+-\d+-\d+\s+\d+:\d+:\d+\s+[-+]?\d+).*/;
 		
 	my $child = open(SVNLOG, "-|");
 	if (! $child) {
-		exec("svn", "log", $file) || error("svn log $file failed to run");
+		exec("svn", "log", "$config{srcdir}/$file") || error("svn log failed to run");
 	}
 
-	my $date;
+	my ($cdate, $mdate);
 	while (<SVNLOG>) {
 		if (/$svn_log_infoline/) {
-			$date=$1;
+			$cdate=$1;
+			$mdate=$1 unless defined $mdate;
 	    	}
 	}
-	close SVNLOG || warn "svn log $file exited $?";
+	close SVNLOG || error "svn log exited $?";
 
-	if (! defined $date) {
-		warn "failed to parse svn log for $file\n";
-		return 0;
+	if (! defined $cdate) {
+		error "failed to parse svn log for $file";
 	}
 		
 	eval q{use Date::Parse};
 	error($@) if $@;
-	$date=str2time($date);
-	debug("found ctime ".localtime($date)." for $file");
-	return $date;
+	
+	$lastctime=str2time($cdate);
+	$lastmtime=str2time($mdate);
+	return $lastmtime, $lastctime;
+}
+
+}
+
+sub rcs_getctime ($) {
+	my $file=shift;
+
+	return (findtimes($file))[1];
+}
+
+sub rcs_getmtime ($) {
+	my $file=shift;
+
+	return (findtimes($file))[0];
 }
 
 1

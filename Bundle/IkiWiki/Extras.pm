@@ -16,7 +16,6 @@ perl -MCPAN -e 'install Bundle::IkiWiki::Extras'
 
 =head1 CONTENTS
 
-Digest::SHA1
 Authen::Passphrase
 Search::Xapian
 RPC::XML
@@ -35,6 +34,7 @@ Text::WikiCreole
 Term::ReadLine::Gnu
 HTML::Tree
 Sort::Naturally
+YAML
 
 =head1 AUTHOR
 

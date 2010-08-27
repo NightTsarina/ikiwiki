@@ -6,7 +6,7 @@ srcdir="$2"
 repository="$3"
 
 usage () {
-	echo "usage: ikiwiki-makerepo svn|git|monotone|darcs srcdir repository" >&2
+	echo "usage: ikiwiki-makerepo svn|git|svn|monotone|darcs|cvs srcdir repository" >&2
 	echo "       ikiwiki-makerepo bzr|mercurial srcdir" >&2
 	exit 1
 }
@@ -39,6 +39,30 @@ fi
 echo "Importing $srcdir into $rcs"
 
 case "$rcs" in
+cvs)
+	if [ -e "$srcdir/CVS" ]; then
+		echo "$srcdir already seems to be a cvs working copy" >&2
+		exit 1
+	fi
+	cvs -Q -d "$repository" init
+	cd "$srcdir"/..
+	cvs -Q -d "$repository" get -P CVSROOT
+	cd CVSROOT
+	echo .ikiwiki >> cvsignore
+	cvs -Q add cvsignore
+	echo "^ikiwiki $repository/CVSROOT/post-commit %{sVv} &" >> loginfo
+	cvs -Q commit -m "ikiwiki-makerepo setup" cvsignore loginfo
+	cd ..
+	rm -rf CVSROOT
+	cd "$srcdir"
+	cvs -Q -d "$repository" import -m "initial import" ikiwiki IKIWIKI PRE_CVS
+	cd ..
+	mv "$srcdir" "$srcdir.orig"
+	cvs -Q -d "$repository" get -P -d "$(basename "$srcdir")" ikiwiki
+	[ -d "$srcdir.orig/.ikiwiki" ] && mv "$srcdir.orig/.ikiwiki" "$srcdir"
+	rm -rf "$srcdir.orig"
+	echo "Directory $srcdir is now a checkout of $rcs repository $repository"
+;;
 svn)
 	if [ -e "$srcdir/.svn" ]; then
 		echo "$srcdir already seems to be a svn working copy" >&2

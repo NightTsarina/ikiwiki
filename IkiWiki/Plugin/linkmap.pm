@@ -9,7 +9,6 @@ use IPC::Open2;
 sub import {
 	hook(type => "getsetup", id => "linkmap", call => \&getsetup);
 	hook(type => "preprocess", id => "linkmap", call => \&preprocess);
-	hook(type => "format", id => "linkmap", call => \&format);
 }
 
 sub getsetup () {
@@ -17,50 +16,26 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
 my $mapnum=0;
-my %maps;
 
 sub preprocess (@) {
 	my %params=@_;
 
 	$params{pages}="*" unless defined $params{pages};
 	
-	# Needs to update whenever a page is added or removed, so
-	# register a dependency.
-	add_depends($params{page}, $params{pages});
-	
-	# Can't just return the linkmap here, since the htmlscrubber
-	# scrubs out all <object> tags (with good reason!)
-	# Instead, insert a placeholder tag, which will be expanded during
-	# formatting.
 	$mapnum++;
-	$maps{$mapnum}=\%params;
-	return "<div class=\"linkmap$mapnum\"></div>";
-}
-
-sub format (@) {
-        my %params=@_;
-
-	$params{content}=~s/<div class=\"linkmap(\d+)"><\/div>/genmap($1)/eg;
-
-        return $params{content};
-}
-
-sub genmap ($) {
-	my $mapnum=shift;
-	return "" unless exists $maps{$mapnum};
-	my %params=%{$maps{$mapnum}};
+	my $connected=IkiWiki::yesno($params{connected});
 
 	# Get all the items to map.
-	my %mapitems = ();
-	foreach my $item (keys %links) {
-		if (pagespec_match($item, $params{pages}, location => $params{page})) {
-			$mapitems{$item}=urlto($item, $params{destpage});
-		}
-	}
+	my %mapitems = map { $_ => urlto($_, $params{destpage}) }
+		pagespec_match_list($params{page}, $params{pages},
+			# update when a page is added or removed, or its
+			# links change
+			deptype => deptype("presence", "links"));
 
 	my $dest=$params{page}."/linkmap.png";
 
@@ -84,24 +59,38 @@ sub genmap ($) {
 	print OUT "charset=\"utf-8\";\n";
 	print OUT "ratio=compress;\nsize=\"".($params{width}+0).", ".($params{height}+0)."\";\n"
 		if defined $params{width} and defined $params{height};
+	my %shown;
+	my $show=sub {
+		my $item=shift;
+		if (! $shown{$item}) {
+			print OUT "\"$item\" [shape=box,href=\"$mapitems{$item}\"];\n";
+			$shown{$item}=1;
+		}
+	};
 	foreach my $item (keys %mapitems) {
-		print OUT "\"$item\" [shape=box,href=\"$mapitems{$item}\"];\n";
+		$show->($item) unless $connected;
 		foreach my $link (map { bestlink($item, $_) } @{$links{$item}}) {
-			print OUT "\"$item\" -> \"$link\";\n"
-				if $mapitems{$link};
+			next unless length $link and $mapitems{$link};
+			foreach my $endpoint ($item, $link) {
+				$show->($endpoint);
+			}
+			print OUT "\"$item\" -> \"$link\";\n";
 		}
 	}
 	print OUT "}\n";
-	close OUT;
+	close OUT || error gettext("failed to run dot");
 
 	local $/=undef;
-	my $ret="<object data=\"".urlto($dest, $params{destpage}).
-	       "\" type=\"image/png\" usemap=\"#linkmap$mapnum\">\n".
-	        <IN>.
-	        "</object>";
-	close IN;
+	my $ret="<img src=\"".urlto($dest, $params{destpage}).
+	       "\" alt=\"".gettext("linkmap").
+	       "\" usemap=\"#linkmap$mapnum\" />\n".
+	        <IN>;
+	close IN || error gettext("failed to run dot");
 	
 	waitpid $pid, 0;
+	if ($?) {
+		error gettext("failed to run dot");
+	}
 	$SIG{PIPE}="DEFAULT";
 	error gettext("failed to run dot") if $sigpipe;
 

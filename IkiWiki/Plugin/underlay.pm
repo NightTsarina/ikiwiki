@@ -21,7 +21,7 @@ sub getsetup () {
 		},
 		add_underlays => {
 			type => "string",
-			default => [],
+			example => ["$ENV{HOME}/wiki.underlay"],
 			description => "extra underlay directories to add",
 			advanced => 1,
 			safe => 0,
@@ -30,10 +30,10 @@ sub getsetup () {
 }
 
 sub checkconfig () {
-	return unless exists $config{add_underlays};
-
-	foreach my $dir (@{$config{add_underlays}}) {
-		add_underlay($dir);
+	if ($config{add_underlays}) {
+		foreach my $dir (@{$config{add_underlays}}) {
+			add_underlay($dir);
+		}
 	}
 }
 

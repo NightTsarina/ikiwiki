@@ -1,0 +1,23 @@
+Currently, new comments are named with an incrementing ID (comment_N). So
+if a wiki has multiple disconnected servers, and comments are made to the
+same page on both, merging is guaranteed to result in conflicts.
+
+I propose avoiding such merge problems by naming a comment with a sha1sum
+of its (full) content. Keep the incrementing ID too, so there is an
+-ordering. And so duplicate comments are allowed..)
+So, "comment_N_SHA1".
+
+Note: The comment body will need to use meta title in the case where no 
+title is specified, to retain the current behavior of the default title
+being "comment N".
+
+What do you think [[smcv]]? --[[Joey]] 
+
+> I had to use md5sums, as sha1sum perl module may not be available and I
+> didn't want to drag it in. But I think that's ok; this doesn't need to be
+> cryptographically secure and even the chances of being able to
+> purposefully cause a md5 collision and thus an undesired merge conflict
+> are quite low since it modifies the input text and adds a date stamp to
+> it.
+>
+> Anyway, I think it's good, [[done]] --[[Joey]] 

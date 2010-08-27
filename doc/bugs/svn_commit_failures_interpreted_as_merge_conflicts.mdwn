@@ -1,0 +1,21 @@
+I'm attempting a merge with the SVN plugin via the web interface
+with ikiwiki-3.20100403 and subversion 1.6.11.
+
+The web interface says
+
+    Your changes conflict with other changes made to the page.
+    
+    Conflict markers have been inserted into the page content. Reconcile the conflict and commit again to save your changes.
+
+However there are no merge conflict markers in the page. My apache error log says:
+
+    [Fri Apr 30 16:43:57 2010] [error] [client 10.64.64.42] svn: Commit failed (details follow):, referer: https://unixwiki.ncl.ac.uk/ikiwiki.cgi
+    [Fri Apr 30 16:43:57 2010] [error] [client 10.64.64.42] svn: Authorization failed, referer: https://unixwiki.ncl.ac.uk/ikiwiki.cgi
+
+-- [[Jon]]
+
+> Only way for this to be improved would be for the svn plugin to
+> explicitly check the file for conflict markers. I guess it could
+> change the error message then, but the actual behavior of putting the
+> changed file back in the editor so the user can recommit is about right
+> as far as error recovery goes. --[[Joey]] 

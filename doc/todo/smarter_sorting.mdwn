@@ -1,0 +1,141 @@
+I benchmarked a build of a large wiki (my home wiki), and it was spending
+quite a lot of time sorting; `CORE::sort` was called only 1138 times, but
+still flagged as the #1 time sink. (I'm not sure I trust NYTProf fully
+about that FWIW, since it also said 27238263 calls to `cmp_age` were
+the #3 timesink, and I suspect it may not entirely accurately measure
+the overhead of so many short function calls.)
+
+`pagespec_match_list` currently always sorts *all* pages first, and then
+finds the top M that match the pagespec. That's innefficient when M is
+small (as for example in a typical blog, where only 20 posts are shown,
+out of maybe thousands).
+
+As [[smcv]] noted, It could be flipped, so the pagespec is applied first,
+and then sort the smaller matching set. But, checking pagespecs is likely
+more expensive than sorting. (Also, influence calculation complicates
+doing that.)
+
+Another option, when there is a limit on M pages to return, might be to
+cull the M top pages without sorting the rest.
+
+> The patch below implements this.
+> 
+> But, I have not thought enough about influence calculation.
+> I need to figure out which pagespec matches influences need to be
+> accumulated for in order to determine all possible influences of a
+> pagespec are known.
+> 
+> The old code accumulates influences from matching all successful pages
+> up to the num cutoff, as well as influences from an arbitrary (sometimes
+> zero) number of failed matches. New code does not accumulate influences
+> from all the top successful matches, only an arbitrary group of
+> successes and some failures.
+> 
+> Also, by the time I finished this, it was not measuarably faster than 
+> the old method. At least not with a few thousand pages; it
+> might be worth revisiting this sometime for many more pages? [[done]]
+> --[[Joey]] 
+
+<pre>
+diff --git a/IkiWiki.pm b/IkiWiki.pm
+index 1730e47..bc8b23d 100644
+--- a/IkiWiki.pm
++++ b/IkiWiki.pm
+@@ -2122,36 +2122,54 @@ sub pagespec_match_list ($$;@) {
+ 	my $num=$params{num};
+ 	delete @params{qw{num deptype reverse sort filter list}};
+ 	
+-	# when only the top matches will be returned, it's efficient to
+-	# sort before matching to pagespec,
+-	if (defined $num && defined $sort) {
+-		@candidates=IkiWiki::SortSpec::sort_pages(
+-			$sort, @candidates);
+-	}
+-	
++	# Find the first num matches (or all), before sorting.
+ 	my @matches;
+-	my $firstfail;
+ 	my $count=0;
+ 	my $accum=IkiWiki::SuccessReason->new();
+-	foreach my $p (@candidates) {
+-		my $r=$sub->($p, %params, location => $page);
++	my $i;
++	for ($i=0; $i < @candidates; $i++) {
++		my $r=$sub->($candidates[$i], %params, location => $page);
+ 		error(sprintf(gettext("cannot match pages: %s"), $r))
+ 			if $r->isa("IkiWiki::ErrorReason");
+ 		$accum |= $r;
+ 		if ($r) {
+-			push @matches, $p;
++			push @matches, $candidates[$i];
+ 			last if defined $num && ++$count == $num;
+ 		}
+ 	}
+ 
++	# We have num natches, but they may not be the best.
++	# Efficiently find and add the rest, without sorting the full list of
++	# candidates.
++	if (defined $num && defined $sort) {
++		@matches=IkiWiki::SortSpec::sort_pages($sort, @matches);
++
++		for ($i++; $i < @candidates; $i++) {
++			# Comparing candidate with lowest match is cheaper,
++			# so it's done before testing against pagespec.
++			if (IkiWiki::SortSpec::cmptwo($candidates[$i], $matches[-1], $sort) < 0 &&
++			    $sub->($candidates[$i], %params, location => $page)
++			) {
++				# this could be done less expensively
++				# using a binary search
++				for (my $j=0; $j < @matches; $j++) {
++					if (IkiWiki::SortSpec::cmptwo($candidates[$i], $matches[$j], $sort) < 0) {
++						splice @matches, $j, $#matches-$j+1, $candidates[$i],
++							@matches[$j..$#matches-1];
++						last;
++					}
++				}
++			}
++		}
++	}
++
+ 	# Add simple dependencies for accumulated influences.
+-	my $i=$accum->influences;
+-	foreach my $k (keys %$i) {
+-		$depends_simple{$page}{lc $k} |= $i->{$k};
++	my $inf=$accum->influences;
++	foreach my $k (keys %$inf) {
++		$depends_simple{$page}{lc $k} |= $inf->{$k};
+ 	}
+ 
+-	# when all matches will be returned, it's efficient to
+-	# sort after matching
++	# Sort if we didn't already.
+ 	if (! defined $num && defined $sort) {
+ 		return IkiWiki::SortSpec::sort_pages(
+ 			$sort, @matches);
+@@ -2455,6 +2473,12 @@ sub sort_pages {
+ 	sort $f @_
+ }
+ 
++sub cmptwo {
++	$a=$_[0];
++	$b=$_[1];
++	$_[2]->();
++}
++
+ sub cmp_title {
+ 	IkiWiki::pagetitle(IkiWiki::basename($a))
+ 	cmp
+</pre>
+
+This would be bad when M is very large, and particularly, of course, when
+there is no limit and all pages are being matched on. (For example, an
+archive page shows all pages that match a pagespec specifying a creation
+date range.) Well, in this case, it *does* make sense to flip it, limit by
+pagespe first, and do a (quick)sort second. (No influence complications,
+either.)
+
+> Flipping when there's no limit implemented, and it knocked 1/3 off
+> the rebuild time of my blog's archive pages. --[[Joey]] 
+
+Adding these special cases will be more complicated, but I think the best
+of both worlds. --[[Joey]]

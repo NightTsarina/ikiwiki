@@ -5,3 +5,59 @@ The reason being that I have a lot of directories which need to be autoindexed,
 but I would prefer if the index files didn't clutter up my git repository.
 
 even without that feature the plugin is a great help, thanks
+
+
+------
+
+If you just don't want to clutter your git repo, below it's a patch does the following:
+
+* If you set autoindex_commit to 0 in your ikiwiki.setup file, we *do* place auto-generated markdown files in the **wiki source** but *not* in the **repo**
+
+* If you set autoindex_commit to 1 (this is the default), auto-generated index files will be put in the repo provided you enabled rcs backend.
+
+<pre>
+--- autoindex.pm.orig	2009-10-01 17:13:51.000000000 +0800
++++ autoindex.pm	2009-10-01 17:21:09.000000000 +0800
+@@ -17,6 +17,13 @@
+ 			safe => 1,
+ 			rebuild => 0,
+ 		},
++        autoindex_commit => {
++            type => 'boolean',
++            default => 1,
++            description => 'commit generated autoindex pages into RCS',
++            safe => 0,
++            rebuild => 0,
++        },
+ }
+ 
+ sub genindex ($) {
+@@ -25,7 +32,7 @@
+ 	my $template=template("autoindex.tmpl");
+ 	$template->param(page => $page);
+ 	writefile($file, $config{srcdir}, $template->output);
+-	if ($config{rcs}) {
++	if ($config{rcs} and $config{autoindex_commit}) {
+ 		IkiWiki::rcs_add($file);
+ 	}
+ }
+@@ -94,13 +101,13 @@
+ 	}
+ 	
+ 	if (@needed) {
+-		if ($config{rcs}) {
++		if ($config{rcs} and $config{autoindex_commit}) {
+ 			IkiWiki::disable_commit_hook();
+ 		}
+ 		foreach my $page (@needed) {
+ 			genindex($page);
+ 		}
+-		if ($config{rcs}) {
++		if ($config{rcs} and $config{autoindex_commit}) {
+ 			IkiWiki::rcs_commit_staged(
+ 				gettext("automatic index generation"),
+ 				undef, undef);
+</pre>
+
+ 
+Warning:  I guess this patch may work, but I *haven't tested it yet*.  -- [[weakish]]

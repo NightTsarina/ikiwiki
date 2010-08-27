@@ -15,6 +15,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "auth",
 		},
 		locked_pages => {
 			type => "pagespec",
@@ -37,10 +38,11 @@ sub canedit ($$) {
 	if (defined $config{locked_pages} && length $config{locked_pages} &&
 	    pagespec_match($page, $config{locked_pages},
 		    user => $session->param("name"),
-		    ip => $ENV{REMOTE_ADDR},
+		    ip => $session->remote_addr(),
 	    )) {
-		if (! defined $user ||
-		    ! IkiWiki::userinfo_get($session->param("name"), "regdate")) {
+		if ((! defined $user ||
+		    ! IkiWiki::userinfo_get($session->param("name"), "regdate")) &&
+		    exists $IkiWiki::hooks{auth}) {
 			return sub { IkiWiki::needsignin($cgi, $session) };
 		}
 		else {

@@ -1,0 +1,52 @@
+[[!meta date="2007-03-02 00:57:08 +0000"]]
+
+Ikiwiki creates a .ikiwiki directory in my wikiwc working directory. Should I
+"svn add .ikiwiki" or add it to svn:ignore?
+
+> `.ikiwiki` is used by ikiwiki to store internal state. You can add it to
+> svn:ignore. --[[Joey]]
+> > Thanks a lot.
+
+Is there an easy way to log via e-mail to some webmaster address, instead
+of via syslog?
+
+> Not sure why you'd want to do that, but couldn't you use a tool like
+> logwatch to mail selected lines from the syslog? --[[Joey]]
+
+> > The reason is that I'm not logged in on the web server regularly to
+> > check the log files. I'll see whether I can install a logwatch instance.
+
+I'm trying to install from scratch on a CentOS 4.6 system.  I installed perl 5.8.8 from source and then added all the required modules via CPAN.  When I build ikiwiki from the tarball, I get this message:
+
+    rendering todo/calendar_--_archive_browsing_via_a_calendar_frontend.mdwn
+    *** glibc detected *** double free or corruption (!prev): 0x0922e478 ***
+    make: *** [extra_build] Aborted
+
+I'm kind of at a loss how to track this down or work around it.  Any suggestions? --Monty
+
+> All I can tell you is that it looks like a problem with your C library or
+> perl. Little perl programs like ikiwiki should only be able to trigger
+> such bugs, not contain them. :-) Sorry I can't be of more help.
+> --[[Joey]]
+
+> I had a similar problem after upgrading to the latest version of
+> Text::Markdown from CPAN.  You might try either looking for a Markdown
+> package for CentOS or using the latest version of John Gruber's
+> Markdown.pl:
+> <http://daringfireball.net/projects/downloads/Markdown_1.0.2b8.tbz>
+> --[[JasonBlevins]], April 1, 2008 18:22 EDT
+
+>> Unfortunately I couldn't find a CentOS package for markdown, and I
+>> couldn't quite figure out how to use John Gruber's version instead.
+>> I tried copying it to site_perl, etc., but the build doesn't pick 
+>> it up.  For now I can just play with it on my Ubuntu laptop for which
+>> the debian package installed flawlessly.  I'll probably wait for an
+>> updated version of Markdown to see if this is fixed in the future.
+>> --Monty
+
+>I suggest that you pull an older version of Text::Markdown from CPAN. I am using <http://backpan.perl.org/authors/id/B/BO/BOBTFISH/Text-Markdown-1.0.5.tar.gz> and that works just fine.
+>There is a step change in version and size between this version (dated 11Jan2008) and the next version (1.0.12 dated 18Feb2008). I shall have a little look to see why, in due course.
+>Ubuntu Hardy Heron has a debian package now, but that does not work either.
+> --Dirk 22Apr2008
+
+> This might be related to [Text::Markdown bug #37297](http://rt.cpan.org/Public/Bug/Display.html?id=37297).--ChapmanFlack 9Jul2008

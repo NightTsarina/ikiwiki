@@ -18,6 +18,7 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 }
 
 sub silentsystem (@) {
@@ -51,7 +52,7 @@ sub darcs_info ($$$) {
 	return $_;
 }
 
-sub file_in_vc($$) {
+sub file_in_vc ($$) {
 	my $repodir = shift;
 	my $file = shift;
 
@@ -62,23 +63,23 @@ sub file_in_vc($$) {
 	}
 	my $found=0;
 	while (<DARCS_MANIFEST>) {
-		$found = 1, last if /^(\.\/)?$file$/;
+		$found = 1 if /^(\.\/)?$file$/;
 	}
 	close(DARCS_MANIFEST) or error("'darcs query manifest' exited " . $?);
 
 	return $found;
 }
 
-sub darcs_rev($) {
+sub darcs_rev ($) {
 	my $file = shift; # Relative to the repodir.
 	my $repodir = $config{srcdir};
 
-	return "" if (! file_in_vc($repodir, $file));
+	return "" unless file_in_vc($repodir, $file);
 	my $hash = darcs_info('hash', $repodir, $file);
 	return defined $hash ? $hash : "";
 }
 
-sub checkconfig() {
+sub checkconfig () {
 	if (defined $config{darcs_wrapper} && length $config{darcs_wrapper}) {
 		push @{$config{wrappers}}, {
 			wrapper => $config{darcs_wrapper},
@@ -87,11 +88,12 @@ sub checkconfig() {
 	}
 }
 
-sub getsetup() {
+sub getsetup () {
 	return
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		darcs_wrapper => {
 			type => "string",
@@ -138,14 +140,31 @@ sub rcs_prepedit ($) {
 	return $rev;
 }
 
-sub rcs_commit ($$$;$$) {
+sub commitauthor (@) {
+	my %params=@_;
+	
+	my $author="anon\@web";
+	if (defined $params{session}) {
+		if (defined $params{session}->param("name")) {
+			return $params{session}->param("name").'@web';
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			return $params{session}->remote_addr().'@web';
+		}
+	}
+	return 'anon@web';
+}
+
+sub rcs_commit (@) {
 	# Commit the page.  Returns 'undef' on success and a version of the page
 	# with conflict markers on failure.
+	my %params=@_;
 
-	my ($file, $message, $rcstoken, $user, $ipaddr) = @_;
+	my ($file, $message, $token) =
+		($params{file}, $params{message}, $params{token});
 
 	# Compute if the "revision" of $file changed.
-	my $changed = darcs_rev($file) ne $rcstoken;
+	my $changed = darcs_rev($file) ne $token;
 
 	# Yes, the following is a bit convoluted.
 	if ($changed) {
@@ -153,7 +172,7 @@ sub rcs_commit ($$$;$$) {
 		rename("$config{srcdir}/$file", "$config{srcdir}/$file.save") or
 			error("failed to rename $file to $file.save: $!");
 
-		# Roll the repository back to $rcstoken.
+		# Roll the repository back to $token.
 
 		# TODO.  Can we be sure that no changes are lost?  I think that
 		# we can, if we make sure that the 'darcs push' below will always
@@ -164,37 +183,28 @@ sub rcs_commit ($$$;$$) {
 		# TODO: 'yes | ...' needed?  Doesn't seem so.
 		silentsystem('darcs', "revert", "--repodir", $config{srcdir}, "--all") == 0 ||
 			error("'darcs revert' failed");
-		# Remove all patches starting at $rcstoken.
+		# Remove all patches starting at $token.
 		my $child = open(DARCS_OBLITERATE, "|-");
 		if (! $child) {
 			open(STDOUT, ">/dev/null");
 			exec('darcs', "obliterate", "--repodir", $config{srcdir},
-			   "--match", "hash " . $rcstoken) and
+			   "--match", "hash " . $token) and
 			   error("'darcs obliterate' failed");
 		}
 		1 while print DARCS_OBLITERATE "y";
 		close(DARCS_OBLITERATE);
-		# Restore the $rcstoken one.
+		# Restore the $token one.
 		silentsystem('darcs', "pull", "--quiet", "--repodir", $config{srcdir},
-			"--match", "hash " . $rcstoken, "--all") == 0 ||
+			"--match", "hash " . $token, "--all") == 0 ||
 			error("'darcs pull' failed");
 	
-		# We're back at $rcstoken.  Re-install the modified file.
+		# We're back at $token.  Re-install the modified file.
 		rename("$config{srcdir}/$file.save", "$config{srcdir}/$file") or
 			error("failed to rename $file.save to $file: $!");
 	}
 
 	# Record the changes.
-	my $author;
-	if (defined $user) {
-		$author = "$user\@web";
-	}
-	elsif (defined $ipaddr) {
-		$author = "$ipaddr\@web";
-	}
-	else {
-		$author = "anon\@web";
-	}
+	my $author=commitauthor(%params);
 	if (!defined $message || !length($message)) {
 		$message = "empty message";
 	}
@@ -209,13 +219,13 @@ sub rcs_commit ($$$;$$) {
 
 	# If this updating yields any conflicts, we'll record them now to resolve
 	# them.  If nothing is recorded, there are no conflicts.
-	$rcstoken = darcs_rev($file);
+	$token = darcs_rev($file);
 	# TODO: Use only the first line here, i.e. only the patch name?
 	writefile("$file.log", $config{srcdir}, 'resolve conflicts: ' . $message);
 	silentsystem('darcs', 'record', '--repodir', $config{srcdir}, '--all',
 		'-m', 'resolve conflicts: ' . $message, '--author', $author, $file) == 0 ||
 		error("'darcs record' failed");
-	my $conflicts = darcs_rev($file) ne $rcstoken;
+	my $conflicts = darcs_rev($file) ne $token;
 	unlink("$config{srcdir}/$file.log") or
 		error("failed to remove '$file.log'");
 
@@ -237,25 +247,18 @@ sub rcs_commit ($$$;$$) {
 	}
 }
 
-sub rcs_commit_staged($$$) {
-	my ($message, $user, $ipaddr) = @_;
+sub rcs_commit_staged (@) {
+	my %params=@_;
 
-	my $author;
-	if (defined $user) {
-		$author = "$user\@web";
-	}
-	elsif (defined $ipaddr) {
-		$author = "$ipaddr\@web";
-	}
-	else {
-		$author = "anon\@web";
-	}
-	if (!defined $message || !length($message)) {
-		$message = "empty message";
+	my $author=commitauthor(%params);
+	if (!defined $params{message} || !length($params{message})) {
+		$params{message} = "empty message";
 	}
 
-	silentsystem('darcs', "record", "--repodir", $config{srcdir}, "-a", "-A", $author,
-		"-m", $message)	== 0 || error("'darcs record' failed");
+	silentsystem('darcs', "record", "--repodir", $config{srcdir},
+		"-a", "-A", $author,
+		"-m", $params{message},
+	) == 0 || error("'darcs record' failed");
 
 	# Push the changes to the main repository.
 	silentsystem('darcs', 'push', '--quiet', '--repodir', $config{srcdir}, '--all') == 0 ||
@@ -318,9 +321,9 @@ sub rcs_recentchanges ($) {
 		my $hash=$patch->{hash};
 		my $when=str2time($date);
 		my (@pages, @files, @pg);
-		push @pages, $_ for (@{$patch->{summary}->[0]->{modify_file}});
-		push @pages, $_ for (@{$patch->{summary}->[0]->{add_file}});
-		push @pages, $_ for (@{$patch->{summary}->[0]->{remove_file}});
+		push @pages, $_ foreach (@{$patch->{summary}->[0]->{modify_file}});
+		push @pages, $_ foreach (@{$patch->{summary}->[0]->{add_file}});
+		push @pages, $_ foreach (@{$patch->{summary}->[0]->{remove_file}});
 		foreach my $f (@pages) {
 			$f = $f->{content} if ref $f;
 			$f =~ s,^\s+,,; $f =~ s,\s+$,,; # cut whitespace
@@ -393,14 +396,11 @@ sub rcs_getctime ($) {
 	eval q{use XML::Simple};
 	local $/=undef;
 
-	my $filer=substr($file, length($config{srcdir}));
-	$filer =~ s:^[/]+::;
-
 	my $child = open(LOG, "-|");
 	if (! $child) {
 		exec("darcs", "changes", "--xml", "--reverse",
-			"--repodir", $config{srcdir}, $filer)
-		|| error("'darcs changes $filer' failed to run");
+			"--repodir", $config{srcdir}, $file)
+		|| error("'darcs changes $file' failed to run");
 	}
 
 	my $data;
@@ -415,7 +415,7 @@ sub rcs_getctime ($) {
 	my $datestr = $log->{patch}[0]->{local_date};
 
 	if (! defined $datestr) {
-		warn "failed to get ctime for $filer";
+		warn "failed to get ctime for $file";
 		return 0;
 	}
 
@@ -424,6 +424,10 @@ sub rcs_getctime ($) {
 	debug("ctime for '$file': ". localtime($date));
 
 	return $date;
+}
+
+sub rcs_getmtime ($) {
+	error "rcs_getmtime is not implemented for darcs\n"; # TODO
 }
 
 1

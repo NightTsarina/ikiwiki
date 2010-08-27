@@ -18,6 +18,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "web",
 		},
 }
 
@@ -48,10 +49,10 @@ sub check_canremove ($$$) {
 	# This is sorta overkill, but better safe than sorry.
 	if (! defined pagetype($pagesources{$page})) {
 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
-			IkiWiki::Plugin::attachment::check_canattach($session, $page, $file);
+			IkiWiki::Plugin::attachment::check_canattach($session, $page, "$config{srcdir}/$file");
 		}
 		else {
-			error("renaming of attachments is not allowed");
+			error("removal of attachments is not allowed");
 		}
 	}
 
@@ -102,10 +103,12 @@ sub confirmation_form ($$) {
 		javascript => 0,
 		params => $q,
 		action => $config{cgiurl},
-		stylesheet => IkiWiki::baseurl()."style.css",
+		stylesheet => 1,
 		fields => [qw{do page}],
 	);
 	
+	$f->field(name => "sid", type => "hidden", value => $session->id,
+		force => 1);
 	$f->field(name => "do", type => "hidden", value => "remove", force => 1);
 
 	return $f, ["Remove", "Cancel"];
@@ -166,7 +169,7 @@ sub formbuilder (@) {
 			removal_confirm($q, $session, 0, $form->field("page"));
 		}
 		elsif ($form->submitted eq "Remove Attachments") {
-			my @selected=$q->param("attachment_select");
+			my @selected=map { Encode::decode_utf8($_) } $q->param("attachment_select");
 			if (! @selected) {
 				error(gettext("Please select the attachments to remove."));
 			}
@@ -187,7 +190,9 @@ sub sessioncgi ($$) {
 			postremove($session);
 		}
 		elsif ($form->submitted eq 'Remove' && $form->validate) {
-			my @pages=$q->param("page");
+			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+
+			my @pages=$form->field("page");
 	
 			# Validate removal by checking that the page exists,
 			# and that the user is allowed to edit(/remove) it.
@@ -208,8 +213,10 @@ sub sessioncgi ($$) {
 				foreach my $file (@files) {
 					IkiWiki::rcs_remove($file);
 				}
-				IkiWiki::rcs_commit_staged(gettext("removed"),
-					$session->param("name"), $ENV{REMOTE_ADDR});
+				IkiWiki::rcs_commit_staged(
+					message => gettext("removed"),
+					session => $session,
+				);
 				IkiWiki::enable_commit_hook();
 				IkiWiki::rcs_update();
 			}
@@ -237,7 +244,7 @@ sub sessioncgi ($$) {
 			}
 		}
 		else {
-			removal_confirm($q, $session, 0, $q->param("page"));
+			removal_confirm($q, $session, 0, $form->field("page"));
 		}
 
 		exit 0;

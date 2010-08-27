@@ -1,0 +1,579 @@
+Ikiwiki currently only has one type of dependency between pages
+(plus wikilinks special cased in on the side). This has resulted in various
+problems, and it's seemed for a long time to me that ikiwiki needs to get
+smarter about what types of dependencies are supported.
+
+### unnecessary work
+
+The current single dependency type causes the depending page to be rebuilt
+whenever a matching dependency is added, removed, or *modified*. But a
+great many things don't care about the modification case, and often cause
+unnecessary page rebuilds:
+
+* map only cares if the pages are added or removed. Content change does
+  not matter (unless show=title is used).
+* brokenlinks, orphans, pagecount, ditto (generally)
+* inline in archive mode cares about page title, author changing, but
+  not content. (Ditto for meta with show=title.)
+* Causes extra work when solving the [[bugs/transitive_dependencies]]
+  problem.
+
+### two types of dependencies needed for [[tracking_bugs_with_dependencies]]
+
+>>  it seems that there are two types of dependency, and ikiwiki
+>>  currently only handles one of them.  The first type is "Rebuild this
+>>  page when any of these other pages changes" - ikiwiki handles this.
+>>  The second type is "rebuild this page when set of pages referred to by
+>>  this pagespec changes" - ikiwiki doesn't seem to handle this.  I
+>>  suspect that named pagespecs would make that second type of dependency
+>>  more important.  I'll try to come up with a good example. -- [[Will]]
+
+>>> Hrm, I was going to build an example of this with backlinks, but it
+>>> looks like that is handled as a special case at the moment (line 458 of
+>>> render.pm).  I'll see if I can breapk
+>>> things another way.  Fixing this properly would allow removal of that special case. -- [[Will]]
+
+>>>> I can't quite understand the distinction you're trying to draw
+>>>> between the two types of dependencies. Backlinks are a very special
+>>>> case though and I'll be suprised if they fit well into pagespecs.
+>>>> --[[Joey]] 
+
+>>>>> The issue is that the existential pagespec matching allows you to build things that have similar
+>>>>> problems to backlinks.
+>>>>> e.g. the following inline:
+
+    \[[!inline pages="define(~done, link(done)) and link(~done)" archive=yes]]
+
+>>>>> includes any page that links to a page that links to done.  Now imagine I add a new link to 'done' on
+>>>>> some random page somewhere - a page which some other page links to which didn't previously get included - the set of pages accepted by the pagespec, and hence the set of
+>>>>> pages inlined, will change.  But, there is no dependency anywhere on the page that I altered, so
+>>>>> ikiwiki will not rebuild the page with the inline in it.  What is happening is that the page that I altered affects
+>>>>> the set of pages matched by the pagespec without itself being matched by the pagespec, and hence included in the dependency list.
+
+>>>>> To make this work well, I think you need to recognise two types of dependencies for each page (and no
+>>>>> special cases for particular types of links, eg backlinks).  The first type of dependency says, "The content of
+>>>>> this page depends upon the content of these other pages".  The `add_depends()` in the shortcuts
+>>>>> plugin is of this form: any time the shortcuts page is edited, any page with a shortcut on it
+>>>>> is rebuilt.  The inline plugin also needs to add dependencies of this form to detect when the inlined
+>>>>> content changes.  By contrast, the map plugin does not need a dependency of this form, because it
+>>>>> doesn't actually care about the content of any pages, just which pages it needs to include (which we'll handle next).
+
+>>>>> The second type of dependency says, "The content of this page depends upon the exact set of pages matched
+>>>>> by this pagespec".  The first type of dependency was about the content of some pages, the second type is about
+>>>>> which pages get matched by a pagespec.  This is the type of dependency tracking that the map plugin needs.
+>>>>> If the set of pages matched by map pagespec changes, then the page with the map on it needs to be rebuilt to show a different list of pages.
+>>>>> Inline needs this type of dependency as well as the previous type - This type handles a change in which pages
+>>>>> are inlined, the previous type handles a change in the content of any of those pages.  Shortcut does not need this type of
+>>>>> dependency.  Most of the places that use `add_depends()` seem to need this type of dependency rather than the first type.
+
+>>>>>> Note that inline and map currently achieve the second type of dependency by
+>>>>>> explicitly calling `add_depends` for each page the displayed.
+>>>>>> If any of those pages are removed, the regular pagespec would not
+>>>>>> match them -- since they're gone. However, the explicit dependency
+>>>>>> on them does cause them to match. It's an ugly corner I'd like to
+>>>>>> get rid of. --[[Joey]]
+
+>>>>> Implementation Details:  The first type of dependency can be handled very similarly to the current
+>>>>> dependency system.  You just need to keep a list of pages that the content depends upon.  You could
+>>>>> keep that list as a pagespec, but if you do this you might want to check that the pagespec doesn't change,
+>>>>> possibly by adding a dependency of the second type along with the dependency of the first type.
+
+>>>>>> An example of the current system not tracking enough data is 
+>>>>>> described in [[bugs/transitive_dependencies]].
+>>>>>> --[[Joey]] 
+
+>>>>> The second type of dependency is a little more tricky.  For each page, we'd need a list of pagespecs that
+>>>>> the page depended on, and for each pagespec you'd want to store the list of pages that currently match it.
+>>>>> On refresh, you'd need to check each pagespec to see if the set of pages that match it has changed, and if
+>>>>> that set has changed, then rebuild the dependent page(s).  Oh, and for this second type of dependency, I
+>>>>> don't think you can merge pagespecs.  If I wanted to know if either "\*" or "link(done)" changes, then just checking
+>>>>> to see if the set of pages matched by "\* or link(done)" changes doesn't work.
+
+>>>>> The current system works because even though you usually want dependencies of the second type, the set of pages
+>>>>> referred to by a pagespec can only change if one of those pages itself changes.  i.e. A dependency check of the
+>>>>> first type will catch a dependency change of the second type with current pagespecs.
+>>>>> This doesn't work with backlinks, and it doesn't work with existential matching.  Backlinks are currently special-cased.  I don't know
+>>>>> how to special-case existential matching - I suspect you're better off just getting the dependency tracking right.
+
+>>>>> I also tried to come up with other possible solutions: e.g. can we find the dependencies for a pagespec?  That
+>>>>> would be the set of pages where a change on one of those pages could lead to a change in the set of pages matched by the pagespec.
+>>>>> For old-style pagespecs without backlinks, the dependency set for a pagespec is the same as the set of pages the pagespec matches.
+>>>>> Unfortunately, with existential matching, the set of pages that each
+>>>>> pagespec depends upon can quickly become "*", which is not very useful.  -- [[Will]]
+
+### proposal
+
+I propose the following. --[[Joey]] 
+
+* Add a second type of dependency, call it an "presence dependency".
+* `add_depends` defaults to adding a regular ("full") dependency, as
+  before. (So nothing breaks.)
+* `add_depends($page, $spec, presence => 0)` adds an presence dependency.
+* `refresh` only looks at added/removed pages when resolving presence
+  dependencies.
+
+This seems straightforwardly doable. I'd like [[Will]]'s feedback on it, if
+possible. The type types of dependencies I am proposing are not identical
+to the two types he talks about above, but I hope are close enough that
+they can be used.
+
+This doesn't deal with the stuff that only depend on the metadata of a
+page, as collected in the scan pass, changing.  But it does leave a window
+open for adding such a dependency type later.
+
+----
+
+I implemented the above in a branch.
+[[!template id=gitbranch branch=origin/dependency-types author="[[joey]]"]]
+
+Then I found some problems:
+
+* Something simple like pagecount, that seems like it could use a
+  presence dependency, can have a pagespec that uses metadata, like
+  `author()` or `copyright()`.
+* pagestats, orphans and brokenlinks cannot use presence dependencies
+  because they need to update when links change.
+
+Now I'm thinking about having a special dependency look at page
+metadata, and fire if the metadata changes. And it seems links should
+either be included in that, or there should be a way to make a dependency
+that fires when a page's links change. (And what about backlinks?)
+
+It's easy to see when a page's links change, since there is `%oldlinks`.
+To see when metadata is changed is harder, since it's stored in the
+pagestate by the meta plugin. Also, there are many different types of
+metadata, that would need to be matched with the pagespecs somehow.
+
+Quick alternative: Make add_depends look at the pagespec. Ie, if it
+is a simple page name, or a glob, we know a presence dependency
+can be valid. If's more complex, convert the dependency from
+presence to full.
+
+There is a lot to dislike about this method. Its parsing of the pagespec,
+as currently implemented, does not let plugins add new types of pagespecs
+that only care about presence. Its pagespec parsing is also subject to
+false negatives (though these should be somewhat rare, and no false
+positives). Still, it does work, and it makes things like simple maps and
+pagecounts much more efficient.
+
+----
+
+#### Will's first pass feedback.
+
+If the API is going to be updated, then it would be good to make it forward compatible.
+I'd like for the API to be extendible to what is useful for complex pagespecs, even if we
+that is a little redundant at the moment.
+
+My attempt to play with this is in my git repo.  [[!template id=gitbranch branch=origin/depends-spec author="[[will]]"]]
+That branch is a little out of date, but if you just look at the changes in IkiWiki.pm you'll see the concept I was looking at.
+I added an "add_depends_spec()" function that adds a dependency on the pagespec passed to it.  If the set of matched pages
+changes, then the dependent page is rebuilt.  At the moment the implementation uses the same hack used by map and inline -
+just add all the pages that currently exist as traditional content dependencies.
+
+> As I note below, a problem with this approach is that it has to try
+> matching the pagespec against every page, redundantly with the work done
+> by the plugin. (But there are ways to avoid that redundant matching.)
+> --[[Joey]] 
+
+Getting back to commenting on your proposal:
+
+Just talking about the definition of a "presence dependency" for the moment, and ignoring implementation.  Is a
+"presence dependency" supposed to cause an update when a page disappears?  I assume so.  Is a presence dependency
+supposed to cause an update when a pages existence hasn't changed, but it no longer matches the pagespec.
+(e.g. you use `created_before(test_page)` in a pagespec, and there was a page, `new_page`, that was created
+after `test_page`.  `new_page` will not match the spec.  Now we'll delete and then re-create `test_page`.  Now
+`new_page` will match the spec, and yet `new_page` itself hasn't changed.  Nor has its 'presence' - it was present
+before and it is present now.  Should this cause a re-build of any page that has a 'presence' dependency on the spec?
+
+> Yes, a presence dep will trigger when a page is added, or removed. 
+
+> Your example is valid.. but it's also not handled right by normal,
+> (content) dependencies, for the same reasons. Still, I think I've
+> addressed it with the pagespec influence stuff below. --[[Joey]]
+
+I think that is another version of the problem you encountered with meta-data.
+
+In the longer term I was thinking we'd have to introduce a concept of 'internal pagespec dependencies'.  Note that I'm
+defining 'internal' pagespec dependencies differently to the pagespec dependencies I defined above.  Perhaps an example:
+If you had a pagespec that was `created_before(test_page)`, then you could list all pages created before `test_page`
+with a `map` directive.  The map directive would add a pagespec dependency on `created_before(test_page)`.
+Internally, there would be a second page-spec parsing function that discovers which pages a given pagespec
+depends on.  As well as the function `match_created_before()`, we'd have to add a new function `depend_created_before()`.
+This new function would return a list of pages, which when any of them change, the output of `match_created_before()`
+would change.  In this example, it would just return `test_page`.
+
+These lists of dependent pages could just be concatenated for every `match_...()` function in a pagespec - you can ignore
+the boolean formula aspects of the pagespec for this.  If a content dependency were added on these pages, then I think 
+the correct rebuilds would occur.  
+
+In all, this is a surprisingly difficult problem to solve perfectly.  Consider the following case:
+
+PageA.mdwn:
+
+> [ShavesSelf]
+
+PageB.mdwn
+
+> Doesn't shave self.
+
+ShavedByBob.mdwn:
+
+> [!include pages="!link(ShavesSelf)"]
+
+Does ShavedByBob.mdwn include itself?
+
+(Yeah - in IkiWiki currently links are *not* included by include, but the idea holds.  I had a good example a while back, but I can't think of it right now.)
+
+sigh.
+
+-- [[Will]]
+
+> I have also been thinking about some sort of analysis pass over pagespecs
+> to determine what metadata, pages, etc they depend on. It is indeed
+> tricky to do. More thoughts on influence lists a bit below. --[[Joey]] 
+
+>> The big part of what makes this tricky is that there may be cycles in the
+>> dependency graph.  This can lead to situations where the result is just not
+>> well defined.  This is what I was trying to get at above. -- [[Will]]
+
+>>> Hmm, I'm not seeing cycles be a problem, at least with the current
+>>> pagespec terms. --[[Joey]] 
+
+>>>> Oh, they're not with current pagespec terms.  But this is really close to extending to handle
+>>>> functional pagespecs, etc.  And I think I'd like to think about that now.
+>>>>
+>>>> Having said that, I don't want to hold you up - you seem to be making progress.  The best is
+>>>> the enemy of the good, etc. etc.
+>>>>
+>>>> For my part, I'm imagining we have two more constructs in IkiWiki:
+>>>>
+>>>>  * A map directive that actually wikilinks to the pages it links to, and
+>>>>  * A `match_sharedLink(pageX)` matching function that matches pageY if both pageX and pageY each have links to any same third page, pageZ.
+>>>>
+>>>> With those two constructs, one page changing might change the set of pages included in a map somewhere, which might then change the set of pages matched by some other pagespec, which might then...
+>>>>
+>>>> --[[Will]]
+
+>>>>> I think that should be supported by [[bugs/transitive_dependencies]].
+>>>>> At least in the current implementation, which considers each page
+>>>>> that is rendered to be changed, and rebuilds pages that are dependent
+>>>>> on it, in a loop. An alternate implementation, which could be faster,
+>>>>> is to construct a directed graph and traverse it just once. Sounds
+>>>>> like that would probably not support what you want to do.
+>>>>> --[[Joey]]
+
+>>>>>> Yes - that's what I'm talking about - I'll add some comments there.  -- [[Will]]
+
+---- 
+
+### Link dependencies
+
+* `add_depends($page, $spec, links => 1, presence => 1)`
+  adds a links + presence dependency.
+* Use backlinks change code to detect changes to link dependencies too.
+* So, brokenlinks can fire whenever any links in any of the
+  pages it's tracking change, or when pages are added or
+  removed.
+* To determine if a pagespec is valid to be used with a links dependency,
+  use the same set that are valid for presence dependencies. But also
+  allow `backlinks()` to be used in it, since that matches pages
+  that the page links to, which is just what link dependencies are
+  triggered on.
+
+[[done]]
+----
+
+### the removal problem
+
+So far I have not addressed fixing the removal problem (which Will
+discusses above).
+
+Summary of problem: A has a dependency on a pagespec such as
+"bugs/* and !link(done)". B currently matches. Then B is updated,
+in a way that makes A's dependency not match it (ie, it links to done).
+Now A is not updated, because ikiwiki does not realize that it
+depended on B before.
+
+This was worked around to fix [[bugs/inline_page_not_updated_on_removal]]
+by inline and map adding explicit dependencies on each page that appears
+on them. Then a change to B triggers the explicit dep. While this works,
+it's 1) ugly 2) probably not implemented by all plugins that could
+be affected by this problem (ie, linkmap) and 3) is most of the reason why
+we grew the complication of `depends_simple`.
+
+One way to fix this is to include with each dependency, a list of pages
+that currently match it. If the list changes, the dependency is triggered.
+
+Should be doable, but may involve more work than
+currently. Consider that a dependency on `bugs/*` currently
+is triggered by just checking until *one* page is found to match it.
+But to store the list, *every* page would have to be tried against it.
+Unless the list can somehow be intelligently updated, looking at only the
+changed pages.
+
+----
+
+Found a further complication in presence dependencies. Map now uses
+presence dependencies when adding its explicit dependencies on pages. But
+this defeats the purpose of the explicit dependencies! Because, now,
+when B is changed to not match a pagespec, the A's presence dep does
+not fire.
+
+I didn't think things through when switching it to use presence
+dependencies there. But, if I change it to use full dependencies, then all
+the work that was done to allow map to use presence dependencies for its
+main pagespec is for naught. The map will once again have to update
+whenever *any* content of the page changes.
+
+This points toward the conclusion that explicit dependencies, however they
+are added, are not the right solution at all. Some other approach, such as
+maintaining the list of pages that match a dependency, and noticing when it
+changes, is needed.
+
+----
+
+### pagespec influence lists
+
+I'm using this term for the concept of a list of pages whose modification
+can indirectly influence what pages a pagespec matches.
+
+> Trying to make a formal definition of this: (Note, I'm using the term sets rather than lists, but they're roughly equivalent)
+>
+>  * Let the *matching set* for a pagespec be the set of existing pages that the pagespec matches.
+>  * Let the *missing document matching set* be the set of pages that would match the spec if they didn't exist. These pages may or may not currently exist.  Note that membership of this set depends upon how the `match_()` functions react to non-existant pages.
+>  * Let the *indirect influence set* for a pagespec be the set of all pages, *p*, whose alteration might:
+>    * cause the pagespec to include or exclude a page other than *p*, or
+>    * cause the pagespec to exclude *p*, unless the alteration is the removal of *p* and *p* is in the missing document matching set.
+>
+> Justification: The 'base dependency mechanism' is to compare changed pages against each pagespec.  If the page matches, then rebuild the spec.  For this comparison, creation and removal
+> of pages are both considered changes.  This base mechanism will catch:
+>
+>  * The addition of any page to the matching set through its own modification/creation
+>  * The removal of any page *that would still match while non-existant* from the matching set through its own removal.  (Note: The base mechanism cannot remove a page from the matching set because of that page's own modification (not deletion).  If the page should be removed matching set, then it obviously cannot match the spec after the change.) 
+>  * The modification (not deletion) of any page that still matches after the modification.
+>
+> The base mechanism may therefore not catch:
+>
+>  * The addition or removal of any page from the matching set through the modification/addition/removal of any other page.
+>  * The removal of any page from the matching set through its own modification/removal if it does not still match after the change.
+>
+> The indirect influence set then should handle anything that the base mechanism will not catch.
+>
+> --[[Will]]
+
+>> I appreciate the formalism! 
+>>
+>> Only existing pages need to be in these sets, because if a page is added
+>> in the future, the existing dependency code will always test to see
+>> if it matches. So it will be in the maching set (or not) at that point.
+>>
+>>> Hrm, I agree with you in general, but I think I can come up with nasty counter-examples.  What about a pagespec
+>>> of "!backlink(bogus)" where the page bogus doesn't exist?  In this case, the page 'bogus' needs to be in the influence
+>>> set even though it doesn't exist.
+>>>
+>>>> I think you're right, this is a case that the current code is not
+>>>> handling. Actually, I made all the pagespecs return influences
+>>>> even if the influence was not present or did not match. But, it
+>>>> currently only records influences as dependencies when a pagespec
+>>>> successfully matches. Now I'm sure that is wrong, and I've removed
+>>>> that false optimisation. I've updated some of the below. --[[Joey]]
+>>>
+>>> Also, I would really like the formalism to include the whole dependency system, not just any additions to it.  That will make
+>>> the whole thing much easier to reason about.
+>>
+>> The problem with your definition of direct influence set seems to be
+>> that it doesn't allow `link()` and `title()` to have as an indirect
+>> influence, the page that matches. But I'm quite sure we need those.
+>>  --[[Joey]] 
+
+>>> I see what you mean.  Does the revised definition capture this effectively?
+>>> The problem with this revised definition is that it still doesn't match your examples below.
+>>> My revised definition will include pretty much all currently matching pages to be in the influence list
+>>> because deletion of any of them would cause a change in which pages are matched - the removal problem.
+>>> -- [[Will]]
+
+#### Examples
+
+* The pagespec "created_before(foo)" has an indirect influence list that contains foo.
+  The removal or (re)creation of foo changes what pages match it. Note that
+  this is true even if the pagespec currently fails to match.
+
+>>> This is an annoying example (hence well worth having :) ).  I think the
+>>> indirect influence list must contain 'foo' and all currently matching
+>>> pages.  `created_before(foo)` will not match
+>>> a deleted page, and so the base mechanism would not cause a rebuild.  The
+>>> removal problem strikes. -- [[Will]]
+
+>>>> But `created_before` can in fact match a deleted page. Because the mtime
+>>>> of a deleted page is temporarily set to 0 while the base mechanism runs to
+>>>> find changes in deleted pages. (I verified this works by experiment,
+>>>> also that `created_after` is triggered by a deleted page.) --[[Joey]]
+
+>>>>> Oh, okie.  I looked at the source, saw the `if (exists $IkiWiki::pagectime{$testpage})` and assumed it would fail.
+>>>>> Of course, having it succeed doesn't cure all the issues -- just moves them.  With `created_before()` succeeding
+>>>>> for deleted files, this pagespec will be match any removal in the entire wiki with the base mechanism.  Whether this is
+>>>>> better or worse than the longer indirect influence list is an empirical question. -- [[Will]]
+
+* The pagespec "foo" has an empty influence list. This is because a
+  modification/creation/removal of foo directly changes what the pagespec
+  matches.
+
+* The pagespec "*" has an empty influence list, for the same reason.
+  Avoiding including every page in the wiki into its influence list is
+  very important!
+
+>>> So, why don't the above influence lists contain the currently matched pages?
+>>> Don't you need this to handle the removal problem? -- [[Will]]
+
+>>>> The removal problem is slightly confusingly named, since it does not
+>>>> affect pages that were matched by a glob and have been removed. Such
+>>>> pages can be handled without being influences, because ikiwiki knows
+>>>> they have been removed, and so can still match them against the
+>>>> pagespec, and see they used to match; and thus knows that the
+>>>> dependency has triggered.
+>>>>
+>>>>> IkiWiki can only see that they used to match if they're in the glob matching set.  -- [[Will]]
+>>>>
+>>>> Maybe the thing to do is consider this an optimisation, where such
+>>>> pages are influences, but ikiwiki is able to implicitly find them,
+>>>> so they do not need to be explicitly stored. --[[Joey]]
+
+* The pagespec "title(foo)" has an influence list that contains every page
+  that currently matches it. A change to any matching page can change its
+  title, making it not match any more, and so the list is needed due to the
+  removal problem. A page that does not have a matching title is not an
+  influence, because modifying the page to change its title directly
+  changes what the pagespec matches.
+
+* The pagespec "backlink(index)" has an influence list
+  that contains index (because a change to index changes the backlinks).
+  Note that this is true even if the backlink currently fails.
+
+>>> This is another interesting example.  The missing document matching set contains all links on the page index, and so
+>>> the influence list only needs to contain 'index' itself.  -- [[Will]]
+
+* The pagespec "link(done)" has an influence list that
+  contains every page that it matches. A change to any matching page can
+  remove a link and make it not match any more, and so the list is needed
+  due to the removal problem.
+
+>> Why doesn't this include every page?  If I change a page that doesn't have a link to
+>> 'done' to include a link to 'done', then it will now match...  or is that considered a
+>> 'direct match'? -- [[Will]]
+
+>>> The regular dependency calculation code will check if every changed
+>>> page matches every dependency. So it will notice the link was added.
+>>> --[[Joey]] 
+
+#### Low-level Calculation
+
+One way to calculate a pagespec's influence would be to
+expand the SuccessReason and FailReason objects used and returned
+by `pagespec_match`. Make the objects be created with an
+influence list included, and when the objects are ANDed or ORed
+together, combine the influence lists.
+
+That would have the benefit of allowing just using the existing `match_*`
+functions, with minor changes to a few of them to gather influence info.
+
+But does it work? Let's try some examples:
+
+Consider "bugs/* and link(done) and backlink(index)".
+
+Its influence list contains index, and it contains all pages that the whole
+pagespec matches. It should, ideally, not contain all pages that link
+to done. There are a lot of such pages, and only a subset influence this
+pagespec.
+
+When matching this pagespec against a page, the `link` will put the page
+on the list. The `backlink` will put index on the list, and they will be
+anded together and combined. If we combine the influences from each
+successful match, we get the right result.
+
+Now consider "bugs/* and link(done) and !backlink(index)".
+
+It influence list is the same as the previous one, even though a term has
+been negated. Because a change to index still influences it, though in a
+different way.
+
+If negation of a SuccessReason preserves the influence list, the right
+influence list will be calculated.
+
+Consider "bugs/* and (link(done) or backlink(index))"
+and      "bugs/* and (backlink(index) or link(done))'
+
+Its clear that the influence lists for these are identical. And they
+contain index, plus all matching pages.
+
+When matching the first against page P, the `link` will put P on the list.
+The OR needs to be a non-short-circuiting type. (In perl, `or`, not `||` --
+so, `pagespec_translate` will need to be changed to not use `||`.)
+Given that, the `backlink` will always be evalulated, and will put index
+onto the influence list. If we combine the influences from each
+successful match, we get the right result.
+
+> This is implemented, seems to work ok. --[[Joey]]
+
+> `or` short-circuits too, but the implementation correctly uses `|`,
+> which I assume is what you meant. --[[smcv]]
+
+>> Er, yeah. --[[Joey]] 
+
+----
+
+What about: "!link(done)"
+
+Specifically, I want to make sure it works now that I've changed
+`match_link` to only return a page as an influence if it *does*
+link to done.
+
+So, when matching against page P, that does not link to done,
+there are no influences, and the pagespec matches. If P is later
+changed to add a link to done, then the dependency resolver will directly
+notice that.
+
+When matching against page P, that does link to done, P
+is an influence, and the pagespec does not match. If P is later changed
+to not link to done, the influence will do its job.
+
+Looks good!
+
+----
+
+Here is a case where this approach has some false positives.
+
+"bugs/* and link(patch)"
+
+This finds as influences all pages that link to patch, even
+if they are not under bugs/, and so can never match.
+
+To fix this, the influence calculation would need to consider boolean
+operators. Currently, this turns into roughly:
+
+`FailReason() & SuccessReason(patch)`
+
+Let's say that the glob instead returns a HardFailReason, which when
+ANDed with another object, blocks their influences. (But when ORed,
+combines them.)
+
+Question: Are all pagespec terms that return reason objects w/o any
+influence info, suitable to block influence in this way? 
+
+To be suitable to block, a term should never change from failing to match a
+page to successfully matching it, unless that page is directly changed in a
+way that influences are not needed for ikiwiki to notice. But, if a term
+did not meet these criteria, it would have an influence. QED.
+
+#### Influence types
+
+Note that influences can also have types, same as dependency types.
+For example, "backlink(foo)" has an influence of foo, of type links.
+"created_before(foo)" also is influenced by foo, but it's a presence
+type. Etc.
+
+> This is an interesting concept that I hadn't considered.  It might
+> allow significant computational savings, but I suspect will be tricky
+> to implement. -- [[Will]]
+
+>> It was actually really easy to implement it, assuming I picked the right
+>> dependency types of course. --[[Joey]]

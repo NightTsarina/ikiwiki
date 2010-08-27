@@ -1,0 +1,19 @@
+[[!template id=plugin name=rsync author="[[schmonz]]"]]
+[[!tag type/special-purpose]]
+
+This plugin allows ikiwiki to push generated pages to another host
+by running a command such as `rsync`.
+
+The command to run is specified by setting `rsync_command` in your setup
+file. The command will be run in your destdir, so something like this
+is a typical command:
+
+	rsync_command => 'rsync -qa --delete . user@host:/path/to/docroot/',
+
+If using rsync over ssh, you will need to enable noninteractive ssh login
+to the remote host. It's also a good idea to specify the exact command line
+to be permitted in the remote host's `$HOME/.ssh/authorized_keys`.
+
+A typical ikiwiki configuration when using this plugin is to disable cgi
+support, so ikiwiki builds a completely static site that can be served from
+the remote host.

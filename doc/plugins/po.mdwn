@@ -54,10 +54,10 @@ Supported languages
 `po_slave_languages` is used to set the list of supported "slave"
 languages, such as:
 
-        po_slave_languages => { 'fr' => 'Français',
-                                'es' => 'Español',
-                                'de' => 'Deutsch',
-        }
+        po_slave_languages => [ 'fr|Français',
+                                'es|Español',
+                                'de|Deutsch',
+        ]
 
 Decide which pages are translatable
 -----------------------------------
@@ -114,7 +114,8 @@ Apache
 
 Using Apache `mod_negotiation` makes it really easy to have Apache
 serve any page in the client's preferred language, if available.
-This is the default Debian Apache configuration.
+
+Add 'Options MultiViews' to the wiki directory's configuration in Apache.
 
 When `usedirs` is enabled, one has to set `DirectoryIndex index` for
 the wiki context.
@@ -123,14 +124,17 @@ Setting `DefaultLanguage LL` (replace `LL` with your default MIME
 language code) for the wiki context can help to ensure
 `bla/page/index.en.html` is served as `Content-Language: LL`.
 
+For details, see [Apache's documentation](http://httpd.apache.org/docs/2.2/content-negotiation.html).
+
 lighttpd
 --------
 
-lighttpd unfortunately does not support content negotiation.
+Recent versions of lighttpd should be able to use
+`$HTTP["language"]` to configure the translated pages to be served.
 
-**FIXME**: does `mod_magnet` provide the functionality needed to
- emulate this?
+See [Lighttpd Issue](http://redmine.lighttpd.net/issues/show/1119)
 
+TODO: Example
 
 Usage
 =====
@@ -194,7 +198,7 @@ enabled, "slave" pages therefore link to the "master" page's
 discussion page.
 
 Likewise, "slave" pages are not supposed to have sub-pages;
-[[WikiLinks|wikilink]] that appear on a "slave" page therefore link to
+[[WikiLinks|ikiwiki/wikilink]] that appear on a "slave" page therefore link to
 the master page's sub-pages.
 
 Translating
@@ -209,16 +213,16 @@ preferred `$EDITOR`, without needing to be online.
 Markup languages support
 ------------------------
 
-[[Markdown|mdwn]] is well supported. Some other markup languages supported
-by ikiwiki mostly work, but some pieces of syntax are not rendered
-correctly on the slave pages:
+[[Markdown|mdwn]] and [[html]] are well supported. Some other markup
+languages supported by ikiwiki mostly work, but some pieces of syntax
+are not rendered correctly on the slave pages:
 
 * [[reStructuredText|rst]]: anonymous hyperlinks and internal
   cross-references
 * [[wikitext]]: conversion of newlines to paragraphs
 * [[creole]]: verbatim text is wrapped, tables are broken
-* [[html]] and LaTeX: not supported yet; the dedicated po4a modules
-  could be used to support them, but they would need a security audit
+* LaTeX: not supported yet; the dedicated po4a module
+  could be used to support it, but it would need a security audit
 * other markup languages have not been tested.
 
 Security
@@ -231,66 +235,86 @@ When using po4a older than 0.35, it is recommended to uninstall
 `Text::WrapI18N` (Debian package `libtext-wrapi18n-perl`), in order to
 avoid a potential denial of service.
 
+BUGS
+====
+
+[[!inline pages="bugs/po:* and !bugs/done and !link(bugs/done) and !bugs/*/*"
+feeds=no actions=no archive=yes show=0]]
+
 TODO
 ====
 
-Better links
-------------
+[[!inline pages="todo/po:* and !todo/done and !link(todo/done) and !todo/*/*"
+feeds=no actions=no archive=yes show=0]]
 
-Once the fix to
-[[bugs/pagetitle_function_does_not_respect_meta_titles]] from
-[[intrigeri]]'s `meta` branch is merged into ikiwiki upstream, the
-generated links' text will be optionally based on the page titles set
-with the [[meta|plugins/meta]] plugin, and will thus be translatable.
-It will also allow displaying the translation status in links to slave
-pages. Both were implemented, and reverted in commit
-ea753782b222bf4ba2fb4683b6363afdd9055b64, which should be reverted
-once [[intrigeri]]'s `meta` branch is merged.
+broken links to translatable basewiki pages that lack po files
+--------------------------------------------------------------
 
-An integration branch, called `meta-po`, merges [[intrigeri]]'s `po`
-and `meta` branches, and thus has thise additional features.
+If a page is not translated yet, the "translated" version of it
+displays wikilinks to other, existing (but not yet translated?)
+pages as edit links, as if those pages do not exist. 
 
-Self links
-----------
+That's really confusing, especially as clicking such a link
+brings up an edit form to create a new, english page.
 
-If a page contains a WikiLink to itself, ikiwiki does not normally
-turn that into a hyperlink. However, if a translated page contains a
-WikiLink to itself, a hyperlink is inserted, at least with the default
-`po_link_to` the link points to the English version of the page. Is there a
-good reason for that to be done? --[[Joey]] 
+This is with po_link_to=current or negotiated. With default, it doesn't
+happen.. 
 
-Language display order
-----------------------
-
-Jonas pointed out that one might want to control the order that links to
-other languages are listed, for various reasons. Currently, there is no
-order, as `po_slave_languages` is a hash. It would need to be converted
-to an array to support this. (If twere done, twere best done quickly.)
+Also, this may only happen if the page being linked to is coming from an
+underlay, and the underlays lack translation to a given language.
 --[[Joey]] 
 
-Duplicate %links ?
-------------------
+> Any simple testcase to reproduce it, please? I've never seen this
+> happen yet. --[[intrigeri]]
 
-I notice code in the scan hook that seems to assume
-that %links will accumulate duplicate links for a page.
-That used to be so, but the bug was fixed. Does this mean
-that po might be replacing the only link on a page, in error? 
---[[Joey]] 
+>> Sure, go here <http://l10n.ikiwiki.info/smiley/smileys/index.sv.html>
+>> (Currently 0% translateed) and see the 'WikiLink' link at the bottom,
+>> which goes to <http://l10n.ikiwiki.info/ikiwiki.cgi?page=ikiwiki/wikilink&from=smiley/smileys&do=create>
+>> Compare with eg, the 100% translated Dansk version, where
+>> the WikiLink link links to the English WikiLink page. --[[Joey]] 
 
-Bug when editing underlay file
-------------------------------
+>>> Seems not related to the page/string translation status: the 0%
+>>> translated Spanish version has the correct link, just like the
+>>> Dansk version => I'm changing the bug title accordingly.
+>>>
+>>> I tested forcing the sv html page to be rebuilt by translating a
+>>> string in it, it did not fix the bug. I did the same for the
+>>> Spanish page, it did not introduce the bug. So this is really
+>>> weird.
+>>>
+>>> The smiley underlay seems to be the only place where the wrong
+>>> thing happens: the basewiki underlay has similar examples
+>>> that do not exhibit this bug. An underlay linking to another might
+>>> be necessary to reproduce it. Going to dig deeper. --[[intrigeri]]
 
-While I've gotten translated underlays working, there is a bug
-if the wiki is currently using a page from the underlay, and the master
-language version is edited. This causes the edited page to be saved
-to srcdir.. and all the translations get set to 0% and their
-po files have the translated strings "emptied". What's really going on
-is that these are entirely new po files not based on the old ones
-in the basewiki, and thus lacking translations. --[[Joey]] 
+>>>> After a few hours lost in the Perl debugger, I think I have found
+>>>> the root cause of the problem: in l10n wiki's configured
+>>>> `underlaydir`, the basewiki is present in every slave language
+>>>> that is enabled for this wiki *but* Swedish. With such a
+>>>> configuration, the `ikiwiki/wikilink` page indeed does not exist
+>>>> in Swedish language: no `ikiwiki/wikilink.sv.po` can be found
+>>>> where ikiwiki is looking. Have a look to
+>>>> <http://l10n.ikiwiki.info/ikiwiki/>, the basewiki is not
+>>>> available in Swedish language on this wiki. So this is not a po
+>>>> bug, but a configuration or directories layout issue. This is
+>>>> solved by adding the Swedish basewiki to the underlay dir, which
+>>>> is I guess not a possibility in the l10n wiki context. I guess
+>>>> this could be solved by adding `SRCDIR/basewiki` as an underlay
+>>>> to your l10n wiki configuration, possibly using the
+>>>> `add_underlays` configuration directive. --[[intrigeri]]
 
-Documentation
--------------
+>>>>> There is no complete Swedish underlay translation yet, so it is not
+>>>>> shipped in ikiwiki. I don't think it's a misconfiguration to use
+>>>>> a language that doesn't have translated underlays. --[[Joey]] 
 
-Maybe write separate documentation depending on the people it targets:
-translators, wiki administrators, hackers. This plugin may be complex
-enough to deserve this.
+>>>>>> Ok. The problem is triggered when using a language that doesn't
+>>>>>> have translated underlays, *and* defining
+>>>>>> `po_translatable_pages` in a way that renders the base wiki
+>>>>>> pages translatable in po's view of things, which in turns makes
+>>>>>> the po plugin act as if the translation pages did exist,
+>>>>>> although they do not in this case. I still need to have a deep
+>>>>>> look at the underlays-related code you added to `po.pm` a while
+>>>>>> ago. Stay tuned. --[[intrigeri]]
+
+>>>>>>> Fixed in my po branch, along with other related small bugs that
+>>>>>>> happen in the very same situation only. --[[intrigeri]]

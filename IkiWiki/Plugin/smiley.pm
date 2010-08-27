@@ -25,7 +25,14 @@ sub getsetup () {
 }
 
 sub build_regexp () {
-	my $list=readfile(srcfile("smileys.mdwn"));
+	my $srcfile = srcfile("smileys.mdwn", 1);
+	if (! defined $srcfile) {
+		print STDERR sprintf(gettext("smiley plugin will not work without %s"),
+			"smileys.mdwn")."\n";
+		$smiley_regexp='';
+		return;
+	}
+	my $list=readfile($srcfile);
 	while ($list =~ m/^\s*\*\s+\\\\([^\s]+)\s+\[\[([^]]+)\]\]/mg) {
 		my $smiley=$1;
 		my $file=$2;

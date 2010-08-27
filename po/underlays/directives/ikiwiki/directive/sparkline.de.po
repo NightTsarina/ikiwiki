@@ -1,0 +1,178 @@
+# German translation of directives/ikiwiki/directive/sparkline page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-03-12 09:29+0530\n"
+"PO-Revision-Date: 2010-03-14 14:08+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `sparkline` directive is supplied by the [[!iki plugins/sparkline "
+"desc=sparkline]] plugin."
+msgstr ""
+"Die `sparkline`-Anweisung wird durch die [[!iki plugins/sparkline "
+"desc=sparkline]]-Erweiterung bereitgestellt."
+
+#. type: Plain text
+msgid ""
+"This directive allows for embedding sparklines into wiki pages. A sparkline "
+"is a small word-size graphic chart, that is designed to be displayed "
+"alongside text."
+msgstr ""
+"Diese Anweisung erlaubt es, sparklines in Wiki-Seiten einzubetten. Eine "
+"sparkline ist eine kleine Graphik, die so groß wie ein Wort ist und sich "
+"deshalb zur Anzeige neben Text eignet."
+
+#. type: Title #
+#, no-wrap
+msgid "examples"
+msgstr "Beispiele"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!sparkline 1 3 5 -3 10 0 width=40 height=16\n"
+"\tfeaturepoint=\"4,-3,red,3\" featurepoint=\"5,10,green,3\"]]\n"
+msgstr ""
+"\t\\[[!sparkline 1 3 5 -3 10 0 width=40 height=16\n"
+"\tfeaturepoint=\"4,-3,red,3\" featurepoint=\"5,10,green,3\"]]\n"
+
+#. type: Plain text
+msgid ""
+"This creates a simple line graph, graphing several points.  It will be drawn "
+"40 pixels wide and 16 pixels high. The high point in the line has a green "
+"marker, and the low point has a red marker."
+msgstr ""
+"Dies erzeugt eine einfache Liniengrafik, die aus mehreren Punkten besteht. "
+"Sie wird mit 40 Pixel Breite und 16 Pixel Höhe erzeugt. Der hohe Punkt auf "
+"der Linie hat eine grüne Markierung, der niedrige eine rote."
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!sparkline 1 -1(red) 1 -1(red) 1 1 1 -1(red) -1(red) style=bar "
+"barwidth=2\n"
+"\tbarspacing=1 height=13]]\n"
+msgstr ""
+"\t\\[[!sparkline 1 -1(red) 1 -1(red) 1 1 1 -1(red) -1(red) style=bar "
+"barwidth=2\n"
+"\tbarspacing=1 height=13]]\n"
+
+#. type: Plain text
+msgid ""
+"This more complex example generates a bar graph.  The bars are 2 pixels "
+"wide, and separated by one pixel, and the graph is 13 pixels tall. Width is "
+"determined automatically for bar graphs. The points with negative values are "
+"colored red, instead of the default black."
+msgstr ""
+"Dies ist ein komplexeres Beispiel, das eine Balkengrafik erzeugt. Die Balken "
+"sind 2 Pixel breit und werden durch ein Pixel getrennt; die Grafik ist 14 "
+"Pixel hoch. Die Breite für Balkengrafiken automatisch bestimmt. Punkte mit "
+"negativen Werten haben abweichend vom voreingestellten Schwarz die Farbe rot."
+
+#. type: Title #
+#, no-wrap
+msgid "usage"
+msgstr "Verwendung"
+
+#. type: Plain text
+msgid ""
+"The form for the data points is \"x,y\", or just \"y\" if the x values don't "
+"matter. Bar graphs can also add \"(color)\" to specify a color for that bar."
+msgstr ""
+"Die Form für Datenpunkte ist `x,y`, oder einfach nur `y`, wenn die x-Werte "
+"unerheblich sind. Balkengrafiken können auch `(color)` hinzufügen, um eine "
+"Farbe für den Balken anzugeben."
+
+#. type: Plain text
+msgid ""
+"The following named parameters are recognised. Most of these are the same as "
+"those used by the underlying sparkline library, which is documented in more "
+"detail in [its wiki](http://sparkline.wikispaces.com/usage)."
+msgstr ""
+"Die folgenden benannten Parameter werden erkannt. Die meisten entsprechen "
+"denen der zugrundeliegenden sparkline-Bibliothek, die [in ihrem "
+"Wiki](http://sparkline.wikispaces.com/usage) genauer beschrieben wird."
+
+#. type: Bullet: '* '
+msgid "`style` - Either \"line\" (the default) or \"bar\"."
+msgstr "`style` - Entweder `line` (die Voreinstellung) oder `bar`."
+
+#. type: Bullet: '* '
+msgid "`width` - Width of the graph in pixels. Only needed for line graphs."
+msgstr ""
+"`width` - Die Breite der Grafik in Pixeln. Wird nur für Linien-Grafiken "
+"benötigt."
+
+#. type: Bullet: '* '
+msgid "`height` - Height of the graph in pixels. Defaults to 16."
+msgstr "`height` - Höhe des Grafen in Pixeln. Voreingestellt sind 16."
+
+#. type: Bullet: '* '
+msgid "`barwidth` - Width of bars in a bar graph. Default is 1 pixel."
+msgstr ""
+"`barwidth` - Breite der Balken in einer Balkengrafik. Voreingestellt ist 1 "
+"Pixel."
+
+#. type: Bullet: '* '
+msgid ""
+"`barspacing` - Spacing between bars in a bar graph, in pixels. Default is 1 "
+"pixel."
+msgstr ""
+"`barspacing` - Abstand zwischen den Balken einer Balkengrafik in Pixeln. "
+"Voreingestellt ist 1 Pixel."
+
+#. type: Bullet: '* '
+msgid ""
+"`ymin`, `ymax` - Minimum and maximum values for the Y axis. This is normally "
+"calculated automatically, but can be explicitly specified to get the same "
+"values for multiple related graphs."
+msgstr ""
+"`ymin`, `ymax` - Minimaler und maximaler Wert für die y-Achse. Dies wird "
+"normalerweise automatisch berechnet, kann aber auch explizit angegeben "
+"werden, um mehrere verwandte Grafiken zu erhalten."
+
+#. type: Bullet: '* '
+msgid ""
+"`featurepoint` - Adds a circular marker to a line graph, with optional "
+"text. This can be used to label significant points."
+msgstr ""
+"`featurepoint` - Fügt eine kreisförmige Markierung zu einer Liniengrafik "
+"hinzu, mit optionalem Text. So können bedeutsame Punkte beschriftet werden."
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  The value is a comma-delimited list of parameters specifying the feature\n"
+"  point: X value, Y value, color name, circle diameter, text (optional),\n"
+"  and text location (optional). Example: `featurepoint=\"3,5,blue,3\"`\n"
+msgstr ""
+"  Der Wert ist eine Komma-separierte Liste von Parametern, die den\n"
+"  hervorzuhebenden Punkt angeben: x-Wert, y-Wert, Farbname,\n"
+"  Kreisdurchmesser, Text (optional) und Platzierung des Textes (optional).\n"
+"  Beispiel: `featurepoint=\"3,5,blue,3\"`\n"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  Available values for the text location are: \"top\", \"right\", "
+"\"bottom\", and\n"
+"  \"left\".\n"
+msgstr ""
+"  Verfügbare Werte für die Platzierung des Textes sind `top`,\n"
+"  `right`, `bottom` und `left`.\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+

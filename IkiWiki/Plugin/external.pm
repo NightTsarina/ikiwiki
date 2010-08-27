@@ -8,7 +8,6 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use RPC::XML;
-use RPC::XML::Parser;
 use IPC::Open2;
 use IO::Handle;
 
@@ -55,7 +54,19 @@ sub rpc_call ($$;@) {
 		$plugin->{accum}.=$_;
 		while ($plugin->{accum} =~ /^\s*(<\?xml\s.*?<\/(?:methodCall|methodResponse)>)\n(.*)/s) {
 			$plugin->{accum}=$2;
-			my $r = RPC::XML::Parser->new->parse($1);
+			my $parser;
+			eval q{
+				use RPC::XML::ParserFactory;
+				$parser = RPC::XML::ParserFactory->new;
+			};
+			if ($@) {
+				# old interface
+				eval q{
+					use RPC::XML::Parser;
+					$parser = RPC::XML::Parser->new;
+				};
+			}
+			my $r=$parser->parse($1);
 			error("XML RPC parser failure: $r") unless ref $r;
 			if ($r->isa('RPC::XML::response')) {
 				my $value=$r->value;
@@ -72,9 +83,9 @@ sub rpc_call ($$;@) {
 
 					# XML-RPC v1 does not allow for
 					# nil/null/None/undef values to be
-					# transmitted, so until
-					# XML::RPC::Parser honours v2
-					# (<nil/>), external plugins send
+					# transmitted. The <nil/> extension
+					# is the right fix, but for
+					# back-compat, let external plugins send
 					# a hash with one key "null" pointing
 					# to an empty string.
 					if (exists $hash{null} &&

@@ -18,6 +18,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
@@ -36,10 +37,10 @@ sub render_graph (\%) {
 	$src .= "}\n";
 
 	# Use the sha1 of the graphviz code as part of its filename.
-	eval q{use Digest::SHA1};
+	eval q{use Digest::SHA};
 	error($@) if $@;
 	my $dest=$params{page}."/graph-".
-		IkiWiki::possibly_foolish_untaint(Digest::SHA1::sha1_hex($src)).
+		IkiWiki::possibly_foolish_untaint(Digest::SHA::sha1_hex($src)).
 		".png";
 	will_render($params{page}, $dest);
 
@@ -70,7 +71,8 @@ sub render_graph (\%) {
 			writefile($dest, $config{destdir}, $png, 1);
 		}
 		else {
-			# can't write the file, so embed it in a data uri
+			# in preview mode, embed the image in a data uri
+			# to avoid temp file clutter
 			eval q{use MIME::Base64};
 			error($@) if $@;
 			return "<img src=\"data:image/png;base64,".
@@ -78,12 +80,7 @@ sub render_graph (\%) {
 		}
 	}
 
-	if ($params{preview}) {
-		return "<img src=\"".urlto($dest, "")."\" />\n";
-	}
-	else {
-		return "<img src=\"".urlto($dest, $params{destpage})."\" />\n";
-	}
+	return "<img src=\"".urlto($dest, $params{destpage})."\" />\n";
 }
 
 sub graph (@) {

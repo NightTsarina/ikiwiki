@@ -1,0 +1,16 @@
+The `date` directive is supplied by the [[!iki plugins/date desc=date]] plugin.
+
+This directive can be used to display a date on a page, using the same
+display method that is used to display the modification date in the page
+footer, and other dates in the wiki. This can be useful for consistency
+of display, or if you want to embed parseable dates into the page source.
+
+Like the dates used by the [[meta]] directive, the date can be entered in
+nearly any format, since it's parsed by [[!cpan TimeDate]].
+
+For example, an update to a page with an embedded date stamp could look
+like:
+
+	Updated \[[!date "Wed, 25 Nov 2009 01:11:55 -0500"]]: mumble mumble
+
+[[!meta robots="noindex, follow"]]

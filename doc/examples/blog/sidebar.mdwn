@@ -1,7 +1,10 @@
-Example sidebar
+[[!if test="enabled(calendar)" then="""
+[[!calendar pages="page(./posts/*) and !*/Discussion"]]
+"""]]
 
-* [[Blog|index]]
-* [[Archive|posts]]
+[[Recent Comments|comments]]
 
-Categories:
-[[!map pages="./tags/* and !*/Discussion"]]
+[[Archives]]
+
+[[Tags]]:
+[[!pagestats style="list" pages="./tags/*" among="./posts/*"]]

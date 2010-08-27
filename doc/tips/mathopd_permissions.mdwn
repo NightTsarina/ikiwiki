@@ -1,0 +1,15 @@
+When using [mathopd](http://www.mathopd.org) to serve ikiwiki, be careful of your Umask settings in the mathopd.conf.
+
+With `Umask 026` in mathopd.conf, editing pages resulted in the following errors and a 404 page when the wiki tried to take me to the updated page.
+
+    append_indexes: cannot open .../[destdir]/[outputfile].html
+    open: Permission denied
+
+With `Umask 022` in mathopd.conf, editing pages works.
+
+Hopefully this prevents someone else from spending ~2 hours figuring out why this wouldn't work. ;)
+
+> More generally, if your web server uses a nonstandard umask
+> or you're getting permissions related problems in the cgi log
+> when using ikiwiki, you can force ikiwiki to use a sane umask
+> via the `umask` setting in ikiwiki's own setup file. --[[Joey]] 

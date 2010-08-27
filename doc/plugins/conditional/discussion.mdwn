@@ -1,3 +1,28 @@
+## Conditional broken?
+
+Using \[\[!if test="tagged(plugin)" then="= Tagged as plugin =" else="*No plugins found*"]] on this wiki *should* present the 'Tagged as plugin' heading, instead it emits 'no plugins found'. Is the conditional plugin currently broken for tags or am I misusing it? Thanks.
+
+-- Thiana
+
+> This wiki has no page named "plugin", so nothing links to it; tags are a species of link
+> so tagging a large number of pages with a tag that doesn't exist (which change has
+> been reverted) doesn't make the pagespec match. It would if the tag's page existed. --[[Joey]]
+
+>> So if I understand this correctly... Assuming the tags Tag_A and Tag_B, the existence of 
+>> @wiki-home@/tags/Tag_A.creole, and a number of files with a \[\[!tag Tag_A Tag_B]] the 
+>> following is correct?
+>>
+>> * \[\[!if test="tagged(Tag_A)" then="OK" else="Fail"]] => OK
+>> * \[\[!if test="tagged(Tag_B)" then="OK" else="Fail"]] => Fail
+>> * \[\[!if test="tagged(Tag_A) and tagged(Tag_B)" then="OK" else="Fail"]] => Fail
+>>
+>> Is that the expected behaviour? If so, that's not what I'm seeing here since they all result 
+>> in a Fail. If not, what exactly is wrong with those conditionals? Thanks.
+>>
+>> -- Thiana 
+
+----
+
 Would there be a way for this plugin to emit fewer blank lines (i.e. *none at all*)?
 
 For example, having a look at [this page](http://www.bddebian.com/~wiki/Hurd/)'s sidebar.

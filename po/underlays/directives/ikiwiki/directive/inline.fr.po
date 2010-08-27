@@ -1,0 +1,398 @@
+# Traduction de ikiwiki
+# Copyright (C)2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2010-03-14 22:09+0000\n"
+"PO-Revision-Date: 2010-07-17 16:02+0200\n"
+"Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+msgid ""
+"The `inline` directive is supplied by the [[!iki plugins/inline "
+"desc=inline]] plugin."
+msgstr ""
+"La directive `inline` est fournie par le module d'extension [[!iki plugins/"
+"inline desc=inline]]."
+
+#. type: Plain text
+msgid ""
+"This is a directive that allows including one wiki page inside another.  The "
+"most common use of inlining is generating blogs and RSS or Atom feeds."
+msgstr ""
+"Cette directive permet l'inclusion d'une page de wiki dans une autre. "
+"L'utilisation la plus fréquente de cette directive est la création de blog "
+"ou de flux Atom ou RSS."
+
+#. type: Plain text
+msgid "Example:"
+msgstr "Exemple :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!inline pages=\"blog/* and !*/Discussion\" show=\"10\" rootpage=\"blog\"]]\n"
+msgstr "\t\\[[!inline pages=\"blog/* and !*/Discussion\" show=\"10\" rootpage=\"blog\"]]\n"
+
+#. type: Plain text
+msgid ""
+"Any pages that match the specified [[PageSpec]] (in the example, any "
+"[[SubPage]] of \"blog\") will be part of the blog, and the newest 10 of them "
+"will appear in the page. Note that if files that are not pages match the "
+"[[PageSpec]], they will be included in the feed using RSS enclosures, which "
+"is useful for podcasting."
+msgstr ""
+"Toute page correspondant à la spécification, [[PageSpec]], (dans l'exemple, "
+"toute [[SubPage]] de \"blog\") fera partie du blog et les dix dernières "
+"pages apparaîtront dans la page. Notez que les fichiers qui, sans être des "
+"pages, correspondent à la spécification, seront inclus dans la diffusion par "
+"RSS, ce qui est utile pour le « podcasting »."
+
+#. type: Plain text
+msgid ""
+"The optional `rootpage` parameter tells the wiki that new posts to this blog "
+"should default to being [[SubPages|SubPage]] of \"blog\", and enables a form "
+"at the top of the blog that can be used to add new items."
+msgstr ""
+"Le paramètre facultatif `rootpage` indique que les nouveaux messages de ce "
+"blog seront des sous-pages [[SubPages|SubPage]] de \"blog\". Il active aussi "
+"un formulaire en haut de la page du blog qui permet l'écriture de nouveaux "
+"messages."
+
+#. type: Plain text
+msgid ""
+"If you want your blog to have an archive page listing every post ever made "
+"to it, you can accomplish that like this:"
+msgstr ""
+"Si vous voulez que le blog possède une page d'archive, listant tous les "
+"messages déjà envoyés, voici ce qu'il faut faire :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!inline pages=\"blog/* and !*/Discussion\" archive=\"yes\"]]\n"
+msgstr "\t\\[[!inline pages=\"blog/* and !*/Discussion\" archive=\"yes\"]]\n"
+
+#. type: Plain text
+msgid ""
+"You can even create an automatically generated list of all the pages on the "
+"wiki, with the most recently added at the top, like this:"
+msgstr ""
+"Vous pouvez même créer une liste de toutes les pages du wiki, les plus "
+"récentes en tête, comme cela :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!inline pages=\"* and !*/Discussion\" archive=\"yes\"]]\n"
+msgstr "\t\\[[!inline pages=\"* and !*/Discussion\" archive=\"yes\"]]\n"
+
+#. type: Plain text
+msgid ""
+"If you want to be able to add pages to a given blog feed by tagging them, "
+"you can do that too. To tag a page, just make it link to a page or pages "
+"that represent its tags. Then use the special `link()` [[PageSpec]] to match "
+"all pages that have a given tag:"
+msgstr ""
+"Vous pouvez aussi ajouter des pages à un blog donné en les étiquetant. Pour "
+"étiqueter une page, il suffit de la lier à une ou plusieurs pages qui "
+"représentent cette étiquette. Puis, il faut utiliser une spécification "
+"[[PageSpec]] avec la fonction spéciale `link()` pour trouver toutes les "
+"pages correspondant à cette étiquette."
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!inline pages=\"link(life)\"]]\n"
+msgstr "\t\\[[!inline pages=\"link(rugby)\"]]\n"
+
+#. type: Plain text
+msgid "Or include some tags and exclude others:"
+msgstr ""
+"Vous pouvez aussi inclure certaines étiquettes et en exclure d'autres :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!inline pages=\"link(debian) and !link(social)\"]]\n"
+msgstr "\t\\[[!inline pages=\"link(debian) and !link(social)\"]]\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "usage"
+msgstr "Usage"
+
+#. type: Plain text
+msgid ""
+"There are many parameters you can use with the `inline` directive. These are "
+"the commonly used ones:"
+msgstr ""
+"Il est possible d'utiliser beaucoup de paramètres avec la directive "
+"`inline`. Voici les plus communs :"
+
+#. type: Bullet: '* '
+msgid "`pages` - A [[PageSpec]] of the pages to inline."
+msgstr "`pages` - Une spécification [[PageSpec]] des pages à relier."
+
+#. type: Bullet: '* '
+msgid ""
+"`show` - Specify the maximum number of matching pages to inline.  Default is "
+"10, unless archiving, when the default is to show all.  Set to 0 to show all "
+"matching pages."
+msgstr ""
+"`show` - Indique le nombre maximun de pages correspondantes à relier. Par "
+"défaut, ce nombre vaut 10 sauf pour l'archivage où toutes les pages sont "
+"reliées. La valeur 0 permet d'afficher toutes les pages correspondantes."
+
+#. type: Bullet: '* '
+msgid ""
+"`archive` - If set to \"yes\", only list page titles and some metadata, not "
+"full contents."
+msgstr ""
+"`archive` - Quand ce paramètre vaut \"yes\", on ne liste que le titre des "
+"pages et certaines métadonnées, pas tout le contenu des pages."
+
+#. type: Bullet: '* '
+msgid ""
+"`description` - Sets the description of the rss feed if one is generated.  "
+"Defaults to the name of the wiki."
+msgstr ""
+"`description` - donne le nom du flux RSS créé. Par défaut, c'est le nom du "
+"wiki."
+
+#. type: Bullet: '* '
+msgid ""
+"`skip` - Specify a number of pages to skip displaying. Can be useful to "
+"produce a feed that only shows archived pages."
+msgstr ""
+"`skip` - Indique un nombre de pages à ne pas afficher. C'est utile pour "
+"produire un flux qui ne montre que les pages archivées."
+
+#. type: Bullet: '* '
+msgid ""
+"`postform` - Set to \"yes\" to enable a form to post new pages to a blog."
+msgstr ""
+"`postform` - Quand ce paramètre vaut \"yes\", le formulaire qui permet de "
+"créer de nouvelles pages sur un blog est activé."
+
+#. type: Bullet: '* '
+msgid "`postformtext` - Set to specify text that is displayed in a postform."
+msgstr "`postformtext` - Spécifie le texte affiché par le formulaire."
+
+#. type: Bullet: '* '
+msgid ""
+"`rootpage` - Enables the postform, and allows controling where newly posted "
+"pages should go, by specifiying the page that they should be a [[SubPage]] "
+"of."
+msgstr ""
+"`rootpage` - Active le formulaire et indique l'endroit où les nouveaux "
+"messages seront placés, en donnant la page dont ils seront des sous-pages."
+
+#. type: Plain text
+msgid "Here are some less often needed parameters:"
+msgstr "Voici quelques paramètres moins nécessaires :"
+
+#. type: Bullet: '* '
+msgid ""
+"`actions` - If set to \"yes\" add links to the bottom of the inlined pages "
+"for editing and discussion (if they would be shown at the top of the page "
+"itself)."
+msgstr ""
+"`actions` - Quand ce paramètre vaut \"yes\", des liens permettant la "
+"modification et la discussion sont ajoutés au bas des pages reliées plutôt "
+"qu'en haut."
+
+#. type: Bullet: '* '
+msgid ""
+"`rss` - controls generation of an rss feed. If the wiki is configured to "
+"generate rss feeds by default, set to \"no\" to disable. If the wiki is "
+"configured to `allowrss`, set to \"yes\" to enable."
+msgstr ""
+"`rss` - Contrôler la création d'un flux RSS. Si le wiki est configuré par "
+"défaut pour créer des flux rss, le mettre à \"no\" désactive la création de "
+"flux. Si le wiki est configuré avec  l'option `allowrss`, le mettre à \"yes"
+"\" active la création de flux rss. "
+
+#. type: Bullet: '* '
+msgid ""
+"`atom` - controls generation of an atom feed. If the wiki is configured to "
+"generate atom feeds by default, set to \"no\" to disable. If the wiki is "
+"configured to `allowatom`, set to \"yes\" to enable."
+msgstr ""
+"`atom` - Contrôler la création d'un flux Atom. Si le wiki est configuré par "
+"défaut pour créer des flux Atom, le mettre à \"no\" désactive la création de "
+"flux. Si le wiki est configuré avec l'option `allowatom`, le mettre à \"yes"
+"\" active la création de flux Atom."
+
+#. type: Bullet: '* '
+msgid ""
+"`feeds` - controls generation of all types of feeds. Set to \"no\" to "
+"disable generating any feeds."
+msgstr ""
+"`feeds` - Contrôler la création de tout type de flux. Le mettre à \"no\" "
+"pour désactiver la création de flux."
+
+#. type: Bullet: '* '
+msgid ""
+"`emptyfeeds` - Set to \"no\" to disable generation of empty feeds.  Has no "
+"effect if `rootpage` or `postform` is set."
+msgstr ""
+"`emptyfeeds` - Mettre ce paramètre à \"no\" pour désactiver toute création "
+"de flux vides. N'a aucun effet si le paramètre `rootpage` ou le paramètre "
+"`postform` est activé."
+
+#. type: Bullet: '* '
+msgid ""
+"`template` - Specifies the template to fill out to display each inlined "
+"page. By default the `inlinepage` template is used, while the `archivepage` "
+"template is used for archives. Set this parameter to use some other, custom "
+"template, such as the `titlepage` template that only shows post titles or "
+"the `microblog` template, optimised for microblogging. Note that you should "
+"still set `archive=yes` if your custom template does not include the page "
+"content."
+msgstr ""
+"`template` - Ce paramètre indique le modèle de page à utiliser pour chaque "
+"page reliée. Par défaut le modèle utilisé est `inlinepage`. Pour les "
+"archives, le modèle utilisé est `archivepage`. Il est possible d'utiliser "
+"d'autres modèles comme `titlepage` qui n'affiche que le titre des messages, "
+"ou `microblog`, optimisé pour le « microblogging », et même de créer vos "
+"propres modèles. Notez que vous devez quand même activer le paramètre "
+"archive, `archive=yes`, si votre modèle n'inclut pas le contenu de la page."
+
+#. type: Bullet: '* '
+msgid ""
+"`raw` - Rather than the default behavior of creating a blog, if raw is set "
+"to \"yes\", the page will be included raw, without additional markup around "
+"it, as if it were a literal part of the source of the inlining page."
+msgstr ""
+"`raw` - Si ce paramètre vaut \"yes\", la page sera incluse sous sa forme "
+"« brute », sans balisage supplémentaire, comme si elle faisait partie de la "
+"source de la page dans laquelle elle est incluse. Le comportement par défaut "
+"de ce paramètre est de créer un blog."
+
+#. type: Bullet: '* '
+msgid ""
+"`sort` - Controls how inlined pages are [[sorted|pagespec/sorting]].  The "
+"default is to sort the newest created pages first."
+msgstr "`sort` - permet d'indiquer comment les pages liées sont triées [[sorted|pagespec/sorting]]. Par défaut, les pages les plus récentes sont triées en premier."
+
+#. type: Bullet: '* '
+msgid "`reverse` - If set to \"yes\", causes the sort order to be reversed."
+msgstr ""
+"`reverse` - Si ce paramètre vaut \"yes\", l'ordre de classement est renversé."
+
+#. type: Bullet: '* '
+msgid ""
+"`feedshow` - Specify the maximum number of matching pages to include in the "
+"rss/atom feeds. The default is the same as the `show` value above."
+msgstr ""
+"`feedshow` - Indique le nombre maximun de pages à inclure dans le flux RSS/"
+"Atom. La valeur par défaut est la même que celle du paramètre `show`."
+
+#. type: Bullet: '* '
+msgid ""
+"`feedonly` - Only generate the feed, do not display the pages inline on the "
+"page."
+msgstr ""
+"`feedonly` - Ne créer que le flux, ne pas afficher les pages reliées sur la "
+"page."
+
+#. type: Bullet: '* '
+#| msgid ""
+#| "`quick` - Build archives in quick mode, without reading page contents for "
+#| "metadata. By default, this also turns off generation of any feeds."
+msgid ""
+"`quick` - Build archives in quick mode, without reading page contents for "
+"metadata. This also turns off generation of any feeds."
+msgstr "`quick` - Construire l'archive en mode rapide, sans chercher les métadonnées dans le contenu des pages. Cela désactive la création de flux."
+
+#. type: Bullet: '* '
+msgid ""
+"`timeformat` - Use this to specify how to display the time or date for pages "
+"in the blog. The format string is passed to the strftime(3) function."
+msgstr ""
+"`timeformat` - Ce paramètre permet d'indiquer la manière d'afficher l'heure "
+"ou la date dans les pages de blog. Le format est passé à la fonction strftime"
+"(3)."
+
+#. type: Bullet: '* '
+msgid ""
+"`feedpages` - A [[PageSpec]] of inlined pages to include in the rss/atom "
+"feeds. The default is the same as the `pages` value above, and only pages "
+"matched by that value are included, but some of those can be excluded by "
+"specifying a tighter [[PageSpec]] here."
+msgstr ""
+"`feedpages` - Une spécification [[PageSpec]] des pages à inclure dans le "
+"flux rss/atom. Par défaut, cette valeur est la même que celle du paramètre "
+"`pages` et seules les pages correspondantes sont incluses, mais une "
+"spécification plus précise peut en exclure certaines."
+
+#. type: Bullet: '* '
+msgid ""
+"`guid` - If a URI is given here (perhaps a UUID prefixed with `urn:uuid:`), "
+"the Atom feed will have this as its `<id>`. The default is to use the URL of "
+"the page containing the `inline` directive."
+msgstr ""
+"`guid` - Si une URI est donnée (peut-être un UUID préfixé, `urn:uuid:`), le "
+"flux Atom aura cet identifiant, son `<id>`. Par défaut, l'URL de la page "
+"contenant la directive `inline` est utilisée."
+
+#. type: Bullet: '* '
+msgid ""
+"`feedfile` - Can be used to change the name of the file generated for the "
+"feed. This is particularly useful if a page contains multiple feeds.  For "
+"example, set \"feedfile=feed\" to cause it to generate `page/feed.atom` and/"
+"or `page/feed.rss`. This option is not supported if the wiki is configured "
+"not to use `usedirs`."
+msgstr ""
+"`feedfile` - On peut utiliser ce paramètre pour changer le nom du fichier "
+"créé pour le flux. C'est très utile dans le cas d'une page qui contient "
+"plusieurs flux. Par exemple, indiquez \"feedfile=feed\" pour créer un "
+"fichier `page/feed.atom` ou `page/feed.rss`. Si le wiki est configuré pour "
+"ne pas utiliser `usedirs`, ce paramètre ne fonctionne pas."
+
+#. type: Bullet: '* '
+msgid ""
+"`pagenames` - If given instead of `pages`, this is interpreted as a space-"
+"separated list of links to pages (with the same [[SubPage/LinkingRules]] as "
+"in a [[ikiwiki/WikiLink]]), and they are inlined in exactly the order given: "
+"the `sort` and `pages` parameters cannot be used in conjunction with this "
+"one."
+msgstr ""
+"`pagenames` - Si ce paramètre est utilisé à la place de `pages`, il est "
+"interprété comme une liste de liens, séparés par des espaces, avec les mêmes "
+"règles [[SubPage/LinkingRules]] que dans un [[ikiwiki/WikiLink]]. Ces liens "
+"sont reliés dans l'ordre dans lequel ils sont listés : les paramètres `sort` "
+"et `pages` ne peuvent pas être utilisés en même temps."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+msgid ""
+"A related directive is the [[ikiwiki/directive/edittemplate]] directive, "
+"which allows default text for a new page to be specified."
+msgstr ""
+"Une directive apparentée à cette directive est [[ikiwiki/directive/"
+"edittemplate]], qui permet d'indiquer un texte par défaut pour la nouvelle "
+"page."
+
+#~ msgid ""
+#~ "`sort` - Controls how inlined pages are sorted. The default, \"age\" is "
+#~ "to sort newest created pages first. Setting it to \"title\" will sort "
+#~ "pages by title, and \"mtime\" sorts most recently modified pages first. "
+#~ "If [[!cpan Sort::Naturally]] is installed, `sort` can be set to "
+#~ "\"title_natural\" to sort by title with numbers treated as such (\"1 2 9 "
+#~ "10 20\" instead of \"1 10 2 20 9\")."
+#~ msgstr ""
+#~ "`sort` - Ce paramètre contrôle la façon de trier les pages reliées. Avec "
+#~ "le critère par défaut, \"age\", les pages les plus récentes sont classées "
+#~ "en premier.  Avec le critère \"title\", les pages seront classées par "
+#~ "titre. Avec le critère \"mtime\", les pages les plus récemment modifiées "
+#~ "seront classées en premier. Si le module [[!cpan Sort::Naturally]] est "
+#~ "installé, on peut utiliser le critère \"title_natural\" pour trier par "
+#~ "titre avec nombres ordonnés numériquement (\"1 2 9 10 20\" au lieu de \"1 "
+#~ "10 2 20 9\")."

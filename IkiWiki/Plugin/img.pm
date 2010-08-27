@@ -19,12 +19,17 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
 sub preprocess (@) {
 	my ($image) = $_[0] =~ /$config{wiki_file_regexp}/; # untaint
 	my %params=@_;
+
+	if (! defined $image) {
+		error("bad image filename");
+	}
 
 	if (exists $imgdefaults{$params{page}}) {
 		foreach my $key (keys %{$imgdefaults{$params{page}}}) {
@@ -34,7 +39,7 @@ sub preprocess (@) {
 		}
 	}
 
-	if (! exists $params{size}) {
+	if (! exists $params{size} || ! length $params{size}) {
 		$params{size}='full';
 	}
 
@@ -44,6 +49,7 @@ sub preprocess (@) {
 	}
 
 	add_link($params{page}, $image);
+	add_depends($params{page}, $image);
 
 	# optimisation: detect scan mode, and avoid generating the image
 	if (! defined wantarray) {
@@ -63,46 +69,81 @@ sub preprocess (@) {
 	error gettext("Image::Magick is not installed") if $@;
 	my $im = Image::Magick->new;
 	my $imglink;
-	my $r;
+	my $r = $im->Read($srcfile);
+	error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
+	
+	my ($dwidth, $dheight);
 
 	if ($params{size} ne 'full') {
-		add_depends($params{page}, $image);
-
 		my ($w, $h) = ($params{size} =~ /^(\d*)x(\d*)$/);
 		error sprintf(gettext('wrong size format "%s" (should be WxH)'), $params{size})
 			unless (defined $w && defined $h &&
 			        (length $w || length $h));
-
-		my $outfile = "$config{destdir}/$dir/${w}x${h}-$base";
-		$imglink = "$dir/${w}x${h}-$base";
 		
-		will_render($params{page}, $imglink);
+		if ((length $w && $w > $im->Get("width")) ||
+		    (length $h && $h > $im->Get("height"))) {
+		    	# resizing larger
+			$imglink = $file;
 
-		if (-e $outfile && (-M $srcfile >= -M $outfile)) {
-			$r = $im->Read($outfile);
-			error sprintf(gettext("failed to read %s: %s"), $outfile, $r) if $r;
+			# don't generate larger image, just set display size
+			if (length $w && length $h) {
+				($dwidth, $dheight)=($w, $h);
+			}
+			# avoid division by zero on 0x0 image
+			elsif ($im->Get("width") == 0 || $im->Get("height") == 0) {
+				($dwidth, $dheight)=(0, 0);
+			}
+			# calculate unspecified size from the other one, preserving
+			# aspect ratio
+			elsif (length $w) {
+				$dwidth=$w;
+				$dheight=$w / $im->Get("width") * $im->Get("height");
+			}
+			elsif (length $h) {
+				$dheight=$h;
+				$dwidth=$h / $im->Get("height") * $im->Get("width");
+			}
 		}
 		else {
-			$r = $im->Read($srcfile);
-			error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
+			# resizing smaller
+			my $outfile = "$config{destdir}/$dir/${w}x${h}-$base";
+			$imglink = "$dir/${w}x${h}-$base";
+		
+			will_render($params{page}, $imglink);
 
-			$r = $im->Resize(geometry => "${w}x${h}");
-			error sprintf(gettext("failed to resize: %s"), $r) if $r;
-
-			# don't actually write file in preview mode
-			if (! $params{preview}) {
-				my @blob = $im->ImageToBlob();
-				writefile($imglink, $config{destdir}, $blob[0], 1);
+			if (-e $outfile && (-M $srcfile >= -M $outfile)) {
+				$im = Image::Magick->new;
+				$r = $im->Read($outfile);
+				error sprintf(gettext("failed to read %s: %s"), $outfile, $r) if $r;
 			}
 			else {
-				$imglink = $file;
+				($dwidth, $dheight)=($w, $h);
+				$r = $im->Resize(geometry => "${w}x${h}");
+				error sprintf(gettext("failed to resize: %s"), $r) if $r;
+
+				# don't actually write resized file in preview mode;
+				# rely on width and height settings
+				if (! $params{preview}) {
+					my @blob = $im->ImageToBlob();
+					writefile($imglink, $config{destdir}, $blob[0], 1);
+				}
+				else {
+					$imglink = $file;
+				}
 			}
+			
+			$dwidth = $im->Get("width") unless defined $dwidth;
+			$dheight = $im->Get("height") unless defined $dheight;
 		}
 	}
 	else {
-		$r = $im->Read($srcfile);
-		error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 		$imglink = $file;
+		$dwidth = $im->Get("width");
+		$dheight = $im->Get("height");
+	}
+	
+	if (! defined($dwidth) || ! defined($dheight)) {
+		error sprintf(gettext("failed to determine size of image %s"), $file)
 	}
 
 	my ($fileurl, $imgurl);
@@ -115,35 +156,54 @@ sub preprocess (@) {
 		$imgurl="$config{url}/$imglink";
 	}
 
-	if (! defined($im->Get("width")) || ! defined($im->Get("height"))) {
-		error sprintf(gettext("failed to determine size of image %s"), $file)
+	if (exists $params{class}) {
+		$params{class}.=" img";
+	}
+	else {
+		$params{class}="img";
 	}
 
+	my $attrs='';
+	foreach my $attr (qw{alt title class id hspace vspace}) {
+		if (exists $params{$attr}) {
+			$attrs.=" $attr=\"$params{$attr}\"";
+		}
+	}
+	
 	my $imgtag='<img src="'.$imgurl.
-		'" width="'.$im->Get("width").
-		'" height="'.$im->Get("height").'"'.
-		(exists $params{alt} ? ' alt="'.$params{alt}.'"' : '').
-		(exists $params{title} ? ' title="'.$params{title}.'"' : '').
-		(exists $params{align} ? ' align="'.$params{align}.'"' : '').
-		(exists $params{class} ? ' class="'.$params{class}.'"' : '').
-		(exists $params{id} ? ' id="'.$params{id}.'"' : '').
+		'" width="'.$dwidth.
+		'" height="'.$dheight.'"'.
+		$attrs.
+		(exists $params{align} && ! exists $params{caption} ? ' align="'.$params{align}.'"' : '').
 		' />';
 
-	if (! defined $params{link} || lc($params{link}) eq 'yes') {
-		$imgtag='<a href="'.$fileurl.'">'.$imgtag.'</a>';
+	my $link;
+	if (! defined $params{link}) {
+		$link=$fileurl;
 	}
 	elsif ($params{link} =~ /^\w+:\/\//) {
-		$imgtag='<a href="'.$params{link}.'">'.$imgtag.'</a>';
+		$link=$params{link};
 	}
-	elsif (length bestlink($params{page}, $params{link})) {
-		add_depends($params{page}, $params{link});
-		$imgtag=htmllink($params{page}, $params{destpage},
-			$params{link}, linktext => $imgtag,
-			noimageinline => 1);
+
+	if (defined $link) {
+		$imgtag='<a href="'.$link.'">'.$imgtag.'</a>';
+	}
+	else {
+		my $b = bestlink($params{page}, $params{link});
+	
+		if (length $b) {
+			add_depends($params{page}, $b, deptype("presence"));
+			$imgtag=htmllink($params{page}, $params{destpage},
+				$params{link}, linktext => $imgtag,
+				noimageinline => 1,
+			);
+		}
 	}
 
 	if (exists $params{caption}) {
-		return '<table class="img">'.
+		return '<table class="img'.
+			(exists $params{align} ? " align-$params{align}" : "").
+			'">'.
 			'<caption>'.$params{caption}.'</caption>'.
 			'<tr><td>'.$imgtag.'</td></tr>'.
 			'</table>';

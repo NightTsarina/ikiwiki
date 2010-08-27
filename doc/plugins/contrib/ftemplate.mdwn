@@ -1,0 +1,25 @@
+[[!template id=plugin name=ftemplate author="[[rubykat]]"]]
+[[!tag type/meta type/format]]
+
+This plugin provides the [[ikiwiki/directive/ftemplate]] directive.
+
+This is like the [[ikiwiki/directive/template]] directive, with the addition
+that one does not have to provide all the values in the call to the template,
+because ftemplate can query structured data ("fields") using the [[field]]
+plugin.
+
+## Activate the plugin
+
+    add_plugins => [qw{goodstuff ftemplate ....}],
+
+## PREREQUISITES
+
+    IkiWiki
+    IkiWiki::Plugin::field
+    HTML::Template
+    Encode
+
+## DOWNLOAD
+
+* browse at GitHub: <http://github.com/rubykat/ikiplugins/blob/master/IkiWiki/Plugin/ftemplate.pm>
+* git repo at git://github.com/rubykat/ikiplugins.git

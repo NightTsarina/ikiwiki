@@ -18,6 +18,7 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 }
 
 sub getsetup () {
@@ -25,6 +26,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => 0,
+			section => "rcs",
 		},
 }
 
@@ -36,13 +38,11 @@ sub rcs_prepedit ($) {
 	return ""
 }
 
-sub rcs_commit ($$$;$$) {
-	my ($file, $message, $rcstoken, $user, $ipaddr) = @_;
+sub rcs_commit (@) {
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$) {
-	my ($message, $user, $ipaddr)=@_;
+sub rcs_commit_staged (@) {
 	return undef # success
 }
 
@@ -62,7 +62,11 @@ sub rcs_diff ($) {
 }
 
 sub rcs_getctime ($) {
-	error gettext("getctime not implemented");
+	return 0;
+}
+
+sub rcs_getmtime ($) {
+	return 0;
 }
 
 1

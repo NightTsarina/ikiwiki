@@ -1,0 +1,13 @@
+Upgrading to `librpc-xml-perl` 0.69-1 on debian breaks external XML-RPC plugins (such as [[rst]]).
+Refresing the wiki fails with an error message like this:
+
+    RPC::XML::Parser::new: This method should have
+    been overridden by the RPC::XML::Parser class at
+    /usr/share/perl5/RPC/XML/Parser.pm line 46, <GEN1> line 30.
+
+It appears an incompatible change in the library creates this problem.
+
+`librpc-xml-perl` version 0.67-1 works. The easiest solution is to downgrade to this version,
+or disable XML-RPC plugins if they are not needed.
+
+[[fixed|done]] --[[Joey]] 

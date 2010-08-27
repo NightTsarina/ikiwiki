@@ -1,0 +1,44 @@
+[[!meta date="2006-12-19 09:56:21 +0000"]]
+
+# Excellent - how do I translate a TWiki site?
+
+I just discovered ikiwiki quite by chance, I was looking for a console/terminal
+menu system and found pdmenu.  So pdmenu brought me to here and I've found ikiwiki!
+It looks as if it's just what I've been wanting for a long time.  I wanted something
+to create mostly text web pages which, as far as possible, have source which is human 
+readable or at least in a standard format.  ikiwiki does this twice over by using 
+markdown for the source and producing static HTML from it.
+
+I'm currently using TWiki and have a fair number of pages in that format, does
+anyone have any bright ideas for translating?  I can knock up awk scripts fairly
+easily, perl is possible (but I'm not strong in perl).
+
+> Let us know if you come up with something to transition from the other
+> format. Another option would be writing a ikiwiki plugin to support the
+> TWiki format. --[[Joey]]
+
+> Jamey Sharp and I have a set of scripts in progress to convert other wikis to ikiwiki, including history, so that we can migrate a few of our wikis.  We already have support for migrating MoinMoin wikis to ikiwiki, including conversion of the entire history to Git.  We used this to convert the [XCB wiki](http://xcb.freedesktop.org/wiki/) to ikiwiki; until we finalize the conversion and put the new wiki in place of the old one, you can browse the converted result at <http://xcb.freedesktop.org/ikiwiki>.  We already plan to add support for TWiki (including history, since you can just run parsecvs on the TWiki RCS files to get Git), so that we can convert the [Portland State Aerospace Society wiki](http://psas.pdx.edu) (currently in Moin, but with much of its history in TWiki, and with many of its pages still in TWiki format using Jamey's TWiki format for MoinMoin).
+>
+> Our scripts convert by way of HTML, using portions of the source wiki's code to render as HTML (with some additional code to do things like translate MoinMoin's `\[[TableOfContents]]` to ikiwiki's `\[[!toc ]]`), and then using a modified [[!cpan HTML::WikiConverter]] to turn this into markdown and ikiwiki.  This produces quite satisfactory results, apart from things that don't have any markdown equivalent and thus remain HTML, such as tables and definition lists.  Conversion of the history occurs by first using another script we wrote to translate MoinMoin history to Git, then using our git-map script to map a transformation over the Git history.
+>
+> We will post the scripts as soon as we have them complete enough to convert our wikis.
+>
+> -- [[JoshTriplett]]
+
+>> Thanks for an excellent Xmas present, I will appreciate the additional 
+>> users this will help switch to ikiwiki! --[[Joey]]
+
+
+>> Sounds great indeed. Learning from [here](http://www.bddebian.com/~wiki/AboutTheTWikiToIkiwikiConversion/) that HTML::WikiConverter needed for your conversion was not up-to-date on Debian I have now done an unofficial package, including your proposed Markdown patches, apt-get'able at <pre>deb http://debian.jones.dk/ sid wikitools</pre>
+>> -- [[JonasSmedegaard]]
+
+
+>>I see the "We will post the scripts ...." was committed about a year ago.  A current site search for "Moin" does not turn them up.  Any chance of an appearance in the near (end of year) future?
+>>
+>> -- [[MichaelRasmussen]]
+
+>>> It appears the scripts were never posted?  I recently imported my Mediawiki site into Iki.  If it helps, my notes are here: <http://iki.u32.net/Mediawiki_Conversion> --[[sabr]]
+
+>>>>> The scripts have been posted now, see [[joshtriplett]]'s user page, 
+>>>>> and I've pulled together all ways I can find to [[convert]] other
+>>>>> systems into ikiwiki. --[[Joey]]

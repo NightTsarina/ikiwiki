@@ -28,12 +28,7 @@ updates the published  wiki itself.
 
 The other (optional) leaf node repositories are meant for you to work
 on, and commit to, changes should then be pushed to the bare root
-repository.  In theory, you could work on the same leaf node repository
-that ikiwiki uses to compile the wiki from, and the [[cgi]] commits
-to, as long as you ensure that permissions and ownership don't hinder
-the working of the [[cgi]]. This can be done, for example, by using
-ACL's, in practice, it is easier to just setup separate clones for
-yourself.
+repository.
 
 So, to reiterate, when using Git, you probably want to set up three
 repositories:
@@ -41,9 +36,9 @@ repositories:
 * The root repository. This should be a bare repository (meaning that
   it does not have a working tree checked out), which the other
   repositories will push to/pull from.  It is a bare repository, since
-  there are problems pushing to a repository that has a working
+  git does not support pushing to a repository that has a working
   directory. This is called _repository_ in [[ikiwiki-makerepo]]'s
-  manual page. Nominally, this bare repository has a `post-update` hook
+  manual page. This bare repository has a `post-update` hook
   that either is or calls ikiwiki's git wrapper, which changes to the
   working directory for ikiwiki, does a `git pull`, and refreshes ikiwiki
   to regenerate the wiki with any new content. The [[setup]] page describes
@@ -51,10 +46,11 @@ repositories:
 
 * The second repository is a clone of the bare root repository, and
   has a working tree which is used as ikiwiki's srcdir for compiling
-  the wiki. **Never** push to this repository. When running as a
-  [[cgi]], the changes are committed to this repository, and pushed to
-  the master repository above. This is called _srcdir_ in
-  [[ikiwiki-makerepo]]'s manual page.
+  the wiki. **Never** push to this repository. It is wise to not make
+  changes or commits directly to this repository, to avoid conflicting
+  with ikiwiki's own changes. When running as a [[cgi]], the changes
+  are committed to this repository, and pushed to the master repository
+  above. This is called _srcdir_ in [[ikiwiki-makerepo]]'s manual page.
 
 * The other (third, fourth, fifth, sixth -- however many pleases you)
   repositories are also clones of the bare root repository above --
@@ -87,8 +83,8 @@ It can be tricky to get the permissions right to allow multiple people to
 commit to an ikiwiki git repository. As the [[security]] page mentions,
 for a secure ikiwiki installation, only one person should be able to write
 to ikiwiki's srcdir. When other committers make commits, their commits
-should go to the bare repository, which has a `post-update` hook that uses
-ikiwiki to pull the changes to the srcdir.
+should be pushed to the bare repository, which has a `post-update` hook
+that uses ikiwiki to pull the changes to the srcdir.
 
 One setup that will work is to put all committers in a group (say,
 "ikiwiki"), and use permissions to allow that group to commit to the bare git

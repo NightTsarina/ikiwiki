@@ -1,0 +1,30 @@
+My `numcomments` Git branch adds a `NUMCOMMENTS` `TMPL_VAR`, which is
+useful to add to the `forumpage.tmpl` template to emulate (the nice
+bits of) a more usual webforum.
+
+Please review... and pull :)
+
+-- [[intrigeri]]
+ 
+> How is having this variable for showing a count of the comments 
+> better (or more forum-ish) than the COMMENTSLINK variable which
+> includes a count and a link to the comments, and is already displayed
+> in inlinepage.tmpl?
+> 
+> `num_comments` will never return undef.
+> 
+> I see no need to add a second pagetemplate hook.
+> The existing one can be added to. Probably inside its `if ($shown)`
+> block.
+> 
+> It may also be a good idea to either combine the calls to `num_comments`
+> used for this and for the commentslink, 
+> or to memoize it. I'm thinking generally memoizing it may be a good idea
+> since the comments for a page will typically be counted twice when it's
+> inlined.
+> --[[Joey]] 
+
+[[patch]]
+
+>> Well, the COMMENTSLINK variable fits my needs. Sorry for
+>> the disturbance. [[done]] --[[intrigeri]]

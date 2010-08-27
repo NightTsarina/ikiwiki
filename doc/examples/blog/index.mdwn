@@ -1,13 +1,11 @@
-[[!pagestats pages="./tags/*"]]
+[[!if test="enabled(sidebar)" then="""
+[[!sidebar]]
+""" else="""
+[[!inline pages=sidebar raw=yes]]
+"""]]
 
-Welcome to my blog.
-
-Have a look at the most recent posts below, or browse the tag cloud on the
-right. An archive of all [[posts]] is also available.
-
-[[!inline pages="./posts/* and !*/Discussion" show="10"
+[[!inline pages="page(./posts/*) and !*/Discussion" show="10"
 actions=yes rootpage="posts"]]
 
-----
 
 This blog is powered by [ikiwiki](http://ikiwiki.info).

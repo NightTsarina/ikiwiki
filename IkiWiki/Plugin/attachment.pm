@@ -19,6 +19,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "web",
 		},
 		allowed_attachments => {
 			type => "pagespec",
@@ -57,7 +58,7 @@ sub check_canattach ($$;$) {
 			$config{allowed_attachments},
 			file => $file,
 			user => $session->param("name"),
-			ip => $ENV{REMOTE_ADDR},
+			ip => $session->remote_addr(),
 		);
 	}
 
@@ -112,7 +113,7 @@ sub formbuilder (@) {
 
 	return if ! defined $form->field("do") || ($form->field("do") ne "edit" && $form->field("do") ne "create") ;
 
-	my $filename=$q->param('attachment');
+	my $filename=Encode::decode_utf8($q->param('attachment'));
 	if (defined $filename && length $filename &&
             ($form->submitted eq "Upload Attachment" || $form->submitted eq "Save Page")) {
 		my $session=$params{session};
@@ -133,10 +134,13 @@ sub formbuilder (@) {
 			}
 		}
 
+		$filename=IkiWiki::basename($filename);
+		$filename=~s/.*\\+(.+)/$1/; # hello, windows
+
 		$filename=linkpage(IkiWiki::possibly_foolish_untaint(
 				attachment_location($form->field('page')).
-				IkiWiki::basename($filename)));
-		if (IkiWiki::file_pruned($filename, $config{srcdir})) {
+				$filename));
+		if (IkiWiki::file_pruned($filename)) {
 			error(gettext("bad attachment filename"));
 		}
 		
@@ -179,9 +183,12 @@ sub formbuilder (@) {
 		if ($config{rcs}) {
 			IkiWiki::rcs_add($filename);
 			IkiWiki::disable_commit_hook();
-			IkiWiki::rcs_commit($filename, gettext("attachment upload"),
-				IkiWiki::rcs_prepedit($filename),
-				$session->param("name"), $ENV{REMOTE_ADDR});
+			IkiWiki::rcs_commit(
+				file => $filename,
+				message => gettext("attachment upload"),
+				token => IkiWiki::rcs_prepedit($filename),
+				session => $session,
+			);
 			IkiWiki::enable_commit_hook();
 			IkiWiki::rcs_update();
 		}
@@ -189,11 +196,19 @@ sub formbuilder (@) {
 		IkiWiki::saveindex();
 	}
 	elsif ($form->submitted eq "Insert Links") {
-		my $page=quotemeta($q->param("page"));
+		my $page=quotemeta(Encode::decode_utf8($q->param("page")));
 		my $add="";
 		foreach my $f ($q->param("attachment_select")) {
+			$f=Encode::decode_utf8($f);
 			$f=~s/^$page\///;
-			$add.="[[$f]]\n";
+			if (IkiWiki::isinlinableimage($f) &&
+			    UNIVERSAL::can("IkiWiki::Plugin::img", "import")) {
+				$add.='[[!img '.$f.' align="right" size="" alt=""]]';
+			}
+			else {
+				$add.="[[$f]]";
+			}
+			$add.="\n";
 		}
 		$form->field(name => 'editcontent',
 			value => $form->field('editcontent')."\n\n".$add,
@@ -223,13 +238,13 @@ sub attachment_list ($) {
 	my @ret;
 	foreach my $f (values %pagesources) {
 		if (! defined pagetype($f) &&
-		    $f=~m/^\Q$loc\E[^\/]+$/ &&
-		    -e "$config{srcdir}/$f") {
+		    $f=~m/^\Q$loc\E[^\/]+$/) {
 			push @ret, {
 				"field-select" => '<input type="checkbox" name="attachment_select" value="'.$f.'" />',
 				link => htmllink($page, $page, $f, noimageinline => 1),
 				size => IkiWiki::Plugin::filecheck::humansize((stat(_))[7]),
 				mtime => displaytime($IkiWiki::pagemtime{$f}),
+				mtime_raw => $IkiWiki::pagemtime{$f},
 			};
 		}
 	}

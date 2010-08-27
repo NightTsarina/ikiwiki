@@ -1,0 +1,49 @@
+## security
+
+I'm curious what the security implications of having this plugin on a
+publically writable wiki are.
+
+First, it looks like the way it looks up the stylesheet file will happily
+use a regular .mdwn wiki page as the stylsheet. Which means any user can
+create a stylesheet and have it be used, without needing permission to
+upload arbitrary files. That probably needs to be fixed; one way would be
+to mandate that the `srcfile` has a `.xsl` extension.
+
+Secondly, if an attacker is able to upload a stylesheet file somehow, could
+this be used to attack the server where it is built? I know that xslt is
+really a full programming language, so I assume at least DOS attacks are
+possible. Can it also read other arbitrary files, run other programs, etc?
+--[[Joey]] 
+
+> For the first point, agreed.  It should probably check that the data file has a `.xml` extension also.  Have now fixed.
+
+> For the second point, I think the main concern would be resource usage.  XSLT is a pretty limited language; it can read other XML files, but it can't run other programs so far as I know.
+
+> -- [[KathrynAndersen]]
+
+>> XSLT is, indeed, a Turing-complete programming language.
+   However, [XML::LibXSLT][] provides a set of functions to help
+   to minimize the damage that may be caused by running a random
+   program.
+
+>> In particular, `max_depth ()` allows for the maximum
+   recursion depth to be set, while
+   `read_file ()`, `write_file ()`, `create_dir ()`,
+   `read_net ()` and `write_net ()`
+   are the callbacks that allow any of the possible file
+   operations to be denied.
+
+>> To be honest, I'd prefer for the `read_file ()` callback to
+   only grant access to the files below the Ikiwiki source
+   directory, and for all the `write_`&hellip; and
+   &hellip;`_net` callbacks to deny the access unconditionally.
+
+>> One more wishlist item: allow the set of locations to take
+   `.xsl` files from to be preconfigured, so that, e.&nbsp;g.,
+   one could allow (preasumably trusted) system stylesheets,
+   while disallowing any stylesheets that are placed on the Wiki
+   itself.
+
+>> &mdash;&nbsp;Ivan Shmakov, 2010-03-28Z.
+
+[XML::LibXSLT]: http://search.cpan.org/~PAJAS/XML-LibXSLT/LibXSLT.pm

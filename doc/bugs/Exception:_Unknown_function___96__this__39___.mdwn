@@ -1,0 +1,70 @@
+I'm very excited to try out ikiwiki, since it should fit my purposes extremely well, but I'm having trouble with the search plugin. I'm pretty sure that right after I installed ikiwiki and needed dependencies, the search plugin was working fine. However, now when I try to use search, I get "Exception: Unknown function `this'" error on a blank page. I'm not sure how I should go about debugging this issue - my server's (I use Lighttpd 1.4.22) error log has no mention of the exception and there's nothing in /var/log/syslog either.
+
+What might be causing this exception and how I might go about debugging exceptions?
+
+> Appears to be coming from your xapian omega cgi binary. If you
+> run `strings /usr/lib/cgi-bin/omega/omega` you can see it has
+> "Exception: " in it, and I have found some similar (but not identical)
+> error messages from xapian in a web search.
+> 
+> I don´t know what to suggest, other than upgrade/downgrade/reinstall
+> xapian-omega, and contacting the xapian developers for debugging.
+> You could try rebuilding your wiki in case it is somehow
+> caused by a problem with the xapian database. Failing everything, you
+> could switch to [[google_search_plugin|plugins/google]]. --[[Joey]] 
+
+>> Thanks, Joey. With your help I was able to figure out what was wrong. It's a fun little bug (or feature): the title of my wiki had string `$this` in title and that's what was causing the omega binary to choke. My wiki's title was inserted without escaping into the query template used by omega. Omega treated `$this` in the title as a function name and threw an exception because no such function was defined. To avoid this behavior, I used an html entity in the title, so `$this` became `&#36;this`. I don't think that the wiki title should be inserted into the template without escaping - it can produce an error that's not trivial to debug. If users want to modify the html in the title, they should be editing respective templates, not typing html in the wiki title input. What do you think? --[[dkobozev]]
+
+>>> Sounds like a bug in omega, and one that probably would affect other
+>>> users of omega too. Ikiwiki could work around it by pre-escaping
+>>> data before passing it to xapian. I have not quite managed to reproduce it though;
+>>> tried setting a page title to '$this' and 'foo $this'.
+>>> That's with version 1.0.18 of omega.
+>>> --[[Joey]]
+
+>>>> I tried it with both omega 1.0.13 and omega 1.0.18 and the issue is present in both. If I view the contents of {$srcdir}/.ikiwiki/xapian/templates/query, I can see that the wiki title is inserted verbatim and there are calls to `$setmap`, `$set` and `$def` etc in the template. --[[dkobozev]]
+
+>>>>> I don't see how that's relevant. It would help if you showed me
+>>>>> exactly something that could be inserted into a page to cause the
+>>>>> problem. --[[Joey]] 
+
+>>>>>> Correct me if I'm wrong: ikiwiki generates an Omega template from its own templates, such as searchquery.tmpl and puts it into {$srcdir}/.ikiwiki/xapian/templates/query. Omega has its own template syntax, where function names are prefixed with dollar signs (`$`). So, when I call my wiki `$foobar`, ikiwiki generates an Omega template that looks like this snippet:
+
+    <div id="container">
+        <div class="pageheader">
+            <div class="header">
+            <span>
+            <a href="http://example.com">$foobar</    a>/search
+            </span>
+            </div>
+        </div> <!-- .pageheader -->
+    
+        <div id="content">
+            $setmap{prefix,title,S}
+    $setmap{prefix,link,XLINK}
+    $set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
+    ${
+    $def{PREV,
+    $if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
+    SRC="/images/xapian-omega/prev.png" BORDER=0 HEIGHT=30 WIDTH=30>,
+    <IMG ALT="" SRC="/images/xapian-omega/prevoff.png" HEIGHT=30 WIDTH=30>}
+
+>>>>>> So `$foobar` clashes with Omega's template tags. Does this help?
+
+>>>>>>> Ahh. I had somehow gotten it into my head that you were talking
+>>>>>>> about the title of a single page, not of the whole wiki. But
+>>>>>>> you were clear all along it was the wiki title. Sorry for
+>>>>>>> misunderstanding. I've put in a complete fix for this problem.
+>>>>>>> if this was in [[bugs]], I'd close it. :) --[[Joey]] 
+
+>>>>>>>> Rather than escaping `$` as an HTML entity, it would be more natural
+>>>>>>>> to escape it as `$$` (since you are escaping it for Omega, not for
+>>>>>>>> the web browser.
+>>>>>>>>
+>>>>>>>> Also if ikiwiki can put arbitrary text inside the parameters of an
+>>>>>>>> OmegaScript command, you should also escape `{`, `}` and `,` as
+>>>>>>>> `$(`, `$)` and `$.`.  It's only necessary to do so inside the
+>>>>>>>> parameters of a command, but it will work and be easier to escape
+>>>>>>>> them in any substituted text. --OllyBetts
+
+[[done]]

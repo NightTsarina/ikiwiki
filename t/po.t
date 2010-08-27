@@ -17,7 +17,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 65;
+use Test::More tests => 68;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -31,6 +31,9 @@ my $dir = tempdir("ikiwiki-test-po.XXXXXXXXXX",
 %config=IkiWiki::defaultconfig();
 $config{srcdir} = "$dir/src";
 $config{destdir} = "$dir/dst";
+$config{destdir} = "$dir/dst";
+$config{underlaydirbase} = "/dev/null";
+$config{underlaydir} = "/dev/null";
 $config{discussion} = 0;
 $config{po_master_language} = { code => 'en',
 				name => 'English'
@@ -42,8 +45,8 @@ $config{po_slave_languages} = {
 $config{po_translatable_pages}='index or test1 or test2 or translatable';
 $config{po_link_to}='negotiated';
 IkiWiki::loadplugins();
-IkiWiki::checkconfig();
 ok(IkiWiki::loadplugin('po'), "po plugin loaded");
+IkiWiki::checkconfig();
 
 ### seed %pagesources and %pagecase
 $pagesources{'index'}='index.mdwn';
@@ -61,7 +64,7 @@ $pagesources{'translatable.fr'}='translatable.fr.po';
 $pagesources{'translatable.es'}='translatable.es.po';
 $pagesources{'nontranslatable'}='nontranslatable.mdwn';
 foreach my $page (keys %pagesources) {
-    $IkiWiki::pagecase{lc $page}=$page;
+	$IkiWiki::pagecase{lc $page}=$page;
 }
 
 ### populate srcdir
@@ -90,6 +93,13 @@ ok(! IkiWiki::Plugin::po::istranslation('test2'), "test2 is not a translation");
 ok(! IkiWiki::Plugin::po::istranslatable('test3'), "test3 is not translatable");
 ok(! IkiWiki::Plugin::po::istranslation('test3'), "test3 is not a translation");
 }
+
+### pofiles
+
+my @pofiles = IkiWiki::Plugin::po::pofiles(srcfile("index.mdwn"));
+ok( @pofiles, "pofiles is defined");
+ok( @pofiles == 2, "pofiles has correct size");
+is_deeply(\@pofiles, ["$config{srcdir}/index.es.po", "$config{srcdir}/index.fr.po"], "pofiles content is correct");
 
 ### links
 require IkiWiki::Render;
@@ -122,8 +132,8 @@ $config{po_link_to}='current';
 $msgprefix="links (po_link_to=current)";
 refresh_n_scan('index.mdwn', 'translatable.mdwn', 'nontranslatable.mdwn');
 is_deeply(\@{$links{'index'}}, ['translatable', 'nontranslatable'], "$msgprefix index");
-is_deeply(\@{$links{'index.es'}}, [ map bestlink('index.es', $_), ('translatable.es', 'nontranslatable')], "$msgprefix index.es");
-is_deeply(\@{$links{'index.fr'}}, [ map bestlink('index.fr', $_), ('translatable.fr', 'nontranslatable')], "$msgprefix index.fr");
+is_deeply(\@{$links{'index.es'}}, [ (map bestlink('index.es', $_), ('translatable.es', 'nontranslatable'))], "$msgprefix index.es");
+is_deeply(\@{$links{'index.fr'}}, [ (map bestlink('index.fr', $_), ('translatable.fr', 'nontranslatable'))], "$msgprefix index.fr");
 is_deeply(\@{$links{'translatable'}}, [bestlink('translatable', 'nontranslatable')], "$msgprefix translatable");
 is_deeply(\@{$links{'translatable.es'}}, ['nontranslatable'], "$msgprefix translatable.es");
 is_deeply(\@{$links{'translatable.fr'}}, ['nontranslatable'], "$msgprefix translatable.fr");

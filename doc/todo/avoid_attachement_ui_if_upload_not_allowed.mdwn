@@ -1,0 +1,25 @@
+Any way to make it so an edit page doesn't offer the attachment capability
+unless it matches a specific user, is an admin, and/or is an allowed page?
+(For now, I have it on all pages, and then it prohibits after I submit
+based on the allowed_attachments.)
+
+> To do that, ikiwiki would have to try to match the `allowed_attachments`
+> pagespec against a sort of dummy upload to the current page. Then if it
+> failed, assume all real uploads would fail. Now consider a pagespec like
+> "user(joey) and mimetype(audio/mpeg)" -- it'd be hard to make a dummy
+> upload to test this pagespec against.
+> 
+> So, there would need to be some sort of test mode, where terms like
+> `mimetype()` always succeed. But then consider a pagespec like
+> "user(joey) and !mimetype(video/mpeg)" -- if mimetype succeeds, this
+> fails.
+> 
+> So, maybe we can instead just filter out all the pagespec terms aside
+> from `user()`, `ip()`, and `admin()`. Transforming that into just
+> "user(joey)", which would succeed in the test.
+> 
+> That'd work, I guess. Pulling a pagespec apart, filtering out terms, and
+> putting it back together is nontrivial, but doable.
+> 
+> Other approach would be to have a separate pagespec that explicitly
+> controlls what pages to show the attachment UI on. --[[Joey]] 

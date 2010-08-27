@@ -46,7 +46,9 @@ sub sanitize (@) {
 	waitpid $pid, 0;
 
 	$SIG{PIPE}="DEFAULT";
-	return "" if $sigpipe || ! defined $ret;
+	if ($sigpipe || ! defined $ret) {
+		return gettext("htmltidy failed to parse this html");
+	}
 
 	return $ret;
 }

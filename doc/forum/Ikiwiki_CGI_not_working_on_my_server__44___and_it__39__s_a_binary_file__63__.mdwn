@@ -1,0 +1,33 @@
+Hey, trying to get ikiwiki working on my account on a shared webserver. Actually installing ikiwiki on the server is phase 2. For now I'm running the latest ikiwiki (from source) locally, compiling the output with the ikiwiki command, then rsyncing the output dir up to the server. This works for the static HTML files, but the CGI file doesn't work, the server redirects to an error page. The error log on the server says "Premature end of script headers: /path/to/ikiwiki.cgi"
+
+My first thought was that this is a Perl CGI and I would need to change the shebang to point to the unusual location of Perl on this server, it's at /usr/pkg/bin/perl. But when I looked at ikiwiki.cgi I found it was a binary file.
+
+Why is it a binary? And what can I do about this error?
+
+> It's a binary because it's SUID, so that it has permission to write to the ikiwiki repository. See [[security]], under 'suid wrappers', for more on that.
+> 
+> As to why you get 'premature end of script headers', that suggests there is a problem running
+> the script (and there is output occurring before the HTTP headers are printed). Do you have access
+> to the webserver logs for your host? They might contain some clues. Are you sure that the webserver
+> is setup for CGI properly? -- [[Jon]]
+
+> Quite likely your laptop and your server do not run the same
+> OS, so the wrapper binary cannot just be copied from one
+> to the other and run. Also, the wrapper is just that, a
+> thin wrapper which then runs ikiwiki. As ikiwiki is not
+> yet installed on your server, that's another reason what
+> you're trying can't work.
+> 
+> If installing ikiwiki on the server is not possible or
+> too much work right now, you could try building your wiki
+> on your laptop with cgi disabled in the setup file. 
+> The result would be a static website that you could deploy to
+> the server this way. Of course, it wouldn't be editable
+> on the server, and other features that need the CGI would
+> also be disabled. --[[Joey]]
+
+> > Ah, ok thanks. Yes the server runs a different OS and ikiwiki
+> > is not installed on it. I've got it working as a static site,
+> > so if I want the CGI I'll have to install ikiwiki on the server.
+> > Ok. It might not work as I don't have root access, but I might
+> > give it a try. Thanks

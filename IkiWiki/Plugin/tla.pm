@@ -18,6 +18,7 @@ sub import {
 	hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 }
 
 sub checkconfig () {
@@ -34,6 +35,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # rcs plugin
 			rebuild => undef,
+			section => "rcs",
 		},
 		tla_wrapper => {
 			type => "string",
@@ -96,18 +98,23 @@ sub rcs_prepedit ($) {
 	}
 }
 
-sub rcs_commit ($$$;$$) {
-	my $file=shift;
-	my $message=shift;
-	my $rcstoken=shift;
-	my $user=shift;
-	my $ipaddr=shift;
+sub rcs_commit (@) {
+	my %params=@_;
 
-	if (defined $user) {
-		$message="web commit by $user".(length $message ? ": $message" : "");
-	}
-	elsif (defined $ipaddr) {
-		$message="web commit from $ipaddr".(length $message ? ": $message" : "");
+	my ($file, $message, $rcstoken)=
+		($params{file}, $params{message}, $params{token});
+
+	if (defined $params{session}) {
+		if (defined $params{session}->param("name")) {
+			$message="web commit by ".
+				$params{session}->param("name").
+				(length $message ? ": $message" : "");
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			$message="web commit from ".
+				$params{session}->remote_addr().
+				(length $message ? ": $message" : "");
+		}
 	}
 
 	if (-d "$config{srcdir}/{arch}") {
@@ -137,10 +144,10 @@ sub rcs_commit ($$$;$$) {
 	return undef # success
 }
 
-sub rcs_commit_staged ($$$) {
+sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my ($message, $user, $ipaddr)=@_;
+	my %params=@_;
 	
 	error("rcs_commit_staged not implemented for tla"); # TODO
 }
@@ -161,7 +168,7 @@ sub rcs_remove ($) {
 	error("rcs_remove not implemented for tla"); # TODO
 }
 
-sub rcs_rename ($$) { # {{{a
+sub rcs_rename ($$) {
 	my ($src, $dest) = @_;
 
 	error("rcs_rename not implemented for tla"); # TODO
@@ -281,6 +288,10 @@ sub rcs_getctime ($) {
 	my $date=str2time($sdate, 'UTC');
 	debug("found ctime ".localtime($date)." for $file");
 	return $date;
+}
+
+sub rcs_getmtime ($) {
+	error "rcs_getmtime is not implemented for tla\n"; # TODO
 }
 
 1

@@ -1,19 +1,28 @@
 [[!template id=plugin name=aggregate author="[[Joey]]"]]
-[[!tag type/useful]]
+[[!tag type/special-purpose]]
 
 This plugin allows content from other feeds to be aggregated into the
 wiki. To specify feeds to aggregate, use the
 [[ikiwiki/directive/aggregate]] [[ikiwiki/directive]].
 
-The [[meta]] and [[tag]] plugins are also recommended. Either the
-[[htmltidy]] or [[htmlbalance]] plugin is suggested, since feeds can easily
-contain html problems, some of which these plugins can fix.
+## requirements
+
+The [[meta]] and [[tag]] plugins are also recommended to be used with this
+one. Either the [[htmltidy]] or [[htmlbalance]] plugin is suggested, since
+feeds can easily contain html problems, some of which these plugins can fix.
+
+## triggering aggregation
 
 You will need to run ikiwiki periodically from a cron job, passing it the
 --aggregate parameter, to make it check for new posts. Here's an example
 crontab entry:
 
 	*/15 * * * * ikiwiki --setup my.wiki --aggregate --refresh
+
+The plugin updates a file `.ikiwiki/aggregatetime` with the unix time stamp
+when the next aggregation run could occur. (The file may be empty, if no
+aggregation is required.) This can be integrated into more complex cron
+jobs or systems to trigger aggregation only when needed.
 
 Alternatively, you can allow `ikiwiki.cgi` to trigger the aggregation. You
 should only need this if for some reason you cannot use cron, and instead

@@ -38,3 +38,34 @@ on vacation".
 > >
 > > I no longer have the original wiki for which I wanted this feature, but I can
 > > see using it on future ones. -- [[DonMarti]]
+
+>>> FWIW, for the case where one wants to update a site offline,
+>>> using an ikiwiki instance on a laptop, and include some deffered
+>>> posts in the push, the ad-hoc cron job type approach will be annoying.
+>>> 
+>>> In modern ikiwiki, I guess the way to accomplish this would be to
+>>> add a pagespec that matches only pages posted in the present or past.
+>>> Then a page can have its post date set to the future, using meta date,
+>>> and only show up when its post date rolls around.
+>>> 
+>>> Ikiwiki will need to somehow notice that a pagespec began matching
+>>> a page it did not match previously, despite said page not actually
+>>> changing. I'm not sure what the best way is. 
+>>>
+>>> * One way could be to 
+>>>   use a needsbuild hook and some stored data about which pagespecs
+>>>   exclude pages in the future. (But I'm not sure how evaluating the
+>>>   pagespec could lead to that metadata and hook being set up.) 
+>>> * Another way would be to use an explicit directive to delay a
+>>>   page being posted. Then the directive stores the metadata and
+>>>   sets up the needsbuild hook.
+>>> * Another way would be for ikiwiki to remember the last 
+>>>   time it ran. It could then easily find pages that have a post
+>>>   date after that time, and treat them the same as it treats actually
+>>>   modified files.  Or a plugin could do this via a needsbuild hook,
+>>>   probably. (Only downside to this is it would probably need to do
+>>>   a O(n) walk of the list of pages -- but only running an integer
+>>>   compare per page.)
+>>> 
+>>> You'd still need a cron job to run ikiwiki -refresh every hour, or
+>>> whatever, so it can update. --[[Joey]] 

@@ -32,13 +32,21 @@ These options control the mode that ikiwiki operates in.
 
 * --setup setupfile
 
-  In setup mode, ikiwiki reads the config file, which is really a perl
-  program that can call ikiwiki internal functions.
-
   The default action when --setup is specified is to automatically generate
   wrappers for a wiki based on data in a setup file, and rebuild the wiki.
   If you only want to build any changed pages, you can use --refresh with
   --setup.
+
+* --changesetup setupfile
+
+  Reads the setup file, adds any configuration changes specified by other
+  options, and writes the new configuration back to the setup file. Also
+  updates any configured wrappers. In this mode, the wiki is not fully
+  rebuilt, unless you also add --rebuild.
+
+  Example, to enable some plugins:
+
+	ikiwiki --changesetup ~/ikiwiki.setup --plugin goodstuff --plugin calendar
 
 * --dumpsetup setupfile
 
@@ -49,6 +57,14 @@ These options control the mode that ikiwiki operates in.
 
   If used with --setup --refresh, this makes it also update any configured
   wrappers.
+
+* --clean
+
+  This makes ikiwiki clean up by removing any files it denerated in the 
+  `destination` directory, as well as any configured wrappers, and the
+  `.ikiwiki` state directory. This is mostly useful if you're running
+  ikiwiki in a Makefile to build documentation and want a corresponding
+  `clean` target.
 
 * --cgi
 
@@ -112,10 +128,11 @@ also be configured using a setup file.
 
 * --templatedir dir
 
-  Specify the directory that the page [[templates|wikitemplates]] are stored in.
+  Specify the directory that [[templates|templates]] are stored in.
   Default is `/usr/share/ikiwiki/templates`, or another location as configured at
   build time. If the templatedir is changed, missing templates will still
-  be searched for in the default location as a fallback.
+  be searched for in the default location as a fallback. Templates can also be
+  placed in the "templates/" subdirectory of the srcdir.
 
   Note that if you choose to copy and modify ikiwiki's templates, you will need
   to be careful to keep them up to date when upgrading to new versions of
@@ -226,6 +243,12 @@ also be configured using a setup file.
   Specifies a rexexp of source files to exclude from processing.
   May be specified multiple times to add to exclude list.
 
+* --include regexp
+
+  Specifies a rexexp of source files, that would normally be excluded,
+  but that you wish to include in processing.
+  May be specified multiple times to add to include list.
+
 * --adminuser name
 
   Specifies a username of a user (or, if openid is enabled, an openid) 
@@ -249,8 +272,8 @@ also be configured using a setup file.
 
   Makes ikiwiki look in the specified directory first, before the regular
   locations when loading library files and plugins. For example, if you set
-  libdir to "/home/you/.ikiwiki/", you can install a Foo.pm plugin as
-  "/home/you/.ikiwiki/IkiWiki/Plugin/Foo.pm".
+  libdir to "/home/you/.ikiwiki/", you can install a foo.pm plugin as
+  "/home/you/.ikiwiki/IkiWiki/Plugin/foo.pm".
 
 * --discussion, --no-discussion
 
@@ -306,20 +329,22 @@ also be configured using a setup file.
   intercepted. If you enable this option then you must run at least the 
   CGI portion of ikiwiki over SSL.
 
-* --getctime
+* --gettime, --no-gettime
 
-  Pull creation time for each new page out of the revision control
-  system. This rarely used option provides a way to get the real creation
-  times of items in weblogs, such as when building a wiki from a new
-  VCS checkout. It is unoptimised and quite slow. It is best used
-  with --rebuild, to force ikiwiki to get the ctime for all pages.
+  Extract creation and modification times for each new page from the
+  the revision control's log. This is done automatically when building a
+  wiki for the first time, so you normally do not need to use this option.
 
 * --set var=value
   
   This allows setting an arbitrary configuration variable, the same as if it
-  were set via a setup file. Since most options can be configured
-  using command-line switches, you will rarely need to use this, but it can be
-  useful for the odd option that lacks a command-line switch.
+  were set via a setup file. Since most commonly used options can be
+  configured using command-line switches, you will rarely need to use this.
+
+* --set-yaml var=value
+
+  This is like --set, but it allows setting configuration variables that
+  use complex data structures, by passing in a YAML document.
 
 # EXAMPLES
 
@@ -344,6 +369,10 @@ also be configured using a setup file.
 * CC
 
   This controls what C compiler is used to build wrappers. Default is 'cc'.
+
+* CFLAGS
+
+  This can be used to pass options to the C compiler when building wrappers.
 
 # SEE ALSO
 

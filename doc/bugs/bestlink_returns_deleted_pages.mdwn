@@ -1,0 +1,75 @@
+To reproduce: 
+
+1. Add the backlinkbug plugin below to ikiwiki. 
+2. Create a page named test.mdwn somewhere in the wiki. 
+3. Refresh ikiwiki in verbose mode. Pages whose bestlink is the test.mwdn page will be printed to the terminal.
+4. Delete test.mdwn.
+5. Refresh ikiwiki in verbose mode again. The same pages will be printed to the terminal again.
+6. Refresh ikiwiki in verbose mode another time. Now no pages will be printed.
+
+bestlink() checks %links (and %pagecase) to confirm the existance of the page.
+However, find_del_files() does not remove the deleted page from %links (and %pagecase).
+
+Since find_del_files removes the deleted page from %pagesources and %destsources,
+won't it make sense for bestlink() to check %pagesources first? --[[harishcm]]
+
+> This same problem turned out to also be the root of half of ikiwiki's
+> second-oldest bug, [[bestlink_change_update_issue]].
+> 
+> Fixing it is really a bit involved, see commit
+> f1ddf4bd98821a597d8fa1532092f09d3d9b5483. The fix I committed fixes
+> bestlink to not return deleted pages, but only *after* the needsbuild and
+> scan hooks are called. So I was able to fix it for every case except the
+> one you gave! Sorry for that. To fix it during beedsbuild and scan, 
+> a much more involved approach would be needed. AFAICS, no existing plugin
+> in ikiwiki uses bestlink in needsbuild or scan though.
+> 
+> If the other half of [[bestlink_change_update_issue]] is fixed, 
+> maybe by keeping a copy of the old backlinks info, then that fix could be
+> applied here too. --[[Joey]]
+
+>> Cool that was fast! Well at least half the bug is solved :) For now I'll
+>> probably try using a workaround if using bestlink within the needsbuild
+>> or scan hooks. Maybe by testing if pagemtime equals zero. --[[harishcm]]
+
+>>> Yeah, and bestlink could also do that. However, it feels nasty to have
+>>> it need to look at pagemtime. --[[Joey]]
+
+----
+
+    #!/usr/bin/perl
+    # Plugin to reproduce bestlink returning deleted pages. 
+    # Run with ikiwiki in verbose mode.
+    
+    package IkiWiki::Plugin::bestlinkbug;
+    
+    use warnings;
+    use strict;
+    use IkiWiki 3.00;
+    
+    sub import {
+    	hook(type => "getsetup", id => "bestlinkbug", call => \&getsetup);
+    	hook(type => "needsbuild", id => "bestlinkbug", call => \&needsbuild);
+    }
+    
+    sub getsetup () {
+    	return
+    		plugin => {
+    			safe => 1,
+    			rebuild => 0,
+    		},
+    }
+    
+    sub needsbuild (@) {
+    	my $needsbuild=shift;
+    	
+    	foreach my $page (keys %pagestate) {
+    		my $testpage=bestlink($page, "test") || next;
+    		
+    		debug("$page");
+    	}
+    }	
+    
+    1
+
+

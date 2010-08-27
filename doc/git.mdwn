@@ -26,13 +26,16 @@ be browsed, subscribed to etc on its
 You are of course free to set up your own ikiwiki git repository with your
 own [[patches|patch]]. If you list it here, the `gitremotes` script will
 automatically add it to git remotes. Your repo will automatically be pulled
-into [[Joey]]'s working tree. This is recommended. :-)
+into [[Joey]]'s working repository where he can see your branches and
+think about merging them. This is recommended. :-)
 
 <!-- Machine-parsed format: * wikilink <git:url> -->
 
 * github `git://github.com/joeyh/ikiwiki.git`
   ([browse](http://github.com/joeyh/ikiwiki/tree/master))  
   A mirror of the main repo, automatically updated.
+* l10n `git://l10n.ikiwiki.info/`
+  Open push localization branch used for <http://l10n.ikiwiki.info/>
 * [[smcv]] `git://git.pseudorandom.co.uk/git/smcv/ikiwiki.git`
 * [[intrigeri]] `git://gaffer.ptitcanardnoir.org/ikiwiki.git`
 * [[gmcmanus]] `git://github.com/gmcmanus/ikiwiki.git`
@@ -46,21 +49,41 @@ into [[Joey]]'s working tree. This is recommended. :-)
 * [[arpitjain]] `git://github.com/arpitjain11/ikiwiki.git`
 * [[chrysn]] `git://github.com/github076986099/ikiwiki.git`
 * [[simonraven]] `git://github.com/kjikaqawej/ikiwiki-simon.git`
+* [[schmonz]] `git://github.com/schmonz/ikiwiki.git`
+* [[will]] `http://www.cse.unsw.edu.au/~willu/ikiwiki.git`
+* [[kaizer]] `git://github.com/engla/ikiwiki.git`
+* [[bbb]] `http://git.boulgour.com/bbb/ikiwiki.git`
+* [[KathrynAndersen]] `git://github.com/rubykat/ikiplugins.git`
+* [[ktf]] `git://github.com/ktf/ikiwiki.git`
+* [[tove]] `git://github.com/tove/ikiwiki.git`
+* [[GiuseppeBilotta]] `git://git.oblomov.eu/ikiwiki`
+* [[roktas]] `git://github.com/roktas/ikiwiki.git`
+* [[davrieb|David_Riebenbauer]] `git://git.liegesta.at/git/ikiwiki`
+  ([browse](http://git.liegesta.at/?p=ikiwiki.git;a=summary))
+* [[GustafThorslund]] `http://gustaf.thorslund.org/src/ikiwiki.git`
+* [[peteg]] `git://git.hcoop.net/git/peteg/ikiwiki.git`
+* [[privat]] `git://github.com/privat/ikiwiki.git`
+* [[blipvert]] `git://github.com/blipvert/ikiwiki.git`
+* [[bzed|BerndZeimetz]] `git://git.recluse.de/users/bzed/ikiwiki.git`
 
 ## branches
+
+In order to refer to a branch in one of the above git repositories, for
+example when submitting a [[patch]], you can use the
+[[templates/gitbranch]] template.
 
 Some of the branches included in the main repository include:
 
 * `gallery` contains the [[todo/Gallery]] plugin. It's not yet merged
   due to license issues.  Also some bits need to be tweaked to make it
   work with the current *master* branch again.
-* `html` is an unfinished attempt at making ikiwiki output HTML 4.01
-  instead of xhtml.
 * `wikiwyg` adds [[todo/wikiwyg]] support. It is unmerged pending some
   changes.
 * `debian-stable` is used for updates to the old version included in
   Debian's stable release, and `debian-testing` is used for updates to
-  Debian's testing release.
+  Debian's testing release. (These and similar branches will be rebased.)
+* `ignore` gets various branches merged to it that Joey wishes to ignore
+  when looking at everyone's unmerged changes.
 * `pristine-tar` contains deltas that
   [pristine-tar](http://kitenet.net/~joey/code/pristine-tar)
   can use to recreate released tarballs of ikiwiki

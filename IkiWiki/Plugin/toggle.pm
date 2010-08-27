@@ -20,6 +20,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
@@ -49,8 +50,7 @@ sub preprocess_toggleable (@) {
 
 	# Preprocess the text to expand any preprocessor directives
 	# embedded inside it.
-	$params{text}=IkiWiki::preprocess($params{page}, $params{destpage}, 
-		IkiWiki::filter($params{page}, $params{destpage}, $params{text}));
+	$params{text}=IkiWiki::preprocess($params{page}, $params{destpage}, $params{text});
 	
 	my $id=genid($params{page}, $params{id});
 	my $class=(lc($params{open}) ne "yes") ? "toggleable" : "toggleable-open";
@@ -68,8 +68,8 @@ sub format (@) {
 
 	if ($params{content}=~s!(<div class="toggleable(?:-open)?" id="[^"]+">\s*)</div>!$1!g) {
 		$params{content}=~s/<div class="toggleableend">//g;
-		if (! ($params{content}=~s!^(<body>)!$1.include_javascript($params{page})!em)) {
-			# no </body> tag, probably in preview mode
+		if (! ($params{content}=~s!^(<body[^>]*>)!$1.include_javascript($params{page})!em)) {
+			# no <body> tag, probably in preview mode
 			$params{content}=include_javascript($params{page}, 1).$params{content};
 		}
 	}
@@ -80,9 +80,9 @@ sub include_javascript ($;$) {
 	my $page=shift;
 	my $absolute=shift;
 	
-	return '<script src="'.urlto("ikiwiki.js", $page, $absolute).
+	return '<script src="'.urlto("ikiwiki/ikiwiki.js", $page, $absolute).
 		'" type="text/javascript" charset="utf-8"></script>'."\n".
-		'<script src="'.urlto("toggle.js", $page, $absolute).
+		'<script src="'.urlto("ikiwiki/toggle.js", $page, $absolute).
 		'" type="text/javascript" charset="utf-8"></script>';
 }
 

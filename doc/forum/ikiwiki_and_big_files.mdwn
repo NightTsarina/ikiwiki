@@ -1,0 +1,102 @@
+My website has 214 hand written html, 1500 of pictures and a few, err sorry, 114
+video files. All this takes around 1.5 GB of disk space at the moment.
+Plain html files take 1.7 MB and fit naturally into git.
+
+But what about the picture and video files?
+
+Pictures are mostly static and rarely need to be edited after first upload, 
+wasting a megabyte or two after an edit while having them in git doesn't really matter. 
+Videos on the other hand are quite large from megabytes to hundreds. Sometimes
+I re-encode them from the original source with better codec parameters and just
+replace the files under html root so they are accessible from the same URL.
+So having a way to delete a 200 MB file and upload a new one with same name and access URL
+is what I need. And it appears git has trouble erasing commits from history, or requires
+some serious gitfoo and good backups of the original repository.
+
+So which ikiwiki backend could handle piles of large binary files? Or should I go for a separate
+data/binary blob directory next to ikiwiki content?
+
+Further complication is my intention to keep URL compatibility with old handwritten and ikiwiki
+based site. Sigh, tough job but luckily just a hobby.
+
+[-Mikko](http://mcfrisk.kapsi.fi)
+
+ps. here's how to calculate space taken by html, picture and video files:
+
+    ~/www$ unset sum; for size in $( for ext in htm html txt xml log; \
+    do find . -iname "*$ext" -exec stat -c "%s" \{\} \; ; done | xargs ); \
+    do sum=$(( $sum + $size )); done ; echo $sum
+    1720696
+    ~/www$ unset sum; for size in $( for ext in jpg gif jpeg png; \
+    do find . -iname "*$ext" -exec stat -c "%s" \{\} \; ; done | xargs ); \
+    do sum=$(( $sum + $size )); done ; echo $sum
+    46032184
+    ~/www$ unset sum; for size in $( for ext in avi dv mpeg mp4; \
+    do find . -iname "*$ext" -exec stat -c "%s" \{\} \; ; done | xargs ); \
+    do sum=$(( $sum + $size )); done ; echo $sum
+    1351890888
+
+> One approach is to use the [[plugins/underlay]] plugin to
+> configure a separate underlay directory, and put the large
+> files in there. Those files will then be copied to the generated
+> wiki, but need not be kept in revision control. (Or could be 
+> revision controlled in a separate repository -- perhaps one using
+> a version control system that handles large files better than git;
+> or perhaps one that you periodically blow away the old history to
+> in order to save space.)
+> 
+> BTW, the `hardlink` setting is a good thing to enable if you
+> have large files, as it saves both disk space and copying time. 
+> --[[Joey]]
+
+Can underlay plugin handle the case that source and destination directories
+are the same? I'd rather have just one copy of these underlay files on the server.
+
+> No, but enabling hardlinks accomplishes the same effect. --[[Joey]] 
+
+And did I goof in the setup file since I got this:
+
+    $ ikiwiki -setup blog.setup -rebuild --verbose
+    Can't use string ("/home/users/mcfrisk/www/blog/med") as an ARRAY ref while
+    "strict refs" in use at 
+    /home/users/mcfrisk/bin/share/perl/5.10.0/IkiWiki/Plugin/underlay.pm line 41.
+    $ grep underlay blog.setup 
+        add_plugins => [qw{goodstuff websetup comments blogspam html sidebar underlay}],
+        underlaydir => '/home/users/mcfrisk/bin/share/ikiwiki/basewiki',
+        # underlay plugin
+        # extra underlay directories to add
+        add_underlays => '/home/users/mcfrisk/www/blog/media',
+    $ egrep "(srcdir|destdir)" blog.setup 
+        srcdir => '/home/users/mcfrisk/blog',
+        destdir => '/home/users/mcfrisk/www/blog',
+        # allow symlinks in the path leading to the srcdir (potentially insecure)
+        allow_symlinks_before_srcdir => 1,
+        # directory in srcdir that contains directive descriptions
+
+-Mikko
+
+> The plugin seems to present a bad default value in the setup file.
+> (Fixed in git.) A correct configuration would be:
+
+        add_underlays => ['/home/users/mcfrisk/www/blog/media'],
+	
+Umm, doesn't quite fix this yet:
+
+    $ ikiwiki -setup blog.setup -v
+    Can't use an undefined value as an ARRAY reference at /home/users/mcfrisk/bin/share/perl/5.10.0/IkiWiki
+    /Plugin/underlay.pm line 44.
+    $ grep underlay blog.setup 
+        add_plugins => [qw{goodstuff websetup comments blogspam html sidebar underlay}],
+        underlaydir => '/home/users/mcfrisk/bin/share/ikiwiki/basewiki',
+        # underlay plugin
+        # extra underlay directories to add
+        add_underlays => ['/home/users/mcfrisk/www/blog/media'],
+    $ ikiwiki --version
+    ikiwiki version 3.20091032
+
+-Mikko
+
+> Yeah, I've fixed that in git, but you can work around it with this:
+> --[[Joey]] 
+        
+	templatedirs => [],

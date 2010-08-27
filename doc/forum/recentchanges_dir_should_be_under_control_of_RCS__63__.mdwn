@@ -1,0 +1,105 @@
+Hello Joey,
+
+I noticed that my Ikiwiki started to rebuild pages very slowly after my last changes
+when I upgraded Ikiwiki to version 3.20100623. Now I have the latest release 3.20100704,
+but it doesn't help me.
+
+I started to debug the problem and I found that I can see a lot of messages
+like below when I try to rebuild my wiki manually:
+
+    svn: '/path/to/ikiwiki/trunk/pages/ostatnie_zmiany' is not a working copy
+    svn: Can't open file '/path/to/ikiwiki/trunk/pages/ostatnie_zmiany/.svn/entries': No such file or directory
+    svn log exited 256
+
+"ostatnie_zmiany" is a value of `recentchangespage` parameter in my
+`ikiwiki.setup` file. It is not under control Subversion I use for Ikiwiki:
+
+    $ svn status pages/ostatnie_zmiany
+    ?      pages/ostatnie_zmiany
+
+    $ ls pages/ostatnie_zmiany/*._change |wc -l
+    100
+
+`recentchangesnum` parameter has value 100 for me and I noticed that my Ikiwiki
+takes a lot of time to parse all `._change` files. Finally it doesn't refresh
+/ostatnie_zmiany.html page.
+
+Do you think I should add `ostatnie_zmiany` directory under control of my
+Subversion repo? If it's not necessary, could you please give me any hint
+to find a reason of problem with my Ikiwiki?
+
+My best regards,
+Pawel
+
+> No, the recentchanges pages are automatically generated and should not
+> themselves be in revision control.
+> 
+> Ikiwiki has recently started automatically enabing `--gettime`, but
+> it should not do it every time, but only on the initial build
+> of a wiki. It will print "querying svn for file creation and modification
+> times.." when it does this. If it's doing it every time, something
+> is wrong. (Specifically, `.ikiwiki/indexdb` must be missing somehow.)
+> 
+> The support for svn with --gettime is rather poor. (While with git it is
+> quite fast.) But as it's only supposed to happen on the first build,
+> I haven't tried to speed it up. It would be hard to do it fast with svn.
+> It would be possible to avoid the warning message above, or even skip
+> processing files in directories not checked into svn -- but I'd much
+> rather understand why you are seeing this happen on repeated builds.
+> --[[Joey]]
+
+>> Thanks a lot for your reply! I've just checked my `rebuild-pages.sh`
+>> script and discovered that it contains
+>> `/usr/bin/ikiwiki --setup ikiwiki.setup --gettime` command... :D
+>> The warnings disappeared when I removed `--gettime` parameter.
+>> Sorry for confusing! :)
+>>
+>> I have `.ikiwiki/indexdb` file here, but I noticed that it has been
+>> modified about 1 minute **after** last Subversion commit:
+>>
+>>     $ LANG=C svn up
+>>     At revision 5951.
+>>    
+>>     $ LANG=C svn log -r 5951
+>>     ------------------------------------------------------------------------
+>>     r5951 | svn | 2010-07-06 09:02:30 +0200 (Tue, 06 Jul 2010) | 1 line
+>>     
+>>     web commit by xahil
+>>     ------------------------------------------------------------------------
+>>    
+>>     $ LANG=C stat pages/.ikiwiki/indexdb 
+>>       File: `pages/.ikiwiki/indexdb'
+>>       Size: 184520    	Blocks: 368        IO Block: 131072 regular file
+>>     Device: 2bh/43d	Inode: 1931145     Links: 1
+>>     Access: (0644/-rw-r--r--)  Uid: ( 1005/     svn)   Gid: ( 1005/     svn)
+>>     Access: 2010-07-06 12:06:24.000000000 +0200
+>>     Modify: 2010-07-06 09:03:38.000000000 +0200
+>>     Change: 2010-07-06 09:03:38.000000000 +0200
+>>
+>> I believe it's the time I have to wait to see that my wiki page has been rebuilt.
+>> Do you have any idea how to find a reason of that delay? --[[Paweł|ptecza]]
+
+>>> Well, I hope that your svn post-commit hook is not running your
+>>> `rebuild-pages.sh`. That script rebuilds everything, rather than just
+>>> refreshing what's been changed.
+>>>
+>>> Using subversion is not asking for speed. Especially if your svn
+>>> repository is on a remote host. You might try disabling
+>>> recentchanges and see if that speeds up the refreshes (it will avoid
+>>> one `svn log`).
+>>>
+>>> Otherwise, take a look at [[tips/optimising_ikiwiki]]
+>>> for some advice on things that can make ikiwiki run slowly. --[[Joey]]
+
+>>>> Thanks for the hints! I don't understand it, but it seems that refreshing
+>>>> all pages has resolved the problem and now my wiki works well again :)
+>>>>
+>>>> No, I use `rebuild-pages.sh` script only when I want to rebuild
+>>>> my wiki manually, for example when you release new Ikiwiki version
+>>>> then I need to update my templates. Some of them have been translated
+>>>> to Polish by me.
+>>>>
+>>>> Fortunately my wiki and its Subversion repo are located on the same host.
+>>>> We have a lot of Subversion repos for our projects and I don't want to
+>>>> change only wiki repo for better performance. I'm rather satisfied with
+>>>> its speed. --[[Paweł|ptecza]]

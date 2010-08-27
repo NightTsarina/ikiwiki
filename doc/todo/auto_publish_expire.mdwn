@@ -1,0 +1,33 @@
+It could be nice to mark some page such that:
+
+* the page is automatically published on some date (i.e. build, linked, syndicated, inlined/mapped, etc.)
+* the page is automatically unpublished at some other date (i.e. removed)
+
+I know that ikiwiki is a wiki compiler so that something has to refresh the wiki periodically to enforce the rules (a cronjob for instance). It seems to me that the calendar plugin rely on something similar.
+
+The date for publishing and expiring could be set be using some new directives; an alternative could be to expand the [[plugin/meta]] plugin with [<span/>[!meta date="auto publish date"]] and [<span/>[!meta expires="auto expire date"]].
+
+--[[JeanPrivat]]
+
+> This is a duplicate, and expansion, of
+> [[todo/tagging_with_a_publication_date]].
+> There, I suggest using a branch to develop
+> prepublication versions of a site, and merge from it
+> when the thing is published. 
+> 
+> Another approach I've seen used is to keep such pages in a pending/
+> directory, and move them via cron job when their publication time comes.
+> But that requires some familiarity with, and access to, cron.
+> 
+> On [[todo/tagging_with_a_publication_date]], I also suggested using meta 
+> date to set a page's date into the future,
+> and adding a pagespec that matches only pages with dates in the past,
+> which would allow filtering out the unpublished ones.
+> Sounds like you are thinking along these lines, but possibly using
+> something other than the page's creation or modification date to do it.
+> 
+> I do think the general problem with that approach is that you have to be
+> careful to prevent the unpublished pages from leaking out in any
+> inlines, maps, etc. --[[Joey]] 
+
+[[!tag wishlist]]

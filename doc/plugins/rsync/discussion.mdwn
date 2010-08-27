@@ -1,0 +1,79 @@
+## A use case
+
+Why I needed this plugin: I have two web servers available to me
+for a project. Neither does everything I need, but together they
+do. (This is a bit like the [Amazon S3
+scenario](http://kitenet.net/~joey/blog/entry/running_a_wiki_on_Amazon_S3/).)
+
+Server (1) is a university web server. It provides plentiful space
+and bandwidth, easy authentication for people editing the wiki, and
+a well-known stable URL. The wiki really wants to live here and
+very easily could except that the server doesn't allow arbitrary
+CGIs.
+
+Server (2) is provided by a generous alumnus's paid [[tips/DreamHost]]
+account. Disk and particularly network usage need to be minimized
+because over some threshold it costs him. CGI, etc. are available.
+
+My plan was to host the wiki on server (1) by taking advantage of
+server (2) to store the repository, source checkout, and generated
+pages, to host the repository browser, and to handle ikiwiki's CGI
+operations. In order for this to work, web edits on (2) would need
+to automatically push any changed pages to (1).
+
+As a proof of concept, I added an rsync post-commit hook after
+ikiwiki's usual. It worked, just not for web edits, which is how
+the wiki will be used. So I wrote this plugin to finish the job.
+The wiki now lives on (1), and clicking "edit" just works. --[[schmonz]]
+
+> Just out of interest, why use `rsync` and not `git push`.  i.e. a
+> different setup to solve the same problem would be to run a
+> normal ikiwiki setup on the universities server with its git
+> repository available over ssh (same security setup your using
+> for rsync should work for git over ssh).  On the cgi-capable server,
+> when it would rsync, make it git push.  It would seem that git
+> has enough information that it should be able to be more
+> network efficient.  It also means that corruption at one end
+> wouldn't be propagated to the other end. -- [[Will]]
+
+>> Hey, that's a nice solution. (The site was in svn to begin with,
+>> but it's in git now.) One advantage of my approach in this particular
+>> case: server (1) doesn't have `git` installed, but does have `rsync`,
+>> so (1)'s environment can remain completely untweaked other than the
+>> SSH arrangement. I kind of like that all the sysadmin effort is
+>> contained on one host.
+>>
+>> This plugin is definitely still useful for projects not able to use
+>> a DVCS (of which I've got at least one other), and possibly for
+>> other uses not yet imagined. ;-) --[[schmonz]]
+
+>>> I'm now using this plugin for an additional purpose. One of the aforementioned wikis (there are actually two) can only be read by trusted users, the list of which is kept in an `.htaccess` file. I added it to git as `htaccess.txt`, enabled the [[plugins/txt]] plugin, and in my `rsync_command` script, have it copied to the destdir as `.htaccess` before calling `rsync`. Now my users (who aren't tech-savvy, but are trustworthy) can edit the access list directly in the wiki. This idea might also be useful for wikis not using `rsync` at all. --[[schmonz]]
+
+----
+
+Revew: --[[Joey]] 
+
+* I think it should not throw an error if no command is set. Just don't do anything.
+* If the rsync fails, it currently errors out, which will probably also leave
+  the wiki in a broken state, since ikiwiki will not get a chance to save
+  its state. This seems fragile; what if the laptop is offline, or the
+  server is down, etc. Maybe it should just warn if the rsync fails?
+* Is a new hook really needed? The savestate hook runs at a similar time;
+  only issue with it is that it is run even when ikiwiki has not
+  rendered any updated pages. Bah, I think you do need the new hook, how
+  annoying..
+
+> * Depends whether the plugin would be on by default. If yes, then yes.
+>   If the admin has to enable it, I'd think they'd want the error.
+> * Changed the other errors to warnings.
+> * The name might be wrong: there isn't anything rsync-specific about the
+>   plugin, that's just the command I personally need to run. --[[schmonz]]
+
+>> One problem with the error is that it prevents dumping a new setup file with
+>> the plugin enabled, and then editing it to configure. ie:
+
+	joey@gnu:~>ikiwiki -setup .ikiwiki/joeywiki.setup -plugin rsync -dumpsetup new.setup
+	Must specify rsync_command
+
+> rsync seems by far the most likely command, though someone might use something
+> to push via ftp instead. I think calling it rsync is ok. --[[Joey]] 

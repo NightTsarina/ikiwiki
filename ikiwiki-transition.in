@@ -1,0 +1,349 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use lib '.'; # For use in nonstandard directory, munged by Makefile.
+use IkiWiki;
+use HTML::Entities;
+
+my $regex = qr{
+	(\\?)		# 1: escape?
+	\[\[(!?)	# directive open; 2: optional prefix
+	([-\w]+)	# 3: command
+	(		# 4: the parameters (including initial whitespace)
+	\s+
+		(?:
+			(?:[-\w]+=)?		# named parameter key?
+			(?:
+				""".*?"""	# triple-quoted value
+				|
+				"[^"]+"		# single-quoted value
+				|
+				[^\s\]]+	# unquoted value
+			)
+			\s*			# whitespace or end
+						# of directive
+		)
+	*)		# 0 or more parameters
+	\]\]		# directive closed
+}sx;
+
+sub handle_directive {
+	my $escape = shift;
+	my $prefix = shift;
+	my $directive = shift;
+	my $args = shift;
+
+	if (length $escape) {
+		return "${escape}[[${prefix}${directive}${args}]]"
+	}
+	if ($directive =~ m/^(if|more|table|template|toggleable)$/) {
+		$args =~ s{$regex}{handle_directive($1, $2, $3, $4)}eg;
+	}
+	return "[[!${directive}${args}]]"
+}
+
+sub prefix_directives {
+	loadsetup(shift);
+
+	IkiWiki::loadplugins();
+	IkiWiki::checkconfig();
+	IkiWiki::loadindex();
+
+	if (! %pagesources) {
+		error "ikiwiki has not built this wiki yet, cannot transition";
+	}
+
+	foreach my $page (values %pagesources) {
+		next unless defined pagetype($page) &&
+		            -f $config{srcdir}."/".$page;
+		my $content=readfile($config{srcdir}."/".$page);
+		my $oldcontent=$content;
+		$content=~s{$regex}{handle_directive($1, $2, $3, $4)}eg;
+		if ($oldcontent ne $content) {
+			writefile($page, $config{srcdir}, $content);
+		}
+	}
+}
+
+sub indexdb {
+	setstatedir(shift);
+
+	# Note: No lockwiki here because ikiwiki already locks it
+	# before calling this.	
+	if (! IkiWiki::oldloadindex()) {
+		die "failed to load index\n";
+	}
+	if (! IkiWiki::saveindex()) {
+		die "failed to save indexdb\n"
+	}
+	if (! IkiWiki::loadindex()) {
+		die "transition failed, cannot load new indexdb\n";
+	}
+	if (! unlink("$config{wikistatedir}/index")) {
+		die "unlink failed: $!\n";
+	}
+}
+
+sub hashpassword {
+	setstatedir(shift);
+
+	eval q{use IkiWiki::UserInfo};
+	eval q{use Authen::Passphrase::BlowfishCrypt};
+	if ($@) {
+		error("ikiwiki-transition hashpassword: failed to load Authen::Passphrase, passwords not hashed");
+	}
+
+	IkiWiki::lockwiki();
+	IkiWiki::loadplugin("passwordauth");
+	my $userinfo = IkiWiki::userinfo_retrieve();
+	foreach my $user (keys %{$userinfo}) {
+		if (ref $userinfo->{$user} &&
+		    exists $userinfo->{$user}->{password} &&
+		    length $userinfo->{$user}->{password} &&
+		    ! exists $userinfo->{$user}->{cryptpassword}) {
+			IkiWiki::Plugin::passwordauth::setpassword($user, $userinfo->{$user}->{password});
+		}
+	}
+}
+
+sub aggregateinternal {
+	loadsetup(shift);
+	require IkiWiki::Plugin::aggregate;
+	IkiWiki::checkconfig();
+	IkiWiki::Plugin::aggregate::migrate_to_internal();
+}
+
+sub setupformat {
+	my $setup=shift;
+
+	loadsetup($setup);
+	IkiWiki::checkconfig();
+	
+	# unpack old-format wrappers setting into new fields
+	my $cgi_seen=0;
+	my $rcs_seen=0;
+	foreach my $wrapper (@{$config{wrappers}}) {
+		if ($wrapper->{cgi}) {
+			if ($cgi_seen) {
+				die "don't know what to do with second cgi wrapper ".$wrapper->{wrapper}."\n";
+			}
+			$cgi_seen++;
+			print "setting cgi_wrapper to ".$wrapper->{wrapper}."\n";
+			$config{cgi_wrapper}=$wrapper->{wrapper};
+			$config{cgi_wrappermode}=$wrapper->{wrappermode}
+				if exists $wrapper->{wrappermode};
+		}
+		elsif ($config{rcs}) {
+			if ($rcs_seen) {
+				die "don't know what to do with second rcs wrapper ".$wrapper->{wrapper}."\n";
+			}
+			$rcs_seen++;
+			print "setting $config{rcs}_wrapper to ".$wrapper->{wrapper}."\n";
+			$config{$config{rcs}."_wrapper"}=$wrapper->{wrapper};
+			$config{$config{rcs}."_wrappermode"}=$wrapper->{wrappermode}
+				if exists $wrapper->{wrappermode};
+		}
+		else {
+			die "don't know what to do with wrapper ".$wrapper->{wrapper}."\n";
+		}
+	}
+
+	IkiWiki::Setup::dump($setup);
+}
+
+sub moveprefs {
+	my $setup=shift;
+
+	loadsetup($setup);
+	IkiWiki::checkconfig();
+
+	eval q{use IkiWiki::UserInfo};
+	error $@ if $@;
+
+	foreach my $field (qw{allowed_attachments locked_pages}) {
+		my $orig=$config{$field};
+		foreach my $admin (@{$config{adminuser}}) {
+			my $a=IkiWiki::userinfo_get($admin, $field);
+			if (defined $a && length $a &&
+			    # might already have been moved
+			    (! defined $orig || $a ne $orig)) {
+			    	if (defined $config{$field} &&
+				    length $config{$field}) {
+					$config{$field}=IkiWiki::pagespec_merge($config{$field}, $a);
+				}
+				else {
+					$config{$field}=$a;
+				}
+			}
+		}
+	}
+
+	my %banned=map { $_ => 1 } @{$config{banned_users}}, IkiWiki::get_banned_users();
+	$config{banned_users}=[sort keys %banned];
+
+	IkiWiki::Setup::dump($setup);
+}
+
+sub deduplinks {
+	loadsetup(shift);
+	IkiWiki::loadplugins();
+	IkiWiki::checkconfig();
+	IkiWiki::loadindex();
+	foreach my $page (keys %links) {
+		my %l;
+		$l{$_}=1 foreach @{$links{$page}};
+		$links{$page}=[keys %l]
+	}
+	IkiWiki::saveindex();
+}
+
+sub setstatedir {
+	my $dirorsetup=shift;
+
+	if (! defined $dirorsetup) {
+		usage();		
+	}
+
+	if (-d $dirorsetup) {
+		$config{wikistatedir}=$dirorsetup."/.ikiwiki";
+	}
+	elsif (-f $dirorsetup) {
+		loadsetup($dirorsetup);
+	}
+	else {
+		error("ikiwiki-transition: $dirorsetup does not exist");
+	}
+
+	if (! -d $config{wikistatedir}) {
+		error("ikiwiki-transition: $config{wikistatedir} does not exist");
+	}
+}
+	
+sub loadsetup {
+	my $setup=shift;
+	if (! defined $setup) {
+		usage();
+	}
+
+	require IkiWiki::Setup;
+
+	%config = IkiWiki::defaultconfig();
+	IkiWiki::Setup::load($setup);
+}
+
+sub usage {
+	print STDERR "Usage: ikiwiki-transition type ...\n";
+	print STDERR "Currently supported transition subcommands:\n";
+	print STDERR "\tprefix_directives setupfile ...\n";
+	print STDERR "\taggregateinternal setupfile\n";
+	print STDERR "\tsetupformat setupfile\n";
+	print STDERR "\tmoveprefs setupfile\n";
+	print STDERR "\thashpassword setupfile|srcdir\n";
+	print STDERR "\tindexdb setupfile|srcdir\n";
+	print STDERR "\tdeduplinks setupfile\n";
+	exit 1;
+}
+
+usage() unless @ARGV;
+
+my $mode=shift;
+if ($mode eq 'prefix_directives') {
+	prefix_directives(@ARGV);
+}
+elsif ($mode eq 'hashpassword') {
+	hashpassword(@ARGV);
+}
+elsif ($mode eq 'indexdb') {
+	indexdb(@ARGV);
+}
+elsif ($mode eq 'aggregateinternal') {
+	aggregateinternal(@ARGV);
+}
+elsif ($mode eq 'setupformat') {
+	setupformat(@ARGV);
+}
+elsif ($mode eq 'moveprefs') {
+	moveprefs(@ARGV);
+}
+elsif ($mode eq 'deduplinks') {
+	deduplinks(@ARGV);
+}
+else {
+	usage();
+}
+
+package IkiWiki;
+
+# A slightly modified version of the old loadindex function.
+sub oldloadindex {
+	%oldrenderedfiles=%pagectime=();
+	if (! $config{rebuild}) {
+		%pagesources=%pagemtime=%oldlinks=%links=%depends=
+			%destsources=%renderedfiles=%pagecase=%pagestate=();
+	}
+	open (my $in, "<", "$config{wikistatedir}/index") || return;
+	while (<$in>) {
+		chomp;
+		my %items;
+		$items{link}=[];
+		$items{dest}=[];
+		foreach my $i (split(/ /, $_)) {
+			my ($item, $val)=split(/=/, $i, 2);
+			push @{$items{$item}}, decode_entities($val);
+		}
+
+		next unless exists $items{src}; # skip bad lines for now
+
+		my $page=pagename($items{src}[0]);
+		if (! $config{rebuild}) {
+			$pagesources{$page}=$items{src}[0];
+			$pagemtime{$page}=$items{mtime}[0];
+			$oldlinks{$page}=[@{$items{link}}];
+			$links{$page}=[@{$items{link}}];
+			$depends{$page}={ $items{depends}[0] => $IkiWiki::DEPEND_CONTENT } if exists $items{depends};
+			$destsources{$_}=$page foreach @{$items{dest}};
+			$renderedfiles{$page}=[@{$items{dest}}];
+			$pagecase{lc $page}=$page;
+			foreach my $k (grep /_/, keys %items) {
+				my ($id, $key)=split(/_/, $k, 2);
+				$pagestate{$page}{decode_entities($id)}{decode_entities($key)}=$items{$k}[0];
+			}
+		}
+		$oldrenderedfiles{$page}=[@{$items{dest}}];
+		$pagectime{$page}=$items{ctime}[0];
+	}
+
+	# saveindex relies on %hooks being populated, else it won't save
+	# the page state owned by a given hook. But no plugins are loaded
+	# by this program, so populate %hooks with all hook ids that
+	# currently have page state.
+	foreach my $page (keys %pagemtime) {
+		foreach my $id (keys %{$pagestate{$page}}) {
+			$hooks{_dummy}{$id}=1;
+		}
+	}
+	
+	return close($in);
+}
+
+# Used to be in IkiWiki/UserInfo, but only used here now.
+sub get_banned_users () {
+	my @ret;
+	my $userinfo=userinfo_retrieve();
+	foreach my $user (keys %{$userinfo}) {
+		push @ret, $user if $userinfo->{$user}->{banned};
+	}
+	return @ret;
+}
+
+# Used to be in IkiWiki, but only used here (to migrate admin prefs into the
+# setup file) now.
+sub pagespec_merge ($$) {
+	my $a=shift;
+	my $b=shift;
+
+	return $a if $a eq $b;
+	return "($a) or ($b)";
+}
+
+1

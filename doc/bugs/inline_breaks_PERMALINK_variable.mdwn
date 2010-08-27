@@ -1,0 +1,25 @@
+in 3.20091017 the following inline
+
+> `\[[!inline pages="internal(foo/bar/baz/*)" show=3 archive="yes" feeds="no" template="sometemplates"]]`
+
+with sometemplate being
+
+> `<p><a href="<TMPL_VAR PERMALINK>"><TMPL_VAR TITLE></a> (<TMPL_VAR CTIME>)</p>`
+
+produced output that links nowhere (`<a href="">`) while the other variables do fine. This problem does not occur in 3.1415926.
+
+> This must be caused by an optimisation that avoids reading the page
+> content when using a template that does not use CONTENT. 
+> 
+> I guess that it needs to instead check all the variables the template 
+> uses, and read content if PERMALINK, or probably any other unknown
+> variable is used. Unfortunatly, that will lose the optimisation
+> for the archivepage template as well -- it also uses PERMALINK.
+> 
+> So, revert the optimisation? Or, make meta gather the permalink
+> data on scan? That seems doable, but is not a general fix for
+> other stuff that might be a) used in a template and b) gathered
+> at preprocess time.
+> 
+> For now, I am going with the special case fix of fixing meta. I may need
+> to go for a more general fix later. --[[Joey]] [[!tag done]]

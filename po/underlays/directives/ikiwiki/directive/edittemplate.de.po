@@ -1,0 +1,98 @@
+# German translation of directives/ikiwiki/directive/edittemplate page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2010-03-14 13:59+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `edittemplate` directive is supplied by the [[!iki plugins/edittemplate "
+"desc=edittemplate]] plugin."
+msgstr ""
+"Die `edittemplate`-Anweisung wird durch die [[!iki plugins/edittemplate "
+"desc=edittemplate]]-Erweiterung bereitgestellt."
+
+#. type: Plain text
+msgid ""
+"This directive allows registering template pages, that provide default "
+"content for new pages created using the web frontend. To register a "
+"template, insert a [[ikiwiki/directive/template]] directive on some other "
+"page."
+msgstr ""
+"Diese Anweisung erlaubt es, Vorlagen-Seiten zu registrieren, die einen "
+"Standardinhalt für neue Seiten bereitstellen, die über das Webfrontend "
+"angelegt werden. Um eine Vorlage zu registrieren, fügt man eine [[ikiwiki/"
+"directive/template]]-Anweisung auf einer anderen Seite ein."
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!edittemplate template=\"bugtemplate\" match=\"bugs/*\"]]\n"
+msgstr "\t\\[[!edittemplate template=\"bugtemplate\" match=\"bugs/*\"]]\n"
+
+#. type: Plain text
+msgid ""
+"In the above example, the page named \"bugtemplate\" is registered as a "
+"template to be used when any page named \"bugs/*\" is created. To avoid the "
+"directive displaying a note about the template being registered, add "
+"\"silent=yes\"."
+msgstr ""
+"Im obigen Beispiel wird die Seite mit Namen \"bugtemplate\" für alle Seiten "
+"als Vorlage registriert, die mit Namen \"bugs/*\" angelegt werden. Um den "
+"Hinweis über die Registrierung der Vorlage zu unterdrücken, kann man "
+"`silent=yes` hinzufügen."
+
+#. type: Plain text
+msgid ""
+"Often the template page contains a simple skeleton for a particular type of "
+"page. For the bug report pages in the above example, it might look something "
+"like:"
+msgstr ""
+"Oft enthält eine Vorlagen-Seite ein einfaches Skelett für einen bestimmten "
+"Seitentyp. Für die Fehlerberichte aus dem obigen Beispiel könnte sie "
+"folgendermaßen aussehen:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\tPackage: \n"
+"\tVersion: \n"
+"\tReproducible: y/n\n"
+"\tDetails:\n"
+msgstr ""
+"\tPaket: \n"
+"\tVersion: \n"
+"\tReproduzierbar: ja/nein\n"
+"\tDetails:\n"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"The template page can also contain [[!cpan HTML::Template]] directives,\n"
+"like other ikiwiki [[templates]]. Currently only one variable is\n"
+"set: `<TMPL_VAR name>` is replaced with the name of the page being\n"
+"created.\n"
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"It's generally not a good idea to put the `edittemplate` directive in the "
+"template page itself, since the directive would then be included as part of "
+"the template on new pages, which would then in turn be registered as "
+"templates. If multiple pages are registered as templates for a new page, an "
+"arbitrary one is chosen, so that could get confusing."
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr ""

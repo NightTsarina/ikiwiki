@@ -1,0 +1,46 @@
+For security reasons, symlinks are disabled in IkiWiki.  That's fair enough, but that means that some problems, which one could otherwise solve by using a symlink, cannot be solved. The specfic problem in this case is that all underlays are placed at the root of the wiki, when it could be more convenient to place some underlays in specific sub-directories.
+
+Use-case 1 (to keep things tidy):
+
+Currently IkiWiki has some javascript files in `underlays/javascript`; that directory is given as one of the underlay directories.  Thus, all the javascript files appear in the root of the generated site.  But it would be tidier if one could say "put the contents of *this* underlaydir under the `js` directory".
+
+> Of course, this could be accomplished, if we wanted to, by moving the
+> files to `underlays/javascript/js`. --[[Joey]] 
+
+Use-case 2 (a read-only external dir):
+
+Suppose I want to include a subset of `/usr/local/share/docs` on my wiki, say the docs about `foo`.  But I want them to be under the `docs/foo` sub-directory on the generated site.  Currently I can't do that.  If I give `/usr/local/share/docs/foo` as an underlaydir, then the contents of that will be in the root of the site, rather than under `docs/foo`.  And if I give `/usr/local/share/docs` as an underlaydir, then the contents of the `foo` dir will be under `foo`, but it will also include every other thing in `/usr/local/share/docs`.
+
+Since we can't use symlinks in an underlay dir to link to these directories, then perhaps one could give a specific underlay dir a specific prefix, which defines the sub-directory that the underlay should appear in.
+
+I'm not sure how this would be implemented, but I guess it could be configured something like this:
+
+    prefixed_underlay => {
+         'js' => '/usr/local/share/ikiwiki/javascript',
+         'docs/foo' => '/usr/local/share/docs/foo',
+    }
+
+> So, let me review why symlinks are an issue. For normal, non-underlay
+> pages, users who do not have filesystem access to the server may have 
+> commit access, and so could commit eg, a symlink to `/etc/passwd` (or
+> to `/` !). The guards are there to prevent ikiwiki either exposing the
+> symlink target's contents, or potentially overwriting it.
+> 
+> Is this a concern for underlays? Most of the time, certianly not;
+> the underlay tends to be something only the site admin controls.
+> Not all the security checks that are done on the srcdir are done
+> on the underlays, either. Most checks done on files in the underlay
+> are only done because the same code handles srcdir files. The one
+> exception is the test that skips processing symlinks in the underlay dir.
+> (But note that the underlay directory can be a symlinkt to elsewhere
+> which the srcdir, by default, cannot.)
+> 
+> So, one way to approach this is to make ikiwiki follow directory symlinks
+> inside the underlay directory. Just a matter of passing `follow => 1` to
+> find. (This would still not allow individual files to be symlinks, because
+> `readfile` does not allow reading symlinks. But I don't see much need
+> for that.) --[[Joey]]
+
+>> If you think that enabling symlinks in underlay directories wouldn't be a security issue, then I'm all for it!  That would be much simpler to implement, I'm sure. --[[KathrynAndersen]]
+
+[[!taglink wishlist]]

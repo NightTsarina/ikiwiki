@@ -119,3 +119,11 @@ I have a few notes on mercurial usage after trying it out for a while:
 >> I think the ideal solution would be to build `$destdir/recentchanges/*` directly from the output of `hg log`. --[[buo]]
 
 >>>> That would be 100 times as slow, so I chose not to do that. --[[Joey]]
+
+>>>> Since this is confusing people, allow me to clarify: Ikiwiki's
+>>>> recentchanges generation pulls log information directly out of the VCS as
+>>>> needed. It caches it in recentchanges/* in the `scrdir`. These cache
+>>>> files need not be preserved, should never be checked into VCS, and if
+>>>> you want to you can configure your VCSignore file to ignore them,
+>>>> just as you can configure it to ignore the `.ikiwiki` directory in the
+>>>> `scrdir`. --[[Joey]] 

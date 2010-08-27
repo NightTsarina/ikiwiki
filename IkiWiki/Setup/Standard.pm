@@ -1,7 +1,4 @@
 #!/usr/bin/perl
-# Standard ikiwiki setup module.
-# Parameters to import should be all the standard ikiwiki config stuff,
-# plus an array of wrappers to set up.
 
 package IkiWiki::Setup::Standard;
 
@@ -9,8 +6,20 @@ use warnings;
 use strict;
 use IkiWiki;
 
+# Parameters to import should be all the standard ikiwiki config, in a hash.
 sub import {
 	IkiWiki::Setup::merge($_[1]);
+}
+
+sub gendump ($@) {
+	my $class=shift;
+
+	"#!/usr/bin/perl",
+	"#",
+	(map { "# $_" } @_),
+	"use IkiWiki::Setup::Standard {",
+	IkiWiki::Setup::commented_dump(\&dumpline, "\t"),
+	"}"
 }
 
 sub dumpline ($$$$) {
@@ -55,63 +64,6 @@ sub dumpline ($$$$) {
 	}
 	
 	return "\t$prefix$key => $dumpedvalue,";
-}
-
-sub dumpvalues ($@) {
-	my $setup=shift;
-	my @ret;
-	while (@_) {
-		my $key=shift;
-		my %info=%{shift()};
-
-		next if $key eq "plugin" || $info{type} eq "internal";
-		
-		push @ret, "\t# ".$info{description} if exists $info{description};
-		
-		if (exists $setup->{$key} && defined $setup->{$key}) {
-			push @ret, dumpline($key, $setup->{$key}, $info{type}, "");
-			delete $setup->{$key};
-		}
-		elsif (exists $info{example}) {
-			push @ret, dumpline($key, $info{example}, $info{type}, "#");
-		}
-		else {
-			push @ret, dumpline($key, "", $info{type}, "#");
-		}
-	}
-	return @ret;
-}
-
-sub gendump ($) {
-	my $description=shift;
-	my %setup=(%config);
-	my @ret;
-	
-	# disable logging to syslog while dumping
-	$config{syslog}=undef;
-
-	push @ret, dumpvalues(\%setup, IkiWiki::getsetup());
-	foreach my $pair (IkiWiki::Setup::getsetup()) {
-		my $plugin=$pair->[0];
-		my $setup=$pair->[1];
-		my @values=dumpvalues(\%setup, @{$setup});
-		if (@values) {
-			push @ret, "", "\t# $plugin plugin", @values;
-		}
-	}
-
-	unshift @ret,
-		"#!/usr/bin/perl",
-		"# $description",
-		"#",
-		"# Passing this to ikiwiki --setup will make ikiwiki generate",
-		"# wrappers and build the wiki.",
-		"#",
-		"# Remember to re-run ikiwiki --setup any time you edit this file.",
-		"use IkiWiki::Setup::Standard {";
-	push @ret, "}";
-
-	return @ret;
 }
 
 1

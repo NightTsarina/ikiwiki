@@ -56,6 +56,10 @@ rule that allow `ikiwiki.cgi` to be executed.
 server (offline). I am not sure of how secure this approach is.
 If you have any thought about it, feel free to let me know.
 
+## nginx
+
+* To run CGI under nginx, just use a FastCGI wrapper like [this one](http://technotes.1000lines.net/?p=23). The wrapper must be started somehow just like any other FastCGI program. I use launchd on OSX.
+
 ## boa
 
 Edit /etc/boa/boa.conf and make sure the following line is not commented:

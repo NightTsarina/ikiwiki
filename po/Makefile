@@ -5,7 +5,10 @@ POTFILES=$(sort $(shell find ../IkiWiki -type f -name \*.pm)) \
 POFILES=$(wildcard *.po)
 MOFILES=$(POFILES:.po=.mo)
 
-all: ikiwiki.pot mo ../underlays/locale
+# Translated underlays can only be generated if po4a is available.
+TRANSLATED_UNDERLAYS=$(shell if perl -e 'use Locale::Po4a::Common' 2>/dev/null; then echo ../underlays/locale; fi)
+
+all: ikiwiki.pot mo $(TRANSLATED_UNDERLAYS)
 
 mo: $(MOFILES)
 
@@ -34,7 +37,7 @@ ikiwiki.pot: $(POTFILES)
 
 clean:
 	rm -f $(MOFILES) messages messages.mo *_stamp
-	rm -rf html underlays/.ikiwiki ../underlays/locale
+	rm -rf html underlays/.ikiwiki $(TRANSLATED_UNDERLAYS)
 	find underlays -name \*.mdwn -or -name \*.pot | xargs rm -f
 
 %.mo: %.po
@@ -83,7 +86,7 @@ underlays: ../ikiwiki.out underlays_copy_stamp
 ../Makefile: ../Makefile.PL
 	cd .. && ./Makefile.PL
 
-../underlays/locale: po2wiki_stamp
+$(TRANSLATED_UNDERLAYS): po2wiki_stamp
 po2wiki_stamp: po2wiki underlays_copy_stamp
 	PERL5LIB=.. ./po2wiki underlay.setup
 	touch $@

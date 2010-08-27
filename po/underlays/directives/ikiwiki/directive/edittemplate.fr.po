@@ -1,0 +1,109 @@
+# Traduction de ikiwiki
+# Copyright (C) 2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2009-09-05 08:36+0200\n"
+"Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+msgid ""
+"The `edittemplate` directive is supplied by the [[!iki plugins/edittemplate "
+"desc=edittemplate]] plugin."
+msgstr ""
+"La directive `edittemplate` est fournie par le greffon [[!iki plugins/"
+"edittemplate desc=edittemplate]]."
+
+#. type: Plain text
+msgid ""
+"This directive allows registering template pages, that provide default "
+"content for new pages created using the web frontend. To register a "
+"template, insert a [[ikiwiki/directive/template]] directive on some other "
+"page."
+msgstr ""
+"Cette directive permet l'enregistrement de modèles de pages, qui proposent "
+"un contenu par défaut aux pages nouvellement créées avec l'interface web. "
+"Pour enregistrer un modèle, il faut insérer une directive [[ikiwiki/"
+"directive/template]] dans une quelconque autre page."
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!edittemplate template=\"bugtemplate\" match=\"bugs/*\"]]\n"
+msgstr "\t\\[[!edittemplate template=\"bugtemplate\" match=\"bugs/*\"]]\n"
+
+#. type: Plain text
+msgid ""
+"In the above example, the page named \"bugtemplate\" is registered as a "
+"template to be used when any page named \"bugs/*\" is created. To avoid the "
+"directive displaying a note about the template being registered, add "
+"\"silent=yes\"."
+msgstr ""
+"Dans l'exemple ci-dessus, la page nommée « bugtemplate » est enregistrée "
+"comme modèle de page à utiliser pour toute page nommée « bugs/* » qui sera "
+"créée. Pour éviter que la directive n'affiche une note au sujet de "
+"l'enregistrement du modèle, il suffit d'activer le paramètre « silent=yes »."
+
+#. type: Plain text
+msgid ""
+"Often the template page contains a simple skeleton for a particular type of "
+"page. For the bug report pages in the above example, it might look something "
+"like:"
+msgstr ""
+"Souvent la page modèle contient le simple squelette d'une page particulière. "
+"Pour le modèle « rapport de bogue » dans l'exemple, ce squelette pourrait se "
+"présenter ainsi :"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\tPackage: \n"
+"\tVersion: \n"
+"\tReproducible: y/n\n"
+"\tDetails:\n"
+msgstr ""
+"\tPaquet : \n"
+"\tVersion :  \n"
+"\tReproductible : o/n\n"
+"\tDétails : \n"
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid ""
+#| "The template page can also contain [[!cpan HTML::Template]] directives,\n"
+#| "similar to other ikiwiki [[templates]]. Currently only one variable is\n"
+#| "set: `<TMPL_VAR name>` is replaced with the name of the page being\n"
+#| "created.\n"
+msgid ""
+"The template page can also contain [[!cpan HTML::Template]] directives,\n"
+"like other ikiwiki [[templates]]. Currently only one variable is\n"
+"set: `<TMPL_VAR name>` is replaced with the name of the page being\n"
+"created.\n"
+msgstr "La page modèle peut aussi contenir des directives [[!cpan HTML::Template]], comparables aux autres modèles [[templates]]. Pour l'instant, une seule variable est définie : `<TMPL_VAR name>`. Elle est remplacée par le nom de la page qui est créée.\n"
+
+#. type: Plain text
+msgid ""
+"It's generally not a good idea to put the `edittemplate` directive in the "
+"template page itself, since the directive would then be included as part of "
+"the template on new pages, which would then in turn be registered as "
+"templates. If multiple pages are registered as templates for a new page, an "
+"arbitrary one is chosen, so that could get confusing."
+msgstr ""
+"Ce n'est pas une bonne idée de mettre la directive `edittemplate` dans la "
+"page modèle elle-même. En effet la directive serait alors incluse comme "
+"partie du modèle sur les nouvelles pages, qui seraient à leur tour "
+"enregistrées comme modèles. Si de nombreuses pages sont enregistrées comme "
+"modèles pour une page, un modèle est choisi au hasard et tout devient "
+"confus. "
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

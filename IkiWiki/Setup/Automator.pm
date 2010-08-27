@@ -15,6 +15,7 @@ sub ask ($$) {
 	my ($question, $default)=@_;
 
 	my $r=Term::ReadLine->new("ikiwiki");
+	$r->ornaments("md,me");
 	$r->readline(encode_utf8($question)." ", $default);
 }
 
@@ -24,27 +25,35 @@ sub prettydir ($) {
 	return $dir;
 }
 
-sub import (@) {
-	my $this=shift;
-	IkiWiki::Setup::merge({@_});
+sub sanitize_wikiname ($) {
+	my $wikiname=shift;
 
 	# Sanitize this to avoid problimatic directory names.
-	$config{wikiname}=~s/[^-A-Za-z0-9_]//g;
-	if (! length $config{wikiname}) {
+	$wikiname=~s/[^-A-Za-z0-9_]//g;
+	if (! length $wikiname) {
 		error gettext("you must enter a wikiname (that contains alphanumerics)");
 	}
+	return $wikiname;
+}
 
-	# Avoid overwriting any existing files.
-	foreach my $key (qw{srcdir destdir repository dumpsetup}) {
-		next unless exists $config{$key};
-		my $add="";
-		my $dir=IkiWiki::dirname($config{$key})."/";
-		my $base=IkiWiki::basename($config{$key});
-		while (-e $dir.$add.$base) {
-			$add=1 if ! $add;
-			$add++;
+sub import (@) {
+	my $this=shift;
+	$config{setuptype}='Standard';
+	IkiWiki::Setup::merge({@_});
+
+	if (! $config{force_overwrite}) {
+		# Avoid overwriting any existing files.
+		foreach my $key (qw{srcdir destdir repository dumpsetup}) {
+			next unless exists $config{$key};
+			my $add="";
+			my $dir=IkiWiki::dirname($config{$key})."/";
+			my $base=IkiWiki::basename($config{$key});
+			while (-e $dir.$add.$base) {
+				$add=1 if ! $add;
+				$add++;
+			}
+			$config{$key}=$dir.$add.$base;
 		}
-		$config{$key}=$dir.$add.$base;
 	}
 	
 	# Set up wrapper
@@ -63,9 +72,18 @@ sub import (@) {
 		}
 		elsif ($config{rcs} eq 'bzr') {
 			# TODO
+			print STDERR "warning: do not know how to set up the bzr_wrapper hook!\n";
 		}
 		elsif ($config{rcs} eq 'mercurial') {
 			# TODO
+			print STDERR "warning: do not know how to set up the mercurial_wrapper hook!\n";
+		}
+		elsif ($config{rcs} eq 'tla') {
+			# TODO
+			print STDERR "warning: do not know how to set up the tla_wrapper hook!\n";
+		}
+		elsif ($config{rcs} eq 'cvs') {
+			$config{cvs_wrapper}=$config{repository}."/CVSROOT/post-commit";
 		}
 		else {
 			error sprintf(gettext("unsupported revision control system %s"),
@@ -112,9 +130,10 @@ sub import (@) {
 				IkiWiki::run_hooks(checkconfig => sub { shift->() });
 			};
 			if ($@) {
+				my $err=$@;
 				print STDERR sprintf(gettext("** Disabling plugin %s, since it is failing with this message:"),
 					$plugin)."\n";
-				print STDERR "$@\n";
+				print STDERR "$err\n";
 				push @{$bakconfig{disable_plugins}}, $plugin;
 			}
 		}
@@ -133,7 +152,7 @@ sub import (@) {
 
 	# Create admin user(s).
 	foreach my $admin (@{$config{adminuser}}) {
-		next if $admin=~/^http\?:\/\//; # openid
+		next if defined IkiWiki::openiduser($admin);
 		
 		# Prompt for password w/o echo.
 		my ($password, $password2);

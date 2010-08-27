@@ -1,0 +1,38 @@
+What is the way to tell wrappers that PERL5LIB should include ~/bin directories?
+
+Having this in the wiki.setup doesn't help anymore:
+
+        # environment variables
+        ENV => {
+          PATH => '/home/user/bin/bin:/usr/local/bin:/usr/bin:/bin:/usr/games:/home/user/ikiwiki/usr/bin/:/home/user/ikiwiki/usr/sbin/:/home/user/bin/bin/:~/bin/bin/',
+          PERL5LIB => '/home/user/bin/share/perl/5.10.0:/home/user/bin/lib/perl/5.10.0'
+        },
+
+Or at least I get CGI errors and running ikiwiki.cgi manually fails too:
+
+        Use of uninitialized value $tainted in pattern match (m//) at /usr/share/perl5/IkiWiki.pm line 233.
+        Argument "" isn't numeric in umask at /usr/share/perl5/IkiWiki.pm line 139.
+        Undefined subroutine &IkiWiki::cgierror called at /home/user/bin/bin/ikiwiki line 199.
+
+Server has an older ikiwiki installed but I'd like to use a newer version from git, and I don't have root access.
+
+> You can't set `PERL5LIB` in `ENV` in a setup file, because ikiwiki is already
+> running before it reads that, and so it has little effect. Your error
+> messages do look like a new bin/ikiwiki is using an old version of
+> `IkiWiki.pm`.
+> 
+> The thing to do is set `INSTALL_BASE` when you're installing ikiwiki from
+> source. Like so:
+
+        cd ikiwiki
+        perl Makefile.PL INSTALL_BASE=$HOME PREFIX=
+        make install
+
+> Then `$HOME/bin/ikiwiki` will have hardcoded into it to look
+> for ikiwiki's perl modules in `$HOME/lib/perl5/`
+> (This is documented in the README file by the way.) --[[Joey]] 
+
+>> Ok, *perl Makefile.PL INSTALL_BASE=$HOME/bin PREFIX=* finally did it for me. I tried too many things with
+>> these paths so I wasn't sure which actually worked. After that I did 
+>> *$ ikiwiki --setup www.setup --wrappers --rebuild*. Somehow in this update mess I seem to have lost the user
+>> accounts, maybe the --rebuild was too much.

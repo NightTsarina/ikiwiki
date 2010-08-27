@@ -1,0 +1,48 @@
+[[!template id=plugin name=flattr author="[[jaywalk]]"]]
+
+[flattr.com](http://flattr.com/) is a flatrate micropayment service, which revolves around the idea of having flattr buttons everywhere that people visiting your site can use to "flattr" you.
+
+This plugin makes it easier to put flattr buttons in ikiwiki. It supports both the static kind as well as the counting dynamic javascript version. The dynamic version does not work if [[htmlscrubber|/plugins/htmlscrubber]] is active on the page.
+
+The dynamic button does not require creation of the page on flattr before being added to a page, the static one does.
+
+I wrote some notes on [jonatan.walck.se](http://jonatan.walck.se/software/ikiwiki/plugin/flattr/) and put the source here: [flattr.pm](http://jonatan.walck.se/software/ikiwiki/flattr.pm)
+
+This plugin is licensed under [CC0](http://creativecommons.org/publicdomain/zero/1.0/) (public domain).
+
+Note that there is now a [[plugins/flattr]] plugin bundled with ikiwiki. It
+is less configurable, not supporting static buttons, but simpler to use.
+
+# Usage #
+
+    # [[!flattr args]] where args are in the form of arg=value.
+    # Possible args:
+    # type - static or dynamic. Defaults to static.
+
+    # vars in static mode:
+    # --------------------
+    # Required:
+    # url - URL to flattr page,
+    # e.g. http://flattr.com/thing/1994/jaywalks-weblog
+    # Optional: 
+    # style - Set to compact for compact button.
+
+    # vars in dynamic mode:
+    # ---------------------
+    # Required:
+    # None.
+    # Optional:
+    # uid - Set the default in the plugin, override if needed.
+    # title - The title defaults to $wikiname/some/path (like on the top of
+    #   the wiki).
+    # desc - A description of the content. Defaults to " ".
+    # cat - Category, this can be text, images, video, audio, software or
+    #   rest. Defaults to text.
+    # lang - Language, list of available choises is on
+    #   https://flattr.com/support/integrate/languages. Defaults to en_GB.
+    # tag - A list of comma separated tags. Empty per default.
+    # url - URL to thing to flattred,
+    #   e.g. http://jonatan.walck.se/weblog
+    # style - Set it to compact to get the small button, big for any other
+    #   value including empty.
+    

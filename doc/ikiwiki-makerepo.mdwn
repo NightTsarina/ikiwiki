@@ -4,7 +4,7 @@ ikiwiki-makerepo - check an ikiwiki srcdir into revision control
 
 # SYNOPSIS
 
-ikiwiki-makerepo svn|git|monotone|darcs srcdir repository
+ikiwiki-makerepo git|svn|monotone|darcs|cvs srcdir repository
 
 ikiwiki-makerepo bzr|mercurial srcdir
 
@@ -23,6 +23,14 @@ ikiwiki wrapper.
 
 Note that for monotone, you are assumed to already have run "mtn genkey"
 to generate a key.
+
+
+# EXAMPLE 
+
+`ikiwiki-makerepo git /var/www/wiki /home/user/wiki/`
+
+The above command creates a new git repo in /home/user/wiki as well as a new git repo in the /var/www/wiki directory. 
+It then initializes the /home/user/wiki git repo and makes the /var/www/wiki a clone. 
 
 # AUTHOR
 

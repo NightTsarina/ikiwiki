@@ -27,6 +27,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
@@ -35,30 +36,46 @@ sub preprocess (@) {
 	$params{pages}="*" unless defined $params{pages};
 	my $style = ($params{style} or 'cloud');
 	
-	# Needs to update whenever a page is added or removed, so
-	# register a dependency.
-	add_depends($params{page}, $params{pages});
-	add_depends($params{page}, $params{among}) if exists $params{among};
-	
 	my %counts;
 	my $max = 0;
-	foreach my $page (pagespec_match_list([keys %links],
-			$params{pages}, location => $params{page})) {
+	foreach my $page (pagespec_match_list($params{page}, $params{pages},
+		                  # update when a displayed page is added/removed
+	        	          deptype => deptype("presence"))) {
 		use IkiWiki::Render;
 
 		my @backlinks = IkiWiki::backlink_pages($page);
 
 		if (exists $params{among}) {
-			@backlinks = pagespec_match_list(\@backlinks,
-				$params{among}, location => $params{page});
+			# only consider backlinks from the amoung pages
+			@backlinks = pagespec_match_list(
+				$params{page}, $params{among},
+				# update whenever links on those pages change
+				deptype => deptype("links"),
+				list => \@backlinks
+			);
+		}
+		else {
+			# update when any page with links changes,
+			# in case the links point to our displayed pages
+			add_depends($params{page}, "*", deptype("links"));
 		}
 
 		$counts{$page} = scalar(@backlinks);
 		$max = $counts{$page} if $counts{$page} > $max;
 	}
 
+	if (exists $params{show}) {
+		my $i=0;
+		my %show;
+		foreach my $key (sort { $counts{$b} <=> $counts{$a} } keys %counts) {
+			last if ++$i > $params{show};
+			$show{$key}=$counts{$key};
+		}
+		%counts=%show;
+	}
+
 	if ($style eq 'table') {
-		return "<table class='pageStats'>\n".
+		return "<table class='".(exists $params{class} ? $params{class} : "pageStats")."'>\n".
 			join("\n", map {
 				"<tr><td>".
 				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1).
@@ -70,16 +87,31 @@ sub preprocess (@) {
 	else {
 		# In case of misspelling, default to a page cloud
 
-		my $res = "<div class='pagecloud'>\n";
+		my $res;
+		if ($style eq 'list') {
+			$res = "<ul class='".(exists $params{class} ? $params{class} : "list")."'>\n";
+		}
+		else {
+			$res = "<div class='".(exists $params{class} ? $params{class} : "pagecloud")."'>\n";
+		}
 		foreach my $page (sort keys %counts) {
 			next unless $counts{$page} > 0;
 
 			my $class = $classes[$counts{$page} * scalar(@classes) / ($max + 1)];
+			
+			$res.="<li>" if $style eq 'list';
 			$res .= "<span class=\"$class\">".
 			        htmllink($params{page}, $params{destpage}, $page).
 			        "</span>\n";
+			$res.="</li>" if $style eq 'list';
+
 		}
-		$res .= "</div>\n";
+		if ($style eq 'list') {
+			$res .= "</ul>\n";
+		}
+		else {
+			$res .= "</div>\n";
+		}
 
 		return $res;
 	}

@@ -1,0 +1,13 @@
+If a change to a page is previewed, but not saved, `%pagestate` and
+`%wikistate` can be changed, and saved. Actually, it's not limited to
+those. Seems that spurious dependencies can be added, though existing
+dependencies will at least not be removed.
+
+It calls saveindex to record state about files created on disk for the
+preview. Those files will expire later. However, saveindex also
+saves other state changes.
+
+Seems like it needs to isolate all state changes when previewing... ugh.
+--[[Joey]] 
+
+[[done]]

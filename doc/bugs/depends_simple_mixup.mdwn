@@ -1,0 +1,88 @@
+The [[bugs]] page, at least before I commit this, has a bug at the top that
+has been modified to link to done, and ikiwiki's dependency calculations
+failed to notice and update the bugs page. Looking at the indexdb, I saw
+that the page was not included in the `depends_simple` of the bugs page. 
+
+I was able to replicate the problem locally by starting off with the page
+marked done (when it did appear in the bugs page `depends_simple`
+(appropriatly as a link dependency, since a change to the page removing the
+link would make it match)), then removing the done link. 
+
+At that point, it vanished from `depends_simple`. Presumably because
+the main (pagespec) depends for the bugs page now matched it, as a content
+dependency. But, it seems to me it should still be listed in
+`depends_simple` here. This, I think, is the cause of the bug.
+
+Then re-add the done link, and the dependency calc code breaks down,
+not noticing that bugs dependeded on the page and needs to be updated.
+
+Ok.. Turns out this was not a problem with the actual influences
+calculation or dependency calculation code. Whew! `match_link`
+just didn't set the influence correctly when failing. fixed
+
+--[[Joey]]
+
+---
+
+Update: Reopening this because the fix for it rather sucks.
+
+I made `match_link` return on failure an influence of
+type DEPEND_LINKS. So, a tag page that inlines `tagged(foo)`
+gets a `depends_simple` built up that contains link dependencies for
+*every* page in the wiki. A very bloaty way to represent the dependency!
+
+Per [[todo/dependency_types]], `link(done)` only needs to list in
+`depends_simple` the pages that currently match. If a page is modified
+to add the link, the regular dependency calculation code notices that
+a new page matches. If a page that had the link is modified to remove it,
+the `depends_simple` lets ikiwiki remember that the now non-matching page
+matched before.
+
+Where that fell down was `!link(done)`. A page matching that was not added
+to `depends_simple`, because the `link(done)` did not match it. If the page
+is modified to add the link, the regular dependency calculation code
+didn't notice, since the pagespec no longer matched.
+
+In this case, `depends_simple` needs to contain all pages
+that do *not* match `link(done)`, but before my change, it contained
+all pages that *do* match. After my change, it contained all pages.
+
+----
+
+So, seems what is needed is a way for influence info to be manipulated by
+the boolean operations that are applied. One way would be to have two
+sets of influences be returned, one for successful matches, and one for
+failed matches. Normally, these would be the same. For successful
+`match_link`, the successful influence would be the page.
+For failed `match_link`, the failed influence would be the page.
+
+Then, when NOTting a `*Reason`, swap the two sets of influences.
+When ANDing/ORing, combine the individual sets. Querying the object for
+influences should return only the successful influences.
+
+----
+
+Would it be possible to avoid the complication of maintianing two sets of
+influence info? 
+
+Well, notice that the influence of `pagespec_match($page, "link(done)")`
+is $page. Iff the match succeeds.
+
+Also, the influence of `pagespec_match($page, "!link(done)")` is
+$page. Iff the (overall) match succeeds.
+
+Does that hold for all cases? If so, the code that populates
+`depends_simple` could just test if the pagespec was successful, and
+if not, avoid adding $page influences, while still adding any other, 
+non-$page influences.
+
+----
+
+Hmm, commit f2b3d1341447cbf29189ab490daae418fbe5d02d seems
+thuroughly wrong. So, what about influence info for other matches
+like `!author(foo)` etc? Currently, none is returned, but it should
+be a content influence. (Backlink influence data seems ok.)
+
+----
+
+[[done]] again!

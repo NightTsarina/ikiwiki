@@ -1,0 +1,205 @@
+# German translation of directives/ikiwiki/directive/calendar page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-07-18 19:05-0300\n"
+"PO-Revision-Date: 2010-03-14 13:57+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `calendar` directive is supplied by the [[!iki plugins/calendar "
+"desc=calendar]] plugin."
+msgstr ""
+"Die `calendar`-Anweisung wird durch die [[!iki plugins/calendar "
+"desc=calendar]]-Erweiterung bereitgestellt."
+
+#. type: Plain text
+msgid ""
+"This directive displays a calendar, similar to the typical calendars shown "
+"on some blogs."
+msgstr ""
+"Diese Anweisung zeigt einen Kalender, ähnlich denen, die auf manchen Blogs "
+"angezeigt werden."
+
+#. type: Title #
+#, no-wrap
+msgid "examples"
+msgstr "Beispiele"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!calendar ]]\n"
+msgstr "\t\\[[!calendar ]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!calendar type=\"month\" pages=\"blog/* and !*/Discussion\"]]\n"
+msgstr "\t\\[[!calendar type=\"month\" pages=\"blog/* and !*/Discussion\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!calendar type=\"year\" year=\"2005\" pages=\"blog/* and !*/Discussion\"]]\n"
+msgstr "\t\\[[!calendar type=\"year\" year=\"2005\" pages=\"blog/* and !*/Discussion\"]]\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "setup"
+msgstr "Einrichtung"
+
+#. type: Plain text
+msgid ""
+"The calendar is essentially a fancy front end to archives of previous pages, "
+"usually used for blogs. It can produce a calendar for a given month, or a "
+"list of months for a given year. The month format calendar simply links to "
+"any page posted on each day of the month. The year format calendar links to "
+"archive pages, with names like `archives/2007` (for all of 2007)  and "
+"`archives/2007/01` (for January, 2007)."
+msgstr ""
+"Der Kalender ist im Wesentlichen eine schicke Schnittstelle zu einem Archiv "
+"mit früheren Seiten und wird normalerweise für Blogs verwendet. Er kann "
+"einen Kalender für einen angegebenen Monat erzeugen, oder eine Liste der "
+"Monate eines angegebenen Jahres. Der Kalender im Jahresformat enthält "
+"einfach Links zu den Archivseiten mit Namen wie `archiv/2007` (für ganz "
+"2007) und `archiv/2007/01` (für Januar 2007)."
+
+#. type: Plain text
+msgid ""
+"While you can insert calendar directives anywhere on your wiki, including in "
+"the sidebar, you'll also need to create these archive pages. They typically "
+"use this directive to display a calendar, and also use [[inline]] to display "
+"or list pages created in the given time frame."
+msgstr ""
+"Während `calendar`-Anweisungen überall im Wiki verwendet werden können, auch "
+"in der Sidebar, muss man auch die Archiv-Seiten anlegen. Dort wird "
+"typischerweise diese Anweisung verwendet, um einen Kalender anzuzeigen, und "
+"außerdem die Seiten aus dem entsprechenden Zeitraum über [[inline]] "
+"eingebunden."
+
+#. type: Plain text
+#, fuzzy
+#| msgid ""
+#| "The `ikiwiki-calendar` command can be used to automatically generate the "
+#| "archive pages. It also refreshes the wiki, updating the calendars to "
+#| "highlight the current day. This command is typically run at midnight from "
+#| "cron. An example crontab:"
+msgid ""
+"The `ikiwiki-calendar` command can be used to automatically generate the "
+"archive pages. It also refreshes the wiki, updating the calendars to "
+"highlight the current day. This command is typically run at midnight from "
+"cron."
+msgstr ""
+"Der `ikiwiki-calendar`-Befehl kann verwendet werden, um die Archivseiten "
+"automatisch zu erzeugen. Es aktualisiert auch das Wiki und hebt in den "
+"Kalendern den aktuellen Tag hervor. Dieser Befehl wird typischerweise um "
+"Mitternacht von cron ausgeführt, beispielsweise durch folgenden crontab-"
+"Eintrag:"
+
+#. type: Plain text
+msgid "An example crontab:"
+msgstr "Ein Beispiel-Eintrag in crontab:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t0 0 * * * ikiwiki-calendar ~/ikiwiki.setup \"posts/* and !*/Discussion\"\n"
+msgstr "\t0 0 * * * ikiwiki-calendar ~/ikiwiki.setup \"posts/* and !*/Discussion\"\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "usage"
+msgstr "Verwendung"
+
+#. type: Bullet: '* '
+msgid ""
+"`type` - Used to specify the type of calendar wanted. Can be one of \"month"
+"\" or \"year\". The default is a month view calendar."
+msgstr ""
+"`type` - Hiermit wird die Art des zu erzeugenden Kalenders angegeben. Kann "
+"entweder \"month\" oder \"year\" sein. Vorgeingestellt ist die Monatsansicht."
+
+#. type: Bullet: '* '
+msgid ""
+"`pages` - Specifies the [[ikiwiki/PageSpec]] of pages to link to from the "
+"month calendar. Defaults to \"*\"."
+msgstr ""
+"`pages` - Gibt die [[ikiwiki/PageSpec]] der Seiten an, auf die aus dem "
+"Monatskalender verwiesen werden soll. Voreingestellt ist \"*\"."
+
+#. type: Bullet: '* '
+#, fuzzy
+#| msgid ""
+#| "`archivebase` - Configures the base of the archives hierarchy. The "
+#| "default is \"archives\". Note that this default can also be overridden "
+#| "for the whole wiki by setting `archivebase` in ikiwiki's setup file."
+msgid ""
+"`archivebase` - Configures the base of the archives hierarchy.  The default "
+"is \"archives\". Note that this default can also be overridden for the whole "
+"wiki by setting `archivebase` in ikiwiki's setup file.  Calendars link to "
+"pages under here, with names like \"2010/04\" and \"2010\". These pages can "
+"be automatically created using the `ikiwiki-calendar` program."
+msgstr ""
+"`archivebase` - Konfiguriert die Basis der Archiv-Hierarchie. Voreingestellt "
+"ist \"archives\". Dies kann auch für das gesamte Wiki geändert werden, indem "
+"`archivebase` in der Setup-Datei von ikiwiki gesetzt wird."
+
+#. type: Bullet: '* '
+#, fuzzy
+#| msgid ""
+#| "`year` - The year for which the calendar is requested. Defaults to the "
+#| "current year."
+msgid ""
+"`year` - The year for which the calendar is requested. Defaults to the "
+"current year. Can also use -1 to refer to last year, and so on."
+msgstr ""
+"`year` - Das Jahr, für das der Kalender angezeigt werden soll. "
+"Voreingestellt ist das aktuelle Jahr."
+
+#. type: Bullet: '* '
+#, fuzzy
+#| msgid ""
+#| "`month` - The numeric month for which the calendar is requested, in the "
+#| "range 1..12. Used only for the month view calendar, and defaults to the "
+#| "current month."
+msgid ""
+"`month` - The numeric month for which the calendar is requested, in the "
+"range 1..12. Used only for the month view calendar, and defaults to the "
+"current month. Can also use -1 to refer to last month, and so on."
+msgstr ""
+"`month` - Der Monat, für den der Kalender angezeigt werden soll, als Zahl "
+"von 1 bis 12. Wird nur für Monatskalender verwendet. Voreingestellt ist der "
+"aktuelle Monat."
+
+#. type: Bullet: '* '
+msgid ""
+"`week_start_day` - A number, in the range 0..6, which represents the day of "
+"the week that the month calendar starts with. 0 is Sunday, 1 is Monday, and "
+"so on. Defaults to 0, which is Sunday."
+msgstr ""
+"`week_start_day` - Eine Zahl aus dem Bereich 0 bis 6, die den Wochentag "
+"angibt, mit dem ein Monatskalender anfängt. 0 ist Sonntag, 1 ist Montag, und "
+"so weiter. Voreingestellt ist 0, also Sonntag."
+
+#. type: Bullet: '* '
+#, fuzzy
+#| msgid ""
+#| "`months_per_row` - In the annual calendar, number of months to place in "
+#| "each row. Defaults to 3."
+msgid ""
+"`months_per_row` - In the year calendar, number of months to place in each "
+"row. Defaults to 3."
+msgstr ""
+"`months_per_row` - Anzahl der Monate, die in einem Jahreskalender in einer "
+"Zeile platziert werden. Voreingestellt ist 3."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

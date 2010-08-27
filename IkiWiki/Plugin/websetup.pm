@@ -18,11 +18,19 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "web",
 		},
 		websetup_force_plugins => {
 			type => "string",
 			example => [],
 			description => "list of plugins that cannot be enabled/disabled via the web interface",
+			safe => 0,
+			rebuild => 0,
+		},
+		websetup_unsafe => {
+			type => "string",
+			example => [],
+			description => "list of additional setup field keys to treat as unsafe",
 			safe => 0,
 			rebuild => 0,
 		},
@@ -56,6 +64,12 @@ sub formatexample ($$) {
 	}
 }
 
+sub issafe ($) {
+	my $key=shift;
+
+	return ! grep { $_ eq $key } @{$config{websetup_unsafe}};
+}
+
 sub showfields ($$$@) {
 	my $form=shift;
 	my $plugin=shift;
@@ -66,27 +80,30 @@ sub showfields ($$$@) {
 	while (@_) {
 		my $key=shift;
 		my %info=%{shift()};
+		
+		if ($key eq 'plugin') {
+			%plugininfo=%info;
+			next;
+		}
 
 		# skip internal settings
 		next if defined $info{type} && $info{type} eq "internal";
 		# XXX hashes not handled yet
 		next if ref $config{$key} && ref $config{$key} eq 'HASH' || ref $info{example} eq 'HASH';
 		# maybe skip unsafe settings
-		next if ! $info{safe} && ! ($config{websetup_show_unsafe} && $config{websetup_advanced});
+		next if ! ($config{websetup_show_unsafe} && $config{websetup_advanced}) &&
+			(! $info{safe} || ! issafe($key));
 		# maybe skip advanced settings
 		next if $info{advanced} && ! $config{websetup_advanced};
 		# these are handled specially, so don't show
 		next if $key eq 'add_plugins' || $key eq 'disable_plugins';
 
-		if ($key eq 'plugin') {
-			%plugininfo=%info;
-			next;
-		}
-		
 		push @show, $key, \%info;
 	}
 
-	my $section=defined $plugin ? $plugin." ".gettext("plugin") : "main";
+	my $section=defined $plugin
+		? sprintf(gettext("%s plugin:"), $plugininfo{section})." ".$plugin
+		: "main";
 	my %enabledfields;
 	my $shownfields=0;
 	
@@ -95,6 +112,16 @@ sub showfields ($$$@) {
 	if ($plugin_forced && ! $enabled) {
 		# plugin is forced disabled, so skip its settings
 		@show=();
+	}
+
+	my $section_fieldset;
+	if (defined $plugin) {
+		# Define the combined fieldset for the plugin's section.
+		# This ensures that this fieldset comes first.
+		$section_fieldset=sprintf(gettext("%s plugins"), $plugininfo{section});
+		$form->field(name => "placeholder.$plugininfo{section}",
+			type => "hidden",
+			fieldset => $section_fieldset);
 	}
 
 	# show plugin toggle
@@ -137,9 +164,16 @@ sub showfields ($$$@) {
 		my $name=defined $plugin ? $plugin.".".$key : $section.".".$key;
 
 		my $value=$config{$key};
+		if (! defined $value) {
+			$value="";
+		}
 
-		if ($info{safe} && (ref $value eq 'ARRAY' || ref $info{example} eq 'ARRAY')) {
-			$value=[(ref $value eq 'ARRAY' ? @{$value} : ""), "", ""]; # blank items for expansion
+		if (ref $value eq 'ARRAY' || ref $info{example} eq 'ARRAY') {
+			$value=[(ref $value eq 'ARRAY' ? map { Encode::encode_utf8($_) }  @{$value} : "")];
+			push @$value, "", "" if $info{safe} && issafe($key); # blank items for expansion
+		}
+		else {
+			$value=Encode::encode_utf8($value);
 		}
 
 		if ($info{type} eq "string") {
@@ -190,7 +224,7 @@ sub showfields ($$$@) {
 			}
 		}
 		
-		if (! $info{safe}) {
+		if (! $info{safe} || ! issafe($key)) {
 			$form->field(name => $name, disabled => 1);
 		}
 		else {
@@ -199,11 +233,11 @@ sub showfields ($$$@) {
 		$shownfields++;
 	}
 	
-	# if no fields were shown for the plugin, drop it into the
-	# plugins fieldset
+	# if no fields were shown for the plugin, drop it into a combined
+	# fieldset for its section
 	if (defined $plugin && (! $plugin_forced || $config{websetup_advanced}) &&
 	    ! $shownfields) {
-		$form->field(name => "enable.$plugin", fieldset => "plugins");
+		$form->field(name => "enable.$plugin", fieldset => $section_fieldset);
 	}
 
 	return %enabledfields;
@@ -219,17 +253,15 @@ sub enable_plugin ($) {
 sub disable_plugin ($) {
 	my $plugin=shift;
 
-	if (grep { $_ eq $plugin } @{$config{add_plugins}}) {
-		$config{add_plugins}=[grep { $_ ne $plugin } @{$config{add_plugins}}];
-	}
-	else {
-		push @{$config{disable_plugins}}, $plugin;
-	}
+	$config{add_plugins}=[grep { $_ ne $plugin } @{$config{add_plugins}}];
+	push @{$config{disable_plugins}}, $plugin;
 }
 
 sub showform ($$) {
 	my $cgi=shift;
 	my $session=shift;
+
+	IkiWiki::needsignin($cgi, $session);
 
 	if (! defined $session->param("name") || 
 	    ! IkiWiki::is_admin($session->param("name"))) {
@@ -254,11 +286,10 @@ sub showform ($$) {
 		params => $cgi,
 		fieldsets => [
 			[main => gettext("main")], 
-			[plugins => gettext("plugins")]
 		],
 		action => $config{cgiurl},
 		template => {type => 'div'},
-		stylesheet => IkiWiki::baseurl()."style.css",
+		stylesheet => 1,
 	);
 	
 	$form->field(name => "do", type => "hidden", value => "setup",
@@ -290,7 +321,6 @@ sub showform ($$) {
 		shift->(form => $form, cgi => $cgi, session => $session,
 			buttons => $buttons);
 	});
-	IkiWiki::decode_form_utf8($form);
 
 	my %fields=showfields($form, undef, undef, IkiWiki::getsetup());
 	
@@ -308,6 +338,8 @@ sub showform ($$) {
 			$fields{$_}=$shown{$_} foreach keys %shown;
 		}
 	}
+
+	IkiWiki::decode_form_utf8($form);
 	
 	if ($form->submitted eq "Cancel") {
 		IkiWiki::redirect($cgi, $config{url});
@@ -326,7 +358,7 @@ sub showform ($$) {
 				@value=0;
 			}
 		
-			if (! $info{safe}) {
+			if (! $info{safe} || ! issafe($key)) {
 	 			error("unsafe field $key"); # should never happen
 			}
 		
@@ -357,7 +389,11 @@ sub showform ($$) {
 				@value=sort grep { length $_ } @value;
 				my @oldvalue=sort grep { length $_ }
 					(defined $config{$key} ? @{$config{$key}} : ());
-				if ((@oldvalue) == (@value)) {
+				my $same=(@oldvalue) == (@value);
+				for (my $x=0; $same && $x < @value; $x++) {
+					$same=0 if $value[$x] ne $oldvalue[$x];
+				}
+				if ($same) {
 					delete $rebuild{$field};
 				}
 				else {
@@ -410,8 +446,8 @@ sub showform ($$) {
 			IkiWiki::unlockwiki();
 
 			# Print the top part of a standard misctemplate,
-			# then show the rebuild or refresh.
-			my $divider="xxx";
+			# then show the rebuild or refresh, live.
+			my $divider="\0";
 			my $html=IkiWiki::misctemplate("setup", $divider);
 			IkiWiki::printheader($session);
 			my ($head, $tail)=split($divider, $html, 2);
@@ -463,9 +499,10 @@ sub formbuilder_setup (@) {
 	my %params=@_;
 
 	my $form=$params{form};
-	if ($form->title eq "preferences") {
-		push @{$params{buttons}}, "Wiki Setup";
-		if ($form->submitted && $form->submitted eq "Wiki Setup") {
+	if ($form->title eq "preferences" &&
+	    IkiWiki::is_admin($params{session}->param("name"))) {
+		push @{$params{buttons}}, "Setup";
+		if ($form->submitted && $form->submitted eq "Setup") {
 			showform($params{cgi}, $params{session});
 			exit;
 		}

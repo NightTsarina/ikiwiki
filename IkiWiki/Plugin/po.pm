@@ -10,7 +10,12 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use Encode;
-use Locale::Po4a::Common qw(nowrapi18n !/.*/);
+eval q{use Locale::Po4a::Common qw(nowrapi18n !/.*/)};
+if ($@) {
+	print STDERR gettext("warning: Old po4a detected! Recommend upgrade to 0.35.")."\n";
+	eval q{use Locale::Po4a::Common qw(!/.*/)};
+	die $@ if $@;
+}
 use Locale::Po4a::Chooser;
 use Locale::Po4a::Po;
 use File::Basename;
@@ -23,6 +28,7 @@ use UNIVERSAL;
 my %translations;
 my @origneedsbuild;
 my %origsubs;
+my @slavelanguages; # language codes ordered as in config po_slave_languages
 
 memoize("istranslatable");
 memoize("_istranslation");
@@ -46,16 +52,22 @@ sub import {
 	hook(type => "formbuilder_setup", id => "po", call => \&formbuilder_setup, last => 1);
 	hook(type => "formbuilder", id => "po", call => \&formbuilder);
 
-	$origsubs{'bestlink'}=\&IkiWiki::bestlink;
-	inject(name => "IkiWiki::bestlink", call => \&mybestlink);
-	$origsubs{'beautify_urlpath'}=\&IkiWiki::beautify_urlpath;
-	inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath);
-	$origsubs{'targetpage'}=\&IkiWiki::targetpage;
-	inject(name => "IkiWiki::targetpage", call => \&mytargetpage);
-	$origsubs{'urlto'}=\&IkiWiki::urlto;
-	inject(name => "IkiWiki::urlto", call => \&myurlto);
-	$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
-	inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
+	if (! %origsubs) {
+		$origsubs{'bestlink'}=\&IkiWiki::bestlink;
+		inject(name => "IkiWiki::bestlink", call => \&mybestlink);
+		$origsubs{'beautify_urlpath'}=\&IkiWiki::beautify_urlpath;
+		inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath);
+		$origsubs{'targetpage'}=\&IkiWiki::targetpage;
+		inject(name => "IkiWiki::targetpage", call => \&mytargetpage);
+		$origsubs{'urlto'}=\&IkiWiki::urlto;
+		inject(name => "IkiWiki::urlto", call => \&myurlto);
+		$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
+		inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
+		$origsubs{'rootpage'}=\&IkiWiki::rootpage;
+		inject(name => "IkiWiki::rootpage", call => \&myrootpage);
+		$origsubs{'isselflink'}=\&IkiWiki::isselflink;
+		inject(name => "IkiWiki::isselflink", call => \&myisselflink);
+	}
 }
 
 
@@ -78,7 +90,8 @@ sub getsetup () {
 	return
 		plugin => {
 			safe => 0,
-			rebuild => 1,
+			rebuild => 1, # format plugin
+			section => "format",
 		},
 		po_master_language => {
 			type => "string",
@@ -92,11 +105,11 @@ sub getsetup () {
 		},
 		po_slave_languages => {
 			type => "string",
-			example => {
-				'fr' => 'Français',
-				'es' => 'Castellano',
-				'de' => 'Deutsch'
-			},
+			example => [
+				'fr|Français',
+				'es|Español',
+				'de|Deutsch'
+			],
 			description => "slave languages (PO files)",
 			safe => 1,
 			rebuild => 1,
@@ -126,10 +139,32 @@ sub checkconfig () {
 		}
 	}
 
+	if (ref $config{po_slave_languages} eq 'ARRAY') {
+		my %slaves;
+		foreach my $pair (@{$config{po_slave_languages}}) {
+			my ($code, $name) = ( $pair =~ /^([a-z]{2})\|(.+)$/ );
+			if (!defined $code || !defined $name) {
+				error(sprintf(gettext("%s has invalid syntax: must use CODE|NAME"),
+				              $pair));
+			}
+			$slaves{$code} = $name;
+			push @slavelanguages, $code;
+
+		}
+		$config{po_slave_languages} = \%slaves;
+	}
+	elsif (ref $config{po_slave_languages} eq 'HASH') {
+		@slavelanguages = sort {
+			$config{po_slave_languages}->{$a} cmp $config{po_slave_languages}->{$b};
+		} keys %{$config{po_slave_languages}};
+	}
+
+	delete $config{po_slave_languages}{$config{po_master_language}{code}};;
+
 	map {
 		islanguagecode($_)
 			or error(sprintf(gettext("%s is not a valid language code"), $_));
-	} ($config{po_master_language}{code}, keys %{$config{po_slave_languages}});
+	} ($config{po_master_language}{code}, @slavelanguages);
 
 	if (! exists $config{po_translatable_pages} ||
 	    ! defined $config{po_translatable_pages}) {
@@ -158,7 +193,7 @@ sub checkconfig () {
 		next if $underlay=~/^locale\//;
 
 		# Underlays containing the po files for slave languages.
-		foreach my $ll (keys %{$config{po_slave_languages}}) {
+		foreach my $ll (@slavelanguages) {
 			add_underlay("po/$ll/$underlay")
 				if -d "$config{underlaydirbase}/po/$ll/$underlay";
 		}
@@ -166,7 +201,8 @@ sub checkconfig () {
 		if ($config{po_master_language}{code} ne 'en') {
 			# Add underlay containing translated source files
 			# for the master language.
-			add_underlay("locale/$config{po_master_language}{code}/$underlay");
+			add_underlay("locale/$config{po_master_language}{code}/$underlay")
+				if -d "$config{underlaydirbase}/locale/$config{po_master_language}{code}/$underlay";
 		}
 	}
 }
@@ -183,7 +219,7 @@ sub needsbuild () {
 
 	# make existing translations depend on the corresponding master page
 	foreach my $master (keys %translations) {
-		map add_depends($_, $master), values %{otherlanguages($master)};
+		map add_depends($_, $master), values %{otherlanguages_pages($master)};
 	}
 }
 
@@ -199,10 +235,7 @@ sub scan (@) {
 	if (istranslation($page)) {
 		foreach my $destpage (@{$links{$page}}) {
 			if (istranslatable($destpage)) {
-				# replace one occurence of $destpage in $links{$page}
-				# (we only want to replace the one that was added by
-				# IkiWiki::Plugin::link::scan, other occurences may be
-				# there for other reasons)
+				# replace the occurence of $destpage in $links{$page}
 				for (my $i=0; $i<@{$links{$page}}; $i++) {
 					if (@{$links{$page}}[$i] eq $destpage) {
 						@{$links{$page}}[$i] = $destpage . '.' . lang($page);
@@ -218,7 +251,7 @@ sub scan (@) {
 				# make sure any destpage's translations has
 				# $page in its backlinks
 				push @{$links{$page}},
-					values %{otherlanguages($destpage)};
+					values %{otherlanguages_pages($destpage)};
 			}
 		}
 	}
@@ -276,20 +309,19 @@ sub pagetemplate (@) {
 	}
 	if ($template->query(name => "otherlanguages")) {
 		$template->param(otherlanguages => [otherlanguagesloop($page)]);
-		map add_depends($page, $_), (values %{otherlanguages($page)});
+		map add_depends($page, $_), (values %{otherlanguages_pages($page)});
 	}
 	if ($config{discussion} && istranslation($page)) {
-		my $discussionlink=gettext("discussion");
-		if ($page !~ /.*\/\Q$discussionlink\E$/i &&
+		if ($page !~ /.*\/\Q$config{discussionpage}\E$/i &&
 		   (length $config{cgiurl} ||
-		    exists $links{$masterpage."/".$discussionlink})) {
+		    exists $links{$masterpage."/".lc($config{discussionpage})})) {
 			$template->param('discussionlink' => htmllink(
 				$page,
 				$destpage,
-				$masterpage . '/' . gettext("Discussion"),
+				$masterpage . '/' . $config{discussionpage},
 				noimageinline => 1,
 				forcesubpage => 0,
-				linktext => gettext("Discussion"),
+				linktext => $config{discussionpage},
 		));
 		}
 	}
@@ -301,7 +333,10 @@ sub pagetemplate (@) {
 	    && $masterpage eq "index") {
 		$template->param('parentlinks' => []);
 	}
-} # }}}
+	if (ishomepage($page) && $template->query(name => "title")) {
+		$template->param(title => $config{wikiname});
+	}
+}
 
 # Add the renamed page translations to the list of to-be-renamed pages.
 sub renamepages (@) {
@@ -327,12 +362,12 @@ sub renamepages (@) {
 	return () unless istranslatable($torename{src});
 
 	my @ret;
-	my %otherpages=%{otherlanguages($torename{src})};
+	my %otherpages=%{otherlanguages_pages($torename{src})};
 	while (my ($lang, $otherpage) = each %otherpages) {
 		push @ret, {
 			src => $otherpage,
 			srcfile => $pagesources{$otherpage},
-			dest => otherlanguage($torename{dest}, $lang),
+			dest => otherlanguage_page($torename{dest}, $lang),
 			destfile => $torename{dest}.".".$lang.".po",
 			required => 0,
 		};
@@ -380,45 +415,45 @@ sub change (@) {
 		resetalreadyfiltered();
 		require IkiWiki::Render;
 		foreach my $file (@rendered) {
-			debug(sprintf(gettext("building %s"), $file));
-			IkiWiki::render($file);
+			IkiWiki::render($file, sprintf(gettext("building %s"), $file));
 		}
 	}
 
 	my $updated_po_files=0;
 
 	# Refresh/create POT and PO files as needed.
-	# (But avoid doing so if they are in an underlay directory.)
 	foreach my $file (grep {istranslatablefile($_)} @rendered) {
 		my $masterfile=srcfile($file);
 		my $page=pagename($file);
 		my $updated_pot_file=0;
+
+		# Avoid touching underlay files.
+		next if $masterfile ne "$config{srcdir}/$file";
+
 		# Only refresh POT file if it does not exist, or if
-		# $pagesources{$page} was changed: don't if only the HTML was
+		# the source was changed: don't if only the HTML was
 		# refreshed, e.g. because of a dependency.
-		if ($masterfile eq "$config{srcdir}/$file" &&
-		   ((grep { $_ eq $pagesources{$page} } @origneedsbuild)
-		    || ! -e potfile($masterfile))) {
+		if ((grep { $_ eq $pagesources{$page} } @origneedsbuild) ||
+		    ! -e potfile($masterfile)) {
 			refreshpot($masterfile);
 			$updated_pot_file=1;
 		}
 		my @pofiles;
 		foreach my $po (pofiles($masterfile)) {
-			next if ! $updated_pot_file && ! -e $po;
+			next if ! $updated_pot_file && -e $po;
 			next if grep { $po=~/\Q$_\E/ } @{$config{underlaydirs}};
 			push @pofiles, $po;
 		}
 		if (@pofiles) {
 			refreshpofiles($masterfile, @pofiles);
-			map { IkiWiki::rcs_add($_) } @pofiles if $config{rcs};
+			map { s/^\Q$config{srcdir}\E\/*//; IkiWiki::rcs_add($_) } @pofiles if $config{rcs};
 			$updated_po_files=1;
 		}
 	}
 
 	if ($updated_po_files) {
 		commit_and_refresh(
-			gettext("updated PO files"),
-			"IkiWiki::Plugin::po::change");
+			gettext("updated PO files"));
 	}
 }
 
@@ -523,12 +558,25 @@ sub formbuilder (@) {
 	# This cannot be done in the formbuilder_setup hook as the list of types is
 	# computed later.
 	if ($form->field("do") eq "create") {
-	        foreach my $field ($form->field) {
+		foreach my $field ($form->field) {
 			next unless "$field" eq "type";
-			if ($field->type eq 'select') {
-				# remove po from the list of types
-				my @types = grep { $_ ne 'po' } $field->options;
-				$field->options(\@types) if @types;
+			next unless $field->type eq 'select';
+			my $orig_value = $field->value;
+			# remove po from the list of types
+			my @types = grep { $_->[0] ne 'po' } $field->options;
+			$field->options(\@types) if @types;
+			# favor the type of linking page's masterpage
+			if ($orig_value eq 'po') {
+				my ($from, $type);
+				if (defined $form->field('from')) {
+					($from)=$form->field('from')=~/$config{wiki_file_regexp}/;
+					$from = masterpage($from);
+				}
+				if (defined $from && exists $pagesources{$from}) {
+					$type=pagetype($pagesources{$from});
+				}
+				$type=$config{default_pageext} unless defined $type;
+				$field->value($type) ;
 			}
 		}
 	}
@@ -543,11 +591,16 @@ sub mybestlink ($$) {
 	my $page=shift;
 	my $link=shift;
 
+	return $origsubs{'bestlink'}->($page, $link)
+		if defined $config{po_link_to} && $config{po_link_to} eq "default";
+
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
+	my @caller = caller(1);
 	if (length $res
-	    && ($config{po_link_to} eq "current" || $config{po_link_to} eq "negotiated")
 	    && istranslatable($res)
-	    && istranslation($page)) {
+	    && istranslation($page)
+	    &&  !(exists $caller[3] && defined $caller[3]
+		  && ($caller[3] eq "IkiWiki::PageSpec::match_link"))) {
 		return $res . "." . lang($page);
 	}
 	return $res;
@@ -557,12 +610,12 @@ sub mybeautify_urlpath ($) {
 	my $url=shift;
 
 	my $res=$origsubs{'beautify_urlpath'}->($url);
-	if ($config{po_link_to} eq "negotiated") {
+	if (defined $config{po_link_to} && $config{po_link_to} eq "negotiated") {
 		$res =~ s!/\Qindex.$config{po_master_language}{code}.$config{htmlext}\E$!/!;
 		$res =~ s!/\Qindex.$config{htmlext}\E$!/!;
 		map {
 			$res =~ s!/\Qindex.$_.$config{htmlext}\E$!/!;
-		} (keys %{$config{po_slave_languages}});
+		} @slavelanguages;
 	}
 	return $res;
 }
@@ -598,17 +651,21 @@ sub myurlto ($$;$) {
 	# so that one is redirected to the just-edited page rather than to the
 	# negociated translation; to prevent unnecessary fiddling with caller/inject,
 	# we only do so when our beautify_urlpath would actually do what we want to
-	# avoid, i.e. when po_link_to = negotiated
+	# avoid, i.e. when po_link_to = negotiated.
+	# also avoid doing so when run by cgi_goto, so that the links on recentchanges
+	# page actually lead to the exact page they pretend to.
 	if ($config{po_link_to} eq "negotiated") {
 		my @caller = caller(1);
-		my $run_by_editpage = 0;
-		$run_by_editpage = 1 if (exists $caller[3] && defined $caller[3]
-					 && $caller[3] eq "IkiWiki::cgi_editpage");
+		my $use_orig = 0;
+		$use_orig = 1 if (exists $caller[3] && defined $caller[3]
+				 && ($caller[3] eq "IkiWiki::cgi_editpage" ||
+				     $caller[3] eq "IkiWiki::Plugin::goto::cgi_goto")
+				 );
 		inject(name => "IkiWiki::beautify_urlpath", call => $origsubs{'beautify_urlpath'})
-			if $run_by_editpage;
+			if $use_orig;
 		my $res = $origsubs{'urlto'}->($to,$from,$absolute);
 		inject(name => "IkiWiki::beautify_urlpath", call => \&mybeautify_urlpath)
-			if $run_by_editpage;
+			if $use_orig;
 		return $res;
 	}
 	else {
@@ -624,6 +681,33 @@ sub mycgiurl (@) {
 		$params{'from'} = masterpage($params{'from'});
 	}
 	return $origsubs{'cgiurl'}->(%params);
+}
+
+sub myrootpage (@) {
+	my %params=@_;
+
+	my $rootpage;
+	if (exists $params{rootpage}) {
+		$rootpage=$origsubs{'bestlink'}->($params{page}, $params{rootpage});
+		if (!length $rootpage) {
+			$rootpage=$params{rootpage};
+		}
+	}
+	else {
+		$rootpage=masterpage($params{page});
+	}
+	return $rootpage;
+}
+
+sub myisselflink ($$) {
+	my $page=shift;
+	my $link=shift;
+
+	return 1 if $origsubs{'isselflink'}->($page, $link);
+	if (istranslation($page)) {
+		return $origsubs{'isselflink'}->(masterpage($page), $link);
+	}
+	return;
 }
 
 # ,----
@@ -681,6 +765,7 @@ sub istranslatablefile ($) {
 	my $type=pagetype($file);
 	return 0 if ! defined $type || $type eq 'po';
 	return 0 if $file =~ /\.pot$/;
+	return 0 if ! defined $config{po_translatable_pages};
 	return 1 if pagespec_match(pagename($file), $config{po_translatable_pages});
 	return;
 }
@@ -749,7 +834,7 @@ sub islanguagecode ($) {
 	return $code =~ /^[a-z]{2}$/;
 }
 
-sub otherlanguage ($$) {
+sub otherlanguage_page ($$) {
 	my $page=shift;
 	my $code=shift;
 
@@ -757,17 +842,31 @@ sub otherlanguage ($$) {
 	return masterpage($page) . '.' . $code;
 }
 
-sub otherlanguages ($) {
+# Returns the list of other languages codes: the master language comes first,
+# then the codes are ordered the same way as in po_slave_languages, if it is
+# an array, or in the language name lexical order, if it is a hash.
+sub otherlanguages_codes ($) {
+	my $page=shift;
+
+	my @ret;
+	return \@ret unless istranslation($page) || istranslatable($page);
+	my $curlang=lang($page);
+	foreach my $lang
+		($config{po_master_language}{code}, @slavelanguages) {
+		next if $lang eq $curlang;
+		push @ret, $lang;
+	}
+	return \@ret;
+}
+
+sub otherlanguages_pages ($) {
 	my $page=shift;
 
 	my %ret;
-	return \%ret unless istranslation($page) || istranslatable($page);
-	my $curlang=lang($page);
-	foreach my $lang
-		($config{po_master_language}{code}, keys %{$config{po_slave_languages}}) {
-		next if $lang eq $curlang;
-		$ret{$lang}=otherlanguage($page, $lang);
-	}
+	map {
+		$ret{$_} = otherlanguage_page($page, $_)
+	} @{otherlanguages_codes($page)};
+
 	return \%ret;
 }
 
@@ -791,25 +890,25 @@ sub pofile ($$) {
 sub pofiles ($) {
 	my $masterfile=shift;
 
-	return map pofile($masterfile, $_), (keys %{$config{po_slave_languages}});
+	return map pofile($masterfile, $_), @slavelanguages;
 }
 
 sub refreshpot ($) {
 	my $masterfile=shift;
 
 	my $potfile=potfile($masterfile);
-	my %options = ("markdown" => (pagetype($masterfile) eq 'mdwn') ? 1 : 0);
-	my $doc=Locale::Po4a::Chooser::new('text',%options);
+	my $doc=Locale::Po4a::Chooser::new(po4a_type($masterfile),
+					   po4a_options($masterfile));
 	$doc->{TT}{utf_mode} = 1;
-	$doc->{TT}{file_in_charset} = 'utf-8';
-	$doc->{TT}{file_out_charset} = 'utf-8';
+	$doc->{TT}{file_in_charset} = 'UTF-8';
+	$doc->{TT}{file_out_charset} = 'UTF-8';
 	$doc->read($masterfile);
 	# let's cheat a bit to force porefs option to be passed to
 	# Locale::Po4a::Po; this is undocument use of internal
 	# Locale::Po4a::TransTractor's data, compulsory since this module
 	# prevents us from using the porefs option.
 	$doc->{TT}{po_out}=Locale::Po4a::Po->new({ 'porefs' => 'none' });
-	$doc->{TT}{po_out}->set_charset('utf-8');
+	$doc->{TT}{po_out}->set_charset('UTF-8');
 	# do the actual work
 	$doc->parse;
 	IkiWiki::prep_writefile(basename($potfile),dirname($potfile));
@@ -827,6 +926,21 @@ sub refreshpofiles ($@) {
 
 	foreach my $pofile (@pofiles) {
 		IkiWiki::prep_writefile(basename($pofile),dirname($pofile));
+
+		if (! -e $pofile) {
+			# If the po file exists in an underlay, copy it
+			# from there.
+			my ($pobase)=$pofile=~/^\Q$config{srcdir}\E\/?(.*)$/;
+			foreach my $dir (@{$config{underlaydirs}}) {
+				if (-e "$dir/$pobase") {
+					File::Copy::syscopy("$dir/$pobase",$pofile)
+						or error("po(refreshpofiles) ".
+							 sprintf(gettext("failed to copy underlay PO file to %s"),
+								 $pofile));
+				}
+			}
+		}
+
 		if (-e $pofile) {
 			system("msgmerge", "--previous", "-q", "-U", "--backup=none", $pofile, $potfile) == 0
 				or error("po(refreshpofiles) ".
@@ -875,15 +989,13 @@ sub percenttranslated ($) {
 	return gettext("N/A") unless istranslation($page);
 	my $file=srcfile($pagesources{$page});
 	my $masterfile = srcfile($pagesources{masterpage($page)});
-	my %options = (
-		"markdown" => (pagetype($masterfile) eq 'mdwn') ? 1 : 0,
-	);
-	my $doc=Locale::Po4a::Chooser::new('text',%options);
+	my $doc=Locale::Po4a::Chooser::new(po4a_type($masterfile),
+					   po4a_options($masterfile));
 	$doc->process(
 		'po_in_name'	=> [ $file ],
 		'file_in_name'	=> [ $masterfile ],
-		'file_in_charset'  => 'utf-8',
-		'file_out_charset' => 'utf-8',
+		'file_in_charset'  => 'UTF-8',
+		'file_out_charset' => 'UTF-8',
 	) or error("po(percenttranslated) ".
 		   sprintf(gettext("failed to translate %s"), $page));
 	my ($percent,$hit,$queries) = $doc->stats();
@@ -905,36 +1017,39 @@ sub otherlanguagesloop ($) {
 	my $page=shift;
 
 	my @ret;
-	my %otherpages=%{otherlanguages($page)};
-	while (my ($lang, $otherpage) = each %otherpages) {
-		if (istranslation($page) && masterpage($page) eq $otherpage) {
-			push @ret, {
-				url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
-				code => $lang,
-				language => languagename($lang),
-				master => 1,
-			};
-		}
-		else {
-			push @ret, {
-				url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
-				code => $lang,
-				language => languagename($lang),
-				percent => percenttranslated($otherpage),
-			}
+	if (istranslation($page)) {
+		push @ret, {
+			url => urlto_with_orig_beautiful_urlpath(masterpage($page), $page),
+			code => $config{po_master_language}{code},
+			language => $config{po_master_language}{name},
+			master => 1,
+		};
+	}
+	foreach my $lang (@{otherlanguages_codes($page)}) {
+		next if $lang eq $config{po_master_language}{code};
+		my $otherpage = otherlanguage_page($page, $lang);
+		push @ret, {
+			url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
+			code => $lang,
+			language => languagename($lang),
+			percent => percenttranslated($otherpage),
 		}
 	}
-	return sort {
-		return -1 if $a->{code} eq $config{po_master_language}{code};
-		return 1 if $b->{code} eq $config{po_master_language}{code};
-		return $a->{language} cmp $b->{language};
-	} @ret;
+	return @ret;
 }
 
 sub homepageurl (;$) {
 	my $page=shift;
 
 	return urlto('', $page);
+}
+
+sub ishomepage ($) {
+	my $page = shift;
+
+	return 1 if $page eq 'index';
+	map { return 1 if $page eq 'index.'.$_ } @slavelanguages;
+	return undef;
 }
 
 sub deletetranslations ($) {
@@ -948,7 +1063,7 @@ sub deletetranslations ($) {
 		if (-e $absfile && ! -l $absfile && ! -d $absfile) {
 			push @todelete, $file;
 		}
-	} keys %{$config{po_slave_languages}};
+	} @slavelanguages;
 
 	map {
 		if ($config{rcs}) {
@@ -961,17 +1076,18 @@ sub deletetranslations ($) {
 
 	if (@todelete) {
 		commit_and_refresh(
-			gettext("removed obsolete PO files"),
-			"IkiWiki::Plugin::po::deletetranslations");
+			gettext("removed obsolete PO files"));
 	}
 }
 
-sub commit_and_refresh ($$) {
-	my ($msg, $author) = (shift, shift);
+sub commit_and_refresh ($) {
+	my $msg = shift;
 
 	if ($config{rcs}) {
 		IkiWiki::disable_commit_hook();
-		IkiWiki::rcs_commit_staged($msg, $author, "127.0.0.1");
+		IkiWiki::rcs_commit_staged(
+			message => $msg,
+		);
 		IkiWiki::enable_commit_hook();
 		IkiWiki::rcs_update();
 	}
@@ -989,11 +1105,8 @@ sub commit_and_refresh ($$) {
 	IkiWiki::saveindex();
 }
 
-# on success, returns the filtered content.
-# on error, if $nonfatal, warn and return undef; else, error out.
-sub po_to_markup ($$;$) {
+sub po_to_markup ($$) {
 	my ($page, $content) = (shift, shift);
-	my $nonfatal = shift;
 
 	$content = '' unless defined $content;
 	$content = decode_utf8(encode_utf8($content));
@@ -1016,10 +1129,6 @@ sub po_to_markup ($$;$) {
 
 	my $fail = sub ($) {
 		my $msg = "po(po_to_markup) - $page : " . shift;
-		if ($nonfatal) {
-			warn $msg;
-			return undef;
-		}
 		error($msg, sub { unlink $infile, $outfile});
 	};
 
@@ -1027,21 +1136,18 @@ sub po_to_markup ($$;$) {
 		or return $fail->(sprintf(gettext("failed to write %s"), $infile));
 
 	my $masterfile = srcfile($pagesources{masterpage($page)});
-	my %options = (
-		"markdown" => (pagetype($masterfile) eq 'mdwn') ? 1 : 0,
-	);
-	my $doc=Locale::Po4a::Chooser::new('text',%options);
+	my $doc=Locale::Po4a::Chooser::new(po4a_type($masterfile),
+					   po4a_options($masterfile));
 	$doc->process(
 		'po_in_name'	=> [ $infile ],
 		'file_in_name'	=> [ $masterfile ],
-		'file_in_charset'  => 'utf-8',
-		'file_out_charset' => 'utf-8',
+		'file_in_charset'  => 'UTF-8',
+		'file_out_charset' => 'UTF-8',
 	) or return $fail->(gettext("failed to translate"));
 	$doc->write($outfile)
 		or return $fail->(sprintf(gettext("failed to write %s"), $outfile));
 
-	$content = readfile($outfile)
-		or return $fail->(sprintf(gettext("failed to read %s"), $outfile));
+	$content = readfile($outfile);
 
 	# Unlinking should happen automatically, thanks to File::Temp,
 	# but it does not work here, probably because of the way writefile()
@@ -1088,10 +1194,41 @@ sub isvalidpo ($) {
 	unlink $infile;
 
 	if ($res) {
-	    return IkiWiki::SuccessReason->new("valid gettext data");
+		return IkiWiki::SuccessReason->new("valid gettext data");
 	}
 	return IkiWiki::FailReason->new(gettext("invalid gettext data, go back ".
 					"to previous page to continue edit"));
+}
+
+sub po4a_type ($) {
+	my $file = shift;
+
+	my $pagetype = pagetype($file);
+	if ($pagetype eq 'html') {
+		return 'xhtml';
+	}
+	return 'text';
+}
+
+sub po4a_options($) {
+	my $file = shift;
+
+	my %options;
+	my $pagetype = pagetype($file);
+
+	if ($pagetype eq 'html') {
+		# how to disable options is not consistent across po4a modules
+		$options{includessi} = '';
+		$options{includeexternal} = 0;
+	}
+	elsif ($pagetype eq 'mdwn') {
+		$options{markdown} = 1;
+	}
+	else {
+		$options{markdown} = 0;
+	}
+
+	return %options;
 }
 
 # ,----
@@ -1151,6 +1288,34 @@ sub match_currentlang ($$;@) {
 	}
 	else {
 		return IkiWiki::FailReason->new("file language is $lang, whereas current language is $currentlang");
+	}
+}
+
+sub match_needstranslation ($$;@) {
+	my $page=shift;
+	my $wanted=shift;
+
+	if (defined $wanted && $wanted ne "") {
+		if ($wanted !~ /^\d+$/) {
+			return IkiWiki::FailReason->new("parameter is not an integer");
+		}
+		elsif ($wanted > 100) {
+			return IkiWiki::FailReason->new("parameter is greater than 100");
+		}
+	}
+	else {
+		$wanted=100;
+	}
+
+	my $percenttranslated=IkiWiki::Plugin::po::percenttranslated($page);
+	if ($percenttranslated eq 'N/A') {
+		return IkiWiki::FailReason->new("file is not a translatable page");
+	}
+	elsif ($percenttranslated < $wanted) {
+		return IkiWiki::SuccessReason->new("file has $percenttranslated translated");
+	}
+	else {
+		return IkiWiki::FailReason->new("file is translated enough");
 	}
 }
 

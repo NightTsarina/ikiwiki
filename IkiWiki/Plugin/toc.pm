@@ -18,6 +18,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
@@ -53,8 +54,8 @@ sub format (@) {
 	my $page="";
 	my $index="";
 	my %anchors;
-	my $curlevel;
-	my $startlevel=0;
+	my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
+	my $curlevel=$startlevel-1;
 	my $liststarted=0;
 	my $indent=sub { "\t" x $curlevel };
 	$p->handler(start => sub {
@@ -65,11 +66,16 @@ sub format (@) {
 			my $anchor="index".++$anchors{$level}."h$level";
 			$page.="$text<a name=\"$anchor\"></a>";
 	
-			# Take the first header level seen as the topmost level,
+			# Unless we're given startlevel as a parameter,
+			# take the first header level seen as the topmost level,
 			# even if there are higher levels seen later on.
 			if (! $startlevel) {
 				$startlevel=$level;
 				$curlevel=$startlevel-1;
+			}
+			elsif (defined $params{startlevel} &&
+			       $level < $params{startlevel}) {
+			    return;
 			}
 			elsif ($level < $startlevel) {
 				$level=$startlevel;

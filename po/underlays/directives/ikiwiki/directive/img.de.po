@@ -1,0 +1,124 @@
+# German translation of directives/ikiwiki/directive/img page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2010-03-14 14:02+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `img` directive is supplied by the [[!iki plugins/img desc=img]] plugin."
+msgstr ""
+"Die `img`-Anweisung wird durch die [[!iki plugins/img desc=img]]-Erweiterung "
+"bereitgestellt."
+
+#. type: Plain text
+msgid ""
+"This is an image handling directive.  While ikiwiki supports inlining full-"
+"size images by making a [[ikiwiki/WikiLink]] that points to the image, using "
+"this directive you can easily scale down an image for inclusion onto a page, "
+"providing a link to a full-size version."
+msgstr ""
+"Diese Anweisung verarbeitet Bilder. Während ikiwiki das Einbinden von "
+"Bildern in voller Größe durch einen [[ikiwiki/WikiLink]] auf das Bild "
+"unterstützt, kann man mit dieser Anweisung ein Bild einfach "
+"herunterskalieren, um es in eine Seite einzubinden, und einen Link auf das "
+"Bild in Originalgröße setzen."
+
+#. type: Title ##
+#, no-wrap
+msgid "usage"
+msgstr "Verwendung"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!img image1.jpg size=\"200x200\" alt=\"clouds\"]]\n"
+msgstr "\t\\[[!img image1.jpeg size=\"200x200\" alt=\"Wolken\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The image file will be searched for using the same rules as used to find the "
+"file pointed to by a [[ikiwiki/WikiLink]]."
+msgstr ""
+"Diese Bilddatei wird nach den gleichen Regeln gesucht wie das Ziel eines "
+"[[ikiwiki/WikiLink]]."
+
+#. type: Plain text
+msgid ""
+"The `size` parameter is optional, defaulting to full size. Note that the "
+"original image's aspect ratio is always preserved, even if this means making "
+"the image smaller than the specified size. You can also specify only the "
+"width or the height, and the other value will be calculated based on it: "
+"\"200x\", \"x200\""
+msgstr ""
+"Der Parameter `size` ist optional, voreingestellt ist die volle Größe. Das "
+"Seitenverhältnis des Originalbildes wird immer bewahrt, auch wenn das Bild "
+"dadurch kleiner wird als angegeben. Man kann auch nur die Breite oder nur "
+"die Höhe angeben, dann wird der jeweils andere Wert automatisch berechnet: "
+"`200x`, `x200`."
+
+#. type: Plain text
+#, fuzzy
+#| msgid ""
+#| "You can also pass `alt`, `title`, `class`, `align` and `id` parameters.  "
+#| "These are passed through unchanged to the html img tag. If you include a "
+#| "`caption` parameter, the caption will be displayed centered beneath the "
+#| "image."
+msgid ""
+"You can also pass `alt`, `title`, `class`, `align`, `id`, `hspace`, and "
+"`vspace` parameters.  These are passed through unchanged to the html img "
+"tag. If you include a `caption` parameter, the caption will be displayed "
+"centered beneath the image."
+msgstr ""
+"Man kann auch die Parameter `alt`, `title`, `class`, `align` und `id` "
+"übergeben. Diese werden an den img-Tag im erzeugten HTML-Code "
+"weitergereicht. Wird der Parameter `caption` angegeben, wird sein Wert unter "
+"dem Bild zentriert angezeigt."
+
+#. type: Plain text
+msgid ""
+"The `link` parameter is used to control whether the scaled image links to "
+"the full size version. By default it does; set \"link=somepage\" to link to "
+"another page instead, or \"link=no\" to disable the link, or \"link=http://"
+"url\" to link to a given url."
+msgstr ""
+"Der Parameter `link` steuert, ob herunterskalierte Bilder mit dem "
+"Originalbild verlinkt werden. In der Voreinstellung ist dies der Fall; mit "
+"`link=AndereSeite` zeigt der Link auf eine andere Seite, mit `link=no` wird "
+"der Link deaktiviert, mit `link=http://url` zeigt er auf die angegebene URL."
+
+#. type: Plain text
+msgid ""
+"You can also set default values that will be applied to all later images on "
+"the page, unless overridden. Useful when including many images on a page."
+msgstr ""
+"Man kann auch die Voreinstellung für die weiter unten auf der Seite "
+"eingebundenen Bilder verändern. Dies ist nützlich, wenn es auf einer Seite "
+"viele Bilder gibt."
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!img defaults size=200x200 alt=\"wedding photo\"]]\n"
+"\t\\[[!img photo1.jpg]]\n"
+"\t\\[[!img photo2.jpg]]\n"
+"\t\\[[!img photo3.jpg size=200x600]]\n"
+msgstr ""
+"\t\\[[!img defaults size=200x200 alt=\"Hochzeitsfoto\"]]\n"
+"\t\\[[!img photo1.jpg]]\n"
+"\t\\[[!img photo2.jpg]]\n"
+"\t\\[[!img photo3.jpg size=200x600]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

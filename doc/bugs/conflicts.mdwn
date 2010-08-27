@@ -1,0 +1,32 @@
+The `conflicts` testcase has 4 failing test cases. The underlaying problem 
+is that there are multiple possible source files that can create the same
+destination files.
+
+1. `foo.mdwn` is in srcdir, rendered to destdir. Then
+   it is removed, and `foo` is added, which will be rendered
+   raw to destdir. Since the `foo/` directory still exists,
+   it fails.
+1. `foo` is added to srcdir, rendered raw to destdir.
+   Then it is removed from srcdir, and `foo.mdwn` is added.
+   The `foo` file is still present in the destdir, and mkdir
+   of the directory `foo/` fails.
+1. `foo.mdwn` renders to `foo/index.html`. Then `foo/index.html`
+   is added to the srcdir, using rawhtml. It renders to the same 
+   thing.
+1. `foo/index.html` in srcdir is rendered to same thing in destdir
+   using rawhtml. Then `foo.mdwn` is added; renders same thing.
+
+Note that another case, that of page `foo.mdwn` and page `foo.txt`, that
+both render to `foo/index.html`, used to cause problems, but no longer
+crashes ikiwiki. It now only complains in this situation, and which
+file "wins" is undefined. The fix for this relied on both pages being
+named `foo`; but in the above cases, the source files have different
+pagenames.
+
+One approach: Beef up checking in `will_render` to detect when the same
+destination file is rendered by multiple pages. Or when one page renders
+a file that is a parent directory of the rendered file of another page.
+It could warn, rather than erroring. The last page rendered would "win";
+generating the destdir file.
+
+[[done]]

@@ -1,0 +1,18 @@
+This plugin not only locks pages but ensures too a user is logged in. This
+seems to me redundant with signedit. I propose [removing the if block that
+calls needsignin ].
+
+> That was added because the most typical reason for being unable to edit a
+> page is that you are not logged in. And without the jump to logging the
+> user in, there is no way for the user to log in, without navigating away
+> from the page they were trying to edit. --[[Joey]] 
+
+>> Ok, but the problem is that when you don't want any signin form you end up
+>> with a lone login button. That might happend if you lock pages only on IP
+>> adresses, if you use another cookie from another webapp...
+
+>> That happends to me and I had to reimplement lockedit in my private auth
+>> plugin.
+
+>> Perhaps you could return undef on that case and let another plugin do the
+>> needsignin call ? -- [[Jogo]]

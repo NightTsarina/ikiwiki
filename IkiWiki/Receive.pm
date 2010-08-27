@@ -1,5 +1,4 @@
 #!/usr/bin/perl
-
 package IkiWiki::Receive;
 
 use warnings;
@@ -20,9 +19,9 @@ sub trusted () {
 		! grep { $_ eq $user } @{$config{untrusted_committers}};
 }
 
-sub gen_wrapper () {
+sub genwrapper () {
 	# Test for commits from untrusted committers in the wrapper, to
-	# avoid loading ikiwiki at all for trusted commits.
+	# avoid starting ikiwiki proper at all for trusted commits.
 
 	my $ret=<<"EOF";
 	{
@@ -37,6 +36,8 @@ EOF
 			"u != $uid";
 		} @{$config{untrusted_committers}}).
 		") exit(0);\n";
+
+	
 	$ret.=<<"EOF";
 		asprintf(&s, "CALLER_UID=%i", u);
 		newenviron[i++]=s;
@@ -56,7 +57,6 @@ sub test () {
 	eval q{use CGI};
 	error($@) if $@;
 	my $cgi=CGI->new;
-	$ENV{REMOTE_ADDR}='unknown' unless exists $ENV{REMOTE_ADDR};
 
 	# And dummy up a session object.
 	require IkiWiki::CGI;
@@ -81,7 +81,7 @@ sub test () {
 		my ($file)=$change->{file}=~/$config{wiki_file_regexp}/;
 		$file=IkiWiki::possibly_foolish_untaint($file);
 		if (! defined $file || ! length $file ||
-		    IkiWiki::file_pruned($file, $config{srcdir})) {
+		    IkiWiki::file_pruned($file)) {
 			error(gettext("bad file name %s"), $file);
 		}
 
@@ -114,7 +114,7 @@ sub test () {
 			# by not testing the removal in such pairs of changes.
 			# (The add is still tested, just to make sure that
 			# no data is added to the repo that a web edit
-			# could add.)
+			# could not add.)
 			next if $newfiles{$file};
 
 			if (IkiWiki::Plugin::remove->can("check_canremove")) {

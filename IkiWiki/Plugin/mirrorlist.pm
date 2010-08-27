@@ -15,6 +15,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 1,
+			section => "web",
 		},
 		mirrorlist => {
 			type => "string",
@@ -29,7 +30,8 @@ sub pagetemplate (@) {
 	my %params=@_;
         my $template=$params{template};
 	
-	if ($template->query(name => "extrafooter")) {
+	if ($template->query(name => "extrafooter") &&
+	    keys %{$config{mirrorlist}} > 0) {
 		my $value=$template->param("extrafooter");
 		$value.=mirrorlist($params{page});
 		$template->param(extrafooter => $value);
@@ -38,7 +40,7 @@ sub pagetemplate (@) {
 
 sub mirrorlist ($) {
 	my $page=shift;
-	return "<p>".
+	return ($config{html5} ? '<nav id="mirrorlist">' : '<div>').
 		(keys %{$config{mirrorlist}} > 1 ? gettext("Mirrors") : gettext("Mirror")).
 		": ".
 		join(", ",
@@ -48,7 +50,7 @@ sub mirrorlist ($) {
 				qq{">$_</a>}
 			} keys %{$config{mirrorlist}}
 		).
-		"</p>";
+		($config{html5} ? '</nav>' : '</div>');
 }
 
 1

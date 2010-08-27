@@ -1,0 +1,18 @@
+I must be doing something wrong. Running setup:
+
+$ ikiwiki --setup MyIkiwiki.setup
+
+overwrites my local.css with the default (empty) version.
+
+I am using ikiwiki_3.1415926.tar.gz installed into /usr/local.
+
+---
+Sorry. Never mind. RTFM. --refresh duh.
+
+> Hmm, well. Using --refresh is a good thing because it allow ikiwiki to
+> update a site quicker. But, it must only be hiding the real problem.
+> Sounds like you are trying to edit local.css directly inside
+> the destdir. But ikiwiki has a local.css located in its basewiki,
+> so when you rebuild your local mods are lost. Fix is to put you
+> locally modified local.css inside the srcdir, along with the other pages
+> of your wiki. --[[Joey]] 

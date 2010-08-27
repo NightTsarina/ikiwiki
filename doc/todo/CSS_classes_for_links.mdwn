@@ -75,3 +75,29 @@ I find CSS3 support still spotty...  Here are some notes on how to do this in Ik
 > [[rel_attribute|rel_attribute_for_links]] now that CSS can use.)
 > 
 > --[[Joey]]
+
+>> I had a little look at this, last weekend. I added a class definition to
+>> the `htmllink` call in `linkify` in `link.pm`. It works pretty well, but
+>> I'd also need to adjust other `htmllink` calls (map, inline, etc.). I found
+>> other methods (CSS3 selectors, etc.) to be unreliable.
+>> 
+>> Would you potentially accept a patch that added `class="internal"` to
+>> various `htmllink` calls in ikiwiki?
+>> 
+>> How configurable do you think this behaviour should be? I'm considering a
+>> config switch to enable or disable this behaviour, or possibly a
+>> configurable list of class names to append for internal links (defaulting
+>> to an empty list for backwards compatibility)>
+>> 
+>> As an alternative to patching the uses of `htmllink`, what do you think
+>> about patching `htmllink` itself? Are there circumstances where it might be
+>> used to generate a non-internal link? -- [[Jon]]
+
+>>> I think that the minimum configurability to get something that
+>>> can be used by CSS to style the links however the end user wants
+>>> is the best thing to shoot for. Ideally, no configurability. And
+>>> a tip or something documenting how to use the classes in your CSS
+>>> to style links so that eg, external links have a warning icon.
+>>> 
+>>> `htmllink` can never be used to generate an external link. So,
+>>> patching it seems the best approach. --[[Joey]] 

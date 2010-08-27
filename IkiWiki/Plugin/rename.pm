@@ -18,6 +18,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 0,
+			section => "web",
 		},
 }
 
@@ -49,7 +50,7 @@ sub check_canrename ($$$$$$) {
 	IkiWiki::check_canedit($src, $q, $session);
 	if ($attachment) {
 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
-			IkiWiki::Plugin::attachment::check_canattach($session, $src, $srcfile);
+			IkiWiki::Plugin::attachment::check_canattach($session, $src, "$config{srcdir}/$srcfile");
 		}
 		else {
 			error("renaming of attachments is not allowed");
@@ -62,9 +63,8 @@ sub check_canrename ($$$$$$) {
 			error(gettext("no change to the file name was specified"));
 		}
 
-		# Must be a legal filename, and not absolute.
-		if (IkiWiki::file_pruned($destfile, $config{srcdir}) || 
-		    $destfile=~/^\//) {
+		# Must be a legal filename.
+		if (IkiWiki::file_pruned($destfile)) {
 			error(sprintf(gettext("illegal name")));
 		}
 
@@ -84,7 +84,7 @@ sub check_canrename ($$$$$$) {
 		if ($attachment) {
 			# Note that $srcfile is used here, not $destfile,
 			# because it wants the current file, to check it.
-			IkiWiki::Plugin::attachment::check_canattach($session, $dest, $srcfile);
+			IkiWiki::Plugin::attachment::check_canattach($session, $dest, "$config{srcdir}/$srcfile");
 		}
 	}
 
@@ -126,11 +126,13 @@ sub rename_form ($$$) {
 		javascript => 0,
 		params => $q,
 		action => $config{cgiurl},
-		stylesheet => IkiWiki::baseurl()."style.css",
+		stylesheet => 1,
 		fields => [qw{do page new_name attachment}],
 	);
 	
 	$f->field(name => "do", type => "hidden", value => "rename", force => 1);
+	$f->field(name => "sid", type => "hidden", value => $session->id,
+		force => 1);
 	$f->field(name => "page", type => "hidden", value => $page, force => 1);
 	$f->field(name => "new_name", value => pagetitle($page, 1), size => 60);
 	if (!$q->param("attachment")) {
@@ -235,6 +237,7 @@ sub formbuilder (@) {
 
 	if (defined $form->field("do") && ($form->field("do") eq "edit" ||
 	    $form->field("do") eq "create")) {
+    		IkiWiki::decode_form_utf8($form);
 		my $q=$params{cgi};
 		my $session=$params{session};
 
@@ -242,7 +245,7 @@ sub formbuilder (@) {
 			rename_start($q, $session, 0, $form->field("page"));
 		}
 		elsif ($form->submitted eq "Rename Attachment") {
-			my @selected=$q->param("attachment_select");
+			my @selected=map { Encode::decode_utf8($_) } $q->param("attachment_select");
 			if (@selected > 1) {
 				error(gettext("Only one attachment can be renamed at a time."));
 			}
@@ -278,21 +281,23 @@ sub sessioncgi ($$) {
 
 	if ($q->param("do") eq 'rename') {
         	my $session=shift;
-		my ($form, $buttons)=rename_form($q, $session, $q->param("page"));
+		my ($form, $buttons)=rename_form($q, $session, Encode::decode_utf8($q->param("page")));
 		IkiWiki::decode_form_utf8($form);
 
 		if ($form->submitted eq 'Cancel') {
 			postrename($session);
 		}
 		elsif ($form->submitted eq 'Rename' && $form->validate) {
+			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+
 			# Queue of rename actions to perfom.
 			my @torename;
 
 			# These untaints are safe because of the checks
 			# performed in check_canrename later.
-			my $src=$q->param("page");
+			my $src=$form->field("page");
 			my $srcfile=IkiWiki::possibly_foolish_untaint($pagesources{$src});
-			my $dest=IkiWiki::possibly_foolish_untaint(titlepage($q->param("new_name")));
+			my $dest=IkiWiki::possibly_foolish_untaint(titlepage($form->field("new_name")));
 			my $destfile=$dest;
 			if (! $q->param("attachment")) {
 				my $type=$q->param('type');
@@ -344,8 +349,9 @@ sub sessioncgi ($$) {
 				$pagesources{$rename->{src}}=$rename->{destfile};
 			}
 			IkiWiki::rcs_commit_staged(
-				sprintf(gettext("rename %s to %s"), $srcfile, $destfile),
-				$session->param("name"), $ENV{REMOTE_ADDR}) if $config{rcs};
+				message => sprintf(gettext("rename %s to %s"), $srcfile, $destfile),
+				session => $session,
+			) if $config{rcs};
 
 			# Then link fixups.
 			foreach my $rename (@torename) {
@@ -570,8 +576,8 @@ sub fixlinks ($$$) {
 					$file,
 					sprintf(gettext("update for rename of %s to %s"), $rename->{srcfile}, $rename->{destfile}),
 					$token,
-					$session->param("name"), 
-					$ENV{REMOTE_ADDR}
+					$session->param("name"),
+					$session->remote_addr(),
 				);
 				push @fixedlinks, $page if ! defined $conflict;
 			}

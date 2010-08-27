@@ -7,3 +7,11 @@ but right now I have to have a look at the content, which I don't like so much.
 Is there a better hook to use for this? I need to transform the input before preprocessing.
 
 [[DavidBremner]] 
+
+>You can check the type of the page without having to look at the content of the page:
+
+    my $page_file=$pagesources{$page};
+    my $page_type=pagetype($page_file);
+
+>Then you can check whether `$page_type` is "tex".
+>--[[KathrynAndersen]]

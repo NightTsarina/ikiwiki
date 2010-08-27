@@ -10,6 +10,16 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "preprocess", id => "color", call => \&preprocess);
 	hook(type => "format",     id => "color", call => \&format);
+	hook(type => "getsetup",   id => "color", call => \&getsetup);
+}
+
+sub getsetup () {
+	return
+		plugin => {
+			safe => 1,
+			rebuild => undef,
+			section => "widget",
+		},
 }
 
 sub preserve_style ($$$) {
@@ -51,12 +61,11 @@ sub replace_preserved_style ($) {
 sub preprocess (@) {
 	my %params = @_;
 
-	# Preprocess the text to expand any preprocessor directives
-	# embedded inside it.
-	$params{text} = IkiWiki::preprocess($params{page}, $params{destpage},
-				IkiWiki::filter($params{page}, $params{destpage}, $params{text}));
-
-	return preserve_style($params{foreground}, $params{background}, $params{text});
+	return preserve_style($params{foreground}, $params{background},
+		# Preprocess the text to expand any preprocessor directives
+		# embedded inside it.
+		IkiWiki::preprocess($params{page}, $params{destpage},
+			$params{text}));
 }
 
 sub format (@) {

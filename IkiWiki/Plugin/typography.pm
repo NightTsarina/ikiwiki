@@ -9,7 +9,7 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "getopt", id => "typography", call => \&getopt);
 	hook(type => "getsetup", id => "typography", call => \&getsetup);
-	IkiWiki::hook(type => "sanitize", id => "typography", call => \&sanitize);
+	hook(type => "sanitize", id => "typography", call => \&sanitize);
 }
 
 sub getopt () {

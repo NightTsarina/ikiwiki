@@ -83,7 +83,7 @@ the rest of the files. A good place to put it is in a ~/.ikiwiki/
 subdirectory.
    
 Most of the options, like `wikiname` in the setup file are the same as
-ikiwiki's command line options (documented in [[usage]]. `srcdir` and
+ikiwiki's command line options (documented in [[usage]]). `srcdir` and
 `destdir` are the two directories you specify when running ikiwiki by
 hand. Make sure that these are pointing to the right directories, and
 read through and configure the rest of the file to your liking.
@@ -122,6 +122,12 @@ revision control.
 [[!toggleable id=subversion text="""
 	REPOSITORY=~/wikirepo
 	ikiwiki-makerepo svn $SRCDIR $REPOSITORY
+"""]]
+
+[[!toggle id=cvs text="CVS"]]
+[[!toggleable id=cvs text="""
+	REPOSITORY=~/wikirepo
+	ikiwiki-makerepo cvs $SRCDIR $REPOSITORY
 """]]
 
 [[!toggle id=git text="Git"]]
@@ -171,7 +177,7 @@ about using the git repositories.
 
 Once your wiki is checked in to the revision control system, you should
 configure ikiwiki to use revision control. Edit your ikiwiki.setup, set
-`rcs` to the the revision control system you chose to use.  Be careful, 
+`rcs` to the revision control system you chose to use.  Be careful, 
 you may need to use the 'fullname'.  For example, 'hg' doesn't work, you
 should use mercurial.  Be sure to set `svnrepo` to the directory for your
 repository, if using subversion. Uncomment the configuration for the wrapper

@@ -1,0 +1,19 @@
+the following markdown code
+`foo \[["bar"]]` generates the following output:
+
+foo <span class="createlink"><a href="http://euler/~dabd/wiki/ikiwiki.cgi?page=__34__bar__34__&amp;from=foo&amp;do=create" rel="nofollow">?</a>&#34;bar&#34;</span>
+
+Perhaps this is a bug in the markdown processor?
+
+<blockquote>
+This has nothing to do with markdown; wikilinks and directives
+are not part of markdown, and just get expanded to html before
+markdown processing.
+
+There is a bug open about this:
+[[bugs/wiki_links_still_processed_inside_code_blocks]]
+
+Note that escaping the wikilink with a slash will avoid it being expanded
+to html.
+--[[Joey]] 
+</blockquote>

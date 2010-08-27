@@ -1,0 +1,121 @@
+# German translation of directives/ikiwiki/directive/tag page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2010-03-14 14:08+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `tag` and `taglink` directives are supplied by the [[!iki plugins/tag "
+"desc=tag]] plugin."
+msgstr ""
+"Die `tag`- und `taglink`-Anweisungen werden durch die [[!iki plugins/tag "
+"desc=tag]]-Erweiterung bereitgestellt."
+
+#. type: Plain text
+msgid "These directives allow tagging pages. List tags as follows:"
+msgstr ""
+"Diese Anweisungen erlauben es, Seiten mit einer Markierung (englisch *tag*) "
+"zu versehen. Diese werden wie folgt angegeben:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!tag tech life linux]]\n"
+msgstr "\t\\[[!tag tech life linux]]\n"
+
+#. type: Plain text
+msgid ""
+"The tags work the same as if you had put a (hidden) [[ikiwiki/WikiLink]] on "
+"the page for each tag, so you can use a [[ikiwiki/PageSpec]] match all pages "
+"that are tagged with a given tag, for example. The tags will also show up on "
+"blog entries and at the bottom of the tagged pages, as well as in RSS and "
+"Atom feeds."
+msgstr ""
+"Die Markierungen verhalten sich genauso, wie wenn ein (versteckter) "
+"[[ikiwiki/WikiLink]] für jede Markierung vorhanden wäre. Man kann also zum "
+"Beispiel eine [[ikiwiki/PageSpec]] verwenden, um alle Seiten zu erfassen, "
+"die eine bestimmte Markierung tragen. In Blogeinträgen werden die "
+"Markierungen auch am Ende der markierten Seiten und in RSS- und Atom-Feeds "
+"angezeigt."
+
+#. type: Plain text
+msgid ""
+"If you want a visible [[ikiwiki/WikiLink]] along with the tag, use taglink "
+"instead:"
+msgstr ""
+"Wenn gleichzeitig mit dem Tag ein sichtbarer [[ikiwiki/WikiLink]] erzeugt "
+"werden soll, kann stattdessen `taglink` verwendet werden:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!taglink foo]]\n"
+"\t\\[[!taglink tagged_as_foo|foo]]\n"
+msgstr ""
+"\t\\[[!taglink foo]]\n"
+"\t\\[[!taglink markiert_als_foo|foo]]\n"
+
+#. type: Plain text
+#, fuzzy
+#| msgid ""
+#| "Note that if the wiki is configured to use a tagbase, then the tags will "
+#| "be located under a base directory, such as \"tags/\". This is a useful "
+#| "way to avoid having to write the full path to tags, if you want to keep "
+#| "them grouped together out of the way."
+msgid ""
+"Note that if the wiki is configured to use a tagbase, then the tags will be "
+"located under a base directory, such as \"tags/\". This is a useful way to "
+"avoid having to write the full path to tags, if you want to keep them "
+"grouped together out of the way. Also, since ikiwiki then knows where to put "
+"tags, it will automatically create tag pages when new tags are used."
+msgstr ""
+"Wenn im Wiki eine zu verwendende `tagbase` konfiguriert ist, tauchen die "
+"Markierungen unterhalb dieses Verzeichnisses auf, etwa unter \"tags/\". Auf "
+"diese Weise muss man nicht den kompletten Pfad zu den Markierungen angeben, "
+"wenn man sie gruppieren und getrennt von den restlichen Seiten halten will."
+
+#. type: Plain text
+msgid ""
+"Bear in mind that specifying a tagbase means you will need to incorporate it "
+"into the `link()` [[ikiwiki/PageSpec]] you use: e.g., if your tagbase is "
+"`tag`, you would match pages tagged \"foo\" with `link(tag/foo)`."
+msgstr ""
+"In der `link()`-[[ikiwiki/PageSpec]] muss diese `tagbase` allerdings "
+"angegeben werden. Wenn zum Beispiel `tag` als `tagbase` verwendet wird, "
+"können die mit \"foo\" markierten Seiten durch `link(tag/foo)` ausgewählt "
+"werden."
+
+#. type: Plain text
+msgid ""
+"If you want to override the tagbase for a particular tag, you can use "
+"something like this:"
+msgstr ""
+"Wenn für eine einzelne Markierung eine abweichende `tagbase` verwendet "
+"werden soll, kann etwas wie das Folgende verwendet werden:"
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid ""
+#| "\t\\[[!tag ./foo]]\n"
+#| "\t\\[[!taglink /foo]]\n"
+msgid ""
+"\t\\[[!tag /foo]]\n"
+"\t\\[[!taglink /foo]]\n"
+msgstr ""
+"\t\\[[!tag ./foo]]\n"
+"\t\\[[!taglink /foo]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

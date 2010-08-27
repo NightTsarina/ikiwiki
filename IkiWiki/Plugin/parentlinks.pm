@@ -9,6 +9,7 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "parentlinks", id => "parentlinks", call => \&parentlinks);
 	hook(type => "pagetemplate", id => "parentlinks", call => \&pagetemplate);
+	hook(type => "getsetup", id => "parentlinks", call => \&getsetup);
 }
 
 sub getsetup () {
@@ -16,11 +17,20 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 1,
+			section => "core",
 		},
 }
 
 sub parentlinks ($) {
 	my $page=shift;
+
+	if (! length $page) {
+		# dynamic page
+		return {
+			url => $config{url},
+			page => $config{wikiname},
+		};
+	}
 
 	my @ret;
 	my $path="";
@@ -52,11 +62,13 @@ sub parentlinks ($) {
 
 sub pagetemplate (@) {
 	my %params=@_;
-        my $page=$params{page};
         my $template=$params{template};
 
-	if ($template->query(name => "parentlinks")) {
-		$template->param(parentlinks => [parentlinks($page)]);
+	if ($template->query(name => "parentlinks") ||
+ 	   $template->query(name => "has_parentlinks")) {
+		my @links=parentlinks($params{page});
+		$template->param(parentlinks => \@links);
+		$template->param(has_parentlinks => (@links > 0));
 	}
 }
 

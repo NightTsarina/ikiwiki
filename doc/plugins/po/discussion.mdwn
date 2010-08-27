@@ -150,6 +150,23 @@ The following analysis was done with his help.
   variables; according to [[Joey]], this is "Freaky code, but seems ok
   due to use of `quotementa`".
 
+##### Locale::Po4a::Xhtml
+
+* does not run any external program
+* does not build regexp's from untrusted variables
+
+=> Seems safe as far as the `includessi` option is disabled; the po
+plugin explicitly disables it.
+
+Relies on Locale::Po4a::Xml` to do most of the work.
+
+##### Locale::Po4a::Xml
+
+* does not run any external program
+* the `includeexternal` option makes it able to read external files;
+  the po plugin explicitly disables it
+* untrusted variables are escaped when used to build regexp's
+
 ##### Text::WrapI18N
 
 `Text::WrapI18N` can cause DoS
@@ -513,7 +530,7 @@ finish it at some point in the first quarter of 2009. --[[intrigeri]]
 >>>>
 >>>>> Done. --[[intrigeri]]
 >>> 
-> * I'm very fearful of the `add_depends` in `postscan`. 
+> * I'm very fearful of the `add_depends` in `indexhtml`. 
 >   Does this make every page depend on every page that links
 >   to it? Won't this absurdly bloat the dependency pagespecs
 >   and slow everything down? And since nicepagetitle is given
@@ -627,28 +644,6 @@ daring a timid "please pull"... or rather, please review again :)
 >>> need improvements to the deletion UI to de-confuse that. It's fine to
 >>> put that off until needed --[[Joey]] 
 >> 
-> * Re the meta title escaping issue worked around by `change`. 
->   I suppose this does not only affect meta, but other things
->   at scan time too. Also, handling it only on rebuild feels
->   suspicious -- a refresh could involve changes to multiple
->   pages and trigger the same problem, I think. Also, exposing
->   this rebuild to the user seems really ugly, not confidence inducing.
->   
->   So I wonder if there's a better way. Such as making po, at scan time,
->   re-run the scan hooks, passing them modified content (either converted
->   from po to mdwn or with the escaped stuff cheaply de-escaped). (Of
->   course the scan hook would need to avoid calling itself!)
-> 
->   (This doesn't need to block the merge, but I hope it can be addressed
->   eventually..)
->  
-> --[[Joey]] 
->> 
->> I'll think about it soon.
->> 
->> --[[intrigeri]]
->>
->>> Did you get a chance to? --[[Joey]] 
 
  * As discussed at [[todo/l10n]] the templates needs to be translatable too.  They
    should be treated properly by po4a using the markdown option - at least with my
@@ -699,3 +694,28 @@ and via CGI, have been tested.
 * general test with `indexpages` enabled: **not OK**
 * general test with `po_link_to=default` with `userdirs` enabled: **OK**
 * general test with `po_link_to=default` with `userdirs` disabled: **OK**
+
+Duplicate %links ?
+------------------
+
+I notice code in the scan hook that seems to assume
+that %links will accumulate duplicate links for a page.
+That used to be so, but the bug was fixed. Does this mean
+that po might be replacing the only link on a page, in error? 
+--[[Joey]] 
+
+> It would replace it. The only problematic case is when another
+> plugin has its own reasons, in its `scan` hook, to add a page
+> that is already there to `$links{$page}`. This other plugin's
+> effect might then be changed by po's `scan` hook... which could
+> be either good (better overall l10n) or bad (break the other
+> plugin's goal). --[[intrigeri]]
+
+>> Right.. well, the cases where links are added is very small.
+>> Grepping for `add_link`, it's just done by link, camelcase, meta, and
+>> tag. All of these are supposed to work just link regular links
+>> so I'd think that is ok. We could probably remove the currently scary
+>> comment about only wanting to change the first link. --[[Joey]] 
+
+>>> Commit 3c2bffe21b91684 in my po branch does this. --[[intrigeri]]
+>>>> Cherry-picked --[[Joey]] 

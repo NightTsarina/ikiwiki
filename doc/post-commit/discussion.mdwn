@@ -91,7 +91,7 @@ Can you offer an educated guess what's going wrong here? --[[Schmonz]]
 >>> Aaaaaand I was wrong about the second half of the conjecture being
 >>> wrong. The wrapper script wasn't correctly identifying directories;
 >>> with that fixed, everything works. I've created a
->>> [[plugins/contrib/cvs]] plugin page. Thanks for listening. :-)
+>>> [[rcs/cvs]] page. Thanks for listening. :-)
 >>> --[[Schmonz]]
 
 >> Here is a comment I committed to my laptop from Madrid Airport before
@@ -116,3 +116,8 @@ Can you offer an educated guess what's going wrong here? --[[Schmonz]]
 >> process, so you could just use a temporary list of things to add.
 >> --[[Joey]] 
 
+>>> Thanks for the comments. Attempting to set up a wiki on a different system with a different version of `cvs`, I've encountered a new locking problem within CVS: `cvs commit` takes a write lock, post-commit ikiwiki calls `rcs_update()`, `cvs update` wants a read lock and blocks. The easiest fix I can think of is to make `cvs commit` return and relinquish its lock -- so instead of my wrapper script `exec`ing ikiwiki's post-commit hook, I amp it off and exit 0. Seems to do the trick and, if I grok ikiwiki's behavior here, is not dangerous. (Beats me why my development `cvs` doesn't behave the same WRT locking.)
+
+>>> I was all set to take your third suggestion, but now that there's more than one CVS oddity fixed trivially in a wrapper script, I think I prefer doing it that way.
+
+>>> I'd be glad for the CVS plugin to be included in ikiwiki, if and when you deem it ready. Please let me know what needs to be done for that to happen. --[[Schmonz]]

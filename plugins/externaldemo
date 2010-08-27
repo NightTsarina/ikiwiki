@@ -8,7 +8,6 @@ use strict;
 print STDERR "externaldemo plugin running as pid $$\n";
 
 use RPC::XML;
-use RPC::XML::Parser;
 use IO::Handle;
 
 # autoflush stdout
@@ -31,7 +30,19 @@ sub rpc_read {
 			$accum=$2; # the rest
 	
 			# Now parse the XML RPC.
-			my $r = RPC::XML::Parser->new->parse($1);
+			my $parser;
+			eval q{
+				use RPC::XML::ParserFactory;
+				$parser = RPC::XML::ParserFactory->new;
+			};
+			if ($@) {
+				# old interface
+				eval q{
+					use RPC::XML::Parser;
+					$parser = RPC::XML::Parser->new;
+				};
+			}
+			my $r=$parser->parse($1);
 			if (! ref $r) {
 				die "error: XML RPC parse failure $r";
 			}

@@ -1,0 +1,87 @@
+Any wiki with a form of web-editing enabled will have to deal with
+spam. (See the [[plugins/blogspam]] plugin for one defensive tool you
+can deploy).
+
+If:
+
+ * you are using ikiwiki to manage the website for a [[examples/softwaresite]]
+ * you allow web-based commits, to let people correct documentation, or report
+   bugs, etc.
+ * the documentation is stored in the same revision control repository as your
+   software
+
+It is undesirable to have your software's VCS history tainted by spam and spam
+clean-up commits. Here is one approach you can use to prevent this. This
+example is for the [[git]] version control system, but the principles should
+apply to others.
+
+## Isolate web commits to a specific branch
+
+Create a separate branch to contain web-originated edits (named `doc` in this
+example):
+
+    $ git checkout -b doc
+
+Adjust your setup file accordingly:
+
+    gitmaster_branch => 'doc',
+
+## merging good web commits into the master branch
+
+You will want to periodically merge legitimate web-based commits back into
+your master branch. Ensure that there is no spam in the documentation
+branch. If there is, see 'erase spam from the commit history', below, first.
+
+Once you are confident it's clean:
+
+    # ensure you are on the master branch
+    $ git branch
+      doc
+    * master
+    $ git merge --ff doc
+
+## removing spam
+
+### short term
+
+In the short term, just revert the spammy commit.
+
+If the spammy commit was the top-most:
+
+    $ git revert HEAD
+
+This will clean the spam out of the files, but it will leave both the spam
+commit and the revert commit in the history.
+
+### erase spam from the commit history
+
+Git allows you to rewrite your commit history.  We will take advantage of this
+to eradicate spam from the history of the doc branch.
+
+This is a useful tool, but it is considered bad practise to rewrite the
+history of public repositories. If your software's repository is public, you
+should make it clear that the history of the `doc` branch in your repository
+is unstable.
+
+Once you have been spammed, use `git rebase` to remove the spam commits from
+the history.  Assuming that your `doc` branch was split off from a branch
+called `master`:
+
+    # ensure you are on the doc branch
+    $ git branch
+    * doc
+      master
+    $ git rebase --interactive master
+
+In your editor session, you will see a series of lines for each commit made to
+the `doc` branch since it was branched from `master` (or since the last merge
+back into `master`). Delete the lines corresponding to spammy commits, then
+save and exit your editor.
+
+Caveat: if there are no commits you want to keep (i.e. all the commits since
+the last merge into master are either spam or spam reverts) then `git rebase`
+will abort. Therefore, this approach only works if you have at least one
+non-spam commit to the documentation since the last merge into `master`. For
+this reason, it's best to wait until you have at least one
+commit you want merged back into the main history before doing a rebase,
+and until then, tackle spam with reverts.

@@ -24,31 +24,35 @@ match all pages except for Discussion pages and the SandBox:
 
 Some more elaborate limits can be added to what matches using these functions:
 
+* "`glob(someglob)`" - matches pages and other files that match the given glob.
+  Just writing the glob by itself is actually a shorthand for this function.
+* "`page(glob)`" - like `glob()`, but only matches pages, not other files
 * "`link(page)`" - matches only pages that link to a given page (or glob)
 * "`tagged(tag)`" - matches pages that are tagged or link to the given tag (or
   tags matched by a glob)
 * "`backlink(page)`" - matches only pages that a given page links to
-* "`creation_month(month)`" - matches only pages created on the given month
+* "`creation_month(month)`" - matches only files created on the given month
 * "`creation_day(mday)`" - or day of the month
 * "`creation_year(year)`" - or year
-* "`created_after(page)`" - matches only pages created after the given page
+* "`created_after(page)`" - matches only files created after the given page
   was created
-* "`created_before(page)`" - matches only pages created before the given page
+* "`created_before(page)`" - matches only files created before the given page
   was created
-* "`glob(someglob)`" - matches pages that match the given glob. Just writing
-  the glob by itself is actually a shorthand for this function.
 * "`internal(glob)`" - like `glob()`, but matches even internal-use 
   pages that globs do not usually match.
 * "`title(glob)`", "`author(glob)`", "`authorurl(glob)`",
-  "`license(glob)`", "`copyright(glob)`" - match pages that have the given
-  metadata, matching the specified glob.
+  "`license(glob)`", "`copyright(glob)`", "`guid(glob)`" 
+  - match pages that have the given metadata, matching the specified glob.
 * "`user(username)`" - tests whether a modification is being made by a
   user with the specified username. If openid is enabled, an openid can also
-  be put here.
+  be put here. Glob patterns can be used in the username. For example, 
+  to match all openid users, use `user(*://*)`
 * "`admin()`" - tests whether a modification is being made by one of the
   wiki admins.
 * "`ip(address)`" - tests whether a modification is being made from the
   specified IP address.
+* "`comment(glob)`" - matches comments to a page matching the glob.
+* "`comment_pending(glob)`" - matches unmoderated, pending comments.
 * "`postcomment(glob)`" - matches only when comments are being 
   posted to a page matching the specified glob
 

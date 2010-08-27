@@ -1,0 +1,45 @@
+The `flattr` directive is supplied by the [[!iki plugins/flattr desc=flattr]] plugin.
+
+This directive allows easily inserting Flattr buttons onto wiki pages.
+
+Flattr supports both static buttons and javascript buttons. This directive
+only creates dynamic javascript buttons. If you want to insert a static
+Flattr button, you can simply copy the html code for it from Flattr, instead.
+Note that this directive inserts javascript code into the page, that
+loads more javascript code from Flattr.com. So only use it if you feel
+comfortable with that.
+
+The directive can be used to display a button for a thing you have already
+manually submitted to Flattr. In this mode, the only parameter you need to
+include is the exact url to the thing that was submitted to Flattr.
+(If the button is for the current page, you can leave that out.) For
+example, this is the Flattr button for ikiwiki. Feel free to add it to all
+your pages. ;)
+
+	\[[!flattr url="http://ikiwiki.info/" button=compact]]
+
+The directive can also be used to create a button that automatically
+submits a page to Flattr when a user clicks on it. In this mode you
+need to include parameters to specify your uid, and a title, category, tags,
+and description for the page. For example, this is a Flattr button for
+a blog post:
+	
+	\[[!flattr uid=25634 title="my new blog post" category=text
+	tags="blog,example" description="This is a post on my blog."]]
+
+Here are all possible parameters you can pass to the Flattr directive.
+
+* `button` - Set to "compact" for a small button.
+* `url` - The url to the thing to be Flattr'd. If omitted, defaults
+  to the url of the current page.
+* `uid` - Your numeric Flattr userid. Not needed if the flattr plugin
+  has been configured with a global `flattr_userid`.
+* `title` - A short title for the thing, to show on its Flattr page.
+* `description` - A description of the thing, to show on its Flattr
+  page.
+* `category` - One of: text, images, video, audio, software, rest.
+* `tags` - A list of tags separated by a comma.
+* `language` - A language code.
+* `hidden` - Set to 1 to hide the button from listings on Flattr.com.
+
+[[!meta robots="noindex, follow"]]

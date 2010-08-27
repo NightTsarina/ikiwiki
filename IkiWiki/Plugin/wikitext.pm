@@ -16,6 +16,7 @@ sub getsetup () {
 		plugin => {
 			safe => 0, # format plugin
 			rebuild => undef,
+			section => "format",
 		},
 }
 

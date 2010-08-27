@@ -15,13 +15,14 @@ sub printheader ($) {
 	if ($config{sslcookie}) {
 		print $session->header(-charset => 'utf-8',
 			-cookie => $session->cookie(-httponly => 1, -secure => 1));
-	} else {
+	}
+	else {
 		print $session->header(-charset => 'utf-8',
 			-cookie => $session->cookie(-httponly => 1));
 	}
 }
 
-sub showform ($$$$;@) {
+sub prepform {
 	my $form=shift;
 	my $buttons=shift;
 	my $session=shift;
@@ -34,13 +35,24 @@ sub showform ($$$$;@) {
 		});
 	}
 
+	return $form;
+}
+
+sub showform ($$$$;@) {
+	my $form=prepform(@_);
+	shift;
+	my $buttons=shift;
+	my $session=shift;
+	my $cgi=shift;
+
 	printheader($session);
 	print misctemplate($form->title, $form->render(submit => $buttons), @_);
 }
 
 sub redirect ($$) {
 	my $q=shift;
-	my $url=shift;
+	eval q{use URI};
+	my $url=URI->new(shift);
 	if (! $config{w3mmode}) {
 		print $q->redirect($url);
 	}
@@ -51,7 +63,7 @@ sub redirect ($$) {
 }
 
 sub decode_cgi_utf8 ($) {
-	# decode_form_utf8 method is needed for 5.10
+	# decode_form_utf8 method is needed for 5.01
 	if ($] < 5.01) {
 		my $cgi = shift;
 		foreach my $f ($cgi->param) {
@@ -64,8 +76,9 @@ sub decode_form_utf8 ($) {
 	if ($] >= 5.01) {
 		my $form = shift;
 		foreach my $f ($form->field) {
+			my @value=map { decode_utf8($_) } $form->field($f);
 			$form->field(name  => $f,
-			             value => decode_utf8($form->field($f)),
+			             value => \@value,
 		                     force => 1,
 			);
 		}
@@ -87,9 +100,10 @@ sub needsignin ($$) {
 	}
 }
 
-sub cgi_signin ($$) {
+sub cgi_signin ($$;$) {
 	my $q=shift;
 	my $session=shift;
+	my $returnhtml=shift;
 
 	decode_cgi_utf8($q);
 	eval q{use CGI::FormBuilder};
@@ -105,13 +119,10 @@ sub cgi_signin ($$) {
 		action => $config{cgiurl},
 		header => 0,
 		template => {type => 'div'},
-		stylesheet => baseurl()."style.css",
+		stylesheet => 1,
 	);
 	my $buttons=["Login"];
 	
-	if ($q->param("do") ne "signin" && !$form->submitted) {
-		$form->text(gettext("You need to log in first."));
-	}
 	$form->field(name => "do", type => "hidden", value => "signin",
 		force => 1);
 	
@@ -124,6 +135,11 @@ sub cgi_signin ($$) {
 
 	if ($form->submitted) {
 		$form->validate;
+	}
+
+	if ($returnhtml) {
+		$form=prepform($form, $buttons, $session, $q);
+		return $form->render(submit => $buttons);
 	}
 
 	showform($form, $buttons, $session, $q);
@@ -184,7 +200,7 @@ sub cgi_prefs ($$) {
 		params => $q,
 		action => $config{cgiurl},
 		template => {type => 'div'},
-		stylesheet => baseurl()."style.css",
+		stylesheet => 1,
 		fieldsets => [
 			[login => gettext("Login")],
 			[preferences => gettext("Preferences")],
@@ -231,14 +247,20 @@ sub cgi_prefs ($$) {
 		$form->text(gettext("Preferences saved."));
 	}
 	
-	showform($form, $buttons, $session, $q);
+	showform($form, $buttons, $session, $q,
+		prefsurl => "", # avoid showing the preferences link
+	);
 }
 
-sub cgi_custom_failure ($$) {
-	my $header=shift;
+sub cgi_custom_failure ($$$) {
+	my $q=shift;
+	my $httpstatus=shift;
 	my $message=shift;
 
-	print $header;
+	print $q->header(
+		-status => $httpstatus,
+		-charset => 'utf-8',
+	);
 	print $message;
 
 	# Internet Explod^Hrer won't show custom 404 responses
@@ -252,15 +274,29 @@ sub check_banned ($$) {
 	my $q=shift;
 	my $session=shift;
 
+	my $banned=0;
 	my $name=$session->param("name");
-	if (defined $name) {
-		if (grep { $name eq $_ } @{$config{banned_users}}) {
-			$session->delete();
-			cgi_savesession($session);
-			cgi_custom_failure(
-				$q->header(-status => "403 Forbidden"),
-				gettext("You are banned."));
+	if (defined $name && 
+	    grep { $name eq $_ } @{$config{banned_users}}) {
+		$banned=1;
+	}
+
+	foreach my $b (@{$config{banned_users}}) {
+		if (pagespec_match("", $b,
+			ip => $session->remote_addr(),
+			name => defined $name ? $name : "",
+		)) {
+			$banned=1;
+			last;
 		}
+	}
+
+	if ($banned) {
+		$session->delete();
+		cgi_savesession($session);
+		cgi_custom_failure(
+			$q, "403 Forbidden",
+			gettext("You are banned."));
 	}
 }
 

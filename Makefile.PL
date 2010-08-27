@@ -27,30 +27,39 @@ PROBABLE_INST_LIB=$(shell \\
 W3M_CGI_BIN?=$(PREFIX)/lib/w3m/cgi-bin
 
 tflag=$(shell if [ -n "$$NOTAINT" ] && [ "$$NOTAINT" != 1 ]; then printf -- "-T"; fi)
-extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:Profile"; fi)
+extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:NYTProf"; fi)
+outprogs=ikiwiki.out ikiwiki-transition.out ikiwiki-calendar.out
+scripts=ikiwiki-update-wikilist ikiwiki-makerepo
 
-ikiwiki.out: ikiwiki.in
-	./pm_filter $(PREFIX) $(VER) $(PROBABLE_INST_LIB) < ikiwiki.in > ikiwiki.out
-	chmod +x ikiwiki.out
+%.out: %.in
+	./pm_filter $(PREFIX) $(VER) $(PROBABLE_INST_LIB) < $< > $@
+	chmod +x $@
 
-ikiwiki.setup: ikiwiki.out
-	HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -dumpsetup ikiwiki.setup
+ikiwiki.setup:
+	HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -dumpsetup ikiwiki.setup
 
-extra_build: ikiwiki.out ikiwiki.setup docwiki
+extra_build: $(outprogs) ikiwiki.setup docwiki
 	./mdwn2man ikiwiki 1 doc/usage.mdwn > ikiwiki.man
 	./mdwn2man ikiwiki-mass-rebuild 8 doc/ikiwiki-mass-rebuild.mdwn > ikiwiki-mass-rebuild.man
 	./mdwn2man ikiwiki-makerepo 1 doc/ikiwiki-makerepo.mdwn > ikiwiki-makerepo.man
 	./mdwn2man ikiwiki-transition 1 doc/ikiwiki-transition.mdwn > ikiwiki-transition.man
 	./mdwn2man ikiwiki-update-wikilist 1 doc/ikiwiki-update-wikilist.mdwn > ikiwiki-update-wikilist.man
+	./mdwn2man ikiwiki-calendar 1 doc/ikiwiki-calendar.mdwn > ikiwiki-calendar.man
 	$(MAKE) -C po
+	sed -i.bkp "s/Version:.*/Version: $$(perl -e '$$_=<>;print m/\((.*?)\)/'<debian/changelog)/" ikiwiki.spec
+	rm -f ikiwiki.spec.bkp
 	
-docwiki: ikiwiki.out
-	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.out -libdir . -setup docwiki.setup -refresh
+docwiki:
+	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -refresh
 
 extra_clean:
-	rm -rf html doc/.ikiwiki
-	rm -f *.man ikiwiki.out ikiwiki.setup plugins/*.pyc
+	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -clean
+	rm -f *.man $(outprogs) ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
+
+# Joey uses this before committing.
+myclean: clean
+	git checkout po ikiwiki.spec
 
 underlay_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki
@@ -66,10 +75,24 @@ underlay_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive
 	for file in doc/ikiwiki/directive/*; do \
 		if [ -f "$$file" ]; then \
+			cp -aL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive 2>/dev/null || \
 			install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive; \
 		fi \
 	done
-	
+
+	# Themes have their style.css appended to the normal one.
+	for theme in themes/*; do \
+		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme; \
+		for file in $$theme/*; do \
+			if echo "$$file" | grep -q style.css; then \
+				(cat doc/style.css; cat $$file) >> $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme/style.css; \
+			elif [ -f "$$file" ]; then \
+				cp -aL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file 2>/dev/null || \
+				install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file; \
+			fi \
+		done; \
+	done
+
 extra_install: underlay_install
 	# Install example sites.
 	for dir in `cd doc/examples; find . -type d ! -regex '.*\.svn.*'`; do \
@@ -100,6 +123,7 @@ extra_install: underlay_install
 	install -m 644 ikiwiki-makerepo.man $(DESTDIR)$(PREFIX)/share/man/man1/ikiwiki-makerepo.1
 	install -m 644 ikiwiki-transition.man $(DESTDIR)$(PREFIX)/share/man/man1/ikiwiki-transition.1
 	install -m 644 ikiwiki-update-wikilist.man $(DESTDIR)$(PREFIX)/share/man/man1/ikiwiki-update-wikilist.1
+	install -m 644 ikiwiki-calendar.man $(DESTDIR)$(PREFIX)/share/man/man1/ikiwiki-calendar.1
 	
 	install -d $(DESTDIR)$(PREFIX)/share/man/man8
 	install -m 644 ikiwiki-mass-rebuild.man $(DESTDIR)$(PREFIX)/share/man/man8/ikiwiki-mass-rebuild.8
@@ -111,8 +135,9 @@ extra_install: underlay_install
 	install ikiwiki-w3m.cgi $(DESTDIR)$(W3M_CGI_BIN)
 
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install ikiwiki.out $(DESTDIR)$(PREFIX)/bin/ikiwiki
-	install ikiwiki-makerepo ikiwiki-transition ikiwiki-update-wikilist $(DESTDIR)$(PREFIX)/bin/
+	for prog in $(outprogs) $(scripts); do \
+		install $$prog $(DESTDIR)$(PREFIX)/bin/$$(echo $$prog | sed 's/\.out//'); \
+	done
 
 	$(MAKE) -C po install DESTDIR=$(DESTDIR) PREFIX=$(PREFIX)
 	

@@ -17,6 +17,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
@@ -32,9 +33,9 @@ sub preprocess (@) {
 				anchor => "more");
 	}
 	else {
-		$params{text}=IkiWiki::preprocess($params{page}, $params{destpage},
-			IkiWiki::filter($params{page}, $params{destpage}, $params{text}));
-		return "<a name=\"more\"></a>\n\n".$params{text};
+		return "<a name=\"more\"></a>\n\n".
+			IkiWiki::preprocess($params{page}, $params{destpage},
+				$params{text});
 	}
 }
 

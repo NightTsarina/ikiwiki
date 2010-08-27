@@ -1,0 +1,22 @@
+[[!tag patch bugs]]
+
+I type chinese characters into the fields. After press "save setup" button the characters turn into gibberish.
+
+I submit a patch that solve the problem for me.  --Lingo
+
+> Fully fixing it is slightly more complex, but now [[done]] --[[Joey]] 
+
+----
+
+    --- websetup.pm	2009-12-02 05:07:46.000000000 +0800
+    +++ /usr/share/perl5/IkiWiki/Plugin/websetup.pm	2010-01-08 22:05:16.000000000 +0800
+    @@ -308,7 +308,8 @@
+     			$fields{$_}=$shown{$_} foreach keys %shown;
+     		}
+     	}
+    -	
+    +
+    +	IkiWiki::decode_form_utf8($form);	
+     	if ($form->submitted eq "Cancel") {
+     		IkiWiki::redirect($cgi, $config{url});
+     		return;

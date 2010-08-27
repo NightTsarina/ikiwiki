@@ -23,6 +23,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 1, # format plugin
+			section => "format",
 		},
 }
 
@@ -32,8 +33,8 @@ sub htmlize (@) {
 	# hnb outputs version number etc. every time to STDOUT, so
 	# using files makes it easier to seprarate.
 
-	my $tmpin  = mkstemp( "/tmp/ikiwiki-hnbin.XXXXXXXXXX"  );
-	my $tmpout = mkstemp( "/tmp/ikiwiki-hnbout.XXXXXXXXXX" );
+	my ($infh, $tmpin)  = mkstemp( "/tmp/ikiwiki-hnbin.XXXXXXXXXX"  );
+	my ($outfh, $tmpout) = mkstemp( "/tmp/ikiwiki-hnbout.XXXXXXXXXX" );
 
 	open(TMP, '>', $tmpin) or die "Can't write to $tmpin: $!";
 	print TMP $params{content};

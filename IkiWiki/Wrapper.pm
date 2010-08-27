@@ -8,6 +8,26 @@ use File::Spec;
 use Data::Dumper;
 use IkiWiki;
 
+sub gen_wrappers () {
+	debug(gettext("generating wrappers.."));
+	my %origconfig=(%config);
+	foreach my $wrapper (@{$config{wrappers}}) {
+		%config=(%origconfig, %{$wrapper});
+		$config{verbose}=$config{setupverbose}
+			if exists $config{setupverbose};
+		$config{syslog}=$config{setupsyslog}
+			if exists $config{setupsyslog};
+		delete @config{qw(setupsyslog setupverbose wrappers genwrappers rebuild)};
+		checkconfig();
+		if (! $config{cgi} && ! $config{post_commit} &&
+		    ! $config{test_receive}) {
+			$config{post_commit}=1;
+		}
+		gen_wrapper();
+	}
+	%config=(%origconfig);
+}
+
 sub gen_wrapper () {
 	$config{srcdir}=File::Spec->rel2abs($config{srcdir});
 	$config{destdir}=File::Spec->rel2abs($config{destdir});
@@ -37,12 +57,9 @@ sub gen_wrapper () {
 		addenv("$var", s);
 EOF
 	}
-
-	my $test_receive="";
-	if ($config{test_receive}) {
-		require IkiWiki::Receive;
-		$test_receive=IkiWiki::Receive::gen_wrapper();
-	}
+	
+	my @wrapper_hooks;
+	run_hooks(genwrapper => sub { push @wrapper_hooks, shift->() });
 
 	my $check_commit_hook="";
 	my $pre_exec="";
@@ -76,15 +93,21 @@ EOF
 		# otherwise. The fd of the lock is stored in
 		# IKIWIKI_CGILOCK_FD so unlockwiki can close it.
 		$pre_exec=<<"EOF";
-	{
-		int fd=open("$config{wikistatedir}/cgilock", O_CREAT | O_RDWR, 0666);
-		if (fd != -1 && flock(fd, LOCK_EX) == 0) {
-			char *fd_s;
-			asprintf(&fd_s, "%i", fd);
-			setenv("IKIWIKI_CGILOCK_FD", fd_s, 1);
-		}
+	lockfd=open("$config{wikistatedir}/cgilock", O_CREAT | O_RDWR, 0666);
+	if (lockfd != -1 && flock(lockfd, LOCK_EX) == 0) {
+		char *fd_s=malloc(8);
+		sprintf(fd_s, "%i", lockfd);
+		setenv("IKIWIKI_CGILOCK_FD", fd_s, 1);
 	}
 EOF
+	}
+
+	my $set_background_command='';
+	if (defined $config{wrapper_background_command} &&
+	    length $config{wrapper_background_command}) {
+	    	my $background_command=delete $config{wrapper_background_command};
+		$set_background_command=~s/"/\\"/g;
+		$set_background_command='#define BACKGROUND_COMMAND "'.$background_command.'"';
 	}
 
 	$Data::Dumper::Indent=0; # no newlines
@@ -108,7 +131,7 @@ extern char **environ;
 char *newenviron[$#envsave+6];
 int i=0;
 
-addenv(char *var, char *val) {
+void addenv(char *var, char *val) {
 	char *s=malloc(strlen(var)+1+strlen(val)+1);
 	if (!s)
 		perror("malloc");
@@ -117,15 +140,27 @@ addenv(char *var, char *val) {
 }
 
 int main (int argc, char **argv) {
+	int lockfd=-1;
 	char *s;
 
 $check_commit_hook
-$test_receive
+@wrapper_hooks
 $envsave
 	newenviron[i++]="HOME=$ENV{HOME}";
 	newenviron[i++]="WRAPPED_OPTIONS=$configstring";
+
+#ifdef __TINYC__
+	/* old tcc versions do not support modifying environ directly */
+	if (clearenv() != 0) {
+		perror("clearenv");
+		exit(1);
+	}
+	for (; i>0; i--)
+		putenv(newenviron[i-1]);
+#else
 	newenviron[i]=NULL;
 	environ=newenviron;
+#endif
 
 	if (setregid(getegid(), -1) != 0 &&
 	    setregid(getegid(), -1) != 0) {
@@ -139,15 +174,46 @@ $envsave
 	}
 
 $pre_exec
+
+$set_background_command
+#ifdef BACKGROUND_COMMAND
+	if (lockfd != -1) {
+		close(lockfd);
+	}
+
+	pid_t pid=fork();
+	if (pid == -1) {
+		perror("fork");
+		exit(1);
+	}
+	else if (pid == 0) {
+		execl("$this", "$this", NULL);
+		perror("exec $this");
+		exit(1);		
+	}
+	else {
+		waitpid(pid, NULL, 0);
+
+		if (daemon(1, 0) == 0) {
+			system(BACKGROUND_COMMAND);
+			exit(0);
+		}
+		else {
+			perror("daemon");
+			exit(1);
+		}
+	}
+#else
 	execl("$this", "$this", NULL);
 	perror("exec $this");
 	exit(1);
+#endif
 }
 EOF
-	close OUT;
 
-	my $cc=exists $ENV{CC} ? possibly_foolish_untaint($ENV{CC}) : 'cc';
-	if (system($cc, "$wrapper.c", "-o", "$wrapper.new") != 0) {
+	my @cc=exists $ENV{CC} ? possibly_foolish_untaint($ENV{CC}) : 'cc';
+	push @cc, possibly_foolish_untaint($ENV{CFLAGS}) if exists $ENV{CFLAGS};
+	if (system(@cc, "$wrapper.c", "-o", "$wrapper.new") != 0) {
 		#translators: The parameter is a C filename.
 		error(sprintf(gettext("failed to compile %s"), "$wrapper.c"));
 	}

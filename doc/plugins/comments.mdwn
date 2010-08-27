@@ -1,5 +1,5 @@
 [[!template id=plugin name=comments author="[[Simon_McVittie|smcv]]"]]
-[[!tag type/useful]]
+[[!tag type/web]]
 
 This plugin adds "blog-style" comments. Unlike the wiki-style freeform 
 Discussion pages, these comments are posted by a simple form, cannot later
@@ -14,8 +14,8 @@ authorship should hopefully be unforgeable by CGI users.
 The intention is that on a non-wiki site (like a blog) you can lock all
 pages for admin-only access, then allow otherwise unprivileged (or perhaps
 even anonymous) users to comment on posts. See the documentation of the
-[[lockedit]] and [[anonok]] pages for details on locking down a wiki so
-users can only post comments.
+[[opendiscussion]], [[lockedit]] and [[anonok]] pages for details on locking
+down a wiki so readers can only post comments.
 
 Individual comments are stored as internal-use pages named something like
 `page/comment_1`, `page/comment_2`, etc. These pages internally use a
@@ -45,8 +45,11 @@ There are some global options for the setup file:
 ## comment moderation
 
 If you enable the [[blogspam]] plugin, comments that appear spammy will be
-held for moderation. Wiki admins can access the comment moderation queue
+held for moderation. (Or with the [[moderatedcomments]] plugin, all
+comments will be held.) Wiki admins can access the comment moderation queue
 via a button on their Preferences page.
 
-The comments are stored in `.ikiwiki/comments_pending/`, and can be
-deleted, or moved into the wiki's srcdir to be posted.
+Comments pending moderation are not checked into revision control.
+To find unmoderated comments, `find /your/ikiwiki/srcdir -name '*._comment_pending'`
+To manually moderate a comment, just rename the file, removing the
+"_pending" from the end, and check it into revision control.

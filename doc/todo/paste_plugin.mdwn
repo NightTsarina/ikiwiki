@@ -1,0 +1,36 @@
+It was suggested that using ikiwiki as an alternative to pastebin services
+could be useful, especially if you want pastes to not expire and be
+cloneable.
+
+All you really need is a special purpose ikiwiki instance that you commit
+to by git. But a web interface for pasting could also be nice.
+
+There could be a directive that inserts a paste form onto a page. The form
+would have a big textarea for pasting into, and might also have a file
+upload button (for uploading instead of pasting). It could also copy the
+page edit form's dropdown of markup types, which would be especially useful
+if using the highlight plugin to support programming languages. The default
+should probably be txt, not mdwn, if the txt plugin is enabled.
+
+(There's a lot of overlap between that and editpage of course .. similar
+to the overlap between the comment form and editpage.)
+
+When posted, the form would just come up with a new, numeric subpage
+of the page it appears on, and save the paste there.
+
+Another thing that might be useful is a "copy" (or "paste as new") action
+on the action bar. This would take an existing paste and copy it into the
+paste edit form, for editing and saving under a new id.
+
+---
+
+A sample wiki configuration using this might be:
+
+* enable highlight and txt
+* enable anonok so anyone can paste; lock anonymous users down to only
+  creating new pastes, not editing other pages
+* disable modification of existing pastes (how? disabling editpage would
+  work, but that would disallow setting up anonymous git push)
+* enable comments, so that each paste can be commented on
+* enable getsource, so the source to a paste can easily be downloaded
+* optionally, enable untrusted git push

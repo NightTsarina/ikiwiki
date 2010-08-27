@@ -8,7 +8,7 @@ ok(! system("make -s ikiwiki.out"));
 ok(! system("make underlay_install DESTDIR=`pwd`/t/tmp/install PREFIX=/usr >/dev/null"));
 
 foreach my $plugin ("", "listdirectives") {
-	ok(! system("perl -I. ./ikiwiki.out -rebuild -plugin brokenlinks ".
+	ok(! system("LC_ALL=C perl -I. ./ikiwiki.out -rebuild -plugin brokenlinks ".
 			# always enabled because pages link to it conditionally,
 			# which brokenlinks cannot handle properly
 			"-plugin smiley ".

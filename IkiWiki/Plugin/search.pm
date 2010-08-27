@@ -10,9 +10,10 @@ sub import {
 	hook(type => "getsetup", id => "search", call => \&getsetup);
 	hook(type => "checkconfig", id => "search", call => \&checkconfig);
 	hook(type => "pagetemplate", id => "search", call => \&pagetemplate);
-	hook(type => "postscan", id => "search", call => \&index);
+	hook(type => "indexhtml", id => "search", call => \&indexhtml);
 	hook(type => "delete", id => "search", call => \&delete);
 	hook(type => "cgi", id => "search", call => \&cgi);
+	hook(type => "disable", id => "search", call => \&disable);
 }
 
 sub getsetup () {
@@ -20,6 +21,7 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => 1,
+			section => "web",
 		},
 		omega_cgi => {
 			type => "string",
@@ -40,6 +42,10 @@ sub checkconfig () {
 	if (! defined $config{omega_cgi}) {
 		$config{omega_cgi}="/usr/lib/cgi-bin/omega/omega";
 	}
+
+	# This is a mass dependency, so if the search form template
+	# changes, every page is rebuilt.
+	add_depends("", "templates/searchform.tmpl");
 }
 
 my $form;
@@ -53,6 +59,7 @@ sub pagetemplate (@) {
 		if (! defined $form) {
 			my $searchform = template("searchform.tmpl", blind_cache => 1);
 			$searchform->param(searchaction => $config{cgiurl});
+			$searchform->param(html5 => $config{html5});
 			$form=$searchform->output;
 		}
 
@@ -62,14 +69,14 @@ sub pagetemplate (@) {
 
 my $scrubber;
 my $stemmer;
-sub index (@) {
+sub indexhtml (@) {
 	my %params=@_;
 
 	setupfiles();
 
 	# A unique pageterm is used to identify the document for a page.
 	my $pageterm=pageterm($params{page});
-	return $params{content} unless defined $pageterm;
+	return unless defined $pageterm;
 	
 	my $db=xapiandb();
 	my $doc=Search::Xapian::Document->new();
@@ -106,11 +113,17 @@ sub index (@) {
 	}
 	$sample=~s/\n/ /g;
 	
+	my $url=urlto($params{destpage}, "");
+	if (defined $pagestate{$params{page}}{meta}{permalink}) {
+		$url=$pagestate{$params{page}}{meta}{permalink}
+	}
+
 	# data used by omega
 	# Decode html entities in it, since omega re-encodes them.
 	eval q{use HTML::Entities};
+	error $@ if $@;
 	$doc->set_data(
-		"url=".urlto($params{page}, "")."\n".
+		"url=".$url."\n".
 		"sample=".decode_entities($sample)."\n".
 		"caption=".decode_entities($caption)."\n".
 		"modtime=$IkiWiki::pagemtime{$params{page}}\n".
@@ -177,15 +190,15 @@ sub pageterm ($) {
 	# 240 is the number used by omindex to decide when to hash an
 	# overlong term. This does not use a compatible hash method though.
 	if (length $page > 240) {
-		eval q{use Digest::SHA1};
+		eval q{use Digest::SHA};
 		if ($@) {
-			debug("search: ".sprintf(gettext("need Digest::SHA1 to index %s"), $page)) if $@;
+			debug("search: ".sprintf(gettext("need Digest::SHA to index %s"), $page)) if $@;
 			return undef;
 		}
 
 		# Note no colon, therefore it's guaranteed to not overlap
 		# with a page with the same name as the hash..
-		return "U".lc(Digest::SHA1::sha1_hex($page));
+		return "U".lc(Digest::SHA::sha1_hex($page));
 	}
 	else {
 		return "U:".$page;
@@ -213,12 +226,30 @@ sub setupfiles () {
 		writefile("omega.conf", $config{wikistatedir}."/xapian",
 			"database_dir .\n".
 			"template_dir ./templates\n");
+		
+		# Avoid omega interpreting anything in the misctemplate
+		# as an omegascript command.
+		my $misctemplate=IkiWiki::misctemplate(gettext("search"), "\0",
+			searchform => "", # avoid showing the small search form
+		);
+		eval q{use HTML::Entities};
+		error $@ if $@;
+		$misctemplate=encode_entities($misctemplate, '\$');
+
+		my $querytemplate=readfile(IkiWiki::template_file("searchquery.tmpl"));
+		$misctemplate=~s/\0/$querytemplate/;
+
 		writefile("query", $config{wikistatedir}."/xapian/templates",
-			IkiWiki::misctemplate(gettext("search"),
-				readfile(IkiWiki::template_file("searchquery.tmpl"))));
+			$misctemplate);
 		$setup=1;
 	}
 }
+}
+
+sub disable () {
+	if (-d $config{wikistatedir}."/xapian") {
+		system("rm", "-rf", $config{wikistatedir}."/xapian");
+	}
 }
 
 1

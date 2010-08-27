@@ -16,6 +16,7 @@ sub getsetup {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
+			section => "widget",
 		},
 }
 
@@ -29,11 +30,10 @@ sub preprocess_if (@) {
 	}
 
 	my $result=0;
-	if ((exists $params{all} && lc $params{all} eq "no") ||
-		# An optimisation to avoid needless looping over every page
-		# and adding of dependencies for simple uses of some of the
-		# tests.
-		$params{test} =~ /^([\s\!()]*((enabled|sourcepage|destpage|included)\([^)]*\)|(and|or))[\s\!()]*)+$/) {
+	if ((exists $params{all} && ! IkiWiki::yesno($params{all})) ||
+	    # An optimisation to avoid needless looping over every page
+	    # for simple uses of some of the tests.
+	    $params{test} =~ /^([\s\!()]*((enabled|sourcepage|destpage|included)\([^)]*\)|(and|or))[\s\!()]*)+$/) {
 		add_depends($params{page}, "($params{test}) and $params{page}");
 		$result=pagespec_match($params{page}, $params{test},
 				location => $params{page},
@@ -41,17 +41,12 @@ sub preprocess_if (@) {
 				destpage => $params{destpage});
 	}
 	else {
-		add_depends($params{page}, $params{test});
-
-		foreach my $page (keys %pagesources) {
-			if (pagespec_match($page, $params{test}, 
-					location => $params{page},
-					sourcepage => $params{page},
-					destpage => $params{destpage})) {
-				$result=1;
-				last;
-			}
-		}
+		$result=pagespec_match_list($params{page}, $params{test},
+			# stop after first match
+			num => 1,
+			sourcepage => $params{page},
+			destpage => $params{destpage},
+		);
 	}
 
 	my $ret;
@@ -64,8 +59,7 @@ sub preprocess_if (@) {
 	else {
 		$ret="";
 	}
-	return IkiWiki::preprocess($params{page}, $params{destpage}, 
-		IkiWiki::filter($params{page}, $params{destpage}, $ret));
+	return IkiWiki::preprocess($params{page}, $params{destpage}, $ret);
 }
 
 package IkiWiki::PageSpec;

@@ -1,0 +1,24 @@
+I've got a wiki that is built at two places:
+
+* a static copy, aimed at being viewed without any web server, using
+  a web browser's `file:///` urls => usedirs is disabled to get nice
+  and working links
+* an online copy, with usedirs enabled in order to benefit from the
+  language negotiation using the po plugin
+
+I need to use mirrorlist on the static copy, so that one can easily
+reach the online, possibly updated, pages. But as documented, "pages are
+assumed to exist in the same location under the specified url on each
+mirror", so the generated urls are wrong.
+
+My `mirrorlist` branch contains a patch that allows one to configure usedirs
+per-mirror. Note: the old configuration format is still supported, so this should
+not break existing wikis.
+
+OT: as a bonus, this branch contains a patch to support {hashes,arrays} of
+{hashes,arrays} in `$config`, which I missed a bit when writing the po plugin,
+and decided this time it was really needed to implement this feature.
+
+--[[intrigeri]]
+
+[[!tag patch]]

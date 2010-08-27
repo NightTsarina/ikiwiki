@@ -1,0 +1,65 @@
+Using the attachment plugin, when filecheck was checking the mime-type of the attachment before allowing the attachment to be removed, it was returning with an error saying that the mime-type of the file was "unknown" (when the mime-type definitely was known!)
+
+It turns out that the filecheck plugin couldn't find the file, because it was merely using the $pagesources hash, rather than finding the absolute path of the file in question.
+
+> I don't understand why the file was not in `%pagesources`. Do you?
+> --[[Joey]]
+
+>> The file *was* in `%pagesources`, but what returns from that is the filename relative to the `srcdir` directory; for example, `foo/bar.gif`.
+>> When File::MimeInfo::Magic::magic is given that, it can't find the file.
+>> But if it is given `/path/to/srcdir/foo/bar.gif` instead, then it *can* find the file, and returns the mime-type correctly.
+>> --[[KathrynAndersen]]
+
+>>> Ok, so it's not removal specific, can in fact be triggered by using
+>>> testpagespec (or really anything besides attachment, which passes
+>>> the filename parameter). Nor is it limited to mimetype, all the tests in 
+>>> filecheck have the problem. --[[Joey]] 
+
+>>>> Alas, not fixed.  It seems I was mistaken in some of my assumptions.
+>>>> It still happens when attempting to remove attachments.
+>>>> With your fix, the `IkiWiki::srcfile` function is only called when the filename is not passed in, but it appears that in the case of removing attachments, the filename IS passed in, but it is the relative filename as mentioned above.  Thus, the file is still not found, and the mime-type comes back as unknown.
+>>>> The reason my patch worked is because, rather than checking whether a filename was passed in before applying IkiWiki::srcfile to the filename, it checks whether the file can be found, and if it cannot be found, then it applies IkiWiki::srcfile to the filename.
+>>>> --[[KathrynAndersen]]
+
+>>>>> Can you test if this patch fixes that? --[[Joey]]
+
+>>>>>> Yes, it works! --[[KathrynAndersen]]
+
+applied && [[done]]
+
+<pre>
+diff --git a/IkiWiki/Plugin/remove.pm b/IkiWiki/Plugin/remove.pm
+index f59d026..0fc180f 100644
+--- a/IkiWiki/Plugin/remove.pm
++++ b/IkiWiki/Plugin/remove.pm
+@@ -49,7 +49,7 @@ sub check_canremove ($$$) {
+ 	# This is sorta overkill, but better safe than sorry.
+ 	if (! defined pagetype($pagesources{$page})) {
+ 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
+-			IkiWiki::Plugin::attachment::check_canattach($session, $page, $file);
++			IkiWiki::Plugin::attachment::check_canattach($session, $page, "$config{srcdir}/$file");
+ 		}
+ 		else {
+ 			error("removal of attachments is not allowed");
+diff --git a/IkiWiki/Plugin/rename.pm b/IkiWiki/Plugin/rename.pm
+index 3908443..1a9da63 100644
+--- a/IkiWiki/Plugin/rename.pm
++++ b/IkiWiki/Plugin/rename.pm
+@@ -50,7 +50,7 @@ sub check_canrename ($$$$$$) {
+ 	IkiWiki::check_canedit($src, $q, $session);
+ 	if ($attachment) {
+ 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
+-			IkiWiki::Plugin::attachment::check_canattach($session, $src, $srcfile);
++			IkiWiki::Plugin::attachment::check_canattach($session, $src, "$config{srcdir}/$srcfile");
+ 		}
+ 		else {
+ 			error("renaming of attachments is not allowed");
+@@ -85,7 +85,7 @@ sub check_canrename ($$$$$$) {
+ 		if ($attachment) {
+ 			# Note that $srcfile is used here, not $destfile,
+ 			# because it wants the current file, to check it.
+-			IkiWiki::Plugin::attachment::check_canattach($session, $dest, $srcfile);
++			IkiWiki::Plugin::attachment::check_canattach($session, $dest, "$config{srcdir}/$srcfile");
+ 		}
+ 	}
+</pre>

@@ -1,0 +1,138 @@
+# Traduction de ikiwiki
+# Copyright (C) 2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2009-08-28 19:19-0300\n"
+"PO-Revision-Date: 2009-09-16 16:14+0200\n"
+"Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+msgid ""
+"The `if` directive is supplied by the [[!iki plugins/conditional "
+"desc=conditional]] plugin."
+msgstr ""
+"La directive `if` est fournie par le module d'extension [[!iki plugins/"
+"conditional desc=conditional]]."
+
+#. type: Plain text
+msgid ""
+"With this directive, you can make text be conditionally displayed on a "
+"page.  For example:"
+msgstr ""
+"Cette directive permet de faire dépendre l'affichage de texte d'une "
+"condition donnée. Par exemple :"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!if test=\"enabled(smiley)\"\n"
+"\t      then=\"The smiley plugin is enabled :-)\"\n"
+"\t      else=\"No smiley plugin here..\"]]\n"
+msgstr ""
+"\t\\[[!if test=\"enabled(smiley)\"\n"
+"\t      then=\"Le greffon smiley est activé :-)\"\n"
+"\t      else=\"Pas de greffon smiley ici...\"]]\n"
+
+#. type: Plain text
+msgid ""
+"If the specified `test` succeeds, the `then` text will be displayed, "
+"otherwise the `else` text will be displayed. The `else` part is optional."
+msgstr ""
+"Si le `test` réussit, le texte du paramètre `then` est affiché. Sinon, le "
+"texte du paramètre `else` est affiché. La partie `else` du test est "
+"facultative. "
+
+#. type: Plain text
+msgid ""
+"The `then` and `else` values can include any markup that would be allowed in "
+"the wiki page outside the template. Triple-quoting the values even allows "
+"quotes to be included."
+msgstr ""
+"Les valeurs de `then` et `else` peuvent inclure n'importe quelle balise qui "
+"serait autorisée dans les pages du wiki. Tripler les guillemets autour de la "
+"valeur permet même d'y inclure des guillemets."
+
+#. type: Plain text
+msgid ""
+"The `test` is a [[ikiwiki/PageSpec]]; if it matches any page in the wiki "
+"then it succeeds. So you can do things like testing for the existence of a "
+"page or pages, testing to see if any pages were created in a given month, "
+"and so on."
+msgstr ""
+"Le `test` est une spécification [[ikiwiki/PageSpec]]. Si une page correspond "
+"à l'expression, le test réussit. Vous pouvez ainsi tester l'existence d'une "
+"page ou de plusieurs, tester la date de création, etc."
+
+#. type: Plain text
+msgid ""
+"If you want the [[ikiwiki/PageSpec]] to only match against the page that "
+"contains the conditional, rather than matching against all pages in the "
+"wiki, set the \"all\" parameter to \"no\"."
+msgstr ""
+"Si vous voulez confronter l'expression [[ikiwiki/PageSpec]] uniquement à la "
+"page qui contient la condition plutôt qu'à toutes les pages du wiki, il faut "
+"donner la valeur \"no\" au paramètre \"all\". "
+
+#. type: Plain text
+msgid ""
+"In an `if` directive, the regular [[ikiwiki/PageSpec]] syntax is expanded "
+"with the following additional tests:"
+msgstr ""
+"Dans une directive `if`, la syntaxe normale d'une spécification [[ikiwiki/"
+"PageSpec]] est étendue avec les tests suivants : "
+
+#. type: Bullet: '* '
+msgid "enabled(plugin)"
+msgstr "enabled(greffon)"
+
+#. type: Plain text
+#, no-wrap
+msgid "  Tests whether the specified plugin is enabled.\n"
+msgstr "  Ce test vérifie si le greffon indiqué est activé.\n"
+
+#. type: Bullet: '* '
+msgid "sourcepage(glob)"
+msgstr "sourcepage(motif)"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  Tests whether the glob matches the name of the page that contains the\n"
+"  conditional.\n"
+msgstr "  Ce test confronte le motif donné au nom de la page qui contient la condition.\n"
+
+#. type: Bullet: '* '
+msgid "destpage(glob)"
+msgstr "destpage(motif)"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  Tests whether the glob matches the name of the page that is being built.\n"
+"  That might be different than the name of the page that contains the\n"
+"  conditional, if it's being inlined into another page.\n"
+msgstr ""
+"  Ce test confronte le motif donné au nom de la page qui est construite.\n"
+"  Ce nom peut être différent du nom de la page qui contient la condition,\n"
+"  si la page est reliée à une autre page.\n"
+
+#. type: Bullet: '* '
+msgid "included()"
+msgstr "included()"
+
+#. type: Plain text
+#, no-wrap
+msgid "  Tests whether the page is being included onto another page.\n"
+msgstr "  Ce test vérifie si la page est incluse dans une autre page.\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

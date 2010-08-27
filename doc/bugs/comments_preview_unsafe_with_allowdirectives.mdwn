@@ -1,0 +1,8 @@
+If `comments_allowdirectives` is set, previewing a comment can run
+directives that create files. (Eg, img.) Unlike editpage, it does not
+keep track of those files and expire them. So the files will linger in
+destdir forever.
+
+Probably when the user then tries to save the comment, ikiwiki will refuse
+to overwrite the unknown file, and will crash.
+--[[Joey]]

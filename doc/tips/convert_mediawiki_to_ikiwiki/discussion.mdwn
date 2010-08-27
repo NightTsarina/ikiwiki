@@ -1,3 +1,11 @@
+20100428 - I just wrote a simple ruby script which will connect to a mysql server and then recreate the pages and their revision histories with Grit. It also does one simple conversion of equals titles to pounds. Enjoy! 
+
+<http://github.com/docunext/mediawiki2gitikiwiki>
+
+-- [[users/Albert]]
+
+----
+
 The u32 page is excellent, but I wonder if documenting the procedure here
 would be worthwhile. Who knows, the remote site might disappear. But also
 there are some variations on the approach that might be useful:
@@ -13,9 +21,31 @@ Also, some detail on converting mediawiki transclusion to ikiwiki inlines...
 
 -- [[users/Jon]]
 
+----
+
 > "Who knows, the remote site might disappear.". Right now, it appears to
 > have done just that. -- [[users/Jon]]
 
+I have manage to recover most of the site using the Internet Archive. What
+I was unable to retrieve I have rewritten. You can find a copy of the code
+at <http://github.com/mithro/media2iki>
+
+> This is excellent news. However, I'm still keen on there being a
+> comprehensive and up-to-date set of instructions on *this* site. I wouldn't
+> suggest importing that material into ikiwiki like-for-like (not least for
+> [[licensing|freesoftware]] reasons), but it's excellent to have it available
+> for reference, especially since it (currently) is the only set of
+> instructions that gives you the whole history.
+> 
+> The `mediawiki.pm` that was at u32.net is licensed GPL-2. I'd like to see it
+> cleaned up and added to IkiWiki proper (although I haven't requested this
+> yet, I suspect the way it (ab)uses linkify would disqualify it at present).
+>
+> I've imported Scott's initial `mediawiki.pm` into a repository at
+> <http://github.com/jmtd/mediawiki.pm> as a start.
+> -- [[Jon]]
+
+----
 
 The iki-fast-load ruby script from the u32 page is given below:
 
@@ -286,7 +316,7 @@ Mediawiki.pm - A plugin which supports mediawiki format.
 	}
 	
 	
-	# Called to handle bookmarks like [[#heading]] or <span class="createlink"><a href="http://u32.net/cgi-bin/ikiwiki.cgi?page=%20text%20&amp;from=Mediawiki_Plugin%2Fmediawiki&amp;do=create" rel="nofollow">?</a>#a</span>
+	# Called to handle bookmarks like \[[#heading]] or <span class="createlink"><a href="http://u32.net/cgi-bin/ikiwiki.cgi?page=%20text%20&amp;from=Mediawiki_Plugin%2Fmediawiki&amp;do=create" rel="nofollow">?</a>#a</span>
 	sub generate_fragment_link
 	{
 	   my $url = shift;
@@ -316,10 +346,10 @@ Mediawiki.pm - A plugin which supports mediawiki format.
 	
 	   # Ikiwiki's link link plugin wrecks this line when displaying on the site.
 	   # Until the code highlighter plugin can turn off link finding,
-	   # always escape double brackets in double quotes: [[
+	   # always escape double brackets in double quotes: \[[
 	   if($inlink eq '..') {
-	      # Mediawiki doesn't touch links like [[..#hi|ho]].
-	      return "[[" . $inlink . ($anchor?"#$anchor":"") .
+	      # Mediawiki doesn't touch links like \[[..#hi|ho]].
+	      return "\[[" . $inlink . ($anchor?"#$anchor":"") .
 	         ($title?"|$title":"") . "]]" . $trailing;
 	   }
 	
@@ -380,7 +410,7 @@ Mediawiki.pm - A plugin which supports mediawiki format.
 	      add_depends($page, $redir_page);
 	      my $link=bestlink($page, underscorize(translate_path($page,$redir_page)));
 	      if (! length $link) {
-	         return "<b>Redirect Error:</b> <nowiki>[[$redir_page]] not found.</nowiki>";
+	         return "<b>Redirect Error:</b> <nowiki>\[[$redir_page]] not found.</nowiki>";
 	      }
 	
 	      $value=urlto($link, $page);
@@ -393,7 +423,7 @@ Mediawiki.pm - A plugin which supports mediawiki format.
 	      my %seen;
 	      while (exists $pagestate{$at}{mediawiki}{redir}) {
 	         if ($seen{$at}) {
-	            return "<b>Redirect Error:</b> cycle found on <nowiki>[[$at]]</nowiki>";
+	            return "<b>Redirect Error:</b> cycle found on <nowiki>\[[$at]]</nowiki>";
 	         }
 	         $seen{$at}=1;
 	         $at=$pagestate{$at}{mediawiki}{redir};
@@ -612,3 +642,24 @@ Mediawiki.pm - A plugin which supports mediawiki format.
 	}
 	
 	1
+
+----
+
+Hello. Got ikiwiki running and I'm planning to convert my personal
+Mediawiki wiki to ikiwiki so I can take offline copies around. If anyone
+has an old copy of the instructions, or any advice on where to start I'd be
+glad to hear it. Otherwise I'm just going to chronicle my journey on the
+page.--[[users/Chadius]]
+
+> Today I saw that someone is working to import wikipedia into git.
+> <http://www.gossamer-threads.com/lists/wiki/foundation/181163>
+> Since wikipedia uses mediawiki, perhaps his importer will work
+> on mediawiki in general. It seems to produce output that could be
+> used by the [[plugins/contrib/mediawiki]] plugin, if the filenames
+> were fixed to use the right extension.  --[[Joey]] 
+
+>> Here's another I found while browsing around starting from the link you gave Joey<br />
+>> <http://github.com/scy/levitation><br />
+>> As I don't run mediawiki anymore, but I still have my xz/gzip-compressed XML dumps,
+>> it's certainly easier for me to do it this way; also a file or a set of files is easier to lug
+>> around on some medium than a full mysqld or postgres master and relevant databases.
