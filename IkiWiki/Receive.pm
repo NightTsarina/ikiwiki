@@ -100,7 +100,7 @@ sub test () {
 			else {
 				if (IkiWiki::Plugin::attachment->can("check_canattach")) {
 					IkiWiki::Plugin::attachment::check_canattach($session, $file, $change->{path});
-					next;
+					next if IkiWiki::check_canedit($file, $cgi, $session, 1);
 				}
 			}
 		}
@@ -116,7 +116,7 @@ sub test () {
 
 			if (IkiWiki::Plugin::remove->can("check_canremove")) {
 				IkiWiki::Plugin::remove::check_canremove(defined $page ? $page : $file, $cgi, $session);
-				next;
+				next if IkiWiki::check_canedit(defined $page ? $page : $file, $cgi, $session, 1);
 			}
 		}
 		else {
