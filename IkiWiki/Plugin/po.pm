@@ -223,38 +223,61 @@ sub needsbuild () {
 	}
 }
 
-# Massage the recorded state of internal links so that:
-# - it matches the actually generated links, rather than the links as written
-#   in the pages' source
-# - backlinks are consistent in all cases
 sub scan (@) {
 	my %params=@_;
 	my $page=$params{page};
 	my $content=$params{content};
+	my $run_by_po=$params{run_by_po};
 
-	if (istranslation($page)) {
-		foreach my $destpage (@{$links{$page}}) {
-			if (istranslatable($destpage)) {
-				# replace the occurence of $destpage in $links{$page}
-				for (my $i=0; $i<@{$links{$page}}; $i++) {
-					if (@{$links{$page}}[$i] eq $destpage) {
-						@{$links{$page}}[$i] = $destpage . '.' . lang($page);
-						last;
-					}
-				}
+	# Massage the recorded state of internal links so that:
+	# - it matches the actually generated links, rather than the links as
+	#   written in the pages' source
+	# - backlinks are consistent in all cases
+
+	# A second scan pass is made over translation pages, so as an
+	# optimization, we only do so on the second pass in this case,
+	# i.e. when this hook is called by itself.
+	if ($run_by_po && istranslation($page)) {
+		# replace the occurence of $destpage in $links{$page}
+		my @orig_links = @{$links{$page}};
+		$links{$page} = [];
+		foreach my $destpage (@orig_links) {
+			if (istranslatedto($destpage, lang($page))) {
+				add_link($page, $destpage . '.' . lang($page));
+			}
+			else {
+				add_link($page, $destpage);
 			}
 		}
 	}
-	elsif (! istranslatable($page) && ! istranslation($page)) {
+	# No second scan pass is done for a non-translation page, so
+	# links massaging must happen on first pass in this case.
+	elsif (! $run_by_po && ! istranslatable($page) && ! istranslation($page)) {
 		foreach my $destpage (@{$links{$page}}) {
 			if (istranslatable($destpage)) {
 				# make sure any destpage's translations has
 				# $page in its backlinks
-				push @{$links{$page}},
-					values %{otherlanguages_pages($destpage)};
+				foreach my $link (values %{otherlanguages_pages($destpage)}) {
+					add_link($page, $link);
+				}
 			}
 		}
 	}
+
+	# Re-run the preprocess hooks in scan mode, then the scan hooks,
+	# over the po-to-markup converted content
+	return if $run_by_po; # avoid looping endlessly
+	return unless istranslation($page);
+	$content = po_to_markup($page, $content);
+	require IkiWiki;
+	IkiWiki::preprocess($page, $page, $content, 1);
+	IkiWiki::run_hooks(scan => sub {
+		shift->(
+			page => $page,
+			content => $content,
+			run_by_po => 1,
+		);
+	});
 }
 
 # We use filter to convert PO to the master page's format,
@@ -383,41 +406,6 @@ sub mydelete (@) {
 
 sub change (@) {
 	my @rendered=@_;
-
-	# All meta titles are first extracted at scan time, i.e. before we turn
-	# PO files back into translated markdown; escaping of double-quotes in
-	# PO files breaks the meta plugin's parsing enough to save ugly titles
-	# to %pagestate at this time.
-	#
-	# Then, at render time, every page passes in turn through the Great
-	# Rendering Chain (filter->preprocess->linkify->htmlize), and the meta
-	# plugin's preprocess hook is this time in a position to correctly
-	# extract the titles from slave pages.
-	#
-	# This is, unfortunately, too late: if the page A, linking to the page
-	# B, is rendered before B, it will display the wrongly-extracted meta
-	# title as the link text to B.
-	#
-	# On the one hand, such a corner case only happens on rebuild: on
-	# refresh, every rendered page is fixed to contain correct meta titles.
-	# On the other hand, it can take some time to get every page fixed.
-	# We therefore re-render every rendered page after a rebuild to fix them
-	# at once. As this more or less doubles the time needed to rebuild the
-	# wiki, we do so only when really needed.
-
-	if (@rendered
-	    && exists $config{rebuild} && defined $config{rebuild} && $config{rebuild}
-	    && UNIVERSAL::can("IkiWiki::Plugin::meta", "getsetup")
-	    && exists $config{meta_overrides_page_title}
-	    && defined $config{meta_overrides_page_title}
-	    && $config{meta_overrides_page_title}) {
-		debug(sprintf(gettext("rebuilding all pages to fix meta titles")));
-		resetalreadyfiltered();
-		require IkiWiki::Render;
-		foreach my $file (@rendered) {
-			IkiWiki::render($file, sprintf(gettext("building %s"), $file));
-		}
-	}
 
 	my $updated_po_files=0;
 
@@ -597,7 +585,7 @@ sub mybestlink ($$) {
 	my $res=$origsubs{'bestlink'}->(masterpage($page), $link);
 	my @caller = caller(1);
 	if (length $res
-	    && istranslatable($res)
+	    && istranslatedto($res, lang($page))
 	    && istranslation($page)
 	    &&  !(exists $caller[3] && defined $caller[3]
 		  && ($caller[3] eq "IkiWiki::PageSpec::match_link"))) {
@@ -778,6 +766,15 @@ sub istranslatable ($) {
 	return;
 }
 
+sub istranslatedto ($$) {
+	my $page=shift;
+	my $destlang = shift;
+
+	$page=~s#^/##;
+	return 0 unless istranslatable($page);
+	exists $pagesources{otherlanguage_page($page, $destlang)};
+}
+
 sub _istranslation ($) {
 	my $page=shift;
 
@@ -854,7 +851,10 @@ sub otherlanguages_codes ($) {
 	foreach my $lang
 		($config{po_master_language}{code}, @slavelanguages) {
 		next if $lang eq $curlang;
-		push @ret, $lang;
+		if ($lang eq $config{po_master_language}{code} ||
+		    istranslatedto(masterpage($page), $lang)) {
+			push @ret, $lang;
+		}
 	}
 	return \@ret;
 }

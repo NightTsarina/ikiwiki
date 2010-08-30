@@ -174,15 +174,15 @@ sub scan ($) {
 		}
 		delete $typedlinks{$page};
 
+		# Preprocess in scan-only mode.
+		preprocess($page, $page, $content, 1);
+
 		run_hooks(scan => sub {
 			shift->(
 				page => $page,
 				content => $content,
 			);
 		});
-
-		# Preprocess in scan-only mode.
-		preprocess($page, $page, $content, 1);
 	}
 	else {
 		will_render($file, $file, 1);

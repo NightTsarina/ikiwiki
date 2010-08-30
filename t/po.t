@@ -17,7 +17,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 68;
+use Test::More tests => 91;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -45,6 +45,7 @@ $config{po_slave_languages} = {
 $config{po_translatable_pages}='index or test1 or test2 or translatable';
 $config{po_link_to}='negotiated';
 IkiWiki::loadplugins();
+ok(IkiWiki::loadplugin('meta'), "meta plugin loaded");
 ok(IkiWiki::loadplugin('po'), "po plugin loaded");
 IkiWiki::checkconfig();
 
@@ -53,6 +54,7 @@ $pagesources{'index'}='index.mdwn';
 $pagesources{'index.fr'}='index.fr.po';
 $pagesources{'index.es'}='index.es.po';
 $pagesources{'test1'}='test1.mdwn';
+$pagesources{'test1.es'}='test1.es.po';
 $pagesources{'test1.fr'}='test1.fr.po';
 $pagesources{'test2'}='test2.mdwn';
 $pagesources{'test2.es'}='test2.es.po';
@@ -68,8 +70,10 @@ foreach my $page (keys %pagesources) {
 }
 
 ### populate srcdir
-writefile('index.mdwn', $config{srcdir}, '[[translatable]] [[nontranslatable]]');
-writefile('test1.mdwn', $config{srcdir}, 'test1 content');
+writefile('index.mdwn', $config{srcdir},
+          "[[!meta title=\"index title\"]]\n[[translatable]] [[nontranslatable]]");
+writefile('test1.mdwn', $config{srcdir},
+          "[[!meta title=\"test1 title\"]]\ntest1 content");
 writefile('test2.mdwn', $config{srcdir}, 'test2 content');
 writefile('test3.mdwn', $config{srcdir}, 'test3 content');
 writefile('translatable.mdwn', $config{srcdir}, '[[nontranslatable]]');
@@ -88,6 +92,9 @@ ok(! IkiWiki::Plugin::po::istranslation('index'), "index is not a translation");
 ok(IkiWiki::Plugin::po::istranslation('index.fr'), "index.fr is a translation");
 ok(IkiWiki::Plugin::po::istranslation('index.es'), "index.es is a translation");
 ok(IkiWiki::Plugin::po::istranslation('/index.fr'), "/index.fr is a translation");
+ok(IkiWiki::Plugin::po::istranslatable('test1'), "test1 is translatable");
+ok(IkiWiki::Plugin::po::istranslation('test1.es'), "test1.es is a translation");
+ok(IkiWiki::Plugin::po::istranslation('test1.fr'), "test1.fr is a translation");
 ok(IkiWiki::Plugin::po::istranslatable('test2'), "test2 is translatable");
 ok(! IkiWiki::Plugin::po::istranslation('test2'), "test2 is not a translation");
 ok(! IkiWiki::Plugin::po::istranslatable('test3'), "test3 is not translatable");
@@ -185,3 +192,25 @@ $msgprefix="beautify_urlpath (po_link_to=negotiated)";
 is(IkiWiki::beautify_urlpath('test1/index.html'), './test1/', "$msgprefix test1/index.html");
 is(IkiWiki::beautify_urlpath('test1/index.en.html'), './test1/', "$msgprefix test1/index.en.html");
 is(IkiWiki::beautify_urlpath('test1/index.fr.html'), './test1/', "$msgprefix test1/index.fr.html");
+
+### re-scan
+refresh_n_scan('index.mdwn');
+is($pagestate{'index'}{meta}{title}, 'index title');
+is($pagestate{'index.es'}{meta}{title}, 'index title');
+is($pagestate{'index.fr'}{meta}{title}, 'index title');
+refresh_n_scan('test1.mdwn');
+is($pagestate{'test1'}{meta}{title}, 'test1 title');
+is($pagestate{'test1.es'}{meta}{title}, 'test1 title');
+is($pagestate{'test1.fr'}{meta}{title}, 'test1 title');
+
+### istranslatedto
+ok(IkiWiki::Plugin::po::istranslatedto('index', 'es'));
+ok(IkiWiki::Plugin::po::istranslatedto('index', 'fr'));
+ok(! IkiWiki::Plugin::po::istranslatedto('index', 'cz'));
+ok(IkiWiki::Plugin::po::istranslatedto('test1', 'es'));
+ok(IkiWiki::Plugin::po::istranslatedto('test1', 'fr'));
+ok(! IkiWiki::Plugin::po::istranslatedto('test1', 'cz'));
+ok(! IkiWiki::Plugin::po::istranslatedto('nontranslatable', 'es'));
+ok(! IkiWiki::Plugin::po::istranslatedto('nontranslatable', 'cz'));
+ok(! IkiWiki::Plugin::po::istranslatedto('test1.es', 'fr'));
+ok(! IkiWiki::Plugin::po::istranslatedto('test1.fr', 'es'));
