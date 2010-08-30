@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 85;
+use Test::More tests => 86;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -82,6 +82,7 @@ ok(! pagespec_match("foo.png", "page(foo*)"), "page() fails on non-page glob");
 ok(pagespec_match("foo", "page(foo)"), "page() glob");
 ok(pagespec_match("foo", "page(f*)"), "page() glob fail");
 ok(pagespec_match("foo", "link(bar)"), "link");
+ok(pagespec_match("foo", "link(.)", location => "bar"), "link with .");
 ok(pagespec_match("foo", "link(ba?)"), "glob link");
 ok(! pagespec_match("foo", "link(quux)"), "failed link");
 ok(! pagespec_match("foo", "link(qu*)"), "failed glob link");
