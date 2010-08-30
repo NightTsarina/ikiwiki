@@ -106,7 +106,7 @@ sub test () {
 		}
 		elsif ($change->{action} eq 'remove') {
 			# check_canremove tests to see if the file is present
-			# on disk. This will fail is a single commit adds a
+			# on disk. This will fail when a single commit adds a
 			# file and then removes it again. Avoid the problem
 			# by not testing the removal in such pairs of changes.
 			# (The add is still tested, just to make sure that
