@@ -84,6 +84,8 @@ sub canedit ($$$) {
 	my $session=shift;
 
 	if (! defined $cgi->remote_user() &&
+	    (! defined $session->param("name") ||
+             ! IkiWiki::userinfo_get($session->param("name"), "regdate")) &&
 	    defined $config{httpauth_pagespec} &&
 	    length $config{httpauth_pagespec} &&
 	    defined $config{cgiauthurl} &&

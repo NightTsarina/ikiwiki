@@ -23,8 +23,8 @@ ikiwiki (3.20100816) UNRELEASED; urgency=low
     setup. (intrigeri)
   * t/bazaar.t: Work around bzr 2.2.0's new requirement to configure
     bzr whoami before committing.
-  * Avoid trying to log the user in when receiving anonymous pushes
-    from git and a plugin like httpauth returns a login function.
+  * httpauth: Avoid redirecting the user to the cgiauthurl if
+    they already have a login session.
 
  -- Joey Hess <joeyh@debian.org>  Sun, 15 Aug 2010 11:45:48 -0400
 
