@@ -78,13 +78,6 @@ sub formbuilder_setup (@) {
 	}
 }
 
-sub test_httpauth_pagespec ($) {
-	my $page=shift;
-
-	return (
-       );
-}
-
 sub canedit ($$$) {
 	my $page=shift;
 	my $cgi=shift;
