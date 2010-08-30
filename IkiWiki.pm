@@ -1455,11 +1455,12 @@ sub filter ($$$) {
 	return $content;
 }
 
-sub check_canedit ($$$;$) {
+sub check_canedit ($$$;$$) {
 	my $page=shift;
 	my $q=shift;
 	my $session=shift;
 	my $nonfatal=shift;
+	my $nosubs=shift;
 	
 	my $canedit;
 	run_hooks(canedit => sub {
@@ -1470,6 +1471,7 @@ sub check_canedit ($$$;$) {
 				$canedit=1;
 			}
 			elsif (ref $ret eq 'CODE') {
+				error(sprintf(gettext("you are not allowed to change %s"), $page)) if $nosubs && ! $nonfatal;
 				$ret->() unless $nonfatal;
 				$canedit=0;
 			}
