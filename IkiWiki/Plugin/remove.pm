@@ -42,9 +42,6 @@ sub check_canremove ($$$) {
 		error(sprintf(gettext("%s is not a file"), $file));
 	}
 	
-	# Must be editable.
-	IkiWiki::check_canedit($page, $q, $session);
-
 	# If a user can't upload an attachment, don't let them delete it.
 	# This is sorta overkill, but better safe than sorry.
 	if (! defined pagetype($pagesources{$page})) {
@@ -121,6 +118,7 @@ sub removal_confirm ($$@) {
 	my @pages=@_;
 
 	foreach my $page (@pages) {
+		IkiWiki::check_canedit($page, $q, $session);
 		check_canremove($page, $q, $session);
 	}
 
@@ -198,6 +196,7 @@ sub sessioncgi ($$) {
 			# and that the user is allowed to edit(/remove) it.
 			my @files;
 			foreach my $page (@pages) {
+				IkiWiki::check_canedit($page, $q, $session);
 				check_canremove($page, $q, $session);
 				
 				# This untaint is safe because of the
