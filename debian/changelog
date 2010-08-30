@@ -14,6 +14,13 @@ ikiwiki (3.20100816) UNRELEASED; urgency=low
   * highlight: Make location of highlight's files configurable in setup
     file to allow for nonstandard installations.
   * Allow "link(.)" and similar PageSpecs. Thanks, Giuseppe Bilotta.
+  * Run the preprocess hooks in scan mode *before* the scan hooks.
+    This allows the po plugin to register a scan hook that runs
+    last and rescans pages after all data from the first scan pass is
+    completed. This avoids the po plugin needing to rebuild some pages.
+    (intrigeri:)
+  * po: Fix some bugs that affected l10n.ikiwiki.info's unusual
+    setup. (intrigeri)
 
  -- Joey Hess <joeyh@debian.org>  Sun, 15 Aug 2010 11:45:48 -0400
 
