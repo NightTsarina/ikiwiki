@@ -2401,14 +2401,17 @@ package IkiWiki::PageSpec;
 sub derel ($$) {
 	my $path=shift;
 	my $from=shift;
-	if ($path eq '.') {
-		$path = $from;
-	}
 
-	if ($path =~ m!^\./!) {
-		$from=~s#/?[^/]+$## if defined $from;
-		$path=~s#^\./##;
-		$path="$from/$path" if defined $from && length $from;
+	if ($path =~ m!^\.(/|$)!) {
+		if ($1) {
+			$from=~s#/?[^/]+$## if defined $from;
+			$path=~s#^\./##;
+			$path="$from/$path" if defined $from && length $from;
+		}
+		else {
+			$path = $from;
+			$path = "" unless defined $path;
+		}
 	}
 
 	return $path;
