@@ -96,11 +96,13 @@ sub test () {
 		    $change->{action} eq 'add') {
 			if (defined $page) {
 				IkiWiki::check_canedit($page, $cgi, $session, 0, 1);
+				next;
 			}
 			else {
 				if (IkiWiki::Plugin::attachment->can("check_canattach")) {
 					IkiWiki::Plugin::attachment::check_canattach($session, $file, $change->{path});
 					IkiWiki::check_canedit($file, $cgi, $session, 0, 1);
+					next;
 				}
 			}
 		}
@@ -117,11 +119,14 @@ sub test () {
 			if (IkiWiki::Plugin::remove->can("check_canremove")) {
 				IkiWiki::Plugin::remove::check_canremove(defined $page ? $page : $file, $cgi, $session);
 				IkiWiki::check_canedit(defined $page ? $page : $file, $cgi, $session, 0, 1);
+				next;
 			}
 		}
 		else {
 			error "unknown action ".$change->{action};
 		}
+		
+		error sprintf(gettext("you are not allowed to change %s"), $file);
 	}
 
 	exit 0;
