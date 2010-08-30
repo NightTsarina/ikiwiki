@@ -95,10 +95,8 @@ sub test () {
 		if ($change->{action} eq 'change' ||
 		    $change->{action} eq 'add') {
 			if (defined $page) {
-				if (IkiWiki->can("check_canedit")) {
-					IkiWiki::check_canedit($page, $cgi, $session);
-					next;
-				}
+				IkiWiki::check_canedit($page, $cgi, $session);
+				next;
 			}
 			else {
 				if (IkiWiki::Plugin::attachment->can("check_canattach")) {
