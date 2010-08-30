@@ -12,20 +12,47 @@ It would be good if relative paths could be used instead, so the transport metho
 > "../../", and "../". The only absolute links are to CGIs and the w3c DTD.
 > --[[Joey]]
 
->> The problem is within the CGI script. The links within the HTML page are all absolute, including links to the css file.
->> Having a http links within a HTML page retrieved using https upset most browsers (I think). Also if I push cancel on the edit page in https, I end up at at http page. -- Brian May
+>> The problem is within the CGI script. The links within the HTML page are all
+>> absolute, including links to the css file. Having a http links within a HTML
+>> page retrieved using https upset most browsers (I think). Also if I push cancel
+>> on the edit page in https, I end up at at http page. -- Brian May
 
 >>> Ikiwiki does not hardcode http links anywhere. If you don't want
 >>> it to use such links, change your configuration to use https
 >>> consistently. --[[Joey]]
 
-Errr... That is not a solution, that is a work around. ikiwiki does not hard code the absolute paths, but absolute paths are hard coded in the configuration file. If you want to serve your website so that the majority of users can see it as http, including in rss feeds (this allows proxy caches to cache the contents and has reduced load requirements), but editing is done via https for increased security, it is not possible. I have some ideas how this can be implemented (as ikiwiki has the absolute path to the CGI script and the absolute path to the destination, it should be possible to generate a relative path from one to the other), although some minor issues still need to be resolved. -- Brian May
+Errr... That is not a solution, that is a work around. ikiwiki does not hard
+code the absolute paths, but absolute paths are hard coded in the configuration
+file. If you want to serve your website so that the majority of users can see
+it as http, including in rss feeds (this allows proxy caches to cache the
+contents and has reduced load requirements), but editing is done via https for
+increased security, it is not possible. I have some ideas how this can be
+implemented (as ikiwiki has the absolute path to the CGI script and the
+absolute path to the destination, it should be possible to generate a relative
+path from one to the other), although some minor issues still need to be
+resolved. -- Brian May
 
-I noticed the links to the images on <http://ikiwiki.info/recentchanges/> are also absolute, that is <http://ikiwiki.info/wikiicons/diff.png>; this seems surprising, as the change.tmpl file uses &lt;TMPL_VAR BASEURL&gt;
-which seems to do the right thing in page.tmpl, but not for change.tmpl. Where is BASEURL set? -- Brian May
+I noticed the links to the images on <http://ikiwiki.info/recentchanges/> are
+also absolute, that is <http://ikiwiki.info/wikiicons/diff.png>; this seems
+surprising, as the change.tmpl file uses &lt;TMPL_VAR BASEURL&gt; which seems
+to do the right thing in page.tmpl, but not for change.tmpl. Where is BASEURL
+set? -- Brian May
 
 > The use of an absolute baseurl in change.tmpl is a special case. --[[Joey]]
 
-So I'm facing this same issue. I have a wiki which needs to be accessed on three different URLs(!) and the hard coding of the URL from the setup file is becoming a problem for me. Is there anything I can do here? --[[Perry]]
+So I'm facing this same issue. I have a wiki which needs to be accessed on
+three different URLs(!) and the hard coding of the URL from the setup file is
+becoming a problem for me. Is there anything I can do here? --[[Perry]]
+
+> I remain puzzled by the problem that Brian is discussing. I don't see
+> why you can't just set the cgiurl and url to a https url, and serve
+> the site using both http and https.
+> 
+> Just for example, <https://kitenet.net/> is an ikiwiki, and it is accessible
+> via https or http, and if you use https, links will remain on https (except
+> for links using the cgi, which I could fix by changing the cgiurl to https).
+> 
+> I think it's possible ikiwiki used to have some
+> absolute urls that have been fixed since Brian filed the bug. --[[Joey]]  
 
 [[wishlist]]
