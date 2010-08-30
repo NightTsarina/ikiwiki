@@ -71,6 +71,7 @@ sub check_canremove ($$$) {
 			}
 		}
 	});
+	return defined $canremove ? $canremove : 1;
 }
 
 sub formbuilder_setup (@) {
