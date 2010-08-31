@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.14159\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-08-04 09:22-0400\n"
+"POT-Creation-Date: 2010-08-30 19:46-0400\n"
 "PO-Revision-Date: 2010-03-14 16:09+0530\n"
 "Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -397,17 +397,17 @@ msgstr "graphviz konnte nicht ausgeführt werden"
 msgid "prog not a valid graphviz program"
 msgstr "prog ist kein gültiges graphviz-Programm"
 
-#: ../IkiWiki/Plugin/highlight.pm:48
+#: ../IkiWiki/Plugin/highlight.pm:64
 #, perl-format
 msgid "tohighlight contains unknown file type '%s'"
 msgstr "tohighlight enteilt unbekannten Dateityp '%s'"
 
-#: ../IkiWiki/Plugin/highlight.pm:59
+#: ../IkiWiki/Plugin/highlight.pm:75
 #, perl-format
 msgid "Source code: %s"
 msgstr "Quellcode: %s"
 
-#: ../IkiWiki/Plugin/highlight.pm:124
+#: ../IkiWiki/Plugin/highlight.pm:140
 msgid ""
 "warning: highlight perl module not available; falling back to pass through"
 msgstr ""
@@ -637,21 +637,11 @@ msgstr ""
 "po_link_to=negotiated benötigt usedirs eingeschaltet, greife zurück auf "
 "po_link_to=default"
 
-#: ../IkiWiki/Plugin/po.pm:414
-#, perl-format
-msgid "rebuilding all pages to fix meta titles"
-msgstr "um die meta-titeln zu reparieren werden alle Seiten neu erstellt"
-
-#: ../IkiWiki/Plugin/po.pm:418 ../IkiWiki/Render.pm:784
-#, perl-format
-msgid "building %s"
-msgstr "erzeuge %s"
-
-#: ../IkiWiki/Plugin/po.pm:456
+#: ../IkiWiki/Plugin/po.pm:444
 msgid "updated PO files"
 msgstr "PO-Dateien aktualisiert"
 
-#: ../IkiWiki/Plugin/po.pm:479
+#: ../IkiWiki/Plugin/po.pm:467
 msgid ""
 "Can not remove a translation. If the master page is removed, however, its "
 "translations will be removed as well."
@@ -659,7 +649,7 @@ msgstr ""
 "Übersetzung kann nicht entfernt werden. Wenn die Master Seite entfernt wird, "
 "werden auch ihre Übersetzungen entfernt."
 
-#: ../IkiWiki/Plugin/po.pm:499
+#: ../IkiWiki/Plugin/po.pm:487
 msgid ""
 "Can not rename a translation. If the master page is renamed, however, its "
 "translations will be renamed as well."
@@ -834,12 +824,12 @@ msgstr "%s ist nicht im srcdir und kann deshalb nicht gelöscht werden"
 msgid "%s is not a file"
 msgstr "%s ist keine Datei"
 
-#: ../IkiWiki/Plugin/remove.pm:137
+#: ../IkiWiki/Plugin/remove.pm:136
 #, perl-format
 msgid "confirm removal of %s"
 msgstr "bestätigen Sie die Entfernung von %s"
 
-#: ../IkiWiki/Plugin/remove.pm:174
+#: ../IkiWiki/Plugin/remove.pm:173
 msgid "Please select the attachments to remove."
 msgstr "Bitte wählen Sie die zu entfernenden Anhänge aus."
 
@@ -871,29 +861,29 @@ msgstr "%s existiert bereits"
 msgid "%s already exists on disk"
 msgstr "%s existiert bereits auf der Festplatte"
 
-#: ../IkiWiki/Plugin/rename.pm:122
+#: ../IkiWiki/Plugin/rename.pm:123
 #, perl-format
 msgid "rename %s"
 msgstr "benenne %s um"
 
-#: ../IkiWiki/Plugin/rename.pm:163
+#: ../IkiWiki/Plugin/rename.pm:164
 msgid "Also rename SubPages and attachments"
 msgstr "Auch Unterseiten (SubPages) und Anhänge umbenennen"
 
-#: ../IkiWiki/Plugin/rename.pm:250
+#: ../IkiWiki/Plugin/rename.pm:251
 msgid "Only one attachment can be renamed at a time."
 msgstr "Es kann immer nur ein Anhang gleichzeitig umbenannt werden."
 
-#: ../IkiWiki/Plugin/rename.pm:253
+#: ../IkiWiki/Plugin/rename.pm:254
 msgid "Please select the attachment to rename."
 msgstr "Bitte wählen Sie den Anhang aus, der umbenannt werden soll."
 
-#: ../IkiWiki/Plugin/rename.pm:352
+#: ../IkiWiki/Plugin/rename.pm:353
 #, perl-format
 msgid "rename %s to %s"
 msgstr "benenne %s in %s um"
 
-#: ../IkiWiki/Plugin/rename.pm:577
+#: ../IkiWiki/Plugin/rename.pm:578
 #, perl-format
 msgid "update for rename of %s to %s"
 msgstr "aktualisiert zum Umbenennen von %s nach %s"
@@ -934,7 +924,12 @@ msgstr "fehlender Name oder URL-Parameter"
 msgid "shortcut %s points to <i>%s</i>"
 msgstr "Tastenkürzel %s verweist nach <i>%s</i>"
 
-#: ../IkiWiki/Plugin/smiley.pm:43
+#: ../IkiWiki/Plugin/smiley.pm:30
+#, fuzzy, perl-format
+msgid "smiley plugin will not work without %s"
+msgstr "die shortcut Erweiterung wird ohne %s nicht funktionieren"
+
+#: ../IkiWiki/Plugin/smiley.pm:50
 msgid "failed to parse any smileys"
 msgstr "Smileys konnten nicht ausgewertet werden"
 
@@ -1123,6 +1118,11 @@ msgstr "erzeuge %s, die von %s abhängt"
 msgid "building %s, to update its backlinks"
 msgstr "erzeuge %s, um dessen Rückverweise zu aktualisieren"
 
+#: ../IkiWiki/Render.pm:784
+#, perl-format
+msgid "building %s"
+msgstr "erzeuge %s"
+
 #: ../IkiWiki/Render.pm:836
 #, perl-format
 msgid "ikiwiki: cannot build %s"
@@ -1283,6 +1283,9 @@ msgstr "Wer (Wiki-Konto oder OpenID) soll Administrator sein?"
 #: ../auto.setup:24
 msgid "What is the domain name of the web server?"
 msgstr "Wie lautet der Domainname des Webservers?"
+
+#~ msgid "rebuilding all pages to fix meta titles"
+#~ msgstr "um die meta-titeln zu reparieren werden alle Seiten neu erstellt"
 
 #~ msgid "You need to log in first."
 #~ msgstr "Sie müssen sich zuerst anmelden."
