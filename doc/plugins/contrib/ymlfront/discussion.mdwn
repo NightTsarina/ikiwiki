@@ -19,3 +19,11 @@ Any objections?
 
 >>> Yes, the idea was to allow the file to be parsed as YAML, you're right.  I just found that I tended to have problems when people used "---" for horizontal rules.  However, I have also found that trying to keep it solely as an IkiWiki directive doesn't work either, since sometimes the meta-data I need also contained "]]" which broke the parsing of the directive.
 >>> So I have decided to go for a compromise, and make the delimiter configurable, rather than hardcoded as "---"; the triple-dash is the default, but it can be configured to be something else instead.  I haven't pushed the change yet, but I have written it, and it seems to work. -- [[KathrynAndersen]]
+
+>>>> I'm not sure about what kind of problems you're meeting with "---" being used
+>>>> for horizontal rules: isn't it sufficient to just check that (1) the triple-dash
+>>>> is the first thing in the page and (2) there are only YAML-style assignments
+>>>> (and no blank lines) between the two markers? Check #2 would also be enough to
+>>>> support MMD-style metadata, which means (a) no start marker and (b) empty line
+>>>> to mark the end of the metadata block. Would this be supported by the plugin?
+>>>> --GB
