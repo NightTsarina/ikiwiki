@@ -1,0 +1,47 @@
+An alias directive could work like an inverse redirect, but in a more
+maintainable way. Currently, a page might have several redirects leading to it,
+without an easy way of enumerating them. Therefore, the following directive is
+suggested for addition (possibly by means of a plugin):
+
+> The `alias` and `aliastext` directives implicitly create
+> redirect pages to the page they are used on. If two or more pages claim a
+> non-existing page to be an alias, a disambiguation page will automatically
+> generated. If an existing page is claimed as an alias, it will be prefixed
+> with a note that its topic is also an alias for other pages.
+>
+> All aliases to a page are automatically listed below the backlink and tag
+> lists at the bottom of a page by default. This can be configured globally by
+> setting the `alias_list` configuration option to `false`, or set explicitly
+> per alias by specifying `list=true` or `list=false`.
+>
+> Similar to the `taglink` directive, `aliastext` produces the alias name as
+> well as registering it.
+>
+> ## Usage example
+>
+> `Greece.mdwn`:
+>
+> >     Greece, also known as \[[!aliastext Hellas]] and officially the
+> >     \[[!aliastext "Hellenic Republic"]], is a …
+> >     
+> >     <!-- there are so many people who misspell this, let's create a redirect -->
+> >     \[[!alias Grece list=false]] 
+>
+> This page by itself will redirect from the "Hellas" and "Hellenic Republic"
+> pages as if they both contained just:
+>
+> >     \[[!meta redir="Greece"]]
+>
+> If, on the other hand, `Hellas Planitia` also claims `[[!alias Hellas]]`, the
+> Hellas page will look like this:
+>
+> >     **Hellas** is an alias for the following pages:
+> >
+> >     * \[[Greece]]
+> >     * \[[Hellas Planitia]]
+
+The proposed plugin/directive could be extended, eg. by also including
+old-style redirects in the alias list, but that might introduce unwanted
+coupling with the meta directive.
+
+[[!tag wishlist]]
