@@ -16,3 +16,6 @@ Any objections?
 >> way of including metadata in documents. The only difference is that MMD doesn't expect the
 >> triple-dash separators, but I'm thinking about submitting a patch to MMD to actually support
 >> that syntax. --GB
+
+>>> Yes, the idea was to allow the file to be parsed as YAML, you're right.  I just found that I tended to have problems when people used "---" for horizontal rules.  However, I have also found that trying to keep it solely as an IkiWiki directive doesn't work either, since sometimes the meta-data I need also contained "]]" which broke the parsing of the directive.
+>>> So I have decided to go for a compromise, and make the delimiter configurable, rather than hardcoded as "---"; the triple-dash is the default, but it can be configured to be something else instead.  I haven't pushed the change yet, but I have written it, and it seems to work. -- [[KathrynAndersen]]
