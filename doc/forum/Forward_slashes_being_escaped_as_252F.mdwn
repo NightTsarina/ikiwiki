@@ -1,0 +1,9 @@
+When I try to edit a page that has a forward slash in the URL, I get "Error:
+bad page name". I think the problem is because the forward slash is escaped as
+`%252F` instead of `%2F`.
+
+For example, if I go to `http://ciffer.net/~svend/tech/hosts/` and click Edit,
+I am sent to a page with the URL
+`http://ciffer.net/~svend/ikiwiki.cgi?page=tech%252Fhosts&do=edit`.
+
+I am running ikiwiki 3.20100504~bpo50+1 on Debian Lenny.
