@@ -280,41 +280,45 @@ This where my steps:
 
 As root (#):
 
-    # aptitude install build-essential curl
+    # aptitude install build-essential curl perl
 
 As plain user ($):
 
-    I use to install user perl modules using local::lib:
-
-        http://github.com/poisonbit/sandbox/blob/master/bin/myperl.sh
-
-    After that and relogin, you can install cpanm  :)
+    I use to install user perl modules using local::lib
 
         mkdir -p "$HOME/downloads"
         cd "$HOME/downloads/"
+        wget http://search.cpan.org/CPAN/authors/id/G/GE/GETTY/local-lib-1.006007.tar.gz
+        wget http://ftp.de.debian.org/debian/pool/main/i/ikiwiki/ikiwiki_3.20100831.tar.gz
+        tar -zxf local-lib-1.006007.tar.gz 
+        cd local-lib-1.006007/
+        perl Makefile.PL --bootstrap=~/.perl5
+        make test && make install
+        echo 'eval $(perl -I$HOME/.perl5/lib/perl5 -Mlocal::lib)' >>~/.bashrc
+        . ~/.bashrc
         curl -L http://cpanmin.us | perl - App::cpanminus
         source "/home/$USER/.bashrc"
-        wget http://ftp.de.debian.org/debian/pool/main/i/ikiwiki/ikiwiki_3.20100831.tar.gz
-        cpanm Text::Markdown
-        cpanm URI
-        cpanm HTML::Parser
-        cpanm HTML::Template
-        cpanm HTML::Scrubber
         cpanm CGI::FormBuilder
         cpanm CGI::Session
+        cpanm HTML::Parser
+        cpanm HTML::Template
+        cpanm -f HTML::Scrubber    # tests failed
+        cpanm Text::Markdown
+        cpanm URI
         tar -zxf ikiwiki_3.20100831.tar.gz
         cd ikiwiki/
-        perl Makefile.PL PREFIX=/home/$USER/.perl5 INSTALL_BASE=
+        perl Makefile.PL INSTALL_BASE= PREFIX=/home/$USER/.perl5
+        make tests   # All tests successful
         make
-        make install
         make install INSTALL_BASE=/home/$USER/.perl5
+        . ~/.bashrc
 
 Using cpan or cpanm with local::lib, you can install any other needed dependency, as plain user in your home (XS modules may need -dev packages)
 
 After all, here it's:
 
-        ikiwiki --version
+        ikiwiki -version
         ikiwiki version 3.20100831
 
-Hope this could be useful for someone some day.
+Hope this can be useful for someone.
 Iñigo
