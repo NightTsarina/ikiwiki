@@ -301,14 +301,14 @@ As plain user ($):
         cpanm CGI::Session
         cpanm HTML::Parser
         cpanm HTML::Template
-        cpanm -f HTML::Scrubber    # tests failed
+        cpanm HTML::Scrubber
         cpanm Text::Markdown
         cpanm URI
         cd ..
         tar -zxf ikiwiki_3.20100831.tar.gz
         cd ikiwiki/
         perl Makefile.PL INSTALL_BASE= PREFIX=/home/$USER/.perl5
-        make tests   # All tests successful
+        make test    # All tests successful.
         make install INSTALL_BASE=/home/$USER/.perl5
         . ~/.bashrc
 
