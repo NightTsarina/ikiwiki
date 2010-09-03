@@ -294,10 +294,10 @@ As plain user ($):
         cd local-lib-1.006007/
         perl Makefile.PL --bootstrap=~/.perl5
         make test && make install
-        echo 'eval $(perl -I$HOME/.perl5/lib/perl5 -Mlocal::lib)' >>~/.bashrc
+        echo 'eval $(perl -I$HOME/.perl5/lib/perl5 -Mlocal::lib=$HOME/.perl5)' >>~/.bashrc
         . ~/.bashrc
         curl -L http://cpanmin.us | perl - App::cpanminus
-        source "/home/$USER/.bashrc"
+        . ~/.bashrc
         cpanm CGI::FormBuilder
         cpanm CGI::Session
         cpanm HTML::Parser
@@ -305,15 +305,15 @@ As plain user ($):
         cpanm -f HTML::Scrubber    # tests failed
         cpanm Text::Markdown
         cpanm URI
+        cd ..
         tar -zxf ikiwiki_3.20100831.tar.gz
         cd ikiwiki/
         perl Makefile.PL INSTALL_BASE= PREFIX=/home/$USER/.perl5
         make tests   # All tests successful
-        make
         make install INSTALL_BASE=/home/$USER/.perl5
         . ~/.bashrc
 
-Using cpan or cpanm with local::lib, you can install any other needed dependency, as plain user in your home (XS modules may need -dev packages)
+Using cpan or cpanm with local::lib, you can install any other dependency, as plain user (in your home). XS modules may need -dev packages.
 
 After all, here it's:
 
