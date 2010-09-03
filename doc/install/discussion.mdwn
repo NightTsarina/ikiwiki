@@ -269,3 +269,52 @@ Any suggestions? Whew!
 	perl Makefile.PL INSTALL_BASE=$HOME PREFIX=
 	make
 	make install
+
+---
+
+03 September 2010, Report on successful manual install in Debian 5 (Lenny) AMD64:
+
+note: Maybe much more easy using backports, but using this tools you get a plain user cpan  :)
+
+This where my steps:
+
+As root (#):
+
+    # aptitude install build-essential curl libexpat1-dev
+
+As plain user ($):
+
+    I use to install user perl modules using local::lib:
+
+        http://github.com/poisonbit/sandbox/blob/master/bin/myperl.sh
+
+    After that and relogin, you can install cpanm  :)
+
+        mkdir -p "$HOME/downloads"
+        cd "$HOME/downloads/"
+        curl -L http://cpanmin.us | perl - App::cpanminus
+        source "/home/$USER/.bashrc"
+        wget http://ftp.de.debian.org/debian/pool/main/i/ikiwiki/ikiwiki_3.20100831.tar.gz
+        cpanm Text::Markdown
+        cpanm URI
+        cpanm HTML::Parser
+        cpanm HTML::Template
+        cpanm HTML::Scrubber
+        cpanm CGI::FormBuilder
+        cpanm CGI::Session
+        tar -zxf ikiwiki_3.20100831.tar.gz
+        cd ikiwiki/
+        perl Makefile.PL PREFIX=/home/$USER/.perl5 INSTALL_BASE=
+        make
+        make install
+        make install INSTALL_BASE=/home/$USER/.perl5
+
+Using cpan or cpanm with local::lib, you can install any other needed dependency, as plain user in your home (XS modules may need -dev packages)
+
+After all, here it's:
+
+        ikiwiki --version
+        ikiwiki version 3.20100831
+
+Hope this could be useful for someone some day.
+Iñigo
