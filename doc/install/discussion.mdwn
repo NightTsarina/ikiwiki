@@ -280,11 +280,10 @@ This where my steps:
 
 As root (#):
 
-    # aptitude install build-essential curl perl
+        aptitude install build-essential curl perl
 
-As plain user ($):
 
-    I use to install user perl modules using local::lib
+As plain user ($), I use to install user perl modules using local::lib
 
         mkdir -p "$HOME/downloads"
         cd "$HOME/downloads/"
@@ -319,9 +318,9 @@ After all, here it's:
         ikiwiki -version
         ikiwiki version 3.20100831
 
-But it seems like this installation looses the /etc files...
+It seems like this installation looses the /etc files (we're as plain user), but this can be used as a workaround:
 
-        $ find /home/ikiwiki/.perl5/ -iname '*.setup'
-        $
+        ikiwiki -setup ~/downloads/ikiwiki/auto.setup
+
 
 Iñigo
