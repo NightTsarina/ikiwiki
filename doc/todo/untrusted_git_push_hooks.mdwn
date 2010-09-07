@@ -1,0 +1,12 @@
+Re the canrename, canremove, and canedit hooks:
+
+Of the three, only canremove is currently checked during an untrusted
+git push (a normal git push is assumed to be from a trusted user and
+bypasses all checks).
+
+It would probably make sense to add the canedit hook to the checks done
+there. Calling the canrename hook is tricky, because after all, git does
+not record explicit file moves.
+
+The checkcontent hook is another hook not currently called there, that
+probably should be.
