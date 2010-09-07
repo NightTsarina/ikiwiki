@@ -7,3 +7,12 @@ This makes it a little hard to specify which specific binaries should be used, e
     $ENV{PATH}="$ENV{PATH}:/usr/local/bin:/usr/bin:/bin:/opt/local/bin";
 
 ? The alternative is of course to patch ikiwiki as suggested in the bug, but I wanted to ask here first :)
+
+> You can use the ENV setting in your setup file to set any environment
+> variables you like. Since ikiwiki.cgi is run by the web browser, that
+> is the best way to ensure ikiwiki always runs with a given variable set.
+> 
+> As a suid program, the ikiwiki wrappers have to sanitize the environment.
+> The ikiwiki script's own sanitization of PATH was done to make perl taint
+> checking happy, but as taint checking is disabled anyway, I have removed
+> that. [[done]] --[[Joey]] 
