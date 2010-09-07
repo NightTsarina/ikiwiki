@@ -41,6 +41,8 @@ sub needsbuild (@) {
 			}
 		}
 	}
+
+	return $needsbuild;
 }
 
 sub preprocess (@) {

@@ -210,6 +210,8 @@ sub needsbuild (@) {
 			markunseen($feed->{sourcepage});
 		}
 	}
+
+	return $needsbuild;
 }
 
 sub preprocess (@) {

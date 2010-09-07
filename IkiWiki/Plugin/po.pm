@@ -221,6 +221,8 @@ sub needsbuild () {
 	foreach my $master (keys %translations) {
 		map add_depends($_, $master), values %{otherlanguages_pages($master)};
 	}
+
+	return $needsbuild;
 }
 
 sub scan (@) {

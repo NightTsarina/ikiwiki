@@ -37,6 +37,7 @@ sub needsbuild (@) {
 			}
 		}
 	}
+	return $needsbuild;
 }
 
 sub scrub ($$) {
