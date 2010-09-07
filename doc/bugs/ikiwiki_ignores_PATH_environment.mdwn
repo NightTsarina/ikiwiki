@@ -1,0 +1,9 @@
+At the very top of the main ikiwiki executable script the `PATH` environment is set like this:
+
+    $ENV{PATH}="/usr/local/bin:/usr/bin:/bin:/opt/local/bin";
+
+This makes it a little hard to specify which specific binaries should be used, especially if there is more than one of them available (see c.f. <http://trac.macports.org/ticket/26333> where the MacPorts-supplied, up-to-date subversion should be used and not an arcane one from the base distro / OS). Is there a specific reason why ikiwiki wipes out `$PATH` like this or could that line be improved to
+
+    $ENV{PATH}="$ENV{PATH}:/usr/local/bin:/usr/bin:/bin:/opt/local/bin";
+
+? The alternative is of course to patch ikiwiki as suggested in the bug, but I wanted to ask here first :)
