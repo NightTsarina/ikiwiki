@@ -7,3 +7,16 @@ I am sent to a page with the URL
 `http://ciffer.net/~svend/ikiwiki.cgi?page=tech%252Fhosts&do=edit`.
 
 I am running ikiwiki 3.20100504~bpo50+1 on Debian Lenny.
+
+
+> But on your page, the Edit link is escaped normally and correctly (using %2F).
+> Look at the page source!
+> 
+> The problem is that your web server is forcing a hard (302) redirect
+> to the doubly-escaped url. In wireshark I see your web server send back:
+
+	HTTP/1.1 302 Found\r\n
+	Apache/2.2.9 (Debian) PHP/5.2.6-1+lenny9 with Suhosin-Patch
+	Location: http://ciffer.net/~svend/ikiwiki.cgi?page=tech%252Fhosts&do=edit
+
+> You'll need to investigate why your web server is doing that... --[[Joey]]
