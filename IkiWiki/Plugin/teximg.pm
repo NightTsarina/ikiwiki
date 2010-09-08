@@ -13,6 +13,7 @@ use IkiWiki 3.00;
 
 my $default_prefix = <<EOPREFIX;
 \\documentclass{article}
+\\usepackage[utf8]{inputenc}
 \\usepackage{amsmath}
 \\usepackage{amsfonts}
 \\usepackage{amssymb}
