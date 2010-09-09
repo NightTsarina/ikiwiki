@@ -22,3 +22,6 @@ I *think* this is because, despite a SetEnv directive in the apache configuratio
 the CGI wrapper is expunging SVN_SSH from the environment (based on perusing
 the source of Wrapper.pm and looking at "envsave" there at the top).
 Is this the case?  --Glenn
+
+> That seems likely. You can edit Wrapper.pm and add `SVN_SSH` to the
+> `@envsave` list and rebuild your wrappers to test it. --[[Joey]] 
