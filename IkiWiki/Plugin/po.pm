@@ -152,7 +152,7 @@ sub checkconfig () {
 	if (ref $config{po_slave_languages} eq 'ARRAY') {
 		foreach my $pair (@{$config{po_slave_languages}}) {
 			my ($code, $name)=splitlangpair($pair);
-			if (defined $code) {
+			if (defined $code && ! exists $slavelanguages{$code}) {
 				push @slavelanguages, $code;
 				$slavelanguages{$code} = $name;
 			}
