@@ -30,6 +30,7 @@ my %translations;
 my @origneedsbuild;
 my %origsubs;
 my @slavelanguages; # language codes ordered as in config po_slave_languages
+my %slavelanguages; # language code to name lookup
 
 memoize("istranslatable");
 memoize("_istranslation");
@@ -138,6 +139,7 @@ sub checkconfig () {
 		else {
 			$master_language_code=$config{po_master_language}{code};
 			$master_language_name=$config{po_master_language}{name};
+			$config{po_master_language}=joinlangpair($master_language_code, $master_language_name);
 		}
 	}
 	if (! defined $master_language_code) {
@@ -148,23 +150,25 @@ sub checkconfig () {
 	}
 
 	if (ref $config{po_slave_languages} eq 'ARRAY') {
-		my %slaves;
 		foreach my $pair (@{$config{po_slave_languages}}) {
 			my ($code, $name)=splitlangpair($pair);
 			if (defined $code) {
 				push @slavelanguages, $code;
-				$slaves{$code} = $name;
+				$slavelanguages{$code} = $name;
 			}
 		}
-		$config{po_slave_languages} = \%slaves;
 	}
 	elsif (ref $config{po_slave_languages} eq 'HASH') {
+		%slavelanguages=%{$config{po_slave_languages}};
 		@slavelanguages = sort {
 			$config{po_slave_languages}->{$a} cmp $config{po_slave_languages}->{$b};
-		} keys %{$config{po_slave_languages}};
+		} keys %slavelanguages;
+		$config{po_slave_languages}=[
+			map { joinlangpair($_, $slavelanguages{$_}) } @slavelanguages
+		]
 	}
 
-	delete $config{po_slave_languages}{$master_language_code};
+	delete $slavelanguages{$master_language_code};
 
 	map {
 		islanguagecode($_)
@@ -797,7 +801,7 @@ sub _istranslation ($) {
 	return 0 unless defined $masterpage && defined $lang
 			 && length $masterpage && length $lang
 			 && defined $pagesources{$masterpage}
-			 && defined $config{po_slave_languages}{$lang};
+			 && defined $slavelanguages{$lang};
 
 	return (maybe_add_leading_slash($masterpage, $hasleadingslash), $lang)
 		if istranslatable($masterpage);
@@ -1015,8 +1019,8 @@ sub languagename ($) {
 
 	return $master_language_name
 		if $code eq $master_language_code;
-	return $config{po_slave_languages}{$code}
-		if defined $config{po_slave_languages}{$code};
+	return $slavelanguages{$code}
+		if defined $slavelanguages{$code};
 	return;
 }
 
@@ -1250,6 +1254,13 @@ sub splitlangpair ($) {
 	}
 
 	return $code, $name;
+}
+
+sub joinlangpair ($$) {
+	my $code=shift;
+	my $name=shift;
+
+	return "$code|$name";
 }
 
 # ,----
