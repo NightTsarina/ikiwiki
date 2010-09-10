@@ -1249,8 +1249,8 @@ sub splitlangpair ($) {
 	if (! defined $code || ! defined $name ||
 	    ! length $code || ! length $name) {
 		# not a fatal error to avoid breaking if used with web setup
-		print STDERR sprintf(gettext("%s has invalid syntax: must use CODE|NAME"),
-			$pair)."\n";
+		warn sprintf(gettext("%s has invalid syntax: must use CODE|NAME"),
+			$pair);
 	}
 
 	return $code, $name;
