@@ -89,7 +89,7 @@ sub import {
 sub getsetup () {
 	return
 		plugin => {
-			safe => 0,
+			safe => 1,
 			rebuild => 1, # format plugin
 			section => "format",
 		},
@@ -110,7 +110,7 @@ sub getsetup () {
 				'es|Español',
 				'de|Deutsch'
 			],
-			description => "slave languages (PO files)",
+			description => "slave languages (translated via PO files) format: ll|Langname",
 			safe => 1,
 			rebuild => 1,
 		},
