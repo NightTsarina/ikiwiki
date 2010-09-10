@@ -177,10 +177,15 @@ function is passed no values.
 
 	hook(type => "needsbuild", id => "foo", call => \&needsbuild);
 
-This allows a plugin to manipulate the list of files that need to be
-built when the wiki is refreshed. The function is passed a reference to an
-array of files that will be rebuilt. It should return an array reference
-that is a modified version of its input. It can add or remove files from it.
+This allows a plugin to observe or even manipulate the list of files that
+need to be built when the wiki is refreshed. 
+
+As its first parameter, the function is passed a reference to an array of
+files that will be built. It should return an array reference that is a
+modified version of its input. It can add or remove files from it.
+
+The second parameter passed to the function is a reference to an array of
+files that have been deleted.
 
 ### scan
 

@@ -570,9 +570,9 @@ sub genfeed ($$$$$@) {
 			}
 		}
 
+		my $file=$pagesources{$p};
+		my $type=pagetype($file);
 		if ($itemtemplate->query(name => "enclosure")) {
-			my $file=$pagesources{$p};
-			my $type=pagetype($file);
 			if (defined $type) {
 				$itemtemplate->param(content => $pcontent);
 			}
@@ -591,6 +591,7 @@ sub genfeed ($$$$$@) {
 			}
 		}
 		else {
+			next unless defined $type;
 			$itemtemplate->param(content => $pcontent);
 		}
 
