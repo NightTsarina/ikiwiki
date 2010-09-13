@@ -22,7 +22,7 @@ foreach my $file (@$files) {
 	$pagesources{$page}=$file; # used by po plugin functions
 }
 
-foreach my $ll (keys %{$config{po_slave_languages}}) {
+foreach my $ll (@{$config{po_slave_languages}}) {
 	$config{destdir}="../underlays/locale/$ll";
 
 	foreach my $file (@$files) {
