@@ -1,0 +1,33 @@
+I often find myself wrapping the same boiler plate around [[ikiwiki/directives/img]] img directives, so I tried to encapsulate it using the following [[ikiwiki/directives/template]]:
+
+
+    <div class="image">
+    [\[!img <TMPL_VAR raw_href>
+    size="<TMPL_VAR raw_size>"
+    
+    <TMPL_IF alt>
+      alt="<TMPL_VAR raw_alt>"
+    <TMPL_ELSE>
+      <TMPL_IF caption>
+        alt="<TMPL_VAR raw_alt>"
+      <TMPL_ELSE>
+        alt="[pic]"
+      </TMPL_IF>
+    </TMPL_IF>
+    
+    ]]
+    <TMPL_IF caption>
+    <p><TMPL_VAR raw_caption></p>
+    </TMPL_IF>
+    </div>
+
+The result, even with htmlscrubber disabled, is mangled, something like
+
+    <div class="image">
+    <span class="createlink"><a href="http://jmtd.net/cgi?
+        page=size&amp;from=log0.000000old_new_test&amp;do=create"
+        rel="nofollow">?</a>size</span>
+    
+    </div>
+
+Any suggestions gladly received. -- [[Jon]]
