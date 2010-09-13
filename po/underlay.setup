@@ -6,14 +6,14 @@ use IkiWiki::Setup::Standard {
 	# List here all languages that have translations.
 	# Listing languages without active translations
 	# will excessively bloat things.
-        po_slave_languages => {
-		'es' => 'Español',
-		'de' => 'Deutsch',
-		'fr' => 'Français',
-		'da' => 'Dansk',
-		'cs' => 'česky',
-        },
-	po_master_language => { 'code' => 'en', 'name' => 'English' },
+        po_slave_languages => [
+		'es|Español',
+		'de|Deutsch',
+		'fr|Français',
+		'da|Dansk',
+		'cs|česky',
+	],
+	po_master_language => 'en|English',
 	po_translatable_pages => "*",
 	add_plugins => [qw{po}],
 
