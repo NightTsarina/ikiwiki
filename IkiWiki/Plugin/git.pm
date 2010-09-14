@@ -462,7 +462,7 @@ sub rcs_update () {
 	# Update working directory.
 
 	if (length $config{gitorigin_branch}) {
-		run_or_cry('git', 'pull', $config{gitorigin_branch});
+		run_or_cry('git', 'pull', '--prune', $config{gitorigin_branch});
 	}
 }
 

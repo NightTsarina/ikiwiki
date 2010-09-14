@@ -22,6 +22,8 @@ ikiwiki (3.20100832) UNRELEASED; urgency=low
   * external: Disable RPC::XML's "smart" encoding, which sent ints
     for strings that contained only a number, fixing a longstanding crash
     of the rst plugin.
+  * git: When updating from remote, use git pull --prune, to avoid possible
+    errors from conflicting obsolete remote branches.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 07 Sep 2010 12:08:05 -0400
 
