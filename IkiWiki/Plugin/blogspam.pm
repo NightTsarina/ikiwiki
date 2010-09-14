@@ -4,6 +4,7 @@ package IkiWiki::Plugin::blogspam;
 use warnings;
 use strict;
 use IkiWiki 3.00;
+use Encode;
 
 my $defaulturl='http://test.blogspam.net:8888/';
 
@@ -68,6 +69,7 @@ sub checkcontent (@) {
 
 	my $url=$defaulturl;
 	$url = $config{blogspam_server} if exists $config{blogspam_server};
+
 	my $client = RPC::XML::Client->new($url);
 
 	my @options = split(",", $config{blogspam_options})
@@ -90,12 +92,12 @@ sub checkcontent (@) {
 
 	my %req=(
 		ip => $session->remote_addr(),
-		comment => defined $params{diff} ? $params{diff} : $params{content},
-		subject => defined $params{subject} ? $params{subject} : "",
-		name => defined $params{author} ? $params{author} : "",
-		link => exists $params{url} ? $params{url} : "",
+		comment => encode_utf8(defined $params{diff} ? $params{diff} : $params{content}),
+		subject => encode_utf8(defined $params{subject} ? $params{subject} : ""),
+		name => encode_utf8(defined $params{author} ? $params{author} : ""),
+		link => encode_utf8(exists $params{url} ? $params{url} : ""),
 		options => join(",", @options),
-		site => $config{url},
+		site => encode_utf8($config{url}),
 		version => "ikiwiki ".$IkiWiki::version,
 	);
 	my $res = $client->send_request('testComment', \%req);
