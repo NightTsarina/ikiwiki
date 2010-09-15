@@ -8,6 +8,6 @@ ok(! system("make -s ikiwiki.out"));
 ok(! system("perl -I. ./ikiwiki.out -plugin inline -url=http://example.com -cgiurl=http://example.com/ikiwiki.cgi -rss -atom -underlaydir=underlays/basewiki -set underlaydirbase=underlays -templatedir=templates t/tinyblog t/tmp/out"));
 # This guid should never, ever change, for any reason whatsoever!
 my $guid="http://example.com/post/";
-ok(length `grep '<guid>$guid</guid>' t/tmp/out/index.rss`);
-ok(length `grep '<id>$guid</id>' t/tmp/out/index.atom`);
+ok(length `egrep '<guid.*>$guid</guid>' t/tmp/out/index.rss`);
+ok(length `egrep '<id>$guid</id>' t/tmp/out/index.atom`);
 ok(! system("rm -rf t/tmp t/tinyblog/.ikiwiki"));
