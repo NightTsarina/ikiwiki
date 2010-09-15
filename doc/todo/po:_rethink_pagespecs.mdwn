@@ -14,14 +14,18 @@ default when locking pages.) --[[Joey]]
 >> with a specified locaction, as happens whenever a PageSpec is
 >> used on a page, then it should match only `currentlang()`. If it 
 >> is used without a location, as in the setup file, then no such limit.
->> 
+
+>>> Ok. --[[intrigeri]]
+
 >> Note that
 >> `match_currentlang` currently dies if called w/o a location -- if
 >> it instead was always true w/o a location, this would just mean that
 >> all pagespecs should have `and currentlang()` added to them. How to
 >> implement that? All I can think of doing is wrapping
 >> `pagespec_translate`.
->>
+
+>>> Seems doable. --[[intrigeri]]
+
 >> The only case I've found where it does make sense to match other
 >> language pages is on `l10n.ikiwiki.info` when listing pages that
 >> need translation.
