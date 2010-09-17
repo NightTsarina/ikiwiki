@@ -1,0 +1,23 @@
+Consider this:
+
+    $ wget http://www.thomas.schwinge.homeip.net/tmp/cutpaste_filter.tar.bz2
+    $ wget http://www.thomas.schwinge.homeip.net/tmp/cutpaste_filter.patch
+    
+    $ tar -xj < cutpaste_filter.tar.bz2
+    $ cd cutpaste_filter/
+    $ ./render_locally
+    $ find "$PWD".rendered/ -type f -print0 | xargs -0 grep -H -E 'FOO|BAR'
+    [notice one FOO in there]
+    $ rm -rf .ikiwiki "$PWD".rendered
+    
+    $ cp /usr/share/perl5/IkiWiki/Plugin/cutpaste.pm .library/IkiWiki/Plugin/
+    $ patch -p0 < ../cutpaste_filter.patch
+    $ ./render_locally
+    $ find "$PWD".rendered/ -type f -print0 | xargs -0 grep -H -E 'FOO|BAR'
+    [correct; notice no more FOO]
+
+I guess this needs a general audit -- there are other places where `preprocess`
+is being doing without `filter`ing first, for example in the same file, `copy`
+function.
+
+--[[tschwinge]]
