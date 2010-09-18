@@ -1,0 +1,31 @@
+Here I propose an option (with a [[patch]]) to capitalize the first letter (ucfirst) of default titles : filenames and urls can be lowercase but title are displayed with a capital first character (filename = "foo.mdwn", pagetitle = "Foo"). Note that \[[!meta title]] are unaffected (no automatic capitalization). Comments please :) --[[JeanPrivat]]
+<pre><code>
+diff --git a/IkiWiki.pm b/IkiWiki.pm
+index 6da2819..fd36ec4 100644
+--- a/IkiWiki.pm
++++ b/IkiWiki.pm
+@@ -281,6 +281,13 @@ sub getsetup () {
+                safe => 0,
+                rebuild => 1,
+        },
++       capitalize => {
++               type => "boolean",
++               default => undef,
++               description => "capitalize the first letter of page titles",
++               safe => 1,
++               rebuild => 1,
++       },
+        userdir => {
+                type => "string",
+                default => "",
+@@ -989,6 +996,10 @@ sub pagetitle ($;$) {
+                $page=~s/(__(\d+)__|_)/$1 eq '_' ? ' ' : "&#$2;"/eg;
+        }
+ 
++       if ($config{capitalize}) {
++               $page = ucfirst $page;
++       }
++
+        return $page;
+ }
+</code></pre>
