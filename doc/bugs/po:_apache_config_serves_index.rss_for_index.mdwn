@@ -30,7 +30,7 @@ That should avoid this problem.
 Update: A non-intrusive fix is to add this to apache configuration. 
 This tunes the "quality" of the rss and atom files, in an apparently currently
 undocumented way (though someone on #httpd suggested it should get documented).
-Result is that apache will prefer serving index.html. --[[Joey]] 
+Result is that apache will prefer serving index.html. --[[Joey]]  [[done]]
 
 	AddType application/rss+xml;qs=0.8 .rss
 	AddType application/atom+xml;qs=0.8 .atom

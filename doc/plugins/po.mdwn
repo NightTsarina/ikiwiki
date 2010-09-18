@@ -117,8 +117,13 @@ serve any page in the client's preferred language, if available.
 
 Add 'Options MultiViews' to the wiki directory's configuration in Apache.
 
-When `usedirs` is enabled, one has to set `DirectoryIndex index` for
-the wiki context.
+When `usedirs` is enabled, you should also set `DirectoryIndex index`.
+
+These settings are also recommended, in order to avoid serving up rss files
+as index pages:
+
+	AddType application/rss+xml;qs=0.8 .rss
+	AddType application/atom+xml;qs=0.8 .atom
 
 For details, see [Apache's documentation](http://httpd.apache.org/docs/2.2/content-negotiation.html).
 
