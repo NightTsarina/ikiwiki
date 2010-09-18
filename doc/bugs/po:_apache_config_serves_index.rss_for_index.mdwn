@@ -11,8 +11,8 @@ Analysis:
 * /etc/mime.types gives mime types to .rss and .atom files
 * `mod_negotiation`'s MultiViews allows any file with a mime type to be
   served up via content negotiation, if the client requests that type.
-* wget etc send "Accept: */*" to accept all content types. Compare
-  with firefox, which sends "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*"
+* wget etc send `Accept: */*` to accept all content types. Compare
+  with firefox, which sends `Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*`
 * So apache has a tie between a html encoded Enlish file, and a rss encoded
   English file and the client has no preference. In a tie, apache will serve up the
   *smallest* file, which tends to be the rss file. (Apache's docs say it uses that
