@@ -21,3 +21,21 @@ is being doing without `filter`ing first, for example in the same file, `copy`
 function.
 
 --[[tschwinge]]
+
+> So, in English, page text inside a cut directive will not be filtered.
+> Because the cut directive takes the text during the scan pass, before
+> filtering happens.
+> 
+> Commit 192ce7a238af9021b0fd6dd571f22409af81ebaf and
+> [[bugs/po_vs_templates]] has to do with this.
+> There I decided that filter hooks should *only* act on the complete
+> text of a page. 
+> 
+> I also suggested that anything that wants to reliably
+> s/FOO/BAR/ should probably use a sanitize hook, not a filter hook.
+> I think that would make sense in this example.
+> 
+> I don't see any way to make cut text be filtered while satisfying these
+> constraints, without removing cutpaste's ability to have forward pastes
+> of text cut laster in the page. (That does seems like an increasingly
+> bad idea..) --[[Joey]]
