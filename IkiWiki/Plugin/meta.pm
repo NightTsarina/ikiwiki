@@ -198,7 +198,7 @@ sub preprocess (@) {
 				'" rel="openid2.local_id" />' if $delegate ne 1;
 		}
 		if (exists $params{"xrds-location"} && safeurl($params{"xrds-location"})) {
-			push @{$metaheaders{$page}}, '<meta http-equiv="X-XRDS-Location"'.
+			push @{$metaheaders{$page}}, '<meta http-equiv="X-XRDS-Location" '.
 				'content="'.encode_entities($params{"xrds-location"}).'" />';
 		}
 	}
