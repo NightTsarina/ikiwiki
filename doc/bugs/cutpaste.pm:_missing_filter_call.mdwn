@@ -39,3 +39,17 @@ function.
 > constraints, without removing cutpaste's ability to have forward pastes
 > of text cut laster in the page. (That does seems like an increasingly
 > bad idea..) --[[Joey]]
+
+> > OK -- so the FOO/BAR thing was only a very stripped-down example, of
+> > course, and the real thing is being observed with the
+> > *[[plugins/contrib/getfield]]* plugin.  This one needs to run *before*
+> > `preprocess`ing, for its `{{$page#field}}` syntax is (a) meant to be usable
+> > inside ikiwiki directives, and (b) the field values are meant to still be
+> > `preprocess`ed before being embedded.  That's why it's using the `filter`
+> > hook instead of `sanitize`.
+
+> > Would adding another kind of hook be a way to fix this?  My idea is that
+> > *cut* (and others) would then take their data not during `scan`ning, but
+> > *after* `filter`ing.
+
+> > --[[tschwinge]]
