@@ -198,8 +198,12 @@ sub preprocess (@) {
 				'" rel="openid2.local_id" />' if $delegate ne 1;
 		}
 		if (exists $params{"xrds-location"} && safeurl($params{"xrds-location"})) {
+			# force url absolute
+			eval q{use URI};
+			error($@) if $@;
+			my $url=URI->new_abs($params{"xrds-location"}, $config{url});
 			push @{$metaheaders{$page}}, '<meta http-equiv="X-XRDS-Location" '.
-				'content="'.encode_entities($params{"xrds-location"}).'" />';
+				'content="'.encode_entities($url).'" />';
 		}
 	}
 	elsif ($key eq 'redir') {
