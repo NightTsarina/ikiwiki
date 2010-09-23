@@ -85,5 +85,8 @@ Yes. I'd only recently set up my server as a delegate under wordpress, so still 
 ###Pretty Painless
 I just tried logging it with OpenID and it Just Worked.  Pretty painless.  If you want to turn off password authentication on ikiwiki.info, I say go for it. --[[blipvert]]
 
+> I doubt I will. The new login interface basically makes password login
+> and openid cooexist nicely. --[[Joey]] 
+
 ###LiveJournal openid
 One caveat to the above is that, of course, OpenID is a distributed trust system which means you do have to think about the trust aspect.  A case in point is livejournal.com whose OpenID implementation is badly broken in one important respect:  If a LiveJournal user deletes his or her journal, and a different user registers a journal with the same name (this is actually quite a common occurrence on LiveJournal), they in effect inherit the previous journal owner's identity.  LiveJournal does not even have a mechanism in place for a remote site even to detect that a journal has changed hands.  It is an extremely dodgy situation which they seem to have *no* intention of fixing, and the bottom line is that the "identity" represented by a *username*.livejournal.com token should not be trusted as to its long-term uniqueness.  Just FYI.  --[[blipvert]]
