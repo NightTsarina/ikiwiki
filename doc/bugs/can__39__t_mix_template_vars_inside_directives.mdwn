@@ -31,3 +31,17 @@ The result, even with htmlscrubber disabled, is mangled, something like
     </div>
 
 Any suggestions gladly received. -- [[Jon]]
+
+> Well, you *should* be able to do things like this, and in my testing, I
+> *can*. I used your exact example above (removing the backslash escape)
+> and invoked it as:
+>	\[[!template id=test href=himom.png size=100x]]
+> 
+> And got just what you would expect.
+> 
+> I don't know what went wrong for you, but I don't see a bug here. 
+> My guess, at the moment, is that you didn't specify the required href
+> and size parameters when using the template. If I leave those off,
+> I of course reproduce what you reported, since the img directive gets
+> called with no filename, and so assumes the size parameter is the image
+> to display.. [[done]]? --[[Joey]] 
