@@ -248,4 +248,17 @@ I've tested it fairly thouroughly. --[[Joey]]
 [a358d74bef51dae31332ff27e897fe04834571e6]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=a358d74bef51dae31332ff27e897fe04834571e6 (commitdiff for a358d74bef51dae31332ff27e897fe04834571e6)
 [981400177d68a279f485727be3f013e68f0bf691]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=981400177d68a279f485727be3f013e68f0bf691 (commitdiff for 981400177d68a279f485727be3f013e68f0bf691)
 
+-------------------
+
+Even if this is already marked as done, I'd like to suggest an alternative
+solution:
+
+Instead of creating a file that gets checked in into the RCS, the source files
+could be left out and the output files be written as long as there is no
+physical source file (think of a virtual underlay). Something similar would be
+required to implement [[todo/alias directive]], which couldn't be easily done
+by writing to the RCS as the page's contents can change depending on which
+other pages claim it as an alias. --[[chrysn]]
+
+
 [[!tag done]]
