@@ -43,7 +43,7 @@ sub sanitize (@) {
 	my @nodes = $tree->disembowel();
 	foreach my $node (@nodes) {
 		if (ref $node) {
-			$ret .= $node->as_XML();
+			$ret .= $node->as_HTML(undef, '', {});
 			chomp $ret;
 			$node->delete();
 		}
