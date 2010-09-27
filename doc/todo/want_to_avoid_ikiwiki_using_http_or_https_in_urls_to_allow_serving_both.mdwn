@@ -88,16 +88,45 @@ you don't like my approach:
 > both url and cgiurl to use `https://secure.foo.com/...` and rely on
 > relative links to keep users of `http://insecure.foo.com/` on http until
 > they need to use the cgi? 
->
+
+>> My problem with that is that uses of the CGI aren't all equal (and that
+>> the CA model is broken). You could put CGI uses in two classes:
+>>
+>> - websetup and other "serious" things (for the sites I'm running, which
+>>   aren't very wiki-like, editing pages is also in this class).
+>>   I'd like to be able to let privileged users log in over
+>>   https with httpauth (or possibly even a client certificate), and I don't
+>>   mind teaching these few people how to do the necessary contortions to
+>>   enable something like CACert.
+>>
+>> - Random users making limited use of the CGI: do=goto, do=404, and
+>>   commenting with an OpenID. I don't think it's realistic to expect
+>>   users to jump through all the CA hoops to get CACert installed for that,
+>>   which leaves their browsers being actively obstructive, unless I either
+>>   pay the CA tax (per subdomain) to get "real" certificates, or use plain
+>>   http.
+>>
+>> On a more wiki-like wiki, the second group would include normal page edits.
+>>
+>> Perhaps I'm doing this backwards, and instead of having the master
+>> `url`/`cgiurl` be the HTTP version and providing tweakables to override
+>> these with HTTPS, I should be overriding particular uses to plain HTTP...
+>>
+>> --[[smcv]]
+
 > I'm unconvinced.
 > 
 > `Ikiwiki::baseurl()."foo"` just seems to be asking for trouble,
 > ie being accidentially written as `IkiWiki::baseurl("foo")`,
 > which will fail when foo is not a page, but some file.
-> 
+
+>> That's a good point. --s
+
 > I see multiple places (inline.pm, meta.pm, poll.pm, recentchanges.pm)
 > where it will now put the https url into a static page if the build
 > happens to be done by the cgi accessed via https, but not otherwise.
 > I would rather not have to audit for such problems going forward.
-> 
-> --[[Joey]] 
+
+>> Yes, that's a problem with this approach (either way round). Perhaps
+>> making it easier to run two mostly-synched copies like I was previously
+>> doing is the only solution... --s
