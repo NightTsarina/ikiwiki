@@ -644,7 +644,14 @@ sub add_page (@) {
 	$guid->{md5}=$digest;
 
 	# Create the page.
-	my $template=template($feed->{template}, blind_cache => 1);
+	my $template;
+	eval {
+		$template=template($feed->{template}, blind_cache => 1);
+	};
+	if ($@) {
+		print STDERR gettext("failed to process template:")." $@";
+		return;
+	}
 	$template->param(title => $params{title})
 		if defined $params{title} && length($params{title});
 	$template->param(content => wikiescape(htmlabs($params{content},
