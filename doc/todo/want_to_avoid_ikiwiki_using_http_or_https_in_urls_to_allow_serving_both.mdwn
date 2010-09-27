@@ -108,11 +108,21 @@ you don't like my approach:
 >>
 >> On a more wiki-like wiki, the second group would include normal page edits.
 >>
+>>> I see your use case. It still seems to me that for the more common
+>>> case where CA tax has been paid (getting a cert that is valid for
+>>> multiple subdomains should be doable?), having anything going through the
+>>> cgiurl upgrade to https would be ok. In that case, http is just an
+>>> optimisation for low-value, high-aggregate-bandwidth type uses, so a
+>>> little extra https on the side is not a big deal. --[[Joey]]
+>>
 >> Perhaps I'm doing this backwards, and instead of having the master
 >> `url`/`cgiurl` be the HTTP version and providing tweakables to override
 >> these with HTTPS, I should be overriding particular uses to plain HTTP...
 >>
 >> --[[smcv]]
+>>> 
+>>> Maybe, or I wonder if you could just use RewriteEngine for such selective
+>>> up/downgrading. Match on `do=(edit|create|prefs)`. --[[Joey]]
 
 > I'm unconvinced.
 > 
