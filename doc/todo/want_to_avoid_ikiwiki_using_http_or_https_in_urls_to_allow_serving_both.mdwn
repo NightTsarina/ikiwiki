@@ -56,3 +56,29 @@ becoming a problem for me. Is there anything I can do here? --[[Perry]]
 > absolute urls that have been fixed since Brian filed the bug. --[[Joey]]  
 
 [[wishlist]]
+
+----
+
+[[!template id=gitbranch branch=smcv/https author="[[smcv]]"]]
+[[!tag patch]]
+
+For a while I've been using a configuration where each wiki has a HTTP and
+a HTTPS mirror, and updating one automatically updates the other, but
+that seems unnecessarily complicated. My `https` branch adds `https_url`
+and `https_cgiurl` config options which can be used to provide a HTTPS
+variant of an existing site; the CGI script automatically detects whether
+it was accessed over HTTPS and switches to the other one.
+
+This required some refactoring, which might be worth merging even if
+you don't like my approach:
+
+* change `IkiWiki::cgiurl` to return the equivalent of `$config{cgiurl}` if
+  called with no parameters, and change all plugins to indirect through it
+  (then I only need to change that one function for the HTTPS hack)
+
+* `IkiWiki::baseurl` already has similar behaviour, so change nearly all
+  references to the `$config{url}` to call `baseurl` (a couple of references
+  specifically wanted the top-level public URL for Google or Blogspam rather
+  than a URL for the user's browser, so I left those alone)
+
+--[[smcv]]
