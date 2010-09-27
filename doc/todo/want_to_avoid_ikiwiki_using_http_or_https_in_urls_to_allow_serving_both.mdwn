@@ -82,3 +82,22 @@ you don't like my approach:
   than a URL for the user's browser, so I left those alone)
 
 --[[smcv]]
+
+> The justification for your patch seems to be wanting to use a different
+> domain, like secure.foo.com, for https? Can you really not just configure
+> both url and cgiurl to use `https://secure.foo.com/...` and rely on
+> relative links to keep users of `http://insecure.foo.com/` on http until
+> they need to use the cgi? 
+>
+> I'm unconvinced.
+> 
+> `Ikiwiki::baseurl()."foo"` just seems to be asking for trouble,
+> ie being accidentially written as `IkiWiki::baseurl("foo")`,
+> which will fail when foo is not a page, but some file.
+> 
+> I see multiple places (inline.pm, meta.pm, poll.pm, recentchanges.pm)
+> where it will now put the https url into a static page if the build
+> happens to be done by the cgi accessed via https, but not otherwise.
+> I would rather not have to audit for such problems going forward.
+> 
+> --[[Joey]] 
