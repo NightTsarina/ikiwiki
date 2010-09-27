@@ -336,10 +336,7 @@ sub preprocess_inline (@) {
 					blind_cache => 1);
 			};
 			if ($@) {
-				error gettext("failed to process template:")." $@";
-			}
-			if (! $template) {
-				error sprintf(gettext("template %s not found"), $params{template}.".tmpl");
+				error sprintf(gettext("failed to process template %s"), $params{template}.".tmpl").": $@";
 			}
 		}
 		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));

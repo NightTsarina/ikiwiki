@@ -132,9 +132,6 @@ sub filltemplate ($$) {
 		# up a template that doesn't work.
 		return "[[!pagetemplate ".gettext("failed to process template:")." $@]]";
 	}
-	if (! defined $template) {
-		return;
-	}
 
 	$template->param(name => $page);
 

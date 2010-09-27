@@ -41,12 +41,9 @@ sub preprocess (@) {
 			blind_cache => 1);
 	};
 	if ($@) {
-		error gettext("failed to process template:")." $@";
-	}
-	if (! $template) {
-		error sprintf(gettext("%s not found"),
+		error sprintf(gettext("failed to process template %s"),
 			htmllink($params{page}, $params{destpage},
-				"/templates/$params{id}"))
+				"/templates/$params{id}"))." $@";
 	}
 
 	$params{basename}=IkiWiki::basename($params{page});

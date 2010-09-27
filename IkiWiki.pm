@@ -1769,12 +1769,14 @@ sub template_depends ($$;@) {
 	my $page=shift;
 	
 	my ($filename, $tpage, $untrusted)=template_file($name);
+	if (! defined $filename) {
+		error(sprintf(gettext("template %s not found"), $name))
+	}
+
 	if (defined $page && defined $tpage) {
 		add_depends($page, $tpage);
 	}
-
-	return unless defined $filename;
-
+	
 	my @opts=(
 		filter => sub {
 			my $text_ref = shift;
