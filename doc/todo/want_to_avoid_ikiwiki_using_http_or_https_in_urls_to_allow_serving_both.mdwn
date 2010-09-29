@@ -60,7 +60,6 @@ becoming a problem for me. Is there anything I can do here? --[[Perry]]
 ----
 
 [[!template id=gitbranch branch=smcv/https author="[[smcv]]"]]
-[[!tag patch]]
 
 For a while I've been using a configuration where each wiki has a HTTP and
 a HTTPS mirror, and updating one automatically updates the other, but
@@ -140,3 +139,34 @@ you don't like my approach:
 >> Yes, that's a problem with this approach (either way round). Perhaps
 >> making it easier to run two mostly-synched copies like I was previously
 >> doing is the only solution... --s
+
+----
+
+**warning: untested branch ** [[!template id=gitbranch branch=smcv/localurl author="[[smcv]]"]]
+
+OK, here's an alternative approach, closer in spirit to what was initially
+requested. I haven't tested this at all (it's getting rather late in UK time)
+and it will probably be rebased later, but I've referenced it here as a proof of
+concept.
+
+The idea is that in the common case, the CGI and the pages will reside on the
+same server, so they can use "semi-absolute" URLs (`/ikiwiki.cgi`, `/style.css`,
+`/bugs/done`) to refer to each other. My branch adds config options which
+could be set as follows for ikiwiki.info or any branchable.com site:
+
+* local_url: /
+* local_cgiurl: /ikiwiki.cgi
+
+Most redirects, form actions, links etc. can safely use this form rather than
+the fully-absolute URL. If not configured, these options default to the
+corresponding absolute URL, which is would also be correct for unusual sites
+where the CGI and the pages aren't on the same server.
+
+(In theory you could use things like `//static.example.com/wiki/` and
+`//dynamic.example.com/ikiwiki.cgi` to preserve choice of http/https
+while switching server, but I don't know how consistently browsers
+suppot that.)
+
+"local" here is short for "locally valid", because these URLs are neither
+fully relative nor fully absolute, and there doesn't seem to be a good name
+for them...

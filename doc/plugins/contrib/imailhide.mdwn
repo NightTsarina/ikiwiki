@@ -1,7 +1,7 @@
-[[!template id=plugin name=imailhide author="Peter Vizi"]]
+[[!template id=plugin name=imailhide author="Peter_Vizi"]]
 [[!tag type/widget type/html]]
 
-# Mailhide plugin for Ikiwiki
+# Mailhide Plugin for Ikiwiki
 
 This plugin provides the directive mailhide, that uses the [Mailhide
 API][1] to protect email addresses from spammers.
@@ -53,8 +53,13 @@ will result in `joh<a href="...">...</a>@example.com`.
 *Optional.* You can set the style parameter individually for each
  `mailhide` call. See `mailhide_default_style` for details.
 
+## Known Issues
+
+1. [opening new window when displaying email address][6]
+
 [1]: http://www.google.com/recaptcha/mailhide/
 [2]: http://search.cpan.org/perldoc?Captcha::reCAPTCHA::Mailhide
 [3]: http://github.com/petervizi/imailhide
 [4]: http://www.google.com/recaptcha/mailhide/apikey
 [5]: http://code.google.com/apis/recaptcha/docs/mailhideapi.html
+[6]: http://github.com/petervizi/imailhide/issues#issue/1

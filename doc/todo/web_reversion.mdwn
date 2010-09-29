@@ -24,14 +24,17 @@ Implementation plan:
   and refresh site.
 
 Peter Gammie has done an initial implementation of the above.
-[[!template id=gitbranch branch=peteg/master author="[[peteg]]"]]
+[[!template id=gitbranch branch=peteg/revert author="[[peteg]]"]]
+
+>> It is on a separate branch now. --[[peteg]]
 
 > Review: --[[Joey]] 
 > 
 > The revert commit will not currently say what web user did the revert.
 > This could be fixed by doing a --no-commit revert first and then using
 > rcs_commit_staged.
-> 
+>> Fixed, I think. --[[peteg]]
+>
 > So I see one thing I completly forgot about is `check_canedit`. Avoiding users
 > using reverting to make changes they would normally not be allowed to do is
 > tricky. I guess that a easy first pass would be to only let admins do it.
