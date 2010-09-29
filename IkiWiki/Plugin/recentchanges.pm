@@ -13,6 +13,7 @@ sub import {
 	hook(type => "refresh", id => "recentchanges", call => \&refresh);
 	hook(type => "pagetemplate", id => "recentchanges", call => \&pagetemplate);
 	hook(type => "htmlize", id => "_change", call => \&htmlize);
+	hook(type => "sessioncgi", id => "recentchanges", call => \&sessioncgi);
 	# Load goto to fix up links from recentchanges
 	IkiWiki::loadplugin("goto");
 }
@@ -80,7 +81,6 @@ sub confirmation_form {
     $f->field(name => "sid", type => "hidden", value => $session->id,
               force => 1);
     $f->field(name => "do", type => "hidden", value => "revert", force => 1);
-    $f->field(name => "rev", type => "hidden", value => $rev, force => 1);
 
     return $f, ["Revert", "Cancel"];
 }
@@ -110,6 +110,7 @@ sub sessioncgi ($$) {
         if($r) {
             die "FIXME revert '$rev' failed.";
         } else {
+            require IkiWiki::Render;
             IkiWiki::refresh();
             IkiWiki::saveindex();
             # FIXME indicate success.
@@ -118,6 +119,7 @@ sub sessioncgi ($$) {
         $form->title(sprintf(gettext("confirm reversion of %s"), $rev));
         my $patch_contents = IkiWiki::rcs_showpatch($rev);
         $form->tmpl_param(patch_contents => encode_entities($patch_contents));
+        $form->field(name => "rev", type => "hidden", value => $rev, force => 1);
         IkiWiki::showform($form, $buttons, $session, $q);
         exit 0;
     }
@@ -179,6 +181,13 @@ sub store ($$$) {
 		} @{$change->{pages}}
 	];
 	push @{$change->{pages}}, { link => '...' } if $is_excess;
+
+        if (length $config{cgiurl}) {
+            $change->{reverturl} = IkiWiki::cgiurl(
+                  do => "revert",
+                  rev => $change->{rev}
+                );
+        }
 
 	$change->{author}=$change->{user};
 	my $oiduser=eval { IkiWiki::openiduser($change->{user}) };
