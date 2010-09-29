@@ -27,6 +27,10 @@ sub import {
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
 	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 	hook(type => "rcs", id => "rcs_receive", call => \&rcs_receive);
+ 	hook(type => "rcs", id => "rcs_preprevert", call => \&rcs_preprevert);
+ 	hook(type => "rcs", id => "rcs_revert", call => \&rcs_revert);
+ 	hook(type => "rcs", id => "rcs_showpatch", call => \&rcs_showpatch);
+	hook(type => "rcs", id => "rcs_revert", call => \&rcs_revert);
 }
 
 sub checkconfig () {
@@ -809,6 +813,37 @@ sub rcs_receive () {
 	}
 
 	return reverse @rets;
+}
+
+sub rcs_preprevert ($) {
+    # FIXME implement
+}
+
+sub rcs_revert (@) {
+    # Try to revert the given patch; returns undef on _success_.
+    # Same parameters as rcs_commit_staged + 'rev', the patch ID to be
+    # reverted.
+    my %params = @_;
+    my $rev = $params{rev};
+
+    if(run_or_non('git', 'revert', '--no-commit', $rev)) {
+        debug "Committing revert for patch '$rev'.";
+        rcs_commit_staged(message => "This reverts commit $rev", @_);
+    } else {
+        # No idea what is actually getting reverted, so all we can do is say we failed.
+        run_or_die('git', 'reset', '--hard');
+        return "Failed to revert patch $rev.";
+    }
+}
+
+sub rcs_showpatch ($) {
+    # Show the patch with the given revision id.
+    my ($rev) = @_;
+
+    # FIXME check
+    my @r = run_or_die('git', 'show', $rev);
+
+    return join "\n", @r;
 }
 
 1

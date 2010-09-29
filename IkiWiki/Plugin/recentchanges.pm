@@ -60,6 +60,72 @@ sub refresh ($) {
 	}
 }
 
+sub confirmation_form {
+    my ($q, $session, $rev) = @_;
+
+    eval q{use CGI::FormBuilder};
+    error($@) if $@;
+    my $f = CGI::FormBuilder->new(
+		name => "revert",
+		header => 0,
+		charset => "utf-8",
+		method => 'POST',
+		javascript => 0,
+		params => $q,
+		action => $config{cgiurl},
+		stylesheet => 1,
+                template => { template('revert.tmpl') },
+	);
+
+    $f->field(name => "sid", type => "hidden", value => $session->id,
+              force => 1);
+    $f->field(name => "do", type => "hidden", value => "revert", force => 1);
+    $f->field(name => "rev", type => "hidden", value => $rev, force => 1);
+
+    return $f, ["Revert", "Cancel"];
+}
+
+sub sessioncgi ($$) {
+    my ($q, $session) = @_;
+    my $do = $q->param('do');
+    my $rev = $q->param('rev');
+
+    return unless $do eq 'revert' && $rev;
+
+    # FIXME rcs_preprevert ??
+    IkiWiki::check_canedit('FIXME', $q, $session);
+
+    my ($form, $buttons) = confirmation_form($q, $session);
+    IkiWiki::decode_form_utf8($form);
+
+    if($form->submitted eq 'Revert' && $form->validate) {
+        IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+
+        IkiWiki::disable_commit_hook();
+        my $r = IkiWiki::rcs_revert(
+                         session => $session,
+                         rev => $rev);
+        IkiWiki::enable_commit_hook();
+
+        if($r) {
+            die "FIXME revert '$rev' failed.";
+        } else {
+            IkiWiki::refresh();
+            IkiWiki::saveindex();
+            # FIXME indicate success.
+        }
+    } else {
+        $form->title(sprintf(gettext("confirm reversion of %s"), $rev));
+        my $patch_contents = IkiWiki::rcs_showpatch($rev);
+        $form->tmpl_param(patch_contents => encode_entities($patch_contents));
+        IkiWiki::showform($form, $buttons, $session, $q);
+        exit 0;
+    }
+
+    IkiWiki::redirect($q, urlto($config{recentchangespage}, ''));
+    exit 0;
+}
+
 # Enable the recentchanges link.
 sub pagetemplate (@) {
 	my %params=@_;
