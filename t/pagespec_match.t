@@ -101,6 +101,7 @@ ok(pagespec_match("ook", "link(blog/tags/foo)"), "link internal absolute success
 ok(pagespec_match("ook", "link(/blog/tags/foo)"), "link explicit absolute success");
 ok(pagespec_match("meh", "!link(done)"), "negated failing match is a success");
 
+$ENV{TZ}="GMT";
 $IkiWiki::pagectime{foo}=1154532692; # Wed Aug  2 11:26 EDT 2006
 $IkiWiki::pagectime{bar}=1154532695; # after
 ok(pagespec_match("foo", "created_before(bar)"));
