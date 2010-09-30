@@ -23,6 +23,13 @@ sub getsetup () {
 			safe => 1,
 			rebuild => undef,
 		},
+		htmltidy => {
+			type => "string",
+			example => "tidy --show-body-only yes --show-warnings no --tidy-mark no --markup yes -quiet -asxhtml -utf8",
+			description => "tidy command line",
+			safe => 0, # path
+			rebuild => 0,
+		},
 }
 
 sub sanitize (@) {
@@ -31,7 +38,7 @@ sub sanitize (@) {
 	my $pid;
 	my $sigpipe=0;
 	$SIG{PIPE}=sub { $sigpipe=1 };
-	$pid=open2(*IN, *OUT, 'tidy -quiet -asxhtml -utf8 --show-body-only yes --show-warnings no --tidy-mark no --markup yes 2>/dev/null');
+	$pid=open2(*IN, *OUT, "$config{htmltidy} 2>/dev/null");
 
 	# open2 doesn't respect "use open ':utf8'"
 	binmode (IN, ':utf8');
