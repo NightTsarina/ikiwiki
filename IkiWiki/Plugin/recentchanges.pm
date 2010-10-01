@@ -92,8 +92,7 @@ sub sessioncgi ($$) {
 
     return unless $do eq 'revert' && $rev;
 
-    # FIXME rcs_preprevert ??
-    IkiWiki::check_canedit('FIXME', $q, $session);
+    IkiWiki::rcs_preprevert(cgi => $q, session => $session, rev => $rev);
 
     my ($form, $buttons) = confirmation_form($q, $session);
     IkiWiki::decode_form_utf8($form);
@@ -117,7 +116,7 @@ sub sessioncgi ($$) {
         }
     } else {
         $form->title(sprintf(gettext("confirm reversion of %s"), $rev));
-        my $patch_contents = IkiWiki::rcs_showpatch($rev);
+        my $patch_contents = IkiWiki::rcs_showpatch(rev => $rev);
         $form->tmpl_param(patch_contents => encode_entities($patch_contents));
         $form->field(name => "rev", type => "hidden", value => $rev, force => 1);
         IkiWiki::showform($form, $buttons, $session, $q);
