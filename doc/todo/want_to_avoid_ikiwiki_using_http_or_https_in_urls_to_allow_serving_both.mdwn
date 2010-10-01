@@ -185,9 +185,10 @@ Bugs:
 
 * I don't think anything except `openid` calls `cgiurl` without also
   passing in `local_cgiurl => 1`, so perhaps that should be the default;
-  `openid` uses `cgiurl` anyway, so there doesn't even necessarily need
-  to be a way to force absolute URLs? Any other module that really needs
-  an absolute URL could use `cgiurl(cgiurl => $config{cgiurl}, ...)`,
+  `openid` uses the `cgiurl` named parameter anyway, so there doesn't even
+  necessarily need to be a way to force absolute URLs? Any other module
+  that really needs an absolute URL could use
+  `cgiurl(cgiurl => $config{cgiurl}, ...)`,
   although that does look a bit strange
 
 * It occurs to me that `IkiWiki::cgiurl` could probably benefit from being
