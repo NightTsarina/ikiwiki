@@ -107,12 +107,11 @@ sub sessioncgi ($$) {
         IkiWiki::enable_commit_hook();
 
         if($r) {
-            die "FIXME revert '$rev' failed.";
+            die "Revert '$rev' failed.";
         } else {
             require IkiWiki::Render;
             IkiWiki::refresh();
             IkiWiki::saveindex();
-            # FIXME indicate success.
         }
     } else {
         $form->title(sprintf(gettext("confirm reversion of %s"), $rev));

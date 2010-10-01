@@ -840,7 +840,7 @@ sub rcs_receive () {
 sub rcs_preprevert (@) {
     # Determine what the effects are of reverting the patch with the
     # ID given by 'rev'. Returns the same structure as rcs_receive.
-    # FIXME note test_changes expects 'cgi' and 'session' parameters.
+    # Note test_changes expects 'cgi' and 'session' parameters.
     my %params = @_;
     my $rev = $params{rev};
 
@@ -870,10 +870,7 @@ sub rcs_showpatch (@) {
     my %params = @_;
     my $rev = $params{rev};
 
-    # FIXME check
-    my @r = run_or_die('git', 'show', $rev);
-
-    return join "\n", @r;
+    return join "\n", run_or_die('git', 'show', $rev);
 }
 
 1
