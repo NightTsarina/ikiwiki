@@ -150,7 +150,8 @@ you don't like my approach:
 [[!template id=gitbranch branch=smcv/localurl author="[[smcv]]"]]
 
 OK, here's an alternative approach, closer in spirit to what was initially
-requested. I haven't tested this on a full website with the CGI yet.
+requested. I included a regression test for `urlto`, `baseurl` and `cgiurl`,
+now that they have slightly more complex behaviour.
 
 The idea is that in the common case, the CGI and the pages will reside on the
 same server, so they can use "semi-absolute" URLs (`/ikiwiki.cgi`, `/style.css`,
@@ -168,6 +169,12 @@ suppot that.
 "local" here is short for "locally valid", because these URLs are neither
 fully relative nor fully absolute, and there doesn't seem to be a good name
 for them...
+
+I've tested this on a demo website with the CGI enabled, and it seems to
+work nicely (there might be bugs in some plugins, I didn't try all of them).
+The `$config{url}` and `$config{cgiurl}` are both HTTP, but if I enable
+`httpauth`, set `cgiauthurl` to a HTTPS version of the same site and log
+in via that, links all end up in the HTTPS version.
 
 New API added by this branch:
 
