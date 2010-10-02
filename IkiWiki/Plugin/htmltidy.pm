@@ -25,11 +25,16 @@ sub getsetup () {
 		},
 		htmltidy => {
 			type => "string",
-			example => "tidy --show-body-only yes --show-warnings no --tidy-mark no --markup yes -quiet -asxhtml -utf8",
 			description => "tidy command line",
 			safe => 0, # path
-			rebuild => 0,
+			rebuild => undef,
 		},
+}
+
+sub checkconfig () {
+	if (! defined $config{htmltidy}) {
+		$config{htmltidy}="tidy -quiet -asxhtml -utf8 --show-body-only yes --show-warnings no --tidy-mark no --markup yes";
+	}
 }
 
 sub sanitize (@) {
