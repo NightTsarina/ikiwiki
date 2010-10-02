@@ -45,15 +45,23 @@ Peter Gammie has done an initial implementation of the above.
 > structure that `rcs_recieve` does. This could be done by using `git revert
 > --no-commit`, and then examining the changes, and then `git reset` to drop
 > them.
+>> We can use the existing `git_commit_info` with the patch ID - no need to touch the working directory. -- [[peteg]]
 > 
 > Then the code that is currently in IkiWiki/Receive.pm, that calls
 > `check_canedit` and `check_canremove` to test the change, can be
 > straightforwardly refactored out, and used for checking reverts too.
+>> Wow, that was easy. :-) -- [[peteg]]
 > 
 > (The data from `rcs_preprevert` could also be used for a confirmation
 > prompt -- it doesn't currently include enough info for diffs, but at
 > least could have a list of changed files.)
-> 
+>> I added `rcs_showpatch` which simply yields the output of `git show <patch-id>`. -- [[peteg]]
+>
 > Note that it's possible for a git repo to have commits that modify wiki
 > files in a subdir, and code files elsewhere. `rcs_preprevert` should
 > detect changes outside the wiki dir, and fail, like `rcs_receive` does.
+>> Taken care of by refactoring `rcs_receive` in `git.pm`
+>> I've tested it lightly in my single-user setup. It's a little nasty that the `attachment` plugin
+>> gets used to check whether attachments are allowed -- there really should be a hook for that.
+>>
+>> Please look it over and tell me what else needs fixing... -- [[peteg]]

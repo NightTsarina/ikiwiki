@@ -50,3 +50,12 @@ Any suggestions gladly received. -- [[Jon]]
 
 >>> As always, if you'd like to mail me a larger test case that reproduces a
 >>> problem for you, I can take a look at it. --[[Joey]]
+
+>>>> <s>Thank you for the offer.  I might still take you up on it.  I've just proven that this
+>>>> does work for a clean repo / bare bones test case. -- [[Jon]]</s> Figured it out. The
+>>>> problem was I'd copied a page (old_new) which had two images embedded in it to test.
+>>>> I'd stored the images under a subdir "old_new". The new page was called "old_new_test"
+>>>> and the images thus could not be found by a pagespec "some-image.jpg". Adjusting the
+>>>> href argument to the template (consequently the src argument to img) to
+>>>> "old_new/some-image.jpg" fixed it all. [[done]], PEBKAC. Thank you for your time :)
+>>>> -- [[Jon]]

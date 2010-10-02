@@ -59,6 +59,9 @@ becoming a problem for me. Is there anything I can do here? --[[Perry]]
 
 ----
 
+[[!toggle id="smcv-https" text="Some discussion of a rejected implementation, smcv/https."]]
+[[!toggleable id="smcv-https" text="""
+
 [[!template id=gitbranch branch=smcv/https author="[[smcv]]"]]
 
 For a while I've been using a configuration where each wiki has a HTTP and
@@ -140,33 +143,70 @@ you don't like my approach:
 >> making it easier to run two mostly-synched copies like I was previously
 >> doing is the only solution... --s
 
+"""]]
+
 ----
 
-**warning: untested branch ** [[!template id=gitbranch branch=smcv/localurl author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/ready/localurl author="[[smcv]]"]]
+[[!tag patch]]
 
 OK, here's an alternative approach, closer in spirit to what was initially
-requested. I haven't tested this at all (it's getting rather late in UK time)
-and it will probably be rebased later, but I've referenced it here as a proof of
-concept.
+requested. I included a regression test for `urlto`, `baseurl` and `cgiurl`,
+now that they have slightly more complex behaviour.
 
 The idea is that in the common case, the CGI and the pages will reside on the
 same server, so they can use "semi-absolute" URLs (`/ikiwiki.cgi`, `/style.css`,
-`/bugs/done`) to refer to each other. My branch adds config options which
-could be set as follows for ikiwiki.info or any branchable.com site:
+`/bugs/done`) to refer to each other. Most redirects, form actions, links etc.
+can safely use this form rather than the fully-absolute URL.
 
-* local_url: /
-* local_cgiurl: /ikiwiki.cgi
-
-Most redirects, form actions, links etc. can safely use this form rather than
-the fully-absolute URL. If not configured, these options default to the
-corresponding absolute URL, which is would also be correct for unusual sites
-where the CGI and the pages aren't on the same server.
-
-(In theory you could use things like `//static.example.com/wiki/` and
-`//dynamic.example.com/ikiwiki.cgi` to preserve choice of http/https
+The initial version of the branch had config options `local_url` and
+`local_cgiurl`, but they're now automatically computed by checking
+whether `url` and `cgiurl` are on the same server with the the same URL
+scheme. In theory you could use things like `//static.example.com/wiki/`
+and `//dynamic.example.com/ikiwiki.cgi` to preserve choice of http/https
 while switching server, but I don't know how consistently browsers
-suppot that.)
+suppot that.
 
 "local" here is short for "locally valid", because these URLs are neither
 fully relative nor fully absolute, and there doesn't seem to be a good name
 for them...
+
+I've tested this on a demo website with the CGI enabled, and it seems to
+work nicely (there might be bugs in some plugins, I didn't try all of them).
+The `$config{url}` and `$config{cgiurl}` are both HTTP, but if I enable
+`httpauth`, set `cgiauthurl` to a HTTPS version of the same site and log
+in via that, links all end up in the HTTPS version.
+
+New API added by this branch:
+
+* `urlto(x, y, 'local')` uses `$local_url` instead of `$config{url}`
+
+* `IkiWiki::baseurl` has a new second argument which works like the
+  third argument of `urlto`
+
+* `IkiWiki::cgiurl` uses `$local_cgiurl` if passed `local_cgiurl => 1`
+
+* `IkiWiki::cgiurl` omits the trailing `?` if given no named parameters
+  except `cgiurl` and/or `local_cgiurl`
+
+Bugs:
+
+* I don't think anything except `openid` calls `cgiurl` without also
+  passing in `local_cgiurl => 1`, so perhaps that should be the default;
+  `openid` uses the `cgiurl` named parameter anyway, so there doesn't even
+  necessarily need to be a way to force absolute URLs? Any other module
+  that really needs an absolute URL could use
+  `cgiurl(cgiurl => $config{cgiurl}, ...)`,
+  although that does look a bit strange
+
+* It occurs to me that `IkiWiki::cgiurl` could probably benefit from being
+  exported? Perhaps also `IkiWiki::baseurl`?
+
+* Or, to reduce use of the unexported `baseurl` function, it might make
+  sense to give `urlto` a special case that references the root of the wiki,
+  with a trailing slash ready to append stuff: perhaps `urlto('/')`,
+  with usage like this?
+
+        do_something(baseurl => urlto('/', undef, local)`);
+        do_something_else(urlto('/').'style.css');
+        IkiWiki::redirect(urlto('/', undef, 1));
