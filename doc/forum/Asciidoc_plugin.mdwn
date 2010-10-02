@@ -1,0 +1,14 @@
+I have completely overhauled the Asciidoc plugin for ikiwiki that was created by [[Karl Mowson|http://www.mowson.org/karl/colophon/]].  The source can be downloaded from my [[Dropbox|http://dl.dropbox.com/u/11256359/asciidoc.pm]].
+
+### Features
+
+* Uses a filter hook to escape WikiLinks and Directives using Asciidoc `+++` passthrough macros, to avoid them being processed by Asciidoc. This behavior is configurable in the wiki setup file.
+* Adds a preprocessor directive 'asciidoc' which allows extra Asciidoc command-line options to be passed on a per-page basis. Each parameter name is the option name (the leading `--` will be inserted automatically), and the parameter value is the option value. Currently, only 'conf-file' and 'doctype' are allowed (or even useful).
+* Sets the page title from the first line in the Asciidoc file using a meta directive. This behavior is configurable in the wiki setup file.
+* Searches for an Asciidoc configuration file named the same as the wiki if none is specified in the setup file.
+* Asciidoc configuration files are stored in the wiki. They should be named `._conf` to avoid publishing them.
+
+### Problems
+
+* Escaping Directives is not optimal. It prevents markup from being used in Directives, and the passthrough macros have to include extra spaces to avoid having directives that return an empty string collapse to `++++++`. In addition, I had to borrow the regexps from the Ikiwiki source code; it would be nice if this were available as part of the API.
+* Handling of Asciidoc errors is suboptimal; they are simply inserted into the returned page.  This could be fixed in Perl 5.12 by using the run_forked() in IPC::Cmd.
