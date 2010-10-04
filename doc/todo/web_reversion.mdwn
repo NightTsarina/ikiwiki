@@ -65,3 +65,20 @@ Peter Gammie has done an initial implementation of the above.
 >> gets used to check whether attachments are allowed -- there really should be a hook for that.
 >>
 >> Please look it over and tell me what else needs fixing... -- [[peteg]]
+
+>>> I have made my own revert branch and put a few fixes in there
+>>> (and fixed all the indention..). Issues I noticed but have not gotten
+>>> to: --[[Joey]] 
+>>>
+>>> * `rcs_diff` already exists; why add `rcs_showpatch`?
+>>> * Would it be better for `rcs_revert` to not commit, and
+>>>   `rcs_commit_staged` to then be used? This would work for git, but
+>>>   maybe other RCSs would be problimatic. It would simplifiy the
+>>>   interface and allow for future mulitple-revert interfaces.
+>>> * I quite don't understand why one caller of `git_parse_changes`
+>>>   needs it to chdir, and not the other one. It's running
+>>>   in the same git repo either way, and git doesn't need
+>>>   `git show` to run in a subdir at all..
+>>> * Probably needs to untaint the revs passed in.
+>>> * Seems backwards for `rcs_preprevert` to import and
+>>>   use `IkiWiki::Receive`.
