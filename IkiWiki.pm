@@ -717,7 +717,7 @@ sub pagename ($) {
 
 	my $type=pagetype($file);
 	my $page=$file;
- 	$page=~s/\Q.$type\E*$//
+	$page=~s/\Q.$type\E*$//
 		if defined $type && !$hooks{htmlize}{$type}{keepextension}
 			&& !$hooks{htmlize}{$type}{noextension};
 	if ($config{indexpages} && $page=~/(.*)\/index$/) {
@@ -1124,7 +1124,7 @@ sub isselflink ($$) {
 	my $page=shift;
 	my $link=shift;
 
-        return $page eq $link;
+	return $page eq $link;
 }
 
 sub htmllink ($$$;@) {
