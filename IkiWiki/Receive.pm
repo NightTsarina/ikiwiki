@@ -73,18 +73,18 @@ sub test () {
 		}) || error("failed adding user");
 	}
 
-        test_changes(cgi => $cgi,
-                     session => $session,
-                     changes => [IkiWiki::rcs_receive()]
-                    );
+	test_changes(cgi => $cgi,
+		session => $session,
+		changes => [IkiWiki::rcs_receive()]
+	);
 	exit 0;
 }
 
 sub test_changes {
-        my %params = @_;
-        my $cgi = $params{cgi};
-        my $session = $params{session};
-        my @changes = @{$params{changes}};
+	my %params = @_;
+	my $cgi = $params{cgi};
+	my $session = $params{session};
+	my @changes = @{$params{changes}};
 
 	my %newfiles;
 	foreach my $change (@changes) {
@@ -116,10 +116,10 @@ sub test_changes {
 					IkiWiki::check_canedit($file, $cgi, $session);
 					next;
 				}
-                                else {
-                                use Data::Dumper;
-                                die "fall through test_changes add: " . Data::Dumper::Dumper($change);
-                                }
+				else {
+					use Data::Dumper;
+					die "fall through test_changes add: " . Data::Dumper::Dumper($change);
+				}
 			}
 		}
 		elsif ($change->{action} eq 'remove') {
