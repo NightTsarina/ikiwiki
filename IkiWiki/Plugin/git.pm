@@ -27,10 +27,9 @@ sub import {
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
 	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 	hook(type => "rcs", id => "rcs_receive", call => \&rcs_receive);
- 	hook(type => "rcs", id => "rcs_preprevert", call => \&rcs_preprevert);
- 	hook(type => "rcs", id => "rcs_revert", call => \&rcs_revert);
- 	hook(type => "rcs", id => "rcs_showpatch", call => \&rcs_showpatch);
+	hook(type => "rcs", id => "rcs_preprevert", call => \&rcs_preprevert);
 	hook(type => "rcs", id => "rcs_revert", call => \&rcs_revert);
+	hook(type => "rcs", id => "rcs_showpatch", call => \&rcs_showpatch);
 }
 
 sub checkconfig () {
@@ -867,11 +866,11 @@ sub rcs_revert (@) {
 }
 
 sub rcs_showpatch (@) {
-    # Show the patch with the given revision id.
-    my %params = @_;
-    my $rev = $params{rev};
+	# Show the patch with the given revision id.
+	my %params = @_;
+	my $rev = $params{rev};
 
-    return join "\n", run_or_die('git', 'show', $rev);
+	return join "\n", run_or_die('git', 'show', $rev);
 }
 
 1
