@@ -748,73 +748,72 @@ sub git_find_root {
 }
 
 sub git_parse_changes {
-    my @changes = @_;
+	my @changes = @_;
 
-    my $subdir = git_find_root();
-    my @rets;
-    foreach my $ci (@changes) {
-        foreach my $detail (@{ $ci->{'details'} }) {
-            my $file = $detail->{'file'};
+	my $subdir = git_find_root();
+	my @rets;
+	foreach my $ci (@changes) {
+		foreach my $detail (@{ $ci->{'details'} }) {
+			my $file = $detail->{'file'};
 
-            # check that all changed files are in the
-            # subdir
-            if (length $subdir &&
-                ! ($file =~ s/^\Q$subdir\E//)) {
-                error sprintf(gettext("you are not allowed to change %s"), $file);
-            }
+			# check that all changed files are in the subdir
+			if (length $subdir &&
+			    ! ($file =~ s/^\Q$subdir\E//)) {
+				error sprintf(gettext("you are not allowed to change %s"), $file);
+			}
 
-            my ($action, $mode, $path);
-            if ($detail->{'status'} =~ /^[M]+\d*$/) {
-                $action="change";
-                $mode=$detail->{'mode_to'};
-            }
-            elsif ($detail->{'status'} =~ /^[AM]+\d*$/) {
-                $action="add";
-                $mode=$detail->{'mode_to'};
-            }
-            elsif ($detail->{'status'} =~ /^[DAM]+\d*/) {
-                $action="remove";
-                $mode=$detail->{'mode_from'};
-            }
-            else {
-                error "unknown status ".$detail->{'status'};
-            }
+			my ($action, $mode, $path);
+			if ($detail->{'status'} =~ /^[M]+\d*$/) {
+				$action="change";
+				$mode=$detail->{'mode_to'};
+			}
+			elsif ($detail->{'status'} =~ /^[AM]+\d*$/) {
+				$action="add";
+				$mode=$detail->{'mode_to'};
+			}
+			elsif ($detail->{'status'} =~ /^[DAM]+\d*/) {
+				$action="remove";
+				$mode=$detail->{'mode_from'};
+			}
+			else {
+				error "unknown status ".$detail->{'status'};
+			}
 
-            # test that the file mode is ok
-            if ($mode !~ /^100[64][64][64]$/) {
-                error sprintf(gettext("you cannot act on a file with mode %s"), $mode);
-            }
-            if ($action eq "change") {
-                if ($detail->{'mode_from'} ne $detail->{'mode_to'}) {
-                    error gettext("you are not allowed to change file modes");
-                }
-            }
+			# test that the file mode is ok
+			if ($mode !~ /^100[64][64][64]$/) {
+				error sprintf(gettext("you cannot act on a file with mode %s"), $mode);
+			}
+			if ($action eq "change") {
+				if ($detail->{'mode_from'} ne $detail->{'mode_to'}) {
+					error gettext("you are not allowed to change file modes");
+				}
+			}
 
-            # extract attachment to temp file
-            if (($action eq 'add' || $action eq 'change') &&
-                ! pagetype($file)) {
+			# extract attachment to temp file
+			if (($action eq 'add' || $action eq 'change') &&
+			    ! pagetype($file)) {
+				eval q{use File::Temp};
+				die $@ if $@;
+				my $fh;
+				($fh, $path)=File::Temp::tempfile("XXXXXXXXXX", UNLINK => 1);
+				# Ensure we run this in the right place,
+				# see comments in rcs_receive.
+				my $cmd = ($no_chdir ? '' : "cd $config{srcdir} && ")
+					. "git show $detail->{sha1_to} > '$path'";
+				if (system($cmd) != 0) {
+					error("failed writing temp file '$path'.");
+				}
+			}
 
-                eval q{use File::Temp};
-                die $@ if $@;
-                my $fh;
-                ($fh, $path)=File::Temp::tempfile("XXXXXXXXXX", UNLINK => 1);
-                # Ensure we run this in the right place, see comments in rcs_receive.
-                my $cmd = ($no_chdir ? '' : "cd $config{srcdir} && ")
-                    . "git show $detail->{sha1_to} > '$path'";
-                if (system($cmd) != 0) {
-                    error("failed writing temp file '$path'.");
-                }
-            }
+			push @rets, {
+				file => $file,
+				action => $action,
+				path => $path,
+			};
+		}
+	}
 
-            push @rets, {
-                file => $file,
-                action => $action,
-                path => $path,
-            };
-        }
-    }
-
-    return @rets;
+	return @rets;
 }
 
 sub rcs_receive () {
@@ -832,7 +831,7 @@ sub rcs_receive () {
 		# are in the master git repo, not the srcdir repo.
 		# The pre-receive hook already puts us in the right place.
 		$no_chdir=1;
-                push @rets, git_parse_changes(git_commit_info($oldrev."..".$newrev));
+		push @rets, git_parse_changes(git_commit_info($oldrev."..".$newrev));
 		$no_chdir=0;
 	}
 
@@ -840,31 +839,31 @@ sub rcs_receive () {
 }
 
 sub rcs_preprevert (@) {
-    # Determine what the effects are of reverting the patch with the
-    # ID given by 'rev'. Returns the same structure as rcs_receive.
-    # Note test_changes expects 'cgi' and 'session' parameters.
-    my %params = @_;
-    my $rev = $params{rev};
+	my %params = @_;
+	my $rev = $params{rev};
 
-    require IkiWiki::Receive;
-    IkiWiki::Receive::test_changes(%params, changes => [git_parse_changes(git_commit_info($rev, 1))]);
+	# Note test_changes expects 'cgi' and 'session' parameters.
+	require IkiWiki::Receive;
+	IkiWiki::Receive::test_changes(%params, changes =>
+		[git_parse_changes(git_commit_info($rev, 1))]);
 }
 
 sub rcs_revert (@) {
-    # Try to revert the given patch; returns undef on _success_.
-    # Same parameters as rcs_commit_staged + 'rev', the patch ID to be
-    # reverted.
-    my %params = @_;
-    my $rev = $params{rev};
+	# Try to revert the given patch; returns undef on _success_.
+	my %params = @_;
+	my $rev = $params{rev};
 
-    if(run_or_non('git', 'revert', '--no-commit', $rev)) {
-        debug "Committing revert for patch '$rev'.";
-        rcs_commit_staged(message => "This reverts commit $rev", @_);
-    } else {
-        # No idea what is actually getting reverted, so all we can do is say we failed.
-        run_or_die('git', 'reset', '--hard');
-        return "Failed to revert patch $rev.";
-    }
+	if (run_or_non('git', 'revert', '--no-commit', $rev)) {
+		debug "Committing revert for patch '$rev'.";
+		rcs_commit_staged(message => 
+			sprintf(gettext("This reverts commit %s"), $rev), @_);
+	}
+	else {
+		# No idea what is actually getting reverted, so all we can
+		# do is say we failed.
+		run_or_die('git', 'reset', '--hard');
+		return sprintf(gettext("Failed to revert commit %s"), $rev);
+	}
 }
 
 sub rcs_showpatch (@) {

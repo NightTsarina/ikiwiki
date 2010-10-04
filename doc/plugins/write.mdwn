@@ -1176,9 +1176,9 @@ sense to implement for all RCSs.
 
 It should examine the incoming changes, and do any sanity 
 checks that are appropriate for the RCS to limit changes to safe file adds,
-removes, and changes. If something bad is found, it should exit
-nonzero, to abort the push. Otherwise, it should return a list of
-files that were changed, in the form:
+removes, and changes. If something bad is found, it should die, to abort
+the push. Otherwise, it should return a list of files that were changed,
+in the form:
 
 	{
 		file => # name of file that was changed
@@ -1190,6 +1190,33 @@ files that were changed, in the form:
 
 The list will then be checked to make sure that each change is one that
 is allowed to be made via the web interface.
+
+#### `rcs_preprevert($)`
+
+This is called by the revert web interface. It is passed a RCS-specific
+change ID, and should determine what the effects would be of reverting
+that change, and return the same data structure as `rcs_receive`.
+
+Like `rcs_receive`, it should do whatever sanity checks are appropriate
+for the RCS to limit changes to safe changes, and die if a change would
+be unsafe to revert.
+
+#### `rcs_revert(@)`
+
+This is called by the revert web interface. It is passed a named
+parameter rev that is the RCS-specific change ID to revert.
+
+Addition named parameters: `message`, and `session` (optional).
+
+It should try to revert the specified rev, which includes committing
+the reversion, and returns undef on _success_ and an error message
+on failure.
+
+#### `rcs_showpatch(@)`
+
+This is passed a named parameter rev that is a RCS-specific
+change ID. It should generate a diff-style patch showing the changes
+made and return it.
 
 ### PageSpec plugins
 
