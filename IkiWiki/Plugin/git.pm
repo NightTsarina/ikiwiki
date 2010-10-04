@@ -724,25 +724,27 @@ sub rcs_getmtime ($) {
 
 {
 my $git_root;
+
 sub git_find_root {
-    # The wiki may not be the only thing in the git repo.
-    # Determine if it is in a subdirectory by examining the srcdir,
-    # and its parents, looking for the .git directory.
+	# The wiki may not be the only thing in the git repo.
+	# Determine if it is in a subdirectory by examining the srcdir,
+	# and its parents, looking for the .git directory.
 
-    return $git_root if defined $git_root;
+	return $git_root if defined $git_root;
+	
+	my $subdir="";
+	my $dir=$config{srcdir};
+	while (! -d "$dir/.git") {
+		$subdir=IkiWiki::basename($dir)."/".$subdir;
+		$dir=IkiWiki::dirname($dir);
+		if (! length $dir) {
+			error("cannot determine root of git repo");
+		}
+	}
 
-    my $subdir="";
-    my $dir=$config{srcdir};
-    while (! -d "$dir/.git") {
-        $subdir=IkiWiki::basename($dir)."/".$subdir;
-        $dir=IkiWiki::dirname($dir);
-        if (! length $dir) {
-            error("cannot determine root of git repo");
-        }
-    }
-
-    return $subdir;
+	return $subdir;
 }
+
 }
 
 sub git_parse_changes {
