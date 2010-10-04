@@ -729,7 +729,7 @@ sub git_find_root {
     # Determine if it is in a subdirectory by examining the srcdir,
     # and its parents, looking for the .git directory.
 
-    return $git_root if $git_root;
+    return $git_root if defined $git_root;
 
     my $subdir="";
     my $dir=$config{srcdir};
