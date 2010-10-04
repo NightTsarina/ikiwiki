@@ -741,7 +741,7 @@ sub git_find_root {
 		}
 	}
 
-	return $subdir;
+	return $git_root=$subdir;
 }
 
 }
