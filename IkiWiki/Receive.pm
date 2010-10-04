@@ -116,10 +116,6 @@ sub test_changes {
 					IkiWiki::check_canedit($file, $cgi, $session);
 					next;
 				}
-				else {
-					use Data::Dumper;
-					die "fall through test_changes add: " . Data::Dumper::Dumper($change);
-				}
 			}
 		}
 		elsif ($change->{action} eq 'remove') {
