@@ -48,10 +48,10 @@ EOF
 
 sub test () {
 	exit 0 if trusted();
-	
+
 	IkiWiki::lockwiki();
 	IkiWiki::loadindex();
-	
+
 	# Dummy up a cgi environment to use when calling check_canedit
 	# and friends.
 	eval q{use CGI};
@@ -72,10 +72,22 @@ sub test () {
 			regdate => time,
 		}) || error("failed adding user");
 	}
-	
-	my %newfiles;
 
-	foreach my $change (IkiWiki::rcs_receive()) {
+        test_changes(cgi => $cgi,
+                     session => $session,
+                     changes => [IkiWiki::rcs_receive()]
+                    );
+	exit 0;
+}
+
+sub test_changes {
+        my %params = @_;
+        my $cgi = $params{cgi};
+        my $session = $params{session};
+        my @changes = @{$params{changes}};
+
+	my %newfiles;
+	foreach my $change (@changes) {
 		# This untaint is safe because we check file_pruned and
 		# wiki_file_regexp.
 		my ($file)=$change->{file}=~/$config{wiki_file_regexp}/;
@@ -87,7 +99,7 @@ sub test () {
 
 		my $type=pagetype($file);
 		my $page=pagename($file) if defined $type;
-		
+
 		if ($change->{action} eq 'add') {
 			$newfiles{$file}=1;
 		}
@@ -104,6 +116,10 @@ sub test () {
 					IkiWiki::check_canedit($file, $cgi, $session);
 					next;
 				}
+                                else {
+                                use Data::Dumper;
+                                die "fall through test_changes add: " . Data::Dumper::Dumper($change);
+                                }
 			}
 		}
 		elsif ($change->{action} eq 'remove') {
@@ -125,11 +141,9 @@ sub test () {
 		else {
 			error "unknown action ".$change->{action};
 		}
-		
+
 		error sprintf(gettext("you are not allowed to change %s"), $file);
 	}
-
-	exit 0;
 }
 
 1
