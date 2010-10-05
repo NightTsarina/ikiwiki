@@ -22,6 +22,8 @@ Or, set up a blog with ikiwiki, run this command instead.
 
 	% ikiwiki -setup /etc/ikiwiki/auto-blog.setup
 
+`librpc-xml-perl` and `python-docutils` dependencies are needed.
+
 Either way, it will ask you a couple of questions.
 
 	What will the wiki be named? foo
@@ -130,7 +132,7 @@ old location won't work, and the easiest way to deal with this is to delete
 them and re-checkout from the new repository location.
    
 	% rm -rf foo
-	% git clone /src/git/foo.git
+	% git clone /srv/git/foo.git
 
 Finally, edit the setup file. Modify the settings for `srcdir`, `destdir`,
 `url`, `cgiurl`, `cgi_wrapper`, `git_wrapper`, etc to reflect where

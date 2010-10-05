@@ -1,0 +1,17 @@
+[[!template id=gitbranch branch=wtk/master author="[[wtk]]"]]
+
+summary
+=======
+
+Extend inlining to handle raw files (files with unrecognized extensions).
+
+Also raise an error in `IkiWiki::pagetype($file)` if `$file` is blank, which avoids trying to do much with missing files, etc.
+
+I'm using the new code in my [blog][].
+
+[blog]: http://www.physics.drexel.edu/~wking/unfolding-disasters/posts/yacc2dot/
+
+usage
+=====
+
+    \[[!inline pagenames="somefile.txt" template="raw" feeds="no"]]
