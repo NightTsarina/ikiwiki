@@ -1,0 +1,16 @@
+summary
+=======
+
+Extend inlining to handle raw files (files with unrecognized extensions).
+
+Also raise an error in IkiWiki::pagetype($file) if $file is blank, which avoids trying to do much with missing files, etc.
+
+I've included this patch (and some other adjustments) in my [branch] of the IkiWiki Git repository.  I'm using the new code in my [blog][].
+
+[branch]: http://www.physics.drexel.edu./~wking/code/git/git.php?p=ikiwiki.git
+[blog]: http://www.physics.drexel.edu/~wking/unfolding-disasters/posts/yacc2dot/
+
+usage
+=====
+
+    \[[!inline pagenames="somefile.txt" template="raw" feeds="no"]]
