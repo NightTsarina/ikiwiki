@@ -1949,10 +1949,6 @@ sub rcs_revert (@) {
 	$hooks{rcs}{rcs_revert}{call}->(@_);
 }
 
-sub rcs_showpatch (@) {
-	$hooks{rcs}{rcs_showpatch}{call}->(@_);
-}
-
 sub add_depends ($$;$) {
 	my $page=shift;
 	my $pagespec=shift;

@@ -55,7 +55,6 @@ Peter Gammie has done an initial implementation of the above.
 > (The data from `rcs_preprevert` could also be used for a confirmation
 > prompt -- it doesn't currently include enough info for diffs, but at
 > least could have a list of changed files.)
->> I added `rcs_showpatch` which simply yields the output of `git show <patch-id>`. -- [[peteg]]
 >
 > Note that it's possible for a git repo to have commits that modify wiki
 > files in a subdir, and code files elsewhere. `rcs_preprevert` should
@@ -71,9 +70,6 @@ Peter Gammie has done an initial implementation of the above.
 >>> (and fixed all the indention..). Issues I noticed but have not gotten
 >>> to: --[[Joey]] 
 >>>> Please change the git pointer above, then. I will work on your branch. -- [[peteg]]
->>>
->>> * `rcs_diff` already exists; why add `rcs_showpatch`?
->>>> If `rcs_diff` is intended for human consumption, by all means we can use that. -- [[peteg]]
 
 >>> * Would it be better for `rcs_revert` to not commit, and
 >>>   `rcs_commit_staged` to then be used? This would work for git, but

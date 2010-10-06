@@ -29,7 +29,6 @@ sub import {
 	hook(type => "rcs", id => "rcs_receive", call => \&rcs_receive);
 	hook(type => "rcs", id => "rcs_preprevert", call => \&rcs_preprevert);
 	hook(type => "rcs", id => "rcs_revert", call => \&rcs_revert);
-	hook(type => "rcs", id => "rcs_showpatch", call => \&rcs_showpatch);
 }
 
 sub checkconfig () {
@@ -863,14 +862,6 @@ sub rcs_revert (@) {
 		run_or_die('git', 'reset', '--hard');
 		return sprintf(gettext("Failed to revert commit %s"), $rev);
 	}
-}
-
-sub rcs_showpatch (@) {
-	# Show the patch with the given revision id.
-	my %params = @_;
-	my $rev = $params{rev};
-
-	return join "\n", run_or_die('git', 'show', $rev);
 }
 
 1
