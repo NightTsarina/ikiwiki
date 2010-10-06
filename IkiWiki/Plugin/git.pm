@@ -846,19 +846,14 @@ sub rcs_preprevert (@) {
 		[git_parse_changes(git_commit_info($rev, 1))]);
 }
 
-sub rcs_revert (@) {
-	# Try to revert the given patch; returns undef on _success_.
-	my %params = @_;
-	my $rev = $params{rev};
+sub rcs_revert ($) {
+	# Try to revert the given rev; returns undef on _success_.
+	my $rev = $shift;
 
 	if (run_or_non('git', 'revert', '--no-commit', $rev)) {
-		debug "Committing revert for patch '$rev'.";
-		rcs_commit_staged(message => 
-			sprintf(gettext("This reverts commit %s"), $rev), @_);
+		return undef;
 	}
 	else {
-		# No idea what is actually getting reverted, so all we can
-		# do is say we failed.
 		run_or_die('git', 'reset', '--hard');
 		return sprintf(gettext("Failed to revert commit %s"), $rev);
 	}

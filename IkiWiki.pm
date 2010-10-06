@@ -1941,11 +1941,11 @@ sub rcs_receive () {
 	$hooks{rcs}{rcs_receive}{call}->();
 }
 
-sub rcs_preprevert (@) {
+sub rcs_preprevert ($) {
 	$hooks{rcs}{rcs_preprevert}{call}->(@_);
 }
 
-sub rcs_revert (@) {
+sub rcs_revert ($) {
 	$hooks{rcs}{rcs_revert}{call}->(@_);
 }
 

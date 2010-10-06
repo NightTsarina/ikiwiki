@@ -71,10 +71,6 @@ Peter Gammie has done an initial implementation of the above.
 >>> to: --[[Joey]] 
 >>>> Please change the git pointer above, then. I will work on your branch. -- [[peteg]]
 
->>> * Would it be better for `rcs_revert` to not commit, and
->>>   `rcs_commit_staged` to then be used? This would work for git, but
->>>   maybe other RCSs would be problimatic. It would simplifiy the
->>>   interface and allow for future mulitple-revert interfaces.
 >>> * I quite don't understand why one caller of `git_parse_changes`
 >>>   needs it to chdir, and not the other one. It's running
 >>>   in the same git repo either way, and git doesn't need

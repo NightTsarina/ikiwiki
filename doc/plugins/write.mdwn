@@ -1201,16 +1201,14 @@ Like `rcs_receive`, it should do whatever sanity checks are appropriate
 for the RCS to limit changes to safe changes, and die if a change would
 be unsafe to revert.
 
-#### `rcs_revert(@)`
+#### `rcs_revert($)`
 
 This is called by the revert web interface. It is passed a named
 parameter rev that is the RCS-specific change ID to revert.
 
-Addition named parameters: `message`, and `session` (optional).
-
-It should try to revert the specified rev, which includes committing
-the reversion, and returns undef on _success_ and an error message
-on failure.
+It should try to revert the specified rev, and leave the reversion staged
+so `rcs_commit_staged` will complete it. It should return undef on _success_
+and an error message on failure.
 
 ### PageSpec plugins
 
