@@ -1,0 +1,5 @@
+The patches in http://github.com/jmtd/ikiwiki/tree/img_use_template convert the `img.pm` plugin to use a template (by default, `img.tmpl`, varied using a`template=` parameter) rather than hard-code the generated HTML.
+
+I originally thought of this to solve the problem outlined in [[bugs/can't mix template vars inside directives]], before I realised I could wrap the `img` call in my pages with a template to achieve the same thing.  I therefore sat on it.
+
+However, I since thought of another use for this, and so started implementing it.
