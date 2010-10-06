@@ -117,8 +117,7 @@ sub sessioncgi ($$) {
 	}
 	else {
 	        $form->title(sprintf(gettext("confirm reversion of %s"), $rev));
-		my $patch_contents = IkiWiki::rcs_diff($rev);
-		$form->tmpl_param(patch_contents => encode_entities($patch_contents));
+		$form->tmpl_param(diff => encode_entities(scalar IkiWiki::rcs_diff($rev)));
 		$form->field(name => "rev", type => "hidden", value => $rev, force => 1);
 		IkiWiki::showform($form, $buttons, $session, $q);
 		exit 0;
