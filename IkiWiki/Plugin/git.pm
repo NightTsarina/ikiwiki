@@ -836,20 +836,22 @@ sub rcs_receive () {
 
 sub rcs_preprevert ($) {
 	my $rev=shift;
+	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
 
-	return git_parse_changes(git_commit_info($rev, 1));
+	return git_parse_changes(git_commit_info($sha1, 1));
 }
 
 sub rcs_revert ($) {
 	# Try to revert the given rev; returns undef on _success_.
 	my $rev = shift;
+	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
 
-	if (run_or_non('git', 'revert', '--no-commit', $rev)) {
+	if (run_or_non('git', 'revert', '--no-commit', $sha1)) {
 		return undef;
 	}
 	else {
 		run_or_die('git', 'reset', '--hard');
-		return sprintf(gettext("Failed to revert commit %s"), $rev);
+		return sprintf(gettext("Failed to revert commit %s"), $sha1);
 	}
 }
 
