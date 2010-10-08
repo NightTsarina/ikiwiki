@@ -61,31 +61,6 @@ sub refresh ($) {
 	}
 }
 
-sub confirmation_form {
-	my ($q, $session, $rev) = @_;
-
-	eval q{use CGI::FormBuilder};
-	error($@) if $@;
-	my $f = CGI::FormBuilder->new(
-		name => "revert",
-		header => 0,
-		charset => "utf-8",
-		method => 'POST',
-		javascript => 0,
-		params => $q,
-		action => $config{cgiurl},
-		stylesheet => 1,
-		template => { template('revert.tmpl') },
-	);
-
-	$f->field(name => "sid", type => "hidden", value => $session->id,
-		force => 1);
-	$f->field(name => "do", type => "hidden", value => "revert",
-		force => 1);
-
-	return $f, ["Revert", "Cancel"];
-}
-
 sub sessioncgi ($$) {
 	my ($q, $session) = @_;
 	my $do = $q->param('do');
@@ -100,7 +75,26 @@ sub sessioncgi ($$) {
 		changes => \@changes,
 	);
 
-	my ($form, $buttons) = confirmation_form($q, $session);
+	eval q{use CGI::FormBuilder};
+	error($@) if $@;
+	my $form = CGI::FormBuilder->new(
+		name => "revert",
+		header => 0,
+		charset => "utf-8",
+		method => 'POST',
+		javascript => 0,
+		params => $q,
+		action => $config{cgiurl},
+		stylesheet => 1,
+		template => { template('revert.tmpl') },
+	);
+	my $buttons=["Revert", "Cancel"];
+
+	$form->field(name => "sid", type => "hidden", value => $session->id,
+		force => 1);
+	$form->field(name => "do", type => "hidden", value => "revert",
+		force => 1);
+
 	IkiWiki::decode_form_utf8($form);
 
 	if ($form->submitted eq 'Revert' && $form->validate) {
