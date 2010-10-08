@@ -109,7 +109,7 @@ sub sessioncgi ($$) {
 		my $r = $IkiWiki::hooks{rcs}{rcs_revert}{call}->($rev);
 		error $r if defined $r;
 		IkiWiki::disable_commit_hook();
-		rcs_commit_staged(
+		IkiWiki::rcs_commit_staged(
 			message => $message,
 			session => $session,
 		);
