@@ -104,7 +104,7 @@ sub sessioncgi ($$) {
 		my $message=sprintf(gettext("This reverts commit %s"), $rev);
 		if (defined $form->field('revertmessage') &&
 		    length $form->field('revertmessage')) {
-			$message=$form->field('revertmessage')."\n".$message;
+			$message=$form->field('revertmessage')."\n\n".$message;
 		}
 		my $r = $IkiWiki::hooks{rcs}{rcs_revert}{call}->($rev);
 		error $r if defined $r;
