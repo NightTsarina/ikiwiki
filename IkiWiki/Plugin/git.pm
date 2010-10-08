@@ -27,6 +27,8 @@ sub import {
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
 	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 	hook(type => "rcs", id => "rcs_receive", call => \&rcs_receive);
+	hook(type => "rcs", id => "rcs_preprevert", call => \&rcs_preprevert);
+	hook(type => "rcs", id => "rcs_revert", call => \&rcs_revert);
 }
 
 sub checkconfig () {
@@ -718,10 +720,16 @@ sub rcs_getmtime ($) {
 	return findtimes($file, 0);
 }
 
-sub rcs_receive () {
+{
+my $git_root;
+
+sub git_find_root {
 	# The wiki may not be the only thing in the git repo.
 	# Determine if it is in a subdirectory by examining the srcdir,
 	# and its parents, looking for the .git directory.
+
+	return $git_root if defined $git_root;
+	
 	my $subdir="";
 	my $dir=$config{srcdir};
 	while (! -d "$dir/.git") {
@@ -732,83 +740,119 @@ sub rcs_receive () {
 		}
 	}
 
+	return $git_root=$subdir;
+}
+
+}
+
+sub git_parse_changes {
+	my @changes = @_;
+
+	my $subdir = git_find_root();
+	my @rets;
+	foreach my $ci (@changes) {
+		foreach my $detail (@{ $ci->{'details'} }) {
+			my $file = $detail->{'file'};
+
+			# check that all changed files are in the subdir
+			if (length $subdir &&
+			    ! ($file =~ s/^\Q$subdir\E//)) {
+				error sprintf(gettext("you are not allowed to change %s"), $file);
+			}
+
+			my ($action, $mode, $path);
+			if ($detail->{'status'} =~ /^[M]+\d*$/) {
+				$action="change";
+				$mode=$detail->{'mode_to'};
+			}
+			elsif ($detail->{'status'} =~ /^[AM]+\d*$/) {
+				$action="add";
+				$mode=$detail->{'mode_to'};
+			}
+			elsif ($detail->{'status'} =~ /^[DAM]+\d*/) {
+				$action="remove";
+				$mode=$detail->{'mode_from'};
+			}
+			else {
+				error "unknown status ".$detail->{'status'};
+			}
+
+			# test that the file mode is ok
+			if ($mode !~ /^100[64][64][64]$/) {
+				error sprintf(gettext("you cannot act on a file with mode %s"), $mode);
+			}
+			if ($action eq "change") {
+				if ($detail->{'mode_from'} ne $detail->{'mode_to'}) {
+					error gettext("you are not allowed to change file modes");
+				}
+			}
+
+			# extract attachment to temp file
+			if (($action eq 'add' || $action eq 'change') &&
+			    ! pagetype($file)) {
+				eval q{use File::Temp};
+				die $@ if $@;
+				my $fh;
+				($fh, $path)=File::Temp::tempfile("XXXXXXXXXX", UNLINK => 1);
+				my $cmd = ($no_chdir ? '' : "cd $config{srcdir} && ")
+					. "git show $detail->{sha1_to} > '$path'";
+				if (system($cmd) != 0) {
+					error("failed writing temp file '$path'.");
+				}
+			}
+
+			push @rets, {
+				file => $file,
+				action => $action,
+				path => $path,
+			};
+		}
+	}
+
+	return @rets;
+}
+
+sub rcs_receive () {
 	my @rets;
 	while (<>) {
 		chomp;
 		my ($oldrev, $newrev, $refname) = split(' ', $_, 3);
-		
+
 		# only allow changes to gitmaster_branch
 		if ($refname !~ /^refs\/heads\/\Q$config{gitmaster_branch}\E$/) {
 			error sprintf(gettext("you are not allowed to change %s"), $refname);
 		}
-		
+
 		# Avoid chdir when running git here, because the changes
 		# are in the master git repo, not the srcdir repo.
-		# The pre-recieve hook already puts us in the right place.
+		# The pre-receive hook already puts us in the right place.
 		$no_chdir=1;
-		my @changes=git_commit_info($oldrev."..".$newrev);
+		push @rets, git_parse_changes(git_commit_info($oldrev."..".$newrev));
 		$no_chdir=0;
-
-		foreach my $ci (@changes) {
-			foreach my $detail (@{ $ci->{'details'} }) {
-				my $file = $detail->{'file'};
-
-				# check that all changed files are in the
-				# subdir
-				if (length $subdir &&
-				    ! ($file =~ s/^\Q$subdir\E//)) {
-					error sprintf(gettext("you are not allowed to change %s"), $file);
-				}
-
-				my ($action, $mode, $path);
-				if ($detail->{'status'} =~ /^[M]+\d*$/) {
-					$action="change";
-					$mode=$detail->{'mode_to'};
-				}
-				elsif ($detail->{'status'} =~ /^[AM]+\d*$/) {
-					$action="add";
-					$mode=$detail->{'mode_to'};
-				}
-				elsif ($detail->{'status'} =~ /^[DAM]+\d*/) {
-					$action="remove";
-					$mode=$detail->{'mode_from'};
-				}
-				else {
-					error "unknown status ".$detail->{'status'};
-				}
-				
-				# test that the file mode is ok
-				if ($mode !~ /^100[64][64][64]$/) {
-					error sprintf(gettext("you cannot act on a file with mode %s"), $mode);
-				}
-				if ($action eq "change") {
-					if ($detail->{'mode_from'} ne $detail->{'mode_to'}) {
-						error gettext("you are not allowed to change file modes");
-					}
-				}
-				
-				# extract attachment to temp file
-				if (($action eq 'add' || $action eq 'change') &&
-				     ! pagetype($file)) {
-					eval q{use File::Temp};
-					die $@ if $@;
-					my $fh;
-					($fh, $path)=File::Temp::tempfile("XXXXXXXXXX", UNLINK => 1);
-					if (system("git show ".$detail->{sha1_to}." > '$path'") != 0) {
-						error("failed writing temp file");
-					}
-				}
-
-				push @rets, {
-					file => $file,
-					action => $action,
-					path => $path,
-				};
-			}
-		}
 	}
 
 	return reverse @rets;
+}
+
+sub rcs_preprevert ($) {
+	my $rev=shift;
+	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
+
+	return git_parse_changes(git_commit_info($sha1, 1));
+}
+
+sub rcs_revert ($) {
+	# Try to revert the given rev; returns undef on _success_.
+	my $rev = shift;
+	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
+
+	if (run_or_non('git', 'revert', '--no-commit', $sha1)) {
+		return undef;
+	}
+	else {
+		run_or_die('git', 'reset', '--hard');
+		return sprintf(gettext("Failed to revert commit %s"), $sha1);
+	}
 }
 
 1

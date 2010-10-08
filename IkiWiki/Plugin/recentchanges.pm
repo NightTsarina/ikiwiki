@@ -13,6 +13,7 @@ sub import {
 	hook(type => "refresh", id => "recentchanges", call => \&refresh);
 	hook(type => "pagetemplate", id => "recentchanges", call => \&pagetemplate);
 	hook(type => "htmlize", id => "_change", call => \&htmlize);
+	hook(type => "sessioncgi", id => "recentchanges", call => \&sessioncgi);
 	# Load goto to fix up links from recentchanges
 	IkiWiki::loadplugin("goto");
 }
@@ -58,6 +59,76 @@ sub refresh ($) {
 			unlink($config{srcdir}.'/'.$pagesources{$page});
 		}
 	}
+}
+
+sub sessioncgi ($$) {
+	my ($q, $session) = @_;
+	my $do = $q->param('do');
+	my $rev = $q->param('rev');
+
+	return unless $do eq 'revert' && $rev;
+
+	my @changes=$IkiWiki::hooks{rcs}{rcs_preprevert}{call}->($rev);
+	IkiWiki::check_canchange(
+		cgi => $q,
+		session => $session,
+		changes => \@changes,
+	);
+
+	eval q{use CGI::FormBuilder};
+	error($@) if $@;
+	my $form = CGI::FormBuilder->new(
+		name => "revert",
+		header => 0,
+		charset => "utf-8",
+		method => 'POST',
+		javascript => 0,
+		params => $q,
+		action => $config{cgiurl},
+		stylesheet => 1,
+		template => { template('revert.tmpl') },
+		fields => [qw{revertmessage do sid rev}],
+	);
+	my $buttons=["Revert", "Cancel"];
+
+	$form->field(name => "revertmessage", type => "text", size => 80);
+	$form->field(name => "sid", type => "hidden", value => $session->id,
+		force => 1);
+	$form->field(name => "do", type => "hidden", value => "revert",
+		force => 1);
+
+	IkiWiki::decode_form_utf8($form);
+
+	if ($form->submitted eq 'Revert' && $form->validate) {
+		IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+		my $message=sprintf(gettext("This reverts commit %s"), $rev);
+		if (defined $form->field('revertmessage') &&
+		    length $form->field('revertmessage')) {
+			$message=$form->field('revertmessage')."\n\n".$message;
+		}
+		my $r = $IkiWiki::hooks{rcs}{rcs_revert}{call}->($rev);
+		error $r if defined $r;
+		IkiWiki::disable_commit_hook();
+		IkiWiki::rcs_commit_staged(
+			message => $message,
+			session => $session,
+		);
+		IkiWiki::enable_commit_hook();
+	
+		require IkiWiki::Render;
+		IkiWiki::refresh();
+		IkiWiki::saveindex();
+	}
+	elsif ($form->submitted ne 'Cancel') {
+	        $form->title(sprintf(gettext("confirm reversion of %s"), $rev));
+		$form->tmpl_param(diff => encode_entities(scalar IkiWiki::rcs_diff($rev)));
+		$form->field(name => "rev", type => "hidden", value => $rev, force => 1);
+		IkiWiki::showform($form, $buttons, $session, $q);
+		exit 0;
+	}
+
+	IkiWiki::redirect($q, urlto($config{recentchangespage}, ''));
+	exit 0;
 }
 
 # Enable the recentchanges link.
@@ -113,6 +184,15 @@ sub store ($$$) {
 		} @{$change->{pages}}
 	];
 	push @{$change->{pages}}, { link => '...' } if $is_excess;
+	
+	if (length $config{cgiurl} &&
+	    exists $IkiWiki::hooks{rcs}{rcs_preprevert} &&
+	    exists $IkiWiki::hooks{rcs}{rcs_revert}) {
+		$change->{reverturl} = IkiWiki::cgiurl(
+			do => "revert",
+			rev => $change->{rev}
+		);
+	}
 
 	$change->{author}=$change->{user};
 	my $oiduser=eval { IkiWiki::openiduser($change->{user}) };

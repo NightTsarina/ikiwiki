@@ -48,10 +48,10 @@ EOF
 
 sub test () {
 	exit 0 if trusted();
-	
+
 	IkiWiki::lockwiki();
 	IkiWiki::loadindex();
-	
+
 	# Dummy up a cgi environment to use when calling check_canedit
 	# and friends.
 	eval q{use CGI};
@@ -72,63 +72,12 @@ sub test () {
 			regdate => time,
 		}) || error("failed adding user");
 	}
-	
-	my %newfiles;
 
-	foreach my $change (IkiWiki::rcs_receive()) {
-		# This untaint is safe because we check file_pruned and
-		# wiki_file_regexp.
-		my ($file)=$change->{file}=~/$config{wiki_file_regexp}/;
-		$file=IkiWiki::possibly_foolish_untaint($file);
-		if (! defined $file || ! length $file ||
-		    IkiWiki::file_pruned($file)) {
-			error(gettext("bad file name %s"), $file);
-		}
-
-		my $type=pagetype($file);
-		my $page=pagename($file) if defined $type;
-		
-		if ($change->{action} eq 'add') {
-			$newfiles{$file}=1;
-		}
-
-		if ($change->{action} eq 'change' ||
-		    $change->{action} eq 'add') {
-			if (defined $page) {
-				IkiWiki::check_canedit($page, $cgi, $session);
-				next;
-			}
-			else {
-				if (IkiWiki::Plugin::attachment->can("check_canattach")) {
-					IkiWiki::Plugin::attachment::check_canattach($session, $file, $change->{path});
-					IkiWiki::check_canedit($file, $cgi, $session);
-					next;
-				}
-			}
-		}
-		elsif ($change->{action} eq 'remove') {
-			# check_canremove tests to see if the file is present
-			# on disk. This will fail when a single commit adds a
-			# file and then removes it again. Avoid the problem
-			# by not testing the removal in such pairs of changes.
-			# (The add is still tested, just to make sure that
-			# no data is added to the repo that a web edit
-			# could not add.)
-			next if $newfiles{$file};
-
-			if (IkiWiki::Plugin::remove->can("check_canremove")) {
-				IkiWiki::Plugin::remove::check_canremove(defined $page ? $page : $file, $cgi, $session);
-				IkiWiki::check_canedit(defined $page ? $page : $file, $cgi, $session);
-				next;
-			}
-		}
-		else {
-			error "unknown action ".$change->{action};
-		}
-		
-		error sprintf(gettext("you are not allowed to change %s"), $file);
-	}
-
+	check_canchange(
+		cgi => $cgi,
+		session => $session,
+		changes => [IkiWiki::rcs_receive()]
+	);
 	exit 0;
 }
 
