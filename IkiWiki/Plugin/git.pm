@@ -794,8 +794,6 @@ sub git_parse_changes {
 				die $@ if $@;
 				my $fh;
 				($fh, $path)=File::Temp::tempfile("XXXXXXXXXX", UNLINK => 1);
-				# Ensure we run this in the right place,
-				# see comments in rcs_receive.
 				my $cmd = ($no_chdir ? '' : "cd $config{srcdir} && ")
 					. "git show $detail->{sha1_to} > '$path'";
 				if (system($cmd) != 0) {
