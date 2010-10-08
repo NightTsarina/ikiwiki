@@ -62,6 +62,8 @@ Peter Gammie has done an initial implementation of the above.
 >> Taken care of by refactoring `rcs_receive` in `git.pm`
 >> I've tested it lightly in my single-user setup. It's a little nasty that the `attachment` plugin
 >> gets used to check whether attachments are allowed -- there really should be a hook for that.
+>>> I agree, but have not figured out a way to make a hook work yet.
+>>> --[[Joey]] 
 >>
 >> Please look it over and tell me what else needs fixing... -- [[peteg]]
 
@@ -76,8 +78,3 @@ Peter Gammie has done an initial implementation of the above.
 >>>   in the same git repo either way, and git doesn't need
 >>>   `git show` to run in a subdir at all..
 >>>> I was aping (preserving) what was already there. I don't understand what you say about `git show` - it must run under $srcdir, surely? And empirically the CGI process wasn't in the right place. By all means simplify that. -- [[peteg]]
-
->>> * Probably needs to untaint the revs passed in.
->>> * Seems backwards for `rcs_preprevert` to import and
->>>   use `IkiWiki::Receive`.
->>>> Indeed. This is saying that the checking code in IkiWiki::Receive is in the wrong place. I think it would be better to set up some general hooks and shuffle it into a plugin, for then other plugins that maintain special files in the repo can have a say about validity. -- [[peteg]]
