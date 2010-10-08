@@ -94,8 +94,7 @@ sub sessioncgi ($$) {
 	return unless $do eq 'revert' && $rev;
 
 	my @changes=$IkiWiki::hooks{rcs}{rcs_preprevert}{call}->($rev);
-	require IkiWiki::Receive;
-	IkiWiki::Receive::test_changes(
+	IkiWiki::check_canchange(
 		cgi => $q,
 		session => $session,
 		changes => \@changes,
