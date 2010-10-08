@@ -1941,14 +1941,6 @@ sub rcs_receive () {
 	$hooks{rcs}{rcs_receive}{call}->();
 }
 
-sub rcs_preprevert ($) {
-	$hooks{rcs}{rcs_preprevert}{call}->(@_);
-}
-
-sub rcs_revert ($) {
-	$hooks{rcs}{rcs_revert}{call}->(@_);
-}
-
 sub add_depends ($$;$) {
 	my $page=shift;
 	my $pagespec=shift;

@@ -1154,8 +1154,6 @@ context, and the whole diff in scalar context.
 This is used to get the page creation time for a file from the RCS, by looking
 it up in the history.
 
-It's ok if this is not implemented, and throws an error.
-
 If the RCS cannot determine a ctime for the file, return 0.
 
 #### `rcs_getmtime($)`
@@ -1209,6 +1207,9 @@ parameter rev that is the RCS-specific change ID to revert.
 It should try to revert the specified rev, and leave the reversion staged
 so `rcs_commit_staged` will complete it. It should return undef on _success_
 and an error message on failure.
+
+This hook and `rcs_preprevert` are optional, if not implemented, no revert
+web interface will be available.
 
 ### PageSpec plugins
 

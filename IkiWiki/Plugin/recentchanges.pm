@@ -93,7 +93,8 @@ sub sessioncgi ($$) {
 
 	return unless $do eq 'revert' && $rev;
 
-	IkiWiki::rcs_preprevert(cgi => $q, session => $session, rev => $rev);
+	$IkiWiki::hooks{rcs}{rcs_preprevert}{call}->(
+		cgi => $q, session => $session, rev => $rev);
 
 	my ($form, $buttons) = confirmation_form($q, $session);
 	IkiWiki::decode_form_utf8($form);
@@ -101,7 +102,7 @@ sub sessioncgi ($$) {
 	if ($form->submitted eq 'Revert' && $form->validate) {
 		IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
 		IkiWiki::disable_commit_hook();
-		my $r = IkiWiki::rcs_revert($rev);
+		my $r = $IkiWiki::hooks{rcs}{rcs_revert}{call}->($rev);
 		if (! defined $r) { # success
 			rcs_commit_staged(
 				message => sprintf(gettext("This reverts commit %s"), $rev),
@@ -186,7 +187,9 @@ sub store ($$$) {
 	];
 	push @{$change->{pages}}, { link => '...' } if $is_excess;
 	
-	if (length $config{cgiurl}) {
+	if (length $config{cgiurl} &&
+	    exists $IkiWiki::hooks{rcs}{rcs_preprevert} &&
+	    exists $IkiWiki::hooks{rcs}{rcs_revert}) {
 		$change->{reverturl} = IkiWiki::cgiurl(
 			do => "revert",
 			rev => $change->{rev}
