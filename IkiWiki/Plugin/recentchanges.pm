@@ -87,9 +87,11 @@ sub sessioncgi ($$) {
 		action => $config{cgiurl},
 		stylesheet => 1,
 		template => { template('revert.tmpl') },
+		fields => [qw{revertmessage do sid rev}],
 	);
 	my $buttons=["Revert", "Cancel"];
 
+	$form->field(name => "revertmessage", type => "text", size => 80);
 	$form->field(name => "sid", type => "hidden", value => $session->id,
 		force => 1);
 	$form->field(name => "do", type => "hidden", value => "revert",
@@ -99,11 +101,16 @@ sub sessioncgi ($$) {
 
 	if ($form->submitted eq 'Revert' && $form->validate) {
 		IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+		my $message=sprintf(gettext("This reverts commit %s"), $rev);
+		if (defined $form->field('revertmessage') &&
+		    length $form->field('revertmessage')) {
+			$message=$form->field('revertmessage')."\n".$message;
+		}
 		my $r = $IkiWiki::hooks{rcs}{rcs_revert}{call}->($rev);
 		error $r if defined $r;
 		IkiWiki::disable_commit_hook();
 		rcs_commit_staged(
-			message => sprintf(gettext("This reverts commit %s"), $rev),
+			message => $message,
 			session => $session,
 		);
 		IkiWiki::enable_commit_hook();
