@@ -99,25 +99,18 @@ sub sessioncgi ($$) {
 
 	if ($form->submitted eq 'Revert' && $form->validate) {
 		IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
-		IkiWiki::disable_commit_hook();
 		my $r = $IkiWiki::hooks{rcs}{rcs_revert}{call}->($rev);
-		if (! defined $r) { # success
-			rcs_commit_staged(
-				message => sprintf(gettext("This reverts commit %s"), $rev),
-				session => $session,
-				rev => $rev,
-			);
-		}
+		error $r if defined $r;
+		IkiWiki::disable_commit_hook();
+		rcs_commit_staged(
+			message => sprintf(gettext("This reverts commit %s"), $rev),
+			session => $session,
+		);
 		IkiWiki::enable_commit_hook();
 	
-		if (defined $r) {
-			die "Revert '$rev' failed.";
-		}
-		else {
-			require IkiWiki::Render;
-			IkiWiki::refresh();
-			IkiWiki::saveindex();
-		}
+		require IkiWiki::Render;
+		IkiWiki::refresh();
+		IkiWiki::saveindex();
 	}
 	elsif ($form->submitted ne 'Cancel') {
 	        $form->title(sprintf(gettext("confirm reversion of %s"), $rev));
