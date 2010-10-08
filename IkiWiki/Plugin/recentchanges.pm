@@ -93,8 +93,13 @@ sub sessioncgi ($$) {
 
 	return unless $do eq 'revert' && $rev;
 
-	$IkiWiki::hooks{rcs}{rcs_preprevert}{call}->(
-		cgi => $q, session => $session, rev => $rev);
+	my @changes=$IkiWiki::hooks{rcs}{rcs_preprevert}{call}->($rev);
+	require IkiWiki::Receive;
+	IkiWiki::Receive::test_changes(
+		cgi => $q,
+		session => $session,
+		changes => \@changes,
+	);
 
 	my ($form, $buttons) = confirmation_form($q, $session);
 	IkiWiki::decode_form_utf8($form);

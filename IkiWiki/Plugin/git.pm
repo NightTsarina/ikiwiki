@@ -836,19 +836,15 @@ sub rcs_receive () {
 	return reverse @rets;
 }
 
-sub rcs_preprevert (@) {
-	my %params = @_;
-	my $rev = $params{rev};
+sub rcs_preprevert ($) {
+	my $rev=shift;
 
-	# Note test_changes expects 'cgi' and 'session' parameters.
-	require IkiWiki::Receive;
-	IkiWiki::Receive::test_changes(%params, changes =>
-		[git_parse_changes(git_commit_info($rev, 1))]);
+	return git_parse_changes(git_commit_info($rev, 1));
 }
 
 sub rcs_revert ($) {
 	# Try to revert the given rev; returns undef on _success_.
-	my $rev = $shift;
+	my $rev = shift;
 
 	if (run_or_non('git', 'revert', '--no-commit', $rev)) {
 		return undef;
