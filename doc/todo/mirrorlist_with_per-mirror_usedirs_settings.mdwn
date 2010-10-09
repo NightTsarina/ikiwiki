@@ -24,3 +24,27 @@ and decided this time it was really needed to implement this feature.
 > Ping. --[[intrigeri]]
 
 [[!tag patch]]
+
+>> (I'm not an ikiwiki committer, opinions may vary.)
+>>
+>> This would be easier to review if there weren't a million merges from
+>> master; perhaps either leave a branch as-is, or rebase it, or merge
+>> only at "significant" times like after a release?
+>>
+>> I believe Joey's main objection to complex $config entries is that
+>> it's not at all clear what [[plugins/websetup]] would do with them.
+>> Would something like this make a reasonable alternative?
+>>
+>>      $config{mirrorlist} = ["nousedirs|file:///home/intrigeri/wiki",
+>>          "usedirs|http://example.com/wiki", "http://example.net"];
+>>
+>> From how I understand tainting, this:
+>>
+>>      $untainted{$_} = possibly_foolish_untaint($tainted->{$_})
+>>
+>> probably needs to untaint the key too:
+>>
+>>      my $key = possibly_foolish_untaint($_);
+>>      $untainted{$key} = possibly_foolish_untaint($tainted->{key});
+>>
+>> --[[smcv]]
