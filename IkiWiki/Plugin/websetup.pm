@@ -219,7 +219,8 @@ sub showfields ($$$@) {
 				options => [ [ 1 => $description ] ],
 				fieldset => $section,
 			);
-			if (! $form->submitted) {
+			if (! $form->submitted ||
+			    ($info{advanced} && $form->submitted eq 'Advanced Mode')) {
 				$form->field(name => $name, value => $value);
 			}
 		}
