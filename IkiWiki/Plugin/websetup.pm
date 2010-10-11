@@ -295,6 +295,7 @@ sub showform ($$) {
 	$form->field(name => "do", type => "hidden", value => "setup",
 		force => 1);
 	$form->field(name => "rebuild_asked", type => "hidden");
+	$form->field(name => "showadvanced", type => "hidden");
 
 	if ($form->submitted eq 'Basic Mode') {
 		$form->field(name => "showadvanced", type => "hidden", 
