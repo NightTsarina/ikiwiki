@@ -1,0 +1,81 @@
+These are some notes on installing ikiwiki on Mac OS X Snow Leopard. I have a three year old machine with a lot of stuff on it so it took quite a while, YMMV. 
+
+The best part of installing ikiwiki was learning how to use git. I never used source control before but its pretty slick.
+
+## installing git:
+
+curl http://kernel.org/pub/software/scm/git/git-(latest version).tar.gz -O
+tar xzvf git-(latest version).tar.gz
+cd git-(latest version)
+./configure --prefix=/usr/local
+NO_MSGFMT=yes make prefix=/usr/local all
+sudo make install
+
+git config --global user.name "firstname lastname" 
+git config --global user.email "email here"
+git config --global color.ui "auto" 
+
+curl http://www.kernel.org/pub/software/scm/git/git-manpages-1.7.3.1.tar.gz | sudo tar -xzC /opt/local/share/man/
+
+
+## installing ikiwiki:
+I had terrible trouble installing ikiwiki. It turned out I had accidentally installed Perl through ports. Uninstalling that made everything install nicely.
+I like to install test software in /opt. No particular reason. You could install to defaults.
+
+perl Makefile.PL PREFIX=/Library/Perl/5.10.0 LIB=/Library/Perl/5.10.0
+perl Makefile.PL  LIB=/Library/Perl/5.10.0
+make
+make install
+sudo install -d /opt/ikiwiki
+sudo install -m 0644 wikilist /opt/ikiwiki
+sudo install -m 0644 auto.setup /opt/ikiwiki
+sudo install -m 0644 auto-blog.setup /opt/ikiwiki
+
+when you make ikiwiki it gives you a .git folder with the ikiwiki files. Stay out of this folder. You want to learn how to create a clone and make all your changes in the clone. When you push the changes ikiwiki will update. I moved a file in this folder by accident because I named my working file the same and I couldn't get into the setup page. I had apparently messed up my ikiwiki git repository. I did a pull into my clone, deleted the repository and webserver/ cgi folders and ran a new setup. Then I did a git clone and dragged all my old files into the new clone. Did the git dance and did git push. Then the angels sang.
+
+## using git from inside a git folder:
+start with git clone, then learn to do the git dance like this.
+git pull
+make your changes to your clone
+git commit -a -m "message here"
+git push
+
+When you can't get into the setup page or you get strange behavior after a setup update the Utilities > Console app is your friend.
+
+## installing gitweb
+
+make GITWEB_PROJECTROOT="/opt/ikiwiki/" GITWEB_CSS="/gitweb/gitweb.css" GITWEB_LOGO="/gitweb/git-logo.png" GITWEB_FAVICON="/gitweb/git-favicon.png" bindir=/opt/local/bin
+
+cp gitweb.cgi /Library/WebServer/CGI-Executables/gitweb/
+sudo chmod 2755 gitweb.cgi
+
+## installing xapian:
+download xapian and omega
+I needed pcre: sudo ports install pcre
+
+./configure
+make
+sudo make install
+
+## installing omega:
+I had a build error do to libiconv undefined symbols. sudo port deactivate libiconv took care of it. After install I had trouble with ikiwiki so I did a sudo port install libiconv and ikiwiki came back.
+./configure
+make
+sudo make install
+
+## installing Search::Xapian from CPAN
+for some reason this wouldn't install using CPAN console so I went to CPAN online and downloaded the source.
+perl Makefile.PL
+make
+make test
+sudo make install
+it installed without issue so I'm baffled why it didn't install from command line.
+
+## turning on search plugin:
+I turned on the plugin from the setup page in ikiwiki but it gave an error when I went to search. Error "blah blah cgi-bin/omega/omega" does not exist or some such. I did a 
+find / -name "omega" -print
+and found the omega program in 
+/usr/local/lib/xapian-omega/bin/omega. 
+Then I went into the setup file and replaced the bad path, updated and badda-boom badda-bing.
+
+Then I fell asleep.
