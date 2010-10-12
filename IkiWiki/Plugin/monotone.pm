@@ -252,9 +252,20 @@ sub get_changed_files ($$) {
 
 	my @ret;
 	my %seen = ();
-	
+
+	# we need to strip off the relative path to the source dir
+	# because monotone outputs all file paths absolute according
+	# to the workspace root
+	my $rel_src_dir = $config{'srcdir'};
+	$rel_src_dir =~ s/^\Q$config{'mtnrootdir'}\E\/?//;
+	$rel_src_dir .= "/" if length $rel_src_dir;
+
 	while ($changes =~ m/\s*(add_file|patch|delete|rename)\s"(.*?)(?<!\\)"\n/sg) {
 		my $file = $2;
+		# ignore all file changes outside the source dir
+		next unless $file =~ m/^\Q$rel_src_dir\E/;
+		$file =~ s/^\Q$rel_src_dir\E//;
+        
 		# don't add the same file multiple times
 		if (! $seen{$file}) {
 			push @ret, $file;
