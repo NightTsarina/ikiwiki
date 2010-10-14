@@ -171,15 +171,10 @@ it installed without issue so I'm baffled why it didn't install from command lin
 
 ## turning on search plugin:
 
-I turned on the plugin from the setup page in ikiwiki but it gave an error when I went to search. Error "blah blah cgi-bin/omega/omega" does not exist or some such. I did a 
+I turned on the plugin from the setup page in ikiwiki but it gave an error when I went to search. Error "Error: /usr/lib/cgi-bin/omega/omega failed: No such file or directory".
+I did a  "find / -name "omega" -print" and found the omega program in "/usr/local/lib/xapian-omega/bin/omega".
 
-find / -name "omega" -print
-
-and found the omega program in 
-
-/usr/local/lib/xapian-omega/bin/omega. 
-
-Then I went into the setup file and replaced the bad path, updated and badda-boom badda-bing.
+Then I went into the 2wiki.setup file and replaced the bad path, updated and badda-boom badda-bing.
 
 
 
