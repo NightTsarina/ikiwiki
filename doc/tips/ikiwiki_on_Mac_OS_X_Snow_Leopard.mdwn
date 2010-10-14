@@ -5,15 +5,17 @@ The best part of installing ikiwiki was learning how to use git. I never used so
 
 ## installing git:
 
+cd /opt/ikiwiki/install
+
 curl http://kernel.org/pub/software/scm/git/git-(latest version).tar.gz -O
 
 tar xzvf git-(latest version).tar.gz
 
 cd git-(latest version)
 
-./configure --prefix=/usr/local
+./configure --prefix=/usr/local 
 
-NO_MSGFMT=yes make prefix=/usr/local all
+make prefix=/usr/local all
 
 sudo make install
 
@@ -25,31 +27,20 @@ git config --global user.email "email here"
 git config --global color.ui "auto" 
 
 
-curl http://www.kernel.org/pub/software/scm/git/git-manpages-1.7.3.1.tar.gz | sudo tar -xzC /opt/local/share/man/
+curl http://www.kernel.org/pub/software/scm/git/git-manpages-1.7.3.1.tar.gz | sudo tar -xzC /usr/local/share/man/
 
 
 ## installing ikiwiki:
 I had terrible trouble installing ikiwiki. It turned out I had accidentally installed Perl through ports. Uninstalling that made everything install nicely.
+I got an error on msgfmt. Turns out this is a program in gettext. I installed that and it fixed the error.
 
-I like to install test software in /opt. No particular reason. You could install to defaults.
-
-
-perl Makefile.PL PREFIX=/Library/Perl/5.10.0 LIB=/Library/Perl/5.10.0
+git clone git://git.ikiwiki.info/
 
 perl Makefile.PL  LIB=/Library/Perl/5.10.0
 
 make
 
-make install
-
-sudo install -d /opt/ikiwiki
-
-sudo install -m 0644 wikilist /opt/ikiwiki
-
-sudo install -m 0644 auto.setup /opt/ikiwiki
-
-sudo install -m 0644 auto-blog.setup /opt/ikiwiki
-
+sudo make install
 
 when you make ikiwiki it gives you a .git folder with the ikiwiki files. Stay out of this folder. You want to learn how to create a clone and make all your changes in the clone. When you push the changes ikiwiki will update. I moved a file in this folder by accident because I named my working file the same and I couldn't get into the setup page. I had apparently messed up my ikiwiki git repository. I did a pull into my clone, deleted the repository and webserver/ cgi folders and ran a new setup. Then I did a git clone and dragged all my old files into the new clone. Did the git dance and did git push. Then the angels sang.
 
@@ -71,12 +62,13 @@ When you can't get into the setup page or you get strange behavior after a setup
 
 ## installing gitweb
 
-make GITWEB_PROJECTROOT="/opt/ikiwiki/" GITWEB_CSS="/gitweb/gitweb.css" GITWEB_LOGO="/gitweb/git-logo.png" GITWEB_FAVICON="/gitweb/git-favicon.png" bindir=/opt/local/bin
+cd gitweb
 
-cp gitweb.cgi /Library/WebServer/CGI-Executables/gitweb/
+make GITWEB_PROJECTROOT="/opt/ikiwiki/" GITWEB_CSS="/gitweb/gitweb.css" GITWEB_LOGO="/gitweb/git-logo.png" GITWEB_FAVICON="/gitweb/git-favicon.png" 
 
-sudo chmod 2755 gitweb.cgi
+cp gitweb.cgi /Library/WebServer/CGI-Executables/
 
+sudo chmod 2755 /Library/WebServer/CGI-Executables/gitweb.cgi
 
 ## installing xapian:
 
@@ -117,7 +109,6 @@ sudo make install
 it installed without issue so I'm baffled why it didn't install from command line.
 
 
-
 ## turning on search plugin:
 
 I turned on the plugin from the setup page in ikiwiki but it gave an error when I went to search. Error "blah blah cgi-bin/omega/omega" does not exist or some such. I did a 
@@ -131,4 +122,4 @@ and found the omega program in
 Then I went into the setup file and replaced the bad path, updated and badda-boom badda-bing.
 
 
-Then I fell asleep.
+
