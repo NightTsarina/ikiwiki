@@ -67,16 +67,26 @@ cd gitweb
 make GITWEB_PROJECTROOT="/opt/ikiwiki/" GITWEB_CSS="/gitweb.css" GITWEB_LOGO="/git-logo.png" GITWEB_FAVICON="/git-favicon.png" 
 
 cp gitweb.cgi /Library/WebServer/CGI-Executables/
-cp /usr/local/share/gitweb/static/git-favicon.png /Library/WebServer/
-cp /usr/local/share/gitweb/static/git-logo.png /Library/WebServer/
-cp /usr/local/share/gitweb/static/gitweb.css /Library/WebServer/
-cp /usr/local/share/gitweb/static/gitweb.js /Library/WebServer/
+
+cp /usr/local/share/gitweb/static/git-favicon.png /Library/WebServer/Documents/
+
+cp /usr/local/share/gitweb/static/git-logo.png /Library/WebServer/Documents/
+
+cp /usr/local/share/gitweb/static/gitweb.css /Library/WebServer/Documents/
+
+cp /usr/local/share/gitweb/static/gitweb.js /Library/WebServer/Documents/
+
 
 sudo chmod 2755 /Library/WebServer/CGI-Executables/gitweb.cgi
-sudo chmod 2755 /Library/WebServer/git-favicon.png
-sudo chmod 2755 /Library/WebServer/git-logo.png
-sudo chmod 2755 /Library/WebServer/gitweb.css
-sudo chmod 2755 /Library/WebServer/gitweb.js
+
+sudo chmod 2755 /Library/WebServer/Documents/git-favicon.png
+
+sudo chmod 2755 /Library/WebServer/Documents/git-logo.png
+
+sudo chmod 2755 /Library/WebServer/Documents/gitweb.css
+
+sudo chmod 2755 /Library/WebServer/Documents/gitweb.js
+
 
 ## installing xapian:
 
