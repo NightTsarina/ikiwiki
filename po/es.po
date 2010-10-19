@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-15 16:30-0400\n"
+"POT-Creation-Date: 2010-10-18 16:44-0400\n"
 "PO-Revision-Date: 2009-06-14 12:32+0200\n"
 "Last-Translator: Victor Moral <victor@taquiones.net>\n"
 "Language-Team:  <en@li.org>\n"
@@ -134,6 +134,11 @@ msgstr "¡ la fuente de datos ha provocado un error fatal en XML::Feed !"
 #, perl-format
 msgid "creating new page %s"
 msgstr "creando nueva página %s"
+
+#: ../IkiWiki/Plugin/aggregate.pm:652 ../IkiWiki/Plugin/edittemplate.pm:133
+#, fuzzy
+msgid "failed to process template:"
+msgstr "se ha producido un error fatal mientras procesaba la plantilla:"
 
 #: ../IkiWiki/Plugin/amazon_s3.pm:31
 msgid "deleting bucket.."
@@ -265,7 +270,7 @@ msgstr "Añadir un comentario"
 msgid "Added a comment: %s"
 msgstr "Comentario añadido: %s"
 
-#: ../IkiWiki/Plugin/comments.pm:573 ../IkiWiki/Plugin/websetup.pm:268
+#: ../IkiWiki/Plugin/comments.pm:573 ../IkiWiki/Plugin/websetup.pm:269
 msgid "you are not logged in as an admin"
 msgstr "No está registrado como un administrador"
 
@@ -343,12 +348,6 @@ msgstr "falta indicar la coincidencia de páginas (match)"
 msgid "edittemplate %s registered for %s"
 msgstr "plantilla de edición %s registrada para %s"
 
-#: ../IkiWiki/Plugin/edittemplate.pm:133 ../IkiWiki/Plugin/inline.pm:339
-#: ../IkiWiki/Plugin/template.pm:44
-#, fuzzy
-msgid "failed to process template:"
-msgstr "se ha producido un error fatal mientras procesaba la plantilla:"
-
 #: ../IkiWiki/Plugin/format.pm:30
 msgid "must specify format and text"
 msgstr "se deben especificar tanto el formato como el texto"
@@ -376,8 +375,8 @@ msgstr "no encuentro páginas coincidentes: %s"
 msgid "%s is an attachment, not a page."
 msgstr "la página %s no es modificable"
 
-#: ../IkiWiki/Plugin/git.pm:742 ../IkiWiki/Plugin/git.pm:760
-#: ../IkiWiki/Receive.pm:129
+#: ../IkiWiki/Plugin/git.pm:760 ../IkiWiki/Plugin/git.pm:823
+#: ../IkiWiki.pm:1580
 #, perl-format
 msgid "you are not allowed to change %s"
 msgstr "No puede cambiar %s"
@@ -390,6 +389,11 @@ msgstr "no puede actuar sobre un archivo con permisos %s"
 #: ../IkiWiki/Plugin/git.pm:786
 msgid "you are not allowed to change file modes"
 msgstr "No puede cambiar los permisos de acceso de un archivo"
+
+#: ../IkiWiki/Plugin/git.pm:854
+#, fuzzy, perl-format
+msgid "Failed to revert commit %s"
+msgstr "ha fallado la compilación del programa %s"
 
 #: ../IkiWiki/Plugin/google.pm:26 ../IkiWiki/Plugin/search.pm:38
 #, fuzzy, perl-format
@@ -421,7 +425,7 @@ msgstr ""
 "aviso: el módulo Perl hightlight no está disponible; retrocedo la entrada "
 "para continuar el proceso. "
 
-#: ../IkiWiki/Plugin/htmltidy.pm:50
+#: ../IkiWiki/Plugin/htmltidy.pm:62
 #, fuzzy
 msgid "htmltidy failed to parse this html"
 msgstr "Algunos emoticonos tienen errores"
@@ -473,12 +477,12 @@ msgstr ""
 msgid "Add a new post titled:"
 msgstr "Añadir una entrada nueva titulada:"
 
-#: ../IkiWiki/Plugin/inline.pm:342
-#, perl-format
-msgid "template %s not found"
-msgstr "no he encontrado la plantilla %s"
+#: ../IkiWiki/Plugin/inline.pm:339 ../IkiWiki/Plugin/template.pm:44
+#, fuzzy, perl-format
+msgid "failed to process template %s"
+msgstr "se ha producido un error fatal mientras procesaba la plantilla:"
 
-#: ../IkiWiki/Plugin/inline.pm:633
+#: ../IkiWiki/Plugin/inline.pm:630
 msgid "RPC::XML::Client not found, not pinging"
 msgstr "No he encontrado el componente RPC::XML::Client, no envío señal alguna"
 
@@ -512,15 +516,15 @@ msgstr ""
 msgid "stylesheet not found"
 msgstr "hoja de estilo no encontrada "
 
-#: ../IkiWiki/Plugin/meta.pm:213
+#: ../IkiWiki/Plugin/meta.pm:217
 msgid "redir page not found"
 msgstr "falta la página a donde redirigir"
 
-#: ../IkiWiki/Plugin/meta.pm:227
+#: ../IkiWiki/Plugin/meta.pm:231
 msgid "redir cycle is not allowed"
 msgstr "ciclo de redirección no permitido"
 
-#: ../IkiWiki/Plugin/meta.pm:396
+#: ../IkiWiki/Plugin/meta.pm:400
 #, fuzzy
 msgid "sort=meta requires a parameter"
 msgstr "los parámetros 'from' y 'to' son obligatorios"
@@ -805,6 +809,16 @@ msgstr "%s es un valor erróneo para un porcentaje"
 msgid "need either `percent` or `totalpages` and `donepages` parameters"
 msgstr "son necesarios los parámetros 'donepages' y 'percent' ó 'totalpages'"
 
+#: ../IkiWiki/Plugin/recentchanges.pm:104
+#, perl-format
+msgid "This reverts commit %s"
+msgstr ""
+
+#: ../IkiWiki/Plugin/recentchanges.pm:123
+#, fuzzy, perl-format
+msgid "confirm reversion of %s"
+msgstr "confirme el borrado de %s"
+
 #: ../IkiWiki/Plugin/recentchangesdiff.pm:37
 msgid "(Diff truncated)"
 msgstr "(Lista de diferencias truncada)"
@@ -999,11 +1013,6 @@ msgstr "creando nueva página %s"
 msgid "missing id parameter"
 msgstr "falta el parámetro \"id\""
 
-#: ../IkiWiki/Plugin/template.pm:47
-#, fuzzy, perl-format
-msgid "%s not found"
-msgstr "fuente de datos no encontrada"
-
 #: ../IkiWiki/Plugin/teximg.pm:73
 msgid "missing tex code"
 msgstr "falta el código tex"
@@ -1027,22 +1036,22 @@ msgstr "complementos"
 msgid "enable %s?"
 msgstr "¿ activar %s ?"
 
-#: ../IkiWiki/Plugin/websetup.pm:272
+#: ../IkiWiki/Plugin/websetup.pm:273
 msgid "setup file for this wiki is not known"
 msgstr "El archivo de configuración para este wiki es desconocido"
 
-#: ../IkiWiki/Plugin/websetup.pm:288
+#: ../IkiWiki/Plugin/websetup.pm:289
 msgid "main"
 msgstr "principal"
 
-#: ../IkiWiki/Plugin/websetup.pm:431
+#: ../IkiWiki/Plugin/websetup.pm:433
 msgid ""
 "The configuration changes shown below require a wiki rebuild to take effect."
 msgstr ""
 "Los cambios en la configuración que se muestran más abajo precisan una "
 "reconstrucción del wiki para tener efecto."
 
-#: ../IkiWiki/Plugin/websetup.pm:435
+#: ../IkiWiki/Plugin/websetup.pm:437
 msgid ""
 "For the configuration changes shown below to fully take effect, you may need "
 "to rebuild the wiki."
@@ -1050,7 +1059,7 @@ msgstr ""
 "Para que los cambios en la configuración mostrados más abajo tengan efecto, "
 "es posible que necesite reconstruir el wiki."
 
-#: ../IkiWiki/Plugin/websetup.pm:472
+#: ../IkiWiki/Plugin/websetup.pm:474
 #, perl-format
 msgid "Error: %s exited nonzero (%s). Discarding setup changes."
 msgstr ""
@@ -1061,11 +1070,6 @@ msgstr ""
 #, perl-format
 msgid "cannot determine id of untrusted committer %s"
 msgstr "no puedo determinar el identificador de un usuario no fiable como %s"
-
-#: ../IkiWiki/Receive.pm:85
-#, perl-format
-msgid "bad file name %s"
-msgstr "el nombre de archivo %s es erróneo"
 
 #: ../IkiWiki/Render.pm:158
 #, perl-format
@@ -1188,13 +1192,13 @@ msgid "wrapper filename not specified"
 msgstr "el programa envoltorio no ha sido especificado"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:218
+#: ../IkiWiki/Wrapper.pm:219
 #, perl-format
 msgid "failed to compile %s"
 msgstr "ha fallado la compilación del programa %s"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:238
+#: ../IkiWiki/Wrapper.pm:239
 #, perl-format
 msgid "successfully generated %s"
 msgstr "creado con éxito el programa envoltorio %s"
@@ -1250,21 +1254,31 @@ msgstr ""
 "se ha detectado en la página %s un bucle de preprocesado en la iteración "
 "número %i"
 
-#: ../IkiWiki.pm:2053
+#: ../IkiWiki.pm:1536
+#, perl-format
+msgid "bad file name %s"
+msgstr "el nombre de archivo %s es erróneo"
+
+#: ../IkiWiki.pm:1836
+#, perl-format
+msgid "template %s not found"
+msgstr "no he encontrado la plantilla %s"
+
+#: ../IkiWiki.pm:2118
 msgid "yes"
 msgstr "si"
 
-#: ../IkiWiki.pm:2130
+#: ../IkiWiki.pm:2195
 #, fuzzy, perl-format
 msgid "invalid sort type %s"
 msgstr "no conozco este tipo de ordenación %s"
 
-#: ../IkiWiki.pm:2151
+#: ../IkiWiki.pm:2216
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "no conozco este tipo de ordenación %s"
 
-#: ../IkiWiki.pm:2287
+#: ../IkiWiki.pm:2352
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "no encuentro páginas coincidentes: %s"
@@ -1291,6 +1305,10 @@ msgstr ""
 #: ../auto.setup:24
 msgid "What is the domain name of the web server?"
 msgstr "¿ Cuál es el dominio para el servidor web ?"
+
+#, fuzzy
+#~ msgid "%s not found"
+#~ msgstr "fuente de datos no encontrada"
 
 #~ msgid "You need to log in first."
 #~ msgstr "Antes es necesario identificarse."

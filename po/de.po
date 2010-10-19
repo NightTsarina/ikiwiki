@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.14159\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-09-15 16:30-0400\n"
+"POT-Creation-Date: 2010-10-18 16:44-0400\n"
 "PO-Revision-Date: 2010-03-14 16:09+0530\n"
 "Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
 "Language-Team: German <debian-l10n-german@lists.debian.org>\n"
@@ -129,6 +129,11 @@ msgstr "Vorlage (feed) führte zum Absturz von XML::Feed!"
 #, perl-format
 msgid "creating new page %s"
 msgstr "erstelle neue Seite %s"
+
+#: ../IkiWiki/Plugin/aggregate.pm:652 ../IkiWiki/Plugin/edittemplate.pm:133
+#, fuzzy
+msgid "failed to process template:"
+msgstr "Fehler beim Ablauf:"
 
 #: ../IkiWiki/Plugin/amazon_s3.pm:31
 msgid "deleting bucket.."
@@ -259,7 +264,7 @@ msgstr "Kommentar hinzugefügt"
 msgid "Added a comment: %s"
 msgstr "Kommentar hinzugefügt: %s"
 
-#: ../IkiWiki/Plugin/comments.pm:573 ../IkiWiki/Plugin/websetup.pm:268
+#: ../IkiWiki/Plugin/comments.pm:573 ../IkiWiki/Plugin/websetup.pm:269
 msgid "you are not logged in as an admin"
 msgstr "Sie sind nicht als Administrator angemeldet"
 
@@ -336,12 +341,6 @@ msgstr "Übereinstimmung nicht angegeben"
 msgid "edittemplate %s registered for %s"
 msgstr "edittemplate %s für %s registriert"
 
-#: ../IkiWiki/Plugin/edittemplate.pm:133 ../IkiWiki/Plugin/inline.pm:339
-#: ../IkiWiki/Plugin/template.pm:44
-#, fuzzy
-msgid "failed to process template:"
-msgstr "Fehler beim Ablauf:"
-
 #: ../IkiWiki/Plugin/format.pm:30
 msgid "must specify format and text"
 msgstr "Format und Text müssen spezifiziert werden"
@@ -368,8 +367,8 @@ msgstr "Keine Seite"
 msgid "%s is an attachment, not a page."
 msgstr "Seite %s ist ein Anhang und keine Seite."
 
-#: ../IkiWiki/Plugin/git.pm:742 ../IkiWiki/Plugin/git.pm:760
-#: ../IkiWiki/Receive.pm:129
+#: ../IkiWiki/Plugin/git.pm:760 ../IkiWiki/Plugin/git.pm:823
+#: ../IkiWiki.pm:1580
 #, perl-format
 msgid "you are not allowed to change %s"
 msgstr "Sie dürfen %s nicht verändern"
@@ -382,6 +381,11 @@ msgstr "Sie können eine Datei mit den Zugriffsrechten %s nicht nutzen"
 #: ../IkiWiki/Plugin/git.pm:786
 msgid "you are not allowed to change file modes"
 msgstr "Sie dürfen die Zugriffsrechte der Datei nicht ändern"
+
+#: ../IkiWiki/Plugin/git.pm:854
+#, fuzzy, perl-format
+msgid "Failed to revert commit %s"
+msgstr "erzeugen von %s fehlgeschlagen"
 
 #: ../IkiWiki/Plugin/google.pm:26 ../IkiWiki/Plugin/search.pm:38
 #, perl-format
@@ -413,7 +417,7 @@ msgstr ""
 "Warnung: das highlight Perlmodul ist nicht verfügbar; greife zurück auf pass "
 "through"
 
-#: ../IkiWiki/Plugin/htmltidy.pm:50
+#: ../IkiWiki/Plugin/htmltidy.pm:62
 msgid "htmltidy failed to parse this html"
 msgstr "htmltidy konnte dieses HTML nicht auswerten"
 
@@ -464,12 +468,12 @@ msgstr "die Parameter %s und %s können nicht zusammen benutzt werden"
 msgid "Add a new post titled:"
 msgstr "Füge einen neuen Beitrag hinzu. Titel:"
 
-#: ../IkiWiki/Plugin/inline.pm:342
-#, perl-format
-msgid "template %s not found"
-msgstr "Vorlage %s nicht gefunden"
+#: ../IkiWiki/Plugin/inline.pm:339 ../IkiWiki/Plugin/template.pm:44
+#, fuzzy, perl-format
+msgid "failed to process template %s"
+msgstr "Fehler beim Ablauf:"
 
-#: ../IkiWiki/Plugin/inline.pm:633
+#: ../IkiWiki/Plugin/inline.pm:630
 msgid "RPC::XML::Client not found, not pinging"
 msgstr "RPC::XML::Client nicht gefunden, führe Ping nicht aus"
 
@@ -504,15 +508,15 @@ msgstr ""
 msgid "stylesheet not found"
 msgstr "Stylesheet nicht gefunden"
 
-#: ../IkiWiki/Plugin/meta.pm:213
+#: ../IkiWiki/Plugin/meta.pm:217
 msgid "redir page not found"
 msgstr "Umleitungsseite nicht gefunden"
 
-#: ../IkiWiki/Plugin/meta.pm:227
+#: ../IkiWiki/Plugin/meta.pm:231
 msgid "redir cycle is not allowed"
 msgstr "Zyklische Umleitungen sind nicht erlaubt"
 
-#: ../IkiWiki/Plugin/meta.pm:396
+#: ../IkiWiki/Plugin/meta.pm:400
 #, fuzzy
 msgid "sort=meta requires a parameter"
 msgstr "erfordert die Parameter 'from' und 'to'"
@@ -804,6 +808,16 @@ msgstr ""
 "es werden entweder `percent` oder `totalpages` und `donepages` Parameter "
 "benötigt"
 
+#: ../IkiWiki/Plugin/recentchanges.pm:104
+#, perl-format
+msgid "This reverts commit %s"
+msgstr ""
+
+#: ../IkiWiki/Plugin/recentchanges.pm:123
+#, fuzzy, perl-format
+msgid "confirm reversion of %s"
+msgstr "bestätigen Sie die Entfernung von %s"
+
 #: ../IkiWiki/Plugin/recentchangesdiff.pm:37
 msgid "(Diff truncated)"
 msgstr "(Diff wurde gekürzt)"
@@ -994,11 +1008,6 @@ msgstr "erstelle neue Seite %s"
 msgid "missing id parameter"
 msgstr "fehlender Parameter id"
 
-#: ../IkiWiki/Plugin/template.pm:47
-#, fuzzy, perl-format
-msgid "%s not found"
-msgstr "Vorlage (feed) nicht gefunden"
-
 #: ../IkiWiki/Plugin/teximg.pm:73
 msgid "missing tex code"
 msgstr "fehlender TeX-Code"
@@ -1022,22 +1031,22 @@ msgstr "%s-Erweiterungen"
 msgid "enable %s?"
 msgstr "%s aktivieren?"
 
-#: ../IkiWiki/Plugin/websetup.pm:272
+#: ../IkiWiki/Plugin/websetup.pm:273
 msgid "setup file for this wiki is not known"
 msgstr "Die Einrichtungsdatei für dieses Wiki ist unbekannt"
 
-#: ../IkiWiki/Plugin/websetup.pm:288
+#: ../IkiWiki/Plugin/websetup.pm:289
 msgid "main"
 msgstr "Hauptseite"
 
-#: ../IkiWiki/Plugin/websetup.pm:431
+#: ../IkiWiki/Plugin/websetup.pm:433
 msgid ""
 "The configuration changes shown below require a wiki rebuild to take effect."
 msgstr ""
 "Die unten aufgeführten Konfigurationsänderungen erfordern ein Neubau des "
 "Wikis, um wirksam zu werden."
 
-#: ../IkiWiki/Plugin/websetup.pm:435
+#: ../IkiWiki/Plugin/websetup.pm:437
 msgid ""
 "For the configuration changes shown below to fully take effect, you may need "
 "to rebuild the wiki."
@@ -1045,7 +1054,7 @@ msgstr ""
 "Damit die unten aufgeführten Konfigurationsänderungen insgesamt wirksam "
 "werden, kann es notwendig sein, das Wikis neu zu bauen."
 
-#: ../IkiWiki/Plugin/websetup.pm:472
+#: ../IkiWiki/Plugin/websetup.pm:474
 #, perl-format
 msgid "Error: %s exited nonzero (%s). Discarding setup changes."
 msgstr ""
@@ -1057,11 +1066,6 @@ msgstr ""
 msgid "cannot determine id of untrusted committer %s"
 msgstr ""
 "id des nicht vertrauenswürdigen Absenders %s konnte nicht feststellt werden"
-
-#: ../IkiWiki/Receive.pm:85
-#, perl-format
-msgid "bad file name %s"
-msgstr "fehlerhafter Dateiname %s"
 
 #: ../IkiWiki/Render.pm:158
 #, perl-format
@@ -1183,13 +1187,13 @@ msgid "wrapper filename not specified"
 msgstr "Dateiname des Wrappers nicht angegeben"
 
 #. translators: The parameter is a C filename.
-#: ../IkiWiki/Wrapper.pm:218
+#: ../IkiWiki/Wrapper.pm:219
 #, perl-format
 msgid "failed to compile %s"
 msgstr "erzeugen von %s fehlgeschlagen"
 
 #. translators: The parameter is a filename.
-#: ../IkiWiki/Wrapper.pm:238
+#: ../IkiWiki/Wrapper.pm:239
 #, perl-format
 msgid "successfully generated %s"
 msgstr "%s wurde erfolgreich erstellt"
@@ -1244,21 +1248,31 @@ msgstr "Laden der für %s benötigten externen Erweiterung fehlgeschlagen: %s"
 msgid "preprocessing loop detected on %s at depth %i"
 msgstr "Präprozessorschleife auf %s in Tiefe %i erkannt"
 
-#: ../IkiWiki.pm:2053
+#: ../IkiWiki.pm:1536
+#, perl-format
+msgid "bad file name %s"
+msgstr "fehlerhafter Dateiname %s"
+
+#: ../IkiWiki.pm:1836
+#, perl-format
+msgid "template %s not found"
+msgstr "Vorlage %s nicht gefunden"
+
+#: ../IkiWiki.pm:2118
 msgid "yes"
 msgstr "ja"
 
-#: ../IkiWiki.pm:2130
+#: ../IkiWiki.pm:2195
 #, fuzzy, perl-format
 msgid "invalid sort type %s"
 msgstr "Unbekannter Sortierungstyp %s"
 
-#: ../IkiWiki.pm:2151
+#: ../IkiWiki.pm:2216
 #, perl-format
 msgid "unknown sort type %s"
 msgstr "Unbekannter Sortierungstyp %s"
 
-#: ../IkiWiki.pm:2287
+#: ../IkiWiki.pm:2352
 #, perl-format
 msgid "cannot match pages: %s"
 msgstr "Kann die Seiten nicht zuordnen: %s"
@@ -1282,6 +1296,10 @@ msgstr "Wer (Wiki-Konto oder OpenID) soll Administrator sein?"
 #: ../auto.setup:24
 msgid "What is the domain name of the web server?"
 msgstr "Wie lautet der Domainname des Webservers?"
+
+#, fuzzy
+#~ msgid "%s not found"
+#~ msgstr "Vorlage (feed) nicht gefunden"
 
 #~ msgid "rebuilding all pages to fix meta titles"
 #~ msgstr "um die meta-titeln zu reparieren werden alle Seiten neu erstellt"
