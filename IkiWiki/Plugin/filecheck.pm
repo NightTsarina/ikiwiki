@@ -148,6 +148,7 @@ sub match_mimetype ($$;@) {
 	if (! defined $mimetype) {
 		open(my $file_h, "-|", "file", "-bi", $file);
 		$mimetype=<$file_h>;
+		chomp $mimetype;
 		close $file_h;
 	}
 	if (! defined $mimetype || $mimetype !~s /;.*//) {
