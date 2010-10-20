@@ -2608,6 +2608,10 @@ sub match_created_after ($$;@) {
 }
 
 sub match_creation_day ($$;@) {
+	my $d=shift;
+	if ($d !~ /^\d+$/) {
+		return IkiWiki::FailReason->new('invalid day');
+	}
 	if ((localtime($IkiWiki::pagectime{shift()}))[3] == shift) {
 		return IkiWiki::SuccessReason->new('creation_day matched');
 	}
@@ -2617,6 +2621,10 @@ sub match_creation_day ($$;@) {
 }
 
 sub match_creation_month ($$;@) {
+	my $m=shift;
+	if ($m !~ /^\d+$/) {
+		return IkiWiki::FailReason->new('invalid month');
+	}
 	if ((localtime($IkiWiki::pagectime{shift()}))[4] + 1 == shift) {
 		return IkiWiki::SuccessReason->new('creation_month matched');
 	}
@@ -2626,7 +2634,11 @@ sub match_creation_month ($$;@) {
 }
 
 sub match_creation_year ($$;@) {
-	if ((localtime($IkiWiki::pagectime{shift()}))[5] + 1900 == shift) {
+	my $y=shift;
+	if ($y !~ /^\d+$/) {
+		return IkiWiki::FailReason->new('invalid year');
+	}
+	if ((localtime($IkiWiki::pagectime{shift()}))[5] + 1900 == $y) {
 		return IkiWiki::SuccessReason->new('creation_year matched');
 	}
 	else {
