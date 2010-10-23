@@ -73,7 +73,7 @@ sub test () {
 		}) || error("failed adding user");
 	}
 
-	check_canchange(
+	IkiWiki::check_canchange(
 		cgi => $cgi,
 		session => $session,
 		changes => [IkiWiki::rcs_receive()]
