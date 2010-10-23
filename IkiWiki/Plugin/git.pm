@@ -848,8 +848,9 @@ sub rcs_preprevert ($) {
 	# in order to see all changes.
 	my ($subdir, $rootdir) = git_find_root();
 	$git_dir=$rootdir;
-	return git_parse_changes(git_commit_info($sha1, 1));
+	my @ret=git_parse_changes(git_commit_info($sha1, 1));
 	$git_dir=undef;
+	return @ret;
 }
 
 sub rcs_revert ($) {
