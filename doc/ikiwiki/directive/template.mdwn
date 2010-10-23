@@ -34,11 +34,15 @@ large chunks of marked up text to be embedded into a template:
 The template is a regular wiki page, located in the `templates/`
 subdirectory inside the source directory of the wiki.
 
-(Alternatively, templates can be stored in a directory outside the wiki,
+Alternatively, templates can be stored in a directory outside the wiki,
 as files with the extension ".tmpl".
-By default, these are searched for in `/usr/share/ikiwiki/templates`;
+By default, these are searched for in `/usr/share/ikiwiki/templates`,
 the `templatedir` setting can be used to make another directory be searched
-first.)
+first.  When referring to templates outside the wiki source directory, the "id"
+parameter is not interpreted as a pagespec, and you must include the full filename
+of the template page, including the ".tmpl" extension. E.g.:
+
+    \[[!template id=blogpost.tmpl]]
 
 The template uses the syntax used by the [[!cpan HTML::Template]] perl
 module, which allows for some fairly complex things to be done. Consult its
