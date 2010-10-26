@@ -10,8 +10,8 @@ sub import {
 	hook(type => "getsetup", id => "highlight",  call => \&getsetup);
 	hook(type => "checkconfig", id => "highlight", call => \&checkconfig);
 	# this hook is used by the format plugin
-	hook(type => "htmlizefallback", id => "highlight", call =>
-		\&htmlizefallback);
+	hook(type => "htmlizeformat", id => "highlight", call =>
+		\&htmlizeformat);
 }
 
 sub getsetup () {
@@ -79,7 +79,7 @@ sub checkconfig () {
 	}
 }
 
-sub htmlizefallback {
+sub htmlizeformat {
 	my $format=lc shift;
 	my $langfile=ext2langfile($format);
 

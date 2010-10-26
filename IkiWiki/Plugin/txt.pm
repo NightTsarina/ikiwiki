@@ -17,6 +17,7 @@ sub import {
 	hook(type => "getsetup", id => "txt", call => \&getsetup);
 	hook(type => "filter", id => "txt", call => \&filter);
 	hook(type => "htmlize", id => "txt", call => \&htmlize);
+	hook(type => "htmlizeformat", id => "txt", call => \&htmlizeformat);
 
 	eval q{use URI::Find};
 	if (! $@) {
@@ -46,25 +47,42 @@ sub filter (@) {
 			will_render($params{page}, 'robots.txt');
 			writefile('robots.txt', $config{destdir}, $content);
 		}
-
-		encode_entities($content, "<>&");
-		if ($findurl) {
-			my $finder = URI::Find->new(sub {
-				my ($uri, $orig_uri) = @_;
-				return qq|<a href="$uri">$orig_uri</a>|;
-			});
-			$finder->find(\$content);
-		}
-		$content = "<pre>" . $content . "</pre>";
+		return txt2html($content);
 	}
 
 	return $content;
+}
+
+sub txt2html ($) {
+	my $content=shift;
+	
+	encode_entities($content, "<>&");
+	if ($findurl) {
+		my $finder = URI::Find->new(sub {
+			my ($uri, $orig_uri) = @_;
+			return qq|<a href="$uri">$orig_uri</a>|;
+		});
+		$finder->find(\$content);
+	}
+	return "<pre>" . $content . "</pre>";
 }
 
 # We need this to register the .txt file extension
 sub htmlize (@) {
 	my %params=@_;
 	return $params{content};
+}
+
+sub htmlizeformat ($$) {
+	my $format=shift;
+	my $content=shift;
+
+	if ($format eq 'txt') {
+		return txt2html($content);
+	}
+	else {
+		return;
+	}
 }
 
 1
