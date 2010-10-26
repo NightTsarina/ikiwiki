@@ -74,7 +74,6 @@ sub checkconfig () {
 				},
 				longname => sprintf(gettext("Source code: %s"), $file),
 				@opts,
-				last => 1,
 			);
 		}
 	}
