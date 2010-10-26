@@ -89,3 +89,30 @@ New bug: new posts aren't getting displayed (or cached for aggregation). After f
 >>> mind having a copy to investigate. --[[Joey]]
 
 >>>> Didn't think of that, will keep a copy if there's a next time. -- [[schmonz]]
+
+-----
+
+In a corporate environment where feeds are generally behind
+authentication, I need to prime the aggregator's `LWP::UserAgent`
+with some cookies. What I've done is write a custom plugin to populate
+`$config{cookies}` with an `HTTP::Cookies` object, plus this diff:
+
+    --- /var/tmp/pkg/lib/perl5/vendor_perl/5.10.0/IkiWiki/Plugin/aggregate.pm  2010-06-24 13:03:33.000000000 -0400
+    +++ aggregate.pm    2010-06-24 13:04:09.000000000 -0400
+    @@ -488,7 +488,11 @@
+                        }
+                        $feed->{feedurl}=pop @urls;
+                }
+    -           my $res=URI::Fetch->fetch($feed->{feedurl});
+    +           my $res=URI::Fetch->fetch($feed->{feedurl},
+    +                                     UserAgent => LWP::UserAgent->new(
+    +                                           cookie_jar => $config{cookies},
+    +                                     ),
+    +           );
+                if (! $res) {
+                        $feed->{message}=URI::Fetch->errstr;
+                        $feed->{error}=1;
+
+It works, but I have to remember to apply the diff whenever I update
+ikiwiki.  Can you provide a more elegant means of allowing cookies and/or
+the user agent to be programmatically manipulated? --[[schmonz]]

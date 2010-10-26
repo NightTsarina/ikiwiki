@@ -1,0 +1,14 @@
+I created [[sandbox/revert me]] and then tried the revert button on
+[[recentchanges]], but I was not allowed to revert it. The specific error
+was
+
+    Error: you are not allowed to change sandbox/revert_me.mdwn
+
+I've just tried reading through the revert code, and I haven't figured out
+what permission I am lacking.  Perhaps the error message could be a little
+clearer on that. The error might have been thrown by git_parse_changes in
+git.pm or check_canchange in IkiWiki.pm, via IkiWiki::Receive. -- Jon
+
+[[fixed|done]] --[[Joey]]
+
+: Brilliant, many thanks. -- [[Jon]]

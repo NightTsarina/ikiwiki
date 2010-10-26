@@ -9,7 +9,7 @@ use open qw{:utf8 :std};
 
 my $sha1_pattern     = qr/[0-9a-fA-F]{40}/; # pattern to validate Git sha1sums
 my $dummy_commit_msg = 'dummy commit';      # message to skip in recent changes
-my $no_chdir=0;
+my $git_dir=undef;
 
 sub import {
 	hook(type => "checkconfig", id => "git", call => \&checkconfig);
@@ -164,9 +164,13 @@ sub safe_git (&@) {
 	if (!$pid) {
 		# In child.
 		# Git commands want to be in wc.
-		if (! $no_chdir) {
+		if (! defined $git_dir) {
 			chdir $config{srcdir}
-			    or error("Cannot chdir to $config{srcdir}: $!");
+			    or error("cannot chdir to $config{srcdir}: $!");
+		}
+		else {
+			chdir $git_dir
+			    or error("cannot chdir to $git_dir: $!");
 		}
 		exec @cmdline or error("Cannot exec '@cmdline': $!");
 	}
@@ -721,14 +725,13 @@ sub rcs_getmtime ($) {
 }
 
 {
-my $git_root;
-
+my $ret;
 sub git_find_root {
 	# The wiki may not be the only thing in the git repo.
 	# Determine if it is in a subdirectory by examining the srcdir,
 	# and its parents, looking for the .git directory.
 
-	return $git_root if defined $git_root;
+	return @$ret if defined $ret;
 	
 	my $subdir="";
 	my $dir=$config{srcdir};
@@ -740,7 +743,8 @@ sub git_find_root {
 		}
 	}
 
-	return $git_root=$subdir;
+	$ret=[$subdir, $dir];
+	return @$ret;
 }
 
 }
@@ -748,7 +752,7 @@ sub git_find_root {
 sub git_parse_changes {
 	my @changes = @_;
 
-	my $subdir = git_find_root();
+	my ($subdir, $rootdir) = git_find_root();
 	my @rets;
 	foreach my $ci (@changes) {
 		foreach my $detail (@{ $ci->{'details'} }) {
@@ -794,8 +798,8 @@ sub git_parse_changes {
 				die $@ if $@;
 				my $fh;
 				($fh, $path)=File::Temp::tempfile("XXXXXXXXXX", UNLINK => 1);
-				my $cmd = ($no_chdir ? '' : "cd $config{srcdir} && ")
-					. "git show $detail->{sha1_to} > '$path'";
+				my $cmd = "cd $git_dir && ".
+				          "git show $detail->{sha1_to} > '$path'";
 				if (system($cmd) != 0) {
 					error("failed writing temp file '$path'.");
 				}
@@ -825,10 +829,12 @@ sub rcs_receive () {
 
 		# Avoid chdir when running git here, because the changes
 		# are in the master git repo, not the srcdir repo.
+		# (Also, if a subdir is involved, we don't want to chdir to
+		# it and only see changes in it.)
 		# The pre-receive hook already puts us in the right place.
-		$no_chdir=1;
+		$git_dir=".";
 		push @rets, git_parse_changes(git_commit_info($oldrev."..".$newrev));
-		$no_chdir=0;
+		$git_dir=undef;
 	}
 
 	return reverse @rets;
@@ -838,7 +844,24 @@ sub rcs_preprevert ($) {
 	my $rev=shift;
 	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
 
-	return git_parse_changes(git_commit_info($sha1, 1));
+	# Examine changes from root of git repo, not from any subdir,
+	# in order to see all changes.
+	my ($subdir, $rootdir) = git_find_root();
+	$git_dir=$rootdir;
+	my @commits=git_commit_info($sha1, 1);
+	$git_dir=undef;
+
+	if (! @commits) {
+		error "unknown commit"; # just in case
+	}
+
+	# git revert will fail on merge commits. Add a nice message.
+	if (exists $commits[0]->{parents} &&
+	    @{$commits[0]->{parents}} > 1) {
+		error gettext("you are not allowed to revert a merge");
+	}
+
+	return git_parse_changes(@commits);
 }
 
 sub rcs_revert ($) {

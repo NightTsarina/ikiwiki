@@ -156,10 +156,7 @@ sub preprocess (@) {
 		$imgurl="$config{url}/$imglink";
 	}
 
-	if (exists $params{class}) {
-		$params{class}.=" img";
-	}
-	else {
+	if (! exists $params{class}) {
 		$params{class}="img";
 	}
 
