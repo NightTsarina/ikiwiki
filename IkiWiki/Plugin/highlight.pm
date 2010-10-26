@@ -10,8 +10,8 @@ sub import {
 	hook(type => "getsetup", id => "highlight",  call => \&getsetup);
 	hook(type => "checkconfig", id => "highlight", call => \&checkconfig);
 	# this hook is used by the format plugin
-	hook(type => "htmlizeformat", id => "highlight", call =>
-		\&htmlizeformat);
+	hook(type => "htmlizeformat", id => "highlight", 
+		call => \&htmlizeformat, last => 1);
 }
 
 sub getsetup () {
@@ -74,6 +74,7 @@ sub checkconfig () {
 				},
 				longname => sprintf(gettext("Source code: %s"), $file),
 				@opts,
+				last => 1,
 			);
 		}
 	}
