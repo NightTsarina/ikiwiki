@@ -7,6 +7,7 @@ no warnings;
 
 sub import {
 	hook(type => "getsetup", id => "sortnaturally", call => \&getsetup);
+	hook(type => "checkconfig", id => "sortnaturally", call => \&checkconfig);
 }
 
 sub getsetup {
