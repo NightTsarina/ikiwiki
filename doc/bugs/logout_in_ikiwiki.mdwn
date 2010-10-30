@@ -12,6 +12,12 @@ It looks like there is no way to logout of ikiwiki at present, meaning that if y
 >> (I'd argue also in favor of the openid_provider cookie expiring 
 >>  in less time than it does now, and being session based)
 
+>>> (The `openid_provider` cookie is purely a convenience cookie to
+>>> auto-select the user's openid provider the next time they log
+>>> in. As such, it cannot be a session cookie. It does not provide any
+>>> personally-identifying information so it should not really matter 
+>>> when it expires.) --[[Joey]]
+
 >> It would be nice to move navigational elements to the upper right corner 
 >> of the page...
 
