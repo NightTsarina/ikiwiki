@@ -15,6 +15,7 @@ use IPC::Open2;
 sub import {
 	hook(type => "getsetup", id => "tidy", call => \&getsetup);
 	hook(type => "sanitize", id => "tidy", call => \&sanitize);
+	hook(type => "checkconfig", id => "tidy", call => \&checkconfig);
 }
 
 sub getsetup () {
