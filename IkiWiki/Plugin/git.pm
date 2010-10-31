@@ -688,7 +688,7 @@ sub findtimes ($$) {
 	if (! keys %time_cache) {
 		my $date;
 		foreach my $line (run_or_die('git', 'log',
-				'--pretty=format:%ct',
+				'--pretty=format:%at',
 				'--name-only', '--relative')) {
 			if (! defined $date && $line =~ /^(\d+)$/) {
 				$date=$line;
