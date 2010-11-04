@@ -17,3 +17,12 @@ What can I do?
 
 Is it a spectacularly bad idea to include the ikiwiki state file in my cloned repo (I suspect it is).  What else could be done?  Can I disable pagestate somehow or force ikiwiki to always use git commit times for Posted times?
 
+> Have you tried running ikiwiki with the `--gettime` option on your laptop,
+> to force it to retrieve initial commit times from git? You should only
+> need to do that once, and it'll be cached in the pagestate thereafter.
+>
+> Because that functionality is slow on every supported VCS except git,
+> ikiwiki tries to avoid using it unless it's really needed. [[rcs]]
+> lists it as "fast" for git, though, so depending how fast it really is
+> and how large your wiki is, you might be able to get away with running
+> ikiwiki with `--gettime` all the time? --[[smcv]]
