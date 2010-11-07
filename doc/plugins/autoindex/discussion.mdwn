@@ -61,3 +61,15 @@ If you just don't want to clutter your git repo, below it's a patch does the fol
 
  
 Warning:  I guess this patch may work, but I *haven't tested it yet*.  -- [[weakish]]
+
+------
+
+`autoindex_commit => 0` would be nice, but uncommited files are definitely not.
+<pre>
+remote: From /srv/git/test3
+remote:    3047077..1df636c  master     -> origin/master
+remote: error: Untracked working tree file 'test.mdwn' would be overwritten by merge.  Aborting
+remote: 'git pull --prune origin' failed:  at /usr/share/perl5/IkiWiki/Plugin/git.pm line 201.
+</pre>
+
+It'd be nice if we were able to notice directories with no associated compilable markup files and compile a simple map directive straight to HTML without any intermediate markup file being involved at all. -- JoeRayhawk
