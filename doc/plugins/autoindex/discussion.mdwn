@@ -22,6 +22,8 @@ If you just don't want to clutter your git repo, below it's a patch does the fol
 
 * If you set autoindex_commit to 1 (this is the default), auto-generated index files will be put in the repo provided you enabled rcs backend.
 
+[[!toggle id="patch-for-autoindex_commit" text="patch for autoindex_commit"]]
+[[!toggleable id="patch-for-autoindex_commit" text="""
 <pre>
 --- autoindex.pm.orig	2009-10-01 17:13:51.000000000 +0800
 +++ autoindex.pm	2009-10-01 17:21:09.000000000 +0800
@@ -65,7 +67,7 @@ If you just don't want to clutter your git repo, below it's a patch does the fol
  				gettext("automatic index generation"),
  				undef, undef);
 </pre>
-
+"""]]
  
 Warning:  I guess this patch may work, but I *haven't tested it yet*.  -- [[weakish]]
 
