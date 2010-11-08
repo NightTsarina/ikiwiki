@@ -1,0 +1,20 @@
+On [[todo/auto-create_tag_pages_according_to_a_template]], [[chrysn]]
+suggests:
+
+> Instead of creating a file that gets checked in into the RCS, the
+> source files could be left out and the output files be written as
+> long as there is no physical source file (think of a virtual underlay).
+> Something similar would be required to implement alias directive,
+> which couldn't be easily done by writing to the RCS as the page's
+> contents can change depending on which other pages claim it as an alias.
+
+`add_autofile` could be adapted to do this, or a similar API could be
+added.
+
+This would also be useful for autoindex, as suggested on
+[[plugins/autoindex/discussion]]. I'd also like to use it for
+[[plugins/contrib/album]].
+
+One refinement I'd suggest is that if the transient page is edited,
+its transient contents are evaluated and used as the initial
+content for the edit box; after that, it'd become a static page. --[[smcv]]
