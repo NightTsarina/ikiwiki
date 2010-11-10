@@ -9,6 +9,47 @@ Here's my patch - please consider it! -- [[KathrynAndersen]]
 >> I think so, yeah. Anyway, do you have any benchmark results handy,
 >> Kathryn?  --[[Joey]] 
 
+>>> See below.
+>>> Also, would it make more sense for glob2re to return qr/^$re$/i rather than qr/$re/?  Everything that uses glob2re seems to use
+	$foo =~ /^$re$/i
+>>> rather than /$re/ so I think that would make sense.
+>>> -- [[KathrynAndersen]]
+
+--------------------------------------------------------------
+Benchmarks done with Devel::Profile on the same testbed IkiWiki setup.  I'm just showing the start of the profile output, since that's what's relevant.
+
+Before:
+<pre>
+time elapsed (wall):   27.4173
+time running program:  22.5909  (82.40%)
+time profiling (est.): 4.8264  (17.60%)
+number of calls:       1314729
+number of exceptions:  65
+
+%Time    Sec.     #calls   sec/call  F  name
+11.05    2.4969    62333   0.000040     IkiWiki::PageSpec::match_glob
+ 4.10    0.9261      679   0.001364     Text::Balanced::_match_tagged
+ 2.72    0.6139    59812   0.000010     IkiWiki::SuccessReason::merge_influences
+</pre>
+
+After:
+<pre>
+time elapsed (wall):   26.1843
+time running program:  21.5673  (82.37%)
+time profiling (est.): 4.6170  (17.63%)
+number of calls:       1252433
+number of exceptions:  65
+
+%Time    Sec.     #calls   sec/call  F  name
+ 7.66    1.6521    62333   0.000027     IkiWiki::PageSpec::match_glob
+ 4.33    0.9336      679   0.001375     Text::Balanced::_match_tagged
+ 2.81    0.6057    59812   0.000010     IkiWiki::SuccessReason::merge_influences
+</pre>
+
+Note that the seconds per call for match_glob in the "after" case has gone down by about a third.
+
+K.A.
+
 --------------------------------------------------------------
 <pre>
 diff --git a/IkiWiki.pm b/IkiWiki.pm
