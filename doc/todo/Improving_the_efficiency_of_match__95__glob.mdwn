@@ -2,6 +2,10 @@ I've been profiling my IkiWiki to try to improve speed (with many pages makes sp
 
 Here's my patch - please consider it! -- [[KathrynAndersen]]
 
+> It seems to me as though changing `glob2re` to return qr/$re/, and calling
+> `memoize(glob2re)` next to the other memoize calls, would be a less
+> verbose way to do this? --[[smcv]]
+
 --------------------------------------------------------------
 <pre>
 diff --git a/IkiWiki.pm b/IkiWiki.pm
