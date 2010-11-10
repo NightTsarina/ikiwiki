@@ -1,0 +1,39 @@
+I've been profiling my IkiWiki to try to improve speed (with many pages makes speed even more important) and I've written a patch to improve the speed of match_glob.  This matcher is a good one to improve the speed of, because it gets called so many times.
+
+Here's my patch - please consider it! -- [[KathrynAndersen]]
+
+--------------------------------------------------------------
+<pre>
+diff --git a/IkiWiki.pm b/IkiWiki.pm
+index 08a3d78..c187b98 100644
+--- a/IkiWiki.pm
++++ b/IkiWiki.pm
+@@ -2482,6 +2482,8 @@ sub derel ($$) {
+ 	return $path;
+ }
+ 
++my %glob_cache;
++
+ sub match_glob ($$;@) {
+ 	my $page=shift;
+ 	my $glob=shift;
+@@ -2489,8 +2491,15 @@ sub match_glob ($$;@) {
+ 	
+ 	$glob=derel($glob, $params{location});
+ 
+-	my $regexp=IkiWiki::glob2re($glob);
+-	if ($page=~/^$regexp$/i) {
++	# Instead of converting the glob to a regex every time,
++	# cache the compiled regex to save time.
++	if (!exists $glob_cache{$glob}
++	    or !defined $glob_cache{$glob})
++	{
++	    my $re=IkiWiki::glob2re($glob);
++	    $glob_cache{$glob} = qr/^$re$/i;
++	}
++	if ($page =~ $glob_cache{$glob}) {
+ 		if (! IkiWiki::isinternal($page) || $params{internal}) {
+ 			return IkiWiki::SuccessReason->new("$glob matches $page");
+ 		}
+</pre>
+--------------------------------------------------------------
