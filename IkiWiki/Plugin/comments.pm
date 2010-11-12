@@ -947,14 +947,16 @@ sub match_comment ($$;@) {
 	my $page = shift;
 	my $glob = shift;
 
-	# To see if it's a comment, check the source file type.
-	# Deal with comments that were just deleted.
-	my $source=exists $IkiWiki::pagesources{$page} ?
-		$IkiWiki::pagesources{$page} :
-		$IkiWiki::delpagesources{$page};
-	my $type=defined $source ? IkiWiki::pagetype($source) : undef;
-	if (! defined $type || $type ne "_comment") {
-		return IkiWiki::FailReason->new("$page is not a comment");
+	if (! $postcomment) {
+		# To see if it's a comment, check the source file type.
+		# Deal with comments that were just deleted.
+		my $source=exists $IkiWiki::pagesources{$page} ?
+			$IkiWiki::pagesources{$page} :
+			$IkiWiki::delpagesources{$page};
+		my $type=defined $source ? IkiWiki::pagetype($source) : undef;
+		if (! defined $type || $type ne "_comment") {
+			return IkiWiki::FailReason->new("$page is not a comment");
+		}
 	}
 
 	return match_glob($page, "$glob/*", internal => 1, @_);
