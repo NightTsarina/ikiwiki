@@ -727,6 +727,10 @@ sub previewcomment ($$$) {
 	my $page=shift;
 	my $time=shift;
 
+	# Previewing a comment should implicitly enable comment posting mode.
+	my $oldpostcomment=$postcomment;
+	$postcomment=1;
+
 	my $preview = IkiWiki::htmlize($location, $page, '_comment',
 			IkiWiki::linkify($location, $page,
 			IkiWiki::preprocess($location, $page,
@@ -744,6 +748,8 @@ sub previewcomment ($$$) {
 	});
 
 	$template->param(have_actions => 0);
+
+	$postcomment=$oldpostcomment;
 
 	return $template->output;
 }
