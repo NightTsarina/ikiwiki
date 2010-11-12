@@ -440,3 +440,16 @@ with the release of ikiwiki 3.20100312.
 A fix was also backported to Debian etch, as version 2.53.5. I recommend
 upgrading to one of these versions if your wiki can be edited by third
 parties.
+
+## javascript insertation via insufficient htmlscrubbing of comments
+
+Kevin Riggle noticed that it was not possible to configure
+`htmlscrubber_skip` to scrub comments while leaving unscubbed the text
+of eg, blog posts. Confusingly, setting it to "* and !comment(*)" did not
+scrub comments.
+
+Additionally, it was discovered that comments' html was never scrubbed during
+preview or moderation of comments.
+
+These problems were discovered on 12 November 2010 and fixed the same
+hour with the release of ikiwiki 3.20101112.
