@@ -2482,6 +2482,8 @@ sub derel ($$) {
 	return $path;
 }
 
+my %glob_cache;
+
 sub match_glob ($$;@) {
 	my $page=shift;
 	my $glob=shift;
@@ -2489,8 +2491,14 @@ sub match_glob ($$;@) {
 	
 	$glob=derel($glob, $params{location});
 
-	my $regexp=IkiWiki::glob2re($glob);
-	if ($page=~/^$regexp$/i) {
+	# Instead of converting the glob to a regex every time,
+	# cache the compiled regex to save time.
+	if (!exists $glob_cache{$glob}
+			or !defined $glob_cache{$glob}) {
+		my $re = IkiWiki::glob2re($glob);
+		$glob_cache{$glob} = qr/^$re$/i;
+	}
+	if ($page=~ $glob_cache{$glob}) {
 		if (! IkiWiki::isinternal($page) || $params{internal}) {
 			return IkiWiki::SuccessReason->new("$glob matches $page");
 		}
