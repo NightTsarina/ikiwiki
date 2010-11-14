@@ -15,6 +15,11 @@ Here's my patch - please consider it! -- [[KathrynAndersen]]
 >>> rather than /$re/ so I think that would make sense.
 >>> -- [[KathrynAndersen]]
 
+>>>> Git branch `smcv/ka-glob-cache` has Kathryn's patch. Git
+>>>> branch `smcv/memoize-glob2re` does as I suggested, which
+>>>> is less verbose than Kathryn's patch but also not as
+>>>> fast; I'm not sure why, tbh. --[[smcv]]
+
 --------------------------------------------------------------
 Benchmarks done with Devel::Profile on the same testbed IkiWiki setup.  I'm just showing the start of the profile output, since that's what's relevant.
 
@@ -51,6 +56,72 @@ Note that the seconds per call for match_glob in the "after" case has gone down 
 K.A.
 
 --------------------------------------------------------------
+
+A second set of benchmarks, done by rebuilding the docwiki at commit f942c2db05e4
+like so:
+
+    perl -Iblib/lib -d:Profile ikiwiki.in -setup docwiki.setup --no-verbose
+
+The docwiki appears to use fewer glob matches than Kathryn's wiki.
+
+With master:
+
+    time elapsed (wall):   29.6970
+    time running program:  24.6930  (83.15%)
+    time profiling (est.): 5.0041  (16.85%)
+    number of calls:       1359180
+    number of exceptions:  13
+
+    %Time    Sec.     #calls   sec/call  F  name
+    13.62    3.3629     3406   0.000987     Text::Balanced::_match_tagged
+    10.84    2.6773    79442   0.000034     IkiWiki::PageSpec::match_glob
+     3.08    0.7598    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
+     3.07    0.7593    29830   0.000025     IkiWiki::bestlink
+     2.99    0.7378    10231   0.000072     IkiWiki::PageSpec::match_link
+
+With my `smcv/memoize-glob2re` branch:
+
+    time elapsed (wall):   30.4931
+    time running program:  25.1248  (82.39%)
+    time profiling (est.): 5.3683  (17.61%)
+    number of calls:       1439943
+    number of exceptions:  13
+
+    %Time    Sec.     #calls   sec/call  F  name
+    13.19    3.3146     3406   0.000973     Text::Balanced::_match_tagged
+     8.41    2.1123    79442   0.000027     IkiWiki::PageSpec::match_glob
+     3.97    0.9979    86905   0.000011     Memoize::_memoizer
+     3.05    0.7654    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
+     3.02    0.7576    29830   0.000025     IkiWiki::bestlink
+
+and in a repeated run:
+
+     8.40    2.0905    79442   0.000026     IkiWiki::PageSpec::match_glob
+
+With Kathryn's patch as seen in my `smcv/ka-glob-cache` branch:
+
+    time elapsed (wall):   27.7567
+    time running program:  22.9941  (82.84%)
+    time profiling (est.): 4.7627  (17.16%)
+    number of calls:       1279946
+    number of exceptions:  13
+
+    %Time    Sec.     #calls   sec/call  F  name
+    14.29    3.2867     3406   0.000965     Text::Balanced::_match_tagged
+     7.89    1.8136    79442   0.000023     IkiWiki::PageSpec::match_glob
+     3.30    0.7577    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
+     3.24    0.7461    29830   0.000025     IkiWiki::bestlink
+     3.19    0.7332      143   0.005127  ?  IkiWiki::pagespec_match_list
+
+and in a repeated run:
+
+     7.84    1.8253    79442   0.000023     IkiWiki::PageSpec::match_glob
+
+--[[smcv]]
+
+--------------------------------------------------------------
+
+
 <pre>
 diff --git a/IkiWiki.pm b/IkiWiki.pm
 index 08a3d78..c187b98 100644
