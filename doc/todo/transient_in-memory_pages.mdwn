@@ -18,3 +18,26 @@ This would also be useful for autoindex, as suggested on
 One refinement I'd suggest is that if the transient page is edited,
 its transient contents are evaluated and used as the initial
 content for the edit box; after that, it'd become a static page. --[[smcv]]
+
+--------------------------
+
+[[!template id=gitbranch branch=smcv/transient author="[[smcv]]"]]
+[[!tag patch]]
+
+I had a look at implementing this. It turns out to be harder than I thought
+to have purely in-memory pages (several plugins want to be able to access the
+source file as a file), but I did get this proof-of-concept branch
+to write tag and autoindex pages into an underlay.
+
+This loses the ability to delete the auto-created pages (although they don't
+clutter up git this way, at least), and a lot of the code in autoindex is
+probably now redundant, so this is probably not quite ready for merge, but
+I'd welcome opinions.
+
+Usage: set `tag_underlay` and/or `autoindex_underlay` to an absolute path,
+which you must create beforehand. I suggest *srcdir* + `/.ikiwiki/transient`.
+
+Refinements that could be made if this approach seems reasonable:
+
+* make these options boolean, and have the path always be `.ikiwiki/transient`
+* improve the `remove` plugin so it also deletes from this special underlay
