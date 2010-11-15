@@ -46,3 +46,21 @@ Refinements that could be made if this approach seems reasonable:
 >> The `.ikiwiki/transient` would suit this, but instead of saying "tag_underlay" or "autoindex_underlay" have "use_transient_underlay" or something like that?
 >> Or to make it more flexible, have just one option "transient_underlay" which is set to an absolute path, and if it is set, then one is using a transient-underlay.
 >> --[[KathrynAndersen]]
+
+>>> What I had in mind was more like `tag_autocreate_transient => 1` or
+>>> `autoindex_transient => 1`; you might conceivably want tags to be
+>>> checked in but autoindices to be transient, and it's fine for each
+>>> plugin to make its own decision. Going from that to one boolean
+>>> (or just always-transient if people don't think that's too
+>>> astonishing) would be trivial, though.
+>>>
+>>> I don't think relocating the transient underlay really makes sense,
+>>> except for prototyping: you only want one, and `.ikiwiki` is as good
+>>> a place as any (ikiwiki already needs to be able to write there).
+>>>
+>>> For [[plugins/contrib/album]] I think I'd just make the photo viewer
+>>> pages always-transient - you can always make a transient page
+>>> permanent by editing it, after all.
+>>>
+>>> Do you think this approach has enough potential that I should
+>>> continue to hack on it? Any thoughts on the implementation? --[[smcv]]
