@@ -64,3 +64,11 @@ Refinements that could be made if this approach seems reasonable:
 >>>
 >>> Do you think this approach has enough potential that I should
 >>> continue to hack on it? Any thoughts on the implementation? --[[smcv]]
+
+>>>> Ah, now I understand what you're getting at. Yes, it makes sense to put transient pages under `.ikiwiki`.
+>>>> I haven't looked at the code, but I'd be interested in seeing whether it's generic enough to be used by other plugins (such as `album`) without too much fuss.
+>>>> The idea of a transient underlay gives us a desirable feature for free: that if someone edits the transient page, it is made permanent and added to the repository.
+>>>>
+>>>> I think the tricky thing with removing these transient underlay pages is the question of how to prevent whatever auto-generated the pages in the first place from generating them again - or, conversely, how to force whatever auto-generated those pages to regenerate them if you've changed your mind.
+>>>> I think you'd need something similar to `will_render` so that transient pages would be automatically removed if whatever auto-generated them is no longer around.
+>>>> -- [[KathrynAndersen]]
