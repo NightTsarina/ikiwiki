@@ -20,6 +20,8 @@ Here's my patch - please consider it! -- [[KathrynAndersen]]
 >>>> is less verbose than Kathryn's patch but also not as
 >>>> fast; I'm not sure why, tbh. --[[smcv]]
 
+>>>>> I think it's because my patch focuses on match_glob while the memoize patch focuses on `glob2re`, and `glob2re` is called in `filecheck`, `meta` and `po` as well as in `match_glob` and `match_user`; thus the memoized `glob2re` is dealing with a bigger set of globs to look up, and thus could be just that little bit slower. -- [[KathrynAndersen]]
+
 --------------------------------------------------------------
 Benchmarks done with Devel::Profile on the same testbed IkiWiki setup.  I'm just showing the start of the profile output, since that's what's relevant.
 
