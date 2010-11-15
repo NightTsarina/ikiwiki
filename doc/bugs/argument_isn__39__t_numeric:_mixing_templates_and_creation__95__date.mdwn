@@ -46,8 +46,7 @@ A workaround is to move the template outside of the srcdir into the external tem
 
     \[[!template id=all_entry.tmpl year=2010 current=true]]
 
-An alternative fix is to wrap the entire template inside a test to see whether the page is included or not. E.g.
-
+I believed (until I tested) that the [[ikiwiki/directive/if]] directive, with the `included()` test, would be an option here, E.g.
 
     \[[!if test="included()" then="""
     ...template...
@@ -55,6 +54,4 @@ An alternative fix is to wrap the entire template inside a test to see whether t
     Nothing to see here.
     """]]
 
-In fact, this is probably best practice for in-srcdir templates.  I'd consider this done if the documentation for the directive suggested it. -- [[Jon]]
-
-> [[done]] with <http://git.ikiwiki.info/?p=ikiwiki;a=commitdiff;h=da9e1ea667f82d5fca9168dbed19be08040570ff> -- [[Jon]]
+However this doesn't work.  I assume "included" in this context means e.g. via an `inline` or `map`, not template trans-clusion. -- [[Jon]]
