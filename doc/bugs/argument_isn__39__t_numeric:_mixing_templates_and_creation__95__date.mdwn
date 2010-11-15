@@ -1,0 +1,58 @@
+I get the following error when building my wiki
+
+    Argument "\x{3c}\x{54}..." isn't numeric in numeric eq (==) at /usr/share/perl5/IkiWiki.pm line 2547.
+    Argument "\x{3c}\x{54}..." isn't numeric in numeric eq (==) at /usr/share/perl5/IkiWiki.pm line 2547.
+
+that line corresponds to
+
+    sub match_creation_year ($$;@) {
+	if ((localtime($IkiWiki::pagectime{shift()}))[5] + 1900 == shift) { <-- this one
+		return IkiWiki::SuccessReason->new('creation_year matched');
+	}
+
+A git bisect shows that the offending commit introduced this hunk
+
+
+    --- /dev/null
+    +++ b/templates/all_entry.mdwn
+    @@ -0,0 +1,23 @@
+    +## <TMPL_VAR year>
+    +
+    +There
+    +<TMPL_IF current>
+    +have been
+    +<TMPL_ELSE>
+    +were
+    +</TMPL_IF>
+    +[[!pagecount pages="
+    +log/* and !tagged(aggregation) and !*/Discussion and !tagged(draft)
+    +and creation_year(<TMPL_VAR year>)
+    +and !*.png and !*.jpg
+    +"]] posts
+    +<TMPL_IF current>
+    +so far
+    +</TMPL_IF>
+    +in <TMPL_VAR year>.
+    +
+    +[[!inline pages="
+    +    log/* and !tagged(aggregation) and !*/Discussion and !tagged(draft)
+    +    and creation_year(<TMPL_VAR year>)
+    +    and !*.png and !*.jpg
+    +    " archive=yes feeds=no]]
+
+The lines which feature creation_year(<TMPL_VAR year>) are most likely the culprits.  That would explain why the error was repeated twice, and would tally with the file in `templates/` being rendered, rather than the inclusionists.
+
+A workaround is to move the template outside of the srcdir into the external templates directory and include the file suffix when using it, e.g.
+
+    \[[!template id=all_entry.tmpl year=2010 current=true]]
+
+An alternative fix is to wrap the entire template inside a test to see whether the page is included or not. E.g.
+
+
+    \[[!if test="included()" then="""
+    ...template...
+    """ else="""
+    Nothing to see here.
+    """]]
+
+In fact, this is probably best practice for in-srcdir templates.  I'd consider this done if the documentation for the directive suggested it. -- [[Jon]]
