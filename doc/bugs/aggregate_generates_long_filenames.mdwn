@@ -1,0 +1,10 @@
+the [[pluhins/aggregate]] plugin mashes the `title` of an aggregated post into a filename.  This results in long filenames.  I have hit a filesystem length limitation on several occasions.  Some (ab)uses of RSS, e.g., twitter,
+generate long titles.  Especially once you throw escaping into the mix:
+
+    $ ikiwiki --setup testsetup --aggregate --refresh
+    failed to write ./test/lifestream/Hidden_Features_Of_Perl__44___PHP__44___Javascript__44___C__44___C++__44___C__35____44___Java__44___Ruby___46____46____46__._aggregated.ikiwiki-new: File name too long
+    aggregation failed with code 9216
+    $ echo $?
+    25
+
+-- [[Jon]]
