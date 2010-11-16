@@ -3,3 +3,6 @@ I'd like to be able to do PageSpec matches independent of the Ikiwiki checkout, 
     perl -MIkiWiki -le '$config{wikistatedir}=".ikiwiki"; IkiWiki::loadindex(); print foreach pagespec_match_list("", shift)' "bugs/*"
 
 I get the impression there's a way to build up enough state to run pagespec matches without doing any rendering, but I don't know how. Any ideas? -- JoeRayhawk
+
+> It's not possible to build up enough state without at a minimum
+> performing the scan pass of rendering on every page. --[[Joey]] 
