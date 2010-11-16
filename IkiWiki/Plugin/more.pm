@@ -26,7 +26,10 @@ sub preprocess (@) {
 
 	$params{linktext} = $linktext unless defined $params{linktext};
 
-	if ($params{page} ne $params{destpage}) {
+	if ($params{page} ne $params{destpage} &&
+	    (! exists $params{pages} ||
+	     pagespec_match($params{destpage}, $params{pages},
+		     location => $params{page}))) {
 		return "\n".
 			htmllink($params{page}, $params{destpage}, $params{page},
 				linktext => $params{linktext},
