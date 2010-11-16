@@ -475,7 +475,7 @@ sub showform ($$) {
 						join(" ", @command), $ret).
 					'</p>';
 				open(OUT, ">", $config{setupfile}) || error("$config{setupfile}: $!");
-				print OUT $oldsetup;
+				print OUT Encode::encode_utf8($oldsetup);
 				close OUT;
 			}
 
