@@ -11,3 +11,11 @@ It would also appear this abrubtly terminates aggregate processing (if not ikiwi
 
 
 -- [[Jon]]
+
+> I have to wonder what filesystem you have there where 147 characters
+> is a long filename. Ikiwiki already uses `POSIX::pathconf` on the srcdir
+> to look up `_PC_NAME_MAX`
+> to see if the filename is too long, and shortens it, so it seems
+> that, in additional to having a rather antique long filename limit, your
+> system also doesn't properly expose it via pathconf. Not sure what
+> ikiwiki can do here. --[[Joey]]
