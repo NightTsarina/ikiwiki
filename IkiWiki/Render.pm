@@ -5,7 +5,6 @@ package IkiWiki;
 use warnings;
 use strict;
 use IkiWiki;
-use Encode;
 
 my (%backlinks, %rendered);
 our %brokenlinks;
@@ -94,7 +93,8 @@ sub genpage ($$) {
 	}
 	if (defined $config{historyurl} && length $config{historyurl}) {
 		my $u=$config{historyurl};
-		$u=~s/\[\[file\]\]/$pagesources{$page}/g;
+		my $p=uri_escape_utf8($pagesources{$page});
+		$u=~s/\[\[file\]\]/$p/g;
 		$template->param(historyurl => $u);
 		$actions++;
 	}
