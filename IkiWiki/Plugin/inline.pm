@@ -506,26 +506,59 @@ sub date_822 ($) {
 }
 
 sub absolute_urls ($$) {
-	# sucky sub because rss sucks
-	my $content=shift;
+	# needed because rss sucks
+	my $html=shift;
 	my $baseurl=shift;
 
 	my $url=$baseurl;
 	$url=~s/[^\/]+$//;
+	my $urltop; # calculated if needed
 
-	# what is the non path part of the url?
-	my $top_uri = URI->new($url);
-	$top_uri->path_query(""); # reset the path
-	my $urltop = $top_uri->as_string;
+	my $ret="";
 
-	$content=~s/(<a(?:\s+(?:class|id)\s*="?\w+"?)?)\s+href=\s*"(#[^"]+)"/$1 href="$baseurl$2"/mig;
-	# relative to another wiki page
-	$content=~s/(<a(?:\s+(?:class|id)\s*="?\w+"?)?)\s+href=\s*"(?!\w+:)([^\/][^"]*)"/$1 href="$url$2"/mig;
-	$content=~s/(<img(?:\s+(?:class|id|width|height)\s*="?\w+"?)*)\s+src=\s*"(?!\w+:)([^\/][^"]*)"/$1 src="$url$2"/mig;
-	# relative to the top of the site
-	$content=~s/(<a(?:\s+(?:class|id)\s*="?\w+"?)?)\s+href=\s*"(?!\w+:)(\/[^"]*)"/$1 href="$urltop$2"/mig;
-	$content=~s/(<img(?:\s+(?:class|id|width|height)\s*="?\w+"?)*)\s+src=\s*"(?!\w+:)(\/[^"]*)"/$1 src="$urltop$2"/mig;
-	return $content;
+	eval q{use HTML::Parser; use HTML::Tagset};
+	die $@ if $@;
+	my $p = HTML::Parser->new(api_version => 3);
+	$p->handler(default => sub { $ret.=join("", @_) }, "text");
+	$p->handler(start => sub {
+		my ($tagname, $pos, $text) = @_;
+		if (ref $HTML::Tagset::linkElements{$tagname}) {
+			while (4 <= @$pos) {
+				# use attribute sets from right to left
+				# to avoid invalidating the offsets
+				# when replacing the values
+				my ($k_offset, $k_len, $v_offset, $v_len) =
+					splice(@$pos, -4);
+				my $attrname = lc(substr($text, $k_offset, $k_len));
+				next unless grep { $_ eq $attrname } @{$HTML::Tagset::linkElements{$tagname}};
+				next unless $v_offset; # 0 v_offset means no value
+				my $v = substr($text, $v_offset, $v_len);
+				$v =~ s/^([\'\"])(.*)\1$/$2/;
+				if ($v=~/^#/) {
+					$v=$baseurl.$v; # anchor
+				}
+				elsif ($v=~/^(?!\w+:)[^\/]/) {
+					$v=$url.$v; # relative url
+				}
+				elsif ($v=~/^\//) {
+					if (! defined $urltop) {
+						# what is the non path part of the url?
+						my $top_uri = URI->new($url);
+						$top_uri->path_query(""); # reset the path
+						$urltop = $top_uri->as_string;
+					}
+					$v=$urltop.$v; # url relative to top of site
+				}
+				$v =~ s/\"/&quot;/g; # since we quote with ""
+				substr($text, $v_offset, $v_len) = qq("$v");
+			}
+		}
+		$ret.=$text;
+	}, "tagname, tokenpos, text");
+	$p->parse($html);
+	$p->eof;
+
+	return $ret;
 }
 
 sub genfeed ($$$$$@) {

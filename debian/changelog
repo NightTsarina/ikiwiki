@@ -4,6 +4,10 @@ ikiwiki (3.20101113) UNRELEASED; urgency=low
   * more: Add pages parameter to limit where the more is displayed.
     (thanks, dark)
   * Fix escaping of filenames in historyurl. (Thanks, aj)
+  * inline: Improve RSS url munging to use a proper html parser,
+    and support all elements that HTML::Tagset knows about. 
+    (Which doesn't include html5 just yet, but then the old version
+    didn't either.) Bonus: 4 times faster than old regexp method.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 16 Nov 2010 14:23:47 -0400
 
