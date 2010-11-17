@@ -19,3 +19,16 @@ It would also appear this abrubtly terminates aggregate processing (if not ikiwi
 > that, in additional to having a rather antique long filename limit, your
 > system also doesn't properly expose it via pathconf. Not sure what
 > ikiwiki can do here. --[[Joey]]
+
+>> This is an ext4 filesystem with default settings (which appears to mean
+>> 256 bytes for pathnames).  Despite the error saying file name, it's
+>> definitely a path issue since moving my test repo to `/tmp`from
+>> `/home/jon/wd/mine/www` hides the problem. I note the following comment
+>> in `aggregate.pm`:
+
+		# Make sure that the file name isn't too long. 
+		# NB: This doesn't check for path length limits.
+
+>> I don't fully grok the aggregate source yet, but I wouldn't rule out
+>> a bug in the path length checking, personally.  I'm happy to try and
+>> find it myself though :) -- [[Jon]]
