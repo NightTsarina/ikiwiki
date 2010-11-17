@@ -2493,8 +2493,7 @@ sub match_glob ($$;@) {
 
 	# Instead of converting the glob to a regex every time,
 	# cache the compiled regex to save time.
-	if (!exists $glob_cache{$glob}
-			or !defined $glob_cache{$glob}) {
+	if (!defined $glob_cache{$glob}) {
 		my $re = IkiWiki::glob2re($glob);
 		$glob_cache{$glob} = qr/^$re$/i;
 	}
