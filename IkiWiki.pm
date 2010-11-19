@@ -2388,7 +2388,7 @@ sub glob2re ($) {
 	my $re=quotemeta(shift);
 	$re=~s/\\\*/.*/g;
 	$re=~s/\\\?/./g;
-	return $re;
+	return qr/^$re$/i;
 }
 
 package IkiWiki::FailReason;
