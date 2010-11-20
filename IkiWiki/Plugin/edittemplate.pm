@@ -107,9 +107,11 @@ sub formbuilder (@) {
 						my $template=$pagestate{$registering_page}{edittemplate}{$pagespec};
 						$form->field(name => "editcontent",
 							 value =>  filltemplate($template, $page));
-						$form->field(name => "type",
-							 value => pagetype($pagesources{$template}))
+						my $type=pagetype($pagesources{$template})
 								if $pagesources{$template};
+						$form->field(name => "type",
+							 value => $type)
+								if defined $type;
 						return;
 					}
 				}
