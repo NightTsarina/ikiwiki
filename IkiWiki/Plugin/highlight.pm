@@ -96,14 +96,29 @@ my %highlighters;
 
 # Parse highlight's config file to get extension => language mappings.
 sub read_filetypes () {
-	open (IN, $config{filetypes_conf}) || error("$config{filetypes_conf}: $!");
-	while (<IN>) {
-		chomp;
-		if (/^\$ext\((.*)\)=(.*)$/) {
-			$ext2lang{$_}=$1 foreach $1, split ' ', $2;
+	open (my $f, $config{filetypes_conf}) || error("$config{filetypes_conf}: $!");
+	local $/=undef;
+	my $config=<$f>;
+	close $f;
+
+	# highlight >= 3.2 format (bind-style)
+	while ($config=~m/Lang\s*=\s*\"([^"]+)\"[,\s]+Extensions\s*=\s*{([^}]+)}/sg) {
+		my $lang=$1;
+		foreach my $bit (split ',', $2) {
+			$bit=~s/.*"(.*)".*/$1/s;
+			$ext2lang{$bit}=$lang;
 		}
 	}
-	close IN;
+
+	# highlight < 3.2 format
+	if (! keys %ext2lang) {
+		foreach (split("\n", $config)) {
+			if (/^\$ext\((.*)\)=(.*)$/) {
+				$ext2lang{$_}=$1 foreach $1, split ' ', $2;
+			}
+		}
+	}
+
 	$filetypes_read=1;
 }
 
