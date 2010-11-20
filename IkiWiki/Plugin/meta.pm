@@ -355,7 +355,7 @@ sub match {
 	}
 
 	if (defined $val) {
-		if ($val=~/^$re$/i) {
+		if ($val=~$re) {
 			return IkiWiki::SuccessReason->new("$re matches $field of $page", $page => $IkiWiki::DEPEND_CONTENT, "" => 1);
 		}
 		else {

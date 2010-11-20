@@ -2495,7 +2495,7 @@ sub match_glob ($$;@) {
 	# cache the compiled regex to save time.
 	if (!defined $glob_cache{$glob}) {
 		my $re = IkiWiki::glob2re($glob);
-		$glob_cache{$glob} = qr/^$re$/i;
+		$glob_cache{$glob} = $re;
 	}
 	if ($page=~ $glob_cache{$glob}) {
 		if (! IkiWiki::isinternal($page) || $params{internal}) {
@@ -2667,7 +2667,7 @@ sub match_user ($$;@) {
 		return IkiWiki::ErrorReason->new("no user specified");
 	}
 
-	if (defined $params{user} && $params{user}=~/^$regexp$/i) {
+	if (defined $params{user} && $params{user}=~$regexp) {
 		return IkiWiki::SuccessReason->new("user is $user");
 	}
 	elsif (! defined $params{user}) {

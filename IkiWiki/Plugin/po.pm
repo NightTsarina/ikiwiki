@@ -1297,7 +1297,7 @@ sub match_lang ($$;@) {
 
 	my $regexp=IkiWiki::glob2re($wanted);
 	my $lang=IkiWiki::Plugin::po::lang($page);
-	if ($lang !~ /^$regexp$/i) {
+	if ($lang !~ $regexp) {
 		return IkiWiki::FailReason->new("file language is $lang, not $wanted");
 	}
 	else {
