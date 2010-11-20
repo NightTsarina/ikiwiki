@@ -43,12 +43,19 @@ Here's my patch - please consider it! -- [[KathrynAndersen]]
 >>>>>> `/^/i` regexp that can be used without further modifiction in most
 >>>>>> cases. --[[Joey]] 
 
->>>>>>> Done, see `smcv/ready/glob-cache`.
+>>>>>>> Done, see `smcv/ready/glob-cache` and `smcv/glob-cache-too-far`.
+>>>>>>>
 >>>>>>> Kathryn's patch is a significant improvement; my first patch on top of
->>>>>>> that is a trivial cleanup that speeds it up a little, and the other two
+>>>>>>> that is a trivial cleanup that speeds it up a little, and the next two
 >>>>>>> patches (using precompiled regexes) have surprisingly little effect
 >>>>>>> (they don't slow it down either though, so either omit them or merge
->>>>>>> them, whichever). Detailed benchmark results --[[smcv]]
+>>>>>>> them, whichever). Detailed benchmark results below.
+>>>>>>>
+>>>>>>> Moving the memoization to `glob2re` actually seems to slow things down
+>>>>>>> again - I suspect the docwiki has few enough mentions of `user()` etc.
+>>>>>>> that caching them is a waste of time, but perhaps it's not the most
+>>>>>>> representative.
+>>>>>>> --[[smcv]]
 
 --------------------------------------------------------------
 
@@ -120,9 +127,21 @@ master at time of branch:
      7.70    1.7814    79514   0.000022     IkiWiki::PageSpec::match_glob
      3.35    0.7756    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
 
-"""]]
+`move memoization from match_glob to glob2re`:
+
+    time elapsed (wall):   28.7677
+    time running program:  23.9473  (83.24%)
+    time profiling (est.): 4.8205  (16.76%)
+    number of calls:       1360181
+    number of exceptions:  13
+    
+    %Time    Sec.     #calls   sec/call  F  name
+    13.98    3.3469     3408   0.000982     Text::Balanced::_match_tagged
+     8.85    2.1194    79514   0.000027     IkiWiki::PageSpec::match_glob
+     3.24    0.7750    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
 
 --[[smcv]]
+"""]]
 
 --------------------------------------------------------------
 
