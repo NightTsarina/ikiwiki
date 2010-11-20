@@ -2493,11 +2493,11 @@ sub match_glob ($$;@) {
 
 	# Instead of converting the glob to a regex every time,
 	# cache the compiled regex to save time.
-	if (!defined $glob_cache{$glob}) {
-		my $re = IkiWiki::glob2re($glob);
-		$glob_cache{$glob} = $re;
+	my $re=$glob_cache{$glob};
+	unless (defined $re) {
+		$glob_cache{$glob} = $re = IkiWiki::glob2re($glob);
 	}
-	if ($page=~ $glob_cache{$glob}) {
+	if ($page =~ $re) {
 		if (! IkiWiki::isinternal($page) || $params{internal}) {
 			return IkiWiki::SuccessReason->new("$glob matches $page");
 		}
