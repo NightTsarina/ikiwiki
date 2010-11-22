@@ -501,6 +501,12 @@ sub defaultconfig () {
 	return @ret;
 }
 
+# URL to top of wiki as a path starting with /, valid from any wiki page or
+# the CGI; if that's not possible, an absolute URL. Either way, it ends with /
+my $local_url;
+# URL to CGI script, similar to $local_url
+my $local_cgiurl;
+
 sub checkconfig () {
 	# locale stuff; avoid LC_ALL since it overrides everything
 	if (defined $ENV{LC_ALL}) {
@@ -537,7 +543,30 @@ sub checkconfig () {
 	if ($config{cgi} && ! length $config{url}) {
 		error(gettext("Must specify url to wiki with --url when using --cgi"));
 	}
-	
+
+	if (length $config{url}) {
+		eval q{use URI};
+		my $baseurl = URI->new($config{url});
+
+		$local_url = $baseurl->path . "/";
+		$local_cgiurl = undef;
+
+		if (length $config{cgiurl}) {
+			my $cgiurl = URI->new($config{cgiurl});
+
+			$local_cgiurl = $cgiurl->path;
+
+			if ($cgiurl->scheme ne $baseurl->scheme or
+				$cgiurl->authority ne $baseurl->authority) {
+				# too far apart, fall back to absolute URLs
+				$local_url = "$config{url}/";
+				$local_cgiurl = $config{cgiurl};
+			}
+		}
+
+		$local_url =~ s{//$}{/};
+	}
+
 	$config{wikistatedir}="$config{srcdir}/.ikiwiki"
 		unless exists $config{wikistatedir} && defined $config{wikistatedir};
 
