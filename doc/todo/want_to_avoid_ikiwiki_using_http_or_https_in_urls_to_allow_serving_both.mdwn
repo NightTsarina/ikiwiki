@@ -181,6 +181,16 @@ New API added by this branch:
 
 * `urlto(x, y, 'local')` uses `$local_url` instead of `$config{url}`
 
+  > Yikes. I see why you wanted to keep it to 3 parameters (4 is too many,
+  > and po overrides it), but I dislike overloading the third parameter
+  > like that.
+  > 
+  > There are fairly few calls to `urlto($foo, $bar)`, so why not
+  > make that always return the semi-local url form, and leave the third
+  > parameter for the cases that need a true fully-qualified url.
+  > The new form for local urls will typically be only a little bit longer,
+  > except in the unusual case where the cgiurl is elsewhere. --[[Joey]]
+
 * `IkiWiki::baseurl` has a new second argument which works like the
   third argument of `urlto`
 
@@ -199,8 +209,12 @@ Bugs:
   `cgiurl(cgiurl => $config{cgiurl}, ...)`,
   although that does look a bit strange
 
+  > I agree that makes sense. --[[Joey]]
+
 * It occurs to me that `IkiWiki::cgiurl` could probably benefit from being
   exported? Perhaps also `IkiWiki::baseurl`?
+
+  > Possibly, see [[firm_up_plugin_interface]]. --[[Joey]] 
 
 * Or, to reduce use of the unexported `baseurl` function, it might make
   sense to give `urlto` a special case that references the root of the wiki,
@@ -210,3 +224,6 @@ Bugs:
         do_something(baseurl => urlto('/', undef, local)`);
         do_something_else(urlto('/').'style.css');
         IkiWiki::redirect(urlto('/', undef, 1));
+
+  > AFACIS, `baseurl` is only called in 3 places so I don't think that's
+  > needed. --[[Joey]] 
