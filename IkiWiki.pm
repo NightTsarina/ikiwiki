@@ -1057,7 +1057,7 @@ sub cgiurl (@) {
 sub baseurl (;$) {
 	my $page=shift;
 
-	return "$config{url}/" if ! defined $page;
+	return $local_url if ! defined $page;
 	
 	$page=htmlpage($page);
 	$page=~s/[^\/]+$//;
