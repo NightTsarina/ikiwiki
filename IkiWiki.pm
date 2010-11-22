@@ -1039,7 +1039,8 @@ sub linkpage ($) {
 sub cgiurl (@) {
 	my %params=@_;
 
-	my $cgiurl=$config{cgiurl};
+	my $cgiurl=$local_cgiurl;
+
 	if (exists $params{cgiurl}) {
 		$cgiurl=$params{cgiurl};
 		delete $params{cgiurl};
