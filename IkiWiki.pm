@@ -1044,6 +1044,11 @@ sub cgiurl (@) {
 		$cgiurl=$params{cgiurl};
 		delete $params{cgiurl};
 	}
+
+	unless (%params) {
+		return $cgiurl;
+	}
+
 	return $cgiurl."?".
 		join("&amp;", map $_."=".uri_escape_utf8($params{$_}), keys %params);
 }
