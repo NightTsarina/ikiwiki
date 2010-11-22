@@ -191,13 +191,40 @@ New API added by this branch:
   > The new form for local urls will typically be only a little bit longer,
   > except in the unusual case where the cgiurl is elsewhere. --[[Joey]]
 
+  >> So, have urlto(x, y) use `$local_url`? There are few calls, but IMO
+  >> they're for the most important things - wikilinks, img, map and
+  >> other ordinary hyperlinks. Using `$local_url` would be fine for
+  >> webserver-based use, but it does stop you browsing your wiki's
+  >> HTML over `file:///` (unless you set that as the base URL, but
+  >> then you can't move it around), and stops you moving simple
+  >> outputs (like the docwiki!) around.
+  >>
+  >> I personally think breaking the docwiki is enough to block that.
+  >>
+  >> How about this?
+  >>
+  >> * `urlto($link, $page)` with `$page` defined: relative
+  >> * `urlto($link, undef)`: local, starts with `/`
+  >> * `urlto($link)`: also local, as a side-effect
+  >> * `urlto($link, $anything, 1)` (but idiomatically, `$anything` is
+  >>   normally undef): absolute, starts with `http[s]://`
+  >>
+  >> --[[smcv]]
+
 * `IkiWiki::baseurl` has a new second argument which works like the
   third argument of `urlto`
 
+  > I assume you have no objection to this --[[smcv]]
+
 * `IkiWiki::cgiurl` uses `$local_cgiurl` if passed `local_cgiurl => 1`
+
+  > Possibly changed to making this always be local unless `cgiurl => $x`
+  > is given: see below --[[smcv]]
 
 * `IkiWiki::cgiurl` omits the trailing `?` if given no named parameters
   except `cgiurl` and/or `local_cgiurl`
+
+  > I assume you have no objection to this --[[smcv]]
 
 Bugs:
 
@@ -211,10 +238,18 @@ Bugs:
 
   > I agree that makes sense. --[[Joey]]
 
+  >> I'm not completely sure whether you're agreeing with "perhaps do this"
+  >> or "that looks too strange", so please disambiguate:
+  >> would you accept a patch that makes `cgiurl` default to a local
+  >> (starts-with-`/`) result? If you would, that'd reduce the diff. --[[smcv]]
+
 * It occurs to me that `IkiWiki::cgiurl` could probably benefit from being
   exported? Perhaps also `IkiWiki::baseurl`?
 
-  > Possibly, see [[firm_up_plugin_interface]]. --[[Joey]] 
+  > Possibly, see [[firm_up_plugin_interface]]. --[[Joey]]
+
+  >> Not really part of this branch, though, so wontfix (unless you ask me
+  >> to do so). --[[smcv]]
 
 * Or, to reduce use of the unexported `baseurl` function, it might make
   sense to give `urlto` a special case that references the root of the wiki,
@@ -227,3 +262,5 @@ Bugs:
 
   > AFACIS, `baseurl` is only called in 3 places so I don't think that's
   > needed. --[[Joey]] 
+
+  >> OK, wontfix. --[[smcv]]
