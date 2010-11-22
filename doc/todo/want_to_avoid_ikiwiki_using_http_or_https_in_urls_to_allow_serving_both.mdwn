@@ -201,6 +201,10 @@ New API added by this branch:
   >>
   >> I personally think breaking the docwiki is enough to block that.
   >>
+  >>> Well, the docwiki doesn't have an url configured at all, so I assumed
+  >>> it would need to fall back to current behavior in that case. I had
+  >>> not thought about browsing wiki's html files though, good point.
+  >>
   >> How about this?
   >>
   >> * `urlto($link, $page)` with `$page` defined: relative
@@ -210,11 +214,23 @@ New API added by this branch:
   >>   normally undef): absolute, starts with `http[s]://`
   >>
   >> --[[smcv]]
+  >> 
+  >>> That makes a great deal of sense, bravo for actually removing
+  >>> parameters in the common case while maintaining backwards
+  >>> compatability!
+  >>> 
+  >>> It does highlight that it would be better to have a
+  >>> `absolute_urlto($link)` (or maybe `absolute(urlto($link))` )
+  >>> rather than the 3 parameter form. --[[Joey]]
 
 * `IkiWiki::baseurl` has a new second argument which works like the
   third argument of `urlto`
 
   > I assume you have no objection to this --[[smcv]]
+
+  >> It's so little used that I don't really care if it's a bit ugly.
+  >> (But I assume changes to `urlto` will follow through here anyway.)
+  >> --[[Joey]] 
 
 * `IkiWiki::cgiurl` uses `$local_cgiurl` if passed `local_cgiurl => 1`
 
@@ -225,6 +241,8 @@ New API added by this branch:
   except `cgiurl` and/or `local_cgiurl`
 
   > I assume you have no objection to this --[[smcv]]
+  > 
+  >> Nod, although I don't know of a use case. --[[Joey]] 
 
 Bugs:
 
@@ -242,6 +260,10 @@ Bugs:
   >> or "that looks too strange", so please disambiguate:
   >> would you accept a patch that makes `cgiurl` default to a local
   >> (starts-with-`/`) result? If you would, that'd reduce the diff. --[[smcv]]
+
+  >>> Yes, I absolutely think it should default to local. (Note that
+  >>> if `absolute()` were implemented as suggested above, it could also
+  >>> be used with cgiurl if necessary.) --[[Joey]]
 
 * It occurs to me that `IkiWiki::cgiurl` could probably benefit from being
   exported? Perhaps also `IkiWiki::baseurl`?
