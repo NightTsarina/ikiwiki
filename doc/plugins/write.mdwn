@@ -988,6 +988,10 @@ Construct a relative url to the first parameter from the page named by the
 second. The first parameter can be either a page name, or some other
 destination file, as registered by `will_render`.
 
+If the second parameter is `undef`, the URL will be valid from any page on the
+wiki, or from the CGI; if possible it'll be a path starting with `/`, but an
+absolute URL will be used if the wiki and the CGI are on different servers.
+
 If the third parameter is passed and is true, an absolute url will be
 constructed instead of the default relative url.
 

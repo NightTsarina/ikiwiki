@@ -1148,6 +1148,12 @@ sub urlto ($$;$) {
 		return $config{url}.beautify_urlpath("/".$to);
 	}
 
+	if (! defined $from) {
+		my $u = $local_url;
+		$u =~ s{/$}{};
+		return $u.beautify_urlpath("/".$to);
+	}
+
 	my $link = abs2rel($to, dirname(htmlpage($from)));
 
 	return beautify_urlpath($link);
