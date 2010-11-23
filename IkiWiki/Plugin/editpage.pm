@@ -156,13 +156,13 @@ sub cgi_editpage ($$) {
 	my $previewing=0;
 	if ($form->submitted eq "Cancel") {
 		if ($form->field("do") eq "create" && defined $from) {
-			redirect($q, urlto($from, undef, 1));
+			redirect($q, urlto($from, undef));
 		}
 		elsif ($form->field("do") eq "create") {
-			redirect($q, $config{url});
+			redirect($q, baseurl(undef));
 		}
 		else {
-			redirect($q, urlto($page, undef, 1));
+			redirect($q, urlto($page, undef));
 		}
 		exit;
 	}
@@ -262,7 +262,7 @@ sub cgi_editpage ($$) {
 					@page_locs=$page;
 				}
 				else {
-					redirect($q, urlto($page, undef, 1));
+					redirect($q, urlto($page, undef));
 					exit;
 				}
 			}
@@ -434,7 +434,7 @@ sub cgi_editpage ($$) {
 		else {
 			# The trailing question mark tries to avoid broken
 			# caches and get the most recent version of the page.
-			redirect($q, urlto($page, undef, 1)."?updated");
+			redirect($q, urlto($page, undef)."?updated");
 		}
 	}
 

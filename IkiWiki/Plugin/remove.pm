@@ -240,7 +240,7 @@ sub sessioncgi ($$) {
 				if (! exists $pagesources{$parent}) {
 					$parent="index";
 				}
-				IkiWiki::redirect($q, urlto($parent, '/', 1));
+				IkiWiki::redirect($q, urlto($parent, undef));
 			}
 		}
 		else {

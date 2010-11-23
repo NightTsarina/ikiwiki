@@ -231,11 +231,11 @@ sub cgi_prefs ($$) {
 	
 	if ($form->submitted eq 'Logout') {
 		$session->delete();
-		redirect($q, $config{url});
+		redirect($q, baseurl(undef));
 		return;
 	}
 	elsif ($form->submitted eq 'Cancel') {
-		redirect($q, $config{url});
+		redirect($q, baseurl(undef));
 		return;
 	}
 	elsif ($form->submitted eq 'Save Preferences' && $form->validate) {

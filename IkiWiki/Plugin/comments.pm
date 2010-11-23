@@ -386,7 +386,7 @@ sub editcomment ($$) {
 	if ($form->submitted eq CANCEL) {
 		# bounce back to the page they wanted to comment on, and exit.
 		# CANCEL need not be considered in future
-		IkiWiki::redirect($cgi, urlto($page, undef, 1));
+		IkiWiki::redirect($cgi, urlto($page, undef));
 		exit;
 	}
 
@@ -552,7 +552,7 @@ sub editcomment ($$) {
 		# Jump to the new comment on the page.
 		# The trailing question mark tries to avoid broken
 		# caches and get the most recent version of the page.
-		IkiWiki::redirect($cgi, urlto($page, undef, 1).
+		IkiWiki::redirect($cgi, urlto($page, undef).
 			"?updated#".page_to_id($location));
 
 	}

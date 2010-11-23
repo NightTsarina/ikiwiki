@@ -175,7 +175,7 @@ sub auth ($$) {
 			IkiWiki::redirect($q, $setup_url);
 		}
 		elsif ($csr->user_cancel) {
-			IkiWiki::redirect($q, $config{url});
+			IkiWiki::redirect($q, IkiWiki::baseurl(undef));
 		}
 		elsif (my $vident = $csr->verified_identity) {
 			$session->param(name => $vident->url);
