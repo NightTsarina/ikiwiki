@@ -301,7 +301,7 @@ sub editcomment ($$) {
 		required => [qw{editcontent}],
 		javascript => 0,
 		params => $cgi,
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		header => 0,
 		table => 0,
 		template => { template('editcomment.tmpl') },

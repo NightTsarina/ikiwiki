@@ -75,7 +75,7 @@ sub cgi_editpage ($$) {
 		required => [qw{editcontent}],
 		javascript => 0,
 		params => $q,
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		header => 0,
 		table => 0,
 		template => { template("editpage.tmpl") },

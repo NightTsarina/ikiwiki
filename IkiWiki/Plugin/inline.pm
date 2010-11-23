@@ -300,7 +300,7 @@ sub preprocess_inline (@) {
 	    IkiWiki->can("cgi_editpage")) {
 		# Add a blog post form, with feed buttons.
 		my $formtemplate=template_depends("blogpost.tmpl", $params{page}, blind_cache => 1);
-		$formtemplate->param(cgiurl => $config{cgiurl});
+		$formtemplate->param(cgiurl => IkiWiki::cgiurl());
 		$formtemplate->param(rootpage => rootpage(%params));
 		$formtemplate->param(rssurl => $rssurl) if $feeds && $rss;
 		$formtemplate->param(atomurl => $atomurl) if $feeds && $atom;

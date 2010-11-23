@@ -84,7 +84,7 @@ sub sessioncgi ($$) {
 		method => 'POST',
 		javascript => 0,
 		params => $q,
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		stylesheet => 1,
 		template => { template('revert.tmpl') },
 		fields => [qw{revertmessage do sid rev}],

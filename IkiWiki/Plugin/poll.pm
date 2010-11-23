@@ -52,7 +52,7 @@ sub preprocess (@) {
 	foreach my $choice (@choices) {
 		if ($open && exists $config{cgiurl}) {
 			# use POST to avoid robots
-			$ret.="<form method=\"POST\" action=\"$config{cgiurl}\">\n";
+			$ret.="<form method=\"POST\" action=\"".IkiWiki::cgiurl()."\">\n";
 		}
 		my $percent=$total > 0 ? int($choices{$choice} / $total * 100) : 0;
 		$ret.="<p>\n";

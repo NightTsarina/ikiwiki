@@ -288,7 +288,7 @@ sub showform ($$) {
 		fieldsets => [
 			[main => gettext("main")], 
 		],
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		template => {type => 'div'},
 		stylesheet => 1,
 	);
