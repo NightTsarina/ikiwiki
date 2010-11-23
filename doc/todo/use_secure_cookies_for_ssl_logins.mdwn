@@ -1,0 +1,12 @@
+[[!template id=gitbranch branch=smcv/ready/sslcookie-auto author="[[smcv]]"]]
+[[!tag patch]]
+
+At the moment `sslcookie => 0` never creates secure cookies, so if you log in
+with SSL, your browser will send the session cookie even over plain HTTP.
+Meanwhile `sslcookie => 1` always creates secure cookies, so you can't
+usefully log in over plain http.
+
+This branch adds `sslcookie => 0, sslcookie_auto => 1` as an option; this
+uses the `HTTPS` environment variable, so if you log in over SSL you'll
+get a secure session cookie, but if you log in over HTTP, you won't.
+(The syntax for the setup file is pretty rubbish - any other suggestions?)
