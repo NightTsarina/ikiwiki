@@ -566,6 +566,9 @@ sub checkconfig () {
 
 		$local_url =~ s{//$}{/};
 	}
+	else {
+		$local_cgiurl = $config{cgiurl};
+	}
 
 	$config{wikistatedir}="$config{srcdir}/.ikiwiki"
 		unless exists $config{wikistatedir} && defined $config{wikistatedir};
