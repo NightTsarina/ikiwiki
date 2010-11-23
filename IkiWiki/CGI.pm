@@ -116,7 +116,7 @@ sub cgi_signin ($$;$) {
 		required => 'NONE',
 		javascript => 0,
 		params => $q,
-		action => $config{cgiurl},
+		action => cgiurl(),
 		header => 0,
 		template => {type => 'div'},
 		stylesheet => 1,
@@ -198,7 +198,7 @@ sub cgi_prefs ($$) {
 		required => 'NONE',
 		javascript => 0,
 		params => $q,
-		action => $config{cgiurl},
+		action => cgiurl(),
 		template => {type => 'div'},
 		stylesheet => 1,
 		fieldsets => [
