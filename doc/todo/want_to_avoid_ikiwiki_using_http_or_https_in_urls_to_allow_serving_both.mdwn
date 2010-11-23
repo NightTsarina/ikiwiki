@@ -147,7 +147,7 @@ you don't like my approach:
 
 ----
 
-[[!template id=gitbranch branch=smcv/ready/localurl author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/localurl author="[[smcv]]"]]
 [[!tag patch]]
 
 OK, here's an alternative approach, closer in spirit to what was initially
@@ -165,14 +165,17 @@ whether `url` and `cgiurl` are on the same server with the the same URL
 scheme. In theory you could use things like `//static.example.com/wiki/`
 and `//dynamic.example.com/ikiwiki.cgi` to preserve choice of http/https
 while switching server, but I don't know how consistently browsers
-suppot that.
+support that.
 
 "local" here is short for "locally valid", because these URLs are neither
 fully relative nor fully absolute, and there doesn't seem to be a good name
 for them...
 
-I've tested this on a demo website with the CGI enabled, and it seems to
+I tested an earlier version on a demo website with the CGI enabled, and it seemed to
 work nicely (there might be bugs in some plugins, I didn't try all of them).
+I haven't yet re-tested with my updated branch, which is why it's not `ready/`
+yet.
+
 The `$config{url}` and `$config{cgiurl}` are both HTTP, but if I enable
 `httpauth`, set `cgiauthurl` to a HTTPS version of the same site and log
 in via that, links all end up in the HTTPS version.
@@ -217,11 +220,19 @@ New API added by this branch:
   >> 
   >>> That makes a great deal of sense, bravo for actually removing
   >>> parameters in the common case while maintaining backwards
-  >>> compatability!
+  >>> compatability! --[[Joey]]
+  >>>
+  >>>> Done in my `localurl` branch; not tested in a whole-wiki way
+  >>>> yet, but I did add a regression test. I've used
+  >>>> `urlto(x, undef)` rather than `urlto(x)` so far, but I could
+  >>>> go back through the codebase using the short form if you'd
+  >>>> prefer. --[[smcv]]
   >>> 
   >>> It does highlight that it would be better to have a
   >>> `absolute_urlto($link)` (or maybe `absolute(urlto($link))` )
   >>> rather than the 3 parameter form. --[[Joey]]
+  >>>
+  >>> Possibly. I haven't added this.
 
 * `IkiWiki::baseurl` has a new second argument which works like the
   third argument of `urlto`
@@ -232,19 +243,34 @@ New API added by this branch:
   >> (But I assume changes to `urlto` will follow through here anyway.)
   >> --[[Joey]] 
 
+  >>> I had to use it a bit more, as a replacement for `$config{url}`
+  >>> when doing things like referencing stylesheets or redirecting to
+  >>> the top of the wiki.
+  >>>
+  >>> I ended up redoing this without the extra parameter. Previously,
+  >>> `baseurl(undef)` was the absolute URL; now, `baseurl(undef)` is
+  >>> the local path. I know you objected to me using `baseurl()` in
+  >>> an earlier branch, because `baseurl().$x` looks confusingly
+  >>> similar to `baseurl($x)` but has totally different semantics;
+  >>> I've generally written it `baseurl(undef)` now, to be more
+  >>> explicit. --[[smcv]]
+
 * `IkiWiki::cgiurl` uses `$local_cgiurl` if passed `local_cgiurl => 1`
 
-  > Possibly changed to making this always be local unless `cgiurl => $x`
-  > is given: see below --[[smcv]]
+  > Now changed to always use the `$local_cgiurl`. --[[smcv]]
 
 * `IkiWiki::cgiurl` omits the trailing `?` if given no named parameters
   except `cgiurl` and/or `local_cgiurl`
 
   > I assume you have no objection to this --[[smcv]]
   > 
-  >> Nod, although I don't know of a use case. --[[Joey]] 
+  >> Nod, although I don't know of a use case. --[[Joey]]
 
-Bugs:
+  >>> The use-case is that I can replace `$config{cgiurl}` with
+  >>> `IkiWiki::cgiurl()` for things like the action attribute of
+  >>> forms. --[[smcv]]
+
+Fixed bugs:
 
 * I don't think anything except `openid` calls `cgiurl` without also
   passing in `local_cgiurl => 1`, so perhaps that should be the default;
@@ -264,6 +290,10 @@ Bugs:
   >>> Yes, I absolutely think it should default to local. (Note that
   >>> if `absolute()` were implemented as suggested above, it could also
   >>> be used with cgiurl if necessary.) --[[Joey]]
+
+  >>>> Done (minus `absolute()`). --[[smcv]]
+
+Potential future things:
 
 * It occurs to me that `IkiWiki::cgiurl` could probably benefit from being
   exported? Perhaps also `IkiWiki::baseurl`?
@@ -285,4 +315,7 @@ Bugs:
   > AFACIS, `baseurl` is only called in 3 places so I don't think that's
   > needed. --[[Joey]] 
 
-  >> OK, wontfix. --[[smcv]]
+  >> OK, wontfix. For what it's worth, my branch has 6 uses in IkiWiki
+  >> core code (IkiWiki, CGI, Render and the pseudo-core part of editpage)
+  >> and 5 in plugins, since I used it for things like redirection back
+  >> to the top of the wiki --[[smcv]]
