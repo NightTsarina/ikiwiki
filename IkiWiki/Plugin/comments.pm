@@ -656,6 +656,7 @@ sub commentmoderation ($$) {
 	$template->param(
 		sid => $session->id,
 		comments => \@comments,
+		cgiurl => IkiWiki::cgiurl(),
 	);
 	IkiWiki::printheader($session);
 	my $out=$template->output;
