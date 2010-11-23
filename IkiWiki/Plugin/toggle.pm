@@ -70,19 +70,18 @@ sub format (@) {
 		$params{content}=~s/<div class="toggleableend">//g;
 		if (! ($params{content}=~s!^(<body[^>]*>)!$1.include_javascript($params{page})!em)) {
 			# no <body> tag, probably in preview mode
-			$params{content}=include_javascript($params{page}, 1).$params{content};
+			$params{content}=include_javascript(undef).$params{content};
 		}
 	}
 	return $params{content};
 }
 
-sub include_javascript ($;$) {
-	my $page=shift;
-	my $absolute=shift;
+sub include_javascript ($) {
+	my $from=shift;
 	
-	return '<script src="'.urlto("ikiwiki/ikiwiki.js", $page, $absolute).
+	return '<script src="'.urlto("ikiwiki/ikiwiki.js", $from).
 		'" type="text/javascript" charset="utf-8"></script>'."\n".
-		'<script src="'.urlto("ikiwiki/toggle.js", $page, $absolute).
+		'<script src="'.urlto("ikiwiki/toggle.js", $from).
 		'" type="text/javascript" charset="utf-8"></script>';
 }
 
