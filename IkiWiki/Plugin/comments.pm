@@ -237,7 +237,7 @@ sub preprocess {
 	}
 
 	if ($params{page} =~ m/\/\Q$config{comments_pagename}\E\d+_/) {
-		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page}), undef, 1).
+		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page}), undef).
 			"#".page_to_id($params{page});
 	}
 
@@ -372,7 +372,7 @@ sub editcomment ($$) {
 		error(gettext("bad page name"));
 	}
 
-	my $baseurl = urlto($page, undef, 1);
+	my $baseurl = urlto($page, undef);
 
 	$form->title(sprintf(gettext("commenting on %s"),
 			IkiWiki::pagetitle($page)));
@@ -810,14 +810,14 @@ sub pagetemplate (@) {
 	if ($shown) {
 		if ($template->query(name => 'commentsurl')) {
 			$template->param(commentsurl =>
-				urlto($page, undef, 1).'#comments');
+				urlto($page, undef).'#comments');
 		}
 
 		if ($template->query(name => 'atomcommentsurl') && $config{usedirs}) {
 			# This will 404 until there are some comments, but I
 			# think that's probably OK...
 			$template->param(atomcommentsurl =>
-				urlto($page, undef, 1).'comments.atom');
+				urlto($page, undef).'comments.atom');
 		}
 
 		if ($template->query(name => 'commentslink')) {

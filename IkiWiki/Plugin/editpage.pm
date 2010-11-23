@@ -98,7 +98,7 @@ sub cgi_editpage ($$) {
 		error(gettext("bad page name"));
 	}
 
-	my $baseurl = urlto($page, undef, 1);
+	my $baseurl = urlto($page, undef);
 
 	my $from;
 	if (defined $form->field('from')) {
