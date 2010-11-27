@@ -1,0 +1,69 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to security on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-0ea5f43790fe2ce3cc40e9513191e72c67a1ee51"]]
+
+<div id="change-0ea5f43790fe2ce3cc40e9513191e72c67a1ee51" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/security.mdwn;h=33b199247dbf541362097124a984ceba6d93658e;hp=34a0052397fa857552051fc7e06cef84a1ccab01;hb=0ea5f43790fe2ce3cc40e9513191e72c67a1ee51;hpb=d5056fb61e8332fea658363e931ec28a35681ffe" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=security&amp;do=goto" rel="nofollow">security</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Fri, 12 Nov 2010 00:24:52 -0400">00:24:52 11/12/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=0ea5f43790fe2ce3cc40e9513191e72c67a1ee51&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+security issue<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/security.mdwn b/doc/security.mdwn
+index 34a0052..33b1992 100644
+--- a/doc/security.mdwn
++++ b/doc/security.mdwn
+@@ -440,3 +440,16 @@ with the release of ikiwiki 3.20100312.
+ A fix was also backported to Debian etch, as version 2.53.5. I recommend
+ upgrading to one of these versions if your wiki can be edited by third
+ parties.
++
++## javascript insertation via insufficient htmlscrubbing of comments
++
++Kevin Riggle noticed that it was not possible to configure
++`htmlscrubber_skip` to scrub comments while leaving unscubbed the text
++of eg, blog posts. Confusingly, setting it to &quot;* and !comment(*)&quot; did not
++scrub comments.
++
++Additionally, it was discovered that comments&#39; html was never scrubbed during
++preview or moderation of comments.
++
++These problems were discovered on 12 November 2010 and fixed the same
++hour with the release of ikiwiki 3.20101112.
+
+</pre>
+</div>
+
+<!-- 0ea5f43790fe2ce3cc40e9513191e72c67a1ee51 -->

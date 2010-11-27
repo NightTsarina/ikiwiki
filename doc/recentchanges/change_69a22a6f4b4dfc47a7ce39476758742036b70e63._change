@@ -1,0 +1,80 @@
+[[!meta author="""dark"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fdark&amp;do=goto"""]]
+
+[[!meta title="""change to todo/selective_more_directive on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-69a22a6f4b4dfc47a7ce39476758742036b70e63"]]
+
+<div id="change-69a22a6f4b4dfc47a7ce39476758742036b70e63" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/todo/selective_more_directive.mdwn;h=24e6ab568a7e8aa4f2acc2a113bd554ef62dc2c9;hp=0000000000000000000000000000000000000000;hb=69a22a6f4b4dfc47a7ce39476758742036b70e63;hpb=ca166361973e09b6756acbfe46b4a1bcfa4148d7" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=todo%2Fselective_more_directive&amp;do=goto" rel="nofollow">todo/selective more directive</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fdark&amp;do=goto" rel="nofollow">dark</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Mon, 01 Nov 2010 16:55:20 -0400">16:55:20 11/01/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=69a22a6f4b4dfc47a7ce39476758742036b70e63&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+proposal plus patch<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/todo/selective_more_directive.mdwn b/doc/todo/selective_more_directive.mdwn
+new file mode 100644
+index 0000000..24e6ab5
+--- /dev/null
++++ b/doc/todo/selective_more_directive.mdwn
+@@ -0,0 +1,26 @@
++I&#39;m setting up a blog for NaNoWriMo and other story-writing, which means long posts every day. I want to have excerpts on the front page, which link to the full length story posts. I also want a dedicated page for each story which inlines the story in full and in chronological order. I can use the &quot;more&quot; directive to achieve this effect on the front page but then it spoils the story page. My solution was to add a pages= parameter to the more directive to make it more selective.
++
++    --- /usr/share/perl5/IkiWiki/Plugin/more.pm     2010-10-09 00:09:24.000000000 +0000
++    +++ .ikiwiki/IkiWiki/Plugin/more.pm    2010-11-01 20:24:59.000000000 +0000
++    @@ -26,7 +26,10 @@
++     
++            $params{linktext} = $linktext unless defined $params{linktext};
++     
++    -       if ($params{page} ne $params{destpage}) {
++    +       if ($params{page} ne $params{destpage} &amp;&amp;
++    +           (! exists $params{pages} ||
++    +            pagespec_match($params{destpage}, $params{pages},
++    +                  location =&gt; $params{page}))) {
++                    return &quot;\n&quot;.
++                           htmllink($params{page}, $params{destpage}, $params{page},
++                                    linktext =&gt; $params{linktext},
++
++I can now call it as 
++
++    \&#91;&#91;!more pages=&quot;index&quot; linktext=&quot;Chapter 1&quot; text=&quot;&quot;&quot;
++    etc
++    &quot;&quot;&quot;&#93;&#93;
++
++I&#39;m not entirely happy with the design, since I would rather put this information in the inline directive instead of in every story post. Unfortunately I found no way to pass parameters from the inline directive to the inlined page.
++
++-- &#91;&#91;dark&#93;&#93;
+
+</pre>
+</div>
+
+<!-- 69a22a6f4b4dfc47a7ce39476758742036b70e63 -->

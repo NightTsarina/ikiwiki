@@ -1,0 +1,66 @@
+[[!meta author="""http://smcv.pseudorandom.co.uk/"""]]
+
+[[!meta authorurl="""http://smcv.pseudorandom.co.uk/"""]]
+
+[[!meta title="""change to forum/Need_something_more_powerful_than_Exclude/comment_1_b454ead16d90479690ad8ee72cfd1428 on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-efba19b3379b0b4e4199ece869c71f80be3a82d1"]]
+
+<div id="change-efba19b3379b0b4e4199ece869c71f80be3a82d1" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/forum/Need_something_more_powerful_than_Exclude/comment_1_b454ead16d90479690ad8ee72cfd1428._comment;h=6e29f0c19bf51ce19ca55d82ffbc0575392fe6fa;hp=0000000000000000000000000000000000000000;hb=efba19b3379b0b4e4199ece869c71f80be3a82d1;hpb=78a2e59834d35da7a7ab8145beb7a30b59b95c90" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=forum%2FNeed_something_more_powerful_than_Exclude%2Fcomment_1_b454ead16d90479690ad8ee72cfd1428&amp;do=goto" rel="nofollow">forum/Need something more powerful than Exclude/comment 1 b454ead16d90479690ad8ee72cfd1428</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://smcv.pseudorandom.co.uk/" rel="nofollow">smcv</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Tue, 23 Nov 2010 10:43:09 +0000">10:43:09 11/23/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=efba19b3379b0b4e4199ece869c71f80be3a82d1&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+Added a comment: expression anchored too closely?<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/forum/Need_something_more_powerful_than_Exclude/comment_1_b454ead16d90479690ad8ee72cfd1428._comment b/doc/forum/Need_something_more_powerful_than_Exclude/comment_1_b454ead16d90479690ad8ee72cfd1428._comment
+new file mode 100644
+index 0000000..6e29f0c
+--- /dev/null
++++ b/doc/forum/Need_something_more_powerful_than_Exclude/comment_1_b454ead16d90479690ad8ee72cfd1428._comment
+@@ -0,0 +1,12 @@
++&#91;&#91;!comment format=mdwn
++ username=&quot;http://smcv.pseudorandom.co.uk/&quot;
++ nickname=&quot;smcv&quot;
++ subject=&quot;expression anchored too closely?&quot;
++ date=&quot;2010-11-23T10:43:08Z&quot;
++ content=&quot;&quot;&quot;
++It looks as though you might only be excluding a top-level Makefile, and not a Makefile in subdirectories. Try excluding `(^|/)Makefile$` instead, for instance? (See `wiki_file_prune_regexps` in `IkiWiki.pm` for hints.)
++
++The match operation in `&amp;file_pruned` ends up a bit like this:
++
++    \&quot;foo/Makefile\&quot; =~ m{&hellip;||&hellip;|(^|/)Makefile$}
++&quot;&quot;&quot;&#93;&#93;
+
+</pre>
+</div>
+
+<!-- efba19b3379b0b4e4199ece869c71f80be3a82d1 -->

@@ -1,0 +1,64 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to bugs/aggregate_generates_long_filenames on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-2a452ddf146c4148155095e400f56b4674d76953"]]
+
+<div id="change-2a452ddf146c4148155095e400f56b4674d76953" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/bugs/aggregate_generates_long_filenames.mdwn;h=c38ad6c7b84bba739f7deea2e40519b65b56792a;hp=40decb392b97533a833dec37768399bfa417a8cc;hb=2a452ddf146c4148155095e400f56b4674d76953;hpb=8de7fde49c295a6c9098767b9fdfea79de8476eb" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=bugs%2Faggregate_generates_long_filenames&amp;do=goto" rel="nofollow">bugs/aggregate generates long filenames</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Tue, 16 Nov 2010 13:34:41 -0400">13:34:41 11/16/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=2a452ddf146c4148155095e400f56b4674d76953&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+but it already checks length..<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/bugs/aggregate_generates_long_filenames.mdwn b/doc/bugs/aggregate_generates_long_filenames.mdwn
+index 40decb3..c38ad6c 100644
+--- a/doc/bugs/aggregate_generates_long_filenames.mdwn
++++ b/doc/bugs/aggregate_generates_long_filenames.mdwn
+@@ -11,3 +11,11 @@ It would also appear this abrubtly terminates aggregate processing (if not ikiwi
+ 
+ 
+ -- &#91;&#91;Jon&#93;&#93;
++
++&gt; I have to wonder what filesystem you have there where 147 characters
++&gt; is a long filename. Ikiwiki already uses `POSIX::pathconf` on the srcdir
++&gt; to look up `_PC_NAME_MAX`
++&gt; to see if the filename is too long, and shortens it, so it seems
++&gt; that, in additional to having a rather antique long filename limit, your
++&gt; system also doesn&#39;t properly expose it via pathconf. Not sure what
++&gt; ikiwiki can do here. --&#91;&#91;Joey&#93;&#93;
+
+</pre>
+</div>
+
+<!-- 2a452ddf146c4148155095e400f56b4674d76953 -->

@@ -1,0 +1,64 @@
+[[!meta author="""http://jmtd.livejournal.com/"""]]
+
+[[!meta authorurl="""http://jmtd.livejournal.com/"""]]
+
+[[!meta title="""change to bugs/aggregate_generates_long_filenames on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-263cfa7d1e938e3b41d1b6826427f0d613b2b97c"]]
+
+<div id="change-263cfa7d1e938e3b41d1b6826427f0d613b2b97c" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/bugs/aggregate_generates_long_filenames.mdwn;h=cb5e6df73b09ee9087a571dcfb772631af8e8c3d;hp=0000000000000000000000000000000000000000;hb=263cfa7d1e938e3b41d1b6826427f0d613b2b97c;hpb=ffeee19216182d633d251852ab62fe79c1367796" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=bugs%2Faggregate_generates_long_filenames&amp;do=goto" rel="nofollow">bugs/aggregate generates long filenames</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://jmtd.livejournal.com/" rel="nofollow">jmtd [livejournal.com]</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Mon, 15 Nov 2010 06:08:30 -0400">06:08:30 11/15/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=263cfa7d1e938e3b41d1b6826427f0d613b2b97c&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+aggregate: too long filenames<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/bugs/aggregate_generates_long_filenames.mdwn b/doc/bugs/aggregate_generates_long_filenames.mdwn
+new file mode 100644
+index 0000000..cb5e6df
+--- /dev/null
++++ b/doc/bugs/aggregate_generates_long_filenames.mdwn
+@@ -0,0 +1,10 @@
++the &#91;&#91;pluhins/aggregate&#93;&#93; plugin mashes the `title` of an aggregated post into a filename.  This results in long filenames.  I have hit a filesystem length limitation on several occasions.  Some (ab)uses of RSS, e.g., twitter,
++generate long titles.  Especially once you throw escaping into the mix:
++
++    $ ikiwiki --setup testsetup --aggregate --refresh
++    failed to write ./test/lifestream/Hidden_Features_Of_Perl__44___PHP__44___Javascript__44___C__44___C++__44___C__35____44___Java__44___Ruby___46____46____46__._aggregated.ikiwiki-new: File name too long
++    aggregation failed with code 9216
++    $ echo $?
++    25
++
++-- &#91;&#91;Jon&#93;&#93;
+
+</pre>
+</div>
+
+<!-- 263cfa7d1e938e3b41d1b6826427f0d613b2b97c -->

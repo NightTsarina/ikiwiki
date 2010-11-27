@@ -1,0 +1,100 @@
+[[!meta author="""http://kerravonsen.dreamwidth.org/"""]]
+
+[[!meta authorurl="""http://kerravonsen.dreamwidth.org/"""]]
+
+[[!meta title="""change to todo/Improving_the_efficiency_of_match__95__glob on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-f35f79a0b831e8b47f62c430c1bba538d4687521"]]
+
+<div id="change-f35f79a0b831e8b47f62c430c1bba538d4687521" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn;h=ff9784dd163c255867ba9958827447472fb20350;hp=b63128702d85c80ba625c217f9288660ac94ab7a;hb=f35f79a0b831e8b47f62c430c1bba538d4687521;hpb=08a20a3deaca2cb1f68fba993411b51c19e4c362" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=todo%2FImproving_the_efficiency_of_match__95__glob&amp;do=goto" rel="nofollow">todo/Improving the efficiency of match&#95;glob</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://kerravonsen.dreamwidth.org/" rel="nofollow">kerravonsen [dreamwidth.org]</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Wed, 10 Nov 2010 17:08:45 -0400">17:08:45 11/10/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=f35f79a0b831e8b47f62c430c1bba538d4687521&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+response with benchmark<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn b/doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn
+index b631287..ff9784d 100644
+--- a/doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn
++++ b/doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn
+@@ -9,6 +9,47 @@ Here&#39;s my patch - please consider it! -- &#91;&#91;KathrynAndersen&#93;&#93;
+ &gt;&gt; I think so, yeah. Anyway, do you have any benchmark results handy,
+ &gt;&gt; Kathryn?  --&#91;&#91;Joey&#93;&#93; 
+ 
++&gt;&gt;&gt; See below.
++&gt;&gt;&gt; Also, would it make more sense for glob2re to return qr/^$re$/i rather than qr/$re/?  Everything that uses glob2re seems to use
++	$foo =~ /^$re$/i
++&gt;&gt;&gt; rather than /$re/ so I think that would make sense.
++&gt;&gt;&gt; -- &#91;&#91;KathrynAndersen&#93;&#93;
++
++--------------------------------------------------------------
++Benchmarks done with Devel::Profile on the same testbed IkiWiki setup.  I&#39;m just showing the start of the profile output, since that&#39;s what&#39;s relevant.
++
++Before:
++&lt;pre&gt;
++time elapsed (wall):   27.4173
++time running program:  22.5909  (82.40%)
++time profiling (est.): 4.8264  (17.60%)
++number of calls:       1314729
++number of exceptions:  65
++
++%Time    Sec.     #calls   sec/call  F  name
++11.05    2.4969    62333   0.000040     IkiWiki::PageSpec::match_glob
++ 4.10    0.9261      679   0.001364     Text::Balanced::_match_tagged
++ 2.72    0.6139    59812   0.000010     IkiWiki::SuccessReason::merge_influences
++&lt;/pre&gt;
++
++After:
++&lt;pre&gt;
++time elapsed (wall):   26.1843
++time running program:  21.5673  (82.37%)
++time profiling (est.): 4.6170  (17.63%)
++number of calls:       1252433
++number of exceptions:  65
++
++%Time    Sec.     #calls   sec/call  F  name
++ 7.66    1.6521    62333   0.000027     IkiWiki::PageSpec::match_glob
++ 4.33    0.9336      679   0.001375     Text::Balanced::_match_tagged
++ 2.81    0.6057    59812   0.000010     IkiWiki::SuccessReason::merge_influences
++&lt;/pre&gt;
++
++Note that the seconds per call for match_glob in the &quot;after&quot; case has gone down by about a third.
++
++K.A.
++
+ --------------------------------------------------------------
+ &lt;pre&gt;
+ diff --git a/IkiWiki.pm b/IkiWiki.pm
+
+</pre>
+</div>
+
+<!-- f35f79a0b831e8b47f62c430c1bba538d4687521 -->

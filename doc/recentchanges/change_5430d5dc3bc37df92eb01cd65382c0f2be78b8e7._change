@@ -1,0 +1,70 @@
+[[!meta author="""http://jmtd.livejournal.com/"""]]
+
+[[!meta authorurl="""http://jmtd.livejournal.com/"""]]
+
+[[!meta title="""change to bugs/argument_isn__39__t_numeric:_mixing_templates_and_creation__95__date on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-5430d5dc3bc37df92eb01cd65382c0f2be78b8e7"]]
+
+<div id="change-5430d5dc3bc37df92eb01cd65382c0f2be78b8e7" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/bugs/argument_isn__39__t_numeric:_mixing_templates_and_creation__95__date.mdwn;h=83093895b37a4fb3be524cd237fc5ce8f5b2169d;hp=5485bba9ca2244260ae4ecb0894e935817bf377d;hb=5430d5dc3bc37df92eb01cd65382c0f2be78b8e7;hpb=62fc5d0c3cfdde0ae87c5364db6f6ebfa6794b14" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=bugs%2Fargument_isn__39__t_numeric%3A_mixing_templates_and_creation__95__date&amp;do=goto" rel="nofollow">bugs/argument isn&#39;t numeric: mixing templates and creation&#95;date</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://jmtd.livejournal.com/" rel="nofollow">jmtd [livejournal.com]</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Mon, 15 Nov 2010 10:43:35 -0400">10:43:35 11/15/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=5430d5dc3bc37df92eb01cd65382c0f2be78b8e7&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+not quite done yet: if/included() doesn&#39;t work that way.<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/bugs/argument_isn__39__t_numeric:_mixing_templates_and_creation__95__date.mdwn b/doc/bugs/argument_isn__39__t_numeric:_mixing_templates_and_creation__95__date.mdwn
+index 5485bba..8309389 100644
+--- a/doc/bugs/argument_isn__39__t_numeric:_mixing_templates_and_creation__95__date.mdwn
++++ b/doc/bugs/argument_isn__39__t_numeric:_mixing_templates_and_creation__95__date.mdwn
+@@ -46,8 +46,7 @@ A workaround is to move the template outside of the srcdir into the external tem
+ 
+     \&#91;&#91;!template id=all_entry.tmpl year=2010 current=true&#93;&#93;
+ 
+-An alternative fix is to wrap the entire template inside a test to see whether the page is included or not. E.g.
+-
++I believed (until I tested) that the &#91;&#91;ikiwiki/directive/if&#93;&#93; directive, with the `included()` test, would be an option here, E.g.
+ 
+     \&#91;&#91;!if test=&quot;included()&quot; then=&quot;&quot;&quot;
+     ...template...
+@@ -55,6 +54,4 @@ An alternative fix is to wrap the entire template inside a test to see whether t
+     Nothing to see here.
+     &quot;&quot;&quot;&#93;&#93;
+ 
+-In fact, this is probably best practice for in-srcdir templates.  I&#39;d consider this done if the documentation for the directive suggested it. -- &#91;&#91;Jon&#93;&#93;
+-
+-&gt; &#91;&#91;done&#93;&#93; with &lt;http://git.ikiwiki.info/?p=ikiwiki;a=commitdiff;h=da9e1ea667f82d5fca9168dbed19be08040570ff&gt; -- &#91;&#91;Jon&#93;&#93;
++However this doesn&#39;t work.  I assume &quot;included&quot; in this context means e.g. via an `inline` or `map`, not template trans-clusion. -- &#91;&#91;Jon&#93;&#93;
+
+</pre>
+</div>
+
+<!-- 5430d5dc3bc37df92eb01cd65382c0f2be78b8e7 -->

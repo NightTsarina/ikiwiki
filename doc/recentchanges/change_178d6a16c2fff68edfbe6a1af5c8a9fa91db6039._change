@@ -1,0 +1,90 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-178d6a16c2fff68edfbe6a1af5c8a9fa91db6039"]]
+
+<div id="change-178d6a16c2fff68edfbe6a1af5c8a9fa91db6039" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both.mdwn;h=4fafc2bbc249ac9e22869129f8702e0a6d54a5ba;hp=20d22b9ab837dfc3d5c9e0a787479b49fd2d6043;hb=178d6a16c2fff68edfbe6a1af5c8a9fa91db6039;hpb=a6c3d71787c528888c3f66c7ded8dd0c8f430b7e" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=todo%2Fwant_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both&amp;do=goto" rel="nofollow">todo/want to avoid ikiwiki using http or https in urls to allow serving both</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Mon, 22 Nov 2010 18:05:37 +0000">18:05:37 11/22/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=178d6a16c2fff68edfbe6a1af5c8a9fa91db6039&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+comments (finally)<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both.mdwn b/doc/todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both.mdwn
+index 20d22b9..4fafc2b 100644
+--- a/doc/todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both.mdwn
++++ b/doc/todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both.mdwn
+@@ -181,6 +181,16 @@ New API added by this branch:
+ 
+ * `urlto(x, y, &#39;local&#39;)` uses `$local_url` instead of `$config{url}`
+ 
++  &gt; Yikes. I see why you wanted to keep it to 3 parameters (4 is too many,
++  &gt; and po overrides it), but I dislike overloading the third parameter
++  &gt; like that.
++  &gt; 
++  &gt; There are fairly few calls to `urlto($foo, $bar)`, so why not
++  &gt; make that always return the semi-local url form, and leave the third
++  &gt; parameter for the cases that need a true fully-qualified url.
++  &gt; The new form for local urls will typically be only a little bit longer,
++  &gt; except in the unusual case where the cgiurl is elsewhere. --&#91;&#91;Joey&#93;&#93;
++
+ * `IkiWiki::baseurl` has a new second argument which works like the
+   third argument of `urlto`
+ 
+@@ -199,9 +209,13 @@ Bugs:
+   `cgiurl(cgiurl =&gt; $config{cgiurl}, ...)`,
+   although that does look a bit strange
+ 
++  &gt; I agree that makes sense. --&#91;&#91;Joey&#93;&#93;
++
+ * It occurs to me that `IkiWiki::cgiurl` could probably benefit from being
+   exported? Perhaps also `IkiWiki::baseurl`?
+ 
++  &gt; Possibly, see &#91;&#91;firm_up_plugin_interface&#93;&#93;. --&#91;&#91;Joey&#93;&#93; 
++
+ * Or, to reduce use of the unexported `baseurl` function, it might make
+   sense to give `urlto` a special case that references the root of the wiki,
+   with a trailing slash ready to append stuff: perhaps `urlto(&#39;/&#39;)`,
+@@ -210,3 +224,6 @@ Bugs:
+         do_something(baseurl =&gt; urlto(&#39;/&#39;, undef, local)`);
+         do_something_else(urlto(&#39;/&#39;).&#39;style.css&#39;);
+         IkiWiki::redirect(urlto(&#39;/&#39;, undef, 1));
++
++  &gt; AFACIS, `baseurl` is only called in 3 places so I don&#39;t think that&#39;s
++  &gt; needed. --&#91;&#91;Joey&#93;&#93; 
+
+</pre>
+</div>
+
+<!-- 178d6a16c2fff68edfbe6a1af5c8a9fa91db6039 -->

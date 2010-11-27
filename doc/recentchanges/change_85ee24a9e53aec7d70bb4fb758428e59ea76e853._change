@@ -1,0 +1,56 @@
+[[!meta author="""http://jmtd.livejournal.com/"""]]
+
+[[!meta authorurl="""http://jmtd.livejournal.com/"""]]
+
+[[!meta title="""change to bugs/aggregate_generates_long_filenames on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-85ee24a9e53aec7d70bb4fb758428e59ea76e853"]]
+
+<div id="change-85ee24a9e53aec7d70bb4fb758428e59ea76e853" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/bugs/aggregate_generates_long_filenames.mdwn;h=40decb392b97533a833dec37768399bfa417a8cc;hp=3d98ee8b2638c23c53f4d3d3ffea52de6cf58d5d;hb=85ee24a9e53aec7d70bb4fb758428e59ea76e853;hpb=471ac78068532da53e4dad49d52c5ddccfcbff21" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=bugs%2Faggregate_generates_long_filenames&amp;do=goto" rel="nofollow">bugs/aggregate generates long filenames</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://jmtd.livejournal.com/" rel="nofollow">jmtd [livejournal.com]</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Mon, 15 Nov 2010 06:11:40 -0400">06:11:40 11/15/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=85ee24a9e53aec7d70bb4fb758428e59ea76e853&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/bugs/aggregate_generates_long_filenames.mdwn b/doc/bugs/aggregate_generates_long_filenames.mdwn
+index 3d98ee8..40decb3 100644
+--- a/doc/bugs/aggregate_generates_long_filenames.mdwn
++++ b/doc/bugs/aggregate_generates_long_filenames.mdwn
+@@ -7,4 +7,7 @@ generate long titles.  Especially once you throw escaping into the mix:
+     $ echo $?
+     25
+ 
++It would also appear this abrubtly terminates aggregate processing (if not ikiwiki itself).  Only after moving my test repo to `/tmp` to shorten the filename did I see newer RSS feeds (from a totally different source) picked up.
++
++
+ -- &#91;&#91;Jon&#93;&#93;
+
+</pre>
+</div>
+
+<!-- 85ee24a9e53aec7d70bb4fb758428e59ea76e853 -->

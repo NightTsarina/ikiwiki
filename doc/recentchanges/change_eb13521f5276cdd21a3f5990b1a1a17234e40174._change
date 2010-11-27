@@ -1,0 +1,58 @@
+[[!meta author="""http://kerravonsen.dreamwidth.org/"""]]
+
+[[!meta authorurl="""http://kerravonsen.dreamwidth.org/"""]]
+
+[[!meta title="""change to todo/replace_HTML::Template_with_Template_Toolkit on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-eb13521f5276cdd21a3f5990b1a1a17234e40174"]]
+
+<div id="change-eb13521f5276cdd21a3f5990b1a1a17234e40174" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn;h=9725b6541855c79fc8360e74857bd5737fb43834;hp=8650e4f2af14f9362d9d2de22ddbfc1e14411b00;hb=eb13521f5276cdd21a3f5990b1a1a17234e40174;hpb=f6312319a49cc1860eebbafd937a0f75d8e7baeb" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=todo%2Freplace_HTML%3A%3ATemplate_with_Template_Toolkit&amp;do=goto" rel="nofollow">todo/replace HTML::Template with Template Toolkit</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://kerravonsen.dreamwidth.org/" rel="nofollow">kerravonsen [dreamwidth.org]</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Mon, 15 Nov 2010 19:00:48 -0400">19:00:48 11/15/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=eb13521f5276cdd21a3f5990b1a1a17234e40174&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+modular, not replacement<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn b/doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn
+index 8650e4f..9725b65 100644
+--- a/doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn
++++ b/doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn
+@@ -61,3 +61,5 @@ HTML::Template&#39;s HTML-like markup prevents me from editing templates in KompoZer
+ 
+ 
+ I agree that being able to replace the template toolkit would be a great piece of modularity, and one I would use. If I could use the slot-based filling and the conditional logic from Template::Toolkit, we could build much more flexible inline and archivepage templates that would look different depending on where in the wiki we use them. Some of this can currently be accomplished with separate templates for each use case and a manual call to the right template in the !inline directive, but this is limited, cumbersome, and makes it difficult to reuse bits of formatting by trapping all of that information in multiple template files. -Ian
++
++&gt; I don&#39;t wish HTML::Template to be *replaced* by Template::Toolkit - as others have said above, it&#39;s overkill for my needs.  However, I also agree that HTML::Template has its own problems too.  The idea of making the template system modular, with a choice of which backend to use - I really like that idea. It would enable me to use some other template system I like better, such as Text::Template or Text::NeatTemplate. But I think it would be a lot of work to implement, though perhaps no more work than making the revision-control backend modular, I guess.  One would need to write an IkiWiki template interface that didn&#39;t care what the backend was, and yet is somehow still flexible enough to take advantage of special features of different backends.  There are an *awful lot* of things that use templates - not just the `pagetemplate` and `template` plugins, but a number of others which have specialized templates of their own. -- &#91;&#91;KathrynAndersen&#93;&#93;
+
+</pre>
+</div>
+
+<!-- eb13521f5276cdd21a3f5990b1a1a17234e40174 -->

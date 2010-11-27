@@ -1,0 +1,74 @@
+[[!meta author="""http://smcv.pseudorandom.co.uk/"""]]
+
+[[!meta authorurl="""http://smcv.pseudorandom.co.uk/"""]]
+
+[[!meta title="""change to todo/transient_in-memory_pages on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-0e4e3f7cae25082fc90a93dee41b397b0ae9be09"]]
+
+<div id="change-0e4e3f7cae25082fc90a93dee41b397b0ae9be09" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/todo/transient_in-memory_pages.mdwn;h=9808ffdfe476a9ed70e54a7e00748103e21e0f65;hp=0000000000000000000000000000000000000000;hb=0e4e3f7cae25082fc90a93dee41b397b0ae9be09;hpb=93e15cc84f47a1340f8bd06d7056ba423fe510bb" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=todo%2Ftransient_in-memory_pages&amp;do=goto" rel="nofollow">todo/transient in-memory pages</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://smcv.pseudorandom.co.uk/" rel="nofollow">smcv</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Mon, 08 Nov 2010 08:10:20 -0400">08:10:20 11/08/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=0e4e3f7cae25082fc90a93dee41b397b0ae9be09&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+suggested in two places =&gt; useful?<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/todo/transient_in-memory_pages.mdwn b/doc/todo/transient_in-memory_pages.mdwn
+new file mode 100644
+index 0000000..9808ffd
+--- /dev/null
++++ b/doc/todo/transient_in-memory_pages.mdwn
+@@ -0,0 +1,20 @@
++On &#91;&#91;todo/auto-create_tag_pages_according_to_a_template&#93;&#93;, &#91;&#91;chrysn&#93;&#93;
++suggests:
++
++&gt; Instead of creating a file that gets checked in into the RCS, the
++&gt; source files could be left out and the output files be written as
++&gt; long as there is no physical source file (think of a virtual underlay).
++&gt; Something similar would be required to implement alias directive,
++&gt; which couldn&#39;t be easily done by writing to the RCS as the page&#39;s
++&gt; contents can change depending on which other pages claim it as an alias.
++
++`add_autofile` could be adapted to do this, or a similar API could be
++added.
++
++This would also be useful for autoindex, as suggested on
++&#91;&#91;plugins/autoindex/discussion&#93;&#93;. I&#39;d also like to use it for
++&#91;&#91;plugins/contrib/album&#93;&#93;.
++
++One refinement I&#39;d suggest is that if the transient page is edited,
++its transient contents are evaluated and used as the initial
++content for the edit box; after that, it&#39;d become a static page. --&#91;&#91;smcv&#93;&#93;
+
+</pre>
+</div>
+
+<!-- 0e4e3f7cae25082fc90a93dee41b397b0ae9be09 -->

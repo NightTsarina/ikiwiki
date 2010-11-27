@@ -1,0 +1,65 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to bugs/logout_in_ikiwiki on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-cb45d3cf44760411746414ba1218c925ad097149"]]
+
+<div id="change-cb45d3cf44760411746414ba1218c925ad097149" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/bugs/logout_in_ikiwiki.mdwn;h=d9b6df677209039153d27981bf7bd76484998efc;hp=3ca85fddcb3578beaecfb04a8850d49cc6e61866;hb=cb45d3cf44760411746414ba1218c925ad097149;hpb=313a28b8f68b76aee4b94413e4e9d47dca93a34e" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=bugs%2Flogout_in_ikiwiki&amp;do=goto" rel="nofollow">bugs/logout in ikiwiki</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Sat, 30 Oct 2010 12:59:31 -0400">12:59:31 10/30/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=cb45d3cf44760411746414ba1218c925ad097149&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+re the openid_provider cookie<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/bugs/logout_in_ikiwiki.mdwn b/doc/bugs/logout_in_ikiwiki.mdwn
+index 3ca85fd..d9b6df6 100644
+--- a/doc/bugs/logout_in_ikiwiki.mdwn
++++ b/doc/bugs/logout_in_ikiwiki.mdwn
+@@ -12,6 +12,12 @@ It looks like there is no way to logout of ikiwiki at present, meaning that if y
+ &gt;&gt; (I&#39;d argue also in favor of the openid_provider cookie expiring 
+ &gt;&gt;  in less time than it does now, and being session based)
+ 
++&gt;&gt;&gt; (The `openid_provider` cookie is purely a convenience cookie to
++&gt;&gt;&gt; auto-select the user&#39;s openid provider the next time they log
++&gt;&gt;&gt; in. As such, it cannot be a session cookie. It does not provide any
++&gt;&gt;&gt; personally-identifying information so it should not really matter 
++&gt;&gt;&gt; when it expires.) --&#91;&#91;Joey&#93;&#93;
++
+ &gt;&gt; It would be nice to move navigational elements to the upper right corner 
+ &gt;&gt; of the page...
+ 
+
+</pre>
+</div>
+
+<!-- cb45d3cf44760411746414ba1218c925ad097149 -->

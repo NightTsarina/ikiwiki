@@ -1,0 +1,63 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to bugs/rss_feeds_do_not_use_recommended_encoding_of_entities_for_some_fields on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-313a28b8f68b76aee4b94413e4e9d47dca93a34e"]]
+
+<div id="change-313a28b8f68b76aee4b94413e4e9d47dca93a34e" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/bugs/rss_feeds_do_not_use_recommended_encoding_of_entities_for_some_fields.mdwn;h=0a435cea33a4220b3ada48df349662374c407ee4;hp=85c3176699789ecb37825b6df4fc483f93c1c2d5;hb=313a28b8f68b76aee4b94413e4e9d47dca93a34e;hpb=0bfcc8da5d769ff4ba9425a99d2c495175ea685e" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=bugs%2Frss_feeds_do_not_use_recommended_encoding_of_entities_for_some_fields&amp;do=goto" rel="nofollow">bugs/rss feeds do not use recommended encoding of entities for some fields</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Sat, 30 Oct 2010 12:50:26 -0400">12:50:26 10/30/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=313a28b8f68b76aee4b94413e4e9d47dca93a34e&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+response<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/bugs/rss_feeds_do_not_use_recommended_encoding_of_entities_for_some_fields.mdwn b/doc/bugs/rss_feeds_do_not_use_recommended_encoding_of_entities_for_some_fields.mdwn
+index 85c3176..0a435ce 100644
+--- a/doc/bugs/rss_feeds_do_not_use_recommended_encoding_of_entities_for_some_fields.mdwn
++++ b/doc/bugs/rss_feeds_do_not_use_recommended_encoding_of_entities_for_some_fields.mdwn
+@@ -43,3 +43,10 @@ For Atom, at least, I believe adding `type=&quot;xhtml&quot;` to the title element will wo
+ &gt;&gt; have &quot;more&quot; apply to the front page of the blog. Is there a way to do that?
+ &gt;&gt; -- &#91;&#91;dtaht&#93;&#93;
+ &gt;&gt; 
++&gt;&gt;&gt; To be clear, the RSS spec sucks to such an extent that, as far as
++&gt;&gt;&gt; I know, there is no sort of title escaping that will work in all 
++&gt;&gt;&gt; RSS consumers. Titles are currently escaped in the way 
++&gt;&gt;&gt; that tends to break the fewest according to what I&#39;ve read.
++&gt;&gt;&gt; If you&#39;re unlucky enough to 
++&gt;&gt;&gt; have a &quot;&amp;&quot; or &quot;&lt;&quot; in your **name**, then you may still run into 
++&gt;&gt;&gt; problems with how that is escaped in rss feeds. --&#91;&#91;Joey&#93;&#93;
+
+</pre>
+</div>
+
+<!-- 313a28b8f68b76aee4b94413e4e9d47dca93a34e -->

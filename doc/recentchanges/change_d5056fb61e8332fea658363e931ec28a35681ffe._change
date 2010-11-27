@@ -1,0 +1,68 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to plugins/htmlscrubber on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-d5056fb61e8332fea658363e931ec28a35681ffe"]]
+
+<div id="change-d5056fb61e8332fea658363e931ec28a35681ffe" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/plugins/htmlscrubber.mdwn;h=080575c463e0e531ba2717989a966b93221e7fb5;hp=c59b46e14e12624463881101fff3190de36061c1;hb=d5056fb61e8332fea658363e931ec28a35681ffe;hpb=289b30a47d548326aad9c1dc5252fc0269494c87" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=plugins%2Fhtmlscrubber&amp;do=goto" rel="nofollow">plugins/htmlscrubber</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Fri, 12 Nov 2010 00:24:33 -0400">00:24:33 11/12/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=d5056fb61e8332fea658363e931ec28a35681ffe&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+add example of skipping blog posts while scrubbing comments<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/plugins/htmlscrubber.mdwn b/doc/plugins/htmlscrubber.mdwn
+index c59b46e..080575c 100644
+--- a/doc/plugins/htmlscrubber.mdwn
++++ b/doc/plugins/htmlscrubber.mdwn
+@@ -32,10 +32,11 @@ other HTML-related functionality, such as whether &#91;&#91;meta&#93;&#93; allows
+ potentially unsafe HTML tags.
+ 
+ The `htmlscrubber_skip` configuration setting can be used to skip scrubbing
+-of some pages. Set it to a &#91;&#91;ikiwiki/PageSpec&#93;&#93;, such as &quot;!*/Discussion&quot;,
+-and pages matching that can have all the evil CSS, JavsScript, and unsafe
+-html elements you like. One safe way to use this is to use &#91;&#91;lockedit&#93;&#93; to
+-lock those pages, so only admins can edit them.
++of some pages. Set it to a &#91;&#91;ikiwiki/PageSpec&#93;&#93;, such as 
++&quot;posts/* and !comment(*) and !*/Discussion&quot;, and pages matching that can have
++all the evil CSS, JavsScript, and unsafe html elements you like. One safe
++way to use this is to use &#91;&#91;lockedit&#93;&#93; to lock those pages, so only admins
++can edit them.
+ 
+ ----
+ 
+
+</pre>
+</div>
+
+<!-- d5056fb61e8332fea658363e931ec28a35681ffe -->

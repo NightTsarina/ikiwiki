@@ -1,0 +1,76 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to todo/Improving_the_efficiency_of_match__95__glob on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-9a7387a53be2b1e182003f3e86cb76d7f10c4b67"]]
+
+<div id="change-9a7387a53be2b1e182003f3e86cb76d7f10c4b67" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn;h=0fc059ad7d169c2e35f3ea869bdc2f69be649857;hp=43571ead77346a1c5528360eec0e369958f2de7c;hb=9a7387a53be2b1e182003f3e86cb76d7f10c4b67;hpb=ab96249d5ad8f3ee9275be3fef9e3467b8f3ffdf" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=todo%2FImproving_the_efficiency_of_match__95__glob&amp;do=goto" rel="nofollow">todo/Improving the efficiency of match&#95;glob</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Tue, 16 Nov 2010 13:19:13 -0400">13:19:13 11/16/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=9a7387a53be2b1e182003f3e86cb76d7f10c4b67&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+thoughts<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn b/doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn
+index 43571ea..0fc059a 100644
+--- a/doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn
++++ b/doc/todo/Improving_the_efficiency_of_match__95__glob.mdwn
+@@ -22,6 +22,23 @@ Here&#39;s my patch - please consider it! -- &#91;&#91;KathrynAndersen&#93;&#93;
+ 
+ &gt;&gt;&gt;&gt;&gt; I think it&#39;s because my patch focuses on match_glob while the memoize patch focuses on `glob2re`, and `glob2re` is called in `filecheck`, `meta` and `po` as well as in `match_glob` and `match_user`; thus the memoized `glob2re` is dealing with a bigger set of globs to look up, and thus could be just that little bit slower. -- &#91;&#91;KathrynAndersen&#93;&#93;
+ 
++&gt;&gt;&gt;&gt;&gt;&gt; What may be going on is that glob2re is already a fairly fast
++&gt;&gt;&gt;&gt;&gt;&gt; function, so the overhead of memoizing it with the very generic
++&gt;&gt;&gt;&gt;&gt;&gt; `_memoizer` (see its source) swamps the memoization gain. Note
++&gt;&gt;&gt;&gt;&gt;&gt; that the few functions memoized with the Memoizer before were much
++&gt;&gt;&gt;&gt;&gt;&gt; more expensive, so that little overhead was acceptable then.
++&gt;&gt;&gt;&gt;&gt;&gt;
++&gt;&gt;&gt;&gt;&gt;&gt; It also may be that Kathryn&#39;s patch is slightly faster due to using
++&gt;&gt;&gt;&gt;&gt;&gt; the construct `$foo =~ $regexp` rather than `$foo =~ /$regexp/`
++&gt;&gt;&gt;&gt;&gt;&gt; (probably avoids a copy or something like that internally) --
++&gt;&gt;&gt;&gt;&gt;&gt; this despite checking both `exists` and `defined` on the hash, which
++&gt;&gt;&gt;&gt;&gt;&gt; should be reundant AFAICS.
++&gt;&gt;&gt;&gt;&gt;&gt;
++&gt;&gt;&gt;&gt;&gt;&gt; My guess is that the best of both worlds would be to move
++&gt;&gt;&gt;&gt;&gt;&gt; the byhand memoization to glob2re and have it return a compiled
++&gt;&gt;&gt;&gt;&gt;&gt; `/^/i` regexp that can be used without further modifiction in most
++&gt;&gt;&gt;&gt;&gt;&gt; cases. --&#91;&#91;Joey&#93;&#93; 
++
+ --------------------------------------------------------------
+ Benchmarks done with Devel::Profile on the same testbed IkiWiki setup.  I&#39;m just showing the start of the profile output, since that&#39;s what&#39;s relevant.
+ 
+
+</pre>
+</div>
+
+<!-- 9a7387a53be2b1e182003f3e86cb76d7f10c4b67 -->

@@ -1,0 +1,61 @@
+[[!meta author="""http://smcv.pseudorandom.co.uk/"""]]
+
+[[!meta authorurl="""http://smcv.pseudorandom.co.uk/"""]]
+
+[[!meta title="""change to forum/Blog_posting_times_and_ikiwiki_state on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-c8537b41320e1f38b2369f24431423dfb2f14b15"]]
+
+<div id="change-c8537b41320e1f38b2369f24431423dfb2f14b15" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/forum/Blog_posting_times_and_ikiwiki_state.mdwn;h=0c1da5b97bc54f0c3e04b899693e70a504d2818f;hp=3e6c23241c525fb70a47afa7f14ec695c27a766f;hb=c8537b41320e1f38b2369f24431423dfb2f14b15;hpb=23e3e5f15e61639ccba4a7dfbab11d6fe4b9f047" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=forum%2FBlog_posting_times_and_ikiwiki_state&amp;do=goto" rel="nofollow">forum/Blog posting times and ikiwiki state</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://smcv.pseudorandom.co.uk/" rel="nofollow">smcv</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Thu, 04 Nov 2010 06:58:53 -0400">06:58:53 11/04/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=c8537b41320e1f38b2369f24431423dfb2f14b15&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/forum/Blog_posting_times_and_ikiwiki_state.mdwn b/doc/forum/Blog_posting_times_and_ikiwiki_state.mdwn
+index 3e6c232..0c1da5b 100644
+--- a/doc/forum/Blog_posting_times_and_ikiwiki_state.mdwn
++++ b/doc/forum/Blog_posting_times_and_ikiwiki_state.mdwn
+@@ -17,3 +17,12 @@ What can I do?
+ 
+ Is it a spectacularly bad idea to include the ikiwiki state file in my cloned repo (I suspect it is).  What else could be done?  Can I disable pagestate somehow or force ikiwiki to always use git commit times for Posted times?
+ 
++&gt; Have you tried running ikiwiki with the `--gettime` option on your laptop,
++&gt; to force it to retrieve initial commit times from git? You should only
++&gt; need to do that once, and it&#39;ll be cached in the pagestate thereafter.
++&gt;
++&gt; Because that functionality is slow on every supported VCS except git,
++&gt; ikiwiki tries to avoid using it unless it&#39;s really needed. &#91;&#91;rcs&#93;&#93;
++&gt; lists it as &quot;fast&quot; for git, though, so depending how fast it really is
++&gt; and how large your wiki is, you might be able to get away with running
++&gt; ikiwiki with `--gettime` all the time? --&#91;&#91;smcv&#93;&#93;
+
+</pre>
+</div>
+
+<!-- c8537b41320e1f38b2369f24431423dfb2f14b15 -->

@@ -1,0 +1,106 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to ikiwiki/directive/more todo/selective_more_directive on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-ec6c1269d251c78d2eef68cb789de6cfc6272464"]]
+
+<div id="change-ec6c1269d251c78d2eef68cb789de6cfc6272464" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/ikiwiki/directive/more.mdwn;h=bda1427f39b6d3e688dc589b4ffd82aa3b09dc19;hp=50655191001371b9c34d4c305c118676b7e4f80e;hb=ec6c1269d251c78d2eef68cb789de6cfc6272464;hpb=021676e489f9b79a50338635ad654f31eb5575fe" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=ikiwiki%2Fdirective%2Fmore&amp;do=goto" rel="nofollow">ikiwiki/directive/more</a>
+
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/todo/selective_more_directive.mdwn;h=2a9998205f31460539e9c608dd3c740374bb503e;hp=24e6ab568a7e8aa4f2acc2a113bd554ef62dc2c9;hb=ec6c1269d251c78d2eef68cb789de6cfc6272464;hpb=021676e489f9b79a50338635ad654f31eb5575fe" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=todo%2Fselective_more_directive&amp;do=goto" rel="nofollow">todo/selective more directive</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Tue, 16 Nov 2010 19:00:04 +0000">19:00:04 11/16/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=ec6c1269d251c78d2eef68cb789de6cfc6272464&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+more: Add pages parameter to limit where the more is displayed. (thanks, dark)<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/IkiWiki/Plugin/more.pm b/IkiWiki/Plugin/more.pm
+index 80e339a..6880e36 100644
+--- a/IkiWiki/Plugin/more.pm
++++ b/IkiWiki/Plugin/more.pm
+@@ -26,7 +26,10 @@ sub preprocess (@) {
+ 
+ 	$params{linktext} = $linktext unless defined $params{linktext};
+ 
+-	if ($params{page} ne $params{destpage}) {
++	if ($params{page} ne $params{destpage} &amp;&amp;
++	    (! exists $params{pages} ||
++	     pagespec_match($params{destpage}, $params{pages},
++		     location =&gt; $params{page}))) {
+ 		return &quot;\n&quot;.
+ 			htmllink($params{page}, $params{destpage}, $params{page},
+ 				linktext =&gt; $params{linktext},
+diff --git a/debian/changelog b/debian/changelog
+index 91ff096..faabf19 100644
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -1,6 +1,8 @@
+ ikiwiki (3.20101113) UNRELEASED; urgency=low
+ 
+   * websetup: Fix encoding problem when restoring old setup file.
++  * more: Add pages parameter to limit where the more is displayed.
++    (thanks, dark)
+ 
+  -- Joey Hess &lt;joeyh@debian.org&gt;  Tue, 16 Nov 2010 14:23:47 -0400
+ 
+diff --git a/doc/ikiwiki/directive/more.mdwn b/doc/ikiwiki/directive/more.mdwn
+index 5065519..bda1427 100644
+--- a/doc/ikiwiki/directive/more.mdwn
++++ b/doc/ikiwiki/directive/more.mdwn
+@@ -11,6 +11,11 @@ leads to the full version of the page. Use it like this:
+ 
+ If the `linktext` parameter is omitted it defaults to just &quot;more&quot;.
+ 
++An optional `pages` parameter can be used to specify a
++&#91;&#91;ikiwiki/PageSpec&#93;&#93;, and then the &quot;more&quot; link will only be displayed
++when the page is inlined into a page matching that PageSpec, and otherwise
++the full content shown.
++
+ Note that you can accomplish something similar using a &#91;&#91;toggle&#93;&#93; instead.
+ 
+ &#91;&#91;!meta robots=&quot;noindex, follow&quot;&#93;&#93;
+diff --git a/doc/todo/selective_more_directive.mdwn b/doc/todo/selective_more_directive.mdwn
+index 24e6ab5..2a99982 100644
+--- a/doc/todo/selective_more_directive.mdwn
++++ b/doc/todo/selective_more_directive.mdwn
+@@ -24,3 +24,5 @@ I can now call it as
+ I&#39;m not entirely happy with the design, since I would rather put this information in the inline directive instead of in every story post. Unfortunately I found no way to pass parameters from the inline directive to the inlined page.
+ 
+ -- &#91;&#91;dark&#93;&#93;
++
++&gt; Me neither, but nor do I see a better way, so &#91;&#91;applied|done&#93;&#93;. --&#91;&#91;Joey&#93;&#93; 
+
+</pre>
+</div>
+
+<!-- ec6c1269d251c78d2eef68cb789de6cfc6272464 -->

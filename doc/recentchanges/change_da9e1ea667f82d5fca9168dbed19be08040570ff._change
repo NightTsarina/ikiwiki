@@ -1,0 +1,96 @@
+[[!meta author="""http://jmtd.livejournal.com/"""]]
+
+[[!meta authorurl="""http://jmtd.livejournal.com/"""]]
+
+[[!meta title="""change to ikiwiki/directive/template on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-da9e1ea667f82d5fca9168dbed19be08040570ff"]]
+
+<div id="change-da9e1ea667f82d5fca9168dbed19be08040570ff" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/ikiwiki/directive/template.mdwn;h=df391f99e0a23dd7cda85a8c29c1aef80baa707f;hp=9e3ae54dfd6209c92528ace49ad5ae2b3279d486;hb=da9e1ea667f82d5fca9168dbed19be08040570ff;hpb=53e519931f3a6b7cea0af652d749344757d4e2bc" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=ikiwiki%2Fdirective%2Ftemplate&amp;do=goto" rel="nofollow">ikiwiki/directive/template</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://jmtd.livejournal.com/" rel="nofollow">jmtd [livejournal.com]</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Mon, 15 Nov 2010 10:28:05 -0400">10:28:05 11/15/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=da9e1ea667f82d5fca9168dbed19be08040570ff&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+guard templates with the if directive where necessary<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/ikiwiki/directive/template.mdwn b/doc/ikiwiki/directive/template.mdwn
+index 9e3ae54..df391f9 100644
+--- a/doc/ikiwiki/directive/template.mdwn
++++ b/doc/ikiwiki/directive/template.mdwn
+@@ -60,22 +60,30 @@ few things:
+   `&lt;TMPL_IF variable&gt;text&lt;/TMPL_IF&gt;`.
+ * To use one block of text if a variable is set and a second if it&#39;s not,
+   use `&lt;TMPL_IF variable&gt;text&lt;TMPL_ELSE&gt;other text&lt;/TMPL_IF&gt;`
++* Each template file included in the wiki&#39;s source will also generate a regular
++  wiki page.  In many cases you might want to prevent some of your template
++  being interpreted for the regular page.  Use the &#91;&#91;if&#93;&#93; directive with the
++  `included()` test to guard the template code.
+ 
+ Here&#39;s a sample template:
+ 
+-        &lt;span class=&quot;infobox&quot;&gt;
+-        Name: \&#91;&#91;&lt;TMPL_VAR raw_name&gt;&#93;&#93;&lt;br /&gt;
+-        Age: &lt;TMPL_VAR age&gt;&lt;br /&gt;
+-        &lt;TMPL_IF color&gt;
+-        Favorite color: &lt;TMPL_VAR color&gt;&lt;br /&gt;
+-        &lt;TMPL_ELSE&gt;
+-        No favorite color.&lt;br /&gt;
+-        &lt;/TMPL_IF&gt;
+-        &lt;TMPL_IF notes&gt;
+-        &lt;hr /&gt;
+-        &lt;TMPL_VAR notes&gt;
+-        &lt;/TMPL_IF&gt;
+-        &lt;/span&gt;
++        \&#91;&#91;!if test=&quot;included()&quot; then=&quot;&quot;&quot;
++          &lt;span class=&quot;infobox&quot;&gt;
++          Name: \&#91;&#91;&lt;TMPL_VAR raw_name&gt;&#93;&#93;&lt;br /&gt;
++          Age: &lt;TMPL_VAR age&gt;&lt;br /&gt;
++          &lt;TMPL_IF color&gt;
++            Favorite color: &lt;TMPL_VAR color&gt;&lt;br /&gt;
++          &lt;TMPL_ELSE&gt;
++            No favorite color.&lt;br /&gt;
++          &lt;/TMPL_IF&gt;
++          &lt;TMPL_IF notes&gt;
++            &lt;hr /&gt;
++            &lt;TMPL_VAR notes&gt;
++          &lt;/TMPL_IF&gt;
++          &lt;/span&gt;
++        &quot;&quot;&quot; else=&quot;&quot;&quot;
++          This is a template page.
++        &quot;&quot;&quot;&#93;&#93;
+ 
+ The filled out template will be formatted the same as the rest of the page
+ that contains it, so you can include WikiLinks and all other forms of wiki
+
+</pre>
+</div>
+
+<!-- da9e1ea667f82d5fca9168dbed19be08040570ff -->

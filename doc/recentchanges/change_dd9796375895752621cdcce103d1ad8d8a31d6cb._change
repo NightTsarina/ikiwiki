@@ -1,0 +1,69 @@
+[[!meta author="""http://jmtd.livejournal.com/"""]]
+
+[[!meta authorurl="""http://jmtd.livejournal.com/"""]]
+
+[[!meta title="""change to bugs/aggregate_generates_long_filenames on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-dd9796375895752621cdcce103d1ad8d8a31d6cb"]]
+
+<div id="change-dd9796375895752621cdcce103d1ad8d8a31d6cb" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/bugs/aggregate_generates_long_filenames.mdwn;h=33e7b743bab78b6a38cf82d2cd7ced97a67de85f;hp=c38ad6c7b84bba739f7deea2e40519b65b56792a;hb=dd9796375895752621cdcce103d1ad8d8a31d6cb;hpb=b00c6c9640453bf1407c4e880ef0c171388197c7" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=bugs%2Faggregate_generates_long_filenames&amp;do=goto" rel="nofollow">bugs/aggregate generates long filenames</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://jmtd.livejournal.com/" rel="nofollow">jmtd [livejournal.com]</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Wed, 17 Nov 2010 07:47:07 +0000">07:47:07 11/17/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=dd9796375895752621cdcce103d1ad8d8a31d6cb&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+ext4, default settings...<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/bugs/aggregate_generates_long_filenames.mdwn b/doc/bugs/aggregate_generates_long_filenames.mdwn
+index c38ad6c..33e7b74 100644
+--- a/doc/bugs/aggregate_generates_long_filenames.mdwn
++++ b/doc/bugs/aggregate_generates_long_filenames.mdwn
+@@ -19,3 +19,16 @@ It would also appear this abrubtly terminates aggregate processing (if not ikiwi
+ &gt; that, in additional to having a rather antique long filename limit, your
+ &gt; system also doesn&#39;t properly expose it via pathconf. Not sure what
+ &gt; ikiwiki can do here. --&#91;&#91;Joey&#93;&#93;
++
++&gt;&gt; This is an ext4 filesystem with default settings (which appears to mean
++&gt;&gt; 256 bytes for pathnames).  Despite the error saying file name, it&#39;s
++&gt;&gt; definitely a path issue since moving my test repo to `/tmp`from
++&gt;&gt; `/home/jon/wd/mine/www` hides the problem. I note the following comment
++&gt;&gt; in `aggregate.pm`:
++
++		# Make sure that the file name isn&#39;t too long. 
++		# NB: This doesn&#39;t check for path length limits.
++
++&gt;&gt; I don&#39;t fully grok the aggregate source yet, but I wouldn&#39;t rule out
++&gt;&gt; a bug in the path length checking, personally.  I&#39;m happy to try and
++&gt;&gt; find it myself though :) -- &#91;&#91;Jon&#93;&#93;
+
+</pre>
+</div>
+
+<!-- dd9796375895752621cdcce103d1ad8d8a31d6cb -->

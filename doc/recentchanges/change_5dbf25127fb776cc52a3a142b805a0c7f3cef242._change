@@ -1,0 +1,140 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to security on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-5dbf25127fb776cc52a3a142b805a0c7f3cef242"]]
+
+<div id="change-5dbf25127fb776cc52a3a142b805a0c7f3cef242" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/security.mdwn;h=2c342b19986104ed27b46c6c736768d34ad82c15;hp=33b199247dbf541362097124a984ceba6d93658e;hb=5dbf25127fb776cc52a3a142b805a0c7f3cef242;hpb=d8de98911ec98f9e4560ab2939b4edf8fb04066b" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=security&amp;do=goto" rel="nofollow">security</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Fri, 12 Nov 2010 00:45:00 -0400">00:45:00 11/12/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=5dbf25127fb776cc52a3a142b805a0c7f3cef242&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+releasing version 3.20101112<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/debian/changelog b/debian/changelog
+index 2c4c927..f8dc04e 100644
+--- a/debian/changelog
++++ b/debian/changelog
+@@ -1,4 +1,4 @@
+-ikiwiki (3.20101024) UNRELEASED; urgency=low
++ikiwiki (3.20101112) unstable; urgency=HIGH
+ 
+   * txt: Fix display when used inside a format directive.
+   * highlight: Ensure that other, more-specific format plugins,
+@@ -16,7 +16,7 @@ ikiwiki (3.20101024) UNRELEASED; urgency=low
+   * comments: Make comment() pagespec also match comments that are being
+     posted.
+ 
+- -- Joey Hess &lt;joeyh@debian.org&gt;  Mon, 25 Oct 2010 22:30:29 -0400
++ -- Joey Hess &lt;joeyh@debian.org&gt;  Fri, 12 Nov 2010 00:36:06 -0400
+ 
+ ikiwiki (3.20101023) unstable; urgency=low
+ 
+diff --git a/doc/security.mdwn b/doc/security.mdwn
+index 33b1992..2c342b1 100644
+--- a/doc/security.mdwn
++++ b/doc/security.mdwn
+@@ -449,7 +449,7 @@ of eg, blog posts. Confusingly, setting it to &quot;* and !comment(*)&quot; did not
+ scrub comments.
+ 
+ Additionally, it was discovered that comments&#39; html was never scrubbed during
+-preview or moderation of comments.
++preview or moderation of comments with such a configuration.
+ 
+ These problems were discovered on 12 November 2010 and fixed the same
+ hour with the release of ikiwiki 3.20101112.
+diff --git a/ikiwiki.spec b/ikiwiki.spec
+index 7653ac6..5ef4390 100644
+--- a/ikiwiki.spec
++++ b/ikiwiki.spec
+@@ -1,5 +1,5 @@
+ Name:           ikiwiki
+-Version: 3.20101023
++Version: 3.20101112
+ Release:        1%{?dist}
+ Summary:        A wiki compiler
+ 
+diff --git a/po/ikiwiki.pot b/po/ikiwiki.pot
+index fa65b6f..e4274d0 100644
+--- a/po/ikiwiki.pot
++++ b/po/ikiwiki.pot
+@@ -8,7 +8,7 @@ msgid &quot;&quot;
+ msgstr &quot;&quot;
+ &quot;Project-Id-Version: PACKAGE VERSION\n&quot;
+ &quot;Report-Msgid-Bugs-To: \n&quot;
+-&quot;POT-Creation-Date: 2010-10-23 17:21-0400\n&quot;
++&quot;POT-Creation-Date: 2010-11-12 00:37-0400\n&quot;
+ &quot;PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n&quot;
+ &quot;Last-Translator: FULL NAME &lt;EMAIL@ADDRESS&gt;\n&quot;
+ &quot;Language-Team: LANGUAGE &lt;LL@li.org&gt;\n&quot;
+@@ -203,7 +203,7 @@ msgstr &quot;&quot;
+ msgid &quot;moderation&quot;
+ msgstr &quot;&quot;
+ 
+-#: ../IkiWiki/Plugin/comments.pm:137 ../IkiWiki/Plugin/format.pm:48
++#: ../IkiWiki/Plugin/comments.pm:137 ../IkiWiki/Plugin/format.pm:50
+ #, perl-format
+ msgid &quot;unsupported page format %s&quot;
+ msgstr &quot;&quot;
+@@ -268,7 +268,7 @@ msgstr &quot;&quot;
+ msgid &quot;comment moderation&quot;
+ msgstr &quot;&quot;
+ 
+-#: ../IkiWiki/Plugin/comments.pm:822
++#: ../IkiWiki/Plugin/comments.pm:828
+ #, perl-format
+ msgid &quot;%i comment&quot;
+ msgid_plural &quot;%i comments&quot;
+@@ -278,7 +278,7 @@ msgstr&#91;1&#93; &quot;&quot;
+ #. translators: Here &quot;Comment&quot; is a verb;
+ #. translators: the user clicks on it to
+ #. translators: post a comment.
+-#: ../IkiWiki/Plugin/comments.pm:832
++#: ../IkiWiki/Plugin/comments.pm:838
+ msgid &quot;Comment&quot;
+ msgstr &quot;&quot;
+ 
+@@ -411,7 +411,7 @@ msgid &quot;&quot;
+ &quot;warning: highlight perl module not available; falling back to pass through&quot;
+ msgstr &quot;&quot;
+ 
+-#: ../IkiWiki/Plugin/htmltidy.pm:62
++#: ../IkiWiki/Plugin/htmltidy.pm:63
+ msgid &quot;htmltidy failed to parse this html&quot;
+ msgstr &quot;&quot;
+ 
+
+</pre>
+</div>
+
+<!-- 5dbf25127fb776cc52a3a142b805a0c7f3cef242 -->

@@ -1,0 +1,70 @@
+[[!meta author="""http://smcv.pseudorandom.co.uk/"""]]
+
+[[!meta authorurl="""http://smcv.pseudorandom.co.uk/"""]]
+
+[[!meta title="""change to plugins/autoindex/discussion on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-9c42f5786601429a0b921d6591ebf5e4c1eb4da8"]]
+
+<div id="change-9c42f5786601429a0b921d6591ebf5e4c1eb4da8" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/plugins/autoindex/discussion.mdwn;h=6b13d2342fa62ccc48671f0f30d2479b085dd38f;hp=b09481cdc7800921433da69bb4cbed33c125b05e;hb=9c42f5786601429a0b921d6591ebf5e4c1eb4da8;hpb=2c17255b6641e33374a446ca281a0ad6d46af1dc" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=plugins%2Fautoindex%2Fdiscussion&amp;do=goto" rel="nofollow">plugins/autoindex/discussion</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://smcv.pseudorandom.co.uk/" rel="nofollow">smcv</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">web</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Mon, 08 Nov 2010 08:17:07 -0400">08:17:07 11/08/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=9c42f5786601429a0b921d6591ebf5e4c1eb4da8&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+put the problematic patch in a toggleable to make discussion more visible<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/plugins/autoindex/discussion.mdwn b/doc/plugins/autoindex/discussion.mdwn
+index b09481c..6b13d23 100644
+--- a/doc/plugins/autoindex/discussion.mdwn
++++ b/doc/plugins/autoindex/discussion.mdwn
+@@ -22,6 +22,8 @@ If you just don&#39;t want to clutter your git repo, below it&#39;s a patch does the fol
+ 
+ * If you set autoindex_commit to 1 (this is the default), auto-generated index files will be put in the repo provided you enabled rcs backend.
+ 
++&#91;&#91;!toggle id=&quot;patch-for-autoindex_commit&quot; text=&quot;patch for autoindex_commit&quot;&#93;&#93;
++&#91;&#91;!toggleable id=&quot;patch-for-autoindex_commit&quot; text=&quot;&quot;&quot;
+ &lt;pre&gt;
+ --- autoindex.pm.orig	2009-10-01 17:13:51.000000000 +0800
+ +++ autoindex.pm	2009-10-01 17:21:09.000000000 +0800
+@@ -65,7 +67,7 @@ If you just don&#39;t want to clutter your git repo, below it&#39;s a patch does the fol
+  				gettext(&quot;automatic index generation&quot;),
+  				undef, undef);
+ &lt;/pre&gt;
+-
++&quot;&quot;&quot;&#93;&#93;
+  
+ Warning:  I guess this patch may work, but I *haven&#39;t tested it yet*.  -- &#91;&#91;weakish&#93;&#93;
+ 
+
+</pre>
+</div>
+
+<!-- 9c42f5786601429a0b921d6591ebf5e4c1eb4da8 -->

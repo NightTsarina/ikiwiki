@@ -1,0 +1,90 @@
+[[!meta author="""joey"""]]
+
+[[!meta authorurl="""http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto"""]]
+
+[[!meta title="""change to todo/replace_HTML::Template_with_Template_Toolkit on ikiwiki"""]]
+
+[[!meta permalink="http://ikiwiki.info/recentchanges/#change-65e726f201d7b9919271cfe7e8a7314a6abf0fc3"]]
+
+<div id="change-65e726f201d7b9919271cfe7e8a7314a6abf0fc3" class="metadata">
+<span class="desc"><br />Changed pages:</span>
+<span class="pagelinks">
+
+<a href="http://git.ikiwiki.info/?p=ikiwiki;a=blobdiff;f=doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn;h=d55fc0aa82b247be8532bddbc91f46bb22d4578c;hp=9725b6541855c79fc8360e74857bd5737fb43834;hb=65e726f201d7b9919271cfe7e8a7314a6abf0fc3;hpb=2a452ddf146c4148155095e400f56b4674d76953" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><a href="http://ikiwiki.info/ikiwiki.cgi?page=todo%2Freplace_HTML%3A%3ATemplate_with_Template_Toolkit&amp;do=goto" rel="nofollow">todo/replace HTML::Template with Template Toolkit</a>
+
+
+</span>
+<span class="desc"><br />Changed by:</span>
+<span class="committer">
+
+<a href="http://ikiwiki.info/ikiwiki.cgi?page=users%2Fjoey&amp;do=goto" rel="nofollow">joey</a>
+
+</span>
+<span class="desc"><br />Commit type:</span>
+<span class="committype">git</span>
+<span class="desc"><br />Date:</span>
+<span class="changedate"><span class="relativedate" title="Tue, 16 Nov 2010 13:42:52 -0400">13:42:52 11/16/10</span></span>
+<span class="desc"><br /></span>
+</div>
+
+<span class="revert">
+<a href="http://ikiwiki.info/ikiwiki.cgi?rev=65e726f201d7b9919271cfe7e8a7314a6abf0fc3&amp;do=revert" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+</span>
+
+<div class="changelog">
+
+
+response<br />
+
+
+</div>
+
+<div class="diff">
+<pre>
+diff --git a/doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn b/doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn
+index 9725b65..d55fc0a 100644
+--- a/doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn
++++ b/doc/todo/replace_HTML::Template_with_Template_Toolkit.mdwn
+@@ -5,9 +5,14 @@ features and thus makes it rather hard to give an ikiwiki site a consistent
+ look. If you browse the templates provided in the tarball, you&#39;ll notice that
+ more than one of them contain the `&lt;html&gt;` tag, which is unnecessary.
+ 
++&gt; Note that is no longer true, and I didn&#39;t have to do such an intrusive
++&gt; change to fix it either. --&#91;&#91;Joey&#93;&#93;
++
+ Maybe it&#39;s just me, I also find HTML::Template cumbersome to use, due in part
+ to its use of capital letters.
+ 
++&gt; Its entirely optional use of capital letters? --&#91;&#91;Joey&#93;&#93;
++
+ Finally, the software seems unmaintained: the mailing list and searchable
+ archives linked from
+ &lt;http://html-template.sourceforge.net/html_template.html#frequently%20asked%20questions&gt;
+@@ -62,4 +67,21 @@ HTML::Template&#39;s HTML-like markup prevents me from editing templates in KompoZer
+ 
+ I agree that being able to replace the template toolkit would be a great piece of modularity, and one I would use. If I could use the slot-based filling and the conditional logic from Template::Toolkit, we could build much more flexible inline and archivepage templates that would look different depending on where in the wiki we use them. Some of this can currently be accomplished with separate templates for each use case and a manual call to the right template in the !inline directive, but this is limited, cumbersome, and makes it difficult to reuse bits of formatting by trapping all of that information in multiple template files. -Ian
+ 
+-&gt; I don&#39;t wish HTML::Template to be *replaced* by Template::Toolkit - as others have said above, it&#39;s overkill for my needs.  However, I also agree that HTML::Template has its own problems too.  The idea of making the template system modular, with a choice of which backend to use - I really like that idea. It would enable me to use some other template system I like better, such as Text::Template or Text::NeatTemplate. But I think it would be a lot of work to implement, though perhaps no more work than making the revision-control backend modular, I guess.  One would need to write an IkiWiki template interface that didn&#39;t care what the backend was, and yet is somehow still flexible enough to take advantage of special features of different backends.  There are an *awful lot* of things that use templates - not just the `pagetemplate` and `template` plugins, but a number of others which have specialized templates of their own. -- &#91;&#91;KathrynAndersen&#93;&#93;
++&gt; I don&#39;t wish HTML::Template to be *replaced* by Template::Toolkit - as
++&gt; others have said above, it&#39;s overkill for my needs.  However, I also
++&gt; agree that HTML::Template has its own problems too.  The idea of making
++&gt; the template system modular, with a choice of which backend to use - I
++&gt; really like that idea. It would enable me to use some other template
++&gt; system I like better, such as Text::Template or Text::NeatTemplate. But I
++&gt; think it would be a lot of work to implement, though perhaps no more work
++&gt; than making the revision-control backend modular, I guess.  One would
++&gt; need to write an IkiWiki template interface that didn&#39;t care what the
++&gt; backend was, and yet is somehow still flexible enough to take advantage
++&gt; of special features of different backends.  There are an *awful lot* of
++&gt; things that use templates - not just the `pagetemplate` and `template`
++&gt; plugins, but a number of others which have specialized templates of their
++&gt; own. -- &#91;&#91;KathrynAndersen&#93;&#93;a
++
++&gt;&gt; A modular template system in ikiwiki is unlikely, as template objects
++&gt;&gt; are part of the API,  notably the `pagetemplate` hook. Unless the other
++&gt;&gt; system has a compatible template object. --&#91;&#91;Joey&#93;&#93; 
+
+</pre>
+</div>
+
+<!-- 65e726f201d7b9919271cfe7e8a7314a6abf0fc3 -->
