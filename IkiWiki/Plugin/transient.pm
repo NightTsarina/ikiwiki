@@ -8,6 +8,7 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "getsetup", id => "transient",  call => \&getsetup);
 	hook(type => "checkconfig", id => "transient", call => \&checkconfig);
+	hook(type => "change", id => "transient", call => \&change);
 }
 
 sub getsetup () {
@@ -28,6 +29,19 @@ sub checkconfig () {
 	error($@) if $@;
 	$transientdir = abs_path($config{wikistatedir})."/transient";
 	add_underlay($transientdir);
+}
+
+sub change (@) {
+	foreach my $file (@_) {
+		# if the corresponding file exists in the transient underlay
+		# and isn't actually being used, we can get rid of it
+		my $page = pagename($file);
+		my $casualty = "$transientdir/$page.$config{default_pageext}";
+		if (srcfile($file) ne $casualty && -e $casualty) {
+			debug(sprintf(gettext("removing transient version of %s"), $page));
+			IkiWiki::prune($casualty);
+		}
+	}
 }
 
 1;
