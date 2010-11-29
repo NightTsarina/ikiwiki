@@ -15,6 +15,9 @@ ikiwiki (3.20101113) UNRELEASED; urgency=low
     as a template for a new page.
   * git: Fix temp file location.
   * rename: Fix to pass named parameters to rcs_commit.
+  * git: Avoid adding files when committing, so as not to implicitly add
+    files like recentchanges files that are not normally checked in,
+    when fixing links after rename.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 16 Nov 2010 14:23:47 -0400
 
