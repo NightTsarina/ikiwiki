@@ -797,7 +797,7 @@ sub git_parse_changes {
 				eval q{use File::Temp};
 				die $@ if $@;
 				my $fh;
-				($fh, $path)=File::Temp::tempfile("XXXXXXXXXX", UNLINK => 1);
+				($fh, $path)=File::Temp::tempfile(undef, UNLINK => 1);
 				my $cmd = "cd $git_dir && ".
 				          "git show $detail->{sha1_to} > '$path'";
 				if (system($cmd) != 0) {
