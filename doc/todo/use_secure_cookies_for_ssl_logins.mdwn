@@ -15,11 +15,20 @@ get a secure session cookie, but if you log in over HTTP, you won't.
 > just be changed in the sslcookie = 0 case. It seems sorta reasonable
 > that, once I've logged in via https, I need to re-login if I then
 > switch to http.
-> 
+
+>> Even better. I've amended the branch to have this behaviour, which
+>> turns it into a one-line patch. --[[smcv]]
+
 > And, if your change is made, the sslcookie option could probably itself
 > be dropped too -- at least I don't see a real use case for it if ikiwiki
 > is more paranoid about cookies by default.
-> 
+
+>> I haven't done that; it might make sense to do so, but I think it'd be
+>> better to leave it in as a safety-catch (or in case someone's
+>> using a webserver that doesn't put `$HTTPS` in the environment). --s
+
 > Might be best to fix
 > [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]]
 > first, so that dual https/http sites can better be set up. --[[Joey]]
+
+>> Thanks for merging that! :-) --s
