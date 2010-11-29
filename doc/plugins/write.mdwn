@@ -1,4 +1,4 @@
-Ikiwiki's plugin interface allows all kinds of useful [[plugins]] to be
+lkiwiki's plugin interface allows all kinds of useful [[plugins]] to be
 written to extend ikiwiki in many ways. Despite the length of this page,
 it's not really hard. This page is a complete reference to everything a
 plugin might want to do. There is also a quick [[tutorial]].
@@ -988,13 +988,13 @@ Construct a relative url to the first parameter from the page named by the
 second. The first parameter can be either a page name, or some other
 destination file, as registered by `will_render`.
 
-If the second parameter is `undef` (or not specified), the URL will be
+If the second parameter is not specified (or `undef`), the URL will be
 valid from any page on the wiki, or from the CGI; if possible it'll
 be a path starting with `/`, but an absolute URL will be used if
 the wiki and the CGI are on different domains.
 
-If the third parameter is passed and is true, an absolute url will be
-constructed instead of the default relative url.
+If the third parameter is passed and is true, the url will be a fully
+absolute url. This is useful when generating an url to publish elsewhere.
 
 ### `newpagefile($$)`
 
