@@ -9,3 +9,10 @@ I'm unsure yet why the recentchanges files were being committed. Possibly
 because of the link fixup code run when renaming a page. --[[Joey]] 
 
 > See also [[bugs/rename fixup not attributed to author]]. --[[smcv]]
+
+> Ok, there was a call to `rcs_commit` that was still using non-named
+> parameters, which confused it thuroughly, and I think caused
+> 'git add .' to be called. I've fixed that.
+> 
+> I think there is still potential for the problem I described above to
+> occur during a rename or possibly otherwise. --[[Joey]] 

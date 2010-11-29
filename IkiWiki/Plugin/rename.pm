@@ -574,11 +574,10 @@ sub fixlinks ($$$) {
 				eval { writefile($file, $config{srcdir}, $content) };
 				next if $@;
 				my $conflict=IkiWiki::rcs_commit(
-					$file,
-					sprintf(gettext("update for rename of %s to %s"), $rename->{srcfile}, $rename->{destfile}),
-					$token,
-					$session->param("name"),
-					$session->remote_addr(),
+					file => $file,
+					message => sprintf(gettext("update for rename of %s to %s"), $rename->{srcfile}, $rename->{destfile}),
+					token => $token,
+					session => $session,
 				);
 				push @fixedlinks, $page if ! defined $conflict;
 			}
