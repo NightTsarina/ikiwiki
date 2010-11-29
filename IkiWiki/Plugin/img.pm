@@ -152,8 +152,8 @@ sub preprocess (@) {
 		$imgurl=urlto($imglink, $params{destpage});
 	}
 	else {
-		$fileurl=urlto($file, undef);
-		$imgurl=urlto($imglink, undef);
+		$fileurl=urlto($file);
+		$imgurl=urlto($imglink);
 	}
 
 	if (! exists $params{class}) {

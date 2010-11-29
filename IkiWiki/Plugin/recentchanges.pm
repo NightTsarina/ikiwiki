@@ -127,7 +127,7 @@ sub sessioncgi ($$) {
 		exit 0;
 	}
 
-	IkiWiki::redirect($q, urlto($config{recentchangespage}, undef));
+	IkiWiki::redirect($q, urlto($config{recentchangespage}));
 	exit 0;
 }
 

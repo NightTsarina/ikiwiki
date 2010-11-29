@@ -237,7 +237,7 @@ sub preprocess {
 	}
 
 	if ($params{page} =~ m/\/\Q$config{comments_pagename}\E\d+_/) {
-		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page}), undef).
+		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page})).
 			"#".page_to_id($params{page});
 	}
 
@@ -372,7 +372,7 @@ sub editcomment ($$) {
 		error(gettext("bad page name"));
 	}
 
-	my $baseurl = urlto($page, undef);
+	my $baseurl = urlto($page);
 
 	$form->title(sprintf(gettext("commenting on %s"),
 			IkiWiki::pagetitle($page)));
@@ -385,8 +385,7 @@ sub editcomment ($$) {
 
 	if ($form->submitted eq CANCEL) {
 		# bounce back to the page they wanted to comment on, and exit.
-		# CANCEL need not be considered in future
-		IkiWiki::redirect($cgi, urlto($page, undef));
+		IkiWiki::redirect($cgi, $baseurl);
 		exit;
 	}
 
@@ -552,7 +551,7 @@ sub editcomment ($$) {
 		# Jump to the new comment on the page.
 		# The trailing question mark tries to avoid broken
 		# caches and get the most recent version of the page.
-		IkiWiki::redirect($cgi, urlto($page, undef).
+		IkiWiki::redirect($cgi, urlto($page).
 			"?updated#".page_to_id($location));
 
 	}
@@ -811,14 +810,14 @@ sub pagetemplate (@) {
 	if ($shown) {
 		if ($template->query(name => 'commentsurl')) {
 			$template->param(commentsurl =>
-				urlto($page, undef).'#comments');
+				urlto($page).'#comments');
 		}
 
 		if ($template->query(name => 'atomcommentsurl') && $config{usedirs}) {
 			# This will 404 until there are some comments, but I
 			# think that's probably OK...
 			$template->param(atomcommentsurl =>
-				urlto($page, undef).'comments.atom');
+				urlto($page).'comments.atom');
 		}
 
 		if ($template->query(name => 'commentslink')) {

@@ -103,7 +103,7 @@ sub sessioncgi ($$) {
 		my $oldchoice=$session->param($choice_param);
 		if (defined $oldchoice && $oldchoice eq $choice) {
 			# Same vote; no-op.
-			IkiWiki::redirect($cgi, urlto($page, undef));
+			IkiWiki::redirect($cgi, urlto($page));
 			exit;
 		}
 
@@ -153,7 +153,7 @@ sub sessioncgi ($$) {
 		error($@) if $@;
 		my $cookie = CGI::Cookie->new(-name=> $session->name, -value=> $session->id);
 		print $cgi->redirect(-cookie => $cookie,
-			-url => urlto($page, undef));
+			-url => urlto($page));
 		exit;
 	}
 }
