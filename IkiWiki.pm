@@ -1134,7 +1134,7 @@ sub beautify_urlpath ($) {
 	return $url;
 }
 
-sub urlto ($$;$) {
+sub urlto ($;$$) {
 	my $to=shift;
 	my $from=shift;
 	my $absolute=shift;
