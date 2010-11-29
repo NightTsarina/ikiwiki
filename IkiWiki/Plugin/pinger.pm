@@ -106,6 +106,8 @@ sub ping {
 			# only ping when a page was changed, so a ping loop
 			# will still be avoided.
 			next if $url=~/^\Q$config{cgiurl}\E/;
+			my $local_cgiurl = IkiWiki::cgiurl();
+			next if $url=~/^\Q$local_cgiurl\E/;
 			
 			$ua->get($url);
 		}

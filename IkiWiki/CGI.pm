@@ -116,7 +116,7 @@ sub cgi_signin ($$;$) {
 		required => 'NONE',
 		javascript => 0,
 		params => $q,
-		action => $config{cgiurl},
+		action => cgiurl(),
 		header => 0,
 		template => {type => 'div'},
 		stylesheet => 1,
@@ -198,7 +198,7 @@ sub cgi_prefs ($$) {
 		required => 'NONE',
 		javascript => 0,
 		params => $q,
-		action => $config{cgiurl},
+		action => cgiurl(),
 		template => {type => 'div'},
 		stylesheet => 1,
 		fieldsets => [
@@ -231,11 +231,11 @@ sub cgi_prefs ($$) {
 	
 	if ($form->submitted eq 'Logout') {
 		$session->delete();
-		redirect($q, $config{url});
+		redirect($q, baseurl(undef));
 		return;
 	}
 	elsif ($form->submitted eq 'Cancel') {
-		redirect($q, $config{url});
+		redirect($q, baseurl(undef));
 		return;
 	}
 	elsif ($form->submitted eq 'Save Preferences' && $form->validate) {

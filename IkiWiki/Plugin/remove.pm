@@ -100,7 +100,7 @@ sub confirmation_form ($$) {
 		method => 'POST',
 		javascript => 0,
 		params => $q,
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		stylesheet => 1,
 		fields => [qw{do page}],
 	);
@@ -240,7 +240,7 @@ sub sessioncgi ($$) {
 				if (! exists $pagesources{$parent}) {
 					$parent="index";
 				}
-				IkiWiki::redirect($q, urlto($parent, '/', 1));
+				IkiWiki::redirect($q, urlto($parent, undef));
 			}
 		}
 		else {

@@ -237,7 +237,7 @@ sub preprocess {
 	}
 
 	if ($params{page} =~ m/\/\Q$config{comments_pagename}\E\d+_/) {
-		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page}), undef, 1).
+		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page}), undef).
 			"#".page_to_id($params{page});
 	}
 
@@ -301,7 +301,7 @@ sub editcomment ($$) {
 		required => [qw{editcontent}],
 		javascript => 0,
 		params => $cgi,
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		header => 0,
 		table => 0,
 		template => { template('editcomment.tmpl') },
@@ -372,7 +372,7 @@ sub editcomment ($$) {
 		error(gettext("bad page name"));
 	}
 
-	my $baseurl = urlto($page, undef, 1);
+	my $baseurl = urlto($page, undef);
 
 	$form->title(sprintf(gettext("commenting on %s"),
 			IkiWiki::pagetitle($page)));
@@ -386,7 +386,7 @@ sub editcomment ($$) {
 	if ($form->submitted eq CANCEL) {
 		# bounce back to the page they wanted to comment on, and exit.
 		# CANCEL need not be considered in future
-		IkiWiki::redirect($cgi, urlto($page, undef, 1));
+		IkiWiki::redirect($cgi, urlto($page, undef));
 		exit;
 	}
 
@@ -552,7 +552,7 @@ sub editcomment ($$) {
 		# Jump to the new comment on the page.
 		# The trailing question mark tries to avoid broken
 		# caches and get the most recent version of the page.
-		IkiWiki::redirect($cgi, urlto($page, undef, 1).
+		IkiWiki::redirect($cgi, urlto($page, undef).
 			"?updated#".page_to_id($location));
 
 	}
@@ -656,6 +656,7 @@ sub commentmoderation ($$) {
 	$template->param(
 		sid => $session->id,
 		comments => \@comments,
+		cgiurl => IkiWiki::cgiurl(),
 	);
 	IkiWiki::printheader($session);
 	my $out=$template->output;
@@ -810,14 +811,14 @@ sub pagetemplate (@) {
 	if ($shown) {
 		if ($template->query(name => 'commentsurl')) {
 			$template->param(commentsurl =>
-				urlto($page, undef, 1).'#comments');
+				urlto($page, undef).'#comments');
 		}
 
 		if ($template->query(name => 'atomcommentsurl') && $config{usedirs}) {
 			# This will 404 until there are some comments, but I
 			# think that's probably OK...
 			$template->param(atomcommentsurl =>
-				urlto($page, undef, 1).'comments.atom');
+				urlto($page, undef).'comments.atom');
 		}
 
 		if ($template->query(name => 'commentslink')) {

@@ -64,7 +64,7 @@ sub cgi_goto ($;$) {
 		)
 	}
 	else {
-		IkiWiki::redirect($q, urlto($link, undef, 1));
+		IkiWiki::redirect($q, urlto($link, undef));
 	}
 
 	exit;

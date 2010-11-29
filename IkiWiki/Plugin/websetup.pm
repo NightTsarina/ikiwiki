@@ -288,7 +288,7 @@ sub showform ($$) {
 		fieldsets => [
 			[main => gettext("main")], 
 		],
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		template => {type => 'div'},
 		stylesheet => 1,
 	);
@@ -344,7 +344,7 @@ sub showform ($$) {
 	IkiWiki::decode_form_utf8($form);
 	
 	if ($form->submitted eq "Cancel") {
-		IkiWiki::redirect($cgi, $config{url});
+		IkiWiki::redirect($cgi, IkiWiki::baseurl(undef));
 		return;
 	}
 	elsif (($form->submitted eq 'Save Setup' || $form->submitted eq 'Rebuild Wiki') && $form->validate) {

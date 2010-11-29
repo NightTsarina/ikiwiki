@@ -84,7 +84,7 @@ sub sessioncgi ($$) {
 		method => 'POST',
 		javascript => 0,
 		params => $q,
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		stylesheet => 1,
 		template => { template('revert.tmpl') },
 		fields => [qw{revertmessage do sid rev}],
@@ -127,7 +127,7 @@ sub sessioncgi ($$) {
 		exit 0;
 	}
 
-	IkiWiki::redirect($q, urlto($config{recentchangespage}, ''));
+	IkiWiki::redirect($q, urlto($config{recentchangespage}, undef));
 	exit 0;
 }
 
@@ -178,7 +178,7 @@ sub store ($$$) {
 			else {
 				$_->{link} = pagetitle($_->{page});
 			}
-			$_->{baseurl}="$config{url}/" if length $config{url};
+			$_->{baseurl}=IkiWiki::baseurl(undef) if length $config{url};
 
 			$_;
 		} @{$change->{pages}}
@@ -226,7 +226,7 @@ sub store ($$$) {
 		wikiname => $config{wikiname},
 	);
 	
-	$template->param(permalink => "$config{url}/$config{recentchangespage}/#change-".titlepage($change->{rev}))
+	$template->param(permalink => urlto($config{recentchangespage}, undef)."#change-".titlepage($change->{rev}))
 		if exists $config{url};
 	
 	IkiWiki::run_hooks(pagetemplate => sub {
