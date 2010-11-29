@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 19;
+use Test::More tests => 21;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -25,7 +25,9 @@ is(IkiWiki::cgiurl(), "/cgi-bin/ikiwiki.cgi");
 is(IkiWiki::cgiurl(do => 'badger'), "/cgi-bin/ikiwiki.cgi?do=badger");
 is(IkiWiki::baseurl(undef), "/");
 is(IkiWiki::urlto('index', undef), "/");
+is(IkiWiki::urlto('index'), "/");
 is(IkiWiki::urlto('stoats', undef), "/stoats/");
+is(IkiWiki::urlto('stoats'), "/stoats/");
 
 # fully-relative version (default for urlto and baseurl)
 is(IkiWiki::baseurl('badger/mushroom'), "../../");
