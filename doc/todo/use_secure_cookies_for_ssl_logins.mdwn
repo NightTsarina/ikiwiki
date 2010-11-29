@@ -10,3 +10,16 @@ This branch adds `sslcookie => 0, sslcookie_auto => 1` as an option; this
 uses the `HTTPS` environment variable, so if you log in over SSL you'll
 get a secure session cookie, but if you log in over HTTP, you won't.
 (The syntax for the setup file is pretty rubbish - any other suggestions?)
+
+> Does this need to be a configurable option at all? The behavior could
+> just be changed in the sslcookie = 0 case. It seems sorta reasonable
+> that, once I've logged in via https, I need to re-login if I then
+> switch to http.
+> 
+> And, if your change is made, the sslcookie option could probably itself
+> be dropped too -- at least I don't see a real use case for it if ikiwiki
+> is more paranoid about cookies by default.
+> 
+> Might be best to fix
+> [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]]
+> first, so that dual https/http sites can better be set up. --[[Joey]]
