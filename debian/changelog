@@ -9,6 +9,9 @@ ikiwiki (3.20101130) UNRELEASED; urgency=low
   * Now when users log in via https, ikiwiki sends a secure cookie, that can
     only be used over https. If the user switches to using http, they will
     need to re-login. (smcv)
+  * meta: Fix calling of htmlscrubber to pass the page parameter.
+    The change of the htmlscrubber to look at page rather than destpage
+    caused htmlscrubber_skip to not work for meta directives.
 
  -- Joey Hess <joeyh@debian.org>  Mon, 29 Nov 2010 14:44:13 -0400
 
