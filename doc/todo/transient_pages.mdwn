@@ -21,8 +21,44 @@ content for the edit box; after that, it'd become a static page. --[[smcv]]
 
 --------------------------
 
-[[!template id=gitbranch branch=smcv/transient author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/ready/transient author="[[smcv]]"]]
 [[!tag patch]]
+
+I think this branch is now enough to be useful. It adds the following:
+
+If the `transient` plugin is loaded, `$srcdir/.ikiwiki/transient` is added
+as an underlay.
+
+Pages with the default extension in the transient underlay are automatically
+deleted if a page of the same name is created in the srcdir (or an underlay
+closer to the srcdir in stacking order).
+
+`tag` enables `transient`, and if `tag_autocreate_commit` is set to 0
+(default 1), autocreated tags are written to the transient underlay.
+
+`autoindex` uses autofiles. It also enables `transient`, and if
+`autoindex_commit` is set to 0 (default 1), autoindexes are written to
+the transient underlay.
+
+autoindex ignores pages in the transient underlay when deciding whether
+to generate an index.
+
+Not done yet:
+
+`remove` can't remove transient pages: this turns out to be harder than
+I'd hoped, because I don't want to introduce a vulnerability in the
+non-regular-file detection...
+
+Transient tags that don't match any pages aren't deleted: I'm not sure
+that that's a good idea anyway, though. Similarly, transient autoindexes
+of directories that become empty aren't deleted.
+
+Recent changes and aggregated files could conceivably go in the transient
+underlay too.
+
+--------------------------
+
+## An earlier version
 
 I had a look at implementing this. It turns out to be harder than I thought
 to have purely in-memory pages (several plugins want to be able to access the
