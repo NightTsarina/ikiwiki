@@ -160,7 +160,7 @@ sub preprocess_inline (@) {
 	my $rss=(($config{rss} || $config{allowrss}) && exists $params{rss}) ? yesno($params{rss}) : $config{rss};
 	my $atom=(($config{atom} || $config{allowatom}) && exists $params{atom}) ? yesno($params{atom}) : $config{atom};
 	my $quick=exists $params{quick} ? yesno($params{quick}) : 0;
-	my $feeds=! $nested && (exists $params{feeds} ? yesno($params{feeds}) : !$quick && ! $raw);
+	my $feeds=exists $params{feeds} ? yesno($params{feeds}) : !$quick && ! $raw;
 	my $emptyfeeds=exists $params{emptyfeeds} ? yesno($params{emptyfeeds}) : 1;
 	my $feedonly=yesno($params{feedonly});
 	if (! exists $params{show} && ! $archive) {
@@ -269,7 +269,7 @@ sub preprocess_inline (@) {
 			}
 			$params{feedfile}=possibly_foolish_untaint($params{feedfile});
 		}
-		$feedbase=targetpage($params{destpage}, "", $params{feedfile});
+		$feedbase=targetpage($params{page}, "", $params{feedfile});
 
 		my $feedid=join("\0", $feedbase, map { $_."\0".$params{$_} } sort keys %params);
 		if (exists $knownfeeds{$feedid}) {
