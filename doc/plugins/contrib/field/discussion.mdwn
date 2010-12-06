@@ -327,6 +327,51 @@ smcv's discuission of field author vs meta author above. --[[Joey]]
 
 -----
 
+I think the main point is: what is (or should be) the main point of the
+field plugin? If it's essentially a way to present a consistent
+interface to access page-related structured information, then it makes
+sense to have it very general. Plugins registering with fields would
+then present ways for recovering the structure information from the page
+(`ymlfront`, `meta`, etc),  ways to manipulate it (like `meta` does),
+etc.
+
+In this sense, security should be entirely up to the plugins, although
+the fields plugin could provide some auxiliary infrastructure (like
+determining where the data comes from and raise or lower the security
+level accoringly).
+
+Namespacing is important, and it should be considered at the field
+plugin interface level. A plugin should be able to register as
+responsible for the processing of all data belonging to a given
+namespace, but plugins should be able to set data in any namespace. So
+for example, `meta` register are `meta` fields processing, and whatever
+method is used to set the data (`meta` directive, `ymlfront`, etc) it
+gets a say on what to do with data in its namespace.
+
+What I'm thinking of is something you could call fieldsets. The nice
+thing about them is that, aside from the ones defined by plugins (like
+`meta`), it would be possible to define custom ones (with a generic,
+default processor) in an appropriate file (like smileys and shortcuts)
+with a syntax like:
+
+    [[!fieldset book namespace=book
+       fields="author title isbn"
+       fieldtype="text text text"]]
+
+after which, you coude use
+
+    [[!book author="A. U. Thor"
+            title="Fields of Iki"]]
+
+and the data would be available under the book namespace, and thus
+as BOOK_AUTHOR, BOOK_TITLE etc in templates.
+
+Security, in this sense, would be up to the plugin responsible for the
+namespace processing (the default handler would HTML-escape text fields
+scrub, html fields, safeurl()ify url fields, etc.)
+
+-----
+
 I was just looking at HTML5 and wondered if the field plugin should generate the new Microdata tags (as well as the internal structures)? <http://slides.html5rocks.com/#slide19> -- [[Will]]
 
 > This could just as easily be done as a separate plugin.  Feel free to do so. --[[KathrynAndersen]]
