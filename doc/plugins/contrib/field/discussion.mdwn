@@ -370,6 +370,18 @@ Security, in this sense, would be up to the plugin responsible for the
 namespace processing (the default handler would HTML-escape text fields
 scrub, html fields, safeurl()ify url fields, etc.)
 
+> So, are you saying that getting a field value is sort of a two-stage process?  Get the value from anywhere, and then call the "security processor" for that namespace to "secure" the value?  I think "namespaces" are really orthogonal to this issue.  What the issue seems to be is:
+
+   * what form do we expect the raw field to be in? (text, URL, HTML)
+   * what form do we expect the "secured" output to be in? (raw HTML, scrubbed HTML, escaped HTML, URL)
+
+> Only if we know both these things will we know what sort of security processing needs to be done.
+> There is also a difference between field values that are used inside pagetemplate, and field values which are used as part of a page's content (e.g. with ftemplate).  If you have a TITLE, you want it to be HTML-escaped if you're using it inside pagetemplate, but you don't want it to be HTML-escaped if you're using it inside a page's content.  On the other hand, if you have, say, FEEDLINKS used inside pagetemplate, you don't wish it to be HTML-escaped at all, or your page content will be completely stuffed.
+
+> So, somehow, we have to know the meaning of a field before we can use it properly, which kind of goes against the idea of having something generic.
+
+> --[[KathrynAndersen]]
+
 -----
 
 I was just looking at HTML5 and wondered if the field plugin should generate the new Microdata tags (as well as the internal structures)? <http://slides.html5rocks.com/#slide19> -- [[Will]]
