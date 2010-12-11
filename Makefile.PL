@@ -84,12 +84,15 @@ underlay_install:
 		fi \
 	done
 
-	# Themes have their style.css appended to the normal one.
+	# Themes have their base.css (if present) and then
+	# style.css appended to the normal one.
 	for theme in themes/*; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme; \
 		for file in $$theme/*; do \
 			if echo "$$file" | grep -q style.css; then \
-				(cat doc/style.css; cat $$file) >> $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme/style.css; \
+				(cat doc/style.css; cat $$theme/base.css 2>/dev/null; cat $$file) >> $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme/style.css; \
+			elif echo "$$file" | grep -q base.css; then \
+				:; \
 			elif [ -f "$$file" ]; then \
 				cp -aL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file 2>/dev/null || \
 				install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file; \
