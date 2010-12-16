@@ -27,6 +27,8 @@ and decided this time it was really needed to implement this feature.
 
 >> (I'm not an ikiwiki committer, opinions may vary.)
 >>
+>>> In my opinion, you're an ikiwiki committer! --[[Joey]]
+>>
 >> This would be easier to review if there weren't a million merges from
 >> master; perhaps either leave a branch as-is, or rebase it, or merge
 >> only at "significant" times like after a release?
@@ -59,3 +61,14 @@ and decided this time it was really needed to implement this feature.
 >>> the future, though.
 >>>
 >>> --[[intrigeri]]
+
+>>>> FWIW, I don't care about merge commits etc because I review
+>>>> `git diff ...intrigeri/mirrorlist` -- and if I want to dig deeper
+>>>> into the why of some code, I'll probably checkout the branch and
+>>>> use git blame.
+>>>>
+>>>> I agree with what smcv said, my other concern though is that
+>>>> this is such an edge case, that supporting it just adds clutter.
+>>>> Have to wonder if it wouldn't perhaps be better to do something
+>>>> using the goto plugin and cgiurl, so that the mirror doesn't have
+>>>> to know about the configuration of the other mirror. --[[Joey]]
