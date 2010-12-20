@@ -57,8 +57,8 @@ sub sanitize (@) {
 
 	if (exists $config{htmlscrubber_skip} &&
 	    length $config{htmlscrubber_skip} &&
-	    exists $params{destpage} &&
-	    pagespec_match($params{destpage}, $config{htmlscrubber_skip})) {
+	    exists $params{page} &&
+	    pagespec_match($params{page}, $config{htmlscrubber_skip})) {
 		return $params{content};
 	}
 

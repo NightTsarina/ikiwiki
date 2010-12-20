@@ -41,6 +41,8 @@ sub needsbuild (@) {
 			}
 		}
 	}
+
+	return $needsbuild;
 }
 
 sub preprocess (@) {
@@ -105,9 +107,11 @@ sub formbuilder (@) {
 						my $template=$pagestate{$registering_page}{edittemplate}{$pagespec};
 						$form->field(name => "editcontent",
 							 value =>  filltemplate($template, $page));
-						$form->field(name => "type",
-							 value => pagetype($pagesources{$template}))
+						my $type=pagetype($pagesources{$template})
 								if $pagesources{$template};
+						$form->field(name => "type",
+							 value => $type)
+								if defined $type;
 						return;
 					}
 				}
@@ -129,9 +133,6 @@ sub filltemplate ($$) {
 		# Indicate that the earlier preprocessor directive set 
 		# up a template that doesn't work.
 		return "[[!pagetemplate ".gettext("failed to process template:")." $@]]";
-	}
-	if (! defined $template) {
-		return;
 	}
 
 	$template->param(name => $page);

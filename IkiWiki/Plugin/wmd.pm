@@ -31,14 +31,13 @@ sub formbuilder_setup (@) {
 			$form->field("do") eq "comment";
 
 	$form->tmpl_param("wmd_preview", "<div class=\"wmd-preview\"></div>\n".
-		include_javascript(undef, 1));
+		include_javascript(undef));
 }
 
-sub include_javascript ($;$) {
-	my $page=shift;
-	my $absolute=shift;
+sub include_javascript ($) {
+	my $from=shift;
 
-	my $wmdjs=urlto("wmd/wmd.js", $page, $absolute);
+	my $wmdjs=urlto("wmd/wmd.js", $from);
 	return <<"EOF"
 <script type="text/javascript">
 wmd_options = {

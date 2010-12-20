@@ -501,6 +501,12 @@ sub defaultconfig () {
 	return @ret;
 }
 
+# URL to top of wiki as a path starting with /, valid from any wiki page or
+# the CGI; if that's not possible, an absolute URL. Either way, it ends with /
+my $local_url;
+# URL to CGI script, similar to $local_url
+my $local_cgiurl;
+
 sub checkconfig () {
 	# locale stuff; avoid LC_ALL since it overrides everything
 	if (defined $ENV{LC_ALL}) {
@@ -537,7 +543,33 @@ sub checkconfig () {
 	if ($config{cgi} && ! length $config{url}) {
 		error(gettext("Must specify url to wiki with --url when using --cgi"));
 	}
-	
+
+	if (length $config{url}) {
+		eval q{use URI};
+		my $baseurl = URI->new($config{url});
+
+		$local_url = $baseurl->path . "/";
+		$local_cgiurl = undef;
+
+		if (length $config{cgiurl}) {
+			my $cgiurl = URI->new($config{cgiurl});
+
+			$local_cgiurl = $cgiurl->path;
+
+			if ($cgiurl->scheme ne $baseurl->scheme or
+				$cgiurl->authority ne $baseurl->authority) {
+				# too far apart, fall back to absolute URLs
+				$local_url = "$config{url}/";
+				$local_cgiurl = $config{cgiurl};
+			}
+		}
+
+		$local_url =~ s{//$}{/};
+	}
+	else {
+		$local_cgiurl = $config{cgiurl};
+	}
+
 	$config{wikistatedir}="$config{srcdir}/.ikiwiki"
 		unless exists $config{wikistatedir} && defined $config{wikistatedir};
 
@@ -717,7 +749,7 @@ sub pagename ($) {
 
 	my $type=pagetype($file);
 	my $page=$file;
- 	$page=~s/\Q.$type\E*$//
+	$page=~s/\Q.$type\E*$//
 		if defined $type && !$hooks{htmlize}{$type}{keepextension}
 			&& !$hooks{htmlize}{$type}{noextension};
 	if ($config{indexpages} && $page=~/(.*)\/index$/) {
@@ -1010,11 +1042,17 @@ sub linkpage ($) {
 sub cgiurl (@) {
 	my %params=@_;
 
-	my $cgiurl=$config{cgiurl};
+	my $cgiurl=$local_cgiurl;
+
 	if (exists $params{cgiurl}) {
 		$cgiurl=$params{cgiurl};
 		delete $params{cgiurl};
 	}
+
+	unless (%params) {
+		return $cgiurl;
+	}
+
 	return $cgiurl."?".
 		join("&amp;", map $_."=".uri_escape_utf8($params{$_}), keys %params);
 }
@@ -1022,7 +1060,7 @@ sub cgiurl (@) {
 sub baseurl (;$) {
 	my $page=shift;
 
-	return "$config{url}/" if ! defined $page;
+	return $local_url if ! defined $page;
 	
 	$page=htmlpage($page);
 	$page=~s/[^\/]+$//;
@@ -1096,7 +1134,7 @@ sub beautify_urlpath ($) {
 	return $url;
 }
 
-sub urlto ($$;$) {
+sub urlto ($;$$) {
 	my $to=shift;
 	my $from=shift;
 	my $absolute=shift;
@@ -1113,6 +1151,12 @@ sub urlto ($$;$) {
 		return $config{url}.beautify_urlpath("/".$to);
 	}
 
+	if (! defined $from) {
+		my $u = $local_url;
+		$u =~ s{/$}{};
+		return $u.beautify_urlpath("/".$to);
+	}
+
 	my $link = abs2rel($to, dirname(htmlpage($from)));
 
 	return beautify_urlpath($link);
@@ -1124,7 +1168,7 @@ sub isselflink ($$) {
 	my $page=shift;
 	my $link=shift;
 
-        return $page eq $link;
+	return $page eq $link;
 }
 
 sub htmllink ($$$;@) {
@@ -1201,7 +1245,7 @@ sub userpage ($) {
 sub openiduser ($) {
 	my $user=shift;
 
-	if ($user =~ m!^https?://! &&
+	if (defined $user && $user =~ m!^https?://! &&
 	    eval q{use Net::OpenID::VerifiedIdentity; 1} && !$@) {
 		my $display;
 
@@ -1519,6 +1563,69 @@ sub check_content (@) {
 	return defined $ok ? $ok : 1;
 }
 
+sub check_canchange (@) {
+	my %params = @_;
+	my $cgi = $params{cgi};
+	my $session = $params{session};
+	my @changes = @{$params{changes}};
+
+	my %newfiles;
+	foreach my $change (@changes) {
+		# This untaint is safe because we check file_pruned and
+		# wiki_file_regexp.
+		my ($file)=$change->{file}=~/$config{wiki_file_regexp}/;
+		$file=possibly_foolish_untaint($file);
+		if (! defined $file || ! length $file ||
+		    file_pruned($file)) {
+			error(gettext("bad file name %s"), $file);
+		}
+
+		my $type=pagetype($file);
+		my $page=pagename($file) if defined $type;
+
+		if ($change->{action} eq 'add') {
+			$newfiles{$file}=1;
+		}
+
+		if ($change->{action} eq 'change' ||
+		    $change->{action} eq 'add') {
+			if (defined $page) {
+				check_canedit($page, $cgi, $session);
+				next;
+			}
+			else {
+				if (IkiWiki::Plugin::attachment->can("check_canattach")) {
+					IkiWiki::Plugin::attachment::check_canattach($session, $file, $change->{path});
+					check_canedit($file, $cgi, $session);
+					next;
+				}
+			}
+		}
+		elsif ($change->{action} eq 'remove') {
+			# check_canremove tests to see if the file is present
+			# on disk. This will fail when a single commit adds a
+			# file and then removes it again. Avoid the problem
+			# by not testing the removal in such pairs of changes.
+			# (The add is still tested, just to make sure that
+			# no data is added to the repo that a web edit
+			# could not add.)
+			next if $newfiles{$file};
+
+			if (IkiWiki::Plugin::remove->can("check_canremove")) {
+				IkiWiki::Plugin::remove::check_canremove(defined $page ? $page : $file, $cgi, $session);
+				check_canedit(defined $page ? $page : $file, $cgi, $session);
+				next;
+			}
+		}
+		else {
+			error "unknown action ".$change->{action};
+		}
+
+		error sprintf(gettext("you are not allowed to change %s"), $file);
+	}
+}
+
+
 my $wikilock;
 
 sub lockwiki () {
@@ -1769,12 +1876,14 @@ sub template_depends ($$;@) {
 	my $page=shift;
 	
 	my ($filename, $tpage, $untrusted)=template_file($name);
+	if (! defined $filename) {
+		error(sprintf(gettext("template %s not found"), $name))
+	}
+
 	if (defined $page && defined $tpage) {
 		add_depends($page, $tpage);
 	}
-
-	return unless defined $filename;
-
+	
 	my @opts=(
 		filter => sub {
 			my $text_ref = shift;
@@ -2323,7 +2432,7 @@ sub glob2re ($) {
 	my $re=quotemeta(shift);
 	$re=~s/\\\*/.*/g;
 	$re=~s/\\\?/./g;
-	return $re;
+	return qr/^$re$/i;
 }
 
 package IkiWiki::FailReason;
@@ -2402,14 +2511,22 @@ sub derel ($$) {
 	my $path=shift;
 	my $from=shift;
 
-	if ($path =~ m!^\./!) {
-		$from=~s#/?[^/]+$## if defined $from;
-		$path=~s#^\./##;
-		$path="$from/$path" if defined $from && length $from;
+	if ($path =~ m!^\.(/|$)!) {
+		if ($1) {
+			$from=~s#/?[^/]+$## if defined $from;
+			$path=~s#^\./##;
+			$path="$from/$path" if defined $from && length $from;
+		}
+		else {
+			$path = $from;
+			$path = "" unless defined $path;
+		}
 	}
 
 	return $path;
 }
+
+my %glob_cache;
 
 sub match_glob ($$;@) {
 	my $page=shift;
@@ -2418,8 +2535,13 @@ sub match_glob ($$;@) {
 	
 	$glob=derel($glob, $params{location});
 
-	my $regexp=IkiWiki::glob2re($glob);
-	if ($page=~/^$regexp$/i) {
+	# Instead of converting the glob to a regex every time,
+	# cache the compiled regex to save time.
+	my $re=$glob_cache{$glob};
+	unless (defined $re) {
+		$glob_cache{$glob} = $re = IkiWiki::glob2re($glob);
+	}
+	if ($page =~ $re) {
 		if (! IkiWiki::isinternal($page) || $params{internal}) {
 			return IkiWiki::SuccessReason->new("$glob matches $page");
 		}
@@ -2537,7 +2659,12 @@ sub match_created_after ($$;@) {
 }
 
 sub match_creation_day ($$;@) {
-	if ((localtime($IkiWiki::pagectime{shift()}))[3] == shift) {
+	my $page=shift;
+	my $d=shift;
+	if ($d !~ /^\d+$/) {
+		return IkiWiki::ErrorReason->new("invalid day $d");
+	}
+	if ((localtime($IkiWiki::pagectime{$page}))[3] == $d) {
 		return IkiWiki::SuccessReason->new('creation_day matched');
 	}
 	else {
@@ -2546,7 +2673,12 @@ sub match_creation_day ($$;@) {
 }
 
 sub match_creation_month ($$;@) {
-	if ((localtime($IkiWiki::pagectime{shift()}))[4] + 1 == shift) {
+	my $page=shift;
+	my $m=shift;
+	if ($m !~ /^\d+$/) {
+		return IkiWiki::ErrorReason->new("invalid month $m");
+	}
+	if ((localtime($IkiWiki::pagectime{$page}))[4] + 1 == $m) {
 		return IkiWiki::SuccessReason->new('creation_month matched');
 	}
 	else {
@@ -2555,7 +2687,12 @@ sub match_creation_month ($$;@) {
 }
 
 sub match_creation_year ($$;@) {
-	if ((localtime($IkiWiki::pagectime{shift()}))[5] + 1900 == shift) {
+	my $page=shift;
+	my $y=shift;
+	if ($y !~ /^\d+$/) {
+		return IkiWiki::ErrorReason->new("invalid year $y");
+	}
+	if ((localtime($IkiWiki::pagectime{$page}))[5] + 1900 == $y) {
 		return IkiWiki::SuccessReason->new('creation_year matched');
 	}
 	else {
@@ -2574,7 +2711,7 @@ sub match_user ($$;@) {
 		return IkiWiki::ErrorReason->new("no user specified");
 	}
 
-	if (defined $params{user} && $params{user}=~/^$regexp$/i) {
+	if (defined $params{user} && $params{user}=~$regexp) {
 		return IkiWiki::SuccessReason->new("user is $user");
 	}
 	elsif (! defined $params{user}) {

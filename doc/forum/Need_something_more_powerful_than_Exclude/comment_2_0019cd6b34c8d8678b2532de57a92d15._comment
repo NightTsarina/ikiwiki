@@ -1,0 +1,12 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="expression anchored too closely?"
+ date="2010-11-23T10:43:21Z"
+ content="""
+It looks as though you might only be excluding a top-level Makefile, and not a Makefile in subdirectories. Try excluding `(^|/)Makefile$` instead, for instance? (See `wiki_file_prune_regexps` in `IkiWiki.pm` for hints.)
+
+The match operation in `&file_pruned` ends up a bit like this:
+
+    \"foo/Makefile\" =~ m{…|…|…|(^|/)Makefile$}
+"""]]

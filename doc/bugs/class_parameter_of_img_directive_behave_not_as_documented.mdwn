@@ -1,0 +1,31 @@
+On [[ikiwiki/directive/img/]] I read that
+
+> You can also pass alt, title, class, align, id, hspace, and vspace
+> parameters. These are passed through unchanged to the html img tag.
+
+but when I pass `class="myclass"` to an img directive, I obtain
+
+    <img class="myclass img" ...
+
+I found that this behaviour was added in commit f6db10d:
+
+> img: Add a margin around images displayed by this directive.
+>
+> Particularly important for floating images, which could before be placed
+> uncomfortably close to text.
+    
+which adds to img.pm:
+    
+    if (exists $params{class}) {
+            $params{class}.=" img";
+    }
+    else {
+            $params{class}="img";
+    }
+
+I would prefer if the `img` class were only added if no class attribute is
+passed.
+
+If you keep the current behaviour, please document it.
+
+> [[done]] --[[Joey]] 

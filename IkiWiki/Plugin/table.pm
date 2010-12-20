@@ -40,15 +40,15 @@ sub preprocess (@) {
 		# scan that file too.
 		return unless exists $params{file};
 
+		# Preprocess in scan-only mode.
+		IkiWiki::preprocess($params{page}, $params{page}, $params{data}, 1);
+
 		IkiWiki::run_hooks(scan => sub {
 			shift->(
 				page => $params{page},
 				content => $params{data},
 			);
 		});
-
-		# Preprocess in scan-only mode.
-		IkiWiki::preprocess($params{page}, $params{page}, $params{data}, 1);
 
 		return;
 	}

@@ -34,3 +34,19 @@ For Atom, at least, I believe adding `type="xhtml"` to the title element will wo
 > Update: Ok, I've fixed this for titles, as a special case, but the
 > underlying problem remains for other fields in rss feeds (such as
 > author), so I'm leaving this bug report open. --[[Joey]]
+
+>> I'm curious if there has been any progress on better RSS output?
+>> I've been prototyping a new blog and getting good RSS out of it 
+>> seems important as the bulk of my current readers use RSS.
+>> I note, in passing that the "more" plugin doesn't quite do what 
+>> I want either - I'd like to pass a full RSS feed of a post and only
+>> have "more" apply to the front page of the blog. Is there a way to do that?
+>> -- [[dtaht]]
+>> 
+>>> To be clear, the RSS spec sucks to such an extent that, as far as
+>>> I know, there is no sort of title escaping that will work in all 
+>>> RSS consumers. Titles are currently escaped in the way 
+>>> that tends to break the fewest according to what I've read.
+>>> If you're unlucky enough to 
+>>> have a "&" or "<" in your **name**, then you may still run into 
+>>> problems with how that is escaped in rss feeds. --[[Joey]]

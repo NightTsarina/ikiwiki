@@ -58,7 +58,7 @@ sub pagetemplate (@) {
 	if ($template->query(name => "searchform")) {
 		if (! defined $form) {
 			my $searchform = template("searchform.tmpl", blind_cache => 1);
-			$searchform->param(searchaction => $config{cgiurl});
+			$searchform->param(searchaction => IkiWiki::cgiurl());
 			$searchform->param(html5 => $config{html5});
 			$form=$searchform->output;
 		}
@@ -176,7 +176,7 @@ sub cgi ($) {
 		# only works for GET requests
 		chdir("$config{wikistatedir}/xapian") || error("chdir: $!");
 		$ENV{OMEGA_CONFIG_FILE}="./omega.conf";
-		$ENV{CGIURL}=$config{cgiurl},
+		$ENV{CGIURL}=IkiWiki::cgiurl();
 		IkiWiki::loadindex();
 		$ENV{HELPLINK}=htmllink("", "", "ikiwiki/searching",
 			noimageinline => 1, linktext => "Help");

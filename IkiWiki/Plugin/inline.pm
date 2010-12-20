@@ -104,7 +104,7 @@ sub checkconfig () {
 }
 
 sub format (@) {
-        my %params=@_;
+	my %params=@_;
 
 	# Fill in the inline content generated earlier. This is actually an
 	# optimisation.
@@ -160,7 +160,7 @@ sub preprocess_inline (@) {
 	my $rss=(($config{rss} || $config{allowrss}) && exists $params{rss}) ? yesno($params{rss}) : $config{rss};
 	my $atom=(($config{atom} || $config{allowatom}) && exists $params{atom}) ? yesno($params{atom}) : $config{atom};
 	my $quick=exists $params{quick} ? yesno($params{quick}) : 0;
-	my $feeds=! $nested && (exists $params{feeds} ? yesno($params{feeds}) : !$quick && ! $raw);
+	my $feeds=exists $params{feeds} ? yesno($params{feeds}) : !$quick && ! $raw;
 	my $emptyfeeds=exists $params{emptyfeeds} ? yesno($params{emptyfeeds}) : 1;
 	my $feedonly=yesno($params{feedonly});
 	if (! exists $params{show} && ! $archive) {
@@ -269,7 +269,7 @@ sub preprocess_inline (@) {
 			}
 			$params{feedfile}=possibly_foolish_untaint($params{feedfile});
 		}
-		$feedbase=targetpage($params{destpage}, "", $params{feedfile});
+		$feedbase=targetpage($params{page}, "", $params{feedfile});
 
 		my $feedid=join("\0", $feedbase, map { $_."\0".$params{$_} } sort keys %params);
 		if (exists $knownfeeds{$feedid}) {
@@ -300,7 +300,7 @@ sub preprocess_inline (@) {
 	    IkiWiki->can("cgi_editpage")) {
 		# Add a blog post form, with feed buttons.
 		my $formtemplate=template_depends("blogpost.tmpl", $params{page}, blind_cache => 1);
-		$formtemplate->param(cgiurl => $config{cgiurl});
+		$formtemplate->param(cgiurl => IkiWiki::cgiurl());
 		$formtemplate->param(rootpage => rootpage(%params));
 		$formtemplate->param(rssurl => $rssurl) if $feeds && $rss;
 		$formtemplate->param(atomurl => $atomurl) if $feeds && $atom;
@@ -336,10 +336,7 @@ sub preprocess_inline (@) {
 					blind_cache => 1);
 			};
 			if ($@) {
-				error gettext("failed to process template:")." $@";
-			}
-			if (! $template) {
-				error sprintf(gettext("template %s not found"), $params{template}.".tmpl");
+				error sprintf(gettext("failed to process template %s"), $params{template}.".tmpl").": $@";
 			}
 		}
 		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));
@@ -509,26 +506,59 @@ sub date_822 ($) {
 }
 
 sub absolute_urls ($$) {
-	# sucky sub because rss sucks
-	my $content=shift;
+	# needed because rss sucks
+	my $html=shift;
 	my $baseurl=shift;
 
 	my $url=$baseurl;
 	$url=~s/[^\/]+$//;
+	my $urltop; # calculated if needed
 
-        # what is the non path part of the url?
-        my $top_uri = URI->new($url);
-        $top_uri->path_query(""); # reset the path
-        my $urltop = $top_uri->as_string;
+	my $ret="";
 
-	$content=~s/(<a(?:\s+(?:class|id)\s*="?\w+"?)?)\s+href=\s*"(#[^"]+)"/$1 href="$baseurl$2"/mig;
-        # relative to another wiki page
-	$content=~s/(<a(?:\s+(?:class|id)\s*="?\w+"?)?)\s+href=\s*"(?!\w+:)([^\/][^"]*)"/$1 href="$url$2"/mig;
-	$content=~s/(<img(?:\s+(?:class|id|width|height)\s*="?\w+"?)*)\s+src=\s*"(?!\w+:)([^\/][^"]*)"/$1 src="$url$2"/mig;
-        # relative to the top of the site
-	$content=~s/(<a(?:\s+(?:class|id)\s*="?\w+"?)?)\s+href=\s*"(?!\w+:)(\/[^"]*)"/$1 href="$urltop$2"/mig;
-	$content=~s/(<img(?:\s+(?:class|id|width|height)\s*="?\w+"?)*)\s+src=\s*"(?!\w+:)(\/[^"]*)"/$1 src="$urltop$2"/mig;
-	return $content;
+	eval q{use HTML::Parser; use HTML::Tagset};
+	die $@ if $@;
+	my $p = HTML::Parser->new(api_version => 3);
+	$p->handler(default => sub { $ret.=join("", @_) }, "text");
+	$p->handler(start => sub {
+		my ($tagname, $pos, $text) = @_;
+		if (ref $HTML::Tagset::linkElements{$tagname}) {
+			while (4 <= @$pos) {
+				# use attribute sets from right to left
+				# to avoid invalidating the offsets
+				# when replacing the values
+				my ($k_offset, $k_len, $v_offset, $v_len) =
+					splice(@$pos, -4);
+				my $attrname = lc(substr($text, $k_offset, $k_len));
+				next unless grep { $_ eq $attrname } @{$HTML::Tagset::linkElements{$tagname}};
+				next unless $v_offset; # 0 v_offset means no value
+				my $v = substr($text, $v_offset, $v_len);
+				$v =~ s/^([\'\"])(.*)\1$/$2/;
+				if ($v=~/^#/) {
+					$v=$baseurl.$v; # anchor
+				}
+				elsif ($v=~/^(?!\w+:)[^\/]/) {
+					$v=$url.$v; # relative url
+				}
+				elsif ($v=~/^\//) {
+					if (! defined $urltop) {
+						# what is the non path part of the url?
+						my $top_uri = URI->new($url);
+						$top_uri->path_query(""); # reset the path
+						$urltop = $top_uri->as_string;
+					}
+					$v=$urltop.$v; # url relative to top of site
+				}
+				$v =~ s/\"/&quot;/g; # since we quote with ""
+				substr($text, $v_offset, $v_len) = qq("$v");
+			}
+		}
+		$ret.=$text;
+	}, "tagname, tokenpos, text");
+	$p->parse($html);
+	$p->eof;
+
+	return $ret;
 }
 
 sub genfeed ($$$$$@) {

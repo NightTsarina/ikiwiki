@@ -43,3 +43,18 @@ Re the meta title escaping issue worked around by `change`.
 >>>>>> did not dare to. I'll try this. --[[intrigeri]]
 
 >>>>>>> Done in my po branch, please have a look. --[[intrigeri]]
+
+>>>>>>>> I've merged it. Didn't look at the po.pm changes closely;
+>>>>>>>> assume they're ok. [[done]] --[[Joey]] 
+>>>>>>>> 
+>>>>>>>> My thinking about the reordering being safe is that
+>>>>>>>> the relative ordering of scan and preprocess in scan mode hooks
+>>>>>>>> has not been defined before, so it should be ok to define it. :)
+>>>>>>>> 
+>>>>>>>> And as to possible breakage from things that assumed the old
+>>>>>>>> ordering, such a thing would need to have a scan hook and a
+>>>>>>>> preprocess in scan mode hook, and the two hooks would need to 
+>>>>>>>> populate the same data structure with conflicting information,
+>>>>>>>> in order for there to be a problem. That seems highly unlikely
+>>>>>>>> and would be pretty broken on its own. And no plugin in ikiwiki
+>>>>>>>> itself has both types of hooks. --[[Joey]]

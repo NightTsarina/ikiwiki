@@ -327,6 +327,81 @@ smcv's discuission of field author vs meta author above. --[[Joey]]
 
 -----
 
+I think the main point is: what is (or should be) the main point of the
+field plugin? If it's essentially a way to present a consistent
+interface to access page-related structured information, then it makes
+sense to have it very general. Plugins registering with fields would
+then present ways for recovering the structure information from the page
+(`ymlfront`, `meta`, etc),  ways to manipulate it (like `meta` does),
+etc.
+
+In this sense, security should be entirely up to the plugins, although
+the fields plugin could provide some auxiliary infrastructure (like
+determining where the data comes from and raise or lower the security
+level accoringly).
+
+Namespacing is important, and it should be considered at the field
+plugin interface level. A plugin should be able to register as
+responsible for the processing of all data belonging to a given
+namespace, but plugins should be able to set data in any namespace. So
+for example, `meta` register are `meta` fields processing, and whatever
+method is used to set the data (`meta` directive, `ymlfront`, etc) it
+gets a say on what to do with data in its namespace.
+
+What I'm thinking of is something you could call fieldsets. The nice
+thing about them is that, aside from the ones defined by plugins (like
+`meta`), it would be possible to define custom ones (with a generic,
+default processor) in an appropriate file (like smileys and shortcuts)
+with a syntax like:
+
+    [[!fieldset book namespace=book
+       fields="author title isbn"
+       fieldtype="text text text"]]
+
+after which, you coude use
+
+    [[!book author="A. U. Thor"
+            title="Fields of Iki"]]
+
+and the data would be available under the book namespace, and thus
+as BOOK_AUTHOR, BOOK_TITLE etc in templates.
+
+Security, in this sense, would be up to the plugin responsible for the
+namespace processing (the default handler would HTML-escape text fields
+scrub, html fields, safeurl()ify url fields, etc.)
+
+> So, are you saying that getting a field value is sort of a two-stage process?  Get the value from anywhere, and then call the "security processor" for that namespace to "secure" the value?  I think "namespaces" are really orthogonal to this issue.  What the issue seems to be is:
+
+   * what form do we expect the raw field to be in? (text, URL, HTML)
+   * what form do we expect the "secured" output to be in? (raw HTML, scrubbed HTML, escaped HTML, URL)
+
+> Only if we know both these things will we know what sort of security processing needs to be done.
+
+>> Fieldsets are orthogonal to the security issue in the sense that you can use
+>> them without worrying about the field security issue, but they happen to be
+>> a rather clean way of answering those two questions, by allowing you to
+>> attach preprocessing attributes to a field in a way that the user
+>> (supposedly) cannot mingle with.
+
+> There is also a difference between field values that are used inside pagetemplate, and field values which are used as part of a page's content (e.g. with ftemplate).  If you have a TITLE, you want it to be HTML-escaped if you're using it inside pagetemplate, but you don't want it to be HTML-escaped if you're using it inside a page's content.  On the other hand, if you have, say, FEEDLINKS used inside pagetemplate, you don't wish it to be HTML-escaped at all, or your page content will be completely stuffed.
+
+>> Not to talk about the many different ways date-like fields might be need
+>> processing. It has already been proposed to solve this problem by exposing
+>> the field values under different names depending on the kind or amout of
+>> postprocessing they had (e.g. RAW_SOMEFIELD, SOMEFIELD, to which we could add
+>> HTML_SOMEFIELD, URL_SOMEFIELD or whatever). Again, fieldsets offer a simple way
+>> of letting Ikiwiki know what kind of postprocessing should be offered for
+>> that particular field.
+
+> So, somehow, we have to know the meaning of a field before we can use it properly, which kind of goes against the idea of having something generic.
+
+>> We could have a default field type (text, for example), and a way to set a
+>> different field type (which is what my fieldset proposal was about).
+
+> --[[KathrynAndersen]]
+
+-----
+
 I was just looking at HTML5 and wondered if the field plugin should generate the new Microdata tags (as well as the internal structures)? <http://slides.html5rocks.com/#slide19> -- [[Will]]
 
 > This could just as easily be done as a separate plugin.  Feel free to do so. --[[KathrynAndersen]]

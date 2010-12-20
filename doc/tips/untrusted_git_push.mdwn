@@ -112,11 +112,3 @@ abort the push before refs are updated. However, the changeset will still
 be present in your repository, wasting space. Since nothing refers to it,
 it will be expired eventually. You can speed up the expiry by running `git
 prune`.
-
-When aborting a push, ikiwiki displays an error message about why it didn't
-accept it. If using git over ssh, the user will see this error message,
-which is probably useful to them. But `git-daemon` is buggy, and hides this
-message from the user. This can make it hard for users to figure out why
-their push was rejected. (If this happens to you, look at "'git log --stat
-origin/master..`" and think about whether your changes would be accepted
-over the web interface.)

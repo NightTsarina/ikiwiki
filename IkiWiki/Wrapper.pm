@@ -128,7 +128,7 @@ EOF
 #include <sys/file.h>
 
 extern char **environ;
-char *newenviron[$#envsave+6];
+char *newenviron[$#envsave+7];
 int i=0;
 
 void addenv(char *var, char *val) {
@@ -147,6 +147,7 @@ $check_commit_hook
 @wrapper_hooks
 $envsave
 	newenviron[i++]="HOME=$ENV{HOME}";
+	newenviron[i++]="PATH=$ENV{PATH}";
 	newenviron[i++]="WRAPPED_OPTIONS=$configstring";
 
 #ifdef __TINYC__

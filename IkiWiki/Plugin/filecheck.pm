@@ -148,6 +148,7 @@ sub match_mimetype ($$;@) {
 	if (! defined $mimetype) {
 		open(my $file_h, "-|", "file", "-bi", $file);
 		$mimetype=<$file_h>;
+		chomp $mimetype;
 		close $file_h;
 	}
 	if (! defined $mimetype || $mimetype !~s /;.*//) {
@@ -160,7 +161,7 @@ sub match_mimetype ($$;@) {
 	}
 
 	my $regexp=IkiWiki::glob2re($wanted);
-	if ($mimetype!~/^$regexp$/i) {
+	if ($mimetype!~$regexp) {
 		return IkiWiki::FailReason->new("file MIME type is $mimetype, not $wanted");
 	}
 	else {

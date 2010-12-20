@@ -269,3 +269,65 @@ Any suggestions? Whew!
 	perl Makefile.PL INSTALL_BASE=$HOME PREFIX=
 	make
 	make install
+
+---
+
+03 September 2010, Report on successful manual install in Debian 5 (Lenny) AMD64:
+
+note: Maybe much more easy using backports, but using this tools you get a plain user cpan  :)
+
+This where my steps:
+
+As root (#):
+
+        aptitude install build-essential curl perl
+
+
+As plain user ($), I use to install user perl modules using local::lib
+
+        mkdir -p "$HOME/downloads"
+        cd "$HOME/downloads/"
+        wget http://search.cpan.org/CPAN/authors/id/G/GE/GETTY/local-lib-1.006007.tar.gz
+        wget http://ftp.de.debian.org/debian/pool/main/i/ikiwiki/ikiwiki_3.20100831.tar.gz
+        tar -zxf local-lib-1.006007.tar.gz 
+        cd local-lib-1.006007/
+        perl Makefile.PL --bootstrap=~/.perl5
+        make test && make install
+        echo 'eval $(perl -I$HOME/.perl5/lib/perl5 -Mlocal::lib=$HOME/.perl5)' >>~/.bashrc
+        . ~/.bashrc
+        curl -L http://cpanmin.us | perl - App::cpanminus
+        cpanm CGI::FormBuilder
+        cpanm CGI::Session
+        cpanm HTML::Parser
+        cpanm HTML::Template
+        cpanm HTML::Scrubber
+        cpanm Text::Markdown
+        cpanm URI
+        cd ..
+        tar -zxf ikiwiki_3.20100831.tar.gz
+        cd ikiwiki/
+        perl Makefile.PL INSTALL_BASE= PREFIX=/home/$USER/.perl5
+        make test    # All tests successful.
+        make install INSTALL_BASE=/home/$USER/.perl5
+        . ~/.bashrc
+
+Using cpan or cpanm with local::lib, you can install any other dependency, as plain user (in your home). XS modules may need -dev packages.
+
+After all, here it's:
+
+        ikiwiki -version
+        ikiwiki version 3.20100831
+
+It seems like this installation looses the /etc files (we're as plain user), but this can be used as a workaround:
+
+        ikiwiki -setup ~/downloads/ikiwiki/auto.setup
+
+I've not investigated more the /etc files ussage, but does not seems like a good idea to be as plain user...
+
+        /etc/ikiwiki/wikilist does not exist
+        ** Failed to add you to the system wikilist file.
+        ** (Probably ikiwiki-update-wikilist is not SUID root.)
+        ** Your wiki will not be automatically updated when ikiwiki is upgraded.
+
+
+Iñigo

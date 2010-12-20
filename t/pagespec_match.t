@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 85;
+use Test::More tests => 87;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -82,6 +82,8 @@ ok(! pagespec_match("foo.png", "page(foo*)"), "page() fails on non-page glob");
 ok(pagespec_match("foo", "page(foo)"), "page() glob");
 ok(pagespec_match("foo", "page(f*)"), "page() glob fail");
 ok(pagespec_match("foo", "link(bar)"), "link");
+ok(pagespec_match("foo", "link(.)", location => "bar"), "link with .");
+ok(! pagespec_match("foo", "link(.)"), "link with . but missing location");
 ok(pagespec_match("foo", "link(ba?)"), "glob link");
 ok(! pagespec_match("foo", "link(quux)"), "failed link");
 ok(! pagespec_match("foo", "link(qu*)"), "failed glob link");
@@ -99,6 +101,7 @@ ok(pagespec_match("ook", "link(blog/tags/foo)"), "link internal absolute success
 ok(pagespec_match("ook", "link(/blog/tags/foo)"), "link explicit absolute success");
 ok(pagespec_match("meh", "!link(done)"), "negated failing match is a success");
 
+$ENV{TZ}="GMT";
 $IkiWiki::pagectime{foo}=1154532692; # Wed Aug  2 11:26 EDT 2006
 $IkiWiki::pagectime{bar}=1154532695; # after
 ok(pagespec_match("foo", "created_before(bar)"));

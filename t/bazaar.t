@@ -25,6 +25,14 @@ $config{srcdir} = "$dir/repo";
 IkiWiki::loadplugins();
 IkiWiki::checkconfig();
 
+# XXX
+# This is a workaround for bzr's new requirement that bzr whoami be run
+# before committing. This makes the test suite work with an unconfigured
+# bzr, but ignores the need to have a properly configured bzr before
+# using ikiwiki with bzr.
+$ENV{HOME}=$dir;
+system 'bzr whoami test@example.com';
+
 system "bzr init $config{srcdir}";
 
 use CGI::Session;

@@ -1,0 +1,28 @@
+# Vim and ikiwiki
+
+## Syntax highlighting
+
+[ikiwiki-syntax](http://www.vim.org/scripts/script.php?script_id=3156) is a vim
+syntax highlighting file for ikiwiki [[ikiwiki/markdown]] files. It highlights
+directives and wikilinks. It only supports prefixed directives, i.e.,
+\[[!directive foo=bar baz]], not the old format with spaces.
+
+------
+
+The previous syntax definition for ikiwiki links is at [[vim_syntax_highlighting/ikiwiki.vim]]; however,
+it seems to not be [[maintained
+anymore|forum/navigation_of_wiki_pages_on_local_filesystem_with_vim#syn-maintenance]],
+and it has some [[issues|forum/ikiwiki_vim_syntaxfile]].
+
+## Page creation and navigation
+
+The [ikiwiki-nav](http://www.vim.org/scripts/script.php?script_id=2968) package
+is a vim plugin that enables you to do the following from inside vim:
+
+  * Jumping to the file corresponding to the wikilink under the cursor.
+  * Creating the file corresponding to the wikilink under the cursor (including
+  directories if necessary.)
+  * Jumping to the previous/next wikilink in the current file.
+  * Autocomplete link names.
+
+Download it from [here](http://www.vim.org/scripts/script.php?script_id=2968)

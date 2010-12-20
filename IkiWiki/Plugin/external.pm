@@ -28,7 +28,9 @@ sub import {
 
 	$plugins{$plugin}={in => $plugin_read, out => $plugin_write, pid => $pid,
 		accum => ""};
+
 	$RPC::XML::ENCODING="utf-8";
+	$RPC::XML::FORCE_STRING_ENCODING="true";
 
 	rpc_call($plugins{$plugin}, "import");
 }

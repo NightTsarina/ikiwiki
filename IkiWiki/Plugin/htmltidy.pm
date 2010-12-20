@@ -15,6 +15,7 @@ use IPC::Open2;
 sub import {
 	hook(type => "getsetup", id => "tidy", call => \&getsetup);
 	hook(type => "sanitize", id => "tidy", call => \&sanitize);
+	hook(type => "checkconfig", id => "tidy", call => \&checkconfig);
 }
 
 sub getsetup () {
@@ -23,6 +24,18 @@ sub getsetup () {
 			safe => 1,
 			rebuild => undef,
 		},
+		htmltidy => {
+			type => "string",
+			description => "tidy command line",
+			safe => 0, # path
+			rebuild => undef,
+		},
+}
+
+sub checkconfig () {
+	if (! defined $config{htmltidy}) {
+		$config{htmltidy}="tidy -quiet -asxhtml -utf8 --show-body-only yes --show-warnings no --tidy-mark no --markup yes";
+	}
 }
 
 sub sanitize (@) {
@@ -31,7 +44,7 @@ sub sanitize (@) {
 	my $pid;
 	my $sigpipe=0;
 	$SIG{PIPE}=sub { $sigpipe=1 };
-	$pid=open2(*IN, *OUT, 'tidy -quiet -asxhtml -utf8 --show-body-only yes --show-warnings no --tidy-mark no --markup yes 2>/dev/null');
+	$pid=open2(*IN, *OUT, "$config{htmltidy} 2>/dev/null");
 
 	# open2 doesn't respect "use open ':utf8'"
 	binmode (IN, ':utf8');

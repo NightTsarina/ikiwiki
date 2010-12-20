@@ -1,0 +1,12 @@
+When I renamed `todo/transient_in-memory_pages` to [[todo/transient pages]],
+`rename::fixlinks` was meant to blame me for the link-fixing commit, and title it
+`update for rename of %s to %s`. Instead, it blamed Joey for the commit,
+and didn't set a commit message.
+
+(It also committed a pile of recentchanges pages which shouldn't have
+been committed, for which see [[bugs/git_commit_adds_files_that_were_not_tracked]].)
+
+--[[smcv]]
+
+> It was calling `rcs_commit` old-style, and so not passing the session
+> object that is used to get the user's name. [[fixed|done]] --[[Joey]] 

@@ -27,7 +27,7 @@ sub parentlinks ($) {
 	if (! length $page) {
 		# dynamic page
 		return {
-			url => $config{url},
+			url => IkiWiki::baseurl(undef),
 			page => $config{wikiname},
 		};
 	}

@@ -25,10 +25,12 @@ use File::Temp;
 use Memoize;
 use UNIVERSAL;
 
+my ($master_language_code, $master_language_name);
 my %translations;
 my @origneedsbuild;
 my %origsubs;
 my @slavelanguages; # language codes ordered as in config po_slave_languages
+my %slavelanguages; # language code to name lookup
 
 memoize("istranslatable");
 memoize("_istranslation");
@@ -89,16 +91,13 @@ sub import {
 sub getsetup () {
 	return
 		plugin => {
-			safe => 0,
+			safe => 1,
 			rebuild => 1, # format plugin
 			section => "format",
 		},
 		po_master_language => {
 			type => "string",
-			example => {
-				'code' => 'en',
-				'name' => 'English'
-			},
+			example => "en|English",
 			description => "master language (non-PO files)",
 			safe => 1,
 			rebuild => 1,
@@ -110,7 +109,7 @@ sub getsetup () {
 				'es|Español',
 				'de|Deutsch'
 			],
-			description => "slave languages (PO files)",
+			description => "slave languages (translated via PO files) format: ll|Langname",
 			safe => 1,
 			rebuild => 1,
 		},
@@ -132,39 +131,49 @@ sub getsetup () {
 }
 
 sub checkconfig () {
-	foreach my $field (qw{po_master_language}) {
-		if (! exists $config{$field} || ! defined $config{$field}) {
-			error(sprintf(gettext("Must specify %s when using the %s plugin"),
-				      $field, 'po'));
+	if (exists $config{po_master_language}) {
+		if (! ref $config{po_master_language}) {
+			($master_language_code, $master_language_name)=
+				splitlangpair($config{po_master_language});
 		}
+		else {
+			$master_language_code=$config{po_master_language}{code};
+			$master_language_name=$config{po_master_language}{name};
+			$config{po_master_language}=joinlangpair($master_language_code, $master_language_name);
+		}
+	}
+	if (! defined $master_language_code) {
+		$master_language_code='en';
+	}
+	if (! defined $master_language_name) {
+		$master_language_name='English';
 	}
 
 	if (ref $config{po_slave_languages} eq 'ARRAY') {
-		my %slaves;
 		foreach my $pair (@{$config{po_slave_languages}}) {
-			my ($code, $name) = ( $pair =~ /^([a-z]{2})\|(.+)$/ );
-			if (!defined $code || !defined $name) {
-				error(sprintf(gettext("%s has invalid syntax: must use CODE|NAME"),
-				              $pair));
+			my ($code, $name)=splitlangpair($pair);
+			if (defined $code && ! exists $slavelanguages{$code}) {
+				push @slavelanguages, $code;
+				$slavelanguages{$code} = $name;
 			}
-			$slaves{$code} = $name;
-			push @slavelanguages, $code;
-
 		}
-		$config{po_slave_languages} = \%slaves;
 	}
 	elsif (ref $config{po_slave_languages} eq 'HASH') {
+		%slavelanguages=%{$config{po_slave_languages}};
 		@slavelanguages = sort {
 			$config{po_slave_languages}->{$a} cmp $config{po_slave_languages}->{$b};
-		} keys %{$config{po_slave_languages}};
+		} keys %slavelanguages;
+		$config{po_slave_languages}=[
+			map { joinlangpair($_, $slavelanguages{$_}) } @slavelanguages
+		]
 	}
 
-	delete $config{po_slave_languages}{$config{po_master_language}{code}};;
+	delete $slavelanguages{$master_language_code};
 
 	map {
 		islanguagecode($_)
 			or error(sprintf(gettext("%s is not a valid language code"), $_));
-	} ($config{po_master_language}{code}, @slavelanguages);
+	} ($master_language_code, @slavelanguages);
 
 	if (! exists $config{po_translatable_pages} ||
 	    ! defined $config{po_translatable_pages}) {
@@ -198,11 +207,11 @@ sub checkconfig () {
 				if -d "$config{underlaydirbase}/po/$ll/$underlay";
 		}
 	
-		if ($config{po_master_language}{code} ne 'en') {
+		if ($master_language_code ne 'en') {
 			# Add underlay containing translated source files
 			# for the master language.
-			add_underlay("locale/$config{po_master_language}{code}/$underlay")
-				if -d "$config{underlaydirbase}/locale/$config{po_master_language}{code}/$underlay";
+			add_underlay("locale/$master_language_code/$underlay")
+				if -d "$config{underlaydirbase}/locale/$master_language_code/$underlay";
 		}
 	}
 }
@@ -221,6 +230,8 @@ sub needsbuild () {
 	foreach my $master (keys %translations) {
 		map add_depends($_, $master), values %{otherlanguages_pages($master)};
 	}
+
+	return $needsbuild;
 }
 
 sub scan (@) {
@@ -510,7 +521,7 @@ sub formbuilder_setup (@) {
 	if ($form->field("do") eq "create") {
 		# Warn the user: new pages must be written in master language.
 		my $template=template("pocreatepage.tmpl");
-		$template->param(LANG => $config{po_master_language}{name});
+		$template->param(LANG => $master_language_name);
 		$form->tmpl_param(message => $template->output);
 	}
 	elsif ($form->field("do") eq "edit") {
@@ -599,7 +610,7 @@ sub mybeautify_urlpath ($) {
 
 	my $res=$origsubs{'beautify_urlpath'}->($url);
 	if (defined $config{po_link_to} && $config{po_link_to} eq "negotiated") {
-		$res =~ s!/\Qindex.$config{po_master_language}{code}.$config{htmlext}\E$!/!;
+		$res =~ s!/\Qindex.$master_language_code.$config{htmlext}\E$!/!;
 		$res =~ s!/\Qindex.$config{htmlext}\E$!/!;
 		map {
 			$res =~ s!/\Qindex.$_.$config{htmlext}\E$!/!;
@@ -790,7 +801,7 @@ sub _istranslation ($) {
 	return 0 unless defined $masterpage && defined $lang
 			 && length $masterpage && length $lang
 			 && defined $pagesources{$masterpage}
-			 && defined $config{po_slave_languages}{$lang};
+			 && defined $slavelanguages{$lang};
 
 	return (maybe_add_leading_slash($masterpage, $hasleadingslash), $lang)
 		if istranslatable($masterpage);
@@ -822,7 +833,7 @@ sub lang ($) {
 	if (1 < (my ($masterpage, $lang) = _istranslation($page))) {
 		return $lang;
 	}
-	return $config{po_master_language}{code};
+	return $master_language_code;
 }
 
 sub islanguagecode ($) {
@@ -835,7 +846,7 @@ sub otherlanguage_page ($$) {
 	my $page=shift;
 	my $code=shift;
 
-	return masterpage($page) if $code eq $config{po_master_language}{code};
+	return masterpage($page) if $code eq $master_language_code;
 	return masterpage($page) . '.' . $code;
 }
 
@@ -849,9 +860,9 @@ sub otherlanguages_codes ($) {
 	return \@ret unless istranslation($page) || istranslatable($page);
 	my $curlang=lang($page);
 	foreach my $lang
-		($config{po_master_language}{code}, @slavelanguages) {
+		($master_language_code, @slavelanguages) {
 		next if $lang eq $curlang;
-		if ($lang eq $config{po_master_language}{code} ||
+		if ($lang eq $master_language_code ||
 		    istranslatedto(masterpage($page), $lang)) {
 			push @ret, $lang;
 		}
@@ -1006,10 +1017,10 @@ sub percenttranslated ($) {
 sub languagename ($) {
 	my $code=shift;
 
-	return $config{po_master_language}{name}
-		if $code eq $config{po_master_language}{code};
-	return $config{po_slave_languages}{$code}
-		if defined $config{po_slave_languages}{$code};
+	return $master_language_name
+		if $code eq $master_language_code;
+	return $slavelanguages{$code}
+		if defined $slavelanguages{$code};
 	return;
 }
 
@@ -1020,13 +1031,13 @@ sub otherlanguagesloop ($) {
 	if (istranslation($page)) {
 		push @ret, {
 			url => urlto_with_orig_beautiful_urlpath(masterpage($page), $page),
-			code => $config{po_master_language}{code},
-			language => $config{po_master_language}{name},
+			code => $master_language_code,
+			language => $master_language_name,
 			master => 1,
 		};
 	}
 	foreach my $lang (@{otherlanguages_codes($page)}) {
-		next if $lang eq $config{po_master_language}{code};
+		next if $lang eq $master_language_code;
 		my $otherpage = otherlanguage_page($page, $lang);
 		push @ret, {
 			url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
@@ -1231,6 +1242,27 @@ sub po4a_options($) {
 	return %options;
 }
 
+sub splitlangpair ($) {
+	my $pair=shift;
+
+	my ($code, $name) = ( $pair =~ /^([a-z]{2})\|(.+)$/ );
+	if (! defined $code || ! defined $name ||
+	    ! length $code || ! length $name) {
+		# not a fatal error to avoid breaking if used with web setup
+		warn sprintf(gettext("%s has invalid syntax: must use CODE|NAME"),
+			$pair);
+	}
+
+	return $code, $name;
+}
+
+sub joinlangpair ($$) {
+	my $code=shift;
+	my $name=shift;
+
+	return "$code|$name";
+}
+
 # ,----
 # | PageSpecs
 # `----
@@ -1265,7 +1297,7 @@ sub match_lang ($$;@) {
 
 	my $regexp=IkiWiki::glob2re($wanted);
 	my $lang=IkiWiki::Plugin::po::lang($page);
-	if ($lang !~ /^$regexp$/i) {
+	if ($lang !~ $regexp) {
 		return IkiWiki::FailReason->new("file language is $lang, not $wanted");
 	}
 	else {

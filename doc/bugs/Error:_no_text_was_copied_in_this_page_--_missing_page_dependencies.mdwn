@@ -1,0 +1,46 @@
+That one has bitten me for some time; here is the minimal testcase.  There is
+also an equivalent (I suppose) problem when using another plugin, but I hope
+it's enough to track it down for this one.
+
+    $ tar -xj < [bug-dep_order.tar.bz2](http://schwinge.homeip.net/~thomas/tmp/bug-dep_order.tar.bz2)
+    $ cd bug-dep_order/
+    $ ./render_locally
+    [...]
+    $ find "$PWD".rendered/ -print0 | xargs -0 grep 'no text was copied'
+    $ [no output]
+    $ touch news/2010-07-31.mdwn 
+    $ ./render_locally 
+    refreshing wiki..
+    scanning news/2010-07-31.mdwn
+    building news/2010-07-31.mdwn
+    building news.mdwn, which depends on news/2010-07-31
+    building index.mdwn, which depends on news/2010-07-31
+    done
+    $ find "$PWD".rendered/ -print0 | xargs -0 grep 'no text was copied'
+    /home/thomas/tmp/hurd-web/bug-dep_order.rendered/news.html:<p>[[!paste <span class="error">Error: no text was copied in this page</span>]]</p>
+    /home/thomas/tmp/hurd-web/bug-dep_order.rendered/news.html:<p>[[!paste <span class="error">Error: no text was copied in this page</span>]]</p>
+
+This error shows up only for *news.html*, but not in *news/2010-07-31* or for
+the aggregation in *index.html* or its RSS and atom files.
+
+--[[tschwinge]]
+
+> So the cutpaste plugin, in order to support pastes
+> that come before the corresponding cut in the page,
+> relies on the scan hook being called for the page
+> before it is preprocessed.
+> 
+> In the case of an inline, this doesn't happen, if
+> the page in question has not changed.
+> 
+> Really though it's not just inline, it's potentially anything
+> that preprocesses content. None of those things guarantee that
+> scan gets re-run on it first. 
+> 
+> I think cutpaste is going beyond the intended use of scan hooks,
+> which is to gather link information, not do arbitrary data collection.
+> Requiring scan be run repeatedly could be a lot more work.
+> 
+> Using `%pagestate` to store the cut content when scanning would be 
+> one way to fix this bug. It would mean storing potentially big chunks 
+> of page content in the indexdb. [[done]] --[[Joey]]  

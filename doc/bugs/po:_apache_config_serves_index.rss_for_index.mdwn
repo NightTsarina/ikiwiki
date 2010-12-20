@@ -1,0 +1,36 @@
+The apache config documented in [[plugins/po]] has a subtle bug. It works
+until a site gets an index.atom or index.rss file. (Acutally, with po
+enabled, they're called index.en.atom or index.en.rss etc, but the result
+is the same).
+
+Then, when wget, curl, or w3m is pointed at http://site/, apache serves
+up the rss/atom file rather than the index page.
+
+Analysis:
+
+* /etc/mime.types gives mime types to .rss and .atom files
+* `mod_negotiation`'s MultiViews allows any file with a mime type to be
+  served up via content negotiation, if the client requests that type.
+* wget etc send `Accept: */*` to accept all content types. Compare
+  with firefox, which sends `Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*`
+* So apache has a tie between a html encoded Enlish file, and a rss encoded
+  English file and the client has no preference. In a tie, apache will serve up the
+  *smallest* file, which tends to be the rss file. (Apache's docs say it uses that
+  strange criteria to break ties; see <http://httpd.apache.org/docs/2.0/mod/mod_mime.html#multiviewsmatch>)
+
+The only way I have found to work around this problem is to remove
+atom and rss from /etc/mime.types. Of course, that has other undesirable
+results. 
+
+I wonder if it would be worth making the po plugin generate apache 
+[type map files](http://httpd.apache.org/docs/2.0/mod/mod_negotiation.html#typemaps).
+That should avoid this problem.
+--[[Joey]]
+
+Update: A non-intrusive fix is to add this to apache configuration. 
+This tunes the "quality" of the rss and atom files, in an apparently currently
+undocumented way (though someone on #httpd suggested it should get documented).
+Result is that apache will prefer serving index.html. --[[Joey]]  [[done]]
+
+	AddType application/rss+xml;qs=0.8 .rss
+	AddType application/atom+xml;qs=0.8 .atom

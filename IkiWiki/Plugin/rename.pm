@@ -108,6 +108,7 @@ sub check_canrename ($$$$$$) {
 			}
 		}
 	});
+	return defined $canrename ? $canrename : 1;
 }
 
 sub rename_form ($$$) {
@@ -125,7 +126,7 @@ sub rename_form ($$$) {
 		method => 'POST',
 		javascript => 0,
 		params => $q,
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		stylesheet => 1,
 		fields => [qw{do page new_name attachment}],
 	);
@@ -573,11 +574,10 @@ sub fixlinks ($$$) {
 				eval { writefile($file, $config{srcdir}, $content) };
 				next if $@;
 				my $conflict=IkiWiki::rcs_commit(
-					$file,
-					sprintf(gettext("update for rename of %s to %s"), $rename->{srcfile}, $rename->{destfile}),
-					$token,
-					$session->param("name"),
-					$session->remote_addr(),
+					file => $file,
+					message => sprintf(gettext("update for rename of %s to %s"), $rename->{srcfile}, $rename->{destfile}),
+					token => $token,
+					session => $session,
 				);
 				push @fixedlinks, $page if ! defined $conflict;
 			}

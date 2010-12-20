@@ -146,7 +146,7 @@ sub formbuilder (@) {
 		
 		# Check that the user is allowed to edit a page with the
 		# name of the attachment.
-		IkiWiki::check_canedit($filename, $q, $session, 1);
+		IkiWiki::check_canedit($filename, $q, $session);
 		# And that the attachment itself is acceptable.
 		check_canattach($session, $filename, $tempfile);
 
@@ -242,7 +242,7 @@ sub attachment_list ($) {
 			push @ret, {
 				"field-select" => '<input type="checkbox" name="attachment_select" value="'.$f.'" />',
 				link => htmllink($page, $page, $f, noimageinline => 1),
-				size => IkiWiki::Plugin::filecheck::humansize((stat(_))[7]),
+				size => IkiWiki::Plugin::filecheck::humansize((stat($f))[7]),
 				mtime => displaytime($IkiWiki::pagemtime{$f}),
 				mtime_raw => $IkiWiki::pagemtime{$f},
 			};

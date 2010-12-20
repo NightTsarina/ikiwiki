@@ -52,7 +52,7 @@ sub cgi_goto ($;$) {
 		IkiWiki::redirect($q, $pagestate{$page}{meta}{permalink});
 	}
 
-	if (! length $link) {
+	if (! defined $link || ! length $link) {
 		IkiWiki::cgi_custom_failure(
 			$q,
 			"404 Not Found",
@@ -64,7 +64,7 @@ sub cgi_goto ($;$) {
 		)
 	}
 	else {
-		IkiWiki::redirect($q, urlto($link, undef, 1));
+		IkiWiki::redirect($q, urlto($link));
 	}
 
 	exit;

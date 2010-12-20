@@ -77,7 +77,7 @@ sub openid_selector {
 
 	my $template=IkiWiki::template("openid-selector.tmpl");
 	$template->param(
-		cgiurl => $config{cgiurl},
+		cgiurl => IkiWiki::cgiurl(),
 		(defined $openid_error ? (openid_error => $openid_error) : ()),
 		(defined $openid_url ? (openid_url => $openid_url) : ()),
 		($real_cgi_signin ? (nonopenidform => $real_cgi_signin->($q, $session, 1)) : ()),
@@ -148,7 +148,7 @@ sub validate ($$$;$) {
 	}
 
 	my $cgiurl=$config{openid_cgiurl};
-	$cgiurl=$config{cgiurl} if ! defined $cgiurl;
+	$cgiurl=IkiWiki::cgiurl() if ! defined $cgiurl;
 
 	my $trust_root=$config{openid_realm};
 	$trust_root=$cgiurl if ! defined $trust_root;
@@ -175,7 +175,7 @@ sub auth ($$) {
 			IkiWiki::redirect($q, $setup_url);
 		}
 		elsif ($csr->user_cancel) {
-			IkiWiki::redirect($q, $config{url});
+			IkiWiki::redirect($q, IkiWiki::baseurl(undef));
 		}
 		elsif (my $vident = $csr->verified_identity) {
 			$session->param(name => $vident->url);
@@ -249,7 +249,7 @@ sub getobj ($$) {
 	}
 	
 	my $cgiurl=$config{openid_cgiurl};
-	$cgiurl=$config{cgiurl} if ! defined $cgiurl;
+	$cgiurl=IkiWiki::cgiurl() if ! defined $cgiurl;
 
 	return Net::OpenID::Consumer->new(
 		ua => $ua,

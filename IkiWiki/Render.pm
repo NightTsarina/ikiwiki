@@ -5,7 +5,6 @@ package IkiWiki;
 use warnings;
 use strict;
 use IkiWiki;
-use Encode;
 
 my (%backlinks, %rendered);
 our %brokenlinks;
@@ -94,7 +93,8 @@ sub genpage ($$) {
 	}
 	if (defined $config{historyurl} && length $config{historyurl}) {
 		my $u=$config{historyurl};
-		$u=~s/\[\[file\]\]/$pagesources{$page}/g;
+		my $p=uri_escape_utf8($pagesources{$page});
+		$u=~s/\[\[file\]\]/$p/g;
 		$template->param(historyurl => $u);
 		$actions++;
 	}
@@ -759,7 +759,10 @@ sub refresh () {
 	my ($new, $internal_new)=find_new_files($files);
 	my ($del, $internal_del)=find_del_files($pages);
 	my ($changed, $internal_changed)=find_changed($files);
-	run_hooks(needsbuild => sub { shift->($changed) });
+	run_hooks(needsbuild => sub {
+		my $ret=shift->($changed, [@$del, @$internal_del]);
+		$changed=$ret if ref $ret eq 'ARRAY';
+	});
 	my $oldlink_targets=calculate_old_links($changed, $del);
 
 	foreach my $file (@$changed) {

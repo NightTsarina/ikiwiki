@@ -1,0 +1,73 @@
+broken links to translatable basewiki pages that lack po files
+--------------------------------------------------------------
+
+If a page is not translated yet, the "translated" version of it
+displays wikilinks to other, existing (but not yet translated?)
+pages as edit links, as if those pages do not exist. 
+
+That's really confusing, especially as clicking such a link
+brings up an edit form to create a new, english page.
+
+This is with po_link_to=current or negotiated. With default, it doesn't
+happen.. 
+
+Also, this may only happen if the page being linked to is coming from an
+underlay, and the underlays lack translation to a given language.
+--[[Joey]] 
+
+> Any simple testcase to reproduce it, please? I've never seen this
+> happen yet. --[[intrigeri]]
+
+>> Sure, go here <http://l10n.ikiwiki.info/smiley/smileys/index.sv.html>
+>> (Currently 0% translateed) and see the 'WikiLink' link at the bottom,
+>> which goes to <http://l10n.ikiwiki.info/ikiwiki.cgi?page=ikiwiki/wikilink&from=smiley/smileys&do=create>
+>> Compare with eg, the 100% translated Dansk version, where
+>> the WikiLink link links to the English WikiLink page. --[[Joey]] 
+
+>>> Seems not related to the page/string translation status: the 0%
+>>> translated Spanish version has the correct link, just like the
+>>> Dansk version => I'm changing the bug title accordingly.
+>>>
+>>> I tested forcing the sv html page to be rebuilt by translating a
+>>> string in it, it did not fix the bug. I did the same for the
+>>> Spanish page, it did not introduce the bug. So this is really
+>>> weird.
+>>>
+>>> The smiley underlay seems to be the only place where the wrong
+>>> thing happens: the basewiki underlay has similar examples
+>>> that do not exhibit this bug. An underlay linking to another might
+>>> be necessary to reproduce it. Going to dig deeper. --[[intrigeri]]
+
+>>>> After a few hours lost in the Perl debugger, I think I have found
+>>>> the root cause of the problem: in l10n wiki's configured
+>>>> `underlaydir`, the basewiki is present in every slave language
+>>>> that is enabled for this wiki *but* Swedish. With such a
+>>>> configuration, the `ikiwiki/wikilink` page indeed does not exist
+>>>> in Swedish language: no `ikiwiki/wikilink.sv.po` can be found
+>>>> where ikiwiki is looking. Have a look to
+>>>> <http://l10n.ikiwiki.info/ikiwiki/>, the basewiki is not
+>>>> available in Swedish language on this wiki. So this is not a po
+>>>> bug, but a configuration or directories layout issue. This is
+>>>> solved by adding the Swedish basewiki to the underlay dir, which
+>>>> is I guess not a possibility in the l10n wiki context. I guess
+>>>> this could be solved by adding `SRCDIR/basewiki` as an underlay
+>>>> to your l10n wiki configuration, possibly using the
+>>>> `add_underlays` configuration directive. --[[intrigeri]]
+
+>>>>> There is no complete Swedish underlay translation yet, so it is not
+>>>>> shipped in ikiwiki. I don't think it's a misconfiguration to use
+>>>>> a language that doesn't have translated underlays. --[[Joey]] 
+
+>>>>>> Ok. The problem is triggered when using a language that doesn't
+>>>>>> have translated underlays, *and* defining
+>>>>>> `po_translatable_pages` in a way that renders the base wiki
+>>>>>> pages translatable in po's view of things, which in turns makes
+>>>>>> the po plugin act as if the translation pages did exist,
+>>>>>> although they do not in this case. I still need to have a deep
+>>>>>> look at the underlays-related code you added to `po.pm` a while
+>>>>>> ago. Stay tuned. --[[intrigeri]]
+
+>>>>>>> Fixed in my po branch, along with other related small bugs that
+>>>>>>> happen in the very same situation only. --[[intrigeri]]
+
+>>>>>>>> Merged. Not tested yet, but I trust you; [[done]] --[[Joey]] 

@@ -491,6 +491,7 @@ sub needsbuild (@) {
 			}
 		}
 	}
+	return $needsbuild;
 }
 
 1

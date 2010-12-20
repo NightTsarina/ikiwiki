@@ -22,7 +22,8 @@ foreach my $file (@$files) {
 	$pagesources{$page}=$file; # used by po plugin functions
 }
 
-foreach my $ll (keys %{$config{po_slave_languages}}) {
+foreach my $lang (@{$config{po_slave_languages}}) {
+	my ($ll, $name)=IkiWiki::Plugin::po::splitlangpair($lang);
 	$config{destdir}="../underlays/locale/$ll";
 
 	foreach my $file (@$files) {

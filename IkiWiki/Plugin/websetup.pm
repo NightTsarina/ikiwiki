@@ -219,7 +219,8 @@ sub showfields ($$$@) {
 				options => [ [ 1 => $description ] ],
 				fieldset => $section,
 			);
-			if (! $form->submitted) {
+			if (! $form->submitted ||
+			    ($info{advanced} && $form->submitted eq 'Advanced Mode')) {
 				$form->field(name => $name, value => $value);
 			}
 		}
@@ -287,7 +288,7 @@ sub showform ($$) {
 		fieldsets => [
 			[main => gettext("main")], 
 		],
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		template => {type => 'div'},
 		stylesheet => 1,
 	);
@@ -295,6 +296,7 @@ sub showform ($$) {
 	$form->field(name => "do", type => "hidden", value => "setup",
 		force => 1);
 	$form->field(name => "rebuild_asked", type => "hidden");
+	$form->field(name => "showadvanced", type => "hidden");
 
 	if ($form->submitted eq 'Basic Mode') {
 		$form->field(name => "showadvanced", type => "hidden", 
@@ -342,7 +344,7 @@ sub showform ($$) {
 	IkiWiki::decode_form_utf8($form);
 	
 	if ($form->submitted eq "Cancel") {
-		IkiWiki::redirect($cgi, $config{url});
+		IkiWiki::redirect($cgi, IkiWiki::baseurl(undef));
 		return;
 	}
 	elsif (($form->submitted eq 'Save Setup' || $form->submitted eq 'Rebuild Wiki') && $form->validate) {
@@ -473,7 +475,7 @@ sub showform ($$) {
 						join(" ", @command), $ret).
 					'</p>';
 				open(OUT, ">", $config{setupfile}) || error("$config{setupfile}: $!");
-				print OUT $oldsetup;
+				print OUT Encode::encode_utf8($oldsetup);
 				close OUT;
 			}
 

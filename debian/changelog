@@ -1,4 +1,142 @@
-ikiwiki (3.20100816) UNRELEASED; urgency=low
+ikiwiki (3.20101202) UNRELEASED; urgency=low
+
+  * Better support for serving the same site on multiple urls. (Such as
+    a http and a https url, or a ipv4 and an ipv6 url.)
+    (Thanks, smcv)
+  * API: urlto without a defined second parameter now generates an url
+    that starts with "/" (when possible; eg when the site's url and cgiurl
+    are on the same domain).
+  * Now when users log in via https, ikiwiki sends a secure cookie, that can
+    only be used over https. If the user switches to using http, they will
+    need to re-login. (smcv)
+  * inline: Display feed buttons for nested inlines, linking to the inlined
+    page's feed. (Giuseppe Bilotta)
+  * goldtype: New theme, based on blueview, contributed by Lars Wirzenius.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 29 Nov 2010 14:44:13 -0400
+
+ikiwiki (3.20101201) unstable; urgency=low
+
+  * meta: Fix calling of htmlscrubber to pass the page parameter.
+    The change of the htmlscrubber to look at page rather than destpage
+    caused htmlscrubber_skip to not work for meta directives.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 01 Dec 2010 20:28:01 -0400
+
+ikiwiki (3.20101129) unstable; urgency=low
+
+  * websetup: Fix encoding problem when restoring old setup file.
+  * more: Add pages parameter to limit where the more is displayed.
+    (thanks, dark)
+  * Fix escaping of filenames in historyurl. (Thanks, aj)
+  * inline: Improve RSS url munging to use a proper html parser,
+    and support all elements that HTML::Tagset knows about. 
+    (Which doesn't include html5 just yet, but then the old version
+    didn't either.) Bonus: 4 times faster than old regexp method.
+  * Optimise glob() pagespec. (Thanks, Kathryn and smcv)
+  * highlight: Support new format of filetypes.conf used by version 3.2
+    of the highlight package.
+  * edittemplate: Fix crash if using a .tmpl file or other non-page file
+    as a template for a new page.
+  * git: Fix temp file location.
+  * rename: Fix to pass named parameters to rcs_commit.
+  * git: Avoid adding files when committing, so as not to implicitly add
+    files like recentchanges files that are not normally checked in,
+    when fixing links after rename.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 29 Nov 2010 13:59:10 -0400
+
+ikiwiki (3.20101112) unstable; urgency=HIGH
+
+  * txt: Fix display when used inside a format directive.
+  * highlight: Ensure that other, more-specific format plugins,
+    like txt are used in preference to this one in case of ties.
+  * htmltidy, sortnaturally: Add missing checkconfig hook
+    registration. Closes: #601912
+    (Thanks, Craig Lennox and Tuomas Jormola)
+  * git: Use author date, not committer date. Closes: #602012
+    (Thanks, Tuomas Jormola)
+  * Fix htmlscrubber_skip to be matched on the source page, not the page it is
+    inlined into. Should allow setting to "* and !comment(*)" to scrub
+    comments, but leave your blog posts unscrubbed, etc. CVE-2010-1673
+  * comments: Make postcomment() pagespec work when previewing a comment,
+    including during moderation. CVE-2010-1673
+  * comments: Make comment() pagespec also match comments that are being
+    posted. CVE-2010-1673
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 12 Nov 2010 00:36:06 -0400
+
+ikiwiki (3.20101023) unstable; urgency=low
+
+  * Fix typo that broke anonymous git push.
+  * Fix web reversion when the srcdir is in a subdir of the git repo.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 23 Oct 2010 16:36:50 -0400
+
+ikiwiki (3.20101019) unstable; urgency=low
+
+  * Fix test suite failure on other side of date line.
+  * htmltidy: Allow configuring tidy parameters in setup file.
+    (W. Trevor King)
+  * Updated French program translation. Closes: #598918
+  * git: Added new rcs_revert and rcs_preprevert hooks.
+  * recentchanges: Add revert buttons to RecentChanges page, and
+    implement web-based reversion interface.
+  * Thanks to Peter Gammie for his assistance with the web-based reversion
+    feature.
+  * actiontabs: More consistent styling of Hn tags.
+  * websetup: Fix saving of advanced mode changes.
+  * websetup: Fix defaults of checkboxes in advanced mode.
+  * monotone: Fix recentchanges page when the srcdir is not at the top
+    of the monotone workspace. Thanks, tommyd.
+  * img: If a class is specified, don't also put the img in the img
+    class.
+  * auto-blog.setup: Don't enable opendiscussion by default; require users be
+    logged in to post comments.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 19 Oct 2010 02:32:23 -0400
+
+ikiwiki (3.20100926) unstable; urgency=low
+
+  * meta: Ensure that the url specified by xrds-location is absolute.
+  * attachment: Fix attachment file size display.
+  * Propigate PATH into wrapper.
+  * htmlbalance: Fix compatibility with HTML::Tree 4.0. (smcv)
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 26 Sep 2010 23:02:54 -0400
+
+ikiwiki (3.20100915) unstable; urgency=low
+
+  * needsbuild hook interface changed; the hooks should now return
+    the modified array of things that need built. (Backwards compatibility
+    code keeps plugins using the old interface working.)
+  * Remove PATH overriding code in ikiwiki script that was present to make
+    perl taint checking happy, but taint checking is disabled.
+  * teximg: Use Unicode UTF-8 encoding by default. Closes: #596067
+    Thanks, Paul Menzel.
+  * po: Make the po_master_language use a langpair like "en|English",
+    so it can be configured via the web.
+  * po: Allow enabling via web setup.
+  * po: Auto-upgrade old format settings to new formats when writing
+    setup file.
+  * Pass array of names of files that have been deleted to needsbuild hook
+    as second parameter, to allow for plugins that needs access to this
+    information earlier than the delete hook.
+  * actiontabs: Improve tab padding.
+  * blueview: Fix display of links to translated pages in the page header.
+  * Set isPermaLink="no" for guids in rss feeds. 
+  * blogspam: Fix crash when content contained utf-8.
+  * external: Disable RPC::XML's "smart" encoding, which sent ints
+    for strings that contained only a number, fixing a longstanding crash
+    of the rst plugin.
+  * git: When updating from remote, use git pull --prune, to avoid possible
+    errors from conflicting obsolete remote branches.
+  * cutpaste: Fix bug that occured in some cases involving inlines when
+    text was pasted on a page before being cut.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 15 Sep 2010 16:29:01 -0400
+
+ikiwiki (3.20100831) unstable; urgency=low
 
   * filecheck: Fall back to using the file command if the freedesktop
     magic file cannot identify a file.
@@ -10,8 +148,23 @@ ikiwiki (3.20100816) UNRELEASED; urgency=low
     the bug and providing access to debug it.
   * style.css: Use relative, not absolute font sizes. Thanks, Giuseppe Bilotta.
   * htmlscrubber: Do not scrub url anchors that contain colons.
+  * Danish translation update. Closes: #594673
+  * highlight: Make location of highlight's files configurable in setup
+    file to allow for nonstandard installations.
+  * Allow "link(.)" and similar PageSpecs. Thanks, Giuseppe Bilotta.
+  * Run the preprocess hooks in scan mode *before* the scan hooks.
+    This allows the po plugin to register a scan hook that runs
+    last and rescans pages after all data from the first scan pass is
+    completed. This avoids the po plugin needing to rebuild some pages.
+    (intrigeri)
+  * po: Fix some bugs that affected l10n.ikiwiki.info's unusual
+    setup. (intrigeri)
+  * t/bazaar.t: Work around bzr 2.2.0's new requirement to configure
+    bzr whoami before committing.
+  * httpauth: Avoid redirecting the user to the cgiauthurl if
+    they already have a login session.
 
- -- Joey Hess <joeyh@debian.org>  Sun, 15 Aug 2010 11:45:48 -0400
+ -- Joey Hess <joeyh@debian.org>  Tue, 31 Aug 2010 14:22:47 -0400
 
 ikiwiki (3.20100815) unstable; urgency=medium
 

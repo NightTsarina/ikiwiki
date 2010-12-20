@@ -6,16 +6,12 @@ use strict;
 use IkiWiki 3.00;
 use Encode;
 
-# locations of highlight's files
-my $filetypes="/etc/highlight/filetypes.conf";
-my $langdefdir="/usr/share/highlight/langDefs";
-
 sub import {
 	hook(type => "getsetup", id => "highlight",  call => \&getsetup);
 	hook(type => "checkconfig", id => "highlight", call => \&checkconfig);
 	# this hook is used by the format plugin
-	hook(type => "htmlizefallback", id => "highlight", call =>
-		\&htmlizefallback);
+	hook(type => "htmlizeformat", id => "highlight", 
+		call => \&htmlizeformat, last => 1);
 }
 
 sub getsetup () {
@@ -32,9 +28,29 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
+		filetypes_conf => {
+			type => "string",
+			example => "/etc/highlight/filetypes.conf",
+			description => "location of highlight's filetypes.conf",
+			safe => 0,
+			rebuild => undef,
+		},
+		langdefdir => {
+			type => "string",
+			example => "/usr/share/highlight/langDefs",
+			description => "location of highlight's langDefs directory",
+			safe => 0,
+			rebuild => undef,
+		},
 }
 
 sub checkconfig () {
+	if (! exists $config{filetypes_conf}) {
+		$config{filetypes_conf}="/etc/highlight/filetypes.conf";
+	}
+	if (! exists $config{langdefdir}) {
+		$config{langdefdir}="/usr/share/highlight/langDefs";
+	}
 	if (exists $config{tohighlight}) {
 		foreach my $file (split ' ', $config{tohighlight}) {
 			my @opts = $file=~s/^\.// ?
@@ -63,7 +79,7 @@ sub checkconfig () {
 	}
 }
 
-sub htmlizefallback {
+sub htmlizeformat {
 	my $format=lc shift;
 	my $langfile=ext2langfile($format);
 
@@ -80,14 +96,29 @@ my %highlighters;
 
 # Parse highlight's config file to get extension => language mappings.
 sub read_filetypes () {
-	open (IN, $filetypes) || error("$filetypes: $!");
-	while (<IN>) {
-		chomp;
-		if (/^\$ext\((.*)\)=(.*)$/) {
-			$ext2lang{$_}=$1 foreach $1, split ' ', $2;
+	open (my $f, $config{filetypes_conf}) || error("$config{filetypes_conf}: $!");
+	local $/=undef;
+	my $config=<$f>;
+	close $f;
+
+	# highlight >= 3.2 format (bind-style)
+	while ($config=~m/Lang\s*=\s*\"([^"]+)\"[,\s]+Extensions\s*=\s*{([^}]+)}/sg) {
+		my $lang=$1;
+		foreach my $bit (split ',', $2) {
+			$bit=~s/.*"(.*)".*/$1/s;
+			$ext2lang{$bit}=$lang;
 		}
 	}
-	close IN;
+
+	# highlight < 3.2 format
+	if (! keys %ext2lang) {
+		foreach (split("\n", $config)) {
+			if (/^\$ext\((.*)\)=(.*)$/) {
+				$ext2lang{$_}=$1 foreach $1, split ' ', $2;
+			}
+		}
+	}
+
 	$filetypes_read=1;
 }
 
@@ -97,12 +128,12 @@ sub read_filetypes () {
 sub ext2langfile ($) {
 	my $ext=shift;
 
-	my $langfile="$langdefdir/$ext.lang";
+	my $langfile="$config{langdefdir}/$ext.lang";
 	return $langfile if exists $highlighters{$langfile};
 
 	read_filetypes() unless $filetypes_read;
 	if (exists $ext2lang{$ext}) {
-		return "$langdefdir/$ext2lang{$ext}.lang";
+		return "$config{langdefdir}/$ext2lang{$ext}.lang";
 	}
 	# If a language only has one common extension, it will not
 	# be listed in filetypes, so check the langfile.

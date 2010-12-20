@@ -32,6 +32,7 @@ Some more elaborate limits can be added to what matches using these functions:
   tags matched by a glob)
 * "`backlink(page)`" - matches only pages that a given page links to
 * "`creation_month(month)`" - matches only files created on the given month
+  number
 * "`creation_day(mday)`" - or day of the month
 * "`creation_year(year)`" - or year
 * "`created_after(page)`" - matches only files created after the given page
@@ -78,3 +79,7 @@ filenames of the pages in the wiki, so a pagespec "foo" used on page
 "a/b" will not match a page named "a/foo" or "a/b/foo". To match
 relative to the directory of the page containing the pagespec, you can
 use "./". For example, "./foo" on page "a/b" matches page "a/foo".
+
+To indicate the name of the page the PageSpec is used in, you can
+use a single dot. For example, `link(.)` matches all the pages
+linking to the page containing the PageSpec.

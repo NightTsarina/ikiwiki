@@ -60,6 +60,7 @@ sub needsbuild ($) {
 		
 		$wikistate{theme}{currenttheme}=$config{theme};
 	}
+	return $needsbuild;
 }
 
 1

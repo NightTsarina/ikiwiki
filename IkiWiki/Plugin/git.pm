@@ -9,7 +9,7 @@ use open qw{:utf8 :std};
 
 my $sha1_pattern     = qr/[0-9a-fA-F]{40}/; # pattern to validate Git sha1sums
 my $dummy_commit_msg = 'dummy commit';      # message to skip in recent changes
-my $no_chdir=0;
+my $git_dir=undef;
 
 sub import {
 	hook(type => "checkconfig", id => "git", call => \&checkconfig);
@@ -27,6 +27,8 @@ sub import {
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
 	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
 	hook(type => "rcs", id => "rcs_receive", call => \&rcs_receive);
+	hook(type => "rcs", id => "rcs_preprevert", call => \&rcs_preprevert);
+	hook(type => "rcs", id => "rcs_revert", call => \&rcs_revert);
 }
 
 sub checkconfig () {
@@ -162,9 +164,13 @@ sub safe_git (&@) {
 	if (!$pid) {
 		# In child.
 		# Git commands want to be in wc.
-		if (! $no_chdir) {
+		if (! defined $git_dir) {
 			chdir $config{srcdir}
-			    or error("Cannot chdir to $config{srcdir}: $!");
+			    or error("cannot chdir to $config{srcdir}: $!");
+		}
+		else {
+			chdir $git_dir
+			    or error("cannot chdir to $git_dir: $!");
 		}
 		exec @cmdline or error("Cannot exec '@cmdline': $!");
 	}
@@ -462,7 +468,7 @@ sub rcs_update () {
 	# Update working directory.
 
 	if (length $config{gitorigin_branch}) {
-		run_or_cry('git', 'pull', $config{gitorigin_branch});
+		run_or_cry('git', 'pull', '--prune', $config{gitorigin_branch});
 	}
 }
 
@@ -490,16 +496,16 @@ sub rcs_commit (@) {
 		return $conflict if defined $conflict;
 	}
 
-	rcs_add($params{file});
-	return rcs_commit_staged(
-		message => $params{message},
-		session => $params{session},
-	);
+	return rcs_commit_helper(@_);
 }
 
 sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
+	return rcs_commit_helper(@_);
+}
+
+sub rcs_commit_helper (@) {
 	my %params=@_;
 	
 	my %env=%ENV;
@@ -540,10 +546,12 @@ sub rcs_commit_staged (@) {
 			$params{message}.=".";
 		}
 	}
-	push @opts, '-q';
-	# git commit returns non-zero if file has not been really changed.
-	# so we should ignore its exit status (hence run_or_non).
-	if (run_or_non('git', 'commit', @opts, '-m', $params{message})) {
+	if (exists $params{file}) {
+		push @opts, '--', $params{file};
+	}
+	# git commit returns non-zero if nothing really changed.
+	# So we should ignore its exit status (hence run_or_non).
+	if (run_or_non('git', 'commit', '-m', $params{message}, '-q', @opts)) {
 		if (length $config{gitorigin_branch}) {
 			run_or_cry('git', 'push', $config{gitorigin_branch});
 		}
@@ -682,7 +690,7 @@ sub findtimes ($$) {
 	if (! keys %time_cache) {
 		my $date;
 		foreach my $line (run_or_die('git', 'log',
-				'--pretty=format:%ct',
+				'--pretty=format:%at',
 				'--name-only', '--relative')) {
 			if (! defined $date && $line =~ /^(\d+)$/) {
 				$date=$line;
@@ -718,10 +726,15 @@ sub rcs_getmtime ($) {
 	return findtimes($file, 0);
 }
 
-sub rcs_receive () {
+{
+my $ret;
+sub git_find_root {
 	# The wiki may not be the only thing in the git repo.
 	# Determine if it is in a subdirectory by examining the srcdir,
 	# and its parents, looking for the .git directory.
+
+	return @$ret if defined $ret;
+	
 	my $subdir="";
 	my $dir=$config{srcdir};
 	while (! -d "$dir/.git") {
@@ -732,83 +745,139 @@ sub rcs_receive () {
 		}
 	}
 
+	$ret=[$subdir, $dir];
+	return @$ret;
+}
+
+}
+
+sub git_parse_changes {
+	my @changes = @_;
+
+	my ($subdir, $rootdir) = git_find_root();
+	my @rets;
+	foreach my $ci (@changes) {
+		foreach my $detail (@{ $ci->{'details'} }) {
+			my $file = $detail->{'file'};
+
+			# check that all changed files are in the subdir
+			if (length $subdir &&
+			    ! ($file =~ s/^\Q$subdir\E//)) {
+				error sprintf(gettext("you are not allowed to change %s"), $file);
+			}
+
+			my ($action, $mode, $path);
+			if ($detail->{'status'} =~ /^[M]+\d*$/) {
+				$action="change";
+				$mode=$detail->{'mode_to'};
+			}
+			elsif ($detail->{'status'} =~ /^[AM]+\d*$/) {
+				$action="add";
+				$mode=$detail->{'mode_to'};
+			}
+			elsif ($detail->{'status'} =~ /^[DAM]+\d*/) {
+				$action="remove";
+				$mode=$detail->{'mode_from'};
+			}
+			else {
+				error "unknown status ".$detail->{'status'};
+			}
+
+			# test that the file mode is ok
+			if ($mode !~ /^100[64][64][64]$/) {
+				error sprintf(gettext("you cannot act on a file with mode %s"), $mode);
+			}
+			if ($action eq "change") {
+				if ($detail->{'mode_from'} ne $detail->{'mode_to'}) {
+					error gettext("you are not allowed to change file modes");
+				}
+			}
+
+			# extract attachment to temp file
+			if (($action eq 'add' || $action eq 'change') &&
+			    ! pagetype($file)) {
+				eval q{use File::Temp};
+				die $@ if $@;
+				my $fh;
+				($fh, $path)=File::Temp::tempfile(undef, UNLINK => 1);
+				my $cmd = "cd $git_dir && ".
+				          "git show $detail->{sha1_to} > '$path'";
+				if (system($cmd) != 0) {
+					error("failed writing temp file '$path'.");
+				}
+			}
+
+			push @rets, {
+				file => $file,
+				action => $action,
+				path => $path,
+			};
+		}
+	}
+
+	return @rets;
+}
+
+sub rcs_receive () {
 	my @rets;
 	while (<>) {
 		chomp;
 		my ($oldrev, $newrev, $refname) = split(' ', $_, 3);
-		
+
 		# only allow changes to gitmaster_branch
 		if ($refname !~ /^refs\/heads\/\Q$config{gitmaster_branch}\E$/) {
 			error sprintf(gettext("you are not allowed to change %s"), $refname);
 		}
-		
+
 		# Avoid chdir when running git here, because the changes
 		# are in the master git repo, not the srcdir repo.
-		# The pre-recieve hook already puts us in the right place.
-		$no_chdir=1;
-		my @changes=git_commit_info($oldrev."..".$newrev);
-		$no_chdir=0;
-
-		foreach my $ci (@changes) {
-			foreach my $detail (@{ $ci->{'details'} }) {
-				my $file = $detail->{'file'};
-
-				# check that all changed files are in the
-				# subdir
-				if (length $subdir &&
-				    ! ($file =~ s/^\Q$subdir\E//)) {
-					error sprintf(gettext("you are not allowed to change %s"), $file);
-				}
-
-				my ($action, $mode, $path);
-				if ($detail->{'status'} =~ /^[M]+\d*$/) {
-					$action="change";
-					$mode=$detail->{'mode_to'};
-				}
-				elsif ($detail->{'status'} =~ /^[AM]+\d*$/) {
-					$action="add";
-					$mode=$detail->{'mode_to'};
-				}
-				elsif ($detail->{'status'} =~ /^[DAM]+\d*/) {
-					$action="remove";
-					$mode=$detail->{'mode_from'};
-				}
-				else {
-					error "unknown status ".$detail->{'status'};
-				}
-				
-				# test that the file mode is ok
-				if ($mode !~ /^100[64][64][64]$/) {
-					error sprintf(gettext("you cannot act on a file with mode %s"), $mode);
-				}
-				if ($action eq "change") {
-					if ($detail->{'mode_from'} ne $detail->{'mode_to'}) {
-						error gettext("you are not allowed to change file modes");
-					}
-				}
-				
-				# extract attachment to temp file
-				if (($action eq 'add' || $action eq 'change') &&
-				     ! pagetype($file)) {
-					eval q{use File::Temp};
-					die $@ if $@;
-					my $fh;
-					($fh, $path)=File::Temp::tempfile("XXXXXXXXXX", UNLINK => 1);
-					if (system("git show ".$detail->{sha1_to}." > '$path'") != 0) {
-						error("failed writing temp file");
-					}
-				}
-
-				push @rets, {
-					file => $file,
-					action => $action,
-					path => $path,
-				};
-			}
-		}
+		# (Also, if a subdir is involved, we don't want to chdir to
+		# it and only see changes in it.)
+		# The pre-receive hook already puts us in the right place.
+		$git_dir=".";
+		push @rets, git_parse_changes(git_commit_info($oldrev."..".$newrev));
+		$git_dir=undef;
 	}
 
 	return reverse @rets;
+}
+
+sub rcs_preprevert ($) {
+	my $rev=shift;
+	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
+
+	# Examine changes from root of git repo, not from any subdir,
+	# in order to see all changes.
+	my ($subdir, $rootdir) = git_find_root();
+	$git_dir=$rootdir;
+	my @commits=git_commit_info($sha1, 1);
+	$git_dir=undef;
+
+	if (! @commits) {
+		error "unknown commit"; # just in case
+	}
+
+	# git revert will fail on merge commits. Add a nice message.
+	if (exists $commits[0]->{parents} &&
+	    @{$commits[0]->{parents}} > 1) {
+		error gettext("you are not allowed to revert a merge");
+	}
+
+	return git_parse_changes(@commits);
+}
+
+sub rcs_revert ($) {
+	# Try to revert the given rev; returns undef on _success_.
+	my $rev = shift;
+	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
+
+	if (run_or_non('git', 'revert', '--no-commit', $sha1)) {
+		return undef;
+	}
+	else {
+		run_or_die('git', 'reset', '--hard');
+		return sprintf(gettext("Failed to revert commit %s"), $sha1);
+	}
 }
 
 1

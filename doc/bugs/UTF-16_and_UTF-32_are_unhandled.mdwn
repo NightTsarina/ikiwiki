@@ -1,0 +1,20 @@
+Wide characters should probably be supported, or, at the very least, warned about.
+
+Test case:
+
+    mkdir -p ikiwiki-utf-test/raw ikiwiki-utf-test/rendered
+    for page in txt mdwn; do
+      echo hello > ikiwiki-utf-test/raw/$page.$page
+      for text in 8 16 16BE 16LE 32 32BE 32LE; do
+        iconv -t UTF$text ikiwiki-utf-test/raw/$page.$page > ikiwiki-utf-test/raw/$page-utf$text.$page;
+      done
+    done
+    ikiwiki --verbose --plugin txt --plugin mdwn ikiwiki-utf-test/raw/ ikiwiki-utf-test/rendered/
+    www-browser ikiwiki-utf-test/rendered/ || x-www-browser ikiwiki-utf-test/rendered/
+    # rm -r ikiwiki-utf-test/ # some browsers rather stupidly daemonize themselves, so this operation can't easily be safely automated
+
+BOMless LE and BE input is probably a lost cause.
+
+Optimally, UTF-16 (which is ubiquitous in the Windows world) and UTF-32 should be fully supported, probably by converting to mostly-UTF-8 and using `&#xXXXX;` or `&#DDDDD;` XML escapes where necessary.
+
+Suboptimally, UTF-16 and UTF-32 should be converted to UTF-8 where cleanly possible and a warning printed where impossible.

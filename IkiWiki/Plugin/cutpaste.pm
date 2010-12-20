@@ -5,10 +5,9 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 
-my %savedtext;
-
 sub import {
 	hook(type => "getsetup", id => "cutpaste", call => \&getsetup);
+	hook(type => "needsbuild", id => "cutpaste", call => \&needsbuild);
 	hook(type => "preprocess", id => "cut", call => \&preprocess_cut, scan => 1);
 	hook(type => "preprocess", id => "copy", call => \&preprocess_copy, scan => 1);
 	hook(type => "preprocess", id => "paste", call => \&preprocess_paste);
@@ -23,6 +22,22 @@ sub getsetup () {
 		},
 }
 
+sub needsbuild (@) {
+	my $needsbuild=shift;
+	foreach my $page (keys %pagestate) {
+		if (exists $pagestate{$page}{cutpaste}) {
+			if (exists $pagesources{$page} &&
+			    grep { $_ eq $pagesources{$page} } @$needsbuild) {
+				# remove state, will be re-added if
+				# the cut/copy directive is still present
+				# on rebuild.
+				delete $pagestate{$page}{cutpaste};
+			}
+		}
+	}
+	return $needsbuild;
+}
+
 sub preprocess_cut (@) {
 	my %params=@_;
 
@@ -32,8 +47,7 @@ sub preprocess_cut (@) {
 		}
 	}
 
-	$savedtext{$params{page}} = {} if not exists $savedtext{$params{"page"}};
-	$savedtext{$params{page}}->{$params{id}} = $params{text};
+	$pagestate{$params{page}}{cutpaste}{$params{id}} = $params{text};
 
 	return "" if defined wantarray;
 }
@@ -47,8 +61,7 @@ sub preprocess_copy (@) {
 		}
 	}
 
-	$savedtext{$params{page}} = {} if not exists $savedtext{$params{"page"}};
-	$savedtext{$params{page}}->{$params{id}} = $params{text};
+	$pagestate{$params{page}}{cutpaste}{$params{id}} = $params{text};
 
 	return IkiWiki::preprocess($params{page}, $params{destpage}, $params{text})
 		if defined wantarray;
@@ -63,15 +76,15 @@ sub preprocess_paste (@) {
 		}
 	}
 
-	if (! exists $savedtext{$params{page}}) {
+	if (! exists $pagestate{$params{page}}{cutpaste}) {
 		error gettext('no text was copied in this page');
 	}
-	if (! exists $savedtext{$params{page}}->{$params{id}}) {
+	if (! exists $pagestate{$params{page}}{cutpaste}{$params{id}}) {
 		error sprintf(gettext('no text was copied in this page with id %s'), $params{id});
 	}
 
 	return IkiWiki::preprocess($params{page}, $params{destpage},
-		$savedtext{$params{page}}->{$params{id}});
+		$pagestate{$params{page}}{cutpaste}{$params{id}});
 }
 
 1;

@@ -1,0 +1,61 @@
+I often find myself wrapping the same boiler plate around [[ikiwiki/directives/img]] img directives, so I tried to encapsulate it using the following [[ikiwiki/directives/template]]:
+
+
+    <div class="image">
+    [\[!img <TMPL_VAR raw_href>
+    size="<TMPL_VAR raw_size>"
+    
+    <TMPL_IF alt>
+      alt="<TMPL_VAR raw_alt>"
+    <TMPL_ELSE>
+      <TMPL_IF caption>
+        alt="<TMPL_VAR raw_alt>"
+      <TMPL_ELSE>
+        alt="[pic]"
+      </TMPL_IF>
+    </TMPL_IF>
+    
+    ]]
+    <TMPL_IF caption>
+    <p><TMPL_VAR raw_caption></p>
+    </TMPL_IF>
+    </div>
+
+The result, even with htmlscrubber disabled, is mangled, something like
+
+    <div class="image">
+    <span class="createlink"><a href="http://jmtd.net/cgi?
+        page=size&amp;from=log0.000000old_new_test&amp;do=create"
+        rel="nofollow">?</a>size</span>
+    
+    </div>
+
+Any suggestions gladly received. -- [[Jon]]
+
+> Well, you *should* be able to do things like this, and in my testing, I
+> *can*. I used your exact example above (removing the backslash escape)
+> and invoked it as:
+>	\[[!template id=test href=himom.png size=100x]]
+> 
+> And got just what you would expect.
+> 
+> I don't know what went wrong for you, but I don't see a bug here. 
+> My guess, at the moment, is that you didn't specify the required href
+> and size parameters when using the template. If I leave those off,
+> I of course reproduce what you reported, since the img directive gets
+> called with no filename, and so assumes the size parameter is the image
+> to display.. [[done]]? --[[Joey]] 
+
+>> Hmm, eek. Just double-checked, and done a full rebuild. No dice! Version 3.20100831. Feel free to leave this marked done, It probably *is* PEBKAC. I shall look again in day time. -- [[Jon]]
+
+>>> As always, if you'd like to mail me a larger test case that reproduces a
+>>> problem for you, I can take a look at it. --[[Joey]]
+
+>>>> <s>Thank you for the offer.  I might still take you up on it.  I've just proven that this
+>>>> does work for a clean repo / bare bones test case. -- [[Jon]]</s> Figured it out. The
+>>>> problem was I'd copied a page (old_new) which had two images embedded in it to test.
+>>>> I'd stored the images under a subdir "old_new". The new page was called "old_new_test"
+>>>> and the images thus could not be found by a pagespec "some-image.jpg". Adjusting the
+>>>> href argument to the template (consequently the src argument to img) to
+>>>> "old_new/some-image.jpg" fixed it all. [[done]], PEBKAC. Thank you for your time :)
+>>>> -- [[Jon]]

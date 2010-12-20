@@ -1,0 +1,28 @@
+What I wanted
+-------------
+
+I thought to myself it would be nice to see from the console the dates that my ikiwiki blog posts were published.  Especially as I would like to know the order of my todo list without having to view the webpage.
+
+What I discovered
+-----------------
+
+Looked at the code and saw the functions for grabbing the ctime from git but couldn't reconcile them to the "Posted" date in the RSS feed.  Some more reading and I figured out that the Posted time is taken from the UNIX ctime when first uploaded into the repository and this information is stored in the page state via a Perl storable database - indexdb. (I'm sure most know this but to be clear in UNIX ctime is *not* the actual creation time of a file. UNIX has no facility for recording the actual creation time - however on first upload to the wiki it's good enough).
+
+Wrote a Perl script to query and sort indexdb.  Now I can list my todos or blog posts in the order they appear on the web.  Handy.
+
+However the ikiwiki state is specifically excluded via '.gitignore'.  I work a lot on trains and not having this file in my cloned wiki means I can't list published posts or my todos in the proper order.  I can get an approximation from git logs but, dam it, I want it the same!
+
+What can I do?
+--------------
+
+Is it a spectacularly bad idea to include the ikiwiki state file in my cloned repo (I suspect it is).  What else could be done?  Can I disable pagestate somehow or force ikiwiki to always use git commit times for Posted times?
+
+> Have you tried running ikiwiki with the `--gettime` option on your laptop,
+> to force it to retrieve initial commit times from git? You should only
+> need to do that once, and it'll be cached in the pagestate thereafter.
+>
+> Because that functionality is slow on every supported VCS except git,
+> ikiwiki tries to avoid using it unless it's really needed. [[rcs]]
+> lists it as "fast" for git, though, so depending how fast it really is
+> and how large your wiki is, you might be able to get away with running
+> ikiwiki with `--gettime` all the time? --[[smcv]]

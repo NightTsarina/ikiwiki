@@ -1,0 +1,29 @@
+[[!template id=gitbranch branch=jmtd/img_use_template author="[[Jon]]"]]
+
+Not finished! :-)
+
+The patches in <http://github.com/jmtd/ikiwiki/tree/img_use_template> convert the `img.pm` plugin to use a template (by default, `img.tmpl`, varied using a `template=` parameter) rather than hard-code the generated HTML.
+
+I originally thought of this to solve the problem outlined in [[bugs/can't mix template vars inside directives]], before I realised I could wrap the `img` call in my pages with a template to achieve the same thing.  I therefore sat on it.
+
+However, I since thought of another use for this, and so started implementing it. (note to self: explain this other use)
+
+----
+
+Ok, I have managed to achieve what I wanted with stock ikiwiki, this branch might not have any more life left in it (but it has proven an interesting experiment to see how much logic could be moved from `img.pm` into a template relatively easily. Although the template is not terribly legible.)
+
+My ikiwiki page has a picture on the front page.  I've changed that picture just once, but I would like to change it again from time to time.  I also want to keep a "gallery", or at least a list, of previous pictures, and perhaps include text alongside each picture, but not on the front page.
+
+I've achieved this as follows
+
+ * each index picture gets a page under "indexpics".
+ * the "indexpics" page has a raw inline to include them all[1]
+ * the front page has more-or-less the same inline, with show=1
+ * each index picture page has a [[plugins/conditional]]:
+   * if you are being included, show the resized picture only, and link the picture to the relevant indexpic page
+   * else, show the picture with the default link to a full-size image, and include explanatory text.
+ * most of the boilerplate is hidden inside a template
+
+It is not quite as I envisaged it: the explanatory text would probably make sense on the indexpics "gallery" page, but since that includes the page, the wrong trouser-leg of the conditional is used.  But it works quite well.  Introducing a new index picture involves creating an appropriate page under indexpics and the rest happens automatically.
+
+[1] lie #1: the pagespec is a lot more complex as it has to exclude raw image filetypes

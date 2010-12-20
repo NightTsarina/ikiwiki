@@ -237,7 +237,7 @@ sub preprocess {
 	}
 
 	if ($params{page} =~ m/\/\Q$config{comments_pagename}\E\d+_/) {
-		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page}), undef, 1).
+		$pagestate{$page}{meta}{permalink} = urlto(IkiWiki::dirname($params{page})).
 			"#".page_to_id($params{page});
 	}
 
@@ -301,7 +301,7 @@ sub editcomment ($$) {
 		required => [qw{editcontent}],
 		javascript => 0,
 		params => $cgi,
-		action => $config{cgiurl},
+		action => IkiWiki::cgiurl(),
 		header => 0,
 		table => 0,
 		template => { template('editcomment.tmpl') },
@@ -372,7 +372,7 @@ sub editcomment ($$) {
 		error(gettext("bad page name"));
 	}
 
-	my $baseurl = urlto($page, undef, 1);
+	my $baseurl = urlto($page);
 
 	$form->title(sprintf(gettext("commenting on %s"),
 			IkiWiki::pagetitle($page)));
@@ -385,8 +385,7 @@ sub editcomment ($$) {
 
 	if ($form->submitted eq CANCEL) {
 		# bounce back to the page they wanted to comment on, and exit.
-		# CANCEL need not be considered in future
-		IkiWiki::redirect($cgi, urlto($page, undef, 1));
+		IkiWiki::redirect($cgi, $baseurl);
 		exit;
 	}
 
@@ -552,7 +551,7 @@ sub editcomment ($$) {
 		# Jump to the new comment on the page.
 		# The trailing question mark tries to avoid broken
 		# caches and get the most recent version of the page.
-		IkiWiki::redirect($cgi, urlto($page, undef, 1).
+		IkiWiki::redirect($cgi, urlto($page).
 			"?updated#".page_to_id($location));
 
 	}
@@ -656,6 +655,7 @@ sub commentmoderation ($$) {
 	$template->param(
 		sid => $session->id,
 		comments => \@comments,
+		cgiurl => IkiWiki::cgiurl(),
 	);
 	IkiWiki::printheader($session);
 	my $out=$template->output;
@@ -727,6 +727,10 @@ sub previewcomment ($$$) {
 	my $page=shift;
 	my $time=shift;
 
+	# Previewing a comment should implicitly enable comment posting mode.
+	my $oldpostcomment=$postcomment;
+	$postcomment=1;
+
 	my $preview = IkiWiki::htmlize($location, $page, '_comment',
 			IkiWiki::linkify($location, $page,
 			IkiWiki::preprocess($location, $page,
@@ -744,6 +748,8 @@ sub previewcomment ($$$) {
 	});
 
 	$template->param(have_actions => 0);
+
+	$postcomment=$oldpostcomment;
 
 	return $template->output;
 }
@@ -804,14 +810,14 @@ sub pagetemplate (@) {
 	if ($shown) {
 		if ($template->query(name => 'commentsurl')) {
 			$template->param(commentsurl =>
-				urlto($page, undef, 1).'#comments');
+				urlto($page).'#comments');
 		}
 
 		if ($template->query(name => 'atomcommentsurl') && $config{usedirs}) {
 			# This will 404 until there are some comments, but I
 			# think that's probably OK...
 			$template->param(atomcommentsurl =>
-				urlto($page, undef, 1).'comments.atom');
+				urlto($page).'comments.atom');
 		}
 
 		if ($template->query(name => 'commentslink')) {
@@ -941,14 +947,16 @@ sub match_comment ($$;@) {
 	my $page = shift;
 	my $glob = shift;
 
-	# To see if it's a comment, check the source file type.
-	# Deal with comments that were just deleted.
-	my $source=exists $IkiWiki::pagesources{$page} ?
-		$IkiWiki::pagesources{$page} :
-		$IkiWiki::delpagesources{$page};
-	my $type=defined $source ? IkiWiki::pagetype($source) : undef;
-	if (! defined $type || $type ne "_comment") {
-		return IkiWiki::FailReason->new("$page is not a comment");
+	if (! $postcomment) {
+		# To see if it's a comment, check the source file type.
+		# Deal with comments that were just deleted.
+		my $source=exists $IkiWiki::pagesources{$page} ?
+			$IkiWiki::pagesources{$page} :
+			$IkiWiki::delpagesources{$page};
+		my $type=defined $source ? IkiWiki::pagetype($source) : undef;
+		if (! defined $type || $type ne "_comment") {
+			return IkiWiki::FailReason->new("$page is not a comment");
+		}
 	}
 
 	return match_glob($page, "$glob/*", internal => 1, @_);

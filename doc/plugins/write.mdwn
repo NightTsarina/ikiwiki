@@ -1,4 +1,4 @@
-Ikiwiki's plugin interface allows all kinds of useful [[plugins]] to be
+lkiwiki's plugin interface allows all kinds of useful [[plugins]] to be
 written to extend ikiwiki in many ways. Despite the length of this page,
 it's not really hard. This page is a complete reference to everything a
 plugin might want to do. There is also a quick [[tutorial]].
@@ -177,10 +177,15 @@ function is passed no values.
 
 	hook(type => "needsbuild", id => "foo", call => \&needsbuild);
 
-This allows a plugin to manipulate the list of files that need to be
-built when the wiki is refreshed. The function is passed a reference to an
-array of files that will be rebuilt, and can modify the array, either
-adding or removing files from it.
+This allows a plugin to observe or even manipulate the list of files that
+need to be built when the wiki is refreshed. 
+
+As its first parameter, the function is passed a reference to an array of
+files that will be built. It should return an array reference that is a
+modified version of its input. It can add or remove files from it.
+
+The second parameter passed to the function is a reference to an array of
+files that have been deleted.
 
 ### scan
 
@@ -735,6 +740,8 @@ with no ".tmpl" extension. Template pages are normally looked for in
 the templates/ directory. If the page name starts with "/", a page
 elsewhere in the wiki can be used.
 
+If the template is not found, or contains a syntax error, an error is thrown.
+
 ### `template_depends($$;@)`
 
 Use this instead of `template()` if the content of a template is being
@@ -975,14 +982,19 @@ This is the standard gettext function, although slightly optimised.
 
 This is the standard ngettext function, although slightly optimised.
 
-### `urlto($$;$)`
+### `urlto($;$$)`
 
 Construct a relative url to the first parameter from the page named by the
 second. The first parameter can be either a page name, or some other
 destination file, as registered by `will_render`.
 
-If the third parameter is passed and is true, an absolute url will be
-constructed instead of the default relative url.
+If the second parameter is not specified (or `undef`), the URL will be
+valid from any page on the wiki, or from the CGI; if possible it'll
+be a path starting with `/`, but an absolute URL will be used if
+the wiki and the CGI are on different domains.
+
+If the third parameter is passed and is true, the url will be a fully
+absolute url. This is useful when generating an url to publish elsewhere.
 
 ### `newpagefile($$)`
 
@@ -1147,8 +1159,6 @@ context, and the whole diff in scalar context.
 This is used to get the page creation time for a file from the RCS, by looking
 it up in the history.
 
-It's ok if this is not implemented, and throws an error.
-
 If the RCS cannot determine a ctime for the file, return 0.
 
 #### `rcs_getmtime($)`
@@ -1169,9 +1179,9 @@ sense to implement for all RCSs.
 
 It should examine the incoming changes, and do any sanity 
 checks that are appropriate for the RCS to limit changes to safe file adds,
-removes, and changes. If something bad is found, it should exit
-nonzero, to abort the push. Otherwise, it should return a list of
-files that were changed, in the form:
+removes, and changes. If something bad is found, it should die, to abort
+the push. Otherwise, it should return a list of files that were changed,
+in the form:
 
 	{
 		file => # name of file that was changed
@@ -1183,6 +1193,28 @@ files that were changed, in the form:
 
 The list will then be checked to make sure that each change is one that
 is allowed to be made via the web interface.
+
+#### `rcs_preprevert($)`
+
+This is called by the revert web interface. It is passed a RCS-specific
+change ID, and should determine what the effects would be of reverting
+that change, and return the same data structure as `rcs_receive`.
+
+Like `rcs_receive`, it should do whatever sanity checks are appropriate
+for the RCS to limit changes to safe changes, and die if a change would
+be unsafe to revert.
+
+#### `rcs_revert($)`
+
+This is called by the revert web interface. It is passed a named
+parameter rev that is the RCS-specific change ID to revert.
+
+It should try to revert the specified rev, and leave the reversion staged
+so `rcs_commit_staged` will complete it. It should return undef on _success_
+and an error message on failure.
+
+This hook and `rcs_preprevert` are optional, if not implemented, no revert
+web interface will be available.
 
 ### PageSpec plugins
 

@@ -1,0 +1,27 @@
+The [[plugins/img]] plugin is not generating the proper `class`
+attribute in its HTML output.
+
+The plugin receives something like the following:
+
+    \[[!img 129199047595759991.jpg class="centered"]]
+
+And is supossed to generate an HTML code like the following:
+
+    <img src="129199047595759991.jpg" class="centered" />
+
+But is generating the following
+
+    <img src="129199047595759991.jpg" class="centered img" />
+
+This seems to be happening with all images inserted using the plugin (that use
+the `class=yaddayadda` argument to the `img` directive.) I remember it didn't
+happen before, and I suspect an ikiwiki upgrade is to blame. I tested with a
+blog created from scratch, and a single post, and the problem appeared there
+too.
+
+This is happening with version 3.20100815 of ikiwiki.
+
+[[jerojasro]]
+
+> How is this a bug? It's perfectly legal html for a class attribute to 
+> put an element into multiple classes. [[notabug|done]] --[[Joey]] 

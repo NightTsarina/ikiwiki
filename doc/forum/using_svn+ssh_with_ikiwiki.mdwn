@@ -1,0 +1,11 @@
+Just as an experiment, I tried running ikiwiki using a remote repository, i.e. via "svn+ssh". After setting up the repo and relocating the working copy, unfortunately, it doesn't work; editing a page gives the error:
+
+> Error: no element found at line 3, column 0, byte 28 at /opt/local/lib/perl5/vendor_perl/5.10.1/darwin-multi-2level/XML/Parser.pm line 187
+
+I think this is because, despite a SetEnv directive in the apache configuration, the CGI wrapper is expunging SVN_SSH from the environment (based on perusing the source of Wrapper.pm and looking at "envsave" there at the top). Is this the case? --[[Glenn|geychaner@mac.com]]
+
+> That seems likely. You can edit Wrapper.pm and add SVN_SSH to the @envsave list and rebuild your wrappers to test it. --Joey
+
+A better way(?) would be to add a plugin to set the SVN_SSH variable at the appropriate moment (or even to add this to the SVN plugin).  What kind of hook should this be; it needs to run just *after* the CGI script cleans its environment? --[[Glenn|geychaner@mac.com]]
+
+Actually, this probably doesn't need to be a plugin; setting SVN_SSH in ENV can probably be done through the setup file.  (Right?)  --[[Glenn|geychaner@mac.com]]
