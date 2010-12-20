@@ -3,9 +3,25 @@ signature changes. Else a wiki with the po plugin enabled cannot be
 refreshed / rebuilt because of (correct) Perl errors.
 
 My po branch contains a fix.
+--[[intrigeri]]
+
+> The commit looks sane to me, for what it's worth. Joey, please
+> consider merging? --[[smcv]]
 
 Also, I fear the lack of any useful `$from` parameter might break some
 l10n'd link niceness when using `po_link_to = current` but I have not
 investigated this yet.
-
 --[[intrigeri]]
+
+> If `urlto` is called without a second parameter, it means we need
+> a URL valid from either the CGI URL or any page in the wiki,
+> (so we'd previously have set the third parameter true), but we
+> don't *necessarily* need an absolute URL - so return what you'd
+> have returned if asked for an absolute URL, but looking like
+> `/bugs/` rather than `http://ikiwiki.info/bugs/` if possible.
+>
+> It looks as though `beautify_urlpath` under `po_link_to = current`,
+> and 3-argument `urlto`, aren't tested by `t/po.t` - perhaps you
+> could add some test cases there? To test 3-argument `urlto` you'd
+> need to add `$config{baseurl} = "http://example.com"` or
+> something. --[[smcv]]
