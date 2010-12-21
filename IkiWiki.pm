@@ -544,7 +544,7 @@ sub checkconfig () {
 		error(gettext("Must specify url to wiki with --url when using --cgi"));
 	}
 
-	if (length $config{url}) {
+	if (defined $config{url} && length $config{url}) {
 		eval q{use URI};
 		my $baseurl = URI->new($config{url});
 
