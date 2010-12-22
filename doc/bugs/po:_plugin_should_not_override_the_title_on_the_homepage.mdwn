@@ -18,7 +18,25 @@ Here is a simple patch for that:
 
 Thanks.
 
-> I fixed this patch and applied in my po branch, thanks.
-> (This is commit 406485917, please pull.) --[[intrigeri]]
+> I fixed this patch a bit and applied it to my po branch, thanks
+> (commit 406485917).
+>
+> But... a bug (probably in HTML::Template) prevents this
+> theoretically correct solution to actually work.
+> Setting a parameter that does not appear in the template, such as
+> `title_overridden`, is not working on my install: the value does not
+> seem to be stored anywhere, and when accessing it later using
+> `$template->param('title_overridden')` it is always undef.
+> Adding `<TMPL_IF TMPL_VAR TITLE_OVERRIDDEN></TMPL_IF>` in
+> `page.tmpl` is a working, but ugly workaround.
+>
+> I am nevertheless in favour of merging the fix into ikiwiki.
+> We'll then need to find how to find the remaining (smaller) bug so
+> that this code can actually work.
+>
+> I'd like others to test my po branch and see if they can reproduce
+> the bug I am talking of.
+>
+> --[[intrigeri]]
 
 >> Commit 406485917 looks fine to me, FWIW --[[smcv]]
