@@ -367,7 +367,8 @@ sub pagetemplate (@) {
 	    && $masterpage eq "index") {
 		$template->param('parentlinks' => []);
 	}
-	if (ishomepage($page) && $template->query(name => "title")) {
+	if (ishomepage($page) && $template->query(name => "title")
+	    && !$template->param("title_overridden")) {
 		$template->param(title => $config{wikiname});
 	}
 }
