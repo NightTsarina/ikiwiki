@@ -1,0 +1,19 @@
+The po plugin systematically overrides the title of the homepage with the wikiname. This prevents explicitly changing it with a meta directive. It should rather check whether it was overridden before setting it back.
+
+Here is a simple patch for that:
+
+    diff --git a/Plugin/po.pm b/Plugin/po.pm
+    index 6395ebd..a048c6a 100644
+    --- a/Plugin/po.pm
+    +++ b/Plugin/po.pm
+    @@ -333,7 +333,7 @@ sub pagetemplate (@) {
+                && $masterpage eq "index") {
+                    $template->param('parentlinks' => []);
+            }
+    -       if (ishomepage($page) && $template->query(name => "title")) {
+    +       if (ishomepage($page) && $template->query(name => "title") && !$template->query(name => "title_overridden")) {
+                    $template->param(title => $config{wikiname});
+            }
+     }
+
+Thanks.
