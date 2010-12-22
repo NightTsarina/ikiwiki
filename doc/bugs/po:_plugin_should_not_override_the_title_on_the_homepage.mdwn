@@ -40,3 +40,17 @@ Thanks.
 > --[[intrigeri]]
 
 >> Commit 406485917 looks fine to me, FWIW --[[smcv]]
+
+>>> I tracked the HTML::Template bug (or missing documentation?) a bit
+>>> more. This lead to commit b2a2246ba in my po branch, that enables
+>>> HTML::Template's parent_global_vars option which makes
+>>> title_overridden work.
+>>>
+>>> OTOH I feel this workaround is a bit ugly as this option is not
+>>> documented. IMHO being forced to use it reveals a bug in
+>>> HTML::Template. I reported this:
+>>> https://rt.cpan.org/Public/Bug/Display.html?id=64158.
+>>>
+>>> But still, I think we need to apply the workaround as
+>>> HTML::Template's author has not updated any dist on CPAN for more
+>>> than one year. --[[intrigeri]]
