@@ -1891,6 +1891,7 @@ sub template_depends ($$;@) {
 		},
 		loop_context_vars => 1,
 		die_on_bad_params => 0,
+		parent_global_vars => 1,
 		filename => $filename,
 		@_,
 		($untrusted ? (no_includes => 1) : ()),
