@@ -131,7 +131,7 @@ sub sessioncgi ($$) {
 		$q->param('page', $page.$add);
 		# now go create the page
 		$q->param('do', 'create');
-		# make sure the editpage plugin in loaded
+		# make sure the editpage plugin is loaded
 		if (IkiWiki->can("cgi_editpage")) {
 			IkiWiki::cgi_editpage($q, $session);
 		}
