@@ -22,6 +22,7 @@ $config{wiki_file_chars} = "-[:alnum:]+/.:_";
 $config{userdir} = "users";
 $config{tagbase} = "tags";
 $config{tag_autocreate} = 1;
+$config{tag_autocreate_commit} = 1;
 $config{default_pageext} = "mdwn";
 $config{wiki_file_prune_regexps} = [qr/^\./];
 $config{underlaydirbase} = '.';
