@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 24;
+use Test::More tests => 26;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -19,8 +19,7 @@ is(IkiWiki::cgiurl(cgiurl => $config{cgiurl}), "http://smcv.example.co.uk/cgi-bi
 is(IkiWiki::cgiurl(cgiurl => $config{cgiurl}, do => 'badger'), "http://smcv.example.co.uk/cgi-bin/ikiwiki.cgi?do=badger");
 is(IkiWiki::urlto('index', undef, 1), "http://smcv.example.co.uk/");
 is(IkiWiki::urlto('stoats', undef, 1), "http://smcv.example.co.uk/stoats/");
-# FIXME: this actually produces / not the desired absolute URL
-#is(IkiWiki::urlto('', undef, 1), "http://smcv.example.co.uk/");
+is(IkiWiki::urlto('', undef, 1), "http://smcv.example.co.uk/");
 
 # "local" (absolute path within site) version (default for cgiurl)
 is(IkiWiki::cgiurl(), "/cgi-bin/ikiwiki.cgi");
@@ -49,5 +48,4 @@ is(IkiWiki::checkconfig(), 1);
 is(IkiWiki::cgiurl(), "http://dynamic.example.co.uk/~smcv/ikiwiki.cgi");
 is(IkiWiki::baseurl(undef), "http://example.co.uk/~smcv/");
 is(IkiWiki::urlto('stoats', undef), "http://example.co.uk/~smcv/stoats/");
-# FIXME: this actually produces ./http://example.co.uk/~smcv/
-#is(IkiWiki::urlto('', undef), "http://example.co.uk/~smcv/");
+is(IkiWiki::urlto('', undef), "http://example.co.uk/~smcv/");
