@@ -291,7 +291,7 @@ sub cgi_editpage ($$) {
 				value => $best_loc);
 			$form->field(name => "type", type => 'select',
 				options => \@page_types);
-			$form->title(sprintf(gettext("creating %s"), pagetitle($page)));
+			$form->title(sprintf(gettext("creating %s"), pagetitle(basename($page))));
 			
 		}
 		elsif ($form->field("do") eq "edit") {
@@ -309,7 +309,7 @@ sub cgi_editpage ($$) {
 			$form->tmpl_param("page_select", 0);
 			$form->field(name => "page", type => 'hidden');
 			$form->field(name => "type", type => 'hidden');
-			$form->title(sprintf(gettext("editing %s"), pagetitle($page)));
+			$form->title(sprintf(gettext("editing %s"), pagetitle(basename($page))));
 		}
 		
 		showform($form, \@buttons, $session, $q,

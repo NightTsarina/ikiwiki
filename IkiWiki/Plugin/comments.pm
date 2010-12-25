@@ -375,7 +375,7 @@ sub editcomment ($$) {
 	my $baseurl = urlto($page);
 
 	$form->title(sprintf(gettext("commenting on %s"),
-			IkiWiki::pagetitle($page)));
+			IkiWiki::pagetitle(IkiWiki::basename($page))));
 
 	$form->tmpl_param('helponformattinglink',
 		htmllink($page, $page, 'ikiwiki/formatting',
