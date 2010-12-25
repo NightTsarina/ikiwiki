@@ -16,6 +16,8 @@ sub import {
 	hook(type => "sessioncgi", id => "recentchanges", call => \&sessioncgi);
 	# Load goto to fix up links from recentchanges
 	IkiWiki::loadplugin("goto");
+	# ... and transient as somewhere to put our internal pages
+	IkiWiki::loadplugin("transient");
 }
 
 sub getsetup () {
@@ -57,6 +59,7 @@ sub refresh ($) {
 	foreach my $page (keys %pagesources) {
 		if ($pagesources{$page} =~ /\._change$/ && ! $seen{$page}) {
 			unlink($config{srcdir}.'/'.$pagesources{$page});
+			unlink($IkiWiki::Plugin::transient::transientdir.'/'.$pagesources{$page});
 		}
 	}
 }
@@ -234,8 +237,8 @@ sub store ($$$) {
 	});
 
 	my $file=$page."._change";
-	writefile($file, $config{srcdir}, $template->output);
-	utime $change->{when}, $change->{when}, "$config{srcdir}/$file";
+	writefile($file, $IkiWiki::Plugin::transient::transientdir, $template->output);
+	utime $change->{when}, $change->{when}, $IkiWiki::Plugin::transient::transientdir.'/'.$file;
 
 	return $page;
 }
