@@ -27,7 +27,9 @@ content for the edit box; after that, it'd become a static page. --[[smcv]]
 I think this branch is now enough to be useful. It adds the following:
 
 If the `transient` plugin is loaded, `$srcdir/.ikiwiki/transient` is added
-as an underlay.
+as an underlay. I'm not sure whether this should be a plugin or core, so
+I erred on the side of more plugins; I think it's "on the edge of the core",
+like goto.
 
 Pages with the default extension in the transient underlay are automatically
 deleted if a page of the same name is created in the srcdir (or an underlay
@@ -35,26 +37,30 @@ closer to the srcdir in stacking order).
 
 `tag` enables `transient`, and if `tag_autocreate_commit` is set to 0
 (default 1), autocreated tags are written to the transient underlay.
+There is a regression test.
 
 `autoindex` uses autofiles. It also enables `transient`, and if
 `autoindex_commit` is set to 0 (default 1), autoindexes are written to
-the transient underlay.
+the transient underlay. There is a regression test.
 
 autoindex ignores pages in the transient underlay when deciding whether
 to generate an index.
 
-Not done yet:
+New recent changes go in the transient underlay; I tested this manually.
 
-`remove` can't remove transient pages: this turns out to be harder than
-I'd hoped, because I don't want to introduce a vulnerability in the
-non-regular-file detection...
+Not done yet (in that branch, at least):
 
-Transient tags that don't match any pages aren't deleted: I'm not sure
-that that's a good idea anyway, though. Similarly, transient autoindexes
-of directories that become empty aren't deleted.
+* `remove` can't remove transient pages: this turns out to be harder than
+  I'd hoped, because I don't want to introduce a vulnerability in the
+  non-regular-file detection, so I'd rather defer that.
 
-Recent changes and aggregated files could conceivably go in the transient
-underlay too.
+* Transient tags that don't match any pages aren't deleted: I'm not sure
+  that that's a good idea anyway, though. Similarly, transient autoindexes
+  of directories that become empty aren't deleted.
+
+* In my `untested/transient` branch, new aggregated files go in the
+  transient underlay too (they'll naturally migrate over time). I haven't
+  tested this yet, it's just a proof-of-concept.
 
 > I can confirm that the behavior of autoindex, at least, is excellent.
 > Haven't tried tag. Joey, can you merge transient and autoindex? --JoeRayhawk
