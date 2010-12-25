@@ -1140,7 +1140,7 @@ sub urlto ($;$$) {
 	my $absolute=shift;
 	
 	if (! length $to) {
-		return beautify_urlpath(baseurl($from)."index.$config{htmlext}");
+		$to = 'index';
 	}
 
 	if (! $destsources{$to}) {
