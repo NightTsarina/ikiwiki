@@ -321,3 +321,11 @@ Potential future things:
   >> to the top of the wiki --[[smcv]]
 
 [[merged|done]] --[[Joey]] 
+
+----
+
+Update: I had to revert part of 296e5cb2fd3690e998b3824d54d317933c595873,
+since it broke openid logins. The openid object requires a complete,
+not a relative cgiurl. I'm not sure if my changing that back to using
+`$config{cgiurl}` will force users back to eg, the non-https version of a
+site when logging in via openid. smcv? --[[Joey]] 

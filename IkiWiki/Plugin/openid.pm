@@ -148,7 +148,7 @@ sub validate ($$$;$) {
 	}
 
 	my $cgiurl=$config{openid_cgiurl};
-	$cgiurl=IkiWiki::cgiurl() if ! defined $cgiurl;
+	$cgiurl=$config{cgiurl} if ! defined $cgiurl;
 
 	my $trust_root=$config{openid_realm};
 	$trust_root=$cgiurl if ! defined $trust_root;
@@ -249,7 +249,7 @@ sub getobj ($$) {
 	}
 	
 	my $cgiurl=$config{openid_cgiurl};
-	$cgiurl=IkiWiki::cgiurl() if ! defined $cgiurl;
+	$cgiurl=$config{cgiurl} if ! defined $cgiurl;
 
 	return Net::OpenID::Consumer->new(
 		ua => $ua,
