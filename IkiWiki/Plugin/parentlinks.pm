@@ -65,7 +65,7 @@ sub pagetemplate (@) {
         my $template=$params{template};
 
 	if ($template->query(name => "parentlinks") ||
- 	   $template->query(name => "has_parentlinks")) {
+	    $template->query(name => "has_parentlinks")) {
 		my @links=parentlinks($params{page});
 		$template->param(parentlinks => \@links);
 		$template->param(has_parentlinks => (@links > 0));
