@@ -26,6 +26,7 @@ $config{userdir} = "users";
 $config{tagbase} = "tags";
 $config{default_pageext} = "mdwn";
 $config{wiki_file_prune_regexps} = [qr/^\./];
+$config{autoindex_commit} = 1;
 
 is(checkconfig(), 1);
 

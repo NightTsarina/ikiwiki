@@ -9,11 +9,20 @@ use Encode;
 sub import {
 	hook(type => "getsetup", id => "autoindex", call => \&getsetup);
 	hook(type => "refresh", id => "autoindex", call => \&refresh);
+	IkiWiki::loadplugin("transient");
 }
 
 sub getsetup () {
 	return
 		plugin => {
+			safe => 1,
+			rebuild => 0,
+		},
+		autoindex_commit => {
+			type => "boolean",
+			example => 1,
+			default => 1,
+			description => "commit autocreated index pages",
 			safe => 1,
 			rebuild => 0,
 		},
@@ -28,11 +37,16 @@ sub genindex ($) {
 				$page);
 			debug($message);
 
+			my $dir = $config{srcdir};
+			if (! $config{autoindex_commit}) {
+				$dir = $IkiWiki::Plugin::transient::transientdir;
+			}
+
 			my $template = template("autoindex.tmpl");
 			$template->param(page => $page);
-			writefile($file, $config{srcdir}, $template->output);
+			writefile($file, $dir, $template->output);
 
-			if ($config{rcs}) {
+			if ($config{rcs} && $config{autoindex_commit}) {
 				IkiWiki::disable_commit_hook();
 				IkiWiki::rcs_add($file);
 				IkiWiki::rcs_commit_staged(message => $message);
