@@ -17,7 +17,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 91;
+use Test::More tests => 93;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -192,6 +192,10 @@ $msgprefix="beautify_urlpath (po_link_to=negotiated)";
 is(IkiWiki::beautify_urlpath('test1/index.html'), './test1/', "$msgprefix test1/index.html");
 is(IkiWiki::beautify_urlpath('test1/index.en.html'), './test1/', "$msgprefix test1/index.en.html");
 is(IkiWiki::beautify_urlpath('test1/index.fr.html'), './test1/', "$msgprefix test1/index.fr.html");
+$config{po_link_to}='current';
+$msgprefix="beautify_urlpath (po_link_to=current)";
+is(IkiWiki::beautify_urlpath('test1/index.en.html'), './test1/index.en.html', "$msgprefix test1/index.en.html");
+is(IkiWiki::beautify_urlpath('test1/index.fr.html'), './test1/index.fr.html', "$msgprefix test1/index.fr.html");
 
 ### re-scan
 refresh_n_scan('index.mdwn');
