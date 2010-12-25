@@ -128,7 +128,7 @@ sub sessioncgi ($$) {
 			$add=1 unless length $add;
 			$add++;
 		}
-		$q->param('page', $page.$add);
+		$q->param('page', "/$from/$page$add");
 		# now go create the page
 		$q->param('do', 'create');
 		# make sure the editpage plugin is loaded
