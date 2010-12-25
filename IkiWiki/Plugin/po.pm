@@ -367,7 +367,8 @@ sub pagetemplate (@) {
 	    && $masterpage eq "index") {
 		$template->param('parentlinks' => []);
 	}
-	if (ishomepage($page) && $template->query(name => "title")) {
+	if (ishomepage($page) && $template->query(name => "title")
+	    && !$template->param("title_overridden")) {
 		$template->param(title => $config{wikiname});
 	}
 }
@@ -635,7 +636,7 @@ sub mytargetpage ($$) {
 	return $origsubs{'targetpage'}->($page, $ext);
 }
 
-sub myurlto ($$;$) {
+sub myurlto ($;$$) {
 	my $to=shift;
 	my $from=shift;
 	my $absolute=shift;
@@ -644,7 +645,12 @@ sub myurlto ($$;$) {
 	if (! length $to
 	    && $config{po_link_to} eq "current"
 	    && istranslatable('index')) {
-		return IkiWiki::beautify_urlpath(IkiWiki::baseurl($from) . "index." . lang($from) . ".$config{htmlext}");
+		if (defined $from) {
+			return IkiWiki::beautify_urlpath(IkiWiki::baseurl($from) . "index." . lang($from) . ".$config{htmlext}");
+		}
+		else {
+			return $origsubs{'urlto'}->($to,$from,$absolute);
+		}
 	}
 	# avoid using our injected beautify_urlpath if run by cgi_editpage,
 	# so that one is redirected to the just-edited page rather than to the
