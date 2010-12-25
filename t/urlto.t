@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 21;
+use Test::More tests => 24;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -19,6 +19,8 @@ is(IkiWiki::cgiurl(cgiurl => $config{cgiurl}), "http://smcv.example.co.uk/cgi-bi
 is(IkiWiki::cgiurl(cgiurl => $config{cgiurl}, do => 'badger'), "http://smcv.example.co.uk/cgi-bin/ikiwiki.cgi?do=badger");
 is(IkiWiki::urlto('index', undef, 1), "http://smcv.example.co.uk/");
 is(IkiWiki::urlto('stoats', undef, 1), "http://smcv.example.co.uk/stoats/");
+# FIXME: this actually produces / not the desired absolute URL
+#is(IkiWiki::urlto('', undef, 1), "http://smcv.example.co.uk/");
 
 # "local" (absolute path within site) version (default for cgiurl)
 is(IkiWiki::cgiurl(), "/cgi-bin/ikiwiki.cgi");
@@ -28,10 +30,13 @@ is(IkiWiki::urlto('index', undef), "/");
 is(IkiWiki::urlto('index'), "/");
 is(IkiWiki::urlto('stoats', undef), "/stoats/");
 is(IkiWiki::urlto('stoats'), "/stoats/");
+is(IkiWiki::urlto(''), "/");
 
 # fully-relative version (default for urlto and baseurl)
 is(IkiWiki::baseurl('badger/mushroom'), "../../");
 is(IkiWiki::urlto('badger/mushroom', 'snake'), "../badger/mushroom/");
+is(IkiWiki::urlto('', 'snake'), "../");
+is(IkiWiki::urlto('', 'penguin/herring'), "../../");
 
 # explicit cgiurl override
 is(IkiWiki::cgiurl(cgiurl => 'https://foo/ikiwiki'), "https://foo/ikiwiki");
@@ -44,3 +49,5 @@ is(IkiWiki::checkconfig(), 1);
 is(IkiWiki::cgiurl(), "http://dynamic.example.co.uk/~smcv/ikiwiki.cgi");
 is(IkiWiki::baseurl(undef), "http://example.co.uk/~smcv/");
 is(IkiWiki::urlto('stoats', undef), "http://example.co.uk/~smcv/stoats/");
+# FIXME: this actually produces ./http://example.co.uk/~smcv/
+#is(IkiWiki::urlto('', undef), "http://example.co.uk/~smcv/");
