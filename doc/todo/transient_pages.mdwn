@@ -15,9 +15,9 @@ This would also be useful for autoindex, as suggested on
 [[plugins/autoindex/discussion]]. I'd also like to use it for
 [[plugins/contrib/album]].
 
-One refinement I'd suggest is that if the transient page is edited,
-its transient contents are evaluated and used as the initial
-content for the edit box; after that, it'd become a static page. --[[smcv]]
+It could also be used for an [[todo/alias_directive]].
+
+--[[smcv]]
 
 --------------------------
 
@@ -52,17 +52,39 @@ the transient underlay. There is a regression test.
 >   but does it make sense to make that wart larger?
 > * You can know you can build the same site with nothing missing
 >   even if you don't there enable autoindex or whatever. (Edge case.)
-> 
+
+>> I'm not sure that that's a huge wart; you can always "edit by
+>> overwriting". If you're running a local clone of the wiki on your laptop
+>> or whatever, you have the underlays already, and can copy from there.
+>> Tag and autoindex pages have rather simple source code anyway. --s
+
 > The benefit of using transient pages seems to just be avoiding commit
 > clutter? For files that are never committed, transient pages are a clear
 > win, but I wonder if adding configuration clutter just to avoid some 
 > commit clutter is really worth it.
-> 
+
+>> According to the last section of
+>> [[todo/auto-create_tag_pages_according_to_a_template]], chrysn and
+>> Eric both feel rather strongly that it should be possible to
+>> not commit any tags. I made it configurable because, as you point out,
+>> there are also reasons why it makes sense to check these
+>> automatically-created files in. I'm neutral on this, personally.
+>>
+>> If this is a point of contention, would you accept a branch that
+>> just adds `transient` and uses it for [[plugins/recentchanges]],
+>> which aren't checked in and never have been?
+>>
+>> One potentially relevant point is that configuration clutter only
+>> affects the site admin whereas commit clutter is part of the whole
+>> wiki's history. --[[smcv]]
+
 > Anyway, the configurability
 > appears subtly broken; the default is only 1 if a new setup file is
 > generated. With an existing setup file, the 'default' values in
 > `getsetup` don't take effect, so it will default to undef, which
 > is treated the same as 0. --[[Joey]]
+
+>> Noted. I assume a `checkconfig` hook is the way to fix this. --s
 
 autoindex ignores pages in the transient underlay when deciding whether
 to generate an index.
@@ -78,11 +100,18 @@ Not done yet (in that branch, at least):
   > Hmm, I'd at least want that to be dealt with before this was used
   > by default for autoindex or tag. --[[Joey]]
 
+  >> I'll try to work out which of the checks are required for security
+  >> and which are just nice-to-have, but I'd appreciate any pointers
+  >> you could give. Note that my branch wasn't meant to enable either
+  >> by default. --[[smcv]]
+
 * Transient tags that don't match any pages aren't deleted: I'm not sure
   that that's a good idea anyway, though. Similarly, transient autoindexes
   of directories that become empty aren't deleted.
 
   > Doesn't seem necessary, or really desirable to do that. --[[Joey]]
+
+  >> Good, that was my inclination too. --s
 
 * In my `untested/transient` branch, new aggregated files go in the
   transient underlay too (they'll naturally migrate over time). I haven't
@@ -94,18 +123,46 @@ Not done yet (in that branch, at least):
 >> Here are some other things I'd like to think about first: --[[Joey]] 
 >>
 >> * There's a FIXME in autoindex.
+
+>>> Right, the extra logic for preventing autoindex pages from being
+>>> re-created. I've started on regression tests for this, but I'll
+>>> need to rummage through the commit log for the exact requirements
+>>> and the reasoning behind them, so it could take a while. --s
+
 >> * Suggest making recentchanges unlink the transient page
 >>   first, and only unlink from the old location if it wasn't
 >>   in the transient location. Ok, it only saves 1 syscall :)
+
+>>> Is an unlink() really that expensive? But, OK. --s
+
 >> * Similarly it's a bit worrying for performance that it
 >>   needs to pull in and use `Cwd` on every ikiwiki startup now.
 >>   I really don't see the need; `wikistatedir` should
 >>   mostly be absolute, and ikiwiki should not chdir in ways
 >>   that break it anyway.
+
+>>> The reason to make it absolute is that relative underlays
+>>> are interpreted as relative to the base underlay directory,
+>>> not the cwd. I could conditionalize the use of `Cwd` on
+>>> `wikistatedir` not being absolute, though, which in practice
+>>> will only happen for unusual deployments (like the docwiki);
+>>> or I could add some mechanism by which you can add a
+>>> cwd-relative underlay? --s
+
 >> * Unsure about the use of `default_pageext` in the `change`
 >>   hook. Is everything in the transientdir really going
 >>   to use that pageext? Would it be better to look up the
 >>   complete source filename?
+
+>>> At the moment everything in the transientdir will either
+>>> have the `default_pageext` or be internal, although I
+>>> did wonder whether to make [[plugins/contrib/album]]
+>>> viewer pages optionally be `html`, for better performance
+>>> when there's a very large number of photos.
+>>>
+>>> A more thorough garbage-collection mechanism would be to
+>>> use File::Find on the transient directory; I'll get there
+>>> eventually. --s
 
 --------------------------
 
