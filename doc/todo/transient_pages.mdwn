@@ -43,6 +43,27 @@ There is a regression test.
 `autoindex_commit` is set to 0 (default 1), autoindexes are written to
 the transient underlay. There is a regression test.
 
+> I wonder why this needs to be configurable? I suppose that gets back to
+> whether it makes sense to check these files in or not. The benefits of 
+> checking them in:
+> 
+> * You can edit them from the VCS, don't have to go into the web
+>   interface. Of course, files from the underlays have a similar issue,
+>   but does it make sense to make that wart larger?
+> * You can know you can build the same site with nothing missing
+>   even if you don't there enable autoindex or whatever. (Edge case.)
+> 
+> The benefit of using transient pages seems to just be avoiding commit
+> clutter? For files that are never committed, transient pages are a clear
+> win, but I wonder if adding configuration clutter just to avoid some 
+> commit clutter is really worth it.
+> 
+> Anyway, the configurability
+> appears subtly broken; the default is only 1 if a new setup file is
+> generated. With an existing setup file, the 'default' values in
+> `getsetup` don't take effect, so it will default to undef, which
+> is treated the same as 0. --[[Joey]]
+
 autoindex ignores pages in the transient underlay when deciding whether
 to generate an index.
 
@@ -54,9 +75,14 @@ Not done yet (in that branch, at least):
   I'd hoped, because I don't want to introduce a vulnerability in the
   non-regular-file detection, so I'd rather defer that.
 
+  > Hmm, I'd at least want that to be dealt with before this was used
+  > by default for autoindex or tag. --[[Joey]]
+
 * Transient tags that don't match any pages aren't deleted: I'm not sure
   that that's a good idea anyway, though. Similarly, transient autoindexes
   of directories that become empty aren't deleted.
+
+  > Doesn't seem necessary, or really desirable to do that. --[[Joey]]
 
 * In my `untested/transient` branch, new aggregated files go in the
   transient underlay too (they'll naturally migrate over time). I haven't
@@ -64,6 +90,22 @@ Not done yet (in that branch, at least):
 
 > I can confirm that the behavior of autoindex, at least, is excellent.
 > Haven't tried tag. Joey, can you merge transient and autoindex? --JoeRayhawk
+
+>> Here are some other things I'd like to think about first: --[[Joey]] 
+>>
+>> * There's a FIXME in autoindex.
+>> * Suggest making recentchanges unlink the transient page
+>>   first, and only unlink from the old location if it wasn't
+>>   in the transient location. Ok, it only saves 1 syscall :)
+>> * Similarly it's a bit worrying for performance that it
+>>   needs to pull in and use `Cwd` on every ikiwiki startup now.
+>>   I really don't see the need; `wikistatedir` should
+>>   mostly be absolute, and ikiwiki should not chdir in ways
+>>   that break it anyway.
+>> * Unsure about the use of `default_pageext` in the `change`
+>>   hook. Is everything in the transientdir really going
+>>   to use that pageext? Would it be better to look up the
+>>   complete source filename?
 
 --------------------------
 
