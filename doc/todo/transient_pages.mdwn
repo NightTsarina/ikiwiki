@@ -84,7 +84,9 @@ the transient underlay. There is a regression test.
 > `getsetup` don't take effect, so it will default to undef, which
 > is treated the same as 0. --[[Joey]]
 
->> Noted. I assume a `checkconfig` hook is the way to fix this. --s
+>> Fixed in the branch, hopefully. (How disruptive would it be to have
+>> defaults take effect whenever the setup file doesn't set a value, btw?
+>> It seems pretty astonishing to have them work as they do at the moment.) --s
 
 autoindex ignores pages in the transient underlay when deciding whether
 to generate an index.
@@ -103,7 +105,7 @@ Not done yet (in that branch, at least):
   >> I'll try to work out which of the checks are required for security
   >> and which are just nice-to-have, but I'd appreciate any pointers
   >> you could give. Note that my branch wasn't meant to enable either
-  >> by default. --[[smcv]]
+  >> by default, and now hopefully doesn't. --[[smcv]]
 
 * Transient tags that don't match any pages aren't deleted: I'm not sure
   that that's a good idea anyway, though. Similarly, transient autoindexes
@@ -133,7 +135,8 @@ Not done yet (in that branch, at least):
 >>   first, and only unlink from the old location if it wasn't
 >>   in the transient location. Ok, it only saves 1 syscall :)
 
->>> Is an unlink() really that expensive? But, OK. --s
+>>> Is an unlink() really that expensive? But, OK, fixed in the
+>>> updated branch. --s
 
 >> * Similarly it's a bit worrying for performance that it
 >>   needs to pull in and use `Cwd` on every ikiwiki startup now.
@@ -143,11 +146,12 @@ Not done yet (in that branch, at least):
 
 >>> The reason to make it absolute is that relative underlays
 >>> are interpreted as relative to the base underlay directory,
->>> not the cwd. I could conditionalize the use of `Cwd` on
->>> `wikistatedir` not being absolute, though, which in practice
->>> will only happen for unusual deployments (like the docwiki);
->>> or I could add some mechanism by which you can add a
->>> cwd-relative underlay? --s
+>>> not the cwd.
+>>>
+>>> The updated branch only loads `Cwd` if the path is relative;
+>>> an extra commit on branch `smcv/transient-relative` goes
+>>> behind `add_underlay`'s back to allow use of a cwd-relative
+>>> underlay. Which direction would you prefer? --s
 
 >> * Unsure about the use of `default_pageext` in the `change`
 >>   hook. Is everything in the transientdir really going
