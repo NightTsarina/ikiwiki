@@ -544,7 +544,7 @@ sub checkconfig () {
 		error(gettext("Must specify url to wiki with --url when using --cgi"));
 	}
 
-	if (length $config{url}) {
+	if (defined $config{url} && length $config{url}) {
 		eval q{use URI};
 		my $baseurl = URI->new($config{url});
 
@@ -1140,7 +1140,7 @@ sub urlto ($;$$) {
 	my $absolute=shift;
 	
 	if (! length $to) {
-		return beautify_urlpath(baseurl($from)."index.$config{htmlext}");
+		$to = 'index';
 	}
 
 	if (! $destsources{$to}) {

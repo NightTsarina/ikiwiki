@@ -17,7 +17,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 91;
+use Test::More tests => 109;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -34,6 +34,8 @@ $config{destdir} = "$dir/dst";
 $config{destdir} = "$dir/dst";
 $config{underlaydirbase} = "/dev/null";
 $config{underlaydir} = "/dev/null";
+$config{url} = "http://example.com";
+$config{cgiurl} = "http://example.com/ikiwiki.cgi";
 $config{discussion} = 0;
 $config{po_master_language} = { code => 'en',
 				name => 'English'
@@ -166,11 +168,32 @@ $msgprefix="urlto (po_link_to=current)";
 is(urlto('', 'index'), './index.en.html', "$msgprefix index -> ''");
 is(urlto('', 'nontranslatable'), '../index.en.html', "$msgprefix nontranslatable -> ''");
 is(urlto('', 'translatable.fr'), '../index.fr.html', "$msgprefix translatable.fr -> ''");
+# when asking for a semi-absolute or absolute URL, we can't know what the
+# current language is, so for translatable pages we use the master language
+is(urlto('nontranslatable'), '/nontranslatable/', "$msgprefix 1-arg -> nontranslatable");
+is(urlto('translatable'), '/translatable/index.en.html', "$msgprefix 1-arg -> translatable");
+is(urlto('nontranslatable', undef, 1), 'http://example.com/nontranslatable/', "$msgprefix 1-arg -> nontranslatable");
+is(urlto('index', undef, 1), 'http://example.com/index.en.html', "$msgprefix 1-arg -> index");
+is(urlto('', undef, 1), 'http://example.com/index.en.html', "$msgprefix 1-arg -> ''");
+# FIXME: should these three produce the negotiatable URL instead of the master
+# language?
+is(urlto(''), '/index.en.html', "$msgprefix 1-arg -> ''");
+is(urlto('index'), '/index.en.html', "$msgprefix 1-arg -> index");
+is(urlto('translatable', undef, 1), 'http://example.com/translatable/index.en.html', "$msgprefix 1-arg -> translatable");
+
 $config{po_link_to}='negotiated';
 $msgprefix="urlto (po_link_to=negotiated)";
 is(urlto('', 'index'), './', "$msgprefix index -> ''");
 is(urlto('', 'nontranslatable'), '../', "$msgprefix nontranslatable -> ''");
 is(urlto('', 'translatable.fr'), '../', "$msgprefix translatable.fr -> ''");
+is(urlto('nontranslatable'), '/nontranslatable/', "$msgprefix 1-arg -> nontranslatable");
+is(urlto('translatable'), '/translatable/', "$msgprefix 1-arg -> translatable");
+is(urlto(''), '/', "$msgprefix 1-arg -> ''");
+is(urlto('index'), '/', "$msgprefix 1-arg -> index");
+is(urlto('nontranslatable', undef, 1), 'http://example.com/nontranslatable/', "$msgprefix 1-arg -> nontranslatable");
+is(urlto('translatable', undef, 1), 'http://example.com/translatable/', "$msgprefix 1-arg -> translatable");
+is(urlto('index', undef, 1), 'http://example.com/', "$msgprefix 1-arg -> index");
+is(urlto('', undef, 1), 'http://example.com/', "$msgprefix 1-arg -> ''");
 
 ### bestlink
 $config{po_link_to}='current';
@@ -192,6 +215,10 @@ $msgprefix="beautify_urlpath (po_link_to=negotiated)";
 is(IkiWiki::beautify_urlpath('test1/index.html'), './test1/', "$msgprefix test1/index.html");
 is(IkiWiki::beautify_urlpath('test1/index.en.html'), './test1/', "$msgprefix test1/index.en.html");
 is(IkiWiki::beautify_urlpath('test1/index.fr.html'), './test1/', "$msgprefix test1/index.fr.html");
+$config{po_link_to}='current';
+$msgprefix="beautify_urlpath (po_link_to=current)";
+is(IkiWiki::beautify_urlpath('test1/index.en.html'), './test1/index.en.html', "$msgprefix test1/index.en.html");
+is(IkiWiki::beautify_urlpath('test1/index.fr.html'), './test1/index.fr.html', "$msgprefix test1/index.fr.html");
 
 ### re-scan
 refresh_n_scan('index.mdwn');
