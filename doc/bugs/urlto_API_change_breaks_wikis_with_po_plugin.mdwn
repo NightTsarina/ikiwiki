@@ -83,3 +83,10 @@ investigated this yet.
 >>>> I unfortunately might not be able to dedicate the needed time to
 >>>> help fix this in a timely manner, so I don't want to urge anyone.
 >>>> Take care!  --[[intrigeri]]
+
+>>>>> I can see why this is bad, but to the best of my knowledge it's
+>>>>> not a regression: each of the calls to 1-argument `urlto` was
+>>>>> previously a call to 3-argument `urlto`, which always produces
+>>>>> a fully absolute URL, so in either case there isn't enough
+>>>>> context to know the current language. Links that were previously
+>>>>> 2-argument `urlto` still have a defined second argument. --[[smcv]]
