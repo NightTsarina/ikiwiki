@@ -988,6 +988,9 @@ Construct a relative url to the first parameter from the page named by the
 second. The first parameter can be either a page name, or some other
 destination file, as registered by `will_render`.
 
+Provide a second parameter whenever possible, since this leads to better
+behaviour for the [[plugins/po]] plugin and `file:///` URLs.
+
 If the second parameter is not specified (or `undef`), the URL will be
 valid from any page on the wiki, or from the CGI; if possible it'll
 be a path starting with `/`, but an absolute URL will be used if
