@@ -7,6 +7,7 @@ use IkiWiki 3.00;
 use Encode;
 
 sub import {
+	hook(type => "checkconfig", id => "autoindex", call => \&checkconfig);
 	hook(type => "getsetup", id => "autoindex", call => \&getsetup);
 	hook(type => "refresh", id => "autoindex", call => \&refresh);
 	IkiWiki::loadplugin("transient");
@@ -26,6 +27,12 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 0,
 		},
+}
+
+sub checkconfig () {
+	if (! defined $config{autoindex_commit}) {
+		$config{autoindex_commit} = 1;
+	}
 }
 
 sub genindex ($) {
