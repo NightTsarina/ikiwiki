@@ -58,8 +58,7 @@ sub refresh ($) {
 	# delete old and excess changes
 	foreach my $page (keys %pagesources) {
 		if ($pagesources{$page} =~ /\._change$/ && ! $seen{$page}) {
-			unlink($config{srcdir}.'/'.$pagesources{$page});
-			unlink($IkiWiki::Plugin::transient::transientdir.'/'.$pagesources{$page});
+			unlink($IkiWiki::Plugin::transient::transientdir.'/'.$pagesources{$page}) || unlink($config{srcdir}.'/'.$pagesources{$page});
 		}
 	}
 }
