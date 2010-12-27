@@ -21,7 +21,8 @@ It could also be used for an [[todo/alias_directive]].
 
 --------------------------
 
-[[!template id=gitbranch branch=smcv/ready/transient author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/transient-only author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/transient-recentchanges author="[[smcv]]"]]
 [[!tag patch]]
 
 I think this branch is now enough to be useful. It adds the following:
@@ -35,10 +36,12 @@ Pages with the default extension in the transient underlay are automatically
 deleted if a page of the same name is created in the srcdir (or an underlay
 closer to the srcdir in stacking order).
 
+With the additional `transient-tag` branch,
 `tag` enables `transient`, and if `tag_autocreate_commit` is set to 0
 (default 1), autocreated tags are written to the transient underlay.
 There is a regression test.
 
+With the additional `transient-autoindex` branch,
 `autoindex` uses autofiles. It also enables `transient`, and if
 `autoindex_commit` is set to 0 (default 1), autoindexes are written to
 the transient underlay. There is a regression test.
@@ -72,7 +75,8 @@ the transient underlay. There is a regression test.
 >>
 >> If this is a point of contention, would you accept a branch that
 >> just adds `transient` and uses it for [[plugins/recentchanges]],
->> which aren't checked in and never have been?
+>> which aren't checked in and never have been? I've split the
+>> branch up in the hope that *some* of it can get merged.
 >>
 >> One potentially relevant point is that configuration clutter only
 >> affects the site admin whereas commit clutter is part of the whole
@@ -84,14 +88,15 @@ the transient underlay. There is a regression test.
 > `getsetup` don't take effect, so it will default to undef, which
 > is treated the same as 0. --[[Joey]]
 
->> Fixed in the branch, hopefully. (How disruptive would it be to have
+>> Fixed in the branches, hopefully. (How disruptive would it be to have
 >> defaults take effect whenever the setup file doesn't set a value, btw?
 >> It seems pretty astonishing to have them work as they do at the moment.) --s
 
 autoindex ignores pages in the transient underlay when deciding whether
 to generate an index.
 
-New recent changes go in the transient underlay; I tested this manually.
+With the additional `transient-recentchanges` branch, new recent changes
+go in the transient underlay; I tested this manually.
 
 Not done yet (in that branch, at least):
 
@@ -127,16 +132,18 @@ Not done yet (in that branch, at least):
 >> * There's a FIXME in autoindex.
 
 >>> Right, the extra logic for preventing autoindex pages from being
->>> re-created. I've started on regression tests for this, but I'll
->>> need to rummage through the commit log for the exact requirements
->>> and the reasoning behind them, so it could take a while. --s
+>>> re-created. This is taking a while, so I'm going to leave out the
+>>>> autoindex part for the moment. The FIXME is only relevant
+>>>> because I tried to solve
+>>>> [[todo/autoindex should use add__95__autofile]] first, but
+>>>> strictly speaking, that's an orthogonal change. --s
 
 >> * Suggest making recentchanges unlink the transient page
 >>   first, and only unlink from the old location if it wasn't
 >>   in the transient location. Ok, it only saves 1 syscall :)
 
 >>> Is an unlink() really that expensive? But, OK, fixed in the
->>> updated branch. --s
+>>> `transient-recentchanges` branch. --s
 
 >> * Similarly it's a bit worrying for performance that it
 >>   needs to pull in and use `Cwd` on every ikiwiki startup now.
@@ -148,10 +155,11 @@ Not done yet (in that branch, at least):
 >>> are interpreted as relative to the base underlay directory,
 >>> not the cwd.
 >>>
->>> The updated branch only loads `Cwd` if the path is relative;
->>> an extra commit on branch `smcv/transient-relative` goes
->>> behind `add_underlay`'s back to allow use of a cwd-relative
->>> underlay. Which direction would you prefer? --s
+>>> The updated `transient-only` branch only loads `Cwd` if
+>>> the path is relative; an extra commit on branch
+>>> `smcv/transient-relative` goes behind `add_underlay`'s
+>>> back to allow use of a cwd-relative underlay. Which direction
+>>> would you prefer? --s
 
 >> * Unsure about the use of `default_pageext` in the `change`
 >>   hook. Is everything in the transientdir really going
