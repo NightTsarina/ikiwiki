@@ -42,7 +42,7 @@ sub checkconfig () {
 
 	my $version=undef;
 	while (<MTN>) {
-		if (/^monotone (\d+\.\d+) /) {
+		if (/^monotone (\d+\.\d+)(?:(?:\.\d+){0,2}|dev)? /) {
 			$version=$1;
 		}
 	}
