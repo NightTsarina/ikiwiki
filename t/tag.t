@@ -3,7 +3,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use Test::More tests => 21;
+use Test::More tests => 22;
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
@@ -58,6 +58,7 @@ IkiWiki::Plugin::tag::preprocess_tag(page => "seven", numbers => undef, primes =
 is($autofiles{"tags/lucky.mdwn"}{plugin}, "tag");
 is($autofiles{"tags/numbers.mdwn"}{plugin}, "tag");
 is($autofiles{"tags/primes.mdwn"}{plugin}, "tag");
+is_deeply([sort keys %autofiles], [qw(tags/lucky.mdwn tags/numbers.mdwn tags/primes.mdwn)]);
 
 ok(!-e "t/tmp/tags/lucky.mdwn");
 my (%pages, @del);
