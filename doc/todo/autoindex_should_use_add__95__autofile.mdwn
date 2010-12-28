@@ -1,4 +1,33 @@
 `add_autofile` is a generic version of [[plugins/autoindex]]'s code,
 so the latter should probably use the former. --[[smcv]]
 
-> See [[todo/transient_pages]] for progress on this. --[[smcv]]
+----
+
+[[!template id=gitbranch branch=smcv/autoindex-autofile author="[[smcv]]"]]
+
+I'm having trouble fixing this:
+
+	# FIXME: some of this is probably redundant with add_autofile now, and
+	# the rest should perhaps be added to the autofile machinery
+
+By "a generic version of" above, it seems I mean "almost, but not
+quite, entirely unlike". I tried digging through the git history for the
+reasoning behind the autofile and autoindex implementations, but now I'm
+mostly confused.
+
+The autofile machinery records a list of every file that has ever been proposed
+as an autofile: for instance, the tag plugin has a list of every tag that
+has ever been named in a \[[!tag]] or \[[!taglink]], even if no file was
+actually needed (e.g. because it already existed). Checks for files that
+already exist (or whatever) are deferred until after this list has been
+updated, and files in this list are never auto-created again unless the wiki
+is rebuilt.
+
+The autoindex machinery records a more complex set. Items are added to the
+set when they are deleted, but would otherwise have been added as an autoindex
+(don't exist, do have children (by which I mean subpages or attachments),
+and are a directory in the srcdir). They're removed if this particular run
+wouldn't have added them as an autoindex (they exist, or don't have children).
+
+Still researching why there's this difference, and whether one or the other
+would be better for all cases...
