@@ -159,7 +159,12 @@ Not done yet (in that branch, at least):
 >>> the path is relative; an extra commit on branch
 >>> `smcv/transient-relative` goes behind `add_underlay`'s
 >>> back to allow use of a cwd-relative underlay. Which direction
->>> would you prefer? --s
+>>> would you prefer?
+>>>
+>>> I note in passing that [[plugins/autoindex]] and `IkiWiki::Render`
+>>> both need to use `Cwd` and `File::Find` on every refresh, so
+>>> there's only any point in avoiding `Cwd` for runs that don't
+>>> actually refresh, like simple uses of the CGI. --s
 
 >> * Unsure about the use of `default_pageext` in the `change`
 >>   hook. Is everything in the transientdir really going
