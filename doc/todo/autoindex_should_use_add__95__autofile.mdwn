@@ -87,12 +87,14 @@ However, unlike the generic autofile infrastructure, `autoindex` forgets
 that it shouldn't re-create the deleted page in the latter two situations:
 
 * create auto-del-create-del/child, resulting in auto-del-create-del being
-  created automatically
+    created automatically
 * delete auto-del-create-del; it's added to `%deleted` and not re-created
 * create auto-del-create-del manually; it's removed from `%deleted`
 * delete auto-del-create-del again (it's re-created)
 
+and
+
 * create create-del-auto
 * delete create-del-auto; it's not added to `%deleted` because there's no
-  child that would cause it to exist
+    child that would cause it to exist
 * create create-del-auto/child
