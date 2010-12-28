@@ -135,57 +135,57 @@ Not done yet (in that branch, at least):
 >> Here are some other things I'd like to think about first: --[[Joey]] 
 >>
 >> * There's a FIXME in autoindex.
-
->>> Right, the extra logic for preventing autoindex pages from being
->>> re-created. This is taking a while, so I'm going to leave out the
->>>> autoindex part for the moment. The FIXME is only relevant
->>>> because I tried to solve
->>>> [[todo/autoindex should use add__95__autofile]] first, but
->>>> strictly speaking, that's an orthogonal change. --s
+>>
+>>     > Right, the extra logic for preventing autoindex pages from being
+>>     > re-created. This is taking a while, so I'm going to leave out the
+>>     > autoindex part for the moment. The FIXME is only relevant
+>>     > because I tried to solve
+>>     > [[todo/autoindex should use add__95__autofile]] first, but
+>>     > strictly speaking, that's an orthogonal change. --s
 
 >> * Suggest making recentchanges unlink the transient page
 >>   first, and only unlink from the old location if it wasn't
 >>   in the transient location. Ok, it only saves 1 syscall :)
-
->>> Is an unlink() really that expensive? But, OK, fixed in the
->>> `ready/transient-recentchanges` branch. --s
+>>
+>>   > Is an unlink() really that expensive? But, OK, fixed in the
+>>   > `ready/transient-recentchanges` branch. --s
 
 >> * Similarly it's a bit worrying for performance that it
 >>   needs to pull in and use `Cwd` on every ikiwiki startup now.
 >>   I really don't see the need; `wikistatedir` should
 >>   mostly be absolute, and ikiwiki should not chdir in ways
 >>   that break it anyway.
-
->>> The reason to make it absolute is that relative underlays
->>> are interpreted as relative to the base underlay directory,
->>> not the cwd, by `add_underlay`.
->>>
->>> The updated `ready/transient-only` branch only loads `Cwd` if
->>> the path is relative; an extra commit on branch
->>> `smcv/transient-relative` goes behind `add_underlay`'s
->>> back to allow use of a cwd-relative underlay. Which direction
->>> would you prefer?
->>>
->>> I note in passing that [[plugins/autoindex]] and `IkiWiki::Render`
->>> both need to use `Cwd` and `File::Find` on every refresh, so
->>> there's only any point in avoiding `Cwd` for runs that don't
->>> actually refresh, like simple uses of the CGI. --s
+>>
+>>   > The reason to make it absolute is that relative underlays
+>>   > are interpreted as relative to the base underlay directory,
+>>   > not the cwd, by `add_underlay`.
+>>   >
+>>   > The updated `ready/transient-only` branch only loads `Cwd` if
+>>   > the path is relative; an extra commit on branch
+>>   > `smcv/transient-relative` goes behind `add_underlay`'s
+>>   > back to allow use of a cwd-relative underlay. Which direction
+>>   > would you prefer?
+>>   >
+>>   > I note in passing that [[plugins/autoindex]] and `IkiWiki::Render`
+>>   > both need to use `Cwd` and `File::Find` on every refresh, so
+>>   > there's only any point in avoiding `Cwd` for runs that don't
+>>   > actually refresh, like simple uses of the CGI. --s
 
 >> * Unsure about the use of `default_pageext` in the `change`
 >>   hook. Is everything in the transientdir really going
 >>   to use that pageext? Would it be better to look up the
 >>   complete source filename?
-
->>> I've updated `ready/transient` to do a more thorough GC by
->>> using File::Find on the transient directory. This does
->>> require `File::Find` and `Cwd`, but only when pages change,
->>> and `refresh` loads both of those in that situation anyway.
->>>
->>> At the moment everything in the transientdir will either
->>> have the `default_pageext` or be internal, although I
->>> did wonder whether to make [[plugins/contrib/album]]
->>> viewer pages optionally be `html`, for better performance
->>> when there's a very large number of photos. --s
+>>
+>>   > I've updated `ready/transient` to do a more thorough GC by
+>>   > using File::Find on the transient directory. This does
+>>   > require `File::Find` and `Cwd`, but only when pages change,
+>>   > and `refresh` loads both of those in that situation anyway.
+>>   >
+>>   > At the moment everything in the transientdir will either
+>>   > have the `default_pageext` or be internal, although I
+>>   > did wonder whether to make [[plugins/contrib/album]]
+>>   > viewer pages optionally be `html`, for better performance
+>>   > when there's a very large number of photos. --s
 
 --------------------------
 
