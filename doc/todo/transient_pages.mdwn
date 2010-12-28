@@ -21,8 +21,9 @@ It could also be used for an [[todo/alias_directive]].
 
 --------------------------
 
-[[!template id=gitbranch branch=smcv/transient-only author="[[smcv]]"]]
-[[!template id=gitbranch branch=smcv/transient-recentchanges author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/ready/transient author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/ready/transient-recentchanges author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/ready/transient-tag author="[[smcv]]"]]
 [[!tag patch]]
 
 I think this branch is now enough to be useful. It adds the following:
@@ -32,11 +33,11 @@ as an underlay. I'm not sure whether this should be a plugin or core, so
 I erred on the side of more plugins; I think it's "on the edge of the core",
 like goto.
 
-Pages with the default extension in the transient underlay are automatically
+Pages in the transient underlay are automatically
 deleted if a page of the same name is created in the srcdir (or an underlay
 closer to the srcdir in stacking order).
 
-With the additional `transient-tag` branch,
+With the additional `ready/transient-tag` branch,
 `tag` enables `transient`, and if `tag_autocreate_commit` is set to 0
 (default 1), autocreated tags are written to the transient underlay.
 There is a regression test.
@@ -44,7 +45,9 @@ There is a regression test.
 With the additional `transient-autoindex` branch,
 `autoindex` uses autofiles. It also enables `transient`, and if
 `autoindex_commit` is set to 0 (default 1), autoindexes are written to
-the transient underlay. There is a regression test.
+the transient underlay. There is a regression test. However, this branch
+is blocked by working out what the desired behaviour is, on
+[[todo/autoindex_should_use_add__95__autofile]].
 
 > I wonder why this needs to be configurable? I suppose that gets back to
 > whether it makes sense to check these files in or not. The benefits of 
@@ -67,9 +70,11 @@ the transient underlay. There is a regression test.
 > commit clutter is really worth it.
 
 >> According to the last section of
->> [[todo/auto-create_tag_pages_according_to_a_template]], chrysn and
+>> [[todo/auto-create_tag_pages_according_to_a_template]], [[chrysn]] and
 >> Eric both feel rather strongly that it should be possible to
->> not commit any tags. I made it configurable because, as you point out,
+>> not commit any tags; in [[plugins/autoindex/discussion]],
+>> lollipopman and [[JoeRayhawk]] both requested the same for autoindex.
+>> I made it configurable because, as you point out,
 >> there are also reasons why it makes sense to check these
 >> automatically-created files in. I'm neutral on this, personally.
 >>
@@ -95,8 +100,8 @@ the transient underlay. There is a regression test.
 autoindex ignores pages in the transient underlay when deciding whether
 to generate an index.
 
-With the additional `transient-recentchanges` branch, new recent changes
-go in the transient underlay; I tested this manually.
+With the additional `ready/transient-recentchanges` branch, new recent
+changes go in the transient underlay; I tested this manually.
 
 Not done yet (in that branch, at least):
 
@@ -130,51 +135,57 @@ Not done yet (in that branch, at least):
 >> Here are some other things I'd like to think about first: --[[Joey]] 
 >>
 >> * There's a FIXME in autoindex.
-
->>> Right, the extra logic for preventing autoindex pages from being
->>> re-created. This is taking a while, so I'm going to leave out the
->>>> autoindex part for the moment. The FIXME is only relevant
->>>> because I tried to solve
->>>> [[todo/autoindex should use add__95__autofile]] first, but
->>>> strictly speaking, that's an orthogonal change. --s
+>>
+>>     > Right, the extra logic for preventing autoindex pages from being
+>>     > re-created. This is taking a while, so I'm going to leave out the
+>>     > autoindex part for the moment. The FIXME is only relevant
+>>     > because I tried to solve
+>>     > [[todo/autoindex should use add__95__autofile]] first, but
+>>     > strictly speaking, that's an orthogonal change. --s
 
 >> * Suggest making recentchanges unlink the transient page
 >>   first, and only unlink from the old location if it wasn't
 >>   in the transient location. Ok, it only saves 1 syscall :)
-
->>> Is an unlink() really that expensive? But, OK, fixed in the
->>> `transient-recentchanges` branch. --s
+>>
+>>   > Is an unlink() really that expensive? But, OK, fixed in the
+>>   > `ready/transient-recentchanges` branch. --s
 
 >> * Similarly it's a bit worrying for performance that it
 >>   needs to pull in and use `Cwd` on every ikiwiki startup now.
 >>   I really don't see the need; `wikistatedir` should
 >>   mostly be absolute, and ikiwiki should not chdir in ways
 >>   that break it anyway.
-
->>> The reason to make it absolute is that relative underlays
->>> are interpreted as relative to the base underlay directory,
->>> not the cwd.
->>>
->>> The updated `transient-only` branch only loads `Cwd` if
->>> the path is relative; an extra commit on branch
->>> `smcv/transient-relative` goes behind `add_underlay`'s
->>> back to allow use of a cwd-relative underlay. Which direction
->>> would you prefer? --s
+>>
+>>   > The reason to make it absolute is that relative underlays
+>>   > are interpreted as relative to the base underlay directory,
+>>   > not the cwd, by `add_underlay`.
+>>   >
+>>   > The updated `ready/transient-only` branch only loads `Cwd` if
+>>   > the path is relative; an extra commit on branch
+>>   > `smcv/transient-relative` goes behind `add_underlay`'s
+>>   > back to allow use of a cwd-relative underlay. Which direction
+>>   > would you prefer?
+>>   >
+>>   > I note in passing that [[plugins/autoindex]] and `IkiWiki::Render`
+>>   > both need to use `Cwd` and `File::Find` on every refresh, so
+>>   > there's only any point in avoiding `Cwd` for runs that don't
+>>   > actually refresh, like simple uses of the CGI. --s
 
 >> * Unsure about the use of `default_pageext` in the `change`
 >>   hook. Is everything in the transientdir really going
 >>   to use that pageext? Would it be better to look up the
 >>   complete source filename?
-
->>> At the moment everything in the transientdir will either
->>> have the `default_pageext` or be internal, although I
->>> did wonder whether to make [[plugins/contrib/album]]
->>> viewer pages optionally be `html`, for better performance
->>> when there's a very large number of photos.
->>>
->>> A more thorough garbage-collection mechanism would be to
->>> use File::Find on the transient directory; I'll get there
->>> eventually. --s
+>>
+>>   > I've updated `ready/transient` to do a more thorough GC by
+>>   > using File::Find on the transient directory. This does
+>>   > require `File::Find` and `Cwd`, but only when pages change,
+>>   > and `refresh` loads both of those in that situation anyway.
+>>   >
+>>   > At the moment everything in the transientdir will either
+>>   > have the `default_pageext` or be internal, although I
+>>   > did wonder whether to make [[plugins/contrib/album]]
+>>   > viewer pages optionally be `html`, for better performance
+>>   > when there's a very large number of photos. --s
 
 --------------------------
 
