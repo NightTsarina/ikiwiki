@@ -83,19 +83,38 @@ is blocked by working out what the desired behaviour is, on
 >> which aren't checked in and never have been? I've split the
 >> branch up in the hope that *some* of it can get merged.
 >>
+>>> I will be happy to merge transient-recentchanges when it's ready.
+>>> I see no obstacle to merging transient-tag either, and am not
+>>> really against using it for autoindex or aggregate either
+>>> once they get completed.
+>>> I just wanted to think through why configurability is needed.
+>>> --[[Joey]]
+>>
 >> One potentially relevant point is that configuration clutter only
 >> affects the site admin whereas commit clutter is part of the whole
 >> wiki's history. --[[smcv]]
 
 > Anyway, the configurability
 > appears subtly broken; the default is only 1 if a new setup file is
-> generated. With an existing setup file, the 'default' values in
+> generated. (Correction: It was not even the default then --[[Joey]])
+> With an existing setup file, the 'default' values in
 > `getsetup` don't take effect, so it will default to undef, which
 > is treated the same as 0. --[[Joey]]
 
 >> Fixed in the branches, hopefully. (How disruptive would it be to have
 >> defaults take effect whenever the setup file doesn't set a value, btw?
 >> It seems pretty astonishing to have them work as they do at the moment.) --s
+
+>>> Well, note that default is not actually a documented field in
+>>> getsetup hooks at all! (It is used in IkiWiki.pm's own `getsetup()`, and
+>>> the concept may have leaked out into one or two plugins (comments,
+>>> transient)).
+>>> 
+>>> Running getsetup at plugin load time is something I have considered
+>>> doing. It would simplify some checkconfig hooks that just set hardcoded 
+>>> defaults. Although since dying is part of the getsetup hook's API, it
+>>> could be problimaric.
+>>> --[[Joey]]
 
 autoindex ignores pages in the transient underlay when deciding whether
 to generate an index.
@@ -150,6 +169,8 @@ Not done yet (in that branch, at least):
 >>   > Is an unlink() really that expensive? But, OK, fixed in the
 >>   > `ready/transient-recentchanges` branch. --s
 
+>>   >> It's not, but it's easy. :) --[[Joey]]
+
 >> * Similarly it's a bit worrying for performance that it
 >>   needs to pull in and use `Cwd` on every ikiwiki startup now.
 >>   I really don't see the need; `wikistatedir` should
@@ -171,6 +192,11 @@ Not done yet (in that branch, at least):
 >>   > there's only any point in avoiding `Cwd` for runs that don't
 >>   > actually refresh, like simple uses of the CGI. --s
 
+>>   >> Oh, right, I'd forgotten about the horrificness of File::Find
+>>   >> that required a chdir for security. Ugh. Can we just avoid
+>>   >> it for those simple cases then? (demand-calculate wikistatedir)
+>>   >> --[[Joey]] 
+
 >> * Unsure about the use of `default_pageext` in the `change`
 >>   hook. Is everything in the transientdir really going
 >>   to use that pageext? Would it be better to look up the
@@ -186,6 +212,10 @@ Not done yet (in that branch, at least):
 >>   > did wonder whether to make [[plugins/contrib/album]]
 >>   > viewer pages optionally be `html`, for better performance
 >>   > when there's a very large number of photos. --s
+
+>>   >> Oh, ugh, more File::Find... Couldn't it just assume that the
+>>   >> transient page has the same extension as its replacement?
+>>   >> --[[Joey]]
 
 --------------------------
 
