@@ -345,8 +345,9 @@ sub rcs_recentchanges ($) {
 	return @ret;
 }
 
-sub rcs_diff ($) {
+sub rcs_diff ($;$) {
 	my $rev=IkiWiki::possibly_foolish_untaint(int(shift));
+	my $maxlines=shift;
 	return `svnlook diff $config{svnrepo} -r$rev --no-diff-deleted`;
 }
 

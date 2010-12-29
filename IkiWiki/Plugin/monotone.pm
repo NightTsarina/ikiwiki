@@ -621,8 +621,9 @@ sub rcs_recentchanges ($) {
 	return @ret;
 }
 
-sub rcs_diff ($) {
+sub rcs_diff ($;$) {
 	my $rev=shift;
+	my $maxlines=shift;
 	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
 	
 	chdir $config{srcdir}
@@ -633,7 +634,11 @@ sub rcs_diff ($) {
 		exec("mtn", "diff", "--root=$config{mtnrootdir}", "-r", "p:".$sha1, "-r", $sha1) || error("mtn diff $sha1 failed to run");
 	}
 
-	my (@lines) = <MTNDIFF>;
+	my @lines;
+	while (my $line=<MTNDIFF>) {
+		last if defined $maxlines && @lines == $maxlines;
+		push @lines, $line;
+	}
 
 	close MTNDIFF || debug("mtn diff $sha1 exited $?");
 

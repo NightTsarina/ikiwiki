@@ -58,7 +58,7 @@ sub rcs_rename ($$) {
 sub rcs_recentchanges ($) {
 }
 
-sub rcs_diff ($) {
+sub rcs_diff ($;$) {
 }
 
 sub rcs_getctime ($) {

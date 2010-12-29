@@ -2033,7 +2033,7 @@ sub rcs_recentchanges ($) {
 	$hooks{rcs}{rcs_recentchanges}{call}->(@_);
 }
 
-sub rcs_diff ($) {
+sub rcs_diff ($;$) {
 	$hooks{rcs}{rcs_diff}{call}->(@_);
 }
 

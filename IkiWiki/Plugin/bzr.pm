@@ -271,8 +271,9 @@ sub rcs_recentchanges ($) {
 	return @ret;
 }
 
-sub rcs_diff ($) {
+sub rcs_diff ($;$) {
 	my $taintedrev=shift;
+	my $maxlines=shift;
 	my ($rev) = $taintedrev =~ /^(\d+(\.\d+)*)$/; # untaint
 
 	my $prevspec = "before:" . $rev;
@@ -281,8 +282,11 @@ sub rcs_diff ($) {
 		"--new", $config{srcdir},
 		"-r", $prevspec . ".." . $revspec);
 	open (my $out, "@cmdline |");
-
-	my @lines = <$out>;
+	my @lines;
+	while (my $line=<$out>) {
+		last if defined $maxlines && @lines == $maxlines;
+		push @lines, $line;
+	}
 	if (wantarray) {
 		return @lines;
 	}

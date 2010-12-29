@@ -121,7 +121,7 @@ sub sessioncgi ($$) {
 	}
 	elsif ($form->submitted ne 'Cancel') {
 	        $form->title(sprintf(gettext("confirm reversion of %s"), $rev));
-		$form->tmpl_param(diff => encode_entities(scalar IkiWiki::rcs_diff($rev)));
+		$form->tmpl_param(diff => encode_entities(scalar IkiWiki::rcs_diff($rev, 200)));
 		$form->field(name => "rev", type => "hidden", value => $rev, force => 1);
 		IkiWiki::showform($form, $buttons, $session, $q);
 		exit 0;

@@ -152,10 +152,11 @@ sub genwrapper {
 }
 
 sub safe_git (&@) {
-	# Start a child process safely without resorting /bin/sh.
-	# Return command output or success state (in scalar context).
+	# Start a child process safely without resorting to /bin/sh.
+	# Returns command output (in list content) or success state
+	# (in scalar context), or runs the specified data handler.
 
-	my ($error_handler, @cmdline) = @_;
+	my ($error_handler, $data_handler, @cmdline) = @_;
 
 	my $pid = open my $OUT, "-|";
 
@@ -187,7 +188,12 @@ sub safe_git (&@) {
 
 		chomp;
 
-		push @lines, $_;
+		if (! defined $data_handler) {
+			push @lines, $_;
+		}
+		else {
+			last unless $data_handler->($_);
+		}
 	}
 
 	close $OUT;
@@ -197,9 +203,9 @@ sub safe_git (&@) {
 	return wantarray ? @lines : ($? == 0);
 }
 # Convenient wrappers.
-sub run_or_die ($@) { safe_git(\&error, @_) }
-sub run_or_cry ($@) { safe_git(sub { warn @_ },  @_) }
-sub run_or_non ($@) { safe_git(undef,            @_) }
+sub run_or_die ($@) { safe_git(\&error, undef, @_) }
+sub run_or_cry ($@) { safe_git(sub { warn @_ }, undef, @_) }
+sub run_or_non ($@) { safe_git(undef, undef, @_) }
 
 
 sub merge_past ($$$) {
@@ -663,15 +669,18 @@ sub rcs_recentchanges ($) {
 	return @rets;
 }
 
-sub rcs_diff ($) {
+sub rcs_diff ($;$) {
 	my $rev=shift;
+	my $maxlines=shift;
 	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
 	my @lines;
-	foreach my $line (run_or_non("git", "show", $sha1)) {
-		if (@lines || $line=~/^diff --git/) {
-			push @lines, $line."\n";
-		}
-	}
+	my $addlines=sub {
+		my $line=shift;
+		return if defined $maxlines && @lines == $maxlines;
+		push @lines, $line."\n"
+			if (@lines || $line=~/^diff --git/);
+	};
+	safe_git(undef, $addlines, "git", "show", $sha1);
 	if (wantarray) {
 		return @lines;
 	}

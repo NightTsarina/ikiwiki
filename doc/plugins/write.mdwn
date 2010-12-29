@@ -1151,11 +1151,13 @@ The data structure returned for each change is:
 		],
 	}
 
-#### `rcs_diff($)`
+#### `rcs_diff($;$)`
 
-The parameter is the rev from `rcs_recentchanges`.
+The first parameter is the rev from `rcs_recentchanges`.
+The optional second parameter is how many lines to return (default: all).
+
 Should return a list of lines of the diff (including \n) in list
-context, and the whole diff in scalar context.
+context, and a string containing the whole diff in scalar context.
 
 #### `rcs_getctime($)`
 

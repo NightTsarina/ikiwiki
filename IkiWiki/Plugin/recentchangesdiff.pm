@@ -28,11 +28,10 @@ sub pagetemplate (@) {
 	my $template=$params{template};
 	if ($config{rcs} && exists $params{rev} && length $params{rev} &&
 	    $template->query(name => "diff")) {
-		my @lines=IkiWiki::rcs_diff($params{rev});
+		my @lines=IkiWiki::rcs_diff($params{rev}, $maxlines+1);
 		if (@lines) {
 			my $diff;
 			if (@lines > $maxlines) {
-				# only include so many lines of diff
 				$diff=join("", @lines[0..($maxlines-1)])."\n".
 					gettext("(Diff truncated)");
 			}
