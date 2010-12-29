@@ -11,7 +11,11 @@ I'm having trouble fixing this:
 	# the rest should perhaps be added to the autofile machinery
 
 By "a generic version of" above, it seems I mean "almost, but not
-quite, entirely unlike". I tried digging through the git history for the
+quite, entirely unlike".
+
+> As long as it's not Tea. ;) --[[Joey]] 
+
+I tried digging through the git history for the
 reasoning behind the autofile and autoindex implementations, but now I'm
 mostly confused.
 
@@ -60,6 +64,11 @@ I'm less sure that these shouldn't create the tag page: we deleted the
 manually-created version, but that doesn't necessarily mean we don't want
 *something* to exist.
 
+> That could be argued, but it's a very DWIM thing. Probably best to keep
+> the behavior simple and predictable, so one only needs to remember that
+> when a page is deleted, nothing will ever re-create it behind ones back.
+> --[[Joey]]
+
 ## autoindex
 
 The autoindex machinery records a more complex set. Items are added to the
@@ -98,3 +107,6 @@ and
 * delete create-del-auto; it's not added to `%deleted` because there's no
     child that would cause it to exist
 * create create-del-auto/child
+
+> I doubt there is any good reason for this behavior. These are probably
+> bugs. --[[Joey]] 
