@@ -860,9 +860,8 @@ sub rcs_preprevert ($) {
 	# in order to see all changes.
 	my ($subdir, $rootdir) = git_find_root();
 	$git_dir=$rootdir;
-	my @commits=git_commit_info($sha1, 1);
-	$git_dir=undef;
 
+	my @commits=git_commit_info($sha1, 1);
 	if (! @commits) {
 		error "unknown commit"; # just in case
 	}
@@ -873,7 +872,10 @@ sub rcs_preprevert ($) {
 		error gettext("you are not allowed to revert a merge");
 	}
 
-	return git_parse_changes(@commits);
+	my @ret=git_parse_changes(@commits);
+
+	$git_dir=undef;
+	return @ret;
 }
 
 sub rcs_revert ($) {
