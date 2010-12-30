@@ -679,6 +679,7 @@ sub rcs_diff ($;$) {
 		return if defined $maxlines && @lines == $maxlines;
 		push @lines, $line."\n"
 			if (@lines || $line=~/^diff --git/);
+		return 1;
 	};
 	safe_git(undef, $addlines, "git", "show", $sha1);
 	if (wantarray) {
