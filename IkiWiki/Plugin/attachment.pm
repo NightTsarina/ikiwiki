@@ -92,7 +92,7 @@ sub formbuilder_setup (@) {
 		# Add the toggle javascript; the attachments interface uses
 		# it to toggle visibility.
 		require IkiWiki::Plugin::toggle;
-		$form->tmpl_param("javascript" => IkiWiki::Plugin::toggle::include_javascript($params{page}, 1));
+		$form->tmpl_param("javascript" => IkiWiki::Plugin::toggle::include_javascript($params{page}));
 		# Start with the attachments interface toggled invisible,
 		# but if it was used, keep it open.
 		if ($form->submitted ne "Upload Attachment" &&
