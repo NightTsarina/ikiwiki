@@ -61,7 +61,7 @@ sub tagname ($) {
 	if (defined $config{tagbase}) {
 		$tag =~ s!^/\Q$config{tagbase}\E/!!;
 	} else {
-		$tag =~ s!^\.?/?!!;
+		$tag =~ s!^\.?/!!;
 	}
 	return $tag;
 }
