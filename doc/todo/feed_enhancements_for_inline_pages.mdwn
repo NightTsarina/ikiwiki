@@ -1,0 +1,8 @@
+[[!template id=gitbranch branch=GiuseppeBilotta/inlinestuff author="Giuseppe Bilotta"]]
+
+A few patches to clean up and improve feed management for inline pages.
+
+* the first patch simply replaces the id attribute in the default template for feedlinks with a class attribute by the same name. This is necessary in pages with multiple inlines to guarantee correctness
+* the second patch tries to define the default description for a feed based not only on the wiki name, but also on the current page name. The actual way this is built might not be the optimal one, so I'm open to suggestions
+* the third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
+* the fourth patch introduces a feedlinks parameter to the inline directive, to allow for the specifications of the locations where the feed links should appear. Currently, two options are allowed (head and body), plus both and none with obvious significance
