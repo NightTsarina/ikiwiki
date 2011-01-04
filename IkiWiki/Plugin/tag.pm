@@ -55,6 +55,17 @@ sub taglink ($) {
 	return $tag;
 }
 
+# Returns a tag name from a tag link
+sub tagname ($) {
+	my $tag=shift;
+	if (defined $config{tagbase}) {
+		$tag =~ s!^/$config{tagbase}/!!;
+	} else {
+		$tag =~ s!^\.?/?!!;
+	}
+	return $tag;
+}
+
 sub htmllink_tag ($$$;@) {
 	my $page=shift;
 	my $destpage=shift;
@@ -84,7 +95,7 @@ sub gentag ($) {
 			debug($message);
 
 			my $template=template("autotag.tmpl");
-			$template->param(tagname => IkiWiki::basename($tag));
+			$template->param(tagname => tagname($tag));
 			$template->param(tag => $tag);
 			writefile($tagfile, $config{srcdir}, $template->output);
 			if ($config{rcs}) {
@@ -154,14 +165,15 @@ sub pagetemplate (@) {
 
 	$template->param(tags => [
 		map { 
-			link => htmllink_tag($page, $destpage, $_, rel => "tag")
+			link => htmllink_tag($page, $destpage, $_,
+					rel => "tag", linktext => tagname($_))
 		}, sort keys %$tags
 	]) if defined $tags && %$tags && $template->query(name => "tags");
 
 	if ($template->query(name => "categories")) {
 		# It's an rss/atom template. Add any categories.
 		if (defined $tags && %$tags) {
-			$template->param(categories => [map { category => $_ },
+			$template->param(categories => [map { category => tagname($_) },
 				sort keys %$tags]);
 		}
 	}
