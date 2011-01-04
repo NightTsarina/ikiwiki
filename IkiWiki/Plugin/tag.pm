@@ -59,7 +59,7 @@ sub taglink ($) {
 sub tagname ($) {
 	my $tag=shift;
 	if (defined $config{tagbase}) {
-		$tag =~ s!^/$config{tagbase}/!!;
+		$tag =~ s!^/\Q$config{tagbase}\E/!!;
 	} else {
 		$tag =~ s!^\.?/?!!;
 	}
