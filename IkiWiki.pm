@@ -1072,6 +1072,8 @@ sub urlabs ($$) {
 	my $url=shift;
 	my $urlbase=shift;
 
+	return $url unless defined $urlbase && length $urlbase;
+
 	eval q{use URI};
 	URI->new_abs($url, $urlbase)->as_string;
 }
