@@ -1,3 +1,23 @@
+## current status
+
+99% of the way there, but:
+
+* CGI pages, with the exception of edit pages, set `<base>` to
+  `$config{url}`
+* When doing a Logout or Cancel, or when saving an edited page,
+  the user is returned to something derived from `$config{url}`.
+* RecentChanges page may link to things derived from `$config{url}`.
+
+All of the above are because I had to revert `baseurl(undef)` to always
+returning an absolute url, since relative urls caused breakage as seen in
+[[preview_base_url_should_be_absolute]]. --[[Joey]] 
+
+Ideally, baseurl would return an absolute url derived from the url
+being used to access the cgi, but that needs access to the CGI object,
+which it does not have. --[[Joey]] 
+
+## old attempt
+
 It looks like all links in websites are absolute paths, this has some limitations:
 
 * If connecting to website via https://... all links will take you back to http://
@@ -320,7 +340,7 @@ Potential future things:
   >> and 5 in plugins, since I used it for things like redirection back
   >> to the top of the wiki --[[smcv]]
 
-[[merged|done]] --[[Joey]] 
+merged|done --[[Joey]] (But reopened, see above.)
 
 ----
 
