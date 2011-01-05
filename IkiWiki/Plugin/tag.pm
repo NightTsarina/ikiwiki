@@ -63,7 +63,7 @@ sub tagname ($) {
 	} else {
 		$tag =~ s!^\.?/!!;
 	}
-	return $tag;
+	return pagetitle($tag, 1);
 }
 
 sub htmllink_tag ($$$;@) {
