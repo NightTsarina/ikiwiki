@@ -3,3 +3,20 @@ absolute, which can break the preview function in some circumstances
 (with e.g. images not showing). The trivial [[patch]] that fixes
 it can be found [[here|http://sprunge.us/EPHT]] as well as on [[my
 git|http://git.oblomov.eu/ikiwiki]].
+
+> That patch does mean that if you're accessing the CGI via HTTPS but your
+> $config{url} and $config{cgiurl} are HTTP, you'll get preview images loaded
+> via HTTP, causing the browser to complain. See
+> [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]]
+> for background.
+>
+> Perhaps the CGI could form its `<base>` URL by using
+> `URI->new_abs(urlto(...), $cgi->url)` instead?
+>
+> You'd also need to change `IkiWiki/Wrapper.pm` to pass at least the
+> SERVER_NAME and SERVER_PORT through the environment, probably.
+>
+> Joey's last comment on
+> [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]]
+> suggests that this might already work, but I'm not quite sure how - I'd
+> expect it to need more environment variables? --[[smcv]]
