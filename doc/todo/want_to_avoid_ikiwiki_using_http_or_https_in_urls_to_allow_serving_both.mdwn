@@ -2,6 +2,18 @@
 
 [[done]] again! :)
 
+Actually, there are two places where the configured url is still hardcoded:
+
+1. When searching, all the links will use it. This is annoying to fix,
+   and we deem it not a problem.
+2. When ikiwiki dies with an error, the links on the error page will
+   use it. Too bad :)
+
+------
+
+## semi-old
+
+
 * CGI pages, with the exception of edit pages, set `<base>` to
   `$config{url}`
 
