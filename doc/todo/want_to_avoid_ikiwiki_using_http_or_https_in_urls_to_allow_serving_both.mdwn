@@ -4,17 +4,16 @@
 
 * CGI pages, with the exception of edit pages, set `<base>` to
   `$config{url}`
-* When doing a Logout or Cancel, or when saving an edited page,
-  the user is returned to something derived from `$config{url}`.
-* RecentChanges page may link to things derived from `$config{url}`.
 
-All of the above are because I had to revert `baseurl(undef)` to always
-returning an absolute url, since relative urls caused breakage as seen in
-[[preview_base_url_should_be_absolute]]. --[[Joey]] 
+I had to revert using `baseurl(undef)` for that, because it needs
+to be a full url.
 
 Ideally, baseurl would return an absolute url derived from the url
 being used to access the cgi, but that needs access to the CGI object,
-which it does not have. --[[Joey]] 
+which it does not currently have. Similarly, `misctemplate`
+does not have access to the CGI object, so it cannot use it to
+generate a better baseurl. Not sure yet what to do; may have to thread
+a cgi parameter through all the calls to misctemplate. --[[Joey]]
 
 ## old attempt
 

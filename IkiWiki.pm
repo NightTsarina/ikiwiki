@@ -1931,7 +1931,7 @@ sub misctemplate ($$;@) {
 		title => $title,
 		wikiname => $config{wikiname},
 		content => $content,
-		baseurl => baseurl(),
+		baseurl => $config{url},
 		html5 => $config{html5},
 		%params,
 	);
