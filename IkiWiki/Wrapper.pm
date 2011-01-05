@@ -49,6 +49,7 @@ sub gen_wrapper () {
 	push @envsave, qw{REMOTE_ADDR QUERY_STRING REQUEST_METHOD REQUEST_URI
 	               CONTENT_TYPE CONTENT_LENGTH GATEWAY_INTERFACE
 		       HTTP_COOKIE REMOTE_USER HTTPS REDIRECT_STATUS
+		       HTTP_HOST SERVER_PORT HTTPS
 		       REDIRECT_URL} if $config{cgi};
 	my $envsave="";
 	foreach my $var (@envsave) {
