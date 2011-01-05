@@ -59,26 +59,16 @@ sub showform_preview ($$$$;@) {
 	my %params=@_;
 
 	# The base url needs to be a full URL, and urlto may return a path.
-	my $baseurl = absurl(urlto($params{page}), $cgi);
+	my $baseurl = urlabs(urlto($params{page}), $cgi->url);
 
 	showform($form, $buttons, $session, $cgi, @_,
 		forcebaseurl => $baseurl);
 }
 
-# Forces a partial url (path only) to absolute, using the same
-# URL scheme as the CGI. Full URLs are left unchanged.
-sub absurl ($$) {
-	my $partialurl=shift;
-	my $q=shift;
-
-	eval q{use URI};
-	return URI->new_abs($partialurl, $q->url);
-}
-
 sub redirect ($$) {
 	my $q=shift;
 	eval q{use URI};
-	my $url=URI->new(absurl(shift, $q));
+	my $url=URI->new(urlabs(shift, $q->url));
 	if (! $config{w3mmode}) {
 		print $q->redirect($url);
 	}

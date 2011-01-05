@@ -8,7 +8,6 @@ use IkiWiki 3.00;
 use HTML::Parser;
 use HTML::Tagset;
 use HTML::Entities;
-use URI;
 use open qw{:utf8 :std};
 
 my %feeds;
@@ -660,7 +659,7 @@ sub add_page (@) {
 	$template->param(url => $feed->{url});
 	$template->param(copyright => $params{copyright})
 		if defined $params{copyright} && length $params{copyright};
-	$template->param(permalink => urlabs($params{link}, $feed->{feedurl}))
+	$template->param(permalink => IkiWiki::urlabs($params{link}, $feed->{feedurl}))
 		if defined $params{link};
 	if (ref $feed->{tags}) {
 		$template->param(tags => [map { tag => $_ }, @{$feed->{tags}}]);
@@ -688,13 +687,6 @@ sub wikiescape ($) {
 	return encode_entities(shift, '\[\]');
 }
 
-sub urlabs ($$) {
-	my $url=shift;
-	my $urlbase=shift;
-
-	URI->new_abs($url, $urlbase)->as_string;
-}
-
 sub htmlabs ($$) {
 	# Convert links in html from relative to absolute.
 	# Note that this is a heuristic, which is not specified by the rss
@@ -720,7 +712,7 @@ sub htmlabs ($$) {
 				next unless $v_offset; # 0 v_offset means no value
 				my $v = substr($text, $v_offset, $v_len);
 				$v =~ s/^([\'\"])(.*)\1$/$2/;
-				my $new_v=urlabs($v, $urlbase);
+				my $new_v=IkiWiki::urlabs($v, $urlbase);
 				$new_v =~ s/\"/&quot;/g; # since we quote with ""
 				substr($text, $v_offset, $v_len) = qq("$new_v");
 			}
