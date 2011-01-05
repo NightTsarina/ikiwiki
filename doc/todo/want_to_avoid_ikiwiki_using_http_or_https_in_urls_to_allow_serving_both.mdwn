@@ -1,6 +1,6 @@
 ## current status
 
-99% of the way there, but:
+[[done]] again! :)
 
 * CGI pages, with the exception of edit pages, set `<base>` to
   `$config{url}`
@@ -14,6 +14,8 @@
   does not have access to the CGI object, so it cannot use it to
   generate a better baseurl. Not sure yet what to do; may have to thread
   a cgi parameter through all the calls to misctemplate. --[[Joey]]
+
+  > Fixed, cgitemplate is used now. --[[Joey]] 
 
 * Using `do=goto` to go to a comment or recentchanges item
   will redirect to the `$config{url}`-based url, since the

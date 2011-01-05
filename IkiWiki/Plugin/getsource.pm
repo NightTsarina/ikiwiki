@@ -61,7 +61,7 @@ sub cgi_getsource ($) {
 		IkiWiki::cgi_custom_failure(
 			$cgi,
 			"404 Not Found",
-			IkiWiki::misctemplate(gettext("missing page"),
+			IkiWiki::cgitemplate($cgi, gettext("missing page"),
 				"<p>".
 				sprintf(gettext("The page %s does not exist."),
 					htmllink("", "", $page)).
@@ -72,7 +72,7 @@ sub cgi_getsource ($) {
 	if (! defined pagetype($pagesources{$page})) {
 		IkiWiki::cgi_custom_failure(
 			$cgi->header(-status => "403 Forbidden"),
-			IkiWiki::misctemplate(gettext("not a page"),
+			IkiWiki::cgitemplate($cgi, gettext("not a page"),
 				"<p>".
 				sprintf(gettext("%s is an attachment, not a page."),
 					htmllink("", "", $page)).

@@ -1916,39 +1916,6 @@ sub template ($;@) {
 	template_depends(shift, undef, @_);
 }
 
-sub misctemplate ($$;@) {
-	my $title=shift;
-	my $content=shift;
-	my %params=@_;
-	
-	my $template=template("page.tmpl");
-
-	my $page="";
-	if (exists $params{page}) {
-		$page=delete $params{page};
-	}
-	run_hooks(pagetemplate => sub {
-		shift->(
-			page => $page,
-			destpage => $page,
-			template => $template,
-		);
-	});
-	templateactions($template, "");
-
-	$template->param(
-		dynamic => 1,
-		title => $title,
-		wikiname => $config{wikiname},
-		content => $content,
-		baseurl => $config{url}.'/',
-		html5 => $config{html5},
-		%params,
-	);
-	
-	return $template->output;
-}
-
 sub templateactions ($$) {
 	my $template=shift;
 	my $page=shift;

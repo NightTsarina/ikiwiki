@@ -227,20 +227,21 @@ sub setupfiles () {
 			"database_dir .\n".
 			"template_dir ./templates\n");
 		
-		# Avoid omega interpreting anything in the misctemplate
+		# Avoid omega interpreting anything in the cgitemplate
 		# as an omegascript command.
-		my $misctemplate=IkiWiki::misctemplate(gettext("search"), "\0",
+		eval q{use IkiWiki::CGI};
+		my $template=IkiWiki::cgitemplate(undef, gettext("search"), "\0",
 			searchform => "", # avoid showing the small search form
 		);
 		eval q{use HTML::Entities};
 		error $@ if $@;
-		$misctemplate=encode_entities($misctemplate, '\$');
+		$template=encode_entities($template, '\$');
 
 		my $querytemplate=readfile(IkiWiki::template_file("searchquery.tmpl"));
-		$misctemplate=~s/\0/$querytemplate/;
+		$template=~s/\0/$querytemplate/;
 
 		writefile("query", $config{wikistatedir}."/xapian/templates",
-			$misctemplate);
+			$template);
 		$setup=1;
 	}
 }

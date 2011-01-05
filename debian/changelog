@@ -3,15 +3,16 @@ ikiwiki (3.20101232) UNRELEASED; urgency=low
   * tag: Do not include tagbase in rss/atom category tags. (Giuseppe Bilotta)
   * tag: Improve display of tags with a slash in their names.
     (Giuseppe Bilotta)
-  * Fix base url when previewing. Was broken by base changes in last release.
   * Fix redirect to use a full url. Was broken (in theory) by baseurl
     changes in last release.
-  * Temporarily revert one part of the multiple url support in the last
-    release. Non-edit pages are now back to having `<base>` set to
-    the site's main url.
+  * Fix `<base>` output by cgi to have a full url again, broken by last
+    release.
   * Fix permalinks to recentchanges items and comments, broken by last
     release.
-  * Export three cgi env vars needed for CGI->url to work.
+  * Export three cgi env vars needed for CGI->url to work. Fixed
+    openid breakage from last release.
+  * Removed `IkiWiki::misctemplate()` function. Any plugins using
+    it should use `IkiWiki::cgitemplate()` instead.
 
  -- Joey Hess <joeyh@debian.org>  Tue, 04 Jan 2011 16:00:55 -0400
 

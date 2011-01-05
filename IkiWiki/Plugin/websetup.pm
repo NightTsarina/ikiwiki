@@ -447,10 +447,10 @@ sub showform ($$) {
 			IkiWiki::saveindex();
 			IkiWiki::unlockwiki();
 
-			# Print the top part of a standard misctemplate,
+			# Print the top part of a standard cgitemplate,
 			# then show the rebuild or refresh, live.
 			my $divider="\0";
-			my $html=IkiWiki::misctemplate("setup", $divider);
+			my $html=IkiWiki::cgitemplate($cgi, "setup", $divider);
 			IkiWiki::printheader($session);
 			my ($head, $tail)=split($divider, $html, 2);
 			print $head."<pre>\n";
