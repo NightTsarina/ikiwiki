@@ -178,7 +178,6 @@ sub store ($$$) {
 			else {
 				$_->{link} = pagetitle($_->{page});
 			}
-			$_->{baseurl}=IkiWiki::baseurl(undef) if length $config{url};
 
 			$_;
 		} @{$change->{pages}}
