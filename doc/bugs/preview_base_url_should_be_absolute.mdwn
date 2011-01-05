@@ -20,3 +20,7 @@ git|http://git.oblomov.eu/ikiwiki]].
 > [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]]
 > suggests that this might already work, but I'm not quite sure how - I'd
 > expect it to need more environment variables? --[[smcv]]
+>
+>> `CGI::url` uses `REQUEST_URI`. So it could be used, but I don't see
+>> how to get from the `CGI::url` to an url to the page that is being
+>> edited. --[[Joey]]
