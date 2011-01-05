@@ -46,23 +46,45 @@ sub showform ($$$$;@) {
 	my $cgi=shift;
 
 	printheader($session);
-	print misctemplate($form->title, $form->render(submit => $buttons), @_);
+	print cgitemplate($cgi, $form->title,
+		$form->render(submit => $buttons), @_);
 }
 
-# Like showform, but the base url will be set to allow edit previews
-# that use links relative to the specified page.
-sub showform_preview ($$$$;@) {
-	my $form=shift;
-	my $buttons=shift;
-	my $session=shift;
+sub cgitemplate ($$$;@) {
 	my $cgi=shift;
+	my $title=shift;
+	my $content=shift;
 	my %params=@_;
+	
+	my $template=template("page.tmpl");
 
-	# The base url needs to be a full URL, and urlto may return a path.
-	my $baseurl = urlabs(urlto($params{page}), $cgi->url);
+	my $topurl = defined $cgi ? $cgi->url : $config{url};
 
-	showform($form, $buttons, $session, $cgi, @_,
-		forcebaseurl => $baseurl);
+	my $page="";
+	if (exists $params{page}) {
+		$page=delete $params{page};
+		$params{forcebaseurl}=urlabs(urlto($page), $topurl);
+	}
+	run_hooks(pagetemplate => sub {
+		shift->(
+			page => $page,
+			destpage => $page,
+			template => $template,
+		);
+	});
+	templateactions($template, "");
+
+	$template->param(
+		dynamic => 1,
+		title => $title,
+		wikiname => $config{wikiname},
+		content => $content,
+		baseurl => urlabs(urlto(undef), $topurl),
+		html5 => $config{html5},
+		%params,
+	);
+	
+	return $template->output;
 }
 
 sub redirect ($$) {
@@ -439,7 +461,7 @@ sub cgierror ($) {
 	my $message=shift;
 
 	print "Content-type: text/html\n\n";
-	print misctemplate(gettext("Error"),
+	print cgitemplate(undef, gettext("Error"),
 		"<p class=\"error\">".gettext("Error").": $message</p>");
 	die $@;
 }

@@ -554,7 +554,7 @@ sub editcomment ($$) {
 
 	}
 	else {
-		IkiWiki::showform_preview($form, \@buttons, $session, $cgi,
+		IkiWiki::showform($form, \@buttons, $session, $cgi,
 			page => $page);
 	}
 

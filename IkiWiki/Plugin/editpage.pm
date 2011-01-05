@@ -312,7 +312,7 @@ sub cgi_editpage ($$) {
 			$form->title(sprintf(gettext("editing %s"), pagetitle(basename($page))));
 		}
 		
-		showform_preview($form, \@buttons, $session, $q, page => $page);
+		showform($form, \@buttons, $session, $q, page => $page);
 	}
 	else {
 		# save page
@@ -329,7 +329,7 @@ sub cgi_editpage ($$) {
 			$form->field(name => "page", type => 'hidden');
 			$form->field(name => "type", type => 'hidden');
 			$form->title(sprintf(gettext("editing %s"), $page));
-			showform_preview($form, \@buttons, $session, $q,
+			showform($form, \@buttons, $session, $q,
 				page => $page);
 			exit;
 		}
@@ -344,7 +344,7 @@ sub cgi_editpage ($$) {
 				value => readfile("$config{srcdir}/$file").
 				         "\n\n\n".$form->field("editcontent"),
 				force => 1);
-			showform_preview($form, \@buttons, $session, $q,
+			showform($form, \@buttons, $session, $q,
 				page => $page);
 			exit;
 		}
@@ -385,7 +385,7 @@ sub cgi_editpage ($$) {
 			$form->field(name => "page", type => 'hidden');
 			$form->field(name => "type", type => 'hidden');
 			$form->title(sprintf(gettext("editing %s"), $page));
-			showform_preview($form, \@buttons, $session, $q,
+			showform($form, \@buttons, $session, $q,
 				page => $page);
 			exit;
 		}
@@ -427,7 +427,7 @@ sub cgi_editpage ($$) {
 			$form->field(name => "page", type => 'hidden');
 			$form->field(name => "type", type => 'hidden');
 			$form->title(sprintf(gettext("editing %s"), $page));
-			showform_preview($form, \@buttons, $session, $q,
+			showform($form, \@buttons, $session, $q,
 				page => $page);
 		}
 		else {
