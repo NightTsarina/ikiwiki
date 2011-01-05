@@ -225,7 +225,7 @@ sub store ($$$) {
 		wikiname => $config{wikiname},
 	);
 	
-	$template->param(permalink => urlto($config{recentchangespage}, undef, 1)."#change-".titlepage($change->{rev}))
+	$template->param(permalink => urlto($config{recentchangespage})."#change-".titlepage($change->{rev}))
 		if exists $config{url};
 	
 	IkiWiki::run_hooks(pagetemplate => sub {

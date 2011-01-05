@@ -298,6 +298,11 @@ sub pagetemplate (@) {
 			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);
 	}
 
+	foreach my $field (qw{permalink}) {
+		$template->param($field => IkiWiki::urlabs($pagestate{$page}{meta}{$field}, $config{url}))
+			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);
+	}
+
 	foreach my $field (qw{description}) {
 		$template->param($field => HTML::Entities::encode_numeric($pagestate{$page}{meta}{$field}))
 			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);
