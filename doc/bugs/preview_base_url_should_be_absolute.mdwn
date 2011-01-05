@@ -24,3 +24,16 @@ git|http://git.oblomov.eu/ikiwiki]].
 >> `CGI::url` uses `REQUEST_URI`. So it could be used, but I don't see
 >> how to get from the `CGI::url` to an url to the page that is being
 >> edited. --[[Joey]]
+>>> (The right rune seems to be: `URI->new_abs(urlto($params{page}), $cgi->url))` --[[Joey]] 
+
+---
+
+Update: This bug is worse than it first appeared, and does not only affect
+previewing. The cgi always has a `<base>` url, and it's always relative,
+and that can break various links etc. For example, when the 404 plugin
+displays a missing page, it has a Recentchanges link, which would be broken
+if the cgi was in an unusual place.
+
+`misctemplate` needs to *always* set an absolute baseurl. Which is a problem,
+since `misctemplate` is not currently passed a cgi object from which to
+construct one. --[[Joey]]
