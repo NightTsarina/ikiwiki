@@ -72,7 +72,7 @@ sub absurl ($$) {
 	my $q=shift;
 
 	eval q{use URI};
-	return URI->new_abs($partialurl, $q);
+	return URI->new_abs($partialurl, $q->url);
 }
 
 sub redirect ($$) {
