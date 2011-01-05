@@ -372,8 +372,6 @@ sub editcomment ($$) {
 		error(gettext("bad page name"));
 	}
 
-	my $baseurl = urlto($page);
-
 	$form->title(sprintf(gettext("commenting on %s"),
 			IkiWiki::pagetitle(IkiWiki::basename($page))));
 
@@ -385,7 +383,7 @@ sub editcomment ($$) {
 
 	if ($form->submitted eq CANCEL) {
 		# bounce back to the page they wanted to comment on, and exit.
-		IkiWiki::redirect($cgi, $baseurl);
+		IkiWiki::redirect($cgi, urlto($page));
 		exit;
 	}
 
@@ -556,8 +554,8 @@ sub editcomment ($$) {
 
 	}
 	else {
-		IkiWiki::showform ($form, \@buttons, $session, $cgi,
-			forcebaseurl => $baseurl, page => $page);
+		IkiWiki::showform_preview($form, \@buttons, $session, $cgi,
+			page => $page);
 	}
 
 	exit;

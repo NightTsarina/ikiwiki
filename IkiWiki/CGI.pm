@@ -49,6 +49,24 @@ sub showform ($$$$;@) {
 	print misctemplate($form->title, $form->render(submit => $buttons), @_);
 }
 
+# Like showform, but the base url will be set to allow edit previews
+# that use links relative to the specified page.
+sub showform_preview ($$$$;@) {
+	my $form=shift;
+	my $buttons=shift;
+	my $session=shift;
+	my $cgi=shift;
+	my %params=@_;
+
+	eval q{use URI};
+	# The base url needs to be a full URL. If urlto returns relative,
+	# force it absolute, using the same URL scheme used for the cgi.
+	my $baseurl = URI->new_abs(urlto($params{page}), $cgi->url);
+
+	showform($form, $buttons, $session, $cgi, @_,
+		forcebaseurl => $baseurl);
+}
+
 sub redirect ($$) {
 	my $q=shift;
 	eval q{use URI};
