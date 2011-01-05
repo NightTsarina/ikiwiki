@@ -59,7 +59,7 @@ sub showform_preview ($$$$;@) {
 	my %params=@_;
 
 	# The base url needs to be a full URL, and urlto may return a path.
-	my $baseurl = absurl(urlto($params{page}), $cgi->url);
+	my $baseurl = absurl(urlto($params{page}), $cgi);
 
 	showform($form, $buttons, $session, $cgi, @_,
 		forcebaseurl => $baseurl);
