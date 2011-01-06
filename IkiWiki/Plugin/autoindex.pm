@@ -22,12 +22,23 @@ sub getsetup () {
 sub genindex ($) {
 	my $page=shift;
 	my $file=newpagefile($page, $config{default_pageext});
-	my $template=template("autoindex.tmpl");
-	$template->param(page => $page);
-	writefile($file, $config{srcdir}, $template->output);
-	if ($config{rcs}) {
-		IkiWiki::rcs_add($file);
-	}
+
+	add_autofile($file, "autoindex", sub {
+			my $message = sprintf(gettext("creating index page %s"),
+				$page);
+			debug($message);
+
+			my $template = template("autoindex.tmpl");
+			$template->param(page => $page);
+			writefile($file, $config{srcdir}, $template->output);
+
+			if ($config{rcs}) {
+				IkiWiki::disable_commit_hook();
+				IkiWiki::rcs_add($file);
+				IkiWiki::rcs_commit_staged(message => $message);
+				IkiWiki::enable_commit_hook();
+			}
+		});
 }
 
 sub refresh () {
@@ -66,7 +77,10 @@ sub refresh () {
 
 		chdir($origdir) || die "chdir $origdir: $!";
 	}
-	
+
+	# FIXME: some of this is probably redundant with add_autofile now, and
+	# the rest should perhaps be added to the autofile machinery
+
 	my %deleted;
 	if (ref $wikistate{autoindex}{deleted}) {
 		%deleted=%{$wikistate{autoindex}{deleted}};
@@ -109,17 +123,8 @@ sub refresh () {
 	}
 	
 	if (@needed) {
-		if ($config{rcs}) {
-			IkiWiki::disable_commit_hook();
-		}
 		foreach my $page (@needed) {
 			genindex($page);
-		}
-		if ($config{rcs}) {
-			IkiWiki::rcs_commit_staged(
-				message => gettext("automatic index generation"),
-			);
-			IkiWiki::enable_commit_hook();
 		}
 	}
 }

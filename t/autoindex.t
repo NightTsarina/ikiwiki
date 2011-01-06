@@ -3,7 +3,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use Test::More tests => 22;
+use Test::More tests => 28;
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
@@ -61,6 +61,9 @@ writefile("attached/pie.jpg", "t/tmp", "I lied, this isn't a real JPEG");
 # "gone" disappeared just before this refresh pass so it still has a mtime
 $pagemtime{gone} = $pagectime{gone} = 1000000;
 
+my %pages;
+my @del;
+
 IkiWiki::Plugin::autoindex::refresh();
 
 # these pages are still on record as having been deleted, because they have
@@ -83,12 +86,24 @@ ok(! -f "t/tmp/has_internal.mdwn");
 ok(! exists $wikistate{autoindex}{deleted}{reinstated});
 ok(! -f "t/tmp/reinstated.mdwn");
 
-# needs creating
+# needs creating (deferred; part of the autofile mechanism now)
 ok(! exists $wikistate{autoindex}{deleted}{tags});
+%pages = ();
+@del = ();
+is($autofiles{"tags.mdwn"}{plugin}, "autoindex");
+IkiWiki::gen_autofile("tags.mdwn", \%pages, \@del);
+is_deeply(\%pages, {"t/tmp/tags" => 1}) || diag explain \%pages;
+is_deeply(\@del, []) || diag explain \@del;
 ok(-s "t/tmp/tags.mdwn");
 
 # needs creating because of an attachment
 ok(! exists $wikistate{autoindex}{deleted}{attached});
+%pages = ();
+@del = ();
+is($autofiles{"attached.mdwn"}{plugin}, "autoindex");
+IkiWiki::gen_autofile("attached.mdwn", \%pages, \@del);
+is_deeply(\%pages, {"t/tmp/attached" => 1}) || diag explain \%pages;
+is_deeply(\@del, []) || diag explain \@del;
 ok(-s "t/tmp/attached.mdwn");
 
 1;
