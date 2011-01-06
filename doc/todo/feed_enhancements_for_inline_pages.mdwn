@@ -3,6 +3,36 @@
 A few patches to clean up and improve feed management for inline pages.
 
 * the first patch simply replaces the id attribute in the default template for feedlinks with a class attribute by the same name. This is necessary in pages with multiple inlines to guarantee correctness
+
+  > Ok, but blogform.tmpl has the same problem. And either change can need
+  > CSS changes. (blogform in particular is used in style.css as an id.)
+  > So this needs more documentation and associated work. --[[Joey]]
+
 * the second patch tries to define the default description for a feed based not only on the wiki name, but also on the current page name. The actual way this is built might not be the optimal one, so I'm open to suggestions
+
+  > I don't really like using "wikiname/page" as the name of the feed. It's
+  > a bit too mechanical. I'd be ok with using just the page name,
+  > with a fallback to wikiname for the toplevel index. Or maybe
+  > something like "$wikiname's $page".
+  > 
+  > Also, shouldn't `pagetitle` be run on the page name? (Haven't checked.)
+  > --[[Joey]] 
+
 * the third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
+
+  > Seems reasonable. Cherry-picked. Note that the title attribute
+  > will be shown by browsers as a tooltip. So I made it say 
+  > "$name (RSS feed)"
+
 * the fourth patch introduces a feedlinks parameter to the inline directive, to allow for the specifications of the locations where the feed links should appear. Currently, two options are allowed (head and body), plus both and none with obvious significance
+
+  > Hmm. This doesn't affect the feed links in the blogform.tmpl. Anyway,
+  > this is not something I see a real benefit of making configurable above
+  > the template editing level. I don't see any point whatsoever of
+  > allowing to turn off the feed links in the `<head>` -- they are not
+  > user-visible, and IIRC that is the recommended and most portable way
+  > to encode the information for feed discovery agents (rather than
+  > putting it in the body). And the sorry state of "modern" browsers, 
+  > such as chromium's support for RSS means that it still makes sense to 
+  > have user-visible feed buttons. If that changed, it would make sense to
+  > modify ikiwiki to globally remove them. --[[Joey]]
