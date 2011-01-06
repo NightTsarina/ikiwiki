@@ -8,6 +8,15 @@ A few patches to clean up and improve feed management for inline pages.
   > CSS changes. (blogform in particular is used in style.css as an id.)
   > So this needs more documentation and associated work. --[[Joey]]
 
+  >> I didn't include blogform in the change because the case of two
+  >> blog post forms in the same page is probably extremely rare. But
+  >> then again I remember doing having them in one of my ikiwiki
+  >> draftings, so I rewrote the patch to include blogform. I had
+  >> checked the distributed CSS for #feedlinks references, without
+  >> finding any. The new patch does include CSS changes for the
+  >> #blogform -> .blogform change. I have no idea on where to document
+  >> this change though.
+
 * the second patch tries to define the default description for a feed based not only on the wiki name, but also on the current page name. The actual way this is built might not be the optimal one, so I'm open to suggestions
 
   > I don't really like using "wikiname/page" as the name of the feed. It's
@@ -18,11 +27,18 @@ A few patches to clean up and improve feed management for inline pages.
   > Also, shouldn't `pagetitle` be run on the page name? (Haven't checked.)
   > --[[Joey]] 
 
+  >> The rewritten patch now uses the page title, obtained from meta if
+  >> possible. I introduce a new configuration key to customize
+  >> the actual automatic description allowing combinations of the wiki
+  >> name and page title.
+
 * the third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
 
   > Seems reasonable. Cherry-picked. Note that the title attribute
   > will be shown by browsers as a tooltip. So I made it say 
   > "$name (RSS feed)"
+
+  >> Good, thanks.
 
 * the fourth patch introduces a feedlinks parameter to the inline directive, to allow for the specifications of the locations where the feed links should appear. Currently, two options are allowed (head and body), plus both and none with obvious significance
 
@@ -36,3 +52,13 @@ A few patches to clean up and improve feed management for inline pages.
   > such as chromium's support for RSS means that it still makes sense to 
   > have user-visible feed buttons. If that changed, it would make sense to
   > modify ikiwiki to globally remove them. --[[Joey]]
+
+  >> I was actually quite surprised myself by the lack of automatic feed
+  >> discovery in chromium (although I noticed there's a sort-of
+  >> official plugin to do it). Overall, I believe your critique is
+  >> well-founded, I'll scratch this patch.
+
+Instead, a new patch has been added, that fixes the url in the feeds to
+point to included page rather than the including one. This is actually
+a forgotten piece from the patch that based the feed paths on the
+included rather than the including page.
