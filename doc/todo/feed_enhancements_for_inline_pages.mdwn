@@ -27,12 +27,12 @@ A few patches to clean up and improve feed management for inline pages.
   > Also, shouldn't `pagetitle` be run on the page name? (Haven't checked.)
   > --[[Joey]] 
 
-  >> The rewritten patch now uses the page title, obtained from meta if
-  >> possible. I introduce a new configuration key to customize
-  >> the actual automatic description allowing combinations of the wiki
-  >> name and page title.
+  >> The rewritten patch now sets the feed title using the page title, and the feed description
+  >> using the page _description_, both obtained from meta if possible. If there is no page
+  >> description, then we use the page title combined with the wiki name. I introduce a new
+  >> configuration key to customize the actual automatic description.
 
-* the third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
+* the (former) third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
 
   > Seems reasonable. Cherry-picked. Note that the title attribute
   > will be shown by browsers as a tooltip. So I made it say 
@@ -40,7 +40,11 @@ A few patches to clean up and improve feed management for inline pages.
 
   >> Good, thanks.
 
-* the fourth patch introduces a feedlinks parameter to the inline directive, to allow for the specifications of the locations where the feed links should appear. Currently, two options are allowed (head and body), plus both and none with obvious significance
+* the (new) third patch passes uses the included rather than the including page for the URL. This is
+  actually a forgotten piece from my previous patch (now upstream) to base the feed name on the
+  included rather than the including page, and it's only relevant for nested inline pages.
+
+* the (former) fourth patch introduces a feedlinks parameter to the inline directive, to allow for the specifications of the locations where the feed links should appear. Currently, two options are allowed (head and body), plus both and none with obvious significance
 
   > Hmm. This doesn't affect the feed links in the blogform.tmpl. Anyway,
   > this is not something I see a real benefit of making configurable above
@@ -58,7 +62,10 @@ A few patches to clean up and improve feed management for inline pages.
   >> official plugin to do it). Overall, I believe your critique is
   >> well-founded, I'll scratch this patch.
 
-Instead, a new patch has been added, that fixes the url in the feeds to
-point to included page rather than the including one. This is actually
-a forgotten piece from the patch that based the feed paths on the
-included rather than the including page.
+* the (new) fourth patch introduces a `feedtitle` parameter to override the feed title. I opted for
+  not squashing it with the second patch to allow you to scrap this but sitll get the other, in case
+  you're not too happy about having a plethora of parameters
+
+* a fifth patch introduces an `id` parameter to allow setting the HTML id attribute in the
+  blogpost/feedlinks template. Since we replace their id with a class (first patch), this brings
+  back the possibility for direct CSS customization and JavaScript manipulation based on id.
