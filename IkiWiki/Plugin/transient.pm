@@ -33,12 +33,14 @@ sub checkconfig () {
 
 sub change (@) {
 	foreach my $file (@_) {
-		# if the corresponding file exists in the transient underlay
-		# and isn't actually being used, we can get rid of it
-		my $page = pagename($file);
-		my $casualty = "$transientdir/$page.$config{default_pageext}";
+		# If the corresponding file exists in the transient underlay
+		# and isn't actually being used, we can get rid of it.
+		# Assume that the file that just changed has the same extension
+		# as the obsolete transient version: this'll be true for web
+		# edits, and avoids invoking File::Find.
+		my $casualty = "$transientdir/$file";
 		if (srcfile($file) ne $casualty && -e $casualty) {
-			debug(sprintf(gettext("removing transient version of %s"), $page));
+			debug(sprintf(gettext("removing transient version of %s"), $file));
 			IkiWiki::prune($casualty);
 		}
 	}
