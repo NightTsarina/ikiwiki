@@ -329,6 +329,10 @@ sub preprocess_inline (@) {
 			$formtemplate->param(postformtext =>
 				gettext("Add a new post titled:"));
 		}
+		if (exists $params{id}) {
+			$formtemplate->param(postformid =>
+				$params{id});
+		}
 		$ret.=$formtemplate->output;
 	    	
 		# The post form includes the feed buttons, so
@@ -345,6 +349,9 @@ sub preprocess_inline (@) {
 		if ($atom) {
 			$linktemplate->param(atomurl => $atomurl);
 			$linktemplate->param(atomdesc => $atomdesc);
+		}
+		if (exists $params{id}) {
+			$linktemplate->param(id => $params{id});
 		}
 		$ret.=$linktemplate->output;
 	}
