@@ -22,10 +22,19 @@ It could also be used for an [[todo/alias_directive]].
 --------------------------
 
 [[!template id=gitbranch branch=smcv/ready/transient author="[[smcv]]"]]
-[[!template id=gitbranch branch=smcv/ready/transient-recentchanges author="[[smcv]]"]]
-[[!template id=gitbranch branch=smcv/ready/tag-test author="[[smcv]]"]]
-[[!template id=gitbranch branch=smcv/transient-tag author="[[smcv]]"]]
 [[!tag patch]]
+
+Related branches:
+
+* `ready/tag-test`: an extra regression test for tags
+* either `transient-relative` or `transient-relative-api`: avoid using `Cwd`
+  on initialization
+* `ready/transient-aggregate`: use for aggregate
+* `ready/transient-autoindex`: optionally use for autoindex
+  (includes autoindex-autofile from
+  [[todo/autoindex should use add__95__autofile]])
+* `ready/transient-recentchanges`: use for recentchanges
+* `ready/transient-tag`: optionally use for tag (includes tag-test)
 
 I think this branch is now enough to be useful. It adds the following:
 
@@ -148,6 +157,9 @@ Not done yet (in that branch, at least):
 * In my `untested/transient` branch, new aggregated files go in the
   transient underlay too (they'll naturally migrate over time). I haven't
   tested this yet, it's just a proof-of-concept.
+
+  > Now renamed to `ready/transient-aggregate`; it does seem to work fine.
+  > --s
 
 > I can confirm that the behavior of autoindex, at least, is excellent.
 > Haven't tried tag. Joey, can you merge transient and autoindex? --JoeRayhawk
