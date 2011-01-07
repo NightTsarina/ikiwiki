@@ -3,7 +3,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use Test::More tests => 22;
+use Test::More tests => 23;
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
@@ -22,7 +22,7 @@ $config{wiki_file_chars} = "-[:alnum:]+/.:_";
 $config{userdir} = "users";
 $config{tagbase} = "tags";
 $config{tag_autocreate} = 1;
-$config{tag_autocreate_commit} = 1;
+$config{tag_autocreate_commit} = 0;
 $config{default_pageext} = "mdwn";
 $config{wiki_file_prune_regexps} = [qr/^\./];
 $config{underlaydirbase} = '.';
@@ -66,7 +66,8 @@ my (%pages, @del);
 IkiWiki::gen_autofile("tags/lucky.mdwn", \%pages, \@del);
 is_deeply(\%pages, {"t/tmp/tags/lucky" => 1}) || diag explain \%pages;
 is_deeply(\@del, []) || diag explain \@del;
-ok(-s "t/tmp/tags/lucky.mdwn");
+ok(! -s "t/tmp/tags/lucky.mdwn");
+ok(-s "t/tmp/.ikiwiki/transient/tags/lucky.mdwn");
 
 # generating an autofile that already exists does nothing
 %pages = @del = ();
