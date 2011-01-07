@@ -23,7 +23,8 @@ It could also be used for an [[todo/alias_directive]].
 
 [[!template id=gitbranch branch=smcv/ready/transient author="[[smcv]]"]]
 [[!template id=gitbranch branch=smcv/ready/transient-recentchanges author="[[smcv]]"]]
-[[!template id=gitbranch branch=smcv/ready/transient-tag author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/ready/tag-test author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/transient-tag author="[[smcv]]"]]
 [[!tag patch]]
 
 I think this branch is now enough to be useful. It adds the following:
@@ -197,6 +198,22 @@ Not done yet (in that branch, at least):
 >>   >> it for those simple cases then? (demand-calculate wikistatedir)
 >>   >> --[[Joey]] 
 
+>>   >>> The reason that transientdir needs to be absolute is that it's
+>>   >>> added as an underlay.
+>>   >>>
+>>   >>> We could avoid using `Cwd` by taking the extra commit from either
+>>   >>> `smcv/transient-relative` or `smcv/transient-relative-api`;
+>>   >>> your choice. I'd personally go for the latter.
+>>   >>>
+>>   >>> According to git grep, [[plugins/po]] already wants to look at
+>>   >>> the underlaydirs in its checkconfig hook, so I don't think
+>>   >>> delaying calculation of the underlaydir is viable. (I also noticed
+>>   >>> a bug,
+>>   >>> [[bugs/po:_might_not_add_translated_versions_of_all_underlays]].)
+>>   >>>
+>>   >>> `underlaydirs` certainly needs to have been calculated by the
+>>   >>> time `refresh` hooks finish, so `find_src_files` can use it. --s
+
 >> * Unsure about the use of `default_pageext` in the `change`
 >>   hook. Is everything in the transientdir really going
 >>   to use that pageext? Would it be better to look up the
@@ -216,6 +233,9 @@ Not done yet (in that branch, at least):
 >>   >> Oh, ugh, more File::Find... Couldn't it just assume that the
 >>   >> transient page has the same extension as its replacement?
 >>   >> --[[Joey]]
+
+>>   >>> Good idea, that'll be true for web edits at least.
+>>   >>> Commit added. --s
 
 --------------------------
 
