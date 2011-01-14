@@ -11,15 +11,6 @@ easy to learn. All you really need to know to modify templates is this:
 * To use one block of text if a variable is set and a second if it's not,
   use `<TMPL_IF variable>text<TMPL_ELSE>other text</TMPL_IF>`
 
-## template files
-
-Template files have the extension `.tmpl`.
-
-Templates are located in `/usr/share/ikiwiki/templates` by default;
-the `templatedir` setting can be used to make another directory be
-searched first. Customised templates can also be placed inside the
-"templates/" directory in your wiki's source.
-
 [[!if test="enabled(template)" then="""
 ## template pages
 
@@ -42,16 +33,26 @@ and enabled(inline)" then="""
 
 [[!inline pages="templates/* and !*.tmpl and !templates/*/* and !*/discussion"
 feeds=no archive=yes sort=title template=titlepage
-rootpage=templates postformtext="Add a new template named:"]]
+rootpage=templates postformtext="Add a new template page named:"]]
 """]]
 
-## wiki templates
+## template files
 
-These templates are used to build the wiki. The aim is to keep almost all
-html out of ikiwiki and in the templates.
+Template files are unlike template pages in that they have the extension
+`.tmpl`. Template files are used extensively by Ikiwiki to generate html.
+They can contain html that would not normally be allowed on a wiki page.
+
+Template files are located in `/usr/share/ikiwiki/templates` by default;
+the `templatedir` setting can be used to make another directory be
+searched first. Customised template files can also be placed inside the
+"templates/" directory in your wiki's source -- files placed there override
+ones in the `templatedir`.
+
+Here is a full list of the template files used:
 
 * `page.tmpl` - Used for displaying all regular wiki pages. This is the
-  key template to customise. [[!if test="enabled(pagetemplate)" then="""
+  key template to customise to change the look and feel of your site.
+  [[!if test="enabled(pagetemplate)" then="""
   (The [[!iki ikiwiki/directive/pagetemplate desc="pagetemplate directive"]]
   can be used to make a page use a different template than `page.tmpl`.)"""]]
 * `rsspage.tmpl` - Used for generating rss feeds for blogs.
