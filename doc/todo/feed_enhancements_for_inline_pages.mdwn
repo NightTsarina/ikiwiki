@@ -50,6 +50,19 @@ A few patches to clean up and improve feed management for inline pages.
   actually a forgotten piece from my previous patch (now upstream) to base the feed name on the
   included rather than the including page, and it's only relevant for nested inline pages.
 
+  > I have a vague memory of considering doing this before, and not,
+  > because there is actually no guarantee that the inlined page (that
+  > itself contains an inline) will generate an url. It could be excluded;
+  > it could be an internal page; it could use a conditional to omit the
+  > inline when not inlined.
+  > 
+  > Also, I think that `destpage` gets set wrong. And I think that
+  > `get_inline_content` is called with the source page, rather than the
+  > destpage, and so could generate urls that don't work on the destpage.
+  >
+  > All in all, this is an edge case, and currently seems to work ok, so
+  > why change it? --[[Joey]] 
+
 * the (former) fourth patch introduces a feedlinks parameter to the inline directive, to allow for the specifications of the locations where the feed links should appear. Currently, two options are allowed (head and body), plus both and none with obvious significance
 
   > Hmm. This doesn't affect the feed links in the blogform.tmpl. Anyway,
