@@ -2,24 +2,11 @@
 
 A few patches to clean up and improve feed management for inline pages.
 
-* the first patch simply replaces the id attribute in the default template for feedlinks with a class attribute by the same name. This is necessary in pages with multiple inlines to guarantee correctness
+(I moved the picked/scratched stuff at the bottom.)
 
-  > Ok, but blogform.tmpl has the same problem. And either change can need
-  > CSS changes. (blogform in particular is used in style.css as an id.)
-  > So this needs more documentation and associated work. --[[Joey]]
-
-  >> I didn't include blogform in the change because the case of two
-  >> blog post forms in the same page is probably extremely rare. But
-  >> then again I remember doing having them in one of my ikiwiki
-  >> draftings, so I rewrote the patch to include blogform. I had
-  >> checked the distributed CSS for #feedlinks references, without
-  >> finding any. The new patch does include CSS changes for the
-  >> \#blogform -> .blogform change. I have no idea on where to document
-  >> this change though.
-
-  >>> Picked. NEWSed. --[[Joey]]
-
-* the second patch tries to define the default description for a feed based not only on the wiki name, but also on the current page name. The actual way this is built might not be the optimal one, so I'm open to suggestions
+* the second patch tries to define the default description for a feed based not only on the wiki name,
+  but also on the current page name. The actual way this is built might not be the optimal one,
+  so I'm open to suggestions
 
   > I don't really like using "wikiname/page" as the name of the feed. It's
   > a bit too mechanical. I'd be ok with using just the page name,
@@ -38,13 +25,9 @@ A few patches to clean up and improve feed management for inline pages.
   >>> ikiwiki already uses the page title as the feed title; TITLE in the
   >>> rsspage.tmpl is handled the same as TITLE in page.tmpl. --[[Joey]]
 
-* the (former) third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
-
-  > Seems reasonable. Cherry-picked. Note that the title attribute
-  > will be shown by browsers as a tooltip. So I made it say 
-  > "$name (RSS feed)"
-
-  >> Good, thanks.
+  >>>> I'm afraid this is not the case in the ikiwiki I have. It might be the effect of some kind of interaction of
+  >>>> this with the next patch, but apparently I need both to ensure that the proper title is being used (see also
+  >>>> below for further details).
 
 * the (new) third patch passes uses the included rather than the including page for the URL. This is
   actually a forgotten piece from my previous patch (now upstream) to base the feed name on the
@@ -62,6 +45,78 @@ A few patches to clean up and improve feed management for inline pages.
   >
   > All in all, this is an edge case, and currently seems to work ok, so
   > why change it? --[[Joey]] 
+
+  >> Because it does not work ok for me. I have a number of directories `dir1/`, `dir2/`, `dir3/`
+  >> each with a corresponding `dir1.mdwn`, `dir2.mdwn`, `dir3.mdwn` etc that is basically just
+  >> an inline instruction. Then my index.mdwn inlines `dir[123]`. Without these two patches, the
+  >> `dir[123]` feeds get the wrong title.
+
+* the (new) fourth patch introduces a `feedtitle` parameter to override the feed title. I opted for
+  not squashing it with the second patch to allow you to scrap this but still get the other, in case
+  you're not too happy about having a plethora of parameters
+
+  > This seems clearly a good idea, since there is already a "description"
+  > parameter. But, by analogy with that parameter, it should just be
+  > called "title". --[[Joey]] 
+
+  >> I'll rework the patch to that effect.
+
+* a fifth patch introduces an `id` parameter to allow setting the HTML id attribute in the
+  blogpost/feedlinks template. Since we replace their id with a class (first patch), this brings
+  back the possibility for direct CSS customization and JavaScript manipulation based on id.
+
+  > That sort of makes sense, but it somehow seems wrong that "id" should
+  > apply to only cruft at the top of the inline, and not the entire div
+  > generated for it. --[[Joey]] 
+
+  >> Good point. I'll look into a way to move the id to the `inlinepage` div, although I guess
+  >> that falling back to `id`ing the `feedlink` div in the feedonly case would be ok.
+
+* 30a4de2aa3ab29dd9397c2edd91676e80bc06feb "urlto: prevent // when {url} ends with /"
+
+  > The `url` in the setup file should not end in a slash. Probably more
+  > things get ugly doubled slashes if someone does that. --[[Joey]] 
+
+  >> I was not aware of this. Did I miss it or is it just not documented?
+
+* 57a9b5c4affda9e855f09a64747e5225d6254079 "inline: use urlto instead of manually building the RSS url"
+
+  > Well, that seems ok. 3 parameter urlto should give us an absolute url.
+  > 
+  > But we have to be careful and verify that it will always produce
+  > exactly the same url as before. Changing the feed url unnecessarily
+  > can probably flood aggregators or something... --[[Joey]]
+
+  >> AFAICS, the feed url would not change (unless the previous patch is also applied and the wiki url ends with a slash)
+
+
+-----
+
+* the first patch simply replaces the id attribute in the default template for feedlinks with a class attribute by the same name. This is necessary in pages with multiple inlines to guarantee correctness
+
+  > Ok, but blogform.tmpl has the same problem. And either change can need
+  > CSS changes. (blogform in particular is used in style.css as an id.)
+  > So this needs more documentation and associated work. --[[Joey]]
+
+  >> I didn't include blogform in the change because the case of two
+  >> blog post forms in the same page is probably extremely rare. But
+  >> then again I remember doing having them in one of my ikiwiki
+  >> draftings, so I rewrote the patch to include blogform. I had
+  >> checked the distributed CSS for #feedlinks references, without
+  >> finding any. The new patch does include CSS changes for the
+  >> \#blogform -> .blogform change. I have no idea on where to document
+  >> this change though.
+
+  >>> Picked. NEWSed. --[[Joey]]
+
+
+* the (former) third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
+
+  > Seems reasonable. Cherry-picked. Note that the title attribute
+  > will be shown by browsers as a tooltip. So I made it say 
+  > "$name (RSS feed)"
+
+  >> Good, thanks.
 
 * the (former) fourth patch introduces a feedlinks parameter to the inline directive, to allow for the specifications of the locations where the feed links should appear. Currently, two options are allowed (head and body), plus both and none with obvious significance
 
@@ -81,31 +136,3 @@ A few patches to clean up and improve feed management for inline pages.
   >> official plugin to do it). Overall, I believe your critique is
   >> well-founded, I'll scratch this patch.
 
-* the (new) fourth patch introduces a `feedtitle` parameter to override the feed title. I opted for
-  not squashing it with the second patch to allow you to scrap this but sitll get the other, in case
-  you're not too happy about having a plethora of parameters
-
-  > This seems clearly a good idea, since there is already a "description"
-  > parameter. But, by analogy with that parameter, it should just be
-  > called "title". --[[Joey]] 
-
-* a fifth patch introduces an `id` parameter to allow setting the HTML id attribute in the
-  blogpost/feedlinks template. Since we replace their id with a class (first patch), this brings
-  back the possibility for direct CSS customization and JavaScript manipulation based on id.
-
-  > That sort of makes sense, but it somehow seems wrong that "id" should
-  > apply to only cruft at the top of the inline, and not the entire div
-  > generated for it. --[[Joey]] 
-
-* 30a4de2aa3ab29dd9397c2edd91676e80bc06feb "urlto: prevent // when {url} ends with /"
-
-  > The `url` in the setup file should not end in a slash. Probably more
-  > things get ugly doubled slashes if someone does that. --[[Joey]] 
-
-* 57a9b5c4affda9e855f09a64747e5225d6254079 "inline: use urlto instead of manually building the RSS url"
-
-  > Well, that seems ok. 3 parameter urlto should give us an absolute url.
-  > 
-  > But we have to be careful and verify that it will always produce
-  > exactly the same url as before. Changing the feed url unnecessarily
-  > can probably flood aggregators or something... --[[Joey]]
