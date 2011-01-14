@@ -85,6 +85,27 @@ A few patches to clean up and improve feed management for inline pages.
   not squashing it with the second patch to allow you to scrap this but sitll get the other, in case
   you're not too happy about having a plethora of parameters
 
+  > This seems clearly a good idea, since there is already a "description"
+  > parameter. But, by analogy with that parameter, it should just be
+  > called "title". --[[Joey]] 
+
 * a fifth patch introduces an `id` parameter to allow setting the HTML id attribute in the
   blogpost/feedlinks template. Since we replace their id with a class (first patch), this brings
   back the possibility for direct CSS customization and JavaScript manipulation based on id.
+
+  > That sort of makes sense, but it somehow seems wrong that "id" should
+  > apply to only cruft at the top of the inline, and not the entire div
+  > generated for it. --[[Joey]] 
+
+* 30a4de2aa3ab29dd9397c2edd91676e80bc06feb "urlto: prevent // when {url} ends with /"
+
+  > The `url` in the setup file should not end in a slash. Probably more
+  > things get ugly doubled slashes if someone does that. --[[Joey]] 
+
+* 57a9b5c4affda9e855f09a64747e5225d6254079 "inline: use urlto instead of manually building the RSS url"
+
+  > Well, that seems ok. 3 parameter urlto should give us an absolute url.
+  > 
+  > But we have to be careful and verify that it will always produce
+  > exactly the same url as before. Changing the feed url unnecessarily
+  > can probably flood aggregators or something... --[[Joey]]
