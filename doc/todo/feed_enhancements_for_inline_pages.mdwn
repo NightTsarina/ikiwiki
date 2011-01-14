@@ -34,6 +34,10 @@ A few patches to clean up and improve feed management for inline pages.
   >> description, then we use the page title combined with the wiki name. I introduce a new
   >> configuration key to customize the actual automatic description.
 
+  >>> The feed title part of this seems unnecessary. As far as I can see,
+  >>> ikiwiki already uses the page title as the feed title; TITLE in the
+  >>> rsspage.tmpl is handled the same as TITLE in page.tmpl. --[[Joey]]
+
 * the (former) third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
 
   > Seems reasonable. Cherry-picked. Note that the title attribute
