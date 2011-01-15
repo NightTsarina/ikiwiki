@@ -4,7 +4,7 @@ A few patches to clean up and improve feed management for inline pages.
 
 (I moved the picked/scratched stuff at the bottom.)
 
-* the second patch tries to define the default description for a feed based not only on the wiki name,
+* the (now first) patch tries to define the default description for a feed based not only on the wiki name,
   but also on the current page name. The actual way this is built might not be the optimal one,
   so I'm open to suggestions
 
@@ -26,10 +26,18 @@ A few patches to clean up and improve feed management for inline pages.
   >>> rsspage.tmpl is handled the same as TITLE in page.tmpl. --[[Joey]]
 
   >>>> I'm afraid this is not the case in the ikiwiki I have. It might be the effect of some kind of interaction of
-  >>>> this with the next patch, but apparently I need both to ensure that the proper title is being used (see also
-  >>>> below for further details).
+  >>>> this with the next patch, but apparently I need both to ensure that the proper title is being used.
 
-* the (new) third patch passes uses the included rather than the including page for the URL. This is
+  >>>> Some further analysis: before my patch, the feed title would be set to
+  >>>> `pagetitle($page)`, or to the wiki name if the pagetitle was index. As
+  >>>> it turns out, in my setup (see below for details) this happens quite
+  >>>> often on my `dirN.mdwn` index pages, where I would like to have `dirN`
+  >>>> as title instead. Plus, unless I'm mistaken, `pagetitle()` doesn't
+  >>>> actually use `meta` information, which my patch does. So I still think
+  >>>> the title part of the patch is worth it. As a bonus, it also allows title
+  >>>> customization by the `title=` parameter as offered in another patch.
+
+* the (now second) patch passes uses the included rather than the including page for the URL. This is
   actually a forgotten piece from my previous patch (now upstream) to base the feed name on the
   included rather than the including page, and it's only relevant for nested inline pages.
 
@@ -38,11 +46,20 @@ A few patches to clean up and improve feed management for inline pages.
   > itself contains an inline) will generate an url. It could be excluded;
   > it could be an internal page; it could use a conditional to omit the
   > inline when not inlined.
-  > 
+
+  >> I would say that in this cases my patch wouldn't change anything because
+  >> either the code would still act as before or it wouldn't be triggered at
+  >> all. --GB
+
   > Also, I think that `destpage` gets set wrong. And I think that
   > `get_inline_content` is called with the source page, rather than the
   > destpage, and so could generate urls that don't work on the destpage.
-  >
+
+  >> `destpage` getting set wrong is probably a bug that should be
+  >> fixed, but I must say I haven't come across it (yet).
+  >> `get_inline_content` is called with both the source and dest page,
+  >> and in my experience the urls have always been generated correctly.
+
   > All in all, this is an edge case, and currently seems to work ok, so
   > why change it? --[[Joey]] 
 
@@ -72,12 +89,29 @@ A few patches to clean up and improve feed management for inline pages.
   >> Good point. I'll look into a way to move the id to the `inlinepage` div, although I guess
   >> that falling back to `id`ing the `feedlink` div in the feedonly case would be ok.
 
+  >> After looking into it, I hit again the same naive error I did while
+  >> working on inline the first time: there is no "outer" div that
+  >> encloses all of the generated content: each inlined page has its
+  >> "inlinepage"-classed div, and the lot of them is prefixed by either
+  >> the feedlinks or postform template output. So the only way to "id"
+  >> a whole block of inlines is by adding a wrapping div that encloses
+  >> the whole product of the inline directive. I can do that if you
+  >> believe it's worth it.
+
 * 30a4de2aa3ab29dd9397c2edd91676e80bc06feb "urlto: prevent // when {url} ends with /"
 
   > The `url` in the setup file should not end in a slash. Probably more
   > things get ugly doubled slashes if someone does that. --[[Joey]] 
 
   >> I was not aware of this. Did I miss it or is it just not documented?
+  >> Also, grepping through the current official code (core and plugins)
+  >> there is only one other place that looks like it could be affected
+  >> by the `url` config ending in slash, and it's the `$local_url`
+  >> stuff in `IkiWiki.pm`, but that code does terminal double-slash
+  >> sanitation itself. So it would seem that my proposed patch would
+  >> lift the restriction about the terminal / (an otherwise unnecessary
+  >> restriction) without affecting much, as long as `url` users rely on
+  >> the core functions to build paths with it (as in the next patch).
 
 * 57a9b5c4affda9e855f09a64747e5225d6254079 "inline: use urlto instead of manually building the RSS url"
 
@@ -87,7 +121,9 @@ A few patches to clean up and improve feed management for inline pages.
   > exactly the same url as before. Changing the feed url unnecessarily
   > can probably flood aggregators or something... --[[Joey]]
 
-  >> AFAICS, the feed url would not change (unless the previous patch is also applied and the wiki url ends with a slash)
+  >> AFAICS, the feed url would only change in the case of /-terminating
+  >> `$config{url}`, and even then only if the preceding urlto sanitation patch
+  >> was included too.
 
 
 -----
