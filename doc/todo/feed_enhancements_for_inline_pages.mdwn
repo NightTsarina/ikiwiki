@@ -2,7 +2,173 @@
 
 A few patches to clean up and improve feed management for inline pages.
 
+(I moved the picked/scratched stuff at the bottom.)
+
+* the (now first) patch tries to define the default description for a feed based not only on the wiki name,
+  but also on the current page name. The actual way this is built might not be the optimal one,
+  so I'm open to suggestions
+
+  > I don't really like using "wikiname/page" as the name of the feed. It's
+  > a bit too mechanical. I'd be ok with using just the page name,
+  > with a fallback to wikiname for the toplevel index. Or maybe
+  > something like "$wikiname's $page".
+  > 
+  > Also, shouldn't `pagetitle` be run on the page name? (Haven't checked.)
+  > --[[Joey]] 
+
+  >> The rewritten patch now sets the feed title using the page title, and the feed description
+  >> using the page _description_, both obtained from meta if possible. If there is no page
+  >> description, then we use the page title combined with the wiki name. I introduce a new
+  >> configuration key to customize the actual automatic description.
+
+  >>> The feed title part of this seems unnecessary. As far as I can see,
+  >>> ikiwiki already uses the page title as the feed title; TITLE in the
+  >>> rsspage.tmpl is handled the same as TITLE in page.tmpl. --[[Joey]]
+
+  >>>> I'm afraid this is not the case in the ikiwiki I have. It might be the effect of some kind of interaction of
+  >>>> this with the next patch, but apparently I need both to ensure that the proper title is being used.
+
+  >>>> Some further analysis: before my patch, the feed title would be set to
+  >>>> `pagetitle($page)`, or to the wiki name if the pagetitle was index. As
+  >>>> it turns out, in my setup (see below for details) this happens quite
+  >>>> often on my `dirN.mdwn` index pages, where I would like to have `dirN`
+  >>>> as title instead. Plus, unless I'm mistaken, `pagetitle()` doesn't
+  >>>> actually use `meta` information, which my patch does. So I still think
+  >>>> the title part of the patch is worth it. As a bonus, it also allows title
+  >>>> customization by the `title=` parameter as offered in another patch.
+
+* the (now second) patch passes uses the included rather than the including page for the URL. This is
+  actually a forgotten piece from my previous patch (now upstream) to base the feed name on the
+  included rather than the including page, and it's only relevant for nested inline pages.
+
+  > I have a vague memory of considering doing this before, and not,
+  > because there is actually no guarantee that the inlined page (that
+  > itself contains an inline) will generate an url. It could be excluded;
+  > it could be an internal page; it could use a conditional to omit the
+  > inline when not inlined.
+
+  >> I would say that in this cases my patch wouldn't change anything because
+  >> either the code would still act as before or it wouldn't be triggered at
+  >> all. --GB
+
+  > Also, I think that `destpage` gets set wrong. And I think that
+  > `get_inline_content` is called with the source page, rather than the
+  > destpage, and so could generate urls that don't work on the destpage.
+
+  >> `destpage` getting set wrong is probably a bug that should be
+  >> fixed, but I must say I haven't come across it (yet).
+  >> `get_inline_content` is called with both the source and dest page,
+  >> and in my experience the urls have always been generated correctly.
+
+  > All in all, this is an edge case, and currently seems to work ok, so
+  > why change it? --[[Joey]] 
+
+  >> Because it does not work ok for me. I have a number of directories `dir1/`, `dir2/`, `dir3/`
+  >> each with a corresponding `dir1.mdwn`, `dir2.mdwn`, `dir3.mdwn` etc that is basically just
+  >> an inline instruction. Then my index.mdwn inlines `dir[123]`. Without these two patches, the
+  >> `dir[123]` feeds get the wrong title.
+
+* the (new) fourth patch introduces a `feedtitle` parameter to override the feed title. I opted for
+  not squashing it with the second patch to allow you to scrap this but still get the other, in case
+  you're not too happy about having a plethora of parameters
+
+  > This seems clearly a good idea, since there is already a "description"
+  > parameter. But, by analogy with that parameter, it should just be
+  > called "title". --[[Joey]] 
+
+  >> I'll rework the patch to that effect.
+
+* a fifth patch introduces an `id` parameter to allow setting the HTML id attribute in the
+  blogpost/feedlinks template. Since we replace their id with a class (first patch), this brings
+  back the possibility for direct CSS customization and JavaScript manipulation based on id.
+
+  > That sort of makes sense, but it somehow seems wrong that "id" should
+  > apply to only cruft at the top of the inline, and not the entire div
+  > generated for it. --[[Joey]] 
+
+  >> Good point. I'll look into a way to move the id to the `inlinepage` div, although I guess
+  >> that falling back to `id`ing the `feedlink` div in the feedonly case would be ok.
+
+  >> After looking into it, I hit again the same naive error I did while
+  >> working on inline the first time: there is no "outer" div that
+  >> encloses all of the generated content: each inlined page has its
+  >> "inlinepage"-classed div, and the lot of them is prefixed by either
+  >> the feedlinks or postform template output. So the only way to "id"
+  >> a whole block of inlines is by adding a wrapping div that encloses
+  >> the whole product of the inline directive. I can do that if you
+  >> believe it's worth it.
+
+* 30a4de2aa3ab29dd9397c2edd91676e80bc06feb "urlto: prevent // when {url} ends with /"
+
+  > The `url` in the setup file should not end in a slash. Probably more
+  > things get ugly doubled slashes if someone does that. --[[Joey]] 
+
+  >> I was not aware of this. Did I miss it or is it just not documented?
+  >> Also, grepping through the current official code (core and plugins)
+  >> there is only one other place that looks like it could be affected
+  >> by the `url` config ending in slash, and it's the `$local_url`
+  >> stuff in `IkiWiki.pm`, but that code does terminal double-slash
+  >> sanitation itself. So it would seem that my proposed patch would
+  >> lift the restriction about the terminal / (an otherwise unnecessary
+  >> restriction) without affecting much, as long as `url` users rely on
+  >> the core functions to build paths with it (as in the next patch).
+
+* 57a9b5c4affda9e855f09a64747e5225d6254079 "inline: use urlto instead of manually building the RSS url"
+
+  > Well, that seems ok. 3 parameter urlto should give us an absolute url.
+  > 
+  > But we have to be careful and verify that it will always produce
+  > exactly the same url as before. Changing the feed url unnecessarily
+  > can probably flood aggregators or something... --[[Joey]]
+
+  >> AFAICS, the feed url would only change in the case of /-terminating
+  >> `$config{url}`, and even then only if the preceding urlto sanitation patch
+  >> was included too.
+
+
+-----
+
 * the first patch simply replaces the id attribute in the default template for feedlinks with a class attribute by the same name. This is necessary in pages with multiple inlines to guarantee correctness
-* the second patch tries to define the default description for a feed based not only on the wiki name, but also on the current page name. The actual way this is built might not be the optimal one, so I'm open to suggestions
-* the third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
-* the fourth patch introduces a feedlinks parameter to the inline directive, to allow for the specifications of the locations where the feed links should appear. Currently, two options are allowed (head and body), plus both and none with obvious significance
+
+  > Ok, but blogform.tmpl has the same problem. And either change can need
+  > CSS changes. (blogform in particular is used in style.css as an id.)
+  > So this needs more documentation and associated work. --[[Joey]]
+
+  >> I didn't include blogform in the change because the case of two
+  >> blog post forms in the same page is probably extremely rare. But
+  >> then again I remember doing having them in one of my ikiwiki
+  >> draftings, so I rewrote the patch to include blogform. I had
+  >> checked the distributed CSS for #feedlinks references, without
+  >> finding any. The new patch does include CSS changes for the
+  >> \#blogform -> .blogform change. I have no idea on where to document
+  >> this change though.
+
+  >>> Picked. NEWSed. --[[Joey]]
+
+
+* the (former) third patch passes the feed titles to the templates, changing the default templates to use these as title attributes for the links. a rel="alternate" attribute is also included
+
+  > Seems reasonable. Cherry-picked. Note that the title attribute
+  > will be shown by browsers as a tooltip. So I made it say 
+  > "$name (RSS feed)"
+
+  >> Good, thanks.
+
+* the (former) fourth patch introduces a feedlinks parameter to the inline directive, to allow for the specifications of the locations where the feed links should appear. Currently, two options are allowed (head and body), plus both and none with obvious significance
+
+  > Hmm. This doesn't affect the feed links in the blogform.tmpl. Anyway,
+  > this is not something I see a real benefit of making configurable above
+  > the template editing level. I don't see any point whatsoever of
+  > allowing to turn off the feed links in the `<head>` -- they are not
+  > user-visible, and IIRC that is the recommended and most portable way
+  > to encode the information for feed discovery agents (rather than
+  > putting it in the body). And the sorry state of "modern" browsers, 
+  > such as chromium's support for RSS means that it still makes sense to 
+  > have user-visible feed buttons. If that changed, it would make sense to
+  > modify ikiwiki to globally remove them. --[[Joey]]
+
+  >> I was actually quite surprised myself by the lack of automatic feed
+  >> discovery in chromium (although I noticed there's a sort-of
+  >> official plugin to do it). Overall, I believe your critique is
+  >> well-founded, I'll scratch this patch.
+

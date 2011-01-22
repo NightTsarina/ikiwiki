@@ -1,0 +1,24 @@
+[[!template id=gitbranch branch=wtk/org author="[[wtk]]"]]
+
+summary
+=======
+
+Add a plugin for handling files written in [org-mode][].
+
+notes
+=====
+
+This is an updated form of [Manoj Srivastava's plugin][MS].  You can
+see the plugin [in action][example] on my blog.
+
+For reasons discussed in the [[reStructuredText plugin|plugins/rst]],
+wikilinks and other ikiwiki markup that inserts raw HTML can cause
+problems.  Org-mode provides a [means for processing raw HTML][raw],
+but Ikiwiki currently (as far as I know) lacks a method to escape
+inserted HTML depending on which plugins will be used during the
+[[htmlize phase|plugins/write#index11h3]].
+
+[org-mode]: http://orgmode.org/
+[MS]: http://www.golden-gryphon.com/blog/manoj/blog/2008/06/08/Using_org-mode_with_Ikiwiki/
+[example]: http://www.physics.drexel.edu/~wking/unfolding-disasters/posts/Git/notes/
+[raw]: http://orgmode.org/manual/Quoting-HTML-tags.html

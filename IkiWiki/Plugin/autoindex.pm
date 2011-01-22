@@ -22,12 +22,23 @@ sub getsetup () {
 sub genindex ($) {
 	my $page=shift;
 	my $file=newpagefile($page, $config{default_pageext});
-	my $template=template("autoindex.tmpl");
-	$template->param(page => $page);
-	writefile($file, $config{srcdir}, $template->output);
-	if ($config{rcs}) {
-		IkiWiki::rcs_add($file);
-	}
+
+	add_autofile($file, "autoindex", sub {
+			my $message = sprintf(gettext("creating index page %s"),
+				$page);
+			debug($message);
+
+			my $template = template("autoindex.tmpl");
+			$template->param(page => $page);
+			writefile($file, $config{srcdir}, $template->output);
+
+			if ($config{rcs}) {
+				IkiWiki::disable_commit_hook();
+				IkiWiki::rcs_add($file);
+				IkiWiki::rcs_commit_staged(message => $message);
+				IkiWiki::enable_commit_hook();
+			}
+		});
 }
 
 sub refresh () {
@@ -66,60 +77,39 @@ sub refresh () {
 
 		chdir($origdir) || die "chdir $origdir: $!";
 	}
-	
+
+	# Compatibility code.
+	#
+	# {deleted} contains pages that have been deleted at some point.
+	# This plugin used to delete from the hash sometimes, but no longer
+	# does; in [[todo/autoindex_should_use_add__95__autofile]] Joey
+	# thought the old behaviour was probably a bug.
+	#
+	# The effect of listing a page in {deleted} was to avoid re-creating
+	# it; we migrate these pages to {autofile} which has the same effect.
+	# However, {autofile} contains source filenames whereas {deleted}
+	# contains page names.
 	my %deleted;
 	if (ref $wikistate{autoindex}{deleted}) {
 		%deleted=%{$wikistate{autoindex}{deleted}};
+		delete $wikistate{autoindex}{deleted};
 	}
         elsif (ref $pagestate{index}{autoindex}{deleted}) {
-		# compatability code
+		# an even older version
 		%deleted=%{$pagestate{index}{autoindex}{deleted}};
 		delete $pagestate{index}{autoindex};
 	}
 
 	if (keys %deleted) {
 		foreach my $dir (keys %deleted) {
-			# remove deleted page state if the deleted page is re-added,
-			# or if all its subpages are deleted
-			if ($deleted{$dir} && (exists $pages{$dir} ||
-			                       ! grep /^$dir\/.*/, keys %pages)) {
-				delete $deleted{$dir};
-			}
+			my $file=newpagefile($dir, $config{default_pageext});
+			$wikistate{autoindex}{autofile}{$file} = 1;
 		}
-		$wikistate{autoindex}{deleted}=\%deleted;
 	}
 
-	my @needed;
 	foreach my $dir (keys %dirs) {
-		if (! exists $pages{$dir} && ! $deleted{$dir} &&
-		    grep /^$dir\/.*/, keys %pages) {
-		    	if (exists $IkiWiki::pagemtime{$dir}) {
-				# This page must have just been deleted, so
-				# don't re-add it. And remember it was
-				# deleted.
-				if (! ref $wikistate{autoindex}{deleted}) {
-					$wikistate{autoindex}{deleted}={};
-				}
-				${$wikistate{autoindex}{deleted}}{$dir}=1;
-			}
-			else {
-				push @needed, $dir;
-			}
-		}
-	}
-	
-	if (@needed) {
-		if ($config{rcs}) {
-			IkiWiki::disable_commit_hook();
-		}
-		foreach my $page (@needed) {
-			genindex($page);
-		}
-		if ($config{rcs}) {
-			IkiWiki::rcs_commit_staged(
-				message => gettext("automatic index generation"),
-			);
-			IkiWiki::enable_commit_hook();
+		if (! exists $pages{$dir} && grep /^$dir\/.*/, keys %pages) {
+			genindex($dir);
 		}
 	}
 }

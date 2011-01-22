@@ -567,6 +567,7 @@ sub fixlinks ($$$) {
 		}
 		if ($needfix) {
 			my $file=$pagesources{$page};
+			next unless -e $config{srcdir}."/".$file;
 			my $oldcontent=readfile($config{srcdir}."/".$file);
 			my $content=renamepage_hook($page, $rename->{src}, $rename->{dest}, $oldcontent);
 			if ($oldcontent ne $content) {

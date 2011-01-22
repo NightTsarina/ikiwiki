@@ -12,8 +12,8 @@ suggests:
 added.
 
 This would also be useful for autoindex, as suggested on
-[[plugins/autoindex/discussion]]. I'd also like to use it for
-[[plugins/contrib/album]].
+[[plugins/autoindex/discussion]] and [[!debbug 544322]]. I'd also like
+to use it for [[plugins/contrib/album]].
 
 It could also be used for an [[todo/alias_directive]].
 
@@ -22,9 +22,19 @@ It could also be used for an [[todo/alias_directive]].
 --------------------------
 
 [[!template id=gitbranch branch=smcv/ready/transient author="[[smcv]]"]]
-[[!template id=gitbranch branch=smcv/ready/transient-recentchanges author="[[smcv]]"]]
-[[!template id=gitbranch branch=smcv/ready/transient-tag author="[[smcv]]"]]
 [[!tag patch]]
+
+Related branches:
+
+* `ready/tag-test`: an extra regression test for tags
+* either `transient-relative` or `transient-relative-api`: avoid using `Cwd`
+  on initialization
+* `ready/transient-aggregate`: use for aggregate
+* `ready/transient-autoindex`: optionally use for autoindex,
+  which is [[!debbug 544322]] (includes autoindex-autofile from
+  [[todo/autoindex should use add__95__autofile]])
+* `ready/transient-recentchanges`: use for recentchanges
+* `ready/transient-tag`: optionally use for tag (includes tag-test)
 
 I think this branch is now enough to be useful. It adds the following:
 
@@ -148,6 +158,9 @@ Not done yet (in that branch, at least):
   transient underlay too (they'll naturally migrate over time). I haven't
   tested this yet, it's just a proof-of-concept.
 
+  > Now renamed to `ready/transient-aggregate`; it does seem to work fine.
+  > --s
+
 > I can confirm that the behavior of autoindex, at least, is excellent.
 > Haven't tried tag. Joey, can you merge transient and autoindex? --JoeRayhawk
 
@@ -197,6 +210,22 @@ Not done yet (in that branch, at least):
 >>   >> it for those simple cases then? (demand-calculate wikistatedir)
 >>   >> --[[Joey]] 
 
+>>   >>> The reason that transientdir needs to be absolute is that it's
+>>   >>> added as an underlay.
+>>   >>>
+>>   >>> We could avoid using `Cwd` by taking the extra commit from either
+>>   >>> `smcv/transient-relative` or `smcv/transient-relative-api`;
+>>   >>> your choice. I'd personally go for the latter.
+>>   >>>
+>>   >>> According to git grep, [[plugins/po]] already wants to look at
+>>   >>> the underlaydirs in its checkconfig hook, so I don't think
+>>   >>> delaying calculation of the underlaydir is viable. (I also noticed
+>>   >>> a bug,
+>>   >>> [[bugs/po:_might_not_add_translated_versions_of_all_underlays]].)
+>>   >>>
+>>   >>> `underlaydirs` certainly needs to have been calculated by the
+>>   >>> time `refresh` hooks finish, so `find_src_files` can use it. --s
+
 >> * Unsure about the use of `default_pageext` in the `change`
 >>   hook. Is everything in the transientdir really going
 >>   to use that pageext? Would it be better to look up the
@@ -216,6 +245,9 @@ Not done yet (in that branch, at least):
 >>   >> Oh, ugh, more File::Find... Couldn't it just assume that the
 >>   >> transient page has the same extension as its replacement?
 >>   >> --[[Joey]]
+
+>>   >>> Good idea, that'll be true for web edits at least.
+>>   >>> Commit added. --s
 
 --------------------------
 

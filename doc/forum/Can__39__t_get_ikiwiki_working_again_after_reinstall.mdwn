@@ -1,0 +1,16 @@
+My server got hacked by an EXIM vulnerability, and so I reimaged the system.  After installing ikiwiki I can't get it to accept my old setup file, and I'm not sure what to do.  
+
+I'm running debian stable with security updates. Running setup I get.
+Can't use an undefined value as an ARRAY reference at /usr/share/perl5/IkiWiki/Setup/Standard.pm line 33.
+That line in the source file has something todo with wrappers.  Also since the reinstall there is no /etc/ikiwiki/auto.setup
+
+After futzing with it for over an hour I tried installing the debian backports version, and get a new different error.
+
+Can't exec "git": No such file or directory at /usr/share/perl5/IkiWiki/Plugin/git.pm line 169.
+Cannot exec 'git pull origin': No such file or directory
+'git pull origin' failed:  at /usr/share/perl5/IkiWiki/Plugin/git.pm line 195.
+Can't exec "git": No such file or directory at /usr/share/perl5/IkiWiki/Plugin/git.pm line 169.
+Cannot exec 'git log --max-count=100 --pretty=raw --raw --abbrev=40 --always -c -r HEAD -- .': No such file or directory
+'git log --max-count=100 --pretty=raw --raw --abbrev=40 --always -c -r HEAD -- .' failed: 
+
+Any ideas how I can get ikiwiki working again?

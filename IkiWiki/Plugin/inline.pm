@@ -290,8 +290,17 @@ sub preprocess_inline (@) {
 		}
 	}
 
-	my $rssurl=abs2rel($feedbase."rss".$feednum, dirname(htmlpage($params{destpage}))) if $feeds && $rss;
-	my $atomurl=abs2rel($feedbase."atom".$feednum, dirname(htmlpage($params{destpage}))) if $feeds && $atom;
+	my ($rssurl, $atomurl, $rssdesc, $atomdesc);
+	if ($feeds) {
+		if ($rss) {
+			$rssurl=abs2rel($feedbase."rss".$feednum, dirname(htmlpage($params{destpage})));
+			$rssdesc = gettext("%s (RSS feed)", $desc);
+		}
+		if ($atom) {
+			$atomurl=abs2rel($feedbase."atom".$feednum, dirname(htmlpage($params{destpage})));
+			$atomdesc = gettext("%s (Atom feed)", $desc);
+		}
+	}
 
 	my $ret="";
 
@@ -302,8 +311,16 @@ sub preprocess_inline (@) {
 		my $formtemplate=template_depends("blogpost.tmpl", $params{page}, blind_cache => 1);
 		$formtemplate->param(cgiurl => IkiWiki::cgiurl());
 		$formtemplate->param(rootpage => rootpage(%params));
-		$formtemplate->param(rssurl => $rssurl) if $feeds && $rss;
-		$formtemplate->param(atomurl => $atomurl) if $feeds && $atom;
+		if ($feeds) {
+			if ($rss) {
+				$formtemplate->param(rssurl => $rssurl);
+				$formtemplate->param(rssdesc => $rssdesc);
+			}
+			if ($atom) {
+				$formtemplate->param(atomurl => $atomurl);
+				$formtemplate->param(atomdesc => $atomdesc);
+			}
+		}
 		if (exists $params{postformtext}) {
 			$formtemplate->param(postformtext =>
 				$params{postformtext});
@@ -321,8 +338,14 @@ sub preprocess_inline (@) {
 	elsif ($feeds && !$params{preview} && ($emptyfeeds || @feedlist)) {
 		# Add feed buttons.
 		my $linktemplate=template_depends("feedlink.tmpl", $params{page}, blind_cache => 1);
-		$linktemplate->param(rssurl => $rssurl) if $rss;
-		$linktemplate->param(atomurl => $atomurl) if $atom;
+		if ($rss) {
+			$linktemplate->param(rssurl => $rssurl);
+			$linktemplate->param(rssdesc => $rssdesc);
+		}
+		if ($atom) {
+			$linktemplate->param(atomurl => $atomurl);
+			$linktemplate->param(atomdesc => $atomdesc);
+		}
 		$ret.=$linktemplate->output;
 	}
 	
@@ -419,7 +442,7 @@ sub preprocess_inline (@) {
 					genfeed("rss",
 						$config{url}."/".$rssp, $desc, $params{guid}, $params{destpage}, @feedlist));
 				$toping{$params{destpage}}=1 unless $config{rebuild};
-				$feedlinks{$params{destpage}}.=qq{<link rel="alternate" type="application/rss+xml" title="$desc (RSS)" href="$rssurl" />};
+				$feedlinks{$params{destpage}}.=qq{<link rel="alternate" type="application/rss+xml" title="$rssdesc" href="$rssurl" />};
 			}
 		}
 		if ($atom) {
@@ -429,7 +452,7 @@ sub preprocess_inline (@) {
 				writefile($atomp, $config{destdir},
 					genfeed("atom", $config{url}."/".$atomp, $desc, $params{guid}, $params{destpage}, @feedlist));
 				$toping{$params{destpage}}=1 unless $config{rebuild};
-				$feedlinks{$params{destpage}}.=qq{<link rel="alternate" type="application/atom+xml" title="$desc (Atom)" href="$atomurl" />};
+				$feedlinks{$params{destpage}}.=qq{<link rel="alternate" type="application/atom+xml" title="$atomdesc" href="$atomurl" />};
 			}
 		}
 	}

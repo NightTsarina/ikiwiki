@@ -1,10 +1,5 @@
 [[Ikiwiki]] uses many templates for many purposes. By editing its templates,
-you can fully customise this site.
-
-Templates are located in `/usr/share/ikiwiki/templates` by default;
-the `templatedir` setting can be used to make another directory be
-searched first. Customised templates can also be placed inside the
-"templates/" directory in your wiki's source.
+you can fully customise its appearance, and avoid duplicate content.
 
 Ikiwiki uses the HTML::Template module as its template engine. This
 supports things like conditionals and loops in templates and is pretty
@@ -16,17 +11,19 @@ easy to learn. All you really need to know to modify templates is this:
 * To use one block of text if a variable is set and a second if it's not,
   use `<TMPL_IF variable>text<TMPL_ELSE>other text</TMPL_IF>`
 
-[[!if test="enabled(template)" then="""
+[[!if test="enabled(template) or enabled(edittemplate)" then="""
 ## template pages
 
+Template pages are regular wiki pages that are used as templates for other
+pages.
+"""]]
+
+[[!if test="enabled(template)" then="""
 The [[!iki ikiwiki/directive/template desc="template directive"]] allows
-wiki pages to be used as templates, filled out and inserted into other
-pages in the wiki.
+template pages to be filled out and inserted into other pages in the wiki.
 """]]
 
 [[!if test="enabled(edittemplate)" then="""
-## default content for new pages
-
 The [[!iki ikiwiki/directive/edittemplate desc="edittemplate directive"]] can
 be used to make new pages default to containing text from a template
 page, which can be filled out as the page is edited.
@@ -34,18 +31,30 @@ page, which can be filled out as the page is edited.
 
 [[!if test="(enabled(template) or enabled(edittemplate))
 and enabled(inline)" then="""
+These template pages are currently available:
+
 [[!inline pages="templates/* and !*.tmpl and !templates/*/* and !*/discussion"
 feeds=no archive=yes sort=title template=titlepage
-rootpage=templates postformtext="Add a new template named:"]]
+rootpage=templates postformtext="Add a new template page named:"]]
 """]]
 
-## wiki templates
+## template files
 
-These templates are used to build the wiki. The aim is to keep almost all
-html out of ikiwiki and in the templates.
+Template files are unlike template pages in that they have the extension
+`.tmpl`. Template files are used extensively by Ikiwiki to generate html.
+They can contain html that would not normally be allowed on a wiki page.
+
+Template files are located in `/usr/share/ikiwiki/templates` by default;
+the `templatedir` setting can be used to make another directory be
+searched first. Customised template files can also be placed inside the
+"templates/" directory in your wiki's source -- files placed there override
+ones in the `templatedir`.
+
+Here is a full list of the template files used:
 
 * `page.tmpl` - Used for displaying all regular wiki pages. This is the
-  key template to customise. [[!if test="enabled(pagetemplate)" then="""
+  key template to customise to change the look and feel of Ikiwiki.
+  [[!if test="enabled(pagetemplate)" then="""
   (The [[!iki ikiwiki/directive/pagetemplate desc="pagetemplate directive"]]
   can be used to make a page use a different template than `page.tmpl`.)"""]]
 * `rsspage.tmpl` - Used for generating rss feeds for blogs.

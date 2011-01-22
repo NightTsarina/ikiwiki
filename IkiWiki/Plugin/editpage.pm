@@ -91,12 +91,12 @@ sub cgi_editpage ($$) {
 	# This untaint is safe because we check file_pruned and
 	# wiki_file_regexp.
 	my ($page)=$form->field('page')=~/$config{wiki_file_regexp}/;
-	$page=possibly_foolish_untaint($page);
-	my $absolute=($page =~ s#^/+##); # absolute name used to force location
 	if (! defined $page || ! length $page ||
 	    file_pruned($page)) {
 		error(gettext("bad page name"));
 	}
+	$page=possibly_foolish_untaint($page);
+	my $absolute=($page =~ s#^/+##); # absolute name used to force location
 
 	my $baseurl = urlto($page);
 
