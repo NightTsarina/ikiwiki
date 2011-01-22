@@ -78,53 +78,38 @@ sub refresh () {
 		chdir($origdir) || die "chdir $origdir: $!";
 	}
 
-	# FIXME: some of this is probably redundant with add_autofile now, and
-	# the rest should perhaps be added to the autofile machinery
-
+	# Compatibility code.
+	#
+	# {deleted} contains pages that have been deleted at some point.
+	# This plugin used to delete from the hash sometimes, but no longer
+	# does; in [[todo/autoindex_should_use_add__95__autofile]] Joey
+	# thought the old behaviour was probably a bug.
+	#
+	# The effect of listing a page in {deleted} was to avoid re-creating
+	# it; we migrate these pages to {autofile} which has the same effect.
+	# However, {autofile} contains source filenames whereas {deleted}
+	# contains page names.
 	my %deleted;
 	if (ref $wikistate{autoindex}{deleted}) {
 		%deleted=%{$wikistate{autoindex}{deleted}};
+		delete $wikistate{autoindex}{deleted};
 	}
         elsif (ref $pagestate{index}{autoindex}{deleted}) {
-		# compatability code
+		# an even older version
 		%deleted=%{$pagestate{index}{autoindex}{deleted}};
 		delete $pagestate{index}{autoindex};
 	}
 
 	if (keys %deleted) {
 		foreach my $dir (keys %deleted) {
-			# remove deleted page state if the deleted page is re-added,
-			# or if all its subpages are deleted
-			if ($deleted{$dir} && (exists $pages{$dir} ||
-			                       ! grep /^$dir\/.*/, keys %pages)) {
-				delete $deleted{$dir};
-			}
+			my $file=newpagefile($dir, $config{default_pageext});
+			$wikistate{autoindex}{autofile}{$file} = 1;
 		}
-		$wikistate{autoindex}{deleted}=\%deleted;
 	}
 
-	my @needed;
 	foreach my $dir (keys %dirs) {
-		if (! exists $pages{$dir} && ! $deleted{$dir} &&
-		    grep /^$dir\/.*/, keys %pages) {
-		    	if (exists $IkiWiki::pagemtime{$dir}) {
-				# This page must have just been deleted, so
-				# don't re-add it. And remember it was
-				# deleted.
-				if (! ref $wikistate{autoindex}{deleted}) {
-					$wikistate{autoindex}{deleted}={};
-				}
-				${$wikistate{autoindex}{deleted}}{$dir}=1;
-			}
-			else {
-				push @needed, $dir;
-			}
-		}
-	}
-	
-	if (@needed) {
-		foreach my $page (@needed) {
-			genindex($page);
+		if (! exists $pages{$dir} && grep /^$dir\/.*/, keys %pages) {
+			genindex($dir);
 		}
 	}
 }
