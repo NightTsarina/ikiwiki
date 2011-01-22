@@ -3,7 +3,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use Test::More tests => 37;
+use Test::More tests => 38;
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
@@ -26,7 +26,7 @@ $config{userdir} = "users";
 $config{tagbase} = "tags";
 $config{default_pageext} = "mdwn";
 $config{wiki_file_prune_regexps} = [qr/^\./];
-$config{autoindex_commit} = 1;
+$config{autoindex_commit} = 0;
 
 is(checkconfig(), 1);
 
@@ -118,7 +118,8 @@ is($autofiles{"tags.mdwn"}{plugin}, "autoindex");
 IkiWiki::gen_autofile("tags.mdwn", \%pages, \@del);
 is_deeply(\%pages, {"t/tmp/tags" => 1}) || diag explain \%pages;
 is_deeply(\@del, []) || diag explain \@del;
-ok(-s "t/tmp/tags.mdwn");
+ok(! -s "t/tmp/tags.mdwn");
+ok(-s "t/tmp/.ikiwiki/transient/tags.mdwn");
 
 # needs creating because of an attachment
 ok(! exists $wikistate{autoindex}{autofile}{"attached.mdwn"});
@@ -128,6 +129,6 @@ is($autofiles{"attached.mdwn"}{plugin}, "autoindex");
 IkiWiki::gen_autofile("attached.mdwn", \%pages, \@del);
 is_deeply(\%pages, {"t/tmp/attached" => 1}) || diag explain \%pages;
 is_deeply(\@del, []) || diag explain \@del;
-ok(-s "t/tmp/attached.mdwn");
+ok(-s "t/tmp/.ikiwiki/transient/attached.mdwn");
 
 1;
