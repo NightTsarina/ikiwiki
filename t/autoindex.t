@@ -3,7 +3,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use Test::More;
+use Test::More tests => 17;
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
@@ -70,5 +70,4 @@ ok(! -f "t/tmp/reinstated.mdwn");
 ok(! exists $wikistate{autoindex}{deleted}{tags});
 ok(-s "t/tmp/tags.mdwn");
 
-done_testing();
 1;
