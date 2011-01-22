@@ -364,8 +364,8 @@ sub editcomment ($$) {
 	}
 
 	# The untaint is OK (as in editpage) because we're about to pass
-	# it to file_pruned anyway
-	my $page = $form->field('page');
+	# it to file_pruned and wiki_file_regexp anyway.
+	my $page = $form->field('page')=~/$config{wiki_file_regexp}/;
 	$page = IkiWiki::possibly_foolish_untaint($page);
 	if (! defined $page || ! length $page ||
 		IkiWiki::file_pruned($page)) {
