@@ -3,7 +3,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use Test::More tests => 20;
+use Test::More tests => 22;
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
@@ -52,6 +52,12 @@ $pagemtime{"has_internal/internal"} = 123456789;
 $pagectime{"has_internal/internal"} = 123456789;
 writefile("has_internal/internal._aggregated", "t/tmp", "this page is internal");
 
+# a directory containing only an attachment should be indexed
+$pagesources{"attached/pie.jpg"} = "attached/pie.jpg";
+$pagemtime{"attached/pie.jpg"} = 123456789;
+$pagectime{"attached/pie.jpg"} = 123456789;
+writefile("attached/pie.jpg", "t/tmp", "I lied, this isn't a real JPEG");
+
 # "gone" disappeared just before this refresh pass so it still has a mtime
 $pagemtime{gone} = $pagectime{gone} = 1000000;
 
@@ -80,5 +86,9 @@ ok(! -f "t/tmp/reinstated.mdwn");
 # needs creating
 ok(! exists $wikistate{autoindex}{deleted}{tags});
 ok(-s "t/tmp/tags.mdwn");
+
+# needs creating because of an attachment
+ok(! exists $wikistate{autoindex}{deleted}{attached});
+ok(-s "t/tmp/attached.mdwn");
 
 1;
