@@ -3,10 +3,11 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use Test::More tests => 17;
+use Test::More tests => 20;
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
+BEGIN { use_ok("IkiWiki::Plugin::aggregate"); }
 BEGIN { use_ok("IkiWiki::Plugin::autoindex"); }
 BEGIN { use_ok("IkiWiki::Plugin::html"); }
 BEGIN { use_ok("IkiWiki::Plugin::mdwn"); }
@@ -45,6 +46,12 @@ foreach my $page (qw(tags/numbers deleted/bar reinstated reinstated/foo gone/bar
 	writefile("$page.html", "t/tmp", "your ad here");
 }
 
+# a directory containing only an internal page shouldn't be indexed
+$pagesources{"has_internal/internal"} = "has_internal/internal._aggregated";
+$pagemtime{"has_internal/internal"} = 123456789;
+$pagectime{"has_internal/internal"} = 123456789;
+writefile("has_internal/internal._aggregated", "t/tmp", "this page is internal");
+
 # "gone" disappeared just before this refresh pass so it still has a mtime
 $pagemtime{gone} = $pagectime{gone} = 1000000;
 
@@ -61,6 +68,10 @@ ok(! -f "t/tmp/gone.mdwn");
 # about it - it will be re-created if it gains sub-pages
 ok(! exists $wikistate{autoindex}{deleted}{expunged});
 ok(! -f "t/tmp/expunged.mdwn");
+
+# a directory containing only an internal page shouldn't be indexed
+ok(! exists $wikistate{autoindex}{deleted}{has_internal});
+ok(! -f "t/tmp/has_internal.mdwn");
 
 # this page was re-created, so it drops off the radar
 ok(! exists $wikistate{autoindex}{deleted}{reinstated});
