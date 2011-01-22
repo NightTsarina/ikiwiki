@@ -3,7 +3,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use Test::More tests => 28;
+use Test::More tests => 33;
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
@@ -70,20 +70,25 @@ IkiWiki::Plugin::autoindex::refresh();
 # a reason to be re-created
 is($wikistate{autoindex}{deleted}{deleted}, 1);
 is($wikistate{autoindex}{deleted}{gone}, 1);
+ok(! exists $autofiles{deleted});
+ok(! exists $autofiles{gone});
 ok(! -f "t/tmp/deleted.mdwn");
 ok(! -f "t/tmp/gone.mdwn");
 
 # this page does not exist and has no reason to be re-created, so we forget
 # about it - it will be re-created if it gains sub-pages
 ok(! exists $wikistate{autoindex}{deleted}{expunged});
+ok(! exists $autofiles{expunged});
 ok(! -f "t/tmp/expunged.mdwn");
 
 # a directory containing only an internal page shouldn't be indexed
 ok(! exists $wikistate{autoindex}{deleted}{has_internal});
+ok(! exists $autofiles{has_internal});
 ok(! -f "t/tmp/has_internal.mdwn");
 
 # this page was re-created, so it drops off the radar
 ok(! exists $wikistate{autoindex}{deleted}{reinstated});
+ok(! exists $autofiles{reinstated});
 ok(! -f "t/tmp/reinstated.mdwn");
 
 # needs creating (deferred; part of the autofile mechanism now)
