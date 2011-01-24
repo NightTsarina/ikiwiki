@@ -1,0 +1,20 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="not supported at the moment"
+ date="2011-01-24T15:17:59Z"
+ content="""
+This isn't supported, because [[ikiwiki/directive/template]] templates
+don't run `pagetemplate` hooks (which is how information gets from
+[[ikiwiki/directive/meta]] into, for instance, `page.tmpl`). The only
+inputs to the `HTML::Template` are the parameters passed to the
+directive, plus the `raw_`-prefixed versions of those, plus the extra
+parameters passed to every `preprocess` hook (currently `page`, `destpage`
+and `preview`).
+
+I think having `pagetemplate` hooks run for this sort of template
+by default would be rather astonishing, but perhaps some sort of
+opt-in while defining the template would be reasonable? One problem
+with that is that the templates used by [[ikiwiki/directive/template]]
+are just wiki pages, and don't really have any special syntax support.
+"""]]
