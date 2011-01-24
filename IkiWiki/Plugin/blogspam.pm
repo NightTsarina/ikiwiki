@@ -61,11 +61,17 @@ sub checkcontent (@) {
 	my %params=@_;
 	my $session=$params{session};
 	
- 	if (exists $config{blogspam_pagespec}) {
-		return undef
-			if ! pagespec_match($params{page}, $config{blogspam_pagespec},
-	                	location => $params{page});
+	my $spec='!admin()';
+ 	if (exists $config{blogspam_pagespec} &&
+	    length $config{blogspam_pagespec}) {
+		$spec.=" and (".$config{blogspam_pagespec}.")";
 	}
+
+	my $user=$session->param("name");
+	return undef unless pagespec_match($params{page}, $spec,
+		(defined $user ? (user => $user) : ()),
+		(defined $session->remote_addr() ? (ip => $session->remote_addr()) : ()),
+		location => $params{page});
 
 	my $url=$defaulturl;
 	$url = $config{blogspam_server} if exists $config{blogspam_server};
