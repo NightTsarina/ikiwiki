@@ -62,21 +62,21 @@ is($autofiles{"tags/primes.mdwn"}{plugin}, "tag");
 ok(!-e "t/tmp/tags/lucky.mdwn");
 my (%pages, @del);
 IkiWiki::gen_autofile("tags/lucky.mdwn", \%pages, \@del);
-is_deeply(\%pages, {"t/tmp/tags/lucky" => 1}) || diag explain \%pages;
-is_deeply(\@del, []) || diag explain \@del;
+is_deeply(\%pages, {"t/tmp/tags/lucky" => 1});
+is_deeply(\@del, []);
 ok(-s "t/tmp/tags/lucky.mdwn");
 
 # generating an autofile that already exists does nothing
 %pages = @del = ();
 IkiWiki::gen_autofile("tags/numbers.mdwn", \%pages, \@del);
-is_deeply(\%pages, {}) || diag explain \%pages;
-is_deeply(\@del, []) || diag explain \@del;
+is_deeply(\%pages, {});
+is_deeply(\@del, []);
 
 # generating an autofile that we just deleted does nothing
 %pages = ();
 @del = ('tags/primes.mdwn');
 IkiWiki::gen_autofile("tags/primes.mdwn", \%pages, \@del);
-is_deeply(\%pages, {}) || diag explain \%pages;
-is_deeply(\@del, ['tags/primes.mdwn']) || diag explain \@del;
+is_deeply(\%pages, {});
+is_deeply(\@del, ['tags/primes.mdwn']);
 
 1;
