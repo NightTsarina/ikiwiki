@@ -294,11 +294,11 @@ sub preprocess_inline (@) {
 	if ($feeds) {
 		if ($rss) {
 			$rssurl=abs2rel($feedbase."rss".$feednum, dirname(htmlpage($params{destpage})));
-			$rssdesc = gettext("%s (RSS feed)", $desc);
+			$rssdesc = sprintf(gettext("%s (RSS feed)"), $desc);
 		}
 		if ($atom) {
 			$atomurl=abs2rel($feedbase."atom".$feednum, dirname(htmlpage($params{destpage})));
-			$atomdesc = gettext("%s (Atom feed)", $desc);
+			$atomdesc = sprintf(gettext("%s (Atom feed)"), $desc);
 		}
 	}
 
