@@ -64,3 +64,23 @@ usage
 >>> will be easier to merge or reject.  Note the new branch name:
 >>> `raw_inline`. I'll open separate todo items for items mentioned in my
 >>> previous comment. --[[wtk]]
+
+---- 
+
+Reviewing your patch the first thing I see is this:
+
+<pre>
++        if (! $file) {
++               error("Missing file.");
++        }
+</pre>
+
+This fails if the filename is "0". Also, `pagetype()`
+currently cannot fail; allowing it to crash the entire
+wiki build if the filename is somehow undefined seems
+unwise.
+
+I didn't look much further, because it seems to me what you're trying to do
+can be better accomplished by using the highlight plugin. Assuming the raw
+file you want to inline and comment on is some source-code-like thing,
+which seems likely. --[[Joey]] [[!tag reviewed]]
