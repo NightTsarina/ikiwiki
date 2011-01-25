@@ -38,7 +38,8 @@ memoize("percenttranslated");
 
 sub import {
 	hook(type => "getsetup", id => "po", call => \&getsetup);
-	hook(type => "checkconfig", id => "po", call => \&checkconfig);
+	hook(type => "checkconfig", id => "po", call => \&checkconfig,
+		last => 1);
 	hook(type => "needsbuild", id => "po", call => \&needsbuild);
 	hook(type => "scan", id => "po", call => \&scan, last => 1);
 	hook(type => "filter", id => "po", call => \&filter);
