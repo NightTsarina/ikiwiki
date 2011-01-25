@@ -29,3 +29,15 @@ Testcase:
 > * 27\. March
 >
 > or by writing "1st January" and so on. --[[smcv]]
+
+>> I think that this is a bug in Text::Markdown (and probably other
+>> versions of markdown). The [markdown spec)(http://daringfireball.net/projects/markdown/syntax.text),
+>> though unmaintained and bitrotted into near illegibility, seems to say
+>> that list items can only be preceeded by whitespace:
+>> 
+>>> "List markers typically start at the left margin, but may be indented by
+>>> up to three spaces."
+>> 
+>> So "* * * 1. 2. 3." should not be parsed as a deeply nested list.
+>> 
+>> Forwarded to upsteam RT. [[done]] --[[Joey]]
