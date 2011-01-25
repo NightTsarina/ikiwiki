@@ -82,6 +82,17 @@ Supported fields:
   [[!iki plugins/htmlscrubber desc=htmlscrubber]] plugin is enabled,
   since it can be used to insert unsafe content.
 
+* script
+
+  Adds a script to a page. The script is treated as a wiki link to
+  a `.js` file in the wiki, so it cannot be used to add links to external
+  scripts. The optional `defer` and `async` keywords can be used to set
+  the corresponding HTML4 and HTML5 script options. Example:
+
+	\[[!meta script=somescript defer async]]
+
+  The tag is subject to scrubbing as with the stylesheet and link fields.
+
 * openid
 
   Adds html &lt;link&gt; tags to perform OpenID delegation to an external

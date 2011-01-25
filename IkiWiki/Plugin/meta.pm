@@ -179,6 +179,17 @@ sub preprocess (@) {
 			'" title="'.encode_entities($title).
 			"\" type=\"text/css\" />", $page, $destpage);
 	}
+	elsif ($key eq 'script') {
+		my $defer=exists $params{defer} ? ' defer="defer"' : '';
+		my $async=exists $params{async} ? ' async="async"' : '';
+		my $js=bestlink($page, $value.".js");
+		if (! length $js) {
+			error gettext("script not found");
+		}
+		push @{$metaheaders{$page}}, scrub('<script src="'.urlto($js, $page).
+			'"' . $defer . $async . ' type="text/javascript" />',
+			$page, $destpage);
+	}
 	elsif ($key eq 'openid') {
 		my $delegate=0; # both by default
 		if (exists $params{delegate}) {
