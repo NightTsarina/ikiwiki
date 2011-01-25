@@ -7,4 +7,15 @@ Happens also after editing the page. Here's an example:
  * page name displayed in 404: http://mcfrisk.kapsi.fi/skiing/posts/Iso-Sy%F6te%20Freeride%202011%20Teaser.html?updated
  * page name in the blog feed: http://mcfrisk.kapsi.fi/skiing/posts/Iso-Sy%C3%B6te%20Freeride%202011%20Teaser.html
 
-Difference is in the word Iso-Syöte. Pehaps also the browsers is part of the game, I use Iceweasel from Debian unstable with default settings.
+Difference is in the word Iso-Syöte. Pehaps also the browsers is part of
+the game, I use Iceweasel from Debian unstable with default settings.
+
+> I remember seeing this problem twice before, and both times it was caused
+> by a bug in the *web server* configuration. I think at least one case it was
+> due to an apache rewrite rule that did a redirect and mangled the correct
+> encoding.
+> 
+> I recommend you check there. If you cannot find the problem with your web
+> server, I recommend you get a http protocol dump while saving the page,
+> and post it here for analysis. You could use tcpdump, or one of the
+> browser plugins that allows examining the http protocol. --[[Joey]]
