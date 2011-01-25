@@ -1,0 +1,10 @@
+[[!comment format=mdwn
+ username="http://joey.kitenet.net/"
+ nickname="joey"
+ subject="here's the scoop .. but, don't do it"
+ date="2011-01-25T18:30:01Z"
+ content="""
+To do what you describe, you would set up the svn repository on your server, and then do a regular svn checkout of it to the machine running ikiwiki, and configure ikiwiki to use that directory as its srcdir. The only unix user ikiwiki does anything as is the one you use to set it up, so it's up to you to allow that user to commit to svn without needing to enter a password.
+
+However, I don't recommend this configuration at all. You're adding a ssh (or webdav) connection overhead to every edit to the wiki, since ikiwiki's commit to svn will have to be pushed across the network to the server. And ikiwiki's svn support is missing many of the [[newer_ikiwiki_features|rcs]], such as including for example support for easily reverting edits.
+"""]]
