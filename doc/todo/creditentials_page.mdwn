@@ -7,3 +7,17 @@ pushing [[this|todo/httpauth feature parity with passwordauth]] and [[this|todo/
 * password hash (this is generally considered a valuable secret; is this still true with good hashes and proper salting?)
 
 such a page could have a form as described in [[todo/structured page data]] and could even serve as a way of managing users. --[[chrysn]]
+
+> I was just thinking about something along these lines myself. The
+> idea, if I understand correctly, is to allow users to have multiple
+> login options all leading to the same identity. This would allow a
+> user to login for example via either their Google account or their
+> WordPress account, while still being identified as the same user.
+
+> However, I'm not sure this should be a static page (I guess you
+> mean `$USER/credentials`, I don't think ‘creditentials’ actually
+> exists). Something entirely managed at the CGI level is probably
+> better, as it also helps keeping the data in its place (such as ssh
+> public keys in `authorized_keys` etc).
+
+> -- GB
