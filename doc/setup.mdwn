@@ -16,11 +16,11 @@ For more control, advanced users may prefer to set up a wiki
 [[by_hand|byhand]].
 """]]
 
-	% ikiwiki -setup /etc/ikiwiki/auto.setup
+	% ikiwiki --setup /etc/ikiwiki/auto.setup
 
 Or, set up a blog with ikiwiki, run this command instead.
 
-	% ikiwiki -setup /etc/ikiwiki/auto-blog.setup
+	% ikiwiki --setup /etc/ikiwiki/auto-blog.setup
 
 `librpc-xml-perl` and `python-docutils` dependencies are needed.
 
@@ -39,7 +39,7 @@ Then, wait for it to tell you an url for your new site..
 		destdir:     ~/public_html/foo
 		repository:  ~/foo.git
 	To modify settings, edit ~/foo.setup and then run:
-		ikiwiki -setup ~/foo.setup
+		ikiwiki --setup ~/foo.setup
 
 Done! 
 
@@ -103,11 +103,11 @@ and gives a brief description of each.
 
 After making changes to this file, you need to tell ikiwiki to use it:
 
-	% ikiwiki -setup foo.setup
+	% ikiwiki --setup foo.setup
 
 Alternatively, you can ask ikiwiki to change settings in the file for you:
 
-	% ikiwiki -changesetup foo.setup -plugin goodstuff
+	% ikiwiki --changesetup foo.setup -plugin goodstuff
 
 See [[usage]] for more options.
 
@@ -136,7 +136,7 @@ them and re-checkout from the new repository location.
 
 Finally, edit the setup file. Modify the settings for `srcdir`, `destdir`,
 `url`, `cgiurl`, `cgi_wrapper`, `git_wrapper`, etc to reflect where
-you moved things. Remember to run `ikiwiki -setup` after editing the
+you moved things. Remember to run `ikiwiki --setup` after editing the
 setup file.
 
 ## Enjoy your new wiki!
