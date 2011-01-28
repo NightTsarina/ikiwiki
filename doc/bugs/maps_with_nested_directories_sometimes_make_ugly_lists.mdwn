@@ -1,0 +1,39 @@
+I'm using the [[map_directive|ikiwiki/directive/map]] to build dynamic navigation menus, and it's working really nicely!
+
+However on some pages, each nested item each get wrapped in a full set of `<ul>` tags.  This doesn't actually hurt anything, but it's does it inconsistently which seems like a bug.  I don't like it because it puts extra vertical spacing into my menu bar.
+
+Here's what I expect it to look like:
+
+    <div class="map">
+    <ul> 
+        <li><span class="selflink">Archives</span>
+            <ul>
+                <li><a href="./2010/" class="mapitem">2010</a></li>
+                <li><a href="./2011/" class="mapitem">2011</a></li>
+            </ul>
+        </li>
+    </ul>
+    </div>
+
+And here's what it's actually doing:
+
+    <div class="map">
+    <ul> 
+        <li><span class="selflink">Archives</span>
+            <ul>
+                <li><a href="./2010/" class="mapitem">2010</a></li>
+            </ul>
+            <ul>
+                <li><a href="./2011/" class="mapitem">2011</a></li>
+            </ul>
+        </li>
+    </ul>
+    </div>
+
+I've tried to replicate the problem on this site and cannot, I'm not sure if that's because of exactly how I'm using map or if there's something different with my site.  I just upgraded ikiwiki to the latest Debian unstable as well as most of the required Perl modules and nothing changed.  
+
+If you look at [this page on my site](http://adam.shand.net/ikidev/archives/) (getsource is enabled) you can see it working as expected in the main page and not working in the side bar. 
+
+But it also doesn't work on the sitemap page: <http://adam.shand.net/ikidev/site/map/>
+
+This might be really simple, but I've been staring at it too long and it only looks like a bug to me. :-(   Any suggestions would be gratefully accepted. -- [[AdamShand]]
