@@ -39,3 +39,12 @@ But it also doesn't work on the sitemap page: <http://adam.shand.net/ikidev/site
 This might be really simple, but I've been staring at it too long and it only looks like a bug to me. :-(   Any suggestions would be gratefully accepted. -- [[AdamShand]]
 
 > Okay, I think I've figured this out, it looks like ikiwiki behaves differently depending on the level of heirarchy.  I'll post the details once I'm sure.  -- [[AdamShand]]
+
+>> I managed to replicate the issue on my ikiwiki, and I believe it is a
+>> bug. The current upstream logic for going up/down by a level opens
+>> (and closes) the unnecessary lists that you are seeing. Although the
+>> resulting markup is semantically correct, it has superflous stuff
+>> that introduces whitespace issues at the very least.
+
+>> I have a [[patch]] up [on my git repo](http://git.oblomov.eu/ikiwiki/patch/55fa11e8a5fb351f9371533c758d8bd3eb9de245)
+>> that ought to fix the issue.
