@@ -131,7 +131,8 @@ sub cgi_editpage ($$) {
 			# favor the type of linking page
 			$type=pagetype($pagesources{$from});
 		}
-		$type=$config{default_pageext} unless defined $type;
+		$type=$config{default_pageext}
+			if ! defined $type || $type=~/^_/; # not internal type
 		$file=newpagefile($page, $type);
 		if (! $form->submitted) {
 			$form->field(name => "rcsinfo", value => "", force => 1);
