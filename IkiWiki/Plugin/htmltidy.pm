@@ -41,6 +41,8 @@ sub checkconfig () {
 sub sanitize (@) {
 	my %params=@_;
 
+	return $params{content} unless defined $config{htmltidy};
+
 	my $pid;
 	my $sigpipe=0;
 	$SIG{PIPE}=sub { $sigpipe=1 };
