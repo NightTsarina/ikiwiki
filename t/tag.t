@@ -12,7 +12,6 @@ BEGIN { use_ok("IkiWiki::Plugin::tag"); }
 
 ok(! system("rm -rf t/tmp; mkdir t/tmp"));
 
-$config{verbose} = 1;
 $config{srcdir} = 't/tmp';
 $config{underlaydir} = 't/tmp';
 $config{templatedir} = 'templates';
