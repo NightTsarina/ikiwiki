@@ -390,8 +390,8 @@ sub garbage_collect () {
 		# any guid whose feed is gone should be removed
 		if (! exists $feeds{$guid->{feed}}) {
 			if (exists $guid->{page}) {
-				unlink "$config{srcdir}/".htmlfn($guid->{page});
-				unlink $IkiWiki::Plugin::transient::transientdir."/".htmlfn($guid->{page});
+				unlink $IkiWiki::Plugin::transient::transientdir."/".htmlfn($guid->{page})
+					|| unlink "$config{srcdir}/".htmlfn($guid->{page});
 			}
 			delete $guids{$guid->{guid}};
 		}
