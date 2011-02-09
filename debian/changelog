@@ -2,6 +2,18 @@ ikiwiki (3.20110125) UNRELEASED; urgency=low
 
   * editpage: Avoid inheriting internal page types.
   * htmltidy: Avoid breaking the sidebar when websetup is running.
+  * transient: New utility plugin that allows transient pages to
+    be stored in .ikiwiki/transient/ (smcv)
+  * aggregate: Aggregated content is stored in the transient underlay.
+    (Existing aggregated content is not moved, since it will eventually
+    expire and be removed) (smcv)
+  * autoindex, tag: Added autoindex_commit and tag_autocreate_commit that
+    can be unset to make index files and tags respectively not be committed,
+    and instead be stored in the transient underlay.
+    Closes: #544322 (smcv)
+  * autoindex: Adapted to use add_autofile. Slight behavior changes
+    in edge cases that are probably really bug fixes. (smcv)
+  * recentchanges: Use transient underlay (smcv)
 
  -- Joey Hess <joeyh@debian.org>  Tue, 01 Feb 2011 21:00:57 -0400
 

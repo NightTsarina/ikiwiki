@@ -19,6 +19,8 @@ It could also be used for an [[todo/alias_directive]].
 
 --[[smcv]]
 
+> All [[merged|done]] --[[Joey]] 
+
 --------------------------
 
 [[!template id=gitbranch branch=smcv/ready/transient author="[[smcv]]"]]
@@ -27,14 +29,24 @@ It could also be used for an [[todo/alias_directive]].
 Related branches:
 
 * `ready/tag-test`: an extra regression test for tags
+  > merged --[[Joey]] 
 * either `transient-relative` or `transient-relative-api`: avoid using `Cwd`
   on initialization
+  > merged the latter --[[Joey]]
 * `ready/transient-aggregate`: use for aggregate
+  > merged --[[Joey]]
 * `ready/transient-autoindex`: optionally use for autoindex,
   which is [[!debbug 544322]] (includes autoindex-autofile from
   [[todo/autoindex should use add__95__autofile]])
+  > merged. I do note that this interacts badly with ikiwiki-hosting's
+  > backup/restore/branch handling, since that does not back up the
+  > transientdir by default, and so autoindex will not recreate the
+  > "deleted" pages. I'll probably have to make it back up the transientdir
+  > too. --[[Joey]]
 * `ready/transient-recentchanges`: use for recentchanges
+  > merged --[[Joey]] 
 * `ready/transient-tag`: optionally use for tag (includes tag-test)
+  > merged --[[Joey]]
 
 I think this branch is now enough to be useful. It adds the following:
 
@@ -145,6 +157,9 @@ Not done yet (in that branch, at least):
   >> and which are just nice-to-have, but I'd appreciate any pointers
   >> you could give. Note that my branch wasn't meant to enable either
   >> by default, and now hopefully doesn't. --[[smcv]]
+
+  >>> Opened a new bug for this, [[bugs/removal_of_transient_pages]]
+  >>> --[[Joey]] 
 
 * Transient tags that don't match any pages aren't deleted: I'm not sure
   that that's a good idea anyway, though. Similarly, transient autoindexes

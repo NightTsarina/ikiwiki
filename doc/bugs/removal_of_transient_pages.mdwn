@@ -1,0 +1,17 @@
+The remove plugin cannot remove [[todo/transient_pages]].
+
+> this turns out to be harder than
+> I'd hoped, because I don't want to introduce a vulnerability in the
+> non-regular-file detection, so I'd rather defer that. --[[smcv]]
+
+This is particularly a problem for tag pages, and autoindex
+created pages. So both plugins default to not creating transient
+pages, until this is fixed.  --[[Joey]] 
+
+> I'll try to work out which of the checks are required for security
+> and which are just nice-to-have, but I'd appreciate any pointers
+> you could give. --[[smcv]]
+
+>> I assume by "non-regular file", you are referring to the check
+>> in remove that the file "Must exist on disk, and be a regular file" ?
+>> --[[Joey]] 
