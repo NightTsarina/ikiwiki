@@ -58,6 +58,7 @@ IkiWiki::Plugin::tag::preprocess_tag(page => "seven", numbers => undef, primes =
 is($autofiles{"tags/lucky.mdwn"}{plugin}, "tag");
 is($autofiles{"tags/numbers.mdwn"}{plugin}, "tag");
 is($autofiles{"tags/primes.mdwn"}{plugin}, "tag");
+is_deeply([sort keys %autofiles], [qw(tags/lucky.mdwn tags/numbers.mdwn tags/primes.mdwn)]);
 
 ok(!-e "t/tmp/tags/lucky.mdwn");
 my (%pages, @del);
