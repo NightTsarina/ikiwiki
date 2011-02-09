@@ -7,11 +7,14 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
+	hook(type => "checkconfig", id => "tag", call => \&checkconfig);
 	hook(type => "getopt", id => "tag", call => \&getopt);
 	hook(type => "getsetup", id => "tag", call => \&getsetup);
 	hook(type => "preprocess", id => "tag", call => \&preprocess_tag, scan => 1);
 	hook(type => "preprocess", id => "taglink", call => \&preprocess_taglink, scan => 1);
 	hook(type => "pagetemplate", id => "tag", call => \&pagetemplate);
+
+	IkiWiki::loadplugin("transient");
 }
 
 sub getopt () {
@@ -41,6 +44,20 @@ sub getsetup () {
 			safe => 1,
 			rebuild => undef,
 		},
+		tag_autocreate_commit => {
+			type => "boolean",
+			example => 1,
+			default => 1,
+			description => "commit autocreated tag pages",
+			safe => 1,
+			rebuild => 0,
+		},
+}
+
+sub checkconfig () {
+	if (! defined $config{tag_autocreate_commit}) {
+		$config{tag_autocreate_commit} = 1;
+	}
 }
 
 sub taglink ($) {
@@ -97,8 +114,14 @@ sub gentag ($) {
 			my $template=template("autotag.tmpl");
 			$template->param(tagname => tagname($tag));
 			$template->param(tag => $tag);
-			writefile($tagfile, $config{srcdir}, $template->output);
-			if ($config{rcs}) {
+
+			my $dir = $config{srcdir};
+			if (! $config{tag_autocreate_commit}) {
+				$dir = $IkiWiki::Plugin::transient::transientdir;
+			}
+
+			writefile($tagfile, $dir, $template->output);
+			if ($config{rcs} && $config{tag_autocreate_commit}) {
 				IkiWiki::disable_commit_hook();
 				IkiWiki::rcs_add($tagfile);
 				IkiWiki::rcs_commit_staged(message => $message);
