@@ -810,17 +810,23 @@ sub srcfile ($;$) {
 	return (srcfile_stat(@_))[0];
 }
 
-sub add_underlay ($) {
+sub add_literal_underlay ($) {
 	my $dir=shift;
+
+	if (! grep { $_ eq $dir } @{$config{underlaydirs}}) {
+		unshift @{$config{underlaydirs}}, $dir;
+	}
+}
+
+sub add_underlay ($) {
+	my $dir = shift;
 
 	if ($dir !~ /^\//) {
 		$dir="$config{underlaydirbase}/$dir";
 	}
 
-	if (! grep { $_ eq $dir } @{$config{underlaydirs}}) {
-		unshift @{$config{underlaydirs}}, $dir;
-	}
-
+	add_literal_underlay($dir);
+	# why does it return 1? we just don't know
 	return 1;
 }
 
