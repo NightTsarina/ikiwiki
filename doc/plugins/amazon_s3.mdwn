@@ -22,9 +22,10 @@ This plugin uses the following settings in the setup file:
   set it to "foo", then the url will be
   "http://foo.s3.amazonaws.com/wiki/".
 * `amazon_s3_prefix` - A prefix to prepend to each page name.
-  The default is "wiki/". Note that due to S3 limitations (lack of support
-  for uploading a root key), it is not possible to set the prefix to an
-  empty string.
+  The default is "wiki/". Note: In order to host your site at the root,
+  it needs to be set to "", and you'll have to 
+  [read this](http://aws.typepad.com/aws/2011/02/host-your-static-website-on-amazon-s3.html)
+  for details about configuring your S3 bucket as a website.
 * `amazon_s3_location` - Optionally, this can be set to control which
   datacenter to use. For example, set it to "EU" to for Europe.
 * `amazon_s3_dupindex` - Normally, when `usedirs` is enabled,
@@ -33,7 +34,8 @@ This plugin uses the following settings in the setup file:
   "index.html" in their names to work, you can enable this option. Then
   each index.html file will be stored in S3 *twice*, under both names. This
   will use more disk and bandwidth, and is not recommended unless you really
-  need it for some reason.
+  need it for some reason. These days, it's probably better to configure
+  your S3 bucket as a website.
 
 Note that you should still set `destdir` in the setup file. The files that
 are uploaded to Amazon S3 will still be written to the destdir, too.
