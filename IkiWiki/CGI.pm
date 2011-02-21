@@ -79,7 +79,7 @@ sub cgitemplate ($$$;@) {
 		title => $title,
 		wikiname => $config{wikiname},
 		content => $content,
-		baseurl => urlabs(urlto(""), $topurl),
+		baseurl => urlabs(baseurl(), $topurl),
 		html5 => $config{html5},
 		%params,
 	);
