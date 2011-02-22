@@ -1,4 +1,17 @@
-I'm in the process of installing ikiwiki on my home page (hooray), and wants to have the newest stable version available. I suppose that's the one on the `pristine-tar` branch. But I'm unable to recreate the newest `.tar` file, in fact there's errors in all these `.tar.gz` files on that branch:
+I'm in the process of installing ikiwiki on my home page (hooray), and wants to have the newest stable version available. I suppose that's the one on the `pristine-tar` branch.
+
+> You can check out the latest released version with:
+>
+>     git tag                    # outputs a list of tags
+>     git checkout 3.20110124    # or use the latest one, if different
+>
+> If you're using git already, there's no need to use pristine-tar,
+> unless you particularly want a tarball for some reason.
+>
+> Downloading the tarball from Debian is the other recommended way to
+> [[download]] the source code. --[[smcv]]
+
+But I'm unable to recreate the newest `.tar` file, in fact there's errors in all these `.tar.gz` files on that branch:
 
 * `ikiwiki_2.20.tar.gz`
 * `ikiwiki_2.30.tar.gz`
@@ -21,6 +34,16 @@ I'm in the process of installing ikiwiki on my home page (hooray), and wants to 
 
 The operation fails on these files with a "Checksum validation failed" error from `xdelta`(1). The `pristine-tar`(1) version is 1.00, installed with `apt-get` on Ubuntu 10.04.2 LTS. Is this version too old, or are there some errors on this branch?
 
+> I get similar errors on Debian unstable, but not on all of the same versions;
+> for instance, my `ikiwiki_3.20110124.tar.gz` is OK. In some cases, xdelta
+> complains, but the tarball is produced successfully. However, I do see actual
+> failures for 2.62 and 2.62.1, for instance. --[[smcv]]
+
 A complete output of the "pristine-tar checkout" of all files is stored on <https://gist.github.com/836720> .
 
 For now, I'll download the `.tar.gz` from <http://packages.debian.org/unstable/source/ikiwiki>, or maybe install `ikiwiki_3.20110124_all.deb`. Would you recommend using that `.deb` file on Ubuntu 10.04.2 LTS, or is it Debian-specific? -- sunny256 2011-02-21 08:42+0100
+
+> The .deb from Debian unstable is likely to work on Ubuntu; I've
+> generally been able to compile snapshots on Debian unstable and
+> install them onto Debian lenny (older than that Ubuntu release)
+> without modification. If in doubt, build it from source. --[[smcv]]
