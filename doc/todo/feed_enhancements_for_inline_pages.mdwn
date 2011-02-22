@@ -36,6 +36,13 @@ description is provided by either the directive parameter or the page
 metadata, we use a user-configurable default based on both the page
 title and wiki name rather than hard-coding the wiki name as description.
 
+> Reviewing, this seems ok, but I don't like that 
+> `feed_desc_fmt` is "safe => 0". And I question if that needs
+> to be configurable at all. I say, drop that configurable, and
+> only use the page meta description (or wikiname for index).
+> 
+> Oh, and could you indent your `elsif` the same as I? --[[Joey]] 
+
 The third patch, ‘inline: allow assigning an id to postform/feedlink’,
 does just that. I don't currently use it, but it can be particularly
 useful in the postform case for example for scriptable management of
