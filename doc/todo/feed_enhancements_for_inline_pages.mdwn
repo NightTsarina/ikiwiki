@@ -56,7 +56,14 @@ requirement described anywhere. Rather than restricting the user input,
 I propose a patch that prevents double slashes from appearing in links
 created by `urlto()` by fixing the routine itself.
 
+> If this is fixed I would rather not put the overhead of fixing it in
+> every call to `urlto`. And I'm not sure this is a comprehensive
+> fix to every problem a trailing slash in the url could cause. --[[Joey]]
+
 The inline plugin is also updated (in a separate patch) to use `urlto()`
 rather than hand-coding the feed urls. You might want to keep this
 change even if you discard the urlto patch.
 
+> IIRC, I was missing a proof that this always resulted in identical urls,
+> which is necessary to prevent flooding. I need such a proof before I can
+> apply that. --[[Joey]] 
