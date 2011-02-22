@@ -41,6 +41,40 @@ The operation fails on these files with a "Checksum validation failed" error fro
 > complains, but the tarball is produced successfully. However, I do see actual
 > failures for 2.62 and 2.62.1, for instance. --[[smcv]]
 
+> Yes, on Debian unstable I got failures on only old ones, but not in
+> contiguous blocks: --[[Joey]] 
+
+<pre>
+ikiwiki_2.20.tar.gz
+ikiwiki_2.30.tar.gz
+ikiwiki_2.31.1.tar.gz
+ikiwiki_2.46.tar.gz
+ikiwiki_2.47.tar.gz
+ikiwiki_2.48.tar.gz
+ikiwiki_2.49.tar.gz
+ikiwiki_2.50.tar.gz
+ikiwiki_2.51.tar.gz
+ikiwiki_2.62.1.tar.gz
+ikiwiki_2.62.tar.gz
+</pre>
+
+> Probably what would help debug this problem is if someone can
+> reproduce with one or more of the other ones that do **not** fail
+> for me, pass `-dk` to pristine-tar, and send me a copy of its temp directory
+> (joey@kitenet.net), and the versions of pristine-tar, tar, gzip.
+> Then I can compare the good and bad recreated
+> tarballs and identify the difference. Or pass them to the tar developers,
+> who have helped before.
+> 
+> The only cause that I can think of is that perhaps tar's output
+> has changed compared with the version used to create those. The
+> only tar output change I know of involved filenames that were
+> exactly 100 bytes long -- and pristine-tar 1.11 works around that
+> when run with tar 1.25-2 on Debian. FWIW, I am only seeing
+> this in ikiwiki's pristine-tar info, not other packages'. 
+> (Checked all of debhelper's and alien's and etckeeper's 
+> and pristine-tar's tarballs.) --[[Joey]]
+
 A complete output of the "pristine-tar checkout" of all files is stored on <https://gist.github.com/836720> .
 
 For now, I'll download the `.tar.gz` from <http://packages.debian.org/unstable/source/ikiwiki>, or maybe install `ikiwiki_3.20110124_all.deb`. Would you recommend using that `.deb` file on Ubuntu 10.04.2 LTS, or is it Debian-specific? -- [[sunny256]] 2011-02-21 08:42+0100
