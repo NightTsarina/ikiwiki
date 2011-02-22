@@ -28,6 +28,8 @@ already been included upstream.
 
 > Applied. --[[Joey]] 
 
+>> Thanks.
+
 The second patch, ‘inline: improve feed title and description
 management’, aligns feed title and description management by introducing
 a `title` option to complement `description`, and by basing the
@@ -43,12 +45,25 @@ title and wiki name rather than hard-coding the wiki name as description.
 > 
 > Oh, and could you indent your `elsif` the same as I? --[[Joey]] 
 
+>> I hadn't even realized that I was nesting ifs inside else clauses,
+>> sorry. I think you're also right about the safety of the key, after
+>> all it only gets interpolated with known, safe strings.
+
+>> The question is what to do for pages that do not have a description
+>> (and are not the index). With your proposal, the Atom feed subtitle
+>> would turn up empty. We could make it conditional in the default
+>> template, or we could have `$desc` default to `$title` if nothing
+>> else is provided, but at this point I see no reason to _not_ allow
+>> the user to choose a way to build a default description.
+
 The third patch, ‘inline: allow assigning an id to postform/feedlink’,
 does just that. I don't currently use it, but it can be particularly
 useful in the postform case for example for scriptable management of
 multiple postforms in the same page.
 
 > Applied. --[[Joey]] 
+
+>> Thanks.
 
 In one of my wiki setups I had a terminating '/' in `$config{url}`. You
 mention that it should not be present, but I have not seen this
@@ -60,6 +75,9 @@ created by `urlto()` by fixing the routine itself.
 > every call to `urlto`. And I'm not sure this is a comprehensive
 > fix to every problem a trailing slash in the url could cause. --[[Joey]]
 
+>> Maybe something that sanitizes the config value would be better instead?
+>> What is the policy about automatic changing user config?
+
 The inline plugin is also updated (in a separate patch) to use `urlto()`
 rather than hand-coding the feed urls. You might want to keep this
 change even if you discard the urlto patch.
@@ -67,3 +85,16 @@ change even if you discard the urlto patch.
 > IIRC, I was missing a proof that this always resulted in identical urls,
 > which is necessary to prevent flooding. I need such a proof before I can
 > apply that. --[[Joey]] 
+
+>> Well, the URL would obviously change if the `$config{url}` ended in
+>> slash and the `urlto` patch (or other equivalent) went into effect.
+
+>> Aside from that, if I read the code correctly, the only other extra
+>> thing that `urlto` does is to `beautify_url_path` the `"/".$to` part,
+>> and the only way this would cause the url to be altered is if the
+>> feed name was "index" (which can easily happen) and
+>> `$config{htmlext}` was set to something like `.rss` or
+>> `.rss.1`.
+
+>> So there is a remote possibility that a different URL would be
+>> produced.
