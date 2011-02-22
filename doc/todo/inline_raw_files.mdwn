@@ -88,3 +88,24 @@ which seems likely.
 Or, another way to do it would be to use the templates plugin, and make
 a template there that puts an inline directive inside pre tags.
  --[[Joey]] [[!tag reviewed]]
+
+----
+
+If `pagetype()` cannot fail, then I suppose that check has to go ;).
+
+I was under the impression that [[plugins/highlight]] didn't support
+inlining code.  It looks like it supports highlighing stand-alone
+files or embedded code.  Perhaps I should extend it to support inlined
+code instead of pushing this patch?
+
+The `raw.tmpl` included in the patch *does* include the inlined
+content inside `pre` tags.  The problem is that the current inline
+code insists on running `htmlize()` on the content before inserting it
+in the template.  The heart of my patch is an altered
+`get_inline_content()` that makes the `htmlize()` call dependent on a
+`$read_raw` flag.  If the flag is set, the raw (non-htmlized) content
+is used instead.
+
+I just rebased my patches against the current Ikiwiki trunk (no major
+changes) to make them easier to review.
+ --[[wtk]]
