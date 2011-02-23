@@ -1,0 +1,53 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 4"
+ date="2011-02-23T16:19:28Z"
+ content="""
+> ... at the time the templates are compiled there isn't a concept of who is accessing the page
+
+Yes, this is the problem with what you're asking for.
+
+> Is there a simple way to serve a different static page based on session information?
+
+No, the thing serving the static pages is your web server; IkiWiki isn't involved
+at all.
+
+> I suppose I could try to compile two static sites, one for me and one for the world
+
+I've done similar in the past with two setup files, under the same user ID, running
+different checkouts of the same git repository - one for me, on https with
+[[plugins/httpauth]], and one for the world, with only [[plugins/openid]]. You have
+to make them write their git wrappers to different filenames, and make the real
+git hook be a shell script that runs one wiki's wrapper, then the other, to refresh
+both wikis when something gets committed.
+
+It's a bit fiddly to admin (you have to duplicate most setup changes in the two
+setup files), but can be made to work. I've given up on that in favour of having
+a single wiki reachable from both http and https, with [[plugins/httpauth]]
+only working over https.
+
+> I get the feeling I may be asking it to do something it wasn't meant to do.
+
+Pretty much, yes.
+
+> If so I'd appreciate it if someone told me to stop trying.
+
+I can help! \"Stop trying.\" :-)
+
+But, if you want this functionality badly enough, one way you could get
+it would be to have all the links on all the pages (for the benefit of
+`NoScript` users), use Javascript to make an XMLHTTPRequest (or something)
+to to a CGI action provided by a [[plugin|plugins/write]]
+(`ikiwiki.cgi?do=amiadminornot` or something), and if that says the user
+isn't an admin, hide some of the links to not confuse them.
+
+That would break the normal way that people log in to ikiwiki (by trying
+to do something that needs them logged-in, like editing), so you'd also
+want to add a \"Log In\" button or link (or just remember that editing your
+Preferences has the side-effect of logging you in).
+
+Note that hiding the links isn't useful for security, only for
+usability - the actual edit obviously needs to check whether the
+user is a logged-in admin, and it already does.
+"""]]
