@@ -43,21 +43,19 @@ The operation fails on these files with a "Checksum validation failed" error fro
 
 > Yes, on Debian unstable I got failures on only old ones, but not in
 > contiguous blocks: --[[Joey]] 
-
-<pre>
-ikiwiki_2.20.tar.gz
-ikiwiki_2.30.tar.gz
-ikiwiki_2.31.1.tar.gz
-ikiwiki_2.46.tar.gz
-ikiwiki_2.47.tar.gz
-ikiwiki_2.48.tar.gz
-ikiwiki_2.49.tar.gz
-ikiwiki_2.50.tar.gz
-ikiwiki_2.51.tar.gz
-ikiwiki_2.62.1.tar.gz
-ikiwiki_2.62.tar.gz
-</pre>
-
+> 
+>     ikiwiki_2.20.tar.gz
+>     ikiwiki_2.30.tar.gz
+>     ikiwiki_2.31.1.tar.gz
+>     ikiwiki_2.46.tar.gz
+>     ikiwiki_2.47.tar.gz
+>     ikiwiki_2.48.tar.gz
+>     ikiwiki_2.49.tar.gz
+>     ikiwiki_2.50.tar.gz
+>     ikiwiki_2.51.tar.gz
+>     ikiwiki_2.62.1.tar.gz
+>     ikiwiki_2.62.tar.gz
+>
 > Probably what would help debug this problem is if someone can
 > reproduce with one or more of the other ones that do **not** fail
 > for me, pass `-dk` to pristine-tar, and send me a copy of its temp directory
@@ -74,6 +72,11 @@ ikiwiki_2.62.tar.gz
 > this in ikiwiki's pristine-tar info, not other packages'. 
 > (Checked all of debhelper's and alien's and etckeeper's 
 > and pristine-tar's tarballs.) --[[Joey]]
+>
+>> It looks as though I only get the same failures as you, so that's no help
+>> (reassuring, though, since we're presumably both running recent Debian).
+>> sunny256's failure cases might just result from the older tar and pristine-tar
+>> on Ubuntu 10.04? --[[smcv]]
 
 A complete output of the "pristine-tar checkout" of all files is stored on <https://gist.github.com/836720> .
 
