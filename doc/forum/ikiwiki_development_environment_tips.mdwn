@@ -42,3 +42,27 @@ Does anyone have a comfortable setup or tips they would like to share? -- [[Jon]
 > needed, since it is preconfigured to use the templates and underlays
 > from ikiwiki's source repository.
 > --[[Joey]]
+
+> I work with Ikiwiki from the git checkout directory the following way.
+>
+> * instead of running ikiwiki, I wrote the following `mykiwiki` shell script,
+> that also allows me to use my custom lib-ifited multimarkdown:
+
+    #!/bin/sh
+    
+    MMDSRC="$HOME/src/multimarkdown/lib"
+    IKIWIKISRC="$HOME/src/ikiwiki"
+    PLUGINS="$HOME/src/ikiplugins"
+    
+    /usr/bin/perl -I"$MMDSRC" -I"$IKIWIKISRC/blib/lib" -I"$PLUGINS" "$IKIWIKISRC/ikiwiki.out" -libdir "$IKIWIKISRC" "$@"
+
+> * I also have an installed ikiwiki from Debian unstable, from which I only use the base wiki, so my `.setup` has the following configs:
+
+    # additional directory to search for template files
+    templatedir => '/home/oblomov/src/ikiwiki/templates',
+    # base wiki source location
+    underlaydir => '/usr/share/ikiwiki/basewiki',
+    # extra library and plugin directory
+    libdir => '/home/oblomov/src/ikiwiki',
+
+> Hope that helps --GB
