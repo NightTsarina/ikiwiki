@@ -98,6 +98,10 @@ inlining code.  It looks like it supports highlighing stand-alone
 files or embedded code.  Perhaps I should extend it to support inlined
 code instead of pushing this patch?
 
+> If you configure highlight to support standalone files, then you can
+> inline the resulting pages and get nicely highlighted source code
+> inlined into the page. --[[Joey]]
+
 The `raw.tmpl` included in the patch *does* include the inlined
 content inside `pre` tags.  The problem is that the current inline
 code insists on running `htmlize()` on the content before inserting it
