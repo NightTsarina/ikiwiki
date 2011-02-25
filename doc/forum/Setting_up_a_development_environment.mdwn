@@ -1,0 +1,32 @@
+Hi,
+
+I'm trying to setup a development environment to hack on the comments plugin and I'm having problems getting my Ikiwiki CGI to use my git checkout as the libdir and templatedir instead of the system one.
+
+My <tt>.setup</tt> contains:
+
+        srcdir => '/home/francois/wiki/testblog',
+        destdir => '/var/www/testblog',
+        url => 'http://localhost/testblog',
+        cgiurl => 'http://localhost/testblog/ikiwiki.cgi',
+        cgi_wrapper => '/var/www/testblog/ikiwiki.cgi',
+        templatedir => '/home/francois/devel/remote/ikiwiki/templates',
+        underlaydir => '/home/francois/devel/remote/ikiwiki/doc',
+        libdir => '/home/francois/devel/remote/ikiwiki',
+        ENV => {},
+        git_wrapper => '/home/francois/wiki/testblog.git/hooks/post-update',
+
+Now, if I modify <tt>~/devel/remote/ikiwiki/templates/comment.tmpl</tt>, my changes don't appear when I add a comment to a blog post. On the other hand, if I hack <tt>/usr/share/ikiwiki/templates/comment.tmpl</tt> and cause the page to be rebuilt by adding a new comment then that does have an effect.
+
+The same is true for <tt>~/devel/remote/ikiwiki/Ikiwiki/Plugin/comments.pm</tt> (doesn't appear to be used) and <tt>/usr/share/perl5/Ikiwiki/Plugin/comments.pm</tt> (my hacks affect pages as they are recompiled).
+
+I must be missing something obvious, but the [[ikiwiki development environment tips]] didn't help me...
+
+Cheers,
+
+[[Francois|fmarier]]
+
+> I updated the [[ikiwiki development environment tips]] page with my
+> approach to running ikiwiki from the git checkout (with changes). For
+> the templates, also make sure that you do not have custom templates in
+> your src dir as they will be used instead of those from the template
+> dir if found. --GB
