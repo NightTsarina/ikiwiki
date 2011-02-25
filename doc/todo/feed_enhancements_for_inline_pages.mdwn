@@ -49,12 +49,20 @@ title and wiki name rather than hard-coding the wiki name as description.
 >> sorry. I think you're also right about the safety of the key, after
 >> all it only gets interpolated with known, safe strings.
 
+>>> I did not mean to imply that I thought it safe. --[[Joey]] 
+
 >> The question is what to do for pages that do not have a description
 >> (and are not the index). With your proposal, the Atom feed subtitle
 >> would turn up empty. We could make it conditional in the default
 >> template, or we could have `$desc` default to `$title` if nothing
 >> else is provided, but at this point I see no reason to _not_ allow
 >> the user to choose a way to build a default description.
+
+>>> RSS requires the `<description>` element be present, it can't
+>>> be conditionalized away. But I see no reason to add the complexity
+>>> of an option to configure a default value for a field that
+>>> few RSS consumers likely even use. That's about 3 levels below useful.
+>>> --[[Joey]]
 
 The third patch, ‘inline: allow assigning an id to postform/feedlink’,
 does just that. I don't currently use it, but it can be particularly
@@ -77,6 +85,8 @@ created by `urlto()` by fixing the routine itself.
 
 >> Maybe something that sanitizes the config value would be better instead?
 >> What is the policy about automatic changing user config?
+
+>>> It's impossible to do for perl-format setup files. --[[Joey]]
 
 The inline plugin is also updated (in a separate patch) to use `urlto()`
 rather than hand-coding the feed urls. You might want to keep this
