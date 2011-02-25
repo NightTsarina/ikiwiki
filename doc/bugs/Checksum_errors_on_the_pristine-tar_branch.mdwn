@@ -78,6 +78,15 @@ The operation fails on these files with a "Checksum validation failed" error fro
 >> sunny256's failure cases might just result from the older tar and pristine-tar
 >> on Ubuntu 10.04? --[[smcv]]
 
+>>> Yes, I can reproduce the same failures sunny256 saw using Debian oldstable. Once I
+>>> upgrade pristine-tar and tar, it goes away, so I think it is the 100
+>>> byte filename bug affecting those.
+>>>
+>>> As to the ones we all see fail, I dunno what it is, but probably
+>>> has to do with some kind of historical issue in the versions of
+>>> pristine-tar/tar used to create them. We may never know what went wrong
+>>> there. --[[Joey]] [[done]]
+
 A complete output of the "pristine-tar checkout" of all files is stored on <https://gist.github.com/836720> .
 
 For now, I'll download the `.tar.gz` from <http://packages.debian.org/unstable/source/ikiwiki>, or maybe install `ikiwiki_3.20110124_all.deb`. Would you recommend using that `.deb` file on Ubuntu 10.04.2 LTS, or is it Debian-specific? -- [[sunny256]] 2011-02-21 08:42+0100
