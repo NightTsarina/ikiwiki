@@ -25,10 +25,12 @@ sub getsetup () {
 our $transientdir;
 
 sub checkconfig () {
-	$transientdir = $config{wikistatedir}."/transient";
-	# add_underlay treats relative underlays as relative to the installed
-	# location, not the cwd. That's not what we want here.
-	IkiWiki::add_literal_underlay($transientdir);
+	if (defined $config{wikistatedir}) {
+		$transientdir = $config{wikistatedir}."/transient";
+		# add_underlay treats relative underlays as relative to the installed
+		# location, not the cwd. That's not what we want here.
+		IkiWiki::add_literal_underlay($transientdir);
+	}
 }
 
 sub change (@) {
