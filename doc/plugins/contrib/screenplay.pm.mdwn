@@ -1,0 +1,320 @@
+This plugin works for me. It follows the standard for a movie screenplay pretty closely, I am not aware of any errors in format. Please let me know if you find any.
+
+Right now all it does is display your pages properly in a web browser. What I would like to add is the ability to output a file that could easily be printed once the screenplay is finished. We keep all the scenes we work on in one folder and eventually we will want to print a script out of that folder. It would be great if an up to date PDF or TXT script could be put in the folder when a scene is saved. I will do it, it just isn't a priority yet. 
+
+I am not a published writer and not an authority on script formatting. I got what I know out of a book.
+
+Briefly, you type a command on a line, like ".d", then on the next line (for the dialog command) you type a person's name. Then you hit return again and write the words he is supposed to speak out all on one line. When you save your document this simple text will become a properly formatted script.
+
+Thank you Joey for having me here.
+
+###Headings: 
+	Most headings should begin with a transition. The list of valid commands is:
+	.fi    =>    FADE IN: a gradual transition from a solid color to an image 
+	.fo    =>    FADE OUT.
+	.ftb    =>    FADE TO BLACK.
+	.ftw    =>    FADE TO WHITE.
+	.ct     =>    CUT TO: indicates an instantaneous shift from one shot to the next
+	.shot    =>    lack of an explicit transition assumes a cut
+	.hct    =>    HARD CUT TO: describes a jarring transition
+	.qct    =>    QUICK CUT TO: describes a cut sooner than expected
+	.tct    =>    TIME CUT TO: emphasizes time passing
+	.mct    =>    MATCH CUT TO: image in first shot visually or thematically matches image in second
+	.dt    =>    DISSOLVE TO: gradual transition from image to another implies passage of time.
+	.rdt    =>    RIPPLE DISSOLVE TO: indicates transition into daydream or imagination
+	.wt    =>    WIPE TO: new image slides over top of last one
+	
+	Example transition:
+	
+	.fi (or any transition command) <= Writes a transition line, except .shot which omits it.
+	type shot heading here   <= this line will be capitalized
+	First direction.   <= these lines are not capitalized.
+	Second direction.
+	Third direction, etc...
+	
+	Direction without a shot heading:
+	.dir
+	First direction.
+	Second direction.
+	Third direction, etc...
+	
+	Some items aren't implemented in dialogue yet:
+	1) you must watch that you don't leave a " -- " dangling on a line by itself, 
+	     instead, carry the last word onto the line with a dash
+	2) observe lyrical line endings in dialogue by indenting wrapped lines by two spaces
+	3) you must watch that the four line limit for parenthetical direction is not exceeded
+	
+	Example dialogue:
+	
+	.d 
+	char name   <= this line will be capitalized
+	this is what he's saying                  <= Dialogue
+	raises hand to wave                       <= Parenthetical direction
+	this is more of what he's saying          <= Dialogue
+	this is going to be in parenthesis        <= Parenthetical direction
+	this is more of what he's saying, etc...  <= Dialogue
+	
+	.note 
+	Allows you to add a temporary note to a script without getting an error. 
+	All notes need to be removed eventually because they are a format violation.
+	
+	
+	
+	###name this file screenplay.pm and pop it in your Plugin folder. Then you need to add the plugin to your Ikiwiki setup file.
+	
+	#!/usr/bin/perl
+	# Screenplay markup language
+	package IkiWiki::Plugin::screenplay;
+	
+	use warnings;
+	use strict;
+	use IkiWiki 3.00;
+	use Text::Format;
+	use Log::Log4perl qw(:easy);
+	Log::Log4perl->easy_init($INFO);
+	#Log::Log4perl->easy_init($ERROR);
+	
+	sub import {
+		hook(type => "getsetup", id => "screenplay", call => \&getsetup);
+		hook(type => "htmlize", id => "screenplay", call => \&htmlize, longname => "Screenplay");
+	}
+	
+	sub getsetup () {
+	        return
+	                plugin => {
+	                        safe => 1,
+	                        rebuild => 1, # format plugin
+	                        section => "format",
+	                },
+	}
+	
+	sub htmlize (@) {
+		#set up variables and fill with defaults
+		my %params=@_;
+		my $content = $params{content};
+		my @lines = split(/\r\n|\r|\n/, $content);
+		my @chunk;
+		my @formatted;
+		my $current_line = shift(@lines);
+		my $current_command = "";
+		my $current_chunk = "";
+	
+	    while (scalar(@lines) > 0) {
+		until ( &dot_command($current_line) || scalar(@lines) == 0 ) {
+		    #skip spaces; mark bad lines
+	            unless ( &blank_line($current_line) ) {
+	                push(@formatted, "<br />");
+			push(@formatted, &no_command($current_line));
+		    }
+		    $current_line = shift(@lines);
+		}
+	
+		#Exit while loop if we're out of lines
+	        last if (scalar(@lines) == 0);
+	
+		#set command for chunk
+		$current_command = $current_line;
+		$current_line = shift(@lines);
+	
+		#get chunk, i.e. all text up to next blank line or a dot command.
+		until (substr($current_line,0,1) eq '.' || $current_line =~ m// || $current_line =~ m/^\s*$/) {
+		    push(@chunk,$current_line);
+		    $current_line = shift(@lines);
+		    last unless defined $current_line;
+	        } 
+	
+		#Start with a blank line unless unneeded.
+		if (scalar(@formatted) > 0 ) {
+			push(@formatted, "<br />");
+		}
+	
+		#remaining lines are not commands.
+		if (scalar(@chunk)) {
+			$current_chunk = shift(@chunk);
+			if ($current_command eq ".shot") {
+				push(@formatted, &indent(&chunk(uc($current_chunk),57),17));
+	                        while (scalar(@chunk)) {
+	                                $current_chunk = shift(@chunk);
+	                                push(@formatted, "<br />");
+	                                push(@formatted, &indent(&chunk($current_chunk,57),17));
+	                        }
+	
+	                } elsif ($current_command eq ".note") { 
+				push(@formatted, "NOTE:<br />");
+	                        push(@formatted, &chunk($current_chunk,75));
+	                        while (scalar(@chunk)) {
+	                                $current_chunk = shift(@chunk);
+	                                push(@formatted, "<br />");
+	                                push(@formatted, &chunk($current_chunk,75));
+	                        }
+	
+	                } elsif ($current_command eq ".dir") {
+	                        push(@formatted, &indent(&chunk($current_chunk,57),17));
+				while (scalar(@chunk)) {
+	                                $current_chunk = shift(@chunk);
+					push(@formatted, "<br />");
+	                                push(@formatted, &indent(&chunk($current_chunk,57),17));
+	                        }		
+	
+	                } elsif ($current_command eq ".d") {
+				push(@formatted, &indent(&chunk(uc($current_chunk),32),41));
+				$current_chunk = shift(@chunk);
+	                        push(@formatted, &indent(&chunk($current_chunk,34),27));
+				while (scalar(@chunk) / 2 >= 1 ) {
+					$current_chunk = shift(@chunk);
+					push(@formatted, &indent(&chunk(&pd($current_chunk),19),34));
+					$current_chunk = shift(@chunk);
+					push(@formatted, &indent(&chunk($current_chunk,34),27));
+				}
+	
+	                } elsif ($current_command eq ".pd") {
+	                        push(@formatted, &indent(&chunk(uc($current_chunk),32),41));
+	                        $current_chunk = shift(@chunk);
+	                        push(@formatted, &indent(&chunk(&pd($current_chunk),19),34));
+	                        $current_chunk = shift(@chunk);
+	                        push(@formatted, &indent(&chunk($current_chunk,34),27));
+	                        while (scalar(@chunk) / 2 >= 1 ) {
+	                                $current_chunk = shift(@chunk);
+	                                push(@formatted, &indent(&chunk(&pd($current_chunk),19),34));
+	                                $current_chunk = shift(@chunk);
+	                                push(@formatted, &indent(&chunk($current_chunk,34),27));
+	                        }
+	
+	                } elsif ($current_command =~ m/^\.(fi|fo|ct|hct|qct|tct|mct|dt|rdt)$/) {
+				if ($current_command eq ".fi") {
+					push(@formatted, &indent(&chunk(uc("FADE IN:"),20),17));
+				} elsif ($current_command eq ".fo") {
+	                                push(@formatted, &indent(&chunk(uc("FADE OUT:"),20),60));
+				} elsif ($current_command eq ".ct") {
+	                                push(@formatted, &indent(&chunk(uc("CUT TO:"),20),60));
+	                        } elsif ($current_command eq ".hct") {
+	                                push(@formatted, &indent(&chunk(uc("HARD CUT TO:"),20),60));
+	                        } elsif ($current_command eq ".qct") {
+	                                push(@formatted, &indent(&chunk(uc("QUICK CUT TO:"),20),60));
+	                        } elsif ($current_command eq ".tct") {
+	                                push(@formatted, &indent(&chunk(uc("TIME CUT TO:"),20),60));
+	                        } elsif ($current_command eq ".mct") {
+	                                push(@formatted, &indent(&chunk(uc("MATCH CUT TO:"),20),60));
+	                        } elsif ($current_command eq ".dt") {
+	                                push(@formatted, &indent(&chunk(uc("DISSOLVE TO:"),20),60));
+	                        } elsif ($current_command eq ".rdt") {
+	                                push(@formatted, &indent(&chunk(uc("RIPPLE DISSOLVE TO:"),20),60));
+	                        } elsif ($current_command eq ".wt") {
+	                                push(@formatted, &indent(&chunk(uc("WIPE TO:"),20),60));
+				}
+				push(@formatted, &indent(&chunk(uc($current_chunk),57),17));
+	                        while (scalar(@chunk)) {
+	                                $current_chunk = shift(@chunk);
+	                                push(@formatted, "<br />");
+	                                push(@formatted, &indent(&chunk($current_chunk,57),17));
+	                        }
+						
+			}
+			#mark the rest of the chunk as 'no command'
+	        	if (scalar(@chunk)) {
+	                	$current_chunk = shift(@chunk);
+	        	        push(@formatted, &no_command($current_chunk));
+	        	}
+	
+		}
+	    }
+	    my @content;
+	    my $i = 0;
+	    $current_line = "";
+	    while (scalar(@formatted)) {
+		$i++;
+		$current_line = shift(@formatted);	
+		if ( $i % 60 == 0 ) {
+		    push(@content, &indent($i/60  . ".<br />",72) );
+		}
+		push(@content, $current_line);
+	    }
+	    $content = join("\r\n",@content);
+	    return $content;
+	}
+	
+	sub blank_line {
+		my $line = shift(@_);
+		my $ret = 0;
+	
+	        if ($line =~ m// || $line =~ m/^\s*$/) {
+	            $ret = 1;
+	        } else {
+		    $ret = 0;
+		}
+	
+		return $ret;
+	}
+	
+	sub chunk () {
+	        my $unchunked = shift(@_);
+	        my $columns = shift(@_);
+		my $text = new Text::Format;
+		$text->rightFill(1);
+		$text->columns($columns);
+		$text->firstIndent(0);
+		$text->tabstop(0);
+		$text->extraSpace(1);
+	        my @chunked = split /\n/, $text->format($unchunked);
+	        my @formatted;
+	        foreach (@chunked) {
+	                push(@formatted, $_ . "<br />");
+	        }
+	        return @formatted;
+	}
+	
+	sub dot_command {
+	        my $line = shift(@_);
+	        my $ret = 0;
+	
+	        if ($line =~ m/^\.(ct|dir|dt|d|fi|fo|hct|mct|note|pd|qct|rdt|shot|tct)$/) {
+	            $ret = 1;
+	        } else {
+	            $ret = 0;
+	        }
+	
+	        return $ret;
+	}
+	
+	sub indent () {
+		my @unindented = @_;
+		my $spaces = pop @unindented;
+		my @indented;
+		foreach (@unindented) {
+			push(@indented, "&nbsp;" x $spaces . $_);
+		}
+		return @indented;
+	}
+	
+	sub no_command () {
+		my $line = shift(@_);
+	          my $text = new Text::Format;
+	        $text->rightFill(1);
+	        $text->columns(68);
+	        $text->firstIndent(0);
+	        $text->tabstop(0);
+	        $text->extraSpace(1);
+	        my @chunked = split /\n/, $text->format($line);
+	        my @formatted;
+		push(@formatted, ("NO COMMAND: "));
+	        foreach (@chunked) {
+	                push(@formatted, ( $_ . "<br />" ));
+	        }
+	        return @formatted;
+	}
+	
+	sub pd () {
+	        my @chunk = @_;
+	        # add '(' to top item
+	        my $line = "(" . shift(@chunk);
+	        unshift(@chunk, $line);
+	
+	        # add ')' to bottom item
+	        $line = pop(@chunk) . ")";
+	        push(@chunk, $line);
+	
+	        return @chunk;
+	}
+	
+	1
+	
