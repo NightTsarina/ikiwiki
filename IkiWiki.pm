@@ -1168,7 +1168,7 @@ sub urlto ($;$$) {
 	}
 
 	if (! defined $from) {
-		my $u = $local_url;
+		my $u = $local_url || '';
 		$u =~ s{/$}{};
 		return $u.beautify_urlpath("/".$to);
 	}
