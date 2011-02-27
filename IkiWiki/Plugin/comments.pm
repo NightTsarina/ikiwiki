@@ -957,7 +957,8 @@ sub match_comment ($$;@) {
 		}
 	}
 
-	return match_glob($page, "$glob/*", internal => 1, @_);
+	return match_glob($page, "$glob/*", internal => 1, @_) &&
+		! match_glob($page, "$glob/*/*", internal => 1, @_);
 }
 
 sub match_comment_pending ($$;@) {
@@ -972,7 +973,8 @@ sub match_comment_pending ($$;@) {
 		return IkiWiki::FailReason->new("$page is not a pending comment");
 	}
 
-	return match_glob($page, "$glob/*", internal => 1, @_);
+	return match_glob($page, "$glob/*", internal => 1, @_) &&
+		! match_glob($page, "$glob/*/*", internal => 1, @_);
 }
 
 1
