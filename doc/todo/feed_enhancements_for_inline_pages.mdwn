@@ -51,6 +51,9 @@ title and wiki name rather than hard-coding the wiki name as description.
 
 >>> I did not mean to imply that I thought it safe. --[[Joey]] 
 
+>>>> Sorry for assuming you implied that. I do think it is safe, though
+>>>> (I defaulted to not safe just to err on the safe side).
+
 >> The question is what to do for pages that do not have a description
 >> (and are not the index). With your proposal, the Atom feed subtitle
 >> would turn up empty. We could make it conditional in the default
@@ -63,6 +66,22 @@ title and wiki name rather than hard-coding the wiki name as description.
 >>> of an option to configure a default value for a field that
 >>> few RSS consumers likely even use. That's about 3 levels below useful.
 >>> --[[Joey]]
+
+>>>> The way I see it, there are three possibilities for non-index pages
+>>>> which have no description meta: (1) we leave the
+>>>> description/subtitle in feed blank, per your current proposal here
+>>>> (2) we hard-code some string to put there and (3) we make the
+>>>> string to put there configurable. Honestly, I think option #1 sucks
+>>>> aesthetically and option #2 is conceptually wrong (I'm against
+>>>> hard-coding stuff in general), which leaves option #3: however
+>>>> rarely used it would be, I still think it'd be better than #2 and
+>>>> less unaesthetical than #1.
+
+>>>> I'm also not sure what's ‘complex’ about having such an option:
+>>>> it's definitely not going to get much use, but does it hurt to have
+>>>> it? I could understand not wasting time putting it in, but since
+>>>> the code is written already … (but then again I'm known for being a
+>>>> guy who loves options).
 
 The third patch, ‘inline: allow assigning an id to postform/feedlink’,
 does just that. I don't currently use it, but it can be particularly
@@ -87,6 +106,9 @@ created by `urlto()` by fixing the routine itself.
 >> What is the policy about automatic changing user config?
 
 >>> It's impossible to do for perl-format setup files. --[[Joey]]
+
+>>>> Ok. In that case I think that we should document that it must be
+>>>> slash-less. I'll cook up a patch in that sense.
 
 The inline plugin is also updated (in a separate patch) to use `urlto()`
 rather than hand-coding the feed urls. You might want to keep this
