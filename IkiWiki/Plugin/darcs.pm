@@ -377,7 +377,8 @@ sub rcs_diff ($;$) {
 	my $rev=shift;
 	my $maxlines=shift;
 	my @lines;
-	foreach my $line (silentsystem("darcs", "diff", "--match", "hash ".$rev)) {
+	my $repodir=$config{srcdir};
+	foreach my $line (`darcs diff --repodir  $repodir --match 'hash $rev'`) {
 		if (@lines || $line=~/^diff/) {
 			last if defined $maxlines && @lines == $maxlines;
 			push @lines, $line."\n";
