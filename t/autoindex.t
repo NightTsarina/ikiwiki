@@ -75,8 +75,8 @@ is($autofiles{"deleted.mdwn"}{plugin}, "autoindex");
 %pages = ();
 @del = ();
 IkiWiki::gen_autofile("deleted.mdwn", \%pages, \@del);
-is_deeply(\%pages, {}) || diag explain \%pages;
-is_deeply(\@del, []) || diag explain \@del;
+is_deeply(\%pages, {});
+is_deeply(\@del, []);
 ok(! -f "t/tmp/deleted.mdwn");
 
 # this page is tried as an autofile, but because it'll be in @del, it's not
@@ -86,8 +86,8 @@ ok(! exists $wikistate{autoindex}{autofile}{"gone.mdwn"});
 @del = ("gone.mdwn");
 is($autofiles{"gone.mdwn"}{plugin}, "autoindex");
 IkiWiki::gen_autofile("gone.mdwn", \%pages, \@del);
-is_deeply(\%pages, {}) || diag explain \%pages;
-is_deeply(\@del, ["gone.mdwn"]) || diag explain \@del;
+is_deeply(\%pages, {});
+is_deeply(\@del, ["gone.mdwn"]);
 ok(! -f "t/tmp/gone.mdwn");
 
 # this page does not exist and has no reason to be re-created, but we no longer
@@ -116,8 +116,8 @@ ok(! exists $wikistate{autoindex}{autofile}{"tags.mdwn"});
 @del = ();
 is($autofiles{"tags.mdwn"}{plugin}, "autoindex");
 IkiWiki::gen_autofile("tags.mdwn", \%pages, \@del);
-is_deeply(\%pages, {"t/tmp/tags" => 1}) || diag explain \%pages;
-is_deeply(\@del, []) || diag explain \@del;
+is_deeply(\%pages, {"t/tmp/tags" => 1});
+is_deeply(\@del, []);
 ok(! -s "t/tmp/tags.mdwn");
 ok(-s "t/tmp/.ikiwiki/transient/tags.mdwn");
 
@@ -127,8 +127,8 @@ ok(! exists $wikistate{autoindex}{autofile}{"attached.mdwn"});
 @del = ();
 is($autofiles{"attached.mdwn"}{plugin}, "autoindex");
 IkiWiki::gen_autofile("attached.mdwn", \%pages, \@del);
-is_deeply(\%pages, {"t/tmp/attached" => 1}) || diag explain \%pages;
-is_deeply(\@del, []) || diag explain \@del;
+is_deeply(\%pages, {"t/tmp/attached" => 1});
+is_deeply(\@del, []);
 ok(-s "t/tmp/.ikiwiki/transient/attached.mdwn");
 
 1;

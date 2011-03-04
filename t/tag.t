@@ -65,8 +65,8 @@ my (%pages, @del);
 IkiWiki::gen_autofile("tags/lucky.mdwn", \%pages, \@del);
 ok(! -s "t/tmp/tags/lucky.mdwn");
 ok(-s "t/tmp/.ikiwiki/transient/tags/lucky.mdwn");
-is_deeply(\%pages, {"t/tmp/tags/lucky" => 1}) || diag explain \%pages;
-is_deeply(\@del, []) || diag explain \@del;
+is_deeply(\%pages, {"t/tmp/tags/lucky" => 1});
+is_deeply(\@del, []);
 
 # generating an autofile that already exists does nothing
 %pages = @del = ();
