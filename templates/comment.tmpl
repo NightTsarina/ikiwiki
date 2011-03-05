@@ -1,6 +1,10 @@
 <TMPL_IF HTML5><article class="comment" id="<TMPL_VAR COMMENTID>">
 <TMPL_ELSE><div class="comment" id="<TMPL_VAR COMMENTID>"></TMPL_IF>
 
+<TMPL_IF COMMENTAUTHORAVATAR><div class="comment-avatar">
+<img src="<TMPL_VAR COMMENTAUTHORAVATAR>" alt="" />
+</div></TMPL_IF>
+
 <TMPL_IF HTML5><header class="comment-subject"><TMPL_ELSE><div class="comment-subject"></TMPL_IF>
 <TMPL_IF PERMALINK>
 <a href="<TMPL_VAR PERMALINK>"><TMPL_VAR TITLE></a>
@@ -58,4 +62,5 @@ Comment by
 <TMPL_IF HTML5></nav><TMPL_ELSE></div></TMPL_IF>
 </TMPL_IF>
 
+<div style="clear: both"></div>
 <TMPL_IF HTML5></article><TMPL_ELSE></div></TMPL_IF>

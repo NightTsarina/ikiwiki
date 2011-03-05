@@ -167,6 +167,7 @@ sub preprocess {
 	my $commentip;
 	my $commentauthor;
 	my $commentauthorurl;
+	my $commentauthoravatar;
 	my $commentopenid;
 	if (defined $params{username}) {
 		$commentuser = $params{username};
@@ -187,6 +188,16 @@ sub preprocess {
 
 			$commentauthor = $commentuser;
 		}
+
+                eval 'use Libravatar::URL';
+
+                if (! $@) {
+                    my $email = IkiWiki::userinfo_get($commentuser, 'email');
+
+                    if (defined $email) {
+                        $commentauthoravatar = libravatar_url(email => $email);
+                    }
+                }
 	}
 	else {
 		if (defined $params{ip}) {
@@ -200,6 +211,7 @@ sub preprocess {
 	$commentstate{$page}{commentip} = $commentip;
 	$commentstate{$page}{commentauthor} = $commentauthor;
 	$commentstate{$page}{commentauthorurl} = $commentauthorurl;
+	$commentstate{$page}{commentauthoravatar} = $commentauthoravatar;
 	if (! defined $pagestate{$page}{meta}{author}) {
 		$pagestate{$page}{meta}{author} = $commentauthor;
 	}
@@ -872,6 +884,11 @@ sub pagetemplate (@) {
 	if ($template->query(name => 'commentauthorurl')) {
 		$template->param(commentauthorurl =>
 			$commentstate{$page}{commentauthorurl});
+	}
+
+	if ($template->query(name => 'commentauthoravatar')) {
+		$template->param(commentauthoravatar =>
+			$commentstate{$page}{commentauthoravatar});
 	}
 
 	if ($template->query(name => 'removeurl') &&
