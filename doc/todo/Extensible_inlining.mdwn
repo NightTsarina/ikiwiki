@@ -1,4 +1,4 @@
-Here's an idea for extending inline in two directions:
+Here's an idea with [[patch]] for extending inline in two directions:
 
 1. Permit the content-fetching function to return undef to skip a page. The limiting of @list to a set size is performed after that filtering.
 2. Permit other directive plugins to pass a function to generate content via an inliner_ parameter. The current patch doesn't try to remove that key from the parameters, so hilarity might ensue if someone is too clever. I suppose I should fix that... My *intent* is that other, custom directives can add inliner_.
