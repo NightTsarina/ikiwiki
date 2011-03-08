@@ -132,6 +132,16 @@ Else can you please suggest a smarter way of getting certain data out from pages
 
 --[[hendry]]
 
+## A different idea: smuggling hook routines in through %params.
+
+The part that fetches the inlined content is quite compact. It's just the if ($needcontent) {} chunk. Would a patch that accepts a perl sub smuggled through something like $params{inliner_} be accepted? If that param exists, call it instead of the current content of that chunk. Pass $page, %params, and $template. Receive $content, possibly seeing $template modified. The custom directives can add inliner_ to %params and call IkiWiki::preprocess_inline. I suppose IkiWiki::Plugin::inline could be modified to strip any *_ out of the directive's arguments to prevent any custom behavior from leaking into the inline directive.
+
+I'm about to try this for a CV/resume type of thing. I want only one element with a specific id out of the generated content (with a little post-processing). I don't need performance for my case.
+
+Update: Pretty much works. I need a way to skip sources, but inline shrinks the list of all pages *before* trying to form them. Next little bit...
+
+--[[JasonRiedy]]
+
 ---
 
 ## Interaction of `show` and `feedshow`
