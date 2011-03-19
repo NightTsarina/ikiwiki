@@ -50,7 +50,7 @@ extra_build: $(outprogs) ikiwiki.setup docwiki
 	./mdwn2man ikiwiki-update-wikilist 1 doc/ikiwiki-update-wikilist.mdwn > ikiwiki-update-wikilist.man
 	./mdwn2man ikiwiki-calendar 1 doc/ikiwiki-calendar.mdwn > ikiwiki-calendar.man
 	$(MAKE) -C po
-	$(SED) -i.bkp "s/Version:.*/Version: $$(perl -e '$$_=<>;print m/\((.*?)\)/'<debian/changelog)/" ikiwiki.spec
+	$(SED) -i.bkp "s/Version:.*/Version: $(VER)/" ikiwiki.spec
 	rm -f ikiwiki.spec.bkp
 	
 docwiki:
