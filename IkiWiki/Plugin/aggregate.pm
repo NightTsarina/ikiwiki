@@ -57,11 +57,20 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 0,
 		},
+		cookiejar => {
+			type => "string",
+			example => { file => "$ENV{HOME}/.ikiwiki/cookies" },
+			safe => 0, # hooks into perl module internals
+			description => "cookie control",
+		},
 }
 
 sub checkconfig () {
 	if (! defined $config{aggregateinternal}) {
 		$config{aggregateinternal}=1;
+	}
+	if (! defined $config{cookies}) {
+		$config{cookies}={ file => "$ENV{HOME}/.ikiwiki/cookies" };
 	}
 
 	if ($config{aggregate} && ! ($config{post_commit} && 
@@ -510,7 +519,11 @@ sub aggregate (@) {
 			}
 			$feed->{feedurl}=pop @urls;
 		}
-		my $res=URI::Fetch->fetch($feed->{feedurl});
+		my $res=URI::Fetch->fetch($feed->{feedurl},
+			UserAgent => LWP::UserAgent->new(
+				cookie_jar => $config{cookiejar},
+			),
+		);
 		if (! $res) {
 			$feed->{message}=URI::Fetch->errstr;
 			$feed->{error}=1;

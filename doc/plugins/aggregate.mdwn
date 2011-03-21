@@ -48,3 +48,10 @@ plugin as well as aggregate itself, since feed entries will be stored as
 HTML, and as first-class wiki pages -- each one generates
 a separate HTML page in the output, and they can even be edited. This
 option is provided only for backwards compatability.
+
+## cookies
+
+The `cookiejar` option can be used to configure how [[!cpan LWP::UserAgent]]
+handles cookies. The default is to read them from a file
+`~/.ikiwiki/cookies`, which can be populated using standard perl cookie
+tools like [[!cpan HTTP::Cookies]].
