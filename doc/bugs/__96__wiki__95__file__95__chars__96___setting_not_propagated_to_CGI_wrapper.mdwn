@@ -18,3 +18,11 @@ Maybe the CGI wrapper should specially call `checkconfig`, which is
 the function responsible for updating `wiki_file_regexp`?
 
 --[[legoscia]]
+
+> You have to regrenerate the cgi wrapper after changing your setup file
+> for the configuration changes to take effect.
+> 
+> I tested it, setting `wiki_file_chars => "moocow"`,
+> running ikiwiki -refresh -wrappers my.setup, and looking at strings:
+> `'wiki_file_regexp' => qr/(?-xism:(^[moocow]+$))/`
+> So, this appears to have been user error. [[done]] --[[Joey]]
