@@ -43,3 +43,11 @@ It works for me, but it has the odd side-effect of prefixing links with a space.
 And I'm sure someone else could come up with something better and more general.
 
 --[[KathrynAndersen]]
+
+> The `<base href>` is required to be genuinely absolute (HTML 4.01 §12.4).
+> Have you tried setting `url` to the public-facing URL, i.e. with `alfred`
+> as the hostname? That seems like the cleanest solution to me; if you're
+> one of the few behind the firewall and you access the site via `betty`
+> directly, my HTTP vs. HTTPS cleanup in recent versions should mean that
+> you rarely get redirected to `alfred`, because most URLs are either
+> relative or "local" (start with '/'). --[[smcv]]
