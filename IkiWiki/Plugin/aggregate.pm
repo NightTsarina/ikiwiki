@@ -74,6 +74,8 @@ sub checkconfig () {
 		$config{cookies}={ file => "$ENV{HOME}/.ikiwiki/cookies" };
 	}
 
+	# This is done here rather than in a refresh hook because it
+	# needs to run before the wiki is locked.
 	if ($config{aggregate} && ! ($config{post_commit} && 
 	                             IkiWiki::commit_hook_enabled())) {
 		launchaggregation();
