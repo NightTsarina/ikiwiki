@@ -1,5 +1,5 @@
 Name:           ikiwiki
-Version: 3.20110225
+Version: 3.20110321
 Release:        1%{?dist}
 Summary:        A wiki compiler
 
