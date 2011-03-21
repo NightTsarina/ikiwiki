@@ -93,7 +93,7 @@ sub genpage ($$) {
 	}
 	if (defined $config{historyurl} && length $config{historyurl}) {
 		my $u=$config{historyurl};
-		my $p=uri_escape_utf8($pagesources{$page});
+		my $p=uri_escape_utf8($pagesources{$page}, '^A-Za-z0-9\-\._~/');
 		$u=~s/\[\[file\]\]/$p/g;
 		$template->param(historyurl => $u);
 		$actions++;
