@@ -4,3 +4,12 @@ However, the disadvantage of this approach is that the server does not give a La
 I gather from the [[security]] page that having the executable bit set on files is considered a security hole, but how big a hole would it be if I'm the only one editing the site?  Is there a way, a somewhat safe way, of implementing XBitHack for IkiWiki?
 
 -- [[KathrynAndersen]]
+
+> The risk with execute bits on files in the generated site is that someone
+> commits an executable, ikiwiki copies it as-is, and now the web browser
+> can be used to run it. Obviously if you're the only committer, that is 
+> not much of a risk. Or you can lock down apache to not allow running
+> arbitrary files. It's also pretty unlikely that a rendered mdwn file
+> would result in a html page that can be run as an executable. So an
+> option that makes all files rendered from mdwn or other markups 
+> get the x bit set would be pretty safe even with untrusted editors. --[[Joey]] 
