@@ -16,7 +16,8 @@ my %guids;
 sub import {
 	hook(type => "getopt", id => "aggregate", call => \&getopt);
 	hook(type => "getsetup", id => "aggregate", call => \&getsetup);
-	hook(type => "checkconfig", id => "aggregate", call => \&checkconfig);
+	hook(type => "checkconfig", id => "aggregate", call => \&checkconfig,
+		last => 1);
 	hook(type => "needsbuild", id => "aggregate", call => \&needsbuild);
 	hook(type => "preprocess", id => "aggregate", call => \&preprocess);
         hook(type => "delete", id => "aggregate", call => \&delete);
