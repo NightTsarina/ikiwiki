@@ -21,3 +21,8 @@ I gather from the [[security]] page that having the executable bit set on files 
 >> Or is there a way to say "tell me all the generated files that end in .html" and use that as a list to start from?
 
 >> --[[KathrynAndersen]]
+
+>>> Yes, the `change` hook is passed the names of source files that got
+>>> built. Use `pagetype` to check which got htmlized (and filter out ones
+>>> that got copied), and then use `htmlpage` to get the name of the html
+>>> file that was generated, and chmod it. --[[Joey]] 
