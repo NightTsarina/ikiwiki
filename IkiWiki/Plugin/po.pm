@@ -66,8 +66,11 @@ sub import {
 		inject(name => "IkiWiki::urlto", call => \&myurlto);
 		$origsubs{'cgiurl'}=\&IkiWiki::cgiurl;
 		inject(name => "IkiWiki::cgiurl", call => \&mycgiurl);
-		$origsubs{'rootpage'}=\&IkiWiki::rootpage;
-		inject(name => "IkiWiki::rootpage", call => \&myrootpage);
+		if (IkiWiki->can('rootpage')) {
+			$origsubs{'rootpage'}=\&IkiWiki::rootpage;
+			inject(name => "IkiWiki::rootpage", call => \&myrootpage)
+				if defined $origsubs{'rootpage'};
+		}
 		$origsubs{'isselflink'}=\&IkiWiki::isselflink;
 		inject(name => "IkiWiki::isselflink", call => \&myisselflink);
 	}
