@@ -195,7 +195,7 @@ sub preprocess {
                     my $email = IkiWiki::userinfo_get($commentuser, 'email');
 
                     if (defined $email) {
-                        $commentauthoravatar = libravatar_url(email => $email);
+                        $commentauthoravatar = libravatar_url(email => $email, https => $ENV{HTTPS});
                     }
                 }
 	}
