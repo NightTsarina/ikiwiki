@@ -336,6 +336,14 @@ sub getsetup () {
 		safe => 0, # paranoia
 		rebuild => 0,
 	},
+	timezone => {
+		type => "string", 
+		default => "",
+		example => "US/Eastern",
+		description => "time zone name",
+		safe => 1,
+		rebuild => 1,
+	},
 	include => {
 		type => "string",
 		default => undef,
@@ -528,6 +536,12 @@ sub checkconfig () {
 		foreach my $val (keys %{$config{ENV}}) {
 			$ENV{$val}=$config{ENV}{$val};
 		}
+	}
+	if (defined $config{timezone} && length $config{timezone}) {
+		$ENV{TZ}=$config{timezone};
+	}
+	else {
+		$config{timezone}=$ENV{TZ};
 	}
 
 	if ($config{w3mmode}) {
