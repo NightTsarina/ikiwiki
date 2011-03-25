@@ -485,7 +485,7 @@ sub getsetup () {
 	},
 	setuptype => {
 		type => "internal",
-		default => "Standard",
+		default => "Yaml",
 		description => "perl class to use to dump setup file",
 		safe => 0,
 		rebuild => 0,
@@ -505,7 +505,6 @@ sub defaultconfig () {
 	foreach my $key (keys %s) {
 		push @ret, $key, $s{$key}->{default};
 	}
-	use Data::Dumper;
 	return @ret;
 }
 

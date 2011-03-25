@@ -28,6 +28,7 @@ CGI::Session
 Mail::Sendmail
 CGI
 Data::Dumper
+YAML
 
 =head1 AUTHOR
 
