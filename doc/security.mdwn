@@ -463,3 +463,14 @@ This hole was discovered on 22 Jan 2011 and fixed the same day with
 the release of ikiwiki 3.20110122. A fix was backported to Debian squeeze,
 as version 3.20100815.5. An upgrade is recommended for sites
 with the comments plugin enabled. ([[!cve CVE-2011-0428]])
+
+## possible javascript insertion via insufficient htmlscrubbing of alternate stylesheets
+
+Tango noticed that 'meta stylesheet` directives allowed anyone
+who could upload a malicious stylesheet to a site to add it to a
+page as an alternate stylesheet. In order to be exploited, the user
+would have to select the alternative stylesheet in their browser.
+
+This hole was discovered on 28 Mar 2011 and fixed the same hour with
+the release of ikiwiki 3.20110328. An upgrade is recommended for sites
+that have untrusted committers, or have the attachments plugin enabled.

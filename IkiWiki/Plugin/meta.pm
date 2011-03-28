@@ -174,10 +174,10 @@ sub preprocess (@) {
 		if (! length $stylesheet) {
 			error gettext("stylesheet not found")
 		}
-		push @{$metaheaders{$page}}, '<link href="'.urlto($stylesheet, $page).
+		push @{$metaheaders{$page}}, scrub('<link href="'.urlto($stylesheet, $page).
 			'" rel="'.encode_entities($rel).
 			'" title="'.encode_entities($title).
-			"\" type=\"text/css\" />";
+			"\" type=\"text/css\" />", $page, $destpage);
 	}
 	elsif ($key eq 'openid') {
 		my $delegate=0; # both by default
