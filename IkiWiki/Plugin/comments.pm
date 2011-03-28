@@ -755,10 +755,8 @@ sub previewcomment ($$$) {
 sub commentsshown ($) {
 	my $page=shift;
 
-	return ! pagespec_match($page, "comment(*)",
-	                        location => $page) &&
-	       pagespec_match($page, $config{comments_pagespec},
-	                      location => $page);
+	return pagespec_match($page, $config{comments_pagespec},
+		location => $page);
 }
 
 sub commentsopen ($) {
@@ -785,7 +783,7 @@ sub pagetemplate (@) {
 		my $comments = undef;
 		if ($shown) {
 			$comments = IkiWiki::preprocess_inline(
-				pages => "comment($page)",
+				pages => "comment($page) and !comment($page/*)",
 				template => 'comment',
 				show => 0,
 				reverse => 'yes',
