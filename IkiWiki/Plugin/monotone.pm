@@ -703,7 +703,55 @@ sub rcs_getctime ($) {
 }
 
 sub rcs_getmtime ($) {
-	error "rcs_getmtime is not implemented for monotone\n"; # TODO
+	my $file=shift;
+
+	chdir $config{srcdir}
+	    or error("Cannot chdir to $config{srcdir}: $!");
+
+	my $child = open(MTNLOG, "-|");
+	if (! $child) {
+		exec("mtn", "log", "--root=$config{mtnrootdir}", "--no-graph",
+		     "--brief", $file) || error("mtn log $file failed to run");
+	}
+
+	my $lastRev = "";
+	while (<MTNLOG>) {
+		if (/^($sha1_pattern)/ && $lastRev eq "") {
+			$lastRev=$1;
+		}
+	}
+	close MTNLOG || debug("mtn log $file exited $?");
+
+	if (! defined $lastRev) {
+		debug "failed to parse mtn log for $file";
+		return 0;
+	}
+
+	my $automator = Monotone->new();
+	$automator->open(undef, $config{mtnrootdir});
+
+	my $certs = [read_certs($automator, $lastRev)];
+
+	$automator->close();
+
+	my $date;
+
+	foreach my $cert (@$certs) {
+		if ($cert->{signature} eq "ok" && $cert->{trust} eq "trusted") {
+			if ($cert->{name} eq "date") {
+				$date = $cert->{value};
+			}
+		}
+	}
+
+	if (! defined $date) {
+		debug "failed to find date cert for revision $lastRev when looking for creation time of $file";
+		return 0;
+	}
+
+	$date=str2time($date, 'UTC');
+	debug("found mtime ".localtime($date)." for $file");
+	return $date;
 }
 
 1
