@@ -167,7 +167,6 @@ sub preprocess {
 	my $commentip;
 	my $commentauthor;
 	my $commentauthorurl;
-	my $commentauthoravatar;
 	my $commentopenid;
 	if (defined $params{username}) {
 		$commentuser = $params{username};
@@ -188,23 +187,6 @@ sub preprocess {
 
 			$commentauthor = $commentuser;
 		}
-
-		eval q{use Libravatar::URL};
-		if (! $@) {
-			my $https=defined $config{url} && $config{url}=~/^https:/;
-
-			if (defined $commentopenid) {
-				eval {
-					$commentauthoravatar = libravatar_url(openid => $commentopenid, https => $https);
-				}
-			}
-			if (! defined $commentauthoravatar &&
-			    (my $email = IkiWiki::userinfo_get($commentuser, 'email'))) {
-				eval {
-					$commentauthoravatar = libravatar_url(email => $email, https => $https);
-				}
-			}
-		}
 	}
 	else {
 		if (defined $params{ip}) {
@@ -218,7 +200,7 @@ sub preprocess {
 	$commentstate{$page}{commentip} = $commentip;
 	$commentstate{$page}{commentauthor} = $commentauthor;
 	$commentstate{$page}{commentauthorurl} = $commentauthorurl;
-	$commentstate{$page}{commentauthoravatar} = $commentauthoravatar;
+	$commentstate{$page}{commentauthoravatar} = $params{avatar};
 	if (! defined $pagestate{$page}{meta}{author}) {
 		$pagestate{$page}{meta}{author} = $commentauthor;
 	}
@@ -457,6 +439,12 @@ sub editcomment ($$) {
 		}
 	}
 
+	my $avatar=getavatar($session->param('name'));
+	if (defined $avatar && length $avatar) {
+		$avatar =~ s/"/&quot;/g;
+		$content .= " avatar=\"$avatar\"\n";
+	}
+
 	my $subject = $form->field('subject');
 	if (defined $subject && length $subject) {
 		$subject =~ s/"/&quot;/g;
@@ -579,6 +567,31 @@ sub editcomment ($$) {
 
 	exit;
 }
+
+sub getavatar ($) {
+	my $user=shift;
+	
+	my $avatar;
+	eval q{use Libravatar::URL};
+	if (! $@) {
+		my $oiduser = eval { IkiWiki::openiduser($user) };
+		my $https=defined $config{url} && $config{url}=~/^https:/;
+
+		if (defined $oiduser) {
+			eval {
+				$avatar = libravatar_url(openid => $user, https => $https);
+			}
+		}
+		if (! defined $avatar &&
+		    (my $email = IkiWiki::userinfo_get($user, 'email'))) {
+			eval {
+				$avatar = libravatar_url(email => $email, https => $https);
+			}
+		}
+	}
+	return $avatar;
+}
+
 
 sub commentmoderation ($$) {
 	my $cgi=shift;
