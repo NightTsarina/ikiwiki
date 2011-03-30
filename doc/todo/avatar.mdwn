@@ -3,6 +3,9 @@
 It would be nice if ikiwiki, particularly [[plugins/comments]]
 (but also, ideally, recentchanges) supported user avatar icons.
 
+> Update: Done for comments, but not for anything else, and the directive
+> below would be a nice addition. --[[Joey]] 
+
 Idea is to add a directive that displays a small avatar image for a user.
 Pass it a user's the email address, openid, username, or the md5 hash
 of their email address:
@@ -26,40 +29,3 @@ not have a gravatar, uses a cute auto-generated "wavatar" avatar.
 The `gravitar_options` setting in the setup file can be used to
 specify additional options to pass. So for example if you want
 to use wavatars everywhere, set it to "default=wavatar".
-
-The avatars are provided by various sites. For email addresses, it uses a
-[gravatar](http://gravatar.com/). For a wiki username, the
-user's email address is looked up and the gravatar for that user is
-displayed. (Of course, the user has to have filled in their email address
-on their Preferences page for that to work. Also, when the user changes
-their email address in Preferences, the gravatar won't change until the
-wiki is rebuilt.)
-
-For openid, openavatar sucked and is now dead. So we need to use an email
-address instead, I guess. Problem is that the email address of a given
-openid is only known when that user is logged in and making a change.
-And we don't want to leak an openid user's email into a page either.
-Hmm. Suppose the gravatar hash could be calculated from the email address
-and embedded instead of the openid? That would work for comments,
-but not if the directive were used elsewhere.
-
-Or, for openid, could use <http://paulisageek.com/openidavatar>. Which
-works fine, but users are not likely to figure out what they need to do to
-get an avatar associated with their openid.
-
----
-
-Alternative, not overdesigned approach:
-
-Modify comments plugin to have an option to display avatars.
-
-When posting a comment, fill in the avatarhash field in the template.
-The hash is calculated from the user's email address. If the user's email
-is not known, skip it. 
-
-End. :P
-
----
-
-[libravatar](https://launchpad.net/libravatar) is a federated avatar
-system. Young but might be the right way to get avatars eventually.
