@@ -191,15 +191,17 @@ sub preprocess {
 
 		eval q{use Libravatar::URL};
 		if (! $@) {
+			my $https=defined $config{url} && $config{url}=~/^https:/;
+
 			if (defined $commentopenid) {
 				eval {
-					$commentauthoravatar = libravatar_url(openid => $commentopenid, https => $ENV{HTTPS});
+					$commentauthoravatar = libravatar_url(openid => $commentopenid, https => $https);
 				}
 			}
 			if (! defined $commentauthoravatar &&
 			    (my $email = IkiWiki::userinfo_get($commentuser, 'email'))) {
 				eval {
-					$commentauthoravatar = libravatar_url(email => $email, https => $ENV{HTTPS});
+					$commentauthoravatar = libravatar_url(email => $email, https => $https);
 				}
 			}
 		}
