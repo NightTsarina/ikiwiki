@@ -189,16 +189,15 @@ sub preprocess {
 			$commentauthor = $commentuser;
 		}
 
-                eval 'use Libravatar::URL';
-
-                if (! $@) {
-                    if (defined $commentopenid) {
-                        $commentauthoravatar = libravatar_url(openid => $commentopenid, https => $ENV{HTTPS});
-                    }
-                    elsif (my $email = IkiWiki::userinfo_get($commentuser, 'email')) {
-                        $commentauthoravatar = libravatar_url(email => $email, https => $ENV{HTTPS});
-                    }
-                }
+		eval 'use Libravatar::URL';
+		if (! $@) {
+			if (defined $commentopenid) {
+				$commentauthoravatar = libravatar_url(openid => $commentopenid, https => $ENV{HTTPS});
+			}
+			elsif (my $email = IkiWiki::userinfo_get($commentuser, 'email')) {
+				$commentauthoravatar = libravatar_url(email => $email, https => $ENV{HTTPS});
+			}
+		}
 	}
 	else {
 		if (defined $params{ip}) {
@@ -229,7 +228,7 @@ sub preprocess {
 			my $url=$params{url};
 
 			eval q{use URI::Heuristic}; 
-		  	if (! $@) {
+			if (! $@) {
 				$url=URI::Heuristic::uf_uristr($url);
 			}
 
