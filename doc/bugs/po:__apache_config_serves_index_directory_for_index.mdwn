@@ -1,0 +1,13 @@
+Similarly to [[po:_apache_config_serves_index.rss_for_index]],
+the [[plugins/po]] apache config has another bug. 
+
+The use of "DirectoryIndex index", when combined with multiviews, is intended
+to serve up a localized version of the index.??.html file.
+
+But, if the site's toplevel index page has a discussion page, that
+is "/index/discussion/index.html". Or, if the img plugin is used to scale
+an image on the index page, that will be "/index/foo.jpg". In either case,
+the "index" directory exists, and so apache happily displays that
+directory, rather than the site's index page!
+
+--[[Joey]]
