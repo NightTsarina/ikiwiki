@@ -50,3 +50,23 @@ directory, rather than the site's index page!
 >> something else as extensions (Polish, `.pl`, is the usual example,
 >> since many sites interpret `.pl` as "this is a (Perl) CGI").
 >> --[[smcv]]
+
+>>> There is something to be said about "index/foo" being really ugly
+>>> and perhaps it would be nice to use something else. There does not
+>>> appear to even be one function that could be changed; "$page/foo" is
+>>> hardwired into ikiwiki in many places as a place to dump subsidiary
+>>> content -- and it's not even consistent, since there is also eg,
+>>> "$page.rss". I agree, approaching it from this direction would be a
+>>> mess or a lot of work.
+>>>
+>>> Type maps seem like a valid option, but also a lot of clutter.
+>>> 
+>>> `index.html.pl` does seem to be asking for trouble, even if apache
+>>> can be configured to DTRT. It would make serving actual up perl scripts
+>>> hard, at least. But that is some good out of the box thinking.. 
+>>> perhaps "index.foo.pl.html"?
+>>>
+>>> However, that would mean that 
+>>> web servers need to be configured differently to serve translated
+>>> and non-translated sites. The current apache configuration for po
+>>> can be used with non-po sites and they still work. --[[Joey]]
