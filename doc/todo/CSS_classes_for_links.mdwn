@@ -101,3 +101,19 @@ I find CSS3 support still spotty...  Here are some notes on how to do this in Ik
 >>> 
 >>> `htmllink` can never be used to generate an external link. So,
 >>> patching it seems the best approach. --[[Joey]] 
+
+>>>> I had a quick look to this issue. Internal links are generated at
+>>>> 11 places in the Perl code and would need to be patched (this
+>>>> number could be lowered a bit if a htmllink-like function existed
+>>>> for CGI urls; such a function would use `cgiurl`, and be used in
+>>>> most places where `cgiurl` is currently called by plugins).
+>>>> 
+>>>> Also, more than 30 `<a>` links appear in templates, most of those
+>>>> being internal links.
+>>>> 
+>>>> Sure, patching those few dozen places is trivial. On the other
+>>>> hand, I'm wondering how doable it would be to make sure, on the
+>>>> long run, any generated internal link has the right CSS class
+>>>> applied. One would need to write tests running against the code
+>>>> with all plugins enabled, all templates put to work, in order to
+>>>> ensure consistency is maintained. --[[intrigeri]]
