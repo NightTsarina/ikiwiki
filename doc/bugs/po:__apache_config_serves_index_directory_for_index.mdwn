@@ -31,3 +31,22 @@ directory, rather than the site's index page!
 >
 > I doubt either of those can be implemented without ugly special
 > casing. Any other idea? --[[intrigeri]]
+
+>> As I understand it, this is how you'd do it with type maps:
+>>
+>> * turn off MultiViews
+>> * `AddHandler type-map .var`
+>> * `DirectoryIndex index.var`
+>> * make `index.var` a typemap (text file) pointing to `index.en.html`,
+>>   `index.fr.html`, etc.
+>>
+>> I'm not sure how well that fits into IkiWiki's structure, though;
+>> perhaps the master language could be responsible for generating the
+>> type-map on behalf of all slave languages, or something?
+>>
+>> Another possibility would be to use filenames like `index.html.en`
+>> and `index.html.fr`, and set `DirectoryIndex index.html`? This could
+>> get problematic for languages whose ISO codes conventionally mean
+>> something else as extensions (Polish, `.pl`, is the usual example,
+>> since many sites interpret `.pl` as "this is a (Perl) CGI").
+>> --[[smcv]]
