@@ -117,3 +117,22 @@ I find CSS3 support still spotty...  Here are some notes on how to do this in Ik
 >>>> applied. One would need to write tests running against the code
 >>>> with all plugins enabled, all templates put to work, in order to
 >>>> ensure consistency is maintained. --[[intrigeri]]
+
+-----
+If you're going to be patching htmmllink anyway, might I suggest something more flexible, like being able to configure the link format?
+(Yes, PmWiki allows this, that's where I got the idea)
+That is, rather than having "<a href=". blah . blah ...
+one could use a sprintf with a default format which could be configured in the setup file.
+
+For example:
+
+    $format = ($config{createlink_format}
+               ? $config{createlink_format}
+               : '<span class=\"createlink\"><a href="%s" rel="nofollow">?</a>%s</span>');
+    return sprintf($format,
+        cgiurl(do => "create", page => lc($link), from => $lpage),
+        $linktext);
+
+I admit, I've been wanting something like this for a long time, because I dislike the existing createlink format...
+
+--[[KathrynAndersen]]
