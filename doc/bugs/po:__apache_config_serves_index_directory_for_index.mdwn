@@ -70,3 +70,16 @@ directory, rather than the site's index page!
 >>> web servers need to be configured differently to serve translated
 >>> and non-translated sites. The current apache configuration for po
 >>> can be used with non-po sites and they still work. --[[Joey]]
+
+>>>> I am vulnerable to the same problem because I use MultiViews, though I don't use the `po` module;
+>>>> I have to serve both Australian English and American English for my company's website
+>>>> (for SEO purposes; certain words that relate to our products are spelt differently in US and Australian English, and we need to be able to be googled with both spellings).
+>>>> I'm just fortunate that nobody has thought to add attachments to the front page yet.
+>>>> I raise this to point out that this is going to be a recurring problem that won't necessarily be fixed by changing the `po` module in isolation.
+>>>>
+>>>> One could argue that "index" is already a special case, since it is the top page of the site.
+>>>> Things like parentlinks already use a special case for the top page (checking the variable HAS_PARENTLINKS).
+>>>> Likewise, when --usedirs is true, index is treated as a special case, since it generates "index.html" and not "index/index.html".
+>>>>
+>>>> Unfortunately, I'm not sure what the best approach to solving this would be.
+>>>> --[[KathrynAndersen]]
