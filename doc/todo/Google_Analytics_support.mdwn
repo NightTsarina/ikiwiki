@@ -1,0 +1,14 @@
+[[!template id=gitbranch branch=GiuseppeBilotta/google-analytics
+author="[[GiuseppeBilotta]]"]]
+
+I've extended the google plugin to add support for Google Analytics.
+This is done in two steps:
+
+* a `google_sitesearch` config option is introduced, to allow disabling
+  sitesearch even when the `google` plugin is loaded
+* a `google_analytics_account` config option is introduced. When it's
+  defined, its value is assumed to be a Google Analytics account ID
+  and the corresponding JavaScript code is automatically inserted in all
+  documents. The way this is done is shamelessy stolen from the flattr
+  plugin
+
