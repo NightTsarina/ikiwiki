@@ -1,0 +1,7 @@
+    mkdir -p ikiwiki-tag-test/raw/a_dir/ ikiwiki-tag-test/rendered/
+    echo '[[!taglink a_tag]]' > ikiwiki-tag-test/raw/a_dir/a_page.mdwn
+    ikiwiki --verbose --plugin tag --plugin autoindex --plugin mdwn --set autoindex_commit=0 --set tagbase=tag --set tag_autocreate=1 --set tag_autocreate_commit=0 ikiwiki-tag-test/raw/ ikiwiki-tag-test/rendered/
+    ls -al ikiwiki-tag-test/raw/.ikiwiki/transient/
+    ls -al ikiwiki-tag-test/rendered/tag/
+
+Shouldn't `ikiwiki-tag-test/raw/.ikiwiki/transient/tag.mdwn` and `ikiwiki-tag-test/rendered/tag/index.html` exist?
