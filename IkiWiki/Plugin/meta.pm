@@ -300,7 +300,8 @@ sub pagetemplate (@) {
 		$template->param(meta => join("\n", grep { (! $seen{$_}) && ($seen{$_}=1) } @{$metaheaders{$page}}));
 	}
 	if (exists $pagestate{$page}{meta}{title} && $template->query(name => "title")) {
-		$template->param(title => HTML::Entities::encode_numeric($pagestate{$page}{meta}{title}));
+		eval q{use HTML::Entities};
+		$template->param(title => encode_numeric($pagestate{$page}{meta}{title}));
 		$template->param(title_overridden => 1);
 	}
 
@@ -315,7 +316,8 @@ sub pagetemplate (@) {
 	}
 
 	foreach my $field (qw{description}) {
-		$template->param($field => HTML::Entities::encode_numeric($pagestate{$page}{meta}{$field}))
+		eval q{use HTML::Entities};
+		$template->param($field => encode_numeric($pagestate{$page}{meta}{$field}))
 			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);
 	}
 
