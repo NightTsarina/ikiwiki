@@ -1,0 +1,29 @@
+I converted an ikiwiki setup file to YAML as
+[[documented|tips/yaml_setup_files]].
+
+On my Debian Squeeze system, attempting to build the wiki using the
+YAML setup file triggers the following error message:
+
+	YAML::XS::Load Error: The problem:
+
+	    Invalid trailing UTF-8 octet
+
+	was found at document: 0
+	usage: ikiwiki [options] source dest
+	       ikiwiki --setup configfile
+
+Indeed, my setup file contains UTF-8 characters.
+
+Deinstalling YAML::XS ([[!debpkg libyaml-libyaml-perl]]) resolves this
+issue. According to YAML::Any's POD, YAML::Syck is used instead of
+YAML::XS in this case since it's the best YAML implementaion available
+on my system.
+
+No encoding-related setting is mentionned in YAML::XS' POD. We may
+consider there is a bug in there. I'll see if it's known / fixed
+somewhere as soon as I get online.
+
+Joey, as a (hopefully) temporary workaround, what do you think of
+explicitely using YAML::Syck (or whatever other YAML implementation
+that does not expose this bug) rather than letting YAML::Any pick its
+preferred one?
