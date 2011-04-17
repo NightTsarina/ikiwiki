@@ -187,7 +187,7 @@ sub preprocess (@) {
 			error gettext("script not found");
 		}
 		push @{$metaheaders{$page}}, scrub('<script src="'.urlto($js, $page).
-			'"' . $defer . $async . ' type="text/javascript" />',
+			'"' . $defer . $async . ' type="text/javascript"></script>',
 			$page, $destpage);
 	}
 	elsif ($key eq 'openid') {
