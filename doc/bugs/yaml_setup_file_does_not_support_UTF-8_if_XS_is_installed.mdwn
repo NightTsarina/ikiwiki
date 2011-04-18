@@ -38,3 +38,25 @@ preferred one?
 >> Syck earlier.) So it appears the new YAML::Xs is the
 >> way to go longterm, and presumably YAML::Any will start depending on it
 >> in due course? --[[Joey]]
+
+>>> Right. Since this bug is fixed in current testing/sid, only
+>>> Squeeze needs to be taken care of. As far as Debian Squeeze is
+>>> concerned, I see two ways out of the current buggy situation:
+>>>
+>>> 1. Add `Conflicts: libyaml-libyaml-perl (< 0.34-1~)` to the
+>>>    ikiwiki packages uploaded to stable and squeeze-backports.
+>>>    Additionally uploading the newer, fixed `libyaml-libyaml-perl`
+>>>    to squeeze-backports would make the resulting situation a bit
+>>>    easier to deal with from the Debian stable user point of view.
+>>> 2. Patch the ikiwiki packages uploaded to stable and
+>>>    squeeze-backports:
+>>>    - either to workaround the bug by explicitly using YAML::Syck
+>>>      (yeah, it's deprecated, but it's Debian stable)
+>>>    - or to make the bug easier to workaround by the user, e.g. by
+>>>      warning her of possible problems in case YAML::Any has chosen
+>>>      YAML::XS as its preferred implementation (the
+>>>      `YAML::Any->implementation` module method can come in handy
+>>>      in this case).
+>>>
+>>> I tend to prefer the first aforementioned solution, but any of
+>>> these will anyway be kinda ugly, so...

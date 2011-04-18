@@ -3,3 +3,18 @@ report errors would be nice. -- RichiH
 
 > Except for building wrappers, and possibly progress cruft output to
 > stderr by git (gag), ikiwiki is quiet by default. --[[Joey]]
+
+>> Correct, which means it's not quite quiet:
+
+    % ikiwiki --setup foo --rebuild
+    generating wrappers..
+    successfully generated foo
+    successfully generated foo
+    rebuilding wiki..
+    scanning [...]
+    [...]
+    building [...]
+    [...]
+    done
+
+Yes, I can simply redirect the output, but an option would be cleaner, imo. -- Richard
