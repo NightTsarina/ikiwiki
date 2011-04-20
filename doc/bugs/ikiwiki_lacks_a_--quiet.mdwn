@@ -26,19 +26,4 @@ Yes, I can simply redirect the output, but an option would be cleaner, imo. -- R
     successfully generated [post-update]
     skipping bad filename [...]
 
-> I think the following patch is enough to fix it (untested, [here](https://github.com/jmtd/ikiwiki/tree/silence-generated), pull request sent)
-
-    --- a/IkiWiki/Wrapper.pm
-    +++ b/IkiWiki/Wrapper.pm
-    @@ -237,8 +237,7 @@ EOF
-                    error("rename $wrapper.new $wrapper: $!");
-            }
-            #translators: The parameter is a filename.
-    -       printf(gettext("successfully generated %s"), $wrapper);
-    -       print "\n";
-    +       debug(gettext("successfully generated %s"), $wrapper);
-     }
-     
-     1
-
-> -- [[Jon]]
+> I've written a patch ([here](https://github.com/jmtd/ikiwiki/tree/silence-generated), pull request sent) that fixes the 'generated...' lines. -- [[Jon]]
