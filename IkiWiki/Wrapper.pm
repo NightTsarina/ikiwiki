@@ -237,8 +237,7 @@ EOF
 		error("rename $wrapper.new $wrapper: $!");
 	}
 	#translators: The parameter is a filename.
-	printf(gettext("successfully generated %s"), $wrapper);
-	print "\n";
+	debug(sprintf(gettext("successfully generated %s"), $wrapper));
 }
 
 1
