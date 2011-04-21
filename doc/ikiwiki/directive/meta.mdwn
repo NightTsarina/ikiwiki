@@ -181,6 +181,15 @@ Supported fields:
   value. The date/time can be given in any format that
   [[!cpan TimeDate]] can understand, just like the `date` field.
 
+* foaf
+
+  Adds a Friend of a Friend ([FOAF](http://wiki.foaf-project.org/w/Autodiscovery))
+  reference to a page.
+
+  Example:
+
+  	\[[!meta foaf=foaf.rdf]]
+
 If the field is not one of the above predefined fields, the metadata will be
 written to the generated html page as a &lt;meta&gt; header. However, this
 won't be allowed if the [[!iki plugins/htmlscrubber desc=htmlscrubber]] plugin is enabled,

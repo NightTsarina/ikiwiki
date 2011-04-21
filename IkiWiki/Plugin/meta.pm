@@ -217,6 +217,13 @@ sub preprocess (@) {
 				'content="'.encode_entities($url).'" />';
 		}
 	}
+	elsif ($key eq 'foaf') {
+		if (safeurl($value)) {
+			push @{$metaheaders{$page}}, '<link rel="meta" '.
+				'type="application/rdf+xml" title="FOAF" '.
+				'href="'.encode_entities($value).'" />';
+		}
+	}
 	elsif ($key eq 'redir') {
 		return "" if $page ne $destpage;
 		my $safe=0;
