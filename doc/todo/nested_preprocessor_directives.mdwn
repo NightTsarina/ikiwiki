@@ -22,11 +22,12 @@ nesting, a new syntax would be needed. Maybe something xml-like?
 >> parser though.
 >>
 >> In the meantime, this is an interesting approach:
->> <https://github.com/timo/ikiwiki/commit/a73837a8f26147e42a0bb2dde38b4890b27822b3>
+>> <https://github.com/timo/ikiwiki/commit/dc90611e8305937ddaf7dd77341052337111242b>
+>> (the link has since been fixed)
 >> 
->>	\[[!directive text=\<\<FOO
->>	...
->>	FOO]]
+>>     \[[!directive text=<<FOO 
+>>     ...
+>>     FOO]]
 >> 
 >> Since that's implemented, I will probably just merge it,
 >> once I satisfy myself it doesn't blow up in any edge cases.
@@ -51,8 +52,14 @@ nesting, a new syntax would be needed. Maybe something xml-like?
 >> I apparently missed copying it over as well. Should have been doing this
 >> in a git repo all along. Look at the new commit I put atop it that has
 >> the rest as well:
->> <https://github.com/timo/ikiwiki/commit/a4e33d9654404acff71344cd5d3672bcdf3f3ce5>
+>> (redacted: is now part of the commit linked to from above)
 >> Also: I'm not sure any more, why I added the m modifier. It was very
 >> late at night and I was getting a bit desperate (turned out, the next
 >> morning, I put my extra regexes after the "unquoted value" one. heh.)
 >> So, feel free to fix that. --Timo
+>>
+>> I've fixed the patch by rebasing, fixed the link above. I'm still not
+>> sure if the m modifier for the regex is still needed (apparently I
+>> didn't put it in the other regexes. Not completely sure about the
+>> implications.) Am now trying to wrap my head around a test case to
+>> test the new formats for a bit. --Timo
