@@ -16,3 +16,19 @@ nesting, a new syntax would be needed. Maybe something xml-like?
 >     """]]
 >
 > --[[JoshTriplett]]
+
+>> Yes it's definitely possible to do something like that. I'm not 100%
+>> sure if it can be done in perl regexp or needs a real recursive descent
+>> parser though.
+>>
+>> In the meantime, this is an interesting approach:
+>> <https://github.com/timo/ikiwiki/commit/a73837a8f26147e42a0bb2dde38b4890b27822b3>
+>> 
+>>	\[[!directive text=<<FOO
+>>	...
+>>	<<FOO]]
+>> 
+>> Since that's implemented, I will probably just merge it,
+>> once I satisfy myself it doesn't blow up in any edge cases.
+>> (It also adds triple single quotes as a third, distinct type of quotes,
+>> which feels a bit redundant given the here docs.) --[[Joey]] 
