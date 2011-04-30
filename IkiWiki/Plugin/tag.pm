@@ -104,6 +104,9 @@ sub gentag ($) {
 		else {
 			$tagpage=~s/^\///;
 		}
+		if (exists $IkiWiki::pagecase{lc $tagpage}) {
+			$tagpage=$IkiWiki::pagecase{lc $tagpage}
+		}
 
 		my $tagfile = newpagefile($tagpage, $config{default_pageext});
 
