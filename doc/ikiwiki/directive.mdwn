@@ -20,13 +20,26 @@ wrapped to multiple lines if you like:
 
 Also, multiple lines of *quoted* text can be used for a value.
 To allow quote marks inside the quoted text, delimit the block
-of text with triple-quotes:
+of text with triple-double-quotes or triple-single-quotes:
 
 	\[[!directive text="""
 	1. "foo"
 	2. "bar"
 	3. "baz"
-	"""]]
+	""" othertext='''
+	1. 'quux'
+	2. "foo"
+	''']]
+
+If you want to put text with triple quotes into a parameter value, you can
+use perl-style here-doc syntax, even nesting it like this:
+
+	\[[!directive text=<<OUTER
+	\[[!otherdirective <<INNER
+	inner text
+	INNER]]
+	outer text
+	OUTER]]
 
 ikiwiki also has an older syntax for directives, which requires a space in
 directives to distinguish them from [[wikilinks|ikiwiki/wikilink]]. This
