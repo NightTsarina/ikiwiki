@@ -1392,10 +1392,14 @@ sub preprocess ($$$;$$) {
 				|
 					"([^"]*?)"	# 3: single-quoted value
 				|
-					(\S+)		# 4: unquoted value
+					'''(.*?)'''     # 4: triple-single-quote
+				|
+					<<(?<start>[a-zA-Z]+)\n(?<heredoc>.*?)\n\k<start> # 5, 6: heredoc'd value.
+				|
+					(\S+)		# 7: unquoted value
 				)
 				(?:\s+|$)		# delimiter to next param
-			}sgx) {
+			}msgx) {
 				my $key=$1;
 				my $val;
 				if (defined $2) {
@@ -1409,6 +1413,12 @@ sub preprocess ($$$;$$) {
 				}
 				elsif (defined $4) {
 					$val=$4;
+				}
+				elsif (defined $7) {
+					$val=$7;
+				}
+				elsif (defined $+{heredoc}) {
+					$val=$+{heredoc};
 				}
 
 				if (defined $key) {
@@ -1478,6 +1488,10 @@ sub preprocess ($$$;$$) {
 						|
 						"[^"]*?"	# single-quoted value
 						|
+						<<(?<start>[a-zA-Z]+)\n(?<heredoc>.*?)\n\k<start> # heredoc'd value.
+						|
+						'''.*?''' # triple-single-quoted value
+						|
 						[^"\s\]]+	# unquoted value
 					)
 					\s*			# whitespace or end
@@ -1500,6 +1514,10 @@ sub preprocess ($$$;$$) {
 						""".*?"""	# triple-quoted value
 						|
 						"[^"]*?"	# single-quoted value
+						|
+						'''.*?'''       # triple-single-quoted value
+						|
+						<<(?<start>[a-zA-Z]+)\n(?<heredoc>.*?)\n\k<start> # heredoc'd value.
 						|
 						[^"\s\]]+	# unquoted value
 					)
