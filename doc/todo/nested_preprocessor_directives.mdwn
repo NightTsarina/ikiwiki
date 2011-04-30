@@ -32,3 +32,16 @@ nesting, a new syntax would be needed. Maybe something xml-like?
 >> once I satisfy myself it doesn't blow up in any edge cases.
 >> (It also adds triple single quotes as a third, distinct type of quotes,
 >> which feels a bit redundant given the here docs.) --[[Joey]] 
+>>
+>> Hmm, that patch changes a `m///sgx` to a `m///msgx`. Meaning
+>> that any '^' or '$' inside the regexp will change behavior from matching
+>> the start/end of string to matching the start/end of individual lines 
+>> within the string. And there is one legacy '$' which must then 
+>> change behavior; the "delimiter to next param".
+>>
+>> So, I'm not sure what behavior that will cause, but I suspect it will
+>> be a bug. Unless the `\s+|$' already stops matching at a newline within
+>> the string like it's whitespace. That needs more alalysis. 
+>>
+>> Also, the patch seems incomplete, only patching the first regexp
+>> but not the other two in the same function, which also are quoting-aware. --[[Joey]] 
