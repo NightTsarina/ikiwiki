@@ -1,0 +1,32 @@
+[[!comment format=mdwn
+ username="http://joey.kitenet.net/"
+ nickname="joey"
+ subject="comment 3"
+ date="2011-04-30T20:33:59Z"
+ content="""
+So, I don't see the issue of only one of the two capitalizations of a tag being updated when a page is added.
+
+<pre>
+joey@wren:~/tmp>ikiwiki -plugin html -plugin inline -tagbase tags -plugin goodstuff --refresh -v JasonsChatter JasonsChatter.html
+refreshing wiki..
+scanning posts/foo.html
+building posts/foo.html
+building tags.mdwn, which depends on posts/foo
+building sidebar.mdwn, which depends on posts/foo
+building posts.mdwn, which depends on posts/foo
+building index.mdwn, which depends on sidebar
+building archives/2010/04.mdwn, which depends on posts/foo
+building archives.mdwn, which depends on archives/2010/04
+building tags/NaPoWriMo.mdwn, which depends on posts/foo
+building tags/poetry.mdwn, which depends on posts/foo
+building tags/rwp.mdwn, which depends on posts/foo
+building tags/napowrimo.mdwn, which depends on posts/foo
+done
+</pre>
+
+Both caps of the tag were updated there. I do see some evidence of your site being updated by ikiwiki running with possibly different configuration. Compare date formats used on <http://lovesgoodfood.com/jason/tags/NaPoWriMo/> and <http://lovesgoodfood.com/jason/tags/napowrimo/>. Now, that could just be a different LANG setting, but if the configuration different goes deeper, it could point toward an explanation of the inconsistency of only one case of a tag being updated to list a page.. possibly.
+
+I can reproduce tag autocreation creating multiple tag pages that differ only in case. That's a bug, fixed in bad5072c02d506b5b5a0d74cd60639f7f62cc7d3.
+
+AFAICS, you don't have `tag_autocreate_commit` set to false, so transient tags are not being used.
+"""]]
