@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 31;
+use Test::More tests => 33;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -66,6 +66,11 @@ is(IkiWiki::preprocess("foo", "foo", $long, 0, 0), $long,
 	"unterminated triple-quoted string inside unterminated directive(should not warn about over-recursion)");
 is(IkiWiki::preprocess("foo", "foo", $long."]]", 0, 0), $long."]]",
 	"unterminated triple-quoted string is not treated as a bare word");
+
+is(IkiWiki::preprocess("foo", "foo", "[[!foo a=<<HEREDOC\n".$multiline."\nHERE]]", 0, 0),
+	"foo(a => $multiline)", "heredoc for key");
+is(IkiWiki::preprocess("foo", "foo", "[[!foo <<HEREDOC\n".$multiline."\nHERE]]", 0, 0),
+	"foo($multiline)", "heredoc for keyless");
 
 TODO: {
 	local $TODO = "nested strings not yet implemented";
