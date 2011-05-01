@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 33;
+use Test::More tests => 34;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -67,15 +67,17 @@ is(IkiWiki::preprocess("foo", "foo", $long, 0, 0), $long,
 is(IkiWiki::preprocess("foo", "foo", $long."]]", 0, 0), $long."]]",
 	"unterminated triple-quoted string is not treated as a bare word");
 
-is(IkiWiki::preprocess("foo", "foo", "[[!foo a=<<HEREDOC\n".$multiline."\nHERE]]", 0, 0),
-	"foo(a => $multiline)", "heredoc for key");
-is(IkiWiki::preprocess("foo", "foo", "[[!foo <<HEREDOC\n".$multiline."\nHERE]]", 0, 0),
-	"foo($multiline)", "heredoc for keyless");
+is(IkiWiki::preprocess("foo", "foo", "[[!foo a=<<HEREDOC\n".$multiline."\nHEREDOC]]", 0, 0),
+	"foo(a => $multiline)", "nested strings via heredoc (for key)");
+is(IkiWiki::preprocess("foo", "foo", "[[!foo <<HEREDOC\n".$multiline."\nHEREDOC]]", 0, 0),
+	"foo($multiline)", "nested strings via heredoc (without keyless)");
+is(IkiWiki::preprocess("foo", "foo", "[[!foo '''".$multiline."''']]", 0, 0),
+	"foo($multiline)", "triple-single-quoted multiline string");
 
 TODO: {
 	local $TODO = "nested strings not yet implemented";
 
 	$multiline='here is a string containing another [[foo val="""string""]]';
 	is(IkiWiki::preprocess("foo", "foo", '[[foo a="""'.$multiline.'"""]]', 0, 0),
-		"foo(a=> $multiline)", "nested multiline strings");
+		"foo(a => $multiline)", "nested multiline strings");
 }
