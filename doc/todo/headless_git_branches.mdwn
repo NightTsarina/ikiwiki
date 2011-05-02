@@ -6,45 +6,57 @@ Ikiwiki should really survive being asked to work with a git branch that has no 
     git clone barerepo.git srcdir
     ikiwiki --rcs=git srcdir destdir
 
-I've fixed this initial construction case, and, based on my testing, I've also fixed the post-update executing on a new master, and ikiwiki.cgi executing on a non-existent master cases. Unfortunately these cases still generate a lot of warnings from recentchanges; I suspect a much more invasive patch would be needed to shut those up.
+I've fixed this initial construction case, and, based on my testing, I've also fixed the post-update executing on a new master, and ikiwiki.cgi executing on a non-existent master cases.
 
 Please commit so my users stop whining at me about having clean branches to push to, the big babies.
 
-Summary: Change three scary loud failure cases related to empty branches into three scary loud success cases.
+Summary: Change three scary loud failure cases related to empty branches into three mostly quiet success cases.
 
 [[!tag patch]]
 
 <pre>
 diff --git a/IkiWiki/Plugin/git.pm b/IkiWiki/Plugin/git.pm
-index cf7fbe9..5b1e334 100644
+index cf7fbe9..a1b5ed3 100644
 --- a/IkiWiki/Plugin/git.pm
 +++ b/IkiWiki/Plugin/git.pm
-@@ -439,10 +439,13 @@ sub git_commit_info ($;$) {
+@@ -439,17 +439,20 @@ sub git_commit_info ($;$) {
  
  	my @opts;
  	push @opts, "--max-count=$num" if defined $num;
-+        my @raw_lines;
++	my @raw_lines;
++	my @ci;
  
 -	my @raw_lines = run_or_die('git', 'log', @opts,
 -		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
 -		'-r', $sha1, '--', '.');
-+        if (-e $config{srcdir} . "/.git/refs/heads/" . $config{gitmaster_branch}) {
-+                @raw_lines = run_or_die('git', 'log', @opts,
-+                        '--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
-+                        '-r', $sha1, '--', '.');
-+        };
++	if (-e $config{srcdir} . '/.git/refs/heads/' . $config{gitmaster_branch}) {
++		@raw_lines = run_or_die('git', 'log', @opts,
++			'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
++			'-r', $sha1, '--', '.');
  
- 	my @ci;
- 	while (my $parsed = parse_diff_tree(\@raw_lines)) {
+-	my @ci;
+-	while (my $parsed = parse_diff_tree(\@raw_lines)) {
+-		push @ci, $parsed;
+-	}
++		while (my $parsed = parse_diff_tree(\@raw_lines)) {
++			push @ci, $parsed;
++		}
+ 
+-	warn "Cannot parse commit info for '$sha1' commit" if !@ci;
++		warn "Cannot parse commit info for '$sha1' commit" if !@ci;
++	};
+ 
+ 	return wantarray ? @ci : $ci[0];
+ }
 @@ -474,7 +477,10 @@ sub rcs_update () {
  	# Update working directory.
  
  	if (length $config{gitorigin_branch}) {
 -		run_or_cry('git', 'pull', '--prune', $config{gitorigin_branch});
-+                run_or_cry('git', 'fetch', '--prune', $config{gitorigin_branch});
-+                if (-e $config{srcdir} . '/.git/refs/remotes/' . $config{gitorigin_branch} . '/' . $config{gitmaster_branch}) {
-+                        run_or_cry('git', 'merge', $config{gitorigin_branch} . '/' . $config{gitmaster_branch});
-+                }
++		run_or_cry('git', 'fetch', '--prune', $config{gitorigin_branch});
++		if (-e $config{srcdir} . '/.git/refs/remotes/' . $config{gitorigin_branch} . '/' . $config{gitmaster_branch}) {
++			run_or_cry('git', 'merge', $config{gitorigin_branch} . '/' . $config{gitmaster_branch});
++		}
  	}
  }
  
@@ -56,4 +68,5 @@ index cf7fbe9..5b1e334 100644
 +			run_or_cry('git', 'push', $config{gitorigin_branch}, $config{gitmaster_branch});
  		}
  	}
+ 	
 </pre>
