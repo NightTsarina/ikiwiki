@@ -1,20 +1,24 @@
-# SOME DESCRIPTIVE TITLE
-# Copyright (C) YEAR Free Software Foundation, Inc.
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Danish translation of basewiki/ikiwiki/pagespec/sorting page for ikiwiki.
+# Copyright (C) 2011, Jonas Smedegaard <dr@jones.dk>
+# This file is distributed under the same license as the ikiwiki package.
+# Jonas Smedegaard <dr@jones.dk>, 2011.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: ikiwiki 3.20110430\n"
+"Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2011-05-05 20:04+0300\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2011-05-05 20:35+0200\n"
+"Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
+"Language-Team: None\n"
+"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
 
 #. type: Plain text
 msgid ""
@@ -22,14 +26,17 @@ msgid ""
 "[[PageSpecs|ikiwiki/pagespec]] allow specifying the order that matching "
 "pages are shown in. The following sort orders can be specified."
 msgstr ""
+"Nodle [[direktiver|ikiwiki/directive]] som anvender "
+"[[PageSpecs|ikiwiki/pagespec]] tillader at angive rækkefølgen de givne "
+"sider vises i. De følgende sorteringsmåder kan angives."
 
 #. type: Bullet: '* '
 msgid "`age` - List pages from the most recently created to the oldest."
-msgstr ""
+msgstr "`age` - Vis sider fra nyeste til ældste."
 
 #. type: Bullet: '* '
 msgid "`mtime` - List pages with the most recently modified first."
-msgstr ""
+msgstr "`mtime` - Vis sider med senest redigerede først."
 
 #. type: Plain text
 #, no-wrap
@@ -37,17 +44,21 @@ msgid ""
 "* `title` - Order by title (page name).\n"
 "[[!if test=\"enabled(sortnaturally)\" then=\"\"\"\n"
 msgstr ""
+"* `title` - Sortér efter titel (sidenavn).\n"
+"[[!if test=\"enabled(sortnaturally)\" then=\"\"\"\n"
 
 #. type: Bullet: '* '
 msgid ""
 "`title_natural` - Orders by title, but numbers in the title are treated as "
 "such, (\"1 2 9 10 20\" instead of \"1 10 2 20 9\")"
 msgstr ""
+"`title_natural` - Sortér efter titel, men numre i titlen håndteres som "
+"sådanne, (\"1 2 9 10 20\" i stedet for \"1 10 2 20 9\")"
 
 #. type: Plain text
 #, no-wrap
 msgid "[[!if test=\"enabled(meta)\" then=\"\"\"\n"
-msgstr ""
+msgstr "[[!if test=\"enabled(meta)\" then=\"\"\"\n"
 
 #. type: Bullet: '* '
 msgid ""
@@ -56,6 +67,10 @@ msgid ""
 "the page name if no full title was set. `meta(author)`, `meta(date)`, "
 "`meta(updated)`, etc.  also work."
 msgstr ""
+"`meta(title)` - Sortér ifølge [[direktivet|ikiwiki/directive]] `\\[[!meta "
+"title=\"foo\" sortas=\"bar\"]]` eller `\\[[!meta title=\"foo\"]]`, eller "
+"sidenavnet hvis ingen fuld titel var angivet. `meta(author)`, `meta(date)`, "
+"`meta(updated)`, osv. fungerer også."
 
 #. type: Plain text
 msgid ""
@@ -63,8 +78,11 @@ msgid ""
 "sorting, with a string like `age -title` (which would sort by age, then by "
 "title in reverse order if two pages have the same age)."
 msgstr ""
+"Du kan desuden kombinere flere sorteringsmåder og/eller sortere omvendt, "
+"med en streng i stil med `age -title` (som ville sortere efter allder, og så "
+"efter titel bagfra hvis to sider har samme alder)."
 
 #. type: Plain text
 #, no-wrap
 msgid "[[!meta robots=\"noindex, follow\"]]\n"
-msgstr ""
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
