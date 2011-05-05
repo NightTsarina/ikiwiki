@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
 "PO-Revision-Date: 2009-07-22 21:28+0200\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
@@ -23,15 +23,7 @@ msgstr ""
 #. type: Plain text
 msgid ""
 "[[Ikiwiki]] uses many templates for many purposes. By editing its templates, "
-"you can fully customise this site."
-msgstr ""
-
-#. type: Plain text
-msgid ""
-"Templates are located in `/usr/share/ikiwiki/templates` by default; the "
-"`templatedir` setting can be used to make another directory be searched "
-"first. Customised templates can also be placed inside the \"templates/\" "
-"directory in your wiki's source."
+"you can fully customise its appearance, and avoid duplicate content."
 msgstr ""
 
 #. type: Plain text
@@ -78,7 +70,7 @@ msgstr ""
 #. type: Plain text
 #, fuzzy, no-wrap
 #| msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
-msgid "[[!if test=\"enabled(template)\" then=\"\"\"\n"
+msgid "[[!if test=\"enabled(template) or enabled(edittemplate)\" then=\"\"\"\n"
 msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
 
 #. type: Title ##
@@ -88,21 +80,31 @@ msgstr ""
 
 #. type: Plain text
 msgid ""
-"The [[!iki ikiwiki/directive/template desc=\"template directive\"]] allows "
-"wiki pages to be used as templates, filled out and inserted into other pages "
-"in the wiki."
+"Template pages are regular wiki pages that are used as templates for other "
+"pages."
 msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgid "[[!if test=\"enabled(template)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+
+#. type: Plain text
+#, fuzzy
+#| msgid ""
+#| "Templates are files that can be filled out and inserted into pages in the "
+#| "wiki."
+msgid ""
+"The [[!iki ikiwiki/directive/template desc=\"template directive\"]] allows "
+"template pages to be filled out and inserted into other pages in the wiki."
+msgstr "Skabeloner er filer som kan blive udfyldt og indsat på sider i wikien."
 
 #. type: Plain text
 #, fuzzy, no-wrap
 #| msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
 msgid "[[!if test=\"enabled(edittemplate)\" then=\"\"\"\n"
 msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
-
-#. type: Title ##
-#, no-wrap
-msgid "default content for new pages"
-msgstr ""
 
 #. type: Plain text
 msgid ""
@@ -120,6 +122,10 @@ msgid ""
 msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
 
 #. type: Plain text
+msgid "These template pages are currently available:"
+msgstr ""
+
+#. type: Plain text
 #, fuzzy, no-wrap
 #| msgid ""
 #| "[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
@@ -127,7 +133,7 @@ msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
 msgid ""
 "[[!inline pages=\"templates/* and !*.tmpl and !templates/*/* and !*/discussion\"\n"
 "feeds=no archive=yes sort=title template=titlepage\n"
-"rootpage=templates postformtext=\"Add a new template named:\"]]\n"
+"rootpage=templates postformtext=\"Add a new template page named:\"]]\n"
 msgstr ""
 "[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
 "sort=title template=titlepage]]\n"
@@ -135,19 +141,34 @@ msgstr ""
 #. type: Title ##
 #, fuzzy, no-wrap
 #| msgid "Using a template"
-msgid "wiki templates"
+msgid "template files"
 msgstr "Brug af skabelon"
 
 #. type: Plain text
 msgid ""
-"These templates are used to build the wiki. The aim is to keep almost all "
-"html out of ikiwiki and in the templates."
+"Template files are unlike template pages in that they have the extension `."
+"tmpl`. Template files are used extensively by Ikiwiki to generate html.  "
+"They can contain html that would not normally be allowed on a wiki page."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"Template files are located in `/usr/share/ikiwiki/templates` by default; the "
+"`templatedir` setting can be used to make another directory be searched "
+"first. Customised template files can also be placed inside the \"templates/"
+"\" directory in your wiki's source -- files placed there override ones in "
+"the `templatedir`."
+msgstr ""
+
+#. type: Plain text
+msgid "Here is a full list of the template files used:"
 msgstr ""
 
 #. type: Bullet: '* '
 msgid ""
 "`page.tmpl` - Used for displaying all regular wiki pages. This is the key "
-"template to customise. [[!if test=\"enabled(pagetemplate)\" then=\"\"\""
+"template to customise to change the look and feel of Ikiwiki.  [[!if test="
+"\"enabled(pagetemplate)\" then=\"\"\""
 msgstr ""
 
 #. type: Plain text
@@ -181,7 +202,7 @@ msgid ""
 "* `editpage.tmpl`, `editconflict.tmpl`, `editcreationconflict.tmpl`,\n"
 "  `editfailedsave.tmpl`, `editpagegone.tmpl`, `pocreatepage.tmpl`,\n"
 "  `editcomment.tmpl` `commentmoderation.tmpl`, `renamesummary.tmpl`,\n"
-"  `passwordmail.tmpl`, `openid-selector.tmpl` - Parts of ikiwiki's user\n"
+"  `passwordmail.tmpl`, `openid-selector.tmpl`, `revert.tmpl` - Parts of ikiwiki's user\n"
 "  interface; do not normally need to be customised.\n"
 msgstr ""
 
@@ -201,12 +222,6 @@ msgstr "[[!meta robots=\"noindex, follow\"]]\n"
 #~ "else=\"Denne wiki har skabeloner **deaktiveret**.\" ]]\n"
 
 #~ msgid ""
-#~ "Templates are files that can be filled out and inserted into pages in the "
-#~ "wiki."
-#~ msgstr ""
-#~ "Skabeloner er filer som kan blive udfyldt og indsat på sider i wikien."
-
-#~ msgid ""
 #~ "These templates are available for inclusion onto other pages in this wiki:"
 #~ msgstr ""
 #~ "Disse skabeloner er tilgængelige til indsættelse på andre sider i denne "
@@ -215,8 +230,12 @@ msgstr "[[!meta robots=\"noindex, follow\"]]\n"
 #~ msgid "Using a template works like this:"
 #~ msgstr "En skabelon bruges som her:"
 
-#~ msgid "\t\\[[!template id=note text=\"\"\"Here is the text to insert into my note.\"\"\"]]\n"
-#~ msgstr "\t\\[[!template id=note text=\"\"\"Her er teksten til at sætte ind i min note.\"\"\"]]\n"
+#~ msgid ""
+#~ "\t\\[[!template id=note text=\"\"\"Here is the text to insert into my "
+#~ "note.\"\"\"]]\n"
+#~ msgstr ""
+#~ "\t\\[[!template id=note text=\"\"\"Her er teksten til at sætte ind i min "
+#~ "note.\"\"\"]]\n"
 
 #~ msgid ""
 #~ "This fills out the [[note]] template, filling in the `text` field with "
@@ -237,8 +256,12 @@ msgstr "[[!meta robots=\"noindex, follow\"]]\n"
 #~ "citerede værdier tillader dette indlejring af store klumper af opmærket "
 #~ "tekst i skabelonen:"
 
-#~ msgid "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes=\"\"\"\n"
-#~ msgstr "        \\[[!template id=foo name=\"Sally\" color=\"grøn\" age=8 notes=\"\"\"\n"
+#~ msgid ""
+#~ "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes="
+#~ "\"\"\"\n"
+#~ msgstr ""
+#~ "        \\[[!template id=foo name=\"Sally\" color=\"grøn\" age=8 notes="
+#~ "\"\"\"\n"
 
 #~ msgid "\\[[Charley]]'s sister."
 #~ msgstr "\\[[Charley]]'s søster."
