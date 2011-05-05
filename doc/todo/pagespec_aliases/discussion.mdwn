@@ -1,0 +1,13 @@
+Something which is similar to aliases is the "trail" concept I use in the [[plugins/contrib/report]] plugin. (Also my "pmap" plugin, but that's only in my "experimental" branch on github).  One can define a "trail" by making a report with the "doscan" option (I should probably change the name of that) and then that page has a "trail" which matches the pagespec in that report.
+Then one can reference that page as a "trail" without having to reuse that pagespec.
+(It's also very useful in speeding up the processing, because the matching pages have been remembered, and one doesn't have to search for them again).
+
+So, for example, one could make a page "all_images" and have a report (or pmap, which is simpler) like so:
+
+    \[[!pmap pages="*.png or *.jpg or *.jpeg or *.gif or *.ico"]]
+
+And then later, somewhere else
+
+    \[[!report template="images.tmpl" trail="all_images" pages="album/*"]]
+
+and that would show all the images under "album".

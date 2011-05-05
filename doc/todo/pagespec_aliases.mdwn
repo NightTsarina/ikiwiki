@@ -1,0 +1,93 @@
+[[!tag patch wishlist]]I quite often find myself repeating a boiler-plate
+pagespec chunk, e.g.
+
+    and !*.png and !*.jpg...
+
+it would be quite nice if I could conveniently bundle them together into a
+pagespec "alias", and instead write
+
+    and !image()...
+
+I wrote the following plugin to achieve this:
+
+    commit f3a9dd113338fe5d2b717de1dc69679ff74e2f8d
+    Author: Jon Dowland <jmtd@debian.org>
+    Date:   Tue May 3 17:40:16 2011 +0100
+    
+        new plugin: alias.pm - pagespec aliases
+    
+    diff --git a/IkiWiki/Plugin/alias.pm b/IkiWiki/Plugin/alias.pm
+    new file mode 100644
+    index 0000000..b8d4574
+    --- /dev/null
+    +++ b/IkiWiki/Plugin/alias.pm
+    @@ -0,0 +1,47 @@
+    +package IkiWiki::Plugin::alias;
+    +
+    +use warnings;
+    +use strict;
+    +use IkiWiki '3.00';
+    +
+    +sub import {
+    +  hook(type => "getsetup", id=> "alias", call => \&getsetup);
+    +  hook(type => "checkconfig", id=> "alias", call => \&checkconfig);
+    +}
+    +
+    +sub getsetup () {
+    +    return
+    +        plugin => {
+    +            description => "allows the definition of pagespec aliases",
+    +            safe => 1,
+    +            rebuild => 1,
+    +            section => "misc",
+    +        },
+    +        pagespec_aliases => {
+    +            type => "string",
+    +            example => {"image" => "*jpg or *jpeg or *png or *gif or *ico" },
+    +            description => "a set of mappings from alias name to pagespec",
+    +            safe => 1,
+    +            rebuild => 0,
+    +        },
+    +}
+    +
+    +sub checkconfig () {
+    +    no strict 'refs';
+    +    no warnings 'redefine';
+    +
+    +    if ($config{pagespec_aliases}) {
+    +        foreach my $key (keys %{$config{pagespec_aliases}}) {
+    +            my $value = ${$config{pagespec_aliases}}{$key};
+    +            # XXX: validate key?
+    +            my $subname = "IkiWiki::PageSpec::match_$key";
+    +            *{ $subname } = sub {
+    +              my $path = shift;
+    +              return IkiWiki::pagespec_match($path, $value);
+    +            }
+    +        }
+    +    }
+    +}
+    +
+    +1;
+
+I need to reflect on this a bit more before I send a pull request.  In
+particular I imagine the strict/warnings stuff will make you puke.  Also, I'm
+not sure whether I should name-grab 'alias' since [[todo/alias_directive]] is
+an existing wishlist item.
+
+Here's an example setup chunk:
+
+     pagespec_aliases:
+       image: "*.png or *.jpg or *.jpeg or *.gif or *.ico"
+       helper: "*.css or *.js"
+       boring: "image() or helper()"
+
+The above demonstrates self-referential dynamic pagespec aliases.  It doesn't work,
+however, to add ' or internal()' to `boring`, for some reason.
+
+-- [[Jon]]
+
+> another useful pagespec alias for large maps:
+
+       basewiki: "sandbox or templates or templates/* or ikiwiki or ikiwiki/* or shortcuts or recentchanges or wikiicons/*"
+
+> -- [[Jon]]
