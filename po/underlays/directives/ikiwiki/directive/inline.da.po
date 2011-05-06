@@ -7,10 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-14 22:09+0000\n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
 "PO-Revision-Date: 2009-07-23 00:06+0200\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -193,98 +194,54 @@ msgid ""
 "effect if `rootpage` or `postform` is set."
 msgstr ""
 
-#. type: Bullet: '* '
+#. type: Plain text
+#, no-wrap
 msgid ""
-"`template` - Specifies the template to fill out to display each inlined "
-"page. By default the `inlinepage` template is used, while the `archivepage` "
-"template is used for archives. Set this parameter to use some other, custom "
-"template, such as the `titlepage` template that only shows post titles or "
-"the `microblog` template, optimised for microblogging. Note that you should "
-"still set `archive=yes` if your custom template does not include the page "
-"content."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`raw` - Rather than the default behavior of creating a blog, if raw is set "
-"to \"yes\", the page will be included raw, without additional markup around "
-"it, as if it were a literal part of the source of the inlining page."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`sort` - Controls how inlined pages are [[sorted|pagespec/sorting]].  The "
-"default is to sort the newest created pages first."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid "`reverse` - If set to \"yes\", causes the sort order to be reversed."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`feedshow` - Specify the maximum number of matching pages to include in the "
-"rss/atom feeds. The default is the same as the `show` value above."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`feedonly` - Only generate the feed, do not display the pages inline on the "
-"page."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`quick` - Build archives in quick mode, without reading page contents for "
-"metadata. This also turns off generation of any feeds."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`timeformat` - Use this to specify how to display the time or date for pages "
-"in the blog. The format string is passed to the strftime(3) function."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`feedpages` - A [[PageSpec]] of inlined pages to include in the rss/atom "
-"feeds. The default is the same as the `pages` value above, and only pages "
-"matched by that value are included, but some of those can be excluded by "
-"specifying a tighter [[PageSpec]] here."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`guid` - If a URI is given here (perhaps a UUID prefixed with `urn:uuid:`), "
-"the Atom feed will have this as its `<id>`. The default is to use the URL of "
-"the page containing the `inline` directive."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`feedfile` - Can be used to change the name of the file generated for the "
-"feed. This is particularly useful if a page contains multiple feeds.  For "
-"example, set \"feedfile=feed\" to cause it to generate `page/feed.atom` and/"
-"or `page/feed.rss`. This option is not supported if the wiki is configured "
-"not to use `usedirs`."
-msgstr ""
-
-#. type: Bullet: '* '
-msgid ""
-"`pagenames` - If given instead of `pages`, this is interpreted as a space-"
-"separated list of links to pages (with the same [[SubPage/LinkingRules]] as "
-"in a [[ikiwiki/WikiLink]]), and they are inlined in exactly the order given: "
-"the `sort` and `pages` parameters cannot be used in conjunction with this "
-"one."
+"* `id` - Set to specify the value of the HTML `id` attribute for the\n"
+" feed links or the post form. Useful if you have multiple forms in the\n"
+" same page.\n"
+"* `template` - Specifies the template to fill out to display each inlined\n"
+"  page. By default the `inlinepage` template is used, while\n"
+"  the `archivepage` template is used for archives. Set this parameter to\n"
+"  use some other, custom template, such as the `titlepage` template that\n"
+"  only shows post titles or the `microblog` template, optimised for\n"
+"  microblogging. Note that you should still set `archive=yes` if\n"
+"  your custom template does not include the page content.\n"
+"* `raw` - Rather than the default behavior of creating a blog,\n"
+"  if raw is set to \"yes\", the page will be included raw, without additional\n"
+"  markup around it, as if it were a literal part of the source of the \n"
+"  inlining page.\n"
+"* `sort` - Controls how inlined pages are [[sorted|pagespec/sorting]].\n"
+"  The default is to sort the newest created pages first.\n"
+"* `reverse` - If set to \"yes\", causes the sort order to be reversed.\n"
+"* `feedshow` - Specify the maximum number of matching pages to include in\n"
+"  the rss/atom feeds. The default is the same as the `show` value above.\n"
+"* `feedonly` - Only generate the feed, do not display the pages inline on\n"
+"  the page.\n"
+"* `quick` - Build archives in quick mode, without reading page contents for\n"
+"  metadata. This also turns off generation of any feeds.\n"
+"* `timeformat` - Use this to specify how to display the time or date for pages\n"
+"  in the blog. The format string is passed to the strftime(3) function.\n"
+"* `feedpages` - A [[PageSpec]] of inlined pages to include in the rss/atom\n"
+"  feeds. The default is the same as the `pages` value above, and only pages\n"
+"  matched by that value are included, but some of those can be excluded by\n"
+"  specifying a tighter [[PageSpec]] here.\n"
+"* `guid` - If a URI is given here (perhaps a UUID prefixed with `urn:uuid:`),\n"
+"  the Atom feed will have this as its `<id>`. The default is to use the URL\n"
+"  of the page containing the `inline` directive.\n"
+"* `feedfile` - Can be used to change the name of the file generated for the\n"
+"  feed. This is particularly useful if a page contains multiple feeds.\n"
+"  For example, set \"feedfile=feed\" to cause it to generate `page/feed.atom`\n"
+"  and/or `page/feed.rss`. This option is not supported if the wiki is\n"
+"  configured not to use `usedirs`.\n"
+"* `pagenames` - If given instead of `pages`, this is interpreted as a\n"
+"  space-separated list of links to pages (with the same\n"
+"  [[SubPage/LinkingRules]] as in a [[ikiwiki/WikiLink]]), and they are inlined\n"
+"  in exactly the order given: the `sort` and `pages` parameters cannot be used\n"
+"  in conjunction with this one.\n"
 msgstr ""
 
 #. type: Plain text
 #, no-wrap
 msgid "[[!meta robots=\"noindex, follow\"]]\n"
 msgstr "[[!meta robots=\"noindex, follow\"]]\n"
-
-#. type: Plain text
-msgid ""
-"A related directive is the [[ikiwiki/directive/edittemplate]] directive, "
-"which allows default text for a new page to be specified."
-msgstr ""
