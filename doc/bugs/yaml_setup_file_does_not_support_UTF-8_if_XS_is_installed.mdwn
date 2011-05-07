@@ -66,3 +66,12 @@ preferred one?
 
 >>>>> Yes, [[!debbug 625713]] reports this also affects debian unstable.
 >>>>> So, I will add a conflict I guess. [[done]] --[[Joey]]
+
+>>>>>> With the additional info and test cases I provided on the
+>>>>>> Debian bug (Message #22), I now doubt this is a YAML::XS bug
+>>>>>> very much. Also, the RT bug I linked to happens with `use
+>>>>>> utf8`, which is not the case in ikiwiki AFAIK => I think you
+>>>>>> shall reconsider whether this bug really is YAML::XS' fault, or
+>>>>>> YAML::Any's fault, or Perl's fault, or... the way ikiwiki
+>>>>>> slurps and untaints UTF-8 YAML setup files. Sorry for providing
+>>>>>> information that may have been misguided. --[[intrigeri]]
