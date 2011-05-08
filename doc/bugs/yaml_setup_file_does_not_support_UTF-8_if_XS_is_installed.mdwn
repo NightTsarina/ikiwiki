@@ -75,3 +75,12 @@ preferred one?
 >>>>>> YAML::Any's fault, or Perl's fault, or... the way ikiwiki
 >>>>>> slurps and untaints UTF-8 YAML setup files. Sorry for providing
 >>>>>> information that may have been misguided. --[[intrigeri]]
+
+>>>>>>> `use utf8` is completely irrelevant; that only tells
+>>>>>>> perl to support utf8 in its source code.
+>>>>>>>
+>>>>>>> I don't know what `Path::Class::File` is, but if it
+>>>>>>> provides non-decoded bytes to the module than it would likely
+>>>>>>> avoid this failure, while resulting in parsed yaml where every
+>>>>>>> string was likewise not decoded unicode, which is not very useful.
+>>>>>>> --[[Joey]]
