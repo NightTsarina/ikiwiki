@@ -84,3 +84,17 @@ preferred one?
 >>>>>>> avoid this failure, while resulting in parsed yaml where every
 >>>>>>> string was likewise not decoded unicode, which is not very useful.
 >>>>>>> --[[Joey]]
+
+>>>>>>>> You guessed right about the non-decoded bytes being passed to
+>>>>>>>> YAML::XS, except this is the way it shall be done. YAML::XS
+>>>>>>>> POD reads: "YAML::XS only deals with streams of utf8 octets".
+>>>>>>>> Feed it with non-decoded UTF-8 bytes and it gives you
+>>>>>>>> properly encoded UTF-8 Perl strings in exchange.
+>>>>>>>>
+>>>>>>>> Once this has been made clear, since 1. this module indeed
+>>>>>>>> seems to be the future of YAML in Perl, and 2. is depended on
+>>>>>>>> by other popular software such as dh-make-perl (on the 2nd
+>>>>>>>> degree), I suggest using it explicitly instead of the current
+>>>>>>>> "try to support every single YAML Perl module and end up
+>>>>>>>> conflicting with the now recommended one" nightmare.
+>>>>>>>> --[[intrigeri]]
