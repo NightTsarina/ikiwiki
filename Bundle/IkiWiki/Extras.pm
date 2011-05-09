@@ -35,6 +35,7 @@ Term::ReadLine::Gnu
 HTML::Tree
 Sort::Naturally
 Gravatar::URL
+Net::INET6Glue
 
 =head1 AUTHOR
 

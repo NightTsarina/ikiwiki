@@ -498,6 +498,7 @@ sub needsaggregate () {
 }
 
 sub aggregate (@) {
+	eval q{use Net::INET6Glue::INET_is_INET6}; # may not be available
 	eval q{use XML::Feed};
 	error($@) if $@;
 	eval q{use URI::Fetch};

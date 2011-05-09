@@ -67,6 +67,8 @@ sub ping {
 	if (! $pinged && %pages) {
 		$pinged=1;
 		
+		eval q{use Net::INET6Glue::INET_is_INET6}; # may not be available
+		
 		my $ua;
 		eval q{use LWPx::ParanoidAgent};
 		if (!$@) {
