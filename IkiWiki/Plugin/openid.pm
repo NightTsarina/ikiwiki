@@ -229,6 +229,7 @@ sub getobj ($$) {
 	my $q=shift;
 	my $session=shift;
 
+	eval q{use Net::INET6Glue::INET_is_INET6}; # may not be available
 	eval q{use Net::OpenID::Consumer};
 	error($@) if $@;
 
