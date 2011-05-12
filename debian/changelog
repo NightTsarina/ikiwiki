@@ -3,9 +3,7 @@ ikiwiki (3.20110431) UNRELEASED; urgency=low
   * Danish translation update. Closes: #625721
   * Danish underlay translation update. Closes: #625765
     (Thanks, Jonas Smedegaard)
-  * Add conflict with libyaml-libyaml-perl, since that library does
-    not support utf8. Closes: #625713
-    (see https://rt.cpan.org/Public/Bug/Display.html?id=54683)
+  * Support YAML::XS by not passing decoded unicode to Load. Closes: #625713
   * openid, aggregate, pinger: Use Net::INET6Glue if available to
     support making ipv6 connections. (Note that if LWPx::ParanoidAgent
     is installed, it defeats this for openid.)

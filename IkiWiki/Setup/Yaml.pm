@@ -5,6 +5,7 @@ package IkiWiki::Setup::Yaml;
 use warnings;
 use strict;
 use IkiWiki;
+use Encode;
 
 sub loaddump ($$) {
 	my $class=shift;
@@ -14,7 +15,7 @@ sub loaddump ($$) {
 	eval q{use YAML} if $@;
 	die $@ if $@;
 	$YAML::Syck::ImplicitUnicode=1;
-	IkiWiki::Setup::merge(Load($content));
+	IkiWiki::Setup::merge(Load(encode_utf8($content)));
 }
 
 sub gendump ($@) {
