@@ -151,7 +151,10 @@ sub showfields ($$$@) {
 		my %info=%{shift @show};
 
 		my $description=$info{description};
-		if (exists $info{link} && length $info{link}) {
+		if (exists $info{htmldescription}) {
+			$description=$info{htmldescription};
+		}
+		elsif (exists $info{link} && length $info{link}) {
 			if ($info{link} =~ /^\w+:\/\//) {
 				$description="<a href=\"$info{link}\">$description</a>";
 			}
