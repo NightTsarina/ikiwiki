@@ -39,10 +39,10 @@ repositories:
   git does not support pushing to a repository that has a working
   directory. This is called _repository_ in [[ikiwiki-makerepo]]'s
   manual page. This bare repository has a `post-update` hook
-  that either is or calls ikiwiki's git wrapper, which changes to the
+  that either is or calls ikiwiki's `git_wrapper`, which changes to the
   working directory for ikiwiki, does a `git pull`, and refreshes ikiwiki
   to regenerate the wiki with any new content. The [[setup]] page describes
-  how to do this.
+  how to do this, but note, if you are importing from an existing git repository, that ikiwiki will not create the `git_wrapper` unless its path is explicitely set in your `.setup` file.
 
 * The second repository is a clone of the bare root repository, and
   has a working tree which is used as ikiwiki's srcdir for compiling
