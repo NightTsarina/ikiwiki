@@ -168,10 +168,14 @@ information found on this website is stored at <http://github.com/mithro/media2i
 
 > Some assembly is required to get Mediawiki2markdown and its mwlib
 > gitmodule available in the right place for it to use.. perhaps you could
-> automate that? --[[Joey]]a
+> automate that? --[[Joey]]
+
+> > You mean a debian package? :) media2iki is actually a submodule, so you need to go through extra steps to install it. mwlib being the most annoying part... I have fixed my script so it looks for media2iki directly in the submodule and improved the install instructions in the README file, but I'm not sure I can do much more short of starting to package the whole thing... --[[anarcat]]
 
 > Also, when I try to run it with -t on www.amateur-radio-wiki.net, it
 > fails on some html in the page named "4_metres". On archiveteam.org,
 > it fails trying to write to a page filename starting with "/", --[[Joey]]
+
+> > can you show me exactly which commandline arguments you're using? also, I have made improvements over the converter too, also available here: <http://anarcat.ath.cx/software/media2iki.git/> -- [[anarcat]]
 
 [[scy]] wrote a python script to convert from mediawiki XML dumps to git repositories at <https://github.com/scy/levitation>.
