@@ -172,10 +172,68 @@ information found on this website is stored at <http://github.com/mithro/media2i
 
 > > You mean a debian package? :) media2iki is actually a submodule, so you need to go through extra steps to install it. mwlib being the most annoying part... I have fixed my script so it looks for media2iki directly in the submodule and improved the install instructions in the README file, but I'm not sure I can do much more short of starting to package the whole thing... --[[anarcat]]
 
+>>> You may have forgotten to push that, I don't see those changes.
+>>> Packaging the python library might be a good 1st step.
+>>> --[[Joey]] 
+
 > Also, when I try to run it with -t on www.amateur-radio-wiki.net, it
 > fails on some html in the page named "4_metres". On archiveteam.org,
 > it fails trying to write to a page filename starting with "/", --[[Joey]]
 
 > > can you show me exactly which commandline arguments you're using? also, I have made improvements over the converter too, also available here: <http://anarcat.ath.cx/software/media2iki.git/> -- [[anarcat]]
+
+>>> Not using your new converter, just the installation I did earlier
+>>> today:
+>>> --[[Joey]] 
+
+<pre>
+fetching page 4 metres  from http://www.amateur-radio-wiki.net//index.php?action=raw&title=4+metres into 4_metres.mdwn
+Unknown tag TagNode tagname='div' vlist={'style': {u'float': u'left', u'border': u'2px solid #aaa', u'margin-left': u'20px'}}->'div' div
+Traceback (most recent call last):
+  File "./mediawikigitdump.py", line 298, in <module>
+    fetch_allpages(namespace)
+  File "./mediawikigitdump.py", line 82, in fetch_allpages
+    fetch_page(page.getAttribute('title'))
+  File "./mediawikigitdump.py", line 187, in fetch_page
+    c.parse(urllib.urlopen(url).read())
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 285, in parse
+    self.parse_node(ast)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 76, in parse_node
+    f(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 88, in on_article
+    self.parse_children(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 83, in parse_children
+    self.parse_node(child)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 76, in parse_node
+    f(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 413, in on_section
+    self.parse_node(child)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 76, in parse_node
+    f(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 83, in parse_children
+    self.parse_node(child)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 76, in parse_node
+    f(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 474, in on_tagnode
+    assert not options.STRICT
+AssertionError
+zsh: exit 1     ./mediawikigitdump.py -v -t http://www.amateur-radio-wiki.net/
+</pre>
+
+<pre>
+joey@wren:~/tmp/mediawikigitdump>./mediawikigitdump.py -v -t http://archiveteam.org            
+fetching page list from namespace 0 ()
+found 222 pages
+fetching page /Sites using MediaWiki (English)  from http://archiveteam.org/index.php?action=raw&title=%2FSites+using+MediaWiki+%28English%29 into /Sites_using_MediaWiki_(English).mdwn
+Traceback (most recent call last):
+  File "./mediawikigitdump.py", line 298, in <module>
+    fetch_allpages(namespace)
+  File "./mediawikigitdump.py", line 82, in fetch_allpages
+    fetch_page(page.getAttribute('title'))
+  File "./mediawikigitdump.py", line 188, in fetch_page
+    f = open(filename, 'w')
+IOError: [Errno 13] Permission denied: u'/Sites_using_MediaWiki_(English).mdwn'
+zsh: exit 1     ./mediawikigitdump.py -v -t http://archiveteam.org
+</pre>
 
 [[scy]] wrote a python script to convert from mediawiki XML dumps to git repositories at <https://github.com/scy/levitation>.
