@@ -74,6 +74,26 @@ particular I imagine the strict/warnings stuff will make you puke.  Also, I'm
 not sure whether I should name-grab 'alias' since [[todo/alias_directive]] is
 an existing wishlist item.
 
+> I think it would make sense to have "pagespec" in the name somehow.
+>
+> No, the strict/warnings does not make me puke. Have you read my perl
+> code? :-P
+> 
+> Note that your XXX is right. It would be a security hole to not validate
+> `$key`, as anyone with websetup access could cause it to run arbitrary
+> perl code.
+> 
+> Well, except that websetup doesn't currently support configuring hashes
+> like used here. Which is a pity, but has led me to try to avoid using
+> such hashes in the setup file.
+> 
+> Have you considered not defining the pagespec aliases in the setup file, but
+> instead as directives on pages in the wiki? Using pagestate could store
+> up the aliases that have been defined. It could however, be hard to get
+> the dependencies right; any page that uses a pagespec containing 
+> an alias `foo` would need to somehow depend on the page where the alias
+> was defined. --[[Joey]] 
+
 Here's an example setup chunk:
 
      pagespec_aliases:
@@ -86,8 +106,12 @@ however, to add ' or internal()' to `boring`, for some reason.
 
 -- [[Jon]]
 
+> Probably needs to be `or internal(*)` --[[Joey]] 
+
 > another useful pagespec alias for large maps:
 
        basewiki: "sandbox or templates or templates/* or ikiwiki or ikiwiki/* or shortcuts or recentchanges or wikiicons/*"
 
 > -- [[Jon]]
+
+>> Useful indeed! --[[Joey]] 
