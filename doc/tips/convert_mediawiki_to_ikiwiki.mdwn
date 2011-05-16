@@ -261,3 +261,7 @@ zsh: exit 1     ./mediawikigitdump.py -v -t http://archiveteam.org
 </pre>
 
 > > > > > I have updated my script to call the parser without strict mode and to trim leading slashes (and /../, for that matter...) -- [[anarcat]]
+
+> > > > > > Getting this error with the new version on any site I try (when using -t only): `TypeError: argument 1 must be string or read-only character buffer, not None` 
+> > > > > > bisecting, commit 55941a3bd89d43d09b0c126c9088eee0076b5ea2 broke it.
+> > > > > > --[[Joey]] 
