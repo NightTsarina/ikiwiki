@@ -267,3 +267,20 @@ zsh: exit 1     ./mediawikigitdump.py -v -t http://archiveteam.org
 > > > > > > --[[Joey]] 
 
 > > > > > > > I can't reproduce here, can you try with -v or -d to try to trace down the problem? -- [[anarcat]]
+
+<pre>
+fetching page list from namespace 0 ()
+found 473 pages
+fetching page 0 - 9  from http://www.amateur-radio-wiki.net/index.php?action=raw&title=0+-+9 into 0_-_9.mdwn
+Traceback (most recent call last):
+  File "./mediawikigitdump.py", line 304, in <module>
+    main()
+  File "./mediawikigitdump.py", line 301, in main
+    fetch_allpages(options.namespace)
+  File "./mediawikigitdump.py", line 74, in fetch_allpages
+    fetch_page(page.getAttribute('title'))
+  File "./mediawikigitdump.py", line 180, in fetch_page
+    f.write(options.convert(urllib.urlopen(url).read()))
+TypeError: argument 1 must be string or read-only character buffer, not None
+zsh: exit 1     ./mediawikigitdump.py -v -d -t http://www.amateur-radio-wiki.net/
+</pre>
