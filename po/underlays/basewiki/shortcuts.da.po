@@ -1,17 +1,16 @@
 # Danish translation of shortcuts page for ikiwiki.
-# Copyright (C) 2008, 2009, 2011, Jonas Smedegaard <dr@jones.dk>
+# Copyright (C) 2008-2009 Jonas Smedegaard <dr@jones.dk>
 # This file is distributed under the same license as the ikiwiki package.
 # Jonas Smedegaard <dr@jones.dk>, 2008.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ikiwiki 3.20110430\n"
+"Project-Id-Version: ikiwiki 3.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-05 20:04+0300\n"
-"PO-Revision-Date: 2011-05-05 21:03+0200\n"
+"POT-Creation-Date: 2010-03-14 22:09+0000\n"
+"PO-Revision-Date: 2009-07-19 23:45+0200\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
-"Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -52,10 +51,8 @@ msgid "This page controls what shortcut links the wiki supports."
 msgstr "Denne side styrer hvilke genveje wikien understøtter."
 
 #. type: Bullet: '* '
-msgid ""
-"[[!shortcut name=google url=\"https://encrypted.google.com/search?q=%s\"]]"
-msgstr ""
-"[[!shortcut name=google url=\"https://encrypted.google.com/search?q=%s\"]]"
+msgid "[[!shortcut name=google url=\"http://www.google.com/search?q=%s\"]]"
+msgstr "[[!shortcut name=google url=\"http://www.google.com/search?q=%s\"]]"
 
 #. type: Bullet: '* '
 msgid "[[!shortcut name=archive url=\"http://web.archive.org/*/%S\"]]"
@@ -71,31 +68,27 @@ msgstr ""
 "[[!shortcut name=gmsg url=\"http://groups.google.com/groups?selm=%s\"]]"
 
 #. type: Bullet: '* '
-msgid ""
-"[[!shortcut name=wikipedia url=\"https://secure.wikimedia.org/wikipedia/en/"
-"wiki/%s\"]]"
-msgstr ""
-"[[!shortcut name=wikipedia url=\"https://secure.wikimedia.org/wikipedia/en/"
-"wiki/%s\"]]"
+msgid "[[!shortcut name=wikipedia url=\"http://en.wikipedia.org/wiki/%s\"]]"
+msgstr "[[!shortcut name=wikipedia url=\"http://en.wikipedia.org/wiki/%s\"]]"
 
 #. type: Bullet: '* '
-msgid "[[!shortcut name=wikitravel url=\"https://wikitravel.org/en/%s\"]]"
-msgstr "[[!shortcut name=wikitravel url=\"https://wikitravel.org/en/%s\"]]"
+msgid "[[!shortcut name=wikitravel url=\"http://wikitravel.org/en/%s\"]]"
+msgstr "[[!shortcut name=wikitravel url=\"http://wikitravel.org/en/%s\"]]"
 
 #. type: Bullet: '* '
-msgid ""
-"[[!shortcut name=wiktionary url=\"https://secure.wikimedia.org/wiktionary/en/"
-"wiki/%s\"]]"
-msgstr ""
-"[[!shortcut name=wiktionary url=\"https://secure.wikimedia.org/wiktionary/en/"
+msgid "[[!shortcut name=wiktionary url=\"http://en.wiktionary.org/wiki/%s\"]]"
+msgstr "[[!shortcut name=wiktionary url=\"http://en.wiktionary.org/wiki/%s\"]]"
 
 #. type: Bullet: '* '
+#, fuzzy
+#| msgid ""
+#| "[[!shortcut name=debbug url=\"http://bugs.debian.org/%s\" desc=\"bug #%s"
+#| "\"]]"
 msgid ""
 "[[!shortcut name=debbug url=\"http://bugs.debian.org/%S\" desc=\"Debian bug #"
 "%s\"]]"
 msgstr ""
-"[[!shortcut name=debbug url=\"http://bugs.debian.org/%S\" desc=\"Debian bug #"
-"%s\"]]"
+"[[!shortcut name=debbug url=\"http://bugs.debian.org/%s\" desc=\"bug #%s\"]]"
 
 #. type: Bullet: '* '
 msgid ""
@@ -132,7 +125,42 @@ msgstr ""
 "\"]]"
 
 #. type: Plain text
-#, no-wrap
+#, fuzzy, no-wrap
+#| msgid ""
+#| "* [[!shortcut name=debss url=\"http://snapshot.debian.net/package/%s\"]]\n"
+#| "  * Usage: `\\[[!debss package]]`, `\\[[!debss package#version]]`, or `\\[[!debss package/version]]`.  See http://snapshot.debian.net for details.\n"
+#| "* [[!shortcut name=debwiki url=\"http://wiki.debian.org/%s\"]]\n"
+#| "* [[!shortcut name=fdobug url=\"https://bugs.freedesktop.org/show_bug.cgi?id=%s\" desc=\"freedesktop.org bug #%s\"]]\n"
+#| "* [[!shortcut name=fdolist url=\"http://lists.freedesktop.org/mailman/listinfo/%s\" desc=\"%s@lists.freedesktop.org\"]]\n"
+#| "* [[!shortcut name=gnomebug url=\"http://bugzilla.gnome.org/show_bug.cgi?id=%s\" desc=\"GNOME bug #%s\"]]\n"
+#| "* [[!shortcut name=linuxbug url=\"http://bugzilla.kernel.org/show_bug.cgi?id=%s\" desc=\"Linux bug #%s\"]]\n"
+#| "* [[!shortcut name=mozbug url=\"https://bugzilla.mozilla.org/show_bug.cgi?id=%s\" desc=\"Mozilla bug #%s\"]]\n"
+#| "* [[!shortcut name=gnulist url=\"http://lists.gnu.org/mailman/listinfo/%s\" desc=\"%s@gnu.org\"]]\n"
+#| "* [[!shortcut name=marcmsg url=\"http://marc.info/?i=%s\"]]\n"
+#| "* [[!shortcut name=marclist url=\"http://marc.info/?l=%s\"]]\n"
+#| "* [[!shortcut name=gmane url=\"http://dir.gmane.org/gmane.%s\" desc=\"gmane.%s\"]]\n"
+#| "* [[!shortcut name=gmanemsg url=\"http://mid.gmane.org/%s\"]]\n"
+#| "* [[!shortcut name=cpan url=\"http://search.cpan.org/search?mode=dist&query=%s\"]]\n"
+#| "* [[!shortcut name=ctan url=\"http://tug.ctan.org/cgi-bin/ctanPackageInformation.py?id=%s\"]]\n"
+#| "* [[!shortcut name=hoogle url=\"http://haskell.org/hoogle/?q=%s\"]]\n"
+#| "* [[!shortcut name=iki url=\"http://ikiwiki.info/%S/\"]]\n"
+#| "* [[!shortcut name=ljuser url=\"http://%s.livejournal.com/\"]]\n"
+#| "* [[!shortcut name=rfc url=\"http://www.ietf.org/rfc/rfc%s.txt\" desc=\"RFC %s\"]]\n"
+#| "* [[!shortcut name=c2 url=\"http://c2.com/cgi/wiki?%s\"]]\n"
+#| "* [[!shortcut name=meatballwiki url=\"http://www.usemod.com/cgi-bin/mb.pl?%s\"]]\n"
+#| "* [[!shortcut name=emacswiki url=\"http://www.emacswiki.org/cgi-bin/wiki/%s\"]]\n"
+#| "* [[!shortcut name=haskellwiki url=\"http://haskell.org/haskellwiki/%s\"]]\n"
+#| "* [[!shortcut name=dict url=\"http://www.dict.org/bin/Dict?Form=Dict1&Strategy=*&Database=*&Query=%s\"]]\n"
+#| "* [[!shortcut name=imdb url=\"http://imdb.com/find?q=%s\"]]\n"
+#| "* [[!shortcut name=gpg url=\"http://pgpkeys.mit.edu:11371/pks/lookup?op=vindex&exact=on&search=0x%s\"]]\n"
+#| "* [[!shortcut name=perldoc url=\"http://perldoc.perl.org/search.html?q=%s\"]]\n"
+#| "* [[!shortcut name=whois url=\"http://reports.internic.net/cgi/whois?whois_nic=%s&type=domain\"]]\n"
+#| "* [[!shortcut name=cve url=\"http://cve.mitre.org/cgi-bin/cvename.cgi?name=%s\"]]\n"
+#| "* [[!shortcut name=cia url=\"http://cia.vc/stats/project/%s\"]]\n"
+#| "* [[!shortcut name=ciauser url=\"http://cia.vc/stats/user/%s\"]]\n"
+#| "* [[!shortcut name=flickr url=\"http://www.flickr.com/photos/%s\"]]\n"
+#| "* [[!shortcut name=man url=\"http://linux.die.net/man/%s\"]]\n"
+#| "* [[!shortcut name=ohloh url=\"http://www.ohloh.net/projects/%s\"]]\n"
 msgid ""
 "* [[!shortcut name=debss url=\"http://snapshot.debian.net/package/%s\"]]\n"
 "  * Usage: `\\[[!debss package]]`, `\\[[!debss package#version]]`, or `\\[[!debss package/version]]`.  See http://snapshot.debian.net for details.\n"
@@ -205,10 +233,14 @@ msgstr ""
 "* [[!shortcut name=flickr url=\"http://www.flickr.com/photos/%s\"]]\n"
 "* [[!shortcut name=man url=\"http://linux.die.net/man/%s\"]]\n"
 "* [[!shortcut name=ohloh url=\"http://www.ohloh.net/projects/%s\"]]\n"
-"* [[!shortcut name=cpanrt url=\"https://rt.cpan.org/Ticket/Display.html?id=%s\" desc=\"CPAN RT#%s\"]]\n"
-"* [[!shortcut name=novellbug url=\"https://bugzilla.novell.com/show_bug.cgi?id=%s\" desc=\"bug %s\"]]\n"
 
 #. type: Plain text
+#, fuzzy
+#| msgid ""
+#| "To add a new shortcut, use the `shortcut` [[ikiwiki/directive]]. In the "
+#| "url, \"%s\" is replaced with the text passed to the named shortcut, after "
+#| "url-encoding it, and '%S' is replaced with the raw, non-encoded text. The "
+#| "optional `desc` parameter controls the description of the link."
 msgid ""
 "To add a new shortcut, use the `shortcut` [[ikiwiki/directive]]. In the url, "
 "\"%s\" is replaced with the text passed to the named shortcut, after [[!"
@@ -216,9 +248,9 @@ msgid ""
 "text. The optional `desc` parameter controls the description of the link."
 msgstr ""
 "Tilføj en ny genvej med [[direktivet|ikiwiki/directive]] `shortcut`. I URLen "
-"erstattes \"%s\" med teksten overdraget til den navngivne genvej, efter "
-"[[¡wikipedia url_encoding]] af den, og '%S' erstattet med den rå, ukodede "
-"tekst. Den valgfri `desc`-parameter styrer beskrivelsen af henvisningen."
+"erstattes \"%s\" med teksten overdraget til den navngivne genvej, efter URL-"
+"omkodning af den, og '%S' erstattes med den rå, ukodede tekst. Den valgfri "
+"`desc`-parameter styrer beskrivelsen af henvisningen."
 
 #. type: Plain text
 msgid ""
@@ -233,6 +265,12 @@ msgstr ""
 "overskygge den der blev angivet ved definitionen."
 
 #. type: Plain text
+#, fuzzy
+#| msgid ""
+#| "If you come up with a shortcut that you think others might find useful, "
+#| "consider contributing it to the [shortcuts page on the ikiwiki ikiwiki]"
+#| "(http://ikiwiki.info/shortcuts/), so that future versions of ikiwiki will "
+#| "include your shortcut in the standard underlay."
 msgid ""
 "If you come up with a shortcut that you think others might find useful, "
 "consider contributing it to the [shortcuts page on the ikiwiki wiki](http://"
@@ -240,6 +278,6 @@ msgid ""
 "your shortcut in the standard underlay."
 msgstr ""
 "Hvis du finder på en genvej som du mener andre kunne få glæde af også, kan "
-"du overveje at bidrage med den til [shortcuts-siden på ikiwiki wikien]"
+"du overveje at bidrage med den til [shortcuts-siden på ikiwiki ikiwikien]"
 "(http://ikiwiki.info/shortcuts/), så fremtidige versioner af ikiwiki "
 "inkluderer din genvej i standardunderlaget."
