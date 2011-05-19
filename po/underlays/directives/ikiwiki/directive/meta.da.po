@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ikiwiki 3.15\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
 "PO-Revision-Date: 2009-07-23 00:06+0200\n"
 "Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
 "Language-Team: None\n"
@@ -44,7 +44,8 @@ msgstr ""
 #. type: Plain text
 msgid ""
 "The first form sets a given field to a given value, while the second form "
-"also specifies some additional sub-parameters."
+"also specifies some additional sub-parameters. You can have only one field "
+"per `meta` directive, use more directives if you want to specify more fields."
 msgstr ""
 
 #. type: Plain text
@@ -199,6 +200,39 @@ msgstr ""
 "\t\\[[!meta stylesheet=somestyle rel=\"alternate stylesheet\"\n"
 "\ttitle=\"etstilark\"]]\n"
 
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  However, this will be scrubbed away if the \n"
+"  [[!iki plugins/htmlscrubber desc=htmlscrubber]] plugin is enabled,\n"
+"  since it can be used to insert unsafe content.\n"
+msgstr ""
+
+#. type: Bullet: '* '
+#, fuzzy
+#| msgid "description"
+msgid "script"
+msgstr "description"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  Adds a script to a page. The script is treated as a wiki link to\n"
+"  a `.js` file in the wiki, so it cannot be used to add links to external\n"
+"  scripts. The optional `defer` and `async` keywords can be used to set\n"
+"  the corresponding HTML4 and HTML5 script options. Example:\n"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!meta script=somescript defer async]]\n"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "  The tag is subject to scrubbing as with the stylesheet and link fields.\n"
+msgstr ""
+
 #. type: Bullet: '* '
 msgid "openid"
 msgstr "openid"
@@ -231,9 +265,13 @@ msgid "  Example:\n"
 msgstr "  Eksempel:\n"
 
 #. type: Plain text
-#, no-wrap
+#, fuzzy, no-wrap
+#| msgid ""
+#| "\t\\\\[[!meta openid=\"http://joeyh.myopenid.com/\"\n"
+#| "\tserver=\"http://www.myopenid.com/server\"\n"
+#| "\txrds-location=\"http://www.myopenid.com/xrds?username=joeyh.myopenid.com\"\"]]\n"
 msgid ""
-"\t\\\\[[!meta openid=\"http://joeyh.myopenid.com/\"\n"
+"\t\\[[!meta openid=\"http://joeyh.myopenid.com/\"\n"
 "\tserver=\"http://www.myopenid.com/server\"\n"
 "\txrds-location=\"http://www.myopenid.com/xrds?username=joeyh.myopenid.com\"\"]]\n"
 msgstr ""
@@ -378,6 +416,23 @@ msgid ""
 "  value. The date/time can be given in any format that\n"
 "  [[!cpan TimeDate]] can understand, just like the `date` field.\n"
 msgstr ""
+
+#. type: Bullet: '* '
+msgid "foaf"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  Adds a Friend of a Friend ([FOAF](http://wiki.foaf-project.org/w/Autodiscovery))\n"
+"  reference to a page.\n"
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "  \t\\[[!meta redir=otherpage]]\n"
+msgid "  \t\\[[!meta foaf=foaf.rdf]]\n"
+msgstr "  \t\\[[!meta redir=otherpage]]\n"
 
 #. type: Plain text
 msgid ""
