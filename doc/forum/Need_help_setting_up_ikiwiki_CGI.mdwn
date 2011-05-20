@@ -1,0 +1,16 @@
+After installing and setting up Ikiwiki on my Debian server. I somehow got the following error when trying to edit index page in browser / online:
+
+    Not Found
+
+    The requested URL /foobar.com/static/ikiwiki.cgi was not found on this server.
+
+    Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.
+
+
+My `foobar.setup` has the following for CGI configuration
+
+    cgiurl => 'http:/foobar.com/static/ikiwiki.cgi',                                                                                                                          
+    cgi_wrapper => '/home/foobaruser/foobar.com/static/ikiwiki.cgi',
+
+
+What could be wrong?
