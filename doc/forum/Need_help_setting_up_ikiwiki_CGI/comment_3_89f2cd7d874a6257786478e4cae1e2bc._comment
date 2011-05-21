@@ -1,0 +1,16 @@
+[[!comment format=mdwn
+ username="https://profiles.google.com/lumeng.dev"
+ nickname="lumeng.dev"
+ subject="comment 3"
+ date="2011-05-21T19:11:27Z"
+ content="""
+After testing using a test CGI script (thanks to smcv), I confirmed this is not a problem of the server not being set up to serve CGI. I then tried changing the permissions of `ikiwiki.cgi` and found:
+
+* on the remote server, if I have `-rwsr-sr-x` for `ikiwiki.cgi`, the CGI features such as `Preference` and `Edit` buttons don't work, but if I set it `-rwsr-xr-x`, it works. The server is a Debian VPS.
+
+* in contrast, on my local LAMP server `localhost`, both permissions work
+
+Any ideas?
+
+Thanks!
+"""]]
