@@ -1,0 +1,26 @@
+I following installation and configuration instructions at `http://ikiwiki.info/plugins/teximg/`
+
+But I get
+
+    [[!teximg Error: missing tex code]]
+
+for code
+
+    [[!teximg $$\sin (x)$$]]
+
+On server I do have `texlive`, `dvips`, `convert` installed ready. My configuration looks like
+
+        # teximg_dvipng => 1,   # use dvipng                                                                                                                
+        teximg_dvipng => 0, # use dvips and convert                                                                                                         
+        # LaTeX prefix for teximg plugin                                                                                                                    
+        teximg_prefix => '\\documentclass{article}                                                                                                          
+        \\usepackage{amsmath}                                                                                                                               
+        \\usepackage{amsfonts}                                                                                                                              
+        \\usepackage{amssymb}                                                                                                                               
+        \\pagestyle{empty}                                                                                                                                  
+        \\begin{document}                                                                                                                                   
+        ',
+        # LaTeX postfix for teximg plugin                                                                                                                   
+        teximg_postfix => '\\end{document}',
+
+Any ideas why it's not working?
