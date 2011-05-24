@@ -1,0 +1,13 @@
+[[!tag wishlist]]
+
+[Debian bug #627693](http://bugs.debian.org/627693)
+
+I would like for the [[plugins/po]] plugin to optionally run from the working directory the transifex-client command equivalent to
+
+`tx set --auto-local -r $transifex_project_name.$mungedpagename $mungedpagename'.<lang>.po' --source-lang en --source-file $page.pot --execute`
+
+for any new .pot files that are added in that particular ikiwiki run, and then run
+
+`tx push -s`
+
+each time.
