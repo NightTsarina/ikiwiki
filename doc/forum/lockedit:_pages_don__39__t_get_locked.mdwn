@@ -1,0 +1,12 @@
+I just tried to lock some pages via the [[plugins/lockedit]] plugin in my wiki but it does not work. Not any page I've tried gets locked. Here's a snipped of my setup:
+
+    add_plugins => [qw{goodstuff edittemplate filecheck getsource htmltidy recentchanges relativedate rename remove search sidebar po httpauth attachment img 404 inline localstyle pagestats progress orphans map toc brokenlinks autoindex anonok blogspam recentchangesdiff}],
+    disable_plugins => [qw{smiley openid theme}],
+    [...]
+    anonok_pagespec => '*',
+    [...]
+    locked_pages => 'todo and todo/done and index and ikiwiki/*',
+
+Is there an interference between anonok and lockedit or is there just a typo?
+
+I can't imagine another source of the problem. Hope you can help me. --[[bacuh]]
