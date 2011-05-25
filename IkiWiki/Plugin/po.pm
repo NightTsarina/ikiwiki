@@ -31,6 +31,7 @@ my @origneedsbuild;
 my %origsubs;
 my @slavelanguages; # language codes ordered as in config po_slave_languages
 my %slavelanguages; # language code to name lookup
+my $language_code_pattern = '[a-zA-Z]+(?:_[a-zA-Z]+)?';
 
 memoize("istranslatable");
 memoize("_istranslation");
@@ -811,7 +812,7 @@ sub _istranslation ($) {
 			 && pagetype($file) eq 'po';
 	return 0 if $file =~ /\.pot$/;
 
-	my ($masterpage, $lang) = ($page =~ /(.*)[.]([a-z]{2})$/);
+	my ($masterpage, $lang) = ($page =~ /(.*)[.]($language_code_pattern)$/);
 	return 0 unless defined $masterpage && defined $lang
 			 && length $masterpage && length $lang
 			 && defined $pagesources{$masterpage}
@@ -853,7 +854,7 @@ sub lang ($) {
 sub islanguagecode ($) {
 	my $code=shift;
 
-	return $code =~ /^[a-z]{2}$/;
+	return $code =~ /^$language_code_pattern$/;
 }
 
 sub otherlanguage_page ($$) {
@@ -1259,7 +1260,7 @@ sub po4a_options($) {
 sub splitlangpair ($) {
 	my $pair=shift;
 
-	my ($code, $name) = ( $pair =~ /^([a-z]{2})\|(.+)$/ );
+	my ($code, $name) = ( $pair =~ /^($language_code_pattern)\|(.+)$/ );
 	if (! defined $code || ! defined $name ||
 	    ! length $code || ! length $name) {
 		# not a fatal error to avoid breaking if used with web setup
