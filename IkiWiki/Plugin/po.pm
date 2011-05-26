@@ -1245,6 +1245,7 @@ sub po4a_options($) {
 		# how to disable options is not consistent across po4a modules
 		$options{includessi} = '';
 		$options{includeexternal} = 0;
+		$options{ontagerror} = 'warn';
 	}
 	elsif ($pagetype eq 'mdwn') {
 		$options{markdown} = 1;
