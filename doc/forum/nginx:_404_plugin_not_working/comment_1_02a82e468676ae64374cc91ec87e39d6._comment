@@ -1,0 +1,15 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 1"
+ date="2011-05-26T06:58:04Z"
+ content="""
+The 404 plugin relies on environment variables set by Apache for 404 handlers. Not all web servers set the same variables (404 handlers aren't a standard feature) so it might need adapting to support nginx. (lighttpd has a similer problem - it doesn't indicate that the request was a 404 in an obvious way.)
+
+If you temporarily set this (shell!) CGI script as your 404 handler, its output should indicate what variables nginx sets:
+
+    #!/bin/sh
+    printf \"Content-type: text/plain\r\n\r\n\"
+    env
+
+"""]]
