@@ -2,6 +2,8 @@
 # DO NOT CHANGE ANYTHING IN THIS FILE.
 # THe crazy bug reproduced here will go away if any of the calls
 # to htmlize are changed.
+# Note: This was http://bugs.debian.org/376329 , and was fixed in 
+# perl 5.14.
 use warnings;
 use strict;
 use Test::More tests => 102;
