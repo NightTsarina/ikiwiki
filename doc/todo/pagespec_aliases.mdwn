@@ -115,3 +115,30 @@ however, to add ' or internal()' to `boring`, for some reason.
 > -- [[Jon]]
 
 >> Useful indeed! --[[Joey]] 
+
+---------------------------
+
+Based on the above, I have written an experimental plugin called "subset".
+It's in my "ikiplugins" repo on github, in the "experimental" branch.
+<https://github.com/rubykat/ikiplugins/blob/experimental/IkiWiki/Plugin/subset.pm>
+
+It takes Joey's suggestion of defining the subsets (aliases) as directives;
+I took the example of the [[plugins/shortcut]] plugin and designated a single special page as the one where the directives are defined,
+though unlike "shortcut" I haven't hardcoded the name of the page; it defaults to "subsets" but it can be re-defined in the config.
+
+I've also added a feature which one might call subset-caching; I had to override `pagespec_match_list` to do it, however.
+An extra parameter added to `pagespec_match_list` called `subset` which
+
+* limits the result to look *only* within the set of pages defined by the subset (uses the "list" option to pagespec_match_list to do this)
+* caches the result of the subset search so that the second time subset "foo" is used, it uses the stored result of the first search for "foo".
+
+This speeds things up if one is using a particular subset more than once, which one probably is if one bothered to define the subset in the first place.
+The speed increase is most dramatic when the site has a large number of pages and the number of pages in the subset is small.
+(this is similar to the "trail" concept I used in my [[plugins/contrib/report]] plugin, but not quite the same)
+
+Note that things like [[plugins/map]] can't make use of "subset" (yet) because they don't pass along all the parameters they're given.
+But [[plugins/contrib/report]] actually works without alteration because it does pass along all the parameters.
+
+Unfortunately I haven't figured out how to do the dependencies - I'd really appreciate help on that.
+
+--[[KathrynAndersen]]
