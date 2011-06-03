@@ -12,7 +12,7 @@ use Encode;
 sub printheader ($) {
 	my $session=shift;
 	
-	if ($ENV{HTTPS} || $config{sslcookie}) {
+	if (($ENV{HTTPS} && $ENV{HTTPS} ne "off") || $config{sslcookie}) {
 		print $session->header(-charset => 'utf-8',
 			-cookie => $session->cookie(-httponly => 1, -secure => 1));
 	}
