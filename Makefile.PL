@@ -67,7 +67,7 @@ myclean: clean
 
 underlay_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki
-	for dir in `cd underlays && $(FIND) . -follow -type d ! -regex '.*\.svn.*'`; do \
+	for dir in `cd underlays && $(FIND) . -follow -type d`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
 		for file in `$(FIND) underlays/$$dir -follow -maxdepth 1 -type f`; do \
 			cp -aL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir 2>/dev/null || \
@@ -102,15 +102,15 @@ underlay_install:
 
 extra_install: underlay_install
 	# Install example sites.
-	for dir in `cd doc/examples; $(FIND) . -type d ! -regex '.*\.svn.*'`; do \
+	for dir in `cd doc/examples; $(FIND) . -type d ! -regex '.*discussion.*'`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$dir; \
 	done
-	for file in `cd doc/examples; $(FIND) . -type f ! -regex '.*\.svn.*'`; do \
+	for file in `cd doc/examples; $(FIND) . -type f ! -regex '.*discussion.*'`; do \
 		cp -aL doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file 2>/dev/null || \
 		install -m 644 doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file; \
 	done
 
-	for dir in `$(FIND) templates -follow -type d ! -regex '.*\.svn.*'`; do \
+	for dir in `$(FIND) templates -follow -type d`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
 		for file in `$(FIND) $$dir -follow -maxdepth 1 -type f`; do \
 			install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
