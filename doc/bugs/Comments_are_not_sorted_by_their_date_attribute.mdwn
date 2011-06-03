@@ -7,3 +7,21 @@ The "date" attribute is being set to the date output by gig for a commit. (I'd h
 The presentation of the resulting comments is not sorted by this date, which I would hope/expect, but instead by the ctime or mtime of the file at the other end, as best I can tell.
 
 -- [[Jon]]
+
+> Yes, comments are displayed via an inline, and usual [[pagespec/sorting]]
+> (eg, default of when the file was first seen) is used. The comment
+> date only affects the date displayed.
+> 
+> The only time I've seen this be much problem personally is when moving
+> a page, which means moving its comments directory, which tends to
+> jumble the order. (And --gettime does not help, as ikiwiki does not
+> tell git to follow renames for speed reasons.)
+> 
+> I wonder if it wouldn't be best to just get rid of the extra date
+> inside the comment, and rely on the file date as is done for other pages.
+> Thoughts [[smcv]]?
+>
+> Altenatively, since comments tend to be named "comment_N_.....", 
+> adding a new [[pagespec/sorting]] method that sorts by filename, 
+> rather than by title, and using it by default for comments might be 
+> better than the current situation. --[[Joey]] 
