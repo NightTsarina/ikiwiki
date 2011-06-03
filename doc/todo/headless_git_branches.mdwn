@@ -14,6 +14,12 @@ Summary: Change three scary loud failure cases related to empty branches into th
 
 [[!tag patch]]
 
+> FWIW, [[The_TOVA_Company]] apparently wants this feature (and I hope
+> I don't mind that I mention they were willing to pay someone for it,
+> but I told them I'd not done any of the work. :) )
+> 
+> Code review follows, per hunk.. --[[Joey]] 
+
 <pre>
 diff --git a/IkiWiki/Plugin/git.pm b/IkiWiki/Plugin/git.pm
 index cf7fbe9..e5bafcf 100644
@@ -50,6 +56,23 @@ index cf7fbe9..e5bafcf 100644
  
  	return wantarray ? @ci : $ci[0];
  }
+</pre>
+
+My concern is that this adds a bit of slowdown (git show-ref is fast, but
+It's still extra work) to a very hot code path that is run to eg,
+update recentchanges after every change. 
+
+Seems not ideal to do extra work every time to handle a case
+that will liternally happen a maximum of once in the entire lifecycle of a
+wiki (and zero times more typically, since the setup automator puts in a
+.gitignore file that works around this problem).
+
+So as to not just say "no" ... what if it always tried to run git log,
+and if it failed (or returned no parsed lines, then it could look 
+at git show-ref to desice whether to throw an error or not.
+--[[Joey]] 
+
+<pre>
 @@ -474,7 +478,10 @@ sub rcs_update () {
  	# Update working directory.
  
@@ -61,7 +84,15 @@ index cf7fbe9..e5bafcf 100644
 +		}
  	}
  }
- 
+</pre>
+
+Same concern here about extra work. Code path is nearly as hot, being
+called on every refresh. Probably could be dealt with similarly as above.
+
+Also, is there any point in breaking the pull up into a
+fetch followed by a merge? --[[Joey]] 
+
+<pre>
 @@ -559,7 +566,7 @@ sub rcs_commit_helper (@) {
  	# So we should ignore its exit status (hence run_or_non).
  	if (run_or_non('git', 'commit', '-m', $params{message}, '-q', @opts)) {
@@ -72,3 +103,5 @@ index cf7fbe9..e5bafcf 100644
  	}
  	
 </pre>
+
+This seems fine to apply. --[[Joey]]
