@@ -75,6 +75,9 @@ not sure whether I should name-grab 'alias' since [[todo/alias_directive]] is
 an existing wishlist item.
 
 > I think it would make sense to have "pagespec" in the name somehow.
+
+> > Good idea, how about `pagespecalias`? — [[Jon]]
+
 >
 > No, the strict/warnings does not make me puke. Have you read my perl
 > code? :-P
@@ -86,13 +89,28 @@ an existing wishlist item.
 > Well, except that websetup doesn't currently support configuring hashes
 > like used here. Which is a pity, but has led me to try to avoid using
 > such hashes in the setup file.
-> 
+
+> > If I removed the `getsetup` subroutine, it would not be exposed via
+> > website, is that right?  I suppose it doesn't hurt to validate key, even if
+> > this risk was not there.  Is the use of a hash here a blocker for adoption?
+> > — [[Jon]]
+
 > Have you considered not defining the pagespec aliases in the setup file, but
 > instead as directives on pages in the wiki? Using pagestate could store
 > up the aliases that have been defined. It could however, be hard to get
 > the dependencies right; any page that uses a pagespec containing 
 > an alias `foo` would need to somehow depend on the page where the alias
 > was defined. --[[Joey]] 
+
+> > I haven't thought the dependency issue through beyond "that might be hard".
+> > Personally, I don't like defining stuff like this in pages, but I appreciate
+> > some do.  There could be some complex scenarios where some pages rely on a
+> > pagespec alias defined on others; and could have their meanings changed by
+> > changing the definition.  A user might have permission to edit a page with a
+> > definition on it but not on the pages that use it, and similar subtle permission
+> > bugs.  I'm also not sure what the failure mode is if someone redefines an alias,
+> > and whether there'd be an unpredictable precedence problem.
+> > How about both methods? — [[Jon]]
 
 Here's an example setup chunk:
 
@@ -108,6 +126,8 @@ however, to add ' or internal()' to `boring`, for some reason.
 
 > Probably needs to be `or internal(*)` --[[Joey]] 
 
+> > Ah yes, could be, thanks. — [[Jon]]
+
 > another useful pagespec alias for large maps:
 
        basewiki: "sandbox or templates or templates/* or ikiwiki or ikiwiki/* or shortcuts or recentchanges or wikiicons/*"
@@ -115,3 +135,34 @@ however, to add ' or internal()' to `boring`, for some reason.
 > -- [[Jon]]
 
 >> Useful indeed! --[[Joey]] 
+
+---------------------------
+
+Based on the above, I have written an experimental plugin called "subset".
+It's in my "ikiplugins" repo on github, in the "experimental" branch.
+<https://github.com/rubykat/ikiplugins/blob/experimental/IkiWiki/Plugin/subset.pm>
+
+It takes Joey's suggestion of defining the subsets (aliases) as directives;
+I took the example of the [[plugins/shortcut]] plugin and designated a single special page as the one where the directives are defined,
+though unlike "shortcut" I haven't hardcoded the name of the page; it defaults to "subsets" but it can be re-defined in the config.
+
+I've also added a feature which one might call subset-caching; I had to override `pagespec_match_list` to do it, however.
+An extra parameter added to `pagespec_match_list` called `subset` which
+
+* limits the result to look *only* within the set of pages defined by the subset (uses the "list" option to pagespec_match_list to do this)
+* caches the result of the subset search so that the second time subset "foo" is used, it uses the stored result of the first search for "foo".
+
+This speeds things up if one is using a particular subset more than once, which one probably is if one bothered to define the subset in the first place.
+The speed increase is most dramatic when the site has a large number of pages and the number of pages in the subset is small.
+(this is similar to the "trail" concept I used in my [[plugins/contrib/report]] plugin, but not quite the same)
+
+Note that things like [[plugins/map]] can't make use of "subset" (yet) because they don't pass along all the parameters they're given.
+But [[plugins/contrib/report]] actually works without alteration because it does pass along all the parameters.
+
+Unfortunately I haven't figured out how to do the dependencies - I'd really appreciate help on that.
+
+--[[KathrynAndersen]]
+
+> > Cool!  I like the caching idea.  I'm not sure about the name.  I don't like defining
+> > stuff in pages, but I appreciate this is a matter of taste, and would be happy with
+> > supporting both. — [[Jon]]
