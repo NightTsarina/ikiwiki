@@ -17,7 +17,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 109;
+use Test::More tests => 114;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -241,3 +241,10 @@ ok(! IkiWiki::Plugin::po::istranslatedto('nontranslatable', 'es'));
 ok(! IkiWiki::Plugin::po::istranslatedto('nontranslatable', 'cz'));
 ok(! IkiWiki::Plugin::po::istranslatedto('test1.es', 'fr'));
 ok(! IkiWiki::Plugin::po::istranslatedto('test1.fr', 'es'));
+
+### islanguagecode
+ok(IkiWiki::Plugin::po::islanguagecode('en'));
+ok(IkiWiki::Plugin::po::islanguagecode('es'));
+ok(IkiWiki::Plugin::po::islanguagecode('arn'));
+ok(! IkiWiki::Plugin::po::islanguagecode('es_'));
+ok(! IkiWiki::Plugin::po::islanguagecode('_en'));
