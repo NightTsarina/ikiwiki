@@ -11,6 +11,11 @@ The presentation of the resulting comments is not sorted by this date, which I w
 > Yes, comments are displayed via an inline, and usual [[pagespec/sorting]]
 > (eg, default of when the file was first seen) is used. The comment
 > date only affects the date displayed.
+>
+> > That's not what I intended - it's meant to be more or less just
+> > syntactic sugar for `\[[!meta date=foo]]`, setting the `%pagectime`.
+> > The code looks as though it ought to work, but perhaps it's buggy?
+> > --[[smcv]]
 > 
 > The only time I've seen this be much problem personally is when moving
 > a page, which means moving its comments directory, which tends to
@@ -34,3 +39,10 @@ The presentation of the resulting comments is not sorted by this date, which I w
 >>
 >> In my current situation, I could live with by-filename ordering. By-title
 >> ordering would also be workable. — [[Jon]]
+
+>>> I agree with Jon's reasons for embedding an explicit date in the file.
+>>> As I said, this is *meant* to work, but it might not.
+>>>
+>>> Sorting by filename would only be useful with
+>>> [[!cpan Sort::Naturally]], since normal `cmp` ordering would break pages
+>>> with more than 9 comments. --s
