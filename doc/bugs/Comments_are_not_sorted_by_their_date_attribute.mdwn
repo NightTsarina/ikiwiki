@@ -46,3 +46,19 @@ The presentation of the resulting comments is not sorted by this date, which I w
 >>> Sorting by filename would only be useful with
 >>> [[!cpan Sort::Naturally]], since normal `cmp` ordering would break pages
 >>> with more than 9 comments. --s
+
+>>> OK, I've found the bug. As internal pages, comments are not preprocessed
+>>> (and so their date attributes do not have a chance to take effect) until
+>>> they are already being inlined, by which time they have already been
+>>> sorted by the files' ctimes. Possible fixes include:
+>>>
+>>> * scan any modified/created internal pages (including preprocessing them
+>>>   in scan mode) before rendering any page, fixing all possible bugs of this
+>>>   form but causing a slower scan phase
+>>>
+>>> * list and scan the comments below a given page in its `pagetemplate`
+>>>   hook before inlining them, causing a slower build phase for pages with
+>>>   many comments
+>>>
+>>> I think the former is a more general fix, and I'll try to implement
+>>> it. --[[smcv]]
