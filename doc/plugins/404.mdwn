@@ -13,4 +13,11 @@ file:
 (The path here needs to be whatever the path is to the ikiwiki.cgi from
 the root of your web server.)
 
+This plugin might also be useful on some non-Apache web servers, if they provide the
+`REDIRECT_STATUS` and `REDIRECT_URL` environment variables to their 404 handlers.
+`REDIRECT_STATUS` should be `404` and `REDIRECT_URL` should be the path
+part of the URL (for instance it would be `/plugins/404/` if this page was missing).
 
+If you would like help with adapting this plugin for a different web server,
+you will need to provide the output of
+[[this 404 handler|forum/nginx:_404_plugin_not_working#comment-6b1607f7961d2873517d4780f56ac3ad]].
