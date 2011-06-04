@@ -14,6 +14,7 @@ sub import {
 	hook(type => "delete", id => "search", call => \&delete);
 	hook(type => "cgi", id => "search", call => \&cgi);
 	hook(type => "disable", id => "search", call => \&disable);
+	hook(type => "needsbuild", id => "search", call => \&needsbuild);
 }
 
 sub getsetup () {
@@ -226,25 +227,37 @@ sub setupfiles () {
 		writefile("omega.conf", $config{wikistatedir}."/xapian",
 			"database_dir .\n".
 			"template_dir ./templates\n");
-		
-		# Avoid omega interpreting anything in the cgitemplate
-		# as an omegascript command.
-		eval q{use IkiWiki::CGI};
-		my $template=IkiWiki::cgitemplate(undef, gettext("search"), "\0",
-			searchform => "", # avoid showing the small search form
-		);
-		eval q{use HTML::Entities};
-		error $@ if $@;
-		$template=encode_entities($template, '\$');
-
-		my $querytemplate=readfile(IkiWiki::template_file("searchquery.tmpl"));
-		$template=~s/\0/$querytemplate/;
-
-		writefile("query", $config{wikistatedir}."/xapian/templates",
-			$template);
+		omega_template();	
 		$setup=1;
 	}
 }
+}
+
+sub needsbuild {
+	my $list=shift;
+	if (grep {
+		$_ eq "templates/page.tmpl" ||
+		$_ eq "templates/searchquery.tmpl"
+	} @$list) {
+		omega_template();
+	}
+}
+
+sub omega_template {
+	# Avoid omega interpreting anything in the cgitemplate
+	# as an omegascript command.
+	eval q{use IkiWiki::CGI};
+	my $template=IkiWiki::cgitemplate(undef, gettext("search"), "\0",
+		searchform => "", # avoid showing the small search form
+	);
+	eval q{use HTML::Entities};
+	error $@ if $@;
+	$template=encode_entities($template, '\$');
+
+	my $querytemplate=readfile(IkiWiki::template_file("searchquery.tmpl"));
+	$template=~s/\0/$querytemplate/;
+	writefile("query", $config{wikistatedir}."/xapian/templates",
+		$template);
 }
 
 sub disable () {
