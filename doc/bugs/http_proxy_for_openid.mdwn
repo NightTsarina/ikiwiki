@@ -10,7 +10,7 @@ to IkiWiki/Wrapper.pm it solves the problem for https requests, however it obvio
 
 Also, the ability to set HTTPS\_CA\_FILE and HTTPS\_CA\_DIR might benefit some people. Then again, it I can't see any evidence that the SSL certificate of the server is being checked. See the [[bug_report|ssl_certificates_not_checked_with_openid]] I filed on this separate issue.
 
-Unfortunately, HTTP\_PROXY doesn't work for http requests, it looks like that library is different.
+Unfortunately, HTTP\_PROXY doesn't work for http:// requests, it looks like that library is different.
 
 ---
 
@@ -47,5 +47,17 @@ Brian May
 
 > Rather than adding config file settings for every useful environment 
 > variable, there is a ENV config file setting that can be used to set
-> any environment variables you like. So, no changed needed. [[done]]
+> any environment variables you like. So, no changed needed.
 > --[[Joey]] 
+
+>> One thing I don't like about using ikiwiki for tracking bugs is I don't
+>> get notified when changes are made :-(.
+>>
+>> Anyway, if you look at the code I pasted above, the environment variables
+>> do not work for http:// - you have to use $ua->proxy(...) for them.
+>> This is significant, because all openid servers in my version appear to have been
+>> defined with http:// not https://  in /usr/share/ikiwiki/openid-selector/ikiwiki/openid/openid-jquery.js
+>>
+>> Use $ua->env_proxy() to get it to read the environment variables. Then http:// does work.
+>>
+>> Unfortunately this breaks https:// even more - but nothing I do seems to make https:// work anymore.
