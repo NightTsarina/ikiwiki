@@ -15,7 +15,7 @@ The presentation of the resulting comments is not sorted by this date, which I w
 > > That's not what I intended - it's meant to be more or less just
 > > syntactic sugar for `\[[!meta date=foo]]`, setting the `%pagectime`.
 > > The code looks as though it ought to work, but perhaps it's buggy?
-> > --[[smcv]]
+> > (edited to add: it is, see below) --[[smcv]]
 > 
 > The only time I've seen this be much problem personally is when moving
 > a page, which means moving its comments directory, which tends to
@@ -47,18 +47,18 @@ The presentation of the resulting comments is not sorted by this date, which I w
 >>> [[!cpan Sort::Naturally]], since normal `cmp` ordering would break pages
 >>> with more than 9 comments. --s
 
->>> OK, I've found the bug. As internal pages, comments are not preprocessed
->>> (and so their date attributes do not have a chance to take effect) until
->>> they are already being inlined, by which time they have already been
->>> sorted by the files' ctimes. Possible fixes include:
->>>
->>> * scan any modified/created internal pages (including preprocessing them
->>>   in scan mode) before rendering any page, fixing all possible bugs of this
->>>   form but causing a slower scan phase
->>>
->>> * list and scan the comments below a given page in its `pagetemplate`
->>>   hook before inlining them, causing a slower build phase for pages with
->>>   many comments
->>>
->>> I think the former is a more general fix, and I'll try to implement
->>> it. --[[smcv]]
+----
+
+[[!template id=gitbranch author="[[smcv]]" branch=smcv/comments-metadata]]
+
+I thought that, as internal pages, comments were not preprocessed
+(and so their date attributes did not have a chance to take effect) until
+they were already being inlined, by which time they have already been
+sorted by the files' ctimes. Actually, I was wrong about that - internal
+pages have a special case elsewhere - but they did skip the `scan` hook,
+which is also fixed in my branch.
+
+The real bug was that the preprocess hook for comments didn't run
+in the scan phase; my branch fixes that, streamlines that hook a bit
+when run in the scan phase (so it doesn't htmlize, and only runs nested
+directives in scan mode), and adds a regression test. --[[smcv]]
