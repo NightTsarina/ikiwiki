@@ -331,3 +331,21 @@ I've not investigated more the /etc files ussage, but does not seems like a good
 
 
 Iñigo
+
+-----
+
+
+Portability fixes encountered while maintaining the pkgsrc package:
+
+* In `IkiWiki::Setup::Standard::gendump()`, generate a shebang
+  matching the current `perl`.
+* In `Makefile.PL`, provide overridable defaults for `SYSCONFDIR`
+  and `MANDIR`.
+* In `Makefile.PL`, use `perl` to bump `ikiwiki.spec` instead of
+  `sed -i`.
+* In `Makefile.PL`, specify more portable options to `cp`.
+
+I've attempted to patch these in a way that might be acceptable:
+<http://cvsweb.se.netbsd.org/cgi-bin/bsdweb.cgi/pkgsrc/www/ikiwiki/patches/>
+
+--[[schmonz]]
