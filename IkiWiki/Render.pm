@@ -475,8 +475,18 @@ sub find_changed ($) {
 			$pagemtime{$page}=$stat[9];
 
 			if (isinternal($page)) {
+				my $content = readfile($srcfile);
+
 				# Preprocess internal page in scan-only mode.
-				preprocess($page, $page, readfile($srcfile), 1);
+				preprocess($page, $page, $content, 1);
+
+				run_hooks(scan => sub {
+					shift->(
+						page => $page,
+						content => $content,
+					);
+				});
+
 				push @internal_changed, $file;
 			}
 			else {
