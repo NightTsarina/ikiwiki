@@ -1,10 +1,10 @@
 [[!template id=plugin name=album author="[[Simon_McVittie|smcv]]"]]
-[[!template id=gitbranch branch=smcv/album author="[[Simon_McVittie|smcv]]"]]
+[[!template id=gitbranch branch=smcv/album2 author="[[Simon_McVittie|smcv]]"]]
 [[!tag type/chrome]]
 
-Available from [[smcv]]'s git repository, in the `album` branch
-([[users/smcv/gallery|users/smcv/gallery]] contains some older
-thoughts about this plugin).
+Available from [[smcv]]'s git repository, in the `album2` branch.
+Older (pre-rebase) versions in `album`, `album-live` (the latter
+was used on an actual website and didn't explode too much).
 
 This plugin formats a collection of images into a photo album,
 in the same way as many websites: good examples include the
@@ -110,7 +110,7 @@ image viewer.
 * The plugin doesn't do anything special to handle albums that are subpages
   of each other. If, say, `debconf` and `debconf/monday` are both albums,
   then `debconf/monday/p100.jpg` will currently be assigned to one or the
-  other, arbitrarily.
+  other, arbitrarily. It should probably pick the closest (longest) album name.
 
 * The plugin doesn't do anything special to handle photos with similar names.
   If you have `p100.jpg` and `p100.png`, one will get a viewer page called
@@ -120,11 +120,17 @@ image viewer.
   automatically.
 
 * When editing a viewer page, rebuilding it seems to fail at the moment.
+  Probably related to:
+
+* Integration with [[plugins/contrib/trail]] is new, untested and not
+  very well implemented. In particular, the prev/up/next links are
+  redundant with the ones from `trail`.
 
 ## TODO
 
 * The documentation should mention how to replicate the appearance of
-  `album` and `albumsection` using an `inline` of viewer pages.
+  `album` and `albumsection` using an `inline` of viewer pages,
+  elsewhere on the site.
 
 * The documentation should mention all the template variables and
   all the parameters.
