@@ -4,19 +4,13 @@
 Available from [[smcv]]'s git repository, in the `trail` branch. This
 plugin aims to solve [[todo/wikitrails]] in a simpler way.
 
-Joey: what do you think of this plugin? If you like the general approach
-and are likely to include it in ikiwiki, I'll try to modify
-[[plugins/contrib/album]] to be based on it, rather than partially
-reinventing it.
+Updated, June 2011:
 
-Bugs:
+* removed `inline` integration for now
 
-* \[[!inline pages="..." trail=yes]] currently tries to work out
-  what pages are in the trail, and their order, at scan time. That
-  won't work, because matching a pagespec at scan time is
-  unreliable - pages we want might not have been scanned yet! I
-  haven't worked out a solution for this. I think
-  \[[!inline pagenames="..." trail=yes]] would be safe, though.
+* added `<link>` tags
+
+* switched from a custom data structure to using typed links
 
 ----
 
@@ -29,38 +23,73 @@ links within that page.
 
 If using the default `page.tmpl`, each page automatically displays the
 trails that it's a member of (if any), with links to the trail and to
-the next and previous members.
+the next and previous members. HTML `<link>` tags with the `prev`,
+`next` and `up` relations are also generated.
 
 The `traillink` [[ikiwiki/directive]] is used to record which pages
 are in a trail, and simultaneously link to them. Alternatively, the
-[[ikiwiki/directive/inline]] directive can be used with `trail=yes`
-to record the inlined pages as part of the trail, in the order in
-which they are inlined.
+[[ikiwiki/directive/trailitem]] directive can be used to make an
+invisible `traillink`.
 
 ## Directives
 
 (These will go to the appropriate pages in [[ikiwiki/directive]] if this
 plugin is included in ikiwiki.)
 
+### trailitem
+
+The `trailitem` directive is supplied by the [[!iki plugins/contrib/trail desc=trail]]
+plugin. It is used like this:
+
+    \[[!trailitem some_other_page]]
+
+to add `some_other_page` to the trail represented by this page, without
+generating a visible hyperlink.
+
 ### traillink
 
 The `traillink` directive is supplied by the [[!iki plugins/contrib/trail desc=trail]]
-plugin. This directive appears on the page representing a trail. It acts
-as a visible [[ikiwiki/WikiLink]], but also records the linked page as
-a member of the trail.
+plugin. It generates a visible [[ikiwiki/WikiLink]], and also adds the linked page to
+the trail represented by the page containing the directive.
 
-Various syntaxes can be used:
+In its simplest form, the first parameter is like the content of a WikiLink:
 
-    \[[!traillink Badgers]]
-    \[[!traillink How_to_find_mushrooms_using_badgers|badgers]]
-    \[[!traillink badgers text="How to find mushrooms using badgers"]]
+    \[[!traillink some_other_page]]
+
+The displayed text can also be overridden, either with a `|` symbol or with
+a `text` parameter:
+
+    \[[!traillink Click_here_to_start_the_trail|some_other_page]]
+    \[[!traillink some_other_page text="Click here to start the trail"]]
 
 ### trailoptions
 
 The `trailoptions` directive is supplied by the [[!iki plugins/contrib/trail desc=trail]]
-plugin. This directive appears on the page representing a trail, and
-produces no output.
+plugin. It sets options for the trail represented by this page. Example usage:
 
-Currently, the only option supported is `[[!trailoptions circular=yes]]`,
-which adds links between the first and last pages, turning the trail into
-a circle.
+    \[[!trailoptions sort="meta(title)" circular="no"]]
+
+The available options are:
+
+* `sort`: sets a [[ikiwiki/pagespec/sorting]] order; if not specified, the
+  items of the trail are ordered according to the first link to each item
+  found on the trail page
+
+* `circular`: if set to `yes` or `1`, the trail is made into a loop by
+  making the last page's "next" link point to the first page, and the first
+  page's "previous" link point to the last page
+
+----
+
+## Future directions
+
+The current version of this plugin doesn't implement inline-based or
+otherwise [[ikiwiki/PageSpec]]-based trails. This is difficult because
+there's a circular dependency:
+
+* adding typed links should happen *before* scanning has finished, to
+  guarantee that they're available before the first page is rendered
+
+* evaluating pagespecs should only happen *after* scanning has finished,
+  to guarantee that everything you might want to base a pagespec on
+  (`meta`, etc.) has been gathered by scanning
