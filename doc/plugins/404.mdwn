@@ -5,15 +5,16 @@ This plugin lets you use the IkiWiki CGI script as an Apache 404 handler,
 to give the behaviour of various other wiki engines where visiting a
 nonexistent page provides you with a link to create it.
 
-To achieve this, put something like this in the wiki's Apache configuration
-file:
+To enable the 404 handler you need to:
 
-    ErrorDocument 404 /ikiwiki.cgi
+1. Edit your `.setup` file and add `404` and `goto` to the `add_plugins` line.
+2. Add a 404 error document handler in your Apache configuration:
 
-(The path here needs to be whatever the path is to the ikiwiki.cgi from
-the root of your web server.)
+    `ErrorDocument 404 /url/path/to/ikiwiki.cgi`
 
-This plugin might also be useful on some non-Apache web servers, if they provide the
+  Where `/url/path/to` is the path portion of the URL to the `ikiwiki.cgi` binary.
+
+This plugin might also be useful on non-Apache web servers, if they provide the
 `REDIRECT_STATUS` and `REDIRECT_URL` environment variables to their 404 handlers.
 `REDIRECT_STATUS` should be `404` and `REDIRECT_URL` should be the path
 part of the URL (for instance it would be `/plugins/404/` if this page was missing).
