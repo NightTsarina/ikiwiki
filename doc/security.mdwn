@@ -471,6 +471,19 @@ who could upload a malicious stylesheet to a site to add it to a
 page as an alternate stylesheet, or replacing the default stylesheet.
 
 This hole was discovered on 28 Mar 2011 and fixed the same hour with
-the release of ikiwiki 3.20110328. An upgrade is recommended for sites
-that have untrusted committers, or have the attachments plugin enabled.
+the release of ikiwiki 3.20110328. A fix was backported to Debian squeeze,
+as version 3.20100815.6. An upgrade is recommended for sites that have
+untrusted committers, or have the attachments plugin enabled.
 ([[!cve CVE-2011-1401]])
+
+## tty hijacking via ikiwiki-mass-rebuild
+
+Ludwig Nussel discovered a way for users to hijack root's tty when
+ikiwiki-mass-rebuild was run. Additionally, there was some potential
+for information disclosure via symlinks.
+
+This hole was disconvered on 8 June 2011 and fixed the same day with
+the release of ikiwiki 3.20110608. Note that the fix is dependant on
+a su that has a similar hole fixed; [[!debbug 628843]] tracks fixing
+the hole in Debian's su. An upgrade is a must for any sites whose
+admins run ikiwiki-mass-rebuild.
