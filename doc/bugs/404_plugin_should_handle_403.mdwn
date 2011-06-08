@@ -1,0 +1,8 @@
+Apache will return 403 (Forbidden) instead of 404 (Not Found) if the `Indexes` option is turned off.  This is because with `Indexes` turned on, it considers it something it *might* be able to serve in the future.  With `Indexes` off, it will never serve that page in the future (unless `Indexes` is turned back on).
+
+The [[404 plugin|plugins/404]] code only checks for 404, not 403.  It should check for both.
+
+See Also:
+
+ * [StackOverflow: 404-vs-403](http://stackoverflow.com/questions/5075300/404-vs-403-when-directory-index-is-missing)
+ * [[404 plugin discussion|plugins/404/discussion]]
