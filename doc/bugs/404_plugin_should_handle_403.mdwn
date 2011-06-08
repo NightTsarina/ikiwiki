@@ -1,6 +1,14 @@
-Apache will return 403 (Forbidden) instead of 404 (Not Found) if the `Indexes` option is turned off.  This is because with `Indexes` turned on, it considers it something it *might* be able to serve in the future.  With `Indexes` off, it will never serve that page in the future (unless `Indexes` is turned back on).
+Apache will return 403 (Forbidden) instead of 404 (Not Found) if the
+`Indexes` option is turned off.  This is because with `Indexes` turned on,
+it considers it something it *might* be able to serve in the future.  With
+`Indexes` off, it will never serve that page in the future (unless
+`Indexes` is turned back on).
 
 The [[404 plugin|plugins/404]] code only checks for 404, not 403.  It should check for both.
+
+> There are plenty of reasons a web server might 403. In most of those
+> cases, trying to create a page where the forbidden content is is not the
+> right thing for ikiwiki to do. --[[Joey]]
 
 See Also:
 
