@@ -2,80 +2,45 @@
 use warnings;
 use strict;
 
-sub supplemental_groups {
-	my $user=shift;
+my $etcfile="/etc/ikiwiki/wikilist";
 
-	my @list;
-	while (my @fields=getgrent()) {
-		if (grep { $_ eq $user } split(' ', $fields[3])) {
-			push @list, $fields[2];
-		}
-	}
-
-	return @list;
+sub root {
+	$> == 0;
 }
 
-sub samelists {
-	my %a=map { $_ => 1 } split(' ', shift());
-	my %b=map { $_ => 1 } split(' ', shift());
-
-	foreach my $i (keys %b) {
-		if (! exists $a{$i}) {
-			return 0;
-		}
-	}
-	foreach my $i (keys %a) {
-		if (! exists $b{$i}) {
-			return 0;
-		}
-	}
-	return 1;
+sub username {
+	(getpwuid($>))[0];
 }
 
 sub processline {
-	my $user=shift;
 	my $setup=shift;
 	
-	if (! getpwnam("$user")) {
-		print STDERR "warning: user $user does not exist\n";
-		return
-	}
 	if (! -f "$setup") {
 		print STDERR "warning: $setup does not exist, skipping\n";
 		return;
 	}
-	print "Processing $setup as user $user ...\n";
-	# su is not used because it passes arguments through the shell,
-	# which is not safe for untrusted setup file names.
-	defined(my $pid = fork) or die "Can’t fork: $!";
-	if (! $pid) {
-		my ($uuid, $ugid) = (getpwnam($user))[2, 3];
-		my $grouplist=join(" ", $ugid, sort {$a <=> $b} $ugid, supplemental_groups($user));
-		if (! samelists(($)=$grouplist), $grouplist)) {
-			die "failed to set egid $grouplist (got back $))";
-		}
-		$(=$ugid;
-		$<=$uuid;
-		$>=$uuid;
-		if ($< != $uuid || $> != $uuid || $( != $ugid) {
-			die "failed to drop permissions to $user";
-		}
-		%ENV=(
-			PATH => $ENV{PATH},
-			HOME => (getpwnam($user))[7],
-		);
-		exec("ikiwiki", "-setup", $setup, @ARGV);
-		die "failed to run ikiwiki: $!";
+	print "Processing $setup as user ".username()." ...\n";
+	my $ret=system("ikiwiki", "-setup", $setup, @ARGV);
+	if ($ret != 0) {
+		print STDERR "warning: processing $setup failed with code $ret\n";
 	}
-	waitpid($pid,0);
-	if ($?) {
-		print STDERR "Processing $setup as user $user failed with code $?\n";
+}
+
+my %users;
+sub processuser {
+	my $user=shift;
+	next if $user=~/^-/ || $users{$user};
+	$users{$user}=1;
+	my $ret=system("su", $user, "-s", "/bin/sh", "-c", "--", "$0 --nonglobal @ARGV");
+	if ($ret != 0) {
+		print STDERR "warning: processing for $user failed with code $ret\n";
 	}
 }
 
 sub processlist {
 	my $file=shift;
-	my $forceuser=shift;
+
+	return unless -e $file;
 
 	my $list;
 	open ($list, "<$file") || die "$file: $!";
@@ -84,22 +49,28 @@ sub processlist {
 		s/^\s+//;
 		s/\s+$//;
 		next if /^#/ || ! length;
-
-		if (/^([^\s]+)\s+([^\s]+)$/) {
+		if (/^([-\w]+)\s+([^\s]+)$/) {
 			my $user=$1;
 			my $setup=$2;
-			if (defined $forceuser && $forceuser ne $user) {
-				print STDERR "warning: in $file line $., attempt to set user to $user, but user forced to $forceuser. Skipping\n";
+			if (root()) {
+				processuser($user);
 			}
-			processline($user, $setup);
+			else {
+		       		if (username() eq $user) {
+					processline($setup);
+				}
+			}
 		}
-		elsif (/^([^\s]+)$/) {
+		elsif (/^([-\w]+)$/) {
 			my $user=$1;
-			my $home=(getpwnam($user))[7];
-			if (defined $home && -d $home) {
-				my $dotfile="$home/.ikiwiki/wikilist";
-				if (-e $dotfile) {
-					processlist($dotfile, $user);
+			if (root()) {
+				processuser($user);
+			}
+			else {
+				my $home=(getpwnam($user))[7];
+				if (defined $home && -d $home) {
+					my $dotfile="$home/.ikiwiki/wikilist";
+					processlist($dotfile);
 				}
 			}
 		}
@@ -107,9 +78,13 @@ sub processlist {
 	close $list;
 }
 
-my $wikilist="/etc/ikiwiki/wikilist";
-
-if (-e $wikilist) {
-	processlist($wikilist);
+if (@ARGV && $ARGV[0] eq "--nonglobal") {
+	shift;
+	# avoid recursively processing if the wikilist file has a root
+	# user in it
+	if (root()) {
+		exit 1;
+	}
 }
 
+processlist($etcfile);
