@@ -429,7 +429,7 @@ sub cgi (;$$) {
 			# userinfo db.
 			if (! userinfo_get($session->param("name"), "regdate")) {
 				userinfo_setall($session->param("name"), {
-					email => "",
+					email => defined $session->param("email") ? $session->param("email") : "",
 					password => "",
 					regdate => time,
 				}) || error("failed adding user");
