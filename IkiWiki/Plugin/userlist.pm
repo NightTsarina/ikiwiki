@@ -58,10 +58,13 @@ sub showuserlist ($$) {
 	my $h="<table border=\"1\">\n";
 	$h.="<tr><th>".gettext("login")."</th><th>".gettext("email")."</th></tr>\n";
 	my $info=IkiWiki::userinfo_retrieve();
+	eval q{use HTML::Entities};
 	if (ref $info) {
 		foreach my $user (sort { $info->{$a}->{regdate} <=> $info->{$b}->{regdate} } keys %$info) {
 			my %i=%{$info->{$user}};
-			$h.="<tr><td>$user</td><td>".(defined $i{email} ? $i{email} : "")."</tr>\n";
+			$h.="<tr><td>".encode_entities($user)."</td><td>".
+				encode_entities(defined $i{email} ? $i{email} : "").
+				"</td></tr>\n";
 		}
 	}
 	$h.="</table>\n";
