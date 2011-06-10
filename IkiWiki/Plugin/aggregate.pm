@@ -614,6 +614,7 @@ sub add_page (@) {
 		# updating an existing post
 		$guid=$guids{$params{guid}};
 		return if $guid->{expired};
+		write_page($feed, $guid, $mtime, \%params);
 	}
 	else {
 		# new post
@@ -640,23 +641,33 @@ sub add_page (@) {
 			$c++
 		}
 
-		# Make sure that the file name isn't too long. 
-		# NB: This doesn't check for path length limits.
-		my $max=POSIX::pathconf($config{srcdir}, &POSIX::_PC_NAME_MAX);
-		if (defined $max && length(htmlfn($page).".ikiwiki-new") >= $max) {
+		$guid->{page}=$page;
+		eval { write_page($feed, $guid, $mtime, \%params) };
+		if ($@) {
+			# assume failure was due to a too long filename
+			# (or o
 			$c="";
 			$page=$feed->{dir}."/item";
 			while (exists $IkiWiki::pagecase{lc $page.$c} ||
 			      -e $IkiWiki::Plugin::transient::transientdir."/".htmlfn($page.$c) ||
-
-			       -e "$config{srcdir}/".htmlfn($page.$c)) {
+			      -e "$config{srcdir}/".htmlfn($page.$c)) {
 				$c++
 			}
+
+			$guid->{page}=$page;
+			write_page($feed, $guid, $mtime, \%params);
 		}
 
-		$guid->{page}=$page;
 		debug(sprintf(gettext("creating new page %s"), $page));
 	}
+}
+
+sub write_page ($$$$$) {
+	my $feed=shift;
+	my $guid=shift;
+	my $mtime=shift;
+	my %params=%{shift()};
+
 	$guid->{feed}=$feed->{name};
 	
 	# To write or not to write? Need to avoid writing unchanged pages
