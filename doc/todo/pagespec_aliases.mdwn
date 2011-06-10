@@ -166,3 +166,21 @@ Unfortunately I haven't figured out how to do the dependencies - I'd really appr
 > > Cool!  I like the caching idea.  I'm not sure about the name.  I don't like defining
 > > stuff in pages, but I appreciate this is a matter of taste, and would be happy with
 > > supporting both. — [[Jon]]
+
+>>> I've now gone and completely re-done "subset" so that it is less like an alias, but it a bit clearer and simpler:
+>>> instead of having a separate "match_" function for every alias, I simply have one function, "match_subset"
+>>> which takes the name of the subset.  Thus a \[[!subset name="foo"...]] would be called `subset(foo)` rather than `foo()`.
+
+>>> There are a few reasons for this:<br/>
+>>> (a) it's more secure not to be evaluating code on the fly<br/>
+>>> (b) it's simpler<br/>
+>>> (c) (and this was my main reason) it makes it possible to do caching without having to have a separate "subset" argument.
+>>> I've done a bit of a hack for this: basically, the PageSpec is checked to see if the very start of the PageSpec is `subset(foo) and` or if the whole pagespec is just `subset(foo)` and if either of those is true, then it does the subset caching stuff.
+>>> The reason I check for "and" is that if it is "subset(foo) or something" then it would be an error to use the subset cache in that case.
+>>> The reason I just check the start of the PageSpec is because I don't want to have to do complex parsing of the PageSpec.
+
+>>> As for defining subsets in the config rather than on pages, I perfectly understand that desire, and I could probably add that in.
+
+>>> As for the name "subset"... well, it's even less like an alias now, and "alias" is already a reserved name.  What other names would you suggest?
+
+>>>--[[KathrynAndersen]]
