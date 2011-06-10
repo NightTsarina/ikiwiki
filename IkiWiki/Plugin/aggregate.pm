@@ -643,7 +643,7 @@ sub add_page (@) {
 		# Make sure that the file name isn't too long. 
 		# NB: This doesn't check for path length limits.
 		my $max=POSIX::pathconf($config{srcdir}, &POSIX::_PC_NAME_MAX);
-		if (defined $max && length(htmlfn($page)) >= $max) {
+		if (defined $max && length(htmlfn($page).".ikiwiki-new") >= $max) {
 			$c="";
 			$page=$feed->{dir}."/item";
 			while (exists $IkiWiki::pagecase{lc $page.$c} ||
