@@ -1,0 +1,10 @@
+Hi,
+
+Using encode_entities makes this sort of thing happen:
+
+XML Parsing Error: undefined entity
+Location: http://XXX.YYY.ZZZ/
+
+and points to the relevant entity.
+
+I think using encode_entities_numeric would help a lot with this. This is just a naïve assessment, but this would prevent xml-like pages being non-xml.
