@@ -322,12 +322,13 @@ sub attachment_list ($) {
 	my $dir=attachment_holding_dir($page);
 	my $heldmsg=gettext("this attachment is not yet saved");
 	foreach my $file (glob("$dir/*")) {
-		my $mtime=(stat($file))[9];
-		my $f=$file;
-		$f=~s/^\Q$dir\E\///;
+		next unless -f $file;
+		my $mtime=(stat(_))[9];
+		my $base=IkiWiki::basename($file);
+		my $f=$loc.$base;
 		$attachments{$f}={
-			$std->($page."/".$f, (stat($file))[9], (stat($file))[7]),
-			link => "<span title=\"$heldmsg\">$f</span>",
+			$std->($f, (stat($file))[9], (stat(_))[7]),
+			link => "<span title=\"$heldmsg\">$base</span>",
 		}
 	}
 
