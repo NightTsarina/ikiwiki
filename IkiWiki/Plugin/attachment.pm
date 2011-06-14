@@ -118,7 +118,7 @@ sub formbuilder (@) {
             ($form->submitted eq "Upload Attachment" || $form->submitted eq "Save Page")) {
 		attachment_store($filename, $form, $q, $params{session});
 	}
-	if ($form->submitted eq "Save Page") {
+	if ($form->submitted eq "Save Page" || $form->submitted eq "Preview") {
 		attachments_save($form, $params{session});
 	}
 
@@ -236,7 +236,7 @@ sub attachments_save {
 		my $dest=$config{srcdir}."/".
 			linkpage(IkiWiki::possibly_foolish_untaint(
 				attachment_location($form->field('page')))).
-			$filename;
+			IkiWiki::basename($filename);
 		unlink($dest);
 		rename($filename, $dest);
 		push @attachments, $dest;
@@ -291,12 +291,13 @@ sub attachment_list ($) {
 	
 	# attachments in holding directory
 	my $dir=attachment_holding_dir($page);
+	my $heldmsg=gettext("this attachment is not yet saved");
 	foreach my $file (glob("$dir/*")) {
 		my $mtime=(stat($file))[9];
 		my $f=IkiWiki::basename($file);
 		$attachments{$f}={
 			"field-select" => '<input type="checkbox" name="attachment_select" value="'.$f.'" />',
-			link => $f, # no link possible
+			link => "<span title=\"$heldmsg\">$f</span>",
 			size => IkiWiki::Plugin::filecheck::humansize((stat($file))[7]),
 			mtime => displaytime($mtime),
 			mtime_raw => $mtime,
