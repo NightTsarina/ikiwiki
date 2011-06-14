@@ -160,18 +160,16 @@ sub attachment_holding_dir {
 		IkiWiki::possibly_foolish_untaint(linkpage($page));
 }
 
-sub remove_held_attachment {
+sub is_held_attachment {
 	my $attachment=shift;
 
 	my $f=attachment_holding_dir($attachment);
 	$f=~s/\/$//;
 	if (-f $f) {
-		require IkiWiki::Render;
-		IkiWiki::prune($f);
-		return 1;
+		return $f
 	}
 	else {
-		return 0;
+		return undef;
 	}
 }
 
