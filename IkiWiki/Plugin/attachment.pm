@@ -178,11 +178,13 @@ sub attachment_store {
 
 	$filename=IkiWiki::basename($filename);
 	$filename=~s/.*\\+(.+)/$1/; # hello, windows
+	$filename=IkiWiki::possibly_foolish_untaint(linkpage($filename));
 	
 	# Check that the user is allowed to edit the attachment.
-	my $final_filename=linkpage(IkiWiki::possibly_foolish_untaint(
-		attachment_location($form->field('page')).
-		$filename));
+	my $final_filename=
+		linkpage(IkiWiki::possibly_foolish_untaint(
+			attachment_location($form->field('page')))).
+		$filename;
 	if (IkiWiki::file_pruned($final_filename)) {
 		error(gettext("bad attachment filename"));
 	}
@@ -232,8 +234,8 @@ sub attachments_save {
 		next unless -f $filename;
 		my $dest=$config{srcdir}."/".
 			linkpage(IkiWiki::possibly_foolish_untaint(
-				attachment_location($form->field('page')).
-				$filename));
+				attachment_location($form->field('page')))).
+			$filename;
 		unlink($dest);
 		rename($filename, $dest);
 		push @attachments, $dest;
