@@ -61,3 +61,20 @@ Brian May
 >> Use $ua->env_proxy() to get it to read the environment variables. Then http:// does work.
 >>
 >> Unfortunately this breaks https:// even more - but nothing I do seems to make https:// work anymore.
+
+
+>>> LWP::UserAgent defaults to not caring about proxy settings in
+>>> the environment. (To give control over the result, I guess?) 
+>>> To get it to care, pass `env_proxy => 1` to the constructor. Affected
+>>> plugins: aggregate, openid, pinger. This probably wants to be on
+>>> by default, and might not need to be configurable. --[[schmonz]]
+
+>>>> Okay, in a real-world scenario it does need to be 
+>>>> configurable. A working implementation (tested with aggregate,
+>>>> not tested with the other two plugins) is in my git, commit
+>>>> 91c46819dee237a281909b0c7e65718eb43f4119. --[[schmonz]]
+
+>>>>> Oh, and according to the LWPx::ParanoidAgent docs, "proxy support is 
+>>>>> explicitly removed", so if ikiwiki can preferentially find that 
+>>>>> installed, even with the above commit, `openid` won't be able to 
+>>>>> traverse a proxy. --[[schmonz]]
