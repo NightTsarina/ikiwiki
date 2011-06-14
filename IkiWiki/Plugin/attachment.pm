@@ -116,9 +116,13 @@ sub formbuilder (@) {
 	my $filename=Encode::decode_utf8($q->param('attachment'));
 	if (defined $filename && length $filename &&
             ($form->submitted eq "Upload Attachment" || $form->submitted eq "Save Page")) {
-		attachment_save($filename, $form, $q, $params{session});
+		attachment_store($filename, $form, $q, $params{session});
 	}
-	elsif ($form->submitted eq "Insert Links") {
+	if ($form->submitted eq "Save Page") {
+		attachments_save($form, $params{session});
+	}
+
+	if ($form->submitted eq "Insert Links") {
 		my $page=quotemeta(Encode::decode_utf8($q->param("page")));
 		my $add="";
 		foreach my $f ($q->param("attachment_select")) {
@@ -143,7 +147,14 @@ sub formbuilder (@) {
 	$form->tmpl_param("attachment_list" => [attachment_list($form->field('page'))]);
 }
 
-sub attachment_save {
+sub attachment_holding_dir {
+	my $page=shift;
+
+	return $config{wikistatedir}."/attachments/$page";
+}
+
+# Stores the attachment in a holding area, not yet in the wiki proper.
+sub attachment_store {
 	my $filename=shift;
 	my $form=shift;
 	my $q=shift;
@@ -167,29 +178,26 @@ sub attachment_save {
 
 	$filename=IkiWiki::basename($filename);
 	$filename=~s/.*\\+(.+)/$1/; # hello, windows
-	$filename=linkpage(IkiWiki::possibly_foolish_untaint(
+	
+	# Check that the user is allowed to edit the attachment.
+	my $final_filename=linkpage(IkiWiki::possibly_foolish_untaint(
 		attachment_location($form->field('page')).
-			$filename));
-	if (IkiWiki::file_pruned($filename)) {
+		$filename));
+	if (IkiWiki::file_pruned($final_filename)) {
 		error(gettext("bad attachment filename"));
 	}
-		
-	# Check that the user is allowed to edit a page with the
-	# name of the attachment.
-	IkiWiki::check_canedit($filename, $q, $session);
+	IkiWiki::check_canedit($final_filename, $q, $session);
 	# And that the attachment itself is acceptable.
-	check_canattach($session, $filename, $tempfile);
+	check_canattach($session, $final_filename, $tempfile);
 
-	# Needed for fast_file_copy and for rendering below.
-	require IkiWiki::Render;
-
-	# Move the attachment into place.
+	# Move the attachment into holding directory.
 	# Try to use a fast rename; fall back to copying.
-	IkiWiki::prep_writefile($filename, $config{srcdir});
-	unlink($config{srcdir}."/".$filename);
-	if (rename($tempfile, $config{srcdir}."/".$filename)) {
+	my $dest=attachment_holding_dir($form->field('page'));
+	IkiWiki::prep_writefile($filename, $dest);
+	unlink($dest."/".$filename);
+	if (rename($tempfile, $dest."/".$filename)) {
 		# The temp file has tight permissions; loosen up.
-		chmod(0666 & ~umask, $config{srcdir}."/".$filename);
+		chmod(0666 & ~umask, $dest."/".$filename);
 	}
 	else {
 		my $fh=$q->upload('attachment');
@@ -204,19 +212,41 @@ sub attachment_save {
 			}
 		}
 		binmode($fh);
-		writefile($filename, $config{srcdir}, undef, 1, sub {
+		# Needed for fast_file_copy.
+		require IkiWiki::Render;
+		writefile($filename, $dest, undef, 1, sub {
 			IkiWiki::fast_file_copy($tempfile, $filename, $fh, @_);
 		});
 	}
+}
 
-	# Check the attachment in and trigger a wiki refresh.
+# Save all stored attachments for a page.
+sub attachments_save {
+	my $form=shift;
+	my $session=shift;
+
+	# Move attachments out of holding directory.
+	my @attachments;
+	my $dir=attachment_holding_dir($form->field('page'));
+	foreach my $filename (glob("$dir/*")) {
+		next unless -f $filename;
+		my $dest=$config{srcdir}."/".
+			linkpage(IkiWiki::possibly_foolish_untaint(
+				attachment_location($form->field('page')).
+				$filename));
+		unlink($dest);
+		rename($filename, $dest);
+		push @attachments, $dest;
+	}
+	return unless @attachments;
+	rmdir($dir);
+
+	# Check the attachments in and trigger a wiki refresh.
 	if ($config{rcs}) {
-		IkiWiki::rcs_add($filename);
+		IkiWiki::rcs_add($_) foreach @attachments;
 		IkiWiki::disable_commit_hook();
-		IkiWiki::rcs_commit(
-			file => $filename,
+		IkiWiki::rcs_commit_staged(
 			message => gettext("attachment upload"),
-			token => IkiWiki::rcs_prepedit($filename),
 			session => $session,
 		);
 		IkiWiki::enable_commit_hook();
