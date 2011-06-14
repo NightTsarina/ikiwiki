@@ -179,8 +179,15 @@ sub rename_start ($$$$) {
 	my $attachment=shift;
 	my $page=shift;
 
-	check_canrename($page, $pagesources{$page}, undef, undef,
-		$q, $session);
+	# Special case for renaming held attachments; normal checks
+	# don't apply.
+	my $held=$attachment &&
+		IkiWiki::Plugin::attachment->can("is_held_attachment") &&
+		IkiWiki::Plugin::attachment::is_held_attachment($page);
+	if (! defined $held) {
+		check_canrename($page, $pagesources{$page}, undef, undef,
+			$q, $session);
+	}
 
    	# Save current form state to allow returning to it later
 	# without losing any edits.
@@ -291,13 +298,11 @@ sub sessioncgi ($$) {
 		elsif ($form->submitted eq 'Rename' && $form->validate) {
 			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
 
-			# Queue of rename actions to perfom.
-			my @torename;
-
 			# These untaints are safe because of the checks
 			# performed in check_canrename later.
 			my $src=$form->field("page");
-			my $srcfile=IkiWiki::possibly_foolish_untaint($pagesources{$src});
+			my $srcfile=IkiWiki::possibly_foolish_untaint($pagesources{$src})
+				if exists $pagesources{$src};
 			my $dest=IkiWiki::possibly_foolish_untaint(titlepage($form->field("new_name")));
 			my $destfile=$dest;
 			if (! $q->param("attachment")) {
@@ -312,6 +317,19 @@ sub sessioncgi ($$) {
 				
 				$destfile=newpagefile($dest, $type);
 			}
+		
+			# Special case for renaming held attachments.
+			my $held=$q->param("attachment") &&
+				IkiWiki::Plugin::attachment->can("is_held_attachment") &&
+				IkiWiki::Plugin::attachment::is_held_attachment($src);
+			if (defined $held) {
+				rename($held, IkiWiki::Plugin::attachment::attachment_holding_location($dest));
+				postrename($session, $src, $dest, $q->param("attachment"))
+					unless defined $srcfile;
+			}
+			
+			# Queue of rename actions to perfom.
+			my @torename;
 			push @torename, {
 				src => $src,
 			       	srcfile => $srcfile,
