@@ -150,7 +150,8 @@ sub formbuilder (@) {
 sub attachment_holding_dir {
 	my $page=shift;
 
-	return $config{wikistatedir}."/attachments/$page";
+	return $config{wikistatedir}."/attachments/".
+		IkiWiki::possibly_foolish_untaint(linkpage($page));
 }
 
 # Stores the attachment in a holding area, not yet in the wiki proper.
