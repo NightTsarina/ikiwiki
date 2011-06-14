@@ -274,11 +274,12 @@ sub attachment_list ($) {
 	my $page=shift;
 	my $loc=attachment_location($page);
 
-	my @ret;
+	# attachments already in the wiki
+	my %attachments;
 	foreach my $f (values %pagesources) {
 		if (! defined pagetype($f) &&
 		    $f=~m/^\Q$loc\E[^\/]+$/) {
-			push @ret, {
+			$attachments{$f}={
 				"field-select" => '<input type="checkbox" name="attachment_select" value="'.$f.'" />',
 				link => htmllink($page, $page, $f, noimageinline => 1),
 				size => IkiWiki::Plugin::filecheck::humansize((stat($f))[7]),
@@ -287,10 +288,25 @@ sub attachment_list ($) {
 			};
 		}
 	}
+	
+	# attachments in holding directory
+	my $dir=attachment_holding_dir($page);
+	foreach my $file (glob("$dir/*")) {
+		my $mtime=(stat($file))[9];
+		my $f=IkiWiki::basename($file);
+		$attachments{$f}={
+			"field-select" => '<input type="checkbox" name="attachment_select" value="'.$f.'" />',
+			link => $f, # no link possible
+			size => IkiWiki::Plugin::filecheck::humansize((stat($file))[7]),
+			mtime => displaytime($mtime),
+			mtime_raw => $mtime,
+		}
+	}
 
 	# Sort newer attachments to the top of the list, so a newly-added
 	# attachment appears just before the form used to add it.
-	return sort { $b->{mtime_raw} <=> $a->{mtime_raw} || $a->{link} cmp $b->{link} } @ret;
+	return sort { $b->{mtime_raw} <=> $a->{mtime_raw} || $a->{link} cmp $b->{link} }
+		values %attachments;
 }
 
 1
