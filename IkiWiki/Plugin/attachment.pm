@@ -103,6 +103,12 @@ sub formbuilder_setup (@) {
 		else {
 			$form->tmpl_param("attachments-class" => "toggleable-open");
 		}
+		
+		# Save attachments in holding area before previewing so
+		# they can be seen in the preview.
+		if ($form->submitted eq "Preview") {
+			attachments_save($form, $params{session});
+		}
 	}
 }
 
@@ -118,7 +124,7 @@ sub formbuilder (@) {
             ($form->submitted eq "Upload Attachment" || $form->submitted eq "Save Page")) {
 		attachment_store($filename, $form, $q, $params{session});
 	}
-	if ($form->submitted eq "Save Page" || $form->submitted eq "Preview") {
+	if ($form->submitted eq "Save Page") {
 		attachments_save($form, $params{session});
 	}
 
