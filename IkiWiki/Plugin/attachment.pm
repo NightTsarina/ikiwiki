@@ -153,18 +153,19 @@ sub formbuilder (@) {
 	$form->tmpl_param("attachment_list" => [attachment_list($form->field('page'))]);
 }
 
-sub attachment_holding_dir {
+sub attachment_holding_location {
 	my $page=attachment_location(shift);
 
-	return $config{wikistatedir}."/attachments/".
+	my $dir=$config{wikistatedir}."/attachments/".
 		IkiWiki::possibly_foolish_untaint(linkpage($page));
+	$dir=~s/\/$//;
+	return $dir;
 }
 
 sub is_held_attachment {
 	my $attachment=shift;
 
-	my $f=attachment_holding_dir($attachment);
-	$f=~s/\/$//;
+	my $f=attachment_holding_location($attachment);
 	if (-f $f) {
 		return $f
 	}
@@ -214,7 +215,7 @@ sub attachment_store {
 
 	# Move the attachment into holding directory.
 	# Try to use a fast rename; fall back to copying.
-	my $dest=attachment_holding_dir($form->field('page'));
+	my $dest=attachment_holding_location($form->field('page'));
 	IkiWiki::prep_writefile($filename, $dest);
 	unlink($dest."/".$filename);
 	if (rename($tempfile, $dest."/".$filename)) {
@@ -248,7 +249,7 @@ sub attachments_save {
 
 	# Move attachments out of holding directory.
 	my @attachments;
-	my $dir=attachment_holding_dir($form->field('page'));
+	my $dir=attachment_holding_location($form->field('page'));
 	foreach my $filename (glob("$dir/*")) {
 		next unless -f $filename;
 		my $dest=$config{srcdir}."/".
@@ -317,7 +318,7 @@ sub attachment_list ($) {
 	}
 	
 	# attachments in holding directory
-	my $dir=attachment_holding_dir($page);
+	my $dir=attachment_holding_location($page);
 	my $heldmsg=gettext("this attachment is not yet saved");
 	foreach my $file (glob("$dir/*")) {
 		next unless -f $file;
