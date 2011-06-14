@@ -116,84 +116,7 @@ sub formbuilder (@) {
 	my $filename=Encode::decode_utf8($q->param('attachment'));
 	if (defined $filename && length $filename &&
             ($form->submitted eq "Upload Attachment" || $form->submitted eq "Save Page")) {
-		my $session=$params{session};
-		
-		# This is an (apparently undocumented) way to get the name
-		# of the temp file that CGI writes the upload to.
-		my $tempfile=$q->tmpFileName($filename);
-		if (! defined $tempfile || ! length $tempfile) {
-			# perl 5.8 needs an alternative, awful method
-			if ($q =~ /HASH/ && exists $q->{'.tmpfiles'}) {
-				foreach my $key (keys(%{$q->{'.tmpfiles'}})) {
-					$tempfile=$q->tmpFileName(\$key);
-					last if defined $tempfile && length $tempfile;
-				}
-			}
-			if (! defined $tempfile || ! length $tempfile) {
-				error("CGI::tmpFileName failed to return the uploaded file name");
-			}
-		}
-
-		$filename=IkiWiki::basename($filename);
-		$filename=~s/.*\\+(.+)/$1/; # hello, windows
-
-		$filename=linkpage(IkiWiki::possibly_foolish_untaint(
-				attachment_location($form->field('page')).
-				$filename));
-		if (IkiWiki::file_pruned($filename)) {
-			error(gettext("bad attachment filename"));
-		}
-		
-		# Check that the user is allowed to edit a page with the
-		# name of the attachment.
-		IkiWiki::check_canedit($filename, $q, $session);
-		# And that the attachment itself is acceptable.
-		check_canattach($session, $filename, $tempfile);
-
-		# Needed for fast_file_copy and for rendering below.
-		require IkiWiki::Render;
-
-		# Move the attachment into place.
-		# Try to use a fast rename; fall back to copying.
-		IkiWiki::prep_writefile($filename, $config{srcdir});
-		unlink($config{srcdir}."/".$filename);
-		if (rename($tempfile, $config{srcdir}."/".$filename)) {
-			# The temp file has tight permissions; loosen up.
-			chmod(0666 & ~umask, $config{srcdir}."/".$filename);
-		}
-		else {
-			my $fh=$q->upload('attachment');
-			if (! defined $fh || ! ref $fh) {
-				# needed by old CGI versions
-				$fh=$q->param('attachment');
-				if (! defined $fh || ! ref $fh) {
-					# even that doesn't always work,
-					# fall back to opening the tempfile
-					$fh=undef;
-					open($fh, "<", $tempfile) || error("failed to open \"$tempfile\": $!");
-				}
-			}
-			binmode($fh);
-			writefile($filename, $config{srcdir}, undef, 1, sub {
-				IkiWiki::fast_file_copy($tempfile, $filename, $fh, @_);
-			});
-		}
-
-		# Check the attachment in and trigger a wiki refresh.
-		if ($config{rcs}) {
-			IkiWiki::rcs_add($filename);
-			IkiWiki::disable_commit_hook();
-			IkiWiki::rcs_commit(
-				file => $filename,
-				message => gettext("attachment upload"),
-				token => IkiWiki::rcs_prepedit($filename),
-				session => $session,
-			);
-			IkiWiki::enable_commit_hook();
-			IkiWiki::rcs_update();
-		}
-		IkiWiki::refresh();
-		IkiWiki::saveindex();
+		attachment_save($filename, $form, $q, $params{session});
 	}
 	elsif ($form->submitted eq "Insert Links") {
 		my $page=quotemeta(Encode::decode_utf8($q->param("page")));
@@ -218,6 +141,89 @@ sub formbuilder (@) {
 	# Generate the attachment list only after having added any new
 	# attachments.
 	$form->tmpl_param("attachment_list" => [attachment_list($form->field('page'))]);
+}
+
+sub attachment_save {
+	my $filename=shift;
+	my $form=shift;
+	my $q=shift;
+	my $session=shift;
+	
+	# This is an (apparently undocumented) way to get the name
+	# of the temp file that CGI writes the upload to.
+	my $tempfile=$q->tmpFileName($filename);
+	if (! defined $tempfile || ! length $tempfile) {
+		# perl 5.8 needs an alternative, awful method
+		if ($q =~ /HASH/ && exists $q->{'.tmpfiles'}) {
+			foreach my $key (keys(%{$q->{'.tmpfiles'}})) {
+				$tempfile=$q->tmpFileName(\$key);
+				last if defined $tempfile && length $tempfile;
+			}
+		}
+		if (! defined $tempfile || ! length $tempfile) {
+			error("CGI::tmpFileName failed to return the uploaded file name");
+		}
+	}
+
+	$filename=IkiWiki::basename($filename);
+	$filename=~s/.*\\+(.+)/$1/; # hello, windows
+	$filename=linkpage(IkiWiki::possibly_foolish_untaint(
+		attachment_location($form->field('page')).
+			$filename));
+	if (IkiWiki::file_pruned($filename)) {
+		error(gettext("bad attachment filename"));
+	}
+		
+	# Check that the user is allowed to edit a page with the
+	# name of the attachment.
+	IkiWiki::check_canedit($filename, $q, $session);
+	# And that the attachment itself is acceptable.
+	check_canattach($session, $filename, $tempfile);
+
+	# Needed for fast_file_copy and for rendering below.
+	require IkiWiki::Render;
+
+	# Move the attachment into place.
+	# Try to use a fast rename; fall back to copying.
+	IkiWiki::prep_writefile($filename, $config{srcdir});
+	unlink($config{srcdir}."/".$filename);
+	if (rename($tempfile, $config{srcdir}."/".$filename)) {
+		# The temp file has tight permissions; loosen up.
+		chmod(0666 & ~umask, $config{srcdir}."/".$filename);
+	}
+	else {
+		my $fh=$q->upload('attachment');
+		if (! defined $fh || ! ref $fh) {
+			# needed by old CGI versions
+			$fh=$q->param('attachment');
+			if (! defined $fh || ! ref $fh) {
+				# even that doesn't always work,
+				# fall back to opening the tempfile
+				$fh=undef;
+				open($fh, "<", $tempfile) || error("failed to open \"$tempfile\": $!");
+			}
+		}
+		binmode($fh);
+		writefile($filename, $config{srcdir}, undef, 1, sub {
+			IkiWiki::fast_file_copy($tempfile, $filename, $fh, @_);
+		});
+	}
+
+	# Check the attachment in and trigger a wiki refresh.
+	if ($config{rcs}) {
+		IkiWiki::rcs_add($filename);
+		IkiWiki::disable_commit_hook();
+		IkiWiki::rcs_commit(
+			file => $filename,
+			message => gettext("attachment upload"),
+			token => IkiWiki::rcs_prepedit($filename),
+			session => $session,
+		);
+		IkiWiki::enable_commit_hook();
+		IkiWiki::rcs_update();
+	}
+	IkiWiki::refresh();
+	IkiWiki::saveindex();
 }
 
 sub attachment_location ($) {
