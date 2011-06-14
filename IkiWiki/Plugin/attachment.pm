@@ -10,7 +10,7 @@ sub import {
 	hook(type => "getsetup", id => "attachment", call => \&getsetup);
 	hook(type => "checkconfig", id => "attachment", call => \&checkconfig);
 	hook(type => "formbuilder_setup", id => "attachment", call => \&formbuilder_setup);
-	hook(type => "formbuilder", id => "attachment", call => \&formbuilder);
+	hook(type => "formbuilder", id => "attachment", call => \&formbuilder, last => 1);
 	IkiWiki::loadplugin("filecheck");
 }
 
@@ -154,10 +154,25 @@ sub formbuilder (@) {
 }
 
 sub attachment_holding_dir {
-	my $page=shift;
+	my $page=attachment_location(shift);
 
 	return $config{wikistatedir}."/attachments/".
 		IkiWiki::possibly_foolish_untaint(linkpage($page));
+}
+
+sub remove_held_attachment {
+	my $attachment=shift;
+
+	my $f=attachment_holding_dir($attachment);
+	$f=~s/\/$//;
+	if (-f $f) {
+		require IkiWiki::Render;
+		IkiWiki::prune($f);
+		return 1;
+	}
+	else {
+		return 0;
+	}
 }
 
 # Stores the attachment in a holding area, not yet in the wiki proper.
@@ -221,8 +236,7 @@ sub attachment_store {
 			}
 		}
 		binmode($fh);
-		# Needed for fast_file_copy.
-		require IkiWiki::Render;
+		require IkiWiki::Render; 
 		writefile($filename, $dest, undef, 1, sub {
 			IkiWiki::fast_file_copy($tempfile, $filename, $fh, @_);
 		});
@@ -248,7 +262,8 @@ sub attachments_save {
 		push @attachments, $dest;
 	}
 	return unless @attachments;
-	rmdir($dir);
+	require IkiWiki::Render;
+	IkiWiki::prune($dir);
 
 	# Check the attachments in and trigger a wiki refresh.
 	if ($config{rcs}) {
