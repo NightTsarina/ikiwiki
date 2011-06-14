@@ -295,17 +295,25 @@ sub attachment_list ($) {
 	my $page=shift;
 	my $loc=attachment_location($page);
 
+	my $std=sub {
+		my $file=shift;
+		my $mtime=shift;
+		my $size=shift;
+
+		"field-select" => '<input type="checkbox" name="attachment_select" value="'.$file.'" />',
+		size => IkiWiki::Plugin::filecheck::humansize($size),
+		mtime => displaytime($mtime),
+		mtime_raw => $mtime,
+	};
+
 	# attachments already in the wiki
 	my %attachments;
 	foreach my $f (values %pagesources) {
 		if (! defined pagetype($f) &&
 		    $f=~m/^\Q$loc\E[^\/]+$/) {
 			$attachments{$f}={
-				"field-select" => '<input type="checkbox" name="attachment_select" value="'.$f.'" />',
+				$std->($f, $IkiWiki::pagemtime{$f}, (stat($f))[7]),
 				link => htmllink($page, $page, $f, noimageinline => 1),
-				size => IkiWiki::Plugin::filecheck::humansize((stat($f))[7]),
-				mtime => displaytime($IkiWiki::pagemtime{$f}),
-				mtime_raw => $IkiWiki::pagemtime{$f},
 			};
 		}
 	}
@@ -315,13 +323,11 @@ sub attachment_list ($) {
 	my $heldmsg=gettext("this attachment is not yet saved");
 	foreach my $file (glob("$dir/*")) {
 		my $mtime=(stat($file))[9];
-		my $f=IkiWiki::basename($file);
+		my $f=$file;
+		$f=~s/^\Q$dir\E\///;
 		$attachments{$f}={
-			"field-select" => '<input type="checkbox" name="attachment_select" value="'.$f.'" />',
+			$std->($page."/".$f, (stat($file))[9], (stat($file))[7]),
 			link => "<span title=\"$heldmsg\">$f</span>",
-			size => IkiWiki::Plugin::filecheck::humansize((stat($file))[7]),
-			mtime => displaytime($mtime),
-			mtime_raw => $mtime,
 		}
 	}
 
