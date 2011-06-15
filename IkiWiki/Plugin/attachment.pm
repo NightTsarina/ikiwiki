@@ -119,11 +119,11 @@ sub formbuilder (@) {
 
 	return if ! defined $form->field("do") || ($form->field("do") ne "edit" && $form->field("do") ne "create") ;
 
-	my $filename=Encode::decode_utf8($q->param('attachment'));
-	if (defined $filename && length $filename &&
-            ($form->submitted eq "Upload Attachment" || $form->submitted eq "Save Page")) {
+	my $filename=Encode::decode_utf8($q->param('attachments'));
+	if (defined $filename && length $filename) {
 		attachment_store($filename, $form, $q, $params{session});
 	}
+
 	if ($form->submitted eq "Save Page") {
 		attachments_save($form, $params{session});
 	}
@@ -240,6 +240,22 @@ sub attachment_store {
 			IkiWiki::fast_file_copy($tempfile, $filename, $fh, @_);
 		});
 	}
+	
+	# Return JSON response for the jquery file upload widget.
+	eval q{use JSON};
+	error $@ if $@;
+	print "Content-type: application/json\n\n";
+	my $size=-s $dest."/".$filename;
+	print to_json([
+		{
+			name => $filename,
+			size => $size,
+			humansize => IkiWiki::Plugin::filecheck::humansize($size),
+			stored_msg => stored_msg(),
+			
+		}
+	]);
+	exit 0;
 }
 
 # Save all stored attachments for a page.
@@ -297,11 +313,12 @@ sub attachment_list ($) {
 	my $std=sub {
 		my $file=shift;
 		my $mtime=shift;
+		my $date=shift;
 		my $size=shift;
 
-		"field-select" => '<input type="checkbox" name="attachment_select" value="'.$file.'" />',
+		name => $file,
 		size => IkiWiki::Plugin::filecheck::humansize($size),
-		mtime => displaytime($mtime),
+		mtime => $date,
 		mtime_raw => $mtime,
 	};
 
@@ -311,7 +328,7 @@ sub attachment_list ($) {
 		if (! defined pagetype($f) &&
 		    $f=~m/^\Q$loc\E[^\/]+$/) {
 			$attachments{$f}={
-				$std->($f, $IkiWiki::pagemtime{$f}, (stat($f))[7]),
+				$std->($f, $IkiWiki::pagemtime{$f}, displaytime($IkiWiki::pagemtime{$f}), (stat($f))[7]),
 				link => htmllink($page, $page, $f, noimageinline => 1),
 			};
 		}
@@ -322,19 +339,21 @@ sub attachment_list ($) {
 	my $heldmsg=gettext("this attachment is not yet saved");
 	foreach my $file (glob("$dir/*")) {
 		next unless -f $file;
-		my $mtime=(stat(_))[9];
 		my $base=IkiWiki::basename($file);
 		my $f=$loc.$base;
 		$attachments{$f}={
-			$std->($f, (stat($file))[9], (stat(_))[7]),
-			link => "<span title=\"$heldmsg\">$base</span>",
+			$std->($f, (stat($file))[9], stored_msg(), (stat(_))[7]),
+			link => $base,
 		}
 	}
 
-	# Sort newer attachments to the top of the list, so a newly-added
-	# attachment appears just before the form used to add it.
-	return sort { $b->{mtime_raw} <=> $a->{mtime_raw} || $a->{link} cmp $b->{link} }
+	# Sort newer attachments to the end of the list.
+	return sort { $a->{mtime_raw} <=> $b->{mtime_raw} || $a->{link} cmp $b->{link} }
 		values %attachments;
+}
+
+sub stored_msg {
+	gettext("just uploaded");
 }
 
 1
