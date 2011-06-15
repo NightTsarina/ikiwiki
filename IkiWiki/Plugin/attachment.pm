@@ -119,7 +119,7 @@ sub formbuilder (@) {
 
 	return if ! defined $form->field("do") || ($form->field("do") ne "edit" && $form->field("do") ne "create") ;
 
-	my $filename=Encode::decode_utf8($q->param('attachments'));
+	my $filename=Encode::decode_utf8($q->param('attachment'));
 	if (defined $filename && length $filename) {
 		attachment_store($filename, $form, $q, $params{session});
 	}
