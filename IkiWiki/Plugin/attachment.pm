@@ -6,8 +6,9 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
-	add_underlay("javascript");
 	add_underlay("attachment");
+	add_underlay("javascript");
+	add_underlay("jquery");
 	hook(type => "getsetup", id => "attachment", call => \&getsetup);
 	hook(type => "checkconfig", id => "attachment", call => \&checkconfig);
 	hook(type => "formbuilder_setup", id => "attachment", call => \&formbuilder_setup);
