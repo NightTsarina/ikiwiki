@@ -94,7 +94,7 @@ sub formbuilder_setup (@) {
 		# Add all the javascript used by the attachments interface.
 		require IkiWiki::Plugin::toggle;
 		my $js=IkiWiki::Plugin::toggle::include_javascript($params{page});
-		$js.='<link rel="stylesheet" href="'.urlto("ikiwiki/jquery-ui.min.css", $params{page}).' id="theme">'."\n";
+		$js.='<link rel="stylesheet" href="'.urlto("ikiwiki/jquery-ui.min.css", $params{page}).'" id="theme">'."\n";
 		my @jsfiles=qw{jquery.min jquery-ui.min
 			jquery.tmpl.min jquery.iframe-transport
 			jquery.fileupload jquery.fileupload-ui
@@ -354,7 +354,7 @@ sub attachment_list ($) {
 		my $base=IkiWiki::basename($file);
 		my $f=$loc.$base;
 		$attachments{$f}={
-			$std->($f, (stat($file))[9], stored_msg(), (stat(_))[7]),
+			$std->($f, (stat($file))[9]*2, stored_msg(), (stat(_))[7]),
 			link => $base,
 		}
 	}
