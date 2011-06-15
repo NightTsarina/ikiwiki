@@ -8,6 +8,7 @@ use IkiWiki 3.00;
 
 sub import {
 	add_underlay("openid-selector");
+	add_underlay("jquery");
 	hook(type => "checkconfig", id => "openid", call => \&checkconfig);
 	hook(type => "getsetup", id => "openid", call => \&getsetup);
 	hook(type => "auth", id => "openid", call => \&auth);
