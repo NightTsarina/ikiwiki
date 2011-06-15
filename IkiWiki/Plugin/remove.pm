@@ -119,17 +119,17 @@ sub removal_confirm ($$@) {
 	my @pages=@_;
 		
 	# Special case for unsaved attachments.
-	@pages=grep {
+	foreach my $page (@pages) {
 		if (IkiWiki::Plugin::attachment->can("is_held_attachment")) {
-			my $f=IkiWiki::Plugin::attachment::is_held_attachment($_);
+			my $f=IkiWiki::Plugin::attachment::is_held_attachment($page);
 			if (defined $f) {
+				print STDERR "!! remove $f\n";
 				require IkiWiki::Render;
 				IkiWiki::prune($f);
-				0;
 			}
 		}
-		1;
-	} @pages;
+	}
+	@pages=grep { exists $pagesources{$_} } @pages;
 	return unless @pages;
 
 	foreach my $page (@pages) {
