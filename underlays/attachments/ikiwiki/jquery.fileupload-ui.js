@@ -24,28 +24,7 @@
             // By default, files added to the widget are uploaded as soon
             // as the user clicks on the start buttons. To enable automatic
             // uploads, set the following option to true:
-            autoUpload: false,
-            // The following option limits the number of files that are
-            // allowed to be uploaded using this widget:
-            maxNumberOfFiles: undefined,
-            // The maximum allowed file size:
-            maxFileSize: undefined,
-            // The minimum allowed file size:
-            minFileSize: 1,
-            // The regular expression for allowed file types, matches
-            // against either file type or file name:
-            acceptFileTypes:  /.+$/i,
-            // The regular expression to define for which files a preview
-            // image is shown, matched against the file type:
-            previewFileTypes: /^image\/(gif|jpeg|png)$/,
-            // The maximum width of the preview images:
-            previewMaxWidth: 80,
-            // The maximum height of the preview images:
-            previewMaxHeight: 80,
-            // By default, preview images are displayed as canvas elements
-            // if supported by the browser. Set the following option to false
-            // to always display preview images as img elements:
-            previewAsCanvas: true,
+            autoUpload: true,
             // The file upload template that is given as first argument to the
             // jQuery.tmpl method to render the file uploads:
             uploadTemplate: $('#template-upload'),
@@ -61,7 +40,6 @@
             // See the basic file upload widget for more information:
             add: function (e, data) {
                 var that = $(this).data('fileupload');
-                that._adjustMaxNumberOfFiles(-data.files.length);
                 data.isAdjusted = true;
                 data.isValidated = that._validate(data.files);
                 data.context = that._renderUpload(data.files)
@@ -78,9 +56,6 @@
             send: function (e, data) {
                 if (!data.isValidated) {
                     var that = $(this).data('fileupload');
-                    if (!data.isAdjusted) {
-                        that._adjustMaxNumberOfFiles(-data.files.length);
-                    }
                     if (!that._validate(data.files)) {
                         return false;
                     }
@@ -103,9 +78,6 @@
                     data.context.each(function (index) {
                         var file = ($.isArray(data.result) &&
                                 data.result[index]) || {error: 'emptyResult'};
-                        if (file.error) {
-                            that._adjustMaxNumberOfFiles(1);
-                        }
                         $(this).fadeOut(function () {
                             that._renderDownload([file])
                                 .css('display', 'none')
@@ -129,7 +101,6 @@
             // Callback for failed (abort or error) uploads:
             fail: function (e, data) {
                 var that = $(this).data('fileupload');
-                that._adjustMaxNumberOfFiles(data.files.length);
                 if (data.context) {
                     data.context.each(function (index) {
                         $(this).fadeOut(function () {
@@ -150,7 +121,6 @@
                         });
                     });
                 } else if (data.errorThrown !== 'abort') {
-                    that._adjustMaxNumberOfFiles(-data.files.length);
                     data.context = that._renderUpload(data.files)
                         .css('display', 'none')
                         .appendTo($(this).find('.files'))
@@ -185,54 +155,8 @@
             stop: function () {
                 $(this).find('.fileupload-progressbar').fadeOut();
             },
-            // Callback for file deletion:
-            destroy: function (e, data) {
-                var that = $(this).data('fileupload');
-                if (data.url) {
-                    $.ajax(data)
-                        .success(function () {
-                            that._adjustMaxNumberOfFiles(1);
-                            $(this).fadeOut(function () {
-                                $(this).remove();
-                            });
-                        });
-                } else {
-                    data.context.fadeOut(function () {
-                        $(this).remove();
-                    });
-                }
-            }
         },
-
-        // Scales the given image (img HTML element)
-        // using the given options.
-        // Returns a canvas object if the canvas option is true
-        // and the browser supports canvas, else the scaled image:
-        _scaleImage: function (img, options) {
-            options = options || {};
-            var canvas = document.createElement('canvas'),
-                scale = Math.min(
-                    (options.maxWidth || img.width) / img.width,
-                    (options.maxHeight || img.height) / img.height
-                );
-            if (scale >= 1) {
-                scale = Math.max(
-                    (options.minWidth || img.width) / img.width,
-                    (options.minHeight || img.height) / img.height
-                );
-            }
-            img.width = parseInt(img.width * scale, 10);
-            img.height = parseInt(img.height * scale, 10);
-            if (!options.canvas || !canvas.getContext) {
-                return img;
-            }
-            canvas.width = img.width;
-            canvas.height = img.height;
-            canvas.getContext('2d')
-                .drawImage(img, 0, 0, img.width, img.height);
-            return canvas;
-        },
-
+	
         _createObjectURL: function (file) {
             var undef = 'undefined',
                 urlAPI = (typeof window.createObjectURL !== undef && window) ||
@@ -247,44 +171,6 @@
                     (typeof URL !== undef && URL) ||
                     (typeof webkitURL !== undef && webkitURL);
             return urlAPI ? urlAPI.revokeObjectURL(url) : false;
-        },
-
-        // Loads a given File object via FileReader interface,
-        // invokes the callback with a data url:
-        _loadFile: function (file, callback) {
-            if (typeof FileReader !== 'undefined' &&
-                    FileReader.prototype.readAsDataURL) {
-                var fileReader = new FileReader();
-                fileReader.onload = function (e) {
-                    callback(e.target.result);
-                };
-                fileReader.readAsDataURL(file);
-                return true;
-            }
-            return false;
-        },
-
-        // Loads an image for a given File object.
-        // Invokes the callback with an img or optional canvas
-        // element (if supported by the browser) as parameter:
-        _loadImage: function (file, callback, options) {
-            var that = this,
-                url,
-                img;
-            if (!options || !options.fileTypes ||
-                    options.fileTypes.test(file.type)) {
-                url = this._createObjectURL(file);
-                img = $('<img>').bind('load', function () {
-                    $(this).unbind('load');
-                    that._revokeObjectURL(url);
-                    callback(that._scaleImage(img[0], options));
-                }).prop('src', url);
-                if (!url) {
-                    this._loadFile(file, function (url) {
-                        img.prop('src', url);
-                    });
-                }
-            }
         },
 
         // Link handler, that allows to download files
@@ -305,54 +191,9 @@
             });
         },
 
-        _adjustMaxNumberOfFiles: function (operand) {
-            if (typeof this.options.maxNumberOfFiles === 'number') {
-                this.options.maxNumberOfFiles += operand;
-                if (this.options.maxNumberOfFiles < 1) {
-                    this._disableFileInputButton();
-                } else {
-                    this._enableFileInputButton();
-                }
-            }
-        },
-
-        _formatFileSize: function (file) {
-            if (typeof file.size !== 'number') {
-                return '';
-            }
-            if (file.size >= 1000000000) {
-                return (file.size / 1000000000).toFixed(2) + ' GB';
-            }
-            if (file.size >= 1000000) {
-                return (file.size / 1000000).toFixed(2) + ' MB';
-            }
-            return (file.size / 1000).toFixed(2) + ' KB';
-        },
-
         _hasError: function (file) {
             if (file.error) {
                 return file.error;
-            }
-            // The number of added files is subtracted from
-            // maxNumberOfFiles before validation, so we check if
-            // maxNumberOfFiles is below 0 (instead of below 1):
-            if (this.options.maxNumberOfFiles < 0) {
-                return 'maxNumberOfFiles';
-            }
-            // Files are accepted if either the file type or the file name
-            // matches against the acceptFileTypes regular expression, as
-            // only browsers with support for the File API report the type:
-            if (!(this.options.acceptFileTypes.test(file.type) ||
-                    this.options.acceptFileTypes.test(file.name))) {
-                return 'acceptFileTypes';
-            }
-            if (this.options.maxFileSize &&
-                    file.size > this.options.maxFileSize) {
-                return 'maxFileSize';
-            }
-            if (typeof file.size === 'number' &&
-                    file.size < this.options.minFileSize) {
-                return 'minFileSize';
             }
             return null;
         },
@@ -368,7 +209,6 @@
         },
 
         _uploadTemplateHelper: function (file) {
-            file.sizef = this._formatFileSize(file);
             return file;
         },
 
@@ -406,25 +246,10 @@
                     text: false,
                     icons: {primary: 'ui-icon-cancel'}
                 });
-            tmpl.find('.preview').each(function (index, node) {
-                that._loadImage(
-                    files[index],
-                    function (img) {
-                        $(img).hide().appendTo(node).fadeIn();
-                    },
-                    {
-                        maxWidth: options.previewMaxWidth,
-                        maxHeight: options.previewMaxHeight,
-                        fileTypes: options.previewFileTypes,
-                        canvas: options.previewAsCanvas
-                    }
-                );
-            });
             return tmpl;
         },
 
         _downloadTemplateHelper: function (file) {
-            file.sizef = this._formatFileSize(file);
             return file;
         },
 
@@ -444,10 +269,6 @@
                 return $();
             }
             tmpl.css('display', 'none');
-            tmpl.find('.delete button').button({
-                text: false,
-                icons: {primary: 'ui-icon-trash'}
-            });
             tmpl.find('a').each(this._enableDragToDesktop);
             return tmpl;
         },
@@ -474,17 +295,6 @@
             }
         },
         
-        _deleteHandler: function (e) {
-            e.preventDefault();
-            var button = $(this);
-            e.data.fileupload._trigger('destroy', e, {
-                context: button.closest('.template-download'),
-                url: button.attr('data-url'),
-                type: button.attr('data-type'),
-                dataType: e.data.fileupload.options.dataType
-            });
-        },
-        
         _initEventHandlers: function () {
             $.blueimp.fileupload.prototype._initEventHandlers.call(this);
             var filesList = this.element.find('.files'),
@@ -501,12 +311,6 @@
                     eventData,
                     this._cancelHandler
                 );
-            filesList.find('.delete button')
-                .live(
-                    'click.' + this.options.namespace,
-                    eventData,
-                    this._deleteHandler
-                );
         },
         
         _destroyEventHandlers: function () {
@@ -515,73 +319,7 @@
                 .die('click.' + this.options.namespace);
             filesList.find('.cancel button')
                 .die('click.' + this.options.namespace);
-            filesList.find('.delete button')
-                .die('click.' + this.options.namespace);
             $.blueimp.fileupload.prototype._destroyEventHandlers.call(this);
-        },
-
-        _initFileUploadButtonBar: function () {
-            var fileUploadButtonBar = this.element.find('.fileupload-buttonbar'),
-                filesList = this.element.find('.files'),
-                ns = this.options.namespace;
-            fileUploadButtonBar
-                .addClass('ui-widget-header ui-corner-top');
-            this.element.find('.fileinput-button').each(function () {
-                var fileInput = $(this).find('input:file').detach();
-                $(this).button({icons: {primary: 'ui-icon-plusthick'}})
-                    .append(fileInput);
-            });
-            fileUploadButtonBar.find('.start')
-                .button({icons: {primary: 'ui-icon-circle-arrow-e'}})
-                .bind('click.' + ns, function (e) {
-                    e.preventDefault();
-                    filesList.find('.start button').click();
-                });
-            fileUploadButtonBar.find('.cancel')
-                .button({icons: {primary: 'ui-icon-cancel'}})
-                .bind('click.' + ns, function (e) {
-                    e.preventDefault();
-                    filesList.find('.cancel button').click();
-                });
-            fileUploadButtonBar.find('.delete')
-                .button({icons: {primary: 'ui-icon-trash'}})
-                .bind('click.' + ns, function (e) {
-                    e.preventDefault();
-                    filesList.find('.delete button').click();
-                });
-        },
-        
-        _destroyFileUploadButtonBar: function () {
-            this.element.find('.fileupload-buttonbar')
-                .removeClass('ui-widget-header ui-corner-top');
-            this.element.find('.fileinput-button').each(function () {
-                var fileInput = $(this).find('input:file').detach();
-                $(this).button('destroy')
-                    .append(fileInput);
-            });
-            this.element.find('.fileupload-buttonbar button')
-                .unbind('click.' + this.options.namespace)
-                .button('destroy');
-        },
-
-        _enableFileInputButton: function () {
-            this.element.find('.fileinput-button input:file:disabled')
-                .each(function () {
-                    var fileInput = $(this),
-                        button = fileInput.parent();
-                    fileInput.detach().prop('disabled', false);
-                    button.button('enable').append(fileInput);
-                });
-        },
-
-        _disableFileInputButton: function () {
-            this.element.find('.fileinput-button input:file:enabled')
-                .each(function () {
-                    var fileInput = $(this),
-                        button = fileInput.parent();
-                    fileInput.detach().prop('disabled', true);
-                    button.button('disable').append(fileInput);
-                });
         },
 
         _initTemplates: function () {
@@ -604,36 +342,13 @@
         _create: function () {
             $.blueimp.fileupload.prototype._create.call(this);
             this._initTemplates();
-            this.element
-                .addClass('ui-widget');
-            this._initFileUploadButtonBar();
-            this.element.find('.fileupload-content')
-                .addClass('ui-widget-content ui-corner-bottom');
-            this.element.find('.fileupload-progressbar')
-                .hide().progressbar();
-        },
-        
-        destroy: function () {
-            this.element.find('.fileupload-progressbar')
-                .progressbar('destroy');
-            this.element.find('.fileupload-content')
-                .removeClass('ui-widget-content ui-corner-bottom');
-            this._destroyFileUploadButtonBar();
-            this.element.removeClass('ui-widget');
-            $.blueimp.fileupload.prototype.destroy.call(this);
         },
         
         enable: function () {
             $.blueimp.fileupload.prototype.enable.call(this);
-            this.element.find(':ui-button').not('.fileinput-button')
-                .button('enable');
-            this._enableFileInputButton();
         },
         
         disable: function () {
-            this.element.find(':ui-button').not('.fileinput-button')
-                .button('disable');
-            this._disableFileInputButton();
             $.blueimp.fileupload.prototype.disable.call(this);
         }
 
