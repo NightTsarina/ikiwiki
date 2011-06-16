@@ -212,22 +212,28 @@ sub attachment_store {
 	$filename=IkiWiki::basename($filename);
 	$filename=~s/.*\\+(.+)/$1/; # hello, windows
 	$filename=IkiWiki::possibly_foolish_untaint(linkpage($filename));
+	my $dest=attachment_holding_location($form->field('page'));
 	
 	# Check that the user is allowed to edit the attachment.
 	my $final_filename=
 		linkpage(IkiWiki::possibly_foolish_untaint(
 			attachment_location($form->field('page')))).
 		$filename;
-	if (IkiWiki::file_pruned($final_filename)) {
-		error(gettext("bad attachment filename"));
+	eval {
+		if (IkiWiki::file_pruned($final_filename)) {
+			error(gettext("bad attachment filename"));
+		}
+		IkiWiki::check_canedit($final_filename, $q, $session);
+		# And that the attachment itself is acceptable.
+		check_canattach($session, $final_filename, $tempfile);
+	};
+	if ($@) {
+		json_response($q, $dest."/".$filename, $@);
+		error $@;
 	}
-	IkiWiki::check_canedit($final_filename, $q, $session);
-	# And that the attachment itself is acceptable.
-	check_canattach($session, $final_filename, $tempfile);
 
 	# Move the attachment into holding directory.
 	# Try to use a fast rename; fall back to copying.
-	my $dest=attachment_holding_location($form->field('page'));
 	IkiWiki::prep_writefile($filename, $dest);
 	unlink($dest."/".$filename);
 	if (rename($tempfile, $dest."/".$filename)) {
@@ -253,24 +259,7 @@ sub attachment_store {
 		});
 	}
 
-	# Return JSON response for the jquery file upload widget.
-	if ($q->Accept("application/json") >= 1.0 &&
-	    grep { /application\/json/i } $q->Accept) {
-		eval q{use JSON};
-		error $@ if $@;
-		print "Content-type: application/json\n\n";
-		my $size=-s $dest."/".$filename;
-		print to_json([
-			{
-				name => $filename,
-				size => $size,
-				humansize => IkiWiki::Plugin::filecheck::humansize($size),
-				stored_msg => stored_msg(),
-				
-			}
-		]);
-		exit 0;
-	}
+	json_response($q, $dest."/".$filename, stored_msg());
 }
 
 # Save all stored attachments for a page.
@@ -369,6 +358,31 @@ sub attachment_list ($) {
 
 sub stored_msg {
 	gettext("just uploaded");
+}
+
+sub json_response ($$$) {
+	my $q=shift;
+	my $filename=shift;
+	my $stored_msg=shift;
+
+	# for the jquery file upload widget
+	if ($q->Accept("application/json") >= 1.0 &&
+	    grep { /application\/json/i } $q->Accept) {
+		eval q{use JSON};
+		error $@ if $@;
+		print "Content-type: application/json\n\n";
+		my $size=-s $filename;
+		print to_json([
+			{
+				name => IkiWiki::basename($filename),
+				size => $size,
+				humansize => IkiWiki::Plugin::filecheck::humansize($size),
+				stored_msg => $stored_msg,
+				
+			}
+		]);
+		exit 0;
+	}
 }
 
 1
