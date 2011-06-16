@@ -117,13 +117,27 @@ sub removal_confirm ($$@) {
 	my $session=shift;
 	my $attachment=shift;
 	my @pages=@_;
+		
+	# Special case for unsaved attachments.
+	foreach my $page (@pages) {
+		if (IkiWiki::Plugin::attachment->can("is_held_attachment")) {
+			my $f=IkiWiki::Plugin::attachment::is_held_attachment($page);
+			if (defined $f) {
+				print STDERR "!! remove $f\n";
+				require IkiWiki::Render;
+				IkiWiki::prune($f);
+			}
+		}
+	}
+	@pages=grep { exists $pagesources{$_} } @pages;
+	return unless @pages;
 
 	foreach my $page (@pages) {
 		IkiWiki::check_canedit($page, $q, $session);
 		check_canremove($page, $q, $session);
 	}
 
-   	# Save current form state to allow returning to it later
+	# Save current form state to allow returning to it later
 	# without losing any edits.
 	# (But don't save what button was submitted, to avoid
 	# looping back to here.)
@@ -178,10 +192,10 @@ sub formbuilder (@) {
 }
 
 sub sessioncgi ($$) {
-        my $q=shift;
+	my $q=shift;
 
 	if ($q->param("do") eq 'remove') {
-        	my $session=shift;
+		my $session=shift;
 		my ($form, $buttons)=confirmation_form($q, $session);
 		IkiWiki::decode_form_utf8($form);
 
@@ -192,7 +206,7 @@ sub sessioncgi ($$) {
 			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
 
 			my @pages=$form->field("page");
-	
+			
 			# Validate removal by checking that the page exists,
 			# and that the user is allowed to edit(/remove) it.
 			my @files;
