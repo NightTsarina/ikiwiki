@@ -29,6 +29,7 @@ Mail::Sendmail
 CGI
 Data::Dumper
 YAML
+JSON
 
 =head1 AUTHOR
 
