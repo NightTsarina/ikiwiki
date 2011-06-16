@@ -252,22 +252,25 @@ sub attachment_store {
 			IkiWiki::fast_file_copy($tempfile, $filename, $fh, @_);
 		});
 	}
-	
+
 	# Return JSON response for the jquery file upload widget.
-	eval q{use JSON};
-	error $@ if $@;
-	print "Content-type: application/json\n\n";
-	my $size=-s $dest."/".$filename;
-	print to_json([
-		{
-			name => $filename,
-			size => $size,
-			humansize => IkiWiki::Plugin::filecheck::humansize($size),
-			stored_msg => stored_msg(),
-			
-		}
-	]);
-	exit 0;
+	if ($q->Accept("application/json") >= 1.0 &&
+	    grep { /application\/json/i } $q->Accept) {
+		eval q{use JSON};
+		error $@ if $@;
+		print "Content-type: application/json\n\n";
+		my $size=-s $dest."/".$filename;
+		print to_json([
+			{
+				name => $filename,
+				size => $size,
+				humansize => IkiWiki::Plugin::filecheck::humansize($size),
+				stored_msg => stored_msg(),
+				
+			}
+		]);
+		exit 0;
+	}
 }
 
 # Save all stored attachments for a page.
