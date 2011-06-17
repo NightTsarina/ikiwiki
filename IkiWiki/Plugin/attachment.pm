@@ -228,7 +228,7 @@ sub attachment_store {
 		check_canattach($session, $final_filename, $tempfile);
 	};
 	if ($@) {
-		json_response($q, $dest."/".$filename, $@);
+		json_response($q, $form, $dest."/".$filename, $@);
 		error $@;
 	}
 
@@ -259,7 +259,7 @@ sub attachment_store {
 		});
 	}
 
-	json_response($q, $dest."/".$filename, stored_msg());
+	json_response($q, $form, $dest."/".$filename, stored_msg());
 }
 
 # Save all stored attachments for a page.
@@ -360,17 +360,17 @@ sub stored_msg {
 	gettext("just uploaded");
 }
 
-sub json_response ($$$) {
+sub json_response ($$$$) {
 	my $q=shift;
+	my $form=shift;
 	my $filename=shift;
 	my $stored_msg=shift;
 
-	# for the jquery file upload widget
-	if ($q->Accept("application/json") >= 1.0 &&
-	    grep { /application\/json/i } $q->Accept) {
+	if (! defined $form->submitted ||
+	    $form->submitted ne "Upload Attachment") {
 		eval q{use JSON};
 		error $@ if $@;
-		print "Content-type: application/json\n\n";
+		print "Content-type: text/html\n\n";
 		my $size=-s $filename;
 		print to_json([
 			{
