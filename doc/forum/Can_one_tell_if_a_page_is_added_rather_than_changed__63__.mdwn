@@ -1,0 +1,5 @@
+In the plugin interface, there are hooks for "deleted" and "changed" and the "changed" interfaces includes files which are *either* changed or added.  Is there any way of telling that a file has been added rather than changed?  With some plugins (for example, [[plugins/sidebar]]) if a new page (of a certain sort) is added, the only way one can fix up the dependencies is to rebuild the whole site from scratch.  This is Not Good.  Now, one could do something in the "changed" hook, but since one can't tell if a file has been changed or added, if one did something for every changed file, one would be doing a lot of needless work (so one might as well rebuild the site when one *knows* that a new (relevant) page has been added).
+
+But I really would like to be able to do things just to the *new* files, so is there any way that one can distinguish the changed files from the added files?
+
+-- [[KathrynAndersen]]
