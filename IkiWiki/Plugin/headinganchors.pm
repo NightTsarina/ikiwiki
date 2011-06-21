@@ -4,10 +4,20 @@ package IkiWiki::Plugin::headinganchors;
 
 use warnings;
 use strict;
-use IkiWiki 2.00;
+use IkiWiki 3.00;
 
 sub import {
+	hook(type => "getsetup", id => "headinganchors", call => \&getsetup);
 	hook(type => "sanitize", id => "headinganchors", call => \&headinganchors);
+}
+
+sub getsetup () {
+        return
+		plugin => {
+			safe => 1,
+			rebuild => undef,
+			section => "widget",
+		},
 }
 
 sub text_to_anchor {
