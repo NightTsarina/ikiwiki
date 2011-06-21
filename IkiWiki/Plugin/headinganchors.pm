@@ -5,6 +5,7 @@ package IkiWiki::Plugin::headinganchors;
 use warnings;
 use strict;
 use IkiWiki 3.00;
+use URI::Escape;
 
 sub import {
 	hook(type => "getsetup", id => "headinganchors", call => \&getsetup);
@@ -12,7 +13,7 @@ sub import {
 }
 
 sub getsetup () {
-        return
+	return
 		plugin => {
 			safe => 1,
 			rebuild => undef,
@@ -24,9 +25,11 @@ sub text_to_anchor {
 	my $str = shift;
 	$str =~ s/^\s+//;
 	$str =~ s/\s+$//;
-	$str = lc($str);
-	$str =~ s/[&\?"\'\.,\(\)!]//mig;
-	$str =~ s/[^a-z]/_/mig;
+	$str =~ s/\s/_/g;
+	$str =~ s/"//g;
+	$str =~ s/^[^a-zA-Z]/z-/; # must start with an alphabetical character
+	$str = uri_escape_utf8($str);
+	$str =~ s/%/./g;
 	return $str;
 }
 
