@@ -227,6 +227,8 @@ sub cgi_editpage ($$) {
 			    $absolute ||
 			    $form->submitted) {
 				@page_locs=$best_loc=$page;
+				unshift @page_locs, lc($page)
+					if ! $form->submitted && lc($page) ne $page;
 			}
 			else {
 				my $dir=$from."/";
@@ -241,13 +243,18 @@ sub cgi_editpage ($$) {
 					$best_loc=$dir.$page;
 				}
 				
+				my $mixedcase=lc($page) ne $page;
+
+				push @page_locs, $dir.lc($page) if $mixedcase;
 				push @page_locs, $dir.$page;
-				push @page_locs, "$from/$page";
+				push @page_locs, $from."/".lc($page) if $mixedcase;
+				push @page_locs, $from."/".$page;
 				while (length $dir) {
 					$dir=~s![^/]+/+$!!;
+					push @page_locs, $dir.lc($page) if $mixedcase;
 					push @page_locs, $dir.$page;
 				}
-			
+
 				my $userpage=IkiWiki::userpage($page);
 				push @page_locs, $userpage
 					if ! grep { $_ eq $userpage } @page_locs;

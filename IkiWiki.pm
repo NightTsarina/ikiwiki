@@ -1237,7 +1237,7 @@ sub htmllink ($$$;@) {
 				$cgilink = "<a href=\"".
 					cgiurl(
 						do => "create",
-						page => lc($link),
+						page => $link,
 						from => $lpage
 					)."\" rel=\"nofollow\">?</a>";
 			}
