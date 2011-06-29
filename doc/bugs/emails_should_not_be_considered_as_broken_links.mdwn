@@ -3,3 +3,12 @@ The [[ikiwiki/directive/brokenlinks]] directive lists emails when used inside [[
 [[!brokenlinks pages="*@* and !recentchanges"]]
 
 > Weird.  The bug, imho, is that `\[[email-address]]` results in a marked-up email address. I think marking up email addresses into hyperlinks should be handled by a markup plugin (e.g. markdown), not by the wikilink parser. I feel the same way for external links, but it appears [this is all by design](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=07a08122d926ab6b7741c94bc6c0038ffe0113fb). — [[Jon]]
+
+>> I belive this was done for compatability with the wikicreole plugin.
+>> Since in creole, a wikilink can contain an email or full html link, 
+>> and it was easier to make ikiwiki's wikilinks do so too, rather
+>> than put entirely different link handling into creole.
+>>
+>> Anyway, I've fixed this, although it leaves some weirdness if a page
+>> is created with a name like an email address and that same email address
+>> was previously used for external links. [[done]] --[[Joey]] 
