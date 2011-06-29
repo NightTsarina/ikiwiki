@@ -21,7 +21,8 @@ my %commentstate;
 sub import {
 	hook(type => "checkconfig", id => 'comments',  call => \&checkconfig);
 	hook(type => "getsetup", id => 'comments',  call => \&getsetup);
-	hook(type => "preprocess", id => 'comment', call => \&preprocess);
+	hook(type => "preprocess", id => 'comment', call => \&preprocess,
+		scan => 1);
 	hook(type => "preprocess", id => 'commentmoderation', call => \&preprocess_moderation);
 	# here for backwards compatability with old comments
 	hook(type => "preprocess", id => '_comment', call => \&preprocess);
@@ -143,22 +144,27 @@ sub preprocess {
 	}
 	$content =~ s/\\"/"/g;
 
-	if ($config{comments_allowdirectives}) {
-		$content = IkiWiki::preprocess($page, $params{destpage},
-			$content);
+	if (defined wantarray) {
+		if ($config{comments_allowdirectives}) {
+			$content = IkiWiki::preprocess($page, $params{destpage},
+				$content);
+		}
+
+		# no need to bother with htmlize if it's just HTML
+		$content = IkiWiki::htmlize($page, $params{destpage}, $format, $content)
+			if defined $format;
+
+		IkiWiki::run_hooks(sanitize => sub {
+			$content = shift->(
+				page => $page,
+				destpage => $params{destpage},
+				content => $content,
+			);
+		});
 	}
-
-	# no need to bother with htmlize if it's just HTML
-	$content = IkiWiki::htmlize($page, $params{destpage}, $format, $content)
-		if defined $format;
-
-	IkiWiki::run_hooks(sanitize => sub {
-		$content = shift->(
-			page => $page,
-			destpage => $params{destpage},
-			content => $content,
-		);
-	});
+	else {
+		IkiWiki::preprocess($page, $params{destpage}, $content, 1);
+	}
 
 	# set metadata, possibly overriding [[!meta]] directives from the
 	# comment itself
