@@ -564,13 +564,15 @@ sub absolute_urls ($$) {
 				next unless $v_offset; # 0 v_offset means no value
 				my $v = substr($text, $v_offset, $v_len);
 				$v =~ s/^([\'\"])(.*)\1$/$2/;
-				if ($v=~/^#/) {
+				eval q{use HTML::Entities};
+				my $dv = decode_entities($v);
+				if ($dv=~/^#/) {
 					$v=$baseurl.$v; # anchor
 				}
-				elsif ($v=~/^(?!\w+:)[^\/]/) {
+				elsif ($dv=~/^(?!\w+:)[^\/]/) {
 					$v=$url.$v; # relative url
 				}
-				elsif ($v=~/^\//) {
+				elsif ($dv=~/^\//) {
 					if (! defined $urltop) {
 						# what is the non path part of the url?
 						my $top_uri = URI->new($url);
