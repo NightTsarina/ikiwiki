@@ -1026,7 +1026,7 @@ sub bestlink ($$) {
 sub isinlinableimage ($) {
 	my $file=shift;
 	
-	return $file =~ /\.(png|gif|jpg|jpeg)$/i;
+	return $file =~ /\.(png|gif|jpg|jpeg|svg)$/i;
 }
 
 sub pagetitle ($;$) {

@@ -17,6 +17,16 @@ The 'img' plugin also seems to not support SVGs.
 > image (png). The img plugin could probably do that fairly simply.
 > --[[Joey]]
 
+>> This seems to have improved since; at least chromium can display svg
+>> images from `<img>` tags. Firefox 3.5.19 did not in my testing.
+>>
+>> So, svgs can now be included on pages by linking to them, or by using
+>> the img directive. The most portable thing is to use the img directive
+>> plus some size, which forces them to be resized and a png to actually
+>> be displayed.
+>>
+>> I have not yet tried to do anything with sanitizing them. --[[Joey]] 
+
 >> I'm working on inline SVG and MathML support in ikiwiki and I've
 >> modified my htmlscrubber to sanitize SVG and MathML using the
 >> whitelists from html5lib.  Here's a [patch][].  I've also made some
