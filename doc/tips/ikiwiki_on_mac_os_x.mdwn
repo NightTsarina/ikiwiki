@@ -1,3 +1,40 @@
+[[!toc]]
+
+# MacPorts
+
+The easiest way of installing ikiwiki on Mac OS X [Snow] Leopard and Tiger is via MacPorts: <http://www.macports.org/>
+
+This project ports Open Source software into Mac Os X platform.
+It's very easy to intall ikiwiki via MacPorts:
+
+1.- Donwnload and install MacPorts port manager from:  <http://www.macports.org/install.php> . 
+    Port manager installs via Mac Os X installer. Prerequisite: XCode.
+    Se above URL for details
+
+2.- Run 
+
+    $ sudo port install ikiwiki
+
+This installs ikiwiki and all of its dependencies
+
+enjoy
+
+Enrique Castilla
+
+-----
+
+# pkgsrc
+
+The other easiest way of installing ikiwiki on Mac OS X is via
+[pkgsrc](http://www.pkgsrc.org/).
+
+7. Bootstrap pkgsrc
+7. Run `cd .../pkgsrc/www/ikiwiki && make install clean`
+
+-----
+
+# Manual install
+
 These are some notes on installing ikiwiki on Mac OS X Snow Leopard. I have a three year old machine with a lot of stuff on it so it took quite a while, YMMV. 
 
 The best part of installing ikiwiki was learning how to use git. I never used source control before but its pretty slick.
@@ -179,6 +216,3 @@ I turned on the plugin from the setup page in ikiwiki but it gave an error when 
 I did a  "find / -name "omega" -print" and found the omega program in "/usr/local/lib/xapian-omega/bin/omega".
 
 Then I went into the 2wiki.setup file and replaced the bad path, updated and badda-boom badda-bing.
-
-
-
