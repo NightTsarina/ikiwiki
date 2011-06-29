@@ -5,12 +5,12 @@ the Linux kernel. Ikiwiki supports storing a wiki in git.
 
 [git]: http://git.or.cz/
 
-[[!img wiki_edit_flow.svg size=490x float=right]]
+[[!img wiki_edit_flow.svg size=490x align=right]]
 
-Ikiwiki can run as a `post-update` hook to update a wiki whenever commits
-come in. When running as a [[cgi]] with Git, ikiwiki automatically
-commits edited pages, and uses the Git history to generate the
-[[RecentChanges]] page.
+Ikiwiki can run as a git `post-update` hook to update a wiki
+whenever commits come in. When running as a [[cgi]],
+ikiwiki automatically commits edited pages, and uses the
+git history to generate the [[RecentChanges]] page.
 
 ## git repository setup
 
@@ -21,8 +21,8 @@ working clones (with working directories) as leaf nodes.  The root
 (bare) repository is meant to be pushed to and pulled from the various
 working clones.
 
-One of the leaf node clone repositories is special; it has working
-directory which is used to compile the wiki, and is also used by the
+One of the leaf node clone repositories is special; it has srcdir
+which is used to compile the wiki, and is also used by the
 [[cgi]] to commit changes made via the web interface. It is special
 since the `post-update` hook for the bare root repository is used to
 trigger an update of this repository, and then an ikiwiki refresh
@@ -32,52 +32,11 @@ The other (optional) leaf node repositories are meant for you to work
 on, and commit to, changes should then be pushed to the bare root
 repository.
 
-So, to reiterate, when using Git, you probably want to set up three
-repositories:
-
-* The root repository. This should be a bare repository (meaning that
-  it does not have a working tree checked out), which the other
-  repositories will push to/pull from.  It is a bare repository, since
-  git does not support pushing to a repository that has a working
-  directory. This is called _repository_ in [[ikiwiki-makerepo]]'s
-  manual page. This bare repository has a `post-update` hook
-  that either is or calls ikiwiki's `git_wrapper`, which changes to the
-  working directory for ikiwiki, does a `git pull`, and refreshes ikiwiki
-  to regenerate the wiki with any new content. The [[setup]] page describes
-  how to do this, but note, if you are importing from an existing git repository, that ikiwiki will not create the `git_wrapper` unless its path is explicitely set in your `.setup` file.
-
-* The second repository is a clone of the bare root repository, and
-  has a working tree which is used as ikiwiki's srcdir for compiling
-  the wiki. **Never** push to this repository. It is wise to not make
-  changes or commits directly to this repository, to avoid conflicting
-  with ikiwiki's own changes. When running as a [[cgi]], the changes
-  are committed to this repository, and pushed to the master repository
-  above. This is called _srcdir_ in [[ikiwiki-makerepo]]'s manual page.
-
-* The other (third, fourth, fifth, sixth -- however many pleases you)
-  repositories are also clones of the bare root repository above --
-  and these have a working directory for you to work on. Use either
-  the `git` transport (if available), or `ssh`. These repositories may
-  be on remote machines, your laptop, wherever you find convenient to
-  hack on your wiki. You can commit local changes to the version on
-  the laptop, perhaps while offline. Any new content should be pushed to the
-  bare master repository when you are ready to publish it, and then
-  the post-update hook of the bare repository will ensure that the
-  ikiwiki's source directory is updated, and the ikiwiki refreshed
-  with the new content.
-
 Using three or more of repositories isn't the most obvious set up, but
 it works the best for typical ikiwiki use. [[ikiwiki-makerepo]] can
 automate setting this up for the common case where there is no
 pre-existing wiki. [[tips/Laptop_wiki_with_git]] describes a different
 way to set up ikiwiki and git.
-
-It is **paramount** that you **never** push to the non-bare repository
-([this FAQ entry explains why](http://git.or.cz/gitwiki/GitFaq#head-b96f48bc9c925074be9f95c0fce69bcece5f6e73)).
-Instead, clone the bare repository as mentioned above, and push
-**only** to the bare repository.
-
-The ikiwiki `post-update` hook should be put in the bare repository.
 
 ## git repository with multiple committers
 
@@ -159,29 +118,3 @@ manually update the local wiki, with a command such as `ikiwiki
 have a hook that is run locally after pulling changes. Newer
 versions of git will have a `post-merge` hook that should work for
 this purpose.
-
-## Fix for error on git pull origin
-
-Error message when running git pull origin:
-
-    You asked me to pull without telling me which branch you
-    want to merge with, and 'branch.master.merge' in
-    your configuration file does not tell me either.  Please
-    name which branch you want to merge on the command line and
-    try again (e.g. 'git pull <repository> <refspec>').
-    See git-pull(1) for details on the refspec.
-    
-    If you often merge with the same branch, you may want to
-    configure the following variables in your configuration
-    file:
-    
-        branch.master.remote = <nickname>
-        branch.master.merge = <remote-ref>
-        remote.<nickname>.url = <url>
-        remote.<nickname>.fetch = <refspec>
-    
-    See git-config(1) for details.
-
-The solution is to run this command in your srcdir:
-
-    git config branch.master.remote origin
