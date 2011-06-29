@@ -64,10 +64,11 @@ sub preprocess (@) {
 
 	my $dir = $params{page};
 	my $base = IkiWiki::basename($file);
+	my $issvg = $base=~s/\.svg$/.png/i;
 
 	eval q{use Image::Magick};
 	error gettext("Image::Magick is not installed") if $@;
-	my $im = Image::Magick->new;
+	my $im = Image::Magick->new($issvg ? (magick => "png") : ());
 	my $imglink;
 	my $r = $im->Read($srcfile);
 	error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
