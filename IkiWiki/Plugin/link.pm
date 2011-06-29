@@ -7,7 +7,7 @@ use IkiWiki 3.00;
 
 my $link_regexp;
 
-my $email_regexp = qr/^.+@.+$/;
+my $email_regexp = qr/^.+@.+\..+$/;
 my $url_regexp = qr/^(?:[^:]+:\/\/|mailto:).*/i;
 
 sub import {
@@ -73,13 +73,7 @@ sub is_externallink ($$;$) {
 		$url.="#".$anchor;
 	}
 
-	if ($url =~ /$email_regexp/) {
-		# url looks like an email address, so we assume it
-		# is supposed to be an external link if there is no
-		# page with that name.
-		return (! (bestlink($page, linkpage($url))))
-	}
-	return ($url =~ /$url_regexp/)
+	return ($url =~ /$url_regexp|$email_regexp/)
 }
 
 sub externallink ($$;$) {
