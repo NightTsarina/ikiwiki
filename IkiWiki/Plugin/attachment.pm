@@ -303,8 +303,8 @@ sub attachment_location ($) {
 	my $page=shift;
 	
 	# Put the attachment in a subdir of the page it's attached
-	# to, unless that page is an "index" page.
-	$page=~s/(^|\/)index//;
+	# to, unless that page is the "index" page.
+	return "" if $page eq 'index';
 	$page.="/" if length $page;
 	
 	return $page;
