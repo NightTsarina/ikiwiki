@@ -1,0 +1,9 @@
+While working on our forum I was surprised to see that some of the comments were not appearing in the RSS feed created by `!inline pages="forum/* or comment(forum/*)" feedonly="yes" show="25"`.
+
+Then I found out that a map directive such as `!map pages="forum/* or comment(forum/*)"` was bringing a weird result too. The output is a map with quite a few broken links.
+
+Plus, some broken links in the map do match the comments missing on the RSS feed but some others do not.
+
+Unfortunately, I couldn't find an obvious pattern for this failure.
+
+We think it's a bug in ikiwiki. Our git repo is publicly available at `git://git.immerda.ch/amnesia.git` (the ikiwiki source is in `/wiki/src`) and the corresponding online version is available at <https://tails.boum.org/forum/>. The buggy `!inline` is already included in the original `forum.mdwn`. The buggy `!map` is not but the bug can be reproduced by just including it in the source of the forum.
