@@ -37,3 +37,27 @@ This can be placed in `page.tmpl`:
 	</html>
 
 This script has not been extensively tested.
+
+---
+
+A version that handles anchors:
+
+
+	function fixLinks() {
+	  var scheme = location.protocol;
+	  if (scheme != "file:") return;
+	  var links = document.getElementsByTagName("a");
+	  for (var i = links.length; --i >= 0; ) {
+	    var link = links[i];
+	    var href = link.href;
+	    var anchor = "";
+	    var anchorIndex = href.indexOf("#");
+	    if (anchorIndex != -1) {
+	      anchor = href.substring(anchorIndex);
+	      href = href.substring(0, anchorIndex);
+	    };
+	    var hlen = href.length;
+	    if (hlen > 0 && link.protocol==scheme && href.charAt(hlen-1) == "/")
+	      links[i].href = href + "index.html" + anchor;
+	  }
+	}
