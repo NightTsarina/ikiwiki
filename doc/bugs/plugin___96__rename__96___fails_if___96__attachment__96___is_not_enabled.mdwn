@@ -1,0 +1,5 @@
+ikiwiki 3.20110712: A try to rename a page through the web interface without plugin `attachment` enabled renders:
+
+    Error: Undefined subroutine &IkiWiki::Plugin::attachment::attachment_holding_location called at /usr/share/perl5/IkiWiki/Plugin/rename.pm line 326.
+
+Enabling `attachment` makes it work. Some check if `attachment` is enabled before running that code path would solve it. Not sure of the best way to check it. --[[Daniel Andersson]]
