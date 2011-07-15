@@ -123,7 +123,6 @@ sub removal_confirm ($$@) {
 		if (IkiWiki::Plugin::attachment->can("is_held_attachment")) {
 			my $f=IkiWiki::Plugin::attachment::is_held_attachment($page);
 			if (defined $f) {
-				print STDERR "!! remove $f\n";
 				require IkiWiki::Render;
 				IkiWiki::prune($f);
 			}
