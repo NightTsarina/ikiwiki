@@ -120,7 +120,7 @@ sub removal_confirm ($$@) {
 		
 	# Special case for unsaved attachments.
 	foreach my $page (@pages) {
-		if (IkiWiki::Plugin::attachment->can("is_held_attachment")) {
+		if ($attachment && IkiWiki::Plugin::attachment->can("is_held_attachment")) {
 			my $f=IkiWiki::Plugin::attachment::is_held_attachment($page);
 			if (defined $f) {
 				require IkiWiki::Render;
