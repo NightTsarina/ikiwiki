@@ -12,13 +12,13 @@ in those cases. Under my current setup, I don't know where else to expect
 it to work. I would be flabberghasted if there wasn't any problems with it,
 though.
 
-> Absolutely, the [[rcs]] chart shows mercurial is lagging behind
+> Absolutely, the [[/rcs]] chart shows mercurial is lagging behind
 > nearly everything. 
 > 
 > I don't think this stuff is hard, or unlikely to work, familiarity with
 > the rcs's particular details is the main thing. --[[Joey]] 
 
-Diff follows, for anyone to annotate. First code version is also available at [my hg-repo](http://510x.se/hg/program/ikiwiki/file/e741fcfd800f/Plugin/mercurial.pm). Latest version should be [here](http://46.239.104.5:81/hg/program/ikiwiki/file/tip/Plugin/mercurial.pm). I'll notify on this page when I've actually commited changes. --[[Daniel Andersson]]
+Diff follows, for anyone to annotate. First code version is also available at [my hg-repo](http://510x.se/hg/program/ikiwiki/file/e741fcfd800f/Plugin/mercurial.pm). Latest version should be [here](http://46.239.104.5:81/hg/program/ikiwiki/file/tip/Plugin/mercurial.pm) ([raw format](http://46.239.104.5:81/hg/program/ikiwiki/raw-file/tip/Plugin/mercurial.pm)). I'll notify on this page with "*Done*" remarks when I've actually commited changes to my local repository. I don't know if I should replace the code and the comments below when I've changed something. I'll probably do this when the code feels more mature. --[[Daniel Andersson]]
 
 	diff -r 20c61288d7bd Plugin/mercurial.pm
 	--- a/Plugin/mercurial.pm	Fri Jul 15 02:55:12 2011 +0200
@@ -39,7 +39,7 @@ Mercurial, but when more advanced merge features become available for
 
 > Maybe.. I'd rather avoid unused cruft though. --[[Joey]]
 
->> OK, will be removed. --[[Daniel Andersson]]
+>> OK, will be removed. *Done* --[[Daniel Andersson]]
 
 	@@ -69,6 +71,62 @@
 			},
@@ -74,7 +74,7 @@ Mercurial, but when more advanced merge features become available for
 > it's quite likely this is the place the patch fails in some
 > unusual circumstance.. but I think it could easily use `-R` here.
 
->> It works since `if (! defined $hg_dir)` always hits, and `chdir $config{srcdir}` is well defined. The whole logic is just used in `git.pm` for merge functionality that is not present in `mercurial.pm`, so by the cruft argument, this should be replaced with just chdir `$config{srcdir}` (which is equivalent to `hg -R` or `hg --cwd` from what I know). Will be removed. --[[Daniel Andersson]]
+>> It works since `if (! defined $hg_dir)` always hits, and `chdir $config{srcdir}` is well defined. The whole logic is just used in `git.pm` for merge functionality that is not present in `mercurial.pm`, so by the cruft argument above, this should be replaced with just chdir `$config{srcdir}` (which is equivalent to `hg -R` or `hg --cwd` from what I know). Will be removed. *Done* --[[Daniel Andersson]]
 
 	+		exec @cmdline or error("Cannot exec '@cmdline': $!");
 	+	}
@@ -89,7 +89,7 @@ Mercurial, but when more advanced merge features become available for
 
 >> I don't know. ["hg stores everything internally as UTF-8, except for pathnames"](https://jira.atlassian.com/browse/FE-3198), but output is dependent on the system's locale. The environment variable `HGENCODING=utf-8` can be set to ensure that Mercurial's own output is always UTF-8, but when viewing a diff containing non-UTF-8 changes, the affected lines are nevertheless output in their original encoding. I personally think that this is the correct way to output it, though, unless there is a possibility that someone is running ikiwiki wih a non-UTF-8 locale.
 
->> As is demonstrated later for the `rename` plugin, there are some character encoding issues, though. --[[Daniel Andersson]]
+>>> *Done*. I removed the `encode_utf8()` part and instead set `HGENCODING=utf-8` where the external `hg` command was called. It seems to have taken care of "all" character encoding issues (but it is an almost infinite error pool to draw from, so some problem might pop up). --[[Daniel Andersson]]
 
 	+	my @lines;
 	+	while (<$OUT>) {
@@ -148,7 +148,7 @@ With the `run_or_{die,cry,non}()` functions defined as in `git.pm`, some old Mer
 
 > This `%env` stash is unused; `%ENV` is never modified.
 
->> Yes, the code is missing setting the username at all. The local `hgrc` file is always used. I'll add setting of `$ENV{HGUSER}`. --[[Daniel Andersson]]
+>> Yes, the code is missing setting the username at all. The local `hgrc` file is always used. I'll add setting of `$ENV{HGUSER}`. *Done* --[[Daniel Andersson]]
 
 	+
 		my $user="Anonymous";
@@ -162,7 +162,7 @@ Some old `mercurial.pm` logic concerning commiter name is kept instead of transp
 > Exactly how to encode the nickname from openid in the commit metadata,
 > and get it back out in `rcs_recentchanges`, would probably vary from git.
 
->> I'll test and see. --[[Daniel Andersson]]
+>> Yes, right now the long and ugly OpenID strings, e.g. `https://www.google.com/accounts/o8/id?id=AItOawmUIes3yDLfQME0uvZvJKDN0NsdKPx_PTw`, gets recorded as author and are shown as `id [www.google.com/accounts/o8]` in RecentChanges. I see that here on `ikiwiki.info`, my commits, identified by OpenID, are shown as authored by simply `Daniel`. I'll look into it. --[[Daniel Andersson]]
 
 	@@ -143,43 +206,45 @@
 			$params{message} = "no message given";
@@ -237,8 +237,10 @@ Some old `mercurial.pm` logic concerning commiter name is kept instead of transp
     [Fri Jul 15 14:58:17 2011] [error] [client 46.239.104.5] abort: decoding near 'itle_with_\xc3\xa5\xc3\xa4\xc3\xb6.mdw': 'ascii' codec can't decode byte 0xc3 in position 66: ordinal not in range(128)!, referer: http://46.239.104.5:81/blog/ikiwiki.cgi
     [Fri Jul 15 14:58:17 2011] [error] [client 46.239.104.5] 'hg commit -m rename posts/title_without_special_chars.mdwn to posts/title_with_\xc3\xa5\xc3\xa4\xc3\xb6.mdwn -q' failed:  at /usr/share/perl5/IkiWiki/Plugin/mercurial.pm line 123., referer: http://46.239.104.5:81/blog/ikiwiki.cgi
 
->>> I added setting the environment variable `HGENCODING=utf-8` in `rcs_commit_helper`, which took care of these problems. --[[Daniel Andersson]]
+>>> I added setting the environment variable `HGENCODING=utf-8` in `rcs_commit_helper`, which took care of these problems. *Done* --[[Daniel Andersson]]
 
 >> When this has happened, directly following by `rename` and `remove` doesn't work as it should, since the file is not commited. `hg remove -f` doesn't physically remove files that aren't tracked (no `hg` command does). Perhaps a regular `unlink $file` should be called to not clutter the source dir if `hg remove` failed because the file wasn't tracked. --[[Daniel Andersson]]
 
 >> I've also noted that when a post is added or removed, the commit message lacks the page title. It contains the title when the page is renamed though, so it should be an easy fix. I'll look into it. --[[Daniel Andersson]]
+
+>>> This is to do with `{rename,remove,editchanges}.pm`. The last two simply don't give a message to `rcs_commit_staged`. Separate issue. --[[Daniel Andersson]]
