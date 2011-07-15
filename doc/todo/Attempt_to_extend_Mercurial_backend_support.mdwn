@@ -1,6 +1,22 @@
-Using the Mercurial backend, the lack of `rcs_commit_staged` is noticed frequently. I couldn't find any tries to update `mercurial.pm`, so not letting lack of Mercurial AND Perl knowledge bring me down, I copy-pasted from `git.pm` to mimic its behaviour from a Mercurial perspective. I hope it can be a foundation for development by those more proficient in ikiwiki's inner workings. I have doubts that I personally will be able to revise it more, based on my Perl skills.
+Using the Mercurial backend, the lack of `rcs_commit_staged` is noticed
+frequently. I couldn't find any tries to update `mercurial.pm`, so not
+letting lack of Mercurial AND Perl knowledge bring me down, I copy-pasted
+from `git.pm` to mimic its behaviour from a Mercurial perspective. I hope
+it can be a foundation for development by those more proficient in
+ikiwiki's inner workings. I have doubts that I personally will be able to
+revise it more, based on my Perl skills.
 
-I've tested it briefly. `ikiwiki-calendar` and posting of comments now works with automatic commits, i.e. the `rcs_commit_staged` function works in those cases. Under my current setup, I don't know where else to expect it to work. I would be flabberghasted if there wasn't any problems with it, though.
+I've tested it briefly. `ikiwiki-calendar` and posting of comments now
+works with automatic commits, i.e. the `rcs_commit_staged` function works
+in those cases. Under my current setup, I don't know where else to expect
+it to work. I would be flabberghasted if there wasn't any problems with it,
+though.
+
+> Absolutely, the [[rcs]] chart shows mercurial is lagging behind
+> nearly everything. 
+> 
+> I don't think this stuff is hard, or unlikely to work, familiarity with
+> the rcs's particular details is the main thing. --[[Joey]] 
 
 Diff follows, for anyone to annotate. Code is also available at [my hg-repo](http://510x.se/hg/program/ikiwiki/file/e741fcfd800f/Plugin/mercurial.pm).
 
@@ -17,7 +33,11 @@ Diff follows, for anyone to annotate. Code is also available at [my hg-repo](htt
 		hook(type => "checkconfig", id => "mercurial", call => \&checkconfig);
 		hook(type => "getsetup", id => "mercurial", call => \&getsetup);
 
-A corresponding variable is declared for git. It is unused as of yet for Mercurial, but when more advanced merge features become available for `mercurial.pm`, I think it will come into play.
+A corresponding variable is declared for git. It is unused as of yet for
+Mercurial, but when more advanced merge features become available for
+`mercurial.pm`, I think it will come into play.
+
+> Maybe.. I'd rather avoid unused cruft though. --[[Joey]]
 
 	@@ -69,6 +71,62 @@
 			},
@@ -45,6 +65,13 @@ A corresponding variable is declared for git. It is unused as of yet for Mercuri
 	+			chdir $hg_dir
 	+			    or error("cannot chdir to $hg_dir: $!");
 	+		}
+
+> How can this possibly work, since `$hg_dir` is not set? The code
+> that is being replaced seems to use `-R` to make hg use the right
+> directory. If it worked for you without specifying the directory,
+> it's quite likely this is the place the patch fails in some
+> unusual circumstance.. but I think it could easily use `-R` here.
+
 	+		exec @cmdline or error("Cannot exec '@cmdline': $!");
 	+	}
 	+	# In parent.
@@ -53,7 +80,9 @@ A corresponding variable is declared for git. It is unused as of yet for Mercuri
 	+	# other encodings or invalidly encoded stuff. So do not rely
 	+	# on the normal utf-8 IO layer, decode it by hand.
 	+	binmode($OUT);
-	+
+
+> Is this actually true for hg?
+
 	+	my @lines;
 	+	while (<$OUT>) {
 	+		$_=decode_utf8($_, 0);
@@ -108,6 +137,9 @@ With the `run_or_{die,cry,non}()` functions defined as in `git.pm`, some old Mer
 	+	my %params=@_;
 	+
 	+	my %env=%ENV;
+
+> This `%env` stash is unused; `%ENV` is never modified.
+
 	+
 		my $user="Anonymous";
 		if (defined $params{session}) {
@@ -116,6 +148,9 @@ With the `run_or_{die,cry,non}()` functions defined as in `git.pm`, some old Mer
 Here comes the `rcs_commit{,_staged}` part. It is modeled on a `rcs_commit_helper` function, as in `git.pm`.
 
 Some old `mercurial.pm` logic concerning commiter name is kept instead of transplanting the more elaborate logic from `git.pm`. Maybe it is better to "steal" that as well.
+
+> Exactly how to encode the nickname from openid in the commit metadata,
+> and get it back out in `rcs_recentchanges`, would probably vary from git.
 
 	@@ -143,43 +206,45 @@
 			$params{message} = "no message given";
@@ -178,3 +213,7 @@ Some old `mercurial.pm` logic concerning commiter name is kept instead of transp
 	 }
 	 
 	 sub rcs_recentchanges ($) {
+
+> Remainder seems ok to me. Should probably test that the remove plugin 
+> works, since this implements `rcs_remove` too and you didn't mention
+> any tests that would run that code path. --[[Joey]] 
