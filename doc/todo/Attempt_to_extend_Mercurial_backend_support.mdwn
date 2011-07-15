@@ -237,6 +237,8 @@ Some old `mercurial.pm` logic concerning commiter name is kept instead of transp
     [Fri Jul 15 14:58:17 2011] [error] [client 46.239.104.5] abort: decoding near 'itle_with_\xc3\xa5\xc3\xa4\xc3\xb6.mdw': 'ascii' codec can't decode byte 0xc3 in position 66: ordinal not in range(128)!, referer: http://46.239.104.5:81/blog/ikiwiki.cgi
     [Fri Jul 15 14:58:17 2011] [error] [client 46.239.104.5] 'hg commit -m rename posts/title_without_special_chars.mdwn to posts/title_with_\xc3\xa5\xc3\xa4\xc3\xb6.mdwn -q' failed:  at /usr/share/perl5/IkiWiki/Plugin/mercurial.pm line 123., referer: http://46.239.104.5:81/blog/ikiwiki.cgi
 
+>>> I added setting the environment variable `HGENCODING=utf-8` in `rcs_commit_helper`, which took care of these problems. --[[Daniel Andersson]]
+
 >> When this has happened, directly following by `rename` and `remove` doesn't work as it should, since the file is not commited. `hg remove -f` doesn't physically remove files that aren't tracked (no `hg` command does). Perhaps a regular `unlink $file` should be called to not clutter the source dir if `hg remove` failed because the file wasn't tracked. --[[Daniel Andersson]]
 
 >> I've also noted that when a post is added or removed, the commit message lacks the page title. It contains the title when the page is renamed though, so it should be an easy fix. I'll look into it. --[[Daniel Andersson]]
