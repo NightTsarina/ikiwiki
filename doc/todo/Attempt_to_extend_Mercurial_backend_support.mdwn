@@ -1,0 +1,180 @@
+Using the Mercurial backend, the lack of `rcs_commit_staged` is noticed frequently. I couldn't find any tries to update `mercurial.pm`, so not letting lack of Mercurial AND Perl knowledge bring me down, I copy-pasted from `git.pm` to mimic its behaviour from a Mercurial perspective. I hope it can be a foundation for development by those more proficient in ikiwiki's inner workings. I have doubts that I personally will be able to revise it more, based on my Perl skills.
+
+I've tested it briefly. `ikiwiki-calendar` and posting of comments now works with automatic commits, i.e. the `rcs_commit_staged` function works in those cases. Under my current setup, I don't know where else to expect it to work. I would be flabberghasted if there wasn't any problems with it, though.
+
+Diff follows, for anyone to annotate. Code is also available at [my hg-repo](http://510x.se/hg/program/ikiwiki/file/e741fcfd800f/Plugin/mercurial.pm).
+
+	diff -r 20c61288d7bd Plugin/mercurial.pm
+	--- a/Plugin/mercurial.pm	Fri Jul 15 02:55:12 2011 +0200
+	+++ b/Plugin/mercurial.pm	Fri Jul 15 03:29:10 2011 +0200
+	@@ -7,6 +7,8 @@
+	 use Encode;
+	 use open qw{:utf8 :std};
+	 
+	+my $hg_dir=undef;
+	+
+	 sub import {
+		hook(type => "checkconfig", id => "mercurial", call => \&checkconfig);
+		hook(type => "getsetup", id => "mercurial", call => \&getsetup);
+
+A corresponding variable is declared for git. It is unused as of yet for Mercurial, but when more advanced merge features become available for `mercurial.pm`, I think it will come into play.
+
+	@@ -69,6 +71,62 @@
+			},
+	 }
+	 
+	+sub safe_hg (&@) {
+	+	# Start a child process safely without resorting to /bin/sh.
+	+	# Returns command output (in list content) or success state
+	+	# (in scalar context), or runs the specified data handler.
+	+
+	+	my ($error_handler, $data_handler, @cmdline) = @_;
+	+
+	+	my $pid = open my $OUT, "-|";
+	+
+	+	error("Cannot fork: $!") if !defined $pid;
+	+
+	+	if (!$pid) {
+	+		# In child.
+	+		# hg commands want to be in wc.
+	+		if (! defined $hg_dir) {
+	+			chdir $config{srcdir}
+	+			    or error("cannot chdir to $config{srcdir}: $!");
+	+		}
+	+		else {
+	+			chdir $hg_dir
+	+			    or error("cannot chdir to $hg_dir: $!");
+	+		}
+	+		exec @cmdline or error("Cannot exec '@cmdline': $!");
+	+	}
+	+	# In parent.
+	+
+	+	# hg output is probably utf-8 encoded, but may contain
+	+	# other encodings or invalidly encoded stuff. So do not rely
+	+	# on the normal utf-8 IO layer, decode it by hand.
+	+	binmode($OUT);
+	+
+	+	my @lines;
+	+	while (<$OUT>) {
+	+		$_=decode_utf8($_, 0);
+	+
+	+		chomp;
+	+
+	+		if (! defined $data_handler) {
+	+			push @lines, $_;
+	+		}
+	+		else {
+	+			last unless $data_handler->($_);
+	+		}
+	+	}
+	+
+	+	close $OUT;
+	+
+	+	$error_handler->("'@cmdline' failed: $!") if $? && $error_handler;
+	+
+	+	return wantarray ? @lines : ($? == 0);
+	+}
+	+# Convenient wrappers.
+	+sub run_or_die ($@) { safe_hg(\&error, undef, @_) }
+	+sub run_or_cry ($@) { safe_hg(sub { warn @_ }, undef, @_) }
+	+sub run_or_non ($@) { safe_hg(undef, undef, @_) }
+	+
+	 sub mercurial_log ($) {
+		my $out = shift;
+		my @infos;
+	@@ -116,10 +174,7 @@
+	 }
+	 
+	 sub rcs_update () {
+	-	my @cmdline = ("hg", "-q", "-R", "$config{srcdir}", "update");
+	-	if (system(@cmdline) != 0) {
+	-		warn "'@cmdline' failed: $!";
+	-	}
+	+	run_or_cry('hg', '-q', 'update');
+	 }
+	 
+	 sub rcs_prepedit ($) {
+
+With the `run_or_{die,cry,non}()` functions defined as in `git.pm`, some old Mercurial functions can be rewritten more compactly.
+
+	@@ -129,6 +184,14 @@
+	 sub rcs_commit (@) {
+		my %params=@_;
+	 
+	+	return rcs_commit_helper(@_);
+	+}
+	+
+	+sub rcs_commit_helper (@) {
+	+	my %params=@_;
+	+
+	+	my %env=%ENV;
+	+
+		my $user="Anonymous";
+		if (defined $params{session}) {
+			if (defined $params{session}->param("name")) {
+
+Here comes the `rcs_commit{,_staged}` part. It is modeled on a `rcs_commit_helper` function, as in `git.pm`.
+
+Some old `mercurial.pm` logic concerning commiter name is kept instead of transplanting the more elaborate logic from `git.pm`. Maybe it is better to "steal" that as well.
+
+	@@ -143,43 +206,45 @@
+			$params{message} = "no message given";
+		}
+	 
+	-	my @cmdline = ("hg", "-q", "-R", $config{srcdir}, "commit", 
+	-	               "-m", IkiWiki::possibly_foolish_untaint($params{message}),
+	-	               "-u", IkiWiki::possibly_foolish_untaint($user));
+	-	if (system(@cmdline) != 0) {
+	-		warn "'@cmdline' failed: $!";
+	+	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
+	+
+	+	my @opts;
+	+	
+	+	if (exists $params{file}) {
+	+		push @opts, '--', $params{file};
+		}
+	-
+	+	# hg commit returns non-zero if nothing really changed.
+	+	# So we should ignore its exit status (hence run_or_non).
+	+	run_or_non('hg', 'commit', '-m', $params{message}, '-q', @opts);
+	+	
+	+	%ENV=%env;
+		return undef; # success
+	 }
+	 
+	 sub rcs_commit_staged (@) {
+		# Commits all staged changes. Changes can be staged using rcs_add,
+		# rcs_remove, and rcs_rename.
+	-	my %params=@_;
+	-	
+	-	error("rcs_commit_staged not implemented for mercurial"); # TODO
+	+	return rcs_commit_helper(@_);
+	 }
+	 
+	 sub rcs_add ($) {
+		my ($file) = @_;
+	 
+	-	my @cmdline = ("hg", "-q", "-R", "$config{srcdir}", "add", "$config{srcdir}/$file");
+	-	if (system(@cmdline) != 0) {
+	-		warn "'@cmdline' failed: $!";
+	-	}
+	+	run_or_cry('hg', 'add', $file);
+	 }
+	 
+	 sub rcs_remove ($) {
+	+	# Remove file from archive.
+	+
+		my ($file) = @_;
+	 
+	-	error("rcs_remove not implemented for mercurial"); # TODO
+	+	run_or_cry('hg', 'remove', '-f', $file);
+	 }
+	 
+	 sub rcs_rename ($$) {
+		my ($src, $dest) = @_;
+	 
+	-	error("rcs_rename not implemented for mercurial"); # TODO
+	+	run_or_cry('hg', 'rename', '-f', $src, $dest);
+	 }
+	 
+	 sub rcs_recentchanges ($) {
