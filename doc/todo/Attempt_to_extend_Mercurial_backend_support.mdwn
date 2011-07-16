@@ -22,6 +22,12 @@ Diff follows, for anyone to annotate. First code version is also available at [m
 
 > I've looked over the current version and it looks ok to me. --[[Joey]]
 
+>> I changed the by `mercurial.pm` recorded commit messages and the `rcs_recentchanges` logic to include more information, to emulate the `git.pm` behaviour regarding name presentation on RecentChanges. I don't have anything more to add at the moment, so if the code passes review, I'm done, and I tag this page as "patch". [Final patch version as per this page at my hg repo](http://510x.se/hg/program/ikiwiki/file/bc0e2f838fe3/Plugin/mercurial.pm) ([raw format](http://46.239.104.5:81/hg/program/ikiwiki/raw-file/bc0e2f838fe3/Plugin/mercurial.pm)). I keep the below conversation for reference, but it's mostly outdated. --[[Daniel Andersson]]
+
+[[!tag patch]]
+
+***
+
 	diff -r 20c61288d7bd Plugin/mercurial.pm
 	--- a/Plugin/mercurial.pm	Fri Jul 15 02:55:12 2011 +0200
 	+++ b/Plugin/mercurial.pm	Fri Jul 15 03:29:10 2011 +0200
@@ -165,6 +171,8 @@ Some old `mercurial.pm` logic concerning commiter name is kept instead of transp
 > and get it back out in `rcs_recentchanges`, would probably vary from git.
 
 >> Yes, right now the long and ugly OpenID strings, e.g. `https://www.google.com/accounts/o8/id?id=AItOawmUIes3yDLfQME0uvZvJKDN0NsdKPx_PTw`, gets recorded as author and are shown as `id [www.google.com/accounts/o8]` in RecentChanges. I see that here on `ikiwiki.info`, my commits, identified by OpenID, are shown as authored by simply `Daniel`. I'll look into it. --[[Daniel Andersson]]
+
+>>> I adapted some logic from `git.pm`. `hg` only has a single commiter name field, whereas `git` has both `GIT_AUTHOR_NAME` and `GIT_AUTHOR_EMAIL`. The behaviour can be emulated by encoding nick and commit medium into commiter name as "`https://www.google.com/accounts/o8/id?id=AItOawmUIes3yDLfQME0uvZvJKDN0NsdKPx_PTw <Daniel@web>`" and parsing this out as necessary when `rcs_recentchanges` is called. *Done* --[[Daniel Andersson]]
 
 	@@ -143,43 +206,45 @@
 			$params{message} = "no message given";
