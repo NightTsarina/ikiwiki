@@ -1,0 +1,24 @@
+When I added or edited a page, no commit message was written out (Mercurial backend, though I guess it shouldn't matter). This was done for e.g. the `rename` plugin. I made a naive but seemingly working change to `editpage.pm` to add a message.
+
+I modeled the message on `rename.pm`, which used a lowercase initial letter and imperative form of the verb. This is not the case for e.g. the `comment` plugin, which says "Added a comment: ", so I guess there is no strict rule on style in this case.
+
+Diff follows. --[[Daniel Andersson]]
+
+[[!tag patch]]
+
+---
+
+	diff -r ee177ca9bf36 Plugin/editpage.pm
+	--- a/Plugin/editpage.pm	Fri Jul 15 17:58:04 2011 +0200
+	+++ b/Plugin/editpage.pm	Sat Jul 16 03:01:13 2011 +0200
+	@@ -405,6 +405,10 @@
+	 		if ($config{rcs}) {
+	 			if (! $exists) {
+	 				rcs_add($file);
+	+				$message = "add $file";
+	+			}
+	+			else {
+	+				$message = "edit $file";
+	 			}
+	 
+	 			# Prevent deadlock with post-commit hook by
