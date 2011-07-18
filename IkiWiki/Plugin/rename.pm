@@ -184,7 +184,7 @@ sub rename_start ($$$$) {
 	my $held=$attachment &&
 		IkiWiki::Plugin::attachment->can("is_held_attachment") &&
 		IkiWiki::Plugin::attachment::is_held_attachment($page);
-	if (! defined $held) {
+	if (! $held) {
 		check_canrename($page, $pagesources{$page}, undef, undef,
 			$q, $session);
 	}
@@ -322,7 +322,7 @@ sub sessioncgi ($$) {
 			my $held=$q->param("attachment") &&
 				IkiWiki::Plugin::attachment->can("is_held_attachment") &&
 				IkiWiki::Plugin::attachment::is_held_attachment($src);
-			if (defined $held) {
+			if ($held) {
 				rename($held, IkiWiki::Plugin::attachment::attachment_holding_location($dest));
 				postrename($session, $src, $dest, $q->param("attachment"))
 					unless defined $srcfile;

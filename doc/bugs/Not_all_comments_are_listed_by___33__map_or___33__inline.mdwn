@@ -1,0 +1,32 @@
+While working on our forum I was surprised to see that some of the comments were not appearing in the RSS feed created by `!inline pages="forum/* or comment(forum/*)" feedonly="yes" show="25"`.
+
+> I'm seeing some comments in the rss feed. The feed is limited to the 25
+> most recent items, you can increase that with feedshow. --[[Joey]]
+
+>> Of course, but in the feed, some of the new comments don't show up.
+>> Most does but not all. For example, none of the comments of this thread
+>> appears in the RSS, even though they should according to the « 25 most
+>> recent items » criteria:
+>> <https://tails.boum.org/forum/Security_Updates:_apt-get_Sufficient__63__/> --sajolida
+
+Then I found out that a map directive such as `!map pages="forum/* or
+comment(forum/*)"` was bringing a weird result too. The output is a map
+with quite a few broken links.
+
+> This is the same as if you tried to link to a comment page or other 
+> internal page with a [[ikiwiki/WikiLink]] -- you'd get a broken link
+> or a create link because these are not true wiki pages. --[[Joey]]
+
+>> So I don't understand why 90 % of the comments are linked well and 10 %
+>> are broken links. Why does this map behave differently for only a few comments? --sajolida
+
+Plus, some broken links in the map do match the comments missing on the RSS feed but some others do not.
+
+Unfortunately, I couldn't find an obvious pattern for this failure.
+
+We think it's a bug in ikiwiki. Our git repo is publicly available at
+`git://git.immerda.ch/amnesia.git` (the ikiwiki source is in `/wiki/src`)
+and the corresponding online version is available at
+<https://tails.boum.org/forum/>. The buggy `!inline` is already included in
+the original `forum.mdwn`. The buggy `!map` is not but the bug can be
+reproduced by just including it in the source of the forum.
