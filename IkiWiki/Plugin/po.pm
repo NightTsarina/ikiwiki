@@ -343,6 +343,13 @@ sub pagetemplate (@) {
 	if ($template->query(name => "istranslatable")) {
 		$template->param(istranslatable => istranslatable($page));
 	}
+	my $lang_code = istranslation($page) ? lang($page) : $master_language_code;
+	if ($template->query(name => "lang_code")) {
+		$template->param(lang_code => $lang_code);
+	}
+	if ($template->query(name => "lang_name")) {
+		$template->param(lang_name => languagename($lang_code));
+	}
 	if ($template->query(name => "HOMEPAGEURL")) {
 		$template->param(homepageurl => homepageurl($page));
 	}
