@@ -307,7 +307,23 @@ sub rcs_recentchanges ($) {
 }
 
 sub rcs_diff ($;$) {
-	# TODO
+	my $rev=shift;
+	my $maxlines=shift;
+	my @lines;
+	my $addlines=sub {
+		my $line=shift;
+		return if defined $maxlines && @lines == $maxlines;
+		push @lines, $line."\n"
+			if (@lines || $line=~/^diff --git/);
+		return 1;
+	};
+	safe_hg(undef, $addlines, "hg", "diff", "-c", $rev, "-g");
+	if (wantarray) {
+		return @lines;
+	}
+	else {
+		return join("", @lines);
+	}
 }
 
 {
