@@ -258,7 +258,7 @@ sub rcs_recentchanges ($) {
 	foreach my $info (mercurial_log($out)) {
 		my @pages = ();
 		my @message = ();
-        
+
 		foreach my $msgline (split(/\n/, $info->{description})) {
 			push @message, { line => $msgline };
 		}
@@ -310,28 +310,80 @@ sub rcs_diff ($;$) {
 	# TODO
 }
 
-sub rcs_getctime ($) {
-	my ($file) = @_;
+{
+my %time_cache;
 
-	my @cmdline = ("hg", "-R", $config{srcdir}, "log", "-v",
-		"--style", "default", "$config{srcdir}/$file");
-	open (my $out, "-|", @cmdline);
+sub findtimes ($$) {
+	my $file=shift;
+	my $id=shift; # 0 = mtime ; 1 = ctime
 
-	my @log = (mercurial_log($out));
+	if (! keys %time_cache) {
+		my $date;
 
-	if (@log < 1) {
-		return 0;
+		# It doesn't seem possible to specify the format wanted for the
+		# changelog (same format as is generated in git.pm:findtimes(),
+		# though the date differs slightly) without using a style
+		# _file_. There is a "hg log" switch "--template" to directly
+		# control simple output formatting, but in this case, the
+		# {file} directive must be redefined, which can only be done
+		# with "--style".
+		#
+		# If {file} is not redefined, all files are output on a single
+		# line separated with a space. It is not possible to conclude
+		# if the space is part of a filename or just a separator, and
+		# thus impossible to use in this case.
+		# 
+		# Some output filters are available in hg, but they are not fit
+		# for this cause (and would slow down the process
+		# unnecessarily).
+		
+		eval q{use File::Temp};
+		error $@ if $@;
+		my ($tmpl_fh, $tmpl_filename) = File::Temp::tempfile(UNLINK => 1);
+		
+		print $tmpl_fh 'changeset = "{date}\\n{files}\\n"' . "\n";
+		print $tmpl_fh 'file = "{file}\\n"' . "\n";
+		
+		foreach my $line (run_or_die('hg', 'log', '--style', $tmpl_filename)) {
+			# {date} gives output on the form
+			# 1310694511.0-7200
+			# where the first number is UTC Unix timestamp with one
+			# decimal (decimal always 0, at least on my system)
+			# followed by local timezone offset from UTC in
+			# seconds.
+			if (! defined $date && $line =~ /^\d+\.\d[+-]\d*$/) {
+				$line =~ s/^(\d+).*/$1/;
+				$date=$line;
+			}
+			elsif (! length $line) {
+				$date=undef;
+			}
+			else {
+				my $f=$line;
+
+				if (! $time_cache{$f}) {
+					$time_cache{$f}[0]=$date; # mtime
+				}
+				$time_cache{$f}[1]=$date; # ctime
+			}
+		}
 	}
 
-	eval q{use Date::Parse};
-	error($@) if $@;
-	
-	my $ctime = str2time($log[$#log]->{"date"});
-	return $ctime;
+	return exists $time_cache{$file} ? $time_cache{$file}[$id] : 0;
+}
+
+}
+
+sub rcs_getctime ($) {
+	my $file = shift;
+
+	return findtimes($file, 1);
 }
 
 sub rcs_getmtime ($) {
-	error "rcs_getmtime is not implemented for mercurial\n"; # TODO
+	my $file = shift;
+
+	return findtimes($file, 0);
 }
 
 1
