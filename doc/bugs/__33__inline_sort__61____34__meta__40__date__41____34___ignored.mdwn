@@ -1,23 +1,24 @@
 I am trying to do an !inline and sort the pages after meta(date)
 
-[[!inline pages="blog/* and !*/Discussion" sort="meta(date)" show="0" rootpage="blog" archive="yes"]]
+	\[[!inline pages="blog/* and !*/Discussion" sort="meta(date)" show="0" rootpage="blog" archive="yes"]]
 
 There are a few pages inside blog/* and I would like to give the !meta line as example for two of them:
 
 page 1: blog/get_http.mdwn
-[[!meta title="HTTP GET method" date="2010-09-17 00:00:00"]]
+
+	\[[!meta title="HTTP GET method" date="2010-09-17 00:00:00"]]
 
 page 2: blog/nagios.mdwn
-[[!meta title="Nagios 3" date="2010-09-09 00:00:00"]]
+
+	\[[!meta title="Nagios 3" date="2010-09-09 00:00:00"]]
 
 page 3: blog/using_macos.mdwn
-[[!meta title="How I am using Mac OS X" date="2010-06-10 00:00:00"]]
 
-The ordering which is created can be seen at [1] is
+	\[[!meta title="How I am using Mac OS X" date="2010-06-10 00:00:00"]]
 
-page 1
-page 3
-page 2
+The ordering which is created can be seen at <http://www.michael-hammer.at/blog_all> and is 
+
+page 1 -> page 3 -> page 2
 
 which is obviously not correct. I can say that the ordering is regardless of the sort="" argument inside !inline done by the ctime. This is really annoying as ctime is hard to recover if one has to move the blog from one machine to another.
 
@@ -25,6 +26,6 @@ which is obviously not correct. I can say that the ordering is regardless of the
 - Is this a bug? If not: Why is meta(date) ignored?
 
 % ikiwiki --version
+
 ikiwiki version 3.20100815.7
 
-[1] http://www.michael-hammer.at/blog_all/
