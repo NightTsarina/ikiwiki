@@ -12,6 +12,12 @@ Diff follows. --[[Daniel Andersson]]
 
 >> I use the Mercurial backend, and Mercurial doesn't allow empty commit messages, so if there were no message, it would default to "no message given" (hardcoded in `mercurial.pm`), which is also clutter, and non-descriptive at that. But I'm on board with your reasoning. It's a matter of taste (and somewhat backend), I guess. I might continue to locally use this patch (with the caveat below fixed when commit message is given), but I won't push for it to be included upstream. --[[Daniel Andersson]]
 
+>>> Hmm.. It would be possible to make the mercurial backend 
+>>> include the filename (or just "added" or "edited") in the commit
+>>> message. It might take some work, especially to handle
+>>> `rcs_commit_staged`, since it would probably need to cache
+>>> what files have been staged for commit. --[[Joey]] 
+
 > Also your patch stomps over any commit message that the user *does*
 > provide, so certianly cannot be applied as-is. --[[Joey]] 
 
