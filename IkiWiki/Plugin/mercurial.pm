@@ -69,6 +69,50 @@ sub getsetup () {
 		},
 }
 
+sub safe_hg (&@) {
+	# Start a child process safely without resorting to /bin/sh.
+	# Returns command output (in list content) or success state
+	# (in scalar context), or runs the specified data handler.
+
+	my ($error_handler, $data_handler, @cmdline) = @_;
+
+	my $pid = open my $OUT, "-|";
+
+	error("Cannot fork: $!") if !defined $pid;
+
+	if (!$pid) {
+		# In child.
+		# hg commands want to be in wc.
+		chdir $config{srcdir}
+		    or error("cannot chdir to $config{srcdir}: $!");
+
+		exec @cmdline or error("Cannot exec '@cmdline': $!");
+	}
+	# In parent.
+
+	my @lines;
+	while (<$OUT>) {
+		chomp;
+
+		if (! defined $data_handler) {
+			push @lines, $_;
+		}
+		else {
+			last unless $data_handler->($_);
+		}
+	}
+
+	close $OUT;
+
+	$error_handler->("'@cmdline' failed: $!") if $? && $error_handler;
+
+	return wantarray ? @lines : ($? == 0);
+}
+# Convenient wrappers.
+sub run_or_die ($@) { safe_hg(\&error, undef, @_) }
+sub run_or_cry ($@) { safe_hg(sub { warn @_ }, undef, @_) }
+sub run_or_non ($@) { safe_hg(undef, undef, @_) }
+
 sub mercurial_log ($) {
 	my $out = shift;
 	my @infos;
@@ -116,10 +160,7 @@ sub mercurial_log ($) {
 }
 
 sub rcs_update () {
-	my @cmdline = ("hg", "-q", "-R", "$config{srcdir}", "update");
-	if (system(@cmdline) != 0) {
-		warn "'@cmdline' failed: $!";
-	}
+	run_or_cry('hg', '-q', 'update');
 }
 
 sub rcs_prepedit ($) {
@@ -129,61 +170,82 @@ sub rcs_prepedit ($) {
 sub rcs_commit (@) {
 	my %params=@_;
 
+	return rcs_commit_helper(@_);
+}
+
+sub rcs_commit_helper (@) {
+	my %params=@_;
+
+	my %env=%ENV;
+	$ENV{HGENCODING} = 'utf-8';
+
 	my $user="Anonymous";
+	my $nickname;
 	if (defined $params{session}) {
 		if (defined $params{session}->param("name")) {
 			$user = $params{session}->param("name");
 		}
 		elsif (defined $params{session}->remote_addr()) {
-			$user = "Anonymous from ".$params{session}->remote_addr();
+			$user = $params{session}->remote_addr();
 		}
+
+		if (defined $params{session}->param("nickname")) {
+			$nickname=encode_utf8($params{session}->param("nickname"));
+			$nickname=~s/\s+/_/g;
+			$nickname=~s/[^-_0-9[:alnum:]]+//g;
+		}
+		$ENV{HGUSER} = encode_utf8($user . ' <' . $nickname . '@web>');
 	}
 
 	if (! length $params{message}) {
 		$params{message} = "no message given";
 	}
 
-	my @cmdline = ("hg", "-q", "-R", $config{srcdir}, "commit", 
-	               "-m", IkiWiki::possibly_foolish_untaint($params{message}),
-	               "-u", IkiWiki::possibly_foolish_untaint($user));
-	if (system(@cmdline) != 0) {
-		warn "'@cmdline' failed: $!";
-	}
+	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
 
+	my @opts;
+
+	if (exists $params{file}) {
+		push @opts, '--', $params{file};
+	}
+	# hg commit returns non-zero if nothing really changed.
+	# So we should ignore its exit status (hence run_or_non).
+	run_or_non('hg', 'commit', '-m', $params{message}, '-q', @opts);
+
+	%ENV=%env;
 	return undef; # success
 }
 
 sub rcs_commit_staged (@) {
 	# Commits all staged changes. Changes can be staged using rcs_add,
 	# rcs_remove, and rcs_rename.
-	my %params=@_;
-	
-	error("rcs_commit_staged not implemented for mercurial"); # TODO
+	return rcs_commit_helper(@_);
 }
 
 sub rcs_add ($) {
 	my ($file) = @_;
 
-	my @cmdline = ("hg", "-q", "-R", "$config{srcdir}", "add", "$config{srcdir}/$file");
-	if (system(@cmdline) != 0) {
-		warn "'@cmdline' failed: $!";
-	}
+	run_or_cry('hg', 'add', $file);
 }
 
 sub rcs_remove ($) {
+	# Remove file from archive.
 	my ($file) = @_;
 
-	error("rcs_remove not implemented for mercurial"); # TODO
+	run_or_cry('hg', 'remove', '-f', $file);
 }
 
 sub rcs_rename ($$) {
 	my ($src, $dest) = @_;
 
-	error("rcs_rename not implemented for mercurial"); # TODO
+	run_or_cry('hg', 'rename', '-f', $src, $dest);
 }
 
 sub rcs_recentchanges ($) {
 	my ($num) = @_;
+
+	my %env=%ENV;
+	$ENV{HGENCODING} = 'utf-8';
 
 	my @cmdline = ("hg", "-R", $config{srcdir}, "log", "-v", "-l", $num,
 		"--style", "default");
@@ -212,19 +274,34 @@ sub rcs_recentchanges ($) {
 			};
 		}
 
+		#"user <email@domain.net>": parse out "user".
 		my $user = $info->{"user"};
 		$user =~ s/\s*<.*>\s*$//;
 		$user =~ s/^\s*//;
 
+		#"user <nickname@web>": if "@web" hits, set $web_commit=true.
+		my $web_commit = ($info->{'user'} =~ /\@web>/);
+
+		#"user <nickname@web>": if user is a URL (hits "://") and "@web"
+		#was present, parse out nick.
+		my $nickname;
+		if ($user =~ /:\/\// && $web_commit) {
+			$nickname = $info->{'user'};
+			$nickname =~ s/^[^<]*<([^\@]+)\@web>\s*$/$1/;
+		}
+
 		push @ret, {
 			rev        => $info->{"changeset"},
 			user       => $user,
-			committype => "hg",
+			nickname   => $nickname,
+			committype => $web_commit ? "web" : "hg",
 			when       => str2time($info->{"date"}),
 			message    => [@message],
 			pages      => [@pages],
 		};
 	}
+
+	%ENV=%env;
 
 	return @ret;
 }
