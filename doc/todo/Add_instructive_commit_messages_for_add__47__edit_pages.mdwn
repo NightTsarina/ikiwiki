@@ -9,9 +9,13 @@ Diff follows. --[[Daniel Andersson]]
 > itself and it would just be clutter to mention what file was changed,
 > since any reasonable interface will show the filename, or a link,
 > or some summary of what files were affected when showing a change.
-> 
+
+>> I use the Mercurial backend, and Mercurial doesn't allow empty commit messages, so if there were no message, it would default to "no message given" (hardcoded in `mercurial.pm`), which is also clutter, and non-descriptive at that. But I'm on board with your reasoning. It's a matter of taste (and somewhat backend), I guess. I might continue to locally use this patch (with the caveat below fixed when commit message is given), but I won't push for it to be included upstream. --[[Daniel Andersson]]
+
 > Also your patch stomps over any commit message that the user *does*
 > provide, so certianly cannot be applied as-is. --[[Joey]] 
+
+>> Yes, "naive" was the word :-) . --[[Daniel Andersson]]
 
 [[!tag patch]]
 
