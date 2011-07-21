@@ -1,0 +1,31 @@
+I installed ikiwiki from git://github.com/joeyh/ikiwiki.git and it builds and installs fine. But when I try to create a wiki it fails 
+
+    What will the wiki be named? krwiki
+    What revision control system to use? git
+    Which user (wiki account or openid) will be admin? kr
+
+
+    Setting up kr ...
+    Importing /Users/kr/kr into git
+    Initialized empty shared Git repository in /Users/kr/krwiki.git/
+    Initialized empty Git repository in /Users/kr/krwiki/.git/
+    [master (root-commit) 5f04429] initial commit
+     1 files changed, 2 insertions(+), 0 deletions(-)
+     create mode 100644 .gitignore
+    Counting objects: 3, done.
+    Writing objects: 100% (3/3), 248 bytes, done.
+    Total 3 (delta 0), reused 0 (delta 0)
+    Unpacking objects: 100% (3/3), done.
+    To /Users/kr/krwiki.git
+     * [new branch]      master -> master
+    Directory /Users/kr/krwiki is now a clone of git repository /Users/kr/krwiki.git
+    Failed to load highlight. Configuring anyway.
+    Can't locate HTML/Template.pm in @INC (@INC contains: /Users/kr/.ikiwiki /Library/Perl/Updates/5.10.0 /System/Library/Perl/5.10.0    /darwin-thread-multi-2level /System/Library/Perl/5.10.0 /Library/Perl/5.10.0/darwin-thread-multi-2level /Library/Perl/5.10.0 /Network/Library/Perl/5.10.0/darwin-thread-multi-2level /Network/Library/Perl/5.10.0 /Network/Library/Perl /System/Library/Perl/Extras/5.10.0/darwin-thread-multi-2level /System/Library/Perl/Extras/5.10.0 .) at /Library/Perl/5.10.0/IkiWiki.pm line 1946.
+    /etc/ikiwiki/auto.setup: ikiwiki --refresh --setup /Users/kr/krwiki.setup failed at /Library/Perl/5.10.0/IkiWiki/Setup/Automator.pm line 150.
+
+    usage: ikiwiki [options] source dest
+           ikiwiki --setup configfile
+
+
+I have install html-template using "port install p5-html-template" and "port install p5-html-template-compiled" but it does not solve the problem. What's can I try next?
+
