@@ -64,6 +64,16 @@ I'd have to agree that Template::Toolkit is overkill and personally I'm not a fa
 
 HTML::Template's HTML-like markup prevents me from editing templates in KompoZer or other WYSIWYG HTML editors.  The editor tries to render the template markup rather than display it verbatim, and large parts of the template become invisible.  A markup syntax that doesn't confuse editors (such as Template::Toolkit's "[% FOO %]") may promote template customization.  The ability to replace the template engine would be within the spirit of ikiwiki's extensibility. --Rocco
 
+> HTML::Template allows the use of `<!-- TMPL_SOMETHING ... -->`
+> instead of `<TMPL_SOMETHING ...>`, see
+> <http://search.cpan.org/~samtregar/HTML-Template-2.6/Template.pm#NOTES>
+> for details.  I used this PERL regexp to convert my own templates:
+> 
+>     s{<\s*(/?TMPL_[A-Z]+)((\s+\w+(=(['"]?)\w+\5)?)+)?\s*/?>}{<!-- $1$2 -->}gi;
+>
+> (Quoting it properly to use from the shell command-line is
+> nightmarish, write a script with it.)
+> --[[RiccardoMurri]]
 
 I agree that being able to replace the template toolkit would be a great piece of modularity, and one I would use. If I could use the slot-based filling and the conditional logic from Template::Toolkit, we could build much more flexible inline and archivepage templates that would look different depending on where in the wiki we use them. Some of this can currently be accomplished with separate templates for each use case and a manual call to the right template in the !inline directive, but this is limited, cumbersome, and makes it difficult to reuse bits of formatting by trapping all of that information in multiple template files. -Ian
 
