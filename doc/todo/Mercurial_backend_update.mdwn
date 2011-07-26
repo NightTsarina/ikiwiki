@@ -6,6 +6,8 @@ To do this, a more basic rewrite would simplify things. I inline the complete fi
 
 * [My default branch](http://510x.se/hg/program/ikiwiki/file/default/Plugin/mercurial.pm) (where updates will be made, will mention here if anything happens) ([raw version](http://510x.se/hg/program/ikiwiki/raw-file/default/Plugin/mercurial.pm)).
 
+(I've stripped the `hgrc`-generation from the linked versions, so it should work to just drop them on top of the old `mercurial.pm`).
+
 I break out my comments from the code to make them more readable. I comment all the changes as compared to current upstream. --[[Daniel Andersson]]
 
 ---
@@ -30,7 +32,7 @@ Message to skip in recent changes
 
 		my $dummy_commit_msg = 'dummy commit';
 
-*TODO:* $hg_dir not really implemented yet, until a srcdir/repository distinction is
+*TODO:* `$hg_dir` not really implemented yet, until a srcdir/repository distinction is
 made as for e.g. Git. Used in `rcs_receive`, and for attachments in `hg_parse_changes`. See comments in those places, though.
 
 		my $hg_dir=undef;
