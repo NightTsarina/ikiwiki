@@ -2,6 +2,10 @@ I submitted some changes that added 5 "Yes"es and 2 "Fast"s to Mercurial at [[/r
 
 To do this, a more basic rewrite would simplify things. I inline the complete file below with comments. I don't expect anyone to take the time to read it all at once, but I'd be glad if those interested in the Mercurial backend could do some beta testing.
 
+* [This specific revision at my hg repo](http://46.239.104.5:81/hg/program/ikiwiki/file/4994ba5e36fa/Plugin/mercurial.pm) ([raw version](http://46.239.104.5:81/hg/program/ikiwiki/raw-file/4994ba5e36fa/Plugin/mercurial.pm)).
+
+* [My default branch](http://510x.se/hg/program/ikiwiki/file/default/Plugin/mercurial.pm) (where updates will be made, will mention here if anything happens) ([raw version](http://510x.se/hg/program/ikiwiki/raw-file/default/Plugin/mercurial.pm)).
+
 I break out my comments from the code to make them more readable. I comment all the changes as compared to current upstream. --[[Daniel Andersson]]
 
 ---
@@ -201,7 +205,7 @@ This function restores the diff.
 			}
 		}
 
-This makes online diffing possible. A similar approach as in `git.pm`, which is [http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=IkiWiki/Plugin/git.pm;h=cf7fbe9b7c43ee53180612d0411e6202074fb9e0;hb=refs/heads/master#l211](discussed to some length in a comment there), is taken.
+This makes online diffing possible. A similar approach as in `git.pm`, which is [discussed to some length in a comment there](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=IkiWiki/Plugin/git.pm;h=cf7fbe9b7c43ee53180612d0411e6202074fb9e0;hb=refs/heads/master#l211), is taken.
 
 		sub merge_past ($$$) {
 			my ($sha1, $file, $message) = @_;
