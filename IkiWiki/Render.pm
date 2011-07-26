@@ -776,6 +776,7 @@ sub refresh () {
 	my $oldlink_targets=calculate_old_links($changed, $del);
 
 	foreach my $file (@$changed) {
+		print ">>render $file\n";
 		scan($file);
 	}
 
