@@ -94,9 +94,8 @@ sub preprocess (@) {
 			if defined $common_prefix && length $common_prefix;
 		my $depth = ($item =~ tr/\//\//) + 1;
 		my $baseitem=IkiWiki::dirname($item);
-		my $parentbase=IkiWiki::dirname($parent);
-		while (length $parentbase && length $baseitem && $baseitem !~ /^\Q$parentbase\E(\/|$)/) {
-			$parentbase=IkiWiki::dirname($parentbase);
+		while (length $parent && length $baseitem && $baseitem !~ /^\Q$parent\E(\/|$)/) {
+			$parent=IkiWiki::dirname($parent);
 			last if length $addparent && $baseitem =~ /^\Q$addparent\E(\/|$)/;
 			$addparent="";
 			$indent--;
@@ -114,10 +113,14 @@ sub preprocess (@) {
 		}
 		my @bits=split("/", $item);
 		my $p="";
-		$indent++  unless length $parent;
 		$p.="/".shift(@bits) for 1..$indent;
 		while ($depth > $indent) {
-			if (@bits && !(length $parent && "/$parent" eq $p)) {
+			$indent++;
+			if ($indent > 1) {
+				$map .= "<ul>\n";
+			}
+			if ($depth > $indent) {
+				$p.="/".shift(@bits);
 				$addparent=$p;
 				$addparent=~s/^\///;
 				$map .= "<li>"
@@ -129,11 +132,6 @@ sub preprocess (@) {
 			}
 			else {
 				$openli=0;
-			}
-			$indent++;
-			$p.="/".shift(@bits) if @bits;
-			if ($indent > 1) {
-				$map .= "<ul>\n";
 			}
 		}
 		$map .= "</li>\n" if $openli;
