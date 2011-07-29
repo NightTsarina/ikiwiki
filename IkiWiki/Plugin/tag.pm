@@ -199,8 +199,10 @@ sub pagetemplate (@) {
 	if ($template->query(name => "categories")) {
 		# It's an rss/atom template. Add any categories.
 		if (defined $tags && %$tags) {
-			$template->param(categories => [map { category => tagname($_) },
-				sort keys %$tags]);
+			eval q{use HTML::Entities};
+			$template->param(categories =>
+				[map { category => HTML::Entities::encode_entities(tagname($_)) },
+					sort keys %$tags]);
 		}
 	}
 }
