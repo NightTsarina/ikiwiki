@@ -3,7 +3,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use HTML::TreeBuilder;
+use XML::Twig;
 use Test::More;
 
 BEGIN { use_ok("IkiWiki"); }
@@ -72,8 +72,8 @@ sub check_nodes {
 
 	# expected is a list of hashes
 	# ul is a list of li
-	foreach my $li ($ul->content_list) {
-		my @kids = $li->content_list;
+	foreach my $li ($ul->children) {
+		my @kids = $li->children;
 
 		is($li->tag, 'li');
 
@@ -83,16 +83,15 @@ sub check_nodes {
 		my $a = $kids[0];
 
 		if ($expectation->{parent}) {
-			is($a->attr('class'), 'mapparent');
+			is($a->att('class'), 'mapparent');
 		}
 		else {
-			is($a->attr('class'), 'mapitem');
+			is($a->att('class'), 'mapitem');
 		}
 
-		is_deeply([$a->content_list], [$expectation->{name}]);
+		is_deeply([$a->text], [$expectation->{name}]);
 
 		if (@{$expectation->{kids}}) {
-			is($kids[1]->tag, 'ul');
 			is(scalar @kids, 2);
 
 			check_nodes($kids[1], $expectation->{kids});
@@ -106,29 +105,36 @@ sub check_nodes {
 sub check {
 	my $pagespec = shift;
 	my $expected = shift;
+	print "*** $pagespec ***\n";
 
 	my $html = IkiWiki::Plugin::map::preprocess(pages => $pagespec,
 		page => 'map',
 		destpage => 'map');
-	my $tree = HTML::TreeBuilder->new;
-	$tree->implicit_tags(0);
-	$tree->unbroken_text(1);
-	$tree->strict_end(1);
-	$tree->strict_names(1);
-	$tree->strict_comment(1);
-	$tree->empty_element_tags(1);
-	$tree->parse_content($html);
-	my $fragment = $tree->disembowel;
-	print $fragment->dump;
+	my $tree = XML::Twig->new(pretty_print => 'indented');
+	eval { 
+		$tree->parse($html);
+	};
+	if ($@) {
+		print "malformed XML: $@\n$html\n";
+		ok(0);
+	}
+	my $fragment = $tree->root;
 
 	is($fragment->tag, 'div');
-	is($fragment->attr('class'), 'map');
+	is($fragment->att('class'), 'map');
 
-	check_nodes(($fragment->content_list)[0], $expected);
+	if (@$expected) {
+		check_nodes(($fragment->children)[0], $expected);
+	}
+	else {
+		ok(! $fragment->children);
+	}
 
-	$fragment->delete;
+	$tree->dispose;
 	print "<!-- -->\n";
 }
+
+check('doesnotexist', []);
 
 check('alpha', [node('alpha', [])]);
 
@@ -170,6 +176,51 @@ check('alpha or alpha/1 or beta',
 			node('1', []),
 		]),
 		node('beta', []),
+	]);
+
+check('alpha/1 or beta',
+	[
+		node('alpha', [
+			node('1', []),
+		], parent => 1),
+		node('beta', []),
+	]);
+
+check('alpha/1/i* or alpha/2/a or beta',
+	[
+		node('alpha', [
+			node('1', [
+				node('i', []),
+				node('ii', []),
+				node('iii', []),
+				node('iv', []),
+			], parent => 1),
+			node('2', [
+				node('a', []),
+			], parent => 1),
+		], parent => 1),
+		node('beta', []),
+	]);
+
+check('alpha/1/i* or alpha/2/a',
+	[
+		node('1', [
+			node('i', []),
+			node('ii', []),
+			node('iii', []),
+			node('iv', []),
+		], parent => 1),
+		node('2', [
+			node('a', []),
+		], parent => 1),
+	]);
+
+check('alpha/1/i*',
+	[
+		node('i', []),
+		node('ii', []),
+		node('iii', []),
+		node('iv', []),
 	]);
 
 done_testing;
