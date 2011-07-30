@@ -1394,7 +1394,8 @@ sub preprocess ($$$;$$) {
 				|
 					'''(.*?)'''     # 4: triple-single-quote
 				|
-					<<(?<start>[a-zA-Z]+)\n(?<heredoc>.*?)\n\k<start> # 5, 6: heredoc'd value.
+					<<([a-zA-Z]+)\n # 5: heredoc start
+					(.*?)\n\5	# 6: heredoc value
 				|
 					(\S+)		# 7: unquoted value
 				)
@@ -1417,8 +1418,8 @@ sub preprocess ($$$;$$) {
 				elsif (defined $7) {
 					$val=$7;
 				}
-				elsif (defined $+{heredoc}) {
-					$val=$+{heredoc};
+				elsif (defined $6) {
+					$val=$6;
 				}
 
 				if (defined $key) {
@@ -1488,9 +1489,10 @@ sub preprocess ($$$;$$) {
 						|
 						"[^"]*?"	# single-quoted value
 						|
-						<<(?<start>[a-zA-Z]+)\n(?<heredoc>.*?)\n\k<start> # heredoc'd value.
+						'''.*?'''	# triple-single-quote
 						|
-						'''.*?''' # triple-single-quoted value
+						<<([a-zA-Z]+)\n # 5: heredoc start
+						(?:.*?)\n\5	# heredoc value
 						|
 						[^"\s\]]+	# unquoted value
 					)
@@ -1515,9 +1517,10 @@ sub preprocess ($$$;$$) {
 						|
 						"[^"]*?"	# single-quoted value
 						|
-						'''.*?'''       # triple-single-quoted value
+						'''.*?'''       # triple-single-quote
 						|
-						<<(?<start>[a-zA-Z]+)\n(?<heredoc>.*?)\n\k<start> # heredoc'd value.
+						<<([a-zA-Z]+)\n # 5: heredoc start
+						(?:.*?)\n\5	# heredoc value
 						|
 						[^"\s\]]+	# unquoted value
 					)
