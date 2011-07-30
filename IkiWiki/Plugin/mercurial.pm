@@ -361,15 +361,8 @@ sub findtimes ($$) {
 		print $tmpl_fh 'file = "{file}\\n"' . "\n";
 		
 		foreach my $line (run_or_die('hg', 'log', '--style', $tmpl_filename)) {
-			# {date} gives output on the form
-			# 1310694511.0-7200
-			# where the first number is UTC Unix timestamp with one
-			# decimal (decimal always 0, at least on my system)
-			# followed by local timezone offset from UTC in
-			# seconds.
-			if (! defined $date && $line =~ /^\d+\.\d[+-]\d*$/) {
-				$line =~ s/^(\d+).*/$1/;
-				$date=$line;
+			if (! defined $date && $line =~ /^(\d+)/) {
+				$date=$1;
 			}
 			elsif (! length $line) {
 				$date=undef;
