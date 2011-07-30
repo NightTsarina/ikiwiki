@@ -180,7 +180,6 @@ sub rcs_commit_helper (@) {
 	$ENV{HGENCODING} = 'utf-8';
 
 	my $user="Anonymous";
-	my $nickname;
 	if (defined $params{session}) {
 		if (defined $params{session}->param("name")) {
 			$user = $params{session}->param("name");
@@ -189,6 +188,7 @@ sub rcs_commit_helper (@) {
 			$user = $params{session}->remote_addr();
 		}
 
+		my $nickname=$user;
 		if (defined $params{session}->param("nickname")) {
 			$nickname=encode_utf8($params{session}->param("nickname"));
 			$nickname=~s/\s+/_/g;
