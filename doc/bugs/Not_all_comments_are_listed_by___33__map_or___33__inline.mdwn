@@ -9,6 +9,16 @@ While working on our forum I was surprised to see that some of the comments were
 >> recent items » criteria:
 >> <https://tails.boum.org/forum/Security_Updates:_apt-get_Sufficient__63__/> --sajolida
 
+>>> Of course this is a moving target, so I checked out 
+>>> 4a787aecb142f346190ddaef59938799818c964b, which is from the same day
+>>> the above was written.. The comments in question appeared in
+>>> the rss feed when I ran `ikiwiki -setup ikiwiki.setup -gettime`
+>>> (after configuring the setup file to use git and rss and setting
+>>> `gitorigin_branch: ''`)
+>>>
+>>> So I suppose I'd need a testcase in a tarball to reproduce 
+>>> any problem. --[[Joey]]
+
 Then I found out that a map directive such as `!map pages="forum/* or
 comment(forum/*)"` was bringing a weird result too. The output is a map
 with quite a few broken links.
@@ -19,6 +29,9 @@ with quite a few broken links.
 
 >> So I don't understand why 90 % of the comments are linked well and 10 %
 >> are broken links. Why does this map behave differently for only a few comments? --sajolida
+
+>>> I checked the first 50% or so of the comments, and every one was a
+>>> broken link. --[[Joey]]
 
 Plus, some broken links in the map do match the comments missing on the RSS feed but some others do not.
 
