@@ -180,6 +180,7 @@ sub main () {
 		$config{srcdir}="" if ! defined $config{srcdir};
 		$config{destdir}="" if ! defined $config{destdir};
 		$config{syslog}=1 if $config{setupsyslog};
+		checkconfig();
 		require IkiWiki::Setup;
 		IkiWiki::Setup::dump($config{dumpsetup});
 	}
