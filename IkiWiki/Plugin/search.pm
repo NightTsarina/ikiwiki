@@ -15,6 +15,8 @@ sub import {
 	hook(type => "cgi", id => "search", call => \&cgi);
 	hook(type => "disable", id => "search", call => \&disable);
 	hook(type => "needsbuild", id => "search", call => \&needsbuild);
+		
+	eval q{ use Search::Xapian }; # load early to work around #622591
 }
 
 sub getsetup () {
