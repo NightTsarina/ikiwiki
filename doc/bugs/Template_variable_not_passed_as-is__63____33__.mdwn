@@ -1,0 +1,17 @@
+I have a part of a template that looks like:
+
+    <TMPL_VAR level> <TMPL_VAR string>
+
+Calling the template with:
+
+\[[!template id=templateid string="some string" level="##"]]
+
+Results in:
+
+    <h1 id="z-">#</h1>
+
+    <p>some string</p>
+
+While I expected:
+
+    <h2 id="some_string">some string</h2>
