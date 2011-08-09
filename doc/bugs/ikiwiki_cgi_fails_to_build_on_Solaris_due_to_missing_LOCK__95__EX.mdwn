@@ -1,0 +1,15 @@
+when enabling the cgi wrapper I get,
+
+
+generating wrappers..
+"/var/www/cgi-bin/ikiwiki.cgi.c", line 91: warning: implicit function declaration: flock
+"/var/www/cgi-bin/ikiwiki.cgi.c", line 91: undefined symbol: LOCK_EX
+cc: acomp failed for /var/www/cgi-bin/ikiwiki.cgi.c
+failed to compile /var/www/cgi-bin/ikiwiki.cgi.c
+
+
+ cc -V
+cc: Sun C 5.9 SunOS_i386 Patch 124868-01 2007/07/12
+
+
+I don't know enough C to provide a patch, but from googling it, people seem to be suggesting fcntl has an alternative.
