@@ -13,3 +13,19 @@ cc: Sun C 5.9 SunOS_i386 Patch 124868-01 2007/07/12
 
 
 I don't know enough C to provide a patch, but from googling it, people seem to be suggesting fcntl has an alternative.
+
+
+-----
+
+
+changing
+
+    if (lockfd != -1 && flock(lockfd, LOCK_EX) == 0) {
+   
+
+to read
+
+    if (lockfd != -1 && lockf(lockfd, F_LOCK,0) == 0) {
+
+
+in IkiWiki/Wrapper.pm  lets it compile, according to http://man-wiki.net/index.php/3:lockf "On  Linux, this call is just an interface for fcntl(2)"  does this seem like a sensible fix?
