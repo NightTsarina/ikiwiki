@@ -60,75 +60,7 @@ definitions essentially.
 >>> I'm not necessarily saying that's a good idea. Indeed, my memory
 >>> concerns below invalidate this idea pretty well. --[[Joey]] 
 
-    diff --git a/IkiWiki/Plugin/meta.pm b/IkiWiki/Plugin/meta.pm
-    index 6fe9cda..2f8c098 100644
-    --- a/IkiWiki/Plugin/meta.pm
-    +++ b/IkiWiki/Plugin/meta.pm
-    @@ -13,6 +13,8 @@ sub import {
-     	hook(type => "needsbuild", id => "meta", call => \&needsbuild);
-     	hook(type => "preprocess", id => "meta", call => \&preprocess, scan => 1);
-     	hook(type => "pagetemplate", id => "meta", call => \&pagetemplate);
-    +	hook(type => "scan", id => "meta", call => \&scan)
-    +		if $config{"meta_defaults"};
-     }
-     
-     sub getsetup () {
-    @@ -305,6 +307,15 @@ sub match {
-     	}
-     }
-     
-    +sub scan() {
-    +	my %params = @_;
-    +	my $page = $params{page};
-    +	foreach my $default (@{$config{"meta_defaults"}}) {
-    +		preprocess(%$default, page => $page,
-    +			destpage => $page, preview => 0);
-    +	}
-    +}
-    +
-     package IkiWiki::PageSpec;
-     
-     sub match_title ($$;@) {
-    diff --git a/IkiWiki/Setup.pm b/IkiWiki/Setup.pm
-    index 8a25ecc..e4d50c9 100644
-    --- a/IkiWiki/Setup.pm
-    +++ b/IkiWiki/Setup.pm
-    @@ -51,7 +51,13 @@ sub merge ($) {
-     					$config{$c}=$setup{$c};
-     				}
-     				else {
-    -					$config{$c}=[map { IkiWiki::possibly_foolish_untaint($_) } @{$setup{$c}}]
-    +					$config{$c}=[map {
-    +						if(ref $_ eq 'HASH') {
-    +							$_
-    +						} else {
-    +							IkiWiki::possibly_foolish_untaint($_)
-    +						}
-    +					} @{$setup{$c}}];
-     				}
-     			}
-     			elsif (ref $setup{$c} eq 'HASH') {
-    diff --git a/doc/ikiwiki/directive/meta.mdwn b/doc/ikiwiki/directive/meta.mdwn
-    index 000f461..8d34ee4 100644
-    --- a/doc/ikiwiki/directive/meta.mdwn
-    +++ b/doc/ikiwiki/directive/meta.mdwn
-    @@ -12,6 +12,16 @@ also specifies some additional sub-parameters.
-     The field values are treated as HTML entity-escaped text, so you can include
-     a quote in the text by writing `&quot;` and so on.
-     
-    +You can also define site-wide defaults for meta values by including them
-    +in your setup file. The key used is `meta_defaults` and the value is a list
-    +of hashes, one per meta directive. e.g.:
-    +
-    +	meta_defaults = [
-    +		{ copyright => "Copyright 2007 by Joey Hess" },
-    +		{ license   => "GPL v2+" },
-    +		{ link => "somepage", rel => "site entrypoint", },
-    +	],
-    +
-     Supported fields:
-     
-     * title
+    <snip old patch>
 
 -- [[Jon]]
 
@@ -159,51 +91,7 @@ definitions essentially.
 >>
 >> Is this merge-worthy?
 
-    diff --git a/IkiWiki/Plugin/meta.pm b/IkiWiki/Plugin/meta.pm
-    index b229592..3132257 100644
-    --- a/IkiWiki/Plugin/meta.pm
-    +++ b/IkiWiki/Plugin/meta.pm
-    @@ -13,6 +13,7 @@ sub import {
-     	hook(type => "needsbuild", id => "meta", call => \&needsbuild);
-     	hook(type => "preprocess", id => "meta", call => \&preprocess, scan => 1);
-     	hook(type => "pagetemplate", id => "meta", call => \&pagetemplate);
-    +	hook(type => "scan", id => "meta", call => \&scan);
-     }
-     
-     sub getsetup () {
-    @@ -302,6 +303,15 @@ sub match {
-     	}
-     }
-     
-    +sub scan() {
-    +	my %params = @_;
-    +	my $page = $params{page};
-    +    foreach my $type (map { s/^meta_//; $_ } grep /^meta_/, keys %config) {
-    +		$pagestate{$page}{meta}{$type} = $config{"meta_$type"}
-    +			unless defined $pagestate{$page}{meta}{$type};
-    +	}
-    +}
-    +
-     package IkiWiki::PageSpec;
-     
-     sub match_title ($$;@) {
-    diff --git a/doc/ikiwiki/directive/meta.mdwn b/doc/ikiwiki/directive/meta.mdwn
-    index 000f461..200c4b2 100644
-    --- a/doc/ikiwiki/directive/meta.mdwn
-    +++ b/doc/ikiwiki/directive/meta.mdwn
-    @@ -12,6 +12,12 @@ also specifies some additional sub-parameters.
-     The field values are treated as HTML entity-escaped text, so you can include
-     a quote in the text by writing `&quot;` and so on.
-     
-    +You can also define site-wide defaults for meta values by including them
-    +in your setup file, e.g.
-    +
-    +	meta_copyright => "Copyright 2007 by Joey Hess",
-    +	meta_license   => "GPL v2+",
-    +
-     Supported fields:
-     
-     * title
+    <snip old patch>
 
 -- [[Jon]]
 
@@ -244,3 +132,19 @@ definitions essentially.
 >>> metadata of the given type is present. --[[Joey]]
 >>>> 
 >>>> that should be easy enough to do. I will work on a patch. -- [[Jon]]
+>>>>> Hi — I've written a new patch which I hope addresses the concerns raised
+>>>>> with the previous ones. The new approach is to hard-code in `scan()`
+>>>>> which of the meta types are supported in the setup file.  If one is
+>>>>> defined, then `scan()` calls `preprocess()`, as [[smcv]] suggested,
+>>>>> rather than stuffing redundant data into ikiwiki's data structures.
+>>>>> 
+>>>>> Two types supported in the setup file have optional arguments: `author`
+>>>>> and `title`.  These are supported by having special-cased setup keys
+>>>>> `meta_author_sortas` and `meta_title_sortas`.  Future expansion of the
+>>>>> number of supported types, or addition of arguments to existing ones,
+>>>>> can similarly be special-cased.
+>>>>> 
+>>>>> The setup data structure is no longer complicated with an
+>>>>> array-of-hashes, which means this is suitable for exposing via websetup.
+>>>>> A future iteration of the patch will implement this. — [[Jon]]
+
