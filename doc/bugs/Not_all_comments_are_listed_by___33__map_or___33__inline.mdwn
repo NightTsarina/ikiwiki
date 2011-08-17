@@ -26,10 +26,9 @@ While working on our forum I was surprised to see that some of the comments were
 >>>> problems: first, our ikiwiki.setup does not enable a RCS, mainly
 >>>> to avoid local refresh to create ugly "updated PO files" Git
 >>>> commits; this explains the issue sajolida noticed while locally
->>>> building the wiki. Second, as far as our online ikiwiki is
->>>> concerned, the .ikiwiki may be broken, may lack some times
->>>> extracted from Git, who knows => we'll see if a rebuild cures
->>>> it.) --[[intrigeri]]
+>>>> building the wiki. Second, the RSS feed on our online ikiwiki is
+>>>> correct right now, was probably cured by a rebuild at some point.
+>>>> --[[intrigeri]]
 
 Then I found out that a map directive such as `!map pages="forum/* or
 comment(forum/*)"` was bringing a weird result too. The output is a map
@@ -49,7 +48,8 @@ with quite a few broken links.
 >>>> logical to me after all given that `forum/*/comment_*.html` are
 >>>> not generated. I wonder how we could have observed map generating
 >>>> working links to comments in the first place; sajolida, can you
->>>> please try reproducing it? --[[intrigeri]]
+>>>> please try reproducing it? If you cannot reproduce it, I think we
+>>>> can close this bug. --[[intrigeri]]
 
 Plus, some broken links in the map do match the comments missing on the RSS feed but some others do not.
 
