@@ -1,3 +1,4 @@
+[[!template id=gitbranch branch=jon/pagespec_alias author="[[Jon]]"]]
 [[!tag patch wishlist]]I quite often find myself repeating a boiler-plate
 [[ikiwiki/pagespec]] chunk, e.g.
 
@@ -10,64 +11,7 @@ pagespec "alias", and instead write
 
 I wrote the following plugin to achieve this:
 
-    commit f3a9dd113338fe5d2b717de1dc69679ff74e2f8d
-    Author: Jon Dowland <jmtd@debian.org>
-    Date:   Tue May 3 17:40:16 2011 +0100
-    
-        new plugin: alias.pm - pagespec aliases
-    
-    diff --git a/IkiWiki/Plugin/alias.pm b/IkiWiki/Plugin/alias.pm
-    new file mode 100644
-    index 0000000..b8d4574
-    --- /dev/null
-    +++ b/IkiWiki/Plugin/alias.pm
-    @@ -0,0 +1,47 @@
-    +package IkiWiki::Plugin::alias;
-    +
-    +use warnings;
-    +use strict;
-    +use IkiWiki '3.00';
-    +
-    +sub import {
-    +  hook(type => "getsetup", id=> "alias", call => \&getsetup);
-    +  hook(type => "checkconfig", id=> "alias", call => \&checkconfig);
-    +}
-    +
-    +sub getsetup () {
-    +    return
-    +        plugin => {
-    +            description => "allows the definition of pagespec aliases",
-    +            safe => 1,
-    +            rebuild => 1,
-    +            section => "misc",
-    +        },
-    +        pagespec_aliases => {
-    +            type => "string",
-    +            example => {"image" => "*jpg or *jpeg or *png or *gif or *ico" },
-    +            description => "a set of mappings from alias name to pagespec",
-    +            safe => 1,
-    +            rebuild => 0,
-    +        },
-    +}
-    +
-    +sub checkconfig () {
-    +    no strict 'refs';
-    +    no warnings 'redefine';
-    +
-    +    if ($config{pagespec_aliases}) {
-    +        foreach my $key (keys %{$config{pagespec_aliases}}) {
-    +            my $value = ${$config{pagespec_aliases}}{$key};
-    +            # XXX: validate key?
-    +            my $subname = "IkiWiki::PageSpec::match_$key";
-    +            *{ $subname } = sub {
-    +              my $path = shift;
-    +              return IkiWiki::pagespec_match($path, $value);
-    +            }
-    +        }
-    +    }
-    +}
-    +
-    +1;
+    <snip old patch; see git branch outlined above>
 
 I need to reflect on this a bit more before I send a pull request.  In
 particular I imagine the strict/warnings stuff will make you puke.  Also, I'm
@@ -135,6 +79,15 @@ however, to add ' or internal()' to `boring`, for some reason.
 > -- [[Jon]]
 
 >> Useful indeed! --[[Joey]] 
+
+
+>>> I've tweaked my patch in light of your above feedback:  The plugin has
+>>> been renamed, and I now validate keys.  I've also added documentation to
+>>> the branch.  I haven't read rubykat's code properly yet, and don't have
+>>> access at the time of writing (I'm on a beach in Greece ☺), but I expect
+>>> it would be possible to extend what I've got here to support defining the
+>>> aliases in a PageSpec, once the dependency stuff has been reasoned out
+>>> properly.  — [[Jon]]
 
 ---------------------------
 
