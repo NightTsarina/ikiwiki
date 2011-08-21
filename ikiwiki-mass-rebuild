@@ -29,7 +29,7 @@ sub processline {
 my %users;
 sub processuser {
 	my $user=shift;
-	next if $user=~/^-/ || $users{$user};
+	return if $user=~/^-/ || $users{$user};
 	$users{$user}=1;
 	my $ret=system("su", $user, "-s", "/bin/sh", "-c", "--", "$0 --nonglobal @ARGV");
 	if ($ret != 0) {
