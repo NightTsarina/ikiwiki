@@ -95,7 +95,7 @@ EOF
 		# IKIWIKI_CGILOCK_FD so unlockwiki can close it.
 		$pre_exec=<<"EOF";
 	lockfd=open("$config{wikistatedir}/cgilock", O_CREAT | O_RDWR, 0666);
-	if (lockfd != -1 && flock(lockfd, LOCK_EX) == 0) {
+	if (lockfd != -1 && lockf(lockfd, F_LOCK, 0) == 0) {
 		char *fd_s=malloc(8);
 		sprintf(fd_s, "%i", lockfd);
 		setenv("IKIWIKI_CGILOCK_FD", fd_s, 1);
