@@ -69,7 +69,7 @@ underlay_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki
 	for dir in `cd underlays && $(FIND) . -follow -type d`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
-		for file in `$(FIND) underlays/$$dir -follow -maxdepth 1 -type f`; do \
+		for file in `$(FIND) underlays/$$dir -follow -maxdepth 1 -type f -not -name \\*.full.js -not -name \\*.full.css`; do \
 			cp -aL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir 2>/dev/null || \
 			install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
 		done; \
