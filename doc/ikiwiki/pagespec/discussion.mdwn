@@ -138,3 +138,31 @@ any ideas?
 
 >> but that could get messy, perhaps a new cmd 'pagetree' or something 
 >> might be better? --Colin
+
+>>> You could probably do a lot worse than stealing terminology from 
+>>> [XPath Axes](http://www.w3.org/TR/xpath/#axes),
+>>> passing the "argument" through `bestlink` if there is one, and
+>>> treating an empty argument as "this page", something like:
+>>>
+>>> * `ancestor(/plugins/contrib/album)` matches `plugins` or
+>>>   `plugins/contrib`
+>>>   but not `plugins/map` or `plugins/contrib/album`
+>>>   (does it match `index`? answers on a postcard)
+>>> * `descendant(/plugins)` is basically `plugins/*`
+>>> * `child(/plugins)` is basically `plugins/* and !plugins/*/*`
+>>> * `self(/plugins)` is just `plugins` but without interpreting
+>>>   globs
+>>> * `ancestor-or-self(/plugins)`, `descendant-or-self(/plugins)`
+>>>   are syntactic sugar for e.g. `ancestor(/plugins) or self(/plugins)`
+>>> * `self()` always matches the current page (not destpage)
+>>> * `ancestor-or-self()` always matches the current pages and all
+>>>   pages that would go in its [[plugins/parentlinks]]
+>>>
+>>> XPath has `following-sibling` and `preceding-sibling` axes for
+>>> siblings, but pagespecs are unordered, so we'd probably want
+>>> to invent `sibling()` - so `sibling(/plugins/map)` matches
+>>> `plugins/inline` but not `plugins/map` or `plugins/contrib/album`.
+>>>
+>>> Then, the requested functionality would be `sibling() or ancestor()`,
+>>> or possibly `sibling() or ancestor() or self()`?
+>>> --[[smcv]]
