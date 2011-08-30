@@ -17,3 +17,21 @@ reprocessed is done so in the same conditions as the original call.
 > been scanned yet). If you have a clever idea for how to fix this, I'd love
 > to hear it - being able to specify a [[plugins/contrib/trail]] in terms
 > of a sorted pagespec would be useful. --[[smcv]]
+
+>> I have a solution to the dependency-ordering problem in a different
+>> branch of my repository, with a post_scan hook mechanism which I use to
+>> be able to sort outer inline pages according to the last modification
+>> date of their nested inline pages. The way I implemented it currently,
+>> though, doesn't use the existing hooks mechanism of ikiwiki (because
+>> it's something which I believe to be more efficiently done the way I
+>> implemented it) so I don't know how likely it is to be included
+>> upstream.
+
+>> For what it's worth, I think that my post_scan hook mechanism would work
+>> rather fine with your trail plugin. However, the case of the if
+>> directive is considerably more complicated, because the conditional
+>> can introduce a much stronger feedback effect in the pre/post scanning
+>> dependency. In fact, it's probably possible to build a couple of pages
+>> with vicious conditional dependency circles that would break/unbreak
+>> depending on which pass we are in. And I believe this is an intrinsic
+>> limitation of the system, which cannot be solved at all.
