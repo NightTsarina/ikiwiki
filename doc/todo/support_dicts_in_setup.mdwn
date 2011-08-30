@@ -1,0 +1,19 @@
+It would be nice for some plugins to use hashes as setup data structures
+(which ones? pagespec aliases for one.  Any others?), but these cannot
+currently be adequately described in `getsetup()`, nor represented in
+`websetup()`.  It would be nice to extend ikiwiki to support this.
+
+I've had an initial go at how to represent this in a nice way within a HTML
+page.  An initial mock up is available at
+<https://github.com/jmtd/ikiwiki/blob/websetup_hashes/hash.html>.  The
+approach taken is to use a javascript hash/dictionary as the canonical copy of
+the data; to express that in the form elements, and to capture all relevant
+events to update the main data structure (and the HTML representations
+thereof).
+
+I imagine packing the js structure into a form element which is posted, and
+ignoring the other form element data.
+
+This would mean mandating javascript support for editing such hashes.
+
+— [[Jon]]
