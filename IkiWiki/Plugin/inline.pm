@@ -506,7 +506,7 @@ sub get_inline_content ($$) {
 		if (isinternal($page)) {
 			# make inlined text of internal pages searchable
 			run_hooks(indexhtml => sub {
-				shift->(page => $page, destpage => $page,
+				shift->(page => $page, destpage => $destpage,
 					content => $ret);
 			});
 		}
