@@ -1,2 +1,10 @@
 After deleting a page with the "remove" button, it seems that the page deletion cannot be reverted using the "revert" icon in [[RecentChanges]]. 
 It ironically says that "Error: ?$pagename does not exist". See [[http://ikiwiki.info/ikiwiki.cgi?rev=860c2c84d98ea0a38a4f91dacef6d4e09f6e6c2e&do=revert]]. [[JeanPrivat]]
+
+> And it only gets that far if the remove plugin is enabled. Otherwise it
+> complains that you cannot change $pagename.
+> 
+> The root bug is that git's `rcs_preprevert` creates a structure that
+> shows the change that was made (which includes a file deletion),
+> not the change that would be made if it was reverted (which includes a
+> file addition). [[Fixed|done]]. --[[Joey]] 

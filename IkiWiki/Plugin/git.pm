@@ -762,6 +762,7 @@ sub git_find_root {
 }
 
 sub git_parse_changes {
+	my $reverted = shift;
 	my @changes = @_;
 
 	my ($subdir, $rootdir) = git_find_root();
@@ -782,11 +783,11 @@ sub git_parse_changes {
 				$mode=$detail->{'mode_to'};
 			}
 			elsif ($detail->{'status'} =~ /^[AM]+\d*$/) {
-				$action="add";
+				$action= $reverted ? "remove" : "add";
 				$mode=$detail->{'mode_to'};
 			}
 			elsif ($detail->{'status'} =~ /^[DAM]+\d*/) {
-				$action="remove";
+				$action= $reverted ? "add" : "remove";
 				$mode=$detail->{'mode_from'};
 			}
 			else {
@@ -845,7 +846,7 @@ sub rcs_receive () {
 		# it and only see changes in it.)
 		# The pre-receive hook already puts us in the right place.
 		$git_dir=".";
-		push @rets, git_parse_changes(git_commit_info($oldrev."..".$newrev));
+		push @rets, git_parse_changes(0, git_commit_info($oldrev."..".$newrev));
 		$git_dir=undef;
 	}
 
@@ -872,7 +873,7 @@ sub rcs_preprevert ($) {
 		error gettext("you are not allowed to revert a merge");
 	}
 
-	my @ret=git_parse_changes(@commits);
+	my @ret=git_parse_changes(1, @commits);
 
 	$git_dir=undef;
 	return @ret;
