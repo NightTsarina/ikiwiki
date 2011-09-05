@@ -18,7 +18,6 @@ perl -MCPAN -e 'install Bundle::IkiWiki::Extras'
 
 Authen::Passphrase
 Search::Xapian
-RPC::XML
 File::MimeInfo
 Locale::gettext
 Net::OpenID::Consumer

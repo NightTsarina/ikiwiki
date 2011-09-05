@@ -30,6 +30,7 @@ CGI
 Data::Dumper
 YAML
 JSON
+RPC::XML
 
 =head1 AUTHOR
 
