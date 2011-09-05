@@ -9,6 +9,20 @@ Two ways follow below. I prefer the long one. --[[Daniel Andersson]]
 
 > I comment myself: this can probably be solved without adding ad-hoc hooks and stuff (maybe not as "correct" as changing the config file only directly after wrappers have been generated, but good enough). I have a large rewrite of `mercurial.pm` ready, currently under local testing before I upload it for comments, trying to make it equal in function to `git.pm`. Comments below are of course welcome, but I will look into other ways of solving it later. Maybe `rcs_checkconfig` or `rcs_genwrapper` should host the `hgrc`-changing code. --[[Daniel Andersson]]
 
+>> Having a hook that runs after a wrapper is generated may well be a good
+>> thing anyway. In ikiwiki-hosting, there are some genwrapper hooks
+>> that don't add any code to the wrapper, but are there only to run at,
+>> essentially, that time.
+>> 
+>> With that said, here it seems like unnecessary complexity.
+>> Why is `mercurial_wrapper` configurable at all? Why not just always
+>> write it to a specific place relative to the srcdir, and always make
+>> the hgrc look there?
+>> 
+>> (Other rcs plugins have good reasons to make their wrappers
+>> configurable, because one might want the wrapper to run as a git
+>> post-update or post-commit hook.) --[[Joey]]
+
 Compact way (addresses only point 1)
 ------------------------------------
 [This patch at pastebin](http://pastebin.com/by9f4dwX) ([raw version](http://pastebin.com/raw.php?i=by9f4dwX)).
@@ -32,6 +46,12 @@ Set default `ikiwiki-wrapper` path.
 Create `$config{srcdir}/.hg/hgrc` with hook info during auto-installation script. Use relative paths to not require manual `hgrc` intervention if `$config{srcdir}` is changed. If `$config{mercurial_wrapper}` is changed, manual edit of `hgrc` is needed to catch the new wrapper path.
 
 (Is there a security risk with relative paths?)
+
+> The code seems to assume that hg will be run from within the srcdir,
+> specifically the top of the srcdir. If it's run from somewhere else,
+> even a subdirectory, this will fail to find the wrapper, or could
+> run some other program. Unless mercurial always interprets these paths
+> as relative to the top of the repository? --[[Joey]]
 
 	@@ -187,6 +186,22 @@
 	 		die "ikiwiki --wrappers --setup $config{dumpsetup} failed";
