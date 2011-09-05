@@ -83,6 +83,8 @@ definitions essentially.
 >>
 >>> I generally agree with this. It is *possible* that meta would have a new
 >>> field added, that takes parameters and make sense to use globally.
+>>> (Indeed, this later happened to some extent with the sortas parameters
+>>> being added to some metas.)
 >>> --[[Joey]] 
 >>
 >> Due to this, and the added complexity of the second patch (having to adjust
@@ -150,3 +152,8 @@ definitions essentially.
 >>>>> 
 >>>>> The patch can be found at the git branch described above.
 >>>>>  — [[Jon]]
+
+>>>>>> I wish I could take pity on you and just merge this, but 
+>>>>>> AFAICS it still suffers from the memory bloat described above.
+>>>>>> Specifically, when `scan` calls `preprocess`, it
+>>>>>> stores the metadata in `%pagestate` etc. --[[Joey]]
