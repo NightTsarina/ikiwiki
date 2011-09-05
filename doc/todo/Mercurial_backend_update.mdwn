@@ -10,6 +10,33 @@ To do this, a more basic rewrite would simplify things. I inline the complete fi
 
 I break out my comments from the code to make them more readable. I comment all the changes as compared to current upstream. --[[Daniel Andersson]]
 
+> So, sorry it took me so long (summer vacation), but I've finally
+> gotten around to looking at this. Based mostly just on the comments,
+> it does not seem mergeable as-is, yet. Red flags for me include:
+> 
+> * This is a big rewrite, and the main idea seems to be to copy git.pm
+>   and hack on it until it works, which I think is unlikely to be ideal
+>   as git and mercurial are not really similar at the level used here.
+> * There have been no changes in your hg repo to the code since you
+>   originally committed it. Either it's perfect, or it's not been tested..
+> * `hg_local_dirstate_shelve` writes to a temp file in the srcdir,
+>   which is hardly clean or ideal.
+> * Relies on mercurial bookmarks extension that seems to need to be
+>   turned on (how?)
+> * There are some places where code was taken from git.pm and the
+>   comment asks if it even makes sense for mercurial, which obviously
+>   would need to be cleaned up.
+> * The `rcs_receive` support especially is very ambitious to try to add to
+>   the mercurial code. Does mercurial support anonymous pushes at all? How
+>   would ikiwiki be run to handle such a push? How would it tell 
+>   mercurial not to accept a push if it made prohibited changes?
+>
+> I'm glad we already got so many standalone improvements into
+> mercurial.pm. That's a better approach than rewriting the world, unless
+> the world is badly broken. 
+> 
+> --[[Joey]] 
+
 ---
 
 		#!/usr/bin/perl
@@ -731,6 +758,11 @@ This is an upstream change I did a week ago or so. Perhaps it can be merged in s
 
 The comment just below the function declaration below is taken from `git.pm`. Is it true? Should ikiwiki support sharing its repo with other things? Mercurial-wise that sounds like a world of pain.
 
+> Yes, ikiwiki supports this for git and svn. It's useful when you want
+> a doc/ directory with the wiki for a project. I don't know why
+> it wouldn't be a useful thing to do with mercurial, but it's not
+> required. --[[Joey]]
+
 		{
 		my $ret;
 		sub hg_find_root {
@@ -782,6 +814,10 @@ The comment just below the function declaration below is taken from `git.pm`. Is
 
 I haven't tested the attachment code below. Is it run when there is an non-trusted file upload?
 
+> It's run when an anonymous git push is done. I don't know if there would
+> be any equivilant with mercurial; if not, it does not makes sense
+> to implement this at all (this function is only used by `rcs_receive`). --[[Joey]] 
+
 					# extract attachment to temp file
 					if (($action eq 'add' || $action eq 'change') &&
 						! pagetype($file)) {
@@ -816,6 +852,13 @@ I haven't tested the attachment code below. Is it run when there is an non-trust
 Also, a comment in `git.pm` mentions that we don't want to chdir to a subdir "and only see changes in it" - but this isn't true for either Git or Mercurial to my knowledge. It only seems to happen in `git.pm` since the `git log` command in `git_commit_info` ends with "`-- .`" - if it didn't do that, one wouldn't have to chdir for this reason, I believe.
 
 In this case we need to stay in default repo instead of srcdir though, so `hg_dir="."` _is_ needed, but not for the abovementioned reason :-) (maybe there's more to it, though).
+
+> Implementing some sort of anonymous push handling for mercurial is not something
+> you can funble your way through like this, if it can be done at all.
+> 
+> Hint: `$_` is being populated by the specific format git sends to a
+> specific hook script.
+> --[[Joey]]
 
 		sub rcs_receive () {
 			my @c_infos_ret;
