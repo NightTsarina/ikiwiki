@@ -1,0 +1,66 @@
+Hey There.
+
+I'm using the [[plugins/contrib/field]] plugin together with [[plugins/contrib/ftemplate/ikiwiki/directive/ftemplate]] and [[plugins/contrib/ymlfront]]. Everything looks good, but there are no links created as defined in field_tags. I hope it's just a mistake by me and someone can help me. 
+
+All three plugins are activated and ikiwiki's setup file reads
+
+		# field plugin
+		# simple registration
+		field_register => [qw{meta}],
+
+		# allow the config to be queried as a field
+		field_allow_config => 1,
+
+		# flag certain fields as "tags"
+		field_tags => {
+		Autor => '/users',
+		Rubrik => '/rubriken',
+		Themen => '/themen',
+		BuchTitel => 'rezensionen/titel',
+		BuchAutor => '/rezensionen/autoren',
+		Verlag => 'rezensionen/verlage',
+		},
+
+I use this template to ask the users for the fields:
+
+		---
+		Autor: 
+		BuchTitel: 
+		BuchUntertitel: 
+		BuchAutor:
+		Verlag: 
+		ISBN: 
+		Seiten: 
+		Preis: 
+		Rubrik: Rezensionen
+		Themen: 
+		  - (Anti-)Repression
+		  - Aktion
+		  - ...
+		---
+		[[!ftemplate id="rezi"]]
+
+And this one tells what to do with them:
+
+		\[[!meta author="<TMPL_VAR AUTOR>"]]
+		\[[!meta title="<TMPL_VAR BUCHAUTOR>: <TMPL_VAR BUCHTITEL>"]]
+
+		<span class="infobox">
+		<TMPL_VAR BUCHAUTOR>:</br>
+		**<TMPL_VAR BUCHTITEL>**</br>
+		-<TMPL_IF BUCHUNTERTITEL><TMPL_VAR BUCHUNTERTITEL></TMPL_IF></br>
+		*rezensiert von <TMPL_VAR AUTOR>*</br></br>
+		* Verlag: <TMPL_VAR VERLAG></br>
+		* ISBN: <TMPL_VAR ISBN></br>
+		* Seiten: <TMPL_VAR SEITEN></br>
+		* Preis: <TMPL_VAR PREIS></br></br>
+		Rubrik: <TMPL_VAR RUBRIK></br>
+		Themen:
+		<TMPL_LOOP THEMEN_LOOP><TMPL_VAR THEMEN>
+		<TMPL_UNLESS __last__>, </TMPL_UNLESS>
+		</TMPL_LOOP>
+		</span>
+
+		<TMPL_VAR RUBRIK>		# just for testing if infobox is the problem
+
+Do I have to register another plugin with field or what is wrong here?
