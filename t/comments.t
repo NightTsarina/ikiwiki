@@ -21,14 +21,14 @@ writefile("post/comment_3._comment", "t/tmp/in", $comment);
 
 $comment = <<EOF;
 [[!comment username="christopher"
-  date="1492-10-12T07:00:00Z"
+  date="1969-02-12T07:00:00Z"
   content="I explored"]]
 EOF
 writefile("post/comment_2._comment", "t/tmp/in", $comment);
 
 $comment = <<EOF;
 [[!comment username="william"
-  date="1066-10-14T12:00:00Z"
+  date="1969-01-14T12:00:00Z"
   content="I conquered"]]
 EOF
 writefile("post/comment_1._comment", "t/tmp/in", $comment);
