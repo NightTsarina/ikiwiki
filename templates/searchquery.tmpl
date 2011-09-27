@@ -70,7 +70,7 @@ $if{$field{language},Language: <b>$html{$field{language}}</b><br>}
 $if{$field{size},<span title="$html{$field{size}} bytes">Size: <b>$html{$filesize{$field{size}}}</b></span><br>}
 </div>
 </td>
-<td><B><A HREF="$field{url}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
+<td><B><A HREF="$html{$field{url}}">$html{$or{$field{caption},$field{title},$field{url},Untitled}}</A></B><BR>
 <small>$highlight{$field{sample},$terms}$if{$field{sample},...}</small><br>
 <small>
 $percentage% relevant$. matching:
