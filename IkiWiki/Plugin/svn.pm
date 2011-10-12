@@ -122,10 +122,8 @@ sub svn_info ($$) {
 }
 
 sub rcs_update () {
-	if (-d "$config{srcdir}/.svn") {
-		if (system("svn", "update", "--quiet", $config{srcdir}) != 0) {
-			warn("svn update failed\n");
-		}
+	if (system("svn", "update", "--quiet", $config{srcdir}) != 0) {
+		warn("svn update failed\n");
 	}
 }
 
@@ -136,12 +134,10 @@ sub rcs_prepedit ($) {
 	# The file is relative to the srcdir.
 	my $file=shift;
 	
-	if (-d "$config{srcdir}/.svn") {
-		# For subversion, return the revision of the file when
-		# editing begins.
-		my $rev=svn_info("Revision", "$config{srcdir}/$file");
-		return defined $rev ? $rev : "";
-	}
+	# For subversion, return the revision of the file when
+	# editing begins.
+	my $rev=svn_info("Revision", "$config{srcdir}/$file");
+	return defined $rev ? $rev : "";
 }
 
 sub commitmessage (@) {
@@ -168,31 +164,30 @@ sub rcs_commit (@) {
 	# The file is relative to the srcdir.
 	my %params=@_;
 
-	if (-d "$config{srcdir}/.svn") {
-		# Check to see if the page has been changed by someone
-		# else since rcs_prepedit was called.
-		my ($oldrev)=$params{token}=~/^([0-9]+)$/; # untaint
-		my $rev=svn_info("Revision", "$config{srcdir}/$params{file}");
-		if (defined $rev && defined $oldrev && $rev != $oldrev) {
-			# Merge their changes into the file that we've
-			# changed.
-			if (system("svn", "merge", "--quiet", "-r$oldrev:$rev",
-			           "$config{srcdir}/$params{file}", "$config{srcdir}/$params{file}") != 0) {
-				warn("svn merge -r$oldrev:$rev failed\n");
-			}
-		}
-
-		if (system("svn", "commit", "--quiet", 
-		           "--encoding", "UTF-8", "-m",
-		           IkiWiki::possibly_foolish_untaint(commitmessage(%params)),
-			   $config{srcdir}) != 0) {
-			my $conflict=readfile("$config{srcdir}/$params{file}");
-			if (system("svn", "revert", "--quiet", "$config{srcdir}/$params{file}") != 0) {
-				warn("svn revert failed\n");
-			}
-			return $conflict;
+	# Check to see if the page has been changed by someone
+	# else since rcs_prepedit was called.
+	my ($oldrev)=$params{token}=~/^([0-9]+)$/; # untaint
+	my $rev=svn_info("Revision", "$config{srcdir}/$params{file}");
+	if (defined $rev && defined $oldrev && $rev != $oldrev) {
+		# Merge their changes into the file that we've
+		# changed.
+		if (system("svn", "merge", "--quiet", "-r$oldrev:$rev",
+		           "$config{srcdir}/$params{file}", "$config{srcdir}/$params{file}") != 0) {
+			warn("svn merge -r$oldrev:$rev failed\n");
 		}
 	}
+
+	if (system("svn", "commit", "--quiet", 
+	           "--encoding", "UTF-8", "-m",
+	           IkiWiki::possibly_foolish_untaint(commitmessage(%params)),
+		   $config{srcdir}) != 0) {
+		my $conflict=readfile("$config{srcdir}/$params{file}");
+		if (system("svn", "revert", "--quiet", "$config{srcdir}/$params{file}") != 0) {
+			warn("svn revert failed\n");
+		}
+		return $conflict;
+	}
+
 	return undef # success
 }
 
@@ -215,16 +210,8 @@ sub rcs_add ($) {
 	# filename is relative to the root of the srcdir
 	my $file=shift;
 
-	if (-d "$config{srcdir}/.svn") {
-		my $parent=IkiWiki::dirname($file);
-		while (! -d "$config{srcdir}/$parent/.svn") {
-			$file=$parent;
-			$parent=IkiWiki::dirname($file);
-		}
-		
-		if (system("svn", "add", "--quiet", "$config{srcdir}/$file") != 0) {
-			warn("svn add failed\n");
-		}
+	if (system("svn", "add", "--parents", "--quiet", "$config{srcdir}/$file") != 0) {
+		warn("svn add failed\n");
 	}
 }
 
@@ -232,10 +219,8 @@ sub rcs_remove ($) {
 	# filename is relative to the root of the srcdir
 	my $file=shift;
 
-	if (-d "$config{srcdir}/.svn") {
-		if (system("svn", "rm", "--force", "--quiet", "$config{srcdir}/$file") != 0) {
-			warn("svn rm failed\n");
-		}
+	if (system("svn", "rm", "--force", "--quiet", "$config{srcdir}/$file") != 0) {
+		warn("svn rm failed\n");
 	}
 }
 
@@ -243,22 +228,9 @@ sub rcs_rename ($$) {
 	# filenames relative to the root of the srcdir
 	my ($src, $dest)=@_;
 	
-	if (-d "$config{srcdir}/.svn") {
-		# Add parent directory for $dest
-		my $parent=IkiWiki::dirname($dest);
-		if (! -d "$config{srcdir}/$parent/.svn") {
-			while (! -d "$config{srcdir}/$parent/.svn") {
-				$parent=IkiWiki::dirname($dest);
-			}
-			if (system("svn", "add", "--quiet", "$config{srcdir}/$parent") != 0) {
-				warn("svn add $parent failed\n");
-			}
-		}
-
-		if (system("svn", "mv", "--force", "--quiet", 
-		    "$config{srcdir}/$src", "$config{srcdir}/$dest") != 0) {
-			warn("svn rename failed\n");
-		}
+	if (system("svn", "mv", "--parents", "--force", "--quiet", 
+	    "$config{srcdir}/$src", "$config{srcdir}/$dest") != 0) {
+		warn("svn rename failed\n");
 	}
 }
 
@@ -266,8 +238,6 @@ sub rcs_recentchanges ($) {
 	my $num=shift;
 	my @ret;
 	
-	return unless -d "$config{srcdir}/.svn";
-
 	eval q{
 		use Date::Parse;
 		use XML::SAX;
