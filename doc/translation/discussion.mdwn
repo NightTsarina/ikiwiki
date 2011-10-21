@@ -1,3 +1,5 @@
+[[!toc]]
+
 # A few questions about translating PO file
 
 I have a few questions about translating PO file:
@@ -12,7 +14,7 @@ too much about working with PO files in Debian packages.
   > appropriate. ikiwiki should display translated messages when building the
   > wiki (with -v).
 
-2. I'll send you my translation when I finish it, of course. But what about
+2. I'll send you my translation when I finish it, of course. But  about
 updating my PO file? Should I send it to you for every ikiwiki issue?
 Maybe you should give write access to ikiwiki repository for translators
 of PO files?
@@ -88,3 +90,26 @@ translators. Thank you! :) --[[Paweł|ptecza]]
 > and I've turned that on, and added a few. --[[Joey]]
 
 >> Thank you very much! It also will be a big help for me. --[[Paweł|ptecza]]
+
+# Why .po files? Designing an alternative, more user-friendly
+
+I think this plugin is very powerful, and very useful, especially for frontend or vanity sites. However, for live and dynamic sites, edited through the web interface (ie. a wiki!!), the .po file format is very limiting and counter-intuitive for newbies. I know I can fire up emacs and get a nice interface to translate it, but it's not really what I am looking for. .po formats aim to completely translate certain data, while I would expect a wiki to be a bit more lax.
+
+Basically, the problem is that the current plugin assumes the user is familiar with .po files and has a master language, two assumptions that I think are invalid in a lot of cases, especially in "bilingual" or multilingual countries.
+
+One of the canonical examples of functional translation tracking in a wiki is the LizzyWiki, a screencast of which can be seen here: <https://www.youtube.com/watch?v=42kHzyVKsZw> Some of those ideas were implemented in wikis like [[TikiWiki|http://tiki.org/i18n]]
+
+I believe that there are some parts the po plugin that could be reused for such a flexible translation system, in which all languages could be in any format. But basically to implement such a system, those things would be required:
+
+ 1. mapping between pages - this is accomplished by the current po plugin
+ 2. allow the user to flip between pages (other languages links...) - in the current po plugin
+ 3. create a translation based on another page - this is in the current po plugin, but the resulting page is a .po, it should be a regular wiki page
+ 4. track required translations - this is done by gettext in the current po plugin, so this would need to be redone if we change the format
+
+Step 4 is obviously the hard part - tracking changes between pages would involve extra metadata (maybe in the .ikiwiki directory?) to mark which commits have been translated. The metadata is not so much an issue as the user interface problems. 
+
+So say when a user edits page foo.fr.mdwn that is a translation from page foo.en.mdwn, how does he/she tell that the translation is finished or not? The web UI could show the changes that have been done in foo.en.mdwn that need to be translated, and when the user saves the page, he/she is asked to confirm if the page is now completely translated.
+
+Through git only, this would seem to be harder. Maybe if the two translations are committed together they can be assumed to be completely translated, for one. Then maybe there is a way commits could be amended so that they are link - maybe some tree merging magic here? My git internals are a bit far to elaborate on that, and anyways i feel that ikiwiki aims to be RCS agnostic so relying to much on those internals doesn't sound like a good idea.
+
+Obviously, this is a lot more work, diverging in a different direction than the current po-based approach, but it seems to me this is a much more natural system for users. -- [[anarcat]]
