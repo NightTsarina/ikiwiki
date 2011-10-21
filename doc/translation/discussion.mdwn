@@ -112,4 +112,8 @@ So say when a user edits page foo.fr.mdwn that is a translation from page foo.en
 
 Through git only, this would seem to be harder. Maybe if the two translations are committed together they can be assumed to be completely translated, for one. Then maybe there is a way commits could be amended so that they are link - maybe some tree merging magic here? My git internals are a bit far to elaborate on that, and anyways i feel that ikiwiki aims to be RCS agnostic so relying to much on those internals doesn't sound like a good idea.
 
-Obviously, this is a lot more work, diverging in a different direction than the current po-based approach, but it seems to me this is a much more natural system for users. -- [[anarcat]]
+Obviously, this is a lot more work, diverging in a different direction than the current po-based approach, but it seems to me this is a much more natural system for users.
+
+Also, the thing with the above is that if functionalities 1 and 2 (mapping and page flipping) is stripped out of the po plugin and made reusable, functionalities 3 and 4 can be made optional and a wiki is still translatable, giving the user the responsability of tracking the translations...
+
+So basically, what I think should happen is to have ikiwiki be able to use the .po plugin without .po files - just allow for pages to be linked together. Detect foo.fr.mdwn when parsing foo.mdwn and create links to it would already be a huge start... -- [[anarcat]]
