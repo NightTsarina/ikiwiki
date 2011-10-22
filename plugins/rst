@@ -36,10 +36,22 @@ __author__ = 'martin f. krafft <madduck@madduck.net>'
 __copyright__ = 'Copyright © ' + __author__
 __licence__ = 'BSD-2-clause'
 
-from docutils.core import publish_parts;
 from proxy import IkiWikiProcedureProxy
 
+publish_parts = None
+
 def rst2html(proxy, *args):
+    # delayed import so docutils is only needed if you *use* rst -
+    # http://bugs.debian.org/637604
+    global publish_parts
+    if publish_parts is None:
+        try:
+            from docutils.core import publish_parts
+        except ImportError, e:
+            proxy.error('cannot import docutils.core: %s: %s' %
+                        (e.__class__.__name__, e))
+            raise
+
     kwargs = _to_dict(args)
     parts = publish_parts(kwargs["content"],
                           writer_name="html",
