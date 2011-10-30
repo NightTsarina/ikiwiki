@@ -3,3 +3,19 @@ Though [[htmlscrubber|plugins/htmlscrubber]] is disabled on the Branchable site 
 <http://geekout.org.uk/actual_route/>
 
 I assumed one can mix and match HTML in markdown?
+
+> I checked, htmlscrubber is really disabled. So it's not scrubbing
+> anything. Really.
+> 
+> What is going on is you have found a bug in markdown. If you feed the
+> file into markdown directly you will see a bunch of weird hashes
+> like 67255d9b2a988139c95269498399f10a in place of your html,
+> so this is like [[!debbug 380212]] but that was with the other version of
+> markdown; I have not seen the current version behave this way before.
+> 
+> One workaround is to wrap the html in a span tag. Another is to switch
+> the page from .mdwn to .html and enable the html plugin. I guess I'd pick
+> the first if I were you.
+> 
+> I've filed [[!debbug 647128]] about this. Since it's not really an ikiwiki
+> bug, I'll close this one. [[done]] --[[Joey]]
