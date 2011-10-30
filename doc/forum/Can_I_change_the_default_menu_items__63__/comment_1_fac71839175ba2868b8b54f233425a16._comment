@@ -1,0 +1,37 @@
+[[!comment format=mdwn
+ username="http://jmtd.livejournal.com/"
+ ip="188.222.50.68"
+ subject="override/edit `page.tmpl`"
+ date="2011-10-30T21:22:29Z"
+ content="""
+I'm looking for a way to change the RecentChanges, Preferences, Branchable, Comment menu items from my wiki page.  I can see that the value for these items are set in template variables. Is there a way I can change these variables?  If so can you tell me how?
+
+Thanks,
+
+Maria
+
+> You need to define a `templatedir` and put a copy of your current version of ikiwiki's `page.tmpl` file into that directory.  Then, edit around line 62 or thereabouts, e.g.
+
+    <li><a href=\"<TMPL_VAR EDITURL>\" rel=\"nofollow\">Edit</a></li>
+    </TMPL_IF>
+    <TMPL_IF RECENTCHANGESURL>
+    -<li><a href=\"<TMPL_VAR RECENTCHANGESURL>\">RecentChanges</a></li>
+    +<li><a href=\"<TMPL_VAR RECENTCHANGESURL>\">Recent Changes</a></li>
+    </TMPL_IF>
+    <TMPL_IF HISTORYURL>
+    -<li><a href=\"<TMPL_VAR HISTORYURL>\">History</a></li>
+    +<li><a href=\"<TMPL_VAR HISTORYURL>\">Site history</a></li>
+    </TMPL_IF>
+    <TMPL_IF GETSOURCEURL>
+    -<li><a href=\"<TMPL_VAR GETSOURCEURL>\">Source</a></li>
+    +<li><a href=\"<TMPL_VAR GETSOURCEURL>\">View Source</a></li>
+    </TMPL_IF>
+    <TMPL_IF PREFSURL>
+    -<li><a href=\"<TMPL_VAR PREFSURL>\">Preferences</a></li>
+    +<li><a href=\"<TMPL_VAR PREFSURL>\">Your Preferences</a></li>
+    </TMPL_IF>
+    <TMPL_IF ACTIONS>
+    <TMPL_LOOP ACTIONS>
+
+> — [[Jon]]
+"""]]
