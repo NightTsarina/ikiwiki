@@ -2,6 +2,10 @@
 
 # bibtex for ikiwiki #
 
+(get me at [github]!)
+
+[github]: https://github.com/ihrke/iki-bibtex
+
 This [ikiwiki]-plugin provides a 
   
     [[!bibtex ]]
@@ -9,17 +13,21 @@ This [ikiwiki]-plugin provides a
 directive for [ikiwiki]. 
 
 So far, it can display a raw or formatted bibtex-entry from a 
-bibtex-file (either checked into ikiwiki, or not).
+bibtex-file (either checked into ikiwiki, or not) and display a 
+list of all bibtex-keys used on a key.
 
 [ikiwiki]: http://ikiwiki.info/
 
-Get it at [github].
-
-[github]: https://github.com/ihrke/iki-bibtex
-
 Features:
 
+* three different output formats for citations:
+  + cite - Author (year)
+  + citation - Author1, Author2 (year): **Title.** *Journal*
+  vol(num). pp.
+  + raw - raw bibtex-entry preformatted
 * supports websetup
+* bibliography
+
 
 ## Requirements ##
 
@@ -34,12 +42,18 @@ format (authors (year): journal. volume (number), pages.).
 
     [[!bibtex file="mybib.bib" key="key1" format="citation"]]
 
-Combine with toggle-plugin to optionally display the raw bibtex 
-(the extra \ in the toggle-directive is because it is expanded if it is not there)
+Combine with toggle-plugin to optionally display the raw bibtex
 
-    [[!bibtex key="Ihrke2011"]] [\[!toggle id="bibtexentry" text="(entry)"]]
-    [\[!toggleable  id="bibtexentry" text="""
+    [[!bibtex key="Ihrke2011"]] [[!toggle id="bibtexentry" text="(entry)"]]
+    [[!toggleable  id="bibtexentry" text="""
     [[!bibtex key="Ihrke2011" format="raw"]]
-    [\[!toggle id="bibtexentry" text="(hide)"]]
+    [[!toggle id="bibtexentry" text="(hide)"]]
     """]]
     
+Add a bibliography that includes all bibtex-directives from that page
+
+
+    ## Bibliography ##
+    [[!bibtex_bibliography ]]
+
+    ----
