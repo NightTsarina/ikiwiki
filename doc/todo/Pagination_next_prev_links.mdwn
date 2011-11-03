@@ -1,0 +1,30 @@
+I've observed people just seem to get into a dead end whilst reading my ikiwiki instances.
+
+They don't want to back out of post to an index. They want an easy button to click next or previous post, like what you find on Wordpress sites.
+
+<http://codex.wordpress.org/Next_and_Previous_Links>
+
+Thank you
+
+> This is a perfect use for [[todo/wikitrails]], of which my
+> [[plugins/contrib/trail]] plugin is an implementation. Code review on that
+> plugin would be welcome; it might even get merged one day.
+>
+> Unfortunately, IkiWiki blogs use a [[ikiwiki/PageSpec]] to define the set of
+> "posts" in the blog (through which the next/prev trail should range), and
+> the current implementation of [[plugins/contrib/trail]] in terms of typed
+> links would have a circular dependency if used with a PageSpec: typed links
+> have to be added before PageSpecs are evaluated, because "A links to B" is
+> something that can be in a PageSpec; but if you want to add typed links
+> ("A is part of trail B" in this case) based on a PageSpec, then the PageSpec
+> must be evaluated before the typed links can be added. Chicken/egg.
+>
+> One solution would be to make the trail plugin use its own data
+> structure, like [[plugins/contrib/album]] used to do, instead of typed
+> links: at scan time, the trail plugin would just record what the PageSpec
+> was, and delay actually *evaluating* the PageSpec until the beginning
+> of the `render` stage (after all pages have been scanned). This
+> reduces the generic usefulness of typed links, though - in particular
+> you can no longer use "is part of trail A" in a PageSpec. --[[smcv]]
+
+>> Do you have an example? --[[hendry]]
