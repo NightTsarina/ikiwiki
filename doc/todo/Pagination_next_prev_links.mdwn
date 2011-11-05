@@ -27,4 +27,7 @@ Thank you
 > reduces the generic usefulness of typed links, though - in particular
 > you can no longer use "is part of trail A" in a PageSpec. --[[smcv]]
 
+>>> Indeed, I know the problem; I ran into the same kind of thing with my [[plugins/contrib/report]] plugin and its `trail` concept.
+>>> I simply had to declare that one couldn't use "trail" and "maketrail" options within the same report. That way, "maketrail" will add links in the "scan" pass, and "trail" will test for links in the "build" pass.  That usually works. --[[KathrynAndersen]]
+
 >> Do you have an example? --[[hendry]]

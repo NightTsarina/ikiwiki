@@ -24,16 +24,16 @@ Implementation plan:
   and refresh site.
 
 Peter Gammie has done an initial implementation of the above.
-[[!template id=gitbranch branch=peteg/revert author="[[peteg]]"]]
+[[!template id=gitbranch branch=peteg/revert author="[[users/peteg]]"]]
 
->> It is on a separate branch now. --[[peteg]]
+>> It is on a separate branch now. --[[users/peteg]]
 
 > Review: --[[Joey]] 
 > 
 > The revert commit will not currently say what web user did the revert.
 > This could be fixed by doing a --no-commit revert first and then using
 > rcs_commit_staged.
->> Fixed, I think. --[[peteg]]
+>> Fixed, I think. --[[users/peteg]]
 >
 > So I see one thing I completly forgot about is `check_canedit`. Avoiding users
 > using reverting to make changes they would normally not be allowed to do is
@@ -45,12 +45,12 @@ Peter Gammie has done an initial implementation of the above.
 > structure that `rcs_recieve` does. This could be done by using `git revert
 > --no-commit`, and then examining the changes, and then `git reset` to drop
 > them.
->> We can use the existing `git_commit_info` with the patch ID - no need to touch the working directory. -- [[peteg]]
+>> We can use the existing `git_commit_info` with the patch ID - no need to touch the working directory. -- [[users/peteg]]
 > 
 > Then the code that is currently in IkiWiki/Receive.pm, that calls
 > `check_canedit` and `check_canremove` to test the change, can be
 > straightforwardly refactored out, and used for checking reverts too.
->> Wow, that was easy. :-) -- [[peteg]]
+>> Wow, that was easy. :-) -- [[users/peteg]]
 > 
 > (The data from `rcs_preprevert` could also be used for a confirmation
 > prompt -- it doesn't currently include enough info for diffs, but at
@@ -65,7 +65,7 @@ Peter Gammie has done an initial implementation of the above.
 >>> I agree, but have not figured out a way to make a hook work yet.
 >>> --[[Joey]] 
 >>
->> Please look it over and tell me what else needs fixing... -- [[peteg]]
+>> Please look it over and tell me what else needs fixing... -- [[users/peteg]]
 
 >>> I have made my own revert branch and put a few^Wseveral fixes in there.
 >>> All merged to master now! --[[Joey]] 
