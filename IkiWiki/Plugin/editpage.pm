@@ -230,13 +230,15 @@ sub cgi_editpage ($$) {
 				unshift @page_locs, lc($page)
 					if ! $form->submitted && lc($page) ne $page;
 			}
+			elsif (lc $page eq lc $config{discussionpage}) {
+				@page_locs=$best_loc=$page="$from/".lc($page);
+			}
 			else {
 				my $dir=$from."/";
 				$dir=~s![^/]+/+$!!;
 				
 				if ((defined $form->field('subpage') &&
-				     length $form->field('subpage')) ||
-				    $page eq lc($config{discussionpage})) {
+				     length $form->field('subpage'))) {
 					$best_loc="$from/$page";
 				}
 				else {
