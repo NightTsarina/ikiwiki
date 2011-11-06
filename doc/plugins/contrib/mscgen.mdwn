@@ -1,0 +1,53 @@
+[[!template id=plugin name=mscgen author="[[TerryGolubiewski]]"]
+[[!tag type/widget]]
+
+This plugin provides the mscgen [[ikiwiki/directive]].
+This directive allows embedding [mscgen](http://www.mcternan.me.uk/mscgen/)
+message sequence chart graphs in a page.
+
+Here's an mscgen source example.
+
+    \[[!msc src="""
+      arcgradient = 8;
+
+      a [label="Client"],b [label="Server"];
+
+      a=>b [label="data1"];
+      a-xb [label="data2"];
+      a=>b [label="data3"];
+      a<=b [label="ack1, nack2"];
+      a=>b [label="data2", arcskip="1"];
+      |||;
+      a<=b [label="ack3"];
+      |||;
+    """]]
+
+Security implications: to be determined
+
+[[!if test="enabled(mscgen)" then="""
+And here's the resulting graph.
+
+[[!msc src="""
+  arcgradient = 8;
+
+  a [label="Client"],b [label="Server"];
+
+  a=>b [label="data1"];
+  a-xb [label="data2"];
+  a=>b [label="data3"];
+  a<=b [label="ack1, nack2"];
+  a=>b [label="data2", arcskip="1"];
+  |||;
+  a<=b [label="ack3"];
+  |||;
+"""]]
+
+"""]]
+
+This plugin uses the [[!cpan Digest::SHA]] perl module.
+
+This plugin borrows heavily from the [[graphviz|plugins/graphviz]] plugin written by [[JoshTriplett]].
+
+
+[[!mscgen src=
+mscgen is 
