@@ -38,7 +38,7 @@ sub sanitize_wikiname ($) {
 
 sub import (@) {
 	my $this=shift;
-	$config{setuptype}='Standard';
+	$config{setuptype}='Yaml';
 	IkiWiki::Setup::merge({@_});
 
 	if (! $config{force_overwrite}) {
