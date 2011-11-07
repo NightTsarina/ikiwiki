@@ -1,0 +1,9 @@
+Information about Multimarkdown 3.X can be found at <http://fletcherpenney.net/multimarkdown/>.
+Apparently this will run faster because it's not a Perl script.
+The markdown plug-in only uses the perl script for multi-markdown.
+I see that I could just replace /usr/bin/markdown with a renamed multimarkdown,
+but I'd rather not change the system file or uninstall the perl modules.
+Perhaps a custom Plugin/mdwn.pm or a clever way to set $markdown_sub would suffice,
+but I don't know perl.  If I wanted to replace Plugin/mdwn.pm with something simple
+that didn't bother to check for Text::*Markdown, calling /home/me/bin/mymdwn instead,
+what would that look like?
