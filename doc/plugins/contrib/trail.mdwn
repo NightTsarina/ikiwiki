@@ -1,95 +1,117 @@
-[[!tag type/chrome patch]]
+[[!tag patch]]
 [[!template id=gitbranch branch=smcv/trail author="[[smcv]]"]]
 
 Available from [[smcv]]'s git repository, in the `trail` branch. This
-plugin aims to solve [[todo/wikitrails]] in a simpler way.
+plugin aims to solve [[todo/wikitrails]] in a simpler way; it can also be
+used for [[navigation through blog posts|Pagination_next_prev_links]].
 
-Updated, June 2011:
+The branch also includes machinery to run most of the IkiWiki regression
+tests under [[!cpan Devel::Cover]].
 
-* removed `inline` integration for now
+Demo:
 
-* added `<link>` tags
+* [a trail based on links](http://demo.hosted.pseudorandom.co.uk/trail/)
+* [a hybrid trail/inline](http://demo.hosted.pseudorandom.co.uk/trail2/)
 
-* switched from a custom data structure to using typed links
+The page `e` in the demo is in both trails, to demonstrate how that looks.
+
+The `smcv/trail2` branch is an older version of `trail` which used typed links
+as its data structure, resulting in timing-related limitations (it couldn't
+select pages for the trail by using pagespecs, because pagespecs can't be
+evaluated correctly until the scan stage has finished).
+
+Updated, November 2011:
+
+* reinstated `inline` integration ([[report]] integration would probably be
+  pretty easy too, if this gets merged)
+
+* switched from typed links back to a custom data structure to avoid
+  chicken/egg problems with ordering
+
+* create typed links too, as a side-effect, but not when using an inline
+
+* regression test with nearly full coverage
+
+* CSS for the default anti-theme and all built-in themes (it looks nicest
+  in the default anti-theme and in actiontabs - the demo uses actiontabs)
+
+Known bugs:
+
+* the blueview and goldtype CSS nearly work, but the alignment is a bit off
 
 ----
 
 [[!template id=plugin name=trail author="[[Simon_McVittie|smcv]]"]]
+[[!tag type/chrome]]
 
-It's sometimes useful to have "trails" of pages in a wiki, as a guided
-tour, sequence of chapters etc. In this plugin, a trail is represented
-by a page, and the pages in the trail are indicated by specially marked
-links within that page.
+This plugin provides the [[ikiwiki/directive/trail]],
+[[ikiwiki/directive/traillink]], [[ikiwiki/directive/trailitem]],
+and [[ikiwiki/directive/trailinline]] [[directives|ikiwiki/directive]].
+
+It's sometimes useful to have "trails" of pages in a wiki where each
+page links to the next and/or previous page. For instance, you could use
+this for a guided tour, sequence of chapters, or sequence of blog posts.
+
+In this plugin, a trail is represented by a page, and the pages in the
+trail are indicated by specially marked links within that page, or by
+including groups of pages with a [[ikiwiki/directive]].
 
 If using the default `page.tmpl`, each page automatically displays the
 trails that it's a member of (if any), with links to the trail and to
 the next and previous members. HTML `<link>` tags with the `prev`,
 `next` and `up` relations are also generated.
 
-The `traillink` [[ikiwiki/directive]] is used to record which pages
-are in a trail, and simultaneously link to them. Alternatively, the
-[[ikiwiki/directive/trailitem]] directive can be used to make an
-invisible `traillink`.
+Pages can be included in a trail in various ways:
 
-## Directives
+* The [[ikiwiki/directive/trailinline]] directive sets up an [[inline]],
+  and at the same time adds the matching pages (from `pages` or `pagenames`)
+  to the trail. One use is to navigate through all posts in a blog:
 
-(These will go to the appropriate pages in [[ikiwiki/directive]] if this
-plugin is included in ikiwiki.)
+        \[[!trailinline pages="page(./posts/*) and !*/Discussion" archive=yes
+          feedshow=10 quick=yes]]
 
-### trailitem
+  This directive only works if the [[!iki plugins/inline desc=inline]]
+  plugin is also enabled.
 
-The `trailitem` directive is supplied by the [[!iki plugins/contrib/trail desc=trail]]
-plugin. It is used like this:
+* The [[ikiwiki/directive/trail]] directive has optional `pages` and
+  `pagenames` options which behave the same as in [[inline]], but don't
+  produce any output in the page, so you can have trails that don't list
+  all their pages.
 
-    \[[!trailitem some_other_page]]
+* The [[ikiwiki/directive/traillink]] directive makes a visible link
+  and also adds the linked page to the trail. This will typically be
+  used in a bullet list, but could also be in paragraph text:
 
-to add `some_other_page` to the trail represented by this page, without
-generating a visible hyperlink.
+        * [[!traillink Introduction]]
+        * [[!traillink "Chapter 1"]]
+        * [[!traillink Chapter_2]]
+        * [[!traillink Appendix_A]]
 
-### traillink
+  or
 
-The `traillink` directive is supplied by the [[!iki plugins/contrib/trail desc=trail]]
-plugin. It generates a visible [[ikiwiki/WikiLink]], and also adds the linked page to
-the trail represented by the page containing the directive.
+        To use this software you must \[[!traillink install]] it,
+        \[[!traillink configuration text="configure it"]],
+        and finally \[[!traillink running|run_it]].
 
-In its simplest form, the first parameter is like the content of a WikiLink:
+  This also counts as a [[ikiwiki/WikiLink]] for things like the `link()`
+  [[ikiwiki/PageSpec]] item.
 
-    \[[!traillink some_other_page]]
+* The [[ikiwiki/directive/trailitem]] directive adds a page to the trail
+  like `traillink`, but produces an invisible link, rather like `\[[!tag]]`:
 
-The displayed text can also be overridden, either with a `|` symbol or with
-a `text` parameter:
+        To use this software you must \[[!traillink install]] it,
+        \[[!trailitem installing_from_packages]]
+        \[[!trailitem installing_from_source]]
+        \[[!traillink configuration text="configure it"]],
+        and finally \[[!traillink running|run_it]].
+        \[[!trailitem troubleshooting]]
 
-    \[[!traillink Click_here_to_start_the_trail|some_other_page]]
-    \[[!traillink some_other_page text="Click here to start the trail"]]
+  Like `\[[!tag]]`, this still counts as a [[ikiwiki/WikiLink]] even though
+  there's no visible link.
 
-### trailoptions
+You can mix several of these directives in one page, and the resulting
+trail will contain all of the pages matched by any of the directives,
+in the same order as the directives (unless you use the `sort` option
+on `\[[!trail]]` or `\[[!trailinline]]`, which takes precedence).
 
-The `trailoptions` directive is supplied by the [[!iki plugins/contrib/trail desc=trail]]
-plugin. It sets options for the trail represented by this page. Example usage:
-
-    \[[!trailoptions sort="meta(title)" circular="no"]]
-
-The available options are:
-
-* `sort`: sets a [[ikiwiki/pagespec/sorting]] order; if not specified, the
-  items of the trail are ordered according to the first link to each item
-  found on the trail page
-
-* `circular`: if set to `yes` or `1`, the trail is made into a loop by
-  making the last page's "next" link point to the first page, and the first
-  page's "previous" link point to the last page
-
-----
-
-## Future directions
-
-The current version of this plugin doesn't implement inline-based or
-otherwise [[ikiwiki/PageSpec]]-based trails. This is difficult because
-there's a circular dependency:
-
-* adding typed links should happen *before* scanning has finished, to
-  guarantee that they're available before the first page is rendered
-
-* evaluating pagespecs should only happen *after* scanning has finished,
-  to guarantee that everything you might want to base a pagespec on
-  (`meta`, etc.) has been gathered by scanning
+The [[ikiwiki/directive/trail]] directive can also be used to set options.
