@@ -1,0 +1,18 @@
+[[!tag patch]]
+[[!template id=gitbranch branch=smcv/coverage author="[[smcv]]"]]
+
+It would be nice for `make coverage` (or something) to produce a HTML
+test-coverage report. I found this very useful for test-driven development of
+[[plugins/contrib/trail]].
+
+Limitations of the current branch, which uses [[!cpan Devel::Cover]]:
+
+* Some tests use `./blib` and some use `.` so coverage gets split between
+  the two copies of each module; not a problem for [[plugins/contrib/trail]]
+  which only has one test.
+
+* The [[plugins/git]] and [[plugins/mercurial]] plugins want to `chdir`,
+  and so does [[!cpan Devel::Cover]], so they fight. For now, those tests
+  are disabled under `make coverage`.
+
+--[[smcv]]
