@@ -5,14 +5,31 @@ Available from [[smcv]]'s git repository, in the `trail` branch. This
 plugin aims to solve [[todo/wikitrails]] in a simpler way; it can also be
 used for [[navigation through blog posts|todo/Pagination_next_prev_links]].
 
+Manual installation requires these files (use the "raw" link in gitweb to download):
+
+* [trail.pm](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/IkiWiki/Plugin/trail.pm)
+  in an `IkiWiki/Plugin` subdirectory of your configured `plugindir`
+* [page.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/templates/page.tmpl)
+  and
+  [trails.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/templates/trails.tmpl)
+  in your configured `templatedir`, or a `templates` subdirectory of your wiki repository
+* the trail-related bits from the end of the
+  [stylesheet](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/doc/style.css)
+* the trail-related bits at the end of the
+  [actiontabs](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/themes/actiontabs/style.css)
+  or [blueview](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/themes/blueview/style.css)
+  stylesheets, if you use one of those themes
+
 The branch also includes [[todo/test_coverage]] machinery.
 
 Demo:
 
-* [a trail based on links](http://demo.hosted.pseudorandom.co.uk/trail/)
-* [a hybrid trail/inline](http://demo.hosted.pseudorandom.co.uk/trail2/)
+* [in use on entries in my blog](http://smcv.pseudorandom.co.uk/)
+* [a demo trail based on links](http://demo.hosted.pseudorandom.co.uk/trail/)
+* [a demo hybrid trail/inline](http://demo.hosted.pseudorandom.co.uk/trail2/)
 
-The page `e` in the demo is in both trails, to demonstrate how that looks.
+The page `e` is in both demo trails, to demonstrate how a page in more than
+one trail looks.
 
 The `smcv/trail2` branch is an older version of `trail` which used typed links
 as its data structure, resulting in timing-related limitations (it couldn't
@@ -23,20 +40,17 @@ Updated, November 2011:
 
 * reinstated `inline` integration ([[report]] integration would probably be
   pretty easy too, if this gets merged)
-
 * switched from typed links back to a custom data structure to avoid
   chicken/egg problems with ordering
-
 * create typed links too, as a side-effect, but not when using an inline
-
 * regression test with nearly full coverage
-
 * CSS for the default anti-theme and all built-in themes (it looks nicest
   in the default anti-theme and in actiontabs - the demo uses actiontabs)
 
 Known bugs:
 
 * the blueview and goldtype CSS nearly work, but the alignment is a bit off
+* a `trailinline` with no `sort` option is sorted in arbitrary order
 
 ----
 
