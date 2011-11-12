@@ -30,4 +30,9 @@ sub cmp_title_natural {
 		IkiWiki::pagetitle(IkiWiki::basename($b)))
 }
 
+sub cmp_path_natural {
+	Sort::Naturally::ncmp(IkiWiki::pagetitle($a),
+		IkiWiki::pagetitle($b))
+}
+
 1;
