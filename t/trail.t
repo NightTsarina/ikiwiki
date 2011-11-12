@@ -45,6 +45,29 @@ writefile("del/c.mdwn", "t/tmp/in", "c");
 writefile("del/d.mdwn", "t/tmp/in", "d");
 writefile("del/e.mdwn", "t/tmp/in", "e");
 writefile("self_referential.mdwn", "t/tmp/in", '[[!trail pagenames="self_referential" circular=yes]]');
+writefile("sorting/linked.mdwn", "t/tmp/in", "linked");
+writefile("sorting/a/b.mdwn", "t/tmp/in", "a/b");
+writefile("sorting/a/c.mdwn", "t/tmp/in", "a/c");
+writefile("sorting/z/a.mdwn", "t/tmp/in", "z/a");
+writefile("sorting/beginning.mdwn", "t/tmp/in", "beginning");
+writefile("sorting/middle.mdwn", "t/tmp/in", "middle");
+writefile("sorting/end.mdwn", "t/tmp/in", "end");
+writefile("sorting/new.mdwn", "t/tmp/in", "new");
+writefile("sorting/old.mdwn", "t/tmp/in", "old");
+writefile("sorting/ancient.mdwn", "t/tmp/in", "ancient");
+# These three need to be in the appropriate age order
+ok(utime(333333333, 333333333, "t/tmp/in/sorting/new.mdwn"));
+ok(utime(222222222, 222222222, "t/tmp/in/sorting/old.mdwn"));
+ok(utime(111111111, 111111111, "t/tmp/in/sorting/ancient.mdwn"));
+writefile("sorting/linked2.mdwn", "t/tmp/in", "linked2");
+# This initially uses the default sort order: age for trailinline, and path
+# for trail. We change it later.
+writefile("sorting.mdwn", "t/tmp/in",
+	'[[!traillink linked]] ' .
+	'[[!trail pages="sorting/z/a or sorting/a/b or sorting/a/c"]] ' .
+	'[[!trail pagenames="beginning middle end"]] ' .
+	'[[!trailinline pages="sorting/old or sorting/ancient or sorting/new"]] ' .
+	'[[!traillink linked2]]');
 
 writefile("meme.mdwn", "t/tmp/in", <<EOF
 [[!trail]]
@@ -126,6 +149,29 @@ ok($blob =~ /^trail=del n=del\/e p=del\/c$/m);
 $blob = readfile("t/tmp/out/del/e.html");
 ok($blob =~ /^trail=del n= p=del\/d$/m);
 
+$blob = readfile("t/tmp/out/sorting/linked.html");
+ok($blob =~ m{^trail=sorting n=sorting/a/b p=$}m);
+$blob = readfile("t/tmp/out/sorting/a/b.html");
+ok($blob =~ m{^trail=sorting n=sorting/a/c p=sorting/linked$}m);
+$blob = readfile("t/tmp/out/sorting/a/c.html");
+ok($blob =~ m{^trail=sorting n=sorting/z/a p=sorting/a/b$}m);
+$blob = readfile("t/tmp/out/sorting/z/a.html");
+ok($blob =~ m{^trail=sorting n=sorting/beginning p=sorting/a/c$}m);
+$blob = readfile("t/tmp/out/sorting/beginning.html");
+ok($blob =~ m{^trail=sorting n=sorting/middle p=sorting/z/a$}m);
+$blob = readfile("t/tmp/out/sorting/middle.html");
+ok($blob =~ m{^trail=sorting n=sorting/end p=sorting/beginning$}m);
+$blob = readfile("t/tmp/out/sorting/end.html");
+ok($blob =~ m{^trail=sorting n=sorting/new p=sorting/middle$}m);
+$blob = readfile("t/tmp/out/sorting/new.html");
+ok($blob =~ m{^trail=sorting n=sorting/old p=sorting/end$}m);
+$blob = readfile("t/tmp/out/sorting/old.html");
+ok($blob =~ m{^trail=sorting n=sorting/ancient p=sorting/new$}m);
+$blob = readfile("t/tmp/out/sorting/ancient.html");
+ok($blob =~ m{^trail=sorting n=sorting/linked2 p=sorting/old$}m);
+$blob = readfile("t/tmp/out/sorting/linked2.html");
+ok($blob =~ m{^trail=sorting n= p=sorting/ancient$}m);
+
 # Make some changes and refresh
 
 writefile("add/a.mdwn", "t/tmp/in", "a");
@@ -134,6 +180,10 @@ writefile("add/e.mdwn", "t/tmp/in", "e");
 ok(unlink("t/tmp/in/del/a.mdwn"));
 ok(unlink("t/tmp/in/del/c.mdwn"));
 ok(unlink("t/tmp/in/del/e.mdwn"));
+
+writefile("sorting.mdwn", "t/tmp/in",
+	readfile("t/tmp/in/sorting.mdwn") .
+	'[[!trailinline pages="doesnt_exist" trailsort="title" trailreverse="yes"]]'); 
 
 ok(! system("$command -refresh"));
 
@@ -156,4 +206,27 @@ ok(! -f "t/tmp/out/del/a.html");
 ok(! -f "t/tmp/out/del/c.html");
 ok(! -f "t/tmp/out/del/e.html");
 
-#ok(! system("rm -rf t/tmp"));
+$blob = readfile("t/tmp/out/sorting/old.html");
+ok($blob =~ m{^trail=sorting n=sorting/new p=$}m);
+$blob = readfile("t/tmp/out/sorting/new.html");
+ok($blob =~ m{^trail=sorting n=sorting/middle p=sorting/old$}m);
+$blob = readfile("t/tmp/out/sorting/middle.html");
+ok($blob =~ m{^trail=sorting n=sorting/linked2 p=sorting/new$}m);
+$blob = readfile("t/tmp/out/sorting/linked2.html");
+ok($blob =~ m{^trail=sorting n=sorting/linked p=sorting/middle$}m);
+$blob = readfile("t/tmp/out/sorting/linked.html");
+ok($blob =~ m{^trail=sorting n=sorting/end p=sorting/linked2$}m);
+$blob = readfile("t/tmp/out/sorting/end.html");
+ok($blob =~ m{^trail=sorting n=sorting/a/c p=sorting/linked$}m);
+$blob = readfile("t/tmp/out/sorting/a/c.html");
+ok($blob =~ m{^trail=sorting n=sorting/beginning p=sorting/end$}m);
+$blob = readfile("t/tmp/out/sorting/beginning.html");
+ok($blob =~ m{^trail=sorting n=sorting/a/b p=sorting/a/c$}m);
+$blob = readfile("t/tmp/out/sorting/a/b.html");
+ok($blob =~ m{^trail=sorting n=sorting/ancient p=sorting/beginning$}m);
+$blob = readfile("t/tmp/out/sorting/ancient.html");
+ok($blob =~ m{^trail=sorting n=sorting/z/a p=sorting/a/b$}m);
+$blob = readfile("t/tmp/out/sorting/z/a.html");
+ok($blob =~ m{^trail=sorting n= p=sorting/ancient$}m);
+
+ok(! system("rm -rf t/tmp"));

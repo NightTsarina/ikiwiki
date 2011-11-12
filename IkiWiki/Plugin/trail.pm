@@ -123,6 +123,11 @@ sub preprocess_trail (@) {
 		$scanned = 1;
 	}
 
+	# trail members from a pagespec ought to be in some sort of order,
+	# and path is a nice obvious default
+	$params{sortthese} = 'path' unless exists $params{sortthese};
+	$params{reversethese} = 'no' unless exists $params{reversethese};
+
 	if (exists $params{circular}) {
 		$pagestate{$params{page}}{trail}{circular} =
 			IkiWiki::yesno($params{circular});
@@ -137,11 +142,13 @@ sub preprocess_trail (@) {
 	}
 
 	if (exists $params{pages}) {
-		push @{$pagestate{$params{page}}{trail}{contents}}, "pagespec $params{pages}";
+		push @{$pagestate{$params{page}}{trail}{contents}},
+			["pagespec" => $params{pages}, $params{sortthese},
+				IkiWiki::yesno($params{reversethese})];
 	}
 
 	if (exists $params{pagenames}) {
-		my @list = map { "link $_" } split ' ', $params{pagenames};
+		my @list = map { [link =>  $_] } split ' ', $params{pagenames};
 		push @{$pagestate{$params{page}}{trail}{contents}}, @list;
 	}
 
@@ -178,6 +185,28 @@ to the trail.
 
 sub preprocess_trailinline (@) {
 	my %params = @_;
+
+	if (exists $params{sort}) {
+		$params{sortthese} = $params{sort};
+		delete $params{sort};
+	}
+	else {
+		# sort in the same order as [[plugins/inline]]'s default
+		$params{sortthese} = 'age';
+	}
+
+	if (exists $params{reverse}) {
+		$params{reversethese} = $params{reverse};
+		delete $params{reverse};
+	}
+
+	if (exists $params{trailsort}) {
+		$params{sort} = $params{trailsort};
+	}
+
+	if (exists $params{trailreverse}) {
+		$params{reverse} = $params{trailreverse};
+	}
 
 	if (defined wantarray) {
 		scalar preprocess_trail(%params);
@@ -225,7 +254,7 @@ sub preprocess_trailitem (@) {
 	$link = linkpage($link);
 
 	add_link($params{page}, $link, 'trail');
-	push @{$pagestate{$params{page}}{trail}{contents}}, "link $link";
+	push @{$pagestate{$params{page}}{trail}{contents}}, [link => $link];
 
 	return "";
 }
@@ -363,13 +392,14 @@ sub prerender {
 		my $members = [];
 		my @contents = @{$pagestate{$trail}{trail}{contents}};
 
-
 		foreach my $c (@contents) {
-			if ($c =~ m/^pagespec (.*)$/) {
-				push @$members, pagespec_match_list($trail, $1);
+			if ($c->[0] eq 'pagespec') {
+				push @$members, pagespec_match_list($trail,
+					$c->[1], sort => $c->[2],
+					reverse => $c->[3]);
 			}
-			elsif ($c =~ m/^link (.*)$/) {
-				my $best = bestlink($trail, $1);
+			elsif ($c->[0] eq 'link') {
+				my $best = bestlink($trail, $c->[1]);
 				push @$members, $best if length $best;
 			}
 		}
