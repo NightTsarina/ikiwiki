@@ -59,8 +59,9 @@ Known bugs:
 [[!template id=plugin name=trail author="[[Simon_McVittie|smcv]]"]]
 [[!tag type/chrome]]
 
-This plugin provides the [[ikiwiki/directive/trail]],
+This plugin provides the [[ikiwiki/directive/trailoptions]],
 [[ikiwiki/directive/traillink]], [[ikiwiki/directive/trailitem]],
+[[ikiwiki/directive/trailitems]]
 and [[ikiwiki/directive/trailinline]] [[directives|ikiwiki/directive]].
 
 It's sometimes useful to have "trails" of pages in a wiki where each
@@ -76,6 +77,9 @@ trails that it's a member of (if any), with links to the trail and to
 the next and previous members. HTML `<link>` tags with the `prev`,
 `next` and `up` relations are also generated.
 
+The [[ikiwiki/directive/trailoptions]] directive sets options for the
+entire trail.
+
 Pages can be included in a trail in various ways:
 
 * The [[ikiwiki/directive/trailinline]] directive sets up an [[inline]],
@@ -88,7 +92,7 @@ Pages can be included in a trail in various ways:
   This directive only works if the [[!iki plugins/inline desc=inline]]
   plugin is also enabled.
 
-* The [[ikiwiki/directive/trail]] directive has optional `pages` and
+* The [[ikiwiki/directive/trailitems]] directive has optional `pages` and
   `pagenames` options which behave the same as in [[inline]], but don't
   produce any output in the page, so you can have trails that don't list
   all their pages.
@@ -124,9 +128,7 @@ Pages can be included in a trail in various ways:
   Like `\[[!tag]]`, this still counts as a [[ikiwiki/WikiLink]] even though
   there's no visible link.
 
-You can mix several of these directives in one page, and the resulting
+You can mix several of these directives in one page. The resulting
 trail will contain all of the pages matched by any of the directives,
-in the same order as the directives (unless you use the `sort` option
-on `\[[!trail]]` or `\[[!trailinline]]`, which takes precedence).
-
-The [[ikiwiki/directive/trail]] directive can also be used to set options.
+in the same order that the directives appear (unless you use the `sort` or
+`reverse` options on `\[[!trailoptions]]`).
