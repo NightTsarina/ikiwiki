@@ -1,0 +1,16 @@
+[[!tag patch]]
+[[!template id=gitbranch branch=smcv/trail3 author="[[smcv]]"]]
+
+My branch for [[plugins/contrib/trail]] also includes `path`
+and `path_natural` sort orders, which sort the entire page name,
+e.g. "a a/z ab ab/c b", much like [[ikiwiki/directive/map]].
+I used `path` as the default order for the
+[[plugins/contrib/ikiwiki/directive/trailitems]] directive,
+since it seemed the most sensible.
+([[plugins/contrib/ikiwiki/directive/trailinline]] uses
+`age` as its default, to be consistent with `inline`.)
+
+It's one commit (including a regression test) which can be
+cherry-picked if you don't want the rest of `trail`.
+
+--[[smcv]]
