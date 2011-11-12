@@ -88,6 +88,8 @@ sub needsbuild (@) {
 	return $needsbuild;
 }
 
+my $scanned = 0;
+
 =for wiki
 
 The `trail` directive is supplied by the [[plugins/contrib/trail]]
@@ -111,6 +113,15 @@ The available options are:
 
 sub preprocess_trail (@) {
 	my %params = @_;
+
+	# avoid collecting everything in the preprocess stage if we already
+	# did in the scan stage
+	if (defined wantarray) {
+		return "" if $scanned;
+	}
+	else {
+		$scanned = 1;
+	}
 
 	if (exists $params{circular}) {
 		$pagestate{$params{page}}{trail}{circular} =
@@ -166,14 +177,20 @@ to the trail.
 =cut
 
 sub preprocess_trailinline (@) {
-	preprocess_trail(@_);
-	return unless defined wantarray;
+	my %params = @_;
 
-	if (IkiWiki->can("preprocess_inline")) {
-		return IkiWiki::preprocess_inline(@_);
+	if (defined wantarray) {
+		scalar preprocess_trail(%params);
+
+		if (IkiWiki->can("preprocess_inline")) {
+			return IkiWiki::preprocess_inline(@_);
+		}
+		else {
+			error("trailinline directive requires the inline plugin");
+		}
 	}
 	else {
-		error("trailinline directive requires the inline plugin");
+		preprocess_trail(%params);
 	}
 }
 
@@ -192,6 +209,15 @@ generating a visible hyperlink.
 sub preprocess_trailitem (@) {
 	my $link = shift;
 	shift;
+
+	# avoid collecting everything in the preprocess stage if we already
+	# did in the scan stage
+	if (defined wantarray) {
+		return "" if $scanned;
+	}
+	else {
+		$scanned = 1;
+	}
 
 	my %params = @_;
 	my $trail = $params{page};
@@ -242,7 +268,18 @@ sub preprocess_traillink (@) {
 	$link = linkpage($2);
 
 	add_link($params{page}, $link, 'trail');
-	push @{$pagestate{$params{page}}{trail}{contents}}, "link $link";
+
+	# avoid collecting everything in the preprocess stage if we already
+	# did in the scan stage
+	my $already;
+	if (defined wantarray) {
+		$already = $scanned;
+	}
+	else {
+		$scanned = 1;
+	}
+
+	push @{$pagestate{$params{page}}{trail}{contents}}, [link => $link] unless $already;
 
 	if (defined $linktext) {
 		$linktext = pagetitle($linktext);
