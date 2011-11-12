@@ -12,7 +12,7 @@ IkiWiki::checkconfig();
 {
 	package IkiWiki::SortSpec;
 
-	sub cmp_path { $a cmp $b }
+	sub cmp_raw_path { $a cmp $b }
 }
 
 %pagesources=(
@@ -53,7 +53,7 @@ is_deeply([pagespec_match_list("foo", "post/*", sort => "title", num => 50, reve
 is_deeply([pagespec_match_list("foo", "post/*", sort => "title",
                          filter => sub { $_[0] =~ /3/}) ],
 	["post/1", "post/2"]);
-is_deeply([pagespec_match_list("foo", "*", sort => "path", num => 2)],
+is_deeply([pagespec_match_list("foo", "*", sort => "raw_path", num => 2)],
 	["bar", "foo"]);
 is_deeply([pagespec_match_list("foo", "foo* or bar*",
 		sort => "-age title")], # oldest first, break ties by title
