@@ -27,7 +27,20 @@ If a page C<$T> is a trail, then it can have
 
 =item * C<$pagestate{$T}{trail}{contents}>
 
-Reference to an array of pagespecs or links in the trail.
+Reference to an array of lists each containing either:
+
+=over
+
+=item * C<[link, "link"]>
+
+A link specification, pointing to the same page that C<[[link]]> would select
+
+=item * C<[pagespec, "posts/*", "age", 0]>
+
+A match by pagespec; the third array element is the sort order and the fourth
+is whether to reverse sorting
+
+=back
 
 =item * C<$pagestate{$T}{trail}{sort}>
 
@@ -90,27 +103,6 @@ sub needsbuild (@) {
 
 my $scanned = 0;
 
-=for wiki
-
-The `trail` directive is supplied by the [[plugins/contrib/trail]]
-plugin. It sets options for the trail represented by this page. Example usage:
-
-    \[[!trail sort="meta(date)" circular="no" pages="blog/posts/*"]]
-
-The available options are:
-
-* `sort`: sets a [[ikiwiki/pagespec/sorting]] order; if not specified, the
-  items of the trail are ordered according to the first link to each item
-  found on the trail page
-
-* `circular`: if set to `yes` or `1`, the trail is made into a loop by
-  making the last page's "next" link point to the first page, and the first
-  page's "previous" link point to the last page
-
-* `pages`: add the given pages to the trail
-
-=cut
-
 sub preprocess_trail (@) {
 	my %params = @_;
 
@@ -155,34 +147,6 @@ sub preprocess_trail (@) {
 	return "";
 }
 
-=for wiki
-
-The `trailinline` directive is supplied by the [[plugins/contrib/trail]]
-plugin. It behaves like the [[trail]] and [[inline]] directives combined.
-Like [[inline]], it includes the selected pages into the page with the
-directive and/or an RSS or Atom feed; like [[trail]], it turns the
-included pages into a "trail" in which each page has a link to the
-previous and next pages.
-
-    \[[!inline sort="meta(date)" circular="no" pages="blog/posts/*"]]
-
-All the options for the [[inline]] and [[trail]] directives are valid.
-
-The `show`, `skip` and `feedshow` options from [[inline]] do not apply
-to the trail.
-
-* `sort`: sets a [[ikiwiki/pagespec/sorting]] order; if not specified, the
-  items of the trail are ordered according to the first link to each item
-  found on the trail page
-
-* `circular`: if set to `yes` or `1`, the trail is made into a loop by
-  making the last page's "next" link point to the first page, and the first
-  page's "previous" link point to the last page
-
-* `pages`: add the given pages to the trail
-
-=cut
-
 sub preprocess_trailinline (@) {
 	my %params = @_;
 
@@ -223,18 +187,6 @@ sub preprocess_trailinline (@) {
 	}
 }
 
-=for wiki
-
-The `trailitem` directive is supplied by the [[plugins/contrib/trail]] plugin.
-It is used like this:
-
-    \[[!trailitem some_other_page]]
-
-to add `some_other_page` to the trail represented by this page, without
-generating a visible hyperlink.
-
-=cut
-
 sub preprocess_trailitem (@) {
 	my $link = shift;
 	shift;
@@ -258,24 +210,6 @@ sub preprocess_trailitem (@) {
 
 	return "";
 }
-
-=for wiki
-
-The `traillink` directive is supplied by the [[plugins/contrib/trail]] plugin.
-It generates a visible [[ikiwiki/WikiLink]], and also adds the linked page to
-the trail represented by the page containing the directive.
-
-In its simplest form, the first parameter is like the content of a WikiLink:
-
-    \[[!traillink some_other_page]]
-
-The displayed text can also be overridden, either with a `|` symbol or with
-a `text` parameter:
-
-    \[[!traillink Click_here_to_start_the_trail|some_other_page]]
-    \[[!traillink some_other_page text="Click here to start the trail"]]
-
-=cut
 
 sub preprocess_traillink (@) {
 	my $link = shift;
