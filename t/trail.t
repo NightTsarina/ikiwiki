@@ -35,16 +35,16 @@ writefile("mushroom.mdwn", "t/tmp/in", "content of mushroom");
 writefile("snake.mdwn", "t/tmp/in", "content of snake");
 writefile("ratty.mdwn", "t/tmp/in", "content of ratty");
 writefile("mr_toad.mdwn", "t/tmp/in", "content of mr toad");
-writefile("add.mdwn", "t/tmp/in", '[[!trail pagenames="add/a add/b add/c add/d add/e"]]');
+writefile("add.mdwn", "t/tmp/in", '[[!trailitems pagenames="add/a add/b add/c add/d add/e"]]');
 writefile("add/b.mdwn", "t/tmp/in", "b");
 writefile("add/d.mdwn", "t/tmp/in", "d");
-writefile("del.mdwn", "t/tmp/in", '[[!trail pages="del/*" sort=title]]');
+writefile("del.mdwn", "t/tmp/in", '[[!trailitems pages="del/*" sort=title]]');
 writefile("del/a.mdwn", "t/tmp/in", "a");
 writefile("del/b.mdwn", "t/tmp/in", "b");
 writefile("del/c.mdwn", "t/tmp/in", "c");
 writefile("del/d.mdwn", "t/tmp/in", "d");
 writefile("del/e.mdwn", "t/tmp/in", "e");
-writefile("self_referential.mdwn", "t/tmp/in", '[[!trail pagenames="self_referential" circular=yes]]');
+writefile("self_referential.mdwn", "t/tmp/in", '[[!trailitems pagenames="self_referential" circular=yes]]');
 writefile("sorting/linked.mdwn", "t/tmp/in", "linked");
 writefile("sorting/a/b.mdwn", "t/tmp/in", "a/b");
 writefile("sorting/a/c.mdwn", "t/tmp/in", "a/c");
@@ -64,8 +64,8 @@ writefile("sorting/linked2.mdwn", "t/tmp/in", "linked2");
 # for trail. We change it later.
 writefile("sorting.mdwn", "t/tmp/in",
 	'[[!traillink linked]] ' .
-	'[[!trail pages="sorting/z/a or sorting/a/b or sorting/a/c"]] ' .
-	'[[!trail pagenames="beginning middle end"]] ' .
+	'[[!trailitems pages="sorting/z/a or sorting/a/b or sorting/a/c"]] ' .
+	'[[!trailitems pagenames="beginning middle end"]] ' .
 	'[[!trailinline pages="sorting/old or sorting/ancient or sorting/new"]] ' .
 	'[[!traillink linked2]]');
 
@@ -83,7 +83,8 @@ EOF
 );
 
 writefile("wind_in_the_willows.mdwn", "t/tmp/in", <<EOF
-[[!trail circular=yes sort=title pages="ratty or badger or mr_toad"]]
+[[!trailoptions circular=yes sort=title]]
+[[!trailitems pages="ratty or badger or mr_toad"]]
 [[!trailitem moley]]
 EOF
 );
@@ -183,7 +184,7 @@ ok(unlink("t/tmp/in/del/e.mdwn"));
 
 writefile("sorting.mdwn", "t/tmp/in",
 	readfile("t/tmp/in/sorting.mdwn") .
-	'[[!trailinline pages="doesnt_exist" trailsort="title" trailreverse="yes"]]'); 
+	'[[!trailoptions sort="title" reverse="yes"]]'); 
 
 ok(! system("$command -refresh"));
 

@@ -12,9 +12,10 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "getsetup", id => "trail", call => \&getsetup);
 	hook(type => "needsbuild", id => "trail", call => \&needsbuild);
-	hook(type => "preprocess", id => "trail", call => \&preprocess_trail, scan => 1);
+	hook(type => "preprocess", id => "trailoptions", call => \&preprocess_trailoptions, scan => 1);
 	hook(type => "preprocess", id => "trailinline", call => \&preprocess_trailinline, scan => 1);
 	hook(type => "preprocess", id => "trailitem", call => \&preprocess_trailitem, scan => 1);
+	hook(type => "preprocess", id => "trailitems", call => \&preprocess_trailitems, scan => 1);
 	hook(type => "preprocess", id => "traillink", call => \&preprocess_traillink, scan => 1);
 	hook(type => "pagetemplate", id => "trail", call => \&pagetemplate);
 }
@@ -103,22 +104,8 @@ sub needsbuild (@) {
 
 my $scanned = 0;
 
-sub preprocess_trail (@) {
+sub preprocess_trailoptions (@) {
 	my %params = @_;
-
-	# avoid collecting everything in the preprocess stage if we already
-	# did in the scan stage
-	if (defined wantarray) {
-		return "" if $scanned;
-	}
-	else {
-		$scanned = 1;
-	}
-
-	# trail members from a pagespec ought to be in some sort of order,
-	# and path is a nice obvious default
-	$params{sortthese} = 'path' unless exists $params{sortthese};
-	$params{reversethese} = 'no' unless exists $params{reversethese};
 
 	if (exists $params{circular}) {
 		$pagestate{$params{page}}{trail}{circular} =
@@ -133,47 +120,19 @@ sub preprocess_trail (@) {
 		$pagestate{$params{page}}{trail}{reverse} = $params{reverse};
 	}
 
-	if (exists $params{pages}) {
-		push @{$pagestate{$params{page}}{trail}{contents}},
-			["pagespec" => $params{pages}, $params{sortthese},
-				IkiWiki::yesno($params{reversethese})];
-	}
-
-	if (exists $params{pagenames}) {
-		my @list = map { [link =>  $_] } split ' ', $params{pagenames};
-		push @{$pagestate{$params{page}}{trail}{contents}}, @list;
-	}
-
 	return "";
 }
 
 sub preprocess_trailinline (@) {
 	my %params = @_;
 
-	if (exists $params{sort}) {
-		$params{sortthese} = $params{sort};
-		delete $params{sort};
-	}
-	else {
+	if (! exists $params{sort}) {
 		# sort in the same order as [[plugins/inline]]'s default
-		$params{sortthese} = 'age';
-	}
-
-	if (exists $params{reverse}) {
-		$params{reversethese} = $params{reverse};
-		delete $params{reverse};
-	}
-
-	if (exists $params{trailsort}) {
-		$params{sort} = $params{trailsort};
-	}
-
-	if (exists $params{trailreverse}) {
-		$params{reverse} = $params{trailreverse};
+		$params{sort} = 'age';
 	}
 
 	if (defined wantarray) {
-		scalar preprocess_trail(%params);
+		scalar preprocess_trailitems(%params);
 
 		if (IkiWiki->can("preprocess_inline")) {
 			return IkiWiki::preprocess_inline(@_);
@@ -183,7 +142,7 @@ sub preprocess_trailinline (@) {
 		}
 	}
 	else {
-		preprocess_trail(%params);
+		preprocess_trailitems(%params);
 	}
 }
 
@@ -207,6 +166,37 @@ sub preprocess_trailitem (@) {
 
 	add_link($params{page}, $link, 'trail');
 	push @{$pagestate{$params{page}}{trail}{contents}}, [link => $link];
+
+	return "";
+}
+
+sub preprocess_trailitems (@) {
+	my %params = @_;
+
+	# avoid collecting everything in the preprocess stage if we already
+	# did in the scan stage
+	if (defined wantarray) {
+		return "" if $scanned;
+	}
+	else {
+		$scanned = 1;
+	}
+
+	# trail members from a pagespec ought to be in some sort of order,
+	# and path is a nice obvious default
+	$params{sort} = 'path' unless exists $params{sort};
+	$params{reverse} = 'no' unless exists $params{reverse};
+
+	if (exists $params{pages}) {
+		push @{$pagestate{$params{page}}{trail}{contents}},
+			["pagespec" => $params{pages}, $params{sort},
+				IkiWiki::yesno($params{reverse})];
+	}
+
+	if (exists $params{pagenames}) {
+		my @list = map { [link =>  $_] } split ' ', $params{pagenames};
+		push @{$pagestate{$params{page}}{trail}{contents}}, @list;
+	}
 
 	return "";
 }
