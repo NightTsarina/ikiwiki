@@ -2792,6 +2792,7 @@ sub cmp_title {
 	IkiWiki::pagetitle(IkiWiki::basename($b))
 }
 
+sub cmp_path { IkiWiki::pagetitle($a) cmp IkiWiki::pagetitle($b) }
 sub cmp_mtime { $IkiWiki::pagemtime{$b} <=> $IkiWiki::pagemtime{$a} }
 sub cmp_age { $IkiWiki::pagectime{$b} <=> $IkiWiki::pagectime{$a} }
 
