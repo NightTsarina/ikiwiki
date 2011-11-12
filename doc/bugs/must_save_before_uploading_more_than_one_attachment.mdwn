@@ -23,3 +23,10 @@ Is this a problem on my site or does anyone else see this?
 >> \[[!map pages="path/to/page/* and ! ...
 >>
 >> This told me that [[plugins/autoindex]] is the bad guy. Deactivating this plugin helps out. Don't know if this is worth fixing... I can live without that plugin. --bacuh
+
+>>> The right fix would probably be for `do=create` to allow replacing a page
+>>> in the transient underlay without complaining (like the behaviour that
+>>> `do=edit` normally has). That wouldn't help you unless [[plugins/autoindex]]
+>>> defaulted to making transient pages (`autoindex_commit => 0`), but if we
+>>> can fix [[removal_of_transient_pages]] then maybe that default can change?
+>>> --[[smcv]]
