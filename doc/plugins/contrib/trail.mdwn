@@ -1,24 +1,26 @@
 [[!tag patch]]
-[[!template id=gitbranch branch=smcv/trail author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/trail3 author="[[smcv]]"]]
 
-Available from [[smcv]]'s git repository, in the `trail` branch. This
+Available from [[smcv]]'s git repository, in the `trail3` branch. This
 plugin aims to solve [[todo/wikitrails]] in a simpler way; it can also be
 used for [[navigation through blog posts|todo/Pagination_next_prev_links]].
 
-Manual installation requires these files (use the "raw" link in gitweb to download):
+If you don't want to use a branch of ikiwiki, manual installation requires
+these files (use the "raw" link in gitweb to download):
 
-* [trail.pm](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/IkiWiki/Plugin/trail.pm)
+* [trail.pm](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail3:/IkiWiki/Plugin/trail.pm)
   in an `IkiWiki/Plugin` subdirectory of your configured `plugindir`
-* [page.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/templates/page.tmpl)
+* [page.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail3:/templates/page.tmpl)
   and
-  [trails.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/templates/trails.tmpl)
+  [trails.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail3:/templates/trails.tmpl)
   in your configured `templatedir`, or a `templates` subdirectory of your wiki repository
 * the trail-related bits from the end of the
-  [stylesheet](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/doc/style.css)
+  [stylesheet](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail3:/doc/style.css)
+  (put them in your local.css)
 * the trail-related bits at the end of the
-  [actiontabs](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/themes/actiontabs/style.css)
-  or [blueview](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail:/themes/blueview/style.css)
-  stylesheets, if you use one of those themes
+  [actiontabs](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail3:/themes/actiontabs/style.css)
+  or [blueview/goldtype](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/trail3:/themes/blueview/style.css)
+  stylesheets, if you use one of those themes (again, put them in your local.css)
 
 The branch also includes [[todo/test_coverage]] machinery.
 
@@ -31,7 +33,7 @@ Demo:
 The page `e` is in both demo trails, to demonstrate how a page in more than
 one trail looks.
 
-The `smcv/trail2` branch is an older version of `trail` which used typed links
+The `smcv/trail2` branch is an older version of `trail3` which used typed links
 as its data structure, resulting in timing-related limitations (it couldn't
 select pages for the trail by using pagespecs, because pagespecs can't be
 evaluated correctly until the scan stage has finished).
