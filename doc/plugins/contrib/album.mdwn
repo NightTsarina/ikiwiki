@@ -1,29 +1,57 @@
 [[!template id=plugin name=album author="[[Simon_McVittie|smcv]]"]]
-[[!template id=gitbranch branch=smcv/album2 author="[[Simon_McVittie|smcv]]"]]
 [[!tag type/chrome]]
 
-Available from [[smcv]]'s git repository, in the `album2` branch.
-Older (pre-rebase) versions in `album`, `album-live` (the latter
-was used on an actual website and didn't explode too much).
+This plugin provides the [[ikiwiki/directive/album]] [[ikiwiki/directive]],
+which turns a page into a photo album or image gallery, containing all
+images attached to the album or its subpages. It also provides the
+[[ikiwiki/directive/albumsection]] and [[ikiwiki/directive/albumimage]]
+directives.
 
-[The version currently available hasn't been modified to work with the
-November 2011 version of [[trail]]. -[[smcv]]]
+This plugin automatically enables the [[filecheck]], [[img]], [[inline]],
+[[trail]] and [[transient]] plugins. The [[meta]] plugin is also
+recommended.
 
-This plugin formats a collection of images into a photo album,
-in the same way as many websites: good examples include the
-PHP application [Gallery](http://gallery.menalto.com/), Flickr,
-and Facebook's Photos "application".
+## Changing the templates
 
+When a viewer page is generated or inlined into an album, the template can
+contain these extra variables:
+
+* `<TMPL_VAR ALBUM>` - page name of the album
+* `<TMPL_VAR ALBUMURL>` - relative URL to the album
+* `<TMPL_VAR ALBUMTITLE>` - title of the album, usually taken from
+  a [[ikiwiki/directive/meta]] directive
+* `<TMPL_VAR CAPTION>` - caption for the image
+* `<TMPL_VAR THUMBNAIL>` - a small [[ikiwiki/directive/img]] for the image
+* `<TMPL_VAR IMAGEWIDTH>` - width of the full-size image in pixels
+* `<TMPL_VAR IMAGEHEIGHT>` - height of the full-size image in pixels
+* `<TMPL_VAR IMAGEFILESIZE>` - size of the image, e.g. `1.2 MiB`
+* `<TMPL_VAR IMAGEFORMAT>` - format of the image, typically `JPEG`
+
+The template for the viewer page can also contain:
+
+* `<TMPL_VAR IMG>` - a large [[ikiwiki/directive/img]] to display the image
+* `<TMPL_VAR PREV>` - a link to the previous viewer, typically with a
+  thumbnail
+* `<TMPL_VAR NEXT>` - a link to the next viewer, typically with a
+  thumbnail
+
+## Including album entries elsewhere
+
+To display images from elsewhere in the wiki with the same appearance as
+an [[ikiwiki/directive/album]] or [[ikiwiki/directive/albumsection]],
+you can use an [[ikiwiki/directive/inline]] with the `albumitem`
+template:
+
+	\[[!inline pages="..." sort="-age" template="albumitem"]]
+
+----
+
+[[!template id=gitbranch branch=smcv/album3 author="[[Simon_McVittie|smcv]]"]]
+
+Available from [[smcv]]'s git repository, in the `album3` branch.
 I've called it `album` to distinguish it from
 [[contrib/gallery|plugins/contrib/gallery]], although `gallery` might well be
 a better name for this functionality.
-
-The web UI I'm trying to achieve consists of one
-[HTML page of thumbnails](http://ikialbum.hosted.pseudorandom.co.uk/album/)
-as an entry point to the album, where each thumbnail links to
-[a "viewer" HTML page](http://ikialbum.hosted.pseudorandom.co.uk/album/img_0120/)
-with a full size image, next/previous thumbnail links, and
-[[plugins/comments]].
 
 (The Summer of Code [[plugins/contrib/gallery]] plugin does the
 next/previous UI in Javascript using Lightbox, which means that
@@ -31,116 +59,59 @@ individual photos can't be bookmarked in a meaningful way, and
 the best it can do as a fallback for non-Javascript browsers
 is to provide a direct link to the image.)
 
-<h2 id="album"><code>album</code> directive</h2>
+Updated, November 2011: rebased onto [[trail]] v3, CSS adjusted.
 
-Each page containing an `album` directive is treated as a photo album.
+## Manual installation
 
-Every image attached to an album or its subpages is considered to be part of
-the album. A "viewer" page, with the wiki's default page extension, will be
-generated in the [[transient underlay|todo/transient_pages]] to display the
-image, if there isn't already a page of the same name as the image: for
-instance, if `debconf` is an album and `debconf/tuesday/p100.jpg` exists,
-then `debconf/tuesday/p100.mdwn` might be created.
+If you don't want to use a branch of ikiwiki, manual installation requires
+these files (use the "raw" link in gitweb to download), in addition to the
+ones needed by [[trail]]:
 
-There's currently a hard-coded list of extensions that are treated as images:
-`png`, `gif`, `jpg`, `jpeg` or `mov` files. More image and video types could
-be added in future. Videos aren't currently handled very well;
-ideally, something like totem-video-thumbnailer would be used.
+* [album.pm](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album3:/IkiWiki/Plugin/album.pm)
+  in an `IkiWiki/Plugin` subdirectory of your configured `plugindir`
+* [albumviewer.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album3:/templates/albumviewer.tmpl),
+  [albumitem.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album3:/templates/albumitem.tmpl),
+  [albumnext.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album3:/templates/albumnext.tmpl) and
+  [albumprev.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album3:/templates/albumprev.tmpl),
+   in your configured `templatedir`, or a `templates` subdirectory of your wiki repository
+* the album-related bits from the end of the
+  [stylesheet](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album3:/doc/style.css)
+  (put them in your local.css)
 
-The `album` directive also produces an [[ikiwiki/directive/inline]] which
-automatically includes all the viewers for this album, except those that
-will appear in an <a href="#albumsection">albumsection</a> (if every image
-is in a section, then the `album` directive won't have any visible effect).
+## Demo
 
-The `inline` is in `archive` and `quick` mode, but can include some
-extra information about the images, including file size and a thumbnail made
-using [[ikiwiki/directive/img]]). The default template is `albumitem.tmpl`,
-which takes advantage of these things.
-
-<h2 id="albumsection"><code>albumsection</code> directive</h2>
-
-The `albumsection` directive is used to split an album into sections. It can
-only appear on a page that also has the <a href="#album">album</a> directive.
-
-The `filter` parameter is a [[ikiwiki/PageSpec]] against which viewer pages
-are matched. The `albumsection` directive displays all the images that match
-the filter, and the `album` directive displays any leftover images, like
-this:
-
-    # Holiday photos
-
-    \[[!album]]
-    <!-- replaced with a list of any uncategorized photos, which might be
-         empty -->
-
-    ## People
-
-    \[[!albumsection filter="tagged(people)"]]
-    <!-- replaced with a list of photos tagged 'people', including
-         any that are also tagged 'landscapes' -->
-
-    ## Landscapes
-
-    \[[!albumsection filter="tagged(landscapes)"]]
-    <!-- replaced with a list of photos tagged 'landscapes', including
-         any that are also tagged 'people' -->
-
-<h2 id="albumimage"><code>albumimage</code> directive</h2>
-
-Each viewer page produced by the <a href="#album">album</a> directive
-contains an `albumimage` directive, which is replaced by an
-[[ikiwiki/directive/img]], wrapped in some formatting using a
-template (by default it's `albumviewer.tmpl`). That template can also include
-links to the next photo, the previous photo and the album it's in; the default
-template has all of these.
-
-The next/previous links are themselves implemented by evaluating a template,
-either `albumnext.tmpl` or `albumprev.tmpl` by default.
-
-The directive can also have parameters:
-
-* `title`, `copyright` and `date` are short-cuts for the corresponding
-  [[ikiwiki/directive/meta]] directives
-
-* `caption` sets a caption which is displayed in the album and viewer
-  pages
-
-The viewer page can also have other contents before or after the actual
-image viewer.
+* [HTML page of thumbnails](http://ikialbum.hosted.pseudorandom.co.uk/album/)
+  as an entry point to the album
+* Each thumbnail links to
+  [a "viewer" HTML page](http://ikialbum.hosted.pseudorandom.co.uk/album/img_0120/)
+  with a full size image, optional next/previous thumbnail links, and
+  optional [[plugins/comments]]
 
 ## Bugs
+
+* There's currently a hard-coded list of extensions that are treated as
+  images: `png`, `gif`, `jpg`, `jpeg` or `mov` files. More image and video
+  types could be added in future.
+
+* Videos aren't currently handled very well; ideally, something like
+  totem-video-thumbnailer would be used.
 
 * The plugin doesn't do anything special to handle albums that are subpages
   of each other. If, say, `debconf` and `debconf/monday` are both albums,
   then `debconf/monday/p100.jpg` will currently be assigned to one or the
   other, arbitrarily. It should probably pick the closest (longest) album name.
+  (I'm not sure that it can do this reliably, though, since the scan stage
+  runs in an undefined order.)
 
 * The plugin doesn't do anything special to handle photos with similar names.
   If you have `p100.jpg` and `p100.png`, one will get a viewer page called
-  `p100` and the other will be ignored.
+  `p100` and the other will be ignored. (I'm not sure what we could do better,
+  though.)
 
 * If there's no `albumimage` in a viewer page, one should probably be appended
   automatically.
 
-* When editing a viewer page, rebuilding it seems to fail at the moment.
-  Probably related to:
-
-* Integration with [[plugins/contrib/trail]] is new, untested and not
-  very well implemented. In particular, the prev/up/next links are
-  redundant with the ones from `trail`.
-
 ## TODO
-
-* The documentation should mention how to replicate the appearance of
-  `album` and `albumsection` using an `inline` of viewer pages,
-  elsewhere on the site.
-
-* The documentation should mention all the template variables and
-  all the parameters.
-
-* The generated viewer page should include most or all of the possible
-  parameters to the `albumimage` directive, with empty values, as a
-  template for editing.
 
 * The generated viewer page should extract as much metadata as possible from
   the photo's EXIF tags (creation/modification dates, author, title, caption,
