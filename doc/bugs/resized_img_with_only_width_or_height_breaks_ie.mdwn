@@ -4,3 +4,22 @@ In those cases img plugin do generate HTML with the missing attribute as "empty"
 
 If we instead always get the resulting the width and height from the resized image, and uses those values in the img attrs, we make IE happy (and all other renders as well).
 
+Inline patch:
+
+diff --git a/IkiWiki/Plugin/img.pm b/IkiWiki/Plugin/img.pm
+index b98e843..398e9bc 100644
+--- a/IkiWiki/Plugin/img.pm
++++ b/IkiWiki/Plugin/img.pm
+@@ -132,9 +132,9 @@ sub preprocess (@) {
+                                        $imglink = $file;
+                                }
+                        }
+-
+-                       $dwidth = $im->Get("width") unless defined $dwidth;
+-                       $dheight = $im->Get("height") unless defined $dheight;
++                       # get true image width and height from resized image attributes
++                       $dwidth  = $im->Get("width");
++                       $dheight = $im->Get("height");
+                }
+        }
+        else {
