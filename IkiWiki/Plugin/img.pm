@@ -118,7 +118,6 @@ sub preprocess (@) {
 				error sprintf(gettext("failed to read %s: %s"), $outfile, $r) if $r;
 			}
 			else {
-				($dwidth, $dheight)=($w, $h);
 				$r = $im->Resize(geometry => "${w}x${h}");
 				error sprintf(gettext("failed to resize: %s"), $r) if $r;
 
@@ -132,6 +131,7 @@ sub preprocess (@) {
 					$imglink = $file;
 				}
 			}
+
 			# always get the true size of the resized image
 			$dwidth  = $im->Get("width"); 
 			$dheight = $im->Get("height");
