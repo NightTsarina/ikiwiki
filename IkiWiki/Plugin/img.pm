@@ -132,9 +132,9 @@ sub preprocess (@) {
 					$imglink = $file;
 				}
 			}
-			
-			$dwidth = $im->Get("width") unless defined $dwidth;
-			$dheight = $im->Get("height") unless defined $dheight;
+			# always get the true size of the resized image
+			$dwidth  = $im->Get("width"); 
+			$dheight = $im->Get("height");
 		}
 	}
 	else {
