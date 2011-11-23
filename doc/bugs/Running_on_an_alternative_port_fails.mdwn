@@ -5,3 +5,12 @@ For example if you run on 'http://my.gear.xxx:8080/' then after clicking login (
  -- fergus
 
 NB: both the 'url' and the 'cgiurl' include the port and removing the port element provides the expected functionality.
+
+> I tried to reproduce this by making my laptop's web server use port
+> 8080. Set up ikiwiki to use that in cgiurl and url, and had
+> no problem with either openid or password auth login.
+> 
+> Ikiwiki has had some changes in this area in the past year; you don't say
+> what version you were using. It could also be a problem with your web
+> server, conceviably, if didn't correctly communicate the port to the cgi
+> program. --[[Joey]]
