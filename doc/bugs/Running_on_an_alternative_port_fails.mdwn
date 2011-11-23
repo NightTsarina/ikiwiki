@@ -1,0 +1,7 @@
+Can't appear to get 'wiki' functions (i.e. editing) running when ikiwiki is running on a port other than the default (port 80).  Somewhere in the processing it considers the base URL to exclude the port number and the websever throws back an error finding the page.
+
+For example if you run on 'http://my.gear.xxx:8080/' then after clicking login (using default password auth) it will process and try to redirect you to 'http://my.gear.xxx/cgi-bin/ikiwiki.cgi'.  I'm assuming that somewhere we've used the 'path' and the 'host' and dropped the remainder.  I can figure out where this is yet but I'll post back if I get lucky.
+
+ -- fergus
+
+NB: both the 'url' and the 'cgiurl' include the port and removing the port element provides the expected functionality.
