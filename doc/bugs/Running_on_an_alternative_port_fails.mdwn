@@ -55,3 +55,26 @@ right.
 number from the `Host:` header.  That can be fixed.
 
 >>>>> Thanks for the assist. -- fergus
+
+---
+
+Patch for `thttpd-2.25b` for posterity and completeness
+
+[[!format patch """
+
+diff --git a/libhttpd.c b/libhttpd.c
+index 73689be..039b7e3 100644
+--- a/libhttpd.c
++++ b/libhttpd.c
+@@ -2074,9 +2074,6 @@ httpd_parse_request( httpd_conn* hc )
+ 		cp = &buf[5];
+ 		cp += strspn( cp, " \t" );
+ 		hc->hdrhost = cp;
+-		cp = strchr( hc->hdrhost, ':' );
+-		if ( cp != (char*) 0 )
+-		    *cp = '\0';
+ 		if ( strchr( hc->hdrhost, '/' ) != (char*) 0 || hc->hdrhost[0] == '.' )
+ 		    {
+ 		    httpd_send_err( hc, 400, httpd_err400title, "", httpd_err400form, "" );
+
+"""]]
