@@ -24,6 +24,22 @@ right.
 
 >>>     SERVER_PORT=8181  
 >>>     HTTP_HOST=zippy0.ie0.cobbled.net  
+
+>>>> In apache, `HTTP_HOST` includes the port. This is not part of the CGI
+>>>> spec it seems, but perl's `CGI` module seems to rely on it,
+>>>> in `virtual_port`:
+
+<pre>
+    my $vh = $self->http('x_forwarded_host') || $self->http('host');
+    my $protocol = $self->protocol;
+    if ($vh) {
+        return ($vh =~ /:(\d+)$/)[0] || ($protocol eq 'https' ? 443 : 80);
+</pre>
+
+>>>> The `CGI` module only looks at `SERVER_PORT` when there's no
+>>>> `HTTP_HOST`. So this is either a bug in perl's CGI or thttpd.
+>>>> --[[Joey]]
+
 >>>     HTTP_ACCEPT_LANGUAGE=en-ie, en  
 >>>     PATH=/usr/local/bin:/usr/ucb:/bin:/usr/bin  
 >>>     SCRIPT_NAME=/cgi-bin/printenv.sh  
