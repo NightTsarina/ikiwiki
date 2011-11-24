@@ -1,0 +1,42 @@
+(Notes from discussion between Joey Hess and Josh Triplett.)
+
+The Debian ikiwiki package has a pile of recommends and suggests for packages needed by various plugins and other optional functionality.  To make it easier for people to figure out what to install, and to make it easier for automatic dependency tracking to remove packages ikiwiki no longer needs, we could split the plugins with additional dependencies into their own packages.
+
+Notable plugin dependencies:
+
+- [[plugins/img]] depends on [[!debpkg perlmagick]]
+- [[plugins/graphviz]] depends on [[!debpkg graphviz]]
+  - [[plugins/linkmap]] depends on the graphviz plugin, so it should probably go in the same package.
+- [[plugins/polygen]] depends on [[!debpkg polygen]]
+- [[plugins/teximg]] depends on [[!debpkg dvipng]] and [[!debpkg texlive]]
+- [[plugins/htmltidy]] depends on [[!debpkg tidy]]
+- [[plugins/table]] depends on [[!debpkg libtext-csv-perl]]
+- [[plugins/textile]] depends on [[!debpkg libtext-textile-perl]]
+- [[plugins/txt]] should probably just depend on [[!debpkg liburi-find-perl]]
+- [[plugins/sparkline]] depends on [[!debpkg libsparkline-php]], which pulls in the whole PHP stack.
+  - [[plugins/postsparkline]] depends on the sparkline plugin, so it should probably go in the same package.
+- [[plugins/search]] depends on [[!debpkg xapian-omega]] and [[!debpkg libsearch-xapian-perl]]
+- [[plugins/po]] depends on [[!debpkg po4a]] (and possibly [[!debpkg gettext]] and [[!debpkg liblocale-gettext-perl]], or does something else use those?)
+- [[plugins/amazon_s3]] depends on [[!debpkg libnet-amazon-s3-perl]] and [[!debpkg libfile-mimeinfo-perl]]
+- [[plugins/highlight]] depends on [[!debpkg libhighlight-perl]]
+- [[plugins/htmlbalance]] depends on [[!debpkg libhtml-tree-perl]]
+- [[plugins/typography]] depends on [[!debpkg libtext-typography-perl]]
+- [[plugins/creole]] depends on [[!debpkg libtext-wikicreole-perl]]
+- [[plugins/wikitext]] depends on [[!debpkg libtext-wikiformat-perl]]
+- [[plugins/rst]] depends on [[!debpkg librpc-xml-perl]] and [[!debpkg python-docutils]], and pulls in Python
+- [[plugins/blogspam]] depends on [[!debpkg librpc-xml-perl]]
+- [[plugins/prettydate]] depends on [[!debpkg libtimedate-perl]]
+- [[plugins/hnb]] depends on [[!debpkg hnb]]
+- [[plugins/fortune]] depends on [[!debpkg fortune]]
+- [[plugins/filecheck]] depends on [[!debpkg libfile-mimeinfo-perl]] and file
+- [[plugins/ddate]] depends on [[!debpkg libdatetime-calendar-discordian-perl]] and [[!debpkg libdatetime-perl]]
+- [[plugins/otl]] depends on [[!debpkg vim-vimoutliner]]
+- [[plugins/haiku]] depends on [[!debpkg libcoy-perl]]
+- [[plugins/sortnaturally]] depends on [[!debpkg libsort-naturally-perl]]
+- [[plugins/pinger]] depends on [[!debpkg liblwpx-paranoidagent-perl]] (it works with plain LWP, but less securely) and should probably just depend on [[!debpkg libcrypt-ssleay-perl]]
+- [[plugins/openid]] depends on [[!debpkg libnet-openid-consumer-perl]], and should either recommend or just depend on [[!debpkg liblwpx-paranoidagent-perl]] and [[!debpkg libcrypt-ssleay-perl]]
+- Support for tla depends on [[!debpkg libmailtools-perl]] (could make this a package depending on [[!debpkg tla]] and [[!debpkg libmailtools-perl]])
+
+Also, ikiwiki should probably just depend on [[!debpkg libauthen-passphrase-perl]] and refuse to store insecure passwords.
+
+[[!tag wishlist]]
