@@ -1,0 +1,3 @@
+I installed ikiwiki the usual way, my rcs is git, i configure the post-update hook in the bare-repo and use the cgi script in the non-bare. What drives me crazy is the following situation. I update my wiki through git (clone the bare repo on my laptop (WORKING CLONE), make a change and push it back to origin ($REPOSITORY)). Then the post-update hook (configured in my ikiwiki.config) kicks in and updates the checked out wiki ($DESTDIR) and the cgi script there generates html. See [[rcs/git]] if something is not clear.
+
+My problem is: every generated html/css/favicon file is only write and readable by the user (600) and no one else.
