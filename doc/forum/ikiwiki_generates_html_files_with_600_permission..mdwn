@@ -1,6 +1,8 @@
-I installed ikiwiki the usual way, my rcs is git, i configure the post-update hook in the bare-repo and use the cgi script in the non-bare. What drives me crazy is the following situation. I update my wiki through git (clone the bare repo on my laptop (WORKING CLONE), make a change and push it back to origin ($REPOSITORY)). Then the post-update hook (configured in my ikiwiki.config) kicks in and updates the checked out wiki ($DESTDIR) and the cgi script there generates html. See [[rcs/git]] if something is not clear.
+I installed ikiwiki the usual way, my rcs is git, i configure the post-update hook in the bare-repo and use the cgi script in the non-bare.
+
+I update my wiki through git (clone the bare repo on my laptop (WORKING CLONE), make a change and push it back to origin ($REPOSITORY)). Then the post-update hook (configured in my ikiwiki.config) kicks in and updates the checked out wiki ($DESTDIR) and the cgi script there generates html. See [[rcs/git]] if something is not clear.
 
 My problem is: every generated html/css/favicon file is only write and readable by the user (600) and no one else.
 
-Edit: If i edit the wiki through the webinterface everything is fine. 
-Edit2: Set _everything_ to chmod 0755 but when i run --setup or push to the bare repo; **then pages that are generated through the post update hook still have the wrong permissions.**
+ - Edit: If i edit the wiki through the webinterface everything is fine. 
+ - Edit2: Set _everything_ to chmod 0755 but when i run --setup or push to the bare repo; **then pages that are generated through the post update hook still have the wrong permissions.**
