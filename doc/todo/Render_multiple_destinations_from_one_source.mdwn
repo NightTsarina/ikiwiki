@@ -1,0 +1,34 @@
+I've set up a couple of sites where the users use ikiwiki in fairly standard mode as a CMS and I then set up another ikiwiki setup file that's got the edit options turned off, but is pointing at the same git repository in the background.  I then make the post-update hook for each be <tt>post-update-hook.ikiwiki</tt> and <tt>post-update-hook.ikiwiki-public</tt> and have the <tt>post-update</tt> hook itself be a script like:
+
+    #!/bin/sh
+    
+    $0.ikiwiki "$@"
+    $0.ikiwiki-public "$@"
+
+obviously this results in duplication of most of the <tt>ikiwiki.setup</tt>, a spare working directory that (perhaps) isn't needed, and an extra post-update hook plus wrapper script that is really needless extra complication.
+
+If instead there was a way of specifying additional destdir's, or perhaps more generally a way of specifying that there should be multiple passes through the build process using alternative values for some of the variables, then one could have both the private wiki view, and the public static view generated with minimal additional configuration.
+
+One idea that occurs to me is an <tt>additional_configs</tt> list where one would specify files containing just the settings you want to override compared with the main setup file.
+
+Alternatively, one might invent a new way of specifying alternative settings.  i.e.:
+
+     additionalsites:
+       - public
+
+     destdir: /home/wiki/wiki-view
+     destdir[public]: /home/wiki/public_html
+
+     disable_plugins: []
+     disable_plugins[public]:
+       - recentchanges
+       - editpage
+
+     url: https://example.com/editors/
+     url[public]: http://www.example.com/
+
+     ...
+
+where the existance of the <tt>additionalsites</tt> list provokes additional runs through using the settings with matching extra bits to be used to override the defaults found in the rest of the file.
+
+Just brainstorming a bit after [[liw]]'s comment about this being useful on IRC, and thought I'd write the idea up while I was thinking about it. -[[fil]]
