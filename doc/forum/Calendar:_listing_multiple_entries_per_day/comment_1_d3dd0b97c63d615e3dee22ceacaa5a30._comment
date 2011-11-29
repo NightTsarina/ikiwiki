@@ -1,0 +1,83 @@
+[[!comment format=mdwn
+ username="https://www.google.com/accounts/o8/id?id=AItOawnXybLxkPMYpP3yw4b_I6IdC3cKTD-xEdU"
+ nickname="Matt"
+ subject="comment 1"
+ date="2011-11-29T00:52:49Z"
+ content="""
+So I ported the original patch mentioned to the latest Debian version.  Well at least the bits that matter to me.  See below.  
+
+In doing so I realized that it does quite work how I imagined it would; instead of generating a dynamic page for a particular day with a list of links it actually fills in the calendar with the details of the posts (making for some ugly formatting).
+
+I'm hoping the tag generation pages will give me a clue how to alter this into what I want.
+
+<pre>
+diff --git a/IkiWiki/Plugin/calendar.pm b/IkiWiki/Plugin/calendar.pm
+index c7d2b7c..c931fe6 100644
+--- a/IkiWiki/Plugin/calendar.pm
++++ b/IkiWiki/Plugin/calendar.pm
+@@ -75,6 +75,8 @@ sub format_month (@) {   
+        my %params=@_;
+
+        my %linkcache;
++    my @list;
++    my $detail = 1;
+        foreach my $p (pagespec_match_list($params{page},
+                                \"creation_year($params{year}) and creation_month($params{month}) and ($params{pages})\",
+                                # add presence dependencies to update
+@@ -88,7 +90,7 @@ sub format_month (@) {   
+                my $mtag  = sprintf(\"%02d\", $month);
+
+                # Only one posting per day is being linked to.
+-               $linkcache{\"$year/$mtag/$mday\"} = $p;
++               $linkcache{\"$year/$mtag/$mday\"}{$p} = $IkiWiki::pagesources{$p};
+        }
+
+        my $pmonth = $params{month} - 1;   
+@@ -219,14 +221,38 @@ EOF
+                                $tag='month-calendar-day-this-day';
+                        }
+                        else {
+-                               $tag='month-calendar-day-link';
++                               if ( $detail == 0 ) {
++                                       $tag='month-calendar-day-link';
++                               }
++                               else{
++                                       $tag='month-calendar-day';
++                               }
+                        }
+                        $calendar.=qq{\t\t<td class=\"$tag $downame{$wday}\">};
+-                       $calendar.=htmllink($params{page}, $params{destpage},
+-                               $linkcache{$key},
+-                               noimageinline => 1,
+-                               linktext => $day,
+-                               title => pagetitle(IkiWiki::basename($linkcache{$key})));
++                       if ( $detail == 0 ) {
++                               $calendar.=htmllink($params{page}, $params{destpage},
++                                               $linkcache{$key},
++                                               noimageinline => 1,
++                                               linktext => $day,
++                                               title => pagetitle(IkiWiki::basename($linkcache{$key})));
++                       }
++                       else {
++                               my $day_label = qq{<span class=\"month-calendar-day-label\">$day</span>};
++                               $calendar.=qq{$day_label\n};
++                               my $srcpage; my $destpage;
++                               while(($srcpage,$destpage) = each(%{$linkcache{$key}})) {
++                                       my $title = IkiWiki::basename(pagename($srcpage));
++                                       if (exists $pagestate{$srcpage}{meta}{title} ) {
++                                               $title = $pagestate{$srcpage}{meta}{title};
++                                       }  
++                                       $calendar.=qq{\t\t<div class=\"$tag $downame{$wday}\">};
++                                       $calendar.=htmllink($params{page}, $params{destpage},
++                                                       pagename($destpage),
++                                                       linktext => $title);
++                                       push @list, pagename($linkcache{$key}{$srcpage});
++                                       $calendar.=qq{\t\t</div>};
++                               }
++                       }
+                        $calendar.=qq{</td>\n};
+                }
+                else {
+
+</pre>
+"""]]
