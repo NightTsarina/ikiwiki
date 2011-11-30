@@ -32,3 +32,19 @@ Alternatively, one might invent a new way of specifying alternative settings.  i
 where the existance of the <tt>additionalsites</tt> list provokes additional runs through using the settings with matching extra bits to be used to override the defaults found in the rest of the file.
 
 Just brainstorming a bit after [[liw]]'s comment about this being useful on IRC, and thought I'd write the idea up while I was thinking about it. -[[fil]]
+
+> I don't think you can avoid ikiwiki needing to store a different
+> `.ikiwiki` directory with state for each site. Differences in
+> configuration can affect the state it stores in arbitrary ways,
+> ranging from which pages are even built to what plugins are enabled and
+> store state. This also means that it doesn't make sense to try and
+> share state amoung rebuilds of the same site.
+> 
+> There is a hidden, and undocumented configuration setting `wikistatedir`
+> that can actually be pointed at a different directory than `.ikiwiki`.
+> Then you can rebuild multiple configurations from one working directory.
+> 
+> Another handy trick is to use the old perl-format (not yaml) setup file,
+> and parameterize it using `$ENV{FOO}`, then you can build two different
+> setups from the same setup file.
+> --[[Joey]]
