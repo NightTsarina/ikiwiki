@@ -81,5 +81,13 @@ index 73689be..039b7e3 100644
 
 -- fergus
 
+---
+
 I've gone ahead and filed a bug on CGI.pm too:
 <https://rt.cpan.org/Ticket/Display.html?id=72678> --[[Joey]] 
+
+---
+
+That'll be an interesting discussion as I'd suggest that HTTP_ headers are defined in the CGI specification as client headers and thus what `thttpd` is doing is wrong (i.e. mangling the client's own representation).  Whether a CGI client should trust HTTP_ header over the server is probably already settled by convention.
+
+-- fergus
