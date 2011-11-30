@@ -112,7 +112,15 @@ sub graph (@) {
 		$p->handler(start => sub {
 			my %attrs=%{shift()};
 			if (exists $attrs{href}) {
-				$s.="\"$attrs{href}\"";
+				if ($s=~/href\s*=\s*"$/) {
+					$s.=$attrs{href};
+				}
+				elsif ($s=~/href\s*=\s*$/) {
+					$s.="\"$attrs{href}\"";
+				}
+				else {
+					$s.="href=\"$attrs{href}\"";
+				}
 			}
 			$nested++;
 		}, "attr");
