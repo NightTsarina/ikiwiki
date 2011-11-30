@@ -10,6 +10,7 @@ use IPC::Open2;
 
 sub import {
 	hook(type => "getsetup", id => "graphviz", call => \&getsetup);
+	hook(type => "needsbuild", id => "version", call => \&needsbuild);
 	hook(type => "preprocess", id => "graph", call => \&graph);
 }
 
@@ -26,33 +27,41 @@ my %graphviz_programs = (
 	"dot" => 1, "neato" => 1, "fdp" => 1, "twopi" => 1, "circo" => 1
 );
 
-my $graphnum=0;
+sub needsbuild {
+	my $needsbuild=shift;
+	foreach my $page (keys %pagestate) {
+		if (exists $pagestate{$page}{graph} &&
+		    exists $pagesources{$page} &&
+		    grep { $_ eq $pagesources{$page} } @$needsbuild) {
+			# remove state, will be re-added if
+			# the graph is still there during the rebuild
+			delete $pagestate{$page}{graph};
+		}
+	}       
+	return $needsbuild;
+}
 
 sub render_graph (\%) {
 	my %params = %{(shift)};
-
-	$graphnum++;
-	my $src = "$params{type} graph$graphnum {\n";
-	$src .= "charset=\"utf-8\";\n";
+	
+	my $src = "charset=\"utf-8\";\n";
 	$src .= "ratio=compress;\nsize=\"".($params{width}+0).", ".($params{height}+0)."\";\n"
 		if defined $params{width} and defined $params{height};
 	$src .= $params{src};
 	$src .= "}\n";
-
-	# Use the sha1 of the graphviz code as part of its filename.
+	
+	# Use the sha1 of the graphviz code as part of its filename,
+	# and as a unique identifier for its imagemap.
 	eval q{use Digest::SHA};
 	error($@) if $@;
-	my $base=$params{page}."/graph-".
-		IkiWiki::possibly_foolish_untaint(Digest::SHA::sha1_hex($src));
-	my $dest=$base.".png";
+	my $sha=IkiWiki::possibly_foolish_untaint(Digest::SHA::sha1_hex($params{type}.$src));
+	$src = "$params{type} graph$sha {\n".$src;
+
+	my $dest=$params{page}."/graph-".$sha.".png";
 	will_render($params{page}, $dest);
 
-	# The imagemap data is stored as a separate file.
-	my $imagemap=$base.".imagemap";
-	will_render($params{page}, $imagemap);
-	
-	my $map;
-	if (! -e "$config{destdir}/$dest" || ! -e "$config{destdir}/$imagemap") {
+	my $map=$pagestate{$params{destpage}}{graph}{$sha};
+	if (! -e "$config{destdir}/$dest" || ! defined $map) {
 		# Use ikiwiki's function to create the image file, this makes
 		# sure needed subdirs are there and does some sanity checking.
 		writefile($dest, $config{destdir}, "");
@@ -70,21 +79,16 @@ sub render_graph (\%) {
 		close OUT;
 
 		local $/ = undef;
-		$map=<IN>;
+		$map=$pagestate{$params{destpage}}{graph}{$sha}=<IN>;
 		close IN;
-		writefile($imagemap, $config{destdir}, $map);
 
 		waitpid $pid, 0;
 		$SIG{PIPE}="DEFAULT";
 		error gettext("failed to run graphviz") if ($sigpipe || $?);
-
-	}
-	else {
-		$map=readfile("$config{destdir}/$imagemap");
 	}
 
 	return "<img src=\"".urlto($dest, $params{destpage}).
-		"\" usemap=\"#graph$graphnum\" />\n".
+		"\" usemap=\"#graph$sha\" />\n".
 		$map;
 }
 
