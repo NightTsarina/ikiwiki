@@ -26,10 +26,13 @@ my %graphviz_programs = (
 	"dot" => 1, "neato" => 1, "fdp" => 1, "twopi" => 1, "circo" => 1
 );
 
+my $graphnum=0;
+
 sub render_graph (\%) {
 	my %params = %{(shift)};
 
-	my $src = "$params{type} g {\n";
+	$graphnum++;
+	my $src = "$params{type} graph$graphnum {\n";
 	$src .= "charset=\"utf-8\";\n";
 	$src .= "ratio=compress;\nsize=\"".($params{width}+0).", ".($params{height}+0)."\";\n"
 		if defined $params{width} and defined $params{height};
@@ -39,48 +42,50 @@ sub render_graph (\%) {
 	# Use the sha1 of the graphviz code as part of its filename.
 	eval q{use Digest::SHA};
 	error($@) if $@;
-	my $dest=$params{page}."/graph-".
-		IkiWiki::possibly_foolish_untaint(Digest::SHA::sha1_hex($src)).
-		".png";
+	my $base=$params{page}."/graph-".
+		IkiWiki::possibly_foolish_untaint(Digest::SHA::sha1_hex($src));
+	my $dest=$base.".png";
 	will_render($params{page}, $dest);
 
-	if (! -e "$config{destdir}/$dest") {
+	# The imagemap data is stored as a separate file.
+	my $imagemap=$base.".imagemap";
+	will_render($params{page}, $imagemap);
+	
+	my $map;
+	if (! -e "$config{destdir}/$dest" || ! -e "$config{destdir}/$imagemap") {
+		# Use ikiwiki's function to create the image file, this makes
+		# sure needed subdirs are there and does some sanity checking.
+		writefile($dest, $config{destdir}, "");
+		
 		my $pid;
 		my $sigpipe=0;
 		$SIG{PIPE}=sub { $sigpipe=1 };
-		$pid=open2(*IN, *OUT, "$params{prog} -Tpng");
+		$pid=open2(*IN, *OUT, "$params{prog} -Tpng -o '$config{destdir}/$dest' -Tcmapx");
 
 		# open2 doesn't respect "use open ':utf8'"
+		binmode (IN, ':utf8');
 		binmode (OUT, ':utf8');
 
 		print OUT $src;
 		close OUT;
 
-		my $png;
-		{
-			local $/ = undef;
-			$png = <IN>;
-		}
+		local $/ = undef;
+		$map=<IN>;
 		close IN;
+		writefile($imagemap, $config{destdir}, $map);
 
 		waitpid $pid, 0;
 		$SIG{PIPE}="DEFAULT";
-		error gettext("failed to run graphviz") if $sigpipe;
+		error gettext("failed to run graphviz") if ($sigpipe || $?);
 
-		if (! $params{preview}) {
-			writefile($dest, $config{destdir}, $png, 1);
-		}
-		else {
-			# in preview mode, embed the image in a data uri
-			# to avoid temp file clutter
-			eval q{use MIME::Base64};
-			error($@) if $@;
-			return "<img src=\"data:image/png;base64,".
-				encode_base64($png)."\" />";
-		}
+	}
+	else {
+		$map=readfile("$config{destdir}/$imagemap");
 	}
 
-	return "<img src=\"".urlto($dest, $params{destpage})."\" />\n";
+	return "<img src=\"".urlto($dest, $params{destpage}).
+		"\" usemap=\"#graph$graphnum\" />\n".
+		$map;
 }
 
 sub graph (@) {
