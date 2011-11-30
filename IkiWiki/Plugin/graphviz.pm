@@ -11,7 +11,7 @@ use IPC::Open2;
 sub import {
 	hook(type => "getsetup", id => "graphviz", call => \&getsetup);
 	hook(type => "needsbuild", id => "version", call => \&needsbuild);
-	hook(type => "preprocess", id => "graph", call => \&graph);
+	hook(type => "preprocess", id => "graph", call => \&graph, scan => 1);
 }
 
 sub getsetup () {
@@ -94,7 +94,42 @@ sub render_graph (\%) {
 
 sub graph (@) {
 	my %params=@_;
-	$params{src} = "" unless defined $params{src};
+
+	# Support wikilinks in the graph source.
+	my $src=$params{src};
+	$src="" unless defined $src;
+	$src=IkiWiki::linkify($params{page}, $params{destpage}, $params{src});
+	return unless defined wantarray; # scan mode short-circuit
+	if ($src ne $params{src}) {
+		# linkify makes html links, but graphviz wants plain
+		# urls. This is, frankly a hack: Process source as html,
+		# throw out everything inside tags that is not a href.
+		my $s;
+		my $nested=0;
+		use HTML::Parser;
+		error $@ if $@;
+		my $p=HTML::Parser->new(api_version => 3);
+		$p->handler(start => sub {
+			my %attrs=%{shift()};
+			if (exists $attrs{href}) {
+				$s.="\"$attrs{href}\"";
+			}
+			$nested++;
+		}, "attr");
+		$p->handler(end => sub {
+			$nested--;
+		});
+		$p->handler(default => sub {
+			$s.=join("", @_) unless $nested;
+		}, "text");
+		$p->parse($src);
+		$p->eof;
+		$params{src}=$s;
+	}
+	else {
+		$params{src}=$src;
+	}
+
 	$params{type} = "digraph" unless defined $params{type};
 	$params{prog} = "dot" unless defined $params{prog};
 	error gettext("prog not a valid graphviz program") unless $graphviz_programs{$params{prog}};

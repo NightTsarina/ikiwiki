@@ -5,6 +5,19 @@ graphs in a page.  Example usage:
 
 	\[[!graph src="a -> b -> c; a -> c;"]]
 
+Nodes on the graph can link to external urls using regular graphviz syntax,
+and a clickable imagemap will be created. As a special extension for
+ikiwiki, [[WikiLinks|ikiwiki/wikilink]] can also be used. For example:
+
+	\[[!graph src=""""
+	google [ href="http://google.com/" ]
+	sandbox [ href=[[SandBox]] ]
+	help [ href=[[ikiwiki/formatting]] ]
+	newpage [ href=[[NewPage]] ]
+	
+	google -> sandbox -> help -> newpage -> help -> google;
+	""""]]
+
 The `graph` directive supports the following parameters:
 
 - `src` - The graphviz source to render.
