@@ -7,3 +7,14 @@ ikiwiki version is 3.20110715ubuntu1.
 w3m is 0.5.3.
 
 -- [[terry|tjgolubi]]
+
+I made it work, though probably not completely, by renaming
+~/.ikiwiki/wrappers/ikiwiki.cgi to ikiwiki2.cgi and replacing it with:
+
+    #!/bin/bash
+    /home/tjgolubi/.ikiwiki/wrappers/ikiwiki2.cgi $* | sed -e 's,http://localhost,file://,g'
+
+I'm afraid that this hack may have bad side-effects, but I hope it points you to the cause/solution.
+Of course, the next time I rerun ikiwiki --setup, it will overwrite my wrapper-wrapper.
+
+-- [[terry|tjgolubi]]
