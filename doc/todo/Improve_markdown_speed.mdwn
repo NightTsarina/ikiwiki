@@ -1,3 +1,6 @@
 I'm not sure where the bottleneck is for running ikiwiki over a site like my blog [Natalian](http://source.natalian-org.branchable.com/?p=source.git;), though I like to think the markdown processing could be speeded up by the support of the C implementation of Markdown called [Sundown](https://github.com/tanoku/sundown).
 
+>> Sundown doesn't appear to have Perl bindings, so the cost of calling a separate process could wipe out some or all of the speed gain.  It might be worth looking into Text::Markdown::Discount instead, which appears to be a perl module which uses the C library "Discount".  Unfortunately, when I tried, I couldn't install it on my system, so the point may be moot.
+>> -- [[KathrynAndersen]]
+
 [[wishlist]]
