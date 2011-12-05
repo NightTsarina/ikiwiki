@@ -35,10 +35,17 @@ EOF
 			}
 			"u != $uid";
 		} @{$config{untrusted_committers}}).
-		") exit(0);\n";
+		") {\n";
 
 	
 	$ret.=<<"EOF";
+			/* Trusted user.
+			 * Consume all stdin before exiting, as git may
+			 * otherwise be unhappy. */
+			char buf[256];
+			while (read(0, &buf, 256) != 0) {}
+			exit(0);
+		}
 		asprintf(&s, "CALLER_UID=%i", u);
 		newenviron[i++]=s;
 	}
