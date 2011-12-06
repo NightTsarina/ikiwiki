@@ -11,8 +11,14 @@ Limitations of the current branch, which uses [[!cpan Devel::Cover]]:
   the two copies of each module; not a problem for [[plugins/contrib/trail]]
   which only has one test.
 
+> How annoying. I think in at least some cases there is reason to use
+> `./blib` -- perhaps everything that users `.` should be changed to use
+> it. --[[Joey]]
+
 * The [[plugins/git]] and [[plugins/mercurial]] plugins want to `chdir`,
   and so does [[!cpan Devel::Cover]], so they fight. For now, those tests
   are disabled under `make coverage`.
 
 --[[smcv]]
+
+> [[merged|done]] --[[Joey]]
