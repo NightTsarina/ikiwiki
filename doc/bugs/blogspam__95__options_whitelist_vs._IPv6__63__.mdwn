@@ -1,4 +1,4 @@
 This is possibly/probably due to my weird setup, which is that I have apache behind nginx, with the result that apache sees the client's IPv4 address as having been mapped to IPv6.  i.e.  <tt>::ffff:10.11.12.13</tt>.  That being the case, I currently need to specify that (with the <tt>::ffff:</tt> prepended) if I want to whitelist (or more importantly blacklist) and IPv4 address.
 
-It strikes me that this is liable to become more of a problem as people finally start using IPv6, so it might be worth ensuring that the code that compares IP addresses be able to treat the two formats (with and without the ffff's) as equivalent.
+It strikes me that this is liable to become more of a problem as people finally start using IPv6, so it might be worth ensuring that the code that compares IP addresses be able to treat the two formats (with and without the ffff's) as equivalent. --[[fil]]
 
