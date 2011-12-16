@@ -1,0 +1,34 @@
+Hi,
+
+I'm trying to set up a personal wiki and I'm having trouble getting
+search to work.  All my searches give zero results.  I eventually
+figured out that the Xapian database that's being created has an empty
+postlist table.  The position and termlist tables are all fine, and
+when I add new content to the wiki I can see the database is updated
+and the search terms are in the position table in plaintext.  But I
+can't query for them, even using Xapian's command line tools.
+
+<pre>
+mexon:~/Test/.ikiwiki/xapian/default$ ls -l
+total 76
+-rw-rw-r-- 1 mexon mexon     0 Dec 16 15:56 flintlock
+-rw-rw-r-- 1 mexon mexon    28 Dec 16 15:55 iamchert
+-rw-rw-r-- 1 mexon mexon    13 Dec 16 15:55 position.baseA
+-rw-rw-r-- 1 mexon mexon 49152 Dec 16 15:55 position.DB
+-rw-rw-r-- 1 mexon mexon    13 Dec 16 15:55 postlist.baseA
+-rw-rw-r-- 1 mexon mexon     0 Dec 16 15:55 postlist.DB
+-rw-rw-r-- 1 mexon mexon    13 Dec 16 15:55 record.baseA
+-rw-rw-r-- 1 mexon mexon     0 Dec 16 15:55 record.DB
+-rw-rw-r-- 1 mexon mexon    13 Dec 16 15:55 termlist.baseA
+-rw-rw-r-- 1 mexon mexon 16384 Dec 16 15:55 termlist.DB
+mexon:~/Test/.ikiwiki/xapian/default$ delve -a .
+All terms in database:
+mexon:~/Test/.ikiwiki/xapian/default$ 
+</pre>
+
+I don't know how to debug from here.  Clearly ikiwiki is doing
+something right when it's building the database, but one of the tables
+is missing.  Can anyone guess what's wrong, or tell me where to start
+troubleshooting?
+
+I'm using Centos 5.  Xapian is version 1.2.5.  Ikiwiki version 3.20111107.
