@@ -1,0 +1,23 @@
+[[!comment format=mdwn
+ username="https://www.google.com/accounts/o8/id?id=AItOawk_MMtLPS7osC5MjX00q2ATjvvXPWqm0ik"
+ nickname="micheal"
+ subject="comment 2"
+ date="2011-12-28T23:06:06Z"
+ content="""
+<code>
+stat -c '%A %a %U %G %n' myiki2 myiki1   
+drwxr-xr-x 755 user user myiki2    
+drwxr-xr-x 755 user user myiki1   
+
+stat -c '%A %a %U %G %n' myiki2/.ikiwiki myiki1/.ikiwiki  
+drwxr-xr-x 755 user user myiki2/.ikiwiki  
+drwxr-xr-x 755 user user myiki1/.ikiwiki  
+
+stat -c '%A %a %U %G %n' myiki2/.ikiwiki/lockfile myiki1/.ikiwiki/lockfile   
+-rw-r--r-- 644 user user myiki2/.ikiwiki/lockfile  
+-rw-r--r-- 644 user user myiki1/.ikiwiki/lockfile  
+</code>
+
+As you see, myiki2 has the same permissions as myiki1, but myiki1 works.
+
+"""]]
