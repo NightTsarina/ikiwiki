@@ -1,0 +1,28 @@
+[[!template id=plugin name=pagespec_alias author="[[Jon]]"]]
+[[!tag type/meta]]
+
+The pagespec_alias plugin allows the administrator(s) of a wiki to define
+[[PageSpec]] aliases: short names for PageSpecs to ease re-use.
+
+Within the setup file, the `pagespec_aliases` value is treated as a list
+of key/value pairs.  The keys define alias names, the values the pagespecs
+to which they refer.
+
+For example:
+
+    pagespec_aliases:
+       image: "*.png or *.jpg or *.jpeg or *.gif or *.ico"
+       helper: "*.css or *.js"
+       boring: "image() or helper() or internal(*)"
+
+With the above, you could use the pagespec aliases such as 
+
+    \[[!map pages="!boring()"]]
+
+To define a site map which excluded various page names which might be
+uninteresting to include in a site map.
+
+
+## Download
+
+ * <https://github.com/jmtd/ikiwiki/blob/jmtd/pagespec-alias/IkiWiki/Plugin/alias.pm>
