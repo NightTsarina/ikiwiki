@@ -10,9 +10,9 @@ Parser, documented at
 <http://web.archive.org/web/20110726052341/http://feedparser.org/docs/html-sanitization.html>.
 Notably it strips `style` and `link` tags, and the `style` attribute.
 
-All attributes that can be used to specify an url are checked to make sure
-that the url is in a known, safe scheme, and to block embedded javascript
-in such urls.
+Any attributes that could be used to specify a URL are checked to ensure
+that they are known, safe schemes.  It will also block embedded javascript
+in such URLs.
 
 It uses the [[!cpan HTML::Scrubber]] perl module to perform its html
 sanitisation, and this perl module also deals with various entity encoding
