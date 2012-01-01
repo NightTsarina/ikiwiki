@@ -1,6 +1,28 @@
-I'm not sure where the bottleneck is for running ikiwiki over a site like my blog [Natalian](http://source.natalian-org.branchable.com/?p=source.git;), though I like to think the markdown processing could be speeded up by the support of the C implementation of Markdown called [Sundown](https://github.com/tanoku/sundown).
+I'm not sure where the bottleneck is for running ikiwiki over a site like
+my blog
+[Natalian](http://source.natalian-org.branchable.com/?p=source.git;),
+though I like to think the markdown processing could be speeded up by the
+support of the C implementation of Markdown called
+[Sundown](https://github.com/tanoku/sundown).
 
->> Sundown doesn't appear to have Perl bindings, so the cost of calling a separate process could wipe out some or all of the speed gain.  It might be worth looking into Text::Upskirt instead, which uses the Upskirt library which Sundown appears to be derived from.
->> -- [[KathrynAndersen]]
+>> Sundown doesn't appear to have Perl bindings, so the cost of calling a
+>> separate process could wipe out some or all of the speed gain.  It might
+>> be worth looking into Text::Upskirt instead, which uses the Upskirt
+>> library which Sundown appears to be derived from. -- [[KathrynAndersen]]
+
+>>> It would be fairly easy to write a perl binding for sundown. For that
+>>> matter, Text::Upskirt could be adapted to it. I am waiting for any of
+>>> upskirt, sundown and perl bindings to get into Debian, then I will 
+>>> see about making ikiwiki use them.
+>>> 
+>>> For now, I have added discount support to ikiwiki. This does speed up
+>>> markdown rendering by up to 40x, although when building a site ikiwiki
+>>> in practice does other work, so the gains are less impressive. Building
+>>> the ikiwiki doc wiki went from 62 to 45 seconds. The lack of a Debian 
+>>> package of Text::Markdown::Discount means this is not used by default
+>>> yet.
+>>> 
+>>> (Upskirt, discount... Who comes up with these names? Discount also 
+>>> features a "NOPANTS" option.) --[[Joey]]
 
 [[wishlist]]
