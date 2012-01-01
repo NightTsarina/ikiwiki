@@ -1,3 +1,14 @@
+ikiwiki (3.20111230) UNRELEASED; urgency=low
+
+  * mdwn: Can use the discount markdown library, via the
+    Text::Markdown::Discount perl module. This is preferred if available
+    since it's the fastest currently supported markdown library, speeding up
+    ikiwiki's rendering by a factor of 40.
+    (However, when multimarkdown is enabled, Text::Markdown::Multimarkdown
+    is still used.)
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 01 Jan 2012 16:22:24 -0400
+
 ikiwiki (3.20111229) unstable; urgency=low
 
   * Consume all stdin when rcs_receive short-circuits,

@@ -51,6 +51,12 @@ sub htmlize (@) {
 			}
 		}
 		if (! defined $markdown_sub) {
+			eval q{use Text::Markdown::Discount};
+			if (! $@) {
+				$markdown_sub=\&Text::Markdown::Discount::markdown;
+			}
+		}
+		if (! defined $markdown_sub) {
 			eval q{use Text::Markdown};
 			if (! $@) {
 				if (Text::Markdown->can('markdown')) {
