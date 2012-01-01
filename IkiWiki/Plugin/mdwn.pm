@@ -53,7 +53,12 @@ sub htmlize (@) {
 		if (! defined $markdown_sub) {
 			eval q{use Text::Markdown::Discount};
 			if (! $@) {
-				$markdown_sub=\&Text::Markdown::Discount::markdown;
+				$markdown_sub=sub {
+					# Workaround for discount binding bug
+					# https://rt.cpan.org/Ticket/Display.html?id=73657
+					return "" if $_[0]=~/^\s*$/;
+					Text::Markdown::Discount::markdown(@_);
+				}
 			}
 		}
 		if (! defined $markdown_sub) {
