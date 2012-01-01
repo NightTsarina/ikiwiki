@@ -16,7 +16,7 @@ perl -MCPAN -e 'install Bundle::IkiWiki'
 
 =head1 CONTENTS
 
-Text::Markdown
+Text::Markdown::Discount
 HTML::Scrubber
 HTML::Template
 HTML::Parser
