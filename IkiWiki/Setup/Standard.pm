@@ -14,7 +14,10 @@ sub import {
 sub gendump ($@) {
 	my $class=shift;
 
-	"#!/usr/bin/perl",
+	my $thisperl = eval q{use Config; $Config{perlpath}};
+	error($@) if $@;
+
+	"#!$thisperl",
 	"#",
 	(map { "# $_" } @_),
 	"use IkiWiki::Setup::Standard {",
