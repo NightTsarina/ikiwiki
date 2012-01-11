@@ -1,6 +1,12 @@
 It seems `backlink(.)` doesn't work, that is, it doesn't match pages linked
 to from the current page.
 
-[[!inline pages=test1 raw=true]]
+If I have two test pages, `foo`, which links to `bar`, then (on the `foo`
+page):
+
+ * backlink(foo) lists 'bar'
+ * backlink(.) lists nothing
+
+tested with 3.20120109.
 
 — [[Jon]]
