@@ -2647,8 +2647,14 @@ sub match_link ($$;@) {
 }
 
 sub match_backlink ($$;@) {
-	my $ret=match_link($_[1], $_[0], @_);
-	$ret->influences($_[1] => $IkiWiki::DEPEND_LINKS);
+	my $page=shift;
+	my $testpage=shift;
+	my %params=@_;
+	if ($testpage eq '.') {
+		$testpage = $params{'location'}
+	}
+	my $ret=match_link($testpage, $page, @_);
+	$ret->influences($testpage => $IkiWiki::DEPEND_LINKS);
 	return $ret;
 }
 
