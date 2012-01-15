@@ -272,6 +272,7 @@ sub attachments_save {
 	my @attachments;
 	my $dir=attachment_holding_location($form->field('page'));
 	foreach my $filename (glob("$dir/*")) {
+		$filename=Encode::decode_utf8($filename);
 		next unless -f $filename;
 		my $destdir=$config{srcdir}."/".
 			linkpage(IkiWiki::possibly_foolish_untaint(
@@ -345,6 +346,7 @@ sub attachment_list ($) {
 	my $dir=attachment_holding_location($page);
 	my $heldmsg=gettext("this attachment is not yet saved");
 	foreach my $file (glob("$dir/*")) {
+		$file=Encode::decode_utf8($file);
 		next unless -f $file;
 		my $base=IkiWiki::basename($file);
 		my $f=$loc.$base;
