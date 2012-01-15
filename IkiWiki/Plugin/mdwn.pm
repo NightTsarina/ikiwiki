@@ -54,10 +54,17 @@ sub htmlize (@) {
 			eval q{use Text::Markdown::Discount};
 			if (! $@) {
 				$markdown_sub=sub {
+					my $t=shift;
 					# Workaround for discount binding bug
 					# https://rt.cpan.org/Ticket/Display.html?id=73657
-					return "" if $_[0]=~/^\s*$/;
-					Text::Markdown::Discount::markdown(@_);
+					return "" if $t=~/^\s*$/;
+					# Workaround for discount's eliding
+					# of <style> blocks.
+					# https://rt.cpan.org/Ticket/Display.html?id=74016
+					$t=~s/<style/<elyts/ig;
+					my $r=Text::Markdown::Discount::markdown($t);
+					$r=~s/<elyts/<style/ig;
+					return $r;
 				}
 			}
 		}
