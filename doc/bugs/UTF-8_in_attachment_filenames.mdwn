@@ -1,0 +1,15 @@
+I have ikiwiki_3.20111229 installed on Debian Squeeze (Perl 5.10.1, UTF-8 locale). The attachment plugin mangles UTF8-encoded attachment filenames if the name contains multibyte characters, e.g. "lää.png" becomes "lÃ¤Ã¤.png". Apparently glob returns byte strings which are subject to implicit upgrading when concatenated with Perl strings. The following patch fixes the problem for me:
+
+----
+
+    diff -r -U 1 a/attachment.pm b/attachment.pm
+    --- a/attachment.pm	2012-01-13 23:07:29.000000000 +0200
+    +++ b/attachment.pm	2012-01-13 23:33:07.000000000 +0200
+    @@ -274,2 +274,3 @@
+     	foreach my $filename (glob("$dir/*")) {
+    +	    $filename=Encode::decode_utf8($filename);
+     		next unless -f $filename;
+    @@ -347,2 +348,3 @@
+     	foreach my $file (glob("$dir/*")) {
+    +	    $file = Encode::decode_utf8($file);
+     		next unless -f $file;
