@@ -25,6 +25,13 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
+		nodiscount => {
+			type => "boolean",
+			example => 0,
+			description => "disable use of markdown discount?",
+			safe => 1,
+			rebuild => 1,
+		},
 }
 
 my $markdown_sub;
@@ -50,7 +57,8 @@ sub htmlize (@) {
 				}
 			}
 		}
-		if (! defined $markdown_sub) {
+		if (! defined $markdown_sub &&
+		    exists $config{nodiscount} && ! $config{nodiscount}) {
 			eval q{use Text::Markdown::Discount};
 			if (! $@) {
 				$markdown_sub=sub {
