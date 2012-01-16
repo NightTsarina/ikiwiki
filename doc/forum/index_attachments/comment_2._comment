@@ -1,0 +1,30 @@
+[[!comment format=mdwn
+ nickname="jerojasro"
+ subject="RE: comment 1"
+ date="2012-01-15T23:49:49Z"
+ content="""
+I've modified the plugin adding the possibility of indexing attachments. Only
+PDF attachments for now, but support for other filetypes should be real easy to add.
+
+The changes to `IkiWiki/Plugin/search.pm` are available at
+<http://git.devnull.li/ikiwiki.git>, in the `srchatt` branch.
+
+I have a small question about filenames and security: I'm using `qx` to execute
+the program that extracts the text from the PDF files, but `qx` executes a
+whole string, and passes it not to the program I want to run, but to a shell,
+so it is possible (I think) to craft a filename that, in a shell, expands to
+something nasty.
+
+How do the Perl/IkiWiki experts suggest to handle these potentially unsafe
+filenames? I've thought of the following options:
+
+  * Running the text extractor program using `Proc::Safe`. I could not find a
+    Debian package for it, and I'd rather avoid adding another dependency to
+    IkiWiki.
+  * Running the text extractor program as suggested in the `perlipc` document,
+    using `fork` + `exec`.
+
+I haven't done any of those because I'd like to check if there are any helpers
+in IkiWiki to do this. Perhaps the `IkiWiki::possibly_foolish_untaint` function
+does it? (I didn't really understand what it does...)
+"""]]
