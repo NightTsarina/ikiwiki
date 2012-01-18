@@ -1,1 +1,34 @@
 When an `ikiwiki` instance is holding a lock, a web user clicking on "add comment" (for example) will have to wait for the lock to be released.  However, all they are then presented with is a web form.  Perhaps CGI requests that are read-only (such as generating a comment form, or perhaps certain types of edits) should ignore locks? Of course, I'd understand that the submission would need to wait for a lock. — [[Jon]]
+
+> Ikiwiki has what I think of as the Big Wiki Lock (remembering the "Big
+> Kernel Lock"). It takes the exclusive lock before loading any state,
+> to ensure that any changes to that state are made safely.
+> 
+> A few CGI actions that don't need that info loaded do avoid taking the
+> lock.
+> 
+> In the case of showing the comment form, the comments
+> plugin needs CGI session information to be loaded, so it can check if
+> the user is logged in, and so it can add XSRF prevention tokens based on
+> the session ID. (Actually, it might be possible to rely on
+> `CGI::Session`'s own locking of the sessions file, and have a hook that
+> runs with a session but before the indexdb is loaded.)
+> 
+> But, the comment form also needs to load the indexdb, in order to call
+> `check_canedit`, which matches a pagespec, which can need to look things
+> up in the indexdb. (Though the pagespecs that can do that are unlikely
+> to be relevant when posting a comment.)
+> 
+> I've thought about trying to get rid of the Big Wiki Lock from time to
+> time. It's difficult though; if two ikiwikis are both making changes
+> to the stored state, it's hard to see a way to reconcile them. (There
+> could be a daemon that all changes are fed thru using a protocol, but
+> that's really complicated, and it'd almost be better to have a single
+> daemon that just runs ikiwiki; a major architectural change.)
+> 
+> One way that *almost* seems it could work is to have a entry path
+> that loads everything read-only, without a lock. And then in read-only
+> mode, `saveindex` would be an error to run. However, both the commenting
+> code and the page edit code currently have the same entry path for
+> drawing the form as is used for handling the posted form, so they would
+> need to be adapted to separate that into two code paths. --[[Joey]]
