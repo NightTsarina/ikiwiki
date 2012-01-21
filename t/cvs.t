@@ -1,41 +1,43 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use Test::More;
+use IkiWiki;
+
 my $dir;
-BEGIN {
-	$dir="/tmp/ikiwiki-test-cvs.$$";
-	my $cvs=`which cvs`;
-	chomp $cvs;
-	my $cvsps=`which cvsps`;
-	chomp $cvsps;
-	if (! -x $cvs || ! -x $cvsps) {
-		eval q{
-			use Test::More skip_all => "cvs or cvsps not available"
-		}
-	}
-	if (! mkdir($dir)) {
-		die $@;
-	}
+
+sub _determine_test_plan {
+
+	my $cvs=`which cvs`; chomp $cvs;
+	my $cvsps=`which cvsps`; chomp $cvsps;
+	return (skip_all => 'cvs or cvsps not available')
+		unless -x $cvs && -x $cvsps;
+
 	foreach my $module ('File::ReadBackwards', 'File::MimeInfo') {
 		eval qq{use $module};
 		if ($@) {
-			eval qq{
-				use Test::More skip_all => "$module not available"
-			}
+			return (skip_all => "$module not available");
 		}
 	}
-}
-use Test::More tests => 12;
 
-BEGIN { use_ok("IkiWiki"); }
+	return (tests => 11);
+}
 
 sub _startup {
+	_mktempdir();
 	_generate_minimal_config();
 	_create_test_repo();
 }
 
 sub _shutdown {
 	system "rm -rf $dir";
+}
+
+sub _mktempdir {
+	$dir="/tmp/ikiwiki-test-cvs.$$";
+	if (! mkdir($dir)) {
+		die $@;
+	}
 }
 
 sub _generate_minimal_config {
@@ -99,6 +101,7 @@ sub test_manual_commit {
 	is($changes[1]{pages}[0]{"page"}, "test1");
 }
 
+plan(_determine_test_plan());
 _startup();
 test_web_commit();
 test_manual_commit();
