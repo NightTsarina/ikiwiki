@@ -1,0 +1,24 @@
+I followed instructions at 
+
+    http://ikiwiki.info/plugins/po/
+
+and added to `configfile`
+
+        po_master_language => 'en|English',
+	po_slave_languages => [ 'zh|Chinese' ],
+        po_translatable_pages => '(* and !*/Discussion and !blog/*/comment_*)',
+        po_link_to => 'current'
+
+and did 
+
+      ikiwiki --setup configfile
+
+But I don't seem to see any change in the newly built site. 
+
+How do I actually use po to create translation pages? 
+
+1) I have existing pages that's in English. How do I add translated versions of some of those pages in the slave language?
+
+2) How do I add new pages with the primary language version and alternative versions in slave languages?
+
+The documentation of po is not explicit with what are the concrete steps.
