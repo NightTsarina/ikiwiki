@@ -7,7 +7,6 @@ use IkiWiki;
 my $dir;
 
 sub _determine_test_plan {
-
 	my $cvs=`which cvs`; chomp $cvs;
 	my $cvsps=`which cvsps`; chomp $cvsps;
 	return (skip_all => 'cvs or cvsps not available')
@@ -65,9 +64,9 @@ sub test_web_commit {
 	writefile('test1.mdwn', $config{srcdir}, $test1);
 	IkiWiki::rcs_add("test1.mdwn");
 	IkiWiki::rcs_commit(
-		files => "test1.mdwn",
+		file => "test1.mdwn",
 		message => "Added the first page",
-		token => "moo"
+		token => "moo",
 	);
 
 	my @changes = IkiWiki::rcs_recentchanges(3);
