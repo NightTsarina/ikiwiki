@@ -7,124 +7,7 @@ use IkiWiki;
 my $default_test_methods = '^test_*';
 my $dir = "/tmp/ikiwiki-test-cvs.$$";
 
-sub _plan_for_test_more {
-	my $can_plan = shift;
-
-	foreach my $program (qw(
-		cvs
-		cvsps
-	)) {
-		my $program_path = `which $program`;
-		chomp $program_path;
-		return plan(skip_all => "$program not available")
-			unless -x $program_path;
-	}
-
-	foreach my $module (qw(
-		File::chdir
-		File::MimeInfo
-		Date::Parse
-		File::Temp
-		File::ReadBackwards
-	)) {
-		eval qq{use $module};
-		return plan(skip_all => "$module not available")
-			if $@;
-	}
-
-	return plan(skip_all => "can't create $dir: $!")
-		unless mkdir($dir);
-	return plan(skip_all => "can't remove $dir: $!")
-		unless rmdir($dir);
-
-	return unless $can_plan;
-
-	return plan(tests => $total_tests);
-}
-
-
-# http://stackoverflow.com/questions/607282/whats-the-best-way-to-discover-all-subroutines-a-perl-module-has
-
-use B qw/svref_2object/;
-
-sub in_package {
-	my ($coderef, $package) = @_;
-	my $cv = svref_2object($coderef);
-	return if not $cv->isa('B::CV') or $cv->GV->isa('B::SPECIAL');
-	return $cv->GV->STASH->NAME eq $package;
-}
-
-sub list_module {
-	my $module = shift;
-	no strict 'refs';
-	return grep {
-		defined &{"$module\::$_"} and in_package(\&{*$_}, $module)
-	} keys %{"$module\::"};
-}
-
-
-# support for xUnit-style testing, a la Test::Class
-
-sub _startup {
-	my $can_plan = shift;
-	_plan_for_test_more($can_plan);
-	_generate_test_config();
-}
-
-sub _shutdown {
-	my $had_plan = shift;
-	done_testing() unless $had_plan;
-}
-
-sub _setup {
-	_generate_test_repo();
-}
-
-sub _teardown {
-	system "rm -rf $dir";
-}
-
-sub _runtests {
-	my @coderefs = (@_);
-	for (@coderefs) {
-		_setup();
-		$_->();
-		_teardown();
-	}
-}
-
-sub _get_matching_test_subs {
-	my $re = shift;
-	no strict 'refs';
-	return map { \&{*$_} } grep { /$re/ } sort(list_module('main'));
-}
-
-sub _generate_test_config {
-	%config = IkiWiki::defaultconfig();
-	$config{rcs} = "cvs";
-	$config{srcdir} = "$dir/src";
-	$config{cvsrepo} = "$dir/repo";
-	$config{cvspath} = "ikiwiki";
-	IkiWiki::loadplugins();
-	IkiWiki::checkconfig();
-}
-
-sub _generate_test_repo {
-	die "can't create $dir: $!"
-		unless mkdir($dir);
-
-	my $cvs = "cvs -d $config{cvsrepo}";
-	my $dn = ">/dev/null";
-	system "$cvs init $dn";
-	system "mkdir $dir/$config{cvspath} $dn";
-	system "cd $dir/$config{cvspath} && "
-		. "$cvs import -m import $config{cvspath} VENDOR RELEASE $dn";
-	system "rm -rf $dir/$config{cvspath} $dn";
-	system "$cvs co -d $config{srcdir} $config{cvspath} $dn";
-}
-
-
-# tests for general meta-behavior:
+# TESTS FOR GENERAL META-BEHAVIOR
 
 sub test_web_add_and_commit {
 	my $message = "Add a page via VCS API";
@@ -205,35 +88,6 @@ sub test_chdir_magic {
 	# when are we bothering with "local $CWD" and when aren't we?
 }
 
-
-# tests for VCS API calls:
-
-sub test_genwrapper {
-	# testable directly? affects rcs_add, but are we exercising this?
-}
-
-sub test_checkconfig {
-	# undef cvspath, expect "ikiwiki"
-	# define cvspath normally, get it back
-	# define cvspath in a subdir, get it back?
-	# define cvspath with extra slashes, get sanitized version back
-	# - yoink test_extra_path_slashes
-	# undef cvs_wrapper, expect $config{wrappers} same size as before
-
-	my $initial_cvspath = $config{cvspath};
-	$config{cvspath} = "/ikiwiki//";
-	IkiWiki::checkconfig();
-	is(
-		$config{cvspath},
-		$initial_cvspath,
-		q{rcs_recentchanges assumes checkconfig has sanitized cvspath},
-	);
-}
-
-sub test_getsetup {
-	# anything worth testing?
-}
-
 sub test_cvs_info {
 	# inspect "Repository revision" (used in code)
 	# inspect "Sticky Options" (used in tests to verify existence of "-kb")
@@ -286,6 +140,38 @@ sub test_cvs_is_controlling {
 	# - is there anything that wants the answer? if so, answer
 	# - else, die
 }
+
+
+# TESTS FOR GENERAL PLUGIN API CALLS
+
+sub test_checkconfig {
+	# undef cvspath, expect "ikiwiki"
+	# define cvspath normally, get it back
+	# define cvspath in a subdir, get it back?
+	# define cvspath with extra slashes, get sanitized version back
+	# - yoink test_extra_path_slashes
+	# undef cvs_wrapper, expect $config{wrappers} same size as before
+
+	my $initial_cvspath = $config{cvspath};
+	$config{cvspath} = "/ikiwiki//";
+	IkiWiki::checkconfig();
+	is(
+		$config{cvspath},
+		$initial_cvspath,
+		q{rcs_recentchanges assumes checkconfig has sanitized cvspath},
+	);
+}
+
+sub test_getsetup {
+	# anything worth testing?
+}
+
+sub test_genwrapper {
+	# testable directly? affects rcs_add, but are we exercising this?
+}
+
+
+# TESTS FOR VCS PLUGIN API CALLS
 
 sub test_rcs_update {
 	# can it assume we're under CVS control? or must it check?
@@ -443,3 +329,121 @@ sub main {
 }
 
 main();
+
+
+# INTERNAL SUPPORT ROUTINES
+
+sub _plan_for_test_more {
+	my $can_plan = shift;
+
+	foreach my $program (qw(
+		cvs
+		cvsps
+	)) {
+		my $program_path = `which $program`;
+		chomp $program_path;
+		return plan(skip_all => "$program not available")
+			unless -x $program_path;
+	}
+
+	foreach my $module (qw(
+		File::chdir
+		File::MimeInfo
+		Date::Parse
+		File::Temp
+		File::ReadBackwards
+	)) {
+		eval qq{use $module};
+		return plan(skip_all => "$module not available")
+			if $@;
+	}
+
+	return plan(skip_all => "can't create $dir: $!")
+		unless mkdir($dir);
+	return plan(skip_all => "can't remove $dir: $!")
+		unless rmdir($dir);
+
+	return unless $can_plan;
+
+	return plan(tests => $total_tests);
+}
+
+# http://stackoverflow.com/questions/607282/whats-the-best-way-to-discover-all-subroutines-a-perl-module-has
+
+use B qw/svref_2object/;
+
+sub in_package {
+	my ($coderef, $package) = @_;
+	my $cv = svref_2object($coderef);
+	return if not $cv->isa('B::CV') or $cv->GV->isa('B::SPECIAL');
+	return $cv->GV->STASH->NAME eq $package;
+}
+
+sub list_module {
+	my $module = shift;
+	no strict 'refs';
+	return grep {
+		defined &{"$module\::$_"} and in_package(\&{*$_}, $module)
+	} keys %{"$module\::"};
+}
+
+
+# support for xUnit-style testing, a la Test::Class
+
+sub _startup {
+	my $can_plan = shift;
+	_plan_for_test_more($can_plan);
+	_generate_test_config();
+}
+
+sub _shutdown {
+	my $had_plan = shift;
+	done_testing() unless $had_plan;
+}
+
+sub _setup {
+	_generate_test_repo();
+}
+
+sub _teardown {
+	system "rm -rf $dir";
+}
+
+sub _runtests {
+	my @coderefs = (@_);
+	for (@coderefs) {
+		_setup();
+		$_->();
+		_teardown();
+	}
+}
+
+sub _get_matching_test_subs {
+	my $re = shift;
+	no strict 'refs';
+	return map { \&{*$_} } grep { /$re/ } sort(list_module('main'));
+}
+
+sub _generate_test_config {
+	%config = IkiWiki::defaultconfig();
+	$config{rcs} = "cvs";
+	$config{srcdir} = "$dir/src";
+	$config{cvsrepo} = "$dir/repo";
+	$config{cvspath} = "ikiwiki";
+	IkiWiki::loadplugins();
+	IkiWiki::checkconfig();
+}
+
+sub _generate_test_repo {
+	die "can't create $dir: $!"
+		unless mkdir($dir);
+
+	my $cvs = "cvs -d $config{cvsrepo}";
+	my $dn = ">/dev/null";
+	system "$cvs init $dn";
+	system "mkdir $dir/$config{cvspath} $dn";
+	system "cd $dir/$config{cvspath} && "
+		. "$cvs import -m import $config{cvspath} VENDOR RELEASE $dn";
+	system "rm -rf $dir/$config{cvspath} $dn";
+	system "$cvs co -d $config{srcdir} $config{cvspath} $dn";
+}

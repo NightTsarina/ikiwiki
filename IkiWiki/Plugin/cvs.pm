@@ -35,10 +35,14 @@ use IkiWiki;
 
 use File::chdir;
 
+
+# GENERAL PLUGIN API CALLS
+
 sub import {
-	hook(type => "genwrapper", id => "cvs", call => \&genwrapper);
 	hook(type => "checkconfig", id => "cvs", call => \&checkconfig);
 	hook(type => "getsetup", id => "cvs", call => \&getsetup);
+	hook(type => "genwrapper", id => "cvs", call => \&genwrapper);
+
 	hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
 	hook(type => "rcs", id => "rcs_prepedit", call => \&rcs_prepedit);
 	hook(type => "rcs", id => "rcs_commit", call => \&rcs_commit);
@@ -50,17 +54,6 @@ sub import {
 	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
 	hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
 	hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
-}
-
-sub genwrapper () {
-	return <<EOF;
-	{
-		int j;
-		for (j = 1; j < argc; j++)
-			if (strstr(argv[j], "New directory") != NULL)
-				exit(0);
-	}
-EOF
 }
 
 sub checkconfig () {
@@ -132,36 +125,19 @@ sub getsetup () {
 		},
 }
 
-sub cvs_info ($$) {
-	my $field=shift;
-	my $file=shift;
-
-	local $CWD = $config{srcdir};
-
-	my $info=`cvs status $file`;
-	my ($ret)=$info=~/^\s*$field:\s*(\S+)/m;
-	return $ret;
+sub genwrapper () {
+	return <<EOF;
+	{
+		int j;
+		for (j = 1; j < argc; j++)
+			if (strstr(argv[j], "New directory") != NULL)
+				exit(0);
+	}
+EOF
 }
 
-sub cvs_runcvs(@) {
-	my @cmd = @_;
-	unshift @cmd, 'cvs', '-Q';
 
-	local $CWD = $config{srcdir};
-
-	open(my $savedout, ">&STDOUT");
-	open(STDOUT, ">", "/dev/null");
-	my $ret = system(@cmd);
-	open(STDOUT, ">&", $savedout);
-
-	return ($ret == 0) ? 1 : 0;
-}
-
-sub cvs_is_controlling {
-	my $dir=shift;
-	$dir=$config{srcdir} unless defined($dir);
-	return (-d "$dir/CVS") ? 1 : 0;
-}
+# VCS PLUGIN API CALLS
 
 sub rcs_update () {
 	return unless cvs_is_controlling;
@@ -181,24 +157,6 @@ sub rcs_prepedit ($) {
 	# editing begins.
 	my $rev=cvs_info("Repository revision", "$file");
 	return defined $rev ? $rev : "";
-}
-
-sub commitmessage (@) {
-	my %params=@_;
-	
-	if (defined $params{session}) {
-		if (defined $params{session}->param("name")) {
-			return "web commit by ".
-				$params{session}->param("name").
-				(length $params{message} ? ": $params{message}" : "");
-		}
-		elsif (defined $params{session}->remote_addr()) {
-			return "web commit from ".
-				$params{session}->remote_addr().
-				(length $params{message} ? ": $params{message}" : "");
-		}
-	}
-	return $params{message};
 }
 
 sub rcs_commit (@) {
@@ -491,6 +449,58 @@ sub rcs_getctime ($) {
 
 sub rcs_getmtime ($) {
 	error "rcs_getmtime is not implemented for cvs\n"; # TODO
+}
+
+
+# INTERNAL SUPPORT ROUTINES
+
+sub commitmessage (@) {
+	my %params=@_;
+
+	if (defined $params{session}) {
+		if (defined $params{session}->param("name")) {
+			return "web commit by ".
+				$params{session}->param("name").
+				(length $params{message} ? ": $params{message}" : "");
+		}
+		elsif (defined $params{session}->remote_addr()) {
+			return "web commit from ".
+				$params{session}->remote_addr().
+				(length $params{message} ? ": $params{message}" : "");
+		}
+	}
+	return $params{message};
+}
+
+sub cvs_info ($$) {
+	my $field=shift;
+	my $file=shift;
+
+	local $CWD = $config{srcdir};
+
+	my $info=`cvs status $file`;
+	my ($ret)=$info=~/^\s*$field:\s*(\S+)/m;
+	return $ret;
+}
+
+sub cvs_is_controlling {
+	my $dir=shift;
+	$dir=$config{srcdir} unless defined($dir);
+	return (-d "$dir/CVS") ? 1 : 0;
+}
+
+sub cvs_runcvs(@) {
+	my @cmd = @_;
+	unshift @cmd, 'cvs', '-Q';
+
+	local $CWD = $config{srcdir};
+
+	open(my $savedout, ">&STDOUT");
+	open(STDOUT, ">", "/dev/null");
+	my $ret = system(@cmd);
+	open(STDOUT, ">&", $savedout);
+
+	return ($ret == 0) ? 1 : 0;
 }
 
 1
