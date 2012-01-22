@@ -8,23 +8,26 @@ my %ideal_test_plan = (tests => 8);
 my $dir;
 
 sub _determine_test_plan {
-	my $cvs=`which cvs`; chomp $cvs;
-	my $cvsps=`which cvsps`; chomp $cvsps;
+	my $cvs = `which cvs`; chomp $cvs;
+	my $cvsps = `which cvsps`; chomp $cvsps;
 	return (skip_all => 'cvs or cvsps not available')
 		unless -x $cvs && -x $cvsps;
 
-	foreach my $module ('File::ReadBackwards', 'File::MimeInfo') {
+	foreach my $module (qw(File::ReadBackwards File::MimeInfo)) {
 		eval qq{use $module};
 		if ($@) {
 			return (skip_all => "$module not available");
 		}
 	}
 
+	$dir = "/tmp/ikiwiki-test-cvs.$$";
+	return (skip_all => "can't create $dir: $!")
+		unless mkdir($dir);
+
 	return %ideal_test_plan;
 }
 
 sub _startup {
-	_mktempdir();
 	_generate_minimal_config();
 	_create_test_repo();
 }
@@ -33,15 +36,8 @@ sub _shutdown {
 	system "rm -rf $dir";
 }
 
-sub _mktempdir {
-	$dir="/tmp/ikiwiki-test-cvs.$$";
-	if (! mkdir($dir)) {
-		die $@;
-	}
-}
-
 sub _generate_minimal_config {
-	%config=IkiWiki::defaultconfig();
+	%config = IkiWiki::defaultconfig();
 	$config{rcs} = "cvs";
 	$config{srcdir} = "$dir/src";
 	$config{cvsrepo} = "$dir/repo";
@@ -62,9 +58,9 @@ sub _create_test_repo {
 }
 
 sub test_web_add_and_commit {
+	my $message = "Added the first page";
 	writefile('test1.mdwn', $config{srcdir}, readfile("t/test1.mdwn"));
 	IkiWiki::rcs_add("test1.mdwn");
-	my $message = "Added the first page";
 	IkiWiki::rcs_commit(
 		file => "test1.mdwn",
 		message => $message,
@@ -90,10 +86,12 @@ sub test_web_add_and_commit {
 }
 
 sub test_manual_add_and_commit {
-	writefile('test2.mdwn', $config{srcdir}, readfile("t/test2.mdwn"));
-	system "cd $config{srcdir} && cvs add test2.mdwn >/dev/null 2>&1";
 	my $message = "Added the second page";
-	system "cd $config{srcdir} && cvs commit -m \"$message\" test2.mdwn >/dev/null";
+	writefile('test2.mdwn', $config{srcdir}, readfile("t/test2.mdwn"));
+	system "cd $config{srcdir}"
+		. " && cvs add test2.mdwn >/dev/null 2>&1";
+	system "cd $config{srcdir}"
+		. " && cvs commit -m \"$message\" test2.mdwn >/dev/null";
 
 	my @changes = IkiWiki::rcs_recentchanges(3);
 	is(
