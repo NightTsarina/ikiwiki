@@ -4,6 +4,7 @@ use strict;
 use Test::More;
 use IkiWiki;
 
+my %ideal_test_plan = (tests => 8);
 my $dir;
 
 sub _determine_test_plan {
@@ -19,7 +20,7 @@ sub _determine_test_plan {
 		}
 	}
 
-	return (tests => 11);
+	return %ideal_test_plan;
 }
 
 sub _startup {
@@ -59,49 +60,77 @@ sub _create_test_repo {
 	system "cvs -d $cvsrepo co -d $config{srcdir} ikiwiki >/dev/null";
 }
 
-sub test_web_commit {
-	my $test1 = readfile("t/test1.mdwn");
-	writefile('test1.mdwn', $config{srcdir}, $test1);
+sub test_web_add_and_commit {
+	writefile('test1.mdwn', $config{srcdir}, readfile("t/test1.mdwn"));
 	IkiWiki::rcs_add("test1.mdwn");
+	my $message = "Added the first page";
 	IkiWiki::rcs_commit(
 		file => "test1.mdwn",
-		message => "Added the first page",
+		message => $message,
 		token => "moo",
 	);
 
 	my @changes = IkiWiki::rcs_recentchanges(3);
-
-	is($#changes, 0);
-	is($changes[0]{message}[0]{"line"}, "Added the first page");
-	is($changes[0]{pages}[0]{"page"}, "test1");
+	is(
+		$#changes,
+		0,
+		q{1 total commit},
+	);
+	is(
+		$changes[0]{message}[0]{"line"},
+		$message,
+		q{first line of most recent commit message matches},
+	);
+	is(
+		$changes[0]{pages}[0]{"page"},
+		"test1",
+		q{first pagename from most recent commit matches},
+	);
 }
 
-sub test_manual_commit {
-	my $message = "Added the second page";
-
-	my $test2 = readfile("t/test2.mdwn");
-	writefile('test2.mdwn', $config{srcdir}, $test2);
+sub test_manual_add_and_commit {
+	writefile('test2.mdwn', $config{srcdir}, readfile("t/test2.mdwn"));
 	system "cd $config{srcdir} && cvs add test2.mdwn >/dev/null 2>&1";
+	my $message = "Added the second page";
 	system "cd $config{srcdir} && cvs commit -m \"$message\" test2.mdwn >/dev/null";
 
 	my @changes = IkiWiki::rcs_recentchanges(3);
-	is($#changes, 1);
-	is($changes[0]{message}[0]{"line"}, $message);
-	is($changes[0]{pages}[0]{"page"}, "test2");
-	is($changes[1]{pages}[0]{"page"}, "test1");
+	is(
+		$#changes,
+		1,
+		q{2 total commits},
+	);
+	is(
+		$changes[0]{message}[0]{"line"},
+		$message,
+		q{first line of most recent commit message matches},
+	);
+	is(
+		$changes[0]{pages}[0]{"page"},
+		"test2",
+		q{first pagename from most recent commit matches},
+	);
+	is(
+		$changes[1]{pages}[0]{"page"},
+		"test1",
+		q{first pagename from second-most-recent commit matches},
+	);
+}
 
-	# extra slashes in the path shouldn't break things
+sub test_extra_path_slashes {
+	my $initial_cvspath = $config{cvspath};
 	$config{cvspath} = "/ikiwiki//";
 	IkiWiki::checkconfig();
-	@changes = IkiWiki::rcs_recentchanges(3);
-	is($#changes, 1);
-	is($changes[0]{message}[0]{"line"}, $message);
-	is($changes[0]{pages}[0]{"page"}, "test2");
-	is($changes[1]{pages}[0]{"page"}, "test1");
+	is(
+		$config{cvspath},
+		$initial_cvspath,
+		q{rcs_recentchanges assumes checkconfig sanitizes cvspath},
+	);
 }
 
 plan(_determine_test_plan());
 _startup();
-test_web_commit();
-test_manual_commit();
+test_web_add_and_commit();
+test_manual_add_and_commit();
+test_extra_path_slashes();
 _shutdown();
