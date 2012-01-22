@@ -1,13 +1,17 @@
-If you really need to, you can use [[!wikipedia desc="CVS" Concurrent Versions System]]
-with ikiwiki.
+[[!template id=gitbranch branch=schmonz/cvs author="[[schmonz]]"]]
+
+If you really need to, you can use [[!wikipedia desc="CVS" Concurrent
+Versions System]] with ikiwiki.
 
 ### Usage
 7. Install [[!cpan File::chdir]], [[!cpan File::ReadBackwards]],
-[cvsps](http://www.cobite.com/cvsps/), and
-[cvsweb](http://www.freebsd.org/projects/cvsweb.html) or the like.
+   [cvsps](http://www.cobite.com/cvsps/), and
+   [cvsweb](http://www.freebsd.org/projects/cvsweb.html) or the like.
 7. Adjust CVS-related parameters in your setup file.
 
-Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn't need it, but you yourself might. Here's a good general-purpose one:
+Consider creating `$HOME/.cvsrc` if you don't have one already; the
+plugin doesn't need it, but you yourself might. Here's a good
+general-purpose one:
 
     cvs -q
     checkout -P
@@ -17,12 +21,25 @@ Consider creating `$HOME/.cvsrc` if you don't have one already; the plugin doesn
 
 ### Implementation details
 * [[ikiwiki-makerepo]]:
- * creates a repository,
- * imports `$SRCDIR` into top-level module `ikiwiki` (vendor tag IKIWIKI, release tag PRE_CVS),
- * configures the post-commit hook in `CVSROOT/loginfo`.
+    * creates a repository,
+    * imports `$SRCDIR` into top-level module `ikiwiki` (vendor tag
+      IKIWIKI, release tag PRE_CVS),
+    * configures the post-commit hook in `CVSROOT/loginfo`.
 
 ### To do
-* Have `ikiwiki-makerepo` set up NetBSD-like `log_accum` and `commit_prep` scripts that coalesce commits into changesets. Reasons:
-    7. Obviates the need to scrape the repo's complete history to determine the last N changesets. (Repositories without such records can fall back on the `cvsps` and `File::ReadBackwards` code.)
-    7. Arranges for ikiwiki to be run once per changeset, rather than CVS's once per committed file (!), which is a waste at best and bug-inducing at worst. (Currently, on multi-directory commits, only the first directory's changes get mentioned in [[recentchanges|plugins/recentchanges]].)
-* Perhaps prevent web edits from attempting to create `.../CVS/foo.mdwn` (and `.../cvs/foo.mdwn` on case-insensitive filesystems); thanks to the CVS metadata directory, the attempt will fail anyway (and much more confusingly) if we don't.
+* Expand test coverage and fix bugs.
+* Have `ikiwiki-makerepo` set up NetBSD-like `log_accum` and
+  `commit_prep` scripts that coalesce commits into changesets. Reasons:
+    7. Obviates the need to scrape the repo's complete history to
+       determine the last N changesets. (Repositories without such
+       records can fall back on the `cvsps` and `File::ReadBackwards`
+       code.)
+    7. Arranges for ikiwiki to be run once per changeset, rather
+       than CVS's once per committed file (!), which is a waste at
+       best and bug-inducing at worst. (Currently, on multi-directory
+       commits, only the first directory's changes get mentioned
+       in [[recentchanges|plugins/recentchanges]].)
+* Perhaps prevent web edits from attempting to create `.../CVS/foo.mdwn`
+  (and `.../cvs/foo.mdwn` on case-insensitive filesystems); thanks
+  to the CVS metadata directory, the attempt will fail anyway (and
+  much more confusingly) if we don't.
