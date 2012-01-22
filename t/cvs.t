@@ -96,7 +96,7 @@ sub _runtests {
 sub _get_matching_test_subs {
 	my $re = shift;
 	no strict 'refs';
-	return map { \&{*$_} } grep { /$re/ } list_module('main');
+	return map { \&{*$_} } grep { /$re/ } sort(list_module('main'));
 }
 
 sub _generate_test_config {
