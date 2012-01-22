@@ -5,6 +5,17 @@ use Test::More; my $total_tests = 9;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
+my @required_programs = qw(
+	cvs
+	cvsps
+);
+my @required_modules = qw(
+	File::chdir
+	File::MimeInfo
+	Date::Parse
+	File::Temp
+	File::ReadBackwards
+);
 my $dir = "/tmp/ikiwiki-test-cvs.$$";
 
 # TESTS FOR GENERAL META-BEHAVIOR
@@ -336,23 +347,14 @@ main();
 sub _plan_for_test_more {
 	my $can_plan = shift;
 
-	foreach my $program (qw(
-		cvs
-		cvsps
-	)) {
+	foreach my $program (@required_programs) {
 		my $program_path = `which $program`;
 		chomp $program_path;
 		return plan(skip_all => "$program not available")
 			unless -x $program_path;
 	}
 
-	foreach my $module (qw(
-		File::chdir
-		File::MimeInfo
-		Date::Parse
-		File::Temp
-		File::ReadBackwards
-	)) {
+	foreach my $module (@required_modules) {
 		eval qq{use $module};
 		return plan(skip_all => "$module not available")
 			if $@;
