@@ -51,13 +51,14 @@ sub _generate_minimal_config {
 }
 
 sub _create_test_repo {
-	my $cvsrepo = "$dir/repo";
-
-	system "cvs -d $cvsrepo init >/dev/null";
-	system "mkdir $dir/ikiwiki >/dev/null";
-	system "cd $dir/ikiwiki && cvs -d $cvsrepo import -m import ikiwiki VENDOR RELEASE >/dev/null";
-	system "rm -rf $dir/ikiwiki >/dev/null";
-	system "cvs -d $cvsrepo co -d $config{srcdir} ikiwiki >/dev/null";
+	my $cvs = "cvs -d $config{cvsrepo}";
+	my $dn = ">/dev/null";
+	system "$cvs init $dn";
+	system "mkdir $dir/$config{cvspath} $dn";
+	system "cd $dir/$config{cvspath} && "
+		. "$cvs import -m import $config{cvspath} VENDOR RELEASE $dn";
+	system "rm -rf $dir/$config{cvspath} $dn";
+	system "$cvs co -d $config{srcdir} $config{cvspath} $dn";
 }
 
 sub test_web_add_and_commit {
