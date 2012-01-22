@@ -1,50 +1,105 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 10;
+use Test::More; my $total_tests = 9;
 use IkiWiki;
 
+my $default_test_methods = '^test_*';
 my $dir = "/tmp/ikiwiki-test-cvs.$$";
 
-sub _plan {
+sub _plan_for_test_more {
 	my $can_plan = shift;
 
-	my $cvs = `which cvs`; chomp $cvs;
-	my $cvsps = `which cvsps`; chomp $cvsps;
-	return plan(skip_all => 'cvs or cvsps not available')
-		unless -x $cvs && -x $cvsps;
+	foreach my $program (qw(
+		cvs
+		cvsps
+	)) {
+		my $program_path = `which $program`;
+		chomp $program_path;
+		return plan(skip_all => "$program not available")
+			unless -x $program_path;
+	}
 
-	foreach my $module (qw(File::ReadBackwards File::MimeInfo)) {
+	foreach my $module (qw(
+		File::chdir
+		File::MimeInfo
+		Date::Parse
+		File::Temp
+		File::ReadBackwards
+	)) {
 		eval qq{use $module};
-		if ($@) {
-			return plan(skip_all => "$module not available");
-		}
+		return plan(skip_all => "$module not available")
+			if $@;
 	}
 
 	return plan(skip_all => "can't create $dir: $!")
 		unless mkdir($dir);
+	return plan(skip_all => "can't remove $dir: $!")
+		unless rmdir($dir);
 
 	return unless $can_plan;
 
 	return plan(tests => $total_tests);
 }
 
+
+# http://stackoverflow.com/questions/607282/whats-the-best-way-to-discover-all-subroutines-a-perl-module-has
+
+use B qw/svref_2object/;
+
+sub in_package {
+	my ($coderef, $package) = @_;
+	my $cv = svref_2object($coderef);
+	return if not $cv->isa('B::CV') or $cv->GV->isa('B::SPECIAL');
+	return $cv->GV->STASH->NAME eq $package;
+}
+
+sub list_module {
+	my $module = shift;
+	no strict 'refs';
+	return grep {
+		defined &{"$module\::$_"} and in_package(\&{*$_}, $module)
+	} keys %{"$module\::"};
+}
+
+
+# support for xUnit-style testing, a la Test::Class
+
 sub _startup {
 	my $can_plan = shift;
-
-	_plan($can_plan);
-	_generate_minimal_config();
-	_create_test_repo();
+	_plan_for_test_more($can_plan);
+	_generate_test_config();
 }
 
 sub _shutdown {
 	my $had_plan = shift;
-
-	system "rm -rf $dir";
 	done_testing() unless $had_plan;
 }
 
-sub _generate_minimal_config {
+sub _setup {
+	_generate_test_repo();
+}
+
+sub _teardown {
+	system "rm -rf $dir";
+}
+
+sub _runtests {
+	my @coderefs = (@_);
+	for (@coderefs) {
+		_setup();
+		$_->();
+		_teardown();
+	}
+}
+
+sub _get_matching_test_subs {
+	my $re = shift;
+	no strict 'refs';
+	return map { \&{*$_} } grep { /$re/ } list_module('main');
+}
+
+sub _generate_test_config {
 	%config = IkiWiki::defaultconfig();
 	$config{rcs} = "cvs";
 	$config{srcdir} = "$dir/src";
@@ -54,7 +109,10 @@ sub _generate_minimal_config {
 	IkiWiki::checkconfig();
 }
 
-sub _create_test_repo {
+sub _generate_test_repo {
+	die "can't create $dir: $!"
+		unless mkdir($dir);
+
 	my $cvs = "cvs -d $config{cvsrepo}";
 	my $dn = ">/dev/null";
 	system "$cvs init $dn";
@@ -65,8 +123,11 @@ sub _create_test_repo {
 	system "$cvs co -d $config{srcdir} $config{cvspath} $dn";
 }
 
+
+# tests for general meta-behavior:
+
 sub test_web_add_and_commit {
-	my $message = "Added the first page";
+	my $message = "Add a page via VCS API";
 	writefile('test1.mdwn', $config{srcdir}, readfile("t/test1.mdwn"));
 	IkiWiki::rcs_add("test1.mdwn");
 	IkiWiki::rcs_commit(
@@ -106,7 +167,7 @@ sub test_web_add_and_commit {
 }
 
 sub test_manual_add_and_commit {
-	my $message = "Added the second page";
+	my $message = "Add a page via CVS directly";
 	writefile('test2.mdwn', $config{srcdir}, readfile("t/test2.mdwn"));
 	system "cd $config{srcdir}"
 		. " && cvs add test2.mdwn >/dev/null 2>&1";
@@ -116,8 +177,8 @@ sub test_manual_add_and_commit {
 	my @changes = IkiWiki::rcs_recentchanges(3);
 	is(
 		$#changes,
-		1,
-		q{2 total commits},
+		0,
+		q{1 total commit},
 	);
 	is(
 		$changes[0]{message}[0]{"line"},
@@ -128,11 +189,6 @@ sub test_manual_add_and_commit {
 		$changes[0]{pages}[0]{"page"},
 		"test2",
 		q{first pagename from most recent commit matches},
-	);
-	is(
-		$changes[1]{pages}[0]{"page"},
-		"test1",
-		q{first pagename from second-most-recent commit matches},
 	);
 
 	# CVS commits run ikiwiki once for every committed file (!)
@@ -148,6 +204,9 @@ sub test_chdir_magic {
 	# other ikiwiki operations are occurring wherever, and are unaffected
 	# when are we bothering with "local $CWD" and when aren't we?
 }
+
+
+# tests for VCS API calls:
 
 sub test_genwrapper {
 	# testable directly? affects rcs_add, but are we exercising this?
@@ -374,42 +433,13 @@ sub test_rcs_revert {
 }
 
 sub main {
-	my $default_test_methods = '^test_*';
 	my $test_methods = defined $ENV{TEST_METHOD} 
 			 ? $ENV{TEST_METHOD}
 			 : $default_test_methods;
 
 	_startup($test_methods eq $default_test_methods);
-	$_->() foreach get_test_subs($test_methods);
+	_runtests(_get_matching_test_subs($test_methods));
 	_shutdown($test_methods eq $default_test_methods);
 }
 
 main();
-
-################################################################################
-# don't want a dependency on Test::Class; do want a couple of its features
-
-sub get_test_subs {
-	my $re = shift;
-	no strict 'refs';
-	return map { \&{*$_} } grep { /$re/ } list_module('main');
-}
-
-# http://stackoverflow.com/questions/607282/whats-the-best-way-to-discover-all-subroutines-a-perl-module-has
-
-use B qw/svref_2object/;
-
-sub in_package {
-	my ($coderef, $package) = @_;
-	my $cv = svref_2object($coderef);
-	return if not $cv->isa('B::CV') or $cv->GV->isa('B::SPECIAL');
-	return $cv->GV->STASH->NAME eq $package;
-}
-
-sub list_module {
-	my $module = shift;
-	no strict 'refs';
-	return grep {
-		defined &{"$module\::$_"} and in_package(\&{*$_}, $module)
-	} keys %{"$module\::"};
-}
