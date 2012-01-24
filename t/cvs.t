@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 9;
+use Test::More; my $total_tests = 37;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
@@ -20,36 +20,7 @@ my $dir = "/tmp/ikiwiki-test-cvs.$$";
 
 # TESTS FOR GENERAL META-BEHAVIOR
 
-sub test_web_add_and_commit {
-	my $message = "Add a page via VCS API";
-	writefile('test1.mdwn', $config{srcdir}, readfile("t/test1.mdwn"));
-	IkiWiki::rcs_add("test1.mdwn");
-	IkiWiki::rcs_commit(
-		file => "test1.mdwn",
-		message => $message,
-		token => "moo",
-	);
-
-	my @changes = IkiWiki::rcs_recentchanges(3);
-	is(
-		$#changes,
-		0,
-		q{1 total commit},
-	);
-	is(
-		$changes[0]{message}[0]{"line"},
-		$message,
-		q{first line of most recent commit message matches},
-	);
-	is(
-		$changes[0]{pages}[0]{"page"},
-		"test1",
-		q{first pagename from most recent commit matches},
-	);
-
-	# prevent web edits from attempting to create .../CVS/foo.mdwn
-	# on case-insensitive filesystems, also prevent .../cvs/foo.mdwn
-	# unless your "CVS" is something else and we've made it configurable
+sub test_web_comments {
 	# how much of the web-edit workflow are we actually testing?
 	# because we want to test comments:
 	# - when the first comment for page.mdwn is added, and page/ is
@@ -58,39 +29,6 @@ sub test_web_add_and_commit {
 	# - side effect for moderated comments: after approval they
 	#   show up normally AND are still pending, too
 	# - comments.pm treats rcs_commit_staged() as returning conflicts?
-}
-
-sub test_manual_add_and_commit {
-	my $message = "Add a page via CVS directly";
-	writefile('test2.mdwn', $config{srcdir}, readfile("t/test2.mdwn"));
-	system "cd $config{srcdir}"
-		. " && cvs add test2.mdwn >/dev/null 2>&1";
-	system "cd $config{srcdir}"
-		. " && cvs commit -m \"$message\" test2.mdwn >/dev/null";
-
-	my @changes = IkiWiki::rcs_recentchanges(3);
-	is(
-		$#changes,
-		0,
-		q{1 total commit},
-	);
-	is(
-		$changes[0]{message}[0]{"line"},
-		$message,
-		q{first line of most recent commit message matches},
-	);
-	is(
-		$changes[0]{pages}[0]{"page"},
-		"test2",
-		q{first pagename from most recent commit matches},
-	);
-
-	# CVS commits run ikiwiki once for every committed file (!)
-	# - commit_prep alone should fix this
-	# CVS multi-dir commits show only the first dir in recentchanges
-	# - commit_prep might also fix this?
-	# CVS post-commit hook is amped off to avoid locking against itself
-	# - commit_prep probably doesn't fix this... but maybe?
 }
 
 sub test_chdir_magic {
@@ -216,37 +154,99 @@ sub test_rcs_commit_staged {
 }
 
 sub test_rcs_add {
-	my $dir1 = "test3";
-	my $dir2 = "test4/test5";
-	ok(
-		mkdir($config{srcdir} . "/$dir1"),
-		qq{can make $dir1},
+	my $message = "add a top-level ASCII (non-UTF-8) page via VCS API";
+	writefile('test0.mdwn', $config{srcdir}, "* some plain ASCII text");
+	IkiWiki::rcs_add("test0.mdwn");
+	IkiWiki::rcs_commit(
+		file => "test0.mdwn",
+		message => $message,
+		token => "moo",
 	);
+	is_newly_added("test0.mdwn");
+#	is_in_keyword_substitution_mode("test0.mdwn", undef);
+	my @changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 1);
+	is_most_recent_change(\@changes, "test0", $message);
+
+	$message = "add a top-level dir via VCS API";
+	my $dir1 = "test3";
+	can_mkdir($dir1);
 	IkiWiki::rcs_add($dir1);
+	# XXX test that the wrapper hangs here without our genwrapper()
+	# XXX test that the wrapper doesn't hang here with it
+	@changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 1);	# despite the dir add
 	IkiWiki::rcs_commit(
 		file => $dir1,
-		message => "shouldn't happen",
+		message => $message,
 		token => "oom",
 	);
+	@changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 1);	# dirs aren't tracked
+
+	$message = "add a non-ASCII (UTF-8) text file in an un-added dir";
+	my $dir2 = "test4/test5";
+	can_mkdir($_) for ('test4', $dir2);
+	writefile("$dir2/test1.mdwn", $config{srcdir},readfile("t/test1.mdwn"));
+	IkiWiki::rcs_add("$dir2/test1.mdwn");
+	IkiWiki::rcs_commit(
+		file => "$dir2/test1.mdwn",
+		message => $message,
+		token => "omo",
+	);
+	is_newly_added("$dir2/test1.mdwn");
+#	is_in_keyword_substitution_mode("$dir2/test1.mdwn", undef);
+	@changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 2);
+	is_most_recent_change(\@changes, "$dir2/test1", $message);
+
+	$message = "add a binary file in an un-added dir, and commit_staged";
+	my $dir3 = "test6";
+	my $file = "$dir3/test7.ico";
+	can_mkdir($dir3);
+	my $bindata_in = readfile("doc/favicon.ico", 1);
+	my $bindata_out = sub { readfile($config{srcdir} . "/$file", 1) };
+	writefile($file, $config{srcdir}, $bindata_in, 1);
+	is(&$bindata_out(), $bindata_in, q{binary files match before commit});
+	IkiWiki::rcs_add($file);
+	IkiWiki::rcs_commit_staged(message => $message);
+	is_newly_added($file);
+	is_in_keyword_substitution_mode($file, q{-kb});
+	is(&$bindata_out(), $bindata_in, q{binary files match after commit});
+	@changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 3);
+	is_most_recent_change(\@changes, $file, $message);
+	ok(
+		unlink($config{srcdir} . "/$file"),
+		q{can remove file in order to re-fetch it from repo},
+	);
+	ok(! -e $config{srcdir} . "/$file", q{really removed file});
+	IkiWiki::rcs_update();
+	is(&$bindata_out(), $bindata_in, q{binary files match after re-fetch});
+
+	$message = "add a UTF-8 and a binary file in different dirs";
+	my $file1 = "test8/test9.mdwn";
+	my $file2 = "test10/test11.ico";
+	can_mkdir(qw(test8 test10));
+	writefile($file1, $config{srcdir}, readfile('t/test2.mdwn'));
+	writefile($file2, $config{srcdir}, $bindata_in, 1);
+	IkiWiki::rcs_add($_) for ($file1, $file2);
+	IkiWiki::rcs_commit_staged(message => $message);
+	is_newly_added($_) for ($file1, $file2);
+#	is_in_keyword_substitution_mode($file1, undef);
+	is_in_keyword_substitution_mode($file2, '-kb');
+	@changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 3);
+	@changes = IkiWiki::rcs_recentchanges(4);
+	is_total_number_of_changes(\@changes, 4);
+	# XXX test for both files in the commit, and no other files
+	is_most_recent_change(\@changes, $file2, $message);
+
+	# prevent web edits from attempting to create .../CVS/foo.mdwn
+	# on case-insensitive filesystems, also prevent .../cvs/foo.mdwn
+	# unless your "CVS" is something else and we've made it configurable
 
 	# can it assume we're under CVS control? or must it check?
-	# add a top-level text file
-	# - rcs_commit it
-	# - inspect recentchanges: new change, no -kb
-	# add a top-level dir
-	# - test mustn't hang (does it hang if we comment out genwrapper?)
-	# - inspect recentchanges: no new change
-	# - rcs_commit it
-	# - reinspect recentchanges: still no new change
-	# add a text file in that dir
-	# - rcs_commit_staged
-	# - inspect recentchanges: new change, no -kb
-	# add a top-level dir + add a binary file in it
-	# - rcs_commit_staged
-	# - inspect recentchanges: new change, yes -kb
-	# add a top-level dir + subdir + add one text and one binary file in it
-	# - rcs_commit_staged
-	# - inspect recentchanges: one new change, two files, one -kb, one not
 
 	# extract method: filetype-guessing
 	# add a binary file, remove it, add a text file by same name, no -kb?
@@ -278,6 +278,36 @@ sub test_rcs_rename {
 }
 
 sub test_rcs_recentchanges {
+	my $message = "Add a page via CVS directly";
+	writefile('test2.mdwn', $config{srcdir}, readfile("t/test2.mdwn"));
+	system "cd $config{srcdir}"
+		. " && cvs add test2.mdwn >/dev/null 2>&1";
+	system "cd $config{srcdir}"
+		. " && cvs commit -m \"$message\" test2.mdwn >/dev/null";
+
+	my @changes = IkiWiki::rcs_recentchanges(3);
+	is(
+		$#changes,
+		0,
+		q{total commits: 1},
+	);
+	is(
+		$changes[0]{message}[0]{"line"},
+		$message,
+		q{most recent commit's first message line matches},
+	);
+	is(
+		$changes[0]{pages}[0]{"page"},
+		"test2",
+		q{most recent commit's first pagename matches},
+	);
+
+	# CVS commits run ikiwiki once for every committed file (!)
+	# - commit_prep alone should fix this
+	# CVS multi-dir commits show only the first dir in recentchanges
+	# - commit_prep might also fix this?
+	# CVS post-commit hook is amped off to avoid locking against itself
+	# - commit_prep probably doesn't fix this... but maybe?
 	# can it assume we're under CVS control? or must it check?
 	# don't worry whether we're called with a number (we always are)
 	# other rcs tests already inspect much of the returned structure
@@ -448,4 +478,53 @@ sub _generate_test_repo {
 		. "$cvs import -m import $config{cvspath} VENDOR RELEASE $dn";
 	system "rm -rf $dir/$config{cvspath} $dn";
 	system "$cvs co -d $config{srcdir} $config{cvspath} $dn";
+}
+
+sub can_mkdir {
+	my $dir = shift;
+	ok(
+		mkdir($config{srcdir} . "/$dir"),
+		qq{can mkdir $dir},
+	);
+}
+
+sub is_newly_added {
+	my $file = shift;
+	is(
+		IkiWiki::Plugin::cvs::cvs_info("Repository revision", $file),
+		'1.1',
+		qq{$file is newly added to CVS},
+	);
+}
+
+sub is_in_keyword_substitution_mode {
+	my ($file, $mode) = @_;
+	is(
+		IkiWiki::Plugin::cvs::cvs_info("Sticky Options", $file),
+		$mode,
+		qq{$file is in CVS with expected keyword substitution mode},
+	);
+}
+
+sub is_total_number_of_changes {
+	my ($changes, $expected_total) = @_;
+	is(
+		$#{$changes},
+		$expected_total - 1,
+		qq{total commits == $expected_total},
+	);
+}
+
+sub is_most_recent_change {
+	my ($changes, $page, $message) = @_;
+	is(
+		$changes->[0]{message}[0]{"line"},
+		$message,
+		q{most recent commit's first message line matches},
+	);
+	is(
+		$changes->[0]{pages}[0]{"page"},
+		$page,
+		q{most recent commit's first pagename matches},
+	);
 }
