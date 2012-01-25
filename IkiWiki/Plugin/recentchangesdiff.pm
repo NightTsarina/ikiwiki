@@ -31,12 +31,20 @@ sub pagetemplate (@) {
 		my @lines=IkiWiki::rcs_diff($params{rev}, $maxlines+1);
 		if (@lines) {
 			my $diff;
+			my $trunc=0;
 			if (@lines > $maxlines) {
-				$diff=join("", @lines[0..($maxlines-1)])."\n".
-					gettext("(Diff truncated)");
+				$diff=join("", @lines[0..($maxlines-1)]);
+				$trunc=1;
 			}
 			else {
 				$diff=join("", @lines);
+			}
+			if (length $diff > 102400) {
+				$diff=substr($diff, 0, 10240);
+				$trunc=1;
+			}
+			if ($trunc) {
+				$diff.="\n".gettext("(Diff truncated)");
 			}
 			# escape html
 			$diff = encode_entities($diff);

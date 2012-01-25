@@ -58,7 +58,7 @@ sub htmlize (@) {
 			}
 		}
 		if (! defined $markdown_sub &&
-		    exists $config{nodiscount} && ! $config{nodiscount}) {
+		    (! exists $config{nodiscount} || ! $config{nodiscount})) {
 			eval q{use Text::Markdown::Discount};
 			if (! $@) {
 				$markdown_sub=sub {
