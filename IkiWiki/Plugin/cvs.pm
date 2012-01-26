@@ -202,24 +202,6 @@ sub rcs_commit_staged (@) {
 	return undef # success
 }
 
-sub cvs_keyword_subst_args ($) {
-	my $file = shift;
-
-	local $CWD = $config{srcdir};
-
-	eval q{use File::MimeInfo};
-	error($@) if $@;
-	my $filemime = File::MimeInfo::default($file);
-	# if (-T $file) {
-
-	if (defined($filemime) && $filemime eq 'text/plain') {
-		return ($file);
-	}
-	else {
-		return ('-kb', $file);
-	}
-}
-
 sub rcs_add ($) {
 	# filename is relative to the root of the srcdir
 	my $file=shift;
@@ -495,6 +477,24 @@ sub cvs_is_controlling {
 	my $dir=shift;
 	$dir=$config{srcdir} unless defined($dir);
 	return (-d "$dir/CVS") ? 1 : 0;
+}
+
+sub cvs_keyword_subst_args ($) {
+	my $file = shift;
+
+	local $CWD = $config{srcdir};
+
+	eval q{use File::MimeInfo};
+	error($@) if $@;
+	my $filemime = File::MimeInfo::default($file);
+	# if (-T $file) {
+
+	if (defined($filemime) && $filemime eq 'text/plain') {
+		return ($file);
+	}
+	else {
+		return ('-kb', $file);
+	}
 }
 
 sub cvs_runcvs(@) {
