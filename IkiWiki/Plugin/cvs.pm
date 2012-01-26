@@ -140,7 +140,7 @@ EOF
 # VCS PLUGIN API CALLS
 
 sub rcs_update () {
-	return unless cvs_is_controlling;
+	return unless cvs_is_controlling();
 	cvs_runcvs('update', '-dP');
 }
 
@@ -151,7 +151,7 @@ sub rcs_prepedit ($) {
 	# The file is relative to the srcdir.
 	my $file=shift;
 
-	return unless cvs_is_controlling;
+	return unless cvs_is_controlling();
 
 	# For cvs, return the revision of the file when
 	# editing begins.
@@ -165,7 +165,7 @@ sub rcs_commit (@) {
 	# The file is relative to the srcdir.
 	my %params=@_;
 
-	return unless cvs_is_controlling;
+	return unless cvs_is_controlling();
 
 	# Check to see if the page has been changed by someone
 	# else since rcs_prepedit was called.
@@ -241,7 +241,7 @@ sub rcs_remove ($) {
 	# filename is relative to the root of the srcdir
 	my $file=shift;
 
-	return unless cvs_is_controlling;
+	return unless cvs_is_controlling();
 
 	cvs_runcvs('rm', '-f', $file) ||
 		warn("cvs rm $file failed\n");
@@ -251,7 +251,7 @@ sub rcs_rename ($$) {
 	# filenames relative to the root of the srcdir
 	my ($src, $dest)=@_;
 
-	return unless cvs_is_controlling;
+	return unless cvs_is_controlling();
 
 	local $CWD = $config{srcdir};
 
@@ -267,7 +267,7 @@ sub rcs_recentchanges ($) {
 	my $num = shift;
 	my @ret;
 
-	return unless cvs_is_controlling;
+	return unless cvs_is_controlling();
 
 	eval q{use Date::Parse};
 	error($@) if $@;
