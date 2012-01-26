@@ -202,14 +202,29 @@ sub rcs_commit_staged (@) {
 	return undef # success
 }
 
+sub cvs_keyword_subst_args ($) {
+	my $file = shift;
+
+	local $CWD = $config{srcdir};
+
+	eval q{use File::MimeInfo};
+	error($@) if $@;
+	my $filemime = File::MimeInfo::default($file);
+	# if (-T $file) {
+
+	if (defined($filemime) && $filemime eq 'text/plain') {
+		return ($file);
+	}
+	else {
+		return ('-kb', $file);
+	}
+}
+
 sub rcs_add ($) {
 	# filename is relative to the root of the srcdir
 	my $file=shift;
 	my $parent=IkiWiki::dirname($file);
 	my @files_to_add = ($file);
-
-	eval q{use File::MimeInfo};
-	error($@) if $@;
 
 	until ((length($parent) == 0) || cvs_is_controlling("$config{srcdir}/$parent")){
 		push @files_to_add, $parent;
@@ -219,15 +234,8 @@ sub rcs_add ($) {
 	while ($file = pop @files_to_add) {
 		if (@files_to_add == 0) {
 			# file
-			my $filemime = File::MimeInfo::default($file);
-			if (defined($filemime) && $filemime eq 'text/plain') {
-				cvs_runcvs('add', $file) ||
-					warn("cvs add $file failed\n");
-			}
-			else {
-				cvs_runcvs('add', '-kb', $file) ||
-					warn("cvs add binary $file failed\n");
-			}
+			cvs_runcvs('add', cvs_keyword_subst_args($file)) ||
+				warn("cvs add $file failed\n");
 		}
 		else {
 			# directory

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 37;
+use Test::More; my $total_tests = 40;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
@@ -163,7 +163,7 @@ sub test_rcs_add {
 		token => "moo",
 	);
 	is_newly_added("test0.mdwn");
-#	is_in_keyword_substitution_mode("test0.mdwn", undef);
+	is_in_keyword_substitution_mode("test0.mdwn", undef);
 	my @changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 1);
 	is_most_recent_change(\@changes, "test0", $message);
@@ -195,7 +195,7 @@ sub test_rcs_add {
 		token => "omo",
 	);
 	is_newly_added("$dir2/test1.mdwn");
-#	is_in_keyword_substitution_mode("$dir2/test1.mdwn", undef);
+	is_in_keyword_substitution_mode("$dir2/test1.mdwn", undef);
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 2);
 	is_most_recent_change(\@changes, "$dir2/test1", $message);
@@ -233,7 +233,7 @@ sub test_rcs_add {
 	IkiWiki::rcs_add($_) for ($file1, $file2);
 	IkiWiki::rcs_commit_staged(message => $message);
 	is_newly_added($_) for ($file1, $file2);
-#	is_in_keyword_substitution_mode($file1, undef);
+	is_in_keyword_substitution_mode($file1, undef);
 	is_in_keyword_substitution_mode($file2, '-kb');
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 3);
@@ -499,6 +499,7 @@ sub is_newly_added {
 
 sub is_in_keyword_substitution_mode {
 	my ($file, $mode) = @_;
+	$mode = '(none)' unless defined $mode;
 	is(
 		IkiWiki::Plugin::cvs::cvs_info("Sticky Options", $file),
 		$mode,
