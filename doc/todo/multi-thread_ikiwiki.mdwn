@@ -10,3 +10,28 @@ Disclaimer: I know nothing of the Perl approach to parallel processing.
 > I agree that it would be lovely to be able to use multiple processors to speed up rebuilds on big sites (I have a big site myself), but, taking a quick look at what Perl threads entails, and taking into acount what I've seen of the code of IkiWiki, it would take a massive rewrite to make IkiWiki thread-safe - the API would have to be completely rewritten - and then more work again to introduce threading itself.  So my unofficial humble opinion is that it's unlikely to be done.
 > Which is a pity, and I hope I'm mistaken about it.
 > --[[KathrynAndersen]]
+
+> > I have much less experience with the internals of Ikiwiki, much
+> > less Multi-threading perl, but I agree that to make Ikiwiki thread
+> > safe and to make the modifications to really take advantage of the
+> > threads is probably beyond the realm of reasonable
+> > expectations. Having said that, I wonder if there aren't ways to
+> > make Ikiwiki perform better for these big cases where the only
+> > option is to wait for it to grind through everything. Something
+> > along the lines of doing all of the aggregation and dependency
+> > heavy stuff early on, and then doing all of the page rendering
+> > stuff at the end quasi-asynchronously? Or am I way off in the deep
+> > end.
+> >
+> > From a practical perspective, it seems like these massive rebuild
+> > situations represent a really small subset of ikiwiki builds. Most
+> > sites are pretty small, and most sites need full rebuilds very
+> > very infrequently. In that scope, 10 minute rebuilds aren't that
+> > bad seeming. In terms of performance challenges, it's the one page
+> > with 3-5 dependency that takes 10 seconds (say) to rebuild that's
+> > a larger challenge for Ikiwiki as a whole. At the same time, I'd
+> > be willing to bet that performance benefits for these really big
+> > repositories for using fast disks (i.e. SSDs) could probably just
+> > about meet the benefit of most of the threading/async work.
+> >
+> > --[[tychoish]]
