@@ -6,3 +6,7 @@ Lots of \[[!img ]] (~2200), lots of \[[!teximg ]] (~2700). A complete rebuild ta
 We could use a big machine, with plenty of CPUs. Could some multi-threading support be added to ikiwiki, by forking out all the external heavy  plugins (imagemagick, tex, ...) and/or by processing pages in parallel?
 
 Disclaimer: I know nothing of the Perl approach to parallel processing.
+
+> I agree that it would be lovely to be able to use multiple processors to speed up rebuilds on big sites (I have a big site myself), but, taking a quick look at what Perl threads entails, and taking into acount what I've seen of the code of IkiWiki, it would take a massive rewrite to make IkiWiki thread-safe - the API would have to be completely rewritten - and then more work again to introduce threading itself.  So my unofficial humble opinion is that it's unlikely to be done.
+> Which is a pity, and I hope I'm mistaken about it.
+> --[[KathrynAndersen]]
