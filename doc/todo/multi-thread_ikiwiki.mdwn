@@ -35,3 +35,32 @@ Disclaimer: I know nothing of the Perl approach to parallel processing.
 > > about meet the benefit of most of the threading/async work.
 > >
 > > --[[tychoish]]
+
+>>> It's at this point that doing profiling for a particular site would come
+>>> in, because it would depend on the site content and how exactly IkiWiki is
+>>> being used as to what the performance bottlenecks would be.  For the
+>>> original poster, it would be image processing.  For me, it tends to be
+>>> PageSpecs, because I have a lot of maps and reports.
+
+>>> But I sincerely don't think that Disk I/O is the main bottleneck, not when
+>>> the original poster mentions CPU usage, and also in my experience, I see
+>>> IkiWiki chewing up 100% CPU usage one CPU, while the others remain idle.  I
+>>> haven't noticed slowdowns due to waiting for disk I/O, whether that be a
+>>> system with HD or SSD storage.
+
+>>> I agree that large sites are probably not the most common use-case, but it
+>>> can be a chicken-and-egg situation with large sites and complete rebuilds,
+>>> since it can often be the case with a large site that rebuilding based on
+>>> dependencies takes *longer* than rebuilding the site from scratch, simply
+>>> because there are so many pages that are interdependent.  It's not always
+>>> the number of pages itself, but how the site is being used.  If IkiWiki is
+>>> used with the absolute minimum number of page-dependencies - that is, no
+>>> maps, no sitemaps, no trails, no tags, no backlinks, no albums - then one
+>>> can have a very large number of pages without having performance problems.
+>>> But when you have a change in PageA affecting PageB which affects PageC,
+>>> PageD, PageE and PageF, then performance can drop off horribly.  And it's a
+>>> trade-off, because having features that interlink pages automatically is
+>>> really nifty ad useful - but they have a price.
+
+>>> I'm not really sure what the best solution is.  Me, I profile my IkiWiki builds and try to tweak performance for them... but there's only so much I can do.
+>>> --[[KathrynAndersen]]
