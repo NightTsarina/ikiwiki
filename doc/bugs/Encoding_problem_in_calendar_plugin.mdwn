@@ -2,13 +2,13 @@ Hello,
 
 I studied this [[guy's problem|forum/Encoding_problem_in_french_with_ikiwiki-calendar]] and I propose here a (dirty) hack to correct it.
 
-The problem is that in French, for example, "December" is "Décembre" which, because of encoding problems, is rendered as "DÃ©cembre".
+Bug summary: when using the [[calendar plugin|plugins/calendar]] in French (`LANG=fr_FR.UTF-8`), "Décembre" (French for "December") is rendered as "DÃ©cembre".
 
 I managed to track this problem down to an encoding problem of `POSIX::strftime` in `Ikiwiki/Plugin/calendar.pm`. I used [[this guy's solution|http://www.perlmonks.org/?node_id=857018]] to solve the problem (the diff is printed below).
 
-The problem is that I do not know Perl, encoding is one of the thing I would be happy not to dive into, and it is the first time I contribute to Ikiwiki: I copied and made a few changes to the code I found without understanding it. So I am not sure that my code is neat, or works in every situation. Feel free to improve it!
+The problem is that I do not know Perl, encoding is one of the thing I would be happy not to dive into, and it is the first time I contribute to Ikiwiki: I copied and made a few changes to the code I found without understanding it. So I am not sure that my code is neat, or works in every situation. Feel free to (help me to) improve it!
 
-Cheers,
+Cheers,    
 Louis
 
 
