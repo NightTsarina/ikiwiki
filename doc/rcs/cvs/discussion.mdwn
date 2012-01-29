@@ -159,3 +159,12 @@ branch harder for you to pull.
 Before I go writing a whole swack of test cases, could you merge
 my latest? Through at least ad0e56cdcaaf76bc68d1b5c56e6845307b51c44a
 there should be no functional change. --[[schmonz]]
+
+Never mind, I was able to convince myself (by cloning `origin`
+afresh and merging from `schmonz/cvs`). The history is a little
+gross but the before-and-after diff looks right.
+
+Bugs found and fixed so far:
+
+* Stop treating text files as binary (`-kb`) on `rcs_add()`
+   (ac8eab29e8394aca4c0b23a6687ec947ea1ac869)
