@@ -64,3 +64,26 @@ Disclaimer: I know nothing of the Perl approach to parallel processing.
 
 >>> I'm not really sure what the best solution is.  Me, I profile my IkiWiki builds and try to tweak performance for them... but there's only so much I can do.
 >>> --[[KathrynAndersen]]
+
+>>>> IMHO, the best way to get a multithreaded ikiwiki is to rewrite it
+>>>> in haskell, using as much pure code as possible. Many avenues
+>>>> then would open up to taking advantage of haskell's ability to
+>>>> parallize pure code.
+>>>>
+>>>> With that said, we already have some nice invariants that could be
+>>>> used to parallelize page builds. In particular, we know that
+>>>> page A never needs state built up while building page B, for any
+>>>> pages A and B that don't have a dependency relationship -- and ikiwiki
+>>>> tracks such dependency relationships, although not currently in a form
+>>>> that makes it very easy (or fast..) to pick out such groups of
+>>>> unrelated pages.
+>>>> 
+>>>> OTOH, there are problems.. building page A can result in changes to
+>>>> ikiwiki's state; building page B can result in other changes. All
+>>>> such changes would have to be made thread-safely. And would the
+>>>> resulting lock contention result in a program that ran any faster
+>>>> once parallelized?
+>>>> 
+>>>> Which is why [[rewrite_ikiwiki_in_haskell]], while pretty insane, is
+>>>> something I keep thinking about. If only I had a spare year..
+>>>> --[[Joey]]
