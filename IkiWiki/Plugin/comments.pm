@@ -9,7 +9,6 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use Encode;
-use POSIX qw(strftime);
 
 use constant PREVIEW => "Preview";
 use constant POST_COMMENT => "Post comment";
@@ -460,7 +459,7 @@ sub editcomment ($$) {
 	}
 	$content .= " subject=\"$subject\"\n";
 
-	$content .= " date=\"" . decode_utf8(strftime('%Y-%m-%dT%H:%M:%SZ', gmtime)) . "\"\n";
+	$content .= " date=\"" . strftime_utf8('%Y-%m-%dT%H:%M:%SZ', gmtime) . "\"\n";
 
 	my $editcontent = $form->field('editcontent');
 	$editcontent="" if ! defined $editcontent;

@@ -22,7 +22,6 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use Time::Local;
-use POSIX ();
 
 my $time=time;
 my @now=localtime($time);
@@ -123,10 +122,10 @@ sub format_month (@) {
 	}
 
 	# Find out month names for this, next, and previous months
-	my $monthabbrev=POSIX::strftime("%b", @monthstart);
-	my $monthname=POSIX::strftime("%B", @monthstart);
-	my $pmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$pmonth-1,$pyear-1900)));
-	my $nmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$nmonth-1,$nyear-1900)));
+	my $monthabbrev=strftime_utf8("%b", @monthstart);
+	my $monthname=strftime_utf8("%B", @monthstart);
+	my $pmonthname=strftime_utf8("%B", localtime(timelocal(0,0,0,1,$pmonth-1,$pyear-1900)));
+	my $nmonthname=strftime_utf8("%B", localtime(timelocal(0,0,0,1,$nmonth-1,$nyear-1900)));
 
 	my $archivebase = 'archives';
 	$archivebase = $config{archivebase} if defined $config{archivebase};
@@ -182,7 +181,7 @@ EOF
 	my %dowabbr;
 	for my $dow ($week_start_day..$week_start_day+6) {
 		my @day=localtime(timelocal(0,0,0,$start_day++,$params{month}-1,$params{year}-1900));
-		my $downame = POSIX::strftime("%A", @day);
+		my $downame = strftime_utf8("%A", @day);
 		my $dowabbr = substr($downame, 0, 1);
 		$downame{$dow % 7}=$downame;
 		$dowabbr{$dow % 7}=$dowabbr;
@@ -329,8 +328,8 @@ EOF
 	for (my $month = 1; $month <= 12; $month++) {
 		my @day=localtime(timelocal(0,0,0,15,$month-1,$params{year}-1900));
 		my $murl;
-		my $monthname = POSIX::strftime("%B", @day);
-		my $monthabbr = POSIX::strftime("%b", @day);
+		my $monthname = strftime_utf8("%B", @day);
+		my $monthabbr = strftime_utf8("%b", @day);
 		$calendar.=qq{\t<tr>\n}  if ($month % $params{months_per_row} == 1);
 		my $tag;
 		my $mtag=sprintf("%02d", $month);

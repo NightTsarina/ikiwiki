@@ -20,7 +20,7 @@ use Exporter q{import};
 our @EXPORT = qw(hook debug error htmlpage template template_depends
 	deptype add_depends pagespec_match pagespec_match_list bestlink
 	htmllink readfile writefile pagetype srcfile pagename
-	displaytime will_render gettext ngettext urlto targetpage
+	displaytime strftime_utf8 will_render gettext ngettext urlto targetpage
 	add_underlay pagetitle titlepage linkpage newpagefile
 	inject add_link add_autofile
 	%config %links %pagestate %wikistate %renderedfiles
@@ -1148,9 +1148,19 @@ sub formattime ($;$) {
 		$format=$config{timeformat};
 	}
 
+	return strftime_utf8($format, localtime($time));
+}
+
+my $strftime_encoding;
+sub strftime_utf8 {
 	# strftime doesn't know about encodings, so make sure
-	# its output is properly treated as utf8
-	return decode_utf8(POSIX::strftime($format, localtime($time)));
+	# its output is properly treated as utf8.
+	# Note that this does not handle utf-8 in the format string.
+	$strftime_encoding = POSIX::setlocale(&POSIX::LC_TIME) =~ m#\.([^@]+)#
+		unless defined $strftime_encoding;
+	$strftime_encoding
+		? Encode::decode($strftime_encoding, POSIX::strftime(@_))
+		: POSIX::strftime(@_);
 }
 
 sub date_3339 ($) {
