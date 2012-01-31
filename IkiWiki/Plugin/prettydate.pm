@@ -118,10 +118,10 @@ sub IkiWiki::formattime ($;$) {
 		}
 	}
 
-	$t=~s{\%A-}{my @yest=@t; $yest[6]--; strftime("%A", \@yest)}eg;
+	$t=~s{\%A-}{my @yest=@t; $yest[6]--; strftime_utf8("%A", \@yest)}eg;
 
 	$format=~s/\%X/$t/g;
-	return strftime($format, \@t);
+	return strftime_utf8($format, \@t);
 }
 
 1

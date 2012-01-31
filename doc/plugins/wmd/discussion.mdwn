@@ -59,3 +59,15 @@ copy [...]
 > It does not, however, have a markdown to html converter -- for 
 > previewing it has to talk to the server with AJAX.
 > --[[Joey]] 
+
+>> I've got pagedown working on my personal site (simon.kisikew.org) but I'm not sure how
+>> I can inject the relevant &lt;div&gt;'s in the right place. They need to go **above**
+>> the editing &lt;textarea&gt; . (Too bad about the licensing, it's rather nice.)
+>> I had to do one minor change to it to have it inject itself into the page properly,
+>> and that was to make this change in `Markdown.Editor.js`:
+>>
+>> `this.input = doc.getElementById("editcontent" + postfix);`
+>>
+>> on line 247.  --[[simonraven]]
+
+>>> Well, I re-figured out that I needed a TMPL_VAR FOO in the template(s). --[[simonraven]]

@@ -2,6 +2,13 @@ ikiwiki (3.20120116) UNRELEASED; urgency=low
 
   * mdwn: Added nodiscount setting, which can be used to avoid using the
     markdown discount engine, when maximum compatability is needed.
+  * Switch to YAML::XS to work around insanity in YAML::Mo. Closes: #657533
+  * cvs: Ensure text files are added in non-binary mode. (Amitai Schlair)
+  * cvs: Various cleanups and testing. (Amitai Schlair)
+  * calendar, prettydate: Fix strftime encoding bug.
+  * shortcuts: Fixed a broken shortcut to wikipedia (accidentially
+    made into a shortcut to wikiMedia).
+  * Various portability improvements. (Amitai Schlair)
 
  -- Joey Hess <joeyh@debian.org>  Mon, 16 Jan 2012 13:41:14 -0400
 

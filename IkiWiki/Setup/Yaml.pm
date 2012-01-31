@@ -11,10 +11,8 @@ sub loaddump ($$) {
 	my $class=shift;
 	my $content=shift;
 
-	eval q{use YAML::Any};
-	eval q{use YAML} if $@;
+	eval q{use YAML::XS};
 	die $@ if $@;
-	$YAML::Syck::ImplicitUnicode=1;
 	IkiWiki::Setup::merge(Load(encode_utf8($content)));
 }
 
@@ -35,12 +33,12 @@ sub dumpline ($$$$) {
 	my $type=shift;
 	my $prefix=shift;
 	
-	eval q{use YAML::Old};
-	eval q{use YAML} if $@;
+	eval q{use YAML::XS};
 	die $@ if $@;
-	$YAML::UseHeader=0;
+	$YAML::XS::QuoteNumericStrings=0;
 
-	my $dump=Dump({$key => $value});
+	my $dump=decode_utf8(Dump({$key => $value}));
+	$dump=~s/^---\n//; # yaml header, we don't want
 	chomp $dump;
 	if (length $prefix) {
 		$dump=join("\n", map { $prefix.$_ } split(/\n/, $dump));
