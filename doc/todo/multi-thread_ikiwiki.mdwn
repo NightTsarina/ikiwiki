@@ -6,3 +6,84 @@ Lots of \[[!img ]] (~2200), lots of \[[!teximg ]] (~2700). A complete rebuild ta
 We could use a big machine, with plenty of CPUs. Could some multi-threading support be added to ikiwiki, by forking out all the external heavy  plugins (imagemagick, tex, ...) and/or by processing pages in parallel?
 
 Disclaimer: I know nothing of the Perl approach to parallel processing.
+
+> I agree that it would be lovely to be able to use multiple processors to speed up rebuilds on big sites (I have a big site myself), but, taking a quick look at what Perl threads entails, and taking into acount what I've seen of the code of IkiWiki, it would take a massive rewrite to make IkiWiki thread-safe - the API would have to be completely rewritten - and then more work again to introduce threading itself.  So my unofficial humble opinion is that it's unlikely to be done.
+> Which is a pity, and I hope I'm mistaken about it.
+> --[[KathrynAndersen]]
+
+> > I have much less experience with the internals of Ikiwiki, much
+> > less Multi-threading perl, but I agree that to make Ikiwiki thread
+> > safe and to make the modifications to really take advantage of the
+> > threads is probably beyond the realm of reasonable
+> > expectations. Having said that, I wonder if there aren't ways to
+> > make Ikiwiki perform better for these big cases where the only
+> > option is to wait for it to grind through everything. Something
+> > along the lines of doing all of the aggregation and dependency
+> > heavy stuff early on, and then doing all of the page rendering
+> > stuff at the end quasi-asynchronously? Or am I way off in the deep
+> > end.
+> >
+> > From a practical perspective, it seems like these massive rebuild
+> > situations represent a really small subset of ikiwiki builds. Most
+> > sites are pretty small, and most sites need full rebuilds very
+> > very infrequently. In that scope, 10 minute rebuilds aren't that
+> > bad seeming. In terms of performance challenges, it's the one page
+> > with 3-5 dependency that takes 10 seconds (say) to rebuild that's
+> > a larger challenge for Ikiwiki as a whole. At the same time, I'd
+> > be willing to bet that performance benefits for these really big
+> > repositories for using fast disks (i.e. SSDs) could probably just
+> > about meet the benefit of most of the threading/async work.
+> >
+> > --[[tychoish]]
+
+>>> It's at this point that doing profiling for a particular site would come
+>>> in, because it would depend on the site content and how exactly IkiWiki is
+>>> being used as to what the performance bottlenecks would be.  For the
+>>> original poster, it would be image processing.  For me, it tends to be
+>>> PageSpecs, because I have a lot of maps and reports.
+
+>>> But I sincerely don't think that Disk I/O is the main bottleneck, not when
+>>> the original poster mentions CPU usage, and also in my experience, I see
+>>> IkiWiki chewing up 100% CPU usage one CPU, while the others remain idle.  I
+>>> haven't noticed slowdowns due to waiting for disk I/O, whether that be a
+>>> system with HD or SSD storage.
+
+>>> I agree that large sites are probably not the most common use-case, but it
+>>> can be a chicken-and-egg situation with large sites and complete rebuilds,
+>>> since it can often be the case with a large site that rebuilding based on
+>>> dependencies takes *longer* than rebuilding the site from scratch, simply
+>>> because there are so many pages that are interdependent.  It's not always
+>>> the number of pages itself, but how the site is being used.  If IkiWiki is
+>>> used with the absolute minimum number of page-dependencies - that is, no
+>>> maps, no sitemaps, no trails, no tags, no backlinks, no albums - then one
+>>> can have a very large number of pages without having performance problems.
+>>> But when you have a change in PageA affecting PageB which affects PageC,
+>>> PageD, PageE and PageF, then performance can drop off horribly.  And it's a
+>>> trade-off, because having features that interlink pages automatically is
+>>> really nifty ad useful - but they have a price.
+
+>>> I'm not really sure what the best solution is.  Me, I profile my IkiWiki builds and try to tweak performance for them... but there's only so much I can do.
+>>> --[[KathrynAndersen]]
+
+>>>> IMHO, the best way to get a multithreaded ikiwiki is to rewrite it
+>>>> in haskell, using as much pure code as possible. Many avenues
+>>>> then would open up to taking advantage of haskell's ability to
+>>>> parallize pure code.
+>>>>
+>>>> With that said, we already have some nice invariants that could be
+>>>> used to parallelize page builds. In particular, we know that
+>>>> page A never needs state built up while building page B, for any
+>>>> pages A and B that don't have a dependency relationship -- and ikiwiki
+>>>> tracks such dependency relationships, although not currently in a form
+>>>> that makes it very easy (or fast..) to pick out such groups of
+>>>> unrelated pages.
+>>>> 
+>>>> OTOH, there are problems.. building page A can result in changes to
+>>>> ikiwiki's state; building page B can result in other changes. All
+>>>> such changes would have to be made thread-safely. And would the
+>>>> resulting lock contention result in a program that ran any faster
+>>>> once parallelized?
+>>>> 
+>>>> Which is why [[rewrite_ikiwiki_in_haskell]], while pretty insane, is
+>>>> something I keep thinking about. If only I had a spare year..
+>>>> --[[Joey]]

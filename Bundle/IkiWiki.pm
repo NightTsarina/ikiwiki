@@ -28,7 +28,7 @@ CGI::Session
 Mail::Sendmail
 CGI
 Data::Dumper
-YAML
+YAML::XS
 JSON
 RPC::XML
 

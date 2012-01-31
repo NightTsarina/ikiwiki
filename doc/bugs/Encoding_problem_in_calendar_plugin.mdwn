@@ -1,0 +1,73 @@
+Hello,
+
+I studied this [[guy's problem|forum/Encoding_problem_in_french_with_ikiwiki-calendar]] and I propose here a (dirty) hack to correct it.
+
+Bug summary: when using the [[calendar plugin|plugins/calendar]] in French (`LANG=fr_FR.UTF-8`), "Décembre" (French for "December") is rendered as "DÃ©cembre".
+
+I managed to track this problem down to an encoding problem of `POSIX::strftime` in `Ikiwiki/Plugin/calendar.pm`. I used [[this guy's solution|http://www.perlmonks.org/?node_id=857018]] to solve the problem (the diff is printed below).
+
+The problem is that I do not know Perl, encoding is one of the thing I would be happy not to dive into, and it is the first time I contribute to Ikiwiki: I copied and made a few changes to the code I found without understanding it. So I am not sure that my code is neat, or works in every situation. Feel free to (help me to) improve it!
+
+Cheers,    
+Louis
+
+> Yes, this seems basically right. I've applied a modified version of this.
+> [[done]]
+> --[[Joey]] 
+
+
+    diff --git a/IkiWiki/Plugin/calendar.pm b/IkiWiki/Plugin/calendar.pm
+    index c7d2b7c..1345939 100644
+    --- a/IkiWiki/Plugin/calendar.pm
+    +++ b/IkiWiki/Plugin/calendar.pm
+    @@ -22,7 +22,14 @@ use warnings;
+     use strict;
+     use IkiWiki 3.00;
+     use Time::Local;
+    -use POSIX ();
+    +
+    +use POSIX qw/setlocale LC_TIME strftime/;
+    +use Encode;
+    +my ($strftime_encoding)= setlocale(LC_TIME)=~m#\.([^@]+)#;
+    +sub strftime_utf8 {
+    +# try to return an utf8 value from strftime
+    +	$strftime_encoding ? Encode::decode($strftime_encoding, &strftime) : &strftime;
+    +}
+     
+     my $time=time;
+     my @now=localtime($time);
+    @@ -123,10 +130,10 @@ sub format_month (@) {
+     	}
+     
+     	# Find out month names for this, next, and previous months
+    -	my $monthabbrev=POSIX::strftime("%b", @monthstart);
+    -	my $monthname=POSIX::strftime("%B", @monthstart);
+    -	my $pmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$pmonth-1,$pyear-1900)));
+    -	my $nmonthname=POSIX::strftime("%B", localtime(timelocal(0,0,0,1,$nmonth-1,$nyear-1900)));
+    +	my $monthabbrev=strftime_utf8("%b", @monthstart);
+    +	my $monthname=strftime_utf8("%B", @monthstart);
+    +	my $pmonthname=strftime_utf8("%B", localtime(timelocal(0,0,0,1,$pmonth-1,$pyear-1900)));
+    +	my $nmonthname=strftime_utf8("%B", localtime(timelocal(0,0,0,1,$nmonth-1,$nyear-1900)));
+     
+     	my $archivebase = 'archives';
+     	$archivebase = $config{archivebase} if defined $config{archivebase};
+    @@ -182,7 +189,7 @@ EOF
+     	my %dowabbr;
+     	for my $dow ($week_start_day..$week_start_day+6) {
+     		my @day=localtime(timelocal(0,0,0,$start_day++,$params{month}-1,$params{year}-1900));
+    -		my $downame = POSIX::strftime("%A", @day);
+    +		my $downame = strftime_utf8("%A", @day);
+     		my $dowabbr = substr($downame, 0, 1);
+     		$downame{$dow % 7}=$downame;
+     		$dowabbr{$dow % 7}=$dowabbr;
+    @@ -329,8 +336,8 @@ EOF
+     	for (my $month = 1; $month <= 12; $month++) {
+     		my @day=localtime(timelocal(0,0,0,15,$month-1,$params{year}-1900));
+     		my $murl;
+    -		my $monthname = POSIX::strftime("%B", @day);
+    -		my $monthabbr = POSIX::strftime("%b", @day);
+    +		my $monthname = strftime_utf8("%B", @day);
+    +		my $monthabbr = strftime_utf8("%b", @day);
+     		$calendar.=qq{\t<tr>\n}  if ($month % $params{months_per_row} == 1);
+     		my $tag;
+     		my $mtag=sprintf("%02d", $month);

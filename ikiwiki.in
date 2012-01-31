@@ -108,11 +108,9 @@ sub getconfig () {
 				if (! defined $var || ! defined $val) {
 					die gettext("usage: --set-yaml var=value"), "\n";
 				}
-				eval q{use YAML::Any};
-				eval q{use YAML} if $@;
+				eval q{use YAML::XS; use Encode};
 				die $@ if $@;
-				eval q{$YAML::Syck::ImplicitUnicode=1};
-				$config{$var}=Load($val."\n");
+				$config{$var}=Load(encode_utf8($val)."\n");
 			},
 			"version" => sub {
 				print "ikiwiki version $IkiWiki::version\n";
