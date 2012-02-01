@@ -333,7 +333,10 @@ sub test_rcs_getmtime {
 }
 
 sub test_rcs_receive {
-	pass(q{rcs_receive doesn't make sense for CVS});
+	my $description = q{rcs_receive doesn't make sense for CVS};
+	exists $IkiWiki::hooks{rcs}{rcs_receive}
+		? fail($description)
+		: pass($description);
 }
 
 sub test_rcs_preprevert {
