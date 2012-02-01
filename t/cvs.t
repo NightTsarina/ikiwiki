@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 40;
+use Test::More; my $total_tests = 41;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
@@ -154,22 +154,20 @@ sub test_rcs_commit_staged {
 }
 
 sub test_rcs_add {
-	my $message = "add a top-level ASCII (non-UTF-8) page via VCS API";
-	writefile('test0.mdwn', $config{srcdir}, "* some plain ASCII text");
-	IkiWiki::rcs_add("test0.mdwn");
-	IkiWiki::rcs_commit(
-		file => "test0.mdwn",
-		message => $message,
-		token => "moo",
-	);
-	is_newly_added("test0.mdwn");
-	is_in_keyword_substitution_mode("test0.mdwn", undef);
 	my @changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 0);
+
+	my $message = "add a top-level ASCII (non-UTF-8) page via VCS API";
+	my $file = q{test0.mdwn};
+	add_and_commit($file, $message, q{* some plain ASCII text});
+	is_newly_added($file);
+	is_in_keyword_substitution_mode($file, undef);
+	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 1);
-	is_most_recent_change(\@changes, "test0", $message);
+	is_most_recent_change(\@changes, stripext($file), $message);
 
 	$message = "add a top-level dir via VCS API";
-	my $dir1 = "test3";
+	my $dir1 = q{test3};
 	can_mkdir($dir1);
 	IkiWiki::rcs_add($dir1);
 	# XXX test that the wrapper hangs here without our genwrapper()
@@ -185,25 +183,18 @@ sub test_rcs_add {
 	is_total_number_of_changes(\@changes, 1);	# dirs aren't tracked
 
 	$message = "add a non-ASCII (UTF-8) text file in an un-added dir";
-	my $dir2 = "test4/test5";
-	can_mkdir($_) for ('test4', $dir2);
-	writefile("$dir2/test1.mdwn", $config{srcdir},readfile("t/test1.mdwn"));
-	IkiWiki::rcs_add("$dir2/test1.mdwn");
-	IkiWiki::rcs_commit(
-		file => "$dir2/test1.mdwn",
-		message => $message,
-		token => "omo",
-	);
-	is_newly_added("$dir2/test1.mdwn");
-	is_in_keyword_substitution_mode("$dir2/test1.mdwn", undef);
+	can_mkdir($_) for (qw(test4 test4/test5));
+	$file = q{test4/test5/test1.mdwn};
+	add_and_commit($file, $message, readfile("t/test1.mdwn"));
+	is_newly_added($file);
+	is_in_keyword_substitution_mode($file, undef);
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 2);
-	is_most_recent_change(\@changes, "$dir2/test1", $message);
+	is_most_recent_change(\@changes, stripext($file), $message);
 
 	$message = "add a binary file in an un-added dir, and commit_staged";
-	my $dir3 = "test6";
-	my $file = "$dir3/test7.ico";
-	can_mkdir($dir3);
+	can_mkdir(q{test6});
+	$file = q{test6/test7.ico};
 	my $bindata_in = readfile("doc/favicon.ico", 1);
 	my $bindata_out = sub { readfile($config{srcdir} . "/$file", 1) };
 	writefile($file, $config{srcdir}, $bindata_in, 1);
@@ -480,6 +471,17 @@ sub _generate_test_repo {
 	system "$cvs co -d $config{srcdir} $config{cvspath} $dn";
 }
 
+sub add_and_commit {
+	my ($file, $message, $contents) = @_;
+	writefile($file, $config{srcdir}, $contents);
+	IkiWiki::rcs_add($file);
+	IkiWiki::rcs_commit(
+		file => $file,
+		message => $message,
+		token => "moo",
+	);
+}
+
 sub can_mkdir {
 	my $dir = shift;
 	ok(
@@ -528,4 +530,11 @@ sub is_most_recent_change {
 		$page,
 		q{most recent commit's first pagename matches},
 	);
+}
+
+sub stripext {
+	my ($file, $extension) = @_;
+	$extension = '\..+?' unless defined $extension;
+	$file =~ s|$extension$||g;
+	return $file;
 }
