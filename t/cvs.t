@@ -269,29 +269,20 @@ sub test_rcs_rename {
 }
 
 sub test_rcs_recentchanges {
-	my $message = "Add a page via CVS directly";
-	writefile('test2.mdwn', $config{srcdir}, readfile("t/test2.mdwn"));
-	system "cd $config{srcdir}"
-		. " && cvs add test2.mdwn >/dev/null 2>&1";
-	system "cd $config{srcdir}"
-		. " && cvs commit -m \"$message\" test2.mdwn >/dev/null";
-
 	my @changes = IkiWiki::rcs_recentchanges(3);
-	is(
-		$#changes,
-		0,
-		q{total commits: 1},
-	);
-	is(
-		$changes[0]{message}[0]{"line"},
-		$message,
-		q{most recent commit's first message line matches},
-	);
-	is(
-		$changes[0]{pages}[0]{"page"},
-		"test2",
-		q{most recent commit's first pagename matches},
-	);
+	is_total_number_of_changes(\@changes, 0);
+
+	my $message = "Add a page via CVS directly";
+	my $file = q{test2.mdwn};
+	writefile($file, $config{srcdir}, readfile(q{t/test2.mdwn}));
+	system "cd $config{srcdir}"
+		. " && cvs add $file >/dev/null 2>&1";
+	system "cd $config{srcdir}"
+		. " && cvs commit -m \"$message\" $file >/dev/null";
+
+	@changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 1);
+	is_most_recent_change(\@changes, stripext($file), $message);
 
 	# CVS commits run ikiwiki once for every committed file (!)
 	# - commit_prep alone should fix this
@@ -347,6 +338,11 @@ sub test_rcs_preprevert {
 }
 
 sub test_rcs_revert {
+	# test rcs_recentchanges() real darn well
+	# extract read-backwards patchset parser from rcs_recentchanges()
+	# recentchanges: given max, return list of changeset/files/etc.
+	# revert: given changeset ID, return list of file/rev/action
+	#
 	# can it assume we're under CVS control? or must it check?
 	# given a patchset number, stage the revert for rcs_commit_staged()
 	# if commit succeeds, return undef
