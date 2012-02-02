@@ -1156,7 +1156,7 @@ sub strftime_utf8 {
 	# strftime doesn't know about encodings, so make sure
 	# its output is properly treated as utf8.
 	# Note that this does not handle utf-8 in the format string.
-	$strftime_encoding = POSIX::setlocale(&POSIX::LC_TIME) =~ m#\.([^@]+)#
+	($strftime_encoding) = POSIX::setlocale(&POSIX::LC_TIME) =~ m#\.([^@]+)#
 		unless defined $strftime_encoding;
 	$strftime_encoding
 		? Encode::decode($strftime_encoding, POSIX::strftime(@_))
