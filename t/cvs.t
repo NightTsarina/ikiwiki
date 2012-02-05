@@ -56,6 +56,7 @@ sub test_cvs_run_cvs {
 	# steal from git.pm: safe_git(), run_or_{die,cry,non}
 	# - open() instead of system()
 	# always call cvs_run_cvs(), don't ever run 'cvs' directly
+	# - for cvs_info(), make it respect wantarray
 }
 
 sub test_cvs_run_cvsps {
@@ -298,12 +299,13 @@ sub test_rcs_add {
 	# prevent web edits from attempting to create .../CVS/foo.mdwn
 	# on case-insensitive filesystems, also prevent .../cvs/foo.mdwn
 	# unless your "CVS" is something else and we've made it configurable
+	# also want a pre-commit hook for this?
+
+	# pre-commit hook:
+	# - lcase filenames
+	# - ?
 
 	# can it assume we're under CVS control? or must it check?
-
-	# extract method: filetype-guessing
-	# add a binary file, remove it, add a text file by same name, no -kb?
-	# add a text file, remove it, add a binary file by same name, -kb?
 }
 
 sub test_rcs_remove {
