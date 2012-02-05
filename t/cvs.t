@@ -26,6 +26,7 @@ sub test_web_comments {
 	# - when the first comment for page.mdwn is added, and page/ is
 	#   created to hold the comment, page/ isn't added to CVS control,
 	#   so the comment isn't either
+	#   - can't reproduce after chmod g+s ikiwiki.cgi (20120204)
 	# - side effect for moderated comments: after approval they
 	#   show up normally AND are still pending, too
 	# - comments.pm treats rcs_commit_staged() as returning conflicts?
@@ -35,6 +36,9 @@ sub test_chdir_magic {
 	# cvs.pm operations are always occurring inside $config{srcdir}
 	# other ikiwiki operations are occurring wherever, and are unaffected
 	# when are we bothering with "local $CWD" and when aren't we?
+	# after commit, presumably only with post-commit hook enabled:
+	#> Use of chdir('') or chdir(undef) as chdir() is deprecated at
+	#> /usr/pkg/lib/perl5/vendor_perl/5.14.0/File/chdir.pm line 45.
 }
 
 sub test_cvs_info {
@@ -132,6 +136,11 @@ sub test_rcs_prepedit {
 	# for existing file, returns latest revision in repo
 	# - what's this used for? should it return latest revision in checkout?
 	# for new file, returns empty string
+
+	# netbsd web log says "could not open lock file"
+	# XXX does this work right?
+	# how about with un-added dirs in the srcdir?
+	# how about with cvsps.core lying around?
 }
 
 sub test_rcs_commit {
@@ -146,6 +155,8 @@ sub test_rcs_commit {
 	# git.pm receives "session" param -- useful here?
 	# web commits start with "web commit {by,from} "
 	# seeing File::chdir errors on commit?
+
+	# XXX commit can fail due to "could not open lock file"
 }
 
 sub test_rcs_commit_staged {
