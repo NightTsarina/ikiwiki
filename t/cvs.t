@@ -62,6 +62,7 @@ sub test_cvs_run_cvsps {
 	# parameterize command like run_cvs()
 	# expose config vars for e.g. "--cvs-direct -z 30"
 	# always pass -x (unless proven otherwise)
+	# - but diff doesn't! optimization alert
 	# always pass -b HEAD (configurable like gitmaster_branch?)
 }
 
@@ -98,20 +99,38 @@ sub test_cvs_is_controlling {
 # TESTS FOR GENERAL PLUGIN API CALLS
 
 sub test_checkconfig {
-	# undef cvspath, expect "ikiwiki"
-	# define cvspath normally, get it back
-	# define cvspath in a subdir, get it back?
-	# define cvspath with extra slashes, get sanitized version back
-	# - yoink test_extra_path_slashes
-	# undef cvs_wrapper, expect $config{wrappers} same size as before
+	my $default_cvspath = 'ikiwiki';
 
-	my $initial_cvspath = $config{cvspath};
-	$config{cvspath} = "/ikiwiki//";
+	undef $config{cvspath}; IkiWiki::checkconfig();
+	is(
+		$config{cvspath}, $default_cvspath,
+		q{can provide default cvspath},
+	);
+
+	$config{cvspath} = "/$default_cvspath/"; IkiWiki::checkconfig();
+	is(
+		$config{cvspath}, $default_cvspath,
+		q{can set typical cvspath and strip well-meaning slashes},
+	);
+
+	$config{cvspath} = "/$default_cvspath//subdir"; IkiWiki::checkconfig();
+	is(
+		$config{cvspath}, "$default_cvspath/subdir",
+		q{can really sanitize cvspath as assumed by rcs_recentchanges},
+	);
+
+	my $default_num_wrappers = @{$config{wrappers}};
+	undef $config{cvs_wrapper}; IkiWiki::checkconfig();
+	is(
+		@{$config{wrappers}}, $default_num_wrappers,
+		q{can start with no wrappers configured},
+	);
+
+	$config{cvs_wrapper} = $config{cvsrepo} . "/CVSROOT/post-commit";
 	IkiWiki::checkconfig();
 	is(
-		$config{cvspath},
-		$initial_cvspath,
-		q{rcs_recentchanges assumes checkconfig has sanitized cvspath},
+		@{$config{wrappers}}, ++$default_num_wrappers,
+		q{can add cvs_wrapper},
 	);
 }
 
