@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 42;
+use Test::More; my $total_tests = 52;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
@@ -218,7 +218,7 @@ sub test_rcs_add {
 	$message = "add a UTF-8 and a binary file in different dirs";
 	my $file1 = "test8/test9.mdwn";
 	my $file2 = "test10/test11.ico";
-	can_mkdir(qw(test8 test10));
+	can_mkdir($_) for (qw(test8 test10));
 	writefile($file1, $config{srcdir}, readfile('t/test2.mdwn'));
 	writefile($file2, $config{srcdir}, $bindata_in, 1);
 	IkiWiki::rcs_add($_) for ($file1, $file2);
@@ -304,9 +304,61 @@ sub test_rcs_recentchanges {
 }
 
 sub test_rcs_diff {
+	my @changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 0);
+
+	my $message = "add a UTF-8 and an ASCII file in different dirs";
+	my $file1 = "rcsdiff1/utf8.mdwn";
+	my $file2 = "rcsdiff2/ascii.mdwn";
+	my $contents2 = ''; $contents2 .= "$_. foo\n" for (1..11);
+	can_mkdir($_) for (qw(rcsdiff1 rcsdiff2));
+	writefile($file1, $config{srcdir}, readfile('t/test2.mdwn'));
+	writefile($file2, $config{srcdir}, $contents2);
+	IkiWiki::rcs_add($_) for ($file1, $file2);
+	IkiWiki::rcs_commit_staged(message => $message);
+
+	# XXX we rely on rcs_recentchanges() to be called first!
+	# XXX or else for no cvsps cache to exist yet...
+	# XXX because rcs_diff() doesn't pass -x (as an optimization)
+	@changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 1);
+
+	my $changeset = 1;
+
+	my $maxlines = undef;
+	my $scalar_diffs = IkiWiki::rcs_diff($changeset, $maxlines);
+	like(
+		$scalar_diffs,
+		qr/^\+11\. foo$/m,
+		q{unbounded scalar diffs go all the way to 11},
+	);
+	my @array_diffs = IkiWiki::rcs_diff($changeset, $maxlines);
+	is(
+		$array_diffs[$#array_diffs],
+		"+11. foo\n",
+		q{unbounded array diffs go all the way to 11},
+	);
+
+	$maxlines = 8;
+	$scalar_diffs = IkiWiki::rcs_diff($changeset, $maxlines);
+	unlike(
+		$scalar_diffs,
+		qr/^\+11\. foo$/m,
+		q{bounded scalar diffs don't go all the way to 11},
+	);
+	@array_diffs = IkiWiki::rcs_diff($changeset, $maxlines);
+	isnt(
+		$array_diffs[$#array_diffs],
+		"+11. foo\n",
+		q{bounded array diffs don't go all the way to 11},
+	);
+	is(
+		scalar @array_diffs,
+		$maxlines,
+		q{bounded array diffs contain expected maximum number of lines},
+	);
+
 	# can it assume we're under CVS control? or must it check?
-	# in list context, return all lines (with \n), up to $maxlines if set
-	# in scalar context, return the whole diff, up to $maxlines if set
 }
 
 sub test_rcs_getctime {
@@ -428,6 +480,7 @@ sub _setup {
 }
 
 sub _teardown {
+	# XXX does srcdir persist between test subs?
 	system "rm -rf $dir";
 }
 

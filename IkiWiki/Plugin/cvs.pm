@@ -394,10 +394,14 @@ sub rcs_diff ($;$) {
 	my @cvsps = `env TZ=UTC cvsps -q --cvs-direct -z 30 -g -s $rev`;
 	my $blank_lines_seen = 0;
 
+	# skip log, get to the diff
 	while (my $line = shift @cvsps) {
 		$blank_lines_seen++ if ($line =~ /^$/);
 		last if $blank_lines_seen == 2;
 	}
+
+	@cvsps = @cvsps[0..$maxlines-1]
+		if defined $maxlines && @cvsps > $maxlines;
 
 	if (wantarray) {
 		return @cvsps;
