@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 52;
+use Test::More; my $total_tests = 53;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
@@ -170,9 +170,14 @@ sub test_rcs_add {
 
 	my $message = "add a top-level ASCII (non-UTF-8) page via VCS API";
 	my $file = q{test0.mdwn};
-	add_and_commit($file, $message, q{* some plain ASCII text});
+	add_and_commit($file, $message, qq{# \$Id\$\n* some plain ASCII text});
 	is_newly_added($file);
 	is_in_keyword_substitution_mode($file, undef);
+	like(
+		readfile($config{srcdir} . "/$file"),
+		qr/^# \$Id: $file,v 1.1 .+\$$/m,
+		q{can expand RCS Id keyword},
+	);
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 1);
 	is_most_recent_change(\@changes, stripext($file), $message);
