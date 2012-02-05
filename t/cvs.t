@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 53;
+use Test::More; my $total_tests = 57;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
@@ -132,6 +132,10 @@ sub test_checkconfig {
 		@{$config{wrappers}}, ++$default_num_wrappers,
 		q{can add cvs_wrapper},
 	);
+
+	undef $config{cvs_wrapper};
+	$config{cvspath} = $default_cvspath;
+	IkiWiki::checkconfig();
 }
 
 sub test_getsetup {
