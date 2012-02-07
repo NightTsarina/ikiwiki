@@ -215,14 +215,12 @@ sub rcs_add ($) {
 
 	while ($file = pop @files_to_add) {
 		if (@files_to_add == 0) {
-			# file
 			cvs_runcvs('add', cvs_keyword_subst_args($file)) ||
-				warn("cvs add $file failed\n");
+				warn("cvs add file $file failed\n");
 		}
 		else {
-			# directory
 			cvs_runcvs('add', $file) ||
-				warn("cvs add $file failed\n");
+				warn("cvs add dir $file failed\n");
 		}
 	}
 }
@@ -493,12 +491,9 @@ sub cvs_keyword_subst_args ($) {
 	my $filemime = File::MimeInfo::default($file);
 	# if (-T $file) {
 
-	if (defined($filemime) && $filemime eq 'text/plain') {
-		return ($file);
-	}
-	else {
-		return ('-kb', $file);
-	}
+	defined($filemime) && $filemime eq 'text/plain'
+		? return ('-kkv', $file)
+		: return ('-kb', $file);
 }
 
 sub cvs_runcvs(@) {
@@ -507,10 +502,31 @@ sub cvs_runcvs(@) {
 
 	local $CWD = $config{srcdir};
 
-	open(my $savedout, ">&STDOUT");
-	open(STDOUT, ">", "/dev/null");
-	my $ret = system(@cmd);
-	open(STDOUT, ">&", $savedout);
+	eval q{
+		use IPC::Open3;
+		use Symbol qw(gensym);
+		use IO::File;
+	};
+	error($@) if $@;
+
+	my $cvsout = '';
+	my $cvserr = '';
+	local *CATCHERR = IO::File->new_tmpfile;
+	my $pid = open3(gensym(), \*CATCHOUT, ">&CATCHERR", @cmd);
+	while (my $l = <CATCHOUT>) {
+		$cvsout .= $l
+			unless 1;
+	}
+	waitpid($pid, 0);
+	my $ret = $? >> 8;
+	seek CATCHERR, 0, 0;
+	while (my $l = <CATCHERR>) {
+		$cvserr .= $l
+			unless $l =~ /^cvs commit: changing keyword expansion /;
+	}
+
+	print STDOUT $cvsout;
+	print STDERR $cvserr;
 
 	return ($ret == 0) ? 1 : 0;
 }

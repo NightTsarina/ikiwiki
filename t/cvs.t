@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 57;
+use Test::More; my $total_tests = 69;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
@@ -56,6 +56,7 @@ sub test_cvs_run_cvs {
 	# steal from git.pm: safe_git(), run_or_{die,cry,non}
 	# - open() instead of system()
 	# always call cvs_run_cvs(), don't ever run 'cvs' directly
+	# - for cvs_info(), make it respect wantarray
 }
 
 sub test_cvs_run_cvsps {
@@ -195,7 +196,7 @@ sub test_rcs_add {
 	my $file = q{test0.mdwn};
 	add_and_commit($file, $message, qq{# \$Id\$\n* some plain ASCII text});
 	is_newly_added($file);
-	is_in_keyword_substitution_mode($file, undef);
+	is_in_keyword_substitution_mode($file, q{-kkv});
 	like(
 		readfile($config{srcdir} . "/$file"),
 		qr/^# \$Id: $file,v 1.1 .+\$$/m,
@@ -226,7 +227,7 @@ sub test_rcs_add {
 	$file = q{test4/test5/test1.mdwn};
 	add_and_commit($file, $message, readfile("t/test1.mdwn"));
 	is_newly_added($file);
-	is_in_keyword_substitution_mode($file, undef);
+	is_in_keyword_substitution_mode($file, q{-kkv});
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 2);
 	is_most_recent_change(\@changes, stripext($file), $message);
@@ -263,8 +264,8 @@ sub test_rcs_add {
 	IkiWiki::rcs_add($_) for ($file1, $file2);
 	IkiWiki::rcs_commit_staged(message => $message);
 	is_newly_added($_) for ($file1, $file2);
-	is_in_keyword_substitution_mode($file1, undef);
-	is_in_keyword_substitution_mode($file2, '-kb');
+	is_in_keyword_substitution_mode($file1, q{-kkv});
+	is_in_keyword_substitution_mode($file2, q{-kb});
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 3);
 	@changes = IkiWiki::rcs_recentchanges(4);
@@ -272,15 +273,39 @@ sub test_rcs_add {
 	# XXX test for both files in the commit, and no other files
 	is_most_recent_change(\@changes, $file2, $message);
 
+	$message = "remove the UTF-8 and binary files we just added";
+	IkiWiki::rcs_remove($_) for ($file1, $file2);
+	IkiWiki::rcs_commit_staged(message => $message);
+	ok(-d "$config{srcdir}/test8", q{empty dir not pruned (1)});
+	@changes = IkiWiki::rcs_recentchanges(11);
+	ok(-d "$config{srcdir}/test8", q{empty dir not pruned (2)});
+	is_total_number_of_changes(\@changes, 5);
+	# XXX test for both files in the commit, and no other files
+	is_most_recent_change(\@changes, $file2, $message);
+
+	$message = "re-add UTF-8 and binary files with names swapped";
+	writefile($file2, $config{srcdir}, readfile('t/test2.mdwn'));
+	writefile($file1, $config{srcdir}, $bindata_in, 1);
+	IkiWiki::rcs_add($_) for ($file1, $file2);
+	IkiWiki::rcs_commit_staged(message => $message);
+	isnt_newly_added($_) for ($file1, $file2);
+	is_in_keyword_substitution_mode($file2, q{-kkv});
+	is_in_keyword_substitution_mode($file1, q{-kb});
+	@changes = IkiWiki::rcs_recentchanges(11);
+	is_total_number_of_changes(\@changes, 6);
+	# XXX test for both files in the commit, and no other files
+	is_most_recent_change(\@changes, $file2, $message);
+
 	# prevent web edits from attempting to create .../CVS/foo.mdwn
 	# on case-insensitive filesystems, also prevent .../cvs/foo.mdwn
 	# unless your "CVS" is something else and we've made it configurable
+	# also want a pre-commit hook for this?
+
+	# pre-commit hook:
+	# - lcase filenames
+	# - ?
 
 	# can it assume we're under CVS control? or must it check?
-
-	# extract method: filetype-guessing
-	# add a binary file, remove it, add a text file by same name, no -kb?
-	# add a text file, remove it, add a binary file by same name, -kb?
 }
 
 sub test_rcs_remove {
@@ -519,7 +544,6 @@ sub _setup {
 }
 
 sub _teardown {
-	# XXX does srcdir persist between test subs?
 	system "rm -rf $dir";
 }
 
@@ -581,18 +605,28 @@ sub can_mkdir {
 	);
 }
 
-sub is_newly_added {
-	my $file = shift;
-	is(
+sub is_newly_added { _newly_added_or_not(shift, 1) }
+sub isnt_newly_added { _newly_added_or_not(shift, 0) }
+sub _newly_added_or_not {
+	my ($file, $expected_new) = @_;
+	my ($func, $word);
+	if ($expected_new) {
+		$func = \&Test::More::is;
+		$word = q{is};
+	}
+	else {
+		$func = \&Test::More::isnt;
+		$word = q{isn't};
+	}
+	$func->(
 		IkiWiki::Plugin::cvs::cvs_info("Repository revision", $file),
 		'1.1',
-		qq{$file is newly added to CVS},
+		qq{$file $word newly added to CVS},
 	);
 }
 
 sub is_in_keyword_substitution_mode {
 	my ($file, $mode) = @_;
-	$mode = '(none)' unless defined $mode;
 	is(
 		IkiWiki::Plugin::cvs::cvs_info("Sticky Options", $file),
 		$mode,
