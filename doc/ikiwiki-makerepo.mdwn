@@ -4,19 +4,24 @@ ikiwiki-makerepo - check an ikiwiki srcdir into revision control
 
 # SYNOPSIS
 
-ikiwiki-makerepo git|svn|monotone|darcs|cvs srcdir repository
+ikiwiki-makerepo git|svn|monotone|darcs|cvs srcdir repo
 
 ikiwiki-makerepo bzr|mercurial srcdir
 
 # DESCRIPTION
 
-`ikiwiki-makerepo` injects a `srcdir` directory, containing an ikiwiki wiki,
-into a `repository` that it creates. The repository can be created using
-any of a variety of revision control systems.
+`ikiwiki-makerepo` injects an existing `srcdir` directory, containing
+sources for an ikiwiki wiki, into revision control. It is rarely
+run directly; consider using `ikiwiki -setup /etc/ikiwiki/wiki.setup` instead
+to set up a wiki.
 
-Note that for mercurial and bzr, the srcdir is converted into a
-repository. There is no need to have a separate repository with mercurial
-or bzr.
+For git, the `repo` is created as a bare git repository, and the srcdir is
+made into a clone of it. (monotone and darcs are similar.)
+
+For svn and cvs, the `repo` is the centralized repository, and the `srcdir`
+is a checkout of it.
+
+For mercurial and bzr, the srcdir is the only repository set up.
 
 For darcs, the master repo's apply hook will be preconfigured to call a
 ikiwiki wrapper.
@@ -24,13 +29,13 @@ ikiwiki wrapper.
 Note that for monotone, you are assumed to already have run "mtn genkey"
 to generate a key.
 
-
 # EXAMPLE 
 
-`ikiwiki-makerepo git /var/www/wiki /home/user/wiki/`
+`ikiwiki-makerepo git /srv/web/wiki /srv/git/wiki.git/`
 
-The above command creates a new git repo in /home/user/wiki as well as a new git repo in the /var/www/wiki directory. 
-It then initializes the /home/user/wiki git repo and makes the /var/www/wiki a clone. 
+This creates a bare repository `/srv/git/wiki.git/`,
+and sets up `/srv/web/wiki` to be a clone of it, committing
+any files that already exist in that directory.
 
 # AUTHOR
 
