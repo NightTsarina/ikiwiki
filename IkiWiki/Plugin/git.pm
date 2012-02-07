@@ -9,7 +9,6 @@ use open qw{:utf8 :std};
 
 my $sha1_pattern     = qr/[0-9a-fA-F]{40}/; # pattern to validate Git sha1sums
 my $dummy_commit_msg = 'dummy commit';      # message to skip in recent changes
-my $git_dir=undef;
 
 sub import {
 	hook(type => "checkconfig", id => "git", call => \&checkconfig);
@@ -149,6 +148,17 @@ sub genwrapper {
 	else {
 		return "";
 	}
+}
+
+my $git_dir=undef;
+my $prefix=undef;
+
+sub in_git_dir ($$) {
+	$git_dir=shift;
+	my @ret=shift->();
+	$git_dir=undef;
+	$prefix=undef;
+	return @ret;
 }
 
 sub safe_git (&@) {
@@ -302,8 +312,6 @@ sub merge_past ($$$) {
 	return $conflict;
 }
 
-{
-my $prefix;
 sub decode_git_file ($) {
 	my $file=shift;
 
@@ -324,7 +332,6 @@ sub decode_git_file ($) {
 	$file =~ s/^\Q$prefix\E//;
 
 	return decode("utf8", $file);
-}
 }
 
 sub parse_diff_tree ($) {
@@ -845,9 +852,9 @@ sub rcs_receive () {
 		# (Also, if a subdir is involved, we don't want to chdir to
 		# it and only see changes in it.)
 		# The pre-receive hook already puts us in the right place.
-		$git_dir=".";
-		push @rets, git_parse_changes(0, git_commit_info($oldrev."..".$newrev));
-		$git_dir=undef;
+		in_git_dir(".", sub {
+			push @rets, git_parse_changes(0, git_commit_info($oldrev."..".$newrev));
+		});
 	}
 
 	return reverse @rets;
@@ -860,23 +867,21 @@ sub rcs_preprevert ($) {
 	# Examine changes from root of git repo, not from any subdir,
 	# in order to see all changes.
 	my ($subdir, $rootdir) = git_find_root();
-	$git_dir=$rootdir;
+	in_git_dir($rootdir, sub {
+		my @commits=git_commit_info($sha1, 1);
+	
+		if (! @commits) {
+			error "unknown commit"; # just in case
+		}
 
-	my @commits=git_commit_info($sha1, 1);
-	if (! @commits) {
-		error "unknown commit"; # just in case
-	}
+		# git revert will fail on merge commits. Add a nice message.
+		if (exists $commits[0]->{parents} &&
+		    @{$commits[0]->{parents}} > 1) {
+			error gettext("you are not allowed to revert a merge");
+		}
 
-	# git revert will fail on merge commits. Add a nice message.
-	if (exists $commits[0]->{parents} &&
-	    @{$commits[0]->{parents}} > 1) {
-		error gettext("you are not allowed to revert a merge");
-	}
-
-	my @ret=git_parse_changes(1, @commits);
-
-	$git_dir=undef;
-	return @ret;
+		git_parse_changes(1, @commits);
+	});
 }
 
 sub rcs_revert ($) {
