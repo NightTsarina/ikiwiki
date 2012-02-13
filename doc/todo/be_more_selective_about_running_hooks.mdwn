@@ -6,6 +6,12 @@ Normally, this means that they call `pagetype` first thing in the
 function, determine if they know how to deal with the content, and
 only do anything if they do.  
 
+> So, I can't find any plugins shipped with ikiwiki that actually do that.
+> Scan hooks are only ever passed the content of actual wiki pages, and
+> so unless a scan hook cares whether a page is written in markdown or
+> something else, it has no reason to care what the pagetype is. (Same for
+> linkify.) --[[Joey]]
+
 This is a bit wasteful in itself, but for external plugins, it's
 really bad.  For functions like `scan` and `linkify`, where the entire
 page is sent back and forth over `stdout` and `stdin`, it really slows
@@ -19,12 +25,30 @@ best name.
 
 [[!tag patch]]
 
-> It's an interesting idea, but it might be more useful if it was more generalized, say, by making it a filter, where the parameter is a regexp.
+> It's an interesting idea, but it might be more useful if it was more
+> generalized, say, by making it a filter, where the parameter is a regexp.
 > 
 > --[[KathrynAndersen]]
 
->> Would it make more sense as a pagespec?  That might be a bit more hard to implement, but would certainly fix the naming issue.
+>> Would it make more sense as a pagespec?  That might be a bit more hard
+>> to implement, but would certainly fix the naming issue.
 >>
 >> --[[chrismgray]]
 
 >>> Considering where it would be called, a pagespec might be overkill. --[[KathrynAndersen]]
+
+>>>> Pagespecs have some overhead themselves. Probably less than shipping
+>>>> the page content over stdio.
+>>>>
+>>>> Rather than putting filtering in the core of ikiwiki, I can think
+>>>> of two options. One is to make the main plugin a perl plugin, and
+>>>> have it call functions that are provided by another, external plugin.
+>>>> This is assuming you're using the other language because something
+>>>> is easy to do in it, not to avoid writing perl.
+>>>> 
+>>>> Or, the external plugin interface could provide a version of `hook()`
+>>>> that does not pass the content parameter, but saves a copy that
+>>>> the plugin could request with a later rpc call. Assuming that
+>>>> it's really the overhead of serializing the page content, that's
+>>>> the problem, and not just the general overhead of making rpc calls
+>>>> for every page.. --[[Joey]]
