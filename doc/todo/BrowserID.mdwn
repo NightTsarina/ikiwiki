@@ -6,3 +6,27 @@ Some additional information on BrowserID:
 - http://identity.mozilla.com/post/7616727542/introducing-browserid-a-better-way-to-sign-in
 - http://identity.mozilla.com/post/7669886219/how-browserid-differs-from-openid
 - http://identity.mozilla.com/post/7899984443/privacy-and-browserid
+
+> I would like to see BrowserID offered as a signin option in ikiwiki
+> right next to the buttons for common openid providers.
+> 
+> As far as implementing it goes, I don't want to rely on browserid.org.
+> This means that include.js needs to be shipped with ikiwiki (or in a
+> dependency in a sane world). 
+> 
+> And it means that relying on a https
+> connection to browserid.org to verify the user's identity assertion
+> token is out. (Well, it's probably out anyway, since it relies on https
+> CA security as the only security in that part of the protocol. I'm not
+> impressed by the documention using *curl* for this, which won't even
+> validate the certificate AFAIK; and I don't trust https to random SPoF sites
+> for security.)
+> 
+> This seems to need an implementation, in perl or an externally callable
+> program (haskell would be fine ;),
+> of <https://wiki.mozilla.org/Identity/Verified_Email_Protocol>.
+> The documentation of which is .. two cellphone snaps of a whiteboard?
+> There is some kind of standalone verifier, but I have not found
+> the part of the code that actually does the crypto.
+> <https://github.com/mozilla/browserid/blob/dev/bin/verifier>
+> --[[Joey]]
