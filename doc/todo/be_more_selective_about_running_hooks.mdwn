@@ -12,6 +12,11 @@ only do anything if they do.
 > something else, it has no reason to care what the pagetype is. (Same for
 > linkify.) --[[Joey]]
 
+>> My [[org-mode|todo/org_mode]] external plugin (which will never
+>> really make sense to include with ikiwiki I think) does this.  I
+>> think that most plugins defining alternate wiki syntaxes would as
+>> well. --[[chrismgray]]
+
 This is a bit wasteful in itself, but for external plugins, it's
 really bad.  For functions like `scan` and `linkify`, where the entire
 page is sent back and forth over `stdout` and `stdin`, it really slows
@@ -52,3 +57,12 @@ best name.
 >>>> it's really the overhead of serializing the page content, that's
 >>>> the problem, and not just the general overhead of making rpc calls
 >>>> for every page.. --[[Joey]]
+
+>>>>> Since the argument to `hook` is optional, the pagespec is only
+>>>>> interpreted if it is given.  So there is no extra overhead
+>>>>> (beyond an unused `if` branch) in 99% of the cases.  
+>>>>>
+>>>>> Rewriting the external plugin's shim using Perl is a good idea,
+>>>>> and one that I wish I had thought of earlier.  On the other
+>>>>> hand, it doesn't set a great precedent about the usability of
+>>>>> external plugins. --[[chrismgray]]
