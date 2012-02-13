@@ -1,0 +1,30 @@
+[[!template  id=gitbranch branch=chrismgray/exclusive-hooks author="[[chrismgray]]"]]
+
+Sometimes plugins register a function with `hook`, but they only want
+the function called with the content that they know how to deal with.
+Normally, this means that they call `pagetype` first thing in the
+function, determine if they know how to deal with the content, and
+only do anything if they do.  
+
+This is a bit wasteful in itself, but for external plugins, it's
+really bad.  For functions like `scan` and `linkify`, where the entire
+page is sent back and forth over `stdout` and `stdin`, it really slows
+things down.  
+
+Thus, I propose that there be a new optional parameter to `hook` that
+tells it that the function should only be called for files whose type
+is the same as the id of the plugin calling `hook`.  I have called
+this parameter `exclusive` in my branch, but this might not be the
+best name.
+
+[[!tag patch]]
+
+> It's an interesting idea, but it might be more useful if it was more generalized, say, by making it a filter, where the parameter is a regexp.
+> 
+> --[[KathrynAndersen]]
+
+>> Would it make more sense as a pagespec?  That might be a bit more hard to implement, but would certainly fix the naming issue.
+>>
+>> --[[chrismgray]]
+
+>>> Considering where it would be called, a pagespec might be overkill. --[[KathrynAndersen]]

@@ -1,0 +1,11 @@
+Suggestion to change
+
+    0 0 * * * ikiwiki-calendar ~/ikiwiki.setup "posts/* and !*/Discussion"
+
+to
+
+    0 0 * * * ikiwiki-calendar ~/ikiwiki.setup 'posts/* and !*/Discussion'
+
+I ran into (for me) unexpected behaviour with double quotes, since when I tried it in the interactive shell, the "!" made it fail ([history expansion](http://mywiki.wooledge.org/BashPitfalls#echo_.22Hello_World.21.22)). I thought "aha, it should be escaped!", did so, and did not get any error messages, but it no longer functioned as intended (as per the earlier linked page).
+
+The latter line will work everywhere, not just in environments without history expansion. I think trying a command manually before putting it into crontab is common, and this would avoid the possible user issue I ran into.
