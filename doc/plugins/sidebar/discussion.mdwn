@@ -3,3 +3,8 @@
 I tried exactly that, namely having an inline in my sidebar to include an rss feed from some other side. I think the complete wiki rebuild should be doable every few days when a new article appears in that feed. But contrary to that warning there is no complete wiki rebuild, only the sidebar page is rebuilt by the "ikiwiki --aggregate" from cron. Is that a bug or a feature?
 
 > It's a bug, discussed in [[bugs/transitive_dependencies]]. --[[Joey]] 
+
+I needed to include inline directives into sidebars at different site sections to generate a dynamically updated navigation - very nice when combined with toggles - and I ran into the very same problem. I tried the map directive instead, but found I wouldn't like to re-style everything and also was missing the ability to make use of the show=title variable giving me meta titles where needed without taking the cost of rebuild with every page edit. 
+
+Then I came across the tip to include the quick=yes variable with the inline directive, where it is described as not showing page titles included with the meta-directive, and I thought, well if it lets me have it only this way, maybe I can restrain from using meta titles.   
+But to my surprise, even with the quick=yes variable included into the inline directive in the sidebars meta titles still are shown, no more forced rebuild when editing via cgi, which is amazing, but maybe it should be noted somewhere. One more time ikiwiki showed its bright face, thank you. --Boris
