@@ -677,7 +677,6 @@ sub genfeed ($$$$$@) {
 		guid => $guid,
 		feeddate => date_3339($lasttime),
 		feedurl => $feedurl,
-		version => $IkiWiki::version,
 	);
 	run_hooks(pagetemplate => sub {
 		shift->(page => $page, destpage => $page,
