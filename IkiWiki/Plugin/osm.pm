@@ -529,7 +529,7 @@ sub include_javascript ($) {
 		}
 	}
 	if ($loader) {
-		return embed_map_code() . "<script type=\"text/javascript\" charset=\"utf-8\">$loader</script>";
+		return embed_map_code($page) . "<script type=\"text/javascript\" charset=\"utf-8\">$loader</script>";
 	}
 	else {
         	return '';
@@ -553,16 +553,17 @@ sub cgi($) {
 	print ("\r\n");
 	print "<html><body>";
 	print "<div id=\"mapdiv-$map\"></div>";
-	print embed_map_code($map);
+	print embed_map_code();
 	print "<script type=\"text/javascript\" charset=\"utf-8\">mapsetup( 'mapdiv-$map', { 'map': '$map', 'lat': urlParams['lat'], 'lon': urlParams['lon'], 'zoom': urlParams['zoom'], 'fullscreen': 1, 'editable': 1, 'format': '" . prefered_format() . "'});</script>";
 	print "</body></html>";
 
 	exit 0;
 }
 
-sub embed_map_code() {
+sub embed_map_code(;$) {
+	my $page=shift;
 	return '<script src="http://www.openlayers.org/api/OpenLayers.js" type="text/javascript" charset="utf-8"></script>'.
-		'<script src="'.urlto("ikiwiki/osm.js", $from).
+		'<script src="'.urlto("ikiwiki/osm.js", $page).
 		'" type="text/javascript" charset="utf-8"></script>'."\n";
 }
 
