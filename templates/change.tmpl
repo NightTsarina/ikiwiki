@@ -9,6 +9,9 @@
 <div id="change-<TMPL_VAR REV>" class="metadata">
 <span class="desc"><br />Changed pages:</span>
 <span class="pagelinks">
+<TMPL_IF DIFF>
+<a href="#diff-<TMPL_VAR REV>" class="toggle" title="revert" rel="nofollow">[[diff|wikiicons/diff.png]]</a>
+</TMPL_IF>
 <TMPL_LOOP PAGES>
 <TMPL_IF DIFFURL><a href="<TMPL_VAR DIFFURL>" title="diff" rel="nofollow">[[diff|wikiicons/diff.png]]</a><TMPL_VAR LINK>
 <TMPL_ELSE><TMPL_VAR LINK></TMPL_IF>
@@ -28,9 +31,6 @@
 <span class="changedate"><TMPL_VAR COMMITDATE></span>
 <span class="desc"><br /></span>
 <TMPL_IF REVERTURL><span class="revert">
-<TMPL_IF DIFF>
-<a href="#diff-<TMPL_VAR REV>" class="toggle" title="revert" rel="nofollow">[[diff|wikiicons/diff.png]]</a>
-</TMPL_IF>
 <a href="<TMPL_VAR REVERTURL>" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
 </span></TMPL_IF>
 </div>
