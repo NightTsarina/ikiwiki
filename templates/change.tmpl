@@ -28,6 +28,9 @@
 <span class="changedate"><TMPL_VAR COMMITDATE></span>
 <span class="desc"><br /></span>
 <TMPL_IF REVERTURL><span class="revert">
+<TMPL_IF DIFF>
+<a href="#diff-<TMPL_VAR REV>" class="toggle" title="revert" rel="nofollow">[[diff|wikiicons/diff.png]]</a>
+</TMPL_IF>
 <a href="<TMPL_VAR REVERTURL>" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
 </span></TMPL_IF>
 </div>
@@ -39,7 +42,7 @@
 </TMPL_LOOP>
 </div>
 <TMPL_IF DIFF>
-<div class="diff">
+<div class="toggleable" id="diff-<TMPL_VAR REV>">
 <pre>
 <TMPL_VAR DIFF>
 </pre>
