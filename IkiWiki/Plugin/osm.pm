@@ -10,6 +10,7 @@ use IkiWiki 3.0;
 
 sub import {
 	add_underlay("javascript");
+	add_underlay("osm");
 	hook(type => "getsetup", id => "osm", call => \&getsetup);
 	hook(type => "format", id => "osm", call => \&format);
 	hook(type => "preprocess", id => "osm", call => \&preprocess);
@@ -34,7 +35,7 @@ sub getsetup () {
 		},
 		osm_default_icon => {
 			type => "string",
-			example => "img/osm.png",
+			example => "/ikiwiki/images/osm.png",
 			description => "the icon shon on links and on the main map",
 			safe => 0,
 			rebuild => 1,
@@ -137,7 +138,7 @@ sub process_waypoint {
 	my $name = scrub($params{'name'} || $p, $page, $dest); # sanitized here
 	my $desc = scrub($params{'desc'} || '', $page, $dest); # sanitized here
 	my $zoom = scrub($params{'zoom'} // $config{'osm_default_zoom'} // 15, $page, $dest); # sanitized below
-	my $icon = $config{'osm__default_icon'} || "img/osm.png"; # sanitized: we trust $config
+	my $icon = $config{'osm__default_icon'} || "/ikiwiki/images/osm.png"; # sanitized: we trust $config
 	my $map = scrub($params{'map'} || 'map', $page, $dest); # sanitized here
 	my $alt = $config{'osm_alt'} ? "alt=\"$config{'osm_alt'}\"" : ''; # sanitized: we trust $config
 	if ($zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18) {
@@ -169,7 +170,7 @@ sub process_waypoint {
 			}
 		}
 	}
-	$icon = "/img/unknown.png" unless $icon;
+	$icon = "/ikiwiki/images/osm.png" unless $icon;
 	$tag = '' unless $tag;
 	if ($page eq $dest) {
 		if (!defined($config{'osm_format'}) || !$config{'osm_format'}) {
