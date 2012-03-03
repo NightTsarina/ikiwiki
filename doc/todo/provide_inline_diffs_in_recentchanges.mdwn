@@ -1,3 +1,5 @@
+[[!template  id=gitbranch branch=anarcat/inline_diffs author="[[anarcat]]"]]
+
 It would rock if I could view diffs from the web without going via feeds. I envision toggle-style buttons on the recentchanges page, or just links to the CGI, which then displays the diff... --[[madduck]]
 
 > The diffs are actually there, enabled by the [[plugins/recentchangesdiff]]
@@ -5,52 +7,7 @@ It would rock if I could view diffs from the web without going via feeds. I envi
 > You might try a user stylesheet with `div.diff { display: block }`.
 > --[[JasonBlevins]]
 
-> > couldn't the diff be displayed as a popup? right now it's too bad because the diff is actually in the page, generated and downloaded, but the user can't see it. I have tried to address the issue by adding stuff to the change.tmpl template, but I may be missing something - and it doesn't quite look right:
-> > 
-> >     --- /usr/share/ikiwiki/templates/change.tmpl    2011-09-05 15:14:19.000000000 -0400
-> >     +++ templates/change.tmpl       2011-10-11 13:04:37.704346964 -0400
-> >     @@ -39,6 +39,7 @@
-> >      </TMPL_LOOP>
-> >      </div>
-> >      <TMPL_IF DIFF>
-> >     +<a href="#" onClick="document.getElementByClass('diff').style = 'block'">[[show diff|wikiicons/diff.png]]</a>
-> >      <div class="diff">
-> >      <pre>
-> >      <TMPL_VAR DIFF>
-> > 
-> > There are a few things wrong with this:
-> > 
-> >  1. I don't like the hardcoded javascript in there, we should use [[plugins/toggle]] or something, but i am not sure how to make the this plugin depend on toggle, or if it is desirable. 
-> >  2. it doesn't work at all: first it doesn't actually "toggle" and second the javascript somehow gets filtered out of the resulting HTML so we don't even see it
-> >  3. if the diffurl parameter is set in the template, we'd actually see two sets of glasses, which is silly. i tried moving the diff button upwards into the PAGES loop, but there the diffurls are file-specific, which also seem quite silly
-> > 
-> > I am looking for guidance on how to improve and fix this now. --[[anarcat]] 2011-10-11
-
-> > Here is a better implementation:
-> > [[!format txt """
-diff -u change.tmpl.orig change.tmpl
---- change.tmpl.orig    2012-03-02 23:00:36.706271573 -0500
-+++ change.tmpl 2012-03-02 23:15:56.083573086 -0500
-@@ -28,6 +28,9 @@
- <span class="changedate"><TMPL_VAR COMMITDATE></span>
- <span class="desc"><br /></span>
- <TMPL_IF REVERTURL><span class="revert">
-+<TMPL_IF DIFF>
-+<a href="#diff-<TMPL_VAR REV>" class="toggle" title="revert" rel="nofollow">[[diff|wikiicons/diff.png]]</a>
-+</TMPL_IF>
- <a href="<TMPL_VAR REVERTURL>" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
- </span></TMPL_IF>
- </div>
-@@ -39,7 +42,7 @@
- </TMPL_LOOP>
- </div>
- <TMPL_IF DIFF>
--<div class="diff">
-+<div class="toggleable" id="diff-<TMPL_VAR REV>">
- <pre>
- <TMPL_VAR DIFF>
- </pre>
-"""]]
+> > I have implemented this in a branch in my repository (see the side box).
 > > 
 > > Unfortunately it has some issues:
 > > 
@@ -59,5 +16,8 @@ diff -u change.tmpl.orig change.tmpl
 > > 3. it will show only if there's a revert URL, which is backwards, but otherwise the display is weird, with each button on its own line
 > > 4. if the diffurl parameter is set in the template, we'd actually see two sets of glasses, which is silly. 
 > >
-> > -- [[anarcat]] 2012-03-11
+> > I feel this should nevertheless be implemented because if we're going to compile all this crap in the page anyways and send it to the client, why not allow the user to show it? I also feel that showing it by default is a lesser evil for non-javascript users.
+> >
+> > -- [[anarcat]] 2012-03-03
+
 [[!tag wishlist patch]]
