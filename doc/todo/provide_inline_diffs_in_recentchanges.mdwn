@@ -26,4 +26,38 @@ It would rock if I could view diffs from the web without going via feeds. I envi
 > > 
 > > I am looking for guidance on how to improve and fix this now. --[[anarcat]] 2011-10-11
 
+> > Here is a better implementation:
+> > [[!format txt """
+diff -u change.tmpl.orig change.tmpl
+--- change.tmpl.orig    2012-03-02 23:00:36.706271573 -0500
++++ change.tmpl 2012-03-02 23:15:56.083573086 -0500
+@@ -28,6 +28,9 @@
+ <span class="changedate"><TMPL_VAR COMMITDATE></span>
+ <span class="desc"><br /></span>
+ <TMPL_IF REVERTURL><span class="revert">
++<TMPL_IF DIFF>
++<a href="#diff-<TMPL_VAR REV>" class="toggle" title="revert" rel="nofollow">[[diff|wikiicons/diff.png]]</a>
++</TMPL_IF>
+ <a href="<TMPL_VAR REVERTURL>" title="revert" rel="nofollow">[[revert|wikiicons/revert.png]]</a>
+ </span></TMPL_IF>
+ </div>
+@@ -39,7 +42,7 @@
+ </TMPL_LOOP>
+ </div>
+ <TMPL_IF DIFF>
+-<div class="diff">
++<div class="toggleable" id="diff-<TMPL_VAR REV>">
+ <pre>
+ <TMPL_VAR DIFF>
+ </pre>
+"""]]
+> > 
+> > Unfortunately it has some issues:
+> > 
+> > 1. it assumes the toggle.js code is loaded somehow
+> > 2. if the toggle code isn't loaded the diffs are displayed (which is arguably better than showing nothing since we ship the diff to the UA anyways...)
+> > 3. it will show only if there's a revert URL, which is backwards, but otherwise the display is weird, with each button on its own line
+> > 4. if the diffurl parameter is set in the template, we'd actually see two sets of glasses, which is silly. 
+> >
+> > -- [[anarcat]] 2012-03-11
 [[!tag wishlist]]
