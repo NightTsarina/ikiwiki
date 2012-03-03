@@ -9,7 +9,6 @@ use warnings;
 use IkiWiki 3.0;
 
 sub import {
-	add_underlay("javascript");
 	add_underlay("osm");
 	hook(type => "getsetup", id => "osm", call => \&getsetup);
 	hook(type => "format", id => "osm", call => \&format);
