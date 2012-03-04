@@ -1,3 +1,5 @@
+[[!template  id=gitbranch branch=anarcat/backwards_links author="[[anarcat]]"]]
+
 I understand this may be a bit provocative, but I strongly feel that ikiwiki linking rules are backwards. I come from the world of wikis like MoinMoin and [[plugins/contrib/mediawiki]], where you use `\[[link|description]]`. The defacto wiki markup "[[plugins/creole]]" also uses that convention, as does raw HTML (href comes first!). Ikiwiki doesn't: here we need to use `\[[description|link]]`.
 
 Everytime i come back to ikiwiki, i need to bend my mind backwards to create *proper* links. I understand that `\[[description|link]]` is more inline with Markdown's `[description](link)` approach, but in my mind it is too much of a problem for third part plugins to be a proper justification. For example, the [[plugins/creole]] plugin works pretty much as expected *expect* for links, because it can't override ikiwiki's internal link parser. For me that's a huge inconsistency that should be fixed.
@@ -11,6 +13,7 @@ I started looking into this, after encouraging words from Joey ("very long term 
 
 The following needs to be done:
 
- 1. the `link_regexp` variable needs to be turned backwards (or frontwards, if you like :P)
- 2. a config setting need to be added to the `link` plugin so that we can choose if we want backwards links or not
- 3. a (solid!) parser needs to be written for [[ikiwiki-transition]] to change the actual links (if necessary)
+ 1. the `link_regexp` variable needs to be turned backwards (or frontwards, if you like :P) (./) added an option for this, needs testing
+ 2. a config setting need to be added to the `link` plugin so that we can choose if we want backwards links or not (./) `backwards_links`, how does that sound?
+ 3. a (solid!) parser needs to be written for [[ikiwiki-transition]] to change the actual links (if necessary) (!) still todo
+ 4. rewrite tests to take into account the two syntaxes
