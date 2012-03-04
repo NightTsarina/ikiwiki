@@ -13,7 +13,9 @@ I started looking into this, after encouraging words from Joey ("very long term 
 
 The following needs to be done:
 
- 1. the `link_regexp` variable needs to be turned backwards (or frontwards, if you like :P) (./) added an option for this, needs testing
+ 1. the `link_regexp` variable needs to be turned backwards (or frontwards, if you like :P) (./) added an option for this, working!
  2. a config setting need to be added to the `link` plugin so that we can choose if we want backwards links or not (./) `backwards_links`, how does that sound?
- 3. a (solid!) parser needs to be written for [[ikiwiki-transition]] to change the actual links (if necessary) (!) still todo
+ 3. a (solid!) parser needs to be written for [[ikiwiki-transition]] to change the actual links (if necessary) (!) in progress, almost done
  4. rewrite tests to take into account the two syntaxes
+
+There's a blocker: we can't have a per-wiki backwards_links option, because of the underlay, common to all wikis, which needs to be converted. So the option doesn't make much sense. Not sure how to deal with this... Maybe this needs to be at the package level?
