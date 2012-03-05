@@ -17,5 +17,6 @@ The following needs to be done:
  2. a config setting need to be added to the `link` plugin so that we can choose if we want backwards links or not (./) `links_direction`, how does that sound? I have changed that from `backwards_links` to be more neutral. 'rtl' means `\[[link|text]]` and 'ltr' means `\[[text|link]]`
  3. a (solid!) parser needs to be written for [[ikiwiki-transition]] to change the actual links (if necessary) (./) done!
  4. rewrite tests to take into account the two syntaxes (!) I would need help here, always have trouble with unit tests...
+ 5. deal with underlays (!!)
 
 <!> There's a caveat: we can't have a per-wiki backwards_links option, because of the underlay, common to all wikis, which needs to be converted. So the option doesn't make much sense. Not sure how to deal with this... Maybe this needs to be at the package level?
