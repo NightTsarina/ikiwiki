@@ -14,7 +14,7 @@ I started looking into this, after encouraging words from Joey ("very long term 
 The following needs to be done:
 
  1. the `link_regexp` variable needs to be turned backwards (or frontwards, if you like :P) (./) added an option for this, working!
- 2. a config setting need to be added to the `link` plugin so that we can choose if we want backwards links or not (./) `backwards_links`, how does that sound?
+ 2. a config setting need to be added to the `link` plugin so that we can choose if we want backwards links or not (./) `links_direction`, how does that sound? I have changed that from `backwards_links` to be more neutral. 'rtl' means `\[[link|text]]` and 'ltr' means `\[[text|link]]`
  3. a (solid!) parser needs to be written for [[ikiwiki-transition]] to change the actual links (if necessary) (!) in progress, almost done
  4. rewrite tests to take into account the two syntaxes
 
