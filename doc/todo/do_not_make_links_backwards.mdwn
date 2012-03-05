@@ -19,4 +19,13 @@ The following needs to be done:
  4. rewrite tests to take into account the two syntaxes (!) I would need help here, always have trouble with unit tests...
  5. deal with underlays (!!)
 
+> It's not at all obvious to me that `rtl` should mean "link before description"
+> and not the other way round. Perhaps `wikilink_text_first` => `1` for the historical
+> IkiWiki syntax or `0` for the Creole/Mediawiki syntax? --[[smcv]]
+
 <!> There's a caveat: we can't have a per-wiki backwards_links option, because of the underlay, common to all wikis, which needs to be converted. So the option doesn't make much sense. Not sure how to deal with this... Maybe this needs to be at the package level?
+
+> I've thought about adding a direction-neutral `\[[!link]]` directive -
+> see [[link plugin perhaps too general?]] for details. The basewiki
+> could use `\[[!link to=b desc=a]]` whenever it needs `\[[a|b]]`-style
+> links, maybe? --[[smcv]]
