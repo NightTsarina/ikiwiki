@@ -19,11 +19,18 @@ The following needs to be done:
  4. rewrite tests to take into account the two syntaxes (!) I would need help here, always have trouble with unit tests...
  5. deal with underlays (!!)
 
+Discussion
+----------
+
 > It's not at all obvious to me that `rtl` should mean "link before description"
 > and not the other way round. Perhaps `wikilink_text_first` => `1` for the historical
 > IkiWiki syntax or `0` for the Creole/Mediawiki syntax? --[[smcv]]
+>
+> > A friend made the argument that it is more natural for a human to read the `text` then `link`, as the link is less important. Since we (occidental languages) read left to right, I felt this was appropriate. I also blindly assumed that it would "feel" also appropriate for right to left languages (arabic, hebrew, etc) to have those links backwards, and those languages are generally named "right to left".
+> > 
+> > Originally, I named that parameter `backwards_links`, but then it wouldn't make sense in the long term, and isn't exactly neutral: it assume the current way is backwards! Your suggestion is interesting however, but I don't think the rtl/ltr nomenclature is problematic, with proper documentation of course... --[[anarcat]]
 
-<!> There's a caveat: we can't have a per-wiki backwards_links option, because of the underlay, common to all wikis, which needs to be converted. So the option doesn't make much sense. Not sure how to deal with this... Maybe this needs to be at the package level?
+There's a caveat: we can't have a per-wiki backwards_links option, because of the underlay, common to all wikis, which needs to be converted. So the option doesn't make much sense. Not sure how to deal with this... Maybe this needs to be at the package level? --[[anarcat]]
 
 > I've thought about adding a direction-neutral `\[[!link]]` directive -
 > see [[link plugin perhaps too general?]] for details. The basewiki
@@ -46,3 +53,6 @@ The following needs to be done:
 >>> Another interim option might be to change the basewiki links to be just \[[link to whatever]] without having a description.
 >>> That style of link would work whether the link style was "backwards" or "forwards".  Unfortunately it could make some links less readable; after all, there is a reason why one wants to be able to change the link text!  But I don't know what proportion of the links are like that.  It's a thought, anyway.
 >>> --[[KathrynAndersen]]
+
+>>> Another option for internal links is to just use the regular markdown links instead of `\[[text|link]]` markup, that way it works regardless. Then the documentation for the link plugin just has to state both syntaxes in a safe manner.
+>>> I also agree that we should just switch in one shot, although I am worried this means this could be postponed indefinitely.--[[anarcat]]
