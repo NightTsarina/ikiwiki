@@ -16,8 +16,8 @@ The following needs to be done:
  1. the `link_regexp` variable needs to be turned backwards (or frontwards, if you like :P) (./) added an option for this, working!
  2. a config setting need to be added to the `link` plugin so that we can choose if we want backwards links or not (./) `links_direction`, how does that sound? I have changed that from `backwards_links` to be more neutral. 'rtl' means `\[[link|text]]` and 'ltr' means `\[[text|link]]`
  3. a (solid!) parser needs to be written for [[ikiwiki-transition]] to change the actual links (if necessary) (./) done!
- 4. rewrite tests to take into account the two syntaxes (!) I would need help here, always have trouble with unit tests...
- 5. deal with underlays (!!)
+ 4. rewrite tests to take into account the two syntaxes (!) would be done when we migrate to the syntax
+ 5. deal with underlays (./) i wrote a script to convert it to markdown
 
 Discussion
 ----------
@@ -56,3 +56,28 @@ There's a caveat: we can't have a per-wiki backwards_links option, because of th
 
 >>> Another option for internal links is to just use the regular markdown links instead of `\[[text|link]]` markup, that way it works regardless. Then the documentation for the link plugin just has to state both syntaxes in a safe manner.
 >>> I also agree that we should just switch in one shot, although I am worried this means this could be postponed indefinitely.--[[anarcat]]
+
+>>>> I have done just that in my branch: now the underlay only uses wikilinks in the wikilink page, elsewhere regular markdown links are used. I haven't converted the whole of the doc/ directory however, that would be left to the migration. I have written a ikiwik-transition tool to migrate from wikilink to markdown while i was there. --[[anarcat]]
+
+The bikeshed color should be ...
+--------------------------------
+
+...[blue](http://blue.bikeshed.org/) of course. :) Just to make things clear here, the "bikeshedding" potential is absolutely huge here. right to left? left to right? who's right? how could we even decide this?
+
+I think we can approach this rationnally:
+
+ 1. left to right (text then link) can be considered more natural, and should therefore be supported
+ 2. it is supported in markdown using regular markdown links. in the proposed branch, the underlay wikilinks are converted to use regular markdown links
+ 3. ikiwiki links break other markup plugins, like mediawiki and creole, as those work right to left.
+ 4. those are recognized "standards" used by other popular sites, like Wikipedia, or any wiki supporting the Creole markup, which is [most wikis](http://www.wikicreole.org/wiki/Engines)
+
+Therefore, to respect interoperability and [POLA](https://en.wikipedia.org/wiki/Principle_of_least_astonishment), ikiwiki should respect that convention and reverse the way links are parsed by the link plugin, or move that functionality into creole/mediawiki modules, and out of the main core, which I do not think can be an option.
+
+So here's a roadmap to deploy this change:
+
+ 1. the code in the backwards_links branch i am working on is tested and proven, then merged in
+ 2. a release of the 3.x branch is published with the possibility for wikis to convert to the new markup, with the notion that the older markup is deprecated
+ 3. this wiki is converted to the new markup
+ 4. 4.0 is released with the new markup enabled by default and runs ikiwiki-transition on your wiki on upgrade
+
+Note that ikiwiki-transition can be ran multiple and will convert your markup to and from rtl/ltr, without issues, so this is pretty sturdy. I think the configuration variable can be kept throughout 4.x, with the notion that it will be completely removed eventually. --[[anarcat]]
