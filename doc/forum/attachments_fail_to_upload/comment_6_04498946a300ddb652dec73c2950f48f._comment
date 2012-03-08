@@ -1,0 +1,19 @@
+[[!comment format=mdwn
+ username="jaime"
+ ip="201.141.54.196"
+ subject="comment 6"
+ date="2012-03-08T01:34:57Z"
+ content="""
+Ok... figured out how to use firebug, started the profile, and tried uploading an image. POST http://myserver/ikiwiki.cgi immediately turns red with a little X as I get the javascript \"failed\" message in the ui. In the post tab of firebug, halfway through the binary content of the png I can see the message  \"... Firebug request size limit has been reached by Firebug. ... \"
+
+So next I try uploading a tiny 3k image.  This time the post completes and I can see \"Error: Can't locate JSON.pm in @INC\" in the output. A bit of googling tells me I need to install the libjson-perl package.  Done.
+
+I try and upload the tiny 3k image again. This time it works. :)
+I try and upload a 9k image and the POST just dies just like before with the \"... Firebug request size limit has been reached by Firebug. ... \" in the post tab. 
+
+So I tried changing the extensions.firebug.netDisplayedPostBodyLimit variable in firefox to see if that would me to get more info. Now the I don't get the request size limit message but the post still doesn't get anything back.
+
+I decided to try some other http protocal analyzers. Firefox 10 internal webdeveloper tools don't give me any more info.
+Next I tried HttpFox and the only thing I get back is this...
+Error loading content (NS_ERROR_DOCUMENT_NOT_CACHED)
+"""]]
