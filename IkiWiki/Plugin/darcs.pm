@@ -3,6 +3,7 @@ package IkiWiki::Plugin::darcs;
 
 use warnings;
 use strict;
+use URI::Escape q{uri_escape_utf8};
 use IkiWiki;
 
 sub import {
@@ -336,7 +337,8 @@ sub rcs_recentchanges ($) {
 
 		foreach my $f (@files) {
 			my $d = defined $config{'diffurl'} ? $config{'diffurl'} : "";
-			$d =~ s/\[\[file\]\]/$f/go;
+			my $ef = uri_escape_utf8($f);
+			$d =~ s/\[\[file\]\]/$ef/go;
 			$d =~ s/\[\[hash\]\]/$hash/go;
 
 			push @pg, {

@@ -7,6 +7,7 @@ use IkiWiki;
 use Monotone;
 use Date::Parse qw(str2time);
 use Date::Format qw(time2str);
+use URI::Escape q{uri_escape_utf8};
 
 my $sha1_pattern = qr/[0-9a-fA-F]{40}/; # pattern to validate sha1sums
 my $mtn_version = undef;
@@ -593,7 +594,8 @@ sub rcs_recentchanges ($) {
 				my $diffurl=$config{diffurl};
 				$diffurl=~s/\[\[r1\]\]/$parent/g;
 				$diffurl=~s/\[\[r2\]\]/$rev/g;
-				$diffurl=~s/\[\[file\]\]/$file/g;
+				my $efile = uri_escape_utf8($file);
+				$diffurl=~s/\[\[file\]\]/$efile/g;
 				push @pages, {
 					page => pagename($file),
 					diffurl => $diffurl,

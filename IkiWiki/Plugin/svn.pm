@@ -5,6 +5,7 @@ use warnings;
 use strict;
 use IkiWiki;
 use POSIX qw(setlocale LC_CTYPE);
+use URI::Escape q{uri_escape_utf8};
 
 sub import {
 	hook(type => "checkconfig", id => "svn", call => \&checkconfig);
@@ -292,7 +293,8 @@ sub rcs_recentchanges ($) {
 			}
 
 			my $diffurl=defined $config{diffurl} ? $config{diffurl} : "";
-			$diffurl=~s/\[\[file\]\]/$file/g;
+			my $efile = uri_escape_utf8($file);
+			$diffurl=~s/\[\[file\]\]/$efile/g;
 			$diffurl=~s/\[\[r1\]\]/$rev - 1/eg;
 			$diffurl=~s/\[\[r2\]\]/$rev/g;
 

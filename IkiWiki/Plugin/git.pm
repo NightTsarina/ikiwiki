@@ -5,6 +5,7 @@ use warnings;
 use strict;
 use IkiWiki;
 use Encode;
+use URI::Escape q{uri_escape_utf8};
 use open qw{:utf8 :std};
 
 my $sha1_pattern     = qr/[0-9a-fA-F]{40}/; # pattern to validate Git sha1sums
@@ -617,9 +618,10 @@ sub rcs_recentchanges ($) {
 		my @pages;
 		foreach my $detail (@{ $ci->{'details'} }) {
 			my $file = $detail->{'file'};
+			my $efile = uri_escape_utf8($file);
 
 			my $diffurl = defined $config{'diffurl'} ? $config{'diffurl'} : "";
-			$diffurl =~ s/\[\[file\]\]/$file/go;
+			$diffurl =~ s/\[\[file\]\]/$efile/go;
 			$diffurl =~ s/\[\[sha1_parent\]\]/$ci->{'parent'}/go;
 			$diffurl =~ s/\[\[sha1_from\]\]/$detail->{'sha1_from'}/go;
 			$diffurl =~ s/\[\[sha1_to\]\]/$detail->{'sha1_to'}/go;

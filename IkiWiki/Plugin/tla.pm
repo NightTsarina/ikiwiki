@@ -4,6 +4,7 @@ package IkiWiki::Plugin::tla;
 use warnings;
 use strict;
 use IkiWiki;
+use URI::Escape q{uri_escape_utf8};
 
 sub import {
 	hook(type => "checkconfig", id => "tla", call => \&checkconfig);
@@ -224,7 +225,8 @@ sub rcs_recentchanges ($) {
 
 		foreach my $file (@paths) {
 			my $diffurl=defined $config{diffurl} ? $config{diffurl} : "";
-			$diffurl=~s/\[\[file\]\]/$file/g;
+			my $efile = uri_escape_utf8($file);
+			$diffurl=~s/\[\[file\]\]/$efile/g;
 			$diffurl=~s/\[\[rev\]\]/$change/g;
 			push @pages, {
 				page => pagename($file),
