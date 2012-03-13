@@ -341,8 +341,7 @@ sub writejson($;$) {
 				"geometry" => { "type" => "LineString", "coordinates" => $linestring });
 			push @{$geojson{'features'}}, \%json;
 		}
-		debug('writing pois file pois.json in ' . $config{destdir} . "/$map");
-		writefile("pois.json",$config{destdir} . "/$map",to_json(\%geojson));
+		writefile("pois.json", $config{destdir} . "/$map", to_json(\%geojson));
 	}
 }
 
@@ -352,7 +351,6 @@ sub writekml($;$) {
 	eval q{use XML::Writer};
 	error $@ if $@;
 	foreach my $map (keys %waypoints) {
-		debug("writing pois file pois.kml in " . $config{destdir} . "/$map");
 
 =pod
 Sample placemark:
@@ -388,10 +386,9 @@ Sample style:
 
 =cut
 
-		use IO::File;
-		my $output = IO::File->new(">".$config{destdir} . "/$map/pois.kml");
-
-		my $writer = XML::Writer->new( OUTPUT => $output, DATA_MODE => 1, ENCODING => 'UTF-8');
+		my $output;
+		my $writer = XML::Writer->new( OUTPUT => \$output,
+			DATA_MODE => 1, ENCODING => 'UTF-8');
 		$writer->xmlDecl();
 		$writer->startTag("kml", "xmlns" => "http://www.opengis.net/kml/2.2");
 
@@ -454,7 +451,8 @@ Sample style:
 		}
 		$writer->endTag();
 		$writer->end();
-		$output->close();
+
+		writefile("pois.kmp", $config{destdir} . "/$map", $output);
 	}
 }
 
@@ -472,8 +470,7 @@ sub writecsvs($;$) {
 				$options{'icon'} . "\n";
 			$poisf .= $line;
 		}
-		debug("writing pois file pois.txt in " . $config{destdir} . "/$map");
-		writefile("pois.txt",$config{destdir} . "/$map",$poisf);
+		writefile("pois.txt", $config{destdir} . "/$map", $poisf);
 	}
 }
 
