@@ -151,7 +151,7 @@ sub process_waypoint {
 			last;
 		}
 	}
-	$icon = urlto($icon, $dest);
+	$icon = urlto($icon, $dest, 1);
 	$tag = '' unless $tag;
 	if ($page eq $dest) {
 		if (!defined($config{'osm_format'}) || !$config{'osm_format'}) {
