@@ -34,8 +34,8 @@ sub getsetup () {
 		},
 		osm_default_icon => {
 			type => "string",
-			example => "/ikiwiki/images/osm.png",
-			description => "the icon shon on links and on the main map",
+			example => "ikiwiki/images/osm.png",
+			description => "the icon shown on links and on the main map",
 			safe => 0,
 			rebuild => 1,
 		},
@@ -56,17 +56,7 @@ sub getsetup () {
 		osm_tag_default_icon => {
 			type => "string",
 			example => "icon.png",
-			description => "the icon attached to a tag so that pages tagged with that tag will have that icon on the map",
-			safe => 0,
-			rebuild => 1,
-		},
-		osm_tag_icons => {
-			type => "string",
-			example => {
-				'test' => '/img/test.png',
-				'trailer' => '/img/trailer.png'
-			},
-			description => "tag to icon mapping, leading slash is important!",
+			description => "the icon attached to a tag, displayed on the map for tagged pages",
 			safe => 0,
 			rebuild => 1,
 		},
@@ -137,7 +127,7 @@ sub process_waypoint {
 	my $name = scrub($params{'name'} || $p, $page, $dest); # sanitized here
 	my $desc = scrub($params{'desc'} || '', $page, $dest); # sanitized here
 	my $zoom = scrub($params{'zoom'} // $config{'osm_default_zoom'} // 15, $page, $dest); # sanitized below
-	my $icon = $config{'osm__default_icon'} || "/ikiwiki/images/osm.png"; # sanitized: we trust $config
+	my $icon = $config{'osm_default_icon'} || "ikiwiki/images/osm.png"; # sanitized: we trust $config
 	my $map = scrub($params{'map'} || 'map', $page, $dest); # sanitized here
 	my $alt = $config{'osm_alt'} ? "alt=\"$config{'osm_alt'}\"" : ''; # sanitized: we trust $config
 	if ($zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18) {
@@ -150,26 +140,18 @@ sub process_waypoint {
 	}
 
 	my $tag = $params{'tag'};
-	if ($tag) {
-		if (!defined($config{'osm_tag_icons'}->{$tag})) {
-			error("invalid tag specified, see osm_tag_icons configuration or don't specify any");
+	foreach my $t (keys %{$typedlinks{$page}{'tag'}}) {
+		if ($icon = get_tag_icon($t)) {
+			$tag = $t;
+			last;
 		}
-		$icon = $config{'osm_tag_icons'}->{$tag};
-	}
-	else {
-		foreach my $t (keys %{$typedlinks{$page}{'tag'}}) {
-			if ($icon = get_tag_icon($t)) {
-				$tag = $t;
-				last;
-			}
-			$t =~ s!/$config{'tagbase'}/!!;
-			if ($icon = get_tag_icon($t)) {
-				$tag = $t;
-				last;
-			}
+		$t =~ s!/$config{'tagbase'}/!!;
+		if ($icon = get_tag_icon($t)) {
+			$tag = $t;
+			last;
 		}
 	}
-	$icon = "/ikiwiki/images/osm.png" unless $icon;
+	$icon = urlto($icon, $dest);
 	$tag = '' unless $tag;
 	if ($page eq $dest) {
 		if (!defined($config{'osm_format'}) || !$config{'osm_format'}) {
@@ -186,7 +168,13 @@ sub process_waypoint {
 			will_render($page,$config{destdir} . "/$map/pois.kml");
 		}
 	}
-	my $href = "/ikiwiki.cgi?do=osm&map=$map&lat=$lat&lon=$lon&zoom=$zoom";
+	my $href = IkiWiki::cgiurl(
+		do => "osm",
+		map => $map,
+		lat => $lat,
+		lon => $lon,
+		zoom => $zoom,
+	);
 	if (defined($destsources{htmlpage($map)})) {
 		$href = urlto($map,$page) . "?lat=$lat&lon=$lon&zoom=$zoom";
 	}
@@ -221,10 +209,6 @@ sub get_tag_icon($) {
 	my $attached = $tag . '/' . $config{'osm_tag_default_icon'};
 	if (srcfile($attached)) {
 		return $attached;
-	}
-	# look for the old way: mappings
-	if ($config{'osm_tag_icons'}->{$tag}) {
-		return $config{'osm_tag_icons'}->{$tag};
 	}
 	else {
 		return undef;
