@@ -176,7 +176,8 @@ sub process_waypoint {
 		zoom => $zoom,
 	);
 	if (defined($destsources{htmlpage($map)})) {
-		$href = urlto($map,$page) . "?lat=$lat&lon=$lon&zoom=$zoom";
+		$href = urlto($map,$page) . "?lat=$lat&amp;lon=$lon&amp;zoom=$zoom";
+		$href =~ s!&!&amp;!g;
 	}
 	$pagestate{$page}{'osm'}{$map}{'waypoints'}{$name} = {
 		page => $page,
@@ -196,7 +197,6 @@ sub process_waypoint {
 		$output .= preprocess(%params);
 	}
 	if (!$hidden) {
-		$href =~ s!&!&amp;!g;
 		$output .= "<a href=\"$href\"><img class=\"img\" src=\"$icon\" $alt /></a>";
 	}
 	return $output;
