@@ -5,6 +5,7 @@ use warnings;
 use strict;
 use IkiWiki 3.00;
 use IPC::Open2;
+use HTML::Entities;
 
 sub import {
 	hook(type => "getsetup", id => "linkmap", call => \&getsetup);
@@ -21,6 +22,18 @@ sub getsetup () {
 }
 
 my $mapnum=0;
+
+sub pageescape {
+	my $item = shift;
+	# encoding explicitly in case ikiwiki is configured to accept <> or &
+	# in file names
+	my $title = pagetitle($item, 1);
+	# it would not be necessary to encode *all* the html entities (<> would
+	# be sufficient, &" probably a good idea), as dot accepts utf8, but it
+	# isn't bad either
+	$title = encode_entities($title);
+	return("<$title>");
+}
 
 sub preprocess (@) {
 	my %params=@_;
@@ -63,7 +76,7 @@ sub preprocess (@) {
 	my $show=sub {
 		my $item=shift;
 		if (! $shown{$item}) {
-			print OUT "\"$item\" [shape=box,href=\"$mapitems{$item}\"];\n";
+			print OUT pageescape($item)." [shape=box,href=\"$mapitems{$item}\"];\n";
 			$shown{$item}=1;
 		}
 	};
@@ -74,7 +87,7 @@ sub preprocess (@) {
 			foreach my $endpoint ($item, $link) {
 				$show->($endpoint);
 			}
-			print OUT "\"$item\" -> \"$link\";\n";
+			print OUT pageescape($item)." -> ".pageescape($link).";\n";
 		}
 	}
 	print OUT "}\n";
