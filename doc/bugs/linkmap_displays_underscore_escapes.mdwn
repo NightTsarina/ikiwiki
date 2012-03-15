@@ -1,0 +1,14 @@
+[[ikiwiki/directive/linkmap]]s display the file name instead of the pagetitle, showing unsightly underscore escapes and underscores instead of blanks to users.
+
+the attached [[!taglink patch]] fixes this; from its commit message:
+
+    display the pagetitle() in linkmaps
+    
+    without this patch, linkmaps display underscores and underscore escape
+    sequences in the rendered output.
+    
+    this introduces a pageescape function, which invoces pagetitle() to get
+    rid of underscore escapes and wraps the resulting utf8 string
+    appropriately for inclusion in a dot file (using dot's html encoding
+    because it can represent the '\"' dyad properly, and because it doesn't
+    need special-casing of newlines).
