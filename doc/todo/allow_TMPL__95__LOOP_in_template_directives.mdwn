@@ -192,7 +192,7 @@ NB: this *should* be 100% backwards compatible.
 		my $page = $params{page}->[$#{$params{page}}] ;
 		my $destpage = $params{destpage}->[$#{$params{destpage}}] ;
 	# ... and an essential one for the production pass
-		$params{basename} = IkiWiki::basename($page) ;
+		$params{basename} = [ IkiWiki::basename($page) ] ;
 
 	# load the template
 		my $template ;
