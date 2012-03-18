@@ -101,6 +101,14 @@ sub preprocess {
 	if ($zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18) {
 		error("Bad zoom");
 	}
+
+	if (! defined $href || ! length $href) {
+		$href=IkiWiki::cgiurl(
+			do => "osm",
+			map => $map,
+		);
+	}
+
 	$pagestate{$page}{'osm'}{$map}{'displays'}{$name} = {
 		height => $height,
 		width => $width,
