@@ -1,13 +1,22 @@
 The `graph` directive is supplied by the [[!iki plugins/graphviz desc=graphviz]] plugin.
 
-This directive allows embedding [graphviz](http://www.graphviz.org/) graphs in a
-page.  Example usage:
+This directive allows embedding [graphviz](http://www.graphviz.org/)
+graphs in a page.  Example usage:
 
 	\[[!graph src="a -> b -> c; a -> c;"]]
 
-Note that graphs will only show up in previews if your browser has
-[[!wikipedia data: URI]] support, or if the same graph already exists on that
-page.
+Nodes on the graph can link to external urls using regular graphviz syntax,
+and a clickable imagemap will be created. As a special extension for
+ikiwiki, [[WikiLinks|ikiwiki/wikilink]] can also be used. For example:
+
+	\[[!graph src=""""
+	google [ href="http://google.com/" ]
+	sandbox [ href=\[[SandBox]] ]
+	help [ href=\[[ikiwiki/formatting]] ]
+	newpage [ href=\[[NewPage]] ]
+	
+	google -> sandbox -> help -> newpage -> help -> google;
+	""""]]
 
 The `graph` directive supports the following parameters:
 

@@ -1,0 +1,93 @@
+Can't appear to get 'wiki' functions (i.e. editing) running when ikiwiki is running on a port other than the default (port 80).  Somewhere in the processing it considers the base URL to exclude the port number and the websever throws back an error finding the page.
+
+For example if you run on 'http://my.gear.xxx:8080/' then after clicking login (using default password auth) it will process and try to redirect you to 'http://my.gear.xxx/cgi-bin/ikiwiki.cgi'.  I'm assuming that somewhere we've used the 'path' and the 'host' and dropped the remainder.  I can figure out where this is yet but I'll post back if I get lucky.
+
+ -- fergus
+
+NB: both the 'url' and the 'cgiurl' include the port and removing the port element provides the expected functionality.
+
+---
+
+> I tried to reproduce this by making my laptop's web server use port
+> 8080. Set up ikiwiki to use that in cgiurl and url, and had
+> no problem with either openid or password auth login.
+> 
+> Ikiwiki has had some changes in this area in the past year; you don't say
+> what version you were using. It could also be a problem with your web
+> server, conceviably, if didn't correctly communicate the port to the cgi
+> program. --[[Joey]]
+
+---
+
+>> I did think of that so threw a 'printenv' script to check the port was arriving 
+right.
+
+>>>     SERVER_PORT=8181  
+>>>     HTTP_HOST=zippy0.ie0.cobbled.net  
+
+[ ... ]
+
+>>>> In apache, `HTTP_HOST` includes the port. This is not part of the CGI
+>>>> spec it seems, but perl's `CGI` module seems to rely on it,
+>>>> in `virtual_port`:
+
+>>>>>     my $vh = $self->http('x_forwarded_host') || $self->http('host');
+>>>>>     my $protocol = $self->protocol;
+>>>>>     if ($vh) {
+>>>>>        return ($vh =~ /:(\d+)$/)[0] || ($protocol eq 'https' ? 443 : 80);
+
+>>>> The `CGI` module only looks at `SERVER_PORT` when there's no
+>>>> `HTTP_HOST`. So this is either a bug in perl's CGI or thttpd.
+>>>> --[[Joey]]
+
+[ ... ]
+
+---
+
+>>>>> This is interesting.  If HTTP_HOST is wrong then
+
+>>>>> 0. the client header must be wrong (i.e. not including the PORT)
+>>>>> 0. `perl`'s doing something bad[tm] (or at least lazy)
+>>>>> 0. `apache` is adding it
+>>>>> 0. `thttpd` is stripping it
+
+>>>>> Quick hack shows that `thttpd` must be stripping the port
+number from the `Host:` header.  That can be fixed.
+
+>>>>> Thanks for the assist. -- fergus
+
+---
+
+Patch for `thttpd-2.25b` for posterity and completeness
+
+[[!format patch """
+
+diff --git a/libhttpd.c b/libhttpd.c
+index 73689be..039b7e3 100644
+--- a/libhttpd.c
++++ b/libhttpd.c
+@@ -2074,9 +2074,6 @@ httpd_parse_request( httpd_conn* hc )
+ 		cp = &buf[5];
+ 		cp += strspn( cp, " \t" );
+ 		hc->hdrhost = cp;
+-		cp = strchr( hc->hdrhost, ':' );
+-		if ( cp != (char*) 0 )
+-		    *cp = '\0';
+ 		if ( strchr( hc->hdrhost, '/' ) != (char*) 0 || hc->hdrhost[0] == '.' )
+ 		    {
+ 		    httpd_send_err( hc, 400, httpd_err400title, "", httpd_err400form, "" );
+
+"""]]
+
+-- fergus
+
+---
+
+I've gone ahead and filed a bug on CGI.pm too:
+<https://rt.cpan.org/Ticket/Display.html?id=72678> --[[Joey]] 
+
+---
+
+That'll be an interesting discussion as I'd suggest that HTTP_ headers are defined in the CGI specification as client headers and thus what `thttpd` is doing is wrong (i.e. mangling the client's own representation).  Whether a CGI client should trust HTTP_ header over the server is probably already settled by convention.
+
+-- fergus

@@ -1,0 +1,29 @@
+The `albumsection` directive is supplied by the [[!iki plugins/contrib/album desc=album]] plugin.
+
+The `albumsection` directive is used to split an album into sections. It can
+only appear on a page that also has the [[album]] directive.
+
+The `filter` parameter is a [[ikiwiki/PageSpec]] against which viewer pages
+are matched. The `albumsection` directive displays all the images that match
+the filter, and the `album` directive displays any leftover images, like
+this:
+
+    # Holiday photos
+
+    \[[!album]]
+    <!-- replaced with a list of any uncategorized photos; it will be
+         empty if they're all tagged as 'people' and/or 'landscapes' -->
+
+    ## People
+
+    \[[!albumsection filter="tagged(people)"]]
+    <!-- replaced with a list of photos tagged 'people', including
+         any that are also tagged 'landscapes' -->
+
+    ## Landscapes
+
+    \[[!albumsection filter="tagged(landscapes)"]]
+    <!-- replaced with a list of photos tagged 'landscapes', including
+         any that are also tagged 'people' -->
+
+[[!meta robots="noindex, follow"]]

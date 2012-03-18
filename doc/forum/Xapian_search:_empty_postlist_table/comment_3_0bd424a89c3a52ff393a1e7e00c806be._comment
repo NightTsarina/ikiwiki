@@ -1,0 +1,24 @@
+[[!comment format=mdwn
+ username="https://me.yahoo.com/a/2d7oNP9wlop3PaHlGlGS1J2ppVqXf4zQAw--#17b9b"
+ nickname="Matthew"
+ subject="comment 3"
+ date="2011-12-19T06:18:56Z"
+ content="""
+I had another go, this time with Xapian 1.2.8.0, and I finally got it working.  The errors I was seeing earlier were because Xapian installs itself in /usr/local, but the default CentOS environment doesn't have /usr/local/lib in the LD_LIBRARY_PATH.  As usual, the problem and solution are very duh, it's the error messages that make everything hard.  It's a lot more clear if you do a \"make test\" while building Search::Xapian:
+
+<pre>
+mexon:~/ikiwiki-temp/Search-Xapian-1.2.8.0$ make test
+PERL_DL_NONLAZY=1 /usr/bin/perl \"-MExtUtils::Command::MM\" \"-e\" \"test_harness(0, 'blib/lib', 'blib/arch')\" t/*.t
+t/01use...............
+#   Failed test 'use Search::Xapian;'
+#   in t/01use.t at line 3.
+#     Tried to use 'Search::Xapian'.
+#     Error:  Can't load '/home/mexon/ikiwiki-temp/Search-Xapian-1.2.8.0/blib/arch/auto/Search/Xapian/Xapian.so' for module Search::Xapian: libxapian.so.22: cannot open shared object file: No such file or directory at /usr/lib/perl5/5.8.8/i386-linux-thread-multi/DynaLoader.pm line 230.
+#  at (eval 3) line 2
+# Compilation failed in require at (eval 3) line 2.
+# BEGIN failed--compilation aborted at t/01use.t line 3.
+# Looks like you failed 1 test of 3.
+</pre>
+
+So yeah.  Worth noting that Xapian 1.2.5 is apparently broken with ikiwiki.  Maybe some kind of warning?
+"""]]

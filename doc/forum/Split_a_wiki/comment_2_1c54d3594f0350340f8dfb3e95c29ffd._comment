@@ -1,0 +1,20 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 2"
+ date="2011-12-04T13:37:27Z"
+ content="""
+If just deleting the unwanted pages is insufficient (e.g. perhaps they
+contain information that must not be made public), you can split a git
+repository (including ikiwiki repositories) with `git filter-branch` (see
+[this stackoverflow question](http://stackoverflow.com/questions/359424/detach-subdirectory-into-separate-git-repository),
+for instance).
+
+This preserves the history of each individual page, but rewrites the
+entire history of the repository (it re-does every commit, pretending
+that the addition of the omitted pages and every subsequent edit to
+them had never happened); it's like `git rebase` but more so.
+
+As a result, existing branches will no longer be able to push to the
+rewritten repository.
+"""]]

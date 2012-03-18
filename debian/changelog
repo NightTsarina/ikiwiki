@@ -1,3 +1,62 @@
+ikiwiki (3.20120202) unstable; urgency=low
+
+  * mdwn: Added nodiscount setting, which can be used to avoid using the
+    markdown discount engine, when maximum compatability is needed.
+  * Switch to YAML::XS to work around insanity in YAML::Mo. Closes: #657533
+  * cvs: Ensure text files are added in non-binary mode. (Amitai Schlair)
+  * cvs: Various cleanups and testing. (Amitai Schlair)
+  * calendar: Fix strftime encoding bug.
+  * shortcuts: Fixed a broken shortcut to wikipedia (accidentially
+    made into a shortcut to wikiMedia).
+  * Various portability improvements. (Amitai Schlair)
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 02 Feb 2012 21:42:40 -0400
+
+ikiwiki (3.20120115) unstable; urgency=low
+
+  * Make backlink(.) work. Thanks, Giuseppe Bilotta.
+  * mdwn: Workaround discount's eliding of <style> blocks.
+  * attachment: Fix utf-8 display bug.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 15 Jan 2012 16:19:25 -0400
+
+ikiwiki (3.20120109) unstable; urgency=low
+
+  * mdwn: Can use the discount markdown library, via the
+    Text::Markdown::Discount perl module. This is preferred if available
+    since it's the fastest currently supported markdown library, speeding up
+    ikiwiki's markdown rendering by a factor of 40.
+    (However, when multimarkdown is enabled, Text::Markdown::Multimarkdown
+    is still used.)
+  * On Debian, depend on libtext-markdown-discount.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 09 Jan 2012 11:49:14 -0400
+
+ikiwiki (3.20111229) unstable; urgency=low
+
+  * Consume all stdin when rcs_receive short-circuits,
+    to avoid git SIGPIPE race.
+  * Add path and path_natural sort orders (smcv)
+  * Test coverage can be checked with `make coverage` (smcv)
+  * tag: encode categories using numeric values. (tango)
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 29 Dec 2011 12:00:53 -0400
+
+ikiwiki (3.20111107) unstable; urgency=low
+
+  * img: Bugfix to width/height tags for scaled down image when only
+    one dimension was provided. Thanks, Per Carlson.
+  * editpage: Fix FormattingHelp link on Discussion pages.
+  * The umask setting can now be set to private, group, or public,
+    avoiding the need to enter octal correctly which is particularly
+    difficult in yaml setup files. (smcv)
+  * graphviz: Support urls embedded in the graph, by having graphviz
+    generate an imagemap.
+  * graphviz: Support wikilinks embedded in the graph.
+    (Sponsored by The TOVA Company.)
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 30 Nov 2011 16:31:48 -0400
+
 ikiwiki (3.20111106) unstable; urgency=low
 
   * searchquery.tmpl: Track escaping change in upstream template.

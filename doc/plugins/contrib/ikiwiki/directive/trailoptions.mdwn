@@ -1,0 +1,18 @@
+The `trailoptions` directive is supplied by the
+[[!iki plugins/contrib/trail desc=trail]] plugin. It sets options for the
+trail represented by this page.
+
+    \[[!trailoptions sort="meta(title)" circular="no"]]
+
+Options available:
+
+* `sort`: sets a [[ikiwiki/pagespec/sorting]] order for the entire trail,
+  overriding the order in which they were added
+
+* `reverse`: reverses the order of the trail
+
+* `circular`: if set to `yes` or `1`, the trail is made into a loop by
+  making the last page's "next" link point to the first page, and the first
+  page's "previous" link point to the last page
+
+[[!meta robots="noindex, follow"]]

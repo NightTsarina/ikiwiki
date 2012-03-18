@@ -1,0 +1,19 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 1"
+ date="2011-11-21T11:37:02Z"
+ content="""
+You could use [[plugins/pagetemplate]] to override all of `page.tmpl`, but
+that's using a sledgehammer to crack a nut.
+
+Another way to do it would be to modify `IkiWiki/Plugins/favicon.pm`
+to use `bestlink` to find the favicon, like [[plugins/localstyle]] does.
+If you made it a config option (`localfavicon => 1` or something)
+it could probably be included in ikiwiki as part of the official
+[[plugins/favicon]] plugin?
+
+Another way would be to have a new `localfavicon` plugin which overrides
+the template variable from [[plugins/favicon]], using `last => 1` to
+make sure it \"wins\".
+"""]]

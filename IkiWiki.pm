@@ -20,7 +20,7 @@ use Exporter q{import};
 our @EXPORT = qw(hook debug error htmlpage template template_depends
 	deptype add_depends pagespec_match pagespec_match_list bestlink
 	htmllink readfile writefile pagetype srcfile pagename
-	displaytime will_render gettext ngettext urlto targetpage
+	displaytime strftime_utf8 will_render gettext ngettext urlto targetpage
 	add_underlay pagetitle titlepage linkpage newpagefile
 	inject add_link add_autofile
 	%config %links %pagestate %wikistate %renderedfiles
@@ -305,9 +305,9 @@ sub getsetup () {
 		rebuild => 0,
 	},
 	umask => {
-		type => "integer",
-		example => "022",
-		description => "force ikiwiki to use a particular umask",
+		type => "string",
+		example => "public",
+		description => "force ikiwiki to use a particular umask (keywords public, group or private, or a number)",
 		advanced => 1,
 		safe => 0, # paranoia
 		rebuild => 0,
@@ -587,7 +587,23 @@ sub checkconfig () {
 		unless exists $config{wikistatedir} && defined $config{wikistatedir};
 
 	if (defined $config{umask}) {
-		umask(possibly_foolish_untaint($config{umask}));
+		my $u = possibly_foolish_untaint($config{umask});
+
+		if ($u =~ m/^\d+$/) {
+			umask($u);
+		}
+		elsif ($u eq 'private') {
+			umask(077);
+		}
+		elsif ($u eq 'group') {
+			umask(027);
+		}
+		elsif ($u eq 'public') {
+			umask(022);
+		}
+		else {
+			error(sprintf(gettext("unsupported umask setting %s"), $u));
+		}
 	}
 
 	run_hooks(checkconfig => sub { shift->() });
@@ -1132,9 +1148,19 @@ sub formattime ($;$) {
 		$format=$config{timeformat};
 	}
 
+	return strftime_utf8($format, localtime($time));
+}
+
+my $strftime_encoding;
+sub strftime_utf8 {
 	# strftime doesn't know about encodings, so make sure
-	# its output is properly treated as utf8
-	return decode_utf8(POSIX::strftime($format, localtime($time)));
+	# its output is properly treated as utf8.
+	# Note that this does not handle utf-8 in the format string.
+	($strftime_encoding) = POSIX::setlocale(&POSIX::LC_TIME) =~ m#\.([^@]+)#
+		unless defined $strftime_encoding;
+	$strftime_encoding
+		? Encode::decode($strftime_encoding, POSIX::strftime(@_))
+		: POSIX::strftime(@_);
 }
 
 sub date_3339 ($) {
@@ -2631,8 +2657,14 @@ sub match_link ($$;@) {
 }
 
 sub match_backlink ($$;@) {
-	my $ret=match_link($_[1], $_[0], @_);
-	$ret->influences($_[1] => $IkiWiki::DEPEND_LINKS);
+	my $page=shift;
+	my $testpage=shift;
+	my %params=@_;
+	if ($testpage eq '.') {
+		$testpage = $params{'location'}
+	}
+	my $ret=match_link($testpage, $page, @_);
+	$ret->influences($testpage => $IkiWiki::DEPEND_LINKS);
 	return $ret;
 }
 

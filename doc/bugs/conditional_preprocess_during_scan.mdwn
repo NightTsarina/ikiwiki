@@ -28,7 +28,27 @@ reprocessed is done so in the same conditions as the original call.
 >> upstream.
 
 >> For what it's worth, I think that my post_scan hook mechanism would work
->> rather fine with your trail plugin. However, the case of the if
+>> rather fine with your trail plugin.
+
+>>> We discussed this on IRC, and I think it's actually more complicated
+>>> than that: the branch to sort by newest inlined entry wants a
+>>> "pagespecs now work" hook, whereas for trail I want a "sorting now
+>>> works" hook:
+>>>
+>>> * scan
+>>> * pagespecs now work (post-scan)
+>>>   * Giuseppe's version of inline can decide what each inline
+>>>     contains, and thus decide where they go in `inline(mtime)`
+>>>     order
+>>> * pagespecs and sorting now work (pre-render)
+>>>   * my trail plugin can decide what each trail contains, and
+>>>     also sort them in the right order (which might be
+>>>     `inline(mtime)`, so might be undefined until pagespecs work)
+>>> * render
+>>>
+>>> --[[smcv]]
+
+>> However, the case of the if
 >> directive is considerably more complicated, because the conditional
 >> can introduce a much stronger feedback effect in the pre/post scanning
 >> dependency. In fact, it's probably possible to build a couple of pages

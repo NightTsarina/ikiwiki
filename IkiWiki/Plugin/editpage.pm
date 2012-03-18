@@ -231,7 +231,7 @@ sub cgi_editpage ($$) {
 					if ! $form->submitted && lc($page) ne $page;
 			}
 			elsif (lc $page eq lc $config{discussionpage}) {
-				@page_locs=$best_loc=$page="$from/".lc($page);
+				@page_locs=$best_loc="$from/".lc($page);
 			}
 			else {
 				my $dir=$from."/";

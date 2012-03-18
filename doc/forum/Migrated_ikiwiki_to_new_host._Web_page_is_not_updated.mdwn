@@ -1,0 +1,27 @@
+I copied ikiwiki from old host to new. Old is Debian GNU/Linux version 5.0.7, with ikiwiki 3.1415926~bpo50+1
+New host is 5.0.8 with ikiwiki 3.20100815~bpo50+1
+
+I have ikiwiki.setup and both GIT repos from old host, src and src.git, the latter is bare repo. 
+
+I suspect I have messed up things in the old host, since the src directory tree is much larger than the src.git. 
+tale@tugelbend:~/wiki$ du -sh src src.git/
+8,3M	src
+2,6M	src.git/
+
+If I clone the src.git to the new host, I get after ikiwiki --setup web pages from year 2009. So I did the migration like this:
+
+Copy the src directory to the new host to temp dir;  git clone --bare /tmp/Foo/src ~/wiki/wiki.git 
+cd ~/wiki
+git clone wiki.git wiki.src
+cd ..
+ikiwiki --setup ikiwiki.setup
+
+I believe I have modified the ikiwiki.setup file correctly, I get no error messages and it makes the web page with the
+same content as on old host. But when I git clone wiki.git a working copy for myself, and edit it, git commit -a ; git push
+I am sad to see the web page is not updated. 
+
+How can I see what is wrong? The hook seems OK:
+taleman@porixi:~/wiki$ ls -lh wiki.git/hooks/post-update 
+-rwsr-sr-x 1 taleman taleman 14K 23.12. 17:42 wiki.git/hooks/post-update
+
+ikiwiki --setup created that and did not claim any errors. 

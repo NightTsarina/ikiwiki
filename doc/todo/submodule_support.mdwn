@@ -1,0 +1,15 @@
+I would love to be able to publish my theme in my personnal wiki. The theme is in a separate git repository, and i feel it would be pretty awesome if it was rendered within my main ikiwiki site. I have tried the following:
+
+    git submodule add /usr/share/ikiwiki/themes/night_city/
+    git commit -m"add the theme to my site" ; git push
+
+But this made really weird things on the other side. The files from the theme end up flat in the parent directory. Now I have reverted the above change and ikiwiki *still* generates those files. Not sure what is going on. 
+
+To be really clear here: this is an arbitrary source code repository that I want to include, I do not mean to enable the theme with this, this could very well be presentation material, C source code or whatever else... In fact, I think this would be a powerful way to do syntax highlightning for source code published on your website...
+
+Other people had experience with this? Or other suggestions on how to publish repositories within my site? -- [[anarcat]]
+
+> Ikiwiki does not support git submodules. 
+> 
+> You can use the [[plugins/underlay]] plugin to merge the
+> contents of other directories into your wiki's source. --[[Joey]] 

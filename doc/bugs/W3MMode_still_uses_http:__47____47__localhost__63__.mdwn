@@ -1,0 +1,24 @@
+My setup matches w3mmode [[w3mmode/ikiwiki.setup]] exactly.
+My doc/index.mdwn just has a line or two of plain text.
+When I try to edit that page in w3m, it works fine until I push [Save Page].
+Then I just get a page that only contains "403".
+
+ikiwiki version is 3.20110715ubuntu1.
+w3m is 0.5.3.
+
+-- [[terry|tjgolubi]]
+
+I made it work, though probably not completely, by renaming
+~/.ikiwiki/wrappers/ikiwiki.cgi to ikiwiki2.cgi and replacing it with:
+
+    #!/bin/bash
+    /home/tjgolubi/.ikiwiki/wrappers/ikiwiki2.cgi $* | sed -e 's,http://localhost,file://,g'
+
+I'm afraid that this hack may have bad side-effects, but I hope it points you to the cause/solution.
+Of course, the next time I rerun ikiwiki --setup, it will overwrite my wrapper-wrapper.
+
+-- [[terry|tjgolubi]]
+
+I made a logfile of all the args, env, and stdin/stdout to/from my wrapper.  If you're interested, I'll email it to you.  I wasn't able to attach it here.
+
+-- [[terry|tjgolubi]]

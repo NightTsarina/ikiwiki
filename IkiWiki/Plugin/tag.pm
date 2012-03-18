@@ -201,7 +201,7 @@ sub pagetemplate (@) {
 		if (defined $tags && %$tags) {
 			eval q{use HTML::Entities};
 			$template->param(categories =>
-				[map { category => HTML::Entities::encode_entities(tagname($_)) },
+				[map { category => HTML::Entities::encode_entities_numeric(tagname($_)) },
 					sort keys %$tags]);
 		}
 	}

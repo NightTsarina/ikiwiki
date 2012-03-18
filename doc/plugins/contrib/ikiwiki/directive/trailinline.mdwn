@@ -1,0 +1,11 @@
+The `trailinline` directive is provided by the
+[[!iki plugins/contrib/trail desc=trail]]
+plugin. It is equivalent to combining [[ikiwiki/directive/trailitems]] and
+[[ikiwiki/directive/inline]] directives with the same options.
+
+A typical use is to navigate through all posts in a blog:
+
+      \[[!trailinline pages="page(./posts/*) and !*/Discussion" archive=yes
+        feedshow=10 quick=yes]]
+
+[[!meta robots="noindex, follow"]]

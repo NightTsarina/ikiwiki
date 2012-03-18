@@ -4,11 +4,19 @@ They don't want to back out of post to an index. They want an easy button to cli
 
 <http://codex.wordpress.org/Next_and_Previous_Links>
 
-Thank you
+[Jekyll](http://jekyllrb.com/)'s implementation looks rather neat:
+
+* <https://github.com/mojombo/jekyll/wiki/template-data>
+* <https://github.com/mojombo/jekyll/blob/master/lib/jekyll/generators/pagination.rb>
+
+
 
 > This is a perfect use for [[todo/wikitrails]], of which my
 > [[plugins/contrib/trail]] plugin is an implementation. Code review on that
 > plugin would be welcome; it might even get merged one day.
+>
+>> The trail plugin is very likely to be merged soon, and is already
+>> available. So, closing this bug report [[done]] --[[Joey]]
 >
 > Unfortunately, IkiWiki blogs use a [[ikiwiki/PageSpec]] to define the set of
 > "posts" in the blog (through which the next/prev trail should range), and
@@ -27,7 +35,34 @@ Thank you
 > reduces the generic usefulness of typed links, though - in particular
 > you can no longer use "is part of trail A" in a PageSpec. --[[smcv]]
 
+>> Version 3 of [[plugins/contrib/trail]] now does this. For `traillink`
+>> and `trailitem` it additionally adds a typed link, which it does not
+>> itself consume; for `trailinline` and `trail` it doesn't. --[[smcv]]
+
 >>> Indeed, I know the problem; I ran into the same kind of thing with my [[plugins/contrib/report]] plugin and its `trail` concept.
 >>> I simply had to declare that one couldn't use "trail" and "maketrail" options within the same report. That way, "maketrail" will add links in the "scan" pass, and "trail" will test for links in the "build" pass.  That usually works. --[[KathrynAndersen]]
 
+>>>> I'm not sure that even that is *quite* right: if your `trail` takes
+>>>> pagespecs as arguments, then it's potentially evaluating those pagespecs
+>>>> before all pages have been scanned, which could mean it lists pages
+>>>> which matched the spec before a recent change, or doesn't list pages
+>>>> which didn't previously match the spec but do now.
+>>>>
+>>>> In version 3 of [[plugins/contrib/trail]] I ended up storing
+>>>> uninterpreted pagespecs and links at scan time, and evaluating them the
+>>>> first time a page is built. I *think* that's sufficiently lazy to give
+>>>> the right answer... --[[smcv]]
+
 >> Do you have an example? --[[hendry]]
+
+>>> Now linked on the plugin's page - it doesn't pretend to be a blog, but
+>>> [the second demo](http://demo.hosted.pseudorandom.co.uk/trail2/)
+>>> is a `trailinline`, so you could do that with blog posts just as well.
+>>> Making [[plugins/contrib/album]] require `trail` v3, and trying it out
+>>> on my blog, are next on the list.
+>>> --[[smcv]]
+
+>>>> Sorry thank link <http://demo.hosted.pseudorandom.co.uk/trail2/> doesn't work. I get a forbidden. --[[hendry]]
+
+
+[[wishlist]]

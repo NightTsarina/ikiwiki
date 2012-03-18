@@ -25,6 +25,13 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
+		nodiscount => {
+			type => "boolean",
+			example => 0,
+			description => "disable use of markdown discount?",
+			safe => 1,
+			rebuild => 1,
+		},
 }
 
 my $markdown_sub;
@@ -47,6 +54,25 @@ sub htmlize (@) {
 			else {
 				$markdown_sub=sub {
 					Text::MultiMarkdown::markdown(shift, {use_metadata => 0});
+				}
+			}
+		}
+		if (! defined $markdown_sub &&
+		    (! exists $config{nodiscount} || ! $config{nodiscount})) {
+			eval q{use Text::Markdown::Discount};
+			if (! $@) {
+				$markdown_sub=sub {
+					my $t=shift;
+					# Workaround for discount binding bug
+					# https://rt.cpan.org/Ticket/Display.html?id=73657
+					return "" if $t=~/^\s*$/;
+					# Workaround for discount's eliding
+					# of <style> blocks.
+					# https://rt.cpan.org/Ticket/Display.html?id=74016
+					$t=~s/<style/<elyts/ig;
+					my $r=Text::Markdown::Discount::markdown($t);
+					$r=~s/<elyts/<style/ig;
+					return $r;
 				}
 			}
 		}
