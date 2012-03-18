@@ -71,26 +71,15 @@ sub preprocess {
 	my $lon = $params{'lon'}; # sanitized below
 	my $href = $params{'href'};
 
-	my $fullscreen = defined($params{'fullscreen'}); # sanitized here
 	my ($width, $height, $float);
-	if ($fullscreen) {
-		$height = '100%';
-		$width = '100%';
-		$float = 0;
-	}
-	else {
-		$height = scrub($params{'height'} || "300px", $page, $dest); # sanitized here
-		$width = scrub($params{'width'} || "500px", $page, $dest); # sanitized here
-		$float = (defined($params{'right'}) && 'right') || (defined($params{'left'}) && 'left'); # sanitized here
-	}
+	$height = scrub($params{'height'} || "300px", $page, $dest); # sanitized here
+	$width = scrub($params{'width'} || "500px", $page, $dest); # sanitized here
+	$float = (defined($params{'right'}) && 'right') || (defined($params{'left'}) && 'left'); # sanitized here
+	
 	my $zoom = scrub($params{'zoom'} // $config{'osm_default_zoom'} // 15, $page, $dest); # sanitized below
 	my $map;
-	if ($fullscreen) {
-		$map = $params{'map'} || $page;
-	}
-	else {
-		$map = $params{'map'} || 'map';
-	}
+	$map = $params{'map'} || 'map';
+	
 	$map = scrub($map, $page, $dest); # sanitized here
 	my $name = scrub($params{'name'} || $map, $page, $dest);
 
@@ -114,7 +103,7 @@ sub preprocess {
 		width => $width,
 		float => $float,
 		zoom => $zoom,
-		fullscreen => $fullscreen,
+		fullscreen => 0,
 		editable => defined($params{'editable'}),
 		lat => $lat,
 		lon => $lon,
