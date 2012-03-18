@@ -17,6 +17,7 @@ sub import {
 	hook(type => "preprocess", id => "trailitems", call => \&preprocess_trailitems, scan => 1);
 	hook(type => "preprocess", id => "traillink", call => \&preprocess_traillink, scan => 1);
 	hook(type => "pagetemplate", id => "trail", call => \&pagetemplate);
+	hook(type => "build_affected", id => "trail", call => \&build_affected);
 }
 
 =head1 Page state
@@ -275,13 +276,8 @@ sub trails_differ {
 
 my $done_prerender = 0;
 
-my %origsubs;
-
 sub prerender {
 	return if $done_prerender;
-
-	$origsubs{render_backlinks} = \&IkiWiki::render_backlinks;
-	inject(name => "IkiWiki::render_backlinks", call => \&render_backlinks);
 
 	%trail_to_members = ();
 	%member_to_trails = ();
@@ -368,18 +364,14 @@ sub prerender {
 	$done_prerender = 1;
 }
 
-# This is called at about the right time that we can hijack it to render
-# extra pages.
-sub render_backlinks ($) {
-	my $blc = shift;
+sub build_affected {
+	my %affected;
 
 	foreach my $member (keys %rebuild_trail_members) {
-		next unless exists $pagesources{$member};
-
-		IkiWiki::render($pagesources{$member}, sprintf(gettext("building %s, its previous or next page has changed"), $member));
+		$affected{$member} = sprintf(gettext("building %s, its previous or next page has changed"), $member);
 	}
 
-	$origsubs{render_backlinks}($blc);
+	return %affected;
 }
 
 sub title_of ($) {

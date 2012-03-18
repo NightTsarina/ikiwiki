@@ -356,6 +356,22 @@ when the page is being previewed.)
 The function is passed named parameters: "page" and "content", and 
 should return the formatted content.
 
+### build_affected
+
+	hook(type => "build_affected", id => "foo", call => \&build_affected);
+
+This hook is called after the directly changed pages have been built,
+and can cause extra pages to be built. If links and backlinks were provided
+by a plugin, this would be where that plugin would rebuild pages whose
+backlinks have changed, for instance. The [[trail]] plugin uses this hook
+to rebuild pages whose next or previous page has changed.
+
+The function should currently ignore its parameters. It returns a list with
+an even number of items (a hash in list context), where the first item of
+each pair is a page name to be rebuilt (if it was not already rebuilt), and
+the second is a log message resembling
+`building plugins/write because the phase of the moon has changed`.
+
 ### delete
 
 	hook(type => "delete", id => "foo", call => \&delete);
