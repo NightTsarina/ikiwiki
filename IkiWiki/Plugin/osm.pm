@@ -64,12 +64,12 @@ sub getsetup () {
 
 sub preprocess {
 	my %params=@_;
-	my $page = $params{'page'};
-	my $dest = $params{'destpage'};
-	my $loc = $params{'loc'}; # sanitized below
-	my $lat = $params{'lat'}; # sanitized below
-	my $lon = $params{'lon'}; # sanitized below
-	my $href = $params{'href'};
+	my $page = $params{page};
+	my $dest = $params{destpage};
+	my $loc = $params{loc}; # sanitized below
+	my $lat = $params{lat}; # sanitized below
+	my $lon = $params{lon}; # sanitized below
+	my $href = $params{href};
 
 	my ($width, $height, $float);
 	$height = scrub($params{'height'} || "300px", $page, $dest); # sanitized here
@@ -162,17 +162,6 @@ sub process_waypoint {
 			will_render($page, "$map/pois.kml");
 		}
 	}
-	my $href = IkiWiki::cgiurl(
-		do => "osm",
-		map => $map,
-		lat => $lat,
-		lon => $lon,
-		zoom => $zoom,
-	);
-	if (defined($destsources{htmlpage($map)})) {
-		$href = urlto($map,$page) . "?lat=$lat&amp;lon=$lon&amp;zoom=$zoom";
-		$href =~ s!&!&amp;!g;
-	}
 	$pagestate{$page}{'osm'}{$map}{'waypoints'}{$name} = {
 		page => $page,
 		desc => $desc,
@@ -186,13 +175,22 @@ sub process_waypoint {
 		# so must be absolute.
 		href => urlto($page),
 	};
+
+	my $mapurl = IkiWiki::cgiurl(
+		do => "osm",
+		map => $map,
+		lat => $lat,
+		lon => $lon,
+		zoom => $zoom,
+	);
 	my $output = '';
 	if (defined($params{'embed'})) {
-		$params{'href'} = $href; # propagate down to embeded
-		$output .= preprocess(%params);
+		$output .= preprocess(%params,
+			href => $mapurl,
+		);
 	}
 	if (!$hidden) {
-		$output .= "<a href=\"$href\"><img class=\"img\" src=\"$icon\" $alt /></a>";
+		$output .= "<a href=\"$mapurl\"><img class=\"img\" src=\"$icon\" $alt /></a>";
 	}
 	return $output;
 }
