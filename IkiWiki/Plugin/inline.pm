@@ -19,7 +19,7 @@ sub import {
 	hook(type => "checkconfig", id => "inline", call => \&checkconfig);
 	hook(type => "sessioncgi", id => "inline", call => \&sessioncgi);
 	hook(type => "preprocess", id => "inline", 
-		call => \&IkiWiki::preprocess_inline);
+		call => \&IkiWiki::preprocess_inline, scan => 1);
 	hook(type => "pagetemplate", id => "inline",
 		call => \&IkiWiki::pagetemplate_inline);
 	hook(type => "format", id => "inline", call => \&format, first => 1);
@@ -155,6 +155,23 @@ sub preprocess_inline (@) {
 	if (! exists $params{pages} && ! exists $params{pagenames}) {
 		error gettext("missing pages parameter");
 	}
+
+	if (! defined wantarray) {
+		# Running in scan mode: only do the essentials
+
+		if (yesno($params{trail}) && IkiWiki::Plugin::trail->can("preprocess_trailitems")) {
+			# default to sorting age, the same as inline itself,
+			# but let the params override that
+			IkiWiki::Plugin::trail::preprocess_trailitems(sort => 'age', %params);
+		}
+
+		return;
+	}
+
+	if (yesno($params{trail}) && IkiWiki::Plugin::trail->can("preprocess_trailitems")) {
+		scalar IkiWiki::Plugin::trail::preprocess_trailitems(sort => 'age', %params);
+	}
+
 	my $raw=yesno($params{raw});
 	my $archive=yesno($params{archive});
 	my $rss=(($config{rss} || $config{allowrss}) && exists $params{rss}) ? yesno($params{rss}) : $config{rss};

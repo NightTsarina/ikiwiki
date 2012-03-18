@@ -60,13 +60,13 @@ ok(utime(333333333, 333333333, "t/tmp/in/sorting/new.mdwn"));
 ok(utime(222222222, 222222222, "t/tmp/in/sorting/old.mdwn"));
 ok(utime(111111111, 111111111, "t/tmp/in/sorting/ancient.mdwn"));
 writefile("sorting/linked2.mdwn", "t/tmp/in", "linked2");
-# This initially uses the default sort order: age for trailinline, and path
-# for trail. We change it later.
+# This initially uses the default sort order: age for the inline, and path
+# for trailitems. We change it later.
 writefile("sorting.mdwn", "t/tmp/in",
 	'[[!traillink linked]] ' .
 	'[[!trailitems pages="sorting/z/a or sorting/a/b or sorting/a/c"]] ' .
 	'[[!trailitems pagenames="beginning middle end"]] ' .
-	'[[!trailinline pages="sorting/old or sorting/ancient or sorting/new"]] ' .
+	'[[!inline pages="sorting/old or sorting/ancient or sorting/new" trail="yes"]] ' .
 	'[[!traillink linked2]]');
 
 writefile("meme.mdwn", "t/tmp/in", <<EOF

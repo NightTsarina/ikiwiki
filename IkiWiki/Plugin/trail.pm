@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # Copyright © 2008-2011 Joey Hess
-# Copyright © 2009-2011 Simon McVittie <http://smcv.pseudorandom.co.uk/>
+# Copyright © 2009-2012 Simon McVittie <http://smcv.pseudorandom.co.uk/>
 # Licensed under the GNU GPL, version 2, or any later version published by the
 # Free Software Foundation
 package IkiWiki::Plugin::trail;
@@ -13,7 +13,6 @@ sub import {
 	hook(type => "getsetup", id => "trail", call => \&getsetup);
 	hook(type => "needsbuild", id => "trail", call => \&needsbuild);
 	hook(type => "preprocess", id => "trailoptions", call => \&preprocess_trailoptions, scan => 1);
-	hook(type => "preprocess", id => "trailinline", call => \&preprocess_trailinline, scan => 1);
 	hook(type => "preprocess", id => "trailitem", call => \&preprocess_trailitem, scan => 1);
 	hook(type => "preprocess", id => "trailitems", call => \&preprocess_trailitems, scan => 1);
 	hook(type => "preprocess", id => "traillink", call => \&preprocess_traillink, scan => 1);
@@ -121,29 +120,6 @@ sub preprocess_trailoptions (@) {
 	}
 
 	return "";
-}
-
-sub preprocess_trailinline (@) {
-	my %params = @_;
-
-	if (! exists $params{sort}) {
-		# sort in the same order as [[plugins/inline]]'s default
-		$params{sort} = 'age';
-	}
-
-	if (defined wantarray) {
-		scalar preprocess_trailitems(%params);
-
-		if (IkiWiki->can("preprocess_inline")) {
-			return IkiWiki::preprocess_inline(@_);
-		}
-		else {
-			error("trailinline directive requires the inline plugin");
-		}
-	}
-	else {
-		preprocess_trailitems(%params);
-	}
 }
 
 sub preprocess_trailitem (@) {

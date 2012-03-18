@@ -3,8 +3,7 @@
 
 This plugin provides the [[ikiwiki/directive/trailoptions]],
 [[ikiwiki/directive/traillink]], [[ikiwiki/directive/trailitem]],
-[[ikiwiki/directive/trailitems]]
-and [[ikiwiki/directive/trailinline]] [[directives|ikiwiki/directive]].
+and [[ikiwiki/directive/trailitems]] [[directives|ikiwiki/directive]].
 
 It's sometimes useful to have "trails" of pages in a wiki where each
 page links to the next and/or previous page. For instance, you could use
@@ -24,15 +23,16 @@ entire trail.
 
 Pages can be included in a trail in various ways:
 
-* The [[ikiwiki/directive/trailinline]] directive sets up an [[inline]],
-  and at the same time adds the matching pages (from `pages` or `pagenames`)
-  to the trail. One use is to navigate through all posts in a blog:
+* The [[ikiwiki/directive/inline]] directive with `trail="yes"` sets up an
+  [[inline]], and at the same time adds the matching pages (from `pages` or
+  `pagenames`) to the trail. One use is to navigate through all posts in
+  a blog:
 
-        \[[!trailinline pages="page(./posts/*) and !*/Discussion" archive=yes
-          feedshow=10 quick=yes]]
+        \[[!inline pages="page(./posts/*) and !*/Discussion" archive=yes
+          feedshow=10 quick=yes trail=yes]]
 
-  This directive only works if the [[!iki plugins/inline desc=inline]]
-  plugin is also enabled.
+  This only works if the trail and [[!iki plugins/inline desc=inline]]
+  plugins are both enabled.
 
 * The [[ikiwiki/directive/trailitems]] directive has optional `pages` and
   `pagenames` options which behave the same as in [[inline]], but don't
