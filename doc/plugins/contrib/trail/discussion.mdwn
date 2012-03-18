@@ -1,0 +1,39 @@
+I believe the `trail3-integrated` and `trail3-prebuild` branches address
+Joey's review comments from IRC:
+
+> 06-12-2011 19:01:07 <joeyh>: ok, light review finished. so, if you want
+> to make a branch with inline trail=yes, and perhaps also adding a hook
+> so you don't need to inject, I think I can merge it right away
+
+I haven't published instructions for using this version as a
+standalone plugin, because it needs core and inline changes.
+
+Commits up to 63bb8b42 make the trail plugin better-integrated,
+including `\[[!inline trail=yes]]`. 63bb8b42 is the commit to
+merge if you don't like the design of my hooks.
+
+Commit 24168b99 adds a `build_affected` hook, run at about the
+same time as `render_backlinks`, and uses it to render the
+extra pages. This removes the need for `trail` to inject
+anything. In principle, backlinks etc. could use this hook
+too, if they weren't core.
+
+Commit d0dea308 on the `trail3-prebuild` branch adds a
+`prebuild` hook, which runs after everything has been scanned
+but before anything is rendered. This removes the need
+for `trail` to run its old `prerender` function in its
+render hooks (preprocess, pagetemplate etc.) to collate
+metadata before it renders anything. However, I'm not sure
+that this is really the right thing to do, which is why it's
+in its own branch: the `prebuild` hook is a lot like
+`needsbuild` (but later), so it's called even if no trail
+or trail member has actually been edited.
+
+For it to be useful for `trail`, the `prebuild` hook has to run
+after both pagespecs and sorting work. The other use case
+I've seen for a similar hook was for Guiseppe Bilotta to
+sort an inline-of-inlines by mtime of newest post, but that
+can't be the same hook, because it has to run after pagespecs
+work, but before sorting.
+
+--[[smcv]]
