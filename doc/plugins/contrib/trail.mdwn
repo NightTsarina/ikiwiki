@@ -1,7 +1,7 @@
 [[!tag patch]]
-[[!template id=gitbranch branch=smcv/trail3 author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/trail3-integrated author="[[smcv]]"]]
 
-Available from [[smcv]]'s git repository, in the `trail3` branch. This
+Available from [[smcv]]'s git repository, in the `trail3` and `trail3-integrated` branches. This
 plugin aims to solve [[todo/wikitrails]] in a simpler way; it can also be
 used for [[navigation through blog posts|todo/Pagination_next_prev_links]].
 
@@ -38,7 +38,7 @@ as its data structure, resulting in timing-related limitations (it couldn't
 select pages for the trail by using pagespecs, because pagespecs can't be
 evaluated correctly until the scan stage has finished).
 
-Updated, November 2011:
+Updated, November 2011 (`trail3`):
 
 * reinstated `inline` integration ([[report]] integration would probably be
   pretty easy too, if this gets merged)
@@ -48,6 +48,12 @@ Updated, November 2011:
 * regression test with nearly full coverage
 * CSS for the default anti-theme and all built-in themes (it looks nicest
   in the default anti-theme and in actiontabs - the demo uses actiontabs)
+
+Updated, March 2012 (`trail3-integrated`):
+
+* replaced `\[[!trailinline]]` with `\[[!inline trail=yes]]`
+* added a `build_affected` hook so it doesn't have to use `inject`
+  (optional commit, can be omitted)
 
 Known bugs:
 
