@@ -191,10 +191,11 @@ sub process_waypoint {
 		tag => $tag,
 		lat => $lat,
 		lon => $lon,
-		# how to link back to the page from the map, not to be
+		# How to link back to the page from the map, not to be
 		# confused with the URL of the map itself sent to the
-		# embeded map below
-		href => urlto($page,$map),
+		# embeded map below. Note: used in generated KML etc file,
+		# so must be absolute.
+		href => urlto($page),
 	};
 	my $output = '';
 	if (defined($params{'embed'})) {
