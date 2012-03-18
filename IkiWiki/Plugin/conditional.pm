@@ -4,7 +4,6 @@ package IkiWiki::Plugin::conditional;
 use warnings;
 use strict;
 use IkiWiki 3.00;
-use UNIVERSAL;
 
 sub import {
 	hook(type => "getsetup", id => "conditional", call => \&getsetup);

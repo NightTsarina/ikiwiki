@@ -148,7 +148,7 @@ sub formbuilder (@) {
 			$f=Encode::decode_utf8($f);
 			$f=~s/^$page\///;
 			if (IkiWiki::isinlinableimage($f) &&
-			    UNIVERSAL::can("IkiWiki::Plugin::img", "import")) {
+			    IkiWiki::Plugin::img->can("import")) {
 				$add.='[[!img '.$f.' align="right" size="" alt=""]]';
 			}
 			else {

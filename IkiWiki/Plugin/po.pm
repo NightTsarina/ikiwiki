@@ -23,7 +23,6 @@ use File::Copy;
 use File::Spec;
 use File::Temp;
 use Memoize;
-use UNIVERSAL;
 
 my ($master_language_code, $master_language_name);
 my %translations;
