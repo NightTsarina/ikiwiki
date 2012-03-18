@@ -521,6 +521,8 @@ sub cgi($) {
 
 	return unless defined $cgi->param('do') &&
 		$cgi->param("do") eq "osm";
+	
+	IkiWiki::loadindex();
 
 	IkiWiki::decode_cgi_utf8($cgi);
 
