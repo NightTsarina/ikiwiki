@@ -41,13 +41,13 @@ function mapsetup(divname, options) {
 	map.addLayer(new OpenLayers.Layer.OSM());
 	if (options.format == 'CSV') {
 		pois = new OpenLayers.Layer.Text( "CSV",
-			{ location:"/" + options.map + "/pois.txt",
+			{ location: options.csvurl,
 			  projection: map.displayProjection
 			});
 	} else if (options.format == 'GeoJSON') {
 		pois = new OpenLayers.Layer.Vector("GeoJSON", {
 			protocol: new OpenLayers.Protocol.HTTP({
-				url: "/" + options.map + "/pois.json",
+				url: options.jsonurl,
 				format: new OpenLayers.Format.GeoJSON()
 			}),
 			strategies: [new OpenLayers.Strategy.Fixed()]
@@ -55,7 +55,7 @@ function mapsetup(divname, options) {
 	} else {
 		pois = new OpenLayers.Layer.Vector("KML", {
 			protocol: new OpenLayers.Protocol.HTTP({
-				url: "/" + options.map + "/pois.kml",
+				url: options.kmlurl,
 				format: new OpenLayers.Format.KML({
 					extractStyles: true,
 					extractAttributes: true

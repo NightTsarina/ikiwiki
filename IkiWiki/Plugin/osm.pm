@@ -154,18 +154,15 @@ sub process_waypoint {
 	$icon = urlto($icon, $dest, 1);
 	$tag = '' unless $tag;
 	if ($page eq $dest) {
-		if (!defined($config{'osm_format'}) || !$config{'osm_format'}) {
-			$config{'osm_format'} = 'KML';
-		}
-		my %formats = map { $_ => 1 } split(/, */, $config{'osm_format'});
+		my %formats = get_formats();
 		if ($formats{'GeoJSON'}) {
-			will_render($page,$config{destdir} . "/$map/pois.json");
+			will_render($page, "$map/pois.json");
 		}
 		if ($formats{'CSV'}) {
-			will_render($page,$config{destdir} . "/$map/pois.txt");
+			will_render($page, "$map/pois.txt");
 		}
 		if ($formats{'KML'}) {
-			will_render($page,$config{destdir} . "/$map/pois.kml");
+			will_render($page, "$map/pois.kml");
 		}
 	}
 	my $href = IkiWiki::cgiurl(
@@ -292,10 +289,7 @@ sub savestate {
 		}
 	}
 
-	if (!defined($config{'osm_format'}) || !$config{'osm_format'}) {
-		$config{'osm_format'} = 'KML';
-	}
-	my %formats = map { $_ => 1 } split(/, */, $config{'osm_format'});
+	my %formats = get_formats();
 	if ($formats{'GeoJSON'}) {
 		writejson(\%waypoints, \%linestrings);
 	}
@@ -436,7 +430,7 @@ Sample style:
 		$writer->endTag();
 		$writer->end();
 
-		writefile("pois.kmp", $config{destdir} . "/$map", $output);
+		writefile("pois.kml", $config{destdir} . "/$map", $output);
 	}
 }
 
@@ -484,7 +478,7 @@ sub format (@) {
 	return $params{content};
 }
 
-sub prefered_format() {
+sub preferred_format() {
 	if (!defined($config{'osm_format'}) || !$config{'osm_format'}) {
 		$config{'osm_format'} = 'KML';
 	}
@@ -492,19 +486,21 @@ sub prefered_format() {
 	return shift @spl;
 }
 
+sub get_formats() {
+	if (!defined($config{'osm_format'}) || !$config{'osm_format'}) {
+		$config{'osm_format'} = 'KML';
+	}
+	map { $_ => 1 } split(/, */, $config{'osm_format'});
+}
+
 sub include_javascript ($) {
 	my $page=shift;
 	my $loader;
 
-	eval q{use JSON};
-	error $@ if $@;
 	if (exists $pagestate{$page}{'osm'}) {
 		foreach my $map (keys %{$pagestate{$page}{'osm'}}) {
 			foreach my $name (keys %{$pagestate{$page}{'osm'}{$map}{'displays'}}) {
-				my %options = %{$pagestate{$page}{'osm'}{$map}{'displays'}{$name}};
-				$options{'map'} = $map;
-				$options{'format'} = prefered_format();
-				$loader .= "mapsetup(\"mapdiv-$name\", " . to_json(\%options) . ");\n";
+				$loader .= map_setup_code($map, $name, %{$pagestate{$page}{'osm'}{$map}{'displays'}{$name}});
 			}
 		}
 	}
@@ -536,7 +532,15 @@ sub cgi($) {
 	print "<html><body>";
 	print "<div id=\"mapdiv-$map\"></div>";
 	print embed_map_code();
-	print "<script type=\"text/javascript\" charset=\"utf-8\">mapsetup( 'mapdiv-$map', { 'map': '$map', 'lat': urlParams['lat'], 'lon': urlParams['lon'], 'zoom': urlParams['zoom'], 'fullscreen': 1, 'editable': 1, 'format': '" . prefered_format() . "'});</script>";
+	print "<script type=\"text/javascript\" charset=\"utf-8\">";
+	print map_setup_code($map, $map,
+		lat => "urlParams['lat']",
+		lon => "urlParams['lon']",
+		zoom => "urlParams['zoom']",
+		fullscreen => 1,
+		editable => 1,
+	);
+	print "</script>";
 	print "</body></html>";
 
 	exit 0;
@@ -547,6 +551,30 @@ sub embed_map_code(;$) {
 	return '<script src="http://www.openlayers.org/api/OpenLayers.js" type="text/javascript" charset="utf-8"></script>'.
 		'<script src="'.urlto("ikiwiki/osm.js", $page).
 		'" type="text/javascript" charset="utf-8"></script>'."\n";
+}
+
+sub map_setup_code($;@) {
+	my $map=shift;
+	my $name=shift;
+	my %options=@_;
+
+	eval q{use JSON};
+	error $@ if $@;
+				
+	$options{'format'} = preferred_format();
+
+	my %formats = get_formats();
+	if ($formats{'GeoJSON'}) {
+		$options{'jsonurl'} = urlto($map."/pois.json");
+	}
+	if ($formats{'CSV'}) {
+		$options{'csvurl'} = urlto($map."/pois.txt");
+	}
+	if ($formats{'KML'}) {
+		$options{'kmlurl'} = urlto($map."/pois.kml");
+	}
+
+	return "mapsetup('mapdiv-$name', " . to_json(\%options) . ");";
 }
 
 1;
