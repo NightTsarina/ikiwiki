@@ -42,7 +42,8 @@ work, but before sorting.
 > prebuild, but dunno that the hook prolieration is worth the minor cleanup
 > it allows in trail. --[[Joey]]
 
->> Hmm, t/trail.t is failing several tests here. --[[Joey]]
+>> Hmm, t/trail.t is failing several tests here. To reproduce, I build the
+>> debian package from a clean state, or `rm -rf .t` between test runs. --[[Joey]]
 
 <pre>
 t/trail.t .................... 1/? 
@@ -59,7 +60,10 @@ t/trail.t .................... 1/?
 #   Failed test at t/trail.t line 231.
 </pre>
 
-> These all seem to relate to sorting. --[[Joey]]
-
->> This was reproducible once when I build the debian package, but
->> now I cannot reproduce it. --[[Joey]]
+> Looking at the first of these, it expected "trail=sorting n=sorting/new p="
+> but gets: "trail=sorting n=sorting/ancient p=sorting/new"
+>
+> Looking at the second failure, it expected "trail=sorting n=sorting/middle p=sorting/old$"
+> but got: "trail=sorting n=sorting/old p=sorting/end"
+> 
+> Perhaps a legitimate bug? --[[Joey]] 
