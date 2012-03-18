@@ -800,6 +800,14 @@ sub refresh () {
 		derender_internal($file);
 	}
 
+	run_hooks(build_affected => sub {
+		my %affected = shift->();
+		while (my ($page, $message) = each %affected) {
+			next unless exists $pagesources{$page};
+			render($pagesources{$page}, $message);
+		}
+	});
+
 	my ($backlinkchanged, $linkchangers)=calculate_changed_links($changed,
 		$del, $oldlink_targets);
 
