@@ -20,60 +20,37 @@ sub import {
 	hook(type => "build_affected", id => "trail", call => \&build_affected);
 }
 
-=head1 Page state
-
-If a page C<$T> is a trail, then it can have
-
-=over
-
-=item * C<$pagestate{$T}{trail}{contents}>
-
-Reference to an array of lists each containing either:
-
-=over
-
-=item * C<[link, "link"]>
-
-A link specification, pointing to the same page that C<[[link]]> would select
-
-=item * C<[pagespec, "posts/*", "age", 0]>
-
-A match by pagespec; the third array element is the sort order and the fourth
-is whether to reverse sorting
-
-=back
-
-=item * C<$pagestate{$T}{trail}{sort}>
-
-A [[ikiwiki/pagespec/sorting]] order; if absent or undef, the trail is in
-the order given by the links that form it
-
-=item * C<$pagestate{$T}{trail}{circular}>
-
-True if this trail is circular (i.e. going "next" from the last item is
-allowed, and takes you back to the first)
-
-=item * C<$pagestate{$T}{trail}{reverse}>
-
-True if C<sort> is to be reversed.
-
-=back
-
-If a page C<$M> is a member of a trail C<$T>, then it has
-
-=over
-
-=item * C<$pagestate{$M}{trail}{item}{$T}[0]>
-
-The page before this one in C<$T> at the last rebuild, or undef.
-
-=item * C<$pagestate{$M}{trail}{item}{$T}[1]>
-
-The page after this one in C<$T> at the last refresh, or undef.
-
-=back
-
-=cut
+# Page state
+# 
+# If a page $T is a trail, then it can have
+# 
+# * $pagestate{$T}{trail}{contents} 
+#   Reference to an array of lists each containing either:
+#     - [link, "link"]
+#       A link specification, pointing to the same page that [[link]]
+#       would select
+#     - [pagespec, "posts/*", "age", 0]
+#       A match by pagespec; the third array element is the sort order
+#       and the fourth is whether to reverse sorting
+# 
+# * $pagestate{$T}{trail}{sort}
+#   A sorting order; if absent or undef, the trail is in the order given
+#   by the links that form it
+#
+# * $pagestate{$T}{trail}{circular}
+#   True if this trail is circular (i.e. going "next" from the last item is
+#   allowed, and takes you back to the first)
+#
+# * $pagestate{$T}{trail}{reverse}
+#   True if C<sort> is to be reversed.
+# 
+# If a page $M is a member of a trail $T, then it has
+#
+# * $pagestate{$M}{trail}{item}{$T}[0]
+#   The page before this one in C<$T> at the last rebuild, or undef.
+#
+# * $pagestate{$M}{trail}{item}{$T}[1]
+#   The page after this one in C<$T> at the last refresh, or undef.
 
 sub getsetup () {
 	return

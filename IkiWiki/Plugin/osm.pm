@@ -325,41 +325,6 @@ sub writekml($;$) {
 	eval q{use XML::Writer};
 	error $@ if $@;
 	foreach my $map (keys %waypoints) {
-
-=pod
-Sample placemark:
-
-<?xml version="1.0" encoding="UTF-8"?>
-<kml xmlns="http://www.opengis.net/kml/2.2">
-  <Placemark>
-    <name>Simple placemark</name>
-    <description>Attached to the ground. Intelligently places itself 
-       at the height of the underlying terrain.</description>
-    <Point>
-      <coordinates>-122.0822035425683,37.42228990140251,0</coordinates>
-    </Point>
-  </Placemark>
-</kml>
-
-Sample style:
-
-
-        <Style id="sh_sunny_copy69">
-                <IconStyle>
-                        <scale>1.4</scale>
-                        <Icon>
-                                <href>http://waypoints.google.com/mapfiles/kml/shapes/sunny.png</href>
-                        </Icon>
-                        <hotSpot x="0.5" y="0.5" xunits="fraction" yunits="fraction"/>
-                </IconStyle>
-                <LabelStyle>
-                        <color>ff00aaff</color>
-                </LabelStyle>
-        </Style>
-
-
-=cut
-
 		my $output;
 		my $writer = XML::Writer->new( OUTPUT => \$output,
 			DATA_MODE => 1, ENCODING => 'UTF-8');
