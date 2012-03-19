@@ -67,3 +67,23 @@ t/trail.t .................... 1/?
 > but got: "trail=sorting n=sorting/old p=sorting/end"
 > 
 > Perhaps a legitimate bug? --[[Joey]] 
+
+>> I saw this while developing, but couldn't reproduce it, and assumed
+>> I'd failed to update `blib` before `make test`, or some such.
+>> In fact it's a race condition, I think.
+>>
+>> The change and failure here is that `sorting.mdwn` is modified
+>> to sort its trail in reverse order of title. Previously, it
+>> was sorted by order of directives in the page, and secondarily
+>> by whatever sort order each directive specified (e.g.
+>> new, old and ancient were sorted by increasing age).
+>> `old` appearing between `new` and `ancient`, and `new` appearing
+>> between `end` and `old`, indicates that this re-sorting has not
+>> actually taken effect, and the old sort order is still used.
+>>
+>> I believe this is because the system time (as an integer) remained
+>> the same for the entire test, and mtimes as used in ikiwiki
+>> only have a 1-second resolution. We can either fix this with
+>> utime or sleep; I chose utime, since sleeping for 1 second would
+>> slow down the test significantly. Please merge or cherry-pick
+>> `smcv/trail-test` (there's only one commit). --[[smcv]]
