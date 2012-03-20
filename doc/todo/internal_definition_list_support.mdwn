@@ -38,3 +38,15 @@ If there are no objections to that concept, I may try to start coding patches. O
 
 > Have you looked at the [[plugins/contrib/field]] plugin? This gives you the infrastructure, and all you need is to write a plugin that parses the definition list format.  Then you could use [[plugins/contrib/getfield]], [[plugins/contrib/ftemplate]] and/or [[plugins/contrib/report]] to do what you like with the data.
 > --[[KathrynAndersen]]
+
+> ----
+
+> with the recent inclusion of discount to the [[plugins/mdwn]] module, definition lists can be used by default (instead of, as with multimarkdown, after an option is enabled), and look like this:
+>
+>     =Apple=
+>         Apple is a fruit.
+>         Apple is also a company.
+>     =Orange=
+>         Orange is a fruit.
+>
+> (indented with four spaces). this makes definition lists a bit more attractive for definition harvesting. personally, i'd prefer a solution that works from the markup instead of plugins, as it integrates more naturally in the flow of designing a document, even though a plugin for explicitly stating invisible facts certainly has its purpose too. (think [[!wikipedia RDFa]] here ;-) ) --[[chrysn]]
