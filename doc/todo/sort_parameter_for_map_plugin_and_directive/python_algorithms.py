@@ -35,6 +35,12 @@ def strategy_byparents(sequence):
     """
 
     def partindices(item):
+        """Convert an entry a tuple of the indices of the entry's parts.
+
+        >>> sequence = testsequence
+        >>> assert partindices("c/2/x") == (sequence.index("c"), sequence.index("c/2"), sequence.index("c/2/x"))
+        fnord
+        """
         return tuple(sequence.index(item.rsplit('/', i)[0]) for i in range(item.count('/'), -1, -1))
 
     return sorted(sequence, key=partindices)
