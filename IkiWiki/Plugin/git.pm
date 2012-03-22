@@ -469,13 +469,10 @@ sub git_sha1 (;$) {
 	# Ignore error since a non-existing file might be given.
 	my ($sha1) = run_or_non('git', 'rev-list', '--max-count=1', 'HEAD',
 		'--', $file);
-	if ($sha1) {
+	if (defined $sha1) {
 		($sha1) = $sha1 =~ m/($sha1_pattern)/; # sha1 is untainted now
 	}
-	else {
-		debug("Empty sha1sum for '$file'.");
-	}
-	return defined $sha1 ? $sha1 : q{};
+	return defined $sha1 ? $sha1 : '';
 }
 
 sub rcs_update () {
