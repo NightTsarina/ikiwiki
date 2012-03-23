@@ -22,3 +22,7 @@ Of course, the next time I rerun ikiwiki --setup, it will overwrite my wrapper-w
 I made a logfile of all the args, env, and stdin/stdout to/from my wrapper.  If you're interested, I'll email it to you.  I wasn't able to attach it here.
 
 -- [[terry|tjgolubi]]
+
+I confirm that the supplied w3mmode setup appears not to work. When I try to edit a page and save it, w3m tries to access an URL beginning http://localhost/ . The HTML source of the edit page contains a BASE URL beginning with http://localhost. It should not. Maybe this is a result of changes a while back, where use of absolute URLs was enforced in various places in Ikiwiki.
+
+-- Martin
