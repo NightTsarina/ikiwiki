@@ -6,3 +6,13 @@ Expected behavior:
 
 I would like to be able to create links with underscores. I realize this is a feature, and I searched for ways to escape the underscore so it would appear, but I didn't find any.
 
+> as a workaround, you can use \[[cmd\_\_95\_\_test|cmd_test]] (which will link to a page named "cmd test" at the url location "cmd\_test") or \[[cmd\_\_95\_\_test]] (which will link to a page named "cmd\_test" at the url location "cmd\_\_95\_\_test"). i would, from my limited understanding of ikiwiki internals, consider the bug valid, and suggest that
+>
+> * explicit link text be not subject to de-escaping (why should it; this would be the short term solution)
+> * escaped page names never be used in user visible parts of ikiwiki (in my opinion, a user should not need to know about those internals, especially as they are configuration dependant (wiki_file_regexp))
+>
+> note that in [[ikiwiki/wikilink]], that very behavior is documented; it says that "\[[foo\_bar|Sandbox]]" will show as "foo bar". (although you can't tell that apart from "foo\_bar" easily because it's a hyperlink).
+>
+> i assume that this behavior stems from times when wikilinks and [[ikiwiki/directive]]s were not distinguished by \[[ vs \[[! but by the use of whitespace in directives, so whitespace had to be avoided in wikilinks.
+>
+> --[[chrysn]]
