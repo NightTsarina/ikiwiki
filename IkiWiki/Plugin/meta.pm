@@ -275,18 +275,12 @@ sub preprocess (@) {
 		push @{$metaheaders{$page}}, '<meta name="robots"'.
 			' content="'.encode_entities($value).'" />';
 	}
-	elsif ($key eq 'author') {
-		push @{$metaheaders{$page}}, '<meta name="'.
-			encode_entities($key).
-			'" content="'.encode_entities($value).'" />';
-	}
-	elsif ($key eq 'description') {
-		push @{$metaheaders{$page}}, '<meta name="'.
-			encode_entities($key).
+	elsif ($key eq 'description' || $key eq 'author') {
+		push @{$metaheaders{$page}}, '<meta name="'.$key.
 			'" content="'.encode_entities($value).'" />';
 	}
 	elsif ($key eq 'name') {
-		push @{$metaheaders{$page}}, scrub('<meta '.$key.'="'.
+		push @{$metaheaders{$page}}, scrub('<meta name="'.
 			encode_entities($value).
 			join(' ', map { "$_=\"$params{$_}\"" } keys %params).
 			' />', $page, $destpage);
