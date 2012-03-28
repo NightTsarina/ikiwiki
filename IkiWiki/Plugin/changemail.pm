@@ -6,6 +6,8 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
+	hook(type => "formbuilder_setup", id => "changemail", call => \&formbuilder_setup);
+	hook(type => "formbuilder", id => "changemail", call => \&formbuilder);
 	hook(type => "getsetup", id => "changemail",  call => \&getsetup);
 	hook(type => "change", id => "changemail", call => \&notify);
 }
@@ -19,6 +21,38 @@ sub getsetup () {
 		},
 }
 
+sub formbuilder_setup (@) {
+	my %params=@_;
+
+	my $form=$params{form};
+	return unless $form->title eq "preferences";
+	my $session=$params{session};
+	my $user_name=$session->param("name");
+	eval q{use IkiWiki::UserInfo};
+	error $@ if $@;
+	$form->field(name => "subscriptions", force => 1, size => 50,
+		fieldset => "preferences",
+		comment => "(".htmllink("", "", "ikiwiki/PageSpec", noimageinline => 1).")",
+		value => IkiWiki::userinfo_get($user_name, "subscriptions"));
+}
+
+sub formbuilder (@) {
+	my %params=@_;
+	my $form=$params{form};
+	return unless $form->title eq "preferences" &&
+		$form->submitted eq "Save Preferences" && $form->validate &&
+		defined $form->field("subscriptions");
+	setsubscriptions($form->field('name'), $form->field('subscriptions'));
+}
+
+sub setsubscriptions ($$) {
+	my $user=shift;
+	my $subscriptions=shift;
+	eval q{use IkiWiki::UserInfo};
+	error $@ if $@;
+	IkiWiki::userinfo_set($user, "subscriptions", $subscriptions);
+}
+
 sub notify (@) {
 	my @files=@_;
 	return unless @files;
@@ -26,6 +60,7 @@ sub notify (@) {
 	eval q{use Mail::Sendmail};
 	error $@ if $@;
 	eval q{use IkiWiki::UserInfo};
+	error $@ if $@;
 
 	# Daemonize, in case the mail sending takes a while.
 	defined(my $pid = fork) or error("Can't fork: $!");
