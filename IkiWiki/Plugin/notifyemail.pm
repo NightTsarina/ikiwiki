@@ -73,32 +73,32 @@ sub notify (@) {
 	error $@ if $@;
 	eval q{use IkiWiki::UserInfo};
 	error $@ if $@;
+	eval q{use URI};
+	error($@) if $@;
 
 	# Daemonize, in case the mail sending takes a while.
-	#defined(my $pid = fork) or error("Can't fork: $!");
-	#return if $pid; # parent
-	#chdir '/';
-	#open STDIN, '/dev/null';
-	#open STDOUT, '>/dev/null';
-	#POSIX::setsid() or error("Can't start a new session: $!");
-	#open STDERR, '>&STDOUT' or error("Can't dup stdout: $!");
+	defined(my $pid = fork) or error("Can't fork: $!");
+	return if $pid; # parent
+	chdir '/';
+	open STDIN, '/dev/null';
+	open STDOUT, '>/dev/null';
+	POSIX::setsid() or error("Can't start a new session: $!");
+	open STDERR, '>&STDOUT' or error("Can't dup stdout: $!");
 
 	# Don't need to keep a lock on the wiki as a daemon.
 	IkiWiki::unlockwiki();
 
 	my $userinfo=IkiWiki::userinfo_retrieve();
-	#exit 0 unless defined $userinfo;
+	exit 0 unless defined $userinfo;
 
 	foreach my $user (keys %$userinfo) {
 		my $pagespec=$userinfo->{$user}->{"subscriptions"};
 		next unless defined $pagespec && length $pagespec;
 		my $email=$userinfo->{$user}->{email};
 		next unless defined $email && length $email;
-		print "!!$user\n";
 
 		foreach my $file (@files) {
 			my $page=pagename($file);
-			print "file: $file ($page)\n";
 			next unless pagespec_match($page, $pagespec);
 			my $content="";
 			my $showcontent=defined pagetype($file);
@@ -112,24 +112,28 @@ sub notify (@) {
 			}
 			elsif (defined $pagestate{$page}{meta}{permalink}) {
 				# need to use permalink for an internal page
-				$url=$pagestate{$page}{meta}{permalink};
+				$url=URI->new_abs($pagestate{$page}{meta}{permalink}, $config{url});
 			}
 			else {
-				$url=$config{wikiurl}; # crummy fallback url
+				$url=$config{url}; # crummy fallback url
+			}
+			my $pagedesc=$page;
+			if (defined $pagestate{$page}{meta}{title} &&
+			    length $pagestate{$page}{meta}{title}) {
+				$pagedesc=qq{"$pagestate{$page}{meta}{title}"};
+			}
+			my $subject=gettext("change notification:")." ".$pagedesc;
+			if (pagetype($file) eq '_comment') {
+				$subject=gettext("comment notification:")." ".$pagedesc;
 			}
 			my $template=template("notifyemail.tmpl");
 			$template->param(
 				wikiname => $config{wikiname},
 				url => $url,
-				prefsurl => IkiWiki::cgiurl(do => "prefs"),
+				prefsurl => $config{cgiurl}."?do=prefs",
 				showcontent => $showcontent,
 				content => $content,
 			);
-			#translators: The two variables are the name of the wiki,
-			#translators: and a page that was changed.
-			#translators: This is used as the subject of an email.
-			my $subject=sprintf(gettext("%s: change notification for %s"),
-				$config{wikiname}, $page);
 			sendmail(
 				To => $email,
 				From => "$config{wikiname} <$config{adminemail}>",
@@ -139,7 +143,7 @@ sub notify (@) {
 		}
 	}
 
-	#exit 0; # daemon child
+	exit 0; # daemon child
 }
 
 1
