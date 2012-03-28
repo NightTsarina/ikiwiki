@@ -301,7 +301,8 @@ sub editcomment ($$) {
 
 	my @buttons = (POST_COMMENT, PREVIEW, CANCEL);
 	my $form = CGI::FormBuilder->new(
-		fields => [qw{do sid page subject editcontent type author url}],
+		fields => [qw{do sid page subject editcontent type author
+			url subscribe}],
 		charset => 'utf-8',
 		method => 'POST',
 		required => [qw{editcontent}],
@@ -346,7 +347,15 @@ sub editcomment ($$) {
 	$form->field(name => "type", value => $type, force => 1,
 		type => 'select', options => \@page_types);
 
-	$form->tmpl_param(username => $session->param('name'));
+	my $username=$session->param('name');
+	$form->tmpl_param(username => $username);
+	if (defined $username && IkiWiki::Plugin::notifyemail->can("subscribe")) {
+		$form->field(name => "subscribe",
+			options => [gettext("email replies to me")]);
+	}
+	else {
+		$form->field(name => "subscribe", type => 'hidden');
+	}
 
 	if ($config{comments_allowauthor} and
 	    ! defined $session->param('name')) {
@@ -490,6 +499,12 @@ sub editcomment ($$) {
 
 	if ($form->submitted eq POST_COMMENT && $form->validate) {
 		IkiWiki::checksessionexpiry($cgi, $session);
+
+		if (defined $username && length $form->field("subscribe") &&
+		    IkiWiki::Plugin::notifyemail->can("subscribe")) {
+			IkiWiki::Plugin::notifyemail::subscribe($username,
+				"comment($page)");
+		}
 		
 		$postcomment=1;
 		my $ok=IkiWiki::check_content(content => $form->field('editcontent'),
