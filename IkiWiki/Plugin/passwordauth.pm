@@ -329,7 +329,7 @@ sub formbuilder (@) {
 	elsif ($form->title eq "preferences") {
 		if ($form->submitted eq "Save Preferences" && $form->validate) {
 			my $user_name=$form->field('name');
-			if ($form->field("password") && length $form->field("password")) {
+			if (defined $form->field("password") && length $form->field("password")) {
 				setpassword($user_name, $form->field('password'));
 			}
 		}
