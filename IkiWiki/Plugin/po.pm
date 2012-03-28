@@ -47,7 +47,7 @@ sub import {
 	hook(type => "pagetemplate", id => "po", call => \&pagetemplate, last => 1);
 	hook(type => "rename", id => "po", call => \&renamepages, first => 1);
 	hook(type => "delete", id => "po", call => \&mydelete);
-	hook(type => "change", id => "po", call => \&change);
+	hook(type => "rendered", id => "po", call => \&rendered);
 	hook(type => "checkcontent", id => "po", call => \&checkcontent);
 	hook(type => "canremove", id => "po", call => \&canremove);
 	hook(type => "canrename", id => "po", call => \&canrename);
@@ -427,7 +427,7 @@ sub mydelete (@) {
 	map { deletetranslations($_) } grep istranslatablefile($_), @deleted;
 }
 
-sub change (@) {
+sub rendered (@) {
 	my @rendered=@_;
 
 	my $updated_po_files=0;

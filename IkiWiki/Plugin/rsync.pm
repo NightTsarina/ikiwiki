@@ -7,7 +7,7 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "getsetup", id => "rsync", call => \&getsetup);
-	hook(type => "change", id => "rsync", call => \&postrefresh);
+	hook(type => "rendered", id => "rsync", call => \&postrefresh);
 	hook(type => "delete", id => "rsync", call => \&postrefresh);
 }
 

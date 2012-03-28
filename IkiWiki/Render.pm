@@ -829,8 +829,13 @@ sub refresh () {
 		run_hooks(delete => sub { shift->(@$del, @$internal_del) });
 	}
 	if (%rendered) {
-		run_hooks(change => sub { shift->(keys %rendered) });
+		run_hooks(rendered => sub { shift->(keys %rendered) });
+		run_hooks(change => sub { shift->(keys %rendered) }); # back-compat
 	}
+	run_hooks(difference => sub {
+		shift->(@$new, @$changed, @$del,
+			@$internal_new, @$internal_changed, @$internal_del);
+	});
 }
 
 sub clean_rendered {

@@ -8,7 +8,7 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "getsetup", id => "transient",  call => \&getsetup);
 	hook(type => "checkconfig", id => "transient", call => \&checkconfig);
-	hook(type => "change", id => "transient", call => \&change);
+	hook(type => "rendered", id => "transient", call => \&rendered);
 }
 
 sub getsetup () {
@@ -33,7 +33,7 @@ sub checkconfig () {
 	}
 }
 
-sub change (@) {
+sub rendered (@) {
 	foreach my $file (@_) {
 		# If the corresponding file exists in the transient underlay
 		# and isn't actually being used, we can get rid of it.

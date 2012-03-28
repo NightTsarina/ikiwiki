@@ -13,7 +13,7 @@ sub import {
 	hook(type => "needsbuild", id => "pinger", call => \&needsbuild);
 	hook(type => "preprocess", id => "ping", call => \&preprocess);
 	hook(type => "delete", id => "pinger", call => \&ping);
-	hook(type => "change", id => "pinger", call => \&ping);
+	hook(type => "rendered", id => "pinger", call => \&ping);
 }
 
 sub getsetup () {

@@ -26,7 +26,7 @@ sub import {
 	# Hook to change to do pinging since it's called late.
 	# This ensures each page only pings once and prevents slow
 	# pings interrupting page builds.
-	hook(type => "change", id => "inline", call => \&IkiWiki::pingurl);
+	hook(type => "rendered", id => "inline", call => \&IkiWiki::pingurl);
 }
 
 sub getopt () {

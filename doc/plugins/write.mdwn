@@ -376,16 +376,27 @@ the second is a log message resembling
 
 	hook(type => "delete", id => "foo", call => \&delete);
 
-Each time a page or pages is removed from the wiki, the referenced function
+After a page or pages is removed from the wiki, the referenced function
 is called, and passed the names of the source files that were removed.
 
-### change
+### rendered
 
-	hook(type => "change", id => "foo", call => \&render);
+	hook(type => "rendered", id => "foo", call => \&rendered);
 
-Each time ikiwiki renders a change or addition (but not deletion) to the
+After ikiwiki renders a change or addition (but not deletion) to the
 wiki, the referenced function is called, and passed the names of the
 source files that were rendered.
+
+(This hook used to be called "change", but that was not accurate.
+For now, plugins using the old hook name will still work.)
+
+### changes
+
+	hook(type => "changes", id => "foo", call => \&changes);
+
+After ikiwiki renders changes to the wiki, the referenced function is
+called, and passed the names of the source files that were added, modified,
+or deleted.
 
 ### cgi
 
