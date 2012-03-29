@@ -6,7 +6,6 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
-	hook(type => "formbuilder_setup", id => "notifyemail", call => \&formbuilder_setup);
 	hook(type => "formbuilder", id => "notifyemail", call => \&formbuilder);
 	hook(type => "getsetup", id => "notifyemail",  call => \&getsetup);
 	hook(type => "changes", id => "notifyemail", call => \&notify);
@@ -20,28 +19,23 @@ sub getsetup () {
 		},
 }
 
-sub formbuilder_setup (@) {
+sub formbuilder (@) {
 	my %params=@_;
-
 	my $form=$params{form};
 	return unless $form->title eq "preferences";
 	my $session=$params{session};
+	my $username=$session->param("name");
 	$form->field(name => "subscriptions", size => 50,
 		fieldset => "preferences",
 		comment => "(".htmllink("", "", "ikiwiki/PageSpec", noimageinline => 1).")");
 	if (! $form->submitted) {
 		$form->field(name => "subscriptions", force => 1,
-			value => getsubscriptions($session->param("name")));
+			value => getsubscriptions($username));
 	}
-}
-
-sub formbuilder (@) {
-	my %params=@_;
-	my $form=$params{form};
-	return unless $form->title eq "preferences" &&
-		$form->submitted eq "Save Preferences" && $form->validate &&
-		defined $form->field("subscriptions");
-	setsubscriptions($form->field('name'), $form->field('subscriptions'));
+	elsif ($form->submitted eq "Save Preferences" && $form->validate &&
+	       defined $form->field("subscriptions")) {
+		setsubscriptions($username, $form->field('subscriptions'));
+	}
 }
 
 sub getsubscriptions ($) {
