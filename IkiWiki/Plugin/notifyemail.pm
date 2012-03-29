@@ -61,7 +61,8 @@ sub subscribe ($$) {
 	my $user=shift;
 	my $addpagespec=shift;
 	my $pagespec=getsubscriptions($user);
-	setsubscriptions($user, $pagespec." or ".$addpagespec);
+	setsubscriptions($user,
+		length $pagespec ? $pagespec." or ".$addpagespec : $addpagespec);
 }
 
 sub notify (@) {
