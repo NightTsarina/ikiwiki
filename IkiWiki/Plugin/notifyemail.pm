@@ -28,8 +28,11 @@ sub formbuilder_setup (@) {
 	my $session=$params{session};
 	$form->field(name => "subscriptions", size => 50,
 		fieldset => "preferences",
-		comment => "(".htmllink("", "", "ikiwiki/PageSpec", noimageinline => 1).")",
-		value => getsubscriptions($session->param("name")));
+		comment => "(".htmllink("", "", "ikiwiki/PageSpec", noimageinline => 1).")");
+	if (! $form->submitted) {
+		$form->field(name => "subscriptions", force => 1,
+			value => getsubscriptions($session->param("name")));
+	}
 }
 
 sub formbuilder (@) {
