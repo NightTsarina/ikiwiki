@@ -285,6 +285,13 @@ sub preprocess (@) {
 			join(' ', map { "$_=\"$params{$_}\"" } keys %params).
 			' />', $page, $destpage);
 	}
+	elsif ($key eq 'keywords') {
+		# Make sure the keyword string is safe: only allow alphanumeric
+		# characters, space and comma and strip the rest.
+		$value =~ s/[^[:alnum:], ]+//g;
+		push @{$metaheaders{$page}}, '<meta name="keywords"'.
+			' content="'.encode_entities($value).'" />';
+	}
 	else {
 		push @{$metaheaders{$page}}, scrub('<meta name="'.
 			encode_entities($key).'" content="'.
