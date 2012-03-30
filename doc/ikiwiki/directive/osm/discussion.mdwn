@@ -5,3 +5,7 @@ For some reason this stopped working after the 20120203 upgrade:
     Suppression de /home/a-mesh/public_html/map/pois.json, qui n'est plus rendu par nodes/anarcat
 
 The map ceased to be generated, basically. --[[anarcat]]
+
+> Weird. This went away after adding debugging. No clue what happened here. But note that this following debugging code was quite useful in the output of --rebuild:
+
+         debug("writing pois file pois.kml in " . $config{destdir} . "/$map");
