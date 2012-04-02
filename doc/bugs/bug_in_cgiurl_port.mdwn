@@ -7,3 +7,9 @@ used. --[[Joey]]
 > pages used the full url. So I don't see a bug here, or am missing
 > something from my memory of the report (which was done the bad way, on
 > IRC). [[done]] --[[Joey]] 
+
+> > Sorry about wittering on IRC instead of reporting proper bugs.
+> > 
+> > The setup I have is nginx in front of apache, so that nginx is listening on port 80, apache is on port 81, and ikiwiki is being served by apache. After upgrading to 3.20120203 (backported to squeeze) I found that the URLs in the edit page all have the port set as :81 ... but now that I look at it more closely, that is the case for several ikiwiki-hosting controlled sites, but not for a few other sites that are also on the same machine, so it must be some difference between the settings for the sites, either in ikiwiki, or apache, or perhaps even nginx.  Anyway, on the affected sites, explicitly including a port :80 in the cgiurl fixes the problem.
+
+> > So, for the moment, this bug report is a bit useless, until I find out what is causing the ikiwiki-hosting sites to be beffuddled, so it should probably stay closed -[[fil]]
