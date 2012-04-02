@@ -832,10 +832,10 @@ sub refresh () {
 		run_hooks(rendered => sub { shift->(keys %rendered) });
 		run_hooks(change => sub { shift->(keys %rendered) }); # back-compat
 	}
-	run_hooks(changes => sub {
-		shift->(@$new, @$changed, @$del,
-			@$internal_new, @$internal_changed, @$internal_del);
-	});
+	my %all_changed = map { $_ => 1 }
+		@$new, @$changed, @$del,
+		@$internal_new, @$internal_changed, @$internal_del;
+	run_hooks(changes => sub { shift->(keys %all_changed) });
 }
 
 sub clean_rendered {
