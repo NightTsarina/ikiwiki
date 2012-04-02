@@ -362,6 +362,22 @@ sub sessioncgi ($$) {
 		IkiWiki::cgi_prefs($q, $session);
 		exit;
 	}
+	elsif ($q->param('do') eq 'tokenauth') {
+		my $name=$q->param("name");
+		my $token=$q->param("token");
+
+		if (! defined $name || ! defined $token ||
+		    ! length $name  || ! length $token) {
+			error(gettext("incorrect url"));
+	 	}
+		if (! checkpassword($name, $token, "passwordless")) {
+			error(gettext("access denied"));
+		}
+
+		$session->param("name", $name);
+		IkiWiki::cgi_prefs($q, $session);
+		exit;
+	}
 	elsif ($q->param("do") eq "register") {
 		# After registration, need to go somewhere, so show prefs page.
 		$session->param(postsignin => "do=prefs");
