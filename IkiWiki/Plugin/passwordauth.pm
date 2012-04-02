@@ -96,6 +96,12 @@ sub setpassword ($$;$) {
 	else {
 		IkiWiki::userinfo_set($user, $field, $password);
 	}
+
+	# Setting the password clears any passwordless login token.
+	if ($field ne 'passwordless') {
+		IkiWiki::userinfo_set($user, "cryptpasswordless", "");
+		IkiWiki::userinfo_set($user, "passwordless", "");
+	}
 }
 
 sub formbuilder_setup (@) {
