@@ -127,7 +127,7 @@ sub notify (@) {
 			$template->param(
 				wikiname => $config{wikiname},
 				url => $url,
-				prefsurl => $config{cgiurl}."?do=prefs",
+				prefsurl => IkiWiki::cgiurl_abs(do => 'prefs'),
 				showcontent => $showcontent,
 				content => $content,
 			);

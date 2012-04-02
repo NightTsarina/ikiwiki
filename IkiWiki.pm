@@ -1092,6 +1092,11 @@ sub cgiurl (@) {
 		join("&amp;", map $_."=".uri_escape_utf8($params{$_}), keys %params);
 }
 
+sub cgiurl_abs (@) {
+	eval q{use URI};
+	URI->new_abs(cgiurl(@_), $config{cgiurl});
+}
+
 sub baseurl (;$) {
 	my $page=shift;
 
