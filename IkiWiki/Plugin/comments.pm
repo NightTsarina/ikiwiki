@@ -302,7 +302,7 @@ sub editcomment ($$) {
 	my @buttons = (POST_COMMENT, PREVIEW, CANCEL);
 	my $form = CGI::FormBuilder->new(
 		fields => [qw{do sid page subject editcontent type author
-			url subscribe}],
+			email url subscribe anonsubscribe}],
 		charset => 'utf-8',
 		method => 'POST',
 		required => [qw{editcontent}],
@@ -349,23 +349,32 @@ sub editcomment ($$) {
 
 	my $username=$session->param('name');
 	$form->tmpl_param(username => $username);
-	if (defined $username && IkiWiki::Plugin::notifyemail->can("subscribe")) {
-		$form->field(name => "subscribe",
-			options => [gettext("email replies to me")]);
-	}
-	else {
-		$form->field(name => "subscribe", type => 'hidden');
+		
+	$form->field(name => "subscribe", type => 'hidden');
+	$form->field(name => "anonsubscribe", type => 'hidden');
+	if (IkiWiki::Plugin::notifyemail->can("subscribe")) {
+		if (defined $username) {
+			$form->field(name => "subscribe", type => "checkbox",
+				options => [gettext("email replies to me")]);
+		}
+		elsif (IkiWiki::Plugin::passwordauth->can("anonuser")) {
+			$form->field(name => "anonsubscribe", type => "checkbox",
+				options => [gettext("email replies to me")]);
+		}
 	}
 
 	if ($config{comments_allowauthor} and
 	    ! defined $session->param('name')) {
 		$form->tmpl_param(allowauthor => 1);
 		$form->field(name => 'author', type => 'text', size => '40');
+		$form->field(name => 'email', type => 'text', size => '40');
 		$form->field(name => 'url', type => 'text', size => '40');
 	}
 	else {
 		$form->tmpl_param(allowauthor => 0);
 		$form->field(name => 'author', type => 'hidden', value => '',
+			force => 1);
+		$form->field(name => 'email', type => 'hidden', value => '',
 			force => 1);
 		$form->field(name => 'url', type => 'hidden', value => '',
 			force => 1);
@@ -500,10 +509,18 @@ sub editcomment ($$) {
 	if ($form->submitted eq POST_COMMENT && $form->validate) {
 		IkiWiki::checksessionexpiry($cgi, $session);
 
-		if (defined $username && length $form->field("subscribe") &&
-		    IkiWiki::Plugin::notifyemail->can("subscribe")) {
-			IkiWiki::Plugin::notifyemail::subscribe($username,
-				"comment($page)");
+		if (IkiWiki::Plugin::notifyemail->can("subscribe")) {
+			my $subspec="comment($page)";
+			if (defined $username &&
+			    length $form->field("subscribe")) {
+				IkiWiki::Plugin::notifyemail::subscribe(
+					$username, $subspec);
+			}
+			elsif (length $form->field("email") &&
+			       length $form->field("anonsubscribe")) {
+				IkiWiki::Plugin::notifyemail::anonsubscribe(
+					$form->field("email"), $subspec);
+			}
 		}
 		
 		$postcomment=1;
@@ -590,7 +607,8 @@ sub editcomment ($$) {
 
 sub getavatar ($) {
 	my $user=shift;
-	
+	return undef unless defined $user;
+
 	my $avatar;
 	eval q{use Libravatar::URL};
 	if (! $@) {

@@ -62,6 +62,19 @@ sub subscribe ($$) {
 		length $pagespec ? $pagespec." or ".$addpagespec : $addpagespec);
 }
 
+# Called by other plugins to subscribe an email to a pagespec.
+sub anonsubscribe ($$) {
+	my $email=shift;
+	my $addpagespec=shift;
+	if (IkiWiki::Plugin::passwordauth->can("anonuser")) {
+		my $user=IkiWiki::Plugin::passwordauth::anonuser($email);
+		if (! defined $user) {
+			error(gettext("Cannot subscribe your email address without logging in."));
+		}
+		subscribe($user, $addpagespec);
+	}
+}
+
 sub notify (@) {
 	my @files=@_;
 	return unless @files;
@@ -123,11 +136,20 @@ sub notify (@) {
 			if (pagetype($file) eq '_comment') {
 				$subject=gettext("comment notification:")." ".$pagedesc;
 			}
+			my $prefsurl=IkiWiki::cgiurl_abs(do => 'prefs');
+			if (IkiWiki::Plugin::passwordauth->can("anonusertoken")) {
+				my $token=IkiWiki::Plugin::passwordauth::anonusertoken($userinfo->{$user});
+				$prefsurl=IkiWiki::cgiurl_abs(
+					do => 'tokenauth',
+					name => $user,
+					token => $token,
+				) if defined $token;
+			}
 			my $template=template("notifyemail.tmpl");
 			$template->param(
 				wikiname => $config{wikiname},
 				url => $url,
-				prefsurl => IkiWiki::cgiurl_abs(do => 'prefs'),
+				prefsurl => $prefsurl,
 				showcontent => $showcontent,
 				content => $content,
 			);

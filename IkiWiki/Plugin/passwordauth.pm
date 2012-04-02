@@ -99,8 +99,68 @@ sub setpassword ($$;$) {
 
 	# Setting the password clears any passwordless login token.
 	if ($field ne 'passwordless') {
-		IkiWiki::userinfo_set($user, "cryptpasswordless", "");
 		IkiWiki::userinfo_set($user, "passwordless", "");
+	}
+}
+
+# Generates a token that can be used to log the user in.
+# This needs to be hard to guess. Generating a cgi session id will
+# make it as hard to guess as any cgi session.
+sub gentoken ($$;$) {
+	my $user=shift;
+	my $tokenfield=shift;
+	my $reversable=shift;
+
+	eval q{use CGI::Session};
+	error($@) if $@;
+	my $token = CGI::Session->new->id;
+	if (! $reversable) {
+		setpassword($user, $token, $tokenfield);
+	}
+	else {
+		IkiWiki::userinfo_set($user, $tokenfield, $token);
+	}
+	return $token;
+}
+
+# An anonymous user has no normal password, only a passwordless login
+# token. Given an email address, this sets up such a user for that email,
+# unless one already exists, and returns the username.
+sub anonuser ($) {
+	my $email=shift;
+
+	# Want a username for this email that won't overlap with any other.
+	my $user=$email;
+	$user=~s/@/_/g;
+
+	my $userinfo=IkiWiki::userinfo_retrieve();
+	if (! exists $userinfo->{$user} || ! ref $userinfo->{$user}) {
+		if (IkiWiki::userinfo_setall($user, {
+		    	'email' => $email,
+			'regdate' => time})) {
+			gentoken($user, "passwordless", 1);
+			return $user;
+		}
+		else {
+			error(gettext("Error creating account."));
+		}
+	}
+	elsif (defined anonusertoken($userinfo->{$user})) {
+		return $user;
+	}
+	else {
+		return undef;
+	}
+}
+
+sub anonusertoken ($) {
+	my $userhash=shift;
+	if (exists $userhash->{passwordless} &&
+	    length $userhash->{passwordless}) {
+		return $userhash->{passwordless};
+	}
+	else {
+		return undef;
 	}
 }
 
@@ -283,15 +343,8 @@ sub formbuilder (@) {
 				if (! length $email) {
 					error(gettext("No email address, so cannot email password reset instructions."));
 				}
-				
-				# Store a token that can be used once
-				# to log the user in. This needs to be hard
-				# to guess. Generating a cgi session id will
-				# make it as hard to guess as any cgi session.
-				eval q{use CGI::Session};
-				error($@) if $@;
-				my $token = CGI::Session->new->id;
-				setpassword($user_name, $token, "resettoken");
+
+				my $token=gentoken($user_name, "resettoken");
 				
 				my $template=template("passwordmail.tmpl");
 				$template->param(
