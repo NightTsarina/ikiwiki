@@ -8,6 +8,8 @@ The MoinMoin side of things was completely re-written by [[anarcat]] and is curr
 
 It doesn't feature support to migrate from Tikiwiki anymore and focuses on MoinMoin support.
 
+[[!toc levels=2]]
+
 The software is made of two pieces:
 
  * the importer (`moin2git`) - which converts the wiki pages into a git repository with full history
@@ -56,11 +58,13 @@ The software is made of two pieces:
  * highlight parser, through the [[plugins/format]] plugin
  * other parsers may be supported if an equivalent plugin exists in Ikiwiki (example: [[plugin/rst]])
 
-## Current blocker and todos
+## Current blocker
 
 This script is being used to test the conversion of the venerable [Koumbit wiki](https://wiki.koumbit.net/) into Ikiwiki, and so far progress is steady but difficult. The current blocker is:
 
  * figuring out exactly which pages should exist and which should not, as there is ambiguity in the internal datastructures of MoinMoin, which become apparent when running the conversion script, as files a missing
+
+## Todos
 
 There are also significant pieces missing:
 
@@ -89,7 +93,7 @@ The importer is pretty much complete, but the converter can only go so far as wh
  * regex matching all over the place: pagespec, basically, but all
    full text search (which is missing anyways, see above)
 
-Missing macros:
+### Missing macros
 
  * RandomPage(N) - lists N random pages, skipped
  * Gallery() - skipped
