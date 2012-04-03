@@ -34,7 +34,7 @@ The software is made of two pieces:
  * ordered, unordered and definition lists
  * tables (although only with HTML and no styles)
 
-Supported macros:
+### Supported macros
 
  * TableOfContents, through [[ikiwiki/directive/toc]]
  * Navigation, through [[ikiwiki/directive/map]] (so as a nested
@@ -50,7 +50,7 @@ Supported macros:
  * PageCount, same name even :)
  * OrphanedPages, through [[ikiwiki/directive/oprhans]]
 
-Supported parsers:
+### Supported parsers
 
  * the main "moin wiki" markup
  * highlight parser, through the [[plugins/format]] plugin
@@ -59,6 +59,10 @@ Supported parsers:
 ## Current blocker and todos
 
 This script is being used to test the conversion of the venerable [Koumbit wiki](https://wiki.koumbit.net/) into Ikiwiki, and so far progress is steady but difficult. The current blocker is:
+
+ * figuring out exactly which pages should exist and which should not, as there is ambiguity in the internal datastructures of MoinMoin, which become apparent when running the conversion script, as files a missing
+
+There are also significant pieces missing:
 
  * inline parsers and hackish styled tables
  * turn categories into tags
