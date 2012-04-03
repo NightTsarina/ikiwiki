@@ -1,0 +1,15 @@
+This is about going beyond the current [[ACL]] system and allow not only readonly pages (through [[plugins/lockedit]]) but also read protection, and per page. To quote that other page:
+
+>     [[!acl  user=joe page=.png allow=upload]]
+>     [[!acl  user=bob page=/blog/bob/ allow=]]
+>     [[!acl  user= page=/blog/bob/ deny=]]
+>     [[!acl  user=http://jeremie.koenig.myopenid.com/ page=/todo/* deny=create
+>            reason="spends his time writing todo items instead of source code"]]
+> 
+> Each would expand to a description of the resulting rule.
+> 
+> a configurable page of the wiki would be used as an ACL list. Possibly could refer to other ACL pages, as in:
+> 
+>     [[!acl  user= page=/subsite/ acl=/subsite/acl.mdwn]]
+
+I think this would be perfectly possible in Ikiwiki, provided of course the access to the full repository is not allowed, as that cannot be made granular. The way I would see that happen would be by dropping .htaccess files in the right directories and with clever configuration of the virtual host containing the ikiwiki install. Apache has plenty of methods for doing such authentication, and we could simply rely on [[plugins/httpauth/]] for that. *But* there is a key feature of having ACLs per page, or improving the httpauth plugin to have "noread" pagespecs... --[[anarcat]]
