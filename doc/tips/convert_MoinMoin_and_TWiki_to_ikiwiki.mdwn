@@ -1,27 +1,44 @@
-[[JoshTriplett]] has developed scripts to convert MoinMoin and TWiki wikis
-to ikiwikis backed by a git repository, including full history. For
-details, see [[his_user_page|JoshTriplett]].
+A MoinMoin and TWiki converter, which was originally written by [[JoshTriplett]] converts those wikis to ikiwikis backed by a git repository, including full history. It uses two techniques for conversion:
 
-> I have worked on porting this to more recent MoinMoin versions, optimising it and making sure it works reliably even on big wikis with funky things.
-> 
->     git clone git://src.anarcat.ath.cx/moin2iki
->
-> List of improvements:
->
->* full rewrite of git migration tool to support latest MoinMoin versions (tested with 1.9.x)
->* uses `git fast-import` to improve performance (10 minutes and 200M of ram for a 7 years old 2GB Moinmoin wiki)
->* more reliable as it uses the per-page edit log
->* consistent: multiple runs will generate the same repository
->* re-entrant: can be run multiple times to import new changes
->
-> Look at the `moin2git2` script for most of my work, which really consisted on importing the MoinMoin pages into git reliably. Now I am rewriting the MoinMoin parser to generate markdown directly instead of going through HTML, because I want to support translating the macros too.
->
-> Big things missing:
->
-> * lots of macros are not translated
-> * a bunch of markup and exotic uses of parsers will probably fail? 
-> * [[todo/internal_definition_list_support/]]
-> * [[todo/do_not_make_links_backwards/]]
-> * fix up documentation and make sure all the pieces go into place
->
-> Comments and feedback always welcome! --[[anarcat]]
+ * for MoinMoin, it parses the wiki pages into markdown using the MoinMoin engine
+ * for Tikiwiki, it parses the wiki pages to HTML then back into markdown using the `libhtml-wikiconverter` Perl package
+
+The MoinMoin side of things was completely re-written by [[anarcat]] and is currently still in development. That version is available at:
+
+    git clone git://src.anarcat.ath.cx/moin2iki
+
+The original version from Josh is still available from [his wiki page](/users/JoshTriplett). [[anarcat]] will probably remove support from Tikiwiki eventually, as those two projects are really different...
+
+# MoinMoin scripts
+
+The MoinMoin part is made of two main pieces:
+
+ * the importer (`moin2git`) - which converts the wiki pages into a git repository with full history
+ * the converter (`moin2mdwn`) - which converts a set of moin-formatted text files into markdown + ikiwiki directives
+
+## MoinMoin importer features
+
+ * supports latest MoinMoin versions (tested with 1.9.x)
+ * uses `git fast-import` to improve performance (10 minutes and 200M of ram for a 7 years old 2GB Moinmoin wiki)
+ * multistep process allows bulk edit through git before markdown conversion, or staying with a 
+ * imports attachments as subpages
+ * uses the per-page edit log
+ * consistent: multiple runs will generate the same repository
+ * re-entrant: can be run multiple times to import new changes
+
+## MoinMoin converter features
+
+
+ * lots of macros are not translated
+ * a bunch of markup and exotic uses of parsers will probably fail? 
+
+## MoinMoin features missing from ikiwiki
+
+The importer is pretty much complete, but the converter can only go so far as what features ikiwiki supports. Here are the MoinMoin features that are known to be missing from ikiwiki. Note that some of those features are available in MoinMoin only through third-party extensions.
+
+ * [[todo/do_not_make_links_backwards/]] - MoinMoin and Creole use `\[[link|text]]`, while ikiwiki uses `\[[text|link]]` - for now the converter generates [[markdown]] links so this is not so much an issue, but will freak out users
+ * [[todo/internal_definition_list_support/]] - includes tabling the results ([MoinMoin's DictColumns macro](http://moinmo.in/MacroMarket/DictColumns))
+ * [[todo/per page ACLs]] - ([MoinMoin's ACLs](http://moinmo.in/HelpOnAccessControlLists))
+ * more to be documented here
+
+Comments and feedback always welcome! --[[anarcat]]
