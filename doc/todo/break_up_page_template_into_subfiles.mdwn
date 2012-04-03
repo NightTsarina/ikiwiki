@@ -1,0 +1,14 @@
+Wishlist items such as [[Add space before slash in parent links]] would be easier to deal with if the page.tmpl template was broken up into sections and each section had a separate template file which was included in the master page.tmpl file.  This would make it easier to customize parts of a page without having to fork the whole page.tmpl and then have things break when there's an update of the master page.tmpl file.
+
+Suggested sections:
+
+* page_head.tmpl for the things in the <head> section
+* page_header.tmpl for things in the "header" div (which includes the PARENTLINKS loop)
+* page_actions.tmpl for the actions section
+* page_sidebar.tmpl for the sidebar
+* page_content.tmpl for the main content
+* page_footer.tmpl for the footer
+
+Would this work, or would HTML::Template have problems with this?
+
+-- [[KathrynAndersen]]
