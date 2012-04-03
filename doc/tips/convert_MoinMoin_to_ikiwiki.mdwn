@@ -37,7 +37,9 @@ The software is made of two pieces:
 Supported macros:
 
  * TableOfContents, through [[ikiwiki/directive/toc]]
- * Navigation, partially, through [[ikiwiki/directive/inline]]
+ * Navigation, through [[ikiwiki/directive/map]] (so as a nested
+   vertical list instead of an horizontal list)
+ * PageList, through [[ikiwiki/directive/map]]
  * MonthCalendar, partially, through [[ikiwiki/directive/calendar]]
  * FootNote, through markdown
  * Anchor, through markdown and plain HTML
@@ -45,7 +47,8 @@ Supported macros:
  * AttachList, through a weird [[ikiwiki/directive/inline]]
  * FullSearch, partially, only through [[ikiwiki/directive/inline]] (so no textual search)
  * Include, partially through [[ikiwiki/directive/inline]] (so missing boundary extraction and heading level generation)
- * PageList, throuhg [[ikiwiki/directive/inline]]
+ * PageCount, same name even :)
+ * OrphanedPages, through [[ikiwiki/directive/oprhans]]
 
 Supported parsers:
 
@@ -74,6 +77,21 @@ The importer is pretty much complete, but the converter can only go so far as wh
  * list pages based on full text page search
  * extract part of other pages with the inline macro
  * specifying a template when creating a page (as opposed to matching a pagespec)
- * specifying a style for a sub-section (MoinMoin's inline parsers allow the user to specify a CSS class - very useful see [the documentation](http://moinmo.in/HelpOnMoinWikiSyntax#Using_the_wiki_parser_with_css_classes) to get an idea)
+ * specifying a style for a sub-section (MoinMoin's inline parsers
+   allow the user to specify a CSS class - very useful see
+   [the documentation](http://moinmo.in/HelpOnMoinWikiSyntax#Using_the_wiki_parser_with_css_classes)
+   to get an idea)
+ * the above also keeps the SectionParser from being properly supported
+ * regex matching all over the place: pagespec, basically, but all
+   full text search (which is missing anyways, see above)
+
+Missing macros:
+
+ * RandomPage(N) - lists N random pages, skipped
+ * Gallery() - skipped
+ * Gettext - translates the string accordign to internal translation
+   system, ignored
+ * AdvancedSearch - an elaborate search form provided by MoinMoin
+ * Goto - a simple "jump to page" macro
 
 Comments and feedback always welcome! --[[anarcat]]
