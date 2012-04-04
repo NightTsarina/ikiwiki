@@ -1,0 +1,105 @@
+This MoinMoin converter converts wikis to ikiwikis backed by a git repository, including full history. It simply parses the wiki pages into markdown using the MoinMoin engine.
+
+The converter was originally written by [[JoshTriplett]] and included support for Tikiwiki, for which it parses the wiki pages to HTML then back into markdown using the `libhtml-wikiconverter` Perl package. That original version from Josh is still available from [his wiki page](/users/JoshTriplett). 
+
+The MoinMoin side of things was completely re-written by [[anarcat]] and is currently still in development. That version is available at:
+
+    git clone git://src.anarcat.ath.cx/moin2iki
+
+It doesn't feature support to migrate from Tikiwiki anymore and focuses on MoinMoin support.
+
+[[!toc levels=2]]
+
+The software is made of two pieces:
+
+ * the importer (`moin2git`) - which converts the wiki pages into a git repository with full history
+ * the converter (`moin2mdwn`) - which converts a set of moin-formatted text files into markdown + ikiwiki directives
+
+## MoinMoin importer features
+
+ * supports latest MoinMoin versions (tested with 1.9.x)
+ * uses `git fast-import` to improve performance (10 minutes and 200M of ram for a 7 years old 2GB Moinmoin wiki)
+ * multistep process allows bulk edit through git before markdown conversion, or staying with a 
+ * imports attachments as subpages
+ * uses the per-page edit log
+ * consistent: multiple runs will generate the same repository
+ * re-entrant: can be run multiple times to import new changes
+
+## MoinMoin converter features
+
+ * most of the inline markup
+ * links
+ * attachment links
+ * smileys
+ * images (not well tested), into [[ikiwiki/directive/img]]
+ * preformatted and code areas, including [[ikiwiki/directive/format]]
+ * ordered, unordered and definition lists
+ * tables (although only with HTML and no styles)
+
+### Supported macros
+
+ * TableOfContents, through [[ikiwiki/directive/toc]]
+ * Navigation, through [[ikiwiki/directive/map]] (so as a nested
+   vertical list instead of an horizontal list)
+ * PageList, through [[ikiwiki/directive/map]]
+ * MonthCalendar, partially, through [[ikiwiki/directive/calendar]]
+ * FootNote, through markdown
+ * Anchor, through markdown and plain HTML
+ * `<<BR>>`, through the weird line ending thing
+ * AttachList, through a weird [[ikiwiki/directive/inline]]
+ * FullSearch, partially, only through [[ikiwiki/directive/inline]] (so no textual search)
+ * Include, partially through [[ikiwiki/directive/inline]] (so missing boundary extraction and heading level generation)
+ * PageCount, same name even :)
+ * OrphanedPages, through [[ikiwiki/directive/oprhans]]
+
+### Supported parsers
+
+ * the main "moin wiki" markup
+ * highlight parser, through the [[plugins/format]] plugin
+ * other parsers may be supported if an equivalent plugin exists in Ikiwiki (example: [[plugin/rst]])
+
+## Current blocker
+
+This script is being used to test the conversion of the venerable [Koumbit wiki](https://wiki.koumbit.net/) into Ikiwiki, and so far progress is steady but difficult. The current blocker is:
+
+ * figuring out exactly which pages should exist and which should not, as there is ambiguity in the internal datastructures of MoinMoin, which become apparent when running the conversion script, as files a missing
+
+## Todos
+
+There are also significant pieces missing:
+
+ * inline parsers and hackish styled tables
+ * turn categories into tags
+ * name converted page to the right name depending on the `#format` parameter on top of page
+ * finish a full converter run on the Koumbitwiki
+ * improve the output of the converter (too much debugging)
+
+## MoinMoin features missing from ikiwiki
+
+The importer is pretty much complete, but the converter can only go so far as what features ikiwiki supports. Here are the MoinMoin features that are known to be missing from ikiwiki. Note that some of those features are available in MoinMoin only through third-party extensions.
+
+ * [[todo/do_not_make_links_backwards/]] - MoinMoin and Creole use `\[[link|text]]`, while ikiwiki uses `\[[text|link]]` - for now the converter generates [[markdown]] links so this is not so much an issue, but will freak out users
+ * [[todo/internal_definition_list_support/]] - includes tabling the results ([MoinMoin's DictColumns macro](http://moinmo.in/MacroMarket/DictColumns))
+ * [[todo/per page ACLs]] - ([MoinMoin's ACLs](http://moinmo.in/HelpOnAccessControlLists))
+ * [MailTo](http://moinmo.in/HelpOnMacros/MailTo) macro spam protection
+ * list pages based on full text page search
+ * extract part of other pages with the inline macro
+ * specifying a template when creating a page (as opposed to matching a pagespec)
+ * specifying a style for a sub-section (MoinMoin's inline parsers
+   allow the user to specify a CSS class - very useful see
+   [the documentation](http://moinmo.in/HelpOnMoinWikiSyntax#Using_the_wiki_parser_with_css_classes)
+   to get an idea)
+ * the above also keeps the SectionParser from being properly supported
+ * regex matching all over the place: pagespec, basically, but all
+   full text search (which is missing anyways, see above)
+
+### Missing macros
+
+ * RandomPage(N) - lists N random pages, skipped
+ * Gallery() - skipped
+ * Gettext - translates the string accordign to internal translation
+   system, ignored
+ * AdvancedSearch - an elaborate search form provided by MoinMoin
+ * Goto - a simple "jump to page" macro
+
+Comments and feedback always welcome! --[[anarcat]]
