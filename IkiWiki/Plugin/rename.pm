@@ -206,7 +206,7 @@ sub rename_start ($$$$) {
 	exit 0;
 }
 
-sub postrename ($$;$$$) {
+sub postrename ($$$;$$) {
 	my $cgi=shift;
 	my $session=shift;
 	my $src=shift;
