@@ -4,6 +4,13 @@ sometimes. These remaining failures may also be intermittant,
 although I can get them reliably on my laptop. I've added some debugging
 output, which seems to point to an actual bug in the plugin AFAICS. --[[Joey]] 
 
+> I can reproduce this reliably at 0a23666ddd but not 3.20120203. Bisecting
+> indicates that it regressed in aaa72a3a80f, "inline: When the pagenames list
+> includes pages that do not exist, skip them".
+>
+> I don't think this is the bug noted in the commit message - the inline
+> containing `sorting/new` uses `pages`, not `pagenames`. --[[smcv]]
+
 <pre>
 ok 71 - expected n=sorting/end p=sorting/beginning in sorting/middle.html
 not ok 72 - expected n=sorting/new p=sorting/middle in sorting/end.html
