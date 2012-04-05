@@ -1,3 +1,5 @@
+[[!template id=gitbranch branch=smcv/trail author=smcv]] [[!tag patch]]
+
 `t/trail.t` has some test suite failures. This is after applying
 [[smcv]]'s patch that fixed some races that caused it to fail
 sometimes. These remaining failures may also be intermittant,
@@ -10,6 +12,10 @@ output, which seems to point to an actual bug in the plugin AFAICS. --[[Joey]]
 >
 > I don't think this is the bug noted in the commit message - the inline
 > containing `sorting/new` uses `pages`, not `pagenames`. --[[smcv]]
+
+>> It seems you removed `trail` support from `inline` in that commit.
+>> Assuming that wasn't intentional, this is fixed in `smcv/trail`.
+>> --[[smcv]]
 
 <pre>
 ok 71 - expected n=sorting/end p=sorting/beginning in sorting/middle.html
