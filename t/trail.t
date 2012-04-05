@@ -4,6 +4,24 @@ use strict;
 use Test::More 'no_plan';
 use IkiWiki;
 
+sub check_trail {
+	my $file=shift;
+	my $expected=shift;
+	my $trailname=shift || qr/\w+/;
+	my $blob=readfile("t/tmp/out/$file");
+	my ($trailline)=$blob=~/^trail=$trailname\s+(.*)$/m;
+	is($trailline, $expected, "expected $expected in $file");
+}
+
+sub check_no_trail {
+	my $file=shift;
+	my $trailname=shift;
+	my $blob=readfile("t/tmp/out/$file");
+	my ($trailline)=$blob=~/^trail=$trailname\s+(.*)$/m;
+	$trailline="" unless defined $trailline;
+	ok($trailline !~ /^trail=$trailname\s+/, "no $trailname in $file");
+}
+
 my $blob;
 
 ok(! system("rm -rf t/tmp"));
@@ -112,76 +130,53 @@ ok($blob =~ /<a href="(\.\/)?badger.html">badger<\/a>/m);
 ok($blob =~ /<a href="(\.\/)?badger.html">This is a link to badger, with a title<\/a>/m);
 ok($blob =~ /<a href="(\.\/)?badger.html">That is the badger<\/a>/m);
 
-$blob = readfile("t/tmp/out/badger.html");
-ok($blob =~ /^trail=meme n=mushroom p=$/m);
-ok($blob =~ /^trail=wind_in_the_willows n=mr_toad p=ratty$/m);
+check_trail("badger.html", "n=mushroom p=", "meme");
+check_trail("badger.html", "n=mr_toad p=ratty", "wind_in_the_willows");
 
 ok(! -f "t/tmp/out/moley.html");
 
-$blob = readfile("t/tmp/out/mr_toad.html");
-ok($blob !~ /^trail=meme/m);
-ok($blob =~ /^trail=wind_in_the_willows n=ratty p=badger$/m);
+check_trail("mr_toad.html", "n=ratty p=badger", "wind_in_the_willows");
+check_no_trail("mr_toad.html", "meme");
 # meta title is respected for pages that have one
+$blob = readfile("t/tmp/out/mr_toad.html");
 ok($blob =~ /">&lt; The Breezy Badger<\/a>/m);
 # pagetitle for pages that don't
 ok($blob =~ /">ratty &gt;<\/a>/m);
 
-$blob = readfile("t/tmp/out/ratty.html");
-ok($blob !~ /^trail=meme/m);
-ok($blob =~ /^trail=wind_in_the_willows n=badger p=mr_toad$/m);
+check_no_trail("ratty.html", "meme");
+check_trail("ratty.html", "n=badger p=mr_toad", "wind_in_the_willows");
 
-$blob = readfile("t/tmp/out/mushroom.html");
-ok($blob =~ /^trail=meme n=snake p=badger$/m);
-ok($blob !~ /^trail=wind_in_the_willows/m);
+check_trail("mushroom.html", "n=snake p=badger", "meme");
+check_no_trail("mushroom.html", "wind_in_the_willows");
 
-$blob = readfile("t/tmp/out/snake.html");
-ok($blob =~ /^trail=meme n= p=mushroom$/m);
-ok($blob !~ /^trail=wind_in_the_willows/m);
+check_trail("snake.html", "n= p=mushroom", "meme");
+check_no_trail("snake.html", "wind_in_the_willows");
 
-$blob = readfile("t/tmp/out/self_referential.html");
-ok($blob =~ /^trail=self_referential n= p=$/m);
+check_trail("self_referential.html", "n= p=", "self_referential");
 
-$blob = readfile("t/tmp/out/add/b.html");
-ok($blob =~ /^trail=add n=add\/d p=$/m);
-$blob = readfile("t/tmp/out/add/d.html");
-ok($blob =~ /^trail=add n= p=add\/b$/m);
+check_trail("add/b.html", "n=add/d p=", "add");
+check_trail("add/d.html", "n= p=add/b", "add");
 ok(! -f "t/tmp/out/add/a.html");
 ok(! -f "t/tmp/out/add/c.html");
 ok(! -f "t/tmp/out/add/e.html");
 
-$blob = readfile("t/tmp/out/del/a.html");
-ok($blob =~ /^trail=del n=del\/b p=$/m);
-$blob = readfile("t/tmp/out/del/b.html");
-ok($blob =~ /^trail=del n=del\/c p=del\/a$/m);
-$blob = readfile("t/tmp/out/del/c.html");
-ok($blob =~ /^trail=del n=del\/d p=del\/b$/m);
-$blob = readfile("t/tmp/out/del/d.html");
-ok($blob =~ /^trail=del n=del\/e p=del\/c$/m);
-$blob = readfile("t/tmp/out/del/e.html");
-ok($blob =~ /^trail=del n= p=del\/d$/m);
+check_trail("del/a.html", "n=del/b p=");
+check_trail("del/b.html", "n=del/c p=del/a");
+check_trail("del/c.html", "n=del/d p=del/b");
+check_trail("del/d.html", "n=del/e p=del/c");
+check_trail("del/e.html", "n= p=del/d");
 
-$blob = readfile("t/tmp/out/sorting/linked.html");
-ok($blob =~ m{^trail=sorting n=sorting/a/b p=$}m);
-$blob = readfile("t/tmp/out/sorting/a/b.html");
-ok($blob =~ m{^trail=sorting n=sorting/a/c p=sorting/linked$}m);
-$blob = readfile("t/tmp/out/sorting/a/c.html");
-ok($blob =~ m{^trail=sorting n=sorting/z/a p=sorting/a/b$}m);
-$blob = readfile("t/tmp/out/sorting/z/a.html");
-ok($blob =~ m{^trail=sorting n=sorting/beginning p=sorting/a/c$}m);
-$blob = readfile("t/tmp/out/sorting/beginning.html");
-ok($blob =~ m{^trail=sorting n=sorting/middle p=sorting/z/a$}m);
-$blob = readfile("t/tmp/out/sorting/middle.html");
-ok($blob =~ m{^trail=sorting n=sorting/end p=sorting/beginning$}m);
-$blob = readfile("t/tmp/out/sorting/end.html");
-ok($blob =~ m{^trail=sorting n=sorting/new p=sorting/middle$}m);
-$blob = readfile("t/tmp/out/sorting/new.html");
-ok($blob =~ m{^trail=sorting n=sorting/old p=sorting/end$}m);
-$blob = readfile("t/tmp/out/sorting/old.html");
-ok($blob =~ m{^trail=sorting n=sorting/ancient p=sorting/new$}m);
-$blob = readfile("t/tmp/out/sorting/ancient.html");
-ok($blob =~ m{^trail=sorting n=sorting/linked2 p=sorting/old$}m);
-$blob = readfile("t/tmp/out/sorting/linked2.html");
-ok($blob =~ m{^trail=sorting n= p=sorting/ancient$}m);
+check_trail("sorting/linked.html", "n=sorting/a/b p=");
+check_trail("sorting/a/b.html", "n=sorting/a/c p=sorting/linked");
+check_trail("sorting/a/c.html", "n=sorting/z/a p=sorting/a/b");
+check_trail("sorting/z/a.html", "n=sorting/beginning p=sorting/a/c");
+check_trail("sorting/beginning.html", "n=sorting/middle p=sorting/z/a");
+check_trail("sorting/middle.html", "n=sorting/end p=sorting/beginning");
+check_trail("sorting/end.html", "n=sorting/new p=sorting/middle");
+check_trail("sorting/new.html", "n=sorting/old p=sorting/end");
+check_trail("sorting/old.html", "n=sorting/ancient p=sorting/new");
+check_trail("sorting/ancient.html", "n=sorting/linked2 p=sorting/old");
+check_trail("sorting/linked2.html", "n= p=sorting/ancient");
 
 # Make some changes and refresh. These writefile calls don't set an
 # old mtime, so they're strictly newer than the "old" files.
@@ -199,46 +194,28 @@ writefile("sorting.mdwn", "t/tmp/in",
 
 ok(! system("$command -refresh"));
 
-$blob = readfile("t/tmp/out/add/a.html");
-ok($blob =~ /^trail=add n=add\/b p=$/m);
-$blob = readfile("t/tmp/out/add/b.html");
-ok($blob =~ /^trail=add n=add\/c p=add\/a$/m);
-$blob = readfile("t/tmp/out/add/c.html");
-ok($blob =~ /^trail=add n=add\/d p=add\/b$/m);
-$blob = readfile("t/tmp/out/add/d.html");
-ok($blob =~ /^trail=add n=add\/e p=add\/c$/m);
-$blob = readfile("t/tmp/out/add/e.html");
-ok($blob =~ /^trail=add n= p=add\/d$/m);
+check_trail("add/a.html", "n=add/b p=");
+check_trail("add/b.html", "n=add/c p=add/a");
+check_trail("add/c.html", "n=add/d p=add/b");
+check_trail("add/d.html", "n=add/e p=add/c");
+check_trail("add/e.html", "n= p=add/d");
 
-$blob = readfile("t/tmp/out/del/b.html");
-ok($blob =~ /^trail=del n=del\/d p=$/m);
-$blob = readfile("t/tmp/out/del/d.html");
-ok($blob =~ /^trail=del n= p=del\/b$/m);
+check_trail("del/b.html", "n=del/d p=");
+check_trail("del/d.html", "n= p=del/b");
 ok(! -f "t/tmp/out/del/a.html");
 ok(! -f "t/tmp/out/del/c.html");
 ok(! -f "t/tmp/out/del/e.html");
 
-$blob = readfile("t/tmp/out/sorting/old.html");
-ok($blob =~ m{^trail=sorting n=sorting/new p=$}m);
-$blob = readfile("t/tmp/out/sorting/new.html");
-ok($blob =~ m{^trail=sorting n=sorting/middle p=sorting/old$}m);
-$blob = readfile("t/tmp/out/sorting/middle.html");
-ok($blob =~ m{^trail=sorting n=sorting/linked2 p=sorting/new$}m);
-$blob = readfile("t/tmp/out/sorting/linked2.html");
-ok($blob =~ m{^trail=sorting n=sorting/linked p=sorting/middle$}m);
-$blob = readfile("t/tmp/out/sorting/linked.html");
-ok($blob =~ m{^trail=sorting n=sorting/end p=sorting/linked2$}m);
-$blob = readfile("t/tmp/out/sorting/end.html");
-ok($blob =~ m{^trail=sorting n=sorting/a/c p=sorting/linked$}m);
-$blob = readfile("t/tmp/out/sorting/a/c.html");
-ok($blob =~ m{^trail=sorting n=sorting/beginning p=sorting/end$}m);
-$blob = readfile("t/tmp/out/sorting/beginning.html");
-ok($blob =~ m{^trail=sorting n=sorting/a/b p=sorting/a/c$}m);
-$blob = readfile("t/tmp/out/sorting/a/b.html");
-ok($blob =~ m{^trail=sorting n=sorting/ancient p=sorting/beginning$}m);
-$blob = readfile("t/tmp/out/sorting/ancient.html");
-ok($blob =~ m{^trail=sorting n=sorting/z/a p=sorting/a/b$}m);
-$blob = readfile("t/tmp/out/sorting/z/a.html");
-ok($blob =~ m{^trail=sorting n= p=sorting/ancient$}m);
+check_trail("sorting/old.html", "n=sorting/new p=");
+check_trail("sorting/new.html", "n=sorting/middle p=sorting/old");
+check_trail("sorting/middle.html", "n=sorting/linked2 p=sorting/new");
+check_trail("sorting/linked2.html", "n=sorting/linked p=sorting/middle");
+check_trail("sorting/linked.html", "n=sorting/end p=sorting/linked2");
+check_trail("sorting/end.html", "n=sorting/a/c p=sorting/linked");
+check_trail("sorting/a/c.html", "n=sorting/beginning p=sorting/end");
+check_trail("sorting/beginning.html", "n=sorting/a/b p=sorting/a/c");
+check_trail("sorting/a/b.html", "n=sorting/ancient p=sorting/beginning");
+check_trail("sorting/ancient.html", "n=sorting/z/a p=sorting/a/b");
+check_trail("sorting/z/a.html", "n= p=sorting/ancient");
 
 ok(! system("rm -rf t/tmp"));
