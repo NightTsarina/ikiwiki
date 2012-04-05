@@ -54,10 +54,17 @@ There's a caveat: we can't have a per-wiki backwards_links option, because of th
 >>> That style of link would work whether the link style was "backwards" or "forwards".  Unfortunately it could make some links less readable; after all, there is a reason why one wants to be able to change the link text!  But I don't know what proportion of the links are like that.  It's a thought, anyway.
 >>> --[[KathrynAndersen]]
 
+>>>> I dislike placing such requirements on the underlay, which is after
+>>>> all, just a subset of pages in this wiki, which many of the people
+>>>> editing may not even realize are part of the underlay. --[[Joey]]
+
 >>> Another option for internal links is to just use the regular markdown links instead of `\[[text|link]]` markup, that way it works regardless. Then the documentation for the link plugin just has to state both syntaxes in a safe manner.
 >>> I also agree that we should just switch in one shot, although I am worried this means this could be postponed indefinitely.--[[anarcat]]
 
 >>>> I have done just that in my branch: now the underlay only uses wikilinks in the wikilink page, elsewhere regular markdown links are used. I haven't converted the whole of the doc/ directory however, that would be left to the migration. I have written a ikiwik-transition tool to migrate from wikilink to markdown while i was there. --[[anarcat]]
+
+>>>>> No, that is *not* an option. Relative markdown links **break** when
+>>>>> page A, containing a link, is inlined into page B. --[[Joey]]
 
 ----
 
