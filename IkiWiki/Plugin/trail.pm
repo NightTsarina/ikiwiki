@@ -26,10 +26,10 @@ sub import {
 # 
 # * $pagestate{$T}{trail}{contents} 
 #   Reference to an array of lists each containing either:
-#     - [link, "link"]
+#     - [link => "link"]
 #       A link specification, pointing to the same page that [[link]]
 #       would select
-#     - [pagespec, "posts/*", "age", 0]
+#     - [pagespec => "posts/*", "age", 0]
 #       A match by pagespec; the third array element is the sort order
 #       and the fourth is whether to reverse sorting
 # 
