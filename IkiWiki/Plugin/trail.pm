@@ -335,7 +335,7 @@ sub prerender {
 		if (exists $pagestate{$member}{trail}{item} &&
 			! exists $member_to_trails{$member}) {
 			$rebuild_trail_members{$member} = 1;
-			delete $pagestate{$member}{trailitem};
+			delete $pagestate{$member}{trail}{item};
 		}
 	}
 
