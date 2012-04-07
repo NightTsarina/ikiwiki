@@ -22,6 +22,13 @@ sub getsetup () {
 		},
 }
 
+sub allowed_dirs {
+	return grep { defined $_ } (
+		$config{srcdir},
+		$IkiWiki::Plugin::transient::transientdir,
+	);
+}
+
 sub check_canremove ($$$) {
 	my $page=shift;
 	my $q=shift;
@@ -33,12 +40,22 @@ sub check_canremove ($$$) {
 			htmllink("", "", $page, noimageinline => 1)));
 	}
 
-	# Must exist on disk, and be a regular file.
+	# Must exist in either the srcdir or a suitable underlay (e.g.
+	# transient underlay), and be a regular file.
 	my $file=$pagesources{$page};
-	if (! -e "$config{srcdir}/$file") {
+	my $dir;
+
+	foreach my $srcdir (allowed_dirs()) {
+		if (-e "$srcdir/$file") {
+			$dir = $srcdir;
+			last;
+		}
+	}
+
+	if (! defined $dir) {
 		error(sprintf(gettext("%s is not in the srcdir, so it cannot be deleted"), $file));
 	}
-	elsif (-l "$config{srcdir}/$file" && ! -f _) {
+	elsif (-l "$dir/$file" && ! -f _) {
 		error(sprintf(gettext("%s is not a file"), $file));
 	}
 	
@@ -46,7 +63,7 @@ sub check_canremove ($$$) {
 	# This is sorta overkill, but better safe than sorry.
 	if (! defined pagetype($pagesources{$page})) {
 		if (IkiWiki::Plugin::attachment->can("check_canattach")) {
-			IkiWiki::Plugin::attachment::check_canattach($session, $page, "$config{srcdir}/$file");
+			IkiWiki::Plugin::attachment::check_canattach($session, $page, "$dir/$file");
 		}
 		else {
 			error("removal of attachments is not allowed");
@@ -223,21 +240,34 @@ sub sessioncgi ($$) {
 			require IkiWiki::Render;
 			if ($config{rcs}) {
 				IkiWiki::disable_commit_hook();
-				foreach my $file (@files) {
-					IkiWiki::rcs_remove($file);
+			}
+			my $rcs_removed = 1;
+
+			foreach my $file (@files) {
+				foreach my $srcdir (allowed_dirs()) {
+					if (-e "$srcdir/$file") {
+						if ($srcdir eq $config{srcdir} && $config{rcs}) {
+							IkiWiki::rcs_remove($file);
+							$rcs_removed = 1;
+						}
+						else {
+							IkiWiki::prune("$srcdir/$file", $srcdir);
+						}
+					}
 				}
-				IkiWiki::rcs_commit_staged(
-					message => gettext("removed"),
-					session => $session,
-				);
+			}
+
+			if ($config{rcs}) {
+				if ($rcs_removed) {
+					IkiWiki::rcs_commit_staged(
+						message => gettext("removed"),
+						session => $session,
+					);
+				}
 				IkiWiki::enable_commit_hook();
 				IkiWiki::rcs_update();
 			}
-			else {
-				foreach my $file (@files) {
-					IkiWiki::prune("$config{srcdir}/$file", $config{srcdir});
-				}
-			}
+
 			IkiWiki::refresh();
 			IkiWiki::saveindex();
 
