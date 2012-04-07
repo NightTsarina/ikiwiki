@@ -201,7 +201,7 @@ sub migrate_to_internal {
 		if (-e $oldoutput) {
 			require IkiWiki::Render;
 			debug("removing output file $oldoutput");
-			IkiWiki::prune($oldoutput);
+			IkiWiki::prune($oldoutput, $config{destdir});
 		}
 	}
 	

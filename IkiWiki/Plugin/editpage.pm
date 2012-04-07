@@ -39,7 +39,7 @@ sub refresh () {
 				}
 				if ($delete) {
 					debug(sprintf(gettext("removing old preview %s"), $file));
-					IkiWiki::prune("$config{destdir}/$file");
+					IkiWiki::prune("$config{destdir}/$file", $config{destdir});
 				}
 			}
 			elsif (defined $mtime) {

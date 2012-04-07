@@ -124,7 +124,7 @@ sub removal_confirm ($$@) {
 			my $f=IkiWiki::Plugin::attachment::is_held_attachment($page);
 			if (defined $f) {
 				require IkiWiki::Render;
-				IkiWiki::prune($f);
+				IkiWiki::prune($f, "$config{wikistatedir}/attachments");
 			}
 		}
 	}
@@ -235,7 +235,7 @@ sub sessioncgi ($$) {
 			}
 			else {
 				foreach my $file (@files) {
-					IkiWiki::prune("$config{srcdir}/$file");
+					IkiWiki::prune("$config{srcdir}/$file", $config{srcdir});
 				}
 			}
 			IkiWiki::refresh();

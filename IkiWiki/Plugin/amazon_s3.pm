@@ -232,8 +232,9 @@ sub writefile ($$$;$$) {
 }
 
 # This is a wrapper around the real prune.
-sub prune ($) {
+sub prune ($;$) {
 	my $file=shift;
+	my $up_to=shift;
 
 	my @keys=IkiWiki::Plugin::amazon_s3::file2keys($file);
 
@@ -250,7 +251,7 @@ sub prune ($) {
 		}
 	}
 
-	return $IkiWiki::Plugin::amazon_s3::subs{'IkiWiki::prune'}->($file);
+	return $IkiWiki::Plugin::amazon_s3::subs{'IkiWiki::prune'}->($file, $up_to);
 }
 
 1

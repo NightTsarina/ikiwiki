@@ -43,7 +43,7 @@ sub rendered (@) {
 		my $casualty = "$transientdir/$file";
 		if (srcfile($file) ne $casualty && -e $casualty) {
 			debug(sprintf(gettext("removing transient version of %s"), $file));
-			IkiWiki::prune($casualty);
+			IkiWiki::prune($casualty, $transientdir);
 		}
 	}
 }
