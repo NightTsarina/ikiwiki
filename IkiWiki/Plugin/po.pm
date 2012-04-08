@@ -1102,7 +1102,7 @@ sub deletetranslations ($) {
 			IkiWiki::rcs_remove($_);
 		}
 		else {
-			IkiWiki::prune("$config{srcdir}/$_");
+			IkiWiki::prune("$config{srcdir}/$_", $config{srcdir});
 		}
 	} @todelete;
 

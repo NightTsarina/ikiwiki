@@ -286,7 +286,7 @@ sub attachments_save {
 	}
 	return unless @attachments;
 	require IkiWiki::Render;
-	IkiWiki::prune($dir);
+	IkiWiki::prune($dir, $config{wikistatedir}."/attachments");
 
 	# Check the attachments in and trigger a wiki refresh.
 	if ($config{rcs}) {

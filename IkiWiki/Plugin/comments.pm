@@ -665,9 +665,11 @@ sub commentmoderation ($$) {
 
 				my $page=IkiWiki::dirname($f);
 				my $file="$config{srcdir}/$f";
+				my $filedir="$config{srcdir}";
 				if (! -e $file) {
 					# old location
 					$file="$config{wikistatedir}/comments_pending/".$f;
+					$filedir="$config{wikistatedir}/comments_pending";
 				}
 
 				if ($action eq 'Accept') {
@@ -682,7 +684,7 @@ sub commentmoderation ($$) {
 				}
 
 				require IkiWiki::Render;
-				IkiWiki::prune($file);
+				IkiWiki::prune($file, $filedir);
 			}
 		}
 
