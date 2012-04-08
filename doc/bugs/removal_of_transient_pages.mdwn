@@ -25,3 +25,31 @@ pages, until this is fixed.  --[[Joey]]
 >>>> to affect by web edits. The `-f` check seems rather redundant,
 >>>> surely if it's in `%pagesources` ikiwiki has already verified it's
 >>>> safe. --[[Joey]] 
+
+----
+
+[[!template id=gitbranch branch=smcv/ready/transient-rm author="[[Simon McVittie|smcv]]"]]
+
+Here's a branch. It special-cases the `$transientdir`, but in such a way
+that the special case could easily be extended to other locations where
+deletion should be allowed.
+
+It also changes `IkiWiki::prune()` to optionally stop pruning empty
+parent directories at the point where you'd expect it to (for instance,
+previously it would remove the `$transientdir` itself, if it turns out
+to be empty), and updates callers.
+
+The new `prune` API looks like this:
+
+    IkiWiki::prune("$config{srcdir}/$file", $config{srcdir});
+
+with the second argument optional. I wonder whether it ought to look
+more like `writefile`:
+
+    IkiWiki::prune($config{srcdir}, $file);
+
+although that would be either an incompatible change to internal API
+(forcing all callers to update to 2-argument), or being a bit
+inconsistent between the one-and two-argument forms. Thoughts?
+
+--[[smcv]]
