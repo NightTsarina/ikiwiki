@@ -213,34 +213,38 @@ sub postrename ($$$;$$) {
 	my $dest=shift;
 	my $attachment=shift;
 
-	# Load saved form state and return to edit page.
-	my $postrename=CGI->new($session->param("postrename"));
+	# Load saved form state and return to edit page, using stored old
+	# cgi state. Or, if the rename was not started on the edit page, 
+	# return to the renamed page.
+	my $postrename=$session->param("postrename");
+	if (! defined $postrename) {
+		IkiWiki::redirect($cgi, urlto(defined $dest ? $dest : $src));
+		exit;
+	}
+	my $oldcgi=CGI->new($postrename);
 	$session->clear("postrename");
 	IkiWiki::cgi_savesession($session);
-	if (! defined $postrename) {
-		redirect($cgi, urlto(defined $dest ? $dest : $src));
-	}
 
 	if (defined $dest) {
 		if (! $attachment) {
 			# They renamed the page they were editing. This requires
 			# fixups to the edit form state.
 			# Tweak the edit form to be editing the new page.
-			$postrename->param("page", $dest);
+			$oldcgi->param("page", $dest);
 		}
 
 		# Update edit form content to fix any links present
 		# on it.
-		$postrename->param("editcontent",
+		$oldcgi->param("editcontent",
 			renamepage_hook($dest, $src, $dest,
-				 $postrename->param("editcontent")));
+				 $oldcgi->param("editcontent")));
 
 		# Get a new edit token; old was likely invalidated.
-		$postrename->param("rcsinfo",
+		$oldcgi->param("rcsinfo",
 			IkiWiki::rcs_prepedit($pagesources{$dest}));
 	}
 
-	IkiWiki::cgi_editpage($postrename, $session);
+	IkiWiki::cgi_editpage($oldcgi, $session);
 }
 
 sub formbuilder (@) {
