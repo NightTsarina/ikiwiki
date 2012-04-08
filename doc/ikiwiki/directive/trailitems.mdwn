@@ -12,9 +12,10 @@ Options are similar to [[!iki ikiwiki/directive/inline desc=inline]]:
 * `pages`: adds pages that match a [[ikiwiki/PageSpec]] to the trail
   (cannot be used with `pagenames`)
 
-* `pagenames`: adds a space-separated list of pages to the trail,
-  with the same [[ikiwiki/SubPage/LinkingRules]] as for a [[ikiwiki/WikiLink]]
-  (cannot be used with `pages`)
+* `pagenames`: if used instead of `pages`, this is interpreted as a
+  space-separated list of absolute page names
+  ([[SubPage/LinkingRules]] are not taken into account)
+  to add to the trail
 
 * `sort`: add the pages matched by `pages` to the trail in this
   [[ikiwiki/pagespec/sorting]] order (cannot be used with `pagenames`)
