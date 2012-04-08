@@ -93,7 +93,7 @@ write_old_file("sorting/linked2.mdwn", "linked2");
 write_old_file("sorting.mdwn",
 	'[[!traillink linked]] ' .
 	'[[!trailitems pages="sorting/z/a or sorting/a/b or sorting/a/c"]] ' .
-	'[[!trailitems pagenames="beginning middle end"]] ' .
+	'[[!trailitems pagenames="sorting/beginning sorting/middle sorting/end"]] ' .
 	'[[!inline pages="sorting/old or sorting/ancient or sorting/new" trail="yes"]] ' .
 	'[[!traillink linked2]]');
 

@@ -211,9 +211,7 @@ sub preprocess_inline (@) {
 			}
 		}
 
-		@list = grep { $_ ne '' } 
-			map { bestlink($params{page}, $_) }
-		        split ' ', $params{pagenames};
+		@list = split ' ', $params{pagenames};
 
 		if (yesno($params{reverse})) {
 			@list=reverse(@list);
@@ -222,6 +220,8 @@ sub preprocess_inline (@) {
 		foreach my $p (@list) {
 			add_depends($params{page}, $p, deptype($quick ? "presence" : "content"));
 		}
+
+		@list = grep { exists $pagesources{$_} } @list;
 	}
 	else {
 		my $num=0;
