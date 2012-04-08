@@ -665,7 +665,7 @@ sub commentmoderation ($$) {
 
 				my $page=IkiWiki::dirname($f);
 				my $file="$config{srcdir}/$f";
-				my $filedir="$config{srcdir}";
+				my $filedir=$config{srcdir};
 				if (! -e $file) {
 					# old location
 					$file="$config{wikistatedir}/comments_pending/".$f;
