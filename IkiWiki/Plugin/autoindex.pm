@@ -89,7 +89,7 @@ sub refresh () {
 					if (! -d _) {
 						$pages{pagename($f)}=1;
 					}
-					elsif ($dir eq $config{srcdir}) {
+					elsif ($dir eq $config{srcdir} || ! $config{autoindex_commit}) {
 						$dirs{$f}=1;
 					}
 				}
