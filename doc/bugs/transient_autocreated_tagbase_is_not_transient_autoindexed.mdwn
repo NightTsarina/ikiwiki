@@ -1,7 +1,31 @@
     mkdir -p ikiwiki-tag-test/raw/a_dir/ ikiwiki-tag-test/rendered/
-    echo '[[!taglink a_tag]]' > ikiwiki-tag-test/raw/a_dir/a_page.mdwn
+    echo '\[[!taglink a_tag]]' > ikiwiki-tag-test/raw/a_dir/a_page.mdwn
     ikiwiki --verbose --plugin tag --plugin autoindex --plugin mdwn --set autoindex_commit=0 --set tagbase=tag --set tag_autocreate=1 --set tag_autocreate_commit=0 ikiwiki-tag-test/raw/ ikiwiki-tag-test/rendered/
     ls -al ikiwiki-tag-test/raw/.ikiwiki/transient/
     ls -al ikiwiki-tag-test/rendered/tag/
 
 Shouldn't `ikiwiki-tag-test/raw/.ikiwiki/transient/tag.mdwn` and `ikiwiki-tag-test/rendered/tag/index.html` exist?
+
+[[!tag patch]]
+[[!template id=gitbranch branch=ready/smcv/autoindex author=smcv]]
+[[!template id=gitbranch branch=ready/smcv/autoindex-more-often author=smcv]]
+
+> To have a starting point to (maybe) change this, my `ready/autoindex`
+> branch adds a regression test for the current behaviour, both with
+> and without `autoindex_commit` enabled. It also fixes an unnecessary
+> and potentially harmful special case for the transient directory.
+>
+> The fact that files in underlays (including transient files) don't
+> trigger autoindexing is deliberate. However, this is the second
+> request to change this behaviour: the first was
+> [[!debbug 611068]], which has a patch from Tuomas Jormola.
+> On that bug report, Joey explains why it's undesirable
+> for the original behaviour of autoindex (when the
+> index isn't transient).
+>
+> I'm not sure whether the same reasoning still applies when the
+> index is transient, though (`autoindex_commit => 0`),
+> because the index pages won't be cluttering up people's
+> git repositories any more? My `autoindex-more` branch changes
+> the logic so it will do what you want in the `autoindex_commit => 0`
+> case, and amends the appropriate regression test. --[[smcv]]
