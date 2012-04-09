@@ -59,3 +59,15 @@ inconsistent between the one-and two-argument forms. Thoughts?
 > I think required 2-argument would be better, but have not checked
 > all the call sites to see if the `$file` is available split out
 > as that would need. --[[Joey]] 
+
+[[!template id=gitbranch branch=smcv/ready/prune author="[[Simon McVittie|smcv]]"]]
+
+>> Try this, then? I had to make some changes to `attachment`
+>> to make the split versions available. I suggest reviewing
+>> patch-by-patch.
+>>
+>> I also tried to fix a related bug which I found while testing it:
+>> the special case for renaming held attachments didn't seem to work.
+>> (`smcv/wip/rename-held`.) Unfortunately, it seems that with that
+>> change, the held attachment is committed to the `srcdir` when you
+>> rename it, which doesn't seem to be the intention either? --[[smcv]]
