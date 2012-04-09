@@ -71,7 +71,6 @@ sub refresh () {
 
 	my (%pages, %dirs);
 	foreach my $dir ($config{srcdir}, @{$config{underlaydirs}}, $config{underlaydir}) {
-		next if $dir eq $IkiWiki::Plugin::transient::transientdir;
 		chdir($dir) || next;
 
 		find({
