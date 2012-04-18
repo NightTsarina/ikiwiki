@@ -132,6 +132,7 @@ sub graph (@) {
 		}, "text");
 		$p->parse($src);
 		$p->eof;
+		$s=~s/\[ href= \]//g; # handle self-links
 		$params{src}=$s;
 	}
 	else {
