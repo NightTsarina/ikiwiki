@@ -1,0 +1,27 @@
+ikiwiki 3.20120419 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Remove dead link from plugins/teximg. Closes: #[664885](http://bugs.debian.org/664885)
+   * inline: When the pagenames list includes pages that do not exist, skip
+     them.
+   * meta: Export author information in html &lt;meta&gt; tag. Closes: #[664779](http://bugs.debian.org/664779)
+     Thanks, Martin Michlmayr
+   * notifyemail: New plugin, sends email notifications about new and
+     changed pages, and allows subscribing to comments.
+   * Added a "changes" hook. Renamed the "change" hook to "rendered", but
+     the old hook name is called for now for back-compat.
+   * meta: Support keywords header. Closes: #[664780](http://bugs.debian.org/664780)
+     Thanks, Martin Michlmayr
+   * passwordauth: Fix url in password recovery email to be absolute.
+   * httpauth: When it's the only auth method, avoid a pointless and
+     confusing signin form, and go right to the httpauthurl.
+   * rename: Allow rename to be started not from the edit page; return to
+     the renamed page in this case.
+   * remove: Support removing of pages in the transient underlay. (smcv)
+   * inline, trail: The pagenames parameter is now a list of absolute
+     pagenames, not relative wikilink type names. This is necessary to fix
+     a bug, and makes pagenames more consistent with the pagespec used
+     in the pages parameter. (smcv)
+   * link: Fix renaming wikilinks that contain embedded urls.
+   * graphviz: Handle self-links.
+   * trail: Improve CSS, also display trail links at bottom of page,
+     and a bug fix. (smcv)"""]]
