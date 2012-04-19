@@ -6,7 +6,9 @@ Ikiwiki should really survive being asked to work with a git branch that has no 
     git clone barerepo.git srcdir
     ikiwiki --rcs=git srcdir destdir
 
-I've fixed this initial construction case, and, based on my testing, I've also fixed the post-update executing on a new master, and ikiwiki.cgi executing on a non-existent master cases.
+I've fixed this initial construction case, and, based on my testing, I've
+also fixed the post-update executing on a new master, and ikiwiki.cgi
+executing on a non-existent master cases.
 
 Please commit so my users stop whining at me about having clean branches to push to, the big babies.
 
@@ -63,14 +65,17 @@ It's still extra work) to a very hot code path that is run to eg,
 update recentchanges after every change. 
 
 Seems not ideal to do extra work every time to handle a case
-that will liternally happen a maximum of once in the entire lifecycle of a
+that will literally happen a maximum of once in the entire lifecycle of a
 wiki (and zero times more typically, since the setup automator puts in a
 .gitignore file that works around this problem).
 
 So as to not just say "no" ... what if it always tried to run git log,
-and if it failed (or returned no parsed lines, then it could look 
-at git show-ref to desice whether to throw an error or not.
+and if it failed (or returned no parsed lines), then it could look 
+at git show-ref to deduce whether to throw an error or not.
 --[[Joey]] 
+
+> Ah, but then git-log would still complain "bad revision 'HEAD'"
+> --[[Joey]] 
 
 <pre>
 @@ -474,7 +478,10 @@ sub rcs_update () {
