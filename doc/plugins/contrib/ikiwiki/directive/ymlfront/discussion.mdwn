@@ -19,3 +19,13 @@ I have tried both the ymlfront directive and the YAML markup (with the
 > Oh, and you only need to register "meta" with field_register; that will enable the data defined by the "meta" plugin to be read by field.  Unless "hostname", "MAC" and "IP" are plugins, you don't need to add them to field_register.  They can be taken care of by the ymlfront plugin.  Perhaps that is the problem?
 
 > --[[KathrynAndersen]]
+
+> > I have tried removing the other fields from the declaration, no luck. I did, however, notice the following error in the `--rebuild` output:
+> > 
+> >     ymlfront parse: Load of sandbox data failed: YAML Error: Stream does not end with newline character
+> >        Code: YAML_PARSE_ERR_NO_FINAL_NEWLINE
+> >        Line: 0
+> >        Document: 0
+> >      at /usr/share/perl5/YAML/Loader.pm line 38
+> > 
+> > Now *that* has to be related... ;) In the index.db, there is no ymlfront metadata for the sandbox page... Note that the `---` delimiter approach doesn't trigger the warning but doesn't populate the DB either... --[[anarcat]]
