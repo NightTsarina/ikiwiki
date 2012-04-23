@@ -13,3 +13,9 @@ The getfield, field and ymlfront plugins are enabled. I have tried with and with
 I have tried both the ymlfront directive and the YAML markup (with the
 `---` delimiter), no luck. Any idea what I am doing wrong? --
 [[anarcat]]
+
+> I'm afraid I can't tell from here what the problem could be.  It's clear that ymlfront is turned on, or the ymlfront directive in your sandbox page wouldn't be processed.  The only thing I can suggest, in order to get more information about what could be going wrong, would be to do a dump of your indexdb file (see [[tips/inside dot ikiwiki]]) and see what the data for your sandbox page is.  If there is field data there, that would indicate a problem with getfield; if there isn't field data there, that would indicate a problem with field or ymlfront.
+
+> Oh, and you only need to register "meta" with field_register; that will enable the data defined by the "meta" plugin to be read by field.  Unless "hostname", "MAC" and "IP" are plugins, you don't need to add them to field_register.  They can be taken care of by the ymlfront plugin.  Perhaps that is the problem?
+
+> --[[KathrynAndersen]]
