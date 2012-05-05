@@ -47,15 +47,15 @@ clean:
 	@echo -n "Merging ikiwiki.pot and $@"
 # Typically all that changes is a date or line number. I'd prefer not to
 # commit such changes, so detect and ignore them.
-	@if ! msgmerge $@ ikiwiki.pot -o $@.new 2>&1; then
+	@if ! msgmerge $@ ikiwiki.pot -o $@.new 2>&1; then \
 		echo "unable to run msgmerge"; \
-	else; \
+	else \
 		if [ "`diff $@ $@.new | grep '[<>]' | grep -v '[<>] #:' | wc -l`" -ne 2 ]; then \
 			mv -f $@.new $@; \
 		else \
 			rm -f $@.new; \
-		fi
-		@msgfmt --statistics $@ 2>&1
+		fi; \
+		msgfmt --statistics $@ 2>&1 \
 	fi
 
 check:
