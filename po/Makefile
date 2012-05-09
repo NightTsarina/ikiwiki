@@ -55,7 +55,7 @@ clean:
 		else \
 			rm -f $@.new; \
 		fi; \
-		msgfmt --statistics $@ 2>&1 \
+		msgfmt --statistics $@ 2>&1; \
 	fi
 
 check:
