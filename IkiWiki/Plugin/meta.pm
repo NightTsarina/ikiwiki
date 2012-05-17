@@ -319,6 +319,7 @@ sub pagetemplate (@) {
 	}
 
 	foreach my $field (qw{authorurl}) {
+		eval q{use HTML::Entities};
 		$template->param($field => HTML::Entities::encode_entities($pagestate{$page}{meta}{$field}))
 			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);
 	}
