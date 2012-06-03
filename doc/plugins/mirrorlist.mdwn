@@ -5,3 +5,18 @@ This plugin allows adding links a list of mirrors to each page in the
 wiki. For each mirror, a name and an url should be specified. Pages are
 assumed to exist in the same location under the specified url on each
 mirror.
+
+In case the `usedirs` setting is not the same on all your mirrors, or
+if it is not the same on your local wiki as on the mirror a
+possibility is to let each mirror's ikiwiki CGI find out the correct
+target page url themselves; in that case the mirrors urls must be set
+to their ikiwiki CGI url instead of their base url. Example:
+
+	mirrorlist_use_cgi => 1,
+	mirrorlist => {
+		'mirror1' => 'https://mirror.example.org/ikiwiki.cgi',
+		'mirror2' => 'https://mirror2.example.org/ikiwiki.cgi',
+	},
+
+The mirrors must have the ikiwiki CGI and the [[goto]] plugin enabled
+for this to work.
