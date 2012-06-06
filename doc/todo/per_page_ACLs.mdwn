@@ -13,3 +13,6 @@ This is about going beyond the current [[ACL]] system and allow not only readonl
 >     [[!acl  user= page=/subsite/ acl=/subsite/acl.mdwn]]
 
 I think this would be perfectly possible in Ikiwiki, provided of course the access to the full repository is not allowed, as that cannot be made granular. The way I would see that happen would be by dropping .htaccess files in the right directories and with clever configuration of the virtual host containing the ikiwiki install. Apache has plenty of methods for doing such authentication, and we could simply rely on [[plugins/httpauth/]] for that. *But* there is a key feature of having ACLs per page, or improving the httpauth plugin to have "noread" pagespecs... --[[anarcat]]
+
+Agreed with anarcat, I'am experimenting it. Moreover after sketching some kind of "private area" and a "public area" with [[plugins/httpauth/]], I realized in a public page, generated *backlinks* that appears, actually links pages in private. In the end users through backlink navigation will frequently hit HTTP/401 deterring browsing as well as for the admin at false-positive logwatching.  
+So the plus would be to have a visual display noticing that some link is denied (why not with the reason in a mouseover popup). [[mathdesc]] 
