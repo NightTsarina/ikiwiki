@@ -2,7 +2,11 @@
 
 # Jscalendar
 
-Jscalendar is a javascript equivalent to the [[calendar|plugins/calendar]] plugin. Here are some differences compared to this latter plugin.
+Jscalendar is a javascript equivalent to the [[calendar|plugins/calendar]] plugin.
+
+## Description
+
+Here are some differences compared to this latter plugin.
 
 * Pros
   * No need to rebuild the page containing the calendar each time day changes, or
@@ -16,6 +20,23 @@ Jscalendar is a javascript equivalent to the [[calendar|plugins/calendar]] plugi
 * Cons
   * As a consequence, every calendar of the wiki must index the same set of pages.
   * Javascript :( .
+
+## Usage
+
+### Directive
+
+    \[[!jscalendar type="month" ]]
+
+### Setup file
+
+It being javascript rather than markdown, most of the configuration must be done in the IkiWiki configuration file rather than in the directive
+
+    'archivebase' => "evenements/calendrier",
+    'archive_pagespec' => "evenements/liste/* and ! evenements/liste/*/*",
+    'week_start_day' => 1,
+    'month_link' => 1,
+
+## Example
 
 You can see this plugin in action on [[our website|http://www.gresille.org]]. To see what happens when several pages happens on the same day, check the 15th of March 2012.
 
