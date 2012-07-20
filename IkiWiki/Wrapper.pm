@@ -214,7 +214,7 @@ $set_background_command
 EOF
 
 	my @cc=exists $ENV{CC} ? possibly_foolish_untaint($ENV{CC}) : 'cc';
-	push @cc, possibly_foolish_untaint($ENV{CFLAGS}) if exists $ENV{CFLAGS};
+	push @cc, split(' ', possibly_foolish_untaint($ENV{CFLAGS})) if exists $ENV{CFLAGS};
 	if (system(@cc, "$wrapper.c", "-o", "$wrapper.new") != 0) {
 		#translators: The parameter is a C filename.
 		error(sprintf(gettext("failed to compile %s"), "$wrapper.c"));
