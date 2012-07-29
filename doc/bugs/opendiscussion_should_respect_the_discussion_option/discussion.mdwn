@@ -1,0 +1,26 @@
+This would be great to see fixed. It's perplexing to have discussion => 0 in my configuration, not have any discussion links on my site, but still be able to add a discussion page by URL hacking something like this: /cgi-bin/ikiwiki/ikiwiki.cgi?page=posts%2Fdiscussion&do=edit.
+
+spammers have figured that little trick out so I am consitently getting spammed checked into my git repository.
+
+I'm not really sure if this patch introduced other problems, but it seems to have fixed my site:
+
+		0 mcclelland@chavez:~/.ikiwiki/IkiWiki/Plugin$ diff -u /usr/share/perl5/IkiWiki/Plugin/opendiscussion.pm opendiscussion.pm 
+		--- /usr/share/perl5/IkiWiki/Plugin/opendiscussion.pm	2012-05-07 11:31:24.000000000 -0400
+		+++ opendiscussion.pm	2012-07-29 17:49:28.000000000 -0400
+		@@ -25,7 +25,7 @@
+			my $cgi=shift;
+			my $session=shift;
+		 
+		-	return "" if $page=~/(\/|^)\Q$config{discussionpage}\E$/i;
+		+	return "" if $page=~/(\/|^)\Q$config{discussionpage}\E$/i && $config{discussion};
+			return "" if pagespec_match($page, "postcomment(*)");
+			return undef;
+		 }
+		1 mcclelland@chavez:~/.ikiwiki/IkiWiki/Plugin$  
+
+If libdir is configured to be ~/.ikiwiki in your ikiwiki.settings file, and you are running Debian, you can do the following:
+
+		mkdir -p ~/.ikiwiki/IkiWiki/Plugin
+		cp /usr/share/perl5/IkiWiki/Plugin/opendiscussion.pm ~/.ikiwiki/IkiWiki/Plugin/
+
+And then apply the patch above to ~/.ikiwiki/Ikiwiki/Plugin/opendiscussion.pm.
