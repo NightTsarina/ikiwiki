@@ -62,6 +62,25 @@ sub getsetup () {
 		},
 }
 
+sub register_rendered_files {
+	my $map = shift;
+	my $page = shift;
+	my $dest = shift;
+
+	if ($page eq $dest) {
+		my %formats = get_formats();
+		if ($formats{'GeoJSON'}) {
+			will_render($page, "$map/pois.json");
+		}
+		if ($formats{'CSV'}) {
+			will_render($page, "$map/pois.txt");
+		}
+		if ($formats{'KML'}) {
+			will_render($page, "$map/pois.kml");
+		}
+	}
+}
+
 sub preprocess {
 	my %params=@_;
 	my $page = $params{page};
@@ -97,6 +116,8 @@ sub preprocess {
 			map => $map,
 		);
 	}
+
+	register_rendered_files($map, $page, $dest);
 
 	$pagestate{$page}{'osm'}{$map}{'displays'}{$name} = {
 		height => $height,
@@ -150,18 +171,7 @@ sub process_waypoint {
 	}
 	$icon = urlto($icon, $dest, 1);
 	$tag = '' unless $tag;
-	if ($page eq $dest) {
-		my %formats = get_formats();
-		if ($formats{'GeoJSON'}) {
-			will_render($page, "$map/pois.json");
-		}
-		if ($formats{'CSV'}) {
-			will_render($page, "$map/pois.txt");
-		}
-		if ($formats{'KML'}) {
-			will_render($page, "$map/pois.kml");
-		}
-	}
+	register_rendered_files($map, $page, $dest);
 	$pagestate{$page}{'osm'}{$map}{'waypoints'}{$name} = {
 		page => $page,
 		desc => $desc,
