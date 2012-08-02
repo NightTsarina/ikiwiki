@@ -3,3 +3,11 @@ Under some circumstances that remain unclear to me, the usage of `urlto()` in th
     GET http://mesh.openisp.ca/map/pois.kml/ 404 (Not Found)
 
 Indeed, that URL yields a 404. The proper URL is <http://mesh.openisp.ca/map/pois.kml>. --[[anarcat]]
+
+## Proposed solution
+
+The problem seems to be caused by `urlto()` being called for the `osm` directive before the generated files are registered with `will_render()` from the `waypoint` directive. Proposed patch adds a function that is called from the `preprocess` hook for both directives that registers the files.
+
+[Patch to IkiWiki/Plugin/osm.pm](https://reseaulibre.deuxpi.ca/0000-Fix-incorrect-URL-pointing-to-the-generated-waypoint.patch)
+
+--[[deuxpi]]
