@@ -56,6 +56,12 @@ foreach my $page (@pages) {
 	writefile("$page.mdwn", "t/tmp", "your ad here");
 }
 
+sub comment {
+	my $str = shift;
+	$str =~ s/^/# /gm;
+	print $str;
+}
+
 sub node {
 	my $name = shift;
 	my $kids = shift;
@@ -105,13 +111,14 @@ sub check_nodes {
 sub check {
 	my $pagespec = shift;
 	my $expected = shift;
-	print "*** $pagespec ***\n";
+	comment("*** $pagespec ***\n");
 
 	my $html = IkiWiki::Plugin::map::preprocess(pages => $pagespec,
 		page => 'map',
 		destpage => 'map');
+	comment($html);
 	my $tree = XML::Twig->new(pretty_print => 'indented');
-	eval { 
+	eval {
 		$tree->parse($html);
 	};
 	if ($@) {
@@ -131,7 +138,6 @@ sub check {
 	}
 
 	$tree->dispose;
-	print "<!-- -->\n";
 }
 
 check('doesnotexist', []);
