@@ -103,7 +103,7 @@ sub preprocess (@) {
 			$addparent="";
 			$map .= ($spaces x $indent) . "</li>\n";
 			if ($indent > 1) {
-				$map .= ($spaces x $indent) . "</ul>\n";
+				$map .= ($spaces x $indent) . "</ul><map:collapse>\n";
 			}
 			$indent--;
 		}
@@ -120,7 +120,7 @@ sub preprocess (@) {
 		while ($depth > $indent) {
 			$indent++;
 			if ($indent > 1) {
-				$map .= ($spaces x $indent) . "<ul>\n";
+				$map .= ($spaces x $indent) . "<ul><map:collapse>\n";
 			}
 			if ($depth > $indent) {
 				$p.="/".shift(@bits);
@@ -154,6 +154,8 @@ sub preprocess (@) {
 		$indent--;
 		$map .= ($spaces x $indent) . "</ul>\n";
 	}
+	$map =~ s{\n *</ul><map:collapse>\n *<ul><map:collapse>\n}{\n}gs;
+	$map =~ s{<map:collapse>}{}g;
 	$map .= "</div>\n";
 	return $map;
 }
