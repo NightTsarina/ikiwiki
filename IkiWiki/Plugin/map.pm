@@ -72,6 +72,9 @@ sub preprocess (@) {
 		$common_prefix=IkiWiki::dirname($common_prefix);
 	}
 
+	# Set this to 1 or more spaces to pretty-print maps for debugging
+	my $spaces = "";
+
 	# Create the map.
 	my $parent="";
 	my $indent=0;
@@ -98,18 +101,18 @@ sub preprocess (@) {
 			$parent=IkiWiki::dirname($parent);
 			last if length $addparent && $baseitem =~ /^\Q$addparent\E(\/|$)/;
 			$addparent="";
-			$indent--;
-			$map .= "</li>\n";
-			if ($indent > 0) {
-				$map .= "</ul>\n";
+			$map .= ($spaces x $indent) . "</li>\n";
+			if ($indent > 1) {
+				$map .= ($spaces x $indent) . "</ul>\n";
 			}
+			$indent--;
 		}
 		while ($depth < $indent) {
-			$indent--;
-			$map .= "</li>\n";
-			if ($indent > 0) {
-				$map .= "</ul>\n";
+			$map .= ($spaces x $indent) . "</li>\n";
+			if ($indent > 1) {
+				$map .= ($spaces x $indent) . "</ul>\n";
 			}
+			$indent--;
 		}
 		my @bits=split("/", $item);
 		my $p="";
@@ -117,13 +120,14 @@ sub preprocess (@) {
 		while ($depth > $indent) {
 			$indent++;
 			if ($indent > 1) {
-				$map .= "<ul>\n";
+				$map .= ($spaces x $indent) . "<ul>\n";
 			}
 			if ($depth > $indent) {
 				$p.="/".shift(@bits);
 				$addparent=$p;
 				$addparent=~s/^\///;
-				$map .= "<li>"
+				$map .= ($spaces x $indent) . "<li>\n";
+				$map .= ($spaces x $indent)
 					.htmllink($params{page}, $params{destpage},
 						 "/".$common_prefix.$p, class => "mapparent",
 						 noimageinline => 1)
@@ -134,8 +138,9 @@ sub preprocess (@) {
 				$openli=0;
 			}
 		}
-		$map .= "</li>\n" if $openli;
-		$map .= "<li>"
+		$map .= ($spaces x $indent) . "</li>\n" if $openli;
+		$map .= ($spaces x $indent) . "<li>\n";
+		$map .= ($spaces x $indent)
 			.htmllink($params{page}, $params{destpage}, 
 				"/".$common_prefix."/".$item,
 				@linktext,
@@ -145,8 +150,9 @@ sub preprocess (@) {
 		$parent=$item;
 	}
 	while ($indent > 0) {
+		$map .= ($spaces x $indent) . "</li>\n";
 		$indent--;
-		$map .= "</li>\n</ul>\n";
+		$map .= ($spaces x $indent) . "</ul>\n";
 	}
 	$map .= "</div>\n";
 	return $map;
