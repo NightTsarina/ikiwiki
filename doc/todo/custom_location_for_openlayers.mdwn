@@ -1,0 +1,6 @@
+In the [[plugins/osm]], we use an absolute URL to download the OpenLayers.js script file. This has two downsides:
+
+ 1. if the wiki is behind HTTPS, this will create a nasty SSL warning in the browser and we don't want that
+ 2. if we want the map to work offline, we need to load the js locally
+
+For those reasons, I think the location of that script should be customizable. --[[anarcat]]
