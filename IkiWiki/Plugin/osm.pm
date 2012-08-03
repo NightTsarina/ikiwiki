@@ -60,6 +60,14 @@ sub getsetup () {
 			safe => 0,
 			rebuild => 1,
 		},
+		osm_openlayers_url => {
+			type => "string",
+			example => "http://www.openlayers.org/api/OpenLayers.js",
+			description => "Url for the OpenLayers.js file",
+			safe => 0,
+			rebuild => 1,
+		},
+
 }
 
 sub register_rendered_files {
@@ -519,7 +527,8 @@ sub cgi($) {
 
 sub embed_map_code(;$) {
 	my $page=shift;
-	return '<script src="http://www.openlayers.org/api/OpenLayers.js" type="text/javascript" charset="utf-8"></script>'.
+	my $olurl = $config{osm_openlayers_url} || "http://www.openlayers.org/api/OpenLayers.js";
+	return '<script src="'.$olurl.'" type="text/javascript" charset="utf-8"></script>'.
 		'<script src="'.urlto("ikiwiki/osm.js", $page).
 		'" type="text/javascript" charset="utf-8"></script>'."\n";
 }
