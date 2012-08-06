@@ -8,10 +8,16 @@ Indeed, that URL yields a 404. The proper URL is <http://mesh.openisp.ca/map/poi
 
 ## Proposed solution
 
-The problem seems to be caused by `urlto()` being called for the `osm` directive before the generated files are registered with `will_render()` from the `waypoint` directive. Proposed patch adds a function that is called from the `preprocess` hook for both directives that registers the files.
+The problem seems to be caused by `urlto()` being called for the `osm`
+directive before the generated files are registered with `will_render()`
+from the `waypoint` directive. Proposed patch adds a function that is
+called from the `preprocess` hook for both directives that registers the
+files.
 
 Here is a [[patch]] to IkiWiki/Plugin/osm.pm: <https://reseaulibre.deuxpi.ca/0000-Fix-incorrect-URL-pointing-to-the-generated-waypoint.patch>
 
 --[[deuxpi]]
 
 I confirm the patch works, and I added it to my master branch. --[[anarcat]]
+
+> [[applied|done]]. Thanks guys. --[[Joey]]
