@@ -37,8 +37,13 @@ function mapsetup(divname, options) {
 		numZoomLevels: 18
 	});
 
+	if (options.mapurl) {
+		var newLayer = new OpenLayers.Layer.OSM("Local Tiles", options.mapurl, {numZoomLevels: 19, isBaseLayer: true});
+		map.addLayer(newLayer);
+	} else {
+		map.addLayer(new OpenLayers.Layer.OSM());
+	}
 
-	map.addLayer(new OpenLayers.Layer.OSM());
 	if (options.format == 'CSV') {
 		pois = new OpenLayers.Layer.Text( "CSV",
 			{ location: options.csvurl,

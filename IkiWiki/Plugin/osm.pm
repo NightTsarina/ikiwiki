@@ -67,6 +67,13 @@ sub getsetup () {
 			safe => 0,
 			rebuild => 1,
 		},
+		osm_map_url => {
+			type => "string",
+			example => "/tiles/\${z}/\${x}/\${y}.png",
+			description => "Url to get map tiles from (if none specified, uses the openstreetmap server, see http://wiki.openstreetmap.org/wiki/Creating_your_own_tiles for more info on serving your own tiles)",
+			safe => 0,
+			rebuild => 1,
+		},
 
 }
 
@@ -540,6 +547,8 @@ sub map_setup_code($;@) {
 	my $name=shift;
 	my %options=@_;
 
+	my $mapurl = $config{osm_map_url};
+
 	eval q{use JSON};
 	error $@ if $@;
 				
@@ -554,6 +563,10 @@ sub map_setup_code($;@) {
 	}
 	if ($formats{'KML'}) {
 		$options{'kmlurl'} = urlto($map."/pois.kml");
+	}
+
+	if ($mapurl) {
+		$options{'mapurl'} = $mapurl;
 	}
 
 	return "mapsetup('mapdiv-$name', " . to_json(\%options) . ");";
