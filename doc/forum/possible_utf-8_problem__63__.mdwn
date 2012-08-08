@@ -19,7 +19,8 @@ Looking at the form, it is the from-parameter that contains 'hönshuset'
 that triggers the problem. If I rename the file to honshuset.mdwn
 everything works fine.
 
-(Yes, I renamed the blog directory to honshuset for debugging, but
-that didn't help.)
+For some reason the from-parameter seems to depend on both the filename and
+the rootpage parameter. If I add *rootpage*, then I must not use
+utf-8 characters in *rootpage* or in the source filename.
 
 I use ikiwiki 3.20120629 in Debian sid.
