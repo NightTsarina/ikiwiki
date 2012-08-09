@@ -365,17 +365,23 @@ sub writekml($;$) {
 		$writer->startTag("Document");
 
 		# first pass: get the icons
+		my %tags_map = (); # keep track of tags seen
 		foreach my $name (keys %{$waypoints{$map}}) {
 			my %options = %{$waypoints{$map}{$name}};
-			$writer->startTag("Style", id => $options{tag});
-			$writer->startTag("IconStyle");
-			$writer->startTag("Icon");
-			$writer->startTag("href");
-			$writer->characters($options{icon});
-			$writer->endTag();
-			$writer->endTag();
-			$writer->endTag();
-			$writer->endTag();
+			if (!$tags_map{$options{tag}}) {
+			    debug("found new style " . $options{tag});
+			    $tags_map{$options{tag}} = ();
+			    $writer->startTag("Style", id => $options{tag});
+			    $writer->startTag("IconStyle");
+			    $writer->startTag("Icon");
+			    $writer->startTag("href");
+			    $writer->characters($options{icon});
+			    $writer->endTag();
+			    $writer->endTag();
+			    $writer->endTag();
+			    $writer->endTag();
+			}
+			$tags_map{$options{tag}}{$name} = \%options;
 		}
 	
 		foreach my $name (keys %{$waypoints{$map}}) {
