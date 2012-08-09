@@ -34,6 +34,10 @@ function mapsetup(divname, options) {
 			new OpenLayers.Control.Permalink(permalink)
 		],
 		displayProjection: new OpenLayers.Projection("EPSG:4326"),
+		maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+		projection: "EPSG:900913",
+		units: "m",
+		maxResolution: 156543.0339,
 		numZoomLevels: 18
 	});
 
@@ -44,6 +48,17 @@ function mapsetup(divname, options) {
 		map.addLayer(new OpenLayers.Layer.OSM());
 	}
 
+	// this nightmare is possible through http://docs.openlayers.org/library/spherical_mercator.html
+	if (options.google_apikey && options.google_apikey != 'null') {
+		googleLayer = new OpenLayers.Layer.Google(
+			"Google Hybrid",
+			{type: G_HYBRID_MAP,
+			 'sphericalMercator': true,
+			 'maxExtent': new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+			 projection: new OpenLayers.Projection("EPSG:3857")}
+		);
+		map.addLayer(googleLayer);
+	}
 	if (options.format == 'CSV') {
 		pois = new OpenLayers.Layer.Text( "CSV",
 			{ location: options.csvurl,
