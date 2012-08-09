@@ -8,8 +8,11 @@ ikiwiki-update-wikilist [-r]
 
 # DESCRIPTION
 
-`ikiwiki-update-wikilist` is designed to be made suid root, but is not installed
-suid by default. If made suid, it allows users to add or remove their names
+`ikiwiki-update-wikilist` is designed to be safely run as root by arbitrary
+users, either by being made suid and using the (now deprecated suidperl), or
+by being configured in `/etc/sudoers` to allow arbitrary users to run.
+
+All it does is allows users to add or remove their names
 from the `/etc/ikiwiki/wikilist` file. 
 
 By default, the user's name will be added.
