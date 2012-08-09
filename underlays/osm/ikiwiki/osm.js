@@ -47,7 +47,7 @@ function mapsetup(divname, options) {
 	if (options.format == 'CSV') {
 		pois = new OpenLayers.Layer.Text( "CSV",
 			{ location: options.csvurl,
-			  projection: map.displayProjection
+			  projection: new OpenLayers.Projection("EPSG:4326")
 			});
 	} else if (options.format == 'GeoJSON') {
 		pois = new OpenLayers.Layer.Vector("GeoJSON", {
@@ -55,7 +55,8 @@ function mapsetup(divname, options) {
 				url: options.jsonurl,
 				format: new OpenLayers.Format.GeoJSON()
 			}),
-			strategies: [new OpenLayers.Strategy.Fixed()]
+			strategies: [new OpenLayers.Strategy.Fixed()],
+			projection: new OpenLayers.Projection("EPSG:4326")
 		});
 	} else {
 		pois = new OpenLayers.Layer.Vector("KML", {
@@ -66,7 +67,9 @@ function mapsetup(divname, options) {
 					extractAttributes: true
 				})
 			}),
-		strategies: [new OpenLayers.Strategy.Fixed()]});
+			strategies: [new OpenLayers.Strategy.Fixed()],
+			projection: new OpenLayers.Projection("EPSG:4326")
+                });
 	}
 	map.addLayer(pois);
 	select = new OpenLayers.Control.SelectFeature(pois);
