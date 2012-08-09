@@ -136,7 +136,7 @@ function mapsetup(divname, options) {
 
 	if (options.fullscreen) {
 		map.addControl(new OpenLayers.Control.PanZoomBar());
-		map.addControl(new OpenLayers.Control.LayerSwitcher({'ascending':false}));
+		map.addControl(new OpenLayers.Control.LayerSwitcher());
 		map.addControl(new OpenLayers.Control.MousePosition());
 		map.addControl(new OpenLayers.Control.KeyboardDefaults());
 	} else {
