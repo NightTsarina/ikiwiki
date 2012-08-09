@@ -359,7 +359,7 @@ sub writekml($;$) {
 	foreach my $map (keys %waypoints) {
 		my $output;
 		my $writer = XML::Writer->new( OUTPUT => \$output,
-			DATA_MODE => 1, ENCODING => 'UTF-8');
+			DATA_MODE => 1, DATA_INDENT => ' ', ENCODING => 'UTF-8');
 		$writer->xmlDecl();
 		$writer->startTag("kml", "xmlns" => "http://www.opengis.net/kml/2.2");
 		$writer->startTag("Document");
