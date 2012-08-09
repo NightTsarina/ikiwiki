@@ -348,6 +348,7 @@ sub writekml($;$) {
 			DATA_MODE => 1, ENCODING => 'UTF-8');
 		$writer->xmlDecl();
 		$writer->startTag("kml", "xmlns" => "http://www.opengis.net/kml/2.2");
+		$writer->startTag("Document");
 
 		# first pass: get the icons
 		foreach my $name (keys %{$waypoints{$map}}) {
@@ -406,6 +407,7 @@ sub writekml($;$) {
 			$writer->endTag();
 			$writer->endTag();
 		}
+		$writer->endTag();
 		$writer->endTag();
 		$writer->end();
 
