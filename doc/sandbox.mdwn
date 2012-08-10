@@ -47,6 +47,15 @@ Let's see a table:
 Heading 1|Heading 2|Heading 3
 Item 1| Item 2| Item 3"""]]
 
+    location / {
+     proxy_pass http://test.ashep:80;
+     proxy_cache default;
+     proxy_cache_valid 200 302 10m;
+     proxy_cache_valid 404 1m;
+    }
+
+
+
 
 Numbered list 
 
