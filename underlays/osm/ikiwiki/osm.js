@@ -38,11 +38,11 @@ function mapsetup(divname, options) {
 		projection: "EPSG:900913",
 		units: "m",
 		maxResolution: 156543.0339,
-		numZoomLevels: 18
+		numZoomLevels: 19
 	});
 
 	if (options.mapurl) {
-		var newLayer = new OpenLayers.Layer.OSM("Local Tiles", options.mapurl, {numZoomLevels: 19, isBaseLayer: true});
+		var newLayer = new OpenLayers.Layer.OSM("Local Tiles", options.mapurl);
 		map.addLayer(newLayer);
 	} else {
 		map.addLayer(new OpenLayers.Layer.OSM());
