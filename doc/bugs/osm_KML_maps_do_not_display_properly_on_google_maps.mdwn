@@ -1,1 +1,7 @@
+[[!template  id=gitbranch branch=anarcat/master author="[[anarcat]]"]]
+
 I know this sounds backwards, but it seems to me that the KML-generated map should be displayable on google maps. KML is the standard Google uses for google maps, and since we use it, we should interoperate with them. God knows why this is failing, but it is and should probably be fixed for the sake of interoperability: <https://maps.google.ca/maps?q=http:%2F%2Fwiki.reseaulibre.ca%2Fmap%2Fpois.kml> -- [[users/anarcat]]
+
+> The KML only needs a Document tag because it uses "shared styles" -- don't ask me what this is. Here is a [[patch]]: [[https://reseaulibre.deuxpi.ca/0001-Add-Document-tag-to-OSM-plugin-KML-output.patch]] --[[deuxpi]]
+
+> > I applied the patch to my master branch and tested it on the above URL: it works... mostly. The icons for the elements on the actual map seem incorrect (some are the proper icons, some others are the ugly default blue pin of google maps, weird) but I think this is a step in the right direction. Thus, this should be merged. -- [[anarcat]]
