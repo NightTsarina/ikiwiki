@@ -42,10 +42,9 @@ function mapsetup(divname, options) {
 	});
 
 	if (options.mapurl) {
-		var newLayer = new OpenLayers.Layer.OSM("Local Tiles", options.mapurl);
-		map.addLayer(newLayer);
+		map.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap (Local)", options.mapurl));
 	} else {
-		map.addLayer(new OpenLayers.Layer.OSM());
+		map.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap (Mapnik)"));
 	}
 
 	// this nightmare is possible through http://docs.openlayers.org/library/spherical_mercator.html
