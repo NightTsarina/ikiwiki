@@ -3,7 +3,7 @@ Saving a wiki page in ikwiki or
 
 I profiled ikiwiki with [[!cpan Devel::SmallProf]] : see [[users/mathdesc]] for details.
 
-And I came to the conclusion that filecheck on attachment was the only cause.
+And I came to the conclusion that [[plugins/filecheck]] on attachment was the only cause.
 It always go the fallback code using time-consuming file even there it's look like it's
 not successful. 
 
@@ -36,5 +36,9 @@ not successful.
                 }                                                  
         }        
 </pre>
+
+I found on [[plugins/filecheck/discussion/]] what [[users/DavidBremner/]] described as :
+> no way to detect text/plain using File::MimeInfo::Magic::magic()
+But I can't figure out if my issue is boarder and includes this or not.. 
 
 Any ideas , solve :) more that welcome.
