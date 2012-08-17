@@ -1,0 +1,18 @@
+Disabling of filecheck is not actually possible because btw it cause the attachment.pm to malfunction and
+any of pagespec that could contain a *mimetype* condition.
+
+attachment.pm imports "statically"  filecheck so actually disabling it should be *interdicted* .
+
+<pre>
+sub import {
+        add_underlay("attachment");
+        add_underlay("javascript");
+        add_underlay("jquery");
+        hook(type => "getsetup", id => "attachment", call => \&getsetup);
+        hook(type => "checkconfig", id => "attachment", call => \&checkconfig);
+        hook(type => "formbuilder_setup", id => "attachment", call => \&formbuilder_setup);
+        hook(type => "formbuilder", id => "attachment", call => \&formbuilder, last => 1);
+        IkiWiki::loadplugin("filecheck");
+}
+</pre>
+
