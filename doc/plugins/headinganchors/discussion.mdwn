@@ -31,3 +31,19 @@ A patch to make it more like MediaWiki:
  </pre>
 
 --Changaco
+
+----
+
+I think using this below would let the source html clear for the browser
+without changing the render:
+
+        #use URI::Escape
+        .
+        .
+
+        #$str = uri_escape_utf8($str);
+        $str = Encode::decode_utf8($str);
+        #$str =~ s/%/./g;
+
+Don't you think ?
+[[mathdesc]]
