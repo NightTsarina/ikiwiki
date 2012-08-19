@@ -1,3 +1,4 @@
+##Foreword :
 Disabling of filecheck is not actually possible because btw it cause the attachment.pm to malfunction and
 any of pagespec that could contain a *mimetype* condition.
 
@@ -16,3 +17,116 @@ sub import {
 }
 </pre>
 
+----
+
+## How bad is it ?
+
+So I tried on three pages to inline <tt>!mimetype(image/*)</tt> while I allowed attachment of <tt>mimetype(image/*)</tt>
+
+My profiling tests in the bug report shows that most of the time is spend in the "Fallback using file" block code,
+I tried to comment that block and see how it'll perform. Obviously this is much much faster ... but is the mimetype
+discovered using only *File::MimeInfo* ?
+
+
+Dumping some strings before return to STDERR, rebuilding . This is just a  [[!toggle  id="code-test" text="dumpdebug adding"]] 
+
+[[!toggleable  id="code-test" text="""
+<pre>
+sub match_mimetype ($$;@) {
+        my $page=shift;
+        my $wanted=shift;
+
+        my %params=@_;
+        my $file=exists $params{file} ? $params{file} : IkiWiki::srcfile($IkiWiki::pagesources{$page});
+        if (! defined $file) {
+                return IkiWiki::ErrorReason->new("file does not exist");
+        }
+
+        # Get the mime type.
+        #
+        # First, try File::Mimeinfo. This is fast, but doesn't recognise
+        # all files.
+        eval q{use File::MimeInfo::Magic};
+        my $mimeinfo_ok=! $@;
+        my $mimetype;
+        print STDERR " --- match_mimetype (".$file.")\n";
+        if ($mimeinfo_ok) {
+                my $mimetype=File::MimeInfo::Magic::magic($file);
+        }
+
+        # Fall back to using file, which has a more complete
+        # magic database.
+        #if (! defined $mimetype) {
+        #       open(my $file_h, "-|", "file", "-bi", $file);
+        #       $mimetype=<$file_h>;
+        #       chomp $mimetype;
+        #       close $file_h;
+        #}
+
+        if (! defined $mimetype || $mimetype !~s /;.*//) {
+                # Fall back to default value.
+                $mimetype=File::MimeInfo::Magic::default($file)
+                        if $mimeinfo_ok;
+                if (! defined $mimetype) {
+                        $mimetype="unknown";
+                }
+        }
+
+        my $regexp=IkiWiki::glob2re($wanted);
+        if ($mimetype!~$regexp) {
+                 print STDERR " xxx MIME unknown ($mimetype - $wanted - $regexp ) \n";
+                return IkiWiki::FailReason->new("file MIME type is $mimetype, not $wanted");
+        }
+        else {
+                print STDERR " vvv MIME found\n";
+                return IkiWiki::SuccessReason->new("file MIME type is $mimetype");
+        }
+}
+</pre>
+"""]]
+
+The results dump to stderr (or a file called... 'say *mime*) looks like this :
+<pre>
+--- match_mimetype (/usr/share/ikiwiki/attachment/ikiwiki/jquery.fileupload-ui.js)
+ xxx MIME unknown (text/plain - image/* - (?i-xsm:^image\/.*$) )
+ --- match_mimetype (/usr/share/ikiwiki/locale/fr/directives/ikiwiki/directive/fortune.mdwn)
+ xxx MIME unknown (text/plain - image/* - (?i-xsm:^image\/.*$) )
+ --- match_mimetype (/usr/share/ikiwiki/locale/fr/basewiki/shortcuts.mdwn)
+ xxx MIME unknown (text/plain - image/* - (?i-xsm:^image\/.*$) 
+ --- match_mimetype (/usr/share/ikiwiki/smiley/smileys/alert.png)
+ xxx MIME unknown (application/octet-stream - image/* - (?i-xsm:^image\/.*$) )
+ --- match_mimetype (/usr/share/ikiwiki/attachment/ikiwiki/images/ui-bg_flat_75_ffffff_40x100.png)
+ xxx MIME unknown (application/octet-stream - image/* - (?i-xsm:^image\/.*$) 
+</pre>
+
+<tt>---</tt> prepend signals the file on analysis<br/>
+<tt>xxx</tt> prepend signals a returns failure : mime is unknown, the match is a failure<br/>
+<tt>vvv</tt> prepend signals a return success.<br/>
+
+
+This is nasty-scary results ! Something missed me or this mime-filecheck is plain nuts ?
+
+*Question 1* : How many files have been analysed : **3055** (yet on a tiny tiny wiki)
+<pre>grep "^ --- " mime | wc -l
+3055
+</pre>
+
+*Question 2* : How many time it fails : *all the time*
+<pre>
+ grep "^ xxx " mime | wc -l
+3055
+</pre>
+
+*Question 1bis*  : Doh btw , how many files have been re-analysed ?  ** 2835 ** OMG !!
+<pre>grep "^ --- " mime | sort -u | wc -l
+220
+</pre>
+
+## Conclusion
+
+- Only the system command *file -bi* works. While it is **should** be easy on the cpu , it's also hard on the I/O -> VM :( 
+- Something nasty with the mime  implementation and/or my system configuration -> Hints ? :D
+- Need to cache during the rebuild : a same page needs not being rechecked for its mime while it's locked !
+
+
+--mathdesc
