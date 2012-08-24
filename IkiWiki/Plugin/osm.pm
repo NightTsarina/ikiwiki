@@ -67,10 +67,19 @@ sub getsetup () {
 			safe => 0,
 			rebuild => 1,
 		},
-		osm_map_url => {
+		osm_layers => {
 			type => "string",
-			example => "/tiles/\${z}/\${x}/\${y}.png",
-			description => "Url to get map tiles from (if none specified, uses the openstreetmap server, see http://wiki.openstreetmap.org/wiki/Creating_your_own_tiles for more info on serving your own tiles)",
+			example => { OSM => 1,
+				     Google => 'Hybrid',
+			},
+			description => "Layers to use in the map. If the value is 1, use the default for the map, otherwise the argument is a URL (for OSM layers, e.g. http://a.tile.stamen.com/toner/\${z}/\${x}/\${y}.png) or a type option for Google maps (Normal, Satellite, Hybrid or Physical).",
+			safe => 0,
+			rebuild => 1,
+		},
+		osm_layers_order => {
+			type => "string",
+			example => { 'OSM', 'Google' },
+			description => "Display order for the layers. The first layer is the default layer, must match exactly the left side of the osm_layers hash.",
 			safe => 0,
 			rebuild => 1,
 		},
@@ -580,6 +589,8 @@ sub map_setup_code($;@) {
 	if ($mapurl) {
 		$options{'mapurl'} = $mapurl;
 	}
+        $options{'layers'} = $config{osm_layers};
+        $options{'layers_order'} = $config{osm_layers_order};
 
 	return "mapsetup('mapdiv-$name', " . to_json(\%options) . ");";
 }

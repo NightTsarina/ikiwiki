@@ -41,23 +41,44 @@ function mapsetup(divname, options) {
 		numZoomLevels: 19
 	});
 
-	if (options.mapurl) {
-		map.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap (Local)", options.mapurl));
-	} else {
-		map.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap (Mapnik)"));
+	for (x in options.layers_order) {
+		layer = options.layers_order[x];
+		console.log("setting up layer: " + layer + " with argument : " + options.layers[layer]);
+		if (layer.indexOf("Google") >= 0) {
+			if (options.google_apikey && options.google_apikey != 'null') {
+				var gtype = G_NORMAL_MAP;
+				var gtext = "";
+				if (options.layers[layer] == "Satellite") {
+					gtype = G_SATELLITE_MAP;
+				} else if (options.layers[layer] == "Hybrid") {
+					gtype = G_HYBRID_MAP // the normal map overlaying the satellite photographs
+				} else if (options.layers[layer] == "Physical") {
+					gtype = G_PHYSICAL_MAP // terrain information
+				}
+				// this nightmare is possible through http://docs.openlayers.org/library/spherical_mercator.html
+				googleLayer = new OpenLayers.Layer.Google(
+					"Google " + options.layers[layer],
+					{type: gtype,
+					 'sphericalMercator': true,
+					 'maxExtent': new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+					 projection: new OpenLayers.Projection("EPSG:3857")}
+				);
+				map.addLayer(googleLayer);
+			} else {
+				console.log("no API key defined for Google layer, skipping");
+			}
+		} else { // OSM
+			if (options.layers[layer] != 1) {
+				l = options.layers[layer];
+				fqdn = l.split("/")[2].split(".")
+				text = fqdn[fqdn.length-2]
+				map.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap (" + text + ")", l));
+			} else {
+				map.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap (Mapnik)"));
+			}
+		}
 	}
 
-	// this nightmare is possible through http://docs.openlayers.org/library/spherical_mercator.html
-	if (options.google_apikey && options.google_apikey != 'null') {
-		googleLayer = new OpenLayers.Layer.Google(
-			"Google Hybrid",
-			{type: G_HYBRID_MAP,
-			 'sphericalMercator': true,
-			 'maxExtent': new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
-			 projection: new OpenLayers.Projection("EPSG:3857")}
-		);
-		map.addLayer(googleLayer);
-	}
 	if (options.format == 'CSV') {
 		pois = new OpenLayers.Layer.Text( "CSV",
 			{ location: options.csvurl,
