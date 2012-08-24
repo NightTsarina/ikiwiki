@@ -57,7 +57,7 @@ function mapsetup(divname, options) {
 				}
 				// this nightmare is possible through http://docs.openlayers.org/library/spherical_mercator.html
 				googleLayer = new OpenLayers.Layer.Google(
-					"Google " + options.layers[layer],
+					"Google (" + options.layers[layer] + ")",
 					{type: gtype,
 					 'sphericalMercator': true,
 					 'maxExtent': new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
