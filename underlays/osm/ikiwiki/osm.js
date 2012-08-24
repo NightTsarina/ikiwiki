@@ -70,11 +70,11 @@ function mapsetup(divname, options) {
 		} else { // OSM
 			if (options.layers[layer] != 1) {
 				l = options.layers[layer];
-				fqdn = l.split("/")[2].split(".")
-				text = fqdn[fqdn.length-2]
-				map.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap (" + text + ")", l));
+				fqdn = l.split("/")[2].split(".");
+				text = fqdn[fqdn.length-2] + "." + fqdn[fqdn.length-1];
+				map.addLayer(new OpenLayers.Layer.OSM(layer + " (" + text + ")", l));
 			} else {
-				map.addLayer(new OpenLayers.Layer.OSM("OpenStreetMap (Mapnik)"));
+				map.addLayer(new OpenLayers.Layer.OSM(layer + " (Mapnik)"));
 			}
 		}
 	}
