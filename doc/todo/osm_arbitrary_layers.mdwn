@@ -24,3 +24,14 @@ I got tired of hacking at the osm.pm every time I wanted to change the layers, s
 >>> --[[Joey]]
 
 >>>> The layers are ordered because that's the way they are displayed in the menu. Take a look at the base layers on the top left here for an idea: <http://wiki.reseaulibre.ca/ikiwiki.cgi?map=map&do=osm&zoom=12&lat=45.5227&lon=-73.59554>. -- [[anarcat]]
+
+>>>> After sleeping over this - maybe it would be simpler if `osm_layers` was just an array. First, it would get rid of the duplication with `osm_layers_order`. Then I do not feel that having the keys in that hash is worth the duplication anymore. The only reason this is a hash is to provide an arbitrary string description for the layers. We could replace this with an automated description based on the path to the tiles provided.
+>>>> 
+>>>> If that's an acceptable solution for you, I'll go right ahead and rewrite this in a separate branch for merging. Note that on my master branch, there are now 3 main  changes that are not merged: arbitrary OSM layers (includes Google Maps support), KML formatting improvements (indentation, non-duplication of tags), minor OpenLayers improvements (don't sort layers arbitrarily, folders support, higher default zoom level and projection fixes). I can either make a branch for those three things or leave it on my master branch, but be warned that it will be hard to separate those as distinct/orthogonal patches as they mangle each other quite a bit.
+>>>>
+>>>> So basically, I need to know two things from you:
+>>>>
+>>>> 1. on the layers design: a) hash (which include arbitrary descriptions) + default value or b) a simple array with automated descriptions
+>>>> 2. the above changes on a single branch or on 3 different ones?
+>>>>
+>>>> Thanks for your time.  -- [[anarcat]]
