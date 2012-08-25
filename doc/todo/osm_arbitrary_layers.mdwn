@@ -1,3 +1,15 @@
 [[!template  id=gitbranch branch=anarcat/master author="[[anarcat]]"]]
 
 I got tired of hacking at the osm.pm every time I wanted to change the layers, so I made it so the layers can be changed in the .setup file. In my master branch, there are now two new configuration settings: `osm_layers` and `osm_layers_order` which replace the hackish `osm_mapurl`. The variables are a hash and an array that allow the operator to define the list of URLs to be loaded as layers and also to change the order of layers. -- [[users/anarcat]]
+
+> I try to avoid adding hashes to config, because websetup does
+> not allow configuring hashes.
+> 
+> The example for `osm_layers_order` is confusing, it makes
+> it look like a perl hash, but it appears to really be a javascript
+> code fragement string, and one that is tightly bound to other
+> configuration too. Why not generate that javascript code from
+> data in a robust way?
+>
+> Does it even make sense to configure this stuff globally?
+> Could the layers be passed as parameters to the osm direction? --[[Joey]]
