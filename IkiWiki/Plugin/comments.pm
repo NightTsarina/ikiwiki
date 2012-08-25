@@ -443,10 +443,7 @@ sub editcomment ($$) {
 		$content .= " nickname=\"$nickname\"\n";
 	}
 	elsif (defined $session->remote_addr()) {
-		my $ip = $session->remote_addr();
-		if ($ip =~ m/^([.0-9]+)$/) {
-			$content .= " ip=\"$1\"\n";
-		}
+		$content .= " ip=\"".$session->remote_addr()."\"\n";
 	}
 
 	if ($config{comments_allowauthor}) {
