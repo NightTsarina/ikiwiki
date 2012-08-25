@@ -41,23 +41,22 @@ function mapsetup(divname, options) {
 		numZoomLevels: 19
 	});
 
-	for (x in options.layers_order) {
-		layer = options.layers_order[x];
-		console.log("setting up layer: " + layer + " with argument : " + options.layers[layer]);
+	for (x in options.layers) {
+		layer = options.layers[x];
+		console.log("setting up layer: " + layer);
 		if (layer.indexOf("Google") >= 0) {
 			if (options.google_apikey && options.google_apikey != 'null') {
 				var gtype = G_NORMAL_MAP;
-				var gtext = "";
-				if (options.layers[layer] == "Satellite") {
+				if (layer.indexOf("Satellite") >= 0) {
 					gtype = G_SATELLITE_MAP;
-				} else if (options.layers[layer] == "Hybrid") {
+				} else if (layer.indexOf("Hybrid") >= 0) {
 					gtype = G_HYBRID_MAP // the normal map overlaying the satellite photographs
-				} else if (options.layers[layer] == "Physical") {
+				} else if (layer.indexOf("Physical") >= 0) {
 					gtype = G_PHYSICAL_MAP // terrain information
 				}
 				// this nightmare is possible through http://docs.openlayers.org/library/spherical_mercator.html
 				googleLayer = new OpenLayers.Layer.Google(
-					"Google (" + options.layers[layer] + ")",
+					layer,
 					{type: gtype,
 					 'sphericalMercator': true,
 					 'maxExtent': new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
@@ -67,15 +66,11 @@ function mapsetup(divname, options) {
 			} else {
 				console.log("no API key defined for Google layer, skipping");
 			}
-		} else { // OSM
-			if (options.layers[layer] != 1) {
-				l = options.layers[layer];
-				fqdn = l.split("/")[2].split(".");
-				text = fqdn[fqdn.length-2] + "." + fqdn[fqdn.length-1];
-				map.addLayer(new OpenLayers.Layer.OSM(layer + " (" + text + ")", l));
-			} else {
-				map.addLayer(new OpenLayers.Layer.OSM(layer + " (Mapnik)"));
-			}
+		} else if (layer == 'OSM') { // OSM default layer
+			map.addLayer(new OpenLayers.Layer.OSM("OSM (Mapnik)"));
+		} else { // assumed to be a URL
+			text = layer.match(/([^.\/]*\.[^.\/]*(\/[^\$]*)?)\/.*$/i) // take the first two parts of the FQDN and everything before the first $
+			map.addLayer(new OpenLayers.Layer.OSM("OSM (" + text[1]  + ")", layer));
 		}
 	}
 
