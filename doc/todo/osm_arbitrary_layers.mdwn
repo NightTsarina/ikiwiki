@@ -1,4 +1,4 @@
-[[!template  id=gitbranch branch=anarcat/master author="[[anarcat]]"]]
+[[!template  id=gitbranch branch=anarcat/osm_arbitrary_layers author="[[anarcat]]"]]
 
 I got tired of hacking at the osm.pm every time I wanted to change the layers, so I made it so the layers can be changed in the .setup file. In my master branch, there are now two new configuration settings: `osm_layers` and `osm_layers_order` which replace the hackish `osm_mapurl`. The variables are a hash and an array that allow the operator to define the list of URLs to be loaded as layers and also to change the order of layers. -- [[users/anarcat]]
 
@@ -35,3 +35,5 @@ I got tired of hacking at the osm.pm every time I wanted to change the layers, s
 >>>> 2. the above changes on a single branch or on 3 different ones?
 >>>>
 >>>> Thanks for your time.  -- [[anarcat]]
+
+>>>>> I have implemented 1.b) and 2. (ie. it's a simple array now, and I split this stuff in different branches.) I'll open another todo for the other branches. --[[anarcat]]
