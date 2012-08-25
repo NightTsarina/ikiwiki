@@ -34,15 +34,50 @@ function mapsetup(divname, options) {
 			new OpenLayers.Control.Permalink(permalink)
 		],
 		displayProjection: new OpenLayers.Projection("EPSG:4326"),
-		numZoomLevels: 18
+		maxExtent: new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+		projection: "EPSG:900913",
+		units: "m",
+		maxResolution: 156543.0339,
+		numZoomLevels: 19
 	});
 
+	for (x in options.layers) {
+		layer = options.layers[x];
+		console.log("setting up layer: " + layer);
+		if (layer.indexOf("Google") >= 0) {
+			if (options.google_apikey && options.google_apikey != 'null') {
+				var gtype = G_NORMAL_MAP;
+				if (layer.indexOf("Satellite") >= 0) {
+					gtype = G_SATELLITE_MAP;
+				} else if (layer.indexOf("Hybrid") >= 0) {
+					gtype = G_HYBRID_MAP // the normal map overlaying the satellite photographs
+				} else if (layer.indexOf("Physical") >= 0) {
+					gtype = G_PHYSICAL_MAP // terrain information
+				}
+				// this nightmare is possible through http://docs.openlayers.org/library/spherical_mercator.html
+				googleLayer = new OpenLayers.Layer.Google(
+					layer,
+					{type: gtype,
+					 'sphericalMercator': true,
+					 'maxExtent': new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+					 projection: new OpenLayers.Projection("EPSG:3857")}
+				);
+				map.addLayer(googleLayer);
+			} else {
+				console.log("no API key defined for Google layer, skipping");
+			}
+		} else if (layer == 'OSM') { // OSM default layer
+			map.addLayer(new OpenLayers.Layer.OSM("OSM (Mapnik)"));
+		} else { // assumed to be a URL
+			text = layer.match(/([^.\/]*\.[^.\/]*(\/[^\$]*)?)\/.*$/i) // take the first two parts of the FQDN and everything before the first $
+			map.addLayer(new OpenLayers.Layer.OSM("OSM (" + text[1]  + ")", layer));
+		}
+	}
 
-	map.addLayer(new OpenLayers.Layer.OSM());
 	if (options.format == 'CSV') {
 		pois = new OpenLayers.Layer.Text( "CSV",
 			{ location: options.csvurl,
-			  projection: map.displayProjection
+			  projection: new OpenLayers.Projection("EPSG:4326")
 			});
 	} else if (options.format == 'GeoJSON') {
 		pois = new OpenLayers.Layer.Vector("GeoJSON", {
@@ -50,7 +85,8 @@ function mapsetup(divname, options) {
 				url: options.jsonurl,
 				format: new OpenLayers.Format.GeoJSON()
 			}),
-			strategies: [new OpenLayers.Strategy.Fixed()]
+			strategies: [new OpenLayers.Strategy.Fixed()],
+			projection: new OpenLayers.Projection("EPSG:4326")
 		});
 	} else {
 		pois = new OpenLayers.Layer.Vector("KML", {
@@ -61,7 +97,9 @@ function mapsetup(divname, options) {
 					extractAttributes: true
 				})
 			}),
-		strategies: [new OpenLayers.Strategy.Fixed()]});
+			strategies: [new OpenLayers.Strategy.Fixed()],
+			projection: new OpenLayers.Projection("EPSG:4326")
+                });
 	}
 	map.addLayer(pois);
 	select = new OpenLayers.Control.SelectFeature(pois);
