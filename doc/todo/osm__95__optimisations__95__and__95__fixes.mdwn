@@ -1,0 +1,11 @@
+[[!template  id=gitbranch branch=anarcat/osm_kml_formatting author="[[anarcat]]"]]
+[[!template  id=gitbranch branch=anarcat/osm_openlayers_misc author="[[anarcat]]"]]
+
+I have accumulated a small series of patches to the OSM plugin along with the [[other|todo/osm_arbitrary_layers]] [[fixes|bugs/osm_KML_maps_do_not_display_properly_on_google_maps]] I have submitted here. They have lived in a tangled mess on my master branch so far, but not anymore!
+
+I have two main branches that need merging (on top of [[todo/osm_arbitrary_layers]]):
+
+ * `osm_kml_formatting` - indentation of the KML, optimisation: remove duplicate style declarations, folders support (even though [[it's not supported by openlayers just yet|https://trac.osgeo.org/openlayers/ticket/2195]])
+ * `osm_openlayers_misc` - do not override the sorting of layers (so that the order defined in [[todo/osm_arbitrary_layers]] takes effect) and tell Emacs about the non-default indentation policies of the file.
+
+I am filing this as one todo to simplify matter, but I can also split it further if needs be. --[[anarcat]]
