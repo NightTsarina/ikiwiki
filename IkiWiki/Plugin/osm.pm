@@ -69,7 +69,7 @@ sub getsetup () {
 		},
 		osm_layers => {
 			type => "string",
-			example => { 'OSM', 'GoogleSattelite' },
+			example => { 'OSM', 'GoogleSatellite' },
 			description => "Layers to use in the map. Can be either the 'OSM' string or a type option for Google maps (GoogleNormal, GoogleSatellite, GoogleHybrid or GooglePhysical). It can also be an arbitrary URL in a syntax acceptable for OpenLayers.Layer.OSM.url parameter.",
 			safe => 0,
 			rebuild => 1,
