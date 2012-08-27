@@ -60,7 +60,7 @@ If you have any thought about it, feel free to let me know.
 
 ## nginx
 
-To run CGI under nginx, just use a FastCGI wrapper like [this one](http://technotes.1000lines.net/?p=23). The wrapper must be started somehow just like any other FastCGI program. I use launchd on OSX.
+To run CGI under nginx, you need to use a FastCGI wrapper. The wrapper must be started somehow just like any other FastCGI program. You can use launchd on OSX.
 
 In Linux, you will need the spawn-fcgi and fcgiwrap packages and start
 them with:
@@ -95,6 +95,7 @@ example virtual host configuration:
         }
     }
 
+Also, note that the `/tmp/fcgi.socket` file needs to be writable by the webserver. I am also unsure as to the security of this setup, as I am using this only on my dev server. Needless to say that [[real fastcgi support|todo/fastcgi_or_modperl_installation_instructions]] would be great. ;) --[[anarcat]]
 
 ## boa
 
