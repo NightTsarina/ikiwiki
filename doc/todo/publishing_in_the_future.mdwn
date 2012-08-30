@@ -7,7 +7,7 @@ useful?
 Thinking about how to implement this in ikiwiki, perhaps a conditional
 pagespec would be best (which could be tidied up into a template)
 
-    [[!if test="current_date_before(<TMPL_VAR date>)"
+    \[[!if test="current_date_before(<TMPL_VAR date>)"
     then="""[[!tag draft]]"""
     else="""[[!meta date="<TMPL_VAR date>"]]"""
     ]]
@@ -15,7 +15,7 @@ pagespec would be best (which could be tidied up into a template)
 …pre-supposing a scheme whereby tagging 'draft' hides the page from an
 aggregation somewhere.  With a template, this could collapse to
 
-    [[!template id=publishafter date="Thu Aug 30 14:13:06 BST 2012"]]
+    \[[!template id=publishafter date="Thu Aug 30 14:13:06 BST 2012"]]
 
 This would require implementing the `current_date_before` pagespec.
 
@@ -24,7 +24,7 @@ unpublished pages as 'dirty' so they were always scanned on refresh until their
 publish date has occurred. That could perhaps be implemented via a small plugin
 which defined a pagespec which ensured the page was 'dirty':
 
-    [[!if test="current_date_before(<TMPL_VAR date>)"
+    \[[!if test="current_date_before(<TMPL_VAR date>)"
     then="""[[!tag draft]][[!dirty]]"""
     else="""[[!meta date="<TMPL_VAR date>"]]"""
     ]]
