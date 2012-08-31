@@ -73,3 +73,8 @@ to select pages? How does it relate to [[todo/wikitrails]] or
 >>>>> It might be that adding arrays to the `field` plugin is a good way to go: after all, even though field=value is the most common, with the flexibility of things like YAML, one could define all sorts of things.  What I'm not so sure about is how to return the values when queried, since some things would be expecting scalars all the time.  Ah, perhaps I could use wantarray?
 >>>>> Is there a way of checking a HTML::Template template to see if it expecting an array for a particular value?
 >>>>> --[[KathrynAndersen]]
+
+How about arrays?
+-----------------
+
+In [[plugins/contrib/getfield/discussion]], I outline how there's a problem in getfield displaying array refs when the data is a YAML array. I also propose a patch there so that arrays are join'd with a space separator, which is less than ideal, but at least works for getfield. However, for report, I am not sure it's as good. Should it make two rows for those? How should we parse this? Thanks. -- [[anarcat]]
