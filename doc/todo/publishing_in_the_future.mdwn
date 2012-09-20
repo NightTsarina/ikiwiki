@@ -24,9 +24,9 @@ unpublished pages as 'dirty' so they were always scanned on refresh until their
 publish date has occurred. That could perhaps be implemented via a small plugin
 which defined a pagespec which ensured the page was 'dirty':
 
-    \[[!if test="current_date_before(<TMPL_VAR date>)"
+    \[[!meta date="<TMPL_VAR date>"]]
+    \[[!if test="!current_date_before(<TMPL_VAR date>)"
     then="""[[!tag draft]][[!dirty]]"""
-    else="""[[!meta date="<TMPL_VAR date>"]]"""
     ]]
 
 The following is an attempt at the dirty part:
@@ -94,3 +94,34 @@ Thoughts on the whole idea? — [[Jon]]
 > I feel my idea there about making a pagespec that is limited to
 > items in the present/past, combined with setting the meta data, is a good
 > way.. --[[Joey]]  
+
+>> Thanks for your response Joey. Should I merge these two TODOs, then?
+>> So if I understand you correctly, you would prefer some new pagespecs
+>> to match future/past dates, and a plugin which kept track of pages with
+>> a future date and kept them 'dirty' (similar to the above), which means
+>> avoiding the need for a `dirty` pagespec in the page itself. Is that
+>> about right?
+>> 
+>> I came up with the following, but I haven't adapted `dirty.pm` inline
+>> with my understanding above, yet.
+
+    sub match_infuture ($$;@) {
+      my $page = shift;
+      return IkiWiki::SuccessReason->new("page time is in the future")
+        if $IkiWiki::pagectime{$page} > time;
+      return IkiWiki::FailReason->new("page time is not in the future");
+    }
+
+>> I've managed to get my original suggestion working. The problem was
+>> I was using quotes when invoking the pagespec, which stopped `str2time`
+>> working. 
+>> 
+>> Let me know if I've understood your POV correctly and I'll see about
+>> tidying this up and putting it in a branch.
+>> 
+>> Finally, a way of scheduling future runs of ikiwiki *within ikiwiki
+>> itself* might be useful for other things too, and would avoid the 
+>> need for a cron job in this case. (I'm thinking of a plugin that
+>> implemented itself in terms of cron, or at, or both, or possibly
+>> other things depending on what people want to support). But that would
+>> be substantially more work, more than I can afford atm at least. — [[Jon]]
