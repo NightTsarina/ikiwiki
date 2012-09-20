@@ -68,7 +68,9 @@ them with:
     spawn-fcgi -s /tmp/fcgi.socket -n -- /usr/sbin/fcgiwrap
 
 This needs to be ran as your user. It can be added to `inittab` or
-made into a startup script in `init.d`.
+made into a startup script in `init.d`. You may also need to make this file writable by the webserver, if that's running as a different user, e.g.:
+
+    chmod a+w /tmp/fcgi.socket
 
 Then you need an nginx config plugged in that wrapper. Here's an
 example virtual host configuration:
