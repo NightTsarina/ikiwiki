@@ -3,8 +3,10 @@
 #
 # proxy.py — helper for Python-based external (xml-rpc) ikiwiki plugins
 #
-# Copyright © martin f. krafft <madduck@madduck.net>
-# 
+# Copyright © 2008      martin f. krafft <madduck@madduck.net>
+#             2008-2011 Joey Hess <joey@kitenet.net>
+#             2012      W. Trevor King <wking@tremily.us>
+#
 #  Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -26,7 +28,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 # OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
-# 
+#
 __name__ = 'proxy.py'
 __description__ = 'helper for Python-based external (xml-rpc) ikiwiki plugins'
 __version__ = '0.1'
