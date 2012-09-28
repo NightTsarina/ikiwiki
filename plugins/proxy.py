@@ -38,8 +38,11 @@ __licence__ = 'BSD-2-clause'
 
 import sys
 import time
-import xmlrpclib
 import xml.parsers.expat
+try:  # Python 3
+    import xmlrpc.client as _xmlrpc_client
+except ImportError:  # Python 2
+    import xmlrpclib as _xmlrpc_client
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 
 
@@ -149,7 +152,7 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
                 return ret
 
     def send_rpc(self, cmd, in_fd, out_fd, *args, **kwargs):
-        xml = xmlrpclib.dumps(sum(kwargs.iteritems(), args), cmd)
+        xml = _xmlrpc_client.dumps(sum(kwargs.iteritems(), args), cmd)
         self._debug_fn("calling ikiwiki procedure `{}': [{}]".format(cmd, xml))
         _IkiWikiExtPluginXMLRPCHandler._write(out_fd, xml)
 
@@ -164,7 +167,7 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
             self._debug_fn('ikiwiki is going down, and so are we...')
             raise GoingDown()
 
-        data = xmlrpclib.loads(xml)[0][0]
+        data = _xmlrpc_client.loads(xml)[0][0]
         self._debug_fn(
             'parsed data from response to procedure {}: [{}]'.format(
                 cmd, data))
@@ -180,9 +183,9 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
 
         self._debug_fn(
             'received procedure call from ikiwiki: [{}]'.format(xml))
-        params, method = xmlrpclib.loads(xml)
+        params, method = _xmlrpc_client.loads(xml)
         ret = self._dispatcher.dispatch(method, params)
-        xml = xmlrpclib.dumps((ret,), methodresponse=True)
+        xml = _xmlrpc_client.dumps((ret,), methodresponse=True)
         self._debug_fn(
                 'sending procedure response to ikiwiki: [{}]'.format(xml))
         _IkiWikiExtPluginXMLRPCHandler._write(out_fd, xml)
