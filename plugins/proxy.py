@@ -43,7 +43,10 @@ try:  # Python 3
     import xmlrpc.client as _xmlrpc_client
 except ImportError:  # Python 2
     import xmlrpclib as _xmlrpc_client
-from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
+try:  # Python 3
+    import xmlrpc.server as _xmlrpc_server
+except ImportError:  # Python 2
+    import SimpleXMLRPCServer as _xmlrpc_server
 
 
 class ParseError (Exception):
@@ -66,15 +69,16 @@ class AlreadyImported (Exception):
     pass
 
 
-class _IkiWikiExtPluginXMLRPCDispatcher(SimpleXMLRPCDispatcher):
+class _IkiWikiExtPluginXMLRPCDispatcher(_xmlrpc_server.SimpleXMLRPCDispatcher):
 
     def __init__(self, allow_none=False, encoding=None):
         try:
-            SimpleXMLRPCDispatcher.__init__(self, allow_none, encoding)
+            _xmlrpc_server.SimpleXMLRPCDispatcher.__init__(
+                self, allow_none, encoding)
         except TypeError:
             # see http://bugs.debian.org/470645
             # python2.4 and before only took one argument
-            SimpleXMLRPCDispatcher.__init__(self)
+            _xmlrpc_server.SimpleXMLRPCDispatcher.__init__(self)
 
     def dispatch(self, method, params):
         return self._dispatch(method, params)
