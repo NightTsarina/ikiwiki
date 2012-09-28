@@ -42,6 +42,27 @@ import xmlrpclib
 import xml.parsers.expat
 from SimpleXMLRPCServer import SimpleXMLRPCDispatcher
 
+
+class ParseError (Exception):
+    pass
+
+
+class PipeliningDetected (Exception):
+    pass
+
+
+class GoingDown (Exception):
+    pass
+
+
+class InvalidReturnValue (Exception):
+    pass
+
+
+class AlreadyImported (Exception):
+    pass
+
+
 class _IkiWikiExtPluginXMLRPCDispatcher(SimpleXMLRPCDispatcher):
 
     def __init__(self, allow_none=False, encoding=None):
@@ -54,6 +75,7 @@ class _IkiWikiExtPluginXMLRPCDispatcher(SimpleXMLRPCDispatcher):
 
     def dispatch(self, method, params):
         return self._dispatch(method, params)
+
 
 class XMLStreamParser(object):
 
@@ -76,14 +98,15 @@ class XMLStreamParser(object):
     def _pop_tag(self, tag):
         top = self._stack.pop()
         if top != tag:
-            raise ParseError, 'expected %s closing tag, got %s' % (top, tag)
+            raise ParseError(
+                'expected {} closing tag, got {}'.format(top, tag))
 
     def _request_complete(self):
         return self._first_tag_received and len(self._stack) == 0
 
     def _check_pipelining(self, *args):
         if self._first_tag_received:
-            raise PipeliningDetected, 'need a new line between XML documents'
+            raise PipeliningDetected('need a new line between XML documents')
 
     def parse(self, data):
         self._parser.Parse(data, False)
@@ -93,11 +116,6 @@ class XMLStreamParser(object):
             self._reset()
             return ret
 
-    class ParseError(Exception):
-        pass
-
-    class PipeliningDetected(Exception):
-        pass
 
 class _IkiWikiExtPluginXMLRPCHandler(object):
 
@@ -132,20 +150,24 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
 
     def send_rpc(self, cmd, in_fd, out_fd, *args, **kwargs):
         xml = xmlrpclib.dumps(sum(kwargs.iteritems(), args), cmd)
-        self._debug_fn("calling ikiwiki procedure `%s': [%s]" % (cmd, xml))
+        self._debug_fn("calling ikiwiki procedure `{}': [{}]".format(cmd, xml))
         _IkiWikiExtPluginXMLRPCHandler._write(out_fd, xml)
 
         self._debug_fn('reading response from ikiwiki...')
 
         xml = _IkiWikiExtPluginXMLRPCHandler._read(in_fd)
-        self._debug_fn('read response to procedure %s from ikiwiki: [%s]' % (cmd, xml))
+        self._debug_fn(
+            'read response to procedure {} from ikiwiki: [{}]'.format(
+                cmd, xml))
         if xml is None:
             # ikiwiki is going down
             self._debug_fn('ikiwiki is going down, and so are we...')
-            raise _IkiWikiExtPluginXMLRPCHandler._GoingDown
+            raise GoingDown()
 
         data = xmlrpclib.loads(xml)[0][0]
-        self._debug_fn('parsed data from response to procedure %s: [%s]' % (cmd, data))
+        self._debug_fn(
+            'parsed data from response to procedure {}: [{}]'.format(
+                cmd, data))
         return data
 
     def handle_rpc(self, in_fd, out_fd):
@@ -154,18 +176,18 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
         if xml is None:
             # ikiwiki is going down
             self._debug_fn('ikiwiki is going down, and so are we...')
-            raise _IkiWikiExtPluginXMLRPCHandler._GoingDown
+            raise GoingDown()
 
-        self._debug_fn('received procedure call from ikiwiki: [%s]' % xml)
+        self._debug_fn(
+            'received procedure call from ikiwiki: [{}]'.format(xml))
         params, method = xmlrpclib.loads(xml)
         ret = self._dispatcher.dispatch(method, params)
         xml = xmlrpclib.dumps((ret,), methodresponse=True)
-        self._debug_fn('sending procedure response to ikiwiki: [%s]' % xml)
+        self._debug_fn(
+                'sending procedure response to ikiwiki: [{}]'.format(xml))
         _IkiWikiExtPluginXMLRPCHandler._write(out_fd, xml)
         return ret
 
-    class _GoingDown:
-        pass
 
 class IkiWikiProcedureProxy(object):
 
@@ -207,7 +229,7 @@ class IkiWikiProcedureProxy(object):
 
     def hook(self, type, function, name=None, id=None, last=False):
         if self._imported:
-            raise IkiWikiProcedureProxy.AlreadyImported
+            raise AlreadyImported()
 
         if name is None:
             name = function.__name__
@@ -219,11 +241,12 @@ class IkiWikiProcedureProxy(object):
 #            curpage = args[0]
 #            kwargs = dict([args[i:i+2] for i in xrange(1, len(args), 2)])
             ret = function(self, *args)
-            self._debug_fn("%s hook `%s' returned: [%s]" % (type, name, ret))
+            self._debug_fn(
+                    "{} hook `{}' returned: [{}]".format(type, name, ret))
             if ret == IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL:
-                raise IkiWikiProcedureProxy.InvalidReturnValue, \
-                        'hook functions are not allowed to return %s' \
-                        % IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL
+                raise InvalidReturnValue(
+                    'hook functions are not allowed to return {}'.format(
+                        IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL))
             if ret is None:
                 ret = IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL
             return ret
@@ -233,7 +256,7 @@ class IkiWikiProcedureProxy(object):
 
     def inject(self, rname, function, name=None, memoize=True):
         if self._imported:
-            raise IkiWikiProcedureProxy.AlreadyImported
+            raise AlreadyImported()
 
         if name is None:
             name = function.__name__
@@ -265,7 +288,7 @@ class IkiWikiProcedureProxy(object):
     def error(self, msg):
         try:
             self.rpc('error', msg)
-        except IOError, e:
+        except IOError as e:
             if e.errno != 32:
                 raise
         import posix
@@ -274,30 +297,26 @@ class IkiWikiProcedureProxy(object):
     def run(self):
         try:
             while True:
-                ret = self._xmlrpc_handler.handle_rpc(self._in_fd, self._out_fd)
+                ret = self._xmlrpc_handler.handle_rpc(
+                    self._in_fd, self._out_fd)
                 time.sleep(IkiWikiProcedureProxy._LOOP_DELAY)
-        except _IkiWikiExtPluginXMLRPCHandler._GoingDown:
+        except GoingDown:
             return
 
-        except Exception, e:
+        except Exception as e:
             import traceback
-            self.error('uncaught exception: %s\n%s' \
-                       % (e, traceback.format_exc(sys.exc_info()[2])))
+            self.error('uncaught exception: {}\n{}'.format(
+                        e, traceback.format_exc(sys.exc_info()[2])))
             return
 
     def _importme(self):
         self._debug_fn('importing...')
         for id, type, function, last in self._hooks:
-            self._debug_fn('hooking %s/%s into %s chain...' % (id, function, type))
+            self._debug_fn('hooking {}/{} into {} chain...'.format(
+                    id, function, type))
             self.rpc('hook', id=id, type=type, call=function, last=last)
         for rname, function, memoize in self._functions:
-            self._debug_fn('injecting %s as %s...' % (function, rname))
+            self._debug_fn('injecting {} as {}...'.format(function, rname))
             self.rpc('inject', name=rname, call=function, memoize=memoize)
         self._imported = True
         return IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL
-
-    class InvalidReturnValue(Exception):
-        pass
-
-    class AlreadyImported(Exception):
-        pass
