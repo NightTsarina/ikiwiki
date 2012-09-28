@@ -40,9 +40,13 @@ __author__ = 'martin f. krafft <madduck@madduck.net>'
 __copyright__ = 'Copyright © ' + __author__
 __licence__ = 'BSD-2-clause'
 
+import sys as _sys
+
 from proxy import IkiWikiProcedureProxy
 
+
 publish_parts = None
+
 
 def rst2html(proxy, *args):
     # delayed import so docutils is only needed if you *use* rst -
@@ -51,9 +55,9 @@ def rst2html(proxy, *args):
     if publish_parts is None:
         try:
             from docutils.core import publish_parts
-        except ImportError, e:
-            proxy.error('cannot import docutils.core: %s: %s' %
-                        (e.__class__.__name__, e))
+        except ImportError as e:
+            proxy.error('cannot import docutils.core: {}: {}'.format(
+                    e.__class__.__name__, e))
             raise
 
     kwargs = _to_dict(args)
@@ -72,10 +76,9 @@ def _to_dict(args):
 def getsetup(proxy, *kwargs):
     return 'plugin', { 'safe' : 1, 'rebuild' : 1, 'section' : 'format' }
 
-import sys
 def debug(s):
-    sys.stderr.write(__name__ + ':DEBUG:%s\n' % s)
-    sys.stderr.flush()
+    _sys.stderr.write(__name__ + ':DEBUG:{}\n'.format(s))
+    _sys.stderr.flush()
 
 proxy = IkiWikiProcedureProxy(__name__, debug_fn=None)
 proxy.hook('getsetup', getsetup)
