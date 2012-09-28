@@ -31,7 +31,7 @@
 #
 __name__ = 'proxy.py'
 __description__ = 'helper for Python-based external (xml-rpc) ikiwiki plugins'
-__version__ = '0.1'
+__version__ = '0.2'
 __author__ = 'martin f. krafft <madduck@madduck.net>'
 __copyright__ = 'Copyright © ' + __author__
 __licence__ = 'BSD-2-clause'
