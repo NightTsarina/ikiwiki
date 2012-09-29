@@ -312,8 +312,8 @@ class IkiWikiProcedureProxy(object):
 
         except Exception as e:
             import traceback
-            self.error('uncaught exception: {}\n{}'.format(
-                        e, traceback.format_exc(sys.exc_info()[2])))
+            tb = traceback.format_exc()
+            self.error('uncaught exception: {}\n{}'.format(e, tb))
             return
 
     def _importme(self):
