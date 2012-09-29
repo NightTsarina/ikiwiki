@@ -156,7 +156,7 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
                 return ret
 
     def send_rpc(self, cmd, in_fd, out_fd, *args, **kwargs):
-        xml = _xmlrpc_client.dumps(sum(kwargs.iteritems(), args), cmd)
+        xml = _xmlrpc_client.dumps(sum(kwargs.items(), args), cmd)
         self._debug_fn("calling ikiwiki procedure `{}': [{}]".format(cmd, xml))
         _IkiWikiExtPluginXMLRPCHandler._write(out_fd, xml)
 
@@ -227,7 +227,7 @@ class IkiWikiProcedureProxy(object):
                     yield i
 
         args = list(subst_none(args))
-        kwargs = dict(zip(kwargs.keys(), list(subst_none(kwargs.itervalues()))))
+        kwargs = dict(zip(kwargs.keys(), list(subst_none(kwargs.values()))))
         ret = self._xmlrpc_handler.send_rpc(cmd, self._in_fd, self._out_fd,
                                             *args, **kwargs)
         if ret == IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL:
