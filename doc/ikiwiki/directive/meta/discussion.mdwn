@@ -1,2 +1,63 @@
 Is there any reason the [language attribute](https://en.wikipedia.org/wiki/Meta_element#The_language_attribute) is not supported?
 --[[LucaCapello]]
+
+> Attached a patch against the Git repository, working on Debian ikiwiki_3.20100815.9. --[[LucaCapello]]
+
+-----
+
+<pre>
+From 680e57fd384b65e289d92054835687f3d6f3a19d Mon Sep 17 00:00:00 2001
+From: Luca Capello <luca@pca.it>
+Date: Sat, 6 Oct 2012 14:11:19 +0200
+Subject: [PATCH] IkiWiki/Plugin/meta.pm: support the language attribute
+
+---
+ IkiWiki/Plugin/meta.pm          |    9 +++++++++
+ doc/ikiwiki/directive/meta.mdwn |    4 ++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/IkiWiki/Plugin/meta.pm b/IkiWiki/Plugin/meta.pm
+index 421f1dc..1a49f0c 100644
+--- a/IkiWiki/Plugin/meta.pm
++++ b/IkiWiki/Plugin/meta.pm
+@@ -102,6 +102,10 @@ sub preprocess (@) {
+ 		$pagestate{$page}{meta}{description}=$value;
+ 		# fallthrough
+ 	}
++	elsif ($key eq 'language') {
++		$pagestate{$page}{meta}{language}=$value;
++		# fallthrough
++	}
+ 	elsif ($key eq 'guid') {
+ 		$pagestate{$page}{meta}{guid}=$value;
+ 		# fallthrough
+@@ -279,6 +283,11 @@ sub preprocess (@) {
+ 		push @{$metaheaders{$page}}, '<meta name="'.$key.
+ 			'" content="'.encode_entities($value).'" />';
+ 	}
++	elsif ($key eq 'language') {
++		push @{$metaheaders{$page}},
++			'<meta http-equiv="Content-Language" content="'.
++			encode_entities($value).'" />';
++	}
+ 	elsif ($key eq 'name') {
+ 		push @{$metaheaders{$page}}, scrub('<meta name="'.
+ 			encode_entities($value).
+diff --git a/doc/ikiwiki/directive/meta.mdwn b/doc/ikiwiki/directive/meta.mdwn
+index 984f685..b82fa58 100644
+--- a/doc/ikiwiki/directive/meta.mdwn
++++ b/doc/ikiwiki/directive/meta.mdwn
+@@ -59,6 +59,10 @@ Supported fields:
+   Specifies a short description for the page. This will be put in
+   the html header, and can also be displayed by eg, the [[map]] directive.
+ 
++* language
++
++  Specifies the natural language for the page, for example, "en".
++
+ * keywords
+ 
+   Specifies keywords summarizing the contents of the page. This
+-- 
+1.7.10.4
+</pre>
