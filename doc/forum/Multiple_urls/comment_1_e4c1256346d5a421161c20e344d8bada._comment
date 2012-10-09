@@ -1,0 +1,22 @@
+[[!comment format=mdwn
+ username="http://kerravonsen.dreamwidth.org/"
+ ip="60.241.8.244"
+ subject="A Few Ways To Do This"
+ date="2012-10-09T02:02:09Z"
+ content="""
+I don't think one can alter IkiWiki to have multiple URLs, because the URL is built in to the CGI when the CGI is generated.
+
+1. Use the external hostname (say, foo.com) for the URL, and tell your local machine that foo.com has an IP of 192.168.x.x, thus making it accessible from within the LAN.
+2. Give the URL as a relative-absolute URL; that is, rather than \"http://foo.com/ikiwiki.cgi\" give it as \"/ikiwiki.cgi\". This doesn't always work, though.
+3. Build two versions of the site from the same git repo. One for access from inside, and one for access from outside. Both setup files would need to be identical, apart from
+
+    * the destination directory
+    * the URLs
+    * the git-update file name; one would need to call it something other than post-update.
+    
+    Then one would make a new \"post-update\" file which calls *both* of the ikiwiki post-update scripts, so that both versions of the site are updated when you make a change.
+    Then set up your web-server to point to the \"external\" directory for the external site, and the \"internal\" directory for the internal site; easy enough to do if you use virtual hosts.
+
+Yes, I know the third one is somewhat complex... I use the idea myself in order to make two versions of a site where one is editable and the other is not, but that's not what you're aiming for, I know.
+
+"""]]
