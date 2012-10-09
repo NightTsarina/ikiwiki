@@ -118,6 +118,14 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
+	cgi_overload_delay => {
+		type => "string",
+		default => '',
+		example => "10",
+		description => "number of seconds to delay CGI requests when overloaded",
+		safe => 1,
+		rebuild => 0,
+	},
 	rcs => {
 		type => "string",
 		default => '',
