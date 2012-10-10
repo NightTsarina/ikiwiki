@@ -56,7 +56,7 @@ def rst2html(proxy, *args):
         try:
             from docutils.core import publish_parts
         except ImportError as e:
-            proxy.error('cannot import docutils.core: {}: {}'.format(
+            proxy.error('cannot import docutils.core: {0}: {1}'.format(
                     e.__class__.__name__, e))
             raise
 
@@ -77,7 +77,7 @@ def getsetup(proxy, *kwargs):
     return 'plugin', { 'safe' : 1, 'rebuild' : 1, 'section' : 'format' }
 
 def debug(s):
-    _sys.stderr.write(__name__ + ':DEBUG:{}\n'.format(s))
+    _sys.stderr.write(__name__ + ':DEBUG:{0}\n'.format(s))
     _sys.stderr.flush()
 
 proxy = IkiWikiProcedureProxy(__name__, debug_fn=None)
