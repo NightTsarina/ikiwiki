@@ -106,7 +106,7 @@ class XMLStreamParser(object):
         top = self._stack.pop()
         if top != tag:
             raise ParseError(
-                'expected {} closing tag, got {}'.format(top, tag))
+                'expected {0} closing tag, got {1}'.format(top, tag))
 
     def _request_complete(self):
         return self._first_tag_received and len(self._stack) == 0
@@ -157,14 +157,15 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
 
     def send_rpc(self, cmd, in_fd, out_fd, *args, **kwargs):
         xml = _xmlrpc_client.dumps(sum(kwargs.items(), args), cmd)
-        self._debug_fn("calling ikiwiki procedure `{}': [{}]".format(cmd, xml))
+        self._debug_fn(
+            "calling ikiwiki procedure `{0}': [{1}]".format(cmd, xml))
         _IkiWikiExtPluginXMLRPCHandler._write(out_fd, xml)
 
         self._debug_fn('reading response from ikiwiki...')
 
         xml = _IkiWikiExtPluginXMLRPCHandler._read(in_fd)
         self._debug_fn(
-            'read response to procedure {} from ikiwiki: [{}]'.format(
+            'read response to procedure {0} from ikiwiki: [{1}]'.format(
                 cmd, xml))
         if xml is None:
             # ikiwiki is going down
@@ -173,7 +174,7 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
 
         data = _xmlrpc_client.loads(xml)[0][0]
         self._debug_fn(
-            'parsed data from response to procedure {}: [{}]'.format(
+            'parsed data from response to procedure {0}: [{1}]'.format(
                 cmd, data))
         return data
 
@@ -186,12 +187,12 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
             raise GoingDown()
 
         self._debug_fn(
-            'received procedure call from ikiwiki: [{}]'.format(xml))
+            'received procedure call from ikiwiki: [{0}]'.format(xml))
         params, method = _xmlrpc_client.loads(xml)
         ret = self._dispatcher.dispatch(method, params)
         xml = _xmlrpc_client.dumps((ret,), methodresponse=True)
         self._debug_fn(
-                'sending procedure response to ikiwiki: [{}]'.format(xml))
+                'sending procedure response to ikiwiki: [{0}]'.format(xml))
         _IkiWikiExtPluginXMLRPCHandler._write(out_fd, xml)
         return ret
 
@@ -249,10 +250,10 @@ class IkiWikiProcedureProxy(object):
 #            kwargs = dict([args[i:i+2] for i in xrange(1, len(args), 2)])
             ret = function(self, *args)
             self._debug_fn(
-                    "{} hook `{}' returned: [{}]".format(type, name, ret))
+                    "{0} hook `{1}' returned: [{2}]".format(type, name, ret))
             if ret == IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL:
                 raise InvalidReturnValue(
-                    'hook functions are not allowed to return {}'.format(
+                    'hook functions are not allowed to return {0}'.format(
                         IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL))
             if ret is None:
                 ret = IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL
@@ -313,17 +314,17 @@ class IkiWikiProcedureProxy(object):
         except Exception as e:
             import traceback
             tb = traceback.format_exc()
-            self.error('uncaught exception: {}\n{}'.format(e, tb))
+            self.error('uncaught exception: {0}\n{1}'.format(e, tb))
             return
 
     def _importme(self):
         self._debug_fn('importing...')
         for id, type, function, last in self._hooks:
-            self._debug_fn('hooking {}/{} into {} chain...'.format(
+            self._debug_fn('hooking {0}/{1} into {2} chain...'.format(
                     id, function, type))
             self.rpc('hook', id=id, type=type, call=function, last=last)
         for rname, function, memoize in self._functions:
-            self._debug_fn('injecting {} as {}...'.format(function, rname))
+            self._debug_fn('injecting {0} as {1}...'.format(function, rname))
             self.rpc('inject', name=rname, call=function, memoize=memoize)
         self._imported = True
         return IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL
