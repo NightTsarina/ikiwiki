@@ -126,6 +126,14 @@ sub getsetup () {
 		safe => 1,
 		rebuild => 0,
 	},
+	cgi_overload_message => {
+		type => "string",
+		default => '',
+		example => "Please wait",
+		description => "message to display when overloaded (may contain html)",
+		safe => 1,
+		rebuild => 0,
+	},
 	rcs => {
 		type => "string",
 		default => '',

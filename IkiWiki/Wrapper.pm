@@ -105,6 +105,14 @@ EOF
 			my $i=int($config{cgi_overload_delay});
 			$pre_exec.="#define CGI_OVERLOAD_DELAY $i\n"
 				if $i > 0;
+			my $msg=gettext("Please wait");
+			$msg=~s/"/\\"/g;
+			$pre_exec.='#define CGI_PLEASE_WAIT_TITLE "'.$msg."\"\n";
+			if (defined $config{cgi_overload_message} && length $config{cgi_overload_message}) {
+				$msg=$config{cgi_overload_message};
+				$msg=~s/"/\\"/g;
+			}
+			$pre_exec.='#define CGI_PLEASE_WAIT_BODY "'.$msg."\"\n";
 		}
 		$pre_exec.=<<"EOF";
 	lockfd=open("$config{wikistatedir}/cgilock", O_CREAT | O_RDWR, 0666);
@@ -116,9 +124,11 @@ EOF
 				set_cgilock_fd(lockfd);
 			}
 			else {
-				printf("Content-Type: text/html\\nRefresh: %i; URL=%s\\n\\n<html><head><title>please wait...</title><head><body><p>Please wait ...</p></body></html>",
+				printf("Content-Type: text/html\\nRefresh: %i; URL=%s\\n\\n<html><head><title>%s</title><head><body><p>%s</p></body></html>",
 					CGI_OVERLOAD_DELAY,
-					getenv("REQUEST_URI"));
+					getenv("REQUEST_URI"),
+					CGI_PLEASE_WAIT_TITLE,
+					CGI_PLEASE_WAIT_BODY);
 				exit(0);
 			}
 		}
