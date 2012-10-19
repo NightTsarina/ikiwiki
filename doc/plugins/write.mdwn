@@ -31,20 +31,26 @@ is accomplished by calling various hooks provided by plugins.
 
 ### compiler
 
-As a compiler, ikiwiki starts by calling the `refresh` hook. Then it checks
-the wiki's source to find new or changed pages. The `needsbuild` hook is
-then called to allow manipulation of the list of pages that need to be
-built. 
+As a compiler, ikiwiki starts by calling the
+[[`refresh`|plugins/write#refresh]] hook. Then it checks the wiki's source to
+find new or changed pages. The [[`needsbuild`|plugins/write#needsbuild]] hook
+is then called to allow manipulation of the list of pages that need to be
+built.
 
-Now that it knows what pages it needs to build, ikiwiki runs two
-compile passes. First, it runs `scan` hooks, which collect metadata about
-the pages. Then it runs a page rendering pipeline, by calling in turn these
-hooks: `filter`, `preprocess`, `linkify`, `htmlize`, `indexhtml`,
-`pagetemplate`, `sanitize`, `format`.
+Now that it knows what pages it needs to build, ikiwiki runs two compile
+passes. First, it runs [[`scan`|plugins/write#scan]] hooks, which collect
+metadata about the pages. Then it runs a page rendering pipeline, by calling
+in turn these hooks: [[`filter`|plugins/write#filter]],
+[[`preprocess`|plugins/write#preprocess]],
+[[`linkify`|plugins/write#linkify]], [[`htmlize`|plugins/write#htmlize]],
+[[`indexhtml`|plugins/write#indexhtml]],
+[[`pagetemplate`|plugins/write#pagetemplate]],
+[[`sanitize`|plugins/write#sanitize]], [[`format`|plugins/write#format]].
 
-After all necessary pages are built, it calls the `change` hook. Finally,
-if a page is was deleted, the `delete` hook is called, and the files that
-page had previously produced are removed.
+After all necessary pages are built, it calls the
+[[`changes`|plugins/write#changes]] hook. Finally, if a page was deleted, the
+[[`delete`|plugins/write#delete]] hook is called, and the files that page had
+previously produced are removed.
 
 ### cgi
 
@@ -165,7 +171,7 @@ is populated at this point, but other state has not yet been loaded.
 The function is passed no values. It's ok for the function to call
 `error()` if something isn't configured right.
 
-### refresh
+### <a name="refresh">refresh</a>
 
 	hook(type => "refresh", id => "foo", call => \&refresh);
 
@@ -173,7 +179,7 @@ This hook is called just before ikiwiki scans the wiki for changed files.
 It's useful for plugins that need to create or modify a source page. The
 function is passed no values.
 
-### needsbuild
+### <a name="needsbuild">needsbuild</a>
 
 	hook(type => "needsbuild", id => "foo", call => \&needsbuild);
 
@@ -187,7 +193,7 @@ modified version of its input. It can add or remove files from it.
 The second parameter passed to the function is a reference to an array of
 files that have been deleted.
 
-### scan
+### <a name="scan">scan</a>
 
 	hook(type => "scan", id => "foo", call => \&scan);
 
@@ -199,7 +205,7 @@ them to `%links`. Present in IkiWiki 2.40 and later.
 The function is passed named parameters "page" and "content". Its return
 value is ignored.
 
-### filter
+### <a name="filter">filter</a>
 
 	hook(type => "filter", id => "foo", call => \&filter);
 
@@ -207,7 +213,7 @@ Runs on the full raw source of a page, before anything else touches it, and
 can make arbitrary changes. The function is passed named parameters "page",
 "destpage", and "content". It should return the filtered content.
 
-### preprocess
+### <a name="preprocess">preprocess</a>
 
 Adding a preprocessor [[ikiwiki/directive]] is probably the most common use
 of a plugin.
@@ -250,7 +256,7 @@ format at preprocessor time. Text output by a preprocessor directive will
 be linkified and passed through markdown (or whatever engine is used to
 htmlize the page) along with the rest of the page.
 
-### linkify
+### <a name="linkify">linkify</a>
 
 	hook(type => "linkify", id => "foo", call => \&linkify);
 
@@ -263,7 +269,7 @@ Plugins that implement linkify must also implement a scan hook, that scans
 for the links on the page and adds them to `%links` (typically by calling
 `add_link`).
 
-### htmlize
+### <a name="htmlize">htmlize</a>
 
 	hook(type => "htmlize", id => "ext", call => \&htmlize);
 
@@ -287,7 +293,7 @@ like `Makefile` that have no extension.
 If `hook` is passed an optional "longname" parameter, this value is used
 when prompting a user to choose a page type on the edit page form.
 
-### indexhtml
+### <a name="indexhtml">indexhtml</a>
 
 	hook(type => "indexhtml", id => "foo", call => \&indexhtml);
 
@@ -298,7 +304,7 @@ update search indexes. Added in ikiwiki 2.54.
 The function is passed named parameters "page", "destpage", and "content".
 Its return value is ignored.
 
-### pagetemplate
+### <a name="pagetemplate">pagetemplate</a>
 
 	hook(type => "pagetemplate", id => "foo", call => \&pagetemplate);
 
@@ -333,7 +339,7 @@ page (next to Edit, RecentChanges, etc). The hook is passed a "page"
 parameter, and can return a list of html fragments to add to the action
 bar.
 
-### sanitize
+### <a name="sanitize">sanitize</a>
 
 	hook(type => "sanitize", id => "foo", call => \&sanitize);
 
@@ -343,7 +349,7 @@ modify the body of a page after it has been fully converted to html.
 The function is passed named parameters: "page", "destpage", and "content",
 and should return the sanitized content.
 
-### format
+### <a name="format">format</a>
 
 	hook(type => "format", id => "foo", call => \&format);
 
@@ -372,7 +378,7 @@ each pair is a page name to be rebuilt (if it was not already rebuilt), and
 the second is a log message resembling
 `building plugins/write because the phase of the moon has changed`.
 
-### delete
+### <a name="delete">delete</a>
 
 	hook(type => "delete", id => "foo", call => \&delete);
 
@@ -390,7 +396,7 @@ source files that were rendered.
 (This hook used to be called "change", but that was not accurate.
 For now, plugins using the old hook name will still work.)
 
-### changes
+### <a name="changes">changes</a>
 
 	hook(type => "changes", id => "foo", call => \&changes);
 
