@@ -59,33 +59,39 @@ an example.
 
 Alice browses to a page and clicks Edit.
 
-* Ikiwiki is run as a cgi. It assigns Alice a session cookie, and,
-  by calling the `auth` hooks, sees that she is not yet logged in.
-* The `sessioncgi` hooks are then called, and one of them,
-  from the [[editpage]] plugin, notices that the cgi has been told "do=edit".
-* The [[editpage]] plugin calls the `canedit` hook to check if this
-  page edit is allowed. The [[signinedit]] plugin has a hook that says not:
-  Alice is not signed in.
-* The [[signinedit]] plugin then launches the signin process. A signin
-  page is built by calling the `formbuilder_setup` hook.
+* Ikiwiki is run as a cgi. It assigns Alice a session cookie, and, by calling
+  the [[`auth`|plugins/write#auth]] hooks, sees that she is not yet logged in.
+* The [[`sessioncgi`|plugins/write#sessioncgi]] hooks are then called, and one
+  of them, from the [[editpage]] plugin, notices that the cgi has been told
+  "do=edit".
+* The [[editpage]] plugin calls the [[`canedit`|plugins/write#canedit]] hook
+  to check if this page edit is allowed. The [[signinedit]] plugin has a hook
+  that says not: Alice is not signed in.
+* The [[signinedit]] plugin then launches the signin process. A signin page is
+  built by calling the [[`formbuilder_setup`|plugins/write#formbuilder]]
+  hook.
 
 Alice signs in with her openid.
 
-* The [[openid]] plugin's `formbuilder` hook sees that an openid was
-  entered in the signin form, and redirects to Alice's openid provider.
-* Alice's openid provider calls back to ikiwiki. The [[openid]] plugin
-  has an `auth` hook that finishes the openid signin process.
+* The [[openid]] plugin's [[`formbuilder`|plugins/write#formbuilder]] hook
+  sees that an openid was entered in the signin form, and redirects to Alice's
+  openid provider.
+* Alice's openid provider calls back to ikiwiki. The [[openid]] plugin has an
+  [[`auth`|plugins/write#auth]] hook that finishes the openid signin process.
 * Signin complete, ikiwiki returns to what Alice was doing before; editing
   a page.
-* Now all the `canedit` hooks are happy. The [[editpage]] plugin calls
-  `formbuilder_setup` to display the page editing form.
+* Now all the [[`canedit`|plugins/write#canedit]] hooks are happy. The
+  [[editpage]] plugin calls
+  [[`formbuilder_setup`|plugins/write#formbuilder]] to display the page
+  editing form.
 
 Alice saves her change to the page.
 
-* The [[editpage]] plugin's `formbuilder` hook sees that the Save button
-  was pressed, and calls the `checkcontent` and `editcontent` hooks.
-  Then it saves the page to disk, and branches into the compiler part
-  of ikiwiki to refresh the wiki.
+* The [[editpage]] plugin's [[`formbuilder`|plugins/write#formbuilder]] hook
+  sees that the Save button was pressed, and calls the
+  [[`checkcontent`|plugins/write#checkcontent]] and
+  [[`editcontent`|plugins/write#editcontent]] hooks.  Then it saves the page
+  to disk, and branches into the compiler part of ikiwiki to refresh the wiki.
 
 ## Types of plugins
 
@@ -416,7 +422,7 @@ parameters, and if it will handle this CGI request, output a page
 Note that cgi hooks are called as early as possible, before any ikiwiki
 state is loaded, and with no session information.
 
-### auth
+### <a name="auth">auth</a>
 
 	hook(type => "auth", id => "foo", call => \&auth);
 
@@ -429,7 +435,7 @@ object's "name" parameter to the authenticated user's name. Note that
 if the name is set to the name of a user who is not registered,
 a basic registration of the user will be automatically performed.
 
-### sessioncgi
+### <a name="sessioncgi">sessioncgi</a>
 
 	hook(type => "sessioncgi", id => "foo", call => \&sessioncgi);
 
@@ -438,7 +444,7 @@ is only run once a session object is available. It is passed both a CGI
 object and a session object. To check if the user is in fact signed in, you
 can check if the session object has a "name" parameter set.
 
-### canedit
+### <a name="canedit">canedit</a>
 
 	hook(type => "canedit", id => "foo", call => \&canedit);
 
@@ -478,7 +484,7 @@ bypass it). It works exactly like the `canedit` hook,
 but is passed the named parameters `cgi` (a CGI object), `session` (a
 session object), `src`, `srcfile`, `dest` and `destfile`.
 
-### checkcontent
+### <a name="checkcontent">checkcontent</a>
 	
 	hook(type => "checkcontent", id => "foo", call => \&checkcontent);
 
@@ -499,7 +505,7 @@ should return a message stating what the problem is, or a function
 that can be run to perform whatever action is necessary to allow the user
 to post the content.
 
-### editcontent
+### <a name="editcontent">editcontent</a>
 
 	hook(type => "editcontent", id => "foo", call => \&editcontent);
 
@@ -510,7 +516,7 @@ user, the page name, a `CGI` object, and the user's `CGI::Session`.
 
 It can modify the content as desired, and should return the content.
 
-### formbuilder
+### <a name="formbuilder">formbuilder</a>
 
 	hook(type => "formbuilder_setup", id => "foo", call => \&formbuilder_setup);
 	hook(type => "formbuilder", id => "foo", call => \&formbuilder);
