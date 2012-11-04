@@ -130,3 +130,12 @@ This is nasty-scary results ! Something missed me or this mime-filecheck is plai
 
 
 --mathdesc
+
+> >        if ($mimeinfo_ok) {
+> >                my $mimetype=File::MimeInfo::Magic::magic($file);
+> >        }
+> 
+> That seems strange to me, `my` restricts scope of $mimetype to enclosing if block, thus, assigned value will be dropped - I think, it is the problem.
+> Try removing that stray `my`.
+>
+> --isbear
