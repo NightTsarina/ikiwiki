@@ -1433,7 +1433,7 @@ sub preprocess ($$$;$$) {
 			# consider it significant.
 			my @params;
 			while ($params =~ m{
-				(?:([-\w]+)=)?		# 1: named parameter key?
+				(?:([-.\w]+)=)?		# 1: named parameter key?
 				(?:
 					"""(.*?)"""	# 2: triple-quoted value
 				|
@@ -1530,7 +1530,7 @@ sub preprocess ($$$;$$) {
 			(		# 4: the parameters..
 				\s+	# Must have space if parameters present
 				(?:
-					(?:[-\w]+=)?		# named parameter key?
+					(?:[-.\w]+=)?		# named parameter key?
 					(?:
 						""".*?"""	# triple-quoted value
 						|
@@ -1558,7 +1558,7 @@ sub preprocess ($$$;$$) {
 			\s+
 			(		# 4: the parameters..
 				(?:
-					(?:[-\w]+=)?		# named parameter key?
+					(?:[-.\w]+=)?		# named parameter key?
 					(?:
 						""".*?"""	# triple-quoted value
 						|
