@@ -1,0 +1,35 @@
+[[!template id=plugin name=asymptote author="[[PeterSimons]]"]]
+[[!tag type/widget]]
+
+This plugin provides the [[ikiwiki/directive/asymptote]]
+[[ikiwiki/directive]]. This directive allows embedding
+[asymptote](http://asymptote.sourceforge.net//) diagrams in a page.
+
+Security implications: asymptote has functions for reading files and
+other dangerous stuff, so enabling this plugin means that everyone who
+can edit your Wiki can also read any file from your hard drive thats
+accessible to the user running Ikiwiki. 
+
+[[!if test="enabled(asymptote)" then="""
+An example diagram:
+
+[[!asymptote src="""
+import geometry;
+unitsize(1cm);
+triangle t = triangle((0,0), (4,0), (0.5,2));
+show(La="$D$", Lb="$E$", Lc="", t);
+dot(t.A^^t.B^^t.C);
+point pD = midpoint(t.BC); dot(pD);
+point pE = midpoint(t.AC); dot(pE);
+draw(pD--pE);
+
+point A_ = (pD-t.A)*2+t.A; dot("$A'$", A_, NE);
+draw(t.B--A_--t.C, dashed);
+draw(t.A--A_, dashed);
+
+point E_ = midpoint(line(t.B,A_)); dot(Label("$E'$", E_, E));
+draw(E_--pD, dashed);
+"""]]
+"""]]
+
+This plugin uses the [[!cpan Digest::SHA]] perl module.
