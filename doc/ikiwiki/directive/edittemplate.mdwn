@@ -2,9 +2,15 @@ The `edittemplate` directive is supplied by the [[!iki plugins/edittemplate desc
 
 This directive allows registering template pages, that provide default
 content for new pages created using the web frontend. To register a
-template, insert a [[ikiwiki/directive/template]] directive on some other page.
+template, insert a [[ikiwiki/directive/template]] directive on some other
+page.
 
 	\[[!edittemplate template="bugtemplate" match="bugs/*"]]
+ 
+A recommended place to put the directive is on the parent page
+of the pages that will be created using the template. So the above
+example would be put on the bugs page. (Do not put the directive on the
+template page itself.)
 
 In the above example, the page named "bugtemplate" is registered as a
 template to be used when any page named "bugs/*" is created. To avoid
@@ -24,13 +30,5 @@ The template page can also contain [[!cpan HTML::Template]] directives,
 like other ikiwiki [[templates]]. Currently only one variable is
 set: `<TMPL_VAR name>` is replaced with the name of the page being
 created.
-
-----
-
-It's generally not a good idea to put the `edittemplate` directive in
-the template page itself, since the directive would then be included as
-part of the template on new pages, which would then in turn be registered
-as templates. If multiple pages are registered as templates for a new page,
-an arbitrary one is chosen, so that could get confusing.
 
 [[!meta robots="noindex, follow"]]

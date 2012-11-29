@@ -13,6 +13,9 @@
 <label for="url" class="block">Website:</label>
 <TMPL_VAR NAME=FIELD-URL> (optional)
 <br />
+<label for="url" class="block">Email:</label>
+<TMPL_VAR NAME=FIELD-EMAIL> <TMPL_VAR FIELD-ANONSUBSCRIBE>
+<br />
 <TMPL_ELSE>
 (You might want to <a href="<TMPL_VAR SIGNINURL>">Signin</a> first?)
 <br />
@@ -22,7 +25,8 @@
 <TMPL_VAR FIELD-SUBJECT><br />
 <label for="editcontent" class="block">Comment:</label>
 <TMPL_VAR FIELD-EDITCONTENT><br />
-<TMPL_VAR FORM-SUBMIT> <TMPL_VAR FIELD-TYPE> <TMPL_VAR HELPONFORMATTINGLINK><br />
+<TMPL_VAR FORM-SUBMIT> <TMPL_VAR FIELD-TYPE> <TMPL_VAR HELPONFORMATTINGLINK>
+<TMPL_VAR FIELD-SUBSCRIBE><br />
 <TMPL_VAR NAME="FORM-END">
 <TMPL_VAR WMD_PREVIEW>
 

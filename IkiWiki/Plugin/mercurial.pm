@@ -5,6 +5,7 @@ use warnings;
 use strict;
 use IkiWiki;
 use Encode;
+use URI::Escape q{uri_escape_utf8};
 use open qw{:utf8 :std};
 
 sub import {
@@ -265,7 +266,8 @@ sub rcs_recentchanges ($) {
 
 		foreach my $file (split / /,$info->{files}) {
 			my $diffurl = defined $config{diffurl} ? $config{'diffurl'} : "";
-			$diffurl =~ s/\[\[file\]\]/$file/go;
+			my $efile = uri_escape_utf8($file);
+			$diffurl =~ s/\[\[file\]\]/$efile/go;
 			$diffurl =~ s/\[\[r2\]\]/$info->{changeset}/go;
 
 			push @pages, {

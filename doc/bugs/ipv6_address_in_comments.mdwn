@@ -1,0 +1,19 @@
+If I make a comment from an ipv4 address
+I see the commenter's ipv4 address logged in the comment file.
+
+If I make a comment from an ipv6 address
+I see nothing.
+
+There is a sanity check in /usr/share/perl5/IkiWiki/Plugin/comments.pm
+line 447 (according to today's version) there is an ipv4 specific regexp.
+
+I removed the regexp and used the value without this added check and it fixed
+the problem for me. Not sure if this is the best solution. --[[cstamas]]
+
+[[patch]]
+
+[[!tag ipv6]]
+
+> [[done]] --[[Joey]] 
+
+> > Thank you! --[[cstamas]]

@@ -148,7 +148,7 @@ sub formbuilder (@) {
 			$f=Encode::decode_utf8($f);
 			$f=~s/^$page\///;
 			if (IkiWiki::isinlinableimage($f) &&
-			    UNIVERSAL::can("IkiWiki::Plugin::img", "import")) {
+			    IkiWiki::Plugin::img->can("import")) {
 				$add.='[[!img '.$f.' align="right" size="" alt=""]]';
 			}
 			else {
@@ -286,7 +286,7 @@ sub attachments_save {
 	}
 	return unless @attachments;
 	require IkiWiki::Render;
-	IkiWiki::prune($dir);
+	IkiWiki::prune($dir, $config{wikistatedir}."/attachments");
 
 	# Check the attachments in and trigger a wiki refresh.
 	if ($config{rcs}) {

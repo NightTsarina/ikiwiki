@@ -1,0 +1,44 @@
+In commit aaa72a3a8, Joey noted:
+
+> bestlink returns '' if no existing page matches a link. This propigated
+> through inline and other plugins, causing uninitialized value warnings, and
+> in some cases (when filecheck was enabled) making the whole directive fail.
+>   
+> Skipping the empty results fixes that, but this is papering over another
+> problem: If the missing page is later added, there is not dependency
+> information to know that the inline needs to be updated. Perhaps smcv will
+> fix that later.
+
+Potential ways this could be addressed:
+
+* Add a presence dependency on everything the reference could match:
+  so if the `inline` is on `a/b/c` and the missing page is `m`,
+  add a `$depends_simple` `$DEPEND_PRESENCE` dependency on `a/b/c/m`,
+  `a/b/m`, `a/m`, `m` and (if configured) `$config{userdir}/m`
+
+* Make the page names in `\[[!inline pagenames=...]]` count as wikilinks,
+  changing the behaviour of `link()` and backlinks, but causing appropriate
+  rebuilds via the special cases in `IkiWiki::Render`
+
+* Extend the special cases in `IkiWiki::Render` to consider a superset of
+  wikilinks, to which `pagenames` would add its named pages, without
+  affecting `link()` and backlinks
+
+(Note that `\[[!inline pages=...]]` cannot count as wikilinks, because
+pagespecs can contain `link()`, so can't be evaluated until we know what
+wikilinks exist, at which point it's too late to add more wikilinks.)
+
+I think the presence dependency is probably the cleanest approach?
+--[[smcv]]
+
+> I think it was possibly a mistake to use wikilink style lookup for
+> `pagenames`. --[[Joey]]
+
+[[!tag patch]] [[!template id=gitbranch branch=smcv/literal-pagenames author="[[smcv]]"]]
+>> I used the linking rules to make references to
+>> "nearby" pages convenient, but if you'd prefer "absolute"
+>> semantics, my `ready/literal-pagenames` branch does that. For
+>> my main use-case for `pagenames` ([[plugins/contrib/album]])
+>> it's fine either way. --[[smcv]]
+
+>>> Ok, [[merged|done]]. I think it's more consistent this way. --[[Joey]]

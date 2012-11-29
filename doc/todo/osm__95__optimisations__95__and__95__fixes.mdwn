@@ -1,0 +1,27 @@
+[[!template  id=gitbranch branch=anarcat/osm_kml_formatting author="[[anarcat]]"]]
+[[!template  id=gitbranch branch=anarcat/osm_openlayers_misc author="[[anarcat]]"]]
+
+I have accumulated a small series of patches to the OSM plugin along with the [[other|todo/osm_arbitrary_layers]] [[fixes|bugs/osm_KML_maps_do_not_display_properly_on_google_maps]] I have submitted here. They have lived in a tangled mess on my master branch so far, but not anymore!
+
+I have two main branches that need merging (on top of [[todo/osm_arbitrary_layers]]):
+
+ * `osm_kml_formatting` - indentation of the KML, optimisation: remove duplicate style declarations, folders support (even though [[it's not supported by openlayers just yet|https://trac.osgeo.org/openlayers/ticket/2195]])
+
+> If it's not supported yet, does it break something? Seems it must be hard
+> to test the change at least if it's not supported. --[[Joey]]
+
+> > Good point. Maybe that can be skipped for now, it sure doesn't look like it will be merged any time soon anyways. I do think that the optimisation needs to be merged, it's quite important because if halves the size of the resulting KML file. --[[anarcat]]
+
+> > > The merge you just did is fine, the only thing missing is folder support, I'll keep it in a separate branch for now, maybe it will be useful later! This is [[done]]. --[[anarcat]]
+
+ * `osm_openlayers_misc` - do not override the sorting of layers (so that the order defined in [[todo/osm_arbitrary_layers]] takes effect) and tell Emacs about the non-default indentation policies of the file.
+
+> I prefer not to pollute files with editor-specific garbage, and that goes
+> doubly for files served over the network. Cherry-picked the layer sorting
+> change. --[[Joey]]
+
+> > Alright, I am fine with that, thanks. -- [[anarcat]]
+
+Those two branches are also merged directly on my master branch... along with [[todo/osm_arbitrary_layers]].
+
+I am filing this as one todo to simplify matter, but I can also split it further if needs be. --[[anarcat]]

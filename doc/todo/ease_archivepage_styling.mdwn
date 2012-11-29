@@ -1,0 +1,59 @@
+Hi! Please apply the following [[patch]] to make the
+`archivepage.tmpl` template more semantic and easier to style with
+a local CSS:
+
+	From 4e5cc0d9e5582f20df9f26dd5b1937ead0b46827 Mon Sep 17 00:00:00 2001
+	From: intrigeri <intrigeri@boum.org>
+	Date: Sat, 18 Aug 2012 10:34:36 +0200
+	Subject: [PATCH] Ease archivepage styling by using named classes, move
+	 styling to the CSS.
+	
+	---
+	 doc/style.css              |    4 ++++
+	 templates/archivepage.tmpl |    8 ++++----
+	 2 files changed, 8 insertions(+), 4 deletions(-)
+	
+	diff --git a/doc/style.css b/doc/style.css
+	index 6e2afce..5fb4100 100644
+	--- a/doc/style.css
+	+++ b/doc/style.css
+	@@ -202,6 +202,10 @@ div.recentchanges {
+	 	margin-top: 1em;
+	 }
+	 
+	+.archivepagedate {
+	+	font-style: italic;
+	+}
+	+
+	 .error {
+	 	color: #C00;
+	 }
+	diff --git a/templates/archivepage.tmpl b/templates/archivepage.tmpl
+	index 93bdd9c..3e0bd9b 100644
+	--- a/templates/archivepage.tmpl
+	+++ b/templates/archivepage.tmpl
+	@@ -1,10 +1,10 @@
+	-<p>
+	+<div class="archivepage">
+	 <TMPL_IF PERMALINK>
+	 <a href="<TMPL_VAR PERMALINK>"><TMPL_VAR TITLE></a><br />
+	 <TMPL_ELSE>
+	 <a href="<TMPL_VAR PAGEURL>"><TMPL_VAR TITLE></a><br />
+	 </TMPL_IF>
+	-<i>
+	+<span class="archivepagedate">
+	 Posted <TMPL_VAR CTIME>
+	 <TMPL_IF AUTHOR>
+	 by <span class="author">
+	@@ -15,5 +15,5 @@ by <span class="author">
+	 </TMPL_IF>
+	 </span>
+	 </TMPL_IF>
+	-</i>
+	-</p>
+	+</span>
+	+</div>
+	-- 
+	1.7.10.4
+
+> [[done]] --[[Joey]]

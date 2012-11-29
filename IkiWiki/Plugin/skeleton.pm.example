@@ -26,7 +26,8 @@ sub import {
 	hook(type => "templatefile", id => "skeleton", call => \&templatefile);
 	hook(type => "pageactions", id => "skeleton", call => \&pageactions);
 	hook(type => "delete", id => "skeleton", call => \&delete);
-	hook(type => "change", id => "skeleton", call => \&change);
+	hook(type => "rendered", id => "skeleton", call => \&rendered);
+	hook(type => "changes", id => "skeleton", call => \&changes);
 	hook(type => "cgi", id => "skeleton", call => \&cgi);
 	hook(type => "auth", id => "skeleton", call => \&auth);
 	hook(type => "sessioncgi", id => "skeleton", call => \&sessioncgi);
@@ -53,7 +54,6 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
-			section => "misc",
 		},
 		skeleton => {
 			type => "boolean",
@@ -167,10 +167,16 @@ sub delete (@) {
 	debug("skeleton plugin told that files were deleted: @files");
 }
 
-sub change (@) {
+sub rendered (@) {
 	my @files=@_;
 
-	debug("skeleton plugin told that changed files were rendered: @files");
+	debug("skeleton plugin told that files were rendered: @files");
+}
+
+sub changes (@) {
+	my @files=@_;
+
+	debug("skeleton plugin told that files were changed: @files");
 }
 
 sub cgi ($) {

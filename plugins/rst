@@ -5,8 +5,12 @@
 #
 # based a little bit on rst.pm by Sergio Talens-Oliag, but only a little bit. :)
 #
-# Copyright © martin f. krafft <madduck@madduck.net>
-# 
+# Copyright © 2007-2008 martin f. krafft <madduck@madduck.net>
+#             2007-2011 Joey Hess <joey@kitenet.net>
+#             2009      Ulrik Sverdrup <ulrik.sverdrup@gmail.com>
+#             2011      Simon McVittie <smcv@debian.org>
+#             2012      W. Trevor King <wking@tremily.us>
+#
 #  Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
 # are met:
@@ -28,17 +32,21 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
 # OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 # SUCH DAMAGE.
-# 
+#
 __name__ = 'rst'
 __description__ = 'xml-rpc-based ikiwiki plugin to process RST files'
-__version__ = '0.3'
+__version__ = '0.4'
 __author__ = 'martin f. krafft <madduck@madduck.net>'
 __copyright__ = 'Copyright © ' + __author__
 __licence__ = 'BSD-2-clause'
 
+import sys as _sys
+
 from proxy import IkiWikiProcedureProxy
 
+
 publish_parts = None
+
 
 def rst2html(proxy, *args):
     # delayed import so docutils is only needed if you *use* rst -
@@ -47,9 +55,9 @@ def rst2html(proxy, *args):
     if publish_parts is None:
         try:
             from docutils.core import publish_parts
-        except ImportError, e:
-            proxy.error('cannot import docutils.core: %s: %s' %
-                        (e.__class__.__name__, e))
+        except ImportError as e:
+            proxy.error('cannot import docutils.core: {0}: {1}'.format(
+                    e.__class__.__name__, e))
             raise
 
     kwargs = _to_dict(args)
@@ -68,10 +76,9 @@ def _to_dict(args):
 def getsetup(proxy, *kwargs):
     return 'plugin', { 'safe' : 1, 'rebuild' : 1, 'section' : 'format' }
 
-import sys
 def debug(s):
-    sys.stderr.write(__name__ + ':DEBUG:%s\n' % s)
-    sys.stderr.flush()
+    _sys.stderr.write(__name__ + ':DEBUG:{0}\n'.format(s))
+    _sys.stderr.flush()
 
 proxy = IkiWikiProcedureProxy(__name__, debug_fn=None)
 proxy.hook('getsetup', getsetup)

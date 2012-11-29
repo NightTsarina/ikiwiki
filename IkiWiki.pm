@@ -118,6 +118,22 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
+	cgi_overload_delay => {
+		type => "string",
+		default => '',
+		example => "10",
+		description => "number of seconds to delay CGI requests when overloaded",
+		safe => 1,
+		rebuild => 0,
+	},
+	cgi_overload_message => {
+		type => "string",
+		default => '',
+		example => "Please wait",
+		description => "message to display when overloaded (may contain html)",
+		safe => 1,
+		rebuild => 0,
+	},
 	rcs => {
 		type => "string",
 		default => '',
@@ -1090,6 +1106,11 @@ sub cgiurl (@) {
 
 	return $cgiurl."?".
 		join("&amp;", map $_."=".uri_escape_utf8($params{$_}), keys %params);
+}
+
+sub cgiurl_abs (@) {
+	eval q{use URI};
+	URI->new_abs(cgiurl(@_), $config{cgiurl});
 }
 
 sub baseurl (;$) {

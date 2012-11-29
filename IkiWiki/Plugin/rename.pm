@@ -206,14 +206,22 @@ sub rename_start ($$$$) {
 	exit 0;
 }
 
-sub postrename ($;$$$) {
+sub postrename ($$$;$$) {
+	my $cgi=shift;
 	my $session=shift;
 	my $src=shift;
 	my $dest=shift;
 	my $attachment=shift;
 
-	# Load saved form state and return to edit page.
-	my $postrename=CGI->new($session->param("postrename"));
+	# Load saved form state and return to edit page, using stored old
+	# cgi state. Or, if the rename was not started on the edit page, 
+	# return to the renamed page.
+	my $postrename=$session->param("postrename");
+	if (! defined $postrename) {
+		IkiWiki::redirect($cgi, urlto(defined $dest ? $dest : $src));
+		exit;
+	}
+	my $oldcgi=CGI->new($postrename);
 	$session->clear("postrename");
 	IkiWiki::cgi_savesession($session);
 
@@ -222,21 +230,21 @@ sub postrename ($;$$$) {
 			# They renamed the page they were editing. This requires
 			# fixups to the edit form state.
 			# Tweak the edit form to be editing the new page.
-			$postrename->param("page", $dest);
+			$oldcgi->param("page", $dest);
 		}
 
 		# Update edit form content to fix any links present
 		# on it.
-		$postrename->param("editcontent",
+		$oldcgi->param("editcontent",
 			renamepage_hook($dest, $src, $dest,
-				 $postrename->param("editcontent")));
+				 $oldcgi->param("editcontent")));
 
 		# Get a new edit token; old was likely invalidated.
-		$postrename->param("rcsinfo",
+		$oldcgi->param("rcsinfo",
 			IkiWiki::rcs_prepedit($pagesources{$dest}));
 	}
 
-	IkiWiki::cgi_editpage($postrename, $session);
+	IkiWiki::cgi_editpage($oldcgi, $session);
 }
 
 sub formbuilder (@) {
@@ -291,16 +299,16 @@ sub sessioncgi ($$) {
         	my $session=shift;
 		my ($form, $buttons)=rename_form($q, $session, Encode::decode_utf8($q->param("page")));
 		IkiWiki::decode_form_utf8($form);
+		my $src=$form->field("page");
 
 		if ($form->submitted eq 'Cancel') {
-			postrename($session);
+			postrename($q, $session, $src);
 		}
 		elsif ($form->submitted eq 'Rename' && $form->validate) {
 			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
 
 			# These untaints are safe because of the checks
 			# performed in check_canrename later.
-			my $src=$form->field("page");
 			my $srcfile=IkiWiki::possibly_foolish_untaint($pagesources{$src})
 				if exists $pagesources{$src};
 			my $dest=IkiWiki::possibly_foolish_untaint(titlepage($form->field("new_name")));
@@ -324,7 +332,7 @@ sub sessioncgi ($$) {
 				IkiWiki::Plugin::attachment::is_held_attachment($src);
 			if ($held) {
 				rename($held, IkiWiki::Plugin::attachment::attachment_holding_location($dest));
-				postrename($session, $src, $dest, $q->param("attachment"))
+				postrename($q, $session, $src, $dest, $q->param("attachment"))
 					unless defined $srcfile;
 			}
 			
@@ -430,7 +438,7 @@ sub sessioncgi ($$) {
 				$renamesummary.=$template->output;
 			}
 
-			postrename($session, $src, $dest, $q->param("attachment"));
+			postrename($q, $session, $src, $dest, $q->param("attachment"));
 		}
 		else {
 			IkiWiki::showform($form, $buttons, $session, $q);

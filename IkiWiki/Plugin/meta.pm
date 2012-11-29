@@ -275,16 +275,22 @@ sub preprocess (@) {
 		push @{$metaheaders{$page}}, '<meta name="robots"'.
 			' content="'.encode_entities($value).'" />';
 	}
-	elsif ($key eq 'description') {
-		push @{$metaheaders{$page}}, '<meta name="'.
-			encode_entities($key).
+	elsif ($key eq 'description' || $key eq 'author') {
+		push @{$metaheaders{$page}}, '<meta name="'.$key.
 			'" content="'.encode_entities($value).'" />';
 	}
 	elsif ($key eq 'name') {
-		push @{$metaheaders{$page}}, scrub('<meta '.$key.'="'.
+		push @{$metaheaders{$page}}, scrub('<meta name="'.
 			encode_entities($value).
 			join(' ', map { "$_=\"$params{$_}\"" } keys %params).
 			' />', $page, $destpage);
+	}
+	elsif ($key eq 'keywords') {
+		# Make sure the keyword string is safe: only allow alphanumeric
+		# characters, space and comma and strip the rest.
+		$value =~ s/[^[:alnum:], ]+//g;
+		push @{$metaheaders{$page}}, '<meta name="keywords"'.
+			' content="'.encode_entities($value).'" />';
 	}
 	else {
 		push @{$metaheaders{$page}}, scrub('<meta name="'.
@@ -312,8 +318,9 @@ sub pagetemplate (@) {
 		$template->param(title_overridden => 1);
 	}
 
-	foreach my $field (qw{author authorurl}) {
-		$template->param($field => $pagestate{$page}{meta}{$field})
+	foreach my $field (qw{authorurl}) {
+		eval q{use HTML::Entities};
+		$template->param($field => HTML::Entities::encode_entities($pagestate{$page}{meta}{$field}))
 			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);
 	}
 
@@ -324,7 +331,7 @@ sub pagetemplate (@) {
 		}
 	}
 
-	foreach my $field (qw{description}) {
+	foreach my $field (qw{description author}) {
 		eval q{use HTML::Entities};
 		$template->param($field => HTML::Entities::encode_numeric($pagestate{$page}{meta}{$field}))
 			if exists $pagestate{$page}{meta}{$field} && $template->query(name => $field);

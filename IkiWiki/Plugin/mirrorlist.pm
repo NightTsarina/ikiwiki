@@ -24,6 +24,19 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
+		mirrorlist_use_cgi => {
+			type => 'boolean',
+			example => 1,
+			description => "generate links that point to the mirrors' ikiwiki CGI",
+			safe => 1,
+			rebuild => 1,
+		},
+}
+
+sub checkconfig () {
+	if (! defined $config{mirrorlist_use_cgi}) {
+		$config{mirrorlist_use_cgi}=0;
+	}
 }
 
 sub pagetemplate (@) {
@@ -46,7 +59,9 @@ sub mirrorlist ($) {
 		join(", ",
 			map { 
 				qq{<a href="}.
-				$config{mirrorlist}->{$_}."/".urlto($page, "").
+				( $config{mirrorlist_use_cgi} ?
+				  $config{mirrorlist}->{$_}."?do=goto&page=$page" :
+				  $config{mirrorlist}->{$_}."/".urlto($page, "") ).
 				qq{">$_</a>}
 			} keys %{$config{mirrorlist}}
 		).

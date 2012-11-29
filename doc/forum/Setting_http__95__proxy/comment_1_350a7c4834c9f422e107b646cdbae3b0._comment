@@ -1,0 +1,20 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 1"
+ date="2012-10-10T13:45:10Z"
+ content="""
+If your wiki configuration is written in YAML (it says IkiWiki::Setup::Yaml near the top), the correct syntax is something like
+
+    ENV:
+      http_proxy: http://proxy.uns.edu.ar:1280/
+      https_proxy: http://proxy.uns.edu.ar:1280/
+
+or
+
+    ENV: { http_proxy: 'http://proxy.uns.edu.ar:1280/', https_proxy: 'http://proxy.uns.edu.ar:1280/' }
+
+(many variations are possible, see <http://www.yaml.org/>).
+
+The syntax you quoted is correct for Perl-syntax setup files (which will mention IkiWiki::Setup::Standard near the top), but not YAML ones.
+"""]]

@@ -1,0 +1,8 @@
+I wanted to produce an external link from a ikiwiki Subpage based on
+the *basename* of the Subpage. So I added the following code to the
+edittemplate plugin:
+
+       my ($basename) = $page =~ m!.*/(.*)!;
+       $template->param(basename => $basename || $page);
+
+Is there any other way I could have achieved this? 

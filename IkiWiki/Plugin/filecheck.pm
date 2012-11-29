@@ -48,7 +48,6 @@ sub getsetup () {
 		plugin => {
 			safe => 1,
 			rebuild => undef,
-			section => "misc",
 		},
 }
 
@@ -140,7 +139,7 @@ sub match_mimetype ($$;@) {
 	my $mimeinfo_ok=! $@;
 	my $mimetype;
 	if ($mimeinfo_ok) {
-		my $mimetype=File::MimeInfo::Magic::magic($file);
+		$mimetype=File::MimeInfo::Magic::magic($file);
 	}
 
 	# Fall back to using file, which has a more complete

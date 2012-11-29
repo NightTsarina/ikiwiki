@@ -2,7 +2,9 @@
 [[!tag type/auth]]
 
 This plugin allows HTTP basic authentication to be used to log into the
-wiki. 
+wiki. In this mode, the web browser authenticates the user by some means,
+and sets the `REMOTE_USER CGI` environment variable. This plugin trusts
+that if that variable is set, the user is authenticated.
 
 ## fully authenticated wiki
 

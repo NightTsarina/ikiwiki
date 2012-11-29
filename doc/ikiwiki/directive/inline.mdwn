@@ -113,9 +113,14 @@ Here are some less often needed parameters:
   and/or `page/feed.rss`. This option is not supported if the wiki is
   configured not to use `usedirs`.
 * `pagenames` - If given instead of `pages`, this is interpreted as a
-  space-separated list of links to pages (with the same
-  [[SubPage/LinkingRules]] as in a [[ikiwiki/WikiLink]]), and they are inlined
-  in exactly the order given: the `sort` and `pages` parameters cannot be used
-  in conjunction with this one.
+  space-separated list of absolute page names ([[SubPage/LinkingRules]] are
+  not taken into account), and they are inlined in exactly the order given:
+  the `sort` and `pages` parameters cannot be used in conjunction with
+  this one.
+* `trail` - If set to "yes" and the [[!iki plugins/trail desc=trail]] plugin
+  is enabled, turn the inlined pages into a trail with next/previous links,
+  by passing the same options to [[ikiwiki/directive/trailitems]]. The `skip`
+  and `show` options are ignored by the trail, so the next/previous links
+  traverse through all matching pages.
 
 [[!meta robots="noindex, follow"]]

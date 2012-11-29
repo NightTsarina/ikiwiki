@@ -33,6 +33,7 @@ use warnings;
 use strict;
 use IkiWiki;
 
+use URI::Escape q{uri_escape_utf8};
 use File::chdir;
 
 
@@ -313,7 +314,8 @@ sub rcs_recentchanges ($) {
 			$oldrev =~ s/INITIAL/0/;
 			$newrev =~ s/\(DEAD\)//;
 			my $diffurl = defined $config{diffurl} ? $config{diffurl} : "";
-			$diffurl=~s/\[\[file\]\]/$page/g;
+			my $epage = uri_escape_utf8($page);
+			$diffurl=~s/\[\[file\]\]/$epage/g;
 			$diffurl=~s/\[\[r1\]\]/$oldrev/g;
 			$diffurl=~s/\[\[r2\]\]/$newrev/g;
 			unshift @pages, {

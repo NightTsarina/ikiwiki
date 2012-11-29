@@ -301,7 +301,8 @@ sub editcomment ($$) {
 
 	my @buttons = (POST_COMMENT, PREVIEW, CANCEL);
 	my $form = CGI::FormBuilder->new(
-		fields => [qw{do sid page subject editcontent type author url}],
+		fields => [qw{do sid page subject editcontent type author
+			email url subscribe anonsubscribe}],
 		charset => 'utf-8',
 		method => 'POST',
 		required => [qw{editcontent}],
@@ -346,17 +347,34 @@ sub editcomment ($$) {
 	$form->field(name => "type", value => $type, force => 1,
 		type => 'select', options => \@page_types);
 
-	$form->tmpl_param(username => $session->param('name'));
+	my $username=$session->param('name');
+	$form->tmpl_param(username => $username);
+		
+	$form->field(name => "subscribe", type => 'hidden');
+	$form->field(name => "anonsubscribe", type => 'hidden');
+	if (IkiWiki::Plugin::notifyemail->can("subscribe")) {
+		if (defined $username) {
+			$form->field(name => "subscribe", type => "checkbox",
+				options => [gettext("email replies to me")]);
+		}
+		elsif (IkiWiki::Plugin::passwordauth->can("anonuser")) {
+			$form->field(name => "anonsubscribe", type => "checkbox",
+				options => [gettext("email replies to me")]);
+		}
+	}
 
 	if ($config{comments_allowauthor} and
 	    ! defined $session->param('name')) {
 		$form->tmpl_param(allowauthor => 1);
 		$form->field(name => 'author', type => 'text', size => '40');
+		$form->field(name => 'email', type => 'text', size => '40');
 		$form->field(name => 'url', type => 'text', size => '40');
 	}
 	else {
 		$form->tmpl_param(allowauthor => 0);
 		$form->field(name => 'author', type => 'hidden', value => '',
+			force => 1);
+		$form->field(name => 'email', type => 'hidden', value => '',
 			force => 1);
 		$form->field(name => 'url', type => 'hidden', value => '',
 			force => 1);
@@ -425,10 +443,7 @@ sub editcomment ($$) {
 		$content .= " nickname=\"$nickname\"\n";
 	}
 	elsif (defined $session->remote_addr()) {
-		my $ip = $session->remote_addr();
-		if ($ip =~ m/^([.0-9]+)$/) {
-			$content .= " ip=\"$1\"\n";
-		}
+		$content .= " ip=\"".$session->remote_addr()."\"\n";
 	}
 
 	if ($config{comments_allowauthor}) {
@@ -490,6 +505,20 @@ sub editcomment ($$) {
 
 	if ($form->submitted eq POST_COMMENT && $form->validate) {
 		IkiWiki::checksessionexpiry($cgi, $session);
+
+		if (IkiWiki::Plugin::notifyemail->can("subscribe")) {
+			my $subspec="comment($page)";
+			if (defined $username &&
+			    length $form->field("subscribe")) {
+				IkiWiki::Plugin::notifyemail::subscribe(
+					$username, $subspec);
+			}
+			elsif (length $form->field("email") &&
+			       length $form->field("anonsubscribe")) {
+				IkiWiki::Plugin::notifyemail::anonsubscribe(
+					$form->field("email"), $subspec);
+			}
+		}
 		
 		$postcomment=1;
 		my $ok=IkiWiki::check_content(content => $form->field('editcontent'),
@@ -575,7 +604,8 @@ sub editcomment ($$) {
 
 sub getavatar ($) {
 	my $user=shift;
-	
+	return undef unless defined $user;
+
 	my $avatar;
 	eval q{use Libravatar::URL};
 	if (! $@) {
@@ -632,9 +662,11 @@ sub commentmoderation ($$) {
 
 				my $page=IkiWiki::dirname($f);
 				my $file="$config{srcdir}/$f";
+				my $filedir=$config{srcdir};
 				if (! -e $file) {
 					# old location
 					$file="$config{wikistatedir}/comments_pending/".$f;
+					$filedir="$config{wikistatedir}/comments_pending";
 				}
 
 				if ($action eq 'Accept') {
@@ -649,7 +681,7 @@ sub commentmoderation ($$) {
 				}
 
 				require IkiWiki::Render;
-				IkiWiki::prune($file);
+				IkiWiki::prune($file, $filedir);
 			}
 		}
 

@@ -1,0 +1,37 @@
+I can't seem to make this work. I have tried, in this [sandbox](http://mesh.openisp.ca/sandbox), to set values for fields and then display them with the getfield meta syntax, but it doesn't seem to be working.
+
+The getfield, field and ymlfront plugins are enabled. I have tried with and without the following field registration:
+
+    # field plugin
+    # define the fields for the meshmtl project
+    field_register:
+    - meta
+    - hostname
+    - MAC
+    - IP
+
+I have tried both the ymlfront directive and the YAML markup (with the
+`---` delimiter), no luck. Any idea what I am doing wrong? --
+[[anarcat]]
+
+> I'm afraid I can't tell from here what the problem could be.  It's clear that ymlfront is turned on, or the ymlfront directive in your sandbox page wouldn't be processed.  The only thing I can suggest, in order to get more information about what could be going wrong, would be to do a dump of your indexdb file (see [[tips/inside dot ikiwiki]]) and see what the data for your sandbox page is.  If there is field data there, that would indicate a problem with getfield; if there isn't field data there, that would indicate a problem with field or ymlfront.
+
+> Oh, and you only need to register "meta" with field_register; that will enable the data defined by the "meta" plugin to be read by field.  Unless "hostname", "MAC" and "IP" are plugins, you don't need to add them to field_register.  They can be taken care of by the ymlfront plugin.  Perhaps that is the problem?
+
+> --[[KathrynAndersen]]
+
+> > I have tried removing the other fields from the declaration, no luck. I did, however, notice the following error in the `--rebuild` output:
+> > 
+> >     ymlfront parse: Load of sandbox data failed: YAML Error: Stream does not end with newline character
+> >        Code: YAML_PARSE_ERR_NO_FINAL_NEWLINE
+> >        Line: 0
+> >        Document: 0
+> >      at /usr/share/perl5/YAML/Loader.pm line 38
+> > 
+> > Now *that* has to be related... ;) In the index.db, there is no ymlfront metadata for the sandbox page... Note that the `---` delimiter approach doesn't trigger the warning but doesn't populate the DB either...
+> > 
+> > Finally note that after adding debugging code, I was able to figure out that this seems to be using the `YAML::XS` library. I have also traced the data and confirmed that `$yml_str` does get properly initialized in `parse_yml`, and it is where the error is generated. So maybe there's something wrong with the YAML library?
+> > 
+> > Update: well, look here: using `YAML::Syck` doesn't yield the same error *and* the metadata actually works! So this is a problem specific to `YAML::Any`. Hardcoding `use YAML::XS` or *even* `use YAML::Any` fixed the problem for me.
+> > 
+> > Now delimiters also work, but the output is kind of ugly: it gets parsed as regular markdown makup so the `---` makes horizontal lines in the beginning and headings in the end... --[[anarcat]]

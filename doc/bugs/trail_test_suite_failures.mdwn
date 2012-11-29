@@ -1,0 +1,97 @@
+[[!template id=gitbranch branch=smcv/trail author=smcv]] [[!tag patch]]
+
+`t/trail.t` has some test suite failures. This is after applying
+[[smcv]]'s patch that fixed some races that caused it to fail
+sometimes. These remaining failures may also be intermittant,
+although I can get them reliably on my laptop. I've added some debugging
+output, which seems to point to an actual bug in the plugin AFAICS. --[[Joey]] 
+
+> I can reproduce this reliably at 0a23666ddd but not 3.20120203. Bisecting
+> indicates that it regressed in aaa72a3a80f, "inline: When the pagenames list
+> includes pages that do not exist, skip them".
+>
+> I don't think this is the bug noted in the commit message - the inline
+> containing `sorting/new` uses `pages`, not `pagenames`. --[[smcv]]
+
+>> It seems you removed `trail` support from `inline` in that commit.
+>> Assuming that wasn't intentional, this is fixed in `smcv/trail`.
+>> --[[smcv]]
+
+>>> Looks like a bad merge of some kind. pulled, [[done]] --[[Joey]]
+
+<pre>
+ok 71 - expected n=sorting/end p=sorting/beginning in sorting/middle.html
+not ok 72 - expected n=sorting/new p=sorting/middle in sorting/end.html
+#   Failed test 'expected n=sorting/new p=sorting/middle in sorting/end.html'
+#   at t/trail.t line 13.
+#          got: 'n=sorting/linked2 p=sorting/middle'
+#     expected: 'n=sorting/new p=sorting/middle'
+not ok 73 - expected n=sorting/old p=sorting/end in sorting/new.html
+#   Failed test 'expected n=sorting/old p=sorting/end in sorting/new.html'
+#   at t/trail.t line 13.
+#          got: undef
+#     expected: 'n=sorting/old p=sorting/end'
+not ok 74 - expected n=sorting/ancient p=sorting/new in sorting/old.html
+#   Failed test 'expected n=sorting/ancient p=sorting/new in sorting/old.html'
+#   at t/trail.t line 13.
+#          got: undef
+#     expected: 'n=sorting/ancient p=sorting/new'
+not ok 75 - expected n=sorting/linked2 p=sorting/old in sorting/ancient.html
+#   Failed test 'expected n=sorting/linked2 p=sorting/old in sorting/ancient.html'
+#   at t/trail.t line 13.
+#          got: undef
+#     expected: 'n=sorting/linked2 p=sorting/old'
+not ok 76 - expected n= p=sorting/ancient in sorting/linked2.html
+#   Failed test 'expected n= p=sorting/ancient in sorting/linked2.html'
+#   at t/trail.t line 13.
+#          got: 'n= p=sorting/end'
+#     expected: 'n= p=sorting/ancient'
+ok 77
+</pre>
+
+Here, the "new" page does not seem to be included into the trail as expected.
+Looking at the rendered page, there is no trail directive output on it either.
+--[[Joey]] 
+
+<pre>
+ok 90
+not ok 91 - expected n=sorting/new p= in sorting/old.html
+#   Failed test 'expected n=sorting/new p= in sorting/old.html'
+#   at t/trail.t line 13.
+#          got: undef
+#     expected: 'n=sorting/new p='
+not ok 92 - expected n=sorting/middle p=sorting/old in sorting/new.html
+#   Failed test 'expected n=sorting/middle p=sorting/old in sorting/new.html'
+#   at t/trail.t line 13.
+#          got: undef
+#     expected: 'n=sorting/middle p=sorting/old'
+not ok 93 - expected n=sorting/linked2 p=sorting/new in sorting/middle.html
+#   Failed test 'expected n=sorting/linked2 p=sorting/new in sorting/middle.html'
+#   at t/trail.t line 13.
+#          got: 'n=sorting/linked2 p='
+#     expected: 'n=sorting/linked2 p=sorting/new'
+ok 94 - expected n=sorting/linked p=sorting/middle in sorting/linked2.html
+ok 95 - expected n=sorting/end p=sorting/linked2 in sorting/linked.html
+ok 96 - expected n=sorting/a/c p=sorting/linked in sorting/end.html
+ok 97 - expected n=sorting/beginning p=sorting/end in sorting/a/c.html
+ok 98 - expected n=sorting/a/b p=sorting/a/c in sorting/beginning.html
+not ok 99 - expected n=sorting/ancient p=sorting/beginning in sorting/a/b.html
+#   Failed test 'expected n=sorting/ancient p=sorting/beginning in sorting/a/b.html'
+#   at t/trail.t line 13.
+#          got: 'n=sorting/z/a p=sorting/beginning'
+#     expected: 'n=sorting/ancient p=sorting/beginning'
+not ok 100 - expected n=sorting/z/a p=sorting/a/b in sorting/ancient.html
+#   Failed test 'expected n=sorting/z/a p=sorting/a/b in sorting/ancient.html'
+#   at t/trail.t line 13.
+#          got: undef
+#     expected: 'n=sorting/z/a p=sorting/a/b'
+not ok 101 - expected n= p=sorting/ancient in sorting/z/a.html
+#   Failed test 'expected n= p=sorting/ancient in sorting/z/a.html'
+#   at t/trail.t line 13.
+#          got: 'n= p=sorting/a/b'
+#     expected: 'n= p=sorting/ancient'
+ok 102
+</pre>
+
+Haven't investigated, but looks like the same sort of problem, a 
+page expected to be in the trail isn't. --[[Joey]] 

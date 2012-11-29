@@ -1,0 +1,190 @@
+mathdesc-at-scourge.biz
+.
+## PROFILING slow render  : Case buggy [[plugins/filecheck]] ?
+
+Saving an article from ikiwiki editor is long ? 
+<tt>ikiwiki  --setup wiki.setup --rebuild</tt> is long ?
+
+Of course it depends the size of the wiki but if it's tiny and still take
+more that two minutes, it's boring. But if it takes a **dozen of minutes**, it's plain buggy.
+
+Actually one can with a verbose rebuild narrow down which page "lags" :
+
+<code>
+    private/admin.mdmn
+    tag/admin
+    tag/private
+</code>
+
+It's also possible to measure render time on one of these pages like this:
+
+<code>
+time ikiwiki  --setup wiki.setup --render private/admin.mdwn
+</code>
+
+Well indeed for such a simple page, something fishy is going on.
+
+Still for simple yet superficial but enough profiling test, it requires 
+a sub-level perl profiler.
+
+## Using SmallProf
+
+[[tips/optimising_ikiwiki/#index10h2]] proposed [[!cpan Devel::NYTProf]].
+
+Try it hard to make it spits realistic numbers or even a trend to point
+the bottleneck in the code. Bref -- nothing valuable nor coherent, it's way to sophisticated to be handy
+in my situation (virtual machine, SMP system, long runs, clock drifts, etc...)  
+
+[[!cpan Devel::SmallProf]] is simple and just works(c)
+
+<pre>
+export PERL5OPT=-d:SmallProf
+time ikiwiki  --setup wiki.setup --rebuild
+sort -k 2nr,2 -k 3nr,3  smallprof.out | head -n 6
+</pre>
+
+
+### Results : 6 top slowpits
+
+Total rebuild time:<br/>
+real	5m16.283s<br/>
+user	2m38.935s<br/>
+sys	2m32.704s<br/>
+
+
+Total rebuild time (under profiling) : <br/>
+real	19m21.633s<br/>
+user	14m47.831s<br/>
+sys	4m11.046s<br/>
+
+
+<pre>
+[num] 	[walltime] 	[cputime] 	[line]:	[code]
+3055 	114.17165  	15.34000   	149: 	$mimetype=<$file_h>;
+1626527	69.39272 	101.4700    93:     read($fh, $line, $$ref[1]); # read max
+3055  	50.62106  	34.78000   	148:  	open(my $file_h, "-|", "file", "-bi",
+1626527  14.86525  	48.50000   	 92:  	seek($fh, $$ref[0], SEEK_SET); # seek
+1626527  13.95613  	44.78000   	102: 	return undef unless $line =~ $$ref[3]; #
+3055   	5.75528   	5.81000    	76: 	for my $type (map @$_, @rules) {
+</pre>
+
+legend : 
+*num* is the number of times that the line was executed, *time* is the amount of "wall time" (time according the the clock on the wall vs. cpu time)
+spent executing it, *ctime* is the amount of cpu time expended on it and *line* and *code* are the line number and the actual text of the executed line 
+(read from the file).
+
+
+3 topmost issues are located in this file :
+
+<tt>/usr/lib/perl5/vendor_perl/5.12.3/IkiWiki/Plugin/filecheck.pm</tt>
+<pre>
+sub match_mimetype ($$;@) {                                         
+        my $page=shift;
+        my $wanted=shift;                       
+        
+        my %params=@_;
+        my $file=exists $params{file} ? $params{file} : IkiWiki::srcfile($IkiWiki::pagesources{$page});
+        if (! defined $file) {
+                return IkiWiki::ErrorReason->new("file does not exist");
+        }        
+        
+        # Get the mime type.
+        #
+        # First, try File::Mimeinfo. This is fast, but doesn't recognise
+        # all files.
+        eval q{use File::MimeInfo::Magic};                    
+        my $mimeinfo_ok=! $@;                                     
+        my $mimetype;
+        if ($mimeinfo_ok) {
+                my $mimetype=File::MimeInfo::Magic::magic($file);
+        }                                                         
+        
+        # Fall back to using file, which has a more complete
+        # magic database.
+        if (! defined $mimetype) {
+                open(my $file_h, "-|", "file", "-bi", $file); 
+                $mimetype=<$file_h>;                                 
+                chomp $mimetype;                            
+                close $file_h;                   
+        }
+        if (! defined $mimetype || $mimetype !~s /;.*//) {
+                # Fall back to default value.
+                $mimetype=File::MimeInfo::Magic::default($file)
+                        if $mimeinfo_ok; 
+                if (! defined $mimetype) {
+                        $mimetype="unknown";
+                }                                                  
+        }        
+        
+        my $regexp=IkiWiki::glob2re($wanted);
+        if ($mimetype!~$regexp) {
+                return IkiWiki::FailReason->new("file MIME type is $mimetype, not $wanted");
+        }
+        else {  
+                return IkiWiki::SuccessReason->new("file MIME type is $mimetype");
+        }
+}
+</pre>
+
+Next 3 in this file :
+
+<tt>/usr/lib/perl5/vendor_perl/5.12.3/File/MimeInfo/Magic.pm</tt>
+<pre>
+sub _check_rule {
+        my ($ref, $fh, $lev) = @_;
+        my $line;
+
+        # Read
+        if (ref $fh eq 'GLOB') {
+                seek($fh, $$ref[0], SEEK_SET);  # seek offset
+                read($fh, $line, $$ref[1]);     # read max length
+        }
+        else { # allowing for IO::Something
+                $fh->seek($$ref[0], SEEK_SET);  # seek offset
+                $fh->read($line, $$ref[1]);     # read max length
+        }
+
+        # Match regex
+        $line = unpack 'b*', $line if $$ref[2]; # unpack to bits if using mask
+        return undef unless $line =~ $$ref[3];  # match regex
+        print STDERR    '>', '>'x$lev, ' Value "', _escape_bytes($2),
+                        '" at offset ', $$ref[1]+length($1),
+                        " matches at $$ref[4]\n"
+                if $DEBUG;
+        return 1 unless $#$ref > 4;
+
+        # Check nested rules and recurs
+        for (5..$#$ref) {
+                return 1 if _check_rule($$ref[$_], $fh, $lev+1);
+        }
+        print STDERR "> Failed nested rules\n" if $DEBUG && ! $lev;
+        return 0;
+}
+</pre>
+
+*"It seems it's a unique cause, that snails it all"*
+
+## Conclusion 
+
+This describes an issue in the attachment filechecker with mime type detection.
+The smallprof out file reveals it always fall back to using file which is very time-consuming.
+
+So what the hell did I put as complex allowed file attachment ruining File::Mimeinfo fast yet sparse recon ? 
+Well, it was set in the config this way:
+
+<tt>allowed_attachments => 'mimetype(image/*) or maxsize(5000kb) or mimetype(text/plain) or mimetype(text/css) or mimetype(video/*)'</tt>
+
+Ok... maybe the wildcards induce ....hum whatever... let's try something , the simplest thing :
+
+<tt>allowed_attachments => 'mimetype(text/plain) or mimetype(text/css)'</tt>
+
+Same slowness : yek, File::Mimeinfo recons nothing ... not even simplest files.
+ 
+Disabling it is a temporary cure obviously but it only took **30 seconds** .
+
+<tt>disable_plugins => [qw{filecheck}]</tt>
+
+I tried also to upgrade [[!cpan File::MimeInfo]] to current 0.16, did not helped either. :/
+
+I opened a bug [[bugs/Slow_Filecheck_attachments___34__snails_it_all__34__]]
+

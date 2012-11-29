@@ -1,0 +1,50 @@
+[[!comment format=mdwn
+ username="https://www.google.com/accounts/o8/id?id=AItOawmKyeW2G4jjSdnL1m6kPPtAiGFUBsnYCfY"
+ nickname="FName"
+ subject="Still can't use ikiwiki on Mac OS X"
+ date="2012-10-21T17:12:15Z"
+ content="""
+I'm still not able to use Ikiwiki on Mac:
+
+    $ ikiwiki --setup ./web.setup
+    generating wrappers..
+    rebuilding wiki..
+    Cannot decode string with wide characters at /opt/local/lib/perl5/5.12.4/darwin-thread-multi-2level/Encode.pm line 174.
+
+
+	$ ls -la /opt/local/bin/perl*
+	lrwxr-xr-x  1 root  admin     20 Oct 21 12:06 /opt/local/bin/perl -> /opt/local/bin/perl5
+	lrwxr-xr-x  1 root  admin     23 Oct 21 12:06 /opt/local/bin/perl5 -> /opt/local/bin/perl5.12
+	-rwxr-xr-x  1 root  admin   9896 Jun 26 01:39 /opt/local/bin/perl5.12
+	lrwxr-xr-x  1 root  admin      8 Jun 26 01:39 /opt/local/bin/perl5.12.4 -> perl5.12
+	-rwxr-xr-x  1 root  admin  10000 Jun 26 01:55 /opt/local/bin/perl5.14
+	lrwxr-xr-x  1 root  admin      8 Jun 26 01:56 /opt/local/bin/perl5.14.2 -> perl5.14
+	-rwxr-xr-x  1 root  admin  10000 Aug 23 13:41 /opt/local/bin/perl5.16
+	lrwxr-xr-x  1 root  admin      8 Aug 23 13:42 /opt/local/bin/perl5.16.1 -> perl5.16
+	lrwxr-xr-x  1 root  admin     12 Oct 21 11:44 /opt/local/bin/perlbug -> perlbug-5.16
+	-rwxr-xr-x  2 root  admin  45815 Jun 26 01:39 /opt/local/bin/perlbug-5.12
+	-rwxr-xr-x  2 root  admin  45203 Jun 26 01:55 /opt/local/bin/perlbug-5.14
+	-rwxr-xr-x  2 root  admin  41712 Aug 23 13:41 /opt/local/bin/perlbug-5.16
+	lrwxr-xr-x  1 root  admin     12 Oct 21 11:44 /opt/local/bin/perldoc -> perldoc-5.16
+	-rwxr-xr-x  1 root  admin    244 Jun 26 01:39 /opt/local/bin/perldoc-5.12
+	-rwxr-xr-x  1 root  admin    244 Jun 26 01:55 /opt/local/bin/perldoc-5.14
+	-rwxr-xr-x  1 root  admin    244 Aug 23 13:41 /opt/local/bin/perldoc-5.16
+	lrwxr-xr-x  1 root  admin     12 Oct 21 11:44 /opt/local/bin/perlivp -> perlivp-5.16
+	-rwxr-xr-x  1 root  admin  12484 Jun 26 01:39 /opt/local/bin/perlivp-5.12
+	-rwxr-xr-x  1 root  admin  12297 Jun 26 01:55 /opt/local/bin/perlivp-5.14
+	-rwxr-xr-x  1 root  admin  10802 Aug 23 13:41 /opt/local/bin/perlivp-5.16
+	lrwxr-xr-x  1 root  admin     15 Oct 21 11:44 /opt/local/bin/perlthanks -> perlthanks-5.16
+	-rwxr-xr-x  2 root  admin  45815 Jun 26 01:39 /opt/local/bin/perlthanks-5.12
+	-rwxr-xr-x  2 root  admin  45203 Jun 26 01:55 /opt/local/bin/perlthanks-5.14
+	-rwxr-xr-x  2 root  admin  41712 Aug 23 13:41 /opt/local/bin/perlthanks-5.16
+
+
+If I simply relink `/opt/local/bin/perl` to a newer version of perl such as `/opt/local/bin/perl5.16`, it still doesn't work, as it seems 
+
+    $ ikiwiki -version
+    ikiwiki version 3.20110608
+
+simply force to use perl5.12.
+
+
+"""]]

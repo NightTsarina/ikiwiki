@@ -5,6 +5,7 @@ use warnings;
 use strict;
 use IkiWiki;
 use Encode;
+use URI::Escape q{uri_escape_utf8};
 use open qw{:utf8 :std};
 
 my $sha1_pattern     = qr/[0-9a-fA-F]{40}/; # pattern to validate Git sha1sums
@@ -468,13 +469,10 @@ sub git_sha1 (;$) {
 	# Ignore error since a non-existing file might be given.
 	my ($sha1) = run_or_non('git', 'rev-list', '--max-count=1', 'HEAD',
 		'--', $file);
-	if ($sha1) {
+	if (defined $sha1) {
 		($sha1) = $sha1 =~ m/($sha1_pattern)/; # sha1 is untainted now
 	}
-	else {
-		debug("Empty sha1sum for '$file'.");
-	}
-	return defined $sha1 ? $sha1 : q{};
+	return defined $sha1 ? $sha1 : '';
 }
 
 sub rcs_update () {
@@ -617,9 +615,10 @@ sub rcs_recentchanges ($) {
 		my @pages;
 		foreach my $detail (@{ $ci->{'details'} }) {
 			my $file = $detail->{'file'};
+			my $efile = uri_escape_utf8($file);
 
 			my $diffurl = defined $config{'diffurl'} ? $config{'diffurl'} : "";
-			$diffurl =~ s/\[\[file\]\]/$file/go;
+			$diffurl =~ s/\[\[file\]\]/$efile/go;
 			$diffurl =~ s/\[\[sha1_parent\]\]/$ci->{'parent'}/go;
 			$diffurl =~ s/\[\[sha1_from\]\]/$detail->{'sha1_from'}/go;
 			$diffurl =~ s/\[\[sha1_to\]\]/$detail->{'sha1_to'}/go;

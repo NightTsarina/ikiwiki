@@ -132,7 +132,7 @@ sub filltemplate ($$) {
 	if ($@) {
 		# Indicate that the earlier preprocessor directive set 
 		# up a template that doesn't work.
-		return "[[!pagetemplate ".gettext("failed to process template:")." $@]]";
+		return "[[!edittemplate ".gettext("failed to process template:")." $@]]";
 	}
 
 	$template->param(name => $page);

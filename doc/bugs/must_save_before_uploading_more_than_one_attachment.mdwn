@@ -26,7 +26,19 @@ Is this a problem on my site or does anyone else see this?
 
 >>> The right fix would probably be for `do=create` to allow replacing a page
 >>> in the transient underlay without complaining (like the behaviour that
->>> `do=edit` normally has). That wouldn't help you unless [[plugins/autoindex]]
+>>> `do=edit` normally has).
+
+>>>> ... which it turns out it already does. --[[smcv]]
+
+>>> That wouldn't help you unless [[plugins/autoindex]]
 >>> defaulted to making transient pages (`autoindex_commit => 0`), but if we
 >>> can fix [[removal_of_transient_pages]] then maybe that default can change?
 >>> --[[smcv]]
+
+>>>> It turns out that with `autoindex_commit => 0`, the failure mode is
+>>>> different. The transient map is created when you attach the
+>>>> attachment. When you save the page, it's written into the srcdir,
+>>>> the map is deleted from the transientdir, and the ctime/mtime
+>>>> in the indexdb are those of the file in the srcdir, but for some
+>>>> reason the HTML output isn't re-generated (despite a refresh
+>>>> happening). --[[smcv]]

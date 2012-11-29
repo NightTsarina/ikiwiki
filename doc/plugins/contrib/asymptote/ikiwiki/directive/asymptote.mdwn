@@ -1,0 +1,27 @@
+The `asymptote` directive is supplied by the [[!iki plugins/contrib/asymptote
+desc=asymptote]] plugin.
+
+This directive allows embedding [asymptote](http://asymptote.sourceforge.net/)
+diagrams in a page. Example usage:
+
+	\[[!asymptote src="""
+        import geometry;
+        unitsize(1cm);
+        triangle t = triangle((0,0), (4,0), (0.5,2));
+        show(La="$D$", Lb="$E$", Lc="", t);
+        dot(t.A^^t.B^^t.C);
+        point pD = midpoint(t.BC); dot(pD);
+        point pE = midpoint(t.AC); dot(pE);
+        draw(pD--pE);
+        point A_ = (pD-t.A)*2+t.A; dot("$A'$", A_, NE);
+        draw(t.B--A_--t.C, dashed);
+        draw(t.A--A_, dashed);
+        point E_ = midpoint(line(t.B,A_)); dot(Label("$E'$", E_, E));
+        draw(E_--pD, dashed);
+        """]]
+
+The `asymptote` directive supports the following parameters:
+
+- `src` - The asymptote source code to render.
+
+[[!meta robots="noindex, follow"]]

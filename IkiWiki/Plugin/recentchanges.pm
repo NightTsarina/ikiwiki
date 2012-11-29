@@ -165,6 +165,7 @@ sub store ($$$) {
 	# Limit pages to first 10, and add links to the changed pages.
 	my $is_excess = exists $change->{pages}[10];
 	delete @{$change->{pages}}[10 .. @{$change->{pages}}] if $is_excess;
+	my $has_diffurl=0;
 	$change->{pages} = [
 		map {
 			if (length $config{cgiurl}) {
@@ -179,6 +180,9 @@ sub store ($$$) {
 			}
 			else {
 				$_->{link} = pagetitle($_->{page});
+			}
+			if (defined $_->{diffurl}) {
+				$has_diffurl=1;
 			}
 
 			$_;
@@ -227,6 +231,8 @@ sub store ($$$) {
 		wikiname => $config{wikiname},
 	);
 	
+	$template->param(has_diffurl => 1) if $has_diffurl;
+
 	$template->param(permalink => urlto($config{recentchangespage})."#change-".titlepage($change->{rev}))
 		if exists $config{url};
 	
