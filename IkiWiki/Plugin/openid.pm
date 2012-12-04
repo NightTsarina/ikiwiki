@@ -100,9 +100,10 @@ sub formbuilder_setup (@) {
 	       IkiWiki::openiduser($session->param("name"))) {
 		$form->field(name => "openid_identifier", disabled => 1,
 			label => htmllink("", "", "ikiwiki/OpenID", noimageinline => 1),
-			value => $session->param("name"), 
-			size => length($session->param("name")), force => 1,
-			fieldset => "login");
+			value => "", 
+			size => 1, force => 1,
+			fieldset => "login",
+			comment => $session->param("name"));
 		$form->field(name => "email", type => "hidden");
 	}
 }
