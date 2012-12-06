@@ -20,6 +20,7 @@ BuildRequires:  perl(HTML::Template)
 BuildRequires:  perl(CGI::FormBuilder)
 BuildRequires:  perl(CGI::Session)
 BuildRequires:  perl(File::MimeInfo)
+BuildRequires:  perl(YAML::XS)
 BuildRequires:  gettext
 BuildRequires:  po4a
 
