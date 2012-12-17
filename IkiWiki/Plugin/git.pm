@@ -341,8 +341,8 @@ sub parse_diff_tree ($) {
 	my $dt_ref = shift;
 
 	# End of stream?
-	return if !defined @{ $dt_ref } ||
-		  !defined @{ $dt_ref }[0] || !length @{ $dt_ref }[0];
+	return if ! @{ $dt_ref } ||
+		  !defined $dt_ref->[0] || !length $dt_ref->[0];
 
 	my %ci;
 	# Header line.
