@@ -1,0 +1,26 @@
+I've just modified the trail plugin to use only presence, and not
+content dependencies. Using content dependencies, particularly to the page
+that defines the trail, meant that every time that page changed, *every*
+page in the trail gets rebuilt. This leads to users setting up sites that
+have horrible performance, if the trail is defined in, for example, the top
+page of a blog.
+
+Unfortunatly, this change to presence dependencies has
+introduced a bug. Now when an existing trail is removed, the pages in the
+trail don't get rebuilt to remove the trail (both html display and state).
+
+I think that to fix this bug, the plugin should use a hook to 
+force rebuilding of all the pages that were in the trail, when
+the trail is removed (or changed).
+
+There's a difficulty in doing that: The needsbuild hook runs before the scan
+hook, so before it has a chance to see if the trail directive is still there.
+It'd need some changes to ikiwiki's hooks.
+
+(An improvement in this area would probably simplify other plugins, which
+currently abuse the needsbuild hook to unset state, to handle the case
+where the directive that resulted in that state is removed.)
+
+I apologise for introducing a known bug, but the dependency mess was too
+bad to leave as-is. And I have very little time (and regrettably, even less
+power) to deal with it right now. :( --[[Joey]] 

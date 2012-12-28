@@ -318,7 +318,7 @@ sub prerender {
 			$prev = $members->[$i - 1] if $i > 0;
 			my $next = $members->[$i + 1];
 
-			add_depends($member, $trail);
+			add_depends($member, $trail, deptype("presence"));
 
 			$member_to_trails{$member}{$trail} = [$prev, $next];
 		}
@@ -406,13 +406,13 @@ sub pagetemplate (@) {
 			my ($prevurl, $nexturl, $prevtitle, $nexttitle);
 
 			if (defined $prev) {
-				add_depends($params{destpage}, $prev);
+				add_depends($params{destpage}, $prev, deptype("presence"));
 				$prevurl = urlto($prev, $page);
 				$prevtitle = title_of($prev);
 			}
 
 			if (defined $next) {
-				add_depends($params{destpage}, $next);
+				add_depends($params{destpage}, $next, deptype("presence"));
 				$nexturl = urlto($next, $page);
 				$nexttitle = title_of($next);
 			}
