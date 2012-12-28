@@ -113,8 +113,7 @@ sub launchaggregation () {
 	my @feeds=needsaggregate();
 	return unless @feeds;
 	if (! lockaggregate()) {
-		debug("an aggregation process is already running");
-		return;
+		error("an aggregation process is already running");
 	}
 	# force a later rebuild of source pages
 	$IkiWiki::forcerebuild{$_->{sourcepage}}=1
