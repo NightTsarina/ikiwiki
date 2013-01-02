@@ -15,11 +15,11 @@ sub check_trail {
 
 sub check_no_trail {
 	my $file=shift;
-	my $trailname=shift;
+	my $trailname=shift || qr/\w+/;
 	my $blob=readfile("t/tmp/out/$file");
 	my ($trailline)=$blob=~/^trail=$trailname\s+(.*)$/m;
 	$trailline="" unless defined $trailline;
-	ok($trailline !~ /^trail=$trailname\s+/, "no $trailname in $file");
+	ok($trailline !~ /^trail=$trailname\s+/, "no trail $trailname in $file");
 }
 
 my $blob;
@@ -96,6 +96,18 @@ write_old_file("sorting.mdwn",
 	'[[!trailitems pagenames="sorting/beginning sorting/middle sorting/end"]] ' .
 	'[[!inline pages="sorting/old or sorting/ancient or sorting/new" trail="yes"]] ' .
 	'[[!traillink linked2]]');
+write_old_file("limited/a.mdwn", "a");
+write_old_file("limited/b.mdwn", "b");
+write_old_file("limited/c.mdwn", "c");
+write_old_file("limited/d.mdwn", "d");
+write_old_file("limited.mdwn",
+	'[[!inline pages="limited/*" trail="yes" show=2 sort=title]]');
+write_old_file("untrail/a.mdwn", "a");
+write_old_file("untrail/b.mdwn", "b");
+write_old_file("untrail.mdwn", "[[!traillink a]] [[!traillink b]]");
+write_old_file("retitled/a.mdwn", "a");
+write_old_file("retitled.mdwn",
+	'[[!meta title="the old title"]][[!traillink a]]');
 
 write_old_file("meme.mdwn", <<EOF
 [[!trail]]
@@ -178,6 +190,24 @@ check_trail("sorting/old.html", "n=sorting/ancient p=sorting/new");
 check_trail("sorting/ancient.html", "n=sorting/linked2 p=sorting/old");
 check_trail("sorting/linked2.html", "n= p=sorting/ancient");
 
+# If the inline has a limited number of pages, the trail still contains
+# everything.
+$blob = readfile("t/tmp/out/limited.html");
+ok($blob =~ /<a href="(\.\/)?limited\/a.html">a<\/a>/m);
+ok($blob =~ /<a href="(\.\/)?limited\/b.html">b<\/a>/m);
+ok($blob !~ /<a href="(\.\/)?limited\/c.html">/m);
+ok($blob !~ /<a href="(\.\/)?limited\/d.html">/m);
+check_trail("limited/a.html", "n=limited/b p=");
+check_trail("limited/b.html", "n=limited/c p=limited/a");
+check_trail("limited/c.html", "n=limited/d p=limited/b");
+check_trail("limited/d.html", "n= p=limited/c");
+
+check_trail("untrail/a.html", "n=untrail/b p=");
+check_trail("untrail/b.html", "n= p=untrail/a");
+
+$blob = readfile("t/tmp/out/retitled/a.html");
+ok($blob =~ /\^ the old title \^/m);
+
 # Make some changes and refresh. These writefile calls don't set an
 # old mtime, so they're strictly newer than the "old" files.
 
@@ -191,6 +221,16 @@ ok(unlink("t/tmp/in/del/e.mdwn"));
 writefile("sorting.mdwn", "t/tmp/in",
 	readfile("t/tmp/in/sorting.mdwn") .
 	'[[!trailoptions sort="title" reverse="yes"]]'); 
+
+writefile("retitled.mdwn", "t/tmp/in",
+	'[[!meta title="the new title"]][[!traillink a]]');
+
+# If the inline has a limited number of pages, the trail still depends on
+# everything.
+writefile("limited.html", "t/tmp/out", "[this gets rebuilt]");
+writefile("limited/c.mdwn", "t/tmp/in", '[[!meta title="New C page"]]c');
+
+writefile("untrail.mdwn", "t/tmp/in", "no longer a trail");
 
 ok(! system("$command -refresh"));
 
@@ -217,5 +257,36 @@ check_trail("sorting/beginning.html", "n=sorting/a/b p=sorting/a/c");
 check_trail("sorting/a/b.html", "n=sorting/ancient p=sorting/beginning");
 check_trail("sorting/ancient.html", "n=sorting/z/a p=sorting/a/b");
 check_trail("sorting/z/a.html", "n= p=sorting/ancient");
+
+# If the inline has a limited number of pages, the trail still depends on
+# everything, so it gets rebuilt even though it doesn't strictly need it.
+# This means we could use it as a way to recompute the order of members
+# and the contents of their trail navbars, allowing us to fix the regression
+# described in [[bugs/trail excess dependencies]] without a full content
+# dependency.
+$blob = readfile("t/tmp/out/limited.html");
+ok($blob =~ /<a href="(\.\/)?limited\/a.html">a<\/a>/m);
+ok($blob =~ /<a href="(\.\/)?limited\/b.html">b<\/a>/m);
+ok($blob !~ /<a href="(\.\/)?limited\/c.html">/m);
+ok($blob !~ /<a href="(\.\/)?limited\/d.html">/m);
+check_trail("limited/a.html", "n=limited/b p=");
+check_trail("limited/b.html", "n=limited/c p=limited/a");
+check_trail("limited/c.html", "n=limited/d p=limited/b");
+check_trail("limited/d.html", "n= p=limited/c");
+# Also, b and d should pick up the change to c. This regressed with the
+# change to using a presence dependency.
+$blob = readfile("t/tmp/out/limited/b.html");
+ok($blob =~ /New C page &gt;/m);
+$blob = readfile("t/tmp/out/limited/d.html");
+ok($blob =~ /&lt; New C page/m);
+
+# Members of a retitled trail should pick up that change.
+# This regressed with the change to using a presence dependency.
+$blob = readfile("t/tmp/out/retitled/a.html");
+ok($blob =~ /\^ the new title \^/m);
+
+# untrail is no longer a trail, so these are no longer in it.
+check_no_trail("untrail/a.html");
+check_no_trail("untrail/b.html");
 
 ok(! system("rm -rf t/tmp"));
