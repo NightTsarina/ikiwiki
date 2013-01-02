@@ -22,7 +22,7 @@ trail don't get rebuilt to remove the trail (both html display and state).
 > 
 > Strictly speaking, I should change `I::P::t::build_affected`
 > so it calls `prerender`, so we're guaranteed to have done the
-> recalculation. I'll do that. --[[smcv]]
+> recalculation. Fixed in my branch. --[[smcv]]
 
 I think that to fix this bug, the plugin should use a hook to 
 force rebuilding of all the pages that were in the trail, when
@@ -33,13 +33,13 @@ the trail is removed (or changed).
 > then the logic above means it's OK, but if you
 > change the `\[[!meta title]]` of the trail, or anything else
 > used in the prev/up/next bar, the items won't show that
-> change. --[[smcv]]
+> change. Fixed in my branch. --[[smcv]]
 
 There's a difficulty in doing that: The needsbuild hook runs before the scan
 hook, so before it has a chance to see if the trail directive is still there.
 It'd need some changes to ikiwiki's hooks.
 
-> `build_affected` can fix this, I think. --[[smcv]]
+> That's what `build_affected` is for, and trail already used it. --s
 
 (An improvement in this area would probably simplify other plugins, which
 currently abuse the needsbuild hook to unset state, to handle the case
@@ -49,6 +49,11 @@ I apologise for introducing a known bug, but the dependency mess was too
 bad to leave as-is. And I have very little time (and regrettably, even less
 power) to deal with it right now. :( --[[Joey]] 
 
+[[!template id=gitbranch branch=smcv/ready/trail author="[[Simon_McVittie|smcv]]"]]
+[[!tag patch]]
+
+> I believe my `ready/trail` branch fixes this. There are regression tests.
+>
 > Here is an analysis of how the trail pages interdepend.
 >
 > * If *trail* contains a page *member* which does exist, *member* depends
@@ -56,13 +61,15 @@ power) to deal with it right now. :( --[[Joey]]
 >   *trail*, or if *trail*'s "friendly" title or trail settings are changed,
 >   the trail navigation bar in *member* will pick up that change. This is
 >   now only a presence dependency, which isn't enough to make those happen
->   correctly.
+>   correctly. [Edited to add: actually, the title is the only thing that
+>   can affect *member* without affecting the order of members.]
 >
 > * If *trail* contains consecutive pages *m1* and *m2* in that order,
 >   *m1* and *m2* depend on each other. This is so that if one's
 >   "friendly" title changes, the other is rebuilt. This is now only
 >   a presence dependency, which isn't enough to make those happen
->   correctly.
+>   correctly. In my branch, I explicitly track the "friendly" title
+>   for every page that's edited and is involved in a trail somehow.
 >
 > * If *trail* has *member* in its `pagenames` but there is no page called
 >   *member*, then *trail* must be rebuilt if *member* is created. This
@@ -72,11 +79,15 @@ power) to deal with it right now. :( --[[Joey]]
 > { trail => next item in that trail } and { trail => previous item in
 > that trail } for each page. If either changes, the page gets rebuilt
 > by `build_affected`, with almost the same logic as is used to update
-> pages that link to a changed page.
+> pages that link to a changed page. My branch extends this to track the
+> "friendly title" of each page involved in a trail, either by being
+> the trail itself or a member (or both).
 >
 > I think it's true to say that the trail always depends on every member,
 > even if it doesn't display them. This might mean that we can use
 > "render the trail page" as an opportunity to work out whether any of
 > its members are also going to need re-rendering?
+> [Edited to add: actually, I didn't need this to be true, but I made the
+> regression test check it anyway.]
 >
 > --[[smcv]]
