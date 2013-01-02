@@ -359,6 +359,12 @@ sub prerender {
 sub build_affected {
 	my %affected;
 
+	# In principle we might not have done this yet, although in practice
+	# at least the trail itself has probably changed, and its template
+	# almost certainly contains TRAILS or TRAILLOOP, triggering our
+	# prerender as a side-effect.
+	prerender();
+
 	foreach my $member (keys %rebuild_trail_members) {
 		$affected{$member} = sprintf(gettext("building %s, its previous or next page has changed"), $member);
 	}
