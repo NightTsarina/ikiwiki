@@ -62,12 +62,20 @@ sub getsetup () {
 		},
 }
 
+# Cache of pages' old titles, so we can tell whether they changed
+my %old_trail_titles;
+
 sub needsbuild (@) {
 	my $needsbuild=shift;
+
 	foreach my $page (keys %pagestate) {
 		if (exists $pagestate{$page}{trail}) {
 			if (exists $pagesources{$page} &&
 			    grep { $_ eq $pagesources{$page} } @$needsbuild) {
+				# Remember its title, so we can know whether
+				# it changed.
+				$old_trail_titles{$page} = title_of($page);
+
 				# Remove state, it will be re-added
 				# if the preprocessor directive is still
 				# there during the rebuild. {item} is the
@@ -78,6 +86,7 @@ sub needsbuild (@) {
 			}
 		}
 	}
+
 	return $needsbuild;
 }
 
@@ -230,6 +239,12 @@ sub trails_differ {
 		if (! exists $new->{$trail}) {
 			return 1;
 		}
+
+		if (exists $old_trail_titles{$trail} &&
+			title_of($trail) ne $old_trail_titles{$trail}) {
+			return 1;
+		}
+
 		my ($old_p, $old_n) = @{$old->{$trail}};
 		my ($new_p, $new_n) = @{$new->{$trail}};
 		$old_p = "" unless defined $old_p;
@@ -239,7 +254,18 @@ sub trails_differ {
 		if ($old_p ne $new_p) {
 			return 1;
 		}
+
+		if (exists $old_trail_titles{$old_p} &&
+			title_of($old_p) ne $old_trail_titles{$old_p}) {
+			return 1;
+		}
+
 		if ($old_n ne $new_n) {
+			return 1;
+		}
+
+		if (exists $old_trail_titles{$old_n} &&
+			title_of($old_n) ne $old_trail_titles{$old_n}) {
 			return 1;
 		}
 	}

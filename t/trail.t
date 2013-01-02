@@ -275,21 +275,15 @@ check_trail("limited/c.html", "n=limited/d p=limited/b");
 check_trail("limited/d.html", "n= p=limited/c");
 # Also, b and d should pick up the change to c. This regressed with the
 # change to using a presence dependency.
-TODO: {
-local $TODO = "trail members don't pick up other members' title changes";
 $blob = readfile("t/tmp/out/limited/b.html");
 ok($blob =~ /New C page &gt;/m);
 $blob = readfile("t/tmp/out/limited/d.html");
 ok($blob =~ /&lt; New C page/m);
-}
 
 # Members of a retitled trail should pick up that change.
 # This regressed with the change to using a presence dependency.
-TODO: {
-local $TODO = "trail members don't pick up the trail's title changes";
 $blob = readfile("t/tmp/out/retitled/a.html");
 ok($blob =~ /\^ the new title \^/m);
-}
 
 # untrail is no longer a trail, so these are no longer in it.
 check_no_trail("untrail/a.html");
