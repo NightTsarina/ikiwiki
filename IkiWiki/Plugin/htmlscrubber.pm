@@ -28,7 +28,8 @@ sub import {
 		"aim", "callto", "cvs", "ed2k", "feed", "fish", "gg",
 		"irc", "ircs", "lastfm", "ldaps", "magnet", "mms",
 		"msnim", "notes", "rsync", "secondlife", "skype", "ssh",
-		"sftp", "smb", "sms", "snews", "webcal", "ymsgr", "bitcoin"
+		"sftp", "smb", "sms", "snews", "webcal", "ymsgr",
+		"bitcoin", "git", "svn", "bzr", "darcs", "hg"
 	);
 	# data is a special case. Allow a few data:image/ types,
 	# but disallow data:text/javascript and everything else.
