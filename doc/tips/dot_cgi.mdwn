@@ -28,6 +28,10 @@ configuration changes should work anywhere.
 
   You may also want to install some dependencies to enable CGI in apache2 setup as: `libcgi-formbuilder-perl` and `libcgi-session-perl`.
 
+* If your wiki is in `~/public_html` and does not appear when you enter the URL given by the installer, check that you have 
+  the userdir mod enabled (there should be simlinks to userdir.load and userdir.conf in /etc/apache2/modes-enabled).  If not,
+  run `a2enmod userdir` and reload apache2.
+  
 * You may also want to enable the [[plugins/404]] plugin.
   To make apache use it, the apache config file will need a further
   modification to make it use ikiwiki's CGI as the apache 404 handler.
