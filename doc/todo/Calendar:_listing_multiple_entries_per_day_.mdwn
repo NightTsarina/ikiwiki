@@ -22,22 +22,22 @@ Regards,
     +++ b/IkiWiki/Plugin/calendar.pm
     @@ -86,8 +86,11 @@ sub format_month (@) {
      		my $year  = $date[5] + 1900;
-     		my $mtag  = sprintf(\"%02d\", $month);
+     		my $mtag  = sprintf("%02d", $month);
      
     -		# Only one posting per day is being linked to.
-    -		$linkcache{\"$year/$mtag/$mday\"} = $p;
+    -		$linkcache{"$year/$mtag/$mday"} = $p;
     +		# Several postings per day
-    +		if (! $linkcache{\"$year/$mtag/$mday\"}) {
-    +			$linkcache{\"$year/$mtag/$mday\"} = [];
+    +		if (! $linkcache{"$year/$mtag/$mday"}) {
+    +			$linkcache{"$year/$mtag/$mday"} = [];
     +		}
-    +		push(@{$linkcache{\"$year/$mtag/$mday\"}}, $p);
+    +		push(@{$linkcache{"$year/$mtag/$mday"}}, $p);
      	}
      		
      	my $pmonth = $params{month} - 1;
     @@ -221,11 +224,36 @@ EOF
      				$tag='month-calendar-day-link';
      			}
-     			$calendar.=qq{\t\t<td class=\"$tag $downame{$wday}\">};
+     			$calendar.=qq{\t\t<td class="$tag $downame{$wday}">};
     -			$calendar.=htmllink($params{page}, $params{destpage}, 
     -				$linkcache{$key},
     -				noimageinline => 1,
@@ -59,7 +59,7 @@ Regards,
     +					$calendar.= qq{\n\t\t\t<li>};
     +					my $title;
     +					if (exists $pagestate{$page}{meta}{title}) {
-    +						$title = \"$pagestate{$page}{meta}{title}\";
+    +						$title = "$pagestate{$page}{meta}{title}";
     +					} else {
     +						$title = pagetitle(IkiWiki::basename($page));
     +					}
@@ -79,10 +79,10 @@ Regards,
     diff --git a/doc/style.css b/doc/style.css
     old mode 100644
     new mode 100755
-    index 6e2afce..4149229
+    index 424d438..b52c72b
     --- a/doc/style.css
     +++ b/doc/style.css
-    @@ -316,6 +316,7 @@ div.progress-done {
+    @@ -323,6 +323,7 @@ div.progress-done {
      .popup .paren,
      .popup .expand {
      	display: none;
@@ -90,4 +90,3 @@ Regards,
      }
      .popup:hover .balloon,
      .popup:focus .balloon {
-
