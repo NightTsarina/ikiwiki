@@ -411,6 +411,8 @@ sub pagetemplate (@) {
 	my $page = $params{page};
 	my $template = $params{template};
 
+	return unless length $page;
+
 	if ($template->query(name => 'trails') && ! $recursive) {
 		prerender();
 
