@@ -139,6 +139,14 @@ sub filltemplate ($$) {
 
 	$template->param(name => $page);
 
+	eval {
+		require UUID::Tiny;
+		UUID::Tiny->import(':std');
+		my $uuid;
+		$uuid = create_uuid_as_string(UUID_V4());
+		$template->param(uuid => $uuid);
+	};
+
 	return $template->output;
 }
 
