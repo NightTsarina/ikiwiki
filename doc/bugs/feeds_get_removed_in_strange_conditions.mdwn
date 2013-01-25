@@ -1,0 +1,57 @@
+For some time now, in circumstances that I've had enormous troubles
+trying to track, I've seen feeds getting removed by ikiwiki when
+apparently unrelated pages got changed, with the message:
+
+> removing somepath/somepage/somefeed, no longer built by some/unrelated/page
+
+I've finally been able to find how and why it happens. The situation is
+the following:
+
+* page A has an inline directive that (directly) generates a feed F
+* page B inlines A, thus (indirectly) generating F again
+* page B is rendered after page A
+
+The feed removal happens when changes are made to prevent B from
+inlining A; for example, because B is a tag page and A is untagged B, or
+because B includes A through a pagespec that no longer matches A. In
+this case, this happens:
+
+* page A is built, rendering F
+* page B is built, _not_ rendering F, which it used to render
+* F is removed because it is not built by B anymore
+
+Note that although this issue is triggered (for me) from the changes I
+proposed last year to allow feed generation from nested inlines
+coalescing it to be page-based instead of destpage-based
+(bb8f76a4a04686def8cc6f21bcca80cb2cc3b2c9 and
+72c8f01b36c841b0e83a2ad7ad1365b9116075c5) there is potential for it
+popping up in other cases.
+
+Specifically, the logic for the removal of dependent pages currently
+relies on the assumption that each output has a single generator. My
+changes caused this assumption to be violated, hence the error, but
+other cases may pop up for other plugins in the future.
+
+I have a [patch] fixing this issue (for feeds specifically, i.e. only
+the problem I am actually having) on top of my `mystuff` branch, but
+since that also has heaps of other unrelated stuff, you may want to just
+[pick it from my gitweb][gw].
+
+[gw]: (http://git.oblomov.eu/ikiwiki/patch/671cb26cf50643827f258270d9ac8ad0b1388a65)
+
+The patch changes the `will_render()` for feeds to be based on the page
+rather than on the destpage, matching the fact that for nested inlines
+it's the inner page that is ultimately responsible for generating the
+feed.
+
+I've noticed that it requires at least _two_ full rebuilds before the
+index is again in a sensible state. (On the first rebuild, all feeds
+from nested inlines are actually _removed_.)
+
+While the patch is needed because there are legitimate cases in which
+nested feeds are needed (for example, I have an index page that inlines
+index pages for subsection of my site, and I want _those_ feed from
+being visible), there are other cases when one may want to skip feed
+generation from nested inlines.
+
+--[[GiuseppeBilotta]]

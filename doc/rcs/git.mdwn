@@ -116,3 +116,38 @@ pulling changes from the bare root repository, you will need to
 manually update the local wiki, with a command such as `ikiwiki
 -setup localwiki.setup -refresh`. You could use git's `post-merge` hook
 to automate that command.
+
+## Using ikiwiki with Gerrit
+
+[Gerrit Code Review](https://code.google.com/p/gerrit/) manages a set of Git
+repositories and provides a web interface to review and merge commits.  You can
+configure ikiwiki to work with a Gerrit-managed repository, allowing you to
+review and merge commits to your wiki.
+
+First, create your initial wiki repository with Gerrit.  On the server, as the
+user that will own the wiki, clone that repository to create a working
+directory for ikiwiki, such as /srv/wiki/ikiwiki-checkout.  Create a setup file
+and target directory as usual, referencing that working directory path, and
+creating a post-update hook in Gerrit's repository.  You'll need to set
+appropriate permissions on the hook directory for the repository so that the
+user running ikiwiki can compile and install the post-update hook.  Also note
+that you must disable web editing by disabling the editpage plugin, and you
+must not enable any other plugin that commits to the repository, since ikiwiki
+will not have permission to push to the repository.  (Allowing web edits to
+have such permission would bypass Gerrit's code review, defeating the purpose.)
+
+Gerrit does not run per-repository hooks, such as the post-update hook ikiwiki
+installs to update the wiki after pushes.  However, Gerrit has site-wide hooks,
+including a ref-updated hook that runs whenever a ref changes.  You can use
+that hook to trigger ikiwiki's post-update hook.  The following script,
+installed as Gerrit's ref-updated hook, will run the post-update hook on any
+repository that has a "gerrit-run-post-update-hook" file in it:
+
+    #!/bin/sh
+    if [ -e "$GIT_DIR/gerrit-run-post-update-hook" ] ; then
+        exec "$GIT_DIR/hooks/post-update"
+    fi
+
+Then just create gerrit-run-post-update-hook in the wiki repository, run
+ikiwiki --setup on the setup file, add your wiki to /etc/ikiwiki/wikilist, and
+start reviewing and committing wiki changes via Gerrit.

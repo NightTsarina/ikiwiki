@@ -1,3 +1,18 @@
+Using a new debian 6.0.5 system, I get the following error trying to run the script:
+
+    ~/bin/ikiwiki-wordpress-import.py "Name" email@domain log < ~/share/wordpress.2012-08-23.xml.edited | git-fast-import
+    Traceback (most recent call last):
+      File "/home/luke/bin/ikiwiki-wordpress-import.py", line 139, in <module>
+        main(*sys.argv[1:])
+      File "/home/luke/bin/ikiwiki-wordpress-import.py", line 65, in main
+        content += x.find('content:encoded').string.replace('\r\n', '\n')
+    AttributeError: 'NoneType' object has no attribute 'replace'
+    git-fast-import statistics:
+
+Any ideas on what I am doing wrong would be appreciated.
+
+-----
+
 When I attempt to use this script, I get the following error:
 warning: Not updating refs/heads/master (new tip 26b1787fca04f2f9772b6854843fe99fe06e6088 does not contain fc0ad65d14d88fd27a6cee74c7cef3176f6900ec).  I have git 1.5.6.5, any ideas?
 

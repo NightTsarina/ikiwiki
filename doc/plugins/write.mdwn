@@ -1,4 +1,4 @@
-lkiwiki's plugin interface allows all kinds of useful [[plugins]] to be
+Ikiwiki's plugin interface allows all kinds of useful [[plugins]] to be
 written to extend ikiwiki in many ways. Despite the length of this page,
 it's not really hard. This page is a complete reference to everything a
 plugin might want to do. There is also a quick [[tutorial]].
@@ -31,20 +31,26 @@ is accomplished by calling various hooks provided by plugins.
 
 ### compiler
 
-As a compiler, ikiwiki starts by calling the `refresh` hook. Then it checks
-the wiki's source to find new or changed pages. The `needsbuild` hook is
-then called to allow manipulation of the list of pages that need to be
-built. 
+As a compiler, ikiwiki starts by calling the
+[[`refresh`|plugins/write#refresh]] hook. Then it checks the wiki's source to
+find new or changed pages. The [[`needsbuild`|plugins/write#needsbuild]] hook
+is then called to allow manipulation of the list of pages that need to be
+built.
 
-Now that it knows what pages it needs to build, ikiwiki runs two
-compile passes. First, it runs `scan` hooks, which collect metadata about
-the pages. Then it runs a page rendering pipeline, by calling in turn these
-hooks: `filter`, `preprocess`, `linkify`, `htmlize`, `indexhtml`,
-`pagetemplate`, `sanitize`, `format`.
+Now that it knows what pages it needs to build, ikiwiki runs two compile
+passes. First, it runs [[`scan`|plugins/write#scan]] hooks, which collect
+metadata about the pages. Then it runs a page rendering pipeline, by calling
+in turn these hooks: [[`filter`|plugins/write#filter]],
+[[`preprocess`|plugins/write#preprocess]],
+[[`linkify`|plugins/write#linkify]], [[`htmlize`|plugins/write#htmlize]],
+[[`indexhtml`|plugins/write#indexhtml]],
+[[`pagetemplate`|plugins/write#pagetemplate]],
+[[`sanitize`|plugins/write#sanitize]], [[`format`|plugins/write#format]].
 
-After all necessary pages are built, it calls the `change` hook. Finally,
-if a page is was deleted, the `delete` hook is called, and the files that
-page had previously produced are removed.
+After all necessary pages are built, it calls the
+[[`changes`|plugins/write#changes]] hook. Finally, if a page was deleted, the
+[[`delete`|plugins/write#delete]] hook is called, and the files that page had
+previously produced are removed.
 
 ### cgi
 
@@ -53,33 +59,39 @@ an example.
 
 Alice browses to a page and clicks Edit.
 
-* Ikiwiki is run as a cgi. It assigns Alice a session cookie, and,
-  by calling the `auth` hooks, sees that she is not yet logged in.
-* The `sessioncgi` hooks are then called, and one of them,
-  from the [[editpage]] plugin, notices that the cgi has been told "do=edit".
-* The [[editpage]] plugin calls the `canedit` hook to check if this
-  page edit is allowed. The [[signinedit]] plugin has a hook that says not:
-  Alice is not signed in.
-* The [[signinedit]] plugin then launches the signin process. A signin
-  page is built by calling the `formbuilder_setup` hook.
+* Ikiwiki is run as a cgi. It assigns Alice a session cookie, and, by calling
+  the [[`auth`|plugins/write#auth]] hooks, sees that she is not yet logged in.
+* The [[`sessioncgi`|plugins/write#sessioncgi]] hooks are then called, and one
+  of them, from the [[editpage]] plugin, notices that the cgi has been told
+  "do=edit".
+* The [[editpage]] plugin calls the [[`canedit`|plugins/write#canedit]] hook
+  to check if this page edit is allowed. The [[signinedit]] plugin has a hook
+  that says not: Alice is not signed in.
+* The [[signinedit]] plugin then launches the signin process. A signin page is
+  built by calling the [[`formbuilder_setup`|plugins/write#formbuilder]]
+  hook.
 
 Alice signs in with her openid.
 
-* The [[openid]] plugin's `formbuilder` hook sees that an openid was
-  entered in the signin form, and redirects to Alice's openid provider.
-* Alice's openid provider calls back to ikiwiki. The [[openid]] plugin
-  has an `auth` hook that finishes the openid signin process.
+* The [[openid]] plugin's [[`formbuilder`|plugins/write#formbuilder]] hook
+  sees that an openid was entered in the signin form, and redirects to Alice's
+  openid provider.
+* Alice's openid provider calls back to ikiwiki. The [[openid]] plugin has an
+  [[`auth`|plugins/write#auth]] hook that finishes the openid signin process.
 * Signin complete, ikiwiki returns to what Alice was doing before; editing
   a page.
-* Now all the `canedit` hooks are happy. The [[editpage]] plugin calls
-  `formbuilder_setup` to display the page editing form.
+* Now all the [[`canedit`|plugins/write#canedit]] hooks are happy. The
+  [[editpage]] plugin calls
+  [[`formbuilder_setup`|plugins/write#formbuilder]] to display the page
+  editing form.
 
 Alice saves her change to the page.
 
-* The [[editpage]] plugin's `formbuilder` hook sees that the Save button
-  was pressed, and calls the `checkcontent` and `editcontent` hooks.
-  Then it saves the page to disk, and branches into the compiler part
-  of ikiwiki to refresh the wiki.
+* The [[editpage]] plugin's [[`formbuilder`|plugins/write#formbuilder]] hook
+  sees that the Save button was pressed, and calls the
+  [[`checkcontent`|plugins/write#checkcontent]] and
+  [[`editcontent`|plugins/write#editcontent]] hooks.  Then it saves the page
+  to disk, and branches into the compiler part of ikiwiki to refresh the wiki.
 
 ## Types of plugins
 
@@ -165,7 +177,7 @@ is populated at this point, but other state has not yet been loaded.
 The function is passed no values. It's ok for the function to call
 `error()` if something isn't configured right.
 
-### refresh
+### <a name="refresh">refresh</a>
 
 	hook(type => "refresh", id => "foo", call => \&refresh);
 
@@ -173,7 +185,7 @@ This hook is called just before ikiwiki scans the wiki for changed files.
 It's useful for plugins that need to create or modify a source page. The
 function is passed no values.
 
-### needsbuild
+### <a name="needsbuild">needsbuild</a>
 
 	hook(type => "needsbuild", id => "foo", call => \&needsbuild);
 
@@ -187,7 +199,7 @@ modified version of its input. It can add or remove files from it.
 The second parameter passed to the function is a reference to an array of
 files that have been deleted.
 
-### scan
+### <a name="scan">scan</a>
 
 	hook(type => "scan", id => "foo", call => \&scan);
 
@@ -199,7 +211,7 @@ them to `%links`. Present in IkiWiki 2.40 and later.
 The function is passed named parameters "page" and "content". Its return
 value is ignored.
 
-### filter
+### <a name="filter">filter</a>
 
 	hook(type => "filter", id => "foo", call => \&filter);
 
@@ -207,7 +219,7 @@ Runs on the full raw source of a page, before anything else touches it, and
 can make arbitrary changes. The function is passed named parameters "page",
 "destpage", and "content". It should return the filtered content.
 
-### preprocess
+### <a name="preprocess">preprocess</a>
 
 Adding a preprocessor [[ikiwiki/directive]] is probably the most common use
 of a plugin.
@@ -250,7 +262,7 @@ format at preprocessor time. Text output by a preprocessor directive will
 be linkified and passed through markdown (or whatever engine is used to
 htmlize the page) along with the rest of the page.
 
-### linkify
+### <a name="linkify">linkify</a>
 
 	hook(type => "linkify", id => "foo", call => \&linkify);
 
@@ -263,7 +275,7 @@ Plugins that implement linkify must also implement a scan hook, that scans
 for the links on the page and adds them to `%links` (typically by calling
 `add_link`).
 
-### htmlize
+### <a name="htmlize">htmlize</a>
 
 	hook(type => "htmlize", id => "ext", call => \&htmlize);
 
@@ -287,7 +299,7 @@ like `Makefile` that have no extension.
 If `hook` is passed an optional "longname" parameter, this value is used
 when prompting a user to choose a page type on the edit page form.
 
-### indexhtml
+### <a name="indexhtml">indexhtml</a>
 
 	hook(type => "indexhtml", id => "foo", call => \&indexhtml);
 
@@ -298,7 +310,7 @@ update search indexes. Added in ikiwiki 2.54.
 The function is passed named parameters "page", "destpage", and "content".
 Its return value is ignored.
 
-### pagetemplate
+### <a name="pagetemplate">pagetemplate</a>
 
 	hook(type => "pagetemplate", id => "foo", call => \&pagetemplate);
 
@@ -333,7 +345,7 @@ page (next to Edit, RecentChanges, etc). The hook is passed a "page"
 parameter, and can return a list of html fragments to add to the action
 bar.
 
-### sanitize
+### <a name="sanitize">sanitize</a>
 
 	hook(type => "sanitize", id => "foo", call => \&sanitize);
 
@@ -343,7 +355,7 @@ modify the body of a page after it has been fully converted to html.
 The function is passed named parameters: "page", "destpage", and "content",
 and should return the sanitized content.
 
-### format
+### <a name="format">format</a>
 
 	hook(type => "format", id => "foo", call => \&format);
 
@@ -356,20 +368,47 @@ when the page is being previewed.)
 The function is passed named parameters: "page" and "content", and 
 should return the formatted content.
 
-### delete
+### build_affected
+
+	hook(type => "build_affected", id => "foo", call => \&build_affected);
+
+This hook is called after the directly changed pages have been built,
+and can cause extra pages to be built. If links and backlinks were provided
+by a plugin, this would be where that plugin would rebuild pages whose
+backlinks have changed, for instance. The [[trail]] plugin uses this hook
+to rebuild pages whose next or previous page has changed.
+
+The function should currently ignore its parameters. It returns a list with
+an even number of items (a hash in list context), where the first item of
+each pair is a page name to be rebuilt (if it was not already rebuilt), and
+the second is a log message resembling
+`building plugins/write because the phase of the moon has changed`.
+
+### <a name="delete">delete</a>
 
 	hook(type => "delete", id => "foo", call => \&delete);
 
-Each time a page or pages is removed from the wiki, the referenced function
+After a page or pages is removed from the wiki, the referenced function
 is called, and passed the names of the source files that were removed.
 
-### change
+### rendered
 
-	hook(type => "change", id => "foo", call => \&render);
+	hook(type => "rendered", id => "foo", call => \&rendered);
 
-Each time ikiwiki renders a change or addition (but not deletion) to the
+After ikiwiki renders a change or addition (but not deletion) to the
 wiki, the referenced function is called, and passed the names of the
 source files that were rendered.
+
+(This hook used to be called "change", but that was not accurate.
+For now, plugins using the old hook name will still work.)
+
+### <a name="changes">changes</a>
+
+	hook(type => "changes", id => "foo", call => \&changes);
+
+After ikiwiki renders changes to the wiki, the referenced function is
+called, and passed the names of the source files that were added, modified,
+or deleted.
 
 ### cgi
 
@@ -383,7 +422,7 @@ parameters, and if it will handle this CGI request, output a page
 Note that cgi hooks are called as early as possible, before any ikiwiki
 state is loaded, and with no session information.
 
-### auth
+### <a name="auth">auth</a>
 
 	hook(type => "auth", id => "foo", call => \&auth);
 
@@ -396,7 +435,7 @@ object's "name" parameter to the authenticated user's name. Note that
 if the name is set to the name of a user who is not registered,
 a basic registration of the user will be automatically performed.
 
-### sessioncgi
+### <a name="sessioncgi">sessioncgi</a>
 
 	hook(type => "sessioncgi", id => "foo", call => \&sessioncgi);
 
@@ -405,7 +444,7 @@ is only run once a session object is available. It is passed both a CGI
 object and a session object. To check if the user is in fact signed in, you
 can check if the session object has a "name" parameter set.
 
-### canedit
+### <a name="canedit">canedit</a>
 
 	hook(type => "canedit", id => "foo", call => \&canedit);
 
@@ -445,7 +484,7 @@ bypass it). It works exactly like the `canedit` hook,
 but is passed the named parameters `cgi` (a CGI object), `session` (a
 session object), `src`, `srcfile`, `dest` and `destfile`.
 
-### checkcontent
+### <a name="checkcontent">checkcontent</a>
 	
 	hook(type => "checkcontent", id => "foo", call => \&checkcontent);
 
@@ -466,7 +505,7 @@ should return a message stating what the problem is, or a function
 that can be run to perform whatever action is necessary to allow the user
 to post the content.
 
-### editcontent
+### <a name="editcontent">editcontent</a>
 
 	hook(type => "editcontent", id => "foo", call => \&editcontent);
 
@@ -477,7 +516,7 @@ user, the page name, a `CGI` object, and the user's `CGI::Session`.
 
 It can modify the content as desired, and should return the content.
 
-### formbuilder
+### <a name="formbuilder">formbuilder</a>
 
 	hook(type => "formbuilder_setup", id => "foo", call => \&formbuilder_setup);
 	hook(type => "formbuilder", id => "foo", call => \&formbuilder);

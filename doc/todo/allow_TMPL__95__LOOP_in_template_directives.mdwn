@@ -1,0 +1,278 @@
+[[!tag patch todo]]
+
+[[!template id="note" text="""
+Simply copied this from my website
+[[http://www.camco.ie/code/ikiwiki,3.20120202,20120313a/]]
+feel free to reformat / delete"""]]
+
+The following re-write allows for multiple definitions of the
+same tag value in a [[plugins/template]] definition.  This, in turn, allows
+us to use TMPL_LOOPS in our [[ikiwiki/directive/template]] directives; all-be-it in a
+rather limited way.
+
+> I'm willing to consider such a feature, but it needs to be presented in
+> the form of a patch that is reviewable, not a gratuitous rewrite.
+> --[[Joey]] 
+
+>> Yes, my apologies for that.  The two worker functions `mktmpl_hash`
+and `proc_tmpl_hash` are new.  The `preprocess` function then starts
+by arranging the parameters into an array.  This array is passed to the
+`mktmpl_hash` and it creates a hash, suitable for passing into the
+HTML::Template directly.  The `proc_tmpl_hash` then walks the hash
+structure and processes the parameters.
+
+>> I know ... you weren't looking for an explanation, just a patch
+... totally understand.  Point I'm trying to make, it's a 90% re-write
+anyway (and my `style(8)` will probably piss most people off).
+
+>> Anyway, would love to contribute so will try to get to doing this
+"correctly" and post as a patch.
+
+I would, personally, only use this feature for very basic loops
+and, although nested loops *might* be possible (with a little
+more tinkering) it think any attempt would be better served by
+[[Kathyrn Anderson's|http://www.katspace.org/]] [[field et
+al.|http://ikiwiki.info/plugins/contrib/field/]] plugin.
+
+It *is* (primarily) intended to allow insertion of organised CSS
+blocks (i.e. `<div>`) through template directives (since i can't
+seem to get HTML and Markup to mix the way I want).
+
+[[!template id="note" text="""
+Apologies for the re-write.  I struggle reading perl code that
+I didn't write and (probably too often) re-format to reduce my
+head-aches.  Anyway it didn't make sense to post the patch since
+everything's changed now.
+"""]]
+
+NB: this *should* be 100% backwards compatible.
+
+# `lib/perl5/IkiWiki/Plugin/template.pm`
+
+[[!format perl """
+
+	#!/usr/bin/perl
+	# Structured template plugin.
+	package IkiWiki::Plugin::template ;
+
+	use warnings ;
+	use strict ;
+	use IkiWiki 3.00 ;
+	use Encode ;
+
+	sub mktmpl_hash( $ ; $ ; @ ) ;
+				# declare to supress warning in recursive call
+	sub mktmpl_hash( $ ; $ ; @ )
+				# make hash for the template, filling
+				# values from the supplied params
+	{
+		my $template = shift( @_ )
+				|| error( "mktmpl_hash: no template provided" ) ;
+		my $param_src = shift( @_ )
+				|| error( "mktmpl_hash: no parameters" ) ;
+
+		my $path ;
+		if( $#_ > 0 )
+		{
+			$path = [ @_ ] ;
+		} else {
+			$path = shift(@_) || [] ;
+		} ;
+
+		my %params ;
+
+		my @path_vars ;
+		if( $#{$path} < 0 )
+		{
+			@path_vars = $template->query() ;
+		} else {
+			@path_vars = $template->query( loop => $path ) ;
+		} ;
+
+		foreach my $var ( @path_vars )
+		{
+			push( @{$path}, $var ) ;
+			my $param_type = $template->query( name => $path ) ;
+			if( $param_type eq 'VAR' )
+			{
+				my @var_path = split( /_/, $var ) ;
+				if( $var_path[0] ne '' )
+				{
+					$path->[-1] = join( '_', @var_path[1..$#var_path] )
+						if( $var_path[0] eq 'raw' ) ;
+					$params{$var} = shift( @{$param_src->{$path->[-1]}} )
+							|| return(undef) ;
+				} ;
+			} elsif( $param_type eq 'LOOP' )
+			{
+				$params{$var} = [] ;
+				push( @{$params{$var}}, $_ )
+					while( $_ = mktmpl_hash($template,$param_src,$path) ) ;
+			} ;
+			pop( @{$path} ) ;
+		} ; 
+		return( \%params ) ;
+	} ;
+
+	sub proc_tmpl_hash( $ ; $ ; $ ; $ ) ;
+				# declare to supress warning in recursive call
+	sub proc_tmpl_hash( $ ; $ ; $ ; $ )
+				# walk the hash, preprocess and
+				# convert to html
+	{
+		my $tmpl_hash = shift( @_ ) ;
+		my $page = shift( @_ ) ;
+		my $destpage = shift( @_ ) ;
+		my $scan = shift( @_ ) ;
+		foreach my $key ( keys(%{$tmpl_hash}) )
+		{
+			unless( ref($tmpl_hash->{$key}) )
+						# here we assume that
+						# any reference is an
+						# array and allow it to
+						# fail if that's false
+			{
+				$tmpl_hash->{$key} =
+						IkiWiki::preprocess(
+								$page,
+								$destpage,
+								$tmpl_hash->{$key},
+								$scan ) ;
+				my @key_path = split( /_/, $key ) ;
+				$tmpl_hash->{$key} =
+						IkiWiki::htmlize(
+								$page,
+								$destpage,
+								pagetype($pagesources{$page}),
+								$tmpl_hash->{$key}, )
+					unless( $key_path[0] eq 'raw' ) ;
+			} else {
+				proc_tmpl_hash( $_, $page, $destpage, $scan )
+					foreach( @{$tmpl_hash->{$key}} ) ;
+			} ;
+		} ;
+	} ;
+
+	# "standard" ikiwiki definitions / hooks
+
+	sub import
+	{
+		hook( type => "getsetup",
+				id => "template",
+				call => \&getsetup ) ;
+		hook( type => "preprocess",
+				id => "template",
+				call => \&preprocess,
+				scan => 1 ) ;
+	} ;
+
+	sub getsetup()
+	{
+		return(
+				plugin => {
+					safe => 1,
+					rebuild => undef,
+					section => "widget",
+				}, ) ;
+	} ;
+
+	sub preprocess( @ )
+	{
+	# first process arguments into arrays of values
+		my %params ;
+
+		my( $key, $value ) ;
+		while( ($key,$value)=splice(@_,0,2) )
+		{
+			if( exists($params{$key}) )
+			{
+				push( @{$params{$key}}, $value ) ;
+			} else {
+				$params{$key} = [ $value ] ;
+			} ;
+		} ;
+
+	# set context
+		my $scan = ! defined( wantarray() ) ;
+					# This needs to run even in scan
+					# mode, in order to process links
+					# and other metadata included via
+					# the template.
+
+	# check for critical values
+		if( ! exists($params{id}) )
+		{
+			error( gettext("missing id parameter") ) ;
+		} ;
+
+	# set some convenience variables
+		my $id = $params{id}->[$#{$params{id}}] ;
+		my $page = $params{page}->[$#{$params{page}}] ;
+		my $destpage = $params{destpage}->[$#{$params{destpage}}] ;
+	# ... and an essential one for the production pass
+		$params{basename} = [ IkiWiki::basename($page) ] ;
+
+	# load the template
+		my $template ;
+		eval {
+			$template =
+					template_depends( $id, $page,
+							blind_cache=>1 ) ;
+						# The bare id is used, so
+						# a page templates/$id can
+						# be used as the template.
+		} ;
+		if( $@ )
+		{
+			error(
+					sprintf(
+							gettext("failed to process template %s"),
+							htmllink(
+									$page,
+									$destpage,
+									"/templates/$id")
+							)." $@"
+					) ;
+		} ;
+
+	# create and process the parameters
+		my $tmpl_hash = mktmpl_hash( $template, \%params ) ;
+		proc_tmpl_hash( $tmpl_hash, $page, $destpage, $scan ) ;
+	# ... and load the template with the values
+		$template->param( $tmpl_hash ) ;
+
+	# return the processed page chunk
+		return( IkiWiki::preprocess($page,
+						$destpage,
+						$template->output(),$scan)
+				) ;
+	} ;
+
+	1 ;
+
+"""]]
+
+## sample template
+
+	# <TMPL_VAR HEADER0>
+
+	<table>
+	<TMPL_LOOP TEST0>
+	<tr>
+		<td><TMPL_VAR DATA0></td>
+		<td><TMPL_VAR DATA1></td>
+	</tr>
+	</TMPL_LOOP>
+	</table>
+
+## sample iki page
+
+	\[[!meta title="this is my loops page"]]
+
+	\[[!template id="loops"
+	header0="this is a table"
+	data0="cell0:0"
+	data1="cell0:1"
+	data0="cell1:0"
+	data1="cell1:1"
+	]]

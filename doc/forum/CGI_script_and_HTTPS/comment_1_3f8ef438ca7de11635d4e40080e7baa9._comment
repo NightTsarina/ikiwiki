@@ -1,0 +1,43 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 1"
+ date="2012-11-05T11:27:02Z"
+ content="""
+IkiWiki generates self-referential URLs using the `url` and `cgiurl`
+configuration parameters, and the `urlto()` and `cgiurl()` functions;
+the code you quoted isn't involved (it's choosing whether to set
+HTTPS-only cookies or not, rather than choosing how to generate
+self-referential URLs).
+
+If you want your wiki to be accessible via both HTTP and HTTPS, and use
+whichever the user first requested, you should set both `url` and
+`cgiurl` to the same URI scheme and hostname with no port specified,
+either both `http` or both `https`, for instance:
+
+    url: http://www.example.com/
+    cgiurl: http://www.example.com/ikiwiki.cgi
+
+or
+
+    url: https://example.org/wiki/
+    cgiurl: https://example.org/cgi-bin/ikiwiki
+
+(or the Perl-syntax equivalents if you're not using a YAML
+setup file).
+
+If you use one of those, IkiWiki will attempt to generate
+path-only links, like \"/wiki/\" and \"/cgi-bin/ikiwiki?...\",
+whenever it's valid to do so. A visitor using HTTP will stay
+on HTTP and a visitor using HTTPS will stay on HTTPS.
+
+The choice of `http` or `https` for the `url` and `cgiurl`
+still matters when a URL *must* be absolute, such as in an
+RSS feed.
+
+I improved this code in late 2010 for this todo item:
+[[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]].
+It's possible that it has regressed (that's happened
+a couple of times). If it has, please quote your exact
+`url` and `cgiurl` configuration.
+"""]]

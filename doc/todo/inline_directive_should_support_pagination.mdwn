@@ -1,0 +1,8 @@
+Ikiwiki should support pagination for index pages. Something like showing only 10 items on the first page, and then having the other items on the other pages.
+
+Basically, the same page would be rendered multiple times:
+
+- The index page: rendered normally, but item list is truncated to N items
+- The separate pages: rendered with a slice of the item list containing N items (or less for the last page)
+
+This I think breaks one major assumption: that source pages only generate one page in the output directory.

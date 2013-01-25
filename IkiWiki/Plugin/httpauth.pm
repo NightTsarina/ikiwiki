@@ -7,6 +7,7 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
+	hook(type => "checkconfig", id => "httpauth", call => \&checkconfig);
 	hook(type => "getsetup", id => "httpauth", call => \&getsetup);
 	hook(type => "auth", id => "httpauth", call => \&auth);
 	hook(type => "formbuilder_setup", id => "httpauth",
@@ -36,6 +37,19 @@ sub getsetup () {
 			safe => 0,
 			rebuild => 0,
 		},
+}
+
+sub checkconfig () {
+	if ($config{cgi} && defined $config{cgiauthurl} &&
+	    keys %{$IkiWiki::hooks{auth}} < 2) {
+		# There are no other auth hooks registered, so avoid
+		# the normal signin form, and jump right to httpauth.
+		require IkiWiki::CGI;
+		inject(name => "IkiWiki::cgi_signin", call => sub ($$) {
+			my $cgi=shift;
+			redir_cgiauthurl($cgi, $cgi->query_string());
+		});
+	}
 }
 			
 sub redir_cgiauthurl ($;@) {

@@ -1,0 +1,8 @@
+Hi,
+Is there a way of making a given ikiwiki instance accessible both from the LAN where it's server is and from the WAN?
+
+Say I have ikiwiki installed on a server connected to a router. That router has  port forwarding and dyndns configured so I could open ikiwiki from outside the LAN. Trying to open normal ikiwiki pages, from outside the LAN, or with a proxy, works. However, the Editing and Preferences pages, for example, redirect to http://192.168.x.x/~username/ikiwiki/ikiwiki.cgi?page=posts%2Fhello_world&do=edit (in the case of the edit page), which of course only exists inside the LAN, and fails loading.
+
+Editing the "url" and "cgiurl" directives in the .setup file to point to the dyndns address makes it work from the outside, but I can't edit the pages from inside the LAN anymore with this configuration. The normal pages, once again, are accessible. Edit or Preferences, on the other hand, redirect to the public address, which I can't open from inside the same LAN it points to.
+
+For this reason I ask, is there an way to have multiple urls point to the same ikiwiki page, namely a LAN IP url and a public IP one? Thanks in advance.

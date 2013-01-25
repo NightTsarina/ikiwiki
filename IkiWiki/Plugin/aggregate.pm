@@ -113,8 +113,7 @@ sub launchaggregation () {
 	my @feeds=needsaggregate();
 	return unless @feeds;
 	if (! lockaggregate()) {
-		debug("an aggregation process is already running");
-		return;
+		error("an aggregation process is already running");
 	}
 	# force a later rebuild of source pages
 	$IkiWiki::forcerebuild{$_->{sourcepage}}=1
@@ -201,7 +200,7 @@ sub migrate_to_internal {
 		if (-e $oldoutput) {
 			require IkiWiki::Render;
 			debug("removing output file $oldoutput");
-			IkiWiki::prune($oldoutput);
+			IkiWiki::prune($oldoutput, $config{destdir});
 		}
 	}
 	

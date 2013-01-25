@@ -28,6 +28,10 @@ configuration changes should work anywhere.
 
   You may also want to install some dependencies to enable CGI in apache2 setup as: `libcgi-formbuilder-perl` and `libcgi-session-perl`.
 
+* If your wiki is in `~/public_html` and does not appear when you enter the URL given by the installer, check that you have 
+  the userdir mod enabled (there should be simlinks to userdir.load and userdir.conf in /etc/apache2/modes-enabled).  If not,
+  run `a2enmod userdir` and reload apache2.
+  
 * You may also want to enable the [[plugins/404]] plugin.
   To make apache use it, the apache config file will need a further
   modification to make it use ikiwiki's CGI as the apache 404 handler.
@@ -60,7 +64,44 @@ If you have any thought about it, feel free to let me know.
 
 ## nginx
 
-* To run CGI under nginx, just use a FastCGI wrapper like [this one](http://technotes.1000lines.net/?p=23). The wrapper must be started somehow just like any other FastCGI program. I use launchd on OSX.
+To run CGI under nginx, you need to use a FastCGI wrapper. The wrapper must be started somehow just like any other FastCGI program. You can use launchd on OSX.
+
+In Linux, you will need the spawn-fcgi and fcgiwrap packages and start
+them with:
+
+    spawn-fcgi -s /tmp/fcgi.socket -n -- /usr/sbin/fcgiwrap
+
+This needs to be ran as your user. It can be added to `inittab` or
+made into a startup script in `init.d`. You may also need to make this file writable by the webserver, if that's running as a different user, e.g.:
+
+    chmod a+w /tmp/fcgi.socket
+
+Then you need an nginx config plugged in that wrapper. Here's an
+example virtual host configuration:
+
+    server {
+        #listen   80; ## listen for ipv4; this line is default and implied
+        #listen   [::]:80 default_server ipv6only=on; ## listen for ipv6
+
+        root /home/anarcat/public_html/wiki.reseaulibre.ca/;
+        index index.html index.htm;
+
+        # Make site accessible from http://localhost/
+        server_name wiki.reseaulibre.ca;
+
+        location / {
+                try_files $uri $uri/ /index.html;
+        }
+        location /ikiwiki.cgi {
+                fastcgi_pass  unix:/tmp/fcgi.socket;
+                fastcgi_index ikiwiki.cgi;
+                fastcgi_param SCRIPT_FILENAME   /home/anarcat/public_html/ikiwiki.cgi;
+                fastcgi_param  DOCUMENT_ROOT      /home/anarcat/public_html/wiki.reseaulibre.ca;
+                include /etc/nginx/fastcgi_params;
+        }
+    }
+
+Also, note that the `/tmp/fcgi.socket` file needs to be writable by the webserver. I am also unsure as to the security of this setup, as I am using this only on my dev server. Needless to say that [[real fastcgi support|todo/fastcgi_or_modperl_installation_instructions]] would be great. ;) --[[anarcat]]
 
 ## boa
 

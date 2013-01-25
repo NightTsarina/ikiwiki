@@ -1,5 +1,5 @@
 Name:           ikiwiki
-Version: 3.20120202
+Version: 3.20121212
 Release:        1%{?dist}
 Summary:        A wiki compiler
 
@@ -20,6 +20,7 @@ BuildRequires:  perl(HTML::Template)
 BuildRequires:  perl(CGI::FormBuilder)
 BuildRequires:  perl(CGI::Session)
 BuildRequires:  perl(File::MimeInfo)
+BuildRequires:  perl(YAML::XS)
 BuildRequires:  gettext
 BuildRequires:  po4a
 

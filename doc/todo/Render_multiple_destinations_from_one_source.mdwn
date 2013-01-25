@@ -48,3 +48,38 @@ Just brainstorming a bit after [[liw]]'s comment about this being useful on IRC,
 > and parameterize it using `$ENV{FOO}`, then you can build two different
 > setups from the same setup file.
 > --[[Joey]]
+
+> > My post-update script has grown a bit, as I'm using ikiwiki-hosting now, so want to let the users update stuff themselves:
+> > 
+> >     #!/bin/sh
+> >     
+> >     PUB_URL=http://truestedt.hands.com
+> >     PUB_TMPL=$HOME/source-public/templates-public
+> >     
+> >     # make the public config, in case of updates via ikiwiki-hosting
+> >     sed -e 's/^\(srcdir\|destdir\|git_wrapper\): .*/&-public/;s#^\(url:\).*#\1 '$PUB_URL'#;s/^\(cgi_wrapper:\).*/\1 '"''"'/;s#^\(templatedir:\).*#\1 '$PUB_TMPL'#;s/^\(cgiurl\|historyurl\):/#&/;/disable_plugins:/a \
+> >     - recentchanges\
+> >     - editpage' ~/ikiwiki.setup > ~/ikiwiki.setup-public
+> >     #echo 'wikistatedir: source/.ikiwiki-public' >> ~/ikiwiki.setup-public
+> >     [ -d ~/source-public ] || cp -a ~/source ~/source-public
+> >     [ -d ~/public_html-public ] || mkdir ~/public_html-public
+> >     
+> >     # run normal post-update hook
+> >     ./hooks/post-update-ikiwiki "$@"
+> >     
+> >     # run post-update hook for the public version of the site
+> >     ./hooks/post-update-ikiwiki-public "$@"
+> >     
+> >     exec git update-server-info
+> >
+> > I tried using wikistatedir, as you suggested, but then wiki edits are not reflected on the second site (AFAICT), so reverted to having a full checkout of the source.
+> > I'm guessing that that's because the second run through with the post-update hook sees no changes that it needs to worry about in the source directory, but it's just
+> > possible that I got confused while testing, as the sed is pretty fragile, so some of the time it was failing because of sed syntax errors.
+> >
+> > It strikes me that one ought to be able to have a plugin that takes the current config, applies a few minor tweaks to it (perhaps by loading an extra config file) and
+> > then does some or all of the tasks normally run by main() again, targeting a new directory -- that way there would be no need for the two post-updates, and whatever
+> > provoked a rebuild would always do both, whether on the command line or via CGI.
+> > I just don't know quite where the right place to plumb such a plugin in would be -- also, it would be good to separate out the bits of main() that we'd be calling
+> > so that both the plugin and main calls them in the same way, to ease future maintenance
+> >
+> > Any hints on where to start with such a plugin, gratefully received :-)  -[[fil]]

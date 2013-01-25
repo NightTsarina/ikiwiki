@@ -39,7 +39,7 @@ sub refresh () {
 				}
 				if ($delete) {
 					debug(sprintf(gettext("removing old preview %s"), $file));
-					IkiWiki::prune("$config{destdir}/$file");
+					IkiWiki::prune("$config{destdir}/$file", $config{destdir});
 				}
 			}
 			elsif (defined $mtime) {
@@ -64,7 +64,8 @@ sub cgi_editpage ($$) {
 
 	decode_cgi_utf8($q);
 
-	my @fields=qw(do rcsinfo subpage from page type editcontent editmessage);
+	my @fields=qw(do rcsinfo subpage from page type editcontent
+		editmessage subscribe);
 	my @buttons=("Save Page", "Preview", "Cancel");
 	eval q{use CGI::FormBuilder};
 	error($@) if $@;
@@ -156,6 +157,17 @@ sub cgi_editpage ($$) {
 		htmllink($page, $page, "ikiwiki/formatting",
 			noimageinline => 1,
 			linktext => "FormattingHelp"));
+	
+	my $cansubscribe=IkiWiki::Plugin::notifyemail->can("subscribe")
+		&& IkiWiki::Plugin::comments->can("import")
+		&& defined $session->param('name');
+	if ($cansubscribe) {
+		$form->field(name => "subscribe", type => "checkbox",
+			options => [gettext("email comments to me")]);
+	}
+	else {
+		$form->field(name => "subscribe", type => 'hidden');
+	}
 	
 	my $previewing=0;
 	if ($form->submitted eq "Cancel") {
@@ -447,6 +459,12 @@ sub cgi_editpage ($$) {
 			# The trailing question mark tries to avoid broken
 			# caches and get the most recent version of the page.
 			redirect($q, $baseurl."?updated");
+		}
+
+		if ($cansubscribe && length $form->field("subscribe")) {
+			my $subspec="comment($page)";
+			IkiWiki::Plugin::notifyemail::subscribe(
+				$session->param('name'), $subspec);
 		}
 	}
 

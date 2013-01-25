@@ -73,11 +73,21 @@ sub shortcut_expand ($$@) {
 	add_depends($params{destpage}, "shortcuts");
 
 	my $text=join(" ", @params);
-	my $encoded_text=$text;
-	$encoded_text=~s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
 	
-	$url=~s{\%([sS])}{
-		$1 eq 's' ? $encoded_text : $text
+	$url=~s{\%([sSW])}{
+		if ($1 eq 's') {
+			my $t=$text;
+			$t=~s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+			$t;
+		}
+		elsif ($1 eq 'S') {
+			$text;
+		}
+		elsif ($1 eq 'W') {
+			my $t=Encode::encode_utf8($text);
+			$t=~s/([^A-Za-z0-9])/sprintf("%%%02X", ord($1))/seg;
+			$t;
+		}
 	}eg;
 
 	$text=~s/_/ /g;

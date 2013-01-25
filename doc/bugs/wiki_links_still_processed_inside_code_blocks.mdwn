@@ -46,4 +46,22 @@ and have it render like:
 > there should give some strong hints how to fix this bug, though I haven't
 > tried to apply the method yet. --[[Joey]]
 
+>> As far, as I can see, smileys bug is solved by checking for code/pre. In
+>> this case, however, this is not applicable. WikiLinks/directives *should* be
+>> expanded before passing text to formatter, as their expansion may contain
+>> markup. Directives should be processed before, as they may provide *partial*
+>> markup (eg `template` ones), that have no sense except when in the page
+>> cotext. Links should be processed before, because, at least multimarkdown may
+>> try to expand them as anchor-links.
+>>
+>> For now, my partial solution is to restrict links to not have space at the
+>> start, this way in many cases escaping in code may be done in natural way
+>> and not break copypastability. For example, shell 'if \[[ condition ]];'
+>> will work fine with this.
+>>
+>> Maybe directives can also be restricted to only be allowed on the line by
+>> themselves (not separated by blank lines, however) or something similar.
+>>
+>> --[[isbear]]
+
 [[!debbug 487397]]

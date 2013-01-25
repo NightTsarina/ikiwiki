@@ -1,0 +1,34 @@
+The [[ikiwiki/directive/listdirectives]]` directive doesn't register a link between the page and the subpages. This is a problem because then the [[ikiwiki/directive/orphans]] directive then marks the directives as orphans... Maybe it is a but with the orphans directive however... A simple workaround is to exclude those files from the orphans call... --[[anarcat]]
+
+> There's a distinction between wikilinks (matched by `link()`,
+> `backlink()` etc.) and other constructs that produce a
+> hyperlink. Some directives count as a wikilink (like `tag`)
+> but many don't (notably `inline`, `map`, `listdirectives`,
+> and `orphans` itself). As documented in
+> [[ikiwiki/directive/orphans]], orphans will tend to list
+> pages that are only matched by inlines/maps, too.
+>
+> The rule of thumb seems to be that a link to a particular
+> page counts as a wikilink, but a directive that lists
+> pages matching some pattern does not; so I think
+> `listdirectives` is working as intended here.
+> `orphans` itself obviously shouldn't count as a wikilink,
+> because that would defeat the point of it :-)
+>
+> Anything that uses a [[ikiwiki/pagespec]] to generate links,
+> like `inline` and `map`, can't generate wikilinks, because
+> wikilinks are gathered during the scan phase, and pagespecs
+> can't be matched until after the scan phase has finished
+> (otherwise, it'd be non-deterministic whether all wikilinks
+> had been seen yet, and `link()` in pagespecs wouldn't work
+> predictably).
+>
+> I suggest just using something like:
+>
+>     \[[!orphans pages="* and !blog/* and !ikiwiki/directive/*"]]
+>
+> This wiki's example of listing [[plugins/orphans]] has a
+> more elaborate pagespec, which avoids bugs, todo items etc.
+> as well.
+>
+> --[[smcv]]

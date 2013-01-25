@@ -5,6 +5,7 @@ use warnings;
 use strict;
 use IkiWiki;
 use Encode;
+use URI::Escape q{uri_escape_utf8};
 use open qw{:utf8 :std};
 
 sub import {
@@ -242,8 +243,10 @@ sub rcs_recentchanges ($) {
 			# Skip source name in renames
 			$filename =~ s/^.* => //;
 
+			my $efilename = uri_escape_utf8($filename);
+
 			my $diffurl = defined $config{'diffurl'} ? $config{'diffurl'} : "";
-			$diffurl =~ s/\[\[file\]\]/$filename/go;
+			$diffurl =~ s/\[\[file\]\]/$efilename/go;
 			$diffurl =~ s/\[\[file-id\]\]/$fileid/go;
 			$diffurl =~ s/\[\[r2\]\]/$info->{revno}/go;
 

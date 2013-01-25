@@ -1,3 +1,37 @@
+ikiwiki needs a wysiwyg markdown editor. While there have been tries using
+WMD etc, they are not fully satisfactory, and also the license of
+everything around WMD is [[unclear|plugins/wmd/discussion]].
+
+[Hallo](https://github.com/bergie/hallo) is the closest to a solution
+I've seen.
+The user can edit the page by clicking on the html part they want to change
+and typing. Selecting text pops up a toolbar to modify it.
+
+[Demo of Hallo with live WYSIWYG markdown editing](http://bergie.github.com/hallo/markdown.html)
+This demo uses showdown, and I still don't know what the license of
+showdown is. However, the showdown part seems to only be to handle the live
+conversion from the markdown source in the edit field to the html. The 
+(edited) html to markdown conversion is accomplished by Hallo.
+
+So, ikiwiki could use this in a page edit UI that does not show the
+markdown at all. The user would edit the live page, entirely in wysiwyg
+mode, and on saving hallo's generated markdown would be saved. Probably
+there would need to be a button to bring up the current markdown editor
+too, but without showdown, changes in it would not immediatly preview, so
+it'd make sense to disable hallo when the editor is visible.
+
+Issue: Ikiwiki directives can generate html. We would not want that html to
+be editable by halo and converted back to markdown. Also, the directives
+need to appear in the html so users can edit them. This seems to call for a
+special page rendering mode for editing, in which directives are either not
+expanded, or are expanded but the generated html wrapped in some tag that
+makes hallo refuse to edit it (which would probably require that feature be
+added to hallo, currently it acts on all blocks with `class=editable`),
+or otherwise allows it to be stripped out at save time. --[[Joey]]
+
+### old discussion
+
+
 The [StackOverflow](http://stackoverflow.com/) site uses markdown for markup.
 It has a fancy javascript thing for showing a real-time preview of what the user
 is editing. It would be nice if ikiwiki could support this, too. The thing they

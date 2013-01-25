@@ -1,0 +1,44 @@
+[[!comment format=mdwn
+ username="mathdesc"
+ subject="For lighttpd with mod_magnet"
+ date="2012-08-18T18:27:32Z"
+ content="""
+Same can be done for lighttpd via a lua script (said rewrite.lua) using *mod_magnet* than need to be installed and
+called in your conf like this :
+
+<pre>
+# error-handler for status 404                                         
+$HTTP[\"url\"] =~ \"^/mysite/\" { 
+magnet.attract-physical-path-to = ( server.document-root + \"/rewrite.lua\" )
+}
+</pre>
+
+Ref :
+[[mod_magnet docs|http://redmine.lighttpd.net/projects/lighttpd/wiki/Docs_ModMagnet]]
+
+
+
+<pre>
+
+  function removePrefix(str, prefix)    
+        return str:sub(1,#prefix+1) == prefix..\"/\" and str:sub(#prefix+2)
+  end
+
+
+
+   attr = lighty.stat(lighty.env[\"physical.path\"])
+   local prefix = '/mysite'
+   if (not attr) then
+        -- we couldn't stat() the file 
+        -- let's generate a xapian query with it
+        new_uri =removePrefix(lighty.env[\"uri.path\"], prefix)
+        print (\"page not found : \" .. new_uri .. \" asking xapian\")
+        lighty.env[\"uri.path\"] = \"/mysite/ikiwiki.cgi\"    
+        lighty.env[\"uri.query\"] = \"P=\" .. new_uri  
+        lighty.env[\"physical.rel-path\"] = lighty.env[\"uri.path\"]
+        lighty.env[\"physical.path\"] = lighty.env[\"physical.doc-root\"] .. lighty.env[\"physical.rel-path\"]
+    end
+</pre>   
+
+Hope this is useful to you :)
+"""]]

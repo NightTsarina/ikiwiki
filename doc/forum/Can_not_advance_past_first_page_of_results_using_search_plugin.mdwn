@@ -1,0 +1,26 @@
+I'm using the [[/plugins/search/]] plugin and it correctly displays the first page of results, but the "Next" button doesn't work.
+
+If I search for "linux", for example, I see "1-10 of exactly 65 matches" and this in my browser's address bar: https://example.com/ikiwiki.cgi?P=linux
+
+Then, I scroll down and click "Next" and I see. . .
+
+> Although this page is encrypted, the information you have entered is to be sent over an unencrypted connection and could easily be read by a third party.
+> 
+> Are you sure you want to continue sending this information?
+
+. . . then I click "Continue" but I'm stuck on the first page of search results (it still says "1-10 of exactly 65 matches") and I have the following in my browser's address bar:
+
+https://example.com/ikiwiki.cgi?P=linux&DEFAULTOP=or&%253E=Next&DB=default&FMT=query&xP=Zlinux&xDB=default&xFILTERS=--O
+
+I noticed that if I change what's in the address bar to the following, I **can** advance to page 2 (it shows "11-20 of exactly 65 matches").  That is to say, I'm removing "25" from "%253E" as a work around:
+
+https://example.com/ikiwiki.cgi?P=linux&DEFAULTOP=or&%3E=Next&DB=default&FMT=query&xP=Zlinux&xDB=default&xFILTERS=--O
+
+Based on this output, I might need to make a change to "searchquery.tmpl", which is under [[/templates]]. . .
+
+    [wikiuser@ikiwiki1 ~]$ grep -r DEFAULTOP /usr/share/ikiwiki
+    /usr/share/ikiwiki/templates/searchquery.tmpl:<SELECT NAME=DEFAULTOP>
+    [wikiuser@ikiwiki1 ~]$ rpm -qf /usr/share/ikiwiki/templates/searchquery.tmpl 
+    ikiwiki-3.20120202-1.el6.noarch
+
+. . . but I would appreciate any guidance on what the fix might be.

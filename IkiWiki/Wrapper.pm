@@ -93,12 +93,53 @@ EOF
 		# memory, a pile up of processes could cause thrashing
 		# otherwise. The fd of the lock is stored in
 		# IKIWIKI_CGILOCK_FD so unlockwiki can close it.
-		$pre_exec=<<"EOF";
+		#
+		# A lot of cgi wrapper processes can potentially build
+		# up and clog an otherwise unloaded web server. To
+		# partially avoid this, when a GET comes in and the lock
+		# is already held, rather than blocking a html page is
+		# constructed that retries. This is enabled by setting
+		# cgi_overload_delay.
+		if (defined $config{cgi_overload_delay} &&
+		    $config{cgi_overload_delay} =~/^[0-9]+/) {
+			my $i=int($config{cgi_overload_delay});
+			$pre_exec.="#define CGI_OVERLOAD_DELAY $i\n"
+				if $i > 0;
+			my $msg=gettext("Please wait");
+			$msg=~s/"/\\"/g;
+			$pre_exec.='#define CGI_PLEASE_WAIT_TITLE "'.$msg."\"\n";
+			if (defined $config{cgi_overload_message} && length $config{cgi_overload_message}) {
+				$msg=$config{cgi_overload_message};
+				$msg=~s/"/\\"/g;
+			}
+			$pre_exec.='#define CGI_PLEASE_WAIT_BODY "'.$msg."\"\n";
+		}
+		$pre_exec.=<<"EOF";
 	lockfd=open("$config{wikistatedir}/cgilock", O_CREAT | O_RDWR, 0666);
-	if (lockfd != -1 && lockf(lockfd, F_LOCK, 0) == 0) {
-		char *fd_s=malloc(8);
-		sprintf(fd_s, "%i", lockfd);
-		setenv("IKIWIKI_CGILOCK_FD", fd_s, 1);
+	if (lockfd != -1) {
+#ifdef CGI_OVERLOAD_DELAY
+		char *request_method = getenv("REQUEST_METHOD");
+		if (request_method && strcmp(request_method, "GET") == 0) {
+			if (lockf(lockfd, F_TLOCK, 0) == 0) {
+				set_cgilock_fd(lockfd);
+			}
+			else {
+				printf("Content-Type: text/html\\nRefresh: %i; URL=%s\\n\\n<html><head><title>%s</title><head><body><p>%s</p></body></html>",
+					CGI_OVERLOAD_DELAY,
+					getenv("REQUEST_URI"),
+					CGI_PLEASE_WAIT_TITLE,
+					CGI_PLEASE_WAIT_BODY);
+				exit(0);
+			}
+		}
+		else if (lockf(lockfd, F_LOCK, 0) == 0) {
+			set_cgilock_fd(lockfd);
+		}
+#else
+		if (lockf(lockfd, F_LOCK, 0) == 0) {
+			set_cgilock_fd(lockfd);
+		}
+#endif
 	}
 EOF
 	}
@@ -138,6 +179,12 @@ void addenv(char *var, char *val) {
 		perror("malloc");
 	sprintf(s, "%s=%s", var, val);
 	newenviron[i++]=s;
+}
+
+set_cgilock_fd (int lockfd) {
+	char *fd_s=malloc(8);
+	sprintf(fd_s, "%i", lockfd);
+	setenv("IKIWIKI_CGILOCK_FD", fd_s, 1);
 }
 
 int main (int argc, char **argv) {
@@ -214,7 +261,7 @@ $set_background_command
 EOF
 
 	my @cc=exists $ENV{CC} ? possibly_foolish_untaint($ENV{CC}) : 'cc';
-	push @cc, possibly_foolish_untaint($ENV{CFLAGS}) if exists $ENV{CFLAGS};
+	push @cc, split(' ', possibly_foolish_untaint($ENV{CFLAGS})) if exists $ENV{CFLAGS};
 	if (system(@cc, "$wrapper.c", "-o", "$wrapper.new") != 0) {
 		#translators: The parameter is a C filename.
 		error(sprintf(gettext("failed to compile %s"), "$wrapper.c"));

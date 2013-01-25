@@ -1,0 +1,18 @@
+# Created_in_future
+
+This plugin provides a `created_in_future()` [[PageSpec|ikiwiki/pagespec/]]
+function. It matches pages which have a creation date in the future.
+
+It also sets the date of the next modification of the page on its creation
+date, so that the corresponding page (and the pages referring to it) will be
+rebuilt on the relevant call of `ikiwiki`.
+
+## Usage
+
+It can be used to display a list of upcoming events.
+
+	\[[!inline pages="events/* and created_in_future()" reverse=yes sorted=meta(date)]]
+
+## Code
+
+Code and documentation this way: [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/Created_in_future]].

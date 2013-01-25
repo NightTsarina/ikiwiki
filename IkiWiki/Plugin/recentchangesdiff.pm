@@ -9,10 +9,12 @@ use HTML::Entities;
 my $maxlines=200;
 
 sub import {
+	add_underlay("javascript");
 	hook(type => "getsetup", id => "recentchangesdiff",
 		call => \&getsetup);
 	hook(type => "pagetemplate", id => "recentchangesdiff",
 		call => \&pagetemplate);
+	hook(type => "format", id => "recentchangesdiff.pm", call => \&format);
 }
 
 sub getsetup () {
@@ -53,6 +55,26 @@ sub pagetemplate (@) {
 			$template->param(diff => $diff);
 		}
 	}
+}
+
+sub format (@) {
+        my %params=@_;
+
+	if (! ($params{content}=~s!^(<body[^>]*>)!$1.include_javascript($params{page})!em)) {
+		# no <body> tag, probably in preview mode
+		$params{content}=include_javascript(undef).$params{content};
+	}
+	return $params{content};
+}
+
+# taken verbatim from toggle.pm
+sub include_javascript ($) {
+	my $from=shift;
+	
+	return '<script src="'.urlto("ikiwiki/ikiwiki.js", $from).
+		'" type="text/javascript" charset="utf-8"></script>'."\n".
+		'<script src="'.urlto("ikiwiki/toggle.js", $from).
+		'" type="text/javascript" charset="utf-8"></script>';
 }
 
 1

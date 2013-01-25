@@ -1,3 +1,50 @@
+## Multiple values arrays
+
+This breaks if there are multiple values for a single key. It works fine in the report plugin, but inline display shows the ARRAY reference, e.g. 
+
+    IPv6:
+    - fd64:2c08:9fa7:4::1
+    - 2001:470:1d:4a6::1
+
+and:
+
+    {{$IPv6}}
+
+yields:
+
+    ARRAY(0x266db10)
+
+Seems to me this could be checked and `join(" ")`'d. :) -- [[anarcat]]
+
+> I wrote a stupid fix for this, which works for getfield, but isn't as good for report. It simply does that `join()`. Here's the patch:
+> 
+> [[!format diff """
+--- a/IkiWiki/Plugin/field.pm
++++ b/IkiWiki/Plugin/field.pm
+@@ -322,6 +322,9 @@ sub field_get_value ($$;@) {
+     {
+        $basevalue = calculated_values($lc_field_name, $page);
+     }
++    if (ref($basevalue) eq "ARRAY") {
++        $basevalue = join(" ", @{$basevalue}); # hack
++    }
+     if (defined $basevalue)
+     {
+        $Cache{$page}{$basename} = $basevalue;
+@@ -360,6 +363,9 @@ sub field_get_value ($$;@) {
+     {
+        $value = $basevalue;
+     }
++    if (ref($value) eq "ARRAY") {
++        $value = join(" ", @{$value}); # hack
++    }
+     if (defined $value)
+     {
+        $Cache{$page}{$lc_field_name} = $value;
+"""]]
+>
+> Seems to me this should be the default, at the very least in getfield. But at least, with the above patch we don't see expanded Perl ref's. ;) --[[anarcat]]
+
 ## Templating, and other uses
 
 Like you mentioned in [[ftemplate]] IIRC, it'll only work on the same page. If it can be made to work anywhere, or from a specific place in the wiki - configurable, possibly - you'll have something very similar to mediawiki's templates. I can already think of a few uses for this combined with [[template]] ;) . --[[SR|users/simonraven]]

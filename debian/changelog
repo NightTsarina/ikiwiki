@@ -1,3 +1,138 @@
+ikiwiki (3.20121213) UNRELEASED; urgency=low
+
+  * htmlscrubber: Allow the bitcoin URI scheme.
+  * htmlscrubber: Allow the URI schemes of major VCS's.
+  * aggregate: When run with --aggregate, if an aggregation is already
+    running, don't go on and --refresh.
+  * trail: Avoid excess dependencies between pages in the trail
+    and the page defining the trail. Thanks, smcv.
+  * opendiscussion: Don't allow editing discussion pages if discussion pages
+    are disabled. (smcv)
+  * poll: Add expandable option to allow users to easily add new choices to
+    a poll.
+  * trail: Avoid massive slowdown caused by pagetemplate hook when displaying
+    dynamic cgi pages, which cannot use trail anyway.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 22 Dec 2012 16:15:24 -0400
+
+ikiwiki (3.20121212) unstable; urgency=low
+
+  * filecheck: Fix bug that prevented File::MimeInfo::Magic from ever
+    being used.
+  * openid: Display openid in Preferences page as a comment, so it can be
+    selected in all browsers.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 11 Dec 2012 12:12:12 -0400
+
+ikiwiki (3.20121017) unstable; urgency=low
+
+  * recentchangesdiff: fix further breakage to the template from 3.20120725 
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 16 Oct 2012 20:49:27 -0400
+
+ikiwiki (3.20121016) unstable; urgency=low
+
+  * monochrome: New theme, contributed by Jon Dowland.
+  * rst: Ported to python 3, while still also being valid python 2.
+    Thanks, W. Trevor King
+  * Try to avoid a situation in which so many ikiwiki cgi wrapper programs
+    are running, all waiting on some long-running thing like a site rebuild,
+    that it prevents the web server from doing anything else. The current
+    approach only avoids this problem for GET requests; if multiple cgi's
+    run GETs on a site at the same time, one will display a "please wait"
+    page for a configurable number of seconds, which then redirects to retry.
+    To enable this protection, set cgi_overload_delay to the number of
+    seconds to wait. This is not enabled by default.
+  * Add back a 1em margin between archivepage divs.
+  * recentchangesdiff: Correct broken template that resulted in duplicate
+    diff icons being displayed, and bloated the recentchanges page with
+    inline diffs when the configuration should have not allowed them.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 16 Oct 2012 15:14:19 -0400
+
+ikiwiki (3.20120725) unstable; urgency=low
+
+  * recentchangesdiff: When diffurl is not set, provide inline diffs
+    in the recentchanges page, with visibility toggleable via javascript.
+    Thanks, Antoine Beaupré
+  * Split CFLAGS into words when building wrapper. Closes: #682237
+  * osm: Avoid calling urlto before generated files are registered.
+    Thanks, Philippe Gauthier and Antoine Beaupré
+  * osm: Add osm_openlayers_url configuration setting.
+    Thanks, Genevieve
+  * osm: osm_layers can be used to configured the layers displayed on the map.
+    Thanks, Antoine Beaupré
+  * comments: Remove ipv6 address specific code.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 25 Aug 2012 10:58:42 -0400
+
+ikiwiki (3.20120629) unstable; urgency=low
+
+  * mirrorlist: Add mirrorlist_use_cgi setting that avoids usedirs or
+    other config differences by linking to the mirror's CGI. (intrigeri)
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 29 Jun 2012 10:16:08 -0400
+
+ikiwiki (3.20120516) unstable; urgency=high
+
+  * meta: Security fix; add missing sanitization of author and authorurl.
+    CVE-2012-0220 Thanks, Raúl Benencia
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 16 May 2012 19:51:27 -0400
+
+ikiwiki (3.20120419) unstable; urgency=low
+
+  * Remove dead link from plugins/teximg. Closes: #664885
+  * inline: When the pagenames list includes pages that do not exist, skip
+    them.
+  * meta: Export author information in html <meta> tag. Closes: #664779
+    Thanks, Martin Michlmayr
+  * notifyemail: New plugin, sends email notifications about new and 
+    changed pages, and allows subscribing to comments.
+  * Added a "changes" hook. Renamed the "change" hook to "rendered", but
+    the old hook name is called for now for back-compat.
+  * meta: Support keywords header. Closes: #664780
+    Thanks, Martin Michlmayr
+  * passwordauth: Fix url in password recovery email to be absolute.
+  * httpauth: When it's the only auth method, avoid a pointless and
+    confusing signin form, and go right to the httpauthurl.
+  * rename: Allow rename to be started not from the edit page; return to
+    the renamed page in this case.
+  * remove: Support removing of pages in the transient underlay. (smcv)
+  * inline, trail: The pagenames parameter is now a list of absolute
+    pagenames, not relative wikilink type names. This is necessary to fix
+    a bug, and makes pagenames more consistent with the pagespec used
+    in the pages parameter. (smcv)
+  * link: Fix renaming wikilinks that contain embedded urls.
+  * graphviz: Handle self-links.
+  * trail: Improve CSS, also display trail links at bottom of page,
+    and a bug fix. (smcv)
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 19 Apr 2012 15:32:07 -0400
+
+ikiwiki (3.20120319) unstable; urgency=low
+
+  * osm: New plugin to embed an OpenStreetMap into a wiki page.
+    Supports waypoints, tags, and can even draw paths matching
+    wikilinks between pages containing waypoints.
+    Thanks to Blars Blarson and Antoine Beaupré, as well as the worldwide
+    OpenStreetMap community for this utter awesomeness.
+  * trail: New plugin to add navigation trails through pages via Next and
+    Previous links. Trails can easily be added to existing inlines by setting
+    trail=yes in the inline.
+    Thanks to Simon McVittie for his persistance developing this feature.
+  * Fix a snail mail address. Closes: #659158
+  * openid-jquery.js: Update URL of Wordpress favicon. Closes: #660549
+  * Drop the version attribute on the generator tag in Atom feeds
+    to make builds more reproducible. Closes: #661569 (Paul Wise)
+  * shortcut: Support Wikipedia's form of url-encoding for unicode
+    characters, which involves mojibake. Closes: #661198
+  * Add a few missing jquery UI icons to attachment upload widget underlay.
+  * URI escape filename when generating the diffurl.
+  * Add build-affected hook. Used by trail.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 19 Mar 2012 14:24:43 -0400
+
 ikiwiki (3.20120202) unstable; urgency=low
 
   * mdwn: Added nodiscount setting, which can be used to avoid using the

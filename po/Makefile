@@ -41,19 +41,22 @@ clean:
 	find underlays -name \*.mdwn -or -name \*.pot | xargs rm -f
 
 %.mo: %.po
-	msgfmt -o $@ $<
+	@if ! msgfmt -o $@ $<; then echo "unable to run msgfmt"; fi
 
 %.po: ikiwiki.pot
 	@echo -n "Merging ikiwiki.pot and $@"
-	@msgmerge $@ ikiwiki.pot -o $@.new 2>&1
-# Typically all that changes was a date or line number. I'd prefer not to
+# Typically all that changes is a date or line number. I'd prefer not to
 # commit such changes, so detect and ignore them.
-	@if [ "`diff $@ $@.new | grep '[<>]' | grep -v '[<>] #:' | wc -l`" -ne 2 ]; then \
-		mv -f $@.new $@; \
+	@if ! msgmerge $@ ikiwiki.pot -o $@.new 2>&1; then \
+		echo "unable to run msgmerge"; \
 	else \
-		rm -f $@.new; \
+		if [ "`diff $@ $@.new | grep '[<>]' | grep -v '[<>] #:' | wc -l`" -ne 2 ]; then \
+			mv -f $@.new $@; \
+		else \
+			rm -f $@.new; \
+		fi; \
+		msgfmt --statistics $@ 2>&1; \
 	fi
-	@msgfmt --statistics $@ 2>&1
 
 check:
 	@for file in $(POFILES); do \

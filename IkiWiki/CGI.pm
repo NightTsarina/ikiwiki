@@ -131,7 +131,7 @@ sub needsignin ($$) {
 
 	if (! defined $session->param("name") ||
 	    ! userinfo_get($session->param("name"), "regdate")) {
-		$session->param(postsignin => $ENV{QUERY_STRING});
+		$session->param(postsignin => $q->query_string);
 		cgi_signin($q, $session);
 		cgi_savesession($session);
 		exit;

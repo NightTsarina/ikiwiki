@@ -1,0 +1,64 @@
+The idea behind this would be to have one ikiwiki behave as a dynamic private wiki in a specified area
+and a more static publiczone wiki. Actually private wiki page can be addressed via a *pagespec*. 
+
+What is ready /can be done:
+
+* We already can more or less do this for example with [[httpauth|/plugins/httpauth/]], *.htaccess* files and a proper *httpauth_pagespec*
+yet at the cost of maintaining two different user/pass logbase (native ikiwiki signin)
+* Furthermore we can [[lockedit|plugins/lockedit/]] some pagespecs, ie in the public zone.
+
+What is problematic is when you link a public page in a private page : 
+a backlink will be generated from the public page to the private page.
+
+As I noticed in [[per_page_ACLs]] in the end users through backlink 
+navigation will frequently hit HTTP/401 deterring browsing as well as for the admin at false-positive logwatching.
+
+One can radically [[disable backlinks feature|todo/allow_disabling_backlinks]] but then no more neat backlink navigation that
+is really good to have in both area.
+
+I think of just preventing this backlink leak in that case would be sufficient via i.e a *privatebacklinks* config and
+a below patch.
+
+Comments are welcome.
+
+[[mathdesc]]
+
+
+<pre>
+diff --git a/IkiWiki.pm b/IkiWiki.pm
+--- a/IkiWiki.pm
++++ b/IkiWiki.pm
+@@ -294,6 +294,14 @@ sub getsetup () {
+                safe => 1,
+                rebuild => 1,
+        },
++       privatebacklinks => {
++               type => "pagespec",
++               example => "",
++               description => "PageSpec controlling which backlinks are private (ie users/*)",
++               link => "ikiwiki/PageSpec",
++               safe => 1,
++               rebuild => 1,
++       },
+        hardlink => {
+                type => "boolean",
+                default => 0,
+diff --git a/IkiWiki/Render.pm b/IkiWiki/Render.pm
+--- a/IkiWiki/Render.pm
++++ b/IkiWiki/Render.pm
+@@ -52,7 +52,8 @@ sub backlinks ($) {
+                        $p_trimmed=~s/^\Q$dir\E// &&
+                        $page_trimmed=~s/^\Q$dir\E//;
+                               
+-               push @links, { url => $href, page => pagetitle($p_trimmed) };
++               push @links, { url => $href, page => pagetitle($p_trimmed) }
++               unless defined $config{privatebacklinks} && length $config{privatebacklinks} && pagespec_match($p, $config{privatebacklinks}) && !pagespec_match($page, $config{privatebacklinks}) ;
+        }
+        return @links;
+ }
+
+</pre>
+
+> Have you considered all the ways that anyone with edit access to the
+> public wiki could expose information from the public wiki? For example,
+> you could inline all the private pages into a public page. --[[Joey]] 

@@ -144,9 +144,9 @@ sub renamepage (@) {
 	my $old=$params{oldpage};
 	my $new=$params{newpage};
 
-	$params{content} =~ s{(?<!\\)$link_regexp}{
-		if (! is_externallink($page, $2, $3)) {
-			my $linktext=$2;
+	$params{content} =~ s{(?<!\\)($link_regexp)}{
+		if (! is_externallink($page, $3, $4)) {
+			my $linktext=$3;
 			my $link=$linktext;
 			if (bestlink($page, linkpage($linktext)) eq $old) {
 				$link=pagetitle($new, 1);
@@ -161,9 +161,12 @@ sub renamepage (@) {
 					$link="/$link";
 				}
 			}
-			defined $1
-				? ( "[[$1|$link".($3 ? "#$3" : "")."]]" )
-				: ( "[[$link".   ($3 ? "#$3" : "")."]]" )
+			defined $2
+				? ( "[[$2|$link".($4 ? "#$4" : "")."]]" )
+				: ( "[[$link".   ($4 ? "#$4" : "")."]]" )
+		}
+		else {
+			$1
 		}
 	}eg;
 

@@ -23,11 +23,13 @@ sub getsetup () {
 
 my %pagenum;
 sub preprocess (@) {
-	my %params=(open => "yes", total => "yes", percent => "yes", @_);
+	my %params=(open => "yes", total => "yes", percent => "yes",
+		expandable => "no", @_);
 
 	my $open=IkiWiki::yesno($params{open});
 	my $showtotal=IkiWiki::yesno($params{total});
 	my $showpercent=IkiWiki::yesno($params{percent});
+	my $expandable=IkiWiki::yesno($params{expandable});
 	$pagenum{$params{page}}++;
 
 	my %choices;
@@ -74,6 +76,19 @@ sub preprocess (@) {
 			$ret.="</form>\n";
 		}
 	}
+	
+	if ($expandable && $open && exists $config{cgiurl}) {
+		$ret.="<p>\n";
+		$ret.="<form method=\"POST\" action=\"".IkiWiki::cgiurl()."\">\n";
+		$ret.="<input type=\"hidden\" name=\"do\" value=\"poll\" />\n";
+		$ret.="<input type=\"hidden\" name=\"num\" value=\"$pagenum{$params{page}}\" />\n";
+		$ret.="<input type=\"hidden\" name=\"page\" value=\"$params{page}\" />\n";
+		$ret.=gettext("Write in").": <input name=\"choice\" size=50 />\n";
+		$ret.="<input type=\"submit\" value=\"".gettext("vote")."\" />\n";
+		$ret.="</form>\n";
+		$ret.="</p>\n";
+	}
+
 	if ($showtotal) {
 		$ret.="<span>".gettext("Total votes:")." $total</span>\n";
 	}
@@ -85,7 +100,7 @@ sub sessioncgi ($$) {
 	my $session=shift;
 	if (defined $cgi->param('do') && $cgi->param('do') eq "poll") {
 		my $choice=decode_utf8($cgi->param('choice'));
-		if (! defined $choice) {
+		if (! defined $choice || not length $choice) {
 			error("no choice specified");
 		}
 		my $num=$cgi->param('num');
@@ -118,7 +133,14 @@ sub sessioncgi ($$) {
 			my $params=shift;
 			return "\\[[$prefix $params]]" if $escape;
 			if (--$num == 0) {
-				$params=~s/(^|\s+)(\d+)\s+"?\Q$choice\E"?(\s+|$)/$1.($2+1)." \"$choice\"".$3/se;
+				if ($params=~s/(^|\s+)(\d+)\s+"?\Q$choice\E"?(\s+|$)/$1.($2+1)." \"$choice\"".$3/se) {
+				}
+				elsif ($params=~/expandable=(\w+)/
+				    & &IkiWiki::yesno($1)) {
+					$choice=~s/["\]\n\r]//g;
+					$params.=" 1 \"$choice\""
+						if length $choice;
+				}
 				if (defined $oldchoice) {
 					$params=~s/(^|\s+)(\d+)\s+"?\Q$oldchoice\E"?(\s+|$)/$1.($2-1 >=0 ? $2-1 : 0)." \"$oldchoice\"".$3/se;
 				}

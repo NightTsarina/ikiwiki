@@ -25,7 +25,7 @@ sub canedit ($$) {
 	my $cgi=shift;
 	my $session=shift;
 
-	return "" if $page=~/(\/|^)\Q$config{discussionpage}\E$/i;
+	return "" if $config{discussion} && $page=~/(\/|^)\Q$config{discussionpage}\E$/i;
 	return "" if pagespec_match($page, "postcomment(*)");
 	return undef;
 }
