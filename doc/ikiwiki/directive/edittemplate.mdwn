@@ -29,12 +29,18 @@ something like:
 The template page can also contain [[!cpan HTML::Template]] directives,
 like other ikiwiki [[templates]].
 
-Two variables might be set:
+Four variables might be set:
 
 * `<TMPL_VAR name>` is replaced with the name of the page being
   created.
   
 * `<TMPL_VAR uuid>` is replaced with a version 4 (random) UUID.
   (Requires the `UUID::Tiny` Perl module if not running on Linux.)
+
+* `<TMPL_VAR time>` is replaced with the current (template generation)
+  time, using a fixed format, `%Y-%m-%d %H:%M:%S`.
+
+* `<TMPL_VAR formatted_time` is replaced with the current (template
+  generation) time, formatted by IkiWiki.
 
 [[!meta robots="noindex, follow"]]
