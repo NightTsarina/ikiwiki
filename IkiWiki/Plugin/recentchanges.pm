@@ -181,7 +181,7 @@ sub store ($$$) {
 			else {
 				$_->{link} = pagetitle($_->{page});
 			}
-			if (defined $_->{diffurl}) {
+			if (defined $_->{diffurl} && length($_->{diffurl})) {
 				$has_diffurl=1;
 			}
 
