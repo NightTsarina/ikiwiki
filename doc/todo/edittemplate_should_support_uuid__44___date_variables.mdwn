@@ -1,0 +1,17 @@
+[[!tag wishlist patch]]
+
+I use a default template for all new pages:
+
+    \[[!meta title="<TMPL_VAR name>"]]
+    \[[!meta author=]]
+    \[[!meta date="<TMPL_VAR time>"]]
+    \[[!meta guid="urn:uuid:<TMPL_VAR uuid>"]]
+    \[[!tag ]]
+
+This encourages me to include useful metadata on the page.  In particular, though, I've modified the `edittemplate` plugin to generate a uuid for use in the guid, for use in `inline`.  Importantly, this keeps `inline` from flooding aggregators when I rename these pages.
+
+I've also noticed that IkiWiki seems to use the creation time for the generated page for the page date.  This means that when I do a rebuild, `inline`d pages get shuffled.  The inclusion of a `time` variable in `edittemplate` (and in a `meta` declaration for all such pages) prevents the date from changing unexpectedly.
+
+I've already made these changes in my installation, and have made my patches available in the `edittemplate` branch of my repository, which [[I've posted|git]].
+
+Changes to the structure of `$pagestate{$registering_page}{edittemplate}{$pagespec}` mean that a `cgi` rebuild is necessary (for reasons I don't entirely understand); but I think that's preferable to creating an entirely separate `$pagestate` namespace for storing parameters.  That said, I'm not really a perl programmer, so corrections are welcome.
