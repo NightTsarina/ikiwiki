@@ -502,7 +502,16 @@ sub cvs_runcvs(@) {
 	my @cmd = @_;
 	unshift @cmd, 'cvs', '-Q';
 
-	local $CWD = $config{srcdir};
+	# CVS can't operate outside a srcdir, so we're always setting $CWD.
+	# "local $CWD" restores the previous value when we go out of scope.
+	# Usually that's correct. But if we're removing the last file from
+	# a directory, the post-commit hook will exec in a working directory
+	# that's about to not exist (CVS will prune it).
+	#
+	# chdir() manually here, so we can selectively not chdir() back.
+
+	my $oldcwd = $CWD;
+	chdir($config{srcdir});
 
 	eval q{
 		use IPC::Open3;
@@ -529,6 +538,8 @@ sub cvs_runcvs(@) {
 
 	print STDOUT $cvsout;
 	print STDERR $cvserr;
+
+	chdir($oldcwd) if -d $oldcwd;
 
 	return ($ret == 0) ? 1 : 0;
 }

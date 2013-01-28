@@ -28,10 +28,11 @@ sub gen_wrappers () {
 	%config=(%origconfig);
 }
 
+our $program_to_wrap = $0;
 sub gen_wrapper () {
 	$config{srcdir}=File::Spec->rel2abs($config{srcdir});
 	$config{destdir}=File::Spec->rel2abs($config{destdir});
-	my $this=File::Spec->rel2abs($0);
+	my $this=File::Spec->rel2abs($program_to_wrap);
 	if (! -x $this) {
 		error(sprintf(gettext("%s doesn't seem to be executable"), $this));
 	}

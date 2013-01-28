@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 69;
+use Test::More; my $total_tests = 71;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
@@ -33,12 +33,7 @@ sub test_web_comments {
 }
 
 sub test_chdir_magic {
-	# cvs.pm operations are always occurring inside $config{srcdir}
-	# other ikiwiki operations are occurring wherever, and are unaffected
 	# when are we bothering with "local $CWD" and when aren't we?
-	# after commit, presumably only with post-commit hook enabled:
-	#> Use of chdir('') or chdir(undef) as chdir() is deprecated at
-	#> /usr/pkg/lib/perl5/vendor_perl/5.14.0/File/chdir.pm line 45.
 }
 
 sub test_cvs_info {
@@ -178,7 +173,6 @@ sub test_rcs_commit {
 	# - else, revert + return content with the conflict markers in it
 	# git.pm receives "session" param -- useful here?
 	# web commits start with "web commit {by,from} "
-	# seeing File::chdir errors on commit?
 
 	# XXX commit can fail due to "could not open lock file"
 }
@@ -199,8 +193,15 @@ sub test_rcs_add {
 	is_in_keyword_substitution_mode($file, q{-kkv});
 	like(
 		readfile($config{srcdir} . "/$file"),
-		qr/^# \$Id: $file,v 1.1 .+\$$/m,
+		qr/^# \$Id: $file,v 1\.1 .+\$$/m,
 		q{can expand RCS Id keyword},
+	);
+	my $generated_file = $config{destdir} . q{/test0/index.html};
+	ok(-e $generated_file, q{post-commit hook generates content});
+	like(
+		readfile($generated_file),
+		qr/^<h1>\$Id: $file,v 1\.1 .+\$<\/h1>$/m,
+		q{can htmlize mdwn, including RCS Id},
 	);
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 1);
@@ -276,9 +277,9 @@ sub test_rcs_add {
 	$message = "remove the UTF-8 and binary files we just added";
 	IkiWiki::rcs_remove($_) for ($file1, $file2);
 	IkiWiki::rcs_commit_staged(message => $message);
-	ok(-d "$config{srcdir}/test8", q{empty dir not pruned (1)});
+	ok(! -d "$config{srcdir}/test8", q{empty dir pruned by post-commit});
+	ok(! -d "$config{srcdir}/test10", q{empty dir pruned by post-commit});
 	@changes = IkiWiki::rcs_recentchanges(11);
-	ok(-d "$config{srcdir}/test8", q{empty dir not pruned (2)});
 	is_total_number_of_changes(\@changes, 5);
 	# XXX test for both files in the commit, and no other files
 	is_most_recent_change(\@changes, $file2, $message);
@@ -531,6 +532,7 @@ sub list_module {
 sub _startup {
 	my $can_plan = shift;
 	_plan_for_test_more($can_plan);
+	hook(type => "genwrapper", id => "cvstest", call => \&_wrapper_paths);
 	_generate_test_config();
 }
 
@@ -566,8 +568,11 @@ sub _generate_test_config {
 	%config = IkiWiki::defaultconfig();
 	$config{rcs} = "cvs";
 	$config{srcdir} = "$dir/src";
+	$config{allow_symlinks_before_srcdir} = 1;
+	$config{destdir} = "$dir/dest";
 	$config{cvsrepo} = "$dir/repo";
 	$config{cvspath} = "ikiwiki";
+	use Cwd; $config{templatedir} = getcwd() . '/templates';
 	IkiWiki::loadplugins();
 	IkiWiki::checkconfig();
 }
@@ -578,12 +583,39 @@ sub _generate_test_repo {
 
 	my $cvs = "cvs -d $config{cvsrepo}";
 	my $dn = ">/dev/null";
+
 	system "$cvs init $dn";
 	system "mkdir $dir/$config{cvspath} $dn";
 	system "cd $dir/$config{cvspath} && "
 		. "$cvs import -m import $config{cvspath} VENDOR RELEASE $dn";
 	system "rm -rf $dir/$config{cvspath} $dn";
 	system "$cvs co -d $config{srcdir} $config{cvspath} $dn";
+
+	_generate_and_configure_post_commit_hook();
+}
+
+sub _generate_and_configure_post_commit_hook {
+	$config{cvs_wrapper} = $config{cvsrepo} . "/CVSROOT/test-post";
+	$config{wrapper} = $config{cvs_wrapper};
+
+	require IkiWiki::Wrapper;
+	{
+		no warnings 'once';
+		$IkiWiki::program_to_wrap = 'ikiwiki.out';
+		# XXX substitute its interpreter to Makefile's $(PERL)
+		# XXX best solution: do this to all scripts during build
+	}
+	IkiWiki::gen_wrapper();
+
+	my $cvs = "cvs -d $config{cvsrepo}";
+	my $dn = ">/dev/null";
+
+	system "mkdir $config{destdir} $dn";
+	system "cd $dir && $cvs co CVSROOT $dn && cd CVSROOT && " .
+		"echo 'DEFAULT $config{cvsrepo}/CVSROOT/test-post %{sVv} &' "
+		. " >> loginfo && "
+		. "$cvs commit -m 'test repo setup' $dn && "
+		. "cd .. && rm -rf CVSROOT";
 }
 
 sub add_and_commit {
@@ -662,4 +694,8 @@ sub stripext {
 	$extension = '\..+?' unless defined $extension;
 	$file =~ s|$extension$||g;
 	return $file;
+}
+
+sub _wrapper_paths {
+	return qq{newenviron[i++]="PERL5LIB=$ENV{PERL5LIB}";};
 }
