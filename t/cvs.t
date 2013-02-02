@@ -388,6 +388,12 @@ sub test_rcs_diff {
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 1);
 
+	unlike(
+		$changes[0]->{pages}->[0]->{diffurl},
+		qr/%2F/m,
+		q{path separators are preserved when UTF-8scaping filename},
+	);
+
 	my $changeset = 1;
 
 	my $maxlines = undef;
@@ -573,6 +579,7 @@ sub _generate_test_config {
 	$config{cvsrepo} = "$dir/repo";
 	$config{cvspath} = "ikiwiki";
 	use Cwd; $config{templatedir} = getcwd() . '/templates';
+	$config{diffurl} = "/nonexistent/cvsweb/[[file]]";
 	IkiWiki::loadplugins();
 	IkiWiki::checkconfig();
 }

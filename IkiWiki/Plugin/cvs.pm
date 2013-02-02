@@ -314,7 +314,9 @@ sub rcs_recentchanges ($) {
 			$oldrev =~ s/INITIAL/0/;
 			$newrev =~ s/\(DEAD\)//;
 			my $diffurl = defined $config{diffurl} ? $config{diffurl} : "";
-			my $epage = uri_escape_utf8($page);
+			my $epage = join('/',
+				map { uri_escape_utf8($_) } split('/', $page)
+			);
 			$diffurl=~s/\[\[file\]\]/$epage/g;
 			$diffurl=~s/\[\[r1\]\]/$oldrev/g;
 			$diffurl=~s/\[\[r2\]\]/$newrev/g;
