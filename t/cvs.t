@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 71;
+use Test::More; my $total_tests = 72;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
