@@ -216,14 +216,12 @@ sub rcs_add ($) {
 
 	while ($file = pop @files_to_add) {
 		if (@files_to_add == 0) {
-			# file
 			cvs_runcvs('add', cvs_keyword_subst_args($file)) ||
-				warn("cvs add $file failed\n");
+				warn("cvs add file $file failed\n");
 		}
 		else {
-			# directory
 			cvs_runcvs('add', $file) ||
-				warn("cvs add $file failed\n");
+				warn("cvs add dir $file failed\n");
 		}
 	}
 }
@@ -316,7 +314,9 @@ sub rcs_recentchanges ($) {
 			$oldrev =~ s/INITIAL/0/;
 			$newrev =~ s/\(DEAD\)//;
 			my $diffurl = defined $config{diffurl} ? $config{diffurl} : "";
-			my $epage = uri_escape_utf8($page);
+			my $epage = join('/',
+				map { uri_escape_utf8($_) } split('/', $page)
+			);
 			$diffurl=~s/\[\[file\]\]/$epage/g;
 			$diffurl=~s/\[\[r1\]\]/$oldrev/g;
 			$diffurl=~s/\[\[r2\]\]/$newrev/g;
@@ -396,10 +396,14 @@ sub rcs_diff ($;$) {
 	my @cvsps = `env TZ=UTC cvsps -q --cvs-direct -z 30 -g -s $rev`;
 	my $blank_lines_seen = 0;
 
+	# skip log, get to the diff
 	while (my $line = shift @cvsps) {
 		$blank_lines_seen++ if ($line =~ /^$/);
 		last if $blank_lines_seen == 2;
 	}
+
+	@cvsps = @cvsps[0..$maxlines-1]
+		if defined $maxlines && @cvsps > $maxlines;
 
 	if (wantarray) {
 		return @cvsps;
@@ -491,24 +495,53 @@ sub cvs_keyword_subst_args ($) {
 	my $filemime = File::MimeInfo::default($file);
 	# if (-T $file) {
 
-	if (defined($filemime) && $filemime eq 'text/plain') {
-		return ($file);
-	}
-	else {
-		return ('-kb', $file);
-	}
+	defined($filemime) && $filemime eq 'text/plain'
+		? return ('-kkv', $file)
+		: return ('-kb', $file);
 }
 
 sub cvs_runcvs(@) {
 	my @cmd = @_;
 	unshift @cmd, 'cvs', '-Q';
 
-	local $CWD = $config{srcdir};
+	# CVS can't operate outside a srcdir, so we're always setting $CWD.
+	# "local $CWD" restores the previous value when we go out of scope.
+	# Usually that's correct. But if we're removing the last file from
+	# a directory, the post-commit hook will exec in a working directory
+	# that's about to not exist (CVS will prune it).
+	#
+	# chdir() manually here, so we can selectively not chdir() back.
 
-	open(my $savedout, ">&STDOUT");
-	open(STDOUT, ">", "/dev/null");
-	my $ret = system(@cmd);
-	open(STDOUT, ">&", $savedout);
+	my $oldcwd = $CWD;
+	chdir($config{srcdir});
+
+	eval q{
+		use IPC::Open3;
+		use Symbol qw(gensym);
+		use IO::File;
+	};
+	error($@) if $@;
+
+	my $cvsout = '';
+	my $cvserr = '';
+	local *CATCHERR = IO::File->new_tmpfile;
+	my $pid = open3(gensym(), \*CATCHOUT, ">&CATCHERR", @cmd);
+	while (my $l = <CATCHOUT>) {
+		$cvsout .= $l
+			unless 1;
+	}
+	waitpid($pid, 0);
+	my $ret = $? >> 8;
+	seek CATCHERR, 0, 0;
+	while (my $l = <CATCHERR>) {
+		$cvserr .= $l
+			unless $l =~ /^cvs commit: changing keyword expansion /;
+	}
+
+	print STDOUT $cvsout;
+	print STDERR $cvserr;
+
+	chdir($oldcwd) if -d $oldcwd;
 
 	return ($ret == 0) ? 1 : 0;
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More; my $total_tests = 42;
+use Test::More; my $total_tests = 72;
 use IkiWiki;
 
 my $default_test_methods = '^test_*';
@@ -26,14 +26,13 @@ sub test_web_comments {
 	# - when the first comment for page.mdwn is added, and page/ is
 	#   created to hold the comment, page/ isn't added to CVS control,
 	#   so the comment isn't either
+	#   - can't reproduce after chmod g+s ikiwiki.cgi (20120204)
 	# - side effect for moderated comments: after approval they
 	#   show up normally AND are still pending, too
 	# - comments.pm treats rcs_commit_staged() as returning conflicts?
 }
 
 sub test_chdir_magic {
-	# cvs.pm operations are always occurring inside $config{srcdir}
-	# other ikiwiki operations are occurring wherever, and are unaffected
 	# when are we bothering with "local $CWD" and when aren't we?
 }
 
@@ -52,12 +51,14 @@ sub test_cvs_run_cvs {
 	# steal from git.pm: safe_git(), run_or_{die,cry,non}
 	# - open() instead of system()
 	# always call cvs_run_cvs(), don't ever run 'cvs' directly
+	# - for cvs_info(), make it respect wantarray
 }
 
 sub test_cvs_run_cvsps {
 	# parameterize command like run_cvs()
 	# expose config vars for e.g. "--cvs-direct -z 30"
 	# always pass -x (unless proven otherwise)
+	# - but diff doesn't! optimization alert
 	# always pass -b HEAD (configurable like gitmaster_branch?)
 }
 
@@ -94,21 +95,43 @@ sub test_cvs_is_controlling {
 # TESTS FOR GENERAL PLUGIN API CALLS
 
 sub test_checkconfig {
-	# undef cvspath, expect "ikiwiki"
-	# define cvspath normally, get it back
-	# define cvspath in a subdir, get it back?
-	# define cvspath with extra slashes, get sanitized version back
-	# - yoink test_extra_path_slashes
-	# undef cvs_wrapper, expect $config{wrappers} same size as before
+	my $default_cvspath = 'ikiwiki';
 
-	my $initial_cvspath = $config{cvspath};
-	$config{cvspath} = "/ikiwiki//";
+	undef $config{cvspath}; IkiWiki::checkconfig();
+	is(
+		$config{cvspath}, $default_cvspath,
+		q{can provide default cvspath},
+	);
+
+	$config{cvspath} = "/$default_cvspath/"; IkiWiki::checkconfig();
+	is(
+		$config{cvspath}, $default_cvspath,
+		q{can set typical cvspath and strip well-meaning slashes},
+	);
+
+	$config{cvspath} = "/$default_cvspath//subdir"; IkiWiki::checkconfig();
+	is(
+		$config{cvspath}, "$default_cvspath/subdir",
+		q{can really sanitize cvspath as assumed by rcs_recentchanges},
+	);
+
+	my $default_num_wrappers = @{$config{wrappers}};
+	undef $config{cvs_wrapper}; IkiWiki::checkconfig();
+	is(
+		@{$config{wrappers}}, $default_num_wrappers,
+		q{can start with no wrappers configured},
+	);
+
+	$config{cvs_wrapper} = $config{cvsrepo} . "/CVSROOT/post-commit";
 	IkiWiki::checkconfig();
 	is(
-		$config{cvspath},
-		$initial_cvspath,
-		q{rcs_recentchanges assumes checkconfig has sanitized cvspath},
+		@{$config{wrappers}}, ++$default_num_wrappers,
+		q{can add cvs_wrapper},
 	);
+
+	undef $config{cvs_wrapper};
+	$config{cvspath} = $default_cvspath;
+	IkiWiki::checkconfig();
 }
 
 sub test_getsetup {
@@ -132,6 +155,11 @@ sub test_rcs_prepedit {
 	# for existing file, returns latest revision in repo
 	# - what's this used for? should it return latest revision in checkout?
 	# for new file, returns empty string
+
+	# netbsd web log says "could not open lock file"
+	# XXX does this work right?
+	# how about with un-added dirs in the srcdir?
+	# how about with cvsps.core lying around?
 }
 
 sub test_rcs_commit {
@@ -145,7 +173,8 @@ sub test_rcs_commit {
 	# - else, revert + return content with the conflict markers in it
 	# git.pm receives "session" param -- useful here?
 	# web commits start with "web commit {by,from} "
-	# seeing File::chdir errors on commit?
+
+	# XXX commit can fail due to "could not open lock file"
 }
 
 sub test_rcs_commit_staged {
@@ -159,9 +188,21 @@ sub test_rcs_add {
 
 	my $message = "add a top-level ASCII (non-UTF-8) page via VCS API";
 	my $file = q{test0.mdwn};
-	add_and_commit($file, $message, q{* some plain ASCII text});
+	add_and_commit($file, $message, qq{# \$Id\$\n* some plain ASCII text});
 	is_newly_added($file);
-	is_in_keyword_substitution_mode($file, undef);
+	is_in_keyword_substitution_mode($file, q{-kkv});
+	like(
+		readfile($config{srcdir} . "/$file"),
+		qr/^# \$Id: $file,v 1\.1 .+\$$/m,
+		q{can expand RCS Id keyword},
+	);
+	my $generated_file = $config{destdir} . q{/test0/index.html};
+	ok(-e $generated_file, q{post-commit hook generates content});
+	like(
+		readfile($generated_file),
+		qr/^<h1>\$Id: $file,v 1\.1 .+\$<\/h1>$/m,
+		q{can htmlize mdwn, including RCS Id},
+	);
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 1);
 	is_most_recent_change(\@changes, stripext($file), $message);
@@ -187,7 +228,7 @@ sub test_rcs_add {
 	$file = q{test4/test5/test1.mdwn};
 	add_and_commit($file, $message, readfile("t/test1.mdwn"));
 	is_newly_added($file);
-	is_in_keyword_substitution_mode($file, undef);
+	is_in_keyword_substitution_mode($file, q{-kkv});
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 2);
 	is_most_recent_change(\@changes, stripext($file), $message);
@@ -218,14 +259,14 @@ sub test_rcs_add {
 	$message = "add a UTF-8 and a binary file in different dirs";
 	my $file1 = "test8/test9.mdwn";
 	my $file2 = "test10/test11.ico";
-	can_mkdir(qw(test8 test10));
+	can_mkdir($_) for (qw(test8 test10));
 	writefile($file1, $config{srcdir}, readfile('t/test2.mdwn'));
 	writefile($file2, $config{srcdir}, $bindata_in, 1);
 	IkiWiki::rcs_add($_) for ($file1, $file2);
 	IkiWiki::rcs_commit_staged(message => $message);
 	is_newly_added($_) for ($file1, $file2);
-	is_in_keyword_substitution_mode($file1, undef);
-	is_in_keyword_substitution_mode($file2, '-kb');
+	is_in_keyword_substitution_mode($file1, q{-kkv});
+	is_in_keyword_substitution_mode($file2, q{-kb});
 	@changes = IkiWiki::rcs_recentchanges(3);
 	is_total_number_of_changes(\@changes, 3);
 	@changes = IkiWiki::rcs_recentchanges(4);
@@ -233,15 +274,39 @@ sub test_rcs_add {
 	# XXX test for both files in the commit, and no other files
 	is_most_recent_change(\@changes, $file2, $message);
 
+	$message = "remove the UTF-8 and binary files we just added";
+	IkiWiki::rcs_remove($_) for ($file1, $file2);
+	IkiWiki::rcs_commit_staged(message => $message);
+	ok(! -d "$config{srcdir}/test8", q{empty dir pruned by post-commit});
+	ok(! -d "$config{srcdir}/test10", q{empty dir pruned by post-commit});
+	@changes = IkiWiki::rcs_recentchanges(11);
+	is_total_number_of_changes(\@changes, 5);
+	# XXX test for both files in the commit, and no other files
+	is_most_recent_change(\@changes, $file2, $message);
+
+	$message = "re-add UTF-8 and binary files with names swapped";
+	writefile($file2, $config{srcdir}, readfile('t/test2.mdwn'));
+	writefile($file1, $config{srcdir}, $bindata_in, 1);
+	IkiWiki::rcs_add($_) for ($file1, $file2);
+	IkiWiki::rcs_commit_staged(message => $message);
+	isnt_newly_added($_) for ($file1, $file2);
+	is_in_keyword_substitution_mode($file2, q{-kkv});
+	is_in_keyword_substitution_mode($file1, q{-kb});
+	@changes = IkiWiki::rcs_recentchanges(11);
+	is_total_number_of_changes(\@changes, 6);
+	# XXX test for both files in the commit, and no other files
+	is_most_recent_change(\@changes, $file2, $message);
+
 	# prevent web edits from attempting to create .../CVS/foo.mdwn
 	# on case-insensitive filesystems, also prevent .../cvs/foo.mdwn
 	# unless your "CVS" is something else and we've made it configurable
+	# also want a pre-commit hook for this?
+
+	# pre-commit hook:
+	# - lcase filenames
+	# - ?
 
 	# can it assume we're under CVS control? or must it check?
-
-	# extract method: filetype-guessing
-	# add a binary file, remove it, add a text file by same name, no -kb?
-	# add a text file, remove it, add a binary file by same name, -kb?
 }
 
 sub test_rcs_remove {
@@ -304,9 +369,67 @@ sub test_rcs_recentchanges {
 }
 
 sub test_rcs_diff {
+	my @changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 0);
+
+	my $message = "add a UTF-8 and an ASCII file in different dirs";
+	my $file1 = "rcsdiff1/utf8.mdwn";
+	my $file2 = "rcsdiff2/ascii.mdwn";
+	my $contents2 = ''; $contents2 .= "$_. foo\n" for (1..11);
+	can_mkdir($_) for (qw(rcsdiff1 rcsdiff2));
+	writefile($file1, $config{srcdir}, readfile('t/test2.mdwn'));
+	writefile($file2, $config{srcdir}, $contents2);
+	IkiWiki::rcs_add($_) for ($file1, $file2);
+	IkiWiki::rcs_commit_staged(message => $message);
+
+	# XXX we rely on rcs_recentchanges() to be called first!
+	# XXX or else for no cvsps cache to exist yet...
+	# XXX because rcs_diff() doesn't pass -x (as an optimization)
+	@changes = IkiWiki::rcs_recentchanges(3);
+	is_total_number_of_changes(\@changes, 1);
+
+	unlike(
+		$changes[0]->{pages}->[0]->{diffurl},
+		qr/%2F/m,
+		q{path separators are preserved when UTF-8scaping filename},
+	);
+
+	my $changeset = 1;
+
+	my $maxlines = undef;
+	my $scalar_diffs = IkiWiki::rcs_diff($changeset, $maxlines);
+	like(
+		$scalar_diffs,
+		qr/^\+11\. foo$/m,
+		q{unbounded scalar diffs go all the way to 11},
+	);
+	my @array_diffs = IkiWiki::rcs_diff($changeset, $maxlines);
+	is(
+		$array_diffs[$#array_diffs],
+		"+11. foo\n",
+		q{unbounded array diffs go all the way to 11},
+	);
+
+	$maxlines = 8;
+	$scalar_diffs = IkiWiki::rcs_diff($changeset, $maxlines);
+	unlike(
+		$scalar_diffs,
+		qr/^\+11\. foo$/m,
+		q{bounded scalar diffs don't go all the way to 11},
+	);
+	@array_diffs = IkiWiki::rcs_diff($changeset, $maxlines);
+	isnt(
+		$array_diffs[$#array_diffs],
+		"+11. foo\n",
+		q{bounded array diffs don't go all the way to 11},
+	);
+	is(
+		scalar @array_diffs,
+		$maxlines,
+		q{bounded array diffs contain expected maximum number of lines},
+	);
+
 	# can it assume we're under CVS control? or must it check?
-	# in list context, return all lines (with \n), up to $maxlines if set
-	# in scalar context, return the whole diff, up to $maxlines if set
 }
 
 sub test_rcs_getctime {
@@ -415,6 +538,7 @@ sub list_module {
 sub _startup {
 	my $can_plan = shift;
 	_plan_for_test_more($can_plan);
+	hook(type => "genwrapper", id => "cvstest", call => \&_wrapper_paths);
 	_generate_test_config();
 }
 
@@ -450,8 +574,12 @@ sub _generate_test_config {
 	%config = IkiWiki::defaultconfig();
 	$config{rcs} = "cvs";
 	$config{srcdir} = "$dir/src";
+	$config{allow_symlinks_before_srcdir} = 1;
+	$config{destdir} = "$dir/dest";
 	$config{cvsrepo} = "$dir/repo";
 	$config{cvspath} = "ikiwiki";
+	use Cwd; $config{templatedir} = getcwd() . '/templates';
+	$config{diffurl} = "/nonexistent/cvsweb/[[file]]";
 	IkiWiki::loadplugins();
 	IkiWiki::checkconfig();
 }
@@ -462,12 +590,39 @@ sub _generate_test_repo {
 
 	my $cvs = "cvs -d $config{cvsrepo}";
 	my $dn = ">/dev/null";
+
 	system "$cvs init $dn";
 	system "mkdir $dir/$config{cvspath} $dn";
 	system "cd $dir/$config{cvspath} && "
 		. "$cvs import -m import $config{cvspath} VENDOR RELEASE $dn";
 	system "rm -rf $dir/$config{cvspath} $dn";
 	system "$cvs co -d $config{srcdir} $config{cvspath} $dn";
+
+	_generate_and_configure_post_commit_hook();
+}
+
+sub _generate_and_configure_post_commit_hook {
+	$config{cvs_wrapper} = $config{cvsrepo} . "/CVSROOT/test-post";
+	$config{wrapper} = $config{cvs_wrapper};
+
+	require IkiWiki::Wrapper;
+	{
+		no warnings 'once';
+		$IkiWiki::program_to_wrap = 'ikiwiki.out';
+		# XXX substitute its interpreter to Makefile's $(PERL)
+		# XXX best solution: do this to all scripts during build
+	}
+	IkiWiki::gen_wrapper();
+
+	my $cvs = "cvs -d $config{cvsrepo}";
+	my $dn = ">/dev/null";
+
+	system "mkdir $config{destdir} $dn";
+	system "cd $dir && $cvs co CVSROOT $dn && cd CVSROOT && " .
+		"echo 'DEFAULT $config{cvsrepo}/CVSROOT/test-post %{sVv} &' "
+		. " >> loginfo && "
+		. "$cvs commit -m 'test repo setup' $dn && "
+		. "cd .. && rm -rf CVSROOT";
 }
 
 sub add_and_commit {
@@ -489,18 +644,28 @@ sub can_mkdir {
 	);
 }
 
-sub is_newly_added {
-	my $file = shift;
-	is(
+sub is_newly_added { _newly_added_or_not(shift, 1) }
+sub isnt_newly_added { _newly_added_or_not(shift, 0) }
+sub _newly_added_or_not {
+	my ($file, $expected_new) = @_;
+	my ($func, $word);
+	if ($expected_new) {
+		$func = \&Test::More::is;
+		$word = q{is};
+	}
+	else {
+		$func = \&Test::More::isnt;
+		$word = q{isn't};
+	}
+	$func->(
 		IkiWiki::Plugin::cvs::cvs_info("Repository revision", $file),
 		'1.1',
-		qq{$file is newly added to CVS},
+		qq{$file $word newly added to CVS},
 	);
 }
 
 sub is_in_keyword_substitution_mode {
 	my ($file, $mode) = @_;
-	$mode = '(none)' unless defined $mode;
 	is(
 		IkiWiki::Plugin::cvs::cvs_info("Sticky Options", $file),
 		$mode,
@@ -536,4 +701,8 @@ sub stripext {
 	$extension = '\..+?' unless defined $extension;
 	$file =~ s|$extension$||g;
 	return $file;
+}
+
+sub _wrapper_paths {
+	return qq{newenviron[i++]="PERL5LIB=$ENV{PERL5LIB}";};
 }
