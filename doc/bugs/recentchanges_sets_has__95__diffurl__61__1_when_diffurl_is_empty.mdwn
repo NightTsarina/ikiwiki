@@ -1,0 +1,18 @@
+recentchanges.pm sets the template variable HAS_DIFFURL to 1 based solely on whether or not diffurl is defined. I found that diffurl was defined, but empty. The recentchanges template depends on this for recentchangesdiff to properly function -- diff toggling is dependent on HAS_DIFFURL evaluating to false. Adding a check for a non-zero length diffurl fixed the issue for me. A patch against ikiwiki-3.20121212 is as follows:
+
+    --- a/IkiWiki/Plugin/recentchanges.pm	2013-01-27 20:08:59.000000000 -0800
+    +++ b/IkiWiki/Plugin/recentchanges.pm	2013-01-27 20:08:30.000000000 -0800
+    @@ -181,7 +181,8 @@ sub store ($$$) {
+     			else {
+     				$_->{link} = pagetitle($_->{page});
+     			}
+    -			if (defined $_->{diffurl}) {
+    +			if (defined $_->{diffurl} &&
+    +				length($_->{diffurl}) > 0) {
+     				$has_diffurl=1;
+     			}
+     
+
+(There should be one more line at the bottom with a single space on it...)
+
+> [[applied|done]] --[[Joey]]

@@ -171,8 +171,18 @@ Bugs found and fixed so far:
 
 > Merged to current head. --[[Joey]] 
 
-* Return bounded output from `rcs_diff()` when asked, as the API states.
-   (6753235d98a3903364af26c0614106c47d93ae35)
-* When adding a text file under a name formerly tracked as binary,
-  fix CVS keyword substitution behavior by explicitly setting `-kkv`.
-   (e45175d5454cc72b261507260accb309f13b5e8b)
+----
+
+Hi! Bugfixes in `schmonz/cvs` I'd like to see merged:
+
+* `6753235d`: Return bounded output from `rcs_diff()` when asked, as
+  the API states.
+* `e45175d5`: Always explicitly set CVS keyword substitution behavior.
+  Fixes behavior when a text file is added under a name formerly
+  used for a binary file.
+* `b30cacdf`: If the previous working directory no longer exists after
+  a CVS operation, don't try to `chdir()` back to it afterward.
+
+These are all the diffs that exist on the branch, so if the changes
+are acceptable you should be able to simply merge the branch.
+--[[schmonz]]

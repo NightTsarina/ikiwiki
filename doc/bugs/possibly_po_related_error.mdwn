@@ -1,0 +1,20 @@
+A site got stuck like this:
+
+<pre>
+/home/b-fusioninventory/public_html/documentation/index.es.html independently created, not overwriting with version from documentation.es
+</pre>
+
+I tried rebuilding it, and the rebuild failed like this:
+
+<pre>
+building recentchanges/change_ef4b9f92821335d96732c4b2c93ed96bc84c2f0d._change, which depends on templates/page.tmpl
+removing recentchanges/change_9ca1de878ea654566ce4a8a031d1ad8ed135ea1c/index.html, no longer built by recentchanges/change_9ca1de878ea654566ce4a8a031d1ad8ed135ea1c
+internal error: recentchanges/change_9ca1de878ea654566ce4a8a031d1ad8ed135ea1c._change cannot be found in /home/b-fusioninventory/source or underlay
+</pre>
+
+This internal error seems like the root cause of the original failure.
+ikiwiki crashed and did not record that it wrote the index.es.html file.
+
+Deleting the indexdb and rebuilding cleaned up the problem.
+
+This needs more investigation. --[[Joey]]
