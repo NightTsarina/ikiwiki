@@ -89,7 +89,7 @@ sub checkconfig () {
 				id => $file,
 				call => sub {
 					my %params=@_;
-				       	highlight($langfile, $params{content});
+				       	highlight($langfile, $file, $params{content});
 				},
 				longname => sprintf(gettext("Source code: %s"), $file),
 				@opts,
@@ -106,7 +106,7 @@ sub htmlizeformat {
 		return;
 	}
 
-	return Encode::decode_utf8(highlight($langfile, shift));
+	return Encode::decode_utf8(highlight($langfile, $format, shift));
 }
 
 my %ext2lang;
@@ -172,6 +172,7 @@ sub ext2langfile ($) {
 # Interface to the highlight C library.
 sub highlight ($$) {
 	my $langfile=shift;
+	my $extorfile=shift;
 	my $input=shift;
 
 	eval q{use highlight};
@@ -200,7 +201,7 @@ sub highlight ($$) {
 		$gen=$highlighters{$langfile};
 	}
 
-	return $gen->generateString($input);
+	return "<div class=\"highlight-$extorfile\">".$gen->generateString($input)."</div>";
 }
 
 1
