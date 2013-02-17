@@ -14,8 +14,13 @@ BEGIN {
 
 sub simple_podcast {
 	my $baseurl = 'http://example.com';
+	my @command = (qw(./ikiwiki.out -plugin inline -rss -atom));
+	push @command, qw(-underlaydir=underlays/basewiki);
+	push @command, qw(-set underlaydirbase=underlays -templatedir=templates);
+	push @command, "-url=$baseurl", qw(t/tinypodcast t/tmp/out);
+
 	ok(! system("mkdir t/tmp"));
-	ok(! system("./ikiwiki.out -plugin inline -url=$baseurl -rss -atom -underlaydir=underlays/basewiki -set underlaydirbase=underlays -templatedir=templates t/tinypodcast t/tmp/out"));
+	ok(! system(@command));
 
 	my %media_types = (
 		'piano.mp3'	=> 'audio/mpeg',
