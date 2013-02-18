@@ -122,6 +122,13 @@ sub preprocess (@) {
 		return "";
 	}
 	elsif ($key eq 'enclosure') {
+		my $link=bestlink($page, $value);
+		if (! length $link) {
+			error gettext("enclosure not found")
+		}
+		add_depends($page, $link, deptype("presence"));
+
+		$value=urlto($link, $page);
 		$pagestate{$page}{meta}{enclosure}=$value;
 	}
 	elsif ($key eq 'author') {
@@ -322,7 +329,6 @@ sub pagetemplate (@) {
 	}
 
 	if (exists $pagestate{$page}{meta}{enclosure}) {
-		# XXX what if the enclosure doesn't exist?
 		$template->param(enclosure => $pagestate{$page}{meta}{enclosure});
 	}
 
