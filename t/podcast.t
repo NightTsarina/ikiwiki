@@ -9,7 +9,7 @@ BEGIN {
 			"XML::Feed and/or HTML::Parser not available"};
 	}
 	else {
-		eval q{use Test::More tests => 78};
+		eval q{use Test::More tests => 81};
 	}
 }
 
@@ -25,8 +25,10 @@ sub simple_podcast {
 	push @command, qw(-set underlaydirbase=underlays -templatedir=templates);
 	push @command, "-url=$baseurl", qw(t/tinypodcast), "$tmp/out";
 
-	ok(! system("mkdir $tmp"), q{setup});
-	ok(! system(@command), q{build});
+	ok(! system("mkdir $tmp"),
+		q{setup});
+	ok(! system(@command),
+		q{build});
 
 	my %media_types = (
 		'simplepost'	=> undef,
@@ -97,21 +99,28 @@ sub single_page_html {
 	push @command, qw(-set underlaydirbase=underlays -templatedir=templates);
 	push @command, qw(t/tinypodcast), "$tmp/out";
 
-	ok(! system("mkdir $tmp"), q{setup});
-	ok(! system(@command), q{build});
+	ok(! system("mkdir $tmp"),
+		q{setup});
+	ok(! system(@command),
+		q{build});
 
 	my $html = "$tmp/out/pianopost/index.html";
-
-	my $body = _extract_html_content($html, 'content');
-	like($body, qr/article has content and/m, q{html body text});
-
-	my $enclosure = _extract_html_content($html, 'enclosure');
-	like($enclosure, qr/Download this episode/m, q{html enclosure});
-
+	like(_extract_html_content($html, 'content'), qr/has content and/m,
+		q{html body text});
+	like(_extract_html_content($html, 'enclosure'), qr/this episode/m,
+		q{html enclosure});
 	my ($href) = _extract_html_links($html, 'piano');
-	ok(-f $href, q{html enclosure exists});
+	ok(-f $href,
+		q{html enclosure exists});
 
-	# XXX die if more than one enclosure is specified
+	$html = "$tmp/out/attempted_multiple_enclosures/index.html";
+	like(_extract_html_content($html, 'content'), qr/has content and/m,
+		q{html body text});
+	like(_extract_html_content($html, 'enclosure'), qr/this episode/m,
+		q{html enclosure});
+	($href) = _extract_html_links($html, 'walter');
+	ok(-f $href,
+		q{html enclosure exists});
 
 	ok(! system("rm -rf $tmp $statedir"), q{teardown});
 }
