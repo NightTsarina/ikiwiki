@@ -27,25 +27,25 @@ sub simple_podcast {
 	ok(! system(@command));
 
 	my %media_types = (
-		'post'		=> undef,
+		'simplepost'	=> undef,
 		'piano.mp3'	=> 'audio/mpeg',
 		'scroll.3gp'	=> 'video/3gpp',
 		'walter.ogg'	=> 'video/x-theora+ogg',
 	);
 
 	for my $format (qw(atom rss)) {
-		my $feed = XML::Feed->parse("$tmp/out/index.$format");
+		my $feed = XML::Feed->parse("$tmp/out/simple/index.$format");
 
-		is($feed->title, 'wiki',
+		is($feed->title, 'simple',
 			qq{$format feed title});
-		is($feed->link, "$baseurl/",
+		is($feed->link, "$baseurl/simple/",
 			qq{$format feed link});
-		is($feed->description, $feed->title,
+		is($feed->description, 'wiki',
 			qq{$format feed description});
 		if ('atom' eq $format) {
-			is($feed->author, $feed->title,
+			is($feed->author, $feed->description,
 				qq{$format feed author});
-			is($feed->id, "$baseurl/",
+			is($feed->id, $feed->link,
 				qq{$format feed id});
 			is($feed->generator, "ikiwiki",
 				qq{$format feed generator});
@@ -97,7 +97,7 @@ sub single_page_html {
 
 	ok(! system("mkdir $tmp"));
 	ok(! system(@command));
-	my $html = "$tmp/out/podcast/index.html";
+	my $html = "$tmp/out/pianopost/index.html";
 
 	my $body = _extract_html_content($html, 'content');
 	like($body, qr/article has content and/m, q{html body text});
