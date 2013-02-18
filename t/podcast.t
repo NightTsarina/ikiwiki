@@ -3,15 +3,17 @@ use warnings;
 use strict;
 
 BEGIN {
-	eval q{use XML::Feed; use HTML::Parser};
+	eval q{use XML::Feed; use HTML::Parser; use HTML::LinkExtor};
 	if ($@) {
 		eval q{use Test::More skip_all =>
 			"XML::Feed and/or HTML::Parser not available"};
 	}
 	else {
-		eval q{use Test::More tests => 77};
+		eval q{use Test::More tests => 78};
 	}
 }
+
+use Cwd;
 
 my $tmp = 't/tmp';
 my $statedir = 't/tinypodcast/.ikiwiki';
@@ -23,8 +25,8 @@ sub simple_podcast {
 	push @command, qw(-set underlaydirbase=underlays -templatedir=templates);
 	push @command, "-url=$baseurl", qw(t/tinypodcast), "$tmp/out";
 
-	ok(! system("mkdir $tmp"));
-	ok(! system(@command));
+	ok(! system("mkdir $tmp"), q{setup});
+	ok(! system(@command), q{build});
 
 	my %media_types = (
 		'simplepost'	=> undef,
@@ -86,7 +88,7 @@ sub simple_podcast {
 		}
 	}
 
-	ok(! system("rm -rf $tmp $statedir"));
+	ok(! system("rm -rf $tmp $statedir"), q{teardown});
 }
 
 sub single_page_html {
@@ -95,8 +97,9 @@ sub single_page_html {
 	push @command, qw(-set underlaydirbase=underlays -templatedir=templates);
 	push @command, qw(t/tinypodcast), "$tmp/out";
 
-	ok(! system("mkdir $tmp"));
-	ok(! system(@command));
+	ok(! system("mkdir $tmp"), q{setup});
+	ok(! system(@command), q{build});
+
 	my $html = "$tmp/out/pianopost/index.html";
 
 	my $body = _extract_html_content($html, 'content');
@@ -105,10 +108,12 @@ sub single_page_html {
 	my $enclosure = _extract_html_content($html, 'enclosure');
 	like($enclosure, qr/Download this episode/m, q{html enclosure});
 
-	# XXX die if specified enclosure doesn't exist
+	my ($href) = _extract_html_links($html, 'piano');
+	ok(-f $href, q{html enclosure exists});
+
 	# XXX die if more than one enclosure is specified
 
-	ok(! system("rm -rf $tmp $statedir"));
+	ok(! system("rm -rf $tmp $statedir"), q{teardown});
 }
 
 sub _extract_html_content {
@@ -137,6 +142,23 @@ sub _extract_html_content {
 	$p->parse_file($file) || die $!;
 
 	return $content;
+}
+
+sub _extract_html_links {
+	my ($file, $desired_value) = @_;
+
+	my @hrefs = ();
+
+	my $p = HTML::LinkExtor->new(sub {
+		my ($tag, %attr) = @_;
+		return if $tag ne 'a';
+		return unless $attr{href} =~ qr/$desired_value/;
+		push(@hrefs, values %attr);
+	}, getcwd() . '/' . $file);
+
+	$p->parse_file($file);
+
+	return @hrefs;
 }
 
 simple_podcast();
