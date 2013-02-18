@@ -121,6 +121,9 @@ sub preprocess (@) {
 		add_link($page, $value);
 		return "";
 	}
+	elsif ($key eq 'enclosure') {
+		$pagestate{$page}{meta}{enclosure}=$value;
+	}
 	elsif ($key eq 'author') {
 		$pagestate{$page}{meta}{author}=$value;
 		if (exists $params{sortas}) {
@@ -316,6 +319,11 @@ sub pagetemplate (@) {
 		eval q{use HTML::Entities};
 		$template->param(title => HTML::Entities::encode_numeric($pagestate{$page}{meta}{title}));
 		$template->param(title_overridden => 1);
+	}
+
+	if (exists $pagestate{$page}{meta}{enclosure}) {
+		# XXX what if the enclosure doesn't exist?
+		$template->param(enclosure => $pagestate{$page}{meta}{enclosure});
 	}
 
 	foreach my $field (qw{authorurl}) {
