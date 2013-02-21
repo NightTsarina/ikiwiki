@@ -31,8 +31,7 @@ also have lots more metadata.
   HTML behavior, then make them pass by adding enclosure stanzas
   to `{,inline}page.tmpl`.
 * Write failing tests for the desired RSS/Atom behavior, then make
-  them pass, probably via changes to `{atom,rss}item.tmpl` and
-  [[plugins/inline]].
+  them pass via changes to `{atom,rss}item.tmpl` and [[plugins/inline]].
 
 ### Must-have (for [[schmonz]], anyway)
 
@@ -60,3 +59,23 @@ also have lots more metadata.
 * Extend [[plugins/inline]] to configurably generate additional
   subscription links (such as iTunes) alongside the RSS/Atom ones.
 * Verify that [[plugins/more]] plays well with fancy podcasts.
+* Allow enclosures that are outside the wiki.
+
+### Status
+
+[[!table data="""
+Feature            |iTunes RSS|iTunes Atom|Downcast RSS|Downcast Atom
+Feed image         |    -     |     -     |     -      |     -
+Feed title         |    +     |     +     |     +      |     +
+Feed publisher     |    -     |     -     |     -      |     -
+Feed "category"    |    -     |     -     |     -      |     -
+Feed date          |    +     |     +     |     +      |     +
+Feed description   |    -     |     -     |     -      |     -
+Episode image      |    -     |     -     |     -      |     -
+Episode title      |    +     |     +     |     +      |     +
+Episode date       |    +     |     +     |     +      |     +
+Episode duration   |    -     |     -     |     -      |     -
+Episode author     |    +     |     +     |     +      |     +
+Episode description|    +     |     +     |     +      |     -
+Episode enclosure  |    +     |     +     |     +      |     +
+"""]]
