@@ -128,7 +128,7 @@ sub preprocess (@) {
 		}
 		add_depends($page, $link, deptype("presence"));
 
-		$value=urlto($link, $page);
+		$value=urlto($link, $page, 1);
 		$pagestate{$page}{meta}{enclosure}=$value;
 		# fallthrough
 	}
@@ -330,7 +330,7 @@ sub pagetemplate (@) {
 	}
 
 	if (exists $pagestate{$page}{meta}{enclosure}) {
-		$template->param(enclosure => $pagestate{$page}{meta}{enclosure});
+		$template->param(enclosure => HTML::Entities::encode_entities(IkiWiki::urlabs($pagestate{$page}{meta}{enclosure}, $config{url})));
 	}
 
 	foreach my $field (qw{authorurl}) {

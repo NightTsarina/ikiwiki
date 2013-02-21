@@ -9,7 +9,7 @@ BEGIN {
 			"XML::Feed and/or HTML::Parser not available"};
 	}
 	else {
-		eval q{use Test::More tests => 89};
+		eval q{use Test::More tests => 92};
 	}
 }
 
@@ -110,8 +110,8 @@ sub single_page_html {
 	like(_extract_html_content($html, 'enclosure'), qr/this episode/m,
 		q{html enclosure});
 	my ($href) = _extract_html_links($html, 'piano');
-	ok(-f $href,
-		q{html enclosure exists});
+	is($href, '/piano.mp3',
+		q{html enclosure sans -url is site-absolute});
 
 	$html = "$tmp/out/attempted_multiple_enclosures/index.html";
 	like(_extract_html_content($html, 'content'), qr/has content and/m,
@@ -119,8 +119,21 @@ sub single_page_html {
 	like(_extract_html_content($html, 'enclosure'), qr/this episode/m,
 		q{html enclosure});
 	($href) = _extract_html_links($html, 'walter');
-	ok(-f $href,
-		q{html enclosure exists});
+	is($href, '/walter.ogg',
+		q{html enclosure sans -url is site-absolute});
+
+	my $baseurl = 'http://example.com';
+	ok(! system(@command, "-url=$baseurl", q{--rebuild}));
+
+	$html = "$tmp/out/pianopost/index.html";
+	($href) = _extract_html_links($html, 'piano');
+	is($href, "$baseurl/piano.mp3",
+		q{html enclosure with -url is fully absolute});
+
+	$html = "$tmp/out/attempted_multiple_enclosures/index.html";
+	($href) = _extract_html_links($html, 'walter');
+	is($href, "$baseurl/walter.ogg",
+		q{html enclosure with -url is fully absolute});
 
 	ok(! system("rm -rf $tmp $statedir"), q{teardown});
 }
@@ -146,11 +159,11 @@ sub inlined_pages_html {
 	like($enclosures, qr/this episode/m,
 		q{html enclosure});
 	my ($href) = _extract_html_links($html, 'piano.mp3');
-	ok(-f $href,
-		q{html enclosure from pianopost exists});
+	is($href, '/piano.mp3',
+		q{html enclosure from pianopost sans -url});
 	($href) = _extract_html_links($html, 'walter.ogg');
-	ok(-f $href,
-		q{html enclosure from attempted_multiple_enclosures exists});
+	is($href, '/walter.ogg',
+		q{html enclosure from attempted_multiple_enclosures sans -url});
 
 	ok(! system("rm -rf $tmp $statedir"), q{teardown});
 }
