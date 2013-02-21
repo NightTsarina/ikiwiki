@@ -611,6 +611,26 @@ sub absolute_urls ($$) {
 	return $ret;
 }
 
+sub genenclosure {
+	my $itemtemplate=shift;
+	my $url=shift;
+	my $file=shift;
+
+	return unless $itemtemplate->query(name => "enclosure");
+
+	my $size=(srcfile_stat($file))[8];
+	my $mime="unknown";
+	eval q{use File::MimeInfo};
+	if (! $@) {
+		$mime = mimetype($file);
+	}
+	$itemtemplate->param(
+		enclosure => $url,
+		type => $mime,
+		length => $size,
+	);
+}
+
 sub genfeed ($$$$$@) {
 	my $feedtype=shift;
 	my $feedurl=shift;
@@ -650,28 +670,13 @@ sub genfeed ($$$$$@) {
 			}
 		}
 
-		if ($itemtemplate->query(name => "enclosure")) {
-			my $file=$pagesources{$p};
-			my $type=pagetype($file);
-			if (defined $type) {
-				$itemtemplate->param(content => $pcontent);
-			}
-			else {
-				my $size=(srcfile_stat($file))[8];
-				my $mime="unknown";
-				eval q{use File::MimeInfo};
-				if (! $@) {
-					$mime = mimetype($file);
-				}
-				$itemtemplate->param(
-					enclosure => $u,
-					type => $mime,
-					length => $size,
-				);
-			}
+		my $file=$pagesources{$p};
+		my $type=pagetype($file);
+		if (defined $type) {
+			$itemtemplate->param(content => $pcontent);
 		}
 		else {
-			$itemtemplate->param(content => $pcontent);
+			genenclosure($itemtemplate, $u, $file);
 		}
 
 		run_hooks(pagetemplate => sub {
