@@ -1,16 +1,14 @@
 <item>
-<TMPL_IF AUTHOR>
-	<title><TMPL_VAR AUTHOR ESCAPE=HTML>: <TMPL_VAR TITLE></title>
-	<dcterms:creator><TMPL_VAR AUTHOR ESCAPE=HTML></dcterms:creator>
-<TMPL_ELSE>
 	<title><TMPL_VAR TITLE></title>
-</TMPL_IF>
 <TMPL_IF GUID>
 	<guid isPermaLink="false"><TMPL_VAR GUID></guid>
 <TMPL_ELSE>
 	<guid isPermaLink="false"><TMPL_VAR URL></guid>
 </TMPL_IF>
 	<link><TMPL_VAR PERMALINK></link>
+<TMPL_IF AUTHOR>
+	<dcterms:creator><TMPL_VAR AUTHOR ESCAPE=HTML></dcterms:creator>
+</TMPL_IF>
 <TMPL_IF CATEGORIES>
 <TMPL_LOOP CATEGORIES>
 	<category><TMPL_VAR CATEGORY></category>
