@@ -19,6 +19,7 @@ also have lots more metadata.
 ## Implementation
 
 [[!template id=gitbranch branch=schmonz/fancypodcast author="[[schmonz]]"]]
+[[!tag patch]]
 
 ### Completed
 
@@ -31,32 +32,75 @@ also have lots more metadata.
   HTML behavior, then make them pass by adding enclosure stanzas
   to `{,inline}page.tmpl`.
 * Write failing tests for the desired RSS/Atom behavior, then make
-  them pass, probably via changes to `{atom,rss}item.tmpl` and
-  [[plugins/inline]].
+  them pass via changes to `{atom,rss}item.tmpl` and [[plugins/inline]].
+* Match feature-for-feature with
+  [tru_podcast](http://www.rainskit.com/blog/542/tru_podcast-a-podcasting-plugin-for-textpattern)
+  (what [[schmonz]] will be migrating from).
+* Enrich [feed metadata](http://cyber.law.harvard.edu/rss/rss.html)
+  by catching up `rsspage.tmpl` to `atompage.tmpl`.
+* Subscribe to a fancy feed in some common podcatchers and verify
+  display details against a reference podcast.
+* Verify that the feeds validate.
 
 ### Must-have (for [[schmonz]], anyway)
 
-* Enrich podcast feed metadata (some of which is iTunes-specific,
-  though I'm not aware of it causing any problems for other
-  podcatchers, and in fact some of them may also use it).
-* Subscribe to a fancy feed in some common podcatchers and compare
-  display details against a reference podcast.
-* Compare feature-for-feature and feed-for-feed with
-  [tru_podcast](http://www.rainskit.com/blog/542/tru_podcast-a-podcasting-plugin-for-textpattern),
-  which is what [[schmonz]] will be migrating from.
 * Think carefully about...
     * UTF-8.
     * Other templates with `CONTENT` and whether they want to learn
       about `ENCLOSURE` (maybe `aggregatepost.tmpl`?).
     * Whether [[tips/howto avoid flooding aggregators]] suffices for
       migrating a fancy podcast into ikiwiki.
-* Verify that the feeds validate.
 * Verify that _all_ the tests pass (not just my new ones).
 
-### Nice-to-have
+-----
+
+## Future improvements
+
+### iTunes fancy podcasting
+
+* [iTunes-specific tags](https://www.apple.com/itunes/podcasts/specs.html)
+  appear to be RSS-only
+    * If they work in Atom, teach `inline` to optionally iTunesify RSS/Atom.
+    * Else, add `itunes` as a third kind of feed (RSS plus more stuff).
+* Notable tags for feeds:
+    * `itunes:subtitle`
+    * `itunes:author`
+    * `itunes:summary` (same as `description`)
+    * `itunes:owner` (includes `itunes:name` and `itunes:email`)
+    * `itunes:image href=''`
+    * `itunes:publisher`
+    * `itunes:category text=''` (can contain subcategories)
+    * `itunes:keywords`
+* Notable tags for entries:
+    * `itunes:duration`
+        * use `Audio::TagLib` if present and applicable
+        * fall back to `ffprobe`
+
+### Other ideas
 
 * Let the enclosure's MIME type be specified, in case someone ever
   needs to disagree with `File::MimeInfo`.
 * Extend [[plugins/inline]] to configurably generate additional
   subscription links (such as iTunes) alongside the RSS/Atom ones.
 * Verify that [[plugins/more]] plays well with fancy podcasts.
+* Allow enclosures that are outside the wiki.
+* Support Apple's "enhanced podcasts" (if they're still relevant).
+
+### Status
+
+[[!table data="""
+Feature            |iTunes RSS|iTunes Atom|Downcast RSS|Downcast Atom
+Feed image         |          |           |            |
+Feed title         |(./)      |(./)       |(./)        |(./)
+Feed publisher     |          |           |            |
+Feed "category"    |          |           |            |
+Feed date          |(./)      |(./)       |(./)        |(./)
+Feed description   |          |           |            |
+Episode image      |          |           |            |
+Episode title      |(./)      |(./)       |(./)        |(./)
+Episode date       |(./)      |(./)       |(./)        |(./)
+Episode duration   |          |           |            |
+Episode author     |(./)      |(./)       |(./)        |(./)
+Episode description|(./)      |(./)       |(./)        |
+Episode enclosure  |(./)      |(./)       |(./)        |(./)
+"""]]

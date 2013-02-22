@@ -1,0 +1,9 @@
+I turned on the sidebar plugin, with global_sidebars on (in the web setup page), created a sidebar page in the root, and edited the sidebar a few times.
+
+I then noticed that all pages on the root had been updated with a sidebar, but no subpages (i.e. a/b). Only after editing a subpage did it get a sidebar. Editing sidebar itself only updated subpages with sidebars, the other subpages had not been refreshed (proven by their unchanged filesystem date)  
+
+After calling ikiwiki --setup on the command line all pages were updated. So this seems to be a difference between web-started --setup and command-line --setup. Or it just doesn't work the first time --setup is called after sidebars are enabled.
+
+
+
+
