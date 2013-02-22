@@ -710,6 +710,7 @@ sub genfeed ($$$$$@) {
 		feeddesc => $feeddesc,
 		guid => $guid,
 		feeddate => date_3339($lasttime),
+		feeddate_822 => date_822($lasttime),
 		feedurl => $feedurl,
 	);
 	run_hooks(pagetemplate => sub {
