@@ -32,17 +32,19 @@ also have lots more metadata.
   to `{,inline}page.tmpl`.
 * Write failing tests for the desired RSS/Atom behavior, then make
   them pass via changes to `{atom,rss}item.tmpl` and [[plugins/inline]].
+* Match feature-for-feature with
+  [tru_podcast](http://www.rainskit.com/blog/542/tru_podcast-a-podcasting-plugin-for-textpattern)
+  (what [[schmonz]] will be migrating from).
 
 ### Must-have (for [[schmonz]], anyway)
 
-* Enrich podcast feed metadata (some of which is iTunes-specific,
+* Enrich [podcast feed metadata](http://cyber.law.harvard.edu/rss/rss.html)
+  (some of which is
+  [iTunes-specific](https://www.apple.com/itunes/podcasts/specs.html),
   though I'm not aware of it causing any problems for other
   podcatchers, and in fact some of them may also use it).
-* Subscribe to a fancy feed in some common podcatchers and compare
+* Subscribe to a fancy feed in some common podcatchers and verify
   display details against a reference podcast.
-* Compare feature-for-feature and feed-for-feed with
-  [tru_podcast](http://www.rainskit.com/blog/542/tru_podcast-a-podcasting-plugin-for-textpattern),
-  which is what [[schmonz]] will be migrating from.
 * Think carefully about...
     * UTF-8.
     * Other templates with `CONTENT` and whether they want to learn
@@ -60,22 +62,27 @@ also have lots more metadata.
   subscription links (such as iTunes) alongside the RSS/Atom ones.
 * Verify that [[plugins/more]] plays well with fancy podcasts.
 * Allow enclosures that are outside the wiki.
+* Support Apple's "enhanced podcasts" (if they're still relevant).
 
 ### Status
 
 [[!table data="""
 Feature            |iTunes RSS|iTunes Atom|Downcast RSS|Downcast Atom
-Feed image         |    -     |     -     |     -      |     -
-Feed title         |    +     |     +     |     +      |     +
-Feed publisher     |    -     |     -     |     -      |     -
-Feed "category"    |    -     |     -     |     -      |     -
-Feed date          |    +     |     +     |     +      |     +
-Feed description   |    -     |     -     |     -      |     -
-Episode image      |    -     |     -     |     -      |     -
-Episode title      |    +     |     +     |     +      |     +
-Episode date       |    +     |     +     |     +      |     +
-Episode duration   |    -     |     -     |     -      |     -
-Episode author     |    +     |     +     |     +      |     +
-Episode description|    +     |     +     |     +      |     -
-Episode enclosure  |    +     |     +     |     +      |     +
+Feed image         |          |           |            |
+Feed title         |(./)      |(./)       |(./)        |(./)
+Feed publisher     |          |           |            |
+Feed "category"    |          |           |            |
+Feed date          |(./)      |(./)       |(./)        |(./)
+Feed description   |          |           |            |
+Episode image      |          |           |            |
+Episode title      |(./)      |(./)       |(./)        |(./)
+Episode date       |(./)      |(./)       |(./)        |(./)
+Episode duration   |          |           |            |
+Episode author     |(./)      |(./)       |(./)        |(./)
+Episode description|(./)      |(./)       |(./)        |
+Episode enclosure  |(./)      |(./)       |(./)        |(./)
 """]]
+
+Notes:
+
+* RSS appears to be strongly preferred over Atom for podcasting.
