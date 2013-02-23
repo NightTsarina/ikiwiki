@@ -1,0 +1,21 @@
+[[!template id=plugin name=wc author="[[schmonz]]"]]
+[[!template id=gitbranch branch=schmonz/wc author="[[schmonz]]"]]
+[[!tag type/meta]]
+
+This plugin counts words in a page. For a single page, write a
+`\[[!wc]]` directive and the word count will be interpolated there.
+For a site, add `<TMPL_VAR WORDCOUNT>` to your [[templates]].
+
+If [[!cpan HTML::Strip]] is installed, the wordcount will be slightly
+more accurate.
+
+Possible enhancements:
+
+* Optimize: count words iff the result will be displayed. `sanitize()`
+  seems like the right place to count. Since it's called well after
+  `preprocess()`, I can tell whether a directive needs the result,
+  but since it appears to be called before `pagetemplate()`, I can't
+  tell whether a template wants to know and possibly skip the
+  computation. (In other words, if I add `$needed_for_template`
+  like `$needed_for_directive`, it gets set too late for `sanitize()`
+  to see.)
