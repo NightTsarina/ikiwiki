@@ -633,7 +633,7 @@ describes the plugin as a whole. For example:
   strictly required.
 * `section` can optionally specify which section in the config file
   the plugin fits in. The convention is to name the sections the
-  same as the tags used for [[plugins|plugin]] on this wiki.
+  same as the tags used for [[plugins]] on this wiki.
 
 ### genwrapper
 
@@ -684,7 +684,7 @@ wiki updates.
 
 The `%wikistate` hash can be used by a plugin to store persistant state
 that is not bound to any one page. To set a value, use
-`$wikistate{$id}{$key}=$value, where `$value` is anything Storable can
+`$wikistate{$id}{$key}=$value`, where `$value` is anything Storable can
 serialize, `$key` is any string you like, and `$id` must be the same as the
 "id" parameter passed to `hook()` when registering the plugin, so that the
 state can be dropped if the plugin is no longer used.

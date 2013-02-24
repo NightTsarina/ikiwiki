@@ -1,0 +1,36 @@
+Hi,
+I am trying to build a template. The compilation of this template results in a weird exception. I have isolated the cause of the exception to the following point:
+
+If i have this in the template code:
+
+\[[!inline<br/>
+pages="\<TMPL_VAR SEL_PAGES\>"<br/>
+template=extract-entry<br/>
+\]]<br/>
+
+There is no problem at all. I can use the template with the desired result. But if I try to use this (just adding the "show" parameter):
+
+\[[!inline <br/>
+pages="\<TMPL_VAR SEL_PAGES>"<br/>
+template=extract-entry<br/>
+show=\<TMPL_VAR CNTPG><br/>
+\]]<br/>
+
+I get this exception on the Git bash console:
+
+<pre>
+$ git push
+Counting objects: 7, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 410 bytes, done.
+Total 4 (delta 3), reused 0 (delta 0)
+remote: From /home/b-odelama-com/source
+remote:    eb1421e..5e1bac5  master     -> origin/master
+remote: Argument "\x{3c}\x{54}..." isn't numeric in numeric lt (<) at /usr/share/perl5/IkiWiki/Plugin/inline.pm line 231.
+remote: Argument "\x{3c}\x{54}..." isn't numeric in numeric lt (<) at /usr/share/perl5/IkiWiki/Plugin/inline.pm line 231.
+To ssh://b-odelama-com@odelama-com.branchable.com/
+   eb1421e..5e1bac5  master -> master
+</pre>
+
+Please, let me know what to do to avoid this kind of error.
