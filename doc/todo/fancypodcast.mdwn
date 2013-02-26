@@ -66,8 +66,6 @@ Episode enclosure  |(./)      |(./)       |(./)        |(./)
 
 * Think carefully about...
     * UTF-8.
-    * Other templates with `CONTENT` and whether they want to learn
-      about `ENCLOSURE` (maybe `aggregatepost.tmpl`?).
     * Whether [[tips/howto avoid flooding aggregators]] suffices for
       migrating a fancy podcast into ikiwiki.
 * Verify that _all_ the tests pass (not just my new ones).
@@ -97,6 +95,12 @@ Episode enclosure  |(./)      |(./)       |(./)        |(./)
         * [ffprobe](http://ffmpeg.org/ffprobe.html) is reasonably fast
         * [mediainfo](http://mediainfo.sourceforge.net/) is way slower
         * Cache computed durations as pagestate
+
+### Fancy podcast aggregating
+
+* Write tests comparing a fancy podcast (HTML and feeds) against
+  the same podcast aggregated and republished, then make them pass
+  via changes to `aggregatepost.impl` and [[plugins/aggregate]].
 
 ### Other ideas
 
