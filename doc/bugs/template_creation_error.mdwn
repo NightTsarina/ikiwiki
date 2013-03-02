@@ -34,3 +34,78 @@ To ssh://b-odelama-com@odelama-com.branchable.com/
 </pre>
 
 Please, let me know what to do to avoid this kind of error.
+
+> When you add a template page `templates/foo.mdwn` for use
+> the [[ikiwiki/directive/template]] directive, two things happen:
+>
+> 1. `\[[!template id=foo ...]]` becomes available;
+> 2. a wiki page `templates/foo` is built, resulting in a HTML file,
+>    typically `templates/foo/index.html`
+>
+> The warnings you're seeing are the second of these: when ikiwiki
+> tries to process `templates/foo.mdwn` as an ordinary page, without
+> interpreting the `<TMPL_VAR>` directives, `inline` receives invalid
+> input.
+>
+> This is a bit of a design flaw in [[plugins/template]] and
+> [[plugins/edittemplate]], I think - ideally it would be possible to
+> avoid parts of the page being interpreted when the page is being
+> rendered normally rather than being used as a template.
+>
+> There *is* a trick to avoid parts of the page being interpreted when
+> the page is being used as a template, while having them appear
+> when it's rendered as a page:
+>
+>     <TMPL_IF FALSE>
+>     <!-- This part only appears when being used as a page.
+>          It assumes that you never set FALSE to a true value :-) -->
+>     \[[!meta robots="noindex,nofollow"]]
+>     This template is used to describe a thing. Parameters:
+>     * name: the name of the thing
+>     * size: the size of the thing
+>     </TMPL_IF>
+>
+>     The thing is called <TMPL_VAR name> and its size is <TMPL_VAR size>
+>
+> I suppose you could maybe extend that to something like this:
+>
+>     <TMPL_IF FALSE>
+>     <!-- This part only appears when being used as a page.
+>          It assumes that you never set FALSE to a true value :-) -->
+>     \[[!meta robots="noindex,nofollow"]]
+>     This template is used to describe a thing. Parameters:
+>     * name: the name of the thing
+>     * size: the size of the thing
+>     </TMPL_IF>
+>
+>     <TMPL_IF FALSE>
+>     \[[!if test="included() and !included()" then="""
+>     </TMPL_IF>
+>     <!-- This part only appears when being used as a template. It also
+>          assumes that you never set FALSE to a true value, and it
+>          relies on the [[ikiwiki/pagespec]] "included() and !included()"
+>          never being true. -->
+>     The thing is called <TMPL_VAR name> and its size is <TMPL_VAR size>
+>     <TMPL_IF FALSE>
+>     """]]
+>     </TMPL_IF>
+>
+> but that's far harder than it ought to be!
+>
+> Perhaps the right solution would be to change how the template plugin
+> works, so that templates are expected to contain a new `definetemplate`
+> directive:
+>
+>     This template is used to describe a thing. Parameters:
+>     * name: the name of the thing
+>     * size: the size of the thing
+>     
+>     \[[!definetemplate """
+>     The thing is called <TMPL_VAR name> and its size is <TMPL_VAR size>
+>     """]]
+>
+> with templates not containing a `\[[!definetemplate]]` being treated
+> as if the whole text of the page was copied into a `\[[!definetemplate]]`,
+> for backwards compatibility?
+>
+> --[[smcv]]
