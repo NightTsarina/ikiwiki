@@ -1,0 +1,51 @@
+Hello,
+
+does anyone have an idea why I see the following error when I run websetup (Setup button in Preferences)?
+
+    Error: Can't use an undefined value as a HASH reference at /usr/share/perl5/IkiWiki/Plugin/websetup.pm line 82, line 97.
+
+Maybe, related to this is also
+
+    $ ikiwiki --setup /etc/ikiwiki/auto-blog.setup
+    What will the blog be named? tmpblog
+    What revision control system to use? git
+    What wiki user (or openid) will be admin? wsh
+
+
+    Setting up tmpblog ...
+    Importing /home/wsh/tmpblog into git
+    Initialized empty shared Git repository in /home/wsh/tmpblog.git/
+    Initialized empty Git repository in /home/wsh/tmpblog/.git/
+    [master (root-commit) d6847e1] initial commit
+     8 files changed, 48 insertions(+)
+     create mode 100644 .gitignore
+     create mode 100644 archives.mdwn
+     create mode 100644 comments.mdwn
+     create mode 100644 index.mdwn
+     create mode 100644 posts.mdwn
+     create mode 100644 posts/first_post.mdwn
+     create mode 100644 sidebar.mdwn
+     create mode 100644 tags.mdwn
+    Counting objects: 11, done.
+    Delta compression using up to 4 threads.
+    Compressing objects: 100% (9/9), done.
+    Writing objects: 100% (11/11), 1.53 KiB, done.
+    Total 11 (delta 0), reused 0 (delta 0)
+    Unpacking objects: 100% (11/11), done.
+    To /home/wsh/tmpblog.git
+     * [new branch]      master -> master
+    Directory /home/wsh/tmpblog is now a clone of git repository /home/wsh/tmpblog.git
+    Reference found where even-sized list expected at /usr/share/perl5/IkiWiki/Setup.pm line 177, <GEN4> line 97.
+    Reference found where even-sized list expected at /usr/share/perl5/IkiWiki/Setup.pm line 224, <GEN4> line 97.
+    Use of uninitialized value $section in hash element at /usr/share/perl5/IkiWiki/Setup.pm line 226, <GEN4> line 97.
+    Use of uninitialized value $section in hash element at /usr/share/perl5/IkiWiki/Setup.pm line 227, <GEN4> line 97.
+    Use of uninitialized value $section in concatenation (.) or string at /usr/share/perl5/IkiWiki/Setup.pm line 233, <GEN4> line 97.
+    /etc/ikiwiki/auto-blog.setup: Can't use an undefined value as a HASH reference at /usr/share/perl5/IkiWiki/Setup.pm line 252, <GEN4> line 97.
+
+    usage: ikiwiki [options] source dest
+           ikiwiki --setup configfile
+
+I'm on Debian unstable.
+
+Thanks,
+-Michal
