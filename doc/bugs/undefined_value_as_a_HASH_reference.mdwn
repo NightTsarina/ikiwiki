@@ -49,3 +49,18 @@ I'm on Debian unstable.
 
 Thanks,
 -Michal
+
+> Some plugin has a broken getsetup hook, and is feeding a corrupted setup list in. Both the websetup and the auto.setup files cause all plugins to be loaded and all their setup to be available. 
+> 
+> This command will help you find the plugin. Here it prints some noise around the rst plugin, for unrelated reasons,
+> but what you're looking for is the plugin printed before the "even sized list" message.
+
+<pre>
+perl -le 'use warnings; use strict; use Data::Dumper; use IkiWiki; %config=IkiWiki::defaultconfig(); use IkiWiki::Setup; my @s=IkiWiki::Setup::getsetup(); foreach my $pair (@s) { print "plugin ".$pair->[0]; my $setup=$pair->[1]; if ($pair->[0] eq "rst") { print Dumper($setup)} my %s=@{$setup} }'
+</pre>
+
+> I was able to replicate this by making a plugin's getsetup hook return a list reference, rather than a list, 
+> and have put in a guard against that sort of thing.
+>  --[[Joey]]
+
+>> Thanks. Your command didn't helped me, but with trial and error approach I found that the victim an old version asciidoc plugin. For some reason, asciidoc was never listed in the output of the command. --[[wentasah]]  
