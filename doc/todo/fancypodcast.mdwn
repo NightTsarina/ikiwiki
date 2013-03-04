@@ -1,0 +1,117 @@
+ikiwiki's simple podcasting, while elegant and minimal, doesn't (as
+mentioned in [[todo/blogging]]) produce full-featured feeds. In
+fancy podcasts, episodes are accompanied by text content. The feeds
+also have lots more metadata.
+
+[[!toc]]
+
+## Design
+
+7. For each fancy podcast episode, write a blog post containing
+   `\[[!meta enclosure="WikiLink/to/media.mp3"]]`. (Don't specify
+   more than one enclosure -- but if you do, last one wins.)
+7. When rendering to HTML (single-page or inlined), append a link
+   to the media file.
+7. When rendering to RSS/Atom, the text is the entry's content and
+   the media file is its enclosure.
+7. Don't break simple podcasts in pursuit of fancy podcasts.
+
+## Implementation
+
+[[!template id=gitbranch branch=schmonz/fancypodcast author="[[schmonz]]"]]
+[[!tag patch]]
+
+### Completed
+
+* Cover the existing simple podcast behavior with tests.
+* Add an `enclosure` field to [[plugins/meta]] that expands the
+  given [[ikiwiki/WikiLink]] to an absolute URL (feed enclosures
+  pretty much need to be, and the reference feeds I've looked at
+  all do this).
+* Write failing tests for the desired single-page and inlined
+  HTML behavior, then make them pass by adding enclosure stanzas
+  to `{,inline}page.tmpl`.
+* Write failing tests for the desired RSS/Atom behavior, then make
+  them pass via changes to `{atom,rss}item.tmpl` and [[plugins/inline]].
+* Match feature-for-feature with
+  [tru_podcast](http://www.rainskit.com/blog/542/tru_podcast-a-podcasting-plugin-for-textpattern)
+  (what [[schmonz]] will be migrating from).
+* Enrich [feed metadata](http://cyber.law.harvard.edu/rss/rss.html)
+  by catching up `rsspage.tmpl` to `atompage.tmpl`.
+* Verify that [[plugins/more]] plays well with fancy podcasts.
+* Verify that the feeds validate.
+* Subscribe to a fancy feed in some common podcatchers and verify
+  display details against a reference podcast.
+
+### Status
+
+[[!table data="""
+Feature            |iTunes RSS|iTunes Atom|Downcast RSS|Downcast Atom
+Feed image         |{X}       |{X}        |{X}         |{X}
+Feed title         |(./)      |(./)       |(./)        |(./)
+Feed publisher     |{X}       |{X}        |{X}         |{X}
+Feed "category"    |{X}       |{X}        |{X}         |{X}
+Feed date          |(./)      |(./)       |(./)        |(./)
+Feed description   |(./)      |(./)       |(./)        |{X}
+Episode image      |{X}       |{X}        |{X}         |{X}
+Episode title      |(./)      |(./)       |(./)        |(./)
+Episode date       |(./)      |(./)       |(./)        |(./)
+Episode duration   |{X}       |{X}        |{X}         |{X}
+Episode author     |{X}       |{X}        |{X}         |{X}
+Episode description|(./)      |(./)       |(./)        |{X}
+Episode enclosure  |(./)      |(./)       |(./)        |(./)
+"""]]
+
+### Must-have (for [[schmonz]], anyway)
+
+* Think carefully about...
+    * UTF-8.
+    * Whether [[tips/howto avoid flooding aggregators]] suffices for
+      migrating a fancy podcast into ikiwiki.
+* Verify that _all_ the tests pass (not just my new ones).
+
+-----
+
+## Future improvements
+
+### iTunes fancy podcasting
+
+* [iTunes-specific tags](https://www.apple.com/itunes/podcasts/specs.html)
+  appear to be RSS-only
+    * If they work in Atom, teach `inline` to optionally iTunesify RSS/Atom.
+    * Else, add `itunes` as a third kind of feed (RSS plus more stuff).
+* Notable tags for feeds:
+    * `itunes:subtitle`
+    * `itunes:author`
+    * `itunes:summary` (same as `description`)
+    * `itunes:owner` (includes `itunes:name` and `itunes:email`)
+    * `itunes:image href=''`
+    * `itunes:publisher`
+    * `itunes:category text=''` (can contain subcategories)
+    * `itunes:keywords`
+* Notable tags for entries:
+    * `itunes:duration`
+        * [[!cpan Audio::TagLib]] might be fastest, if present and applicable
+        * [ffprobe](http://ffmpeg.org/ffprobe.html) is reasonably fast
+        * [mediainfo](http://mediainfo.sourceforge.net/) is way slower
+        * Cache computed durations as pagestate
+
+### Fancy podcast aggregating
+
+* Write tests comparing a fancy podcast (HTML and feeds) against
+  the same podcast aggregated and republished, then make them pass
+  via changes to `aggregatepost.impl` and [[plugins/aggregate]].
+
+### Other ideas
+
+* Optionally specify the enclosure's:
+    * MIME type, in case `File::MimeInfo` guesses wrong.
+    * Duration, in case `ffprobe` guesses wrong.
+* Optionally specify enclosures outside the wiki:
+    * Some people don't want to store big unchanging files in the VCS.
+    * Other people like [podcasting found media](http://huffduffer.com/about).
+    * We'd have to download the file just to compute some metadata
+      about it, and then somehow not frequently re-download it.
+* Configurably generate additional subscription links (such as
+  iTunes) alongside the RSS/Atom ones in [[plugins/inline]].
+* Support Apple's "enhanced podcasts" (if they're still relevant).

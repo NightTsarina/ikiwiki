@@ -65,7 +65,12 @@ inconsistent between the one-and two-argument forms. Thoughts?
 >> Try this, then? I had to make some changes to `attachment`
 >> to make the split versions available. I suggest reviewing
 >> patch-by-patch.
->>
+
+>>> Branch updated; I'd missed a use of prune in ikiwiki.in itself.
+>>> Unfortunately, this means it does still need to support the
+>>> "undefined top directory" case: there isn't an obvious top
+>>> directory for wrappers. --[[smcv]]
+
 >> I also tried to fix a related bug which I found while testing it:
 >> the special case for renaming held attachments didn't seem to work.
 >> (`smcv/wip/rename-held`.) Unfortunately, it seems that with that

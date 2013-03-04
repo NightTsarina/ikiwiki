@@ -1,0 +1,34 @@
+[[!template id=gitbranch branch=smcv/ready/map author="[[Simon McVittie|smcv]]"]]
+[[!tag patch]]
+
+`\[[!map]]` can generate bad HTML with unbalanced open/close tags
+(in XML terms: "not well-formed") in certain situations. This
+appears to be a regression caused by fixing
+[[maps with nested directories sometimes make ugly lists]], which
+suppressed some redundant `</ul><ul>` pairs, but appears not to
+have the ideal logic for this, leading to malformed HTML.
+
+In particular, on a site with these pages:
+
+* alpha
+    * 1
+        * i
+        * ii
+        * iii
+        * iv
+    * 2
+        * a
+        * b
+    * 3
+* beta
+
+the maps "`alpha/1 or beta`", "`alpha/1/i* or alpha/2/a or beta`" and
+"`alpha/1/i* or alpha/2/a`" have malformed HTML.
+
+My `ready/map` branch adds a regression test and makes it pass.
+
+The fix is not particularly elegant - it generates the previous
+HTML with redundant `</ul><ul>` pairs, marks the redundant
+pairs, and edits them out afterwards - but it works. If anyone can come
+up with a cleaner algorithm that avoids generating the redundant tags
+in the first place, that would be even better. --[[smcv]]
