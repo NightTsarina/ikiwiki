@@ -223,6 +223,10 @@ sub commented_dump ($$) {
 		my $setup=$pair->[1];
 		my %s=@{$setup};
 		my $section=$s{plugin}->{section};
+		if (! defined $section) {
+			print STDERR "warning: missing section in $plugin\n";
+			$section="other";
+		}
 		push @{$section_plugins{$section}}, $plugin;
 		if (@{$section_plugins{$section}} == 1) {
 			push @ret, "", $indent.("#" x 70), "$indent# $section plugins",
