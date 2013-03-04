@@ -172,6 +172,11 @@ sub getsetup () {
 			my @s=eval { $IkiWiki::hooks{getsetup}{$plugin}{call}->() };
 			next unless @s;
 
+			if (scalar(@s) % 2 != 0) {
+				print STDERR "warning: plugin $plugin has a broken getsetup; ignoring\n";
+				next;
+			}
+
 			# set default section value (note use of shared
 			# hashref between array and hash)
 			my %s=@s;
