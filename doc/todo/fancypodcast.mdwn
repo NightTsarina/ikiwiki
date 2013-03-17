@@ -5,6 +5,38 @@ also have lots more metadata.
 
 [[!toc]]
 
+## Status
+
+[[!template id=gitbranch branch=schmonz/fancypodcast author="[[schmonz]]"]]
+[[!tag patch]]
+
+In summary, the branch preserves ikiwiki's existing podcast behavior,
+adds more featureful behavior, and has been tested to work well in
+some common podcatchers. I believe it is ready for review and
+possible integration, and I'd like to get feedback to that effect
+(or to the contrary) before making further enhancements. I know
+[[joey]]'s the final arbiter here, but I'd appreciate any qualified,
+critical eyes ([[smcv]]?) raking over my diffs. --[[schmonz]]
+
+## Features
+
+[[!table data="""
+Feature            |iTunes RSS|iTunes Atom|Downcast RSS|Downcast Atom
+Feed image         |{X}       |{X}        |{X}         |{X}
+Feed title         |(./)      |(./)       |(./)        |(./)
+Feed publisher     |{X}       |{X}        |{X}         |{X}
+Feed "category"    |{X}       |{X}        |{X}         |{X}
+Feed date          |(./)      |(./)       |(./)        |(./)
+Feed description   |(./)      |(./)       |(./)        |{X}
+Episode image      |{X}       |{X}        |{X}         |{X}
+Episode title      |(./)      |(./)       |(./)        |(./)
+Episode date       |(./)      |(./)       |(./)        |(./)
+Episode duration   |{X}       |{X}        |{X}         |{X}
+Episode author     |{X}       |{X}        |{X}         |{X}
+Episode description|(./)      |(./)       |(./)        |{X}
+Episode enclosure  |(./)      |(./)       |(./)        |(./)
+"""]]
+
 ## Design
 
 7. For each fancy podcast episode, write a blog post containing
@@ -17,9 +49,6 @@ also have lots more metadata.
 7. Don't break simple podcasts in pursuit of fancy podcasts.
 
 ## Implementation
-
-[[!template id=gitbranch branch=schmonz/fancypodcast author="[[schmonz]]"]]
-[[!tag patch]]
 
 ### Completed
 
@@ -42,25 +71,6 @@ also have lots more metadata.
 * Verify that the feeds validate.
 * Subscribe to a fancy feed in some common podcatchers and verify
   display details against a reference podcast.
-
-### Status
-
-[[!table data="""
-Feature            |iTunes RSS|iTunes Atom|Downcast RSS|Downcast Atom
-Feed image         |{X}       |{X}        |{X}         |{X}
-Feed title         |(./)      |(./)       |(./)        |(./)
-Feed publisher     |{X}       |{X}        |{X}         |{X}
-Feed "category"    |{X}       |{X}        |{X}         |{X}
-Feed date          |(./)      |(./)       |(./)        |(./)
-Feed description   |(./)      |(./)       |(./)        |{X}
-Episode image      |{X}       |{X}        |{X}         |{X}
-Episode title      |(./)      |(./)       |(./)        |(./)
-Episode date       |(./)      |(./)       |(./)        |(./)
-Episode duration   |{X}       |{X}        |{X}         |{X}
-Episode author     |{X}       |{X}        |{X}         |{X}
-Episode description|(./)      |(./)       |(./)        |{X}
-Episode enclosure  |(./)      |(./)       |(./)        |(./)
-"""]]
 
 ### Must-have (for [[schmonz]], anyway)
 
