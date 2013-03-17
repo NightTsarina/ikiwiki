@@ -172,6 +172,11 @@ sub getsetup () {
 			my @s=eval { $IkiWiki::hooks{getsetup}{$plugin}{call}->() };
 			next unless @s;
 
+			if (scalar(@s) % 2 != 0) {
+				print STDERR "warning: plugin $plugin has a broken getsetup; ignoring\n";
+				next;
+			}
+
 			# set default section value (note use of shared
 			# hashref between array and hash)
 			my %s=@s;
@@ -223,6 +228,10 @@ sub commented_dump ($$) {
 		my $setup=$pair->[1];
 		my %s=@{$setup};
 		my $section=$s{plugin}->{section};
+		if (! defined $section) {
+			print STDERR "warning: missing section in $plugin\n";
+			$section="other";
+		}
 		push @{$section_plugins{$section}}, $plugin;
 		if (@{$section_plugins{$section}} == 1) {
 			push @ret, "", $indent.("#" x 70), "$indent# $section plugins",

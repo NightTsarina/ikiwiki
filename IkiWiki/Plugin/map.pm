@@ -72,6 +72,9 @@ sub preprocess (@) {
 		$common_prefix=IkiWiki::dirname($common_prefix);
 	}
 
+	# Set this to 1 or more spaces to pretty-print maps for debugging
+	my $spaces = "";
+
 	# Create the map.
 	my $parent="";
 	my $indent=0;
@@ -94,33 +97,37 @@ sub preprocess (@) {
 			if defined $common_prefix && length $common_prefix;
 		my $depth = ($item =~ tr/\//\//) + 1;
 		my $baseitem=IkiWiki::dirname($item);
-		my $parentbase=IkiWiki::dirname($parent);
-		while (length $parentbase && length $baseitem && $baseitem !~ /^\Q$parentbase\E(\/|$)/) {
-			$parentbase=IkiWiki::dirname($parentbase);
+		while (length $parent && length $baseitem && $baseitem !~ /^\Q$parent\E(\/|$)/) {
+			$parent=IkiWiki::dirname($parent);
 			last if length $addparent && $baseitem =~ /^\Q$addparent\E(\/|$)/;
 			$addparent="";
-			$indent--;
-			$map .= "</li>\n";
-			if ($indent > 0) {
-				$map .= "</ul>\n";
+			$map .= ($spaces x $indent) . "</li>\n";
+			if ($indent > 1) {
+				$map .= ($spaces x $indent) . "</ul><map:collapse>\n";
 			}
+			$indent--;
 		}
 		while ($depth < $indent) {
-			$indent--;
-			$map .= "</li>\n";
-			if ($indent > 0) {
-				$map .= "</ul>\n";
+			$map .= ($spaces x $indent) . "</li>\n";
+			if ($indent > 1) {
+				$map .= ($spaces x $indent) . "</ul>\n";
 			}
+			$indent--;
 		}
 		my @bits=split("/", $item);
 		my $p="";
-		$indent++  unless length $parent;
 		$p.="/".shift(@bits) for 1..$indent;
 		while ($depth > $indent) {
-			if (@bits && !(length $parent && "/$parent" eq $p)) {
+			$indent++;
+			if ($indent > 1) {
+				$map .= ($spaces x $indent) . "<ul><map:collapse>\n";
+			}
+			if ($depth > $indent) {
+				$p.="/".shift(@bits);
 				$addparent=$p;
 				$addparent=~s/^\///;
-				$map .= "<li>"
+				$map .= ($spaces x $indent) . "<li>\n";
+				$map .= ($spaces x $indent)
 					.htmllink($params{page}, $params{destpage},
 						 "/".$common_prefix.$p, class => "mapparent",
 						 noimageinline => 1)
@@ -130,14 +137,10 @@ sub preprocess (@) {
 			else {
 				$openli=0;
 			}
-			$indent++;
-			$p.="/".shift(@bits) if @bits;
-			if ($indent > 1) {
-				$map .= "<ul>\n";
-			}
 		}
-		$map .= "</li>\n" if $openli;
-		$map .= "<li>"
+		$map .= ($spaces x $indent) . "</li>\n" if $openli;
+		$map .= ($spaces x $indent) . "<li>\n";
+		$map .= ($spaces x $indent)
 			.htmllink($params{page}, $params{destpage}, 
 				"/".$common_prefix."/".$item,
 				@linktext,
@@ -147,9 +150,12 @@ sub preprocess (@) {
 		$parent=$item;
 	}
 	while ($indent > 0) {
+		$map .= ($spaces x $indent) . "</li>\n";
 		$indent--;
-		$map .= "</li>\n</ul>\n";
+		$map .= ($spaces x $indent) . "</ul>\n";
 	}
+	$map =~ s{\n *</ul><map:collapse>\n *<ul><map:collapse>\n}{\n}gs;
+	$map =~ s{<map:collapse>}{}g;
 	$map .= "</div>\n";
 	return $map;
 }
