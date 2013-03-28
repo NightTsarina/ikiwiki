@@ -6,3 +6,17 @@ GitHub's flavor of markdown adds fenced code blocks, delimited by triple-backquo
     ```
 
 That syntax proves quite a bit more convenient in many cases, because it doesn't require modifying every line of the code block to add indentation.  Please consider adding optional support for this in ikiwiki.  Please also consider turning it on by default for new wikis, though not for existing wikis since it could *potentially* break backward compatibility with existing content.
+
+> I don't think that's an official markdown feature, although it might be available
+> as an extension in some markdown library or other -- possibly one of the ones
+> supported by ikiwiki.
+> 
+> However, aside from compatability, ikiwiki already provides a way to do it that does not
+> require indenting the code: The [[ikiwiki/directive/format]] directive. Which has the benefit of
+> also telling it what kind of code it is, so it can syntax highlight it. Example:
+
+[[!format haskell """
+main :: IO ()
+main = forever $
+  putStrLn "hello, world!"
+"""]]
