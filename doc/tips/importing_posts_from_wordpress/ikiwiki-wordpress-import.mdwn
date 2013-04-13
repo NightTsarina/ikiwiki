@@ -3,7 +3,7 @@
 I converted the script to Perl.  The new version gets your name and email automatically from your git config, converts the body of your posts to markdown, and also imports comments.  More importantly it works with the latest wordpress, which the python version does not.  Note that it's still not 100% perfect and I intend to make a few modifications still, but they will require access to the mysql database and that may render the script useless to some users.
 
 -----
-<pre>
+[[!format perl '''
 #!/usr/bin/env perl
 
 use 5.16.1;
@@ -232,13 +232,13 @@ sub unique_comment_location {
    return $location
 }
 
-</pre>
+''']]
 -----
 
 I modified the script a bit so categories and tags would actually show up in the output file.
 
 -----
-<pre>
+[[!format '''
 #!/usr/bin/env python
 
 """
@@ -345,7 +345,7 @@ if __name__ == "__main__":
     else:
         main(*sys.argv[1:])
 
-</pre>
+''']]
 -----
 
 I have another version of the script, which uses the `timestamp` from the script, and inserts that as a \[[!meta date="foodate"]]. I'm posting it here just in case I happen to be doing something to the httpd.
@@ -353,7 +353,7 @@ I have another version of the script, which uses the `timestamp` from the script
 (Hopefully I've escaped everything properly; if I missed something, check the source.)
 
 -----
-<pre>
+[[!format '''
 #!/usr/bin/env python
 
 """
@@ -458,7 +458,7 @@ if __name__ == "__main__":
     else:
         main(*sys.argv[1:])
 
-</pre>
+''']]
 -----
 
 
