@@ -33,8 +33,10 @@ There can be more constraints that we may want to impose or not, which will make
 
 ## Basic spec
 
- 1. a hook that looks for foo.la.mdwn pages, where la is a language code (defined where..?), and that lists available translations
- 2. instructions on how to setup [[!wikipedia Content_negotiation]] so that the above works out of the box
- 3. a button to create such translations
- 4. a default language setting?
- 5. a set of language code settings?
+ 1. a hook that looks for foo.la.mdwn pages, where la is a language code (defined where..?), and that lists available translations - 
+    this is where most of the work needs to happen. we can probably reuse the builtin template stuff that got injected with the [[plugins/po]] plugin was imported, to start with
+ 2. instructions on how to setup [[!wikipedia Content_negotiation]] so that the above works out of the box - just documentation
+ 3. a button to create such translations - that would be through the [[pageactions hook|plugins/write/#index15h3]]
+ 4. a default language setting? - that's obviously the getsetup hook
+ 5. a set of language code settings? - same
+ 6. content-negotiation - the po module has good code for that
