@@ -107,12 +107,12 @@ sub preprocess (@) {
 		# fallthrough
 	}
 	elsif ($key eq 'license') {
-		push @{$metaheaders{$page}}, '<link rel="license" href="#page_license" />';
+		push @{$metaheaders{$page}}, '<link rel="license" href="#pagelicense" />';
 		$pagestate{$page}{meta}{license}=$value;
 		return "";
 	}
 	elsif ($key eq 'copyright') {
-		push @{$metaheaders{$page}}, '<link rel="copyright" href="#page_copyright" />';
+		push @{$metaheaders{$page}}, '<link rel="copyright" href="#pagecopyright" />';
 		$pagestate{$page}{meta}{copyright}=$value;
 		return "";
 	}
