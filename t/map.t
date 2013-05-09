@@ -3,8 +3,15 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use XML::Twig;
 use Test::More;
+
+BEGIN {
+        unless (eval { require XML::Twig }) {
+                eval q{
+                        use Test::More skip_all => "XML::Twig is not available"
+                }
+        }
+}
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
