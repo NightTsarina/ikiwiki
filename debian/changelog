@@ -1,12 +1,23 @@
-ikiwiki (3.20130213) UNRELEASED; urgency=low
+ikiwiki (3.20130505) UNRELEASED; urgency=low
+
+  * Fix test suite to not fail when XML::Twig is not installed.
+    Closes: #707436
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 09 May 2013 10:47:18 -0400
+
+ikiwiki (3.20130504) unstable; urgency=low
 
   * Allow dots in directive parameter names. (tango)
   * Add missing plugin section, and deal with missing sections with a warning.
   * Detect plugins with a broken getsetup and warn.
   * map: Correct reversion introduced in version 3.20110225 that could
     generate invalid html. (smcv)
+  * Makefile.PL: overwrite theme style.css instead of appending
+    (Thanks, Mikko Rapeli)
+  * meta: Fix anchors used to link to the page's license and copyright.
+    Closes: #706437
 
- -- Joey Hess <joeyh@debian.org>  Fri, 15 Feb 2013 17:23:12 -0400
+ -- Joey Hess <joeyh@debian.org>  Sat, 04 May 2013 23:47:21 -0400
 
 ikiwiki (3.20130212) unstable; urgency=low
 

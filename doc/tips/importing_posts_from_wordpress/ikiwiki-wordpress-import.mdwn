@@ -1,9 +1,244 @@
 [[!meta title="ikiwiki-wordpress-import"]]
 
+I converted the script to Perl.  The new version gets your name and email automatically from your git config, converts the body of your posts to markdown, and also imports comments.  More importantly it works with the latest wordpress, which the python version does not.  Note that it's still not 100% perfect and I intend to make a few modifications still, but they will require access to the mysql database and that may render the script useless to some users.
+
+-----
+[[!format perl '''
+#!/usr/bin/env perl
+
+use 5.16.1;
+use warnings;
+
+use XML::Simple;
+use DateTime::Format::Strptime;
+use HTML::WikiConverter;
+use LWP::UserAgent;
+use Try::Tiny;
+use Digest::MD5 'md5_hex';
+
+die "usage: $0 import_file subdir [branch] | git-fast-import"
+   unless @ARGV == 2 or @ARGV == 3;
+
+chomp(my $name = qx(git config --get user.name));
+chomp(my $email = qx(git config --get user.email));
+
+my ($file, $subdir, $branch) = @ARGV;
+
+my %events;
+
+POST:
+for my $x (grep $_->{'wp:status'} eq 'publish', @{XMLin($file)->{channel}{item}}) {
+   state $date_parser = DateTime::Format::Strptime->new(
+      pattern => '%F %T',
+      time_zone => 'UTC',
+   );
+
+   my $stub = $x =~ m<([^/]+)\/$>
+      ? $1
+      : lc($x->{title} =~ s/\W/-/gr =~ s/-$//r)
+   ;
+
+   my $guid = $x->{guid}{content} || $x->{link};
+   utf8::encode($x->{title});
+   my $msg = qq($x->{title}\n\nfrom WordPress [$guid]);
+   my $timestamp = $date_parser
+      ->parse_datetime($x->{'wp:post_date_gmt'})
+      ->epoch;
+
+   my $c = $x->{category};
+   $c = [$c] if ref $c && ref $c ne 'ARRAY';
+
+   my $content =
+      sprintf(qq([[!meta title="%s"]]\n), $x->{title} =~ s/"/\\"/gr) .
+      convert_content($x->{'content:encoded'}) . "\n\n" .
+      join("\n",
+         map '[[!tag ' . s/ /-/r . ']]',
+         keys %{
+            +{
+               map { $_ => 1 }
+               grep $_ ne 'uncategorized',
+               map $_->{nicename},
+               @$c
+            }
+         }
+      );
+
+   $events{$timestamp} = join "\n",
+      "commit refs/heads/$branch",
+      "committer $name <$email> $timestamp +0000",
+      'data <<8675309',
+      $msg,
+      '8675309',
+      "M 644 inline $subdir/$stub.mdwn",
+      'data <<8675309',
+      $content,
+      '8675309'
+   ;
+
+   get_comments($x->{link}, "$subdir/$stub")
+      if $x->{'wp:post_type'} eq 'post'
+}
+
+sub get_comments {
+   my ($url, $dir) = @_;
+
+   state $ua = LWP::UserAgent->new;
+
+   my $content = $ua->get("$url/feed")->decoded_content;
+   my $first;
+   my $bail;
+   my $decoded =
+      try { XMLin($content, ForceArray => ['item']) }
+      catch { $bail = 1 };
+
+   return if $bail;
+
+   COMMENT:
+   for my $x (@{$decoded->{channel}{item}}) {
+      my $date = $x->{pubDate};
+      $date =~ s/^\S+\s//;
+      $date =~ s/\s\S+$//;
+
+      #ghetto
+      $date =~ s/Jan/01/;
+      $date =~ s/Feb/02/;
+      $date =~ s/Mar/03/;
+      $date =~ s/Apr/04/;
+      $date =~ s/May/05/;
+      $date =~ s/Jun/06/;
+      $date =~ s/Jul/07/;
+      $date =~ s/Aug/08/;
+      $date =~ s/Sep/09/;
+      $date =~ s/Oct/10/;
+      $date =~ s/Nov/11/;
+      $date =~ s/Dec/12/;
+
+      state $date_parser = DateTime::Format::Strptime->new(
+         pattern => '%d %m %Y %T',
+         time_zone => 'UTC',
+      );
+
+      my $datetime = $date_parser
+         ->parse_datetime($date);
+
+      my $timestamp = $datetime->epoch;
+      my $formatted_date = "$timestamp";
+
+      my $msg = 'Added a comment';
+      my $content = convert_content($x->{'content:encoded'});
+      utf8::encode($x->{'dc:creator'});
+
+      $events{$timestamp} = join "\n",
+         "commit refs/heads/$branch",
+         # still need to get email address
+         "committer $x->{'dc:creator'} <$x->{'dc:creator'}> $timestamp +0000",
+         'data <<8675309',
+         $msg,
+         '8675309',
+         "M 644 inline " . unique_comment_location($dir, $content),
+         'data <<8675309',
+
+      <<"COMMENT",
+[[!comment format=mdwn
+ username="$x->{'dc:creator'}"
+ date="$formatted_date"
+ content="""
+$content
+"""]]
+COMMENT
+      '8675309'
+      ;
+   }
+}
+
+say $events{$_} for sort keys %events;
+
+sub convert_content {
+   my $body = shift;
+
+   utf8::encode($body);
+
+   state $converter = HTML::WikiConverter->new(
+      dialect              => 'Markdown',
+      link_style           => 'inline',
+      unordered_list_style => 'dash',
+      image_style          => 'inline',
+      image_tag_fallback   => 0,
+   );
+
+   # I know I know you can't parse XML with regular expressions.  Go find a real
+   # parser and send me a patch
+   my $in_code = 0;
+
+   my $start_code = qr(<pre[^>]*>);
+   # (?:) is a no op but keeps ikiwiki from breaking my script
+   my $end_code = qr(</p(?:)re>);
+
+   $body =~ s(&#(?:8217|039);)(')g;
+   $body =~ s(&(?:quot|#822[01]);)(")g;
+   $body =~ s(&lt;)(<)g;
+   $body =~ s(&gt;)(>)g;
+   $body =~ s(&amp;)(&)g;
+   $body =~ s(&#8230;)(...)g;
+   $body =~ s(&#821[12];)(-)g;
+   $body =~ s(&#8216;)(')g;
+   $body =~ s(&#8242;)(')g;
+   $body =~ s(&infin;)(∞)g;
+   $body =~ s(&nbsp;)()g;
+   $body =~ s(<code[^>]*>)(<p(?:)re>)g;
+   $body =~ s(</c(?:)ode>)(</p(?:)re>)g;
+
+   my @tokens =
+      map {; split qr[(?=<p(?:)re>)] }
+      map {; split qr[</p(?:)re>\K] }
+      split /\n\n/,
+      $body;
+
+   my @new_tokens;
+   for my $t (@tokens) {
+      if (
+         ($in_code && $t !~ $end_code) ||
+         ($t =~ $start_code && $t =~ $end_code)
+      ) {
+         # do nothing
+      } elsif ($t =~ $start_code) {
+         $in_code = 1;
+      } elsif ($t =~ $end_code) {
+         $in_code = 0;
+      } else {
+         die "$t !!! '$1'" if $t =~ m/&([^;\s]+);/ && $1 !~ /[lg]t/;
+
+         $t = "<p>$t</p>"
+      }
+      push @new_tokens, $t
+   }
+
+   $converter->html2wiki(join "\n\n", @new_tokens)
+}
+
+sub unique_comment_location {
+   my ($dir, $content) = @_;
+
+   utf8::encode($content);
+   my $md5 = md5_hex($content);
+
+   my $location;
+   my $i = 0;
+   do {
+      $i++;
+      $location = "$dir/comment_${i}_$md5._comment";
+   } while -e $location;
+
+   return $location
+}
+
+''']]
+-----
+
 I modified the script a bit so categories and tags would actually show up in the output file.
 
 -----
-<pre>
+[[!format '''
 #!/usr/bin/env python
 
 """
@@ -110,7 +345,7 @@ if __name__ == "__main__":
     else:
         main(*sys.argv[1:])
 
-</pre>
+''']]
 -----
 
 I have another version of the script, which uses the `timestamp` from the script, and inserts that as a \[[!meta date="foodate"]]. I'm posting it here just in case I happen to be doing something to the httpd.
@@ -118,7 +353,7 @@ I have another version of the script, which uses the `timestamp` from the script
 (Hopefully I've escaped everything properly; if I missed something, check the source.)
 
 -----
-<pre>
+[[!format '''
 #!/usr/bin/env python
 
 """
@@ -223,7 +458,7 @@ if __name__ == "__main__":
     else:
         main(*sys.argv[1:])
 
-</pre>
+''']]
 -----
 
 
