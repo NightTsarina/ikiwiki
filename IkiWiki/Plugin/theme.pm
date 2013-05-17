@@ -9,6 +9,7 @@ sub import {
 	hook(type => "getsetup", id => "theme", call => \&getsetup);
 	hook(type => "checkconfig", id => "theme", call => \&checkconfig);
 	hook(type => "needsbuild", id => "theme", call => \&needsbuild);
+	hook(type => "pagetemplate", id => "theme", call => \&pagetemplate);
 }
 
 sub getsetup () {
@@ -61,6 +62,14 @@ sub needsbuild ($) {
 		$wikistate{theme}{currenttheme}=$config{theme};
 	}
 	return $needsbuild;
+}
+
+sub pagetemplate (@) {
+	my %params=@_;
+	my $template=$params{template};
+	if (exists $config{theme} && length $config{theme})  {
+		$template->param("theme_$config{theme}" => 1);
+	}
 }
 
 1
