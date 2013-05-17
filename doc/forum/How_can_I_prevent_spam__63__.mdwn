@@ -1,0 +1,17 @@
+I am getting continuous spam like this:
+
+    discussion  85.25.146.11  web  11:02:19 05/17/13  2rand[0,1,1]
+    discussion  85.25.146.11  web  11:02:13 05/17/13  2rand[0,1,1]
+
+The bot uses an IP address as the username and puts '2rand[0,1,1]' as comment text.
+
+I do not have a page 'discussion' in use, so I have redirected this page with an apache2
+Alias to a static page, just in case anyone stumbles on it.  This means it cannot really 
+be edited via the web. However the bots that post 
+this spam are evidently not opening the page to edit it, but merely sending a cgi request 
+as if they had edited the page.  The result is that no damage is done on the site and no 
+benefit is achieved for the spammer since google cannot see the result.  However, the 
+logs are stuffed with spurious entries and a page is constantly recompiled, which wastes 
+resources.  
+
+Is there some way to reject edits that do not arise from an established session?
