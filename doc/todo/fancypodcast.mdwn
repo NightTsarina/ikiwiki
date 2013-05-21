@@ -71,22 +71,112 @@ Episode enclosure  |(./)      |(./)       |(./)        |(./)
 * Verify that the feeds validate.
 * Subscribe to a fancy feed in some common podcatchers and verify
   display details against a reference podcast.
+* Verify smooth transitions for two common use cases (see testing
+  details below).
 
 ### Must-have (for [[schmonz]], anyway)
 
-* Think carefully about...
-    * UTF-8.
-    * Whether [[tips/howto avoid flooding aggregators]] suffices for...
-        * Converting a simple podcast to a fancy one.
-            7. Set up a non-production copy of one of my podcasts.
-                * Manually test that feeds match production.
-                * Subscribe to the copy in `r2e`, iTunes, Downcast.
-            7. Try migrating the copy from simple to fancy.
-                * Document the steps I take.
-                * Make the feed readers update.
-                * Document what happens for each of them.
-        * Migrating a fancy podcast from elsewhere into ikiwiki.
+* Think carefully about UTF-8.
 * Verify that _all_ the tests pass (not just my new ones).
+
+## Migration
+
+### Upgrading within ikiwiki: from simple to fancy
+
+#### My test podcast
+
+For this test, I chose a podcast that tries to work around ikiwiki's
+current limitations by issuing two separate `inline`s:
+
+* One with `feedonly=yes` that includes `.mdwn`, `.pdf`, and `.mp3`
+* One with `feeds=no` that includes only `.mdwn` (and makes a trail)
+
+This has the following effects:
+
+* Browser: sees just the articles (each of which has a manually
+  created link to its corresponding media file)
+* Feedreader: sees all the articles and media in one flat stream
+* Podcatcher: sees just the media (sans articles)
+
+I want instead to write one `inline` with these effects:
+
+* Browser: sees just the articles (each of which automatically links
+  to its enclosure)
+* Feedreader: sees just the articles (each of which specifies its
+  enclosure)
+* Podcatcher: sees just the enclosures (each of which has an enclosing
+  article, rendered as the media's "description")
+
+#### Upgrade steps
+
+7. Set up a non-production copy of the podcast.
+    7. Visually diff RSS and Atom feeds against production.
+    7. Subscribe to the copy (both feeds) in `r2e`, iTunes, Downcast.
+7. Apply fancypodcast patch to the installed ikiwiki:
+    7. `cd ~/Documents/trees/ikiwiki && git checkout fancypodcast`
+    7. `git diff --no-prefix master > ~/Documents/trees/localpatches/www/ikiwiki/fancypodcast.diff`
+    7. `cd ~/Documents/trees/pkgsrc-current/www/ikiwiki && make deinstall && make install clean`
+7. Verify that simple podcasts are unaffected:
+    7. Rerun `ikiwiki --setup`.
+    7. `diff -uB simple-before.rss simple-after.rss`
+        * A few new elements and attributes, as expected.
+    7. `diff -uB simple-before.atom simple-after.atom`
+        * No change.
+7. Remove the feed-only `inline` and enable feeds on the remaining one.
+7. Convert articles' manual download links to `\[[!meta enclosure=""]]`.
+7. I want existing and future podcatchers to get my new fancy
+   episodes, and I know my podcast isn't in any planets, so I'm
+   going to skip [[tips/howto avoid flooding aggregators]].
+7. Rerun `ikiwiki --setup`.
+7. Verify browser shows the same stuff.
+7. `diff -uB simple-after.rss fancy-after.rss   # and atom`
+    * MP3s and PDFs are no longer naked enclosures, but belong to
+      articles as they should.
+    * Articles have updated modification times, as they should.
+7. `r2e run` (both RSS and Atom)
+    * Nothing new with the default `trust-guid = True` (otherwise
+      would expect updated articles).
+7. iTunes "Update Podcast" (both RSS and Atom)
+    * Added one episode per article, with article text as the episode
+      description.
+    * Kept old naked-enclosure episodes around.
+7. Downcast refresh (RSS):
+    * Added one episode per article, with article text as the episode
+      description.
+    * Kept old naked-enclosure episodes around.
+7. Downcast refresh (Atom):
+    * Added one episode per article, with no episode description
+      (expected, see feature table).
+    * Kept old naked-enclosure episodes around.
+
+Different tradeoffs are possible. These seem okay to me.
+
+### Importing into ikiwiki: fancy (from another CMS)
+
+#### My test podcast
+
+For this test, I chose a podcast currently being published with
+Textpattern and tru_podcast, because I'd strongly prefer to publish
+it with ikiwiki instead.
+
+#### Upgrade steps
+
+7. Set up a non-production copy of the podcast.
+    7. Visually diff RSS and Atom feeds against production.
+    7. Subscribe to the copy (both feeds) in `r2e`, iTunes, Downcast.
+7. With a fancypodcast-enabled ikiwiki installed:
+    7. Copy content from Textpattern to ikiwiki:
+        7. Match article paths to preserve `/YYYY/MM/DD/post-title` permalinks.
+        7. Match enclosure paths (or redirect) to preserve Textpattern's URLs.
+        7. Match titles, post dates, and guids with `\[[!meta]]`.
+	    7. Match feed paths with permanent redirects from `/atom/` to
+           `/index.atom` (and same for RSS).
+        7. `\[[!inline]]` the articles.
+    7. Rerun `ikiwiki --setup`.
+7. Stop Textpattern, start ikiwiki.
+7. Verify that podcatchers see the feeds and don't redownload anything.
+7. Naively add two new blog posts, one with an enclosure.
+7. Verify that podcatchers download the new enclosures.
 
 -----
 
@@ -122,6 +212,8 @@ Episode enclosure  |(./)      |(./)       |(./)        |(./)
 
 ### Other ideas
 
+* Don't render template text (e.g., "Use this template to insert a
+  note into a page") in feeds.
 * Optionally specify the enclosure's:
     * MIME type, in case `File::MimeInfo` guesses wrong.
     * Duration, in case `ffprobe` guesses wrong.
