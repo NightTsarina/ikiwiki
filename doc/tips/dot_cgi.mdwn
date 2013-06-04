@@ -15,7 +15,10 @@ configuration changes should work anywhere.
 
 ## apache 2
 
-* Edit /etc/apache2/apache2.conf and add a line like this:
+* Make sure the cgi module is loaded. (Ie, `a2enmod cgi`)
+
+* Edit /etc/apache2/apache2.conf (or /etc/apache2/mods-available/mime.conf)
+  and add a line like this:
 
 	AddHandler cgi-script .cgi
 
@@ -25,8 +28,6 @@ configuration changes should work anywhere.
   and add it to the "Options" line in the "Directory /var/www/" stanza.
   Or, if you've put it in a `~/public_html`, edit
   `/etc/apache2/mods-available/userdir.conf`.
-
-  You may also want to install some dependencies to enable CGI in apache2 setup as: `libcgi-formbuilder-perl` and `libcgi-session-perl`.
 
 * If your wiki is in `~/public_html` and does not appear when you enter the URL given by the installer, check that you have 
   the userdir mod enabled (there should be simlinks to userdir.load and userdir.conf in /etc/apache2/modes-enabled).  If not,
