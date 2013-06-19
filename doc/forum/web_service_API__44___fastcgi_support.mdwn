@@ -11,3 +11,8 @@ Anyway - I've realised that a big part of the interactive todo lists stuff is tr
 Second, and in a way related, I've been mooting hacking fastcgi support into ikiwiki. Essentially one ikiwiki.cgi process would persist and serve CGI-ish requests on stdin/stdout. The initial content-scanning and dependency generation would happen once and not need to be repeated for future requests. Although, all state-changing operations would need to be careful to ensure the in-memory models were accurate. Also, I don't know how suited the data structures would be for persistence, since the current model is build em up, throw em away, they might not be space-efficient enough for persistence.
 
 If I did attempt this, I would want to avoid restructuring things in a way which would impair ikiwiki's core philosophy of being a static compiler. -- [[Jon]]
+
+> This is quite interesting! There is a related discussion about FastCGI
+> support (and therefore better support for Nginx, for example) in
+> [[todo/fastcgi_or_modperl_installation_instructions/]]... --
+> [[anarcat]]
