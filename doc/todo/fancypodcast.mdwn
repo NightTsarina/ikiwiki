@@ -225,3 +225,44 @@ it with ikiwiki instead.
 * Configurably generate additional subscription links (such as
   iTunes) alongside the RSS/Atom ones in [[plugins/inline]].
 * Support Apple's "enhanced podcasts" (if they're still relevant).
+
+### code review
+
+	+                               # XXX better way to compute relative to srcdir?
+	+                               my $file = $absurl;
+	+                               $file =~ s|^$config{url}/||;
+
+I don't think ikiwiki offers a better way to do that, because there is
+normally no reason to do that. Why does it need an url of this form here?
+--[[Joey]] 
+
+	+<TMPL_IF HTML5><section id="inlineenclosure"><TMPL_ELSE><div id="inlineenclosure"></TMPL_IF>
+	+<TMPL_IF ENCLOSURE>
+
+Can't we avoid adding this div when there's no enclosure? --[[Joey]]
+
+	+<a href="<TMPL_VAR ENCLOSURE>">Download this episode</a>
+
+"Download this episode" is pretty specific to particular use cases.
+Can this be made more generic, perhaps just "Download"? --[[Joey]] 
+
+	-<TMPL_IF AUTHOR>
+	-       <title><TMPL_VAR AUTHOR ESCAPE=HTML>: <TMPL_VAR TITLE></title>
+	-       <dcterms:creator><TMPL_VAR AUTHOR ESCAPE=HTML></dcterms:creator>
+
+This change removes the athor name from the title of the rss feed, which
+does not seem necessary for fancy podcasts. And it is a change that
+could negatively impact eg, Planet style aggregators using ikiwiki. --[[Joey]]
+
+	+++ b/templates/rsspage.tmpl
+	+	xmlns:atom="http://www.w3.org/2005/Atom"
+	+<atom:link href="<TMPL_VAR FEEDURL>" rel="self" type="application/rss+xml" />
+
+Why is it using atom namespace inside an rss feed? What are the chances
+every crummy rss reader on earth is going to understand this? I'd put it at
+about 0%; I doubt ikiwiki's own rss reader understands such a mashup.
+--[[Joey]]
+
+	+<generator>ikiwiki</generator>
+
+Does this added tag provide any benefits? --[[Joey]]
