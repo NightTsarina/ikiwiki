@@ -126,7 +126,7 @@ sub single_page_html {
 	my $html = "$tmp/out/pianopost/index.html";
 	like(_extract_html_content($html, 'content'), qr/has content and/m,
 		q{html body text});
-	like(_extract_html_content($html, 'enclosure'), qr/this episode/m,
+	like(_extract_html_content($html, 'enclosure'), qr/Download/m,
 		q{html enclosure});
 	my ($href) = _extract_html_links($html, 'piano');
 	is($href, '/piano.mp3',
@@ -135,7 +135,7 @@ sub single_page_html {
 	$html = "$tmp/out/attempted_multiple_enclosures/index.html";
 	like(_extract_html_content($html, 'content'), qr/has content and/m,
 		q{html body text});
-	like(_extract_html_content($html, 'enclosure'), qr/this episode/m,
+	like(_extract_html_content($html, 'enclosure'), qr/Download/m,
 		q{html enclosure});
 	($href) = _extract_html_links($html, 'walter');
 	is($href, '/walter.ogg',
@@ -175,7 +175,7 @@ sub inlined_pages_html {
 	like($contents, qr/has content and only one/m,
 		q{html body text from attempted_multiple_enclosures});
 	my $enclosures = _extract_html_content($html, 'inlineenclosure');
-	like($enclosures, qr/this episode/m,
+	like($enclosures, qr/Download/m,
 		q{html enclosure});
 	my ($href) = _extract_html_links($html, 'piano.mp3');
 	is($href, '/piano.mp3',
