@@ -236,23 +236,55 @@ I don't think ikiwiki offers a better way to do that, because there is
 normally no reason to do that. Why does it need an url of this form here?
 --[[Joey]] 
 
+> In all the popular, production-quality podcast feeds I've looked
+> at, enclosure URLs are always absolute (even when they could be
+> expressed concisely as relative). [Apple's
+> example](http://www.apple.com/itunes/podcasts/specs.html#example)
+> does too. So I told \[[!meta]] to call `urlto()` with the third
+> parameter true, which means the \[[!inline]] code here gets an
+> absolute URL in `$pagestate{$p}{meta}{enclosure}`. To compute the
+> enclosure's metadata, though, we of course need it as a local path.
+> I didn't see a less
+> [ongepotchket](http://www.jewish-languages.org/jewish-english-lexicon/words/1402)
+> way at the time. If you have a better idea, I'm happy to hear it;
+> if not, I'll add an explanatory comment. --[[schmonz]]
+
 	+<TMPL_IF HTML5><section id="inlineenclosure"><TMPL_ELSE><div id="inlineenclosure"></TMPL_IF>
 	+<TMPL_IF ENCLOSURE>
 
 Can't we avoid adding this div when there's no enclosure? --[[Joey]]
+
+> Sure, I've moved the `<TMPL_IF ENCLOSURE>` check to outside the
+> section-and-div block for `{,inline}page.tmpl`. --[[schmonz]]
 
 	+<a href="<TMPL_VAR ENCLOSURE>">Download this episode</a>
 
 "Download this episode" is pretty specific to particular use cases.
 Can this be made more generic, perhaps just "Download"? --[[Joey]] 
 
+> Yep, I got a little carried away. Done. --[[schmonz]]
+
 	-<TMPL_IF AUTHOR>
 	-       <title><TMPL_VAR AUTHOR ESCAPE=HTML>: <TMPL_VAR TITLE></title>
 	-       <dcterms:creator><TMPL_VAR AUTHOR ESCAPE=HTML></dcterms:creator>
 
-This change removes the athor name from the title of the rss feed, which
+This change removes the author name from the title of the rss feed, which
 does not seem necessary for fancy podcasts. And it is a change that
 could negatively impact eg, Planet style aggregators using ikiwiki. --[[Joey]]
+
+> While comparing how feeds render in podcatchers, I noticed that
+> RSS and Atom were inconsistent in a couple ways, of which this was
+> one. The way I noticed it: with RSS, valuable title space was being
+> spent to display the author. I figured Atom's display was the one
+> worth matching. You're right, of course, that planets using the
+> default template and somehow relying on the current author-in-the-title
+> rendering for RSS feeds (but not Atom feeds!) would be broken by
+> this change. I'm having trouble imagining exactly what would break,
+> though, since guids and timestamps are unaffected. Would it suffice
+> to provide a note in the changelog warning people to be careful
+> upgrading their planets, and to customize `rssitem.tmpl` if they
+> really prefer the old behavior (or don't want to take any chances)?
+> --[[schmonz]]
 
 	+++ b/templates/rsspage.tmpl
 	+	xmlns:atom="http://www.w3.org/2005/Atom"
@@ -263,6 +295,17 @@ every crummy rss reader on earth is going to understand this? I'd put it at
 about 0%; I doubt ikiwiki's own rss reader understands such a mashup.
 --[[Joey]]
 
+> The validator I used (<http://validator.w3.org/>, I think) told me to.
+> Pretty sure it doesn't make anything work better in the podcatchers
+> I tried. Hadn't considered that it might break some readers.
+> Removed. --[[schmonz]]
+
 	+<generator>ikiwiki</generator>
 
 Does this added tag provide any benefits? --[[Joey]]
+
+> Consistency with the Atom feed, and of course it trumpets ikiwiki
+> to software and/or curious humans who inspect their feeds. The tag
+> arrived only in RSS 2.0, but that's already the version we're
+> claiming to be, and it's over a decade old. Seems much less risky
+> than the atom namespace bits. --[[schmonz]]
