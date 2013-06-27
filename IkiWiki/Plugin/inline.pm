@@ -672,11 +672,7 @@ sub genfeed ($$$$$@) {
 
 			if (exists $pagestate{$p}{meta}{enclosure}) {
 				my $absurl = $pagestate{$p}{meta}{enclosure};
-
-				# XXX better way to compute relative to srcdir?
-				my $file = $absurl;
-				$file =~ s|^$config{url}/||;
-
+				my $file = $pagestate{$p}{meta}{enclosurefile};
 				genenclosure($itemtemplate, $absurl, $file);
 				$fancy_enclosure_seen = 1;
 			}

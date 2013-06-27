@@ -130,6 +130,7 @@ sub preprocess (@) {
 
 		$value=urlto($link, $page, 1);
 		$pagestate{$page}{meta}{enclosure}=$value;
+		$pagestate{$page}{meta}{enclosurefile}=$link;
 		# fallthrough
 	}
 	elsif ($key eq 'author') {
