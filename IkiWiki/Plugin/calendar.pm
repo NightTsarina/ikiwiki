@@ -86,8 +86,10 @@ sub format_month (@) {
 		my $year  = $date[5] + 1900;
 		my $mtag  = sprintf("%02d", $month);
 
-		# Only one posting per day is being linked to.
-		$linkcache{"$year/$mtag/$mday"} = $p;
+		if (! $linkcache{"$year/$mtag/$mday"}) {
+			$linkcache{"$year/$mtag/$mday"} = [];
+		}
+		push(@{$linkcache{"$year/$mtag/$mday"}}, $p);
 	}
 		
 	my $pmonth = $params{month} - 1;
@@ -221,11 +223,38 @@ EOF
 				$tag='month-calendar-day-link';
 			}
 			$calendar.=qq{\t\t<td class="$tag $downame{$wday}">};
-			$calendar.=htmllink($params{page}, $params{destpage}, 
-				$linkcache{$key},
-				noimageinline => 1,
-				linktext => $day,
-				title => pagetitle(IkiWiki::basename($linkcache{$key})));
+			if (scalar(@{$linkcache{$key}}) == 1) {
+				# Only one posting on this page
+				my $page = $linkcache{$key}[0];
+				$calendar.=htmllink($params{page}, $params{destpage}, 
+					$page,
+					noimageinline => 1,
+					linktext => $day,
+					title => pagetitle(IkiWiki::basename($page)));
+			}
+			else {
+				$calendar.=qq{<div class='popup'>$day<div class='balloon'>};
+				# Several postings on this page
+				$calendar.=qq{<ul>};
+				foreach my $page (@{$linkcache{$key}}) {
+					$calendar.= qq{\n\t\t\t<li>};
+					my $title;
+					if (exists $pagestate{$page}{meta}{title}) {
+						$title = "$pagestate{$page}{meta}{title}";
+					}
+					else {
+						$title = pagetitle(IkiWiki::basename($page));
+					}
+					$calendar.=htmllink($params{page}, $params{destpage}, 
+						$page,
+						noimageinline => 1,
+						linktext => $title,
+						title => $title);
+					$calendar.= '</li>';
+				}
+				$calendar.=qq{\n\t\t</ul>};
+				$calendar.=qq{</div></div>};
+			}
 			$calendar.=qq{</td>\n};
 		}
 		else {

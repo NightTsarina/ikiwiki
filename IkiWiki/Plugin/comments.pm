@@ -90,6 +90,15 @@ sub getsetup () {
 			safe => 0,
 			rebuild => 0,
 		},
+		comments_allowformats => {
+			type => 'string',
+			default => '',
+			example => 'mdwn txt',
+			description => 'Restrict formats for comments to (no restriction if empty)',
+			safe => 1,
+			rebuild => 0,
+		},
+
 }
 
 sub checkconfig () {
@@ -101,6 +110,8 @@ sub checkconfig () {
 		unless defined $config{comments_closed_pagespec};
 	$config{comments_pagename} = 'comment_'
 		unless defined $config{comments_pagename};
+	$config{comments_allowformats} = ''
+		unless defined $config{comments_allowformats};
 }
 
 sub htmlize {
@@ -128,12 +139,18 @@ sub safeurl ($) {
 	}
 }
 
+sub isallowed ($) {
+    my $format = shift;
+    return ! $config{comments_allowformats} || $config{comments_allowformats} =~ /\b$format\b/;
+}
+
 sub preprocess {
 	my %params = @_;
 	my $page = $params{page};
 
 	my $format = $params{format};
-	if (defined $format && ! exists $IkiWiki::hooks{htmlize}{$format}) {
+	if (defined $format && (! exists $IkiWiki::hooks{htmlize}{$format} ||
+				! isallowed($format))) {
 		error(sprintf(gettext("unsupported page format %s"), $format));
 	}
 
@@ -332,7 +349,7 @@ sub editcomment ($$) {
 
 	my @page_types;
 	if (exists $IkiWiki::hooks{htmlize}) {
-		foreach my $key (grep { !/^_/ } keys %{$IkiWiki::hooks{htmlize}}) {
+		foreach my $key (grep { !/^_/ && isallowed($_) } keys %{$IkiWiki::hooks{htmlize}}) {
 			push @page_types, [$key, $IkiWiki::hooks{htmlize}{$key}{longname} || $key];
 		}
 	}

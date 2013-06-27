@@ -410,3 +410,49 @@ I've integrated the jquery masonry plugin into the albumitem template and it wor
 But is there a way to create thumnails of different sizes? I've passed thumnailsize option
 and value to album directive and while it does create the new thumbnail sizes it doesn't use them,
 The 96x96 thumbnails still appear on the page no matter what I do. - jaime
+
+----
+
+Hi, the plugin looks great, but I am probably too dumb to use it ;( here is what I did:
+created page gal.mdwn with just \[\[!album\]\] directive (no arguments) and subdirectory gal/ with images in form img_1234.jpg
+
+when I run ikiwiki, I get something completely wrong though:
+
+generated gal/index.html page contains following code repeated for every image:
+
+    <div class="album-viewer">
+      <div id="album-img">
+        <div class="album-finish">
+          <a href="./"><span class="album-arrow">â†‘</span></a>
+        </div>
+      </div>
+    </div>
+
+So no links to any images, etc.
+
+The pages for individual images are generated though, but also not correct. Trails section is perfect, but the main part is wrong:
+
+    <div class="album-prev">
+      <a><span class="album-arrow">â†<90></span></a><br />
+      <div class="album-thumbnail">
+        <span class="selflink">
+          <img src="./96x96-img_2913.jpg" width="96" height="72" alt="img 2913" title="img 2913" class="img" /></span>
+      </div>
+    </div>
+
+This really seems like this should be in the album page and not individul page. It is only thumbnail and not full image. Also the full image is not in the generated html tree at all!
+
+I am using ikiwiki 3.20130518, and got the album sources from the links of [this page](http://ikiwiki.info/plugins/contrib/album/) (part manual installation)
+
+Any hint about what do I do wrong?
+
+Thanks Lukas
+
+> This plugin is not really finished. I probably need to update it for
+> current ikiwiki. I'll try to update it (and also update my demo
+> and installation instructions) at some point. --[[smcv]]
+
+>> I have to appologize, I accidentally copied the template wrongly and that caused all the issues ;(
+>> So now after two days debugging and tracing, I just fixed that and it works. Well, at least a learnt
+>> a lot about ikiwiki internal ;-)
+>> Thanks for all the work you did on the plugin! --Lukas

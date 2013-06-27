@@ -192,6 +192,7 @@ sub process_waypoint {
 		}
 	}
 	$icon = urlto($icon, $dest, 1);
+	$icon =~ s!/*$!!; # hack - urlto shouldn't be appending a slash in the first place
 	$tag = '' unless $tag;
 	register_rendered_files($map, $page, $dest);
 	$pagestate{$page}{'osm'}{$map}{'waypoints'}{$name} = {

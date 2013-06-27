@@ -53,6 +53,7 @@ sub checkconfig () {
 	eval q{
 		use RPC::XML;
 		use RPC::XML::Client;
+		$RPC::XML::ENCODING = 'utf-8';
 	};
 	error $@ if $@;
 }

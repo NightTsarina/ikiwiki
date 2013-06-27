@@ -195,7 +195,7 @@ sub rcs_add ($) {
 sub rcs_remove ($) {
 	my ($file) = @_;
 
-	my @cmdline = ("bzr", "rm", "--force", "--quiet", "$config{srcdir}/$file");
+	my @cmdline = ("bzr", "rm", "--quiet", "$config{srcdir}/$file");
 	if (system(@cmdline) != 0) {
 		warn "'@cmdline' failed: $!";
 	}

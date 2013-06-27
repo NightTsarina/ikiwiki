@@ -78,6 +78,7 @@ sub anonsubscribe ($$) {
 sub notify (@) {
 	my @files=@_;
 	return unless @files;
+	return if $config{rebuild};
 
 	eval q{use Mail::Sendmail};
 	error $@ if $@;
