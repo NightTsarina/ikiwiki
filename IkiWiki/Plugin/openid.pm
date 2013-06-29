@@ -156,8 +156,8 @@ sub validate ($$$;$) {
 	$trust_root=$cgiurl if ! defined $trust_root;
 
 	my $check_url = $claimed_identity->check_url(
-		return_to => "$cgiurl?do=postsignin",
-		trust_root => $trust_root,
+		return_to => auto_upgrade_https($q, "$cgiurl?do=postsignin"),
+		trust_root => auto_upgrade_https($q, $trust_root),
 		delayed_return => 1,
 	);
 	# Redirect the user to the OpenID server, which will
@@ -258,8 +258,17 @@ sub getobj ($$) {
 		ua => $ua,
 		args => $q,
 		consumer_secret => sub { return shift()+$secret },
-		required_root => $cgiurl,
+		required_root => auto_upgrade_https($q, $cgiurl),
 	);
+}
+
+sub auto_upgrade_https {
+	my $q=shift;
+	my $url=shift;
+	if ($q->https()) {
+		$url=~s/^http:/https:/i;
+	}
+	return $url;
 }
 
 sub load_openid_module {
