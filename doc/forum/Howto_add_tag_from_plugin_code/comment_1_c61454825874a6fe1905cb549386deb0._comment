@@ -1,0 +1,77 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 1"
+ date="2013-07-01T09:13:51Z"
+ content="""
+(If you want to branch from my version of album, please add my git repo
+as a remote and merge or cherry-pick the album4 branch: pasting from my
+gitweb seems to have given you some incorrect UTF-8.)
+
+The problem you have here is that for this plugin, the correct order
+for IkiWiki to do things is quite subtle. Am I right in thinking that
+the feature you want goes something like this?
+
+> To add a set of tags to every \"viewer\" page in the album, you can add
+> the tags parameter to the album:
+>
+>     \[[!album tags=\"holiday hawaii\"]]
+>
+> The individual viewers will all be tagged \"holiday\" and \"hawaii\",
+> for instance. These tags cannot be removed by editing the viewers.
+
+`preprocess_albumimage` runs twice: once in the scan stage, and once in
+the render stage. In the render stage, it's too late to add tags, because
+tags are a special form of [[ikiwiki/wikilinks]], and wikilinks have to
+be added during the scan stage to work correctly.
+
+The part of `preprocess_albumimage` after the line
+`return unless defined wantarray;` only runs in the render stage, which
+is too late. You'd need to set up the tags further up: just after the
+calls to `IkiWiki::Plugin::meta::preprocess` would be a good place.
+
+I would also suggest checking for
+`IkiWiki::Plugin::tag->can('preprocess_tag')`,
+like I do for meta - if you do that, you won't need to force the tag plugin
+to be loaded.
+
+Unfortunately, I'm still not sure that this is fully correct. Pages
+are scanned in a random order. If the `\[[!album]]` is scanned before
+a \"viewer\" page, then everything is fine: the tags are present when
+the \"viewer\" is scanned. However, if the \"viewer\" is scanned first,
+then it will get the tags that the `\[[!album]]` had in the *previous*
+IkiWiki run (if any), which are still in the index, because the
+`\[[!album]]` hasn't been re-scanned yet...
+
+Are you sure this form of the feature is what you want? You'll end up with
+a *lot* of pages with those tags. If it's what you want, it might be
+clearer how it works if you changed the syntax to something like this,
+perhaps?
+
+>
+>     \[[!album tag_all=\"holiday hawaii\"]]
+
+Another possible syntax would be to have the feature be more like this:
+
+> If you use the `tag_default` parameter to the `\[[!album]]` directive,
+> each \"viewer\" page created for images will have those tags by
+> default. Changing the `\[[!album]]` will not affect any \"viewer\"
+> pages that have already been created, and editing the \"viewer\"
+> can add or remove those default tags.
+>
+>     \[[!album tag_default=\"holiday hawaii\"]]
+
+which I think removes the ordering problems? If you go this route,
+you'd want to either add e.g. `[[!tag holiday hawaii]]`
+to the generated viewer page in `create_viewer`, or add a `tag`
+parameter to `\[[!albumimage]]` that's a shortcut for the
+tag directive, in the same way that author is a shortcut for
+`[[!meta author]]`).
+
+The purpose of the \"shortcut\" parameters in `\[[!albumimage]]`,
+like title, author and date, is that I eventually want to add
+a specialized CGI interface to this plugin so you can edit
+all the images of an album in one go; when I add that,
+it'll probably only be able to process something as
+machine-readable as `\[[!albumimage]]`.
+"""]]
