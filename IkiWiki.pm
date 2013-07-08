@@ -2776,12 +2776,12 @@ sub match_user ($$;@) {
 	my $user=shift;
 	my %params=@_;
 	
-	my $regexp=IkiWiki::glob2re($user);
-	
 	if (! exists $params{user}) {
 		return IkiWiki::ErrorReason->new("no user specified");
 	}
 
+	my $regexp=IkiWiki::glob2re($user);
+	
 	if (defined $params{user} && $params{user}=~$regexp) {
 		return IkiWiki::SuccessReason->new("user is $user");
 	}
@@ -2821,8 +2821,10 @@ sub match_ip ($$;@) {
 	if (! exists $params{ip}) {
 		return IkiWiki::ErrorReason->new("no IP specified");
 	}
+	
+	my $regexp=IkiWiki::glob2re(lc $ip);
 
-	if (defined $params{ip} && lc $params{ip} eq lc $ip) {
+	if (defined $params{ip} && lc $params{ip}=~$regexp) {
 		return IkiWiki::SuccessReason->new("IP is $ip");
 	}
 	else {
