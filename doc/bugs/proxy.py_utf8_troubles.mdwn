@@ -1,0 +1,33 @@
+when writing an external plugin using `proxy.py`, the getstate and setstate
+functions don't accept unicode data:
+
+    uncaught exception: 'ascii' codec can't encode character u'\xe4' in position 25: ordinal not in range(128)
+    Traceback (most recent call last):
+      File "proxy.py", line 309, in run
+        self._in_fd, self._out_fd)
+      File "proxy.py", line 192, in handle_rpc
+        ret = self._dispatcher.dispatch(method, params)
+      File "proxy.py", line 84, in dispatch
+        return self._dispatch(method, params)
+      File "/usr/lib/python2.7/SimpleXMLRPCServer.py", line 420, in _dispatch
+        return func(*params)
+      File "proxy.py", line 251, in hook_proxy
+        ret = function(self, *args)
+      File "/home/chrysn/git/ikiwiki-plugins//plugins/my_plugin", line 49, in data2html
+        proxy.setstate(kwargs['page'], 'meta', 'title', unicode_containing_umlauts)
+      File "proxy.py", line 291, in setstate
+        return self.rpc('setstate', page, id, key, value)
+      File "proxy.py", line 233, in rpc
+        *args, **kwargs)
+      File "proxy.py", line 178, in send_rpc
+        cmd, data))
+    UnicodeEncodeError: 'ascii' codec can't encode character u'\xe4' in position 25: ordinal not in range(128)
+
+the culprit is the last `_debug_fn` invocation in `send_rpc` (line 178), where
+unicode data is format-fed into a string. while this could be circumvented by
+making the formatting string a unicode string, that would cause trouble with
+python3 and we'd just move the problem to the stderr writing later on; instead,
+"`cmd, data))`" should become "`cmd, repr(data)))`" and everything is fine.
+debug output doesn't look that pretty any more, but is safe.
+
+--[[chrysn]]
