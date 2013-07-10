@@ -175,7 +175,7 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
         data = _xmlrpc_client.loads(xml)[0][0]
         self._debug_fn(
             'parsed data from response to procedure {0}: [{1}]'.format(
-                cmd, data))
+                cmd, repr(data)))
         return data
 
     def handle_rpc(self, in_fd, out_fd):
