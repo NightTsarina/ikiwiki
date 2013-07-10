@@ -773,7 +773,7 @@ sub refresh () {
 	my %existingfiles;
 	run_hooks(needsbuild => sub {
 		my $ret=shift->($changed, [@$del, @$internal_del]);
-		if (ref $ret eq 'ARRAY') {
+		if (ref $ret eq 'ARRAY' && $ret != $changed) {
 			if (! %existingfiles) {
 				foreach my $f (@$files) {
 					$existingfiles{$f}=1;
