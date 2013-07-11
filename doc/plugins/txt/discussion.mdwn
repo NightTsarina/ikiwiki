@@ -1,0 +1,33 @@
+I guess the reason I never thought to write this is when I put a .txt file
+in ikiwiki, I'm happy enough to see it copied through unchanged.
+
+I guess the advantage of using this plugin is that you get the page wrapper
+around the preformatted text, and could even inline such a page.
+
+There is not currently a good way to turn off some processing steps for
+some page types. It's either all or nothing. The patch in
+[[todo/format_escape]] might allow a formatter to register its own special
+version of htmllink that didn't do anything, but would that be enough?
+
+--[[Joey]]
+
+[Here](http://www.gmcmanus.org/plaintext.pm) is an alternate approach.
+It encodes entities using a filter hook, before wikilinks are linkified.
+So wikilinks turn up as links.
+It also uses URI::Find to turn URIs into links.
+
+I'm not very familiar with Perl, so this code could be improved.
+
+--Gabriel
+
+I like this approach! It sidesteps the annoying problem, and it actually
+makes the .txt format genuinely wiki-like, by allowing wikilinks and
+preprocessor directices.
+
+The only thing I am not sure about is the conversion of external urls to
+hyperlinks. 
+
+Can you please add a copyright/license statemnt to the top of the plugin?
+If you do, I'll add it to ikiwiki. Thanks! --[[Joey]]
+
+> I've added copyright and license (GPLv2 or later). --Gabriel

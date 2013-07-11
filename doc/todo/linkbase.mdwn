@@ -1,0 +1,16 @@
+[[!template id=gitbranch branch=GiuseppeBilotta/linkbase author="[[GiuseppeBilotta]]"]]
+
+This patches enables the user to specify additional paths (“link bases”)
+that can be used by ikiwiki when trying to resolve links. The list of
+link bases is built as follows:
+
+* the page itself (as ikiwiki currently does)
+* all link bases specified for this page
+* all link bases specified for pagespecs matched by this page
+
+To specify the link bases, the only way made available presently by the
+patchset is a linkbase plugin that works similarly to the shortcut
+plugin (link bases are specified in a linkbases.mdwn file at the
+document root). However, are ways are potentially possible.
+
+This is still work in progress. Comments and suggestions are welcome.

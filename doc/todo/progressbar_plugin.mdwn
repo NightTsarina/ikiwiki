@@ -1,0 +1,132 @@
+I would like to add next plugin to Ikiwiki. It's `progressbar` or simply `progress`.
+I'm not sure what plugin name better is, probably that shorter ;) I know that
+[DokuWiki](http://wiki.splitbrain.org/plugin:progressbar) has similar plugin,
+so I think it can be useful also for Ikiwiki users.
+
+Here is proposition of the plugin syntax:
+
+    \[[!progress done=50]]
+
+Of course, `done` argument is integer from 0 to 100. 
+
+A here is its HTML result:
+
+    <div class="progress">
+      <div class="progress-done" style="width: 50%">50%</div>
+    </div>
+
+Note: I was trying with `<span>` tags too, but that tag is inline, so I can't
+set `width` property for it.
+
+> In the poll plugin, I ended up using a `<hr>` for the progress-like
+> thing. One reason I did so is because it actually works in text-mode
+> browsers (w3m, lynx), that do not support css or colorized
+> divs. Since the hr is an element they display, just setting its width can
+> make a basic progress-type display. The style then makes it display
+> better in more capable browsers.
+> 
+> The other advantage to that approach is that the htmlscrubber lets
+> through the `class` and `width` fields, that are all that are needed for
+> it to work. No need to work around htmlscrubber.
+> 
+> So I suggest adapting this to use similar html. --[[Joey]]
+
+>> I just had a brief play with this.  It seems there are some trade-offs involved.
+>> The `width` attribute of an `<hr>` tag is deprecated, but that's not the big one.
+>> I can't see how to place text next to an `<hr>` tag.  I note that in the
+>> [[plugins/poll]] plugin there is text above and below the 'graph line', but none
+>> on the same line as the graph.  I prefer the way the current code renders,
+>> with the percentage complete appearing as text inside the graph.
+>>
+>> So, if we use `hr` we get:
+>>
+>> - Graph line on text / non-css browsers
+>> - No percentage complete text on the same line as the graph line
+>> - Deprecated HTML
+>>
+>> If we use `div` we get:
+>>
+>> - Need to clean up after HTMLScrubber (which is not hard - already implemented)
+>> - Get the percentage written as text on text / non-css browsers
+>> - Get the percentage on the same line as the graph in css browsers
+>>
+>> I'm strongly in favour of having the percentage text label on the graph, and on
+>> text based browsers I think having the text label is enough -- the lack of the line
+>> in that case doesn't bother me.
+>> So, given the choice between the two suggested techniques, I'd take the second and
+>> stay with div... unless you know how to get text next to (or within) an `<hr>` tag. -- [[Will]]
+
+Default CSS styles for the plugin can be like below:
+
+    div.progress {
+            border: 1px solid #ddd;
+            /* border: 2px solid #ddd; */
+            width: 200px;
+            background: #fff;
+            padding: 2px;
+            /* padding: 0px; */
+            border: 2px solid #aaa;
+            background: #eee;
+    }
+    div.progress-done {
+            height: 14px;
+            background: #ff6600;
+            font-size: 12px;
+            text-align: center;
+            vertical-align: middle;
+    }
+
+You can use alternative, commented CSS code for `div.progress` if you dislike
+padding around done strip.
+
+Any comments? --[[Paweł|ptecza]]
+
+> Please make sure to always set a foreground color if a background color is
+> set, and use '!important' so the foreground color can be overridden. (CSS
+> best practices) --[[Joey]]
+
+>> Below is the CSS I've been using -- [[Will]]
+
+    div.progress {
+    	margin-top: 1ex;
+    	margin-bottom: 1ex;
+    	border: 1px solid #888;
+    	width: 400px;
+    	background: #eee;
+    	color: black !important;
+    	padding: 1px;
+    }
+    div.progress-done {
+    	background: #ea6 !important;
+    	color: black !important;
+    	text-align: center;
+    	padding: 1px;
+    }
+
+> This looks like a nice idea.  If I could add one further suggestion: Allow your
+> ratio to be a pair of pagespecs.  Then you could have something like:
+
+    \[[!progress totalpages="bugs/* and backlink(milestoneB)" donepages="bugs/* and backlink(milestoneB) and !link(bugs/done)"]]
+
+> to have a progress bar marking how many bugs were compete for a
+> particular milestone.  -- [[Will]]
+
+>> Thanks a lot for your comment, Will! It seems very interesting for me.
+>> I need to think more about improving that plugin. --[[Paweł|ptecza]]
+
+>> Attached is a [[patch]] (well, source) for this.  You also need to add the proposed CSS above to `style.css`.
+>> At the moment this plugin interacts poorly with the [[plugins/htmlscrubber]] plugin.
+>> HTMLScrubber plugin removes the `style` attribute from the `progress-done` `div` tag, and so it defaults
+>> to a width of 100%. -- [[Will]]
+
+>>> Thank you for the code! I know how to fix that problem, because I had
+>>> the same issue while writing [[todo/color_plugin]] :) --[[Paweł|ptecza]]
+
+>>>> Ahh - good idea.  Patch updated to work with HTMLScrubber. --[[Will]]
+
+>>>>> I like it, but I think that Joey should take a look at that patch too :)
+>>>>> --[[Paweł|ptecza]]
+
+>>>>>> Reviewed, looks excellent, added. [[done]] --[[Joey]]
+
+>>>>>>> Thanks a lot for you and Will! :) [[Paweł|ptecza]]

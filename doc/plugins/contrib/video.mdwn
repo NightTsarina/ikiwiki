@@ -1,0 +1,25 @@
+[[!template id=plugin name=video author="[[Yury Chumak|sphynkx]]"]]
+
+## Video
+
+This plugin provides embedding video on wikipages. Plugin uses most simple embedding method - only with *embed* tag and without  any JS-scripts.
+
+###Usage
+
+>\[\[\!video width=100 height=100 type="application/x-shockwave-flash" src="/\_jwplayer/player.swf" allowscriptaccess="always" allowfullscreen="true" autostart="false" file="path\_to\_video"\]\]
+
+All parameters are optional except *file* and will be replaced with the default settings as showed in the above example.
+
+*file* is relative path in webdir or web-address (to Youtube page).
+
+### Install
+Download and unpack [archive](http://sphynkx.org.ua/progr/videoplug/jw_videoplugin.tar.bz2) in your ikiwiki webdir. 
+Or download [JW Player](http://www.longtailvideo.com/players/jw-flv-player/) and [perl module](http://sphynkx.org.ua/progr/videoplug/video.pm) separately. Make dir *\_jwplayer* and put player.swf in it. Also put *video.pm* in *Plugin* dir. In Ikiwiki configuration switch on the plugin:
+
+    add_plugins => [qw{.......... video}]
+
+### Note
+
+[Htmlscrubber](http://ikiwiki.info/plugins/htmlscrubber/) may block *embed* tag.
+
+If embed tag present but video not playing - check mode of unpacked *player.swf*.

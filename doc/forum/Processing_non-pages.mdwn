@@ -1,0 +1,7 @@
+I'd like to be able to write a plugin that minifies CSS pages, but the whole plugin mechanism appears to be oriented towards generating HTML pages.  That is, all files appear to be split into "pages with page types" and "pages without page types".  Pages without page types are copied from the source to the destination directory and that's all.  Pages *with* page-types go through the whole gamut: scan, filter, preprocess, linkify, htmlize, sanitize, format, and then they're written as "foo.html".
+
+I could be mistaken, but I don't think registering "css" as a page-type would work.  Sure, I could then process the content to my heart's content, but at the end, my foo.css file would be saved as foo.html, which is NOT what I want.
+
+What I would like would be something in-between, where one could take `foo.css`, process it (in this case, run a minify over it) and output it as `foo.css`.
+
+How?

@@ -1,0 +1,73 @@
+Well, that's an one workaround for (some versions of) markdown's
+lack of tables..
+
+Interesting that you chose to use CSV format. Seems there are advantages
+(standardisation) and disadvantages (limited to simple tables).
+
+--[[Joey]]
+
+# Patch for new header options
+
+I have written a small patch for this plugin to enable the first column as a header instead of just the first row or no header.
+
+In my version, there is three options for the header field :
+
++ **no**: no header;
++ **col**: the first column as header;
++ **row**: the first row as header (for compatibility reason, **yes** is an alternate value for this option). 
+
+Here is the links to the patch and to a patched version of the plugin :
+
++ [table.pm.patch](http://alexandre.dupas.free.fr/code/ikiwiki/table.pm.patch)
++ [table.pm](http://alexandre.dupas.free.fr/code/ikiwiki/table.pm)
+
+I hope this might be intresting for some ikiwiki user's.
+
+--[[AlexandreDupas]]
+
+> Thanks for the patch, I've merged it in.
+> (Just FYI, in future, I recommend using a unified diff. Also, not
+> renaming variables that don't really need to be renamed makes your patch
+> easier to apply.) --[[Joey]]
+
+---
+
+# Horizontal cell alignment
+
+Do you know any easy method of horizontal cell alignment? I know I can set `class`
+attribute for the table, but how to set different `class` for different cells?
+
+[DokuWiki](http://www.dokuwiki.org/) has a nice horizontal alignment solution.
+Suppose that we have `|foo|` cell. If I want to align the cell to left,
+then I should type `|foo |`. If I want to do right alignment, then I type `| foo|`.
+For centering cell content I need to type `| foo |`. Please note that I used
+only one space for all examples, but in DokuWiki I can use many spaces.
+
+Do you like it? Can you implement the same in Ikiwiki? :) --[[Paweł|ptecza]]
+
+> Multimarkdown has [table support](http://fletcherpenney.net/multimarkdown/users_guide/multimarkdown_syntax_guide/#tables)
+> that includes alignment. (Using colons to control it.) So you can turn on
+> `multimarkdown` in setup to use that.
+> 
+> I'd not mind if someone adds alignment to this plugin. Although the
+> universe of possible table formatting stuff is nearly endless, and at
+> some point it becomes clearer and simpler to just write the table in
+> html.. --[[Joey]]
+
+>> Thanks a lot for the info about Multimarkdown! It seems very interesting.
+
+>> I'll look at that plugin and try to add that feature, if it's not
+>> too hard.
+
+>> I know that people have many ideas how to format their tables
+>> and it's not easy to create universal tool. Of course `table` plugin
+>> was written rather for simple usage. However cell alignment is very
+>> helpful feature, so I think the plugin should be able to do it.
+>> --[[Paweł|ptecza]]
+
+-----
+
+If you see `[[!table\ Error: ]]` you probably need to `sudo apt-get install libtext-csv-perl`.
+
+> Perhaps more helpfully, ikiwiki 3.1415926 fixes display of such errors to
+> actualy include the error message. --[[Joey]] 

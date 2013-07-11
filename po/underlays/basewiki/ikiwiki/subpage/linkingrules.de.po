@@ -1,0 +1,109 @@
+# German translation of basewiki/ikiwiki/subpage/linkingrules page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-03-12 09:29+0530\n"
+"PO-Revision-Date: 2010-03-14 15:21+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr ""
+"[[!meta title=\"Regeln für Links\"]]\n"
+"[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+msgid ""
+"To link to or from a [[SubPage]], you can normally use a regular "
+"[[WikiLink]] that does not contain the name of the parent directory of the "
+"[[SubPage]]. Ikiwiki descends the directory hierarchy looking for a page "
+"that matches your link."
+msgstr ""
+"Um einen Link von oder zu einer [[Unterseite|SubPage]] anzulegen, kann man "
+"normalerweise einfache WikiLinks verwenden, ohne dass diese den Namen des "
+"Verzeichnisses enthalten, in dem die [[Unterseite|SubPage]] liegt. "
+"Ikiwiki läuft dann die Verzeichnishierarchie ab und sucht nach einer Seite, "
+"die zu dem angegebenen Link passt."
+
+#. type: Plain text
+msgid ""
+"For example, if FooBar/SubPage links to \"OtherPage\", ikiwiki will first "
+"prefer pointing the link to FooBar/SubPage/OtherPage if it exists, next to "
+"FooBar/OtherPage and finally to OtherPage in the root of the wiki."
+msgstr ""
+"Wenn zum Beispiel `FooBar/UnterSeite` einen Link auf `AndereSeite` enthält, "
+"wird ikiwiki bevorzugt auf `FooBar/UnterSeite/AndereSeite` verweisen, wenn "
+"diese existiert, dann auf `FooBar/AndereSeite` und schließlich auf "
+"`AndereSeite` im Wurzelverzeichnis des Wikis."
+
+#. type: Plain text
+msgid ""
+"Note that this means that if a link on FooBar/SomePage to \"OtherPage\" "
+"currently links to OtherPage, in the root of the wiki, and FooBar/OtherPage "
+"is created, the link will _change_ to point to FooBar/OtherPage. On the "
+"other hand, a link from BazBar to \"OtherPage\" would be unchanged by this "
+"creation of a [[SubPage]] of FooBar."
+msgstr ""
+"Insbesondere bedeutet dies, dass wenn ein Link auf `FooBar/EineSeite` auf "
+"`AndereSeite` momentan auf `AndereSeite` im Wurzelverzeichnis des Wikis "
+"verweist, und `FooBar/AndereSeite` erstellt wird, dann _ändert_ sich das "
+"Ziel des Links auf `FooBar/AndereSeite`. Andererseits würde ein Link von "
+"`BazBar` auf `AndereSeite` durch das Anlegen einer [[Unterseite|SubPage]] "
+"von `FooBar` unverändert bleiben."
+
+#. type: Plain text
+msgid ""
+"You can also specify a link that contains a directory name, like "
+"\"FooBar/OtherPage\" to more exactly specify what page to link to. This is "
+"the only way to link to an unrelated [[SubPage]]."
+msgstr ""
+"Man kann auch einen Link mit Verzeichnisnamen angeben, etwa "
+"`FooBar/AndereSeite`, um genauer anzugeben auf welche Seite verwiesen werden "
+"soll. Nur so kann auf eine [[Unterseite|SubPage]] einer anderen Seite "
+"verwiesen werden."
+
+#. type: Plain text
+msgid ""
+"You can use this to, for example, to link from BazBar to \"FooBar/SubPage\", "
+"or from BazBar/SubPage to \"FooBar/SubPage\"."
+msgstr ""
+"Man kann dies zum Beispiel dazu verwenden, um einen Link von `BazBar` auf "
+"`FooBar/UnterSeite` oder von `BazBar/UnterSeite` auf `FooBar/UnterSeite` "
+"anzulegen."
+
+#. type: Plain text
+msgid ""
+"You can also use \"/\" at the start of a link, to specify exactly which page "
+"to link to, when there are multiple pages with similar names and the link "
+"goes to the wrong page by default. For example, linking from "
+"\"FooBar/SubPage\" to \"/OtherPage\" will link to the \"OtherPage\" in the "
+"root of the wiki, even if there is a \"FooBar/OtherPage\"."
+msgstr ""
+"Man kann auch `/` am Anfang des Links verwenden, um die Zielseite genau zu "
+"spezifizieren, wenn es mehrere Seiten mit ähnlichen Namen gibt und der Link "
+"standardmäßig zur falschen geht. Zum Beispiel zeigt der Link `/AndereSeite` "
+"auf der Seite `FooBar/UnterSeite` auf `AndereSeite` im Wurzelverzeichnis des "
+"Wikis, selbst wenn es eine `FooBar/AndereSeite` gibt."
+
+#. type: Plain text
+msgid ""
+"Also, if the wiki is configured with a userdir, you can link to pages within "
+"the userdir without specifying a path to them. This is to allow for easy "
+"linking to a user's page in the userdir, to sign a comment. These links are "
+"checked for last of all."
+msgstr ""
+"Wenn das Wiki mit einem `userdir` konfiguriert ist, kann man außerdem "
+"die Seiten im Benutzerverzeichnis direkt verlinken, ohne einen Pfad "
+"anzugeben. Dadurch können leichter Links auf die Seite eines Benutzers "
+"gesetzt werden, etwa beim Signieren eines Kommentars. Diese Links "
+"werden als letzte von allen in Betracht gezogen."
+
+

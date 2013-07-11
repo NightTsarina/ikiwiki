@@ -1,0 +1,13 @@
+ikiwiki now has a `disable` hook. Should the po plugin remove the po
+files from the source repository when it has been disabled?
+
+> pot files, possibly, but the po files contain work, so no. --[[Joey]] 
+
+>> I tried to implement this in my `po-disable` branch, but AFAIK, the
+>> current rcs plugins interface provides no way to tell whether a
+>> given file (e.g. a POT file in my case) is under version control;
+>> in most cases, it is not, thanks to .gitignore or similar, but we
+>> can't be sure. So I just can't decide it is needed to call
+>> `rcs_remove` rather than a good old `unlink`. --[[intrigeri]]
+
+>>> I guess you could call `rcs_remove` followed by `unlink`. --[[Joey]] 

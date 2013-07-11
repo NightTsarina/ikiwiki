@@ -1,0 +1,292 @@
+A few bits about the RCS backends
+
+[[!toc ]]
+
+## Terminology
+
+``web-edit'' means that a page is edited by using the web (CGI) interface
+as opposed to using a editor and the RCS interface.
+
+
+## [[svn]]
+
+Subversion was the first RCS to be supported by ikiwiki.
+
+### How does it work internally?
+
+Master repository M.
+
+RCS commits from the outside are installed into M.
+
+There is a working copy of M (a checkout of M): W.
+
+HTML is generated from W.  rcs_update() will update from M to W.
+
+CGI operates on W.  rcs_commit() will commit from W to M.
+
+For all the gory details of how ikiwiki handles this behind the scenes,
+see [[commit-internals]].
+
+You browse and web-edit the wiki on W.
+
+W "belongs" to ikiwiki and should not be edited directly.
+
+
+## [[darcs]]
+
+Regarding the repository layout: There are two darcs repositories. One is the `srcdir`, the other we'll call `master`.
+
+*  HTML is generated from `srcdir`.
+*  CGI edits happen in `srcdir`.
+*  The backend pulls updates from `master` into `srcdir`, i.e. darcs commits should happen to `master`.
+*  `master` calls ikiwiki (through a wrapper) in its apply posthook, i.e. `master/_darcs/prefs/defaults` should look like this:
+
+	apply posthook ikiwrap
+	apply run-posthook
+
+*  The backend pushes CGI edits from `srcdir` back into `master` (triggering the apply hook).
+*  The working copies in `srcdir` and `master` should *not* be touched by the user, only by the CGI or darcs, respectively.
+
+## [[Git]]
+
+Regarding the Git support, Recai says:
+
+I have been testing it for the past few days and it seems satisfactory.  I
+haven't observed any race condition regarding the concurrent blog commits
+and it handles merge conflicts gracefully as far as I can see.
+
+(After about a year, git support is nearly as solid as subversion support --[[Joey]])
+
+As you may notice from the patch size, GIT support is not so trivial to
+implement (for me, at least). It has some drawbacks (especially wrt merge
+which was the hard part).  GIT doesn't have a similar functionality like
+'svn merge -rOLD:NEW FILE' (please see the relevant comment in `_merge_past`
+for more details), so I had to invent an ugly hack just for the purpose.
+
+> I was looking at this, and WRT the problem of uncommitted local changes,
+> it seems to me you could just git-stash them now that git-stash exists.
+> I think it didn't when you first added the git support.. --[[Joey]]
+
+
+>> Yes,  git-stash had not existed before.  What about sth like below?  It
+>> seems to work (I haven't given much thought on the specific implementation
+details).  --[[roktas]]
+
+>>	    # create test files
+>>	    cd /tmp
+>>	    seq 6 >page
+>>	    cat page
+>>	    1
+>>	    2
+>>	    3
+>>	    4
+>>	    5
+>>	    6
+>>	    sed -e 's/2/2ME/' page >page.me # my changes
+>>	    cat page
+>>	    1
+>>	    2ME
+>>	    3
+>>	    4
+>>	    5
+>>	    6
+>>	    sed -e 's/5/5SOMEONE/' page >page.someone # someone's changes
+>>	    cat page
+>>	    1
+>>	    2
+>>	    3
+>>	    4
+>>	    5SOMEONE
+>>	    6
+>>
+>>	    # create a test repository
+>>	    mkdir t
+>>	    cd t
+>>	    cp ../page .
+>>	    git init
+>>	    git add .
+>>	    git commit -m init
+>>
+>>	    # save the current HEAD
+>>	    ME=$(git rev-list HEAD -- page)
+>>	    $EDITOR page # assume that I'm starting to edit page via web
+>>
+>>	    # simulates someone's concurrent commit
+>>	    cp ../page.someone page
+>>	    git commit -m someone -- page
+>>
+>>	    # My editing session ended, the resulting content is in page.me
+>>	    cp ../page.me page
+>>	    cat page
+>>	    1
+>>	    2ME
+>>	    3
+>>	    4
+>>	    5
+>>	    6
+>>
+>>	    # let's start to save my uncommitted changes
+>>	    git stash clear
+>>	    git stash save "changes by me"
+>>	    # we've reached a clean state
+>>	    cat page
+>>	    1
+>>	    2
+>>	    3
+>>	    4
+>>	    5SOMEONE
+>>	    6
+>>
+>>	    # roll-back to the $ME state
+>>	    git reset --soft $ME
+>>	    # now, the file is marked as modified
+>>	    git stash save "changes by someone"
+>>
+>>	    # now, we're at the $ME state
+>>	    cat page
+>>	    1
+>>	    2
+>>	    3
+>>	    4
+>>	    5
+>>	    6
+>>	    git stash list
+>>	    stash@{0}: On master: changes by someone
+>>	    stash@{1}: On master: changes by me
+>>
+>>	    # first apply my changes
+>>	    git stash apply stash@{1}
+>>	    cat page
+>>	    1
+>>	    2ME
+>>	    3
+>>	    4
+>>	    5
+>>	    6
+>>	    # ... and commit
+>>	    git commit -m me -- page
+>>
+>>	    # apply someone's changes
+>>	    git stash apply stash@{0}
+>>	    cat page
+>>	    1
+>>	    2ME
+>>	    3
+>>	    4
+>>	    5SOMEONE
+>>	    6
+>>	    # ... and commit
+>>	    git commit -m me+someone -- page
+
+By design, Git backend uses a "master-clone" repository pair approach in contrast
+to the single repository approach (here, _clone_ may be considered as the working
+copy of a fictious web user).  Even though a single repository implementation is
+possible, it somewhat increases the code complexity of backend (I couldn't figure
+out a uniform method which doesn't depend on the prefered repository model, yet).
+By exploiting the fact that the master repo and _web user_'s repo (`srcdir`) are all
+on the same local machine, I suggest to create the latter with the "`git clone -l -s`"
+command to save disk space.
+
+Note that, as a rule of thumb, you should always put the rcs wrapper (`post-update`)
+into the master repository (`.git/hooks/`).
+
+Here is how a web edit works with ikiwiki and git:
+
+* ikiwiki cgi modifies the page source in the clone
+* git-commit in the clone
+* git push origin master, pushes the commit from the clone to the master repo
+* the master repo's post-update hook notices this update, and runs ikiwiki
+* ikiwiki notices the modifies page source, and compiles it
+
+Here is a how a commit from a remote repository works:
+
+* git-commit in the remote repository
+* git-push, pushes the commit to the master repo on the server
+* (Optionally, the master repo's pre-receive hook runs, and checks that the
+  update only modifies files that the pushing user is allowed to update. 
+  If not, it aborts the receive.)
+* the master repo's post-update hook notices this update, and runs ikiwiki
+* ikiwiki notices the modifies page source, and compiles it
+
+## [[Mercurial]]
+
+The Mercurial backend is still in a early phase, so it may not be mature 
+enough, but it should be simple to understand and use.
+
+As Mercurial is a distributed RCS, it lacks the distinction between 
+repository and working copy (every wc is a repo).
+
+This means that the Mercurial backend uses directly the repository as 
+working copy (the master M and the working copy W described in the svn 
+example are the same thing).
+
+You only need to specify 'srcdir' (the repository M) and 'destdir' (where
+the HTML will be generated).
+
+Master repository M.
+
+RCS commit from the outside are installed into M.
+
+M is directly used as working copy (M is also W).
+
+HTML is generated from the working copy in M. rcs_update() will update 
+to the last committed revision in M (the same as 'hg update').
+If you use an 'update' hook you can generate automatically the HTML
+in the destination directory each time 'hg update' is called.
+
+CGI operates on M. rcs_commit() will commit directly in M.
+
+If you have any question or suggestion about the Mercurial backend 
+please refer to [Emanuele](http://nerd.ocracy.org/em/)
+
+## [[tla]]
+
+Nobody really understands how tla works. ;-)
+
+## rcs
+
+There is a patch that needs a bit of work linked to from [[todo/rcs]].
+
+## [[Monotone]]
+
+In normal use, monotone has a local database as well as a workspace/working copy.
+In ikiwiki terms, the local database takes the role of the master repository, and
+the srcdir is the workspace.  As all monotone workspaces point to a default
+database, there is no need to tell ikiwiki explicitly about the "master" database.  It
+will know.
+
+The backend currently supports normal committing and getting the history of the page.
+To understand the parallel commit approach, you need to understand monotone's
+approach to conflicts:
+
+Monotone allows multiple micro-branches in the database.  There is a command,
+`mtn merge`, that takes the heads of all these branches and merges them back together
+(turning the tree of branches into a dag).  Conflicts in monotone (at time of writing)
+need to be resolved interactively during this merge process.
+It is important to note that having multiple heads is not an error condition in a
+monotone database.  This condition will occur in normal use.  In this case
+'update' will choose a head if it can, or complain and tell the user to merge.
+
+For the ikiwiki plugin, the monotone ikiwiki plugin borrows some ideas from the svn ikiwiki plugin.
+On prepedit() we record the revision that this change is based on (I'll refer to this as the prepedit revision).  When the web user
+saves the page, we check if that is still the current revision.  If it is, then we commit.
+If it isn't then we check to see if there were any changes by anyone else to the file
+we're editing while we've been editing (a diff bewteen the prepedit revision and the current rev).
+If there were no changes to the file we're editing then we commit as normal.
+
+It is only if there have been parallel changes to the file we're trying to commit that
+things get hairy.  In this case the current approach is to
+commit the web changes as a branch from the prepedit revision.  This
+will leave the repository with multiple heads.  At this point, all data is saved.
+The system then tries to merge the heads with a merger that will fail if it cannot
+resolve the conflict.  If the merge succeeds then everything is ok.
+
+If that merge failed then there are conflicts.  In this case, the current code calls
+merge again with a merger that inserts conflict markers.  It commits this new
+revision with conflict markers to the repository.  It then returns the text to the
+user for cleanup.  This is less neat than it could be, in that a conflict marked
+revision gets committed to the repository.
+
+## [[bzr]]
+
+## [[cvs]]

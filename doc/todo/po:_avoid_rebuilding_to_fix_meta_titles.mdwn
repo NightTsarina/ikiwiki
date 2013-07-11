@@ -1,0 +1,60 @@
+Re the meta title escaping issue worked around by `change`. 
+
+>   I suppose this does not only affect meta, but other things
+>   at scan time too. Also, handling it only on rebuild feels
+>   suspicious -- a refresh could involve changes to multiple
+>   pages and trigger the same problem, I think. Also, exposing
+>   this rebuild to the user seems really ugly, not confidence inducing.
+>   
+>   So I wonder if there's a better way. Such as making po, at scan time,
+>   re-run the scan hooks, passing them modified content (either converted
+>   from po to mdwn or with the escaped stuff cheaply de-escaped). (Of
+>   course the scan hook would need to avoid calling itself!)
+> 
+>   (This doesn't need to block the merge, but I hope it can be addressed
+>   eventually..)
+>  
+> --[[Joey]] 
+>> 
+>> I'll think about it soon.
+>> 
+>> --[[intrigeri]]
+>>
+>>> Did you get a chance to? --[[Joey]] 
+
+>>>> I eventually did, and got rid of the ugly double rebuild of pages
+>>>> at build time. This involved adding a `rescan` hook. Rationale
+>>>> and details are in my po branch commit messages. I believe this
+>>>> new way of handling meta title escaping to be far more robust.
+>>>> Moreover this new implementation is more generic, feels more
+>>>> logical to me, and probably fixes other similar bugs outside the
+>>>> meta plugin scope. Please have a look when you can.
+>>>> --[[intrigeri]]
+
+>>>>> Glad you have tackled this. Looking at
+>>>>> 25447bccae0439ea56da7a788482a4807c7c459d,
+>>>>> I wonder how this rescan hook is different from a scan hook
+>>>>> with `last => 1` ? Ah, it comes *after* the preprocess hook
+>>>>> in scan mode. Hmm, I wonder if there's any reason to have 
+>>>>> the scan hook called before those as it does now. Reordering
+>>>>> those 2 lines could avoid adding a new hook. --[[Joey]]
+
+>>>>>> Sure. I was fearing to break other plugins if I did so, so I
+>>>>>> did not dare to. I'll try this. --[[intrigeri]]
+
+>>>>>>> Done in my po branch, please have a look. --[[intrigeri]]
+
+>>>>>>>> I've merged it. Didn't look at the po.pm changes closely;
+>>>>>>>> assume they're ok. [[done]] --[[Joey]] 
+>>>>>>>> 
+>>>>>>>> My thinking about the reordering being safe is that
+>>>>>>>> the relative ordering of scan and preprocess in scan mode hooks
+>>>>>>>> has not been defined before, so it should be ok to define it. :)
+>>>>>>>> 
+>>>>>>>> And as to possible breakage from things that assumed the old
+>>>>>>>> ordering, such a thing would need to have a scan hook and a
+>>>>>>>> preprocess in scan mode hook, and the two hooks would need to 
+>>>>>>>> populate the same data structure with conflicting information,
+>>>>>>>> in order for there to be a problem. That seems highly unlikely
+>>>>>>>> and would be pretty broken on its own. And no plugin in ikiwiki
+>>>>>>>> itself has both types of hooks. --[[Joey]]

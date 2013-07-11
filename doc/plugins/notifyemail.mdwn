@@ -1,0 +1,14 @@
+This plugin allows uses to subscribe to pages, and emails them when
+they are created or changed.
+
+It needs the [[!cpan Mail::SendMail]] perl module, and sends mail
+using the local MTA.
+
+Each user can configure which pages they are interested in, using an
+[[ikiwiki/PageSpec]] on their Preferences page. Any change to a page
+matching the PageSpec will send an email that includes the new content of
+the page, and a link to the page on the web.
+
+To make it easy to subscribe to comment threads when posting a comment,
+or a page, there is a check box that can be used to subscribe, without
+needing to manually edit the [[ikiwiki/PageSpec]].

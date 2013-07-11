@@ -1,0 +1,69 @@
+Ikiwiki's preprocessor parser cannot deal with arbitrary nested preprocesor
+directives. It's possible to nest a directive with single quoted values
+inside a triple-quoted value of a directive, but that's all.
+
+It's not possible to unambiguously parse nested quotes, so to support
+nesting, a new syntax would be needed. Maybe something xml-like?
+
+> You can, however, unambiguously parse nested square brackets, and I think
+> that would solve the problem, as long as you never allow the contents of a
+> directive to contain a *partial* directive, which seems reasonable to me.
+>
+> For example, I *think* you can unambiguously parse the following:
+>
+>     \[[!if test="enabled(template) and templates/foo" then="""
+>     [[!template id=foo content="""Flying Purple People Eater"""]]
+>     """]]
+>
+> --[[JoshTriplett]]
+
+>> Yes it's definitely possible to do something like that. I'm not 100%
+>> sure if it can be done in perl regexp or needs a real recursive descent
+>> parser though.
+>> 
+>> [[!template id=gitbranch branch=timonator/heredoc_triplequote author="\[[timonator]]"]]
+>>
+>> In the meantime, this is an interesting approach:
+>> <https://github.com/timo/ikiwiki/commit/410bbaf141036164f92009599ae12790b1530886>
+>> (the link has since been fixed twice)
+>> 
+>>     \[[!directive text=<<FOO 
+>>     ...
+>>     FOO]]
+>> 
+>> Since that's implemented, I will probably just merge it,
+>> once I satisfy myself it doesn't blow up in any edge cases.
+>> (It also adds triple single quotes as a third, distinct type of quotes,
+>> which feels a bit redundant given the here docs.) --[[Joey]] 
+>>
+>> Hmm, that patch changes a `m///sgx` to a `m///msgx`. Meaning
+>> that any '^' or '$' inside the regexp will change behavior from matching
+>> the start/end of string to matching the start/end of individual lines 
+>> within the string. And there is one legacy '$' which must then 
+>> change behavior; the "delimiter to next param".
+>>
+>> So, I'm not sure what behavior that will cause, but I suspect it will
+>> be a bug. Unless the `\s+|$' already stops matching at a newline within
+>> the string like it's whitespace. That needs more alalysis. 
+>> Update: seems it does, I'm fairly satisfied that is not a bug.
+>>
+>> Also, the patch seems incomplete, only patching the first regexp
+>> but not the other two in the same function, which also are quoting-aware. --[[Joey]] 
+>>
+>> Yes, I'm terribly sorry. I actually did edit the other two regexps, but
+>> I apparently missed copying it over as well. Should have been doing this
+>> in a git repo all along. Look at the new commit I put atop it that has
+>> the rest as well:
+>> (redacted: is now part of the commit linked to from above)
+>> Also: I'm not sure any more, why I added the m modifier. It was very
+>> late at night and I was getting a bit desperate (turned out, the next
+>> morning, I put my extra regexes after the "unquoted value" one. heh.)
+>> So, feel free to fix that. --Timo
+>>
+>> I've fixed the patch by rebasing, fixed the link above. I'm still not
+>> sure if the m modifier for the regex is still needed (apparently I
+>> didn't put it in the other regexes. Not completely sure about the
+>> implications.) Am now trying to wrap my head around a test case to
+>> test the new formats for a bit. --Timo
+
+[[done]]!!! --[[Joey]] 

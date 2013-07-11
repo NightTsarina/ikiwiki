@@ -1,0 +1,15 @@
+It would be nice if the [[aggregate_plugin|plugins/aggregate]] would try to
+extract the m/ctime out of each post and touch the files on the filesystem
+appropriately, so that ikiwiki reflects the actual time of the post via the
+[[inline_plugin|plugins/inline]], rather than the time when the aggregation ran to pull the post in. --[[madduck]]
+
+> Like this? (Existing code in aggregate.pm...) --[[Joey]]
+
+	# Set the mtime, this lets the build process get the right creation
+	# time on record for the new page.
+	utime $mtime, $mtime, pagefile($guid->{page})
+		if defined $mtime && $mtime <= time;
+
+>> I'll have to debug this, it's not working here... and this is an ikiwiki aggregator scraping another ikiwiki site.
+
+>>> Any news about this? --[[Joey]]

@@ -1,0 +1,43 @@
+## Nested plugins
+
+Is it possible to use another plugin into your toggle plugin? For example,
+I want to have toggleable table and try to use [[Victor Moral|users/victormoral]]'s [[table plugin|plugins/table]],
+but no success. How can I do it?
+--PTecza
+
+> Yes, you can nest preprocessor directives. However, due to the issues
+> discussed [[here|todo/nested_preprocessor_directives]], it's not
+> currently supported to nest multiple levels of the same quotes.
+> --[[Joey]]
+
+>> Thanks a lot for the fast reply, Joey! It's good to know it.
+>> --PTecza
+
+
+## [[bugs/Bug_when_toggling_in_a_preview_page]]
+
+----
+
+## Using toggle directives in a list item##
+Take this code snippet.
+
+    * [[!toggle id="test" text="test"]]
+      [[!toggleable id="test text="""toggle"""]]
+
+In the HTML-output the `ul` and `div` overlap.
+
+    <div id="content">
+    <ul>
+    <li><a class="toggle" href="#test.test">test</a>
+    <div class="toggleable" id="test.-test"></li>
+    </ul>
+    
+    <p>toggle</p>
+    
+    </div>
+    
+    </div>
+
+Fixing this manually the Javascript seems not to be working and `toggle` is shown unconditionally.
+
+I do not know if this is due to [[shortcomming with nested preprocessor directives|todo/nested_preprocessor_directives]] you mentioned in the beginning of this page. Maybe a note could be added to the main page of the plugin. --Paul

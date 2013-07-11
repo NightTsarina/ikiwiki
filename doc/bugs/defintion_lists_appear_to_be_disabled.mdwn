@@ -1,0 +1,54 @@
+Adding text of the format 
+
+    Apple
+    :   Pomaceous fruit of plants of the genus Malus in 
+        the family Rosaceae.
+    :   An american computer company.
+
+    Orange
+    :   The fruit of an evergreen tree of the genus Citrus.
+
+Does not result in expected HTML as described in the [MultiMarkdown Syntax Guide](http://fletcherpenney.net/multimarkdown/users_guide/multimarkdown_syntax_guide/):
+
+Should be 
+
+    <dl xmlns="http://www.w3.org/1999/xhtml">
+    <dt>Apple</dt>
+     <dd>
+       <p>Pomaceous fruit of plants of the genus Malus in 
+          the family Rosaceae.</p>
+     </dd>
+     <dd>
+       <p>An american computer company.</p>
+    </dd>
+    <dt>Orange</dt>
+     <dd>
+      <p>The fruit of an evergreen tree of the genus Citrus.</p>
+     </dd>
+    </dl>
+
+But instead it gives:
+
+    <p>Apple
+     :   Pomaceous fruit of plants of the genus Malus in 
+         the family Rosaceae.
+     :   An american computer company.</p>
+
+    <p>Orange
+    :   The fruit of an evergreen tree of the genus Citrus.</p>
+
+> ikiwiki's markdown support does not include support for multimarkdown by
+> default. If you want to enable that, you can turn on the `multimarkdown`
+> option in the setup file. --[[Joey]]
+
+>> Sorry, I should have indicated, I have multimarkdown enabled:
+
+    # mdwn plugin
+    # enable multimarkdown features?
+    multimarkdown => 1,
+
+>>Other features appear to be working, tables and footnotes for instance. See current install: <http://wiki.infosoph.org>
+
+>>> Ok, in that case it's a bug in the perl module. Forwarded to
+>>> <http://github.com/bobtfish/text-markdown/issues#issue/6> --[[Joey]]
+>>> [[!tag done]]

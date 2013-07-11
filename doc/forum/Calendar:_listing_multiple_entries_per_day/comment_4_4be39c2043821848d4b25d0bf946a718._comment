@@ -1,0 +1,15 @@
+[[!comment format=mdwn
+ username="http://joey.kitenet.net/"
+ nickname="joey"
+ subject="comment 4"
+ date="2012-02-21T17:23:00Z"
+ content="""
+To be clear, this patch creates a `yyyy/mm/dd` file for each day, listing the posts for that day, so the calendar can link to it rather than a random single post.
+
+While a valid solution certainly, that's a lot of added pages! Especially a high overhead for such a minor UI point as this.
+
+Surely something interesting could be done with javascript or some other form of UI to make clicking on a day in a calendar that has multiple posts present a list of them? That would have essentially no overhead, since the calendar plugin already has a list of the posts made on a given day. 
+
+Ikiwiki already does something similar to deal with the case where a page has a great many backlinks.. It makes a UI element that, if hovered over, pops up a display of all the rest. This is done quite simply in the `page.tmpl`
+using the popup and balloon CSS classes. Calendar could also use this.
+"""]]

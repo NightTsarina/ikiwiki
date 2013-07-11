@@ -1,0 +1,21 @@
+If I have a &lt;--#include virtual="foo" --&gt; in some file, it gets stripped, even though other HTML comments don't get stripped. I imagine it's some plugin doing it, or IkiWiki itself, or an IkiWiki dependency, but I haven't found where this is happening. I'm trying to implement a workaround for my sidebars forcing a rebuild of the wiki every day - I use the calendar plugin - when the day changes, by using SSI.
+
+> It is probably the [[plugins/htmlscrubber]] plugin. -- [[Jon]]
+
+> htmlscrubber does strip these, because they look like
+> a html tag to it, not a html comment. (html comments start
+> with `<!--` .. of course, they get stripped too, because
+> they can be used to hide javascript..)
+> 
+> Anyway, it makes sense for the htmlscrubber to strip server-side
+> includes because otherwise your wiki could be attacked
+> by them being added to it. If you want to use both the htmlscrubber and
+> SSI together, I'd suggest you modify the [[templates]]
+> and put the SSI on there.
+> 
+> Ie, `page.tmpl` has a 
+> div that the sidebar is put into; if you just replace
+> that with the SSI that includes your static sidebar,
+> you should be good to go. --[[Joey]]
+
+[[done]]

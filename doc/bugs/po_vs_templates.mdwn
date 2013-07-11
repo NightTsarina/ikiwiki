@@ -1,0 +1,48 @@
+The po plugin's protection against processing loops (i.e. the
+alreadyfiltered stuff) is playing against us: the template plugin
+triggers a filter hooks run with the very same ($page, $destpage)
+arguments pair that is used to identify an already filtered page.
+
+Processing an included template can then mark the whole translation
+page as already filtered, which prevented `po_to_markup` to be called on
+the PO content.
+
+Symptoms: the unprocessed gettext file goes unfiltered to the
+generated HTML.
+
+This has been fixed in my po branch.
+
+> My commit dcd57dd5c9f3265bb7a78a5696b90976698c43aa updates the
+> bugfix in a much more elegant manner. Its main disadvantage is to
+> add an (optional) argument to IkiWiki::filter. Please review.
+
+-- [[intrigeri]]
+
+>> Hmm. Don't like adding a fourth positional parameter to that (or
+>> any really) function.
+>>
+>> I think it's quite possible that some of the directives that are
+>> calling filter do so unnecessarily. For example, conditional,
+>> cutpaste, more, and toggle each re-filter text that comes from the
+>> page and so has already been filtered. They could probably drop
+>> the filtering. template likewise does not need to filter the 
+>> parameters passed into it. Does it need to filter the template output?
+>> Well, it allows the (deprecated) embed plugin to work on template
+>> content, but that's about it.
+>>
+>> Note also that the only other plugin to provide a filter, txt,
+>> could also run into similar problems as po has, in theory (it looks at
+>> the page parameter and assumes the content is for the whole page).
+>>
+>> [[!template id=gitbranch branch=origin/filter-full author="[[joey]]"]]
+>> So, I've made a filter-full branch, where I attempt to fix this
+>> by avoiding unnecessary filtering. Can you check it and merge it into
+>> your po branch and remove your other workarounds so I can merge?
+>> --[[Joey]]
+
+>>> I merged your filter-full branch into my po branch and reverted my
+>>> other workarounds. According to my tests this works ok. I'm glad
+>>> you found this solution, as I didn't like changing the filter
+>>> prototype. I believe you can now merge this code. --[[intrigeri]]
+
+[[!tag patch done]]

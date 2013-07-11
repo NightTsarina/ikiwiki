@@ -1,0 +1,58 @@
+The Monotone module still lacks support for setting up a post-commit hook,
+so commits made via monotone will not automatically update the wiki.
+
+Here for future reference is the most recent version of support for 
+that I've been sent. It's not yet working; there are path issues. --[[Joey]]
+
+> I think this was fixed in version 2.40. --[[Joey]] [[!tag done]]
+
+<pre>
+diff --git a/IkiWiki/Rcs/monotone.pm b/IkiWiki/Rcs/monotone.pm
+index cde6029..34f8f96 100644
+--- a/IkiWiki/Rcs/monotone.pm
++++ b/IkiWiki/Rcs/monotone.pm
+@@ -186,8 +186,9 @@ sub rcs_update () {
+ 	check_config();
+ 
+ 	if (defined($config{mtnsync}) && $config{mtnsync}) {
++		check_mergerc();
+ 		if (system("mtn", "--root=$config{mtnrootdir}", "sync",
+-		           "--quiet", "--ticker=none", 
++		           "--quiet", "--ticker=none", "--rcfile", $config{mtnmergerc},
+ 		           "--key", $config{mtnkey}) != 0) {
+ 			debug("monotone sync failed before update");
+ 		}
+@@ -604,4 +605,9 @@ __DATA__
+ 	           return true
+ 	      end
+ 	}
++	function note_netsync_revision_received(new_id, revision, certs, session_id)
++	    if (program_exists_in_path("ikiwiki-netsync-hook")) then
++	        execute("ikiwiki-netsync-hook", new_id)
++	    end
++	end
+ EOF
+diff --git a/IkiWiki/Wrapper.pm b/IkiWiki/Wrapper.pm
+index 2103ea5..cff718c 100644
+diff --git a/doc/ikiwiki.setup b/doc/ikiwiki.setup
+index 1377315..0cbe27e 100644
+--- a/doc/ikiwiki.setup
++++ b/doc/ikiwiki.setup
+@@ -88,6 +88,16 @@ use IkiWiki::Setup::Standard {
+ 		#	# Enable mail notifications of commits.
+ 		#	notify => 1,
+ 		#},
++		#{
++		#	# The monotone netsync revision received wrapper.
++		#	# Note that you also need to install a lua
++		#	# hook into monotone to make this work
++		#	# see: http://ikiwiki.info/rcs/monotone/
++		#	wrapper => "/usr/local/bin/ikiwiki-netsync-hook",
++		#	wrappermode => "04755",
++		#	# Enable mail notifications of commits.
++		#	notify => 1,
++		#},
+ 	],
+ 
+ 	# Generate rss feeds for blogs?
+</pre>

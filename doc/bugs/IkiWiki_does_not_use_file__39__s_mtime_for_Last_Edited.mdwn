@@ -1,0 +1,21 @@
+Is there any way to get IkiWiki to display a file's Last Edited date from the input file's mtime?
+
+I have a bunch of pages that have been imported from another wiki.  Their Last Edited dates are all shown as today, the day they were imported, even though their mtimes are all two years ago or older.  It's important to me that these files display the correct Last Edited date so that it's obvious that they all appear suitably stale.
+
+The *actual* mtime of the output file can be whatever works best for IkiWiki (as discussed on [[todo/mtime]]).  I'd just like IkiWiki to display the correct Last Edited date.
+
+Thanks for any hints! -- [[sabr]]
+
+> I can't reproduce this. ikiwiki _does_ look at the mtime, and that's what
+> it puts in the last edited date. Example:
+> 
+>	joey@kodama:~/src/ikiwiki>touch -t 198501011111 doc/bar.mdwn
+>	joey@kodama:~/src/ikiwiki>make
+>	[...]
+>	joey@kodama:~/src/ikiwiki>grep Last\ edit html/bar.html 
+>	Last edited Tue Jan  1 11:11:00 1985
+> 
+> Note that if you then touch the file to be even older, it won't notice
+> in a refresh. You'd have to force a rebuild in that case. --[[Joey]]
+
+>> You're right.  I thought I *had* rebuilt it but, when I started over from scratch, everything worked.  Sorry for the noise!  Marking this [[invalid|done]].  --[[sabr]]

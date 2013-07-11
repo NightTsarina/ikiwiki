@@ -1,0 +1,26 @@
+I have set
+
+     templatedir => "/srv/apache2/madduck.net/templates",
+
+in ikiwiki.setup and put a custom ``page.tmpl`` in there, then called ``ikiwiki --setup`` and verified that it works. It even works when I push to the Git repo and let the receive-hook update the wiki.
+
+However, when I make a change via the CGI (which has been created by the last setup run), it applies the default ``page.tmpl`` file to all pages it updates.
+
+> This issue can arise in at least two ways:
+> 
+> 1. A permissions problem with the templatedir that prevents ikiwiki from
+>    accessing it. If it can't access it, it silently falls back to using
+>    templates from the default directory.
+> 2. A templatedir that doesn't have an absolute path. In this case ikiwiki
+>    will look relative to *somewhere*, which will sometimes work and
+>    sometimes not. Clearly not a good idea.
+>
+> So far that's the only ways that I can see that this could happen.
+> It would be possible to make ikiwiki try to detect these sorts of
+> problems; it could check if the templatedir exists, and check that it's
+> readable. This would add some extra system calls to every ikiwiki run,
+> and I'm not convinced it's worth it. --[[Joey]]
+
+>> Closing this bug since I never heard back that it was not one
+>> of the above two problems, and I consider both problems local
+>> configuration errors. --[[Joey]] [[done]]

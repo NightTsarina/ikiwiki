@@ -1,0 +1,28 @@
+[[!tag patch plugins/pagestats]]
+
+My `among` branch fixes [[todo/backlinks_result_is_lossy]], then uses that
+to provide pagestats for links from a subset of pages. From the docs included
+in the patch:
+
+> The optional `among` parameter limits counting to pages that match a
+> [[ikiwiki/PageSpec]]. For instance, to display a cloud of tags used on blog
+> entries, you could use:
+>
+>     \[[!pagestats pages="tags/*" among="blog/posts/*"]]
+>
+> or to display a cloud of tags related to Linux, you could use:
+> 
+>     \[[!pagestats pages="tags/* and not tags/linux" among="tagged(linux)"]]
+
+I use this on my tag pages on one site, with the following template:
+
+    \[[!pagestats pages="tags/* and !tags/<TMPL_VAR raw_tag>
+        and !tags/photogallery"
+      among="tagged(<TMPL_VAR raw_tag>)"]]
+
+    \[[!inline pages="tagged(<TMPL_VAR raw_tag>)"
+      archive="yes" quick="yes" reverse="yes" timeformat="%x"]]
+
+--[[smcv]]
+
+> [[merged|done]] thanks --[[Joey]] 

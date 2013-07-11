@@ -1,0 +1,130 @@
+# Czech translation of basewiki/ikiwiki/directive page for ikiwiki.
+# Copyright (C) 2009 Miroslav Kure <kurem@debian.cz>
+# This file is distributed under the same license as the ikiwiki package.
+# Miroslav Kure <kurem@debian.cz>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki/basewiki\n"
+"POT-Creation-Date: 2009-08-28 02:49-0300\n"
+"PO-Revision-Date: 2009-08-22 07:39+0200\n"
+"Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
+"Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+msgid ""
+"Directives are similar to a [[ikiwiki/WikiLink]] in form, except they begin "
+"with `!` and may contain parameters. The general form is:"
+msgstr ""
+"Direktivy se podobají [[wiki odkazům|ikiwiki/WikiLink]], až na to, že "
+"začínají vykřičníkem a mohou obsahovat parametry. Obecný formát vypadá "
+"následovně:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!directive param=\"value\" param=\"value\"]]\n"
+msgstr "\t\\[[!direktiva param=\"hodnota\" param=\"hodnota\"]]\n"
+
+#. type: Plain text
+msgid ""
+"This gets expanded before the rest of the page is processed, and can be used "
+"to transform the page in various ways."
+msgstr ""
+"Direktivy se aplikují před zpracováním zbytku stránky a mohou stránku "
+"nejrůznějším způsobem měnit."
+
+#. type: Plain text
+msgid ""
+"The quotes around values can be omitted if the value is a simple word.  "
+"Also, some directives may use parameters without values, for example:"
+msgstr ""
+"Uvozovky okolo hodnot mohou být vynechány v případě, že je hodnotou jediné "
+"slovo. Některé direktivy mohou používat parametry bez hodnot. Například:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!tag foo]]\n"
+msgstr "\t\\[[!tag foo]]\n"
+
+#. type: Plain text
+msgid ""
+"A directive does not need to all be on one line, it can be wrapped to "
+"multiple lines if you like:"
+msgstr ""
+"Direktiva nemusí být zapsána celá na jednom řádku. Pokud je to čitelnější, "
+"můžete ji roztáhnout přes více řádků:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!directive foo=\"baldersnatch\"\n"
+"\tbar=\"supercalifragilisticexpialidocious\" baz=11]]\n"
+msgstr ""
+"\t\\[[!direktiva foo=\"baldersnatch\"\n"
+"\tbar=\"supercalifragilisticexpialidocious\" baz=11]]\n"
+
+#. type: Plain text
+msgid ""
+"Also, multiple lines of *quoted* text can be used for a value.  To allow "
+"quote marks inside the quoted text, delimit the block of text with triple-"
+"quotes:"
+msgstr ""
+"Více řádků *uvozeného* textu lze použít i v hodnotě. Chcete-li v uvozeném "
+"textu použít (anglické) uvozovky, obklopte text trojitými uvozovkami:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!directive text=\"\"\"\n"
+msgstr "\t\\[[!direktiva text=\"\"\"\n"
+
+#. type: Bullet: '	1. '
+msgid "\"foo\""
+msgstr "\"něco\""
+
+#. type: Bullet: '	2. '
+msgid "\"bar\""
+msgstr "\"cosi\""
+
+#. type: Bullet: '	3. '
+msgid "\"baz\""
+msgstr "\"cokoliv\""
+
+#. type: Plain text
+msgid ""
+"ikiwiki also has an older syntax for directives, which requires a space in "
+"directives to distinguish them from [[wikilinks|ikiwiki/wikilink]]. This "
+"syntax has several disadvantages: it requires a space after directives with "
+"no parameters (such as `\\[[pagecount ]]`), and it prohibits spaces in "
+"[[wikilinks|ikiwiki/wikilink]].  ikiwiki now provides the `!`-prefixed "
+"syntax shown above as default.  However, ikiwiki still supports wikis using "
+"the older syntax, if the `prefix_directives` option is disabled."
+msgstr ""
+"ikiwiki podporuje i starší zápis direktiv, který vyžaduje, aby se v "
+"direktivě nacházela mezera, což ji odliší od [[wiki odkazů|ikiwiki/"
+"wikilink]]. Tento zápis má několik nevýhod: vyžaduje za direktivou bez "
+"parametrů mezeru (například `\\[[pagecount ]]`) a naopak neumožňuje mezery "
+"ve [[wiki odkazech|ikiwiki/wikilink]]. Zápis direktiv s `!` na začátku je v "
+"ikiwiki výchozí, ale chcete-li použít starší způsob zápisu, stačí vypnout "
+"volbu `prefix_directives`."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!if test=\"enabled(listdirectives)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(listdirectives)\" then=\"\"\"\n"
+
+#. type: Plain text
+msgid "Here is a list of currently available directives in this wiki:"
+msgstr "Následuje seznam direktiv povolených v této wiki:"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!listdirectives ]]\n"
+msgstr "[[!listdirectives ]]\n"

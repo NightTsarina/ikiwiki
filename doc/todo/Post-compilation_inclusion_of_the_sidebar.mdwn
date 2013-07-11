@@ -1,0 +1,67 @@
+In some sites (mine, for example), the pages are quasi-static, while the sidebar must be updated at each commit
+(because it contains some lists, like "last posts" or "last updates", or a tagcloud). As this sidebar is included
+in every page of the site, many commits can potentialy leat to a full re-compilation....
+
+I think a sidebar included after the compilation (via a SSI mechanism for example) would make sense and 
+reduce the dependencies.
+
+Different things could be possible:
+
+* output as .shtml instead of .html
+* ignore the sidebar->page dependency links
+* consider the *real* dependencies; pageA may include the title (only) of pageB, but don't need to be recompiled 
+after each typo correction on pageB.
+
+shtml output with open cgi web access is a potential security hole and can DoS the site, but it's not a problem for a 
+single-editor site.
+
+NicolasLimare
+
+> This is a good idea, though sadly not portable enough to be the default.
+> Especially if the only way to do it is with .shtml.
+> But I really like the idea of not rebuilding the sidebar all the time. 
+> Definitly a TODO, for me, if I can figure out how to do it. Patches
+> eagerly accepted. 
+> 
+> I have implemented a htmlext configuration item, that lets you control
+> what extension ikiwiki uses for output html pages. So in theory, a
+> sidebar could be done as you describe using .shtml. --[[Joey]]
+
+[[wishlist]]
+
+> I have a plan for a way to avoid unecessary rebuilds caused by the
+> sidebar. The idea is to use wikistate to store what a sidebar renders to.
+> Then in the needsbuild hook, render sidebar(s) and compare with their
+> previous stored rendering. If a sidebar's rendered content has changed,
+> then all pages that display that sidebar need to be forced to be rebuilt.
+> 
+> Also, if there is no previous stored rendering for a sidebar, or
+> if there is a stored rendering for a sidebar page that no longer exists, then
+> the pages need to be rebuilt. (This should deal with the [[bugs/Building_a_sidebar_does_not_regenerate_the_subpages]] bug.
+> 
+> This would also save significant time, since the stored sidebar rendering
+> could just be dumped into the page by the pagetemplate hook. Current code
+> re-loads and renders the same sidebar file for every page built!
+> 
+> The sticky part is (relative) links on the sidebar. These would need to
+> be modified somehow depending on the page that the sidebar is placed on,
+> to not break the link.
+> 
+> Another wrinkle is changing subpage links on a sidebar. Suppose a sidebar
+> links to page `foo`. If page `bar/foo` exists, the sidebar on page bar will, 
+> currently, link to that page, in preference to a toplevel `foo`.
+> If `bar/foo` is removed, it will update to link to `foo`. With the new
+> scheme, the stored sidebar rendering is not for page `foo`, and so
+> the change of the `bar/foo` link will not be noticed or acted on.
+> Granted, it's unlikely that anyone relies on the current behavior. You
+> generally want links on a sidebar to link to the same place on every page
+> that displays it. So finding some way to force all links on a sidebar to 
+> be handled absolutely and documenting that would avoid this problem.
+>
+> So, one way to handle both the above problems would be to use the
+> pre-rendered sidebar for each page, but use a html parser to look for
+> links in it, and munge them to work as relative links on the page the
+> sidebar is being added to. Or, if the wiki's url is known, just do this
+> once when rendering the sidebar, adding the full url to the links.
+> (Maybe require `url` be set when using sidebar?)
+> --[[Joey]] 

@@ -1,0 +1,313 @@
+I think there is a problem in my "dependency graph". As an example, 
+[here](http://poivron.org/~nil/misc/ikiwiki_buggy_index) is the index 
+ikiwiki generated for [my site](http://poivron.org/~nil/misc/ikiwiki_buggy_index)
+(note that the site changed since this index was generated).
+
+Some **HUGE** dependencies appear, clearly non optimal, like
+
+    depends = A｜ B | A | C | A | D | A | E | A | F | A | G | ....
+
+or 
+
+    depends= A | B | C | D | A | B | C | D | A | B | C | D | ....
+
+Couldn't isolate the cause, but some sources for this problem may be:
+
+* related to the img module
+* easily observable in my sire because one of my pages includes 80 resized images
+
+Other special things in my templates and site:
+
+* a sidebar with \[[!include pages="notes/\*" template=foo]] while notes.mdwn has 
+  a \[[!include pages="notes/*"]] and uses the sidebar; removed it, doesn't change
+* a template (biblio.tmpl) calling the "img" plugin with a template parameter as the
+  image filename; removed it, doesn't change
+* some strange games with tags whose page calls a "map" directive to show other tags
+  shile tags are also used in tagclouds (in the sidebar and in the main pages)
+* ...
+
+I observed these problems (same *kind*, I didn't check in details) on
+ 
+* ikiwiki 2.00gpa1 + v5.8.4 + Debian 3.1
+* ikiwiki 2.3 + v5.8.8 + Ubuntu 7.04
+
+I can think about reducung the size of my wiki source and making it available online for analysis.
+
+-- NicolasLimare
+
+> As long as these dependencies don't grow over time (ie, when a page is
+> edited and nothing changed that should add a dependency), I wouldn't
+> worry about them. There are many things that can cause non-optimal
+> dependencies to be recorded. For one thing, if you inline something, ikiwiki
+> creates a dependency like:
+> 
+> (PageSpec) or (file1 or file2 or file3 ...)
+> 
+> Where fileN are all the files that the PageSpec currently matches. (This
+> is ncessary to detect when a currently inlined file is deleted, and know
+> the inlining page needs an update.) Now consider what it does if you have
+> a single page with two inline statements, that inline the same set of
+> stuff twice:
+> 
+> ((PageSpec) or (file1 or file2 or file3 ...) or (PageSpec) or (file1 or file2 or file3 ...)
+>
+> Clearly non-optimal, indeed.
+> 
+> Ikiwiki doesn't bother to simplify complex PageSpecs
+> because it's difficult to do, and because all they use is some disk
+> space. Consider what ikiwiki uses these dependencies for.
+> All it wants to know is: does the PageSpec for this page it's considering
+> rebuilding match any of the pages that have changed? Determining this is
+> a simple operation -- the PageSpec is converted to perl code. The perl
+> code is run.
+> 
+> So the total impact of an ugly dependency like this is:
+> 
+> 1. Some extra data read/written to disk.
+> 2. Some extra space in memory.
+> 3. A bit more data for the PageSpec translation code to handle. But that
+>    code is quite fast.
+> 4. Typically one extra function call when the generated perl code is run.
+>    Ie, when the expression on the left-hand side fails, which typically
+>    happens after one (inexpensive) function call, it has to check
+>    the identical expression on the right hand side.
+> 
+> So this is at best a wishlist todo item, not a bug. A PageSpec simplifier
+> (or improved `pagespec_merge()` function) could be written and improve
+> ikiwiki's memory and disk usage, but would it actually speed it up any?
+> We'd have to see the code to the simplifier to know.
+> 
+> --[[Joey]]
+
+>> I've been looking at optimizing ikiwiki for a site using
+>> [[plugins/contrib/album]] (which produces a lot of pages) and it seems
+>> that checking which pages depend on which pages does take a significant
+>> amount of time. The optimize-depends branch in my git repository
+>> avoids using `pagespec_merge()` for this (indeed it's no longer used
+>> at all), and instead represents dependencies as a list of pagespecs
+>> rather than a single pagespec. This does turn out to be faster, although
+>> not as much as I'd like. --[[smcv]]
+
+>>> [[Merged|done]] --[[smcv]]
+
+>>> I just wanted to note that there is a whole long discussion of dependencies and pagespecs on the [[todo/tracking_bugs_with_dependencies]] page. -- [[Will]]
+
+>>>> Yeah, I had a look at that (as the only other mention of `pagespec_merge`).
+>>>> I think I might have solved some of the problems mentioned there,
+>>>> actually - `pagespec_merge` no longer needs to exist in my branch (although
+>>>> I haven't actually deleted it), because the "or" operation is now done in
+>>>> the Perl code, rather than by merging pagespecs and translating. --[[smcv]]
+
+>>>>> I've now added a patch to the end of that branch that deletes
+>>>>> `pagespec_merge` almost entirely (we do need to keep a copy around, in
+>>>>> ikiwiki-transition, but that copy doesn't have to be optimal or support
+>>>>> future features like [[tracking_bugs_with_dependencies]]). --[[smcv]]
+
+---
+
+Some questions on your optimize-depends branch. --[[Joey]]
+
+In saveindex it still or'd together the depends list, but the `{depends}`
+field seems only useful for backwards compatability (ie, ikiwiki-transition
+uses it still), and otherwise just bloats the index.
+
+> If it's acceptable to declare that downgrading IkiWiki requires a complete
+> rebuild, I'm happy with that. I'd prefer to keep the (simple form of the)
+> transition done automatically during a load/save cycle, rather than
+> requiring ikiwiki-transition to be run; we should probably say in NEWS
+> that the performance increase won't fully apply until the next
+> rebuild. --[[smcv]]
+
+>> It is acceptable not to support downgrades.
+>> I don't think we need a NEWS file update since any sort of refresh,
+>> not just a full rebuild, will cause the indexdb to be loaded and saved,
+>> enabling the optimisation. --[[Joey]]
+
+>>> A refresh will load the current dependencies from `{depends}` and save
+>>> them as-is as a one-element `{dependslist}`; only a rebuild will replace
+>>> the single complex pagespec with a long list of simpler pagespecs.
+>>> --[[smcv]]
+
+Is an array the right data structure? `add_depends` has to loop through the
+array to avoid dups, it would be better if a hash were used there. Since
+inline (and other plugins) explicitly add all linked pages, each as a
+separate item, the list can get rather long, and that single add_depends
+loop has suddenly become O(N^2) to the number of pages, which is something
+to avoid..
+
+> I was also thinking about this (I've been playing with some stuff based on the
+> `remove-pagespec-merge` branch).  A hash, by itself, is not optimal because
+> the dependency list holds two things: page names and page specs.  The hash would
+> work well for the page names, but you'll still need to iterate through the page specs.
+> I was thinking of keeping a list and a hash.  You use the list for pagespecs
+> and the hash for individual page names.  To make this work you need to adjust the
+> API so it knows which you're adding.  -- [[Will]]
+
+> I wasn't thinking about a lookup hash, just a dedup hash, FWIW.
+> --[[Joey]]
+
+>> I was under the impression from previous code review that you preferred
+>> to represent unordered sets as lists, rather than hashes with dummy
+>> values. If I was wrong, great, I'll fix that and it'll probably go
+>> a bit faster. --[[smcv]]
+
+>>> It depends, really. And it'd certianly make sense to benchmark such a
+>>> change. --[[Joey]]
+
+>>>> Benchmarked, below. --[[smcv]]
+
+Also, since a lot of places are calling add_depends in a loop, it probably
+makes sense to just make it accept a list of dependencies to add. It'll be
+marginally faster, probably, and should allow for better optimisation
+when adding a lot of depends at once.
+
+> That'd be an API change; perhaps marginally faster, but I don't
+> see how it would allow better optimisation if we're de-duplicating
+> anyway? --[[smcv]]
+
+>> Well, I was thinking that it might be sufficient to build a `%seen`
+>> hash of dependencies inside `add_depends`, if the places that call
+>> it lots were changed to just call it once. Of course the only way to
+>> tell is benchmarking. --[[Joey]]
+
+>>> It doesn't seem that it significantly affects performance either way.
+>>> --[[smcv]]
+
+In Render.pm, we now have a triply nested loop, which is a bit
+scary for efficiency. It seems there should be a way to
+rework this code so it can use the optimised `pagespec_match_list`,
+and/or hoist some of the inner loop calculations (like the `pagename`)
+out.
+
+> I don't think the complexity is any greater than it was: I've just
+> moved one level of "loop" out of the generated Perl, to be
+> in visible code. I'll see whether some of it can be hoisted, though.
+> --[[smcv]]
+
+>> The call to `pagename` is the only part I can see that's clearly
+>> run more often than before. That function is pretty inexpensive, but..
+>> --[[Joey]]
+
+>>> I don't see anything that can be hoisted without significant refactoring,
+>>> actually. Beware that there are two pagename calls in the loop: one for
+>>> `$f` (which is the page we might want to rebuild), and one for `$file`
+>>> (which is the changed page that it might depend on). Note that I didn't
+>>> choose those names!
+>>>
+>>> The three loops are over source files, their lists of dependency pagespecs,
+>>> and files that might have changed. I see the following things we might be
+>>> doing redundantly:
+>>>
+>>> * If `$file` is considered as a potential dependency for more than
+>>>   one `$f`, we evaluate `pagename($file)` more than once. Potential fix:
+>>>   cache them (this turns out to save about half a second on the docwiki,
+>>>   see below).
+>>> * If several pages depend on the same pagespec, we evaluate whether each
+>>>   changed page matches that pagespec more than once: however, we do so
+>>>   with a different location parameter every time, so repeated calls are,
+>>>   in the general case, the only correct thing to do. Potential fix:
+>>>   perhaps special-case "page x depends on page y and nothing else"
+>>>   (i.e. globs that have no wildcards) into a separate hash? I haven't
+>>>   done anything in this direction.
+>>> * Any preparatory work done by pagespec_match (converting the pagespec
+>>>   into Perl, mostly?) is done in the inner loop; switching to
+>>>   pagespec_match_list (significant refactoring) saves more than half a
+>>>   second on the docwiki.
+>>>
+>>> --[[smcv]]
+
+Very good catch on img/meta using the wrong dependency; verified in the wild!
+(I've cherry-picked those bug fixes.)
+
+----
+
+Benchmarking results: I benchmarked by altering docwiki.setup to switch off
+verbose, running "make clean && ./Makefile.PL && make", and timing one rebuild
+of the docwiki followed by three refreshes. Before each refresh I used
+`touch plugins/*.mdwn` to have something significant to refresh.
+
+I'm assuming that "user" CPU time is the important thing here (system time was
+relatively small in all cases, up to 0.35 seconds per run).
+
+master at the time of rebasing: 14.20s to rebuild, 10.04/12.07/14.01s to
+refresh. I think you can see the bug clearly here - the pagespecs are getting
+more complicated every time!
+
+> I can totally see a bug here, and it's one I didn't think existed. Ie,
+> I thought that after the first refresh, the pagespec should stabalize,
+> and what it stabalized to was probably unnecessarily long, but not
+> growing w/o bounds!
+> 
+> a) Explains why ikiwiki.info has been so slow lately. Well that and some
+>    other things that overloaded the system.
+> b) Suggests to me we will probably want to force a rebuild on upgrade
+>    when fixing this (via the mechanism in the postinst).
+>
+> I've investigated why the pagespecs keep growing: When page A changes,
+> its old depends are cleared. Then
+> page B that inlines A gets rebuilt, and its old depends are also cleared.
+> But page B also inlines page C; which means C gets re-rendered. And this
+> happens w/o its old depends being cleared, so C's depends are doubled.
+> --[[Joey]]
+
+After the initial optimization: 14.27s to rebuild, 8.26/8.33/8.26 to refresh.
+Success!
+
+Not pre-joining dependencies actually took about ~0.2s more; I don't know why.
+I'm worried that duplicates will just build up (again) in less simple cases,
+though, so 0.2s is probably a small price to pay for that not happening (it
+might well be experimental error, for that matter).
+
+> It's weird that the suggested optimisations to
+> `add_depends` had no effect. So, the commit message to
+> b6fcb1cb0ef27e5a63184440675d465fad652acf is actually wrong.. ? --[[Joey]] 
+
+>> I'll try benchmarking again on the non-public wiki where I had the 4%
+>> speedup. The docwiki is so small that 4% is hard to measure... --[[smcv]]
+
+Not saving {depends} to the index, using a hash instead of a list to
+de-duplicate, and allowing add_depends to take an arrayref instead of a single
+pagespec had no noticable positive or negative effect on this test.
+
+> I see e4cd168ebedd95585290c97ff42234344bfed46c is still in your branch
+> though. I don't like using an arrayref, it could just take `($page, @depends)`.
+> and I don't see the need to keep it if it doesn't currently help.
+
+>> I'll drop it. --[[smcv]]
+
+> Is there any reason to keep 7227c2debfeef94b35f7d81f42900aa01820caa3
+> if it doesn't improve speed?
+> --[[Joey]] 
+
+>> I'll try benchmarking on a more complex wiki and see whether it has a
+>> positive or negative effect. It does avoid being O(n**2) in number of
+>> dependencies. --[[smcv]]
+
+Memoizing the results of pagename brought the rebuild time down to 14.06s
+and the refresh time down to 7.96/7.92/7.92, a significant win.
+
+> Ok, that seems safe to memoize. (It's a real function and it isn't
+> called with a great many inputs.) Why did you chose to memoize it
+> explicitly rather than adding it to the memoize list at the top?
+
+>> It does depend on global variables, so using Memoize seemed like asking for
+>> trouble. I suppose what I did is equivalent to Memoize though... --[[smcv]]
+
+Refactoring to use pagespec_match_list looks more risky from a code churn
+point of view; rebuild now takes 14.35s, but refresh is only 7.30/7.29/7.28,
+another significant win.
+
+--[[smcv]]
+
+> I had mostly convinced myself that
+> `pagespec_match_list` would not lead to a speed gain here. My reasoning
+> was that you want to stop after finding one match, while `pagespec_match_list`
+> checks all pages for matches. So what we're seeing is that
+> on a rebuild, `@changed` is all pages, and not short-circuiting leads
+> to unnecessary work. OTOH, on refresh, `@changed` is small and I suppose
+> `pagespec_match_list`'s other slight efficiencies win out somehow.
+> 
+> Welcome to the "I made ikiwiki twice as fast
+> and all I got was this lousy git sha1sum" club BTW :-) --[[Joey]] 
+
+[[!tag wishlist patch patch/core]]

@@ -1,0 +1,57 @@
+[[!template id=plugin name=aggregate author="[[Joey]]"]]
+[[!tag type/special-purpose]]
+
+This plugin allows content from other feeds to be aggregated into the
+wiki. To specify feeds to aggregate, use the
+[[ikiwiki/directive/aggregate]] [[ikiwiki/directive]].
+
+## requirements
+
+The [[meta]] and [[tag]] plugins are also recommended to be used with this
+one. Either the [[htmltidy]] or [[htmlbalance]] plugin is suggested, since
+feeds can easily contain html problems, some of which these plugins can fix.
+
+## triggering aggregation
+
+You will need to run ikiwiki periodically from a cron job, passing it the
+--aggregate parameter, to make it check for new posts. Here's an example
+crontab entry:
+
+	*/15 * * * * ikiwiki --setup my.wiki --aggregate --refresh
+
+The plugin updates a file `.ikiwiki/aggregatetime` with the unix time stamp
+when the next aggregation run could occur. (The file may be empty, if no
+aggregation is required.) This can be integrated into more complex cron
+jobs or systems to trigger aggregation only when needed.
+
+Alternatively, you can allow `ikiwiki.cgi` to trigger the aggregation. You
+should only need this if for some reason you cannot use cron, and instead
+want to use a service such as [WebCron](http://webcron.org). To enable
+this, turn on `aggregate_webtrigger` in your setup file. The url to
+visit is `http://whatever/ikiwiki.cgi?do=aggregate_webtrigger`. Anyone
+can visit the url to trigger an aggregation run, but it will only check
+each feed if its `updateinterval` has passed.
+
+## aggregated pages
+
+This plugin creates a page for each aggregated item. 
+
+If the `aggregateinternal` option is enabled in the setup file (which is
+the default), aggregated pages are stored in the source directory with a
+"._aggregated" extension. These pages cannot be edited by web users, and
+do not generate first-class wiki pages. They can still be inlined into a
+blog, but you have to use `internal` in [[PageSpecs|IkiWiki/PageSpec]],
+like `internal(blog/*)`.
+
+If `aggregateinternal` is disabled, you will need to enable the [[html]]
+plugin as well as aggregate itself, since feed entries will be stored as
+HTML, and as first-class wiki pages -- each one generates
+a separate HTML page in the output, and they can even be edited. This
+option is provided only for backwards compatability.
+
+## cookies
+
+The `cookiejar` option can be used to configure how [[!cpan LWP::UserAgent]]
+handles cookies. The default is to read them from a file
+`~/.ikiwiki/cookies`, which can be populated using standard perl cookie
+tools like [[!cpan HTTP::Cookies]].

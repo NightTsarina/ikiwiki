@@ -1,0 +1,71 @@
+Feature idea: I'd like to be able to tag pages in an ikiwiki blog with a
+publication date, and have the option of building a blog that excludes
+publication dates in the future.  (meta pubdate= ?)
+
+I'm using ikiwiki on git for a "tip of the day" RSS feed, and I'd like to
+be able to queue up a bunch of items instead of literally putting in one
+tip per day.  In the future I think this will come in handy for other
+Mainstream Media-oriented requirements such as "embargo dates" and "editor
+on vacation".
+
+> The problem with implementing a feature like this is that, since ikwiiki
+> is a wiki compiler, if something causes content to change based on the
+> date, then the wiki needs to be rebuilt periodically. So you'd need a
+> cron job or something.
+>
+> Thinking about this some more, if you're going to have a cron job, you
+> could just set up a branch containing the future post. The branch could
+> have a name like 20080911. Then have the cron job git merge the day's
+> branch, if any, into master each day. And voila, post is completly hidden
+> until published. You'd want to avoid merge conflicts in your cron job ..
+> but they'd be unlikely if you limited yourself to just adding new
+> pages. Alternatively, for larger organisations wishing to deploy more
+> sweeping changes on a given date, replace cron job with intern.. ;-)
+> --[[Joey]]
+
+> > Good approach if you have one day on which a big change goes through, but
+> > often the reason for tagging with a publication date is so that you can
+> > dribble out articles one per day when you're gone for a week.  Branches are easy
+> > in git, but it would still be an extra step to switch branches every time
+> > you edit a different day's article.
+> >
+> > And just to make it a little harder, some sites might want an internal 
+> > copy of the wiki that _does_ build the future pages, just tags them with the publication
+> > date, for previewing.
+> > 
+> > One more reason to have publication date: if you move a page from your old CMS to ikiwiki
+> > and want to have it show up in the right order in RSS feeds.
+> >
+> > I no longer have the original wiki for which I wanted this feature, but I can
+> > see using it on future ones. -- [[DonMarti]]
+
+>>> FWIW, for the case where one wants to update a site offline,
+>>> using an ikiwiki instance on a laptop, and include some deffered
+>>> posts in the push, the ad-hoc cron job type approach will be annoying.
+>>> 
+>>> In modern ikiwiki, I guess the way to accomplish this would be to
+>>> add a pagespec that matches only pages posted in the present or past.
+>>> Then a page can have its post date set to the future, using meta date,
+>>> and only show up when its post date rolls around.
+>>> 
+>>> Ikiwiki will need to somehow notice that a pagespec began matching
+>>> a page it did not match previously, despite said page not actually
+>>> changing. I'm not sure what the best way is. 
+>>>
+>>> * One way could be to 
+>>>   use a needsbuild hook and some stored data about which pagespecs
+>>>   exclude pages in the future. (But I'm not sure how evaluating the
+>>>   pagespec could lead to that metadata and hook being set up.) 
+>>> * Another way would be to use an explicit directive to delay a
+>>>   page being posted. Then the directive stores the metadata and
+>>>   sets up the needsbuild hook.
+>>> * Another way would be for ikiwiki to remember the last 
+>>>   time it ran. It could then easily find pages that have a post
+>>>   date after that time, and treat them the same as it treats actually
+>>>   modified files.  Or a plugin could do this via a needsbuild hook,
+>>>   probably. (Only downside to this is it would probably need to do
+>>>   a O(n) walk of the list of pages -- but only running an integer
+>>>   compare per page.)
+>>> 
+>>> You'd still need a cron job to run ikiwiki -refresh every hour, or
+>>> whatever, so it can update. --[[Joey]] 

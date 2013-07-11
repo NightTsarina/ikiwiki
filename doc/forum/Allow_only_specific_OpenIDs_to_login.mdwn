@@ -1,0 +1,7 @@
+How do I allow only specific OpenIDs to log in to ikiwiki? I found a way to only allow edits from specific OpenIDs, but I would like to restrict the logins and not the edits. Currently I've disabled the passwordauth plugin, locked all pages, and set the allowed OpenIDs as adminuser:
+
+    adminuser => [qw{MY_OPENIDS}],
+    disable_plugins => [qw{passwordauth}],
+    locked_pages => '*',
+
+The problem with this solution is that every OpenID that logs in is saved in ikiwiki's `userdb` file, which I'd like to avoid. Pointers to the documentation or a sample setup are very welcome. Thanks!

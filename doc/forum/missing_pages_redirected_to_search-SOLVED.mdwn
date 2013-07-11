@@ -1,0 +1,36 @@
+Is it possible to have any missing pages(404's) redirected to the search(omega) ?  
+So if someone comes to my site with http://example.com/foo_was_here it would result in 'foo_was_here' being passed as a search parameter to omega ?  --[Mick](http://www.lunix.com.au)  
+
+##DONE  
+
+I use nginx instead of apache.   
+Just add the following to the `server` block outside of any location block in nginx.conf  
+You must also make sure you have setup and enabled the search plugin(omega)
+
+    error_page  404              /ikiwiki.cgi?P=$uri;
+
+
+My full nginx.conf  
+
+    server {
+            listen  [::]:80; #IPv6 capable
+            server_name  www.lunix.com.au;
+            access_log  /var/log/nginx/www.lunix.com.au-access.log  main;
+            error_log  /var/log/nginx/www.lunix.com.au-error.log warn;
+            error_page  404              /ikiwiki.cgi?P=$uri;
+   
+    location / {
+                    root    /home/lunix/public_html/lunix;
+                    index  index.html index.htm;
+    }
+   
+    location ~ ikiwiki\.cgi$ {
+                    root    /home/lunix/public_html/lunix;
+                    include /etc/nginx/fastcgi_params.cgi;
+    
+                    fastcgi_pass   127.0.0.1:9999;
+                    fastcgi_param  SCRIPT_FILENAME  /home/lunix/public_html/lunix$fastcgi_script_name;  # same path as above
+            }
+    }
+    
+

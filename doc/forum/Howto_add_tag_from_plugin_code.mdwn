@@ -1,0 +1,12 @@
+Hi, I want to add tags to some pages automatically (generating album images 
+and want to tag all generated pages). I managed to do so in following way:
+
+    IkiWiki::Plugin::tag::preprocess_tag(
+        page => $viewer,
+        destpage => $params{destpage},
+        map { ($_ => 1) } @tags,
+    );
+
+This works, however if some tag does not exist, it is not created. I tracked it so far that I found that the Render.pm's method gen_autofile() is not called , so it is most likely that I need to somehow trigger Render.pm's refresh()...but how can I do it?
+
+BTW: The code is modified album plugin that is in [my git](https://github.com/llipavsky/ikiwiki) 

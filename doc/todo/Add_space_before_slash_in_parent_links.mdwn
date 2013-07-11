@@ -1,0 +1,156 @@
+This [[patch]] adds a space before the forward-slash in the the parent links. There is already a space after the slash.
+
+> I intentionally put the space after the slash and not before, because I
+> like how it looks that way. So I don't plan to apply this patch unless a
+> lot of people disagree with me or whatever. --[[Joey]]
+
+>> Couldn't we export what's put between the links to a variable? For instance, I might actually want to set it to ' : ' or '→'. --[[madduck]]
+
+>>> Yes, please.  This seems to be something a lot of people want to customize.  (I certainly do -- a forward slash only looks natural to Unix users)  --[[sabr]]
+
+>> Joey, would I be right to summarize your position on this as "people who
+>> want to change the text of the templates should maintain their own version
+>> of the `.tmpl` files"? It's not clear to me how this todo item could be
+>> closed in a way acceptable to you, except perhaps as WONTFIX. --[[smcv]]
+
+Before:
+
+    ikiwiki/ todo/ Add space before slash in parent links
+
+After:
+
+    ikiwiki / todo / Add space before slash in parent links
+
+Patch:
+
+    diff --git a/templates/misc.tmpl b/templates/misc.tmpl
+    index 184920e..80e6d0b 100644
+    --- a/templates/misc.tmpl
+    +++ b/templates/misc.tmpl
+    @@ -15,7 +15,7 @@
+
+     <div class="header">
+     <span>
+    -<TMPL_VAR INDEXLINK>/ <TMPL_VAR TITLE>
+    +<TMPL_VAR INDEXLINK> / <TMPL_VAR TITLE>
+     </span>
+     </div>
+
+    diff --git a/templates/page.tmpl b/templates/page.tmpl
+    index 3a1ac9e..1978e93 100644
+    --- a/templates/page.tmpl
+    +++ b/templates/page.tmpl
+    @@ -17,7 +17,7 @@
+     <div class="header">
+     <span>
+     <TMPL_LOOP NAME="PARENTLINKS">
+    -<a href="<TMPL_VAR NAME=URL>"><TMPL_VAR NAME=PAGE></a>/
+    +<a href="<TMPL_VAR NAME=URL>"><TMPL_VAR NAME=PAGE></a> /
+     </TMPL_LOOP>
+     <TMPL_VAR TITLE>
+     </span>
+    diff --git a/templates/recentchanges.tmpl b/templates/recentchanges.tmpl
+    index e03482f..4877395 100644
+    --- a/templates/recentchanges.tmpl
+    +++ b/templates/recentchanges.tmpl
+    @@ -15,7 +15,7 @@
+
+     <div class="header">
+     <span>
+    -<TMPL_VAR INDEXLINK>/ <TMPL_VAR TITLE>
+    +<TMPL_VAR INDEXLINK> / <TMPL_VAR TITLE>
+     </span>
+     </div>
+
+----
+
+It's almost implicit in some of the discussion above but this can be achieved locally if you fork your templates directory from ikiwiki's, with an ammendment such as
+
+    <h1><TMPL_LOOP NAME="PARENTLINKS"><a
+        href="<TMPL_VAR NAME=URL>"><TMPL_VAR NAME=PAGE></a>
+        &rarr;
+        </TMPL_LOOP><TMPL_VAR TITLE></h1>
+
+This is what I do on my site for example. -- [[Jon]]
+
+> You don't actually need to fork the whole directory, "only" `page.tmpl` -
+> put `templatedir => "/foo/templates"` in your setup file, copy `page.tmpl`
+> to that directory, and modify it there. IkiWiki will look in `templatedir`
+> first, then fall back to its default templates if any are missing from
+> `templatedir`.
+>
+> (Admittedly, `page.tmpl` is the hardest to maintain a fork of, because it
+> tends to change whenever a new plugin is added...) --[[smcv]]
+
+----
+
+Here is a solution which doesn't require people to create their own
+`page.tmpl`.  The solution uses an HTML list together with CSS to draw the
+separator and can therefore be controlled by users.  This change also
+allows people to control other aspects of how the parentlinks are
+displayed.  The only drawback is that lynx/w3m don't seem to deal with this
+CSS feature, but I don't think it's too bad since the parentlinks will
+simply show up as a list.
+
+> I guess I could live with w3m having a second list at the top.
+> 
+> Does this method look identical in the default theme? What about the
+> other themes? Several of them do things with parentlinks css.. --[[Joey]]
+
+(I see that the other patch changes templates/misc.tmpl and
+templates/recentchanges.tmpl for INDEXLINK.  I haven't done that but can do
+so if [[Joey]] likes this approach.)
+
+> Those template no longer have the redundant stuff. --[[Joey]] 
+
+--[[tbm]]
+
+    diff --git a/doc/style.css b/doc/style.css
+    index 35a1331..b726365 100644
+    --- a/doc/style.css
+    +++ b/doc/style.css
+    @@ -129,6 +129,23 @@ pre {
+        overflow: auto;
+     }
+
+    +ul.parentlinks li:after {
+    +display: marker;
+    +content: "/ ";
+    +background: none;
+    +}
+    +
+    +ul.parentlinks li {
+    +display: inline;
+    +}
+    +
+    +ul.parentlinks
+    +{
+    +padding-left: 0;
+    +display:inline;
+    +list-style-type: none;
+    +}
+    +
+     div.recentchanges {
+        border-style: solid;
+        border-width: 1px;
+    diff --git a/templates/page.tmpl b/templates/page.tmpl
+    index 770ac23..f54493e 100644
+    --- a/templates/page.tmpl
+    +++ b/templates/page.tmpl
+    @@ -44,11 +44,15 @@
+     <TMPL_IF HTML5><section class="pageheader"><TMPL_ELSE><div class="pageheader"></TMPL_IF>
+     <TMPL_IF HTML5><header class="header"><TMPL_ELSE><div class="header"></TMPL_IF>
+     <span>
+    +<TMPL_IF PARENTLINKS>
+     <span class="parentlinks">
+    +<ul class="parentlinks">
+     <TMPL_LOOP PARENTLINKS>
+    -<a href="<TMPL_VAR URL>"><TMPL_VAR PAGE></a>/
+    +<li><a href="<TMPL_VAR URL>"><TMPL_VAR PAGE></a></li>
+     </TMPL_LOOP>
+    +</ul>
+     </span>
+    +</TMPL_IF>
+     <span class="title">
+     <TMPL_VAR TITLE>
+     <TMPL_IF ISTRANSLATION>

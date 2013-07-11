@@ -1,0 +1,25 @@
+In order to refer to a branch in one of the [[git]] repositories, for
+example when submitting a [[patch]], you can use the
+[[templates/gitbranch]] template. For example:
+
+	\[[!template id=gitbranch branch=yourrepo/amazingbranch author="\[[yourname]]"]]
+
+Branches that have been [[reviewed]] and need work will not be listed
+here.
+
+Branches referred to in open [[bugs]] and [[todo]]:
+
+[[!inline pages="(todo/* or bugs/*) and link(/branches) and !link(bugs/done)
+and !link(todo/done) and !*/*/*" show=0 archive=yes]]
+
+Long-lived branches in the main git repository:
+
+* `debian-stable` is used for updates to the old version included in
+  Debian's stable release, and `debian-testing` is used for updates to
+  Debian's testing release. (These and similar branches will be rebased.)
+* `ignore` gets various branches merged to it that [[Joey]] wishes to ignore
+  when looking at everyone's unmerged changes.
+* `pristine-tar` contains deltas that
+  [pristine-tar](http://joeyh.name/code/pristine-tar)
+  can use to recreate released tarballs of ikiwiki
+* `setup` contains the ikiwiki.setup file for this site

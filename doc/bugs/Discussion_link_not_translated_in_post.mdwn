@@ -1,0 +1,67 @@
+In my sent post (without Polish characters in title, of course ;) ) I still
+can see "Discussion" link, instead of Polish "Dyskusja" link. --[[Paweł|ptecza]]
+
+> I don't know what post you're referring to, more details please.
+> --[[Joey]]
+
+>> Sorry for the laconic bug report. I meant my blog and the post I sent
+>> to it. It works exactly like your blog at bugs page and I also created it
+>> for my ikiwiki users to bug reporting :)
+
+>> So, I sent the post to my blog and I can see that "Discussion" link
+>> from `inlinepage.tmpl` file is not translated to Polish. Now I hope
+>> you know what I mean :) --[[Paweł|ptecza]]
+
+>>> Joey, what about my bug report? ;) --[[Paweł|ptecza]]
+
+>>>> Found and [[fixed|bugs/done]] --[[Joey]].
+
+>>>>> Hm. I can't see any changes. I've builded ikiwiki 1.41 Debian package
+>>>>> from the latest SVN repo sources and installed it on my machine.
+>>>>> I've also rebuilded all my ikiwiki pages (`ikiwiki --setup ikiwiki.setup`).
+
+>>>>> I added a few debug lines to changed block of code from
+>>>>> `/usr/share/perl5/IkiWiki.pm` file:
+>>>>>
+>>>>>        open(LOG, ">>/var/log/ikiwiki.log");
+>>>>>        print LOG "(1) \$config{locale}=$config{locale}\n";
+>>>>>        print LOG "(1) \$ENV{LANG}=$ENV{LANG}\n";
+>>>>>        if (defined $config{locale}) {
+>>>>>                eval q{use POSIX};
+>>>>>                error($@) if $@;
+>>>>>                print LOG "(2) \$config{locale}=$config{locale}\n";
+>>>>>                print LOG "(2) \$ENV{LANG}=$ENV{LANG}\n";
+>>>>>                if (POSIX::setlocale(&POSIX::LC_ALL, $config{locale})) {
+>>>>>                        $ENV{LANG}=$config{locale};
+>>>>>                        $gettext_obj=undef;
+>>>>>                        print LOG "(3) \$config{locale}=$config{locale}\n";
+>>>>>                        print LOG "(3) \$ENV{LANG}=$ENV{LANG}\n";
+>>>>>                }
+>>>>>        }
+>>>>>        close(LOG);
+>>>>>
+>>>>> Here is a piece of result after rebuild:
+>>>>>
+>>>>>        (1) $config{locale}=pl_PL.UTF-8
+>>>>>        (1) $ENV{LANG}=pl_PL.UTF-8
+>>>>>        (2) $config{locale}=pl_PL.UTF-8
+>>>>>        (2) $ENV{LANG}=pl_PL.UTF-8
+>>>>>        (3) $config{locale}=pl_PL.UTF-8
+>>>>>        (3) $ENV{LANG}=pl_PL.UTF-8
+>>>>>
+>>>>> Is it a useful information for you? :) --[[Paweł|ptecza]]
+
+>>>>>> Not really.. I was able to reproduce the problem you desciribed and
+>>>>>> my changes fixed the problem I reproduced. --[[Joey]]
+
+> Found and fixed one more, when per-post discussion links are used in a
+> blog. --[[Joey]]
+
+>> Yes, now it's fixed :) Thank you very much, Joey!
+
+>> BTW, what about translating buttons to editing page ("Save Page",
+>> "Preview" and "Cancel")? There are still hard-coded :( --[[Paweł|ptecza]]
+
+>>> Those come via the formbuilder form, and currently my best plan for
+>>> them is to add templates for them, as described in [[translation]]
+>>> --[[Joey]]

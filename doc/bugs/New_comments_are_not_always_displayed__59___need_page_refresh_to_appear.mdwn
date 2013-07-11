@@ -1,0 +1,35 @@
+I noticed this a few times in Google Chrome 12 (dev channel) a few times, already:
+
+I added a comment to 
+
+    http://git-annex.branchable.com/forum/performance_improvement:_git_on_ssd__44___annex_on_spindle_disk/
+
+and left the page. Later, I revisited
+
+    http://git-annex.branchable.com/forum/
+
+and clicked on
+
+    http://git-annex.branchable.com/forum/performance_improvement:_git_on_ssd__44___annex_on_spindle_disk/
+
+My own comment did not appear. I pressed F5 and eh presto.
+
+My assumption is that ikiwiki does not tell Chrome to reload the page as the cache is stale.
+
+
+Richard
+
+> There is some lurking bug with certian web browsers, web servers, or
+> combination of the two that makes modifications to html files not
+> always be noticed by web browsers. See
+> [[bugs/firefox_doesn__39__t_want_to_load_updated_pages_at_ikiwiki.info]]
+> see also <http://bugs.debian.org/588623>.
+> 
+> On Branchable, we work around this problem with an apache configuration:
+> «ExpiresByType text/html "access plus 0 seconds"»
+> 
+> There seems to be no way to work around it in ikiwiki's generated html,
+> aside from using the cache-control setting that is not allowed in html5.
+> 
+> And, which browsers/web servers have the problem, and where the bug is,
+> seems very hard to pin down. --[[Joey]]

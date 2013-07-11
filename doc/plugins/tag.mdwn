@@ -1,0 +1,24 @@
+[[!template id=plugin name=tag author="[[Joey]]"]]
+[[!tag type/tags type/link]]
+
+This plugin provides the [[ikiwiki/directive/tag]] and 
+[[ikiwiki/directive/taglink]] [[directives|ikiwiki/directive]].
+These directives allow tagging pages.
+
+It also provides the `tagged()` [[ikiwiki/PageSpec]], which can be used to
+match pages that are tagged with a specific tag.
+
+The `tagbase` setting can be used to make tags default to being put in a
+particular subdirectory.
+
+The `tag_autocreate` setting can be used to control whether new tag pages
+are created as needed. It defaults to being done only if a `tagbase` is
+set.
+
+The `tag_autocreate_commit` setting is enabled by default, and causes
+new tag pages to be checked into version control.
+
+[[!if test="enabled(tag)" then="""
+This wiki has the tag plugin enabled, so you'll see a note below that this
+page is tagged with the "tags" tag.
+"""]]

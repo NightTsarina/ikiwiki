@@ -1,0 +1,407 @@
+Having tried out `field`, some comments (from [[smcv]]):
+
+The general concept looks great.
+
+The `pagetemplate` hook seems quite namespace-polluting: on a site containing
+a list of books, I'd like to have an `author` field, but that would collide
+with IkiWiki's use of `<TMPL_VAR AUTHOR>` for the author of the *page*
+(i.e. me). Perhaps it'd be better if the pagetemplate hook was only active for
+`<TMPL_VAR FIELD_AUTHOR>` or something? (For those who want the current
+behaviour, an auxiliary plugin would be easy.)
+
+> No, please.  The idea is to be *able* to override field names if one wishes to, and choose, for yourself, non-colliding field names if one wishes not to.  I don't wish to lose the power of being able to, say, define a page title with YAML format if I want to, or to write a site-specific plugin which calculates a page title, or other nifty things.
+>It's not like one is going to lose the fields defined by the meta plugin; if "author" is defined by \[[!meta author=...]] then that's what will be found by "field" (provided the "meta" plugin is registered; that's what the "field_register" option is for).
+>--[[KathrynAndersen]]
+
+>> Hmm. I suppose if you put the title (or whatever) in the YAML, then
+>> "almost" all the places in IkiWiki that respect titles will do the
+>> right thing due to the pagetemplate hook, with the exception being
+>> anything that has special side-effects inside `meta` (like `date`),
+>> or anything that looks in `$pagestate{foo}{meta}` directly
+>> (like `map`). Is your plan that `meta` should register itself by
+>> default, and `map` and friends should be adapted to
+>> work based on `getfield()` instead of `$pagestate{foo}{meta}`, then?
+
+>>> Based on `field_get_value()`, yes.  That would be my ideal.  Do you think I should implement that as an ikiwiki branch? --[[KathrynAndersen]]
+
+>>>> This doesn't solve cases where certain fields are treated specially; for
+>>>> instance, putting a `\[[!meta permalink]]` on a page is not the same as
+>>>> putting it in `ymlfront` (in the latter case you won't get your
+>>>> `<link>` header), and putting `\[[!meta date]]` is not the same as putting
+>>>> `date` in `ymlfront` (in the latter case, `%pagectime` won't be changed).
+>>>>
+>>>> One way to resolve that would be to have `ymlfront`, or similar, be a
+>>>> front-end for `meta` rather than for `field`, and call
+>>>> `IkiWiki::Plugin::meta::preprocess` (or a refactored-out function that's
+>>>> similar).
+>>>>
+>>>> There are also some cross-site scripting issues (see below)... --[[smcv]]
+
+>> (On the site I mentioned, I'm using an unmodified version of `field`,
+>> and currently working around the collision by tagging books' pages
+>> with `bookauthor` instead of `author` in the YAML.) --s
+
+>> Revisiting this after more thought, the problem here is similar to the
+>> possibility that a wiki user adds a `meta` shortcut
+>> to [[shortcuts]], or conversely, that a plugin adds a `cpan` directive
+>> that conflicts with the `cpan` shortcut that pages already use. (In the
+>> case of shortcuts, this is resolved by having plugin-defined directives
+>> always win.) For plugin-defined meta keywords this is the plugin
+>> author's/wiki admin's problem - just don't enable conflicting plugins! -
+>> but it gets scary when you start introducing things like `ymlfront`, which
+>> allow arbitrary, wiki-user-defined fields, even ones that subvert
+>> other plugins' assumptions.
+>>
+>> The `pagetemplate` hook is particularly alarming because page templates are
+>> evaluated in many contexts, not all of which are subject to the
+>> htmlscrubber or escaping; because the output from `field` isn't filtered,
+>> prefixed or delimited, when combined with an arbitrary-key-setting plugin
+>> like `ymlfront` it can interfere with other plugins' expectations
+>> and potentially cause cross-site scripting exploits. For instance, `inline`
+>> has a `pagetemplate` hook which defines the `FEEDLINKS` template variable
+>> to be a blob of HTML to put in the `<head>` of the page. As a result, this
+>> YAML would be bad:
+>>
+>>     ---
+>>     FEEDLINKS: <script>alert('code injection detected')</script>
+>>     ---
+>>
+>> (It might require a different case combination due to implementation
+>> details, I'm not sure.)
+>>
+>> It's difficult for `field` to do anything about this, because it doesn't
+>> know whether a field is meant to be plain text, HTML, a URL, or something
+>> else.
+>>
+>> If `field`'s `pagetemplate` hook did something more limiting - like
+>> only emitting template variables starting with `field_`, or from some
+>> finite set, or something - then this would cease to be a problem, I think?
+>>
+>> `ftemplate` and `getfield` don't have this problem, as far as I can see,
+>> because their output is in contexts where the user could equally well have
+>> written raw HTML directly; the user can cause themselves confusion, but
+>> can't cause harmful output. --[[smcv]]
+
+From a coding style point of view, the `$CamelCase` variable names aren't
+IkiWiki style, and the `match_foo` functions look as though they could benefit
+from being thin wrappers around a common `&IkiWiki::Plugin::field::match`
+function (see `meta` for a similar approach).
+
+I think the documentation would probably be clearer in a less manpage-like
+and more ikiwiki-like style?
+
+> I don't think ikiwiki *has* a "style" for docs, does it?  So I followed the Perl Module style. And I'm rather baffled as to why having the docs laid out in clear sections... make them less clear. --[[KathrynAndersen]]
+
+>> I keep getting distracted by the big shouty headings :-)
+>> I suppose what I was really getting at was that when this plugin
+>> is merged, its docs will end up split between its plugin
+>> page, [[plugins/write]] and [[ikiwiki/PageSpec]]; on some of the
+>> contrib plugins I've added I've tried to separate the docs
+>> according to how they'll hopefully be laid out after merge. --s
+
+If one of my branches from [[todo/allow_plugins_to_add_sorting_methods]] is
+accepted, a `field()` cmp type would mean that [[plugins/contrib/report]] can
+stop reimplementing sorting. Here's the implementation I'm using, with
+your "sortspec" concept (a sort-hook would be very similar): if merged,
+I think it should just be part of `field` rather than a separate plugin.
+
+	# Copyright © 2010 Simon McVittie, released under GNU GPL >= 2
+	package IkiWiki::Plugin::fieldsort;
+	use warnings;
+	use strict;
+	use IkiWiki 3.00;
+	use IkiWiki::Plugin::field;
+
+	sub import {
+		hook(type => "getsetup", id => "fieldsort",  call => \&getsetup);
+	}
+
+	sub getsetup () {
+		return
+			plugin => {
+				safe => 1,
+				rebuild => undef,
+			},
+	}
+
+	package IkiWiki::SortSpec;
+
+	sub cmp_field {
+		if (!length $_[0]) {
+			error("sort=field requires a parameter");
+		}
+
+		my $left = IkiWiki::Plugin::field::field_get_value($_[0], $a);
+		my $right = IkiWiki::Plugin::field::field_get_value($_[0], $b);
+
+		$left = "" unless defined $left;
+		$right = "" unless defined $right;
+		return $left cmp $right;
+	}
+
+	1;
+
+----
+
+Disclaimer: I've only looked at this plugin and ymlfront, not other related
+stuff yet. (I quite like ymlfront, so I looked at this as its dependency. :)
+I also don't want to annoy you with a lot of design discussion 
+if your main goal was to write a plugin that did exactly what you wanted.
+
+My first question is: Why we need another plugin storing metadata
+about the page, when we already have the meta plugin? Much of the
+complication around the field plugin has to do with it accessing info
+belonging to the meta plugin, and generalizing that to be able to access
+info stored by other plugins too. (But I don't see any other plugins that
+currently store such info). Then too, it raises points of confusion like
+smcv's discuission of field author vs meta author above. --[[Joey]] 
+
+> The point is exactly in the generalization, to provide a uniform interface for accessing structured data, no matter what the source of it, whether that be the meta plugin or some other plugin.
+
+> There were a few reasons for this:
+
+>1. In converting my site over from PmWiki, I needed something that was equivalent to PmWiki's Page-Text-Variables (which is how PmWiki implements structured data).
+>2. I also wanted an equivalent of PmWiki's Page-Variables, which, rather than being simple variables, are the return-value of a function.  This gives one a lot of power, because one can do calculations, derive one thing from another.  Heck, just being able to have a "basename" variable is useful.
+>3. I noticed that in the discussion about structured data, it was mired down in disagreements about what form the structured data should take; I wanted to overcome that hurdle by decoupling the form from the content.
+>4. I actually use this to solve (1), because, while I do use ymlfront, initially my pages were in PmWiki format (I wrote (another) unreleased plugin which parses PmWiki format) including PmWiki's Page-Text-Variables for structured data.  So I needed something that could deal with multiple formats.
+
+> So, yes, it does cater to mostly my personal needs, but I think it is more generally useful, also.
+> --[[KathrynAndersen]]
+
+>> Is it fair to say, then, that `field`'s purpose is to take other
+>> plugins' arbitrary per-page data, and present it as a single
+>> merged/flattened string => string map per page? From the plugins
+>> here, things you then use that merged map for include:
+>>
+>> * sorting - stolen by [[todo/allow_plugins_to_add_sorting_methods]]
+>> * substitution into pages with Perl-like syntax - `getfield`
+>> * substitution into wiki-defined templates - the `pagetemplate`
+>>   hook
+>> * substitution into user-defined templates - `ftemplate`
+>>
+>> As I mentioned above, the flattening can cause collisions (and in the
+>> `pagetemplate` case, even security problems).
+>>
+>> I wonder whether conflating Page Text Variables with Page Variables
+>> causes `field` to be more general than it needs to be?
+>> To define a Page Variable (function-like field), you need to write
+>> a plugin containing that Perl function; if we assume that `field`
+>> or something resembling it gets merged into ikiwiki, then it's
+>> reasonable to expect third-party plugins to integrate with whatever
+>> scaffolding there is for these (either in an enabled-by-default
+>> plugin that most people are expected to leave enabled, like `meta`
+>> now, or in the core), and it doesn't seem onerous to expect each
+>> plugin that wants to participate in this mechanism to have code to
+>> do so. While it's still contrib, `field` could just have a special case
+>> for the meta plugin, rather than the converse?
+>>
+>> If Page Text Variables are limited to being simple strings as you
+>> suggest over in [[forum/an_alternative_approach_to_structured_data]],
+>> then they're functionally similar to `meta` fields, so one way to
+>> get their functionality would be to extend `meta` so that
+>>
+>>     \[[!meta badger="mushroom"]]
+>>
+>> (for an unrecognised keyword `badger`) would store
+>> `$pagestate{$page}{meta}{badger} = "mushroom"`? Getting this to
+>> appear in templates might be problematic, because a naive
+>> `pagetemplate` hook would have the same problem that `field` combined
+>> with `ymlfront` currently does.
+>>
+>> One disadvantage that would appear if the function-like and
+>> meta-like fields weren't in the same namespace would be that it
+>> wouldn't be possible to switch a field from being meta-like to being
+>> function-like without changing any wiki content that referenced it.
+>>
+>> Perhaps meta-like fields should just *be* `meta` (with the above
+>> enhancement), as a trivial case of function-like fields? That would
+>> turn `ymlfront` into an alternative syntax for `meta`, I think?
+>> That, in turn, would hopefully solve the special-fields problem,
+>> by just delegating it to meta. I've been glad of the ability to define
+>> new ad-hoc fields with this plugin without having to write an extra plugin
+>> to do so (listing books with a `bookauthor` and sorting them by
+>> `"field(bookauthor) title"`), but that'd be just as easy if `meta`
+>> accepted ad-hoc fields?
+>>
+>> --[[smcv]]
+
+>>> Your point above about cross-site scripting is a valid one, and something I
+>>> hadn't thought of (oops).
+
+>>> I still want to be able to populate pagetemplate templates with field, because I
+>>> use it for a number of things, such as setting which CSS files to use for a
+>>> given page, and, as I said, for titles.  But apart from the titles, I
+>>> realize I've been setting them in places other than the page data itself.
+>>> (Another unreleased plugin, `concon`, uses Config::Context to be able to
+>>> set variables on a per-site, per-directory and a per-page basis).
+
+>>> The first possible solution is what you suggested above: for field to only
+>>> set values in pagetemplate which are prefixed with *field_*.  I don't think
+>>> this is quite satisfactory, since that would still mean that people could
+>>> put un-scrubbed values into a pagetemplate, albeit they would be values
+>>> named field_foo, etc. --[[KathrynAndersen]]
+
+>>>> They can already do similar; `PERMALINK` is pre-sanitized to
+>>>> ensure that it's a "safe" URL, but if an extremely confused wiki admin was
+>>>> to put `COPYRIGHT` in their RSS/Atom feed's `<link>`, a malicious user
+>>>> could put an unsafe (e.g. Javascript) URL in there (`COPYRIGHT` *is*
+>>>> HTML-scrubbed, but "javascript:alert('pwned!')" is just text as far as a
+>>>> HTML sanitizer is concerned, so it passes straight through). The solution
+>>>> is to not use variables in situations where that variable would be
+>>>> inappropriate. Because `field` is so generic, the definition of what's
+>>>> appropriate is difficult. --[[smcv]]
+
+>>> An alternative solution would be to classify field registration as "secure"
+>>> and "insecure".  Sources such as ymlfront would be insecure, sources such
+>>> as concon (or the $config hash) would be secure, since they can't be edited
+>>> as pages.  Then, when doing pagetemplate substitution (but not ftemplate
+>>> substitution) the insecure sources could be HTML-escaped.
+>>> --[[KathrynAndersen]]
+
+>>>> Whether you trust the supplier of data seems orthogonal to whether its value
+>>>> is (meant to be) interpreted as plain text, HTML, a URL or what?
+>>>>
+>>>> Even in cases where you trust the supplier, you need to escape things
+>>>> suitably for the context, not for security but for correctness. The
+>>>> definition of the value, and the context it's being used in, changes the
+>>>> processing you need to do. An incomplete list:
+>>>>
+>>>> * HTML used as HTML needs to be html-scrubbed if and only if untrusted
+>>>> * URLs used as URLs need to be put through `safeurl()` if and only if
+>>>>   untrusted
+>>>> * HTML used as plain text needs tags removed regardless
+>>>> * URLs used as plain text are safe
+>>>> * URLs or plain text used in HTML need HTML-escaping (and URLs also need
+>>>>   `safeurl()` if untrusted)
+>>>> * HTML or plain text used in URLs need URL-escaping (and the resulting
+>>>>   URL might need sanitizing too?)
+>>>>
+>>>> I can't immediately think of other data types we'd be interested in beyond
+>>>> text, HTML and URL, but I'm sure there are plenty.
+
+>>>>> But isn't this a problem with anything that uses pagetemplates?  Or is
+>>>>> the point that, with plugins other than `field`, they all know,
+>>>>> beforehand, the names of all the fields that they are dealing with, and
+>>>>> thus the writer of the plugin knows which treatment each particular field
+>>>>> needs?  For example, that `meta` knows that `title` needs to be
+>>>>> HTML-escaped, and that `baseurl` doesn't.  In that case, yes, I see the problem.
+>>>>> It's a tricky one.  It isn't as if there's only ever going to be a fixed set of fields that need different treatment, either.  Because the site admin is free to add whatever fields they like to the page template (if they aren't using the default one, that is.  I'm not using the default one myself).
+>>>>> Mind you, for trusted sources, since the person writing the page template and the person providing the variable are the same, they themselves would know whether the value will be treated as HTML, plain text, or a URL, and thus could do the needed escaping themselves when writing down the value.
+
+>>>>> Looking at the content of the default `page.tmpl` let's see what variables fall into which categories:
+
+>>>>> * **Used as URL:** BASEURL, EDITURL, PARENTLINKS->URL, RECENTCHANGESURL, HISTORYURL, GETSOURCEURL, PREFSURL, OTHERLANGUAGES->URL, ADDCOMMENTURL, BACKLINKS->URL, MORE_BACKLINKS->URL
+>>>>> * **Used as part of a URL:** FAVICON, LOCAL_CSS
+>>>>> * **Needs to be HTML-escaped:** TITLE
+>>>>> * **Used as-is (as HTML):** FEEDLINKS, RELVCS, META, PERCENTTRANSLATED, SEARCHFORM, COMMENTSLINK, DISCUSSIONLINK, OTHERLANGUAGES->PERCENT, SIDEBAR, CONTENT, COMMENTS, TAGS->LINK, COPYRIGHT, LICENSE, MTIME, EXTRAFOOTER
+
+>>>>> This looks as if only TITLE needs HTML-escaping all the time, and that the URLS all end with "URL" in their name.  Unfortunately the FAVICON and LOCAL_CSS which are part of URLS don't have "URL" in their name, though that's fair enough, since they aren't full URLs.
+
+>>>>>  --K.A.
+
+>>>> One reasonable option would be to declare that `field` takes text-valued
+>>>> fields, in which case either consumers need to escape
+>>>> it with `<TMPL_VAR FIELD_FOO ESCAPE=HTML>`, and not interpret it as a URL
+>>>> without first checking `safeurl`), or the pagetemplate hook needs to
+>>>> pre-escape.
+
+>>>>> Since HTML::Template does have the ability to do ESCAPE=HTML/URL/JS, why not take advantage of that? Some things, like TITLE, probably should have ESCAPE=HTML all the time; that would solve the "to escape or not to escape" problem that `meta` has with titles. After all, when one *sorts* by title, one doesn't really want HTML-escaping in it; only when one uses it in a template. -- K.A.
+
+>>>> Another reasonable option would be to declare that `field` takes raw HTML,
+>>>> in which case consumers need to only use it in contexts that will be
+>>>> HTML-scrubbed (but it becomes unsuitable for using as text - problematic
+>>>> for text-based things like sorting or URLs, and not ideal for searching).
+>>>>
+>>>> You could even let each consumer choose how it's going to use the field,
+>>>> by having the `foo` field generate `TEXT_FOO` and `HTML_FOO` variables?
+>>>> --[[smcv]]
+
+>>>>> Something similar is already done in `template` and `ftemplate` with the `raw_` prefix, which determines whether the variable should have `htmlize` run over it first before the value is applied to the template.  Of course, that isn't scrubbing or escaping, because with those templates, the scrubbing is done afterwards as part of the normal processing.
+
+>>> Another problem, as you point out, is special-case fields, such as a number of
+>>> those defined by `meta`, which have side-effects associated with them, more
+>>> than just providing a value to pagetemplate.  Perhaps `meta` should deal with
+>>> the side-effects, but use `field` as an interface to get the values of those special fields.
+
+>>> --[[KathrynAndersen]]
+
+-----
+
+I think the main point is: what is (or should be) the main point of the
+field plugin? If it's essentially a way to present a consistent
+interface to access page-related structured information, then it makes
+sense to have it very general. Plugins registering with fields would
+then present ways for recovering the structure information from the page
+(`ymlfront`, `meta`, etc),  ways to manipulate it (like `meta` does),
+etc.
+
+In this sense, security should be entirely up to the plugins, although
+the fields plugin could provide some auxiliary infrastructure (like
+determining where the data comes from and raise or lower the security
+level accoringly).
+
+Namespacing is important, and it should be considered at the field
+plugin interface level. A plugin should be able to register as
+responsible for the processing of all data belonging to a given
+namespace, but plugins should be able to set data in any namespace. So
+for example, `meta` register are `meta` fields processing, and whatever
+method is used to set the data (`meta` directive, `ymlfront`, etc) it
+gets a say on what to do with data in its namespace.
+
+What I'm thinking of is something you could call fieldsets. The nice
+thing about them is that, aside from the ones defined by plugins (like
+`meta`), it would be possible to define custom ones (with a generic,
+default processor) in an appropriate file (like smileys and shortcuts)
+with a syntax like:
+
+    [[!fieldset book namespace=book
+       fields="author title isbn"
+       fieldtype="text text text"]]
+
+after which, you coude use
+
+    [[!book author="A. U. Thor"
+            title="Fields of Iki"]]
+
+and the data would be available under the book namespace, and thus
+as BOOK_AUTHOR, BOOK_TITLE etc in templates.
+
+Security, in this sense, would be up to the plugin responsible for the
+namespace processing (the default handler would HTML-escape text fields
+scrub, html fields, safeurl()ify url fields, etc.)
+
+> So, are you saying that getting a field value is sort of a two-stage process?  Get the value from anywhere, and then call the "security processor" for that namespace to "secure" the value?  I think "namespaces" are really orthogonal to this issue.  What the issue seems to be is:
+
+   * what form do we expect the raw field to be in? (text, URL, HTML)
+   * what form do we expect the "secured" output to be in? (raw HTML, scrubbed HTML, escaped HTML, URL)
+
+> Only if we know both these things will we know what sort of security processing needs to be done.
+
+>> Fieldsets are orthogonal to the security issue in the sense that you can use
+>> them without worrying about the field security issue, but they happen to be
+>> a rather clean way of answering those two questions, by allowing you to
+>> attach preprocessing attributes to a field in a way that the user
+>> (supposedly) cannot mingle with.
+
+> There is also a difference between field values that are used inside pagetemplate, and field values which are used as part of a page's content (e.g. with ftemplate).  If you have a TITLE, you want it to be HTML-escaped if you're using it inside pagetemplate, but you don't want it to be HTML-escaped if you're using it inside a page's content.  On the other hand, if you have, say, FEEDLINKS used inside pagetemplate, you don't wish it to be HTML-escaped at all, or your page content will be completely stuffed.
+
+>> Not to talk about the many different ways date-like fields might be need
+>> processing. It has already been proposed to solve this problem by exposing
+>> the field values under different names depending on the kind or amout of
+>> postprocessing they had (e.g. RAW_SOMEFIELD, SOMEFIELD, to which we could add
+>> HTML_SOMEFIELD, URL_SOMEFIELD or whatever). Again, fieldsets offer a simple way
+>> of letting Ikiwiki know what kind of postprocessing should be offered for
+>> that particular field.
+
+> So, somehow, we have to know the meaning of a field before we can use it properly, which kind of goes against the idea of having something generic.
+
+>> We could have a default field type (text, for example), and a way to set a
+>> different field type (which is what my fieldset proposal was about).
+
+> --[[KathrynAndersen]]
+
+-----
+
+I was just looking at HTML5 and wondered if the field plugin should generate the new Microdata tags (as well as the internal structures)? <http://slides.html5rocks.com/#slide19> -- [[Will]]
+
+> This could just as easily be done as a separate plugin.  Feel free to do so. --[[KathrynAndersen]]

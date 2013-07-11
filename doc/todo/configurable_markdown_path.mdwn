@@ -1,0 +1,64 @@
+[[!template id=gitbranch branch=wtk/mdwn author="[[wtk]]"]]
+
+summary
+=======
+
+Make it easy to configure the Markdown implementation used by the
+[[plugins/mdwn]] plugin.  With this patch, you can set the path to an
+external Markdown executable in your ikiwiki config file.  If you do
+not set a path, the plugin will use the usual config options to
+determine which Perl module to use.
+
+> This adds a configuration in which a new process has to be worked
+> for every single page rendered. Actually, it doesn't only add
+> such a configuration, it makes it be done by *default*.
+> 
+> Markdown is ikiwiki's default, standard renderer. A configuration
+> that makes it slow will make ikiwiki look bad.
+> 
+> I would not recommend using Gruber's perl markdown. It is old, terminally
+> buggy, and unmaintained. --[[Joey]] [[!tag reviewed]]
+
+----
+
+I wasn't trying to make an external markdown the default, I was trying
+to make the currently hardcoded `/usr/bin/markdown` configurable.  It
+should only use an external process if `markdown_path` is set, which
+it is not by default.  Consider the following tests from clean checkouts:
+
+Current ikiwiki trunk:
+
+    $ PERL5LIB="." time ikiwiki --setup docwiki.setup
+    ...
+    38.73user 0.62system 1:20.90elapsed 48%CPU (0avgtext+0avgdata 103040maxresident)k
+    0inputs+6472outputs (0major+19448minor)pagefaults 0swaps
+
+My mdwn branch:
+
+    $ PERL5LIB="." time ikiwiki --setup docwiki.setup
+    ...
+    Markdown: Text::Markdown::markdown()
+    ...
+    39.17user 0.73system 1:21.77elapsed 48%CPU (0avgtext+0avgdata 103072maxresident)k
+    0inputs+6472outputs (0major+19537minor)pagefaults 0swaps
+
+My mdwn branch with `markdown_path => "/usr/bin/markdown"` added in
+`docwiki.setup` (on my system, `/usr/bin/markdown` is a command-line
+wrapper for `Text::Markdown::markdown`).
+
+    $ PERL5LIB="." time ikiwiki --setup docwiki.setup
+    ...
+    Markdown: /usr/bin/markdown
+    ...
+    175.35user 18.99system 6:38.19elapsed 48%CPU (0avgtext+0avgdata 92320maxresident)k
+    0inputs+17608outputs (0major+2189080minor)pagefaults 0swaps
+
+So my patch doesn't make ikiwiki slow unless the user explicitly
+requests an extenral markdown, which they would presumably only do to
+work around bugs in their system's Perl implementation.
+ -- [[wtk]]
+
+> I was wrong about it being enabled by default, but I still don't like
+> the idea of a configuration that makes ikiwiki slow on mdwn files,
+> even if it is a nonstandard configuration. How hard can it be to install
+> the Text::Markdown library? --[[Joey]] 

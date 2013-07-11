@@ -1,0 +1,68 @@
+While working on our forum I was surprised to see that some of the comments were not appearing in the RSS feed created by `!inline pages="forum/* or comment(forum/*)" feedonly="yes" show="25"`.
+
+> I'm seeing some comments in the rss feed. The feed is limited to the 25
+> most recent items, you can increase that with feedshow. --[[Joey]]
+
+>> Of course, but in the feed, some of the new comments don't show up.
+>> Most does but not all. For example, none of the comments of this thread
+>> appears in the RSS, even though they should according to the « 25 most
+>> recent items » criteria:
+>> <https://tails.boum.org/forum/Security_Updates:_apt-get_Sufficient__63__/> --sajolida
+
+>>> Of course this is a moving target, so I checked out 
+>>> 4a787aecb142f346190ddaef59938799818c964b, which is from the same day
+>>> the above was written.. The comments in question appeared in
+>>> the rss feed when I ran `ikiwiki -setup ikiwiki.setup -gettime`
+>>> (after configuring the setup file to use git and rss and setting
+>>> `gitorigin_branch: ''`)
+>>>
+>>> So I suppose I'd need a testcase in a tarball to reproduce 
+>>> any problem. --[[Joey]]
+
+>>>> Once I set `rcs: git` and `gitorigin_branch: ''`, I also get a
+>>>> perfect RSS feed that contains the items git log makes me expect,
+>>>> in the correct order. So this is not a ikiwiki bug after all,
+>>>> sorry for the annoyance. (For the record, I think we have two
+>>>> problems: first, our ikiwiki.setup does not enable a RCS, mainly
+>>>> to avoid local refresh to create ugly "updated PO files" Git
+>>>> commits; this explains the issue sajolida noticed while locally
+>>>> building the wiki. Second, the RSS feed on our online ikiwiki is
+>>>> correct right now, was probably cured by a rebuild at some point.
+>>>> --[[intrigeri]]
+
+Then I found out that a map directive such as `!map pages="forum/* or
+comment(forum/*)"` was bringing a weird result too. The output is a map
+with quite a few broken links.
+
+> This is the same as if you tried to link to a comment page or other 
+> internal page with a [[ikiwiki/WikiLink]] -- you'd get a broken link
+> or a create link because these are not true wiki pages. --[[Joey]]
+
+>> So I don't understand why 90 % of the comments are linked well and 10 %
+>> are broken links. Why does this map behave differently for only a few comments? --sajolida
+
+>>> I checked the first 50% or so of the comments, and every one was a
+>>> broken link. --[[Joey]]
+
+>>>> I now observe the same behaviour as Joey, which seems totally
+>>>> logical to me after all given that `forum/*/comment_*.html` are
+>>>> not generated. I wonder how we could have observed map generating
+>>>> working links to comments in the first place; sajolida, can you
+>>>> please try reproducing it? If you cannot reproduce it, I think we
+>>>> can close this bug. --[[intrigeri]]
+
+>>>>> Closing as apparently operator error (and while it's a bit confiusing
+>>>>> that map generates broken links for internal pages, it is *sorta* was
+>>>>> was requested by the pagespec, so I don't see a real reason to change
+>>>>> it). Please reopen if new data emerges. [[done]] --[[Joey]] 
+
+Plus, some broken links in the map do match the comments missing on the RSS feed but some others do not.
+
+Unfortunately, I couldn't find an obvious pattern for this failure.
+
+We think it's a bug in ikiwiki. Our git repo is publicly available at
+`git://git.immerda.ch/amnesia.git` (the ikiwiki source is in `/wiki/src`)
+and the corresponding online version is available at
+<https://tails.boum.org/forum/>. The buggy `!inline` is already included in
+the original `forum.mdwn`. The buggy `!map` is not but the bug can be
+reproduced by just including it in the source of the forum.

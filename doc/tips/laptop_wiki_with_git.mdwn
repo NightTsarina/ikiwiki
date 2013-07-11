@@ -1,0 +1,71 @@
+[[!toc]]
+
+Using ikiwiki with the [[rcs/git]] backend, some interesting things can be done
+with creating mirrors (or, really, branches) of a wiki. In this tip, I'll
+assume your wiki is located on a server, and you want to take a copy with
+you on your laptop.
+
+With the configuration described here, you can commit local changes to the
+version on the laptop, perhaps while offline. You can browse and edit the
+wiki using a local web server. When you're ready, you can manually push the
+changes to the main wiki on the server.
+
+## simple clone approach
+
+First, set up the wiki on the server, if it isn't already. Nothing special
+needs to be done here, just follow the regular instructions in [[setup]]
+for setting up ikiwiki with git.
+
+Next, `git clone` the source (`$REPOSITORY`, not `$SRCDIR`)
+from the server to the laptop.
+
+Now, set up a [[web_server|dot_cgi]] on your laptop, if it doesn't
+already have one.
+
+Now you need to write a setup file for ikiwiki on the laptop. Mostly this
+is standard, but a few special settings are needed:
+
+* Configure a cgi wrapper as usual, but configure the git wrapper to
+  be written to the `post-commit` hook of the git clone, rather than the
+  usual `post-update` hook.
+
+* By default, ikiwiki pulls and pushes from `origin`. This shouldn't be 
+  done on the laptop, because the origin may not be accessible (when the
+  laptop is offline). Also, commits made on the laptop should stay there,
+  until manually pushed, so that the laptop can serve as a staging area.
+
+  Make sure you have ikiwiki 2.11 or better installed, and set:
+  
+  	gitorigin_branch => "",
+
+* You can optionally enable to the [[plugins/mirrorlist]] plugin,
+  and configure it so that each page links to the corresponding page on the
+  server.
+
+Now just run `ikiwiki -setup wiki.setup -getctime` and you should be
+good to go. (You only need the slow `-getctime` option the first time you
+run setup.)
+
+Use standard git commands to handle pulling from and pushing to the server.
+
+Note that if changes are pulled from the server, you will need to manually
+update the wiki, with a command such as `ikiwiki -setup wiki.setup -refresh`.
+If you'd like it to automatically update when changes are merged in, you
+can simply make a symlink `post-merge` hook pointing at the `post-update`
+hook ikiwiki created.
+
+## bare mirror approach
+
+As above, set up a normal ikiwiki on the server, with the usual bare repository.
+
+Next, `git clone --mirror server:/path/to/bare/repository`
+
+This will be used as the $REPOSITORY on the laptop.  Then you can follow
+the instructions in [[setup by hand|/setup/byhand]] as per a normal ikiwiki
+installation. This means that you can clone from the local bare repository
+as many times as you want (thus being able to have a repository which is
+used by the ikiwiki CGI, and another which you can use for updating via
+git).
+
+Use standard git commands, run in the laptop's bare git repository
+to handle pulling from and pushing to the server.

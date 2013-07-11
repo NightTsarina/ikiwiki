@@ -1,0 +1,16 @@
+If i intsall perl modules in my custom directory, cgi wrapper can't find them. I found clearing enviroment variables in code  of wrapper. But information about custom directories put to perl with PERL5LIB variable.
+
+Workaround: add newenviron variable PERL5LIB
+
+My additional question - what wrapper do? I'am russian hosting provider. I am interesting with ikiwiki.
+
+> The wrapper allows ikiwiki to run as the user who owns the wiki, which
+> is generally not the same as the user that runs the web server.
+> (It also handles some other things, like some locking.)
+> 
+> As a suid program, the wrapper cannot safely let environment variables
+> pass through.
+> 
+> If you want to install ikiwiki's perl modules in a nonstandard location,
+> you can set `INSTALL_BASE` when running `Makefile.PL`. ikiwiki will then
+> be built to look in that location. --[[Joey]]  [[!tag done]]

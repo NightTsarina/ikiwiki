@@ -1,0 +1,50 @@
+I am using mercurial as RCS backend and ikiwiki 2.40.
+
+It seems that, when adding a blog post, it is not immediately commited to the mercurial repo. I have a page with this directive:
+
+    \[[!inline pages="journal/blog2008/* and !*/Discussion" show="0" feeds="no" actions="yes" rootpage="journal/blog2008"]]
+
+When I add a blog post, I see it on the wiki but it doesn't appear on `History` or `RecentChanges`. If I run `hg status` on the wiki source dir, I see the new file has been marked as `A` (ie, a new file that has not been commited).
+
+If I then edit the blog post, **then** the file gets commited and I can see the edit on `History` and `RecentChanges`. The creation of the file remains unrecorded.  --[[buo]]
+
+> Ikiwiki calls `rcs_add()` if the page is new, followed by `rcs_commit()`.
+> For mercurial, these run respectively `hg add` and `hg commit`. If the
+> add or commit fails, it will print a warning to stderr, you might check
+> apache's error.log to see if there's anything there. --[[Joey]]
+
+>>The problem was using accented characters (é, í) on the change comments. I didn't have
+>>an UTF-8 locale enabled in my setup file. By coincidence this happened for the first time
+>>in a couple of consecutive blog posts, so I was mistaken about the root of the problem. I don't know if
+>>you will consider this behavior a bug, since it's strictly speaking a misconfiguration but it
+>>still causes ikiwiki's mercurial backend to fail. A quick note in the docs might be a good idea. For my part, please
+>>close this bug, and thanks for the help.  --[[buo]]
+
+>>> So, in a non-utf8 locale, mercurial fails to commit if the commit
+>>> message contains utf8? --[[Joey]]
+
+>>>> (Sorry for the delay, I was AFK for a while.) What I am seeing is this: in a non-utf8 locale, using mercurial "stand-alone" (no ikiwiki involved), mercurial fails to commit if the commit message has characters such as á. If the locale is utf8, mercurial works fine (this is with mercurial 1.0).
+
+>>>> However, the part that seems a bit wrong to me, is this: even if my locale is utf8, I have to explicitly set a utf8 locale in the wiki's setup file, or the commit fails. It looks like ikiwiki is not using this machine's default locale, which is utf8. Also, I'm not getting any errors on apache's error log.
+
+>>>> Wouldn't it make sense to use the machine's default locale if 'locale' is commented out in the setup file?
+
+>>>>> Ikiwiki wrappers only allow whitelisted environment variables
+>>>>> through, and the locale environment variables are not included
+>>>>> currently.
+>>>>>
+>>>>> But that's not the whole story, because "machine's default locale"
+>>>>> is not very well defined. For example, my laptop is a Debian system.
+>>>>> It has a locale setting in /etc/environment (`LANG="en_US.UTF-8"`).
+>>>>> But even if I start apache, making sure that LANG is set and exported
+>>>>> in the environment, CGI scripts apache runs do not see LANG in their 
+>>>>> environment. (I notice that `/etc/init.d/apache` explocitly
+>>>>> forces LANG=C. But CGI scripts don't see the C value either.)
+>>>>> Apache simply does not propigate its runtime environment to CGI
+>>>>> scripts, and this is probably to comply with the CGI specification
+>>>>> (although it doesn't seem to completly rule out CGI's being passed
+>>>>> other variables).
+>>>>>
+>>>>> If mercurial needs a utf-8 locale, I guess the mercurial plugin needs
+>>>>> to check if it's not in one, and do something sane (either fail
+>>>>> earlier, or complain, or strip utf-8 out of comments). --[[Joey]]

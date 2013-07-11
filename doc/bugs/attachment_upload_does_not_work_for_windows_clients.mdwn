@@ -1,0 +1,34 @@
+It seems as if windows clients (IE) submit filenames with backslash as directory separator.
+(no surprise :-).
+
+But the attachment plugin translates these backslashes to underscore, making the
+whole path a filename.
+
+> As far as I can see, that just means that the file will be saved with
+> a filename something like `c:__92__My_Documents__92__somefile`.
+> I don't see any "does not work" here. Error message?
+> 
+> Still, I don't mind adding a special case, though obviously not in
+> `basename`. [[done]] --[[Joey]] 
+
+>> Well, it's probably something else also, I get **bad attachment filename**.
+>> Now, that could really be a bad filename, problem is that it wasn't. I even
+>> tried applying the **wiki_file_prune_regexps** one by one to see what was
+>> causing it. No problem there. The strange thing is that the error shows up
+>> when using firefox on windows too. But the backslash hack fixes at least the
+>> incorrect filename from IE (firefox on windows gave me the correct filename.
+>> I'll do some more digging... :-)  /jh
+
+This little hack fixed the backslash problem, although I wonder if that
+really is the problem?
+(Everything works perfectly from linux clients of course. :-)
+
+	sub basename ($) {
+		my $file=shift;
+
+		$file=~s!.*/+!!;
+		$file=~s!.*\\+!!;
+		return $file;
+	}
+
+Should probably be `$file=~s!.*[/\\]+!!` :-)

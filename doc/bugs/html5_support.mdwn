@@ -1,0 +1,117 @@
+Some elements of
+[HTML5](http://www.whatwg.org/specs/web-apps/current-work/multipage/) can be
+safely supported by ikiwiki. There are [several differences between HTML4 and
+HTML5](http://www.w3.org/TR/html5-diff/).
+
+[[!template id=gitbranch branch=hendry/html5 author="[[Kai_Hendry|hendry]]"]]
+
+* [HTML5 branch](http://git.webconverger.org/?p=ikiwiki;h=refs/heads/html5)
+* [ikiwiki instance with HTML5 templates](http://natalian.org)
+* [HTML5 outliner tool](http://gsnedders.html5.org/outliner/) -- to check you have the structure of your markup correct
+
+> Kai, thanks enormously for working on this. I switched a page to 
+> the html5 doctype today, and was rather pleasently suprised that it
+> validated, except for the new Cache-Control meta tag. Now I see you're
+> well ahead of me. --[[Joey]] 
+> 
+> So, how should ikiwiki support html5? There are basically 3 approaches:
+> 
+> 1. Allow users to add html5 tags to their existing xhtml pages.
+>    What has been done so far, can be extended. Basically works 
+>    in browsers, if you don't care about standards. A good prerequisite
+>    for anything else, anyway.
+> 2. Have both a html5 and a xhtml mode, allow user to select.
+> 3. Switch to html5 in eg, ikiwiki 4; users have to deal with
+>    any custom markup on their pages/templates that breaks then.
+> 
+> The second option seems fairly tractable from what I see here and in 
+> your branch. You made only relatively minor changes to 10 templates.
+> It would probably not be too dreadful to put them in ifdefs. I've made a
+> small start at doing that.
+> 
+> I've made ikiwiki use the time element and all the new semantic elements
+> in html5 mode.
+> 
+> Other ideas:
+>  
+> * Use details tag instead of the javascript in the toggle plugin. 
+>   (Need to wait on browser support probably.)
+> * Use figure and figcaption for captions in img. However, I have not 
+>   managed to style it to look as good as the current table+caption
+>   approach.
+> 
+> --[[Joey]] 
+
+# htmlscrubber.pm needs to not scrub new HTML5 elements
+
+* [new elements](http://www.w3.org/TR/html5-diff/#new-elements)
+
+> Many added now.
+>
+> Things I left out, too hard to understand today:
+> Attributes contenteditable,
+> data-\*, draggable, role, aria-\*.
+> Tags command, keygen, output.
+> 
+> Clearly unsafe: embed.
+> 
+> Apparently cannot be used w/o javascript: menu.
+> 
+> I have not added the new `ping` attribute, because parsing a
+> space-separeated list of urls to avoid javascript injection is annoying, 
+> and the attribute seems generally dubious.
+>  --[[Joey]] 
+
+# HTML5 Validation and t/html.t
+
+[validator.nu](http://validator.nu/) is the authorative HTML5 validator,
+however it is almost impossible to sanely introduce as a build dependency
+because of its insane Java requirements. :( I test locally via
+[cURL](http://wiki.whatwg.org/wiki/IDE), though Debian packages cannot be built
+with a network dependency.
+
+In the future, hopefully ikiwiki can test for valid HTML5 using [Relax NG
+schema](http://syntax.whattf.org/) using a Debian package tool
+[rnv](http://packages.qa.debian.org/r/rnv.html).
+
+> Validation in the test suite is nice, but I am willing to lose those
+> tests for a while. --[[Joey]] 
+
+# HTML5 migration issues
+
+# [article](http://www.whatwg.org/specs/web-apps/current-work/multipage/semantics.html#the-article-element) element
+
+This element is poorly supported by browsers. As a workaround, `style.css` needs:
+
+	article {
+		display: block;
+	}
+
+Internet Explorer will display it as a block, though you can't seem to be able to further control the style.
+
+> done  (needed for header too) --[[Joey]] 
+
+## Time element
+
+The [time element](http://www.whatwg.org/specs/web-apps/current-work/multipage/text-level-semantics.html#the-time-element) ideally needs the datatime= attribute set by a template variable with what [HTML5 defines as a valid datetime string](http://www.whatwg.org/specs/web-apps/current-work/multipage/infrastructure.html#valid-global-date-and-time-string).
+
+As a workaround:
+
+	au:~% grep timeformat natalian.setup
+	timeformat => '%Y-%m-%d',
+
+> Also, the [[plugins/relativedate]] plugin needs to be updated to 
+> support relatatizing the contents of time elements. --[[Joey]] 
+
+> Done and done; in html5 mode it uses the time tag, and even 
+> adds pubdate when displaying ctimes. --[[Joey]]
+
+## tidy plugin
+
+Will reformat html5 to html4.
+
+----
+
+
+Ok, I consider this [[done]], at least as a first pass. Html5 mode
+is experimental, but complete enough. --[[Joey]] 

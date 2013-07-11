@@ -1,0 +1,55 @@
+To make ikiwiki publish world-readable files (usually what you want)
+regardless of your umask, you override the `umask` setting to 022
+octal (which is 18 in decimal). So far so good.
+
+However, because it's interpreted as a plain number in Perl, the
+way you set it varies between formats. In `IkiWiki::Setup::Standard`
+you can use either
+
+    umask => 022
+
+or (less obviously) one of
+
+    umask => 18
+    umask => "18"
+
+but if you use
+
+    umask => "022"
+
+you get the less than helpful umask of 026 octal (22 decimal).
+
+Similarly, in `IkiWiki::Setup::Yaml` (the default for
+[ikiwiki-hosting](http://ikiwiki-hosting.branchable.com/)
+you have to use one of
+
+    umask: 18
+    umask: "18"
+
+and if you try to say 022 you'll get 22 decimal = 026 octal.
+
+[[!tag patch]]
+[[!template id=gitbranch branch=smcv/umask-keywords author="[[smcv]]"]]
+
+Perhaps the best way to solve this would be to have keywords
+for the few values of `umask` that are actually useful?
+
+* `private` (= 077 octal = 63 decimal)
+* `group` (= 027 octal = 23 decimal)
+* `public` (= 022 octal = 18 decimal)
+
+I don't think g+w is a good idea in any case, because as
+documented on [[security]], if ikiwiki makes its `srcdir`
+group-writeable then any member of the group can "cause
+trouble" (escalate privileges to those of the wiki user?)
+via a symlink attack. So I don't think we need keywords
+for those.
+
+--[[smcv]]
+
+> I support this change, but your git repository does not seem to have
+> that branch (or anything) in it today. --[[Joey]]
+
+>> git pushes have a restrictive umask, ironically... fixed. --[[smcv]]
+
+>>> [[done]] --[[Joey]] 

@@ -1,0 +1,35 @@
+It may be that I'm simply misunderstanding something, but what is the rationale
+for having `tagged()` also match normal wikilinks?
+
+> It simply hasn't been implemented yet -- see the answer in
+> [[todo/tag_pagespec_function]]. Tags and wikilinks share the same
+> underlying implementation, although ab reasonable expectation is that
+> they are kept separate. --Ivan Z.
+
+The following situation.  I have `tagbase => 'tag'`.  On some pages, scattered
+over the whole wiki, I use `\[[!tag open_issue_gdb]]` to declare that this page
+contains information about an open issue with GDB.  Then, I have a page
+`/tag/open_issues_gdb.mdwn` that essentially contains `\[[!map
+pages="tagged(open_issue_gdb)"]]`.  So far, so good: this page indeed does list
+all pages that are tagged like this.  But now, when I add in `/gdb.mdwn` a link
+to this page, like `\[[Open Issues|tag/open_issue_gdb]]`, then `/gdb.mdwn`
+itself shows up in the map on `tag/open_issues_gdb.mdwn`.  In my understanding
+this is due to the wikilink being equal to a `\[[!tag ...]]`.  What's the
+rationale on this, or what am I doing wrong, and how to achieve what I want?
+
+--[[tschwinge]]
+
+> What you are doing "wrong" is putting non-tag pages (i.e.
+> `/tag/open_issues_gdb.mdwn`) under your tagbase. The rationale for
+> implementing tag as it has been, I think, is one of simplicity and
+> conciseness. -- [[Jon]]
+
+>> No, he has no pages under tagbase that aren't tags. This bug
+>> is valid. [[todo/matching_different_kinds_of_links]] is probably
+>> how it will eventually be solved. --[[Joey]] 
+
+>>> [[Done]]: `tagged` no longer matches other wikilinks. --[[smcv]]
+
+> And this is an illustration why a clean work-around (without changing the software) is not possible: while thinking about [[todo/matching_different_kinds_of_links]], I thought one could work around the problem by simply explicitly including the kind of the relation into the link target (like the tagbase in tags), and by having a separate page without the "tagbase" to link to when one wants simply to refer to the tag without tagging. But this won't work: one has to at least once refer to the real tag page if one wants to talk about it, and this reference will count as tagging (unwanted). --Ivan Z.
+
+> But well, perhaps there is a workaround without introducing different kinds of links. One could modify the [[tag plugin|plugins/tag]] so that it adds 2 links to a page: for tagging -- `tagbase/TAG`, and for navigation -- `tagdescription/TAG` (displayed at the bottom). Then the `tagdescription/TAG` page would hold whatever list one wishes (with `tagged(TAG)` in the pagespec), and whenever one wants to merely refer to the tag, one should link to `tagdescription/TAG`--this link won't count as tagging. So, `tagbase/TAG` would become completely auxiliary (internal) link targets for ikiwiki, the users would edit or link to only `tagdescription/TAG`. --Ivan Z.

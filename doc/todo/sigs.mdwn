@@ -1,0 +1,25 @@
+Need a way to sign name in page that's easier to type than "--\[[Joey]]"
+and that includes the date.
+
+What syntax do other wikis use for this? I'm considering "\[[--]]"
+as it has a nice nmemonic.
+
+OTOH, adding additional syntax for this would be counter to one of the
+design goals for ikiwiki: keeping as much markup as possible out of the
+wiki and not adding nonstandard markup. And it's not significantly hard to
+type "--\[[Joey]]", and as to the date, we do have page history.
+
+I'm also unsure how to possibly implement this. Seems ikiwiki would need to
+expand the rune to the user's name when a page is saved, but that leaves
+out svn commits.
+
+---
+
+Or, just make a sig plugin that expands `~~~~` and `~~~` as wikipedia does.
+The plugin could be an editcontent hook, so it would take effect only when a
+page was edited via the web.
+
+I tried implementing this, but to make the link to the user, I wanted to
+use `userlink()`, which generates html. But the right thing to generate is
+really a wikilink. Except for openid, when the best thing to generate is a
+markdown link. Except when the page isn't formatted in markdown..

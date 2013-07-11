@@ -1,0 +1,62 @@
+I'm using the [[map_directive|ikiwiki/directive/map]] to build dynamic navigation menus, and it's working really nicely!
+
+However on some pages, each nested item each get wrapped in a full set of `<ul>` tags.  This doesn't actually hurt anything, but it's does it inconsistently which seems like a bug.  I don't like it because it puts extra vertical spacing into my menu bar.
+
+Here's what I expect it to look like:
+
+    <div class="map">
+    <ul> 
+        <li><span class="selflink">Archives</span>
+            <ul>
+                <li><a href="./2010/" class="mapitem">2010</a></li>
+                <li><a href="./2011/" class="mapitem">2011</a></li>
+            </ul>
+        </li>
+    </ul>
+    </div>
+
+And here's what it's actually doing:
+
+    <div class="map">
+    <ul> 
+        <li><span class="selflink">Archives</span>
+            <ul>
+                <li><a href="./2010/" class="mapitem">2010</a></li>
+            </ul>
+            <ul>
+                <li><a href="./2011/" class="mapitem">2011</a></li>
+            </ul>
+        </li>
+    </ul>
+    </div>
+
+I've tried to replicate the problem on this site and cannot, I'm not sure if that's because of exactly how I'm using map or if there's something different with my site.  I just upgraded ikiwiki to the latest Debian unstable as well as most of the required Perl modules and nothing changed.  
+
+If you look at [this page on my site](http://adam.shand.net/ikidev/archives/) (getsource is enabled) you can see it working as expected in the main page and not working in the side bar. 
+
+But it also doesn't work on the sitemap page: <http://adam.shand.net/ikidev/site/map/>
+
+This might be really simple, but I've been staring at it too long and it only looks like a bug to me. :-(   Any suggestions would be gratefully accepted. -- [[AdamShand]]
+
+> Okay, I think I've figured this out, it looks like ikiwiki behaves differently depending on the level of heirarchy.  I'll post the details once I'm sure.  -- [[AdamShand]]
+
+>> I managed to replicate the issue on my ikiwiki, and I believe it is a
+>> bug. The current upstream logic for going up/down by a level opens
+>> (and closes) the unnecessary lists that you are seeing. Although the
+>> resulting markup is semantically correct, it has superflous stuff
+>> that introduces whitespace issues at the very least.
+
+>> I have a [[patch]] up [on my git repo](http://git.oblomov.eu/ikiwiki/patch/55fa11e8a5fb351f9371533c758d8bd3eb9de245)
+>> that ought to fix the issue.
+
+>>> Wonderful, thank you very much for the help!  I've installed the patch and it's working great, but it looks like there a minor bug.  Sometimes it doesn't print the top/first map item.  Cheers, -- [[AdamShand]]
+>>>
+>>> <http://adam.shand.net/tmp/map-orig.jpg>   
+>>> <http://adam.shand.net/tmp/map-patched.jpg>   
+
+>>>> Thanks for testing. I managed to reproduce it and I adjusted the logic.
+>>>> An updated [[patch]] can be found [here](http://git.oblomov.eu/ikiwiki/patch/dcfb18b7989a9912ed9489f5ff15f871b6d8c24a)
+
+>>>>> Seems to work perfectly to me, thanks! -- [[AdamShand]]
+
+[[applied|done]] --[[Joey]] 

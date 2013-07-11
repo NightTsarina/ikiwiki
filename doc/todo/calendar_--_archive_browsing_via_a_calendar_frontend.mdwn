@@ -1,0 +1,124 @@
+I am serving notice that I am starting work on a calendar plugin inspired by Blosxom's calendar plugin. The current plan is to create a plugin that looks through all the source files matching a certain pagespec, and optionally spit out a month view for the specified month (default to current), or spit out a year view for a given year (defaulting to the current year), of a list  of year with posts in them. The output would be a table, with the same CSS directives that the Blosxom plugin used to use (so that I can just reuse my css file).  The links would be created to a $config{archivedir}/$year or $config{archivedir}/$year-$month file, which can just have 
+
+     \[[!inline pages="blog/* and !*/Discussion and creation_year($year) and creation_month($month)" rss="no" atom="no" show="0"]]
+
+or some thing to generate a archive of postings. 
+
+Roland Mas suggested a separate cron job to generate these archive indices automatically, but that is another thread.
+
+ManojSrivastava
+
+This plugin is inspired by the calendar plugin for Blosxom, but derivesno code from it. This plugin is essentially a fancy front end to archives of previous pages, usually used for blogs. It can produce a calendar for a given month, or a list of months for a given year. To invoke the calendar, just use the preprocessor directive:
+
+     \[[!calendar ]]
+
+or
+
+      \[[!calendar type="month" pages="blog/* and !*/Discussion"]]
+
+or
+
+       \[[!calendar type="year"  year="2005" pages="blog/* and !*/Discussion"]]
+
+
+The year and month entities in the out put have links to archive index pages, which are supposed to exist already. The idea is to create an archives hierarchy, rooted in the subdirectory specified in the site-wide customization variable, archivebase. archivebase defaults to "archives".  Links are created to pages "$archivebase/$year" and "$archivebase/$year/$month". The idea is to create annual and monthly indices, for example, by using something like this sample from my archives/2006/01.mdwn 
+
+          \[[!meta title="Archives for 2006/01"]]
+          \[[!inline rootpage="blog" atom="no" rss="no" show="0" pages="blog/* and !*/Discussion and creation_year(2006) and creation_month(01)" ]]
+
+I'll send in the patch via email.
+
+ManojSrivastava
+
+------
+
+Since this is a little bit er, stalled, I'll post here the stuff Manoj
+mailed me, and my response to it. --[[Joey]]
+
+> > I'm sending in an updated package, and have removed the older version you had here.--ManojSrivastava
+
+
+[[!tag patch]]
+
+----
+
+'ve been looking over the calendar plugin. Some items:
+
+* Why did you need to use a two-stage generation with a format hook?
+  That approach should only be needed if adding something to a page that
+  would be removed by the htmlscrubber, and as far as I can tell, the
+  calendars don't involve anything that would be a problem. It seems
+  that emitting the whole calendar in the preprocess hook would simplify
+  things and you'd not need to save state about calendars.
+
+> I am scared of the html scrubber, and have never turned it on,
+>        and did not look too deeply into what would be scrubbed out --ManojSrivastava
+>> Unless you're using javascript, a few annoyances link <blink>, or inline
+>> css, it's unlikly to object to any html you might write. The list of
+>> allowed tags and attributes is easy to find near the top of the plugin.
+
+> In case the option that gets the ctime of the pages from the
+> SCM itself, %IkiWiki::pagectime  is not populated that early,
+> is it? So I waited until the last possible moment to look at
+> the time information.
+>
+>> Actually, since my big rewrite of the rendering path a few months ago,
+>> ikiwiki scans and populates almost all page information before starting
+>> to render any page. This includes %pagectime, and even %links. So you
+>> shouldn't need to worry about running it late.
+
+* The way that it defaults to the current year and current month
+  is a little bit tricky, because of course the wiki might not get
+  updated in a particular time period, and even if it is updated, only
+  iff a page containing a calendar is rebuilt for some other reason will
+  the calendar get updated, and change what year or month it shows. This
+  is essentially the same problem described in
+  [[todo/tagging_with_a_publication_date]],
+  although I don't think it will affect the calendar plugin very badly.
+  Still, the docs probably need to be clear about this.
+
+> I use it on the sidebar; and the blog pages are almost always
+> rebuilt, which is where the calendar is  looked at most often. Oh,
+> and I also cheat, I have ikiwiki  --setup foo as a @daily cronjob, so
+> my wiki is always built daily from scratch.
+> 
+> I think it should be mentioned, yes.
+
+* There seems to be something a bit wrong with the year-to-year
+  navigation in the calendar, based on the example in your blog. If I'm
+  on the page for 2006, there's an arrow pointing left which takes me to
+  2005. If I'm on 2005, the arrow points left, but goes to 2006, not
+  2004.
+
+> I need to look into this.
+
+* AIUI, the archivebase setting makes a directory rooted at the top of
+  the wiki, so you can have only one set of archives per wiki, in
+  /archives/. It would be good if it were possible to have multiple
+  archived for different blogs in the same wiki at multiple locations.
+  Though since the archives contain calendars, the archive location
+  can't just be relative to the page with the calendar. But perhaps
+  archivebase could be a configurable parameter that can be specified in
+  the directive for the calendar? (It would be fine to keep the global
+  location as a default.)
+
+> OK, this is simple enough to implement. I'll do that (well,
+> perhaps not before Xmas, I have a family dinner to cook) and send in
+> another patch.
+
+
+----
+And that's all I've heard so far. Hoping I didn't miss another patch?
+
+--[[Joey]]
+
+>No, you did not.  But I am back to hacking on this, and I think I have discovered a major problem with my approach. One of the problems with the current plugin is that the goal of a calendar is to create a calendar, either a month >or year based on,  that provides links to blogs for all the days in (for the month calendar), and all the months (in a year calendar) in which there have been blog postings. For the monthly calendar, it needs to know the  previous >and next months where there is a posting, and  for the year calendar, it needs to know  which of the previous (next) years had entries.
+
+>Now, this means that it needs to know about at _all_ pages that meet the pagespec, and stash that information, before it begins generating the calandar in question, in order to calculate how to create the symlinks. And, of >course, all pages that have calendars on them might need to change anytime a page that meets the pagespec is added; and again at midnight, when the current day changes.
+
+>> I think I have solved the ""Need to look at all pages that match the spec"" issue; but the nightly rebuild to handle the current day changing still remain. I use cron. It is now, however, richly documented :)
+
+
+--ManojSrivastava
+
+> Finally reviewed and applied this. [[done]]! --[[Joey]]

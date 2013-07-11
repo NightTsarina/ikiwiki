@@ -1,0 +1,115 @@
+I can't add any attachment to my wiki. When I select file using "Browse"
+button and click "Upload Attachment", then `ikiwiki.cgi` file displays
+the error message like below:
+
+    Błąd: failed to get filehandle
+
+> Can you do some debugging? If you edit attachment.pm line 136, to print
+> out what it did get, and show me what that yields, maybe I can figure
+> this out.
+
+	error("failed to get filehandle ($fh)");
+
+>> Sure. I've done the change and it seems that $fh variable is undefined:
+
+>>     Use of uninitialized value in concatenation (.) or string at /usr/share/perl5/IkiWiki/Plugin/attachment.pm line 135.
+>>     failed to get filehandle ()
+
+> Also, what web server and version of perl is this? --[[Joey]]
+
+>> It's Apache2 2.2.8-1ubuntu0.3 and Perl 5.8.8-12 from Ubuntu Hardy. --[[Paweł|ptecza]]
+
+>>> Hmm, is your CGI.pm perhaps creating the attachment temp file, but
+>>> not providing an open filehandle to it via the `upload` method?
+>>> Change the debugging line to this: --[[Joey]]
+
+	error("failed to get filehandle:$fh ; file:$filename ; is ref:".ref($q->param('attachment')));
+
+>>>> Now my Ikiwiki returns:
+
+>>>>     failed to get filehandle: ; file:sandbox/test.txt ; is ref:
+
+>>>> Is it helpful for you? --[[Paweł|ptecza]]
+
+>>>>> Yes, this suggests that CGI.pm's `upload` function is not working,
+>>>>> but that it *is* returning a filehandle pointing at the attachment
+>>>>> using the old method. Hmm, so I'll bet you have a CGI.pm version
+>>>>> older than 2.47. Can you find your system's CGI.pm and grep for
+>>>>> "VERSION" in it to determine the version? I checked debian stable.
+>>>>> and its perl 5.8.8 has version 3.15, so is not affected, I think.
+
+>>>>>> I have CGI.pm 3.15 too: 
+
+>>>>>>     $ grep VERSION= /usr/share/perl/5.8.8/CGI.pm
+>>>>>>     $CGI::VERSION='3.15';
+
+>>>>> I've just checked in a fix that should work, can you test it?
+>>>>> 71f10579c00a8ddc20ada1a1efd33aac25a3da7e --[[Joey]]
+
+>>>>>> I've patched `attachment.pm` module, but the bug still occurs.
+>>>>>> However I can see a little progress. I changed invoking `error()`
+>>>>>> subroutine like you showed me before and now Ikiwiki prints
+
+>>>>>>     failed to get filehandle:test.txt ; file:sandbox/test.txt ; is ref:
+
+>>>>>> --[[Paweł|ptecza]]
+
+>>>>>>> Well then, your CGI.pm is somehow not behaving as its documentation
+>>>>>>> describes, in two ways:
+>>>>>>> 1. `upload()` is not returning a reference to the filehandle
+>>>>>>> 2. The filename returned by `param("attachment")` is not also
+>>>>>>>    a file handle.
+>>>>>>> That seems very broken. I can try to work around it some more
+>>>>>>> though. I've checked in a second try at dealing with things, can
+>>>>>>> you try it? --[[Joey]]
+
+>>>>>>>> Do you mean that 66f35e30dcea03c631a293e2341771277543b4ae?
+>>>>>>>> If so, then it causes "Internal Server Error" for me:
+
+>>>>>>>>     Can't use string ("test.txt") as a symbol ref while "strict refs" in use at /usr/share/perl5/IkiWiki/Plugin/attachment.pm line 144.
+
+>>>>>>>> I can rebuild Debian stable source package with CGI for Perl. Maybe it will help me? What do you think? --[[Paweł|ptecza]]
+
+>>>>>>>>> Silly thinko on my part, fixed that in git.. --[[Joey]]
+
+>>>>>>>>>> Thanks for the fix, Joey! Now CGI doesn't fails, but still no success with attaching file:
+
+>>>>>>>>>>     failed to open : No such file or directory
+
+>>>>>>>>>> Do you have any another idea how to resolve that problem? I can try with rebuilding
+>>>>>>>>>> package `perl-modules` if it's necessary in that situation. --[[Paweł|ptecza]]
+
+>>>>>>>>>>> If CGI.pm is not creating a temp file, not providing a
+>>>>>>>>>>> filehandle by either of its documented methods, then it's just
+>>>>>>>>>>> broken; ikiwiki can't deal with that level of brokennecess.
+>>>>>>>>>>> I need to find out if this affects stable in general, or just
+>>>>>>>>>>> you/ubuntu. --[[Joey]]
+
+>>>>>>>>>>>> Same thing on FreeBSD using CGI.pm 3.15. Looks like $self->{'.tmpfiles'} in CGI.pm
+>>>>>>>>>>>> is not populated with the information about the uploaded file, causing tmpFileName()
+>>>>>>>>>>>> to return '' (unloadInfo(), which uses the same lookup method fails in the same manner),
+>>>>>>>>>>>> but I have yet to find out why this happens. --[[HenrikBrixAndersen]]
+
+The same message I can see in the Apache log file. There is also
+following warning:
+
+    Use of uninitialized value in length at /usr/share/perl5/IkiWiki/Plugin/attachment.pm line 36.
+
+> This is unrelated, I've fixed the warning message. --[[Joey]]
+
+Is it Ikiwiki bug or my attachment plugin is misconfigured? --[[Paweł|ptecza]]
+
+> I've reproduced the bug, and it does seem to be a bug with the perl in
+> debian stable/ubuntu hardy. Trying to figure it out --[[Joey]]
+
+> This was amazingly disgusting, see commit message for the full horror of
+> the details. I think it's [[done]] -- at least it works on debian stable
+> now. --[[Joey]]
+
+>> Wow! It's probably the biggest Ikiwiki commit message I've ever seen :)
+
+>> Yes, I can confirm that now the plugin works for me and I'm able to add
+>> attachments to my wiki. Yupiii! :D
+>> Thanks a lot, Joey! You're really great! :) --[[Paweł|ptecza]]
+
+>> Thank you very much for your effort, Joey! :) --[[Paweł|ptecza]]

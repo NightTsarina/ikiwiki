@@ -1,0 +1,60 @@
+The `calendar` directive is supplied by the [[!iki plugins/calendar desc=calendar]] plugin.
+
+This directive displays a calendar, similar to the typical calendars shown on
+some blogs.
+
+# examples
+
+	\[[!calendar ]]
+
+	\[[!calendar type="month" pages="blog/* and !*/Discussion"]]
+
+	\[[!calendar type="year" year="2005" pages="blog/* and !*/Discussion"]]
+
+## setup
+
+The calendar is essentially a fancy front end to archives of previous
+pages, usually used for blogs. It can produce a calendar for a given month,
+or a list of months for a given year. The month format calendar simply
+links to any page posted on each day of the month. The year format calendar
+links to archive pages, with names like `archives/2007` (for all of 2007)
+and `archives/2007/01` (for January, 2007).
+
+While you can insert calendar directives anywhere on your wiki, including
+in the sidebar, you'll also need to create these archive pages. They
+typically use this directive to display a calendar, and also use [[inline]]
+to display or list pages created in the given time frame.
+
+The `ikiwiki-calendar` command can be used to automatically generate the
+archive pages. It also refreshes the wiki, updating the calendars to
+highlight the current day. This command is typically run at midnight from
+cron.
+
+An example crontab:
+
+	0 0 * * * ikiwiki-calendar ~/ikiwiki.setup "posts/* and !*/Discussion"
+
+## usage
+
+* `type` - Used to specify the type of calendar wanted. Can be one of
+  "month" or "year". The default is a month view calendar.
+* `pages` - Specifies the [[ikiwiki/PageSpec]] of pages to link to from the
+  month calendar. Defaults to "*".
+* `archivebase` - Configures the base of the archives hierarchy. 
+  The default is "archives". Note that this default can also be overridden
+  for the whole wiki by setting `archivebase` in ikiwiki's setup file.
+  Calendars link to pages under here, with names like "2010/04" and
+  "2010". These pages can be automatically created using the
+  `ikiwiki-calendar` program. 
+* `year` - The year for which the calendar is requested. Defaults to the
+  current year. Can also use -1 to refer to last year, and so on.
+* `month` - The numeric month for which the calendar is requested, in the
+  range 1..12. Used only for the month view calendar, and defaults to the
+  current month. Can also use -1 to refer to last month, and so on.
+* `week_start_day` - A number, in the range 0..6, which represents the day
+  of the week that the month calendar starts with. 0 is Sunday, 1 is Monday,
+  and so on. Defaults to 0, which is Sunday.
+* `months_per_row` - In the year calendar, number of months to place in
+  each row. Defaults to 3.
+
+[[!meta robots="noindex, follow"]]

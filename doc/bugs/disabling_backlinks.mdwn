@@ -1,0 +1,32 @@
+I have tried `--numbacklinks 0` on ikiwiki commandline, but I still get backlinks.  The man page says:
+
+    --numbacklinks n
+        Controls how many backlinks should be displayed maximum. 
+        Excess backlinks will be hidden in a popup. 
+        Default is 10. Set to 0 to disable this feature.
+
+My first reading (and second and third) of this was that backlinks would be disabled entirely if I set numbacklinks=0, but now that I look again, I see the possibility that it is just controlling how many may be displayed before moving excess to a popup. If this is in fact how it is meant, I'll just get rid of the backlinks via the page template. Is this the case, that numbacklinks controls the popup, rather than backlinks in general?
+
+--[[KarlMW]]
+
+> Yes, it only controls the number of backlinks that are shown at the
+> bottom of the page vs how many are moved to the popup. I've tried to
+> improve the documentation for this. [[done]] --[[Joey]]
+
+
+I notice that there is quite a bit of redundancy when both tags and
+backlinks are used extensively. On most pages, the set of links features in
+both categories is almost identical because a tag's index page is shown
+both as a tag link and as a backlink. Is there a way to improve that
+situation somehow? I realise that backlinks aren't generated when the tag
+index page refers to its contents by \[\[!map ...]], etc., but sometimes an
+auto-generated index is insufficient.
+
+ --Peter
+
+> Um, if you're manually linking from the tag's page to each page so
+> tagged, I think you have larger problems than tags and backlinks being
+> the same. Like keeping that list of links up to date as tags are added
+> and changed. --[[Joey]]
+
+I see your point, Joey. I need to maintain that list manually, though, because the automatically generated list is too brief. \[[!map ...]] generates just a list of titles or descriptions. I need a list that contains both. See [[this_posting|ikiwiki/directive/map/discussion]] for more details. Until \[[!map]] can do that, I'm stuck with a manually maintained list. Which means that every link shows up in the backlinks.

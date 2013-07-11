@@ -1,0 +1,120 @@
+`add_autofile` is a generic version of [[plugins/autoindex]]'s code,
+so the latter should probably use the former. --[[smcv]]
+
+> [[merged|done]] --[[Joey]] 
+
+----
+
+[[!template id=gitbranch branch=smcv/ready/autoindex-autofile author="[[smcv]]"]]
+
+I'm having trouble fixing this:
+
+	# FIXME: some of this is probably redundant with add_autofile now, and
+	# the rest should perhaps be added to the autofile machinery
+
+By "a generic version of" above, it seems I mean "almost, but not
+quite, entirely unlike".
+
+> As long as it's not Tea. ;) --[[Joey]] 
+
+I tried digging through the git history for the
+reasoning behind the autofile and autoindex implementations, but now I'm
+mostly confused.
+
+## autofile
+
+The autofile machinery records a list of every file that has ever been proposed
+as an autofile: for instance, the tag plugin has a list of every tag that
+has ever been named in a \[[!tag]] or \[[!taglink]], even if no file was
+actually needed (e.g. because it already existed). Checks for files that
+already exist (or whatever) are deferred until after this list has been
+updated, and files in this list are never auto-created again unless the wiki
+is rebuilt.
+
+This avoids re-creating the tag `create-del` in this situation, which is
+the third one that I noted on
+[[todo/auto-create tag pages according to a template]]:
+
+* create tags/create-del manually
+* tag a page as create-del
+* delete tags/create-del
+
+and also avoids re-creating `auto-del` in this similar situation (which I
+think is probably the most important one to get right):
+
+* tag a page as auto-del, which is created automatically
+* delete tags/auto-del
+
+I think both of these are desirable.
+
+However, this infrastructure also results in the tag page not being
+re-created in either of these situations (the first and second that I noted
+on the other page):
+
+* tag a page as auto-del-create-del, which is created automatically
+* delete tags/auto-del-create-del
+* create tags/auto-del-create-del manually
+* delete tags/auto-del-create-del again
+
+or
+
+* create tags/create-del-auto
+* delete tags/create-del-auto
+* tag a page as create-del-auto
+
+I'm less sure that these shouldn't create the tag page: we deleted the
+manually-created version, but that doesn't necessarily mean we don't want
+*something* to exist.
+
+> That could be argued, but it's a very DWIM thing. Probably best to keep
+> the behavior simple and predictable, so one only needs to remember that
+> when a page is deleted, nothing will ever re-create it behind ones back.
+> --[[Joey]]
+
+>> Fair enough, I'll make autoindex do that. --s
+
+## autoindex
+
+The autoindex machinery records a more complex set. Items are added to the
+set when they are deleted, but would otherwise have been added as an autoindex
+(don't exist, do have children (by which I mean subpages or attachments),
+and are a directory in the srcdir). They're removed if this particular run
+wouldn't have added them as an autoindex (they exist, or don't have children).
+
+Here's what happens in situations mirroring those above.
+
+The "create-del" case still doesn't create the page:
+
+* create create-del manually
+* create create-del/child
+* delete create-del
+* it's added to `%deleted` and not re-created
+
+Neither does the "auto-del" case:
+
+* create auto-del/child, resulting in auto-del being created automatically
+* delete auto-del
+* it's added to `%deleted` and not re-created
+
+However, unlike the generic autofile infrastructure, `autoindex` forgets
+that it shouldn't re-create the deleted page in the latter two situations:
+
+* create auto-del-create-del/child, resulting in auto-del-create-del being
+    created automatically
+* delete auto-del-create-del; it's added to `%deleted` and not re-created
+* create auto-del-create-del manually; it's removed from `%deleted`
+* delete auto-del-create-del again (it's re-created)
+
+and
+
+* create create-del-auto
+* delete create-del-auto; it's not added to `%deleted` because there's no
+    child that would cause it to exist
+* create create-del-auto/child
+
+> I doubt there is any good reason for this behavior. These are probably
+> bugs. --[[Joey]] 
+
+>> OK, I believe my updated branch gives `autoindex` the same behaviour
+>> as auto-creation of tags. The `auto-del-create-del` and
+>> `create-del-auto` use cases work the same as for tags on my demo wiki. --s

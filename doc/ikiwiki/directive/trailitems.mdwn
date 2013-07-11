@@ -1,0 +1,25 @@
+The `trailitems` directive is supplied by the
+[[!iki plugins/trail desc=trail]] plugin. It adds pages
+to the trail represented by the current page, without producing any output
+on that page.
+
+    \[[!trailitems pages="posts/*" sort="age"]]
+
+    \[[!trailitems pagenames="a b c"]]
+
+Options are similar to [[!iki ikiwiki/directive/inline desc=inline]]:
+
+* `pages`: adds pages that match a [[ikiwiki/PageSpec]] to the trail
+  (cannot be used with `pagenames`)
+
+* `pagenames`: if used instead of `pages`, this is interpreted as a
+  space-separated list of absolute page names
+  ([[SubPage/LinkingRules]] are not taken into account)
+  to add to the trail
+
+* `sort`: add the pages matched by `pages` to the trail in this
+  [[ikiwiki/pagespec/sorting]] order (cannot be used with `pagenames`)
+
+* `reverse`: reverse the order of `sort` (cannot be used with `pagenames`)
+
+[[!meta robots="noindex, follow"]]

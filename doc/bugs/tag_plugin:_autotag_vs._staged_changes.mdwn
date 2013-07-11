@@ -1,0 +1,17 @@
+The autotag functionality of the tag plugin committed (when doing its
+first commit) all changes that have been staged (in Git).  I suggest it
+should be restricted to the specific file only.  --[[tschwinge]]
+
+> This is not specific to the tag plugin. Same can happen
+> if you rename a file, or post a comment, or remove a file
+> via web interface. All of these use `rcs_commit_staged`.
+> 
+> This is why ikiwiki is supposed to have a checkout of 
+> the repository that it uses for its own purposes, and nobody else
+> should mess with. There are various notes about that being needed here
+> and there; you're free to not give ikiwiki its own repo, but you have to
+> be aware that it can fight with you if you're making changes to the same
+> repo. [[done]] --[[Joey]] 
+
+>> Ack, that is reasonable.  (And it's only been a very minor problem
+>> during manual testing.)  --[[tschwinge]]

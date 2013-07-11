@@ -1,0 +1,115 @@
+[[!template id=gitbranch branch=wtk/raw_inline author="[[wtk]]"]]
+
+summary
+=======
+
+Extend inlining to handle raw files (files with unrecognized extensions).
+
+Also raise an error in `IkiWiki::pagetype($file)` if `$file` is blank, which avoids trying to do much with missing files, etc.
+
+I'm using the new code in my [blog][].
+
+[blog]: http://blog.tremily.us/posts/yacc2dot/
+
+usage
+=====
+
+    \[[!inline pagenames="somefile.txt" template="raw" feeds="no"]]
+
+
+> But inline already supports raw files in two ways:
+> 
+> * setting raw=yes will cause a page to be inlined raw without
+>   using any template, as if it were part of the page at the location
+>   of the inline
+> * otherwise, the file becomes an enclosure in the rss feed, for use with
+>    podcasting.
+> 
+> So I don't see the point of your patch. Although since your text
+> editor seems to like to make lots of whitespace changes, it's possible
+> I missed something in the large quantity of noise introduced by it.
+> --[[Joey]]
+
+>> As I understand it, setting `raw=yes` causes the page to be inlined
+>> as if the page contents had appeared in place of the directive.  The
+>> content is then processed by whatever `htmlize()` applies to the
+>> inlining page.  I want the inlined page to be unprocessed, and
+>> wrapped in `<pre><code>...</code></pre>` (as they are on the blog
+>> post I link to above).
+>>
+>> Enclosures do not include the page contents at all, just a link to
+>> them.  I'm trying to inline the content so I can comment on it from
+>> the inlining page.
+>>
+>> Apologies for my cluttered version history, I should have branched my
+>> earlier changes off to make things clearer.  I tried to isolate my
+>> whitespace changes (fixes?) in c9ae012d245154c3374d155958fcb0b60fda57ce.
+>> 157389355d01224b2d3c3f6e4c1eb42a20ec8a90 should hold all the content
+>> changes.
+>>
+>> A list of other things globbed into my master branch that should have
+>> been separate branches:
+>>
+>> * Make it easy to select a Markdown executable for mdwn.pm.
+>> * Included an updated form of
+>>   [[Javier Rojas' linktoimgonly.pm|forum/link_to_an_image_inside_the_wiki_without_inlining_it]].
+>> * Included an updated form of
+>>   [Jason Blevins' mdwn_itex.pm](http://jblevins.org/git/ikiwiki/plugins.git/plain/mdwn_itex.pm).
+>> * Assorted minor documentation changes.
+>>
+>> --[[wtk]]
+
+>>> I haven't heard anything in a while, so I've reorganized my version
+>>> history and rebased it on the current ikiwiki head.  Perhaps now it
+>>> will be easier to merge or reject.  Note the new branch name:
+>>> `raw_inline`. I'll open separate todo items for items mentioned in my
+>>> previous comment. --[[wtk]]
+
+---- 
+
+Reviewing your patch the first thing I see is this:
+
+<pre>
++        if (! $file) {
++               error("Missing file.");
++        }
+</pre>
+
+This fails if the filename is "0". Also, `pagetype()`
+currently cannot fail; allowing it to crash the entire
+wiki build if the filename is somehow undefined seems
+unwise.
+
+I didn't look much further, because it seems to me what you're trying to do
+can be better accomplished by using the highlight plugin. Assuming the raw
+file you want to inline and comment on is some source-code-like thing,
+which seems likely.
+
+Or, another way to do it would be to use the templates plugin, and make
+a template there that puts an inline directive inside pre tags.
+ --[[Joey]] [[!tag reviewed]]
+
+----
+
+If `pagetype()` cannot fail, then I suppose that check has to go ;).
+
+I was under the impression that [[plugins/highlight]] didn't support
+inlining code.  It looks like it supports highlighing stand-alone
+files or embedded code.  Perhaps I should extend it to support inlined
+code instead of pushing this patch?
+
+> If you configure highlight to support standalone files, then you can
+> inline the resulting pages and get nicely highlighted source code
+> inlined into the page. --[[Joey]]
+
+The `raw.tmpl` included in the patch *does* include the inlined
+content inside `pre` tags.  The problem is that the current inline
+code insists on running `htmlize()` on the content before inserting it
+in the template.  The heart of my patch is an altered
+`get_inline_content()` that makes the `htmlize()` call dependent on a
+`$read_raw` flag.  If the flag is set, the raw (non-htmlized) content
+is used instead.
+
+I just rebased my patches against the current Ikiwiki trunk (no major
+changes) to make them easier to review.
+ --[[wtk]]

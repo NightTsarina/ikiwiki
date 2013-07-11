@@ -1,0 +1,10 @@
+I upgraded my Debian server from 5 to 6, then I updated ikiwiki. Now I can't rebuild my Ikiwiki instance:
+
+    $ ikiwiki --setup ./pages.setup
+    Failed to load plugin IkiWiki::Plugin::scrubber: Can't locate IkiWiki/Plugin/scrubber.pm in @INC (@INC contains: /home/xyzfoobar/devel/ikiwiki/lib     /etc/perl /usr/local/lib/perl/5.10.1 /usr/local/share/perl/5.10.1 /usr/lib/perl5 /usr/share/perl5 /usr/lib/perl/5.10 /usr/share/perl/5.10 /usr/local/lib/site_perl .) at (eval 77) line 2.
+    BEGIN failed--compilation aborted at (eval 77) line 2.
+
+    $ ikiwiki --version
+    ikiwiki version 3.20100815.7
+
+What's the proper way to fix this?

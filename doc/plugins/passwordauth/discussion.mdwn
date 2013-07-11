@@ -1,0 +1,151 @@
+It's a bit inconvenient that one also has to type in the
+*Login - Confirm Password* if one only wants to change
+the *Preferences -- Subscriptions*.  --[[tschwinge]]
+
+> You don't. The password fields on the preferences fields are only needed
+> if you want to change your password and should otherwise be left blank.
+> --[[Joey]]
+
+>> Aha, then the problem is Firefox, which is automatically filling the
+>> *Password* field with its previous value, but not filling the
+>> *Confirm Password* one.  --[[tschwinge]]
+
+## easy access to the userdb for apache auth?
+
+My use case is:
+
+* restricted ikiwiki
+* read/edit only allowed from the local network (done with apache restrictions)
+* edit only for people authenticated (done with vanilla ikiwiki passwordauth)
+
+I would like to allow people to read/edit the wiki from outside of the
+local network, if and only if they already have an ikiwiki account.
+
+[[httpauth]] doesn't fit since it doesn't allow anonymous local users
+to create their own account. I want a single, local, simple auth
+database.
+
+My (naïve?) idea would be:
+
+* keep the [[passwordauth]] system
+* provide a way for Apache to use the userdb for authentication if
+people want to connect from outside
+
+I looked at the various auth modules for apache2. It seems that none
+can use a "perl Storable data" file. So, I think some solutions could
+be:
+
+* use a sqlite database instead of a perl Storable file
+  * can be used with
+    [mod_auth_dbd](http://httpd.apache.org/docs/2.2/mod/mod_authn_dbd.html) 
+  * requires a change in ikiwiki module [[passwordauth]]
+* use an external program to read the userdb and talk with
+  [mod_auth_external](http://unixpapa.com/mod_auth_external.html)
+  * requires the maintainance of this external auth proxy over ikiwiki
+    userdb format changes
+  * (I don't know perl)
+* include this wrapper in ikiwiki
+  * something like `ikiwiki --auth user:pass:userdb` check the
+    `user:pass` pair in `userdb` and returns an Accept/Reject flag to
+    Apache 
+  * requires a change in ikiwiki core
+  * still requires
+    [mod_auth_external](http://unixpapa.com/mod_auth_external.html)
+* do it with Apache perl sections
+  * (I don't know perl)
+
+Any opinion/suggestion/solution to this is welcome and appreciated.
+
+--
+[[NicolasLimare]]
+
+For a similar use case, I've been intending to implement
+[[todo/httpauth_feature_parity_with_passwordauth]], but your idea may
+actually be the way to go. IMHO, the Perl sections idea is the
+easiest to setup, but on the long run, I'd prefer ikiwiki to optionnally
+use a userdb storage backend supported at least by Apache and lighttpd.
+--[[intrigeri]]
+
+Tons of CPAN modules may help, but most of them are specific to `mod_perl`,
+and AFAIK, ikiwiki is generally not run with `mod_perl`. It's not clear to me
+wether these modules depend on the webapp to be run with `mod_perl` set 
+as the script handler, or only on `mod_perl` to be installed and loaded.
+
+* CPAN's `Apache::AuthenHook` allows to plug arbitrary Perl handlers as
+  Apache authentication providers.
+* CPAN's `Apache::Authen::Program` (`mod_perl`)
+* [http://www.openfusion.com.au/labs/mod_auth_tkt/](mod_auth_tkt) along with CPAN's
+  `Apache::AuthTkt`
+--[[intrigeri]]
+
+I've more or less managed to implement something based on `mod_perl` and
+`Apache::AuthenHook`, respectively in Debian packages `libapache2-mod-perl2`
+and `libapache-authenhook-perl`.
+
+In the Apache VirtualHost configuration, I have added the following:
+
+	PerlLoadModule Apache::AuthenHook
+	PerlModule My::IkiWikiBasicProvider
+
+	<Location /test/>
+		AuthType Basic
+		AuthName "wiki"
+		AuthBasicProvider My::IkiWikiBasicProvider
+		Require valid-user
+		ErrorDocument 401 /test/ikiwiki.cgi?do=signin
+	</Location>
+	<LocationMatch "^/test/(ikiwiki\.cgi$|.*\.css$|wikiicons/)">
+		Satisfy any
+	</LocationMatch>
+
+The perl module lies in `/etc/apache2/My/IkiWikiBasicProvider.pm`:
+
+	package My::IkiWikiBasicProvider;
+
+	use warnings;
+	use strict;
+	use Apache2::Const -compile => qw(OK DECLINED HTTP_UNAUTHORIZED);
+	use Storable;
+	use Authen::Passphrase;
+
+	sub userinfo_retrieve () {
+		my $userinfo=eval{ Storable::lock_retrieve("/var/lib/ikiwiki/test/.ikiwiki/userdb") };
+		return $userinfo;
+	}
+
+	sub handler {
+		my ($r, $user, $password) = @_;
+		my $field = "password";
+
+		if (! defined $password || ! length $password) {
+			return Apache2::Const::DECLINED;
+		}
+		my $userinfo = userinfo_retrieve();
+		if (! length $user || ! defined $userinfo ||
+		    ! exists $userinfo->{$user} || ! ref $userinfo->{$user}) {
+			return Apache2::Const::DECLINED;
+		}
+		my $ret=0;
+		if (exists $userinfo->{$user}->{"crypt".$field}) {
+			error $@ if $@;
+			my $p = Authen::Passphrase->from_crypt($userinfo->{$user}->{"crypt".$field});
+			$ret=$p->match($password);
+		}
+		elsif (exists $userinfo->{$user}->{$field}) {
+			$ret=$password eq $userinfo->{$user}->{$field};
+		}
+		if ($ret) {
+			return Apache2::Const::OK;
+		}
+		return Apache2::Const::DECLINED;
+	}
+
+	1;
+
+This setup also allows people with the master password to create their own
+account.
+
+I'm not really fluent in Perl, and all this can probably be improved (*or
+might destroy your computer as it is* and YMMV).
+
+-- [[Lunar]]

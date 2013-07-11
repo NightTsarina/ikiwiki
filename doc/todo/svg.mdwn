@@ -1,0 +1,77 @@
+We should support SVG.  In particular:
+
+* We could support rendering SVGs to PNGs when compiling the wiki.  Not all browsers support SVG yet.
+
+* We could support editing SVGs via the web interface.  SVG can contain unsafe content such as scripting, so we would need to whitelist safe markup.
+  * I am interested in seeing [svg-edit](http://code.google.com/p/svg-edit/) integrated -- [[EricDrechsel]]
+
+--[[JoshTriplett]]
+
+[[wishlist]]
+
+I'm allowing for inline SVG on my own installation.  I've patched my
+copy of htmlscrubber.pm to allow safe MathML and SVG elements (as
+implemented in html5lib).  <del datetime="2008-03-20T23:04-05:00">Here's a patch
+if anyone else is interested.</del>
+<ins datetime="2008-03-20T23:05-05:00">Actually, that patch wasn't quite
+right.  I'll post a new one when it's working properly.</ins> --[[JasonBlevins]]
+
+* * *
+
+I'd like to hear what people think about the following:
+
+1. Including whitelists of elements and attributes for SVG and MathML in
+   htmlscrubber.
+
+2. Creating a whitelist of safe SVG (and maybe even HTML) style
+   attributes such as `fill`, `stroke-width`, etc.
+
+   This is how the [sanitizer][] in html5lib works.  It shouldn't be too
+   hard to translate the relevant parts to Perl.
+
+   --[[JasonBlevins]], March 21, 2008 11:39 EDT
+
+[sanitizer]: http://code.google.com/p/html5lib/source/browse/trunk/ruby/lib/html5/sanitizer.rb
+
+* * * 
+
+Another problem is that [HTML::Scrubber][] converts all tags to lowercase.
+Some SVG elements, such as viewBox, are mixed case.  It seems that
+properly handling SVG might require moving to a different sanitizer.
+It seems that [HTML::Sanitizer][] has functions for sanitizing XHTML.
+Any thoughts? --[[JasonBlevins]], March 21, 2008 13:54 EDT
+
+[HTML::Scrubber]: http://search.cpan.org/~podmaster/HTML-Scrubber-0.08/Scrubber.pm
+[HTML::Sanitizer]: http://search.cpan.org/~nesting/HTML-Sanitizer-0.04/Sanitizer.pm
+
+I figured out a quick hack to make HTML::Scrubber case-sensitive by
+making the underlying HTML::Parser case-sensitive:
+
+    $_scrubber->{_p}->case_sensitive(1);
+
+So now I've got a version of [htmlscrubber.pm][] ([diff][])
+which allows safe SVG and MathML elements and attributes (but no
+styles&mdash;do we need them?).  I'd be thrilled to see this
+in the trunk if other people think it's useful.
+--[[JasonBlevins]], March 24, 2008 14:56 EDT
+
+[htmlscrubber.pm]:http://xbeta.org/gitweb/?p=xbeta/ikiwiki.git;a=blob;f=IkiWiki/Plugin/htmlscrubber.pm;h=3c0ddc8f25bd8cb863634a9d54b40e299e60f7df;hb=fe333c8e5b4a5f374a059596ee698dacd755182d
+[diff]: http://xbeta.org/gitweb/?p=xbeta/ikiwiki.git;a=blobdiff;f=IkiWiki/Plugin/htmlscrubber.pm;h=3c0ddc8f25bd8cb863634a9d54b40e299e60f7df;hp=3bdaccea119ec0e1b289a0da2f6d90e2219b8d66;hb=fe333c8e5b4a5f374a059596ee698dacd755182d;hpb=be0b4f603f918444b906e42825908ddac78b7073
+
+> Unfortuantly these links are broken. --[[Joey]]
+
+* * *
+
+Actually, there's a way to embed SVG into MarkDown sources using the [data: URI scheme][rfc2397], [like this](data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pgo8c3ZnIHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KIDwhLS0gQ3JlYXRlZCB3aXRoIFNWRy1lZGl0IC0gaHR0cDovL3N2Zy1lZGl0Lmdvb2dsZWNvZGUuY29tLyAtLT4KIDx0aXRsZT5IZWxsbywgd29ybGQhPC90aXRsZT4KIDxnPgogIDx0aXRsZT5MYXllciAxPC90aXRsZT4KICA8ZyB0cmFuc2Zvcm09InJvdGF0ZSgtNDUsIDk3LjY3MTksIDk3LjY2OCkiIGlkPSJzdmdfNyI+CiAgIDxyZWN0IHN0cm9rZS13aWR0aD0iNSIgc3Ryb2tlPSIjMDAwMDAwIiBmaWxsPSIjRkYwMDAwIiBpZD0ic3ZnXzUiIGhlaWdodD0iNTYuMDAwMDAzIiB3aWR0aD0iMTc1IiB5PSI2OS42Njc5NjkiIHg9IjEwLjE3MTg3NSIvPgogICA8dGV4dCB4bWw6c3BhY2U9InByZXNlcnZlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0ic2VyaWYiIGZvbnQtc2l6ZT0iMjQiIHN0cm9rZS13aWR0aD0iMCIgc3Ryb2tlPSIjMDAwMDAwIiBmaWxsPSIjZmZmZjAwIiBpZD0ic3ZnXzYiIHk9IjEwNS42NjgiIHg9Ijk5LjY3MTkiPkhlbGxvLCB3b3JsZCE8L3RleHQ+CiAgPC9nPgogPC9nPgo8L3N2Zz4=).
+Of course, this way to display an image one needs to click a link, but it may be considered a feature.
+&mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
+
+[rfc2397]: http://tools.ietf.org/html/rfc2397
+
+> You can do the same with img src actually.
+> 
+> If svg markup allows unsafe elements (ie, javascript),
+> which it appears to, 
+> then this is a security hole, and the htmlscrubber
+> needs to lock it down more. Darn, now I have to spend my afternoon making
+> security releases! --[[Joey]] 

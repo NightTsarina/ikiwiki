@@ -1,0 +1,271 @@
+I have copied over the ikiwiki.setup file from /usr/share/doc/ikiwiki/ to /etc/ikiwiki/ and run it after editing. My site gets built but when I click on the 'edit' button, firefox and google chrome download the cgi file instead of creating a way to edit it. The permissions on my ikiwiki.cgi script look like this: -rwsr-sr-x  1 root root 13359 2009-10-13 19:21 ikiwiki.cgi. Is there something I should do, i.e. change permissions, so I can get it to run correctly? (jeremiah)
+
+> Have a look [[here|tips/dot_cgi]]. --[[Jogo]]
+
+I just went through the standard procedure described for setup, copied the blog directory from examples into my source directory, ran ikiwiki, and everything seems to have worked, except that none of the 
+&#91;&#91;!meta ... &#93;&#93; tags get converted. They simply show up in the html files unformatted, with no exclamation point, and with p tags around them. Any ideas? using ikiwiki version 2.40 on freebsd --mjg
+
+> The meta plugin is not enabled by default. It's pulled in by the
+> goodstuff plugin, so add one or the other to the add_plugins line in your
+> config file. --[[Joey]]
+
+Can the instructions for using `ikiwiki-makerepo` be clarified. This
+command wants to create folders in the directory it is run in. Which
+directory should that be - `$SRCDIR?` --Andy
+
+> No, `ikiwiki-makerepo` does not create directories in the current
+> directory. You specify the directory you want it to create and it creates
+> the directory and makes it into a repository. The setup instuctions have
+> examples of doing this. I don't see anything unclear. --[[Joey]]
+
+Sorry, was not precise enough. It does if you are using the git option. I
+believe this is partially explained on the rcs/git/ page. However I'm still
+not totally clear where I should run the command when using git. If I
+should be in $SRCDIR then updating the instructions to something like
+
+    REPOSITORY=~/wiki.git
+    cd $SRCDIR
+    ikiwiki-makerepo git $SCDIR $REPOSITORY
+
+might clear things up a little. Apologies if I'm being a bit dim, learning
+ikiwiki and git at same time :) 
+
+Have tried 3 options
+
+1. mkdir $REP cd $REP run command (says $REP already exists so won't run)
+2. rm -rf $REP cd $SRC run command (creates a repository in $SRC, does not create $REP ends with "remote origin already exists"
+3. mkdir $TMP cd $TMP run command (creates a repository in $SRC/.git creates a repository in $TMP, does nothing to $REP, ends with "remote origin already exists".
+
+Version of ikiwiki installed is package from Ubuntu/Hardy 2.19
+Git version is 1.5.2.5
+
+n.b. svn version of command worked fine :)
+
+--Andy
+
+>	Initialized empty shared Git repository in /home/deploy/tmp/
+>	Initialized empty Git repository in .git/
+>	fatal: '/home/deploy/tmp/repo': unable to chdir or not a git archive
+
+Looks like your git does not support GIT_DIR being used with git-init. I
+see some mentions of changes in git's changelog for 1.5.3 that look
+relevant. I've changed ikiwiki-makerepo to use a method more portable to
+older versions of git. --[[Joey]]
+
+Many thanks Joey, upgraded my git, and now have working iki :) -- Andy
+
+----
+
+It isn't intended that .ikiwiki be versioned, is it? Do you have a svn:ignore set? 
+Is there some magic way you can make the svn commands (and presumably commands for 
+the other VCSs here) ignore the .ikiwiki directory during step 8, when they import it?
+If not, maybe a note should be made that the user should delete this file before 
+they import. --Ethan
+
+> No, .ikiwiki should not be versioned, and a svn:ignore of it is reasonable,
+> although probably too much noise for the setup instructions.
+> I've switched to a different method that preserves .ikiwiki, w/o checking
+> it in. --[[Joey]]
+
+----
+
+These instructions should probably show how to use a bare Git repository
+(`GIT_DIR=somewhere.git git-init-db`) rather than a repository with a full
+working copy. You can always clone the repository if you want your own local
+working copy. Furthermore, this allows you to make multiple commits to your
+working copy before pushing them to the repository and causing the wiki to
+update. --[[JoshTriplett]]
+
+> I'm currently testing and running such a setup. --[[tschwinge]]
+
+Furthermore the git instructions should be changed to move the *.ikiwiki*
+directory back into the wiki's working copy directory, isn't it? --[[tschwinge]]
+
+> Yes, I think so.  I will clean these instructions up unless somebody tells me we're missing something fundamental. --[[BartMassey]]
+
+>> Either you do it or I'll do it somewhen soon.  --[[tschwinge]]
+
+----
+
+Curious as to why support for CVS is not built in. --[[Luther]]
+
+> See [[todo/CVS_backend|todo/CVS_backend]], but you might consider switching to a better version control system. --[[JoshTriplett]]
+
+----
+
+What is the syntax for specifying the adminuser as an openid user?  I've tried a couple things but I'm missing something.   Thanks for any pointers.  -- [[AdamShand]]
+
+> Just put the openid url in there. It has to be the full url with
+> "http://". --[[Joey]]
+
+----
+
+I apologize if this is the incorrect forum for this question, but I am
+trying to get ikiwiki set up and running with git.  I followed all the
+directions and all seems to work until I go back and try to make changes.
+The steps I am performing:
+
+    cd $SRCDIR  (e.g. ~/ikisrc)
+    vim index.mdwn (add a couple lines)
+    git commit -a -m 'test'
+    git push
+
+I then get a long error message which reads in part "You asked me to pull
+without telling me which branch you want to merge with, and
+'branch.master.merge' in your configuration file does not tell me either."
+From that point on, I get:
+
+    sws@odin:~/dev/ikisrc$ git push
+    To /home/git/repos/myikiwiki.git
+     ! [rejected]        master -> master (non-fast forward)
+    error: failed to push to '/home/git/repos/myikiwiki.git'
+
+If I do a git clone ssh://odin/path/to/$REPOSITORY from another machine and
+try to edit I get the same error sequence.  What am I doing wrong?
+
+> I don't know. The only time I have seen this message is when
+> the master git repository was not bare. All current instructions and
+> `ikiwiki-makerepo` have a proper bare repo used for the master
+> repository, but perhaps you followed some old, broken instructions, or 
+> forgot to make it bare? --[[Joey]] 
+
+-----
+
+I follow every steps of the setup procedure, change some templates and
+tried to modify some page through the web but was not able to do so. Every
+page seems to be locked by the adminuser user. When I remove the adminuser
+in the setup file, every ran fine. Did I miss something ? What is exactly
+the adminuser supposed to be allowed to ? Is he the only user allowed to
+modify pages ?
+
+> This was a bug in ikwiki that was fixed in version 2.44. --[[Joey]]
+
+-----
+
+pI hope you guys can put up with an absolute newbie. I am fairly new to linux and completely new to Perl. I have just installed MoinMoin locally in my PC, running ubuntu 8.4 and was about to use it until I ran into your ikiwiki. I thought ikiwiki is a better fit for what I want to do, so am seriously considering installing it as well in ubuntu. Except that the install seems way beyond my understanding.
+
+Do i need to install git first? Which git -- the git-core? Ubuntu's instructions on installing the git-core is: "sudo apt-get install git-core". Is that it? Do I need to do a git-init as well, or will the ikiwiki-makerepo handle that? If I have to do a git-init as well, what --share values should I specify?
+
+It seems I will have to install the ikiwiki from the tar.gz file. I have downloaded it, but do I need to install CPAN or CPAN++ first? That doesn't sound right. I am totally confused already. Does anyone have some install documents pitched to someone as ignorant as I am? -- [[WillDioneda]]
+
+> Ubuntu includes ikiwiki (in universe, I assume), so you should just be
+> able to use apt or synaptic to install the package, as documented on the
+> [[download]] page. Install git-core also to get git.
+> 
+> You do not need to use git-init if you use ikiwiki-makrepo. --[[Joey]]
+
+
+Thanks for your response. You're right. Ubuntu does have ikiwiki, except that it is an older version. I tried installing it; saw some error messages from the install, and decided against it. Plus the documentation here in ikiwiki.info seems slightly different. I made an executive/beginner decision: to go for the latest tarball. And found myself in deep water, ...
+
+Anyway, I think I might be able to install it from the tarball I downloaded. I've been reading the discussions, had a look at your screencasts, etc. I will give it another bash. -- [[WillDioneda]]
+
+----
+
+How do I set up cgi editing?  In setup I have:
+
+ * cgiurl => 'http://wiki.had.co.nz/edit.cgi'
+ * cgi_wrapper => 'edit.cgi'
+
+But I don't get an edit link on my pages?  What am I doing wrong?
+
+> Assuming you don't have the editpage plugin disabled, all you should need
+> to so is re-run `ikiwiki -setup` with the above config and it should
+> rebuild your wiki and add the edit links to pages. --[[Joey]]
+
+----
+
+I setup ikiwiki on a fedora 10 machine and I am using apache as my http server. Faced a few difficulties while setting it up as the default setup program left some suid files and group writeable directories on the system. It took some time to get it working and documented what I did at http://flyingtux.blogspot.com/2009/03/installing-ikiwiki.html. Thought it might be useful to someone here. (The version installed is 2.72)
+
+> ikiwiki makes wrappers suid by default, because this ensures that when
+> the ikiwiki.cgi is run by your web server, it runs as the user who owns
+> your wiki, and can thus write to it. ikiwiki is designed to run securely
+> suid. If your webserver uses some
+> mechanism to run the ikiwiki.cgi as the user who owns it, without the
+> suid bit being set, you *could* modify `cgi_wrappermode` in your setup
+> file to drop the suid bit. 
+> 
+> ikiwiki respects the umask, so if your umask is one that causes things to
+> be group writable, they will by. If you want to override that, there is
+> also a `umask	` setting in your setup file. --[[Joey]] 
+
+----
+
+/etc/ikiwiki/auto.setup tries to get abs_path of a non-existent
+"repository" path (in ikiwiki-makerepo), and that doesn't work in my perl:
+
+<pre>
+[mort@localhost ~]$ perl -e 'use Cwd q{abs_path}; print abs_path("/var")'
+/var[mort@localhost ~]$ perl -e 'use Cwd q{abs_path}; print abs_path("/abcde")'
+[mort@localhost ~]$ 
+</pre>
+
+Because of this, /etc/ikiwiki/auto.setup fails: 
+
+<pre>
+$ ikiwiki -setup /etc/ikiwiki/auto.setup
+What will the wiki be named? wiki
+What revision control system to use? git
+What wiki user (or openid) will be admin? mort
+
+
+Setting up wiki ...
+internal error finding repository abs_path
+/etc/ikiwiki/auto.setup: failed to set up the repository with ikiwiki-makerepo
+
+usage: ikiwiki [options] source dest
+       ikiwiki --setup configfile
+$ perl -v
+
+This is perl, v5.8.8 built for i386-linux-thread-multi
+(with 2 registered patches, see perl -V for more detail)
+
+Copyright 1987-2007, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using "man perl" or "perldoc perl".  If you have access to the
+Internet, point your browser at http://www.perl.org/, the Perl Home Page.
+
+$ 
+</pre>
+
+Can't ikiwiki's "make test" perhaps test for this, so that one knows something will go wrong?
+-- Ivan Z.
+
+> FWIW, I tried the same thing with perl 5.8.8 from Debian etch, and its
+> Cwd does not have the problem. But I've modified `ikiwiki-makerepo` to
+> avoid using `abs_path` this way anyhow. --[[Joey]] 
+
+Thank you! I'm not a Perl programmer, so what's your opinion: is this behavior a violation of the specification of abs_path and I should report it to [ALTLinux](http://bugs.altlinux.org) (the distro)? --Ivan Z.
+
+> That is not entirely clear to me from the documentation. It doesn't
+> say the path has to exist, but doesn't say it cannot either. --[[Joey]]
+
+I am experiencing the same problem "/etc/ikiwiki/custom: failed to set up the repository with ikiwiki-makerepo
+" on Debian squeeze with perl5.10.0. Upgrading to ikiwiki 3.10 fixes it. -- [Albert](http://www.docunext.com/)
+
+----
+
+Just a note, perl 5.10 isn't packaged as part of RHEL or thus CentOS nor EPEL,
+so it's not especially trivial to satisfy that requirement for ikiwiki on
+those platforms, without backporting it from Fedora or building from source.
+However, I have an ikiwiki 3.20100403 running on RHEL-4 supplied 5.8.8 without
+(seemingly too much) complaint.  How strong is the 5.10 requirement? what
+precicely breaks without it? -- [[Jon]]
+
+> I don't remember what was the specific problem with perl 5.8.8. All I can
+> find is some taint checking bugs, which are currently worked around by
+> taint checking being disabled. --[[Joey]]
+
+---
+
+Did anyone tried to install ikiwiki under a vhost setup ? 
+ikiwiki is installed under a debian lenny system. but without write acces to /etc/ikiwiki (obvious) i am coming not far.
+Or do i miss something which is probably hidden deeper in the documentation ?
+
+Well it should be similar to shared hosting [or a remote server in general](http://ikiwiki.info/forum/how_to_setup_ikiwiki_on_a_remote_host/)
+
+----
+Perhaps it's worth noting that when installing ikiwiki with apt on Debian stable, you need to use the backports version in order to follow the setup instructions.

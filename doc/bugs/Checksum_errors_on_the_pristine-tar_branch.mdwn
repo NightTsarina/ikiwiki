@@ -1,0 +1,112 @@
+I'm in the process of installing ikiwiki on my home page (hooray), and wants to have the newest stable version available. I suppose that's the one on the `pristine-tar` branch.
+
+> You can check out the latest released version with:
+>
+>     git tag                    # outputs a list of tags
+>     git checkout 3.20110124    # or use the latest one, if different
+>
+> If you're using git already, there's no need to use pristine-tar,
+> unless you particularly want a tarball for some reason.
+>
+> Downloading the tarball from Debian is the other recommended way to
+> [[download]] the source code. --[[smcv]]
+
+>> Thanks for your responses, smcv. I'll use that method and install the newest version when I'm more familiar with the way ikiwiki works. For now I'm using version 3.20100122 installed with apt-get. Works great so far, but I'm looking forward to the new install. -- [[sunny256]] 2011-02-22 19:30+0100
+
+But I'm unable to recreate the newest `.tar` file, in fact there's errors in all these `.tar.gz` files on that branch:
+
+* `ikiwiki_2.20.tar.gz`
+* `ikiwiki_2.30.tar.gz`
+* `ikiwiki_2.31.1.tar.gz`
+* `ikiwiki_2.46.tar.gz`
+* `ikiwiki_2.47.tar.gz`
+* `ikiwiki_2.48.tar.gz`
+* `ikiwiki_2.49.tar.gz`
+* `ikiwiki_2.50.tar.gz`
+* `ikiwiki_2.51.tar.gz`
+* `ikiwiki_2.62.1.tar.gz`
+* `ikiwiki_2.62.tar.gz`
+* `ikiwiki_3.20101129.tar.gz`
+* `ikiwiki_3.20101201.tar.gz`
+* `ikiwiki_3.20101231.tar.gz`
+* `ikiwiki_3.20110105.tar.gz`
+* `ikiwiki_3.20110122.tar.gz`
+* `ikiwiki_3.20110123.tar.gz`
+* `ikiwiki_3.20110124.tar.gz`
+
+The operation fails on these files with a "Checksum validation failed" error from `xdelta`(1). The `pristine-tar`(1) version is 1.00, installed with `apt-get` on Ubuntu 10.04.2 LTS. Is this version too old, or are there some errors on this branch?
+
+> I get similar errors on Debian unstable, but not on all of the same versions;
+> for instance, my `ikiwiki_3.20110124.tar.gz` is OK. In some cases, xdelta
+> complains, but the tarball is produced successfully. However, I do see actual
+> failures for 2.62 and 2.62.1, for instance. --[[smcv]]
+
+> Yes, on Debian unstable I got failures on only old ones, but not in
+> contiguous blocks: --[[Joey]] 
+> 
+>     ikiwiki_2.20.tar.gz
+>     ikiwiki_2.30.tar.gz
+>     ikiwiki_2.31.1.tar.gz
+>     ikiwiki_2.46.tar.gz
+>     ikiwiki_2.47.tar.gz
+>     ikiwiki_2.48.tar.gz
+>     ikiwiki_2.49.tar.gz
+>     ikiwiki_2.50.tar.gz
+>     ikiwiki_2.51.tar.gz
+>     ikiwiki_2.62.1.tar.gz
+>     ikiwiki_2.62.tar.gz
+>
+> Probably what would help debug this problem is if someone can
+> reproduce with one or more of the other ones that do **not** fail
+> for me, pass `-dk` to pristine-tar, and send me a copy of its temp directory
+> (joey@kitenet.net), and the versions of pristine-tar, tar, gzip.
+> Then I can compare the good and bad recreated
+> tarballs and identify the difference. Or pass them to the tar developers,
+> who have helped before.
+> 
+> The only cause that I can think of is that perhaps tar's output
+> has changed compared with the version used to create those. The
+> only tar output change I know of involved filenames that were
+> exactly 100 bytes long -- and pristine-tar 1.11 works around that
+> when run with tar 1.25-2 on Debian. FWIW, I am only seeing
+> this in ikiwiki's pristine-tar info, not other packages'. 
+> (Checked all of debhelper's and alien's and etckeeper's 
+> and pristine-tar's tarballs.) --[[Joey]]
+>
+>> It looks as though I only get the same failures as you, so that's no help
+>> (reassuring, though, since we're presumably both running recent Debian).
+>> sunny256's failure cases might just result from the older tar and pristine-tar
+>> on Ubuntu 10.04? --[[smcv]]
+
+>>> Yes, I can reproduce the same failures sunny256 saw using Debian oldstable. Once I
+>>> upgrade pristine-tar and tar, it goes away, so I think it is the 100
+>>> byte filename bug affecting those.
+>>>
+>>> As to the ones we all see fail, I dunno what it is, but probably
+>>> has to do with some kind of historical issue in the versions of
+>>> pristine-tar/tar used to create them. We may never know what went wrong
+>>> there. --[[Joey]] [[done]]
+
+A complete output of the "pristine-tar checkout" of all files is stored on <https://gist.github.com/836720> .
+
+For now, I'll download the `.tar.gz` from <http://packages.debian.org/unstable/source/ikiwiki>, or maybe install `ikiwiki_3.20110124_all.deb`. Would you recommend using that `.deb` file on Ubuntu 10.04.2 LTS, or is it Debian-specific? -- [[sunny256]] 2011-02-21 08:42+0100
+
+> The .deb from Debian unstable is likely to work on Ubuntu; I've
+> generally been able to compile snapshots on Debian unstable and
+> install them onto Debian lenny (older than that Ubuntu release)
+> without modification. If in doubt, build it from source. --[[smcv]]
+
+> > The .deb file `ikiwiki_3.20110124_all.deb` from Debian unstable seems to 
+> > work great. I'm now the happy user of the newest stable version, yay. There 
+> > were some errors or warnings, though. This is the first one:
+
+> > > `You are overwriting a locally defined method (finished) with an accessor 
+> > > at /usr/lib/perl5/Moose/Meta/Attribute.pm line 570`
+
+> > Along with loads of other suspicious stuff. Have posted the whole output at 
+> > <https://gist.github.com/842789>. I'll dig around a bit in the source to 
+> > see if there's something I need to worry about. It looks good so far.
+> > --&nbsp;[[sunny256]]&nbsp;<small>2011-02-24&nbsp;20:27Z</small>
+
+> > > Looks like a bug in [[!cpan Net::Amazon::S3::Client::Bucket]] or in something
+> > > it uses, rather than in ikiwiki itself. --[[smcv]]

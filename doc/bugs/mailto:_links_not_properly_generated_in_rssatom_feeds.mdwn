@@ -1,0 +1,29 @@
+[[!meta title="mailto: links not properly generated in rss/atom feeds"]]
+
+A link like \[this](mailto:foo@bar.org) will not be converted correctly to a mailto link in the rss/atom feeds, but an absolute link instead. See e.g. the logitech post on http://madduck.net/blog/feeds/planet-lca2008/index.rss
+
+> fixed --[[Joey]] [[!tag done]]
+
+This still happens for auto-generated mailto: links that are [garbled](http://daringfireball.net/projects/markdown/syntax#autolink) by Markdown, so that
+
+    <matthias@rampke.de>
+is turned into
+
+    <a href="m&#97;&#105;&#x6C;t&#111;:&#109;&#x61;&#116;&#x74;&#x68;&#105;a&#x73;&#64;&#x72;&#x61;&#109;&#x70;&#x6B;&#101;&#46;&#100;&#x65;">&#109;&#x61;&#116;&#x74;&#x68;&#105;a&#x73;&#64;&#x72;&#x61;&#109;&#x70;&#x6B;&#101;&#46;&#100;&#x65;</a>
+
+for HTML, but
+
+    &lt;a href=&quot;http://rampke.de/m&amp;#97;&amp;#105;&amp;#x6C;t&amp;#111;:&amp;#109;&amp;#x61;&amp;#116;&amp;#x74;&amp;#x68;&amp;#105;a&amp;#x73;&amp;#64;&amp;#x72;&amp;#x61;&amp;#109;&amp;#x70;&amp;#x6B;&amp;#101;&amp;#46;&amp;#100;&amp;#x65;&quot;&gt;&amp;#109;&amp;#x61;&amp;#116;&amp;#x74;&amp;#x68;&amp;#105;a&amp;#x73;&amp;#64;&amp;#x72;&amp;#x61;&amp;#109;&amp;#x70;&amp;#x6B;&amp;#101;&amp;#46;&amp;#100;&amp;#x65;&lt;/a&gt;&lt;/p&gt;
+
+for Atom and RSS.
+
+> This garbling is provably pointless. Proof: For $1000 I will take off my
+> white hat, put on my black hat, and implement support for it in any
+> spammer's email address extraction tool. Money will be donated to a
+> spam-fighting organisation of my choice.
+> 
+> So, in leu of money, it seems best to find a way to disable it in
+> markdown.
+> 
+> Anyway, I've fixed this, at the expense of additional total worldwide
+> power usage, etc. --[[Joey]]

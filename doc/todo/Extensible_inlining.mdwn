@@ -1,0 +1,263 @@
+Here's an idea with [[patch]] for extending inline in two directions:
+
+1. Permit the content-fetching function to return undef to skip a page. The limiting of @list to a set size is performed after that filtering.
+2. Permit other directive plugins to pass a function to generate content via an inliner_ parameter. The current patch doesn't try to remove that key from the parameters, so hilarity might ensue if someone is too clever. I suppose I should fix that... My *intent* is that other, custom directives can add inliner_.
+
+The diff looks large because the first requires switching some loops.
+
+I'm using this along with a custom BibTeX formatter (one item per file) to generate larger pages and tiny listings. I still need to hammer the templates for that, but I think that's possible without further patches.
+
+(Setting up a git branch for a single plugin is a pain, but I can if necessary. I also could separate this into some sequence rather than all at once, but I won't have time for a week or two.)
+
+-- [[JasonRiedy]]
+
+<pre><code>
+--- /home/ejr/src/git.ikiwiki.info/IkiWiki/Plugin/inline.pm	2011-03-05 14:18:30.261293808 -0500
++++ inline.pm	2011-03-06 21:44:18.887903638 -0500
+@@ -185,6 +185,7 @@
+ 	}
+ 
+ 	my @list;
++	my $num = 0;
+ 
+ 	if (exists $params{pagenames}) {
+ 		foreach my $p (qw(sort pages)) {
+@@ -213,23 +214,121 @@
+ 		if ($params{feedshow} && $num < $params{feedshow} && $num > 0) {
+ 			$num=$params{feedshow};
+ 		}
+-		if ($params{skip} && $num) {
+-			$num+=$params{skip};
+-		}
+ 
+ 		@list = pagespec_match_list($params{page}, $params{pages},
+ 			deptype => deptype($quick ? "presence" : "content"),
+ 			filter => sub { $_[0] eq $params{page} },
+ 			sort => exists $params{sort} ? $params{sort} : "age",
+ 			reverse => yesno($params{reverse}),
+-			($num ? (num => $num) : ()),
+ 		);
+ 	}
+ 
+ 	if (exists $params{skip}) {
+ 		@list=@list[$params{skip} .. $#list];
+ 	}
++
++	if ($params{show} && $params{show} > $num) {
++		$num = $params{show}
++	}
++
++	my $ret="";
++	my @displist;
++	if ($feedonly) {
++		@displist = @list;
++	} else {
++		my $template;
++		if (! $raw) {
++			# cannot use wiki pages as templates; template not sanitized due to
++			# format hook hack
++			eval {
++				$template=template_depends($params{template}.".tmpl", $params{page},
++					blind_cache => 1);
++			};
++			if ($@) {
++				error sprintf(gettext("failed to process template %s"), $params{template}.".tmpl").": $@";
++			}
++		}
++		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));
++
++		foreach my $page (@list) {
++			last if ($num && scalar @displist >= $num);
++			my $file = $pagesources{$page};
++			my $type = pagetype($file);
++			if (! $raw) {
++				# Get the content before populating the
++				# template, since getting the content uses
++				# the same template if inlines are nested.
++				if ($needcontent) {
++					my $content;
++					if (exists $params{inliner_} && defined $params{inliner_}) {
++						$content = &{$params{inliner_}}($page, $template, %params);
++					} else {
++						$content=get_inline_content($page, $params{destpage});
++					}
++					next if !defined $content;
++					$template->param(content => $content);
++					push @displist, $page;
++				}
++				$template->param(pageurl => urlto($page, $params{destpage}));
++				$template->param(inlinepage => $page);
++				$template->param(title => pagetitle(basename($page)));
++				$template->param(ctime => displaytime($pagectime{$page}, $params{timeformat}, 1));
++				$template->param(mtime => displaytime($pagemtime{$page}, $params{timeformat}));
++				$template->param(first => 1) if $page eq $list[0];
++				$template->param(last => 1) if ($num && scalar @displist == $num);
++				$template->param(html5 => $config{html5});
+ 	
++				if ($actions) {
++					my $file = $pagesources{$page};
++					my $type = pagetype($file);
++					if ($config{discussion}) {
++						if ($page !~ /.*\/\Q$config{discussionpage}\E$/i &&
++						    (length $config{cgiurl} ||
++						     exists $pagesources{$page."/".lc($config{discussionpage})})) {
++							$template->param(have_actions => 1);
++							$template->param(discussionlink =>
++								htmllink($page,
++									$params{destpage},
++									$config{discussionpage},
++									noimageinline => 1,
++									forcesubpage => 1));
++						}
++					}
++					if (length $config{cgiurl} &&
++					    defined $type &&
++					    IkiWiki->can("cgi_editpage")) {
++						$template->param(have_actions => 1);
++						$template->param(editurl => cgiurl(do => "edit", page => $page));
++
++					}
++				}
++	
++				run_hooks(pagetemplate => sub {
++					shift->(page => $page, destpage => $params{destpage},
++						template => $template,);
++				});
++	
++				$ret.=$template->output;
++				$template->clear_params;
++			}
++			else {
++				if (defined $type) {
++					$ret.="\n".
++					      linkify($page, $params{destpage},
++					      preprocess($page, $params{destpage},
++					      filter($page, $params{destpage},
++					      readfile(srcfile($file)))));
++				}
++				else {
++					$ret.="\n".
++					      readfile(srcfile($file));
++				}
++				push @displist, $page;
++			}
++		}
++	}
++	@list = @displist;
++
+ 	my @feedlist;
+ 	if ($feeds) {
+ 		if (exists $params{feedshow} &&
+@@ -241,10 +340,6 @@
+ 		}
+ 	}
+ 	
+-	if ($params{show} && @list > $params{show}) {
+-		@list=@list[0..$params{show} - 1];
+-	}
+-
+ 	if ($feeds && exists $params{feedpages}) {
+ 		@feedlist = pagespec_match_list(
+ 			$params{page}, "($params{pages}) and ($params{feedpages})",
+@@ -302,8 +397,6 @@
+ 		}
+ 	}
+ 
+-	my $ret="";
+-
+ 	if (length $config{cgiurl} && ! $params{preview} && (exists $params{rootpage} ||
+ 	    (exists $params{postform} && yesno($params{postform}))) &&
+ 	    IkiWiki->can("cgi_editpage")) {
+@@ -355,91 +448,7 @@
+ 		}
+ 		$ret.=$linktemplate->output;
+ 	}
+-	
+-	if (! $feedonly) {
+-		my $template;
+-		if (! $raw) {
+-			# cannot use wiki pages as templates; template not sanitized due to
+-			# format hook hack
+-			eval {
+-				$template=template_depends($params{template}.".tmpl", $params{page},
+-					blind_cache => 1);
+-			};
+-			if ($@) {
+-				error sprintf(gettext("failed to process template %s"), $params{template}.".tmpl").": $@";
+-			}
+-		}
+-		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));
+-	
+-		foreach my $page (@list) {
+-			my $file = $pagesources{$page};
+-			my $type = pagetype($file);
+-			if (! $raw) {
+-				if ($needcontent) {
+-					# Get the content before populating the
+-					# template, since getting the content uses
+-					# the same template if inlines are nested.
+-					my $content=get_inline_content($page, $params{destpage});
+-					$template->param(content => $content);
+-				}
+-				$template->param(pageurl => urlto($page, $params{destpage}));
+-				$template->param(inlinepage => $page);
+-				$template->param(title => pagetitle(basename($page)));
+-				$template->param(ctime => displaytime($pagectime{$page}, $params{timeformat}, 1));
+-				$template->param(mtime => displaytime($pagemtime{$page}, $params{timeformat}));
+-				$template->param(first => 1) if $page eq $list[0];
+-				$template->param(last => 1) if $page eq $list[$#list];
+-				$template->param(html5 => $config{html5});
+-	
+-				if ($actions) {
+-					my $file = $pagesources{$page};
+-					my $type = pagetype($file);
+-					if ($config{discussion}) {
+-						if ($page !~ /.*\/\Q$config{discussionpage}\E$/i &&
+-						    (length $config{cgiurl} ||
+-						     exists $pagesources{$page."/".lc($config{discussionpage})})) {
+-							$template->param(have_actions => 1);
+-							$template->param(discussionlink =>
+-								htmllink($page,
+-									$params{destpage},
+-									$config{discussionpage},
+-									noimageinline => 1,
+-									forcesubpage => 1));
+-						}
+-					}
+-					if (length $config{cgiurl} &&
+-					    defined $type &&
+-					    IkiWiki->can("cgi_editpage")) {
+-						$template->param(have_actions => 1);
+-						$template->param(editurl => cgiurl(do => "edit", page => $page));
+ 
+-					}
+-				}
+-	
+-				run_hooks(pagetemplate => sub {
+-					shift->(page => $page, destpage => $params{destpage},
+-						template => $template,);
+-				});
+-	
+-				$ret.=$template->output;
+-				$template->clear_params;
+-			}
+-			else {
+-				if (defined $type) {
+-					$ret.="\n".
+-					      linkify($page, $params{destpage},
+-					      preprocess($page, $params{destpage},
+-					      filter($page, $params{destpage},
+-					      readfile(srcfile($file)))));
+-				}
+-				else {
+-					$ret.="\n".
+-					      readfile(srcfile($file));
+-				}
+-			}
+-		}
+-	}
+-	
+ 	if ($feeds && ($emptyfeeds || @feedlist)) {
+ 		if ($rss) {
+ 			my $rssp=$feedbase."rss".$feednum;
+</code></pre>

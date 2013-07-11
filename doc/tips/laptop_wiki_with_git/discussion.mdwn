@@ -1,0 +1,15 @@
+I have followed this idea along, and it seems to work pretty well. 
+Now I have a question as a git newbie. Can I have the post-commit hook on the server use something like rsync to update the files on a third machine hosting the web server?  The web server does not have git (cretins!). Of course I could just run a cron job.
+
+Or, was this last remark about rebuilding after pulling meant to apply to rebuilding after pushing as well?
+[[DavidBremner]]
+
+* *Updated*  Now that I play with this a bit, this seems not so important.  Having a seperate sync operation that I run from the laptop is no big deal, and lets me update the parts of my site not yet managed by ikiwiki at the same time.
+
+* Ok, I have finally finished to set this up. I have a question for you :) Is it mandatory to have a locally running webserver on the laptop ? I mean, do I need to setup the CGI wrapper on the laptop ? Is it possible to just add/edit/delete/whatever, git commit all the stuff and git push back to the server ? Thank you. --[[xma]]
+
+> Of course you don't need a web server on the laptop. It is useful for
+> previewing pages before publishing them though. --[[Joey]]
+
+I have followed this idea too, however after pushing to the server running gitk in the scrdir shows that the remotes/origin/master branch is newer than the master. Is this normal? Have I reset the master branch to remotes/origin/master then every time when someone pushed something (and run ikiwiki -setup afterwards?)
+[[Micheal]]

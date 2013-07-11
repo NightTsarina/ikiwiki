@@ -1,0 +1,40 @@
+the [[plugins/aggregate]] plugin mashes the `title` of an aggregated post into a filename.  This results in long filenames.  I have hit a filesystem length limitation on several occasions.  Some (ab)uses of RSS, e.g., twitter,
+generate long titles.  Especially once you throw escaping into the mix:
+
+    $ ikiwiki --setup testsetup --aggregate --refresh
+    failed to write ./test/lifestream/Hidden_Features_Of_Perl__44___PHP__44___Javascript__44___C__44___C++__44___C__35____44___Java__44___Ruby___46____46____46__._aggregated.ikiwiki-new: File name too long
+    aggregation failed with code 9216
+    $ echo $?
+    25
+
+It would also appear this abrubtly terminates aggregate processing (if not ikiwiki itself).  Only after moving my test repo to `/tmp` to shorten the filename did I see newer RSS feeds (from a totally different source) picked up.
+
+
+-- [[Jon]]
+
+> I have to wonder what filesystem you have there where 147 characters
+> is a long filename. Ikiwiki already uses `POSIX::pathconf` on the srcdir
+> to look up `_PC_NAME_MAX`
+> to see if the filename is too long, and shortens it, so it seems
+> that, in additional to having a rather antique long filename limit, your
+> system also doesn't properly expose it via pathconf. Not sure what
+> ikiwiki can do here. --[[Joey]]
+
+>> This is an ext4 filesystem with default settings (which appears to mean
+>> 256 bytes for pathnames).  Despite the error saying file name, it's
+>> definitely a path issue since moving my test repo to `/tmp`from
+>> `/home/jon/wd/mine/www` hides the problem. I note the following comment
+>> in `aggregate.pm`:
+
+		# Make sure that the file name isn't too long. 
+		# NB: This doesn't check for path length limits.
+
+>> I don't fully grok the aggregate source yet, but I wouldn't rule out
+>> a bug in the path length checking, personally.  I'm happy to try and
+>> find it myself though :) -- [[Jon]]
+
+>>> Path length seems unlikely, since the max is 4096 there.
+>>> --[[Joey]] 
+
+>>>> Aggregate now used a "if it crashes, it must be too long" strategy.
+>>>> [[done]] --[[Joey]] 

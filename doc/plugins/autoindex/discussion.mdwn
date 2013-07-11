@@ -1,0 +1,84 @@
+Would it be possible to add an option to only generate the index files
+for the html output and not place the markdown files in the wiki source?
+
+> Or better still, add a mechanism for ikiwiki to hold transient source
+> pages in memory and render them as if they existed, without actually
+> writing them out, as [[JoeRayhawk]] suggests below? I think
+> add_autofile would be the way to do this.
+> I've added this to [[todo]] as [[todo/autoindex should use add__95__autofile]]
+> and [[todo/transient_pages]]. --[[smcv]]
+
+The reason being that I have a lot of directories which need to be autoindexed,
+but I would prefer if the index files didn't clutter up my git repository.
+
+even without that feature the plugin is a great help, thanks
+
+
+------
+
+If you just don't want to clutter your git repo, below it's a patch does the following:
+
+* If you set autoindex_commit to 0 in your ikiwiki.setup file, we *do* place auto-generated markdown files in the **wiki source** but *not* in the **repo**
+
+* If you set autoindex_commit to 1 (this is the default), auto-generated index files will be put in the repo provided you enabled rcs backend.
+
+[[!toggle id="patch-for-autoindex_commit" text="patch for autoindex_commit"]]
+[[!toggleable id="patch-for-autoindex_commit" text="""
+<pre>
+--- autoindex.pm.orig	2009-10-01 17:13:51.000000000 +0800
++++ autoindex.pm	2009-10-01 17:21:09.000000000 +0800
+@@ -17,6 +17,13 @@
+ 			safe => 1,
+ 			rebuild => 0,
+ 		},
++        autoindex_commit => {
++            type => 'boolean',
++            default => 1,
++            description => 'commit generated autoindex pages into RCS',
++            safe => 0,
++            rebuild => 0,
++        },
+ }
+ 
+ sub genindex ($) {
+@@ -25,7 +32,7 @@
+ 	my $template=template("autoindex.tmpl");
+ 	$template->param(page => $page);
+ 	writefile($file, $config{srcdir}, $template->output);
+-	if ($config{rcs}) {
++	if ($config{rcs} and $config{autoindex_commit}) {
+ 		IkiWiki::rcs_add($file);
+ 	}
+ }
+@@ -94,13 +101,13 @@
+ 	}
+ 	
+ 	if (@needed) {
+-		if ($config{rcs}) {
++		if ($config{rcs} and $config{autoindex_commit}) {
+ 			IkiWiki::disable_commit_hook();
+ 		}
+ 		foreach my $page (@needed) {
+ 			genindex($page);
+ 		}
+-		if ($config{rcs}) {
++		if ($config{rcs} and $config{autoindex_commit}) {
+ 			IkiWiki::rcs_commit_staged(
+ 				gettext("automatic index generation"),
+ 				undef, undef);
+</pre>
+"""]]
+ 
+Warning:  I guess this patch may work, but I *haven't tested it yet*.  -- [[weakish]]
+
+------
+
+`autoindex_commit => 0` would be nice, but uncommited files are definitely not.
+<pre>
+remote: From /srv/git/test3
+remote:    3047077..1df636c  master     -> origin/master
+remote: error: Untracked working tree file 'test.mdwn' would be overwritten by merge.  Aborting
+remote: 'git pull --prune origin' failed:  at /usr/share/perl5/IkiWiki/Plugin/git.pm line 201.
+</pre>
+
+It'd be nice if we were able to notice directories with no associated compilable markup files and compile a simple map directive straight to HTML without any intermediate markup file being involved at all. -- JoeRayhawk

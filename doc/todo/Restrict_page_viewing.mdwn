@@ -1,0 +1,42 @@
+I'd like to have some pages of my wiki to be only viewable by some users.
+
+I could use htaccess for that, but it would force the users to have 
+2 authentication mecanisms, so I'd prefer to use openID for that too.
+
+* I'm thinking of adding a "show" parameter to the cgi script, thanks 
+  to a plugin similar to goto.
+* When called, it would check the credential using the session stuff 
+  (that I don't understand yet). 
+* If not enough, it would serve a 403 error of course.
+* If enough, it would read the file locally on the server side and 
+  return this as a content.
+
+Then, I'd have to generate the private page the regular way with ikiwiki,
+and prevent apache from serving them with an appropriate and 
+much more maintainable htaccess file.
+
+-- [[users/emptty]]
+
+> While I'm sure a plugin could do this, it adds so much scalability cost
+> and is so counter to ikiwiki's design.. Have you considered using the
+> [[plugins/httpauth]] plugin to unify around htaccess auth? --[[Joey]] 
+
+>> I'm not speaking of rendering the pages on demand, but to serve them on demand.
+>> They would still be compiled the regular way;
+>> I'll have another look at [[plugins/httpauth]] but I really like the openID whole idea.
+>> --[[emptty]]
+
+>>> How about
+>>> [mod_auth_openid](http://trac.butterfat.net/public/mod_auth_openid), then?
+>>> A plugin for ikiwiki to serve its own pages is far afield from ikiwiki's roots,
+>>> as Joey pointed out, but might be a neat option to have anyway -- for unifying
+>>> authentication across views and edits, for systems not otherwise running
+>>> web servers, for systems with web servers you don't have access to, and
+>>> doubtless for other purposes. Such a plugin would add quite a bit of flexibility,
+>>> and in that sense (IMO, of course) it'd be in the spirit of ikiwiki. --[[schmonz]]
+
+>>>> Yes, I think this could probably be used in combination with ikiwiki's
+>>>> httpauth and openid plugins. --[[Joey]] 
+
+>>>>> If you use the httpauth and the cgiauthurl method, you can restrict a path 
+>>>>> like /private/* to be accessible only under the authenticated request uri.

@@ -1,0 +1,31 @@
+Now that I have implemented a \[[!ymlfront ...]] directive, I would like to remove support for the old "---" delimited format, because
+
+* it is fragile (easily breakable)
+* it is non-standard
+
+Any objections?
+
+> Well, I don't have much standing since I have been too lame to integrate
+> ymlfront into ikiwiki yet. Buy, my opinion is, I liked the old
+> format of putting the YAML literally at the front of the file. It
+> seemed to allow parsing the file as YAML, using any arbitrary YAML
+> processer. And it was nice how it avoided boilerplate. --[[Joey]] 
+
+>> The old delimited format also has the advantage of being remarkably similar to the
+>> [MultiMarkDown](http://fletcherpenney.net/multimarkdown/users_guide/multimarkdown_syntax_guide/)
+>> way of including metadata in documents. The only difference is that MMD doesn't expect the
+>> triple-dash separators, but I'm thinking about submitting a patch to MMD to actually support
+>> that syntax. --GB
+
+>>> Yes, the idea was to allow the file to be parsed as YAML, you're right.  I just found that I tended to have problems when people used "---" for horizontal rules.  However, I have also found that trying to keep it solely as an IkiWiki directive doesn't work either, since sometimes the meta-data I need also contained "]]" which broke the parsing of the directive.
+>>> So I have decided to go for a compromise, and make the delimiter configurable, rather than hardcoded as "---"; the triple-dash is the default, but it can be configured to be something else instead.  I haven't pushed the change yet, but I have written it, and it seems to work. -- [[KathrynAndersen]]
+
+>>>> I'm not sure about what kind of problems you're meeting with "---" being used
+>>>> for horizontal rules: isn't it sufficient to just check that (1) the triple-dash
+>>>> is the first thing in the page and (2) there are only YAML-style assignments
+>>>> (and no blank lines) between the two markers? Check #2 would also be enough to
+>>>> support MMD-style metadata, which means (a) no start marker and (b) empty line
+>>>> to mark the end of the metadata block. Would this be supported by the plugin?
+>>>> --GB
+
+>>>>> Since I allow all legal YAML, the only way to check if it is legal YAML is to use the YAML parser, by which time one is already parsing the YAML, so it seems a bit pointless to check before one does so. -- KA

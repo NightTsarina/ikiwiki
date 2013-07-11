@@ -1,0 +1,71 @@
+I see that ikiwiki has already some [[bugs]] stored on the wiki, but adding
+better support for bug tracking would really make it a good project
+management system for small projects. Storing the sourcecode, wiki, developer
+blog and the issue tracker information under a same revision control
+system really makes sense. At the moment the only part missing from ikiwiki 
+is the bug tracker plugin.
+
+The support would not need to be anything fancy, assignment of bug numbers
+is perhaps the biggest thing missing when compared to a plain wiki page.
+Integration with the revision control system a la [scmbug](http://www.mkgnu.net/?q=scmbug) 
+would really neat though, so that bug tracker commands like (closes: #nnn) could 
+be embedded to the source code repository commit messages.
+
+> A while back I posted some thoughts in my blog about 
+> [using a wiki for issue tracking](http://kitenet.net/~joey/blog/entry/using_a_wiki_for_issue_tracking.html).
+> Google's BTS also has some interesting developments along the lines of
+> free-form search-based bug tracking, a style that seems a better fit to
+> wikis than the traditional rigid data of a BTS.
+>
+> I sorta take your point about bug numbers. It can be a pain to refer to
+> 'using_a_wiki_for_issue_tracking' as a bug name in a place like a
+> changelog.
+
+>> Would a modified [[plugins/inline]] plugin that allowed new pages, but without a title field, be ok?
+>> When you hit the edit button it just chooses a new number and makes a page with that
+>> name.
+
+>> The only issue I can see with this is if you're using a distributed wiki for
+>> distributed bug tracking.  In that case you're going to have to make sure that you
+>> don't get conflicting bug ids.
+>> Maybe there should be two options - consecutive numbering, and uuid numbering
+>> which uses a random (128 bit, base64 encoded = 22 chars) name. -- [[Will]]
+
+> OTOH, I don't see a need for specially formatted commit messages to be
+> used to close bugs. Instead, if your BTS is kept in an ikiwiki wiki in
+> an RCS along with your project, you can do like I do here, and just edit a
+> bug's page, tag it `done`, and commit that along with the bug fix.
+>
+> --[[Joey]]
+
+>> I think a little bit more structure than in a normal wiki would be
+>> good to have for bug tracking. Bug numbers, automatic timestamps on comments
+>> and maybe an email interface would be nice. The resulting page may not 
+>> look like a wikipage anymore, but rather something like the Debian 
+>> BTS web-interface, but it would still benefit from wikilinks to the 
+>> documentation in the wiki etc.
+
+>>> I think it is useful to look at these things separately:
+>>>
+>>> * Bug numbers: See above.
+>>> * Automatic timestamps on comments: this already exists with the inline directive.
+>>> * Email interface: You can certainly get an rss feed of what changes in the wiki.
+>>> * You didn't mention [[todo/structured_page_data]] but that is, I think, part
+>>>     of what you seem to be saying.
+>>> * [[todo/tracking_bugs_with_dependencies]] is also important.
+>>>
+>>> -- [[Will]]
+
+>> About the commit message interface: I was thinking about a project
+>> architecture where the code is kept in a separate revision control
+>> system branch than the metadata (blog, wiki, BTS). This would IMHO
+>> be a cleaner solution for distributing the source and making releases
+>> etc. For this kind of setup, having the BTS scan the messages of the 
+>> source branch (by a commit-hook for example) would be useful.
+>>
+>> By Google BTS, do you mean the issue tracker in the Google code 
+>> project hosting?
+>>
+>> --Teemu
+
+[[wishlist]]

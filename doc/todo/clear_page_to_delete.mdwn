@@ -1,0 +1,33 @@
+Would it make sense to automatically delete a page if it's edited and
+cleared to be entirely empty (or only have whitespace)? Discuss. --[[Joey]]
+
+ I'd say so; yes. A method of deleting pages via the web would be great; I
+can't think of a use of keeping blank pages around. What about vandalism --
+if someone blanks a page and deletes it and someone else wishes to restore
+it; or is undoing edits via the web a bigger issue? -- [[users/Jon]]
+
+Of course there's already a way to delete pages (remove plugin). So the
+question is really:
+
+* Does it make sense to have a second way to do it, by clearing the page?
+* Should it be enabled even if the full remove plugin isn't?
+
+Re vandalism in general, I am generally happy using git-revert to kill the
+offending change. --[[Joey]]
+
+I don't think we need a second way to delete pages, which would probably be
+used by the only few people who will learn it's possible by random
+documentation reading, find it useful, *and* remember it. -- [[intrigeri]]
+
+On the other hand, clearing the page's whole content essentially means deleting
+the page.  That's what the user intended to do in this case.  The information
+content of an empty vs. a deleted page is essentially the same, I'd say.  But
+having ikiwiki remove those stale pages would save some (minimal, admittedly)
+time needed for manual clean-up.  --[[tschwinge]]
+
+On EmacsWiki, a page is marked for deletion when it contains just the DeletedPage 
+keyword and if there were no page editions since XX days. Here, I use pages that
+can be empty everyday and filled all day long. It does not make sense to me to 
+delete these pages :). --[[xma]]
+
+I was not aware of [[plugins/remove]]. I don't think another method is necessary -- [[users/Jon]]

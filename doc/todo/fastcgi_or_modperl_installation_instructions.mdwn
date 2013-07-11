@@ -1,0 +1,18 @@
+There has got to be a way to run the CGI wrapper under fastcgi or modperl (apache 2). Are there easy to follow instructions describing how to set this up?
+
+> AFAIK noone has done this. One immediate problem would be permissions;
+> the CGI wrapper runs setuid to you so it can write to the wiki -- if
+> running in fastcgi/modperl I guess it would run as the web server, unless
+> there's some way to control that. So you'd need to set up the perms
+> differenly, to let the web server commit changes to the wiki.
+> 
+> I've not looked at what code changes fastcgi or modperl would require in
+> ikiwiki. --[[Joey]]
+
+> > Looking at nginx support in [[tips/dot_cgi]], I had to figure that out, and it's not so complicated. The hackish way that's documented there right now (and also supported by [answers on serverfault.com](http://serverfault.com/questions/93090/installing-ikiwiki-on-nginx-fastcgi-fcgi-wrapper) or [other](http://vilain.net/comp/ikiwiki_setup.html) [guides](https://library.linode.com/web-applications/wikis/ikiwiki/arch-linux)), and involves starting up a fcgi wrapper, which I find personnally quite weird.
+> > 
+> > Otherwise the general idea would be to launch a daemon per site that would have a pool of fastcgi processes to answer requests. The common setup pattern here is that users have a fixed quota of processes running as their user, listening either on the network (hackish: a port need to be allocated for each user) or on a socket (documented above, but then the webserver needs write access).
+> >
+> > Perl has had extensive support for FastCGI for quite a while. It seems to me a simple daemon could be written to wrap around the `.cgi`, it's a common way things are deployed. [RT](http://rt.bestpractical.com/) for example can run as a regular CGI, under `mod_perl` or `FastCGI` indiscrimenatly, the latter being more reliable and faster. They use [Plack](http://search.cpan.org/dist/Plack/) to setup that server (see the [startup script](https://github.com/bestpractical/rt/blob/stable/sbin/rt-server.in) for an example). But of course, [TIMTOWTDI](http://search.cpan.org/search?query=fastcgi&mode=all). --[[anarcat]]
+
+[[!tag wishlist]]

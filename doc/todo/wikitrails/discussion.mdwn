@@ -1,0 +1,84 @@
+(This mainly discusses the original implementation (chrysn's). --[[smcv]])
+
+----
+
+This is a nice idea, I do have my gripes about the imeplementation.
+
+Assuming that the index's list is in mdwn format is not ideal. I guess the
+other way to do it would be to make the index be a directive, something
+like: \[[!trail pages="foo bar baz"]]. Assuming that a flat trail structure
+is enough, otherwise you'd have to get more fancy.
+
+The trailinclude seems a bit redundant with inline, and wanting to inline
+together all pages in a trail for printing or whatever seems like an
+unusual use case anyway?
+
+The !trail directive could be simplified to just \[[!trail my_indexpage]].
+But I wonder if needing to add this directive to every page is the best
+approach. Alternate approach would be to make the trail index cause 
+breadcrums to be automatically inserted at the top of every page on the
+trail. (You'd have to use a directive to define the index for that to work.)
+
+--[[Joey]]
+
+----
+
+Revisiting this, after effectively reimplementing a small version of it
+in [[plugins/contrib/album]]: it occurs to me that might be a more
+"ikiwiki-like" way we could get this functionality.
+
+In the index page, you either want an [[ikiwiki/directive/inline]], or
+a list of links. In the former case, maybe we could extend inline like
+this:
+
+    \[[!inline ... blah blah ... trail=yes]]
+
+to make it remember the pages it inlined, in order, in the pagestate;
+in the latter case, we could replace the wikilinks with a directive,
+an operation something like this in diff notation:
+
+    - \[[one]] - the unit
+    - \[[two]] - the base of binary
+    - \[[three|3]] - is a crowd
+    + \[[!trailitem one]] - the unit
+    + \[[!trailitem two]] - the base of binary
+    + \[[!trailitem three|3]] - is a crowd
+
+and have that directive remember the pages in order.
+
+In both cases, a scan() hook could clear the list before starting to
+scan, then the inline or trailitem preprocessor directive could run in
+the scan stage as well as the render stage (in the case of inline,
+there'd be a very early return if trail=yes was not given, and
+an early return after collecting and sorting the pages if not
+actually rendering).
+
+This would mean that the contents of the trail, and a list of
+trails in which each page can be found, would already be in
+the pagestate by the time any page was rendered, so we'd be able
+to use them for output, either in a pagetemplate() hook or
+a \[[!trail]] preprocessor directive.
+
+This way, my album plugin could be turned inside out: instead
+of precomputing the pages to be inlined, then using
+[[pagenames|todo/inline plugin: specifying ordered page names]]
+to get them into the inline, it could just do the inline, then
+incorporate the output of \[[!trail]] into the template rendered
+for \[[!albumimage]] on each viewer page. (Also, the viewers
+wouldn't necessarily need to reference the album, only the other
+way round.)
+
+Using a pagetemplate() hook to stuff the next/previous links
+into page.tmpl would actually be a bit unfortunate for \[[!album]],
+because that plugin definitely wants to style the next/previous
+links as a thumbnail, which means there'd have to be a way to
+affect the style - perhaps by arranging for album's pagetemplate
+hook to run *after* trail's, or perhaps by having trail's
+pagetemplate hook disable itself for pages that contain
+a \[[!trail]] directive.
+
+I have now implemented this at [[plugins/contrib/trail]].
+What do you think? I'm still not sure how it would relate
+to [[plugins/contrib/album]], but if trail is reviewed
+and approved in principle, I'll try to adapt album as
+outlined above. --[[smcv]]

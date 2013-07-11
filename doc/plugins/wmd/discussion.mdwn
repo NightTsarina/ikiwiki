@@ -1,0 +1,73 @@
+I've tried to retrieve the wmd-editor source tarball lately, but the site seems offline.
+
+From what I've read on the Internet, wmd-editor is not (yet?) free software by itself, and its author has gone MIA.
+But it looks like somebody recently took the step to rewrite a wmd-clone under a saner license, see [[pagedown|http://code.google.com/p/pagedown/source/browse/]].
+
+Given all the above, what about upgrading this plugin to use pagedown instead of wmd? It seem a clear win to me...
+
+> AFAICS, pagedown is a modified version of WMD. Let's 
+> look at its license file: --[[Joey]] 
+
+<pre>
+A javascript port of Markdown, as used on Stack Overflow
+and the rest of Stack Exchange network.
+
+Largely based on showdown.js by John Fraser (Attacklab).
+
+Original Markdown Copyright (c) 2004-2005 John Gruber
+  <http://daringfireball.net/projects/markdown/>
+
+
+Original Showdown code copyright (c) 2007 John Fraser
+
+Modifications and bugfixes (c) 2009 Dana Robinson
+Modifications and bugfixes (c) 2009-2011 Stack Exchange Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a
+copy [...]
+</pre>
+
+> Ok, so it says it's based on showdown. John Fraser wrote showdown and also 
+> WMD, which IIRC was built on top of showdown. (Showdown converts the
+> markdown to html, and WMD adds the editor UI.)
+> 
+> I can nowhere find a actual statement of the copyright of showdown or
+> WMD. <http://code.google.com/p/wmd/> has a "MIT License" notice on it,
+> but this is clearly just the license chosen when signing up at google
+> code for the repo that would be used for a rewrite of the code, and the only thing 
+> said about the previous 1.0 release of WMD is "use it freely", which is not
+> specific enough to be a grant of license, and is moreover not a free
+> software license, as it does not cover distribution or modification.
+> 
+> Which was all covered in the thread here, 
+> when StackOverflow decided to start working on pagedown.
+> <http://blog.stackoverflow.com/2008/12/reverse-engineering-the-wmd-editor/>
+> This thread does not give any indication that they ever managed to get
+> a license grant for WMD/showdown. It frankly, does not inspire confidence
+> that the people working on this care about the license.
+> 
+> It would probably be pretty easy to adapt the ikiwiki wmd plugin 
+> to use pagedown. But without a clear and credible license, why?
+> 
+> (Note that I have a wmd-new branch in my ikiwiki git repo that
+> uses <https://github.com/derobins/wmd>, which was an earlier
+> version of pagedown (probably, not entirely clear).)
+> 
+> An alternate alternative is markitup: <http://markitup.jaysalvat.com/>
+> It has a clear history and a credible license (MIT or GPL dual license).
+> It's also easily extensible to other formats so could handle rst etc.
+> It does not, however, have a markdown to html converter -- for 
+> previewing it has to talk to the server with AJAX.
+> --[[Joey]] 
+
+>> I've got pagedown working on my personal site (simon.kisikew.org) but I'm not sure how
+>> I can inject the relevant &lt;div&gt;'s in the right place. They need to go **above**
+>> the editing &lt;textarea&gt; . (Too bad about the licensing, it's rather nice.)
+>> I had to do one minor change to it to have it inject itself into the page properly,
+>> and that was to make this change in `Markdown.Editor.js`:
+>>
+>> `this.input = doc.getElementById("editcontent" + postfix);`
+>>
+>> on line 247.  --[[simonraven]]
+
+>>> Well, I re-figured out that I needed a TMPL_VAR FOO in the template(s). --[[simonraven]]

@@ -1,0 +1,36 @@
+Wishlist items such as [[Add space before slash in parent links]] would be
+easier to deal with if the page.tmpl template was broken up into sections
+and each section had a separate template file which was included in the
+master page.tmpl file.  This would make it easier to customize parts of a
+page without having to fork the whole page.tmpl and then have things break
+when there's an update of the master page.tmpl file.
+
+Suggested sections:
+
+* page_head.tmpl for the things in the <head> section
+* page_header.tmpl for things in the "header" div (which includes the PARENTLINKS loop)
+* page_actions.tmpl for the actions section
+* page_sidebar.tmpl for the sidebar
+* page_content.tmpl for the main content
+* page_footer.tmpl for the footer
+
+Would this work, or would HTML::Template have problems with this?
+
+-- [[KathrynAndersen]]
+
+> Well, breaking it up into 6 sections would let a user modify one of them
+> with only 1/6th the chance of it being broken by a new ikiwiki.
+> Which seems like a win from the user's POV. However, I know that there
+> are ikiwiki users who modify the `page.tmpl` but are very
+> unsophisticated; needing to find the right file amoung 6 to modify
+> would be a loss for these users. And some modifications would probably
+> need to be coordinated amoung multiple files.
+> 
+> For ikiwiki developers, reducing by 5/6th the number of users affected by a
+> breaking change to page.tmpl is nice, but we still have to worry about
+> the 1 in 6 that would be affected despite the splitting. Ikiwiki has
+> enough users that any change to page.tmpl has to be carefully considered
+> to avoid breaking something they may depend on, and it's been two years
+> since that last needed to be done.
+> 
+> So all in all, I don't think it's worth doing. --[[Joey]] 

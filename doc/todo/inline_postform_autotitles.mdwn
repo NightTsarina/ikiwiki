@@ -1,0 +1,67 @@
+[[!tag wishlist patch plugins/inline]]
+[[!template id=gitbranch branch=chrysn/patches author="[[chrysn]]"]]
+
+for postforms in inlines of pages which follow a certain scheme, it might not
+be required to set the title for each individual post, but to automatically set
+the title and show no input box prompting for it.
+this can either be based on timestamp formatting, or use the already existing
+munging mechanism, which appends numbers to page titles in case that page
+already exists.
+
+two patches ([1], [2]) set inline up for that, adding an additional `autotitle`
+parameter. if that is given, the regular input of the inline postform will be
+replaced with a hidden input of that text. in addition, the empty title is
+permitted (both for autotitle and regular titles, as they go in the same GET
+parameter, `title`). as the empty page title is illegal, munging is used,
+resulting in ascending numeric page titles to be created.
+
+the second patch is actually a one-liner, filtering the title through strftime.
+
+> Something similar was requested in [[todo/more_customisable_titlepage_function]],
+> in which [[Joey]] outlined a similar solution.
+>
+> What's your use-case for not prompting for the title at all? I can see
+> [[madduck]]'s requirement for the title he typed in (say, "foo")
+> being transformed into 2009/07/26/foo or something (I name blog posts
+> like that myself), but I can't quite see the use for *entirely* automatic
+> titles.
+>
+> However, if that's really what you want, I suspect your code could be
+> extended so it also solves madduck's second request on
+> [[todo/more_customisable_titlepage_function]].
+>
+> --[[smcv]]
+
+### potential user interaction issues
+
+this has two side effects which have to be considered: first, the empty page
+title is accepted also in normal postforms (previously, this resulted in a "bad
+page name" error); second, entering a percent sign in that field might result
+in unexpexted strftime substitution (strftime might not even substitute for
+common uses of percent as in "reach 10% market share", but might in others as
+in "the 10%-rule").
+
+both can be circumvented by using another GET parameter for autotexts, as
+implemented in [3].
+> this patch still does not work perfectly; especially, it should make a
+> distinction between "autotitle is set but equal ''" (in which case it
+> should create a page named `1.mdwn`, and "autotitle is not set, and title is
+> equal ''" (in which case it should display the old error message) --[[chrysn]]
+
+### potential security issues
+
+* the autotitle's value is directly output through the template (but that's
+  done in other places as well, so i assume it's safe)
+* i don't know if anything bad can happen if unfiltered content is passed to
+  POSIX::strftime.
+
+### further extension
+
+having a pre-filled input field instead of an unchangable hidden input might be
+cool (eg for creating an entry with yesterday's date), but would be a bit of a
+problem with static pages. javascript could help with the date part, but name
+munging would be yet another thing.
+
+[1]: http://github.com/github076986099/ikiwiki/commit/b568eb257a3ef5ff49a84ac00a3a7465b643c1e1
+[2]: http://github.com/github076986099/ikiwiki/commit/34bc82f232be141edf036d35e8ef5aa289415072
+[3]: http://github.com/github076986099/ikiwiki/commit/40dc10a4ec7809e401b4497c2abccfba30f7a2af

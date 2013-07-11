@@ -1,0 +1,26 @@
+This is an [[example_blog|index]]. Just copy the blog subdirectory into
+your wiki to quickly get started blogging with ikiwiki. 
+
+Or, run this command to set up a blog with ikiwiki.
+
+	% ikiwiki -setup /etc/ikiwiki/auto-blog.setup
+
+Some additional configuration you might want to do, if not using
+`auto-blog.setup`:
+
+* Make sure to configure ikiwiki to generate RSS or Atom feeds.
+
+* Make sure you have the [[tag|plugins/tag]] plugin enabled, and the
+ `tagbase` set to "tags". Tag pages will then automatically be created.
+  An example of how to tag a post is:
+	\[[!tag life]]
+
+* Enable the [[pagestats|plugins/pagestats]] plugin to get a tag cloud
+  to display on the [[index]].
+
+* Enable the [[comments|plugins/comments]] plugin to
+  enable comments to posts to the blog.
+
+* Enable the [[calendar|plugins/calendar]] plugin and run the
+  [[ikiwiki-calendar]] command from cron daily to get an interlinked
+  set of calendar archives.

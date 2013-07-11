@@ -1,0 +1,23 @@
+The [[ikiwiki/directive/inline]] directive applies a template to each page-to-be-inlined, but the loop over the pages is in the Perl, not the template itself.  This means if I want to wrap a container `<div>` or a `<table>` or whatever around the entire set of inlined pages, I can't do it by just editing the template.  In fact, I think the only way to do it without hacking any Perl is with a wrapper template directive, e.g.
+
+    \[[!template id="wrapinline" pages="..."]]
+
+with a template definition like
+
+    <div id="foo">\[[!inline ... pages="<TMPL_VAR raw_pages>"]]</div>
+
+It would be much more convenient if the loop over pages happened in the template, allowing me to just stick whatever markup I want around the loop.
+
+> Unfortunatly, I don't think this can be changed at this point,
+> it would probably break a lot of stuff that relies on the current
+> template arrangement, both in ikiwiki's internals and in
+> people's own, customised inline templates. (Also, I have some plans
+> to allow a single inline to use different templates for different
+> sorts of pages, which would rely on the current one template per
+> page approach to work.)
+> 
+> But there is a simple workaround.. the first template in
+> an inline has FIRST set, and the last one has LAST set.
+> So you can use that to emit your div or table top and bottom.
+> 
+> [[done]] --[[Joey]] 

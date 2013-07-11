@@ -1,0 +1,20 @@
+The [[ikiwiki/directive/map]] directive sort by pagename. That looks kind of odd, when used together with show=title. I would expect it to sort by title then.
+
+> This would be quite hard to fix. Map sorts the pages it displays by page
+> name, which has the happy effect of making "foo/bar" come after "foo";
+> which it *has* to do, so that it can be displayed as a child of the page
+> it's located in. If sorting by title, that wouldn't hold. So, map
+> would have to be effectively totally rewritten, to build up each group
+> of child pages, and then re-sort those. --[[Joey]] 
+
+>> Ok, you are right, that does would break the tree. This made me think that I do not
+>> need to generate a tree for my particular use case just a list, so i thought i could use [[ikiwiki/directive/inline]] instead.
+>> This created two new issues:
+>>
+>> 1. inline also does sort by pagename even when explicitly told to sort by title.
+>>
+>> 2. I cannot get inline to create a list when the htmltidy plugin is switched on. I have a template which is enclosed in an li tag, and i put the ul tag around the inline manually, but htmltidy breaks this. --martin
+
+>>>> You might want to check if the [[plugins/contrib/report]] plugin solves your problem.  It can sort by title, among other things. --[[KathrynAndersen]]
+
+>> See also: [[todo/sort_parameter_for_map_plugin_and_directive]] --[[smcv]]

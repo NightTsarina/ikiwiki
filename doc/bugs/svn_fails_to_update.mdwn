@@ -1,0 +1,89 @@
+In poking around at the svn backend I found that the svn post-commit 
+hook calls to svn update fail regularly with an error code of 256. 
+Apparently during the post-commit hook can't update because the 
+working copy is locked from the commit. Since the post-commit hook doesn't send
+errors anywhere and svn update runs with --quiet anyhow, this error
+isn't usually visible, but on my system:
+
+    ethan@sundance:~/tests/webtemplates/ikiwiki3/wc$ svn commit -m "Blah.."
+    Sending        index.mdwn
+    Transmitting file data .
+    Committed revision 3.
+
+    #verifying output was created
+    ethan@sundance:~/tests/webtemplates/ikiwiki3/wc$ less ../dest/index.html 
+
+    ethan@sundance:~/tests/webtemplates/ikiwiki3/wc$ svn info
+    Path: .
+    URL: file:///home/ethan/tests/webtemplates/ikiwiki3/svn/trunk
+    Repository Root: file:///home/ethan/tests/webtemplates/ikiwiki3/svn
+    Repository UUID: f42bb0d6-3c1e-0410-b2d4-aeaad48dd6c4
+    Revision: 2
+    Node Kind: directory
+    Schedule: normal
+    Last Changed Author: ethan
+    Last Changed Rev: 2
+    Last Changed Date: 2006-09-24 21:15:55 -0400 (Sun, 24 Sep 2006)
+
+A sample error message (obtained through file redirection) is:
+
+    svn: Working copy '.' locked
+    svn: run 'svn cleanup' to remove locks (type 'svn help cleanup' for details)
+
+Did I do something stupid again or is this the case on your system too? 
+--Ethan
+
+Additional note: this doesn't happen when performing svn commits from another wc, 
+but *does* happen when committing from the web.
+--Ethan
+
+> Yeah, this makes sense now that you bring it up. Perhaps I should make
+> ikiwiki skip the update when called from the post-commit hook if the repo
+> is locked, although this could mask other problems.. --[[Joey]]
+
+>> I don't think it's (yet) a serious problem, because any commit to the repo
+>> either comes from another WC, in which case, no problem, or it is committed by 
+>> ikiwiki through its own WC, in which case that WC is "the newest". The only problem
+>> is that ikiwiki's rcs information for web commits gets screwed up. I think the
+>> correct fix is to call rcs_update from rcs_commit in svn.pm, if 
+>> the commit succeeds. I'm not sure whether this ought to happen for all RCSes
+>> or just svn. --Ethan
+
+>>> You say that the rcs information for web commits is screwed up .. how? 
+>>> Does this affect something that I'm not seeing? --[[Joey]]
+
+I just meant that when you call ikiwiki.cgi?do=edit, it gets the 
+"current" RCS revision, and uses that in the merges later if there
+are other edits in the meantime. So I guess if you have a file a.mdwn,
+and at revision X it contains the list:
+
+    a
+    b
+    c
+    d
+
+And then one user edits it by removing "c" from web, and 
+then starts editing it again, ikiwiki.cgi will think the edit "started"
+at revision X (although it's really X+1). So if another user edits via
+web in the meantime, the subsequent merge will try to remove "c" again.
+To be honest I don't know what will happen in this case (svn merge fails?
+conflict markers?), but I'm pretty sure it's a problem. Anyhow, I think we 
+should call update manually after commit, I just don't know if this should
+be RCS-specific, or whether it's safe to update after commit on all RCSes.
+--Ethan
+
+Hmm, turns out that isn't the case! svn's prepedit function calls svn info 
+which gets the "right" information even when the WC isn't current. I am 
+having problems merging but that probably has nothing to do with this bug. 
+[This patch](http://ikidev.betacantrips.com/patches/update.patch) calls
+rcs_update after commit in CGI.pm, it might be a good idea anyhow. --Ethan
+
+> Ok, I follow you. I am unsure whether this problem effects other rcses
+> besides svn. Depends on how they handle locking, etc. But calling
+> rcs_update will always be safe, so I'll do that. [[bugs/done]]
+> 
+> That still leaves the issue that it calls svn update in the post-commit
+> hook when it's locked and fails with that error message. Granted svn does
+> throw that away by default, but it's still ugly and wasteful. But
+> checking for a lock first is even uglier (and racey) and more wasteful,
+> so I don't see a fix.. --[[Joey]]

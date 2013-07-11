@@ -1,0 +1,129 @@
+## ikiwiki + git
+
+<http://fob.po8.org/node/346>
+
+Here's an early page documenting setting up ikiwiki with git. It shouldn't be
+this hard anymore. :-) See [[setup]] --[[Joey]]
+
+## Migrating from svn to git ##
+
+I'd like to migrate from svn to git, because git is better in general but also has some nice properties that go well together with my use of ikiwiki.. I only change it myself. I want a single git repo so that my website directory is self-contained so that I don't need to drag around a separate svn repository on my computer. Is it possible to use ikiwiki so that it only uses a git repository in the same dir as all files are stored and edited?
+
+Otherwise, I hope migrating is just importing the svn repo to git and then setting up ikiwiki to use git. I don't plan to go back to svn after that so git-svn should only do the import.
+
+### Solution ###
+**Basis:** I only use ikiwiki as a wiki compiler. No cgi or anything.
+
+I imported my svn repo into git with `git-svnimport`. I reconfigured ikiwiki to _not use any rcs_. In `ikiwiki.setup`, I have the git repository as srcdir, and a suitable dstdir. 
+
+Then, in my git repository, I added this `post-commit` hook to refresh the wiki:
+
+	#!/bin/sh
+
+	# to refresh when changes happen
+
+	BASE="/path/to/base/dir"
+	SETUPFILE="$BASE/ikiwiki.setup"
+	UNDERLAYDIR="$BASE/underlay"
+
+	ikiwiki --refresh --setup "$SETUPFILE" --underlaydir="$UNDERLAYDIR" --verbose	
+
+Positives:
+
+* Containment: I only have the above `$BASE` directory to backup: it contains the srcdir and setup files. No external svn repository. This means that suddenly `git` and `ikiwiki` pair into a stand-alone self-contained wiki compiler kit.
+
+UlrikSverdrup (This is now crossposted to the above mentioned [website][ulrikweb])
+
+[ulrikweb]: http://www.student.lu.se/~cif04usv/wiki/stuff/git.html
+
+> Note that while the post-commit hook above may work in some situations, it *will* fail (or at least be suboptimal) for web commits. If you're setting up ikiwiki and git for a wiki that allows web commits, you should use
+> the repository and hook setups in documented in [[setup]] instead. With that method, you do end up with two separate git repos; but it's fine to only back one of them up. :-) --[[Joey]]
+
+## gitmanual
+
+Main use case I am trying to accomplish: Edit wiki pages offline.
+
+1. Imagine you're the administrator of the site and you want to checkout the wiki sources to give them some love while on a train journey.
+2. Or you are writing a complex document and you want to simply use your favourite $EDITOR
+3. Learn a little more about [git](http://git.or.cz/)
+
+# Workflow
+
+## on webconverger.org aka si.dabase.com aka hendry machine
+
+Wiki page created with [ikiwiki](http://ikiwiki.info). Example usb.mdwn [usb](http://webconverger.org/usb/)
+
+## on monty (my laptop)
+
+    git-clone ssh://si.dabase.com/home/hendry/wikiwc/.git/
+
+You might want to set some config variables like your email as this [tutorial](http://www.kernel.org/pub/software/scm/git/docs/tutorial.html) describes.
+
+    echo "blah" >> usb.mdwn
+
+Then to commit:
+
+    git-commit -a -m "added test"
+
+Send back:
+
+    git push origin
+
+## on webconverger.org aka si.dabase.com aka hendry machine
+
+You should setup the "The git post-update wrapper" in the **ikiwiki.setup** file.
+
+Then the wiki should be up-to-date! :)
+
+# Ack
+
+Thanks to gitte on #git on Freenode and of course joeyh. Have a look at [[rcs/details]].
+
+## Too many pages about git?
+I think it would be a good thing if the various git pages where somehow unified. It seems to me that [[tips/laptop_wiki_with_git]] is currently not so different from [[git]]. Let us see what joeyh thinks about the new git pages, but if this level of detail is to go there, I think it could pretty much include (maybe as sub pages) the info in [[tips/laptop_wiki_with_git]] and [[tips/laptop_wiki_with_git_extended]] --[[DavidBremner]]
+
+# Does 'push' from the shallow clones work for you? git-clone and git-fetch explicitly state it doesn't... 
+
+-------
+
+## Permissions for web users and local users editing and creating pages
+What is the right permissions setup for a situation where both web and local users will be editing and creatingt pages? 
+My usage is this: I have a repository /srv/git/wiki.git chowned to me:apache with 775/664 permissions recursively (where 'me' is my account and the ikiwiki administrator), a /srv/www/ikisrc chowned to apache:apache, and a /srv/www/html/wiki chowned to apache:apache. As is, I can commit to the wiki.git repo (because it is owned by me) and web users can commit to it as well (because the group also has write access) what happens when I create a new page from either of those sources? For example, the apache user running ikiwiki.cgi would create /srv/www/ikisrc/something.mdwn, commit and push it to /srv/git/wiki.git, but that new object is owned by apache:apache. If I then try to commit a change to something.mdwn from a cloned repo sitting on my laptop, for example, will the commit not fail because apache created the files? 
+
+Does that mean that apache:apache should just own everything, and I should only commit through that user (via git:// protocol only, maybe, or ssh as apache instead of myself)? For some reason, my head can't quite wrap itself around the whole permissions issue. Thanks. --mrled
+
+> Ikiwiki is designed so that you don't have to worry about this kind of permissions issue.
+> Instead you can just configure the ikiwiki.cgi, in the setup file, to be suid to your
+> user. Then there's no need to let the web server's user modify files at all. --[[Joey]]
+
+
+## using a local wiki to preview changes: an srcdir needed?
+I have read the hints about using a local wiki to preview changes, but I haven't understood: is it assumed that I should also have a separate "srcdir" for this local preview-wiki (as it is done for the main wiki site), or I could point the local ikiwiki's "srcdir" to the working dir? Can something bad happen if I do this? I guess no, because--as I see it--the reason to have 2 repos for the main site was only enabling pushing to it, so it's a peculiarity of git, and not a requirement for a clean functioning of ikiwiki.
+
+Ok, probably, I have answered my question myself, but I'll let this comment stay here, if someone else will be tinking about the same issue. --Ivan Z.
+
+## Fix for error on git pull origin
+
+Error message when running git pull origin:
+
+    You asked me to pull without telling me which branch you
+    want to merge with, and 'branch.master.merge' in
+    your configuration file does not tell me either.  Please
+    name which branch you want to merge on the command line and
+    try again (e.g. 'git pull <repository> <refspec>').
+    See git-pull(1) for details on the refspec.
+    
+    If you often merge with the same branch, you may want to
+    configure the following variables in your configuration
+    file:
+    
+        branch.master.remote = <nickname>
+        branch.master.merge = <remote-ref>
+        remote.<nickname>.url = <url>
+        remote.<nickname>.fetch = <refspec>
+    
+    See git-config(1) for details.
+
+The solution is to run this command in your srcdir:
+
+    git config branch.master.remote origin

@@ -1,0 +1,9 @@
+When using the img directive while reducing the size of the image by only specifying either the width ("100x") or height ("x100"), the resulting HTML breaks/confuses IE (at least 8 and 9).
+
+In those cases img plugin do generate HTML with the missing attribute as "empty". For example, if the new size is specified as "100x", the resulting HTML will be &lt;img&nbsp;...&nbsp;width="100"&nbsp;height=""/&gt;. When IE encounters such empty attributes, the image is sort of compressed into a one (1!) pixel high (or wide) image, which is **not** what you expected.
+
+If we instead always get the resulting the width and height from the resized image, and uses those values in the img attrs, we make IE happy (and all other renders as well).
+
+A patch (tested and deployed) is sitting waiting in my git repository.
+
+> I've applied your patch. Thanks! [[done]] --[[Joey]] 

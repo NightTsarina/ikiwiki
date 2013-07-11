@@ -1,0 +1,358 @@
+No matter what I do, ikiwiki gives me a `Can't locate loadable object for module Locale::gettext in @INC` although I've installed (and reinstalled) the Locale module, and no luck. If I look at the directories in the INC path, I can see the file. The wiki won't compile in spite of this, and I've tried everything I can think of.. -- [[tychoish]]
+
+> Sounds like the `Locale::gettext` perl module is there, but your perl
+> installation is broken so that the accompnying so file is not there, or
+> doesn't work. On my system I have 
+> `/usr/lib/perl5/Locale/gettext.pm` and
+> `/usr/lib/perl5/auto/Locale/gettext.so` -- suspect your problem is with
+> the second one.
+> 
+> If you can't fix it, this problem could probably be worked around by
+> unsetting all environment variables when running ikiwiki (`LANG`,
+> `LC_ALL`, `LC_MESSAGES`). Then it won't try to load `Locale::gettext` at
+> all. --[[Joey]]
+
+---
+
+I am trying to install Ikiwiki version 2.1 from the source tarball.
+
+It has all gone fairly smoothly until I try and run 'make'.
+
+I.e. I have downloaded and unpacked ikiwiki_2.1.tar.gz and have run
+
+    perl Makefile.PL
+
+... which has run OK.
+
+
+However when I then run 'make' I get:-
+
+    LANG=C perl -I.  -T ikiwiki.out doc html --templatedir=templates \
+                    --underlaydir=basewiki --nousedirs\
+                    --wikiname="ikiwiki" --verbose \
+                    --exclude=/discussion --no-discussion --userdir=users \
+                    --plugin=goodstuff \
+                    --plugin=haiku --plugin=polygen --plugin=fortune
+    Failed to load plugin IkiWiki::Plugin::mdwn: IkiWiki version 2 required--this is only version 1.01 at IkiWiki/Plugin/mdwn.pm line 7.
+    BEGIN failed--compilation aborted at IkiWiki/Plugin/mdwn.pm line 7.
+    Compilation failed in require at (eval 4) line 2.
+    BEGIN failed--compilation aborted at (eval 4) line 2.
+
+    make: *** [extra_build] Error 1
+ 
+How do I fix this?  There may be a bit of old ikiwiki left behind because
+I did once have an older version installed but I thought I had removed all
+traces of it.
+
+> I'm quite sure that you still have some of it floating around, since
+> ikiwiki seems to be loading an old IkiWiki.pm.
+> 
+> I don't understand though why it's not finding ./IkiWiki.pm first. The
+> `-I` in the command line should make it look for files in the current
+> directory first. --[[Joey]]
+
+Well I have searched around and there really is nothing left that I can see.
+
+I have removed *everything* found by 'find' and 'locate' that contains 'ikiwiki' except the tar file
+and started from the beginning again and I see exactly the same error.
+
+Is it that I maybe have a too old version of some of the Perl dependencies?  The only mdwn.pm files
+that I have are the two I have just extracted from the new tar file.  There is *no* ./IkiWiki.pm file
+
+> It's interesting that you say you have no ./IkiWiki.pm file, since one is
+> included in the tarball. What happened to it, I wonder? 
+
+so what/where is it loading to satisfy the ....... aaaaaaaaaaahhhhhhhhhhhhhh!!!!!!
+
+I wasn't noticing the case of the filename, I'd missed the upper case W and guess what 'find' shows me:-
+
+    /usr/local/lib/perl5/site_perl/5.8.8/IkiWiki.pm
+
+Removing the above file has fixed my basic problem, now I'm getting lots of (non-fatal) errors
+about "Can't locate Locale/gettext.pm", presumably that's a missing Perl module, I can probably
+sort that out.
+
+
+## Errors when running 'make test'
+
+OK, I've now got it to compile and install and presumably it's basically working.  However there
+are a few errors when I run 'make test'.  Several errors have disappeared by installing more Perl
+stuff (specifically XML::SAX) 
+
+> XML::SAX is a requirement of XML::Simple, which is a documented build
+> requirement. (Only really needed if you'll be using subversion actually).
+
+and one error disappeared when I did a 'make install', i.e. the 'make
+test' has a test which requires IkiWiki to be installed first.
+
+> Yes, that bug is already fixed in subversion for the next release
+> --[[Joey]]
+
+However I'm still getting the following error in 'make test':-
+
+	t/pagename.................ok                                                
+	t/pagespec_match...........ok 1/52Modification of a read-only value attempted at /home/chris/webdev/ikiwiki/blib/lib/IkiWiki.pm line 1023.
+	# Looks like you planned 52 tests but only ran 23.
+	# Looks like your test died just after 23.
+	t/pagespec_match...........dubious                                           
+	        Test returned status 255 (wstat 65280, 0xff00)
+	DIED. FAILED tests 24-52
+	        Failed 29/52 tests, 44.23% okay
+	t/pagespec_merge...........ok                                                
+
+> What version of perl are you using? It seems to have some problem with
+> operator overloading.
+> --[[Joey]]
+
+home$ perl -v
+
+This is perl, v5.8.8 built for i486-linux
+
+## Installation in a non-root enviroment
+I had a pretty hellacious time installing Ikiwiki (largely due to problems
+in Perl) and documented them in [[tips/Dreamhost]].  I'd like to get feedback on the doc and also know if I should file a few bugs to make the installation process a little friendlier to non-root folks.  Thanks for the great app!
+
+
+## Typing error?
+
+[..] Mail::Sendmail, TimeDate, RPC::XML, [..]: should be DateTime? --[[vibrog]]
+
+> No, TimeDate and DateTime are two different CPAN modules. Ikiwiki uses
+> TimeDate. --[[Joey]]
+
+ah, i still don't fully get it, though (the following is slightly shortened):
+
+    $ perl -MCPAN -e shell
+    cpan> install DateTime
+    DateTime is up to date.
+    cpan> install TimeDate
+    Warning: Cannot install TimeDate, don't know what it is.
+    Try the command
+        i /TimeDate/
+    to find objects with matching identifiers.
+
+I'm trying to build IkiWiki on a fresh OpenSuse 10.3 box. I start out with
+
+    $ perl -MCPAN -e 'install Text::Markdown URI HTML::Parser HTML::Template HTML::Scrubber'
+    $ git clone git://git.ikiwiki.info/ ikiwiki && cd ikiwiki
+    $ perl Makefile.PL && make
+
+Are there other prerequisites?
+I also installed all optional Perl modules, except TimeDate.
+
+> TimeDate is also, confusingly, known as Date::Parse. Perhaps CPAN would
+> do better with that name. --[[Joey]]
+
+good. Date::Parse was already installed. --[[vibrog]]
+
+`make` exits with `make: *** [extra_build] Aborted`, `make test` complains `cannot stat 'ikiwiki.man'` --[[vibrog]]
+
+> If you show me the actual error message, and not just the last line make
+> outputs, I might be able to help. --[[Joey]]
+
+    ..
+    rendering todo/calendar_--_archive_browsing_via_a_calendar_frontend.mdwn
+    make: *** [extra_build] Segmentation fault
+
+> So, perl on your system is segfaulting when running ikiwiki. What version
+> of perl is this, and what version of what distribution? --[[Joey]]
+
+    $ perl -V
+    Summary of my perl5 (revision 5 version 8 subversion 8) configuration:
+    osname=linux, osvers=2.6.22, archname=i586-linux-thread-multi
+    uname='linux ravel 2.6.22 #1 smp 20070921 22:29:00 utc i686 i686 i386 gnulinux '
+    config_args='-ds -e -Dprefix=/usr -Dvendorprefix=/usr -Dinstallusrbinperl -Dusethreads -Di_db -Di_dbm -Di_ndbm -Di_gdbm -Duseshrplib=true -Doptimize=-O2 -march=i586 -mtune=i686 -fmessage-length=0 -Wall -D_FORTIFY_SOURCE=2 -fstack-protector -g -Wall -pipe'
+    hint=recommended, useposix=true, d_sigaction=define
+    usethreads=define use5005threads=undef useithreads=define usemultiplicity=define
+    useperlio=define d_sfio=undef uselargefiles=define usesocks=undef
+    use64bitint=undef use64bitall=undef uselongdouble=undef
+    usemymalloc=n, bincompat5005=undef
+
+Not sure how to provide proper version information for you.--[[vibrog]]
+
+---
+
+I've tried a couple of times and my cpan has never recognised Bundle::IkiWiki. Is that section of the page still accurate? -- [[users/Jon]]
+
+> Are you running perl with the environemnt settings specified on the page?
+> Can you show how it fails to find the bundle? --[[Joey]]
+
+>> I was not. Next time I build I will have to try that (I'll need to tweak it as I already override PERL5LIB; also I need to specify http proxies). Thanks for your help! -- [[users/Jon]]
+
+---
+
+##Further problems with Bundle::IkiWiki
+I'm also having trouble with finding Bundle::IkiWiki.  I've tried it with the environment settings and without them, and also using the interactive 
+form of the cpan command.  I've also gone to cpan.org and searched -- eg
+
+    http://search.cpan.org/search?query=ikiwiki&mode=all
+
+and no Bundle for IkiWiki comes up at all.
+
+The error I get from the various cpan attempts is basically always the same:
+
+    Warning: Cannot install Bundle::IkiWiki, don't know what it is.
+    Try the command
+
+        i /Bundle::IkiWiki/
+
+    to find objects with matching identifiers.
+
+When I try that command, BTW, it basically seems to find the same stuff I get when searching on the cpan web site.
+
+This happens both on Ubuntu 8.04 and CentOS 5.1
+
+Any help would be greatly appreciated... --kent
+
+> Bundle::IkiWiki is included in ikiwiki itself, so of course cpan.org
+> does not know about it.
+> 
+> If you can show me exactly what command you ran (the tested, working
+> commands on the parent page?) and how it failed, I can try to debug
+> your problem.
+
+Just today I noticed the "Bundle" subdirectory.  What a moron I am! :-)  Also, I misunderstood the PERL5LIB=`pwd` part -- 
+I glibly thought it indicated the sink for the installation of the modules, rather than the source, and I was running 
+the cpan command from another window in a different directory, and just spiraled down into error...
+
+> The real question in my mind is why you'd want to do this at all when
+> using Ubuntu, which incldues packages of ikiwiki and all its
+> dependencies. --[[Joey]]
+
+For ubuntu 8.04: 
+
+    $ ikiwiki --version
+    ikiwiki version 2.32.3ubuntu2.1
+    $
+
+I was just trying to get the latest version.
+
+In any case, thanks for the help, and thanks for the superb software.  I really like it a lot.
+
+---
+
+## Prerequisite modules not found for non-root user
+Hi, I'm a non-root user trying to use IkiWiki on an academic webserver with Perl 5.8.8 but several missing modules, so I grab them from CPAN (edited):
+
+    cd ~; PERL5LIB=`pwd`/ikiwiki:`pwd`/ikiwiki/cpan:`pwd`/lib/perl5 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->install("Bundle::IkiWiki")'
+
+That puts a lot of files in ~/.cpan. Then when I go into the directory where I untarred IkiWiki and try to run the Perl makefile:
+
+    cd ~/ikiwiki; perl Makefile.PL PREFIX=$HOME/ikiwiki
+
+I get warnings that all the modules needed were not found:
+
+Warning: prerequisite CGI::FormBuilder  not found.
+Warning: prerequisite CGI::Session 0 not found.
+Warning: prerequisite Date::Parse 0 not found.
+Warning: prerequisite HTML::Scrubber 0 not found.
+Warning: prerequisite HTML::Template 0 not found.
+Warning: prerequisite Mail::Sendmail 0 not found.
+Warning: prerequisite Text::Markdown 0 not found.
+
+CORRECTION 1: I played around with CPAN and got the installation to the point of succeeding with >99% of tests in "make test".
+
+> What was the magic CPAN rune that worked for you? --[[Joey]] 
+
+An attempt of "make install" failed while trying to put files in /etc/IkiWiki but per the output's instructions, I reran "make install" and that seemed to work, until this error, which doesn't seem to be satisfiable:
+
+    Warning: You do not have permissions to install into /usr/lib/perl5/site_perl/5.8.8/i386-linux-thread-multi at /usr/lib/perl5/5.8.8/ExtUtils/Install.pm line 114.
+    Installing /usr/lib/perl5/site_perl/5.8.8/IkiWiki.pm
+    mkdir /usr/lib/perl5/site_perl/5.8.8/IkiWiki: Permission denied at /usr/lib/perl5/5.8.8/ExtUtils/Install.pm line 176
+
+Any suggestions? Whew!
+
+> When you build ikiwiki, try doing it like this to make it
+> install to your home directory. Then you can run `~/bin/ikiwiki`
+> --[[Joey]] 
+
+	perl Makefile.PL INSTALL_BASE=$HOME PREFIX=
+	make
+	make install
+
+---
+
+03 September 2010, Report on successful manual install in Debian 5 (Lenny) AMD64:
+
+note: Maybe much more easy using backports, but using this tools you get a plain user cpan  :)
+
+This where my steps:
+
+As root (#):
+
+        aptitude install build-essential curl perl
+
+
+As plain user ($), I use to install user perl modules using local::lib
+
+        mkdir -p "$HOME/downloads"
+        cd "$HOME/downloads/"
+        wget http://search.cpan.org/CPAN/authors/id/G/GE/GETTY/local-lib-1.006007.tar.gz
+        wget http://ftp.de.debian.org/debian/pool/main/i/ikiwiki/ikiwiki_3.20100831.tar.gz
+        tar -zxf local-lib-1.006007.tar.gz 
+        cd local-lib-1.006007/
+        perl Makefile.PL --bootstrap=~/.perl5
+        make test && make install
+        echo 'eval $(perl -I$HOME/.perl5/lib/perl5 -Mlocal::lib=$HOME/.perl5)' >>~/.bashrc
+        . ~/.bashrc
+        curl -L http://cpanmin.us | perl - App::cpanminus
+        cpanm CGI::FormBuilder
+        cpanm CGI::Session
+        cpanm HTML::Parser
+        cpanm HTML::Template
+        cpanm HTML::Scrubber
+        cpanm Text::Markdown
+        cpanm URI
+        cd ..
+        tar -zxf ikiwiki_3.20100831.tar.gz
+        cd ikiwiki/
+        perl Makefile.PL INSTALL_BASE= PREFIX=/home/$USER/.perl5
+        make test    # All tests successful.
+        make install INSTALL_BASE=/home/$USER/.perl5
+        . ~/.bashrc
+
+Using cpan or cpanm with local::lib, you can install any other dependency, as plain user (in your home). XS modules may need -dev packages.
+
+After all, here it's:
+
+        ikiwiki -version
+        ikiwiki version 3.20100831
+
+It seems like this installation looses the /etc files (we're as plain user), but this can be used as a workaround:
+
+        ikiwiki -setup ~/downloads/ikiwiki/auto.setup
+
+I've not investigated more the /etc files ussage, but does not seems like a good idea to be as plain user...
+
+        /etc/ikiwiki/wikilist does not exist
+        ** Failed to add you to the system wikilist file.
+        ** (Probably ikiwiki-update-wikilist is not SUID root.)
+        ** Your wiki will not be automatically updated when ikiwiki is upgraded.
+
+
+Iñigo
+
+-----
+
+
+Portability fixes encountered while maintaining the pkgsrc package:
+
+* In `IkiWiki::Setup::Standard::gendump()`, generate a shebang
+  matching the current `perl`.
+* In `Makefile.PL`, provide overridable defaults for `SYSCONFDIR`
+  and `MANDIR`.
+* In `Makefile.PL`, use `perl` to bump `ikiwiki.spec` instead of
+  `sed -i`.
+* In `Makefile.PL`, specify more portable options to `cp`.
+
+I've attempted to mergeably patch these in my git, commit
+5c177c96ac98b24aaa0613ca241fb113f1b32c55.
+
+--[[schmonz]]
+
+-----
+
+[[!template id=gitbranch branch=schmonz/portability author="[[schmonz]]"]]
+
+My git was in a screwy state so I started over. These changes are
+now on a branch. --[[schmonz]]

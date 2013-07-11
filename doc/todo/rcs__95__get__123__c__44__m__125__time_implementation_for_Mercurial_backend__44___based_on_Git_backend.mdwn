@@ -1,0 +1,157 @@
+(**Note:** this patch is built on top of the patch discussed at [[Attempt to extend Mercurial backend support]]. The `run_or_die()` function declared therein is needed for this patch to run.)
+
+Patch to change the Mercurial entries for `rcs_getctime` and `rcs_getmtime` from "slow"/"no" to "fast"/"fast" in [[/rcs]].
+
+The patch is mostly a slightly modified cc of the code in `git.pm`. The exception is that a Mercurial style file is needed to get a reasonable output from `hg log`. To make the file self-contained in its current state, this was solved with a generated temp file, but that section could and should be replaced with just setting `$tmpl_filename` to a path to a static file `map-cmdline.ikiwiki-log` (to conform with Mercurial's naming of its default styles) in the Ikiwiki distribution, with contents
+
+	changeset = "{date}\n{files}\n"
+	file = "{file}\n"
+
+which is based on an [example](http://hgbook.red-bean.com/read/customizing-the-output-of-mercurial.html#id417978) in [Mercurial: The Definitive Guide](http://hgbook.red-bean.com/) (and otherwise fascinatingly undocumented). A style *file* is required for this kind of formatting. There is a switch `hg log --template` to directly control simple output formatting, but in this case, the `{file}` directive must be redefined, which can only be done with `hg log --style`.
+
+If `{file}` is not redefined, all filenames are output on a single line separated with a space. It is not possible to conclude if the space is part of a filename or just a separator, and thus impossible to use in this case. Some output filters are available in hg, but they are not fit for this cause (and would slow down the process unnecessarily).
+
+In the patch listing below, I've marked the parts of the patch that should be removed when the tempfile replacement is done with **Marker# start** and **Marker# end**.
+
+[Patch at pastebin](http://pastebin.com/QBE4UH6n).
+
+[Patch at pastebin with tempfile code replaced by a path to a static file (change path accordingly)](http://pastebin.com/dmSCRkUK).
+
+[My `mercurial.pm` in raw format after this and beforementioned patches (tempfile code present)](http://510x.se/hg/program/ikiwiki/raw-file/1b6c46b62a28/Plugin/mercurial.pm).
+
+--[[Daniel Andersson]]
+
+> I have applied this, but I left the temp file in. 
+> The overhead seems small since it will only be run once per ikiwiki run,
+> and only when `ikiwiki --gettime` is run, or the first time
+> ikiwiki runs. Thanks for this! [[done]] --[[Joey]] 
+
+---
+
+	diff -r 78a217fb13f3 -r 1b6c46b62a28 Plugin/mercurial.pm
+	--- a/Plugin/mercurial.pm	Sat Jul 16 03:19:25 2011 +0200
+	+++ b/Plugin/mercurial.pm	Tue Jul 19 13:35:17 2011 +0200
+	@@ -310,28 +310,91 @@
+	 	# TODO
+	 }
+	 
+	-sub rcs_getctime ($) {
+	-	my ($file) = @_;
+	+{
+	+my %time_cache;
+	 
+	-	my @cmdline = ("hg", "-R", $config{srcdir}, "log", "-v",
+	-		"--style", "default", "$config{srcdir}/$file");
+	-	open (my $out, "-|", @cmdline);
+	+sub findtimes ($$) {
+	+	my $file=shift;
+	+	my $id=shift; # 0 = mtime ; 1 = ctime
+	 
+	-	my @log = (mercurial_log($out));
+	+	if (! keys %time_cache) {
+	+		my $date;
+	 
+	-	if (@log < 1) {
+	-		return 0;
+
+**Marker1 start**
+
+	+		# The tempfile logic should be replaced with a file included
+	+		# with ikiwiki containing
+	+		# --
+	+		# changeset = "{date}\n{files}\n"
+	+		# file = "{file}\n"
+	+		# --
+	+		# to avoid creating a file with static contents every time this
+	+		# function is called. The path to this file should replace
+	+		# $tmpl_filename in run_or_die() below.
+	+		#
+
+**Marker1 end**
+
+	+		# It doesn't seem possible to specify the format wanted for the
+	+		# changelog (same format as is generated in git.pm:findtimes(),
+	+		# though the date differs slightly) without using a style
+	+		# _file_. There is a "hg log" switch "--template" to directly
+	+		# control simple output formatting, but in this case, the
+	+		# {file} directive must be redefined, which can only be done
+	+		# with "--style".
+	+		#
+	+		# If {file} is not redefined, all files are output on a single
+	+		# line separated with a space. It is not possible to conclude
+	+		# if the space is part of a filename or just a separator, and
+	+		# thus impossible to use in this case.
+	+		# 
+	+		# Some output filters are available in hg, but they are not fit
+	+		# for this cause (and would slow down the process
+	+		# unnecessarily).
+	+
+
+**Marker2 start**
+
+	+		use File::Temp qw(tempfile);
+	+		my ($tmpl_fh, $tmpl_filename) =	tempfile(UNLINK => 1);
+	+
+	+		print $tmpl_fh 'changeset = "{date}\\n{files}\\n"' . "\n";
+	+		print $tmpl_fh 'file = "{file}\\n"' . "\n";
+	+
+
+**Marker2 end**
+
+	+		foreach my $line (run_or_die('hg', 'log', '--style',
+	+				$tmpl_filename)) {
+	+			# {date} gives output on the form
+	+			# 1310694511.0-7200
+	+			# where the first number is UTC Unix timestamp with one
+	+			# decimal (decimal always 0, at least on my system)
+	+			# followed by local timezone offset from UTC in
+	+			# seconds.
+	+			if (! defined $date && $line =~ /^\d+\.\d[+-]\d*$/) {
+	+				$line =~ s/^(\d+).*/$1/;
+	+				$date=$line;
+	+			}
+	+			elsif (! length $line) {
+	+				$date=undef;
+	+			}
+	+			else {
+	+				my $f=$line;
+	+
+	+				if (! $time_cache{$f}) {
+	+					$time_cache{$f}[0]=$date; # mtime
+	+				}
+	+				$time_cache{$f}[1]=$date; # ctime
+	+			}
+	+		}
+
+**Marker3 start**
+
+	+		close ($tmpl_fh);
+
+**Marker3 end**
+
+	 	}
+	 
+	-	eval q{use Date::Parse};
+	-	error($@) if $@;
+	-	
+	-	my $ctime = str2time($log[$#log]->{"date"});
+	-	return $ctime;
+	+	return exists $time_cache{$file} ? $time_cache{$file}[$id] : 0;
+	+}
+	+
+	+}
+	+
+	+sub rcs_getctime ($) {
+	+	my $file = shift;
+	+
+	+	return findtimes($file, 1);
+	 }
+	 
+	 sub rcs_getmtime ($) {
+	-	error "rcs_getmtime is not implemented for mercurial\n"; # TODO
+	+	my $file = shift;
+	+
+	+	return findtimes($file, 0);
+	 }
+	 
+	 1

@@ -1,0 +1,29 @@
+When trying to insert the raw content of an attached shell script
+called `whatever` using:
+
+    \[[!inline pages="whatever" raw="yes"]]
+
+The generated HTML contains:
+
+    \[[!inline Erreur: Can't call method "param" on an undefined value
+    at /usr/local/share/perl/5.10.0/IkiWiki/Plugin/inline.pm
+    line 346.]]
+
+Looking at the inline plugin's code, it is clear that `$template` is
+undef in such a situation. Defining `$template` just before line 346,
+in case it's not defined, removes the error message, but nothing
+gets inlined as `get_inline_content` returns the empty string in
+this situation.
+
+If we explicitely don't want to allow raw inlining of unknown page
+types, ikiwiki should output a better error message.
+
+> I have made it just do a direct include if the page type is not known, in
+> raw mode. That seems useful if you want to include some other file right
+> into a page. You could probably even wrap it in a format directive.
+> 
+> It does allow including binary files right into a page, but nothing is
+> stopping you pasting binary data right into the edit form either, so
+> while annoying I don't think that will be a security problem. --[[Joey]] 
+
+[[done]]

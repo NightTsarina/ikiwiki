@@ -1,0 +1,125 @@
+Maybe sidebar could be beefed up to take the name of a sidebar, such that I could use multiple sidebars in the same wiki. For instance, the default name would be 'sidebar', meaning the plugin looks for `sidebar.pm` and fills in the `sidebar` slot, but I might also want a footer in `footer.pm`, filling the template's `footer` slot.
+
+One good way (if possible) would be to provide a directive like `\[[!sidebar
+id=sidebar]]` which would cause the file, in which it occurred to fill the
+slot `SIDEBAR` in the template: basically, a page `foo.mdwn` says
+`\[[!fillslot slot=myslot]]` and then its contents should go into `<TMPL_VAR
+SLOT_MYSLOT>` for all pages. Ideally, this can then be overridden, so if
+`/bar/foo.mdwn` also references `myslot` then pages under `/bar` should get
+those contents instead.
+
+
+--[[madduck]]
+
+> In mine I just copied sidebar out and made some extra "sidebars", but they go elsewhere. Ugly hack, but it works. --[[simonraven]]
+
+>> Here a simple [[patch]] for multiple sidebars. Not too fancy but better than having multiple copies of the sidebar plugin. --[[jeanprivat]]
+
+>>> I made a [[git]] branch for it [[!template id=gitbranch branch="privat/multiple_sidebars" author="[[jeanprivat]]"]] --[[jeanprivat]]
+
+>>>> Ping for [[Joey]]. Do you have any comment? I could improve it if there is things you do not like. I prefer to have such a feature integrated upstream. --[[JeanPrivat]]
+
+>>>>> The code is fine.
+>>>>>
+>>>>> I did think about having it examine
+>>>>> the `page.tmpl` for parameters with names like `FOO_SIDEBAR`
+>>>>> and automatically enable page `foo` as a sidebar in that case,
+>>>>> instead of using the setup file to enable. But I'm not sure about
+>>>>> that idea..
+>>>>> 
+>>>>> The full compliment of sidebars would be a header, a footer,
+>>>>> a left, and a right sidebar. It would make sense to go ahead
+>>>>> and add the parameters to `page.tmpl` so enabling each just works,
+>>>>> and add whatever basic CSS makes sense. Although I don't know
+>>>>> if I want to try to get a 3 column CSS going, so perhaps leave the
+>>>>> left sidebar out of that.
+
+-------------------
+
+<pre>
+--- /usr/share/perl5/IkiWiki/Plugin/sidebar.pm	2010-02-11 22:53:17.000000000 -0500
++++ plugins/IkiWiki/Plugin/sidebar.pm	2010-02-27 09:54:12.524412391 -0500
+@@ -19,12 +19,20 @@
+ 			safe => 1,
+ 			rebuild => 1,
+ 		},
++		active_sidebars => {
++			type => "string",
++			example => qw(sidebar banner footer),
++			description => "Which sidebars must be activated and processed.",
++			safe => 1,
++			rebuild => 1
++		},
+ }
+ 
+-sub sidebar_content ($) {
++sub sidebar_content ($$) {
+ 	my $page=shift;
++	my $sidebar=shift;
+ 	
+-	my $sidebar_page=bestlink($page, "sidebar") || return;
++	my $sidebar_page=bestlink($page, $sidebar) || return;
+ 	my $sidebar_file=$pagesources{$sidebar_page} || return;
+ 	my $sidebar_type=pagetype($sidebar_file);
+ 	
+@@ -49,11 +57,17 @@
+ 
+ 	my $page=$params{page};
+ 	my $template=$params{template};
+-	
+-	if ($template->query(name => "sidebar")) {
+-		my $content=sidebar_content($page);
+-		if (defined $content && length $content) {
+-		        $template->param(sidebar => $content);
++
++	my @sidebars;
++	if (defined $config{active_sidebars} && length $config{active_sidebars}) { @sidebars = @{$config{active_sidebars}}; }
++	else { @sidebars = qw(sidebar); }
++
++	foreach my $sidebar (@sidebars) {
++		if ($template->query(name => $sidebar)) {
++			my $content=sidebar_content($page, $sidebar);
++			if (defined $content && length $content) {
++				$template->param($sidebar => $content);
++			}
+ 		}
+ 	}
+ }
+</pre>
+
+----------------------------------------
+## Further thoughts about this
+
+(since the indentation level was getting rather high.)
+
+What about using pagespecs in the config to map pages and sidebar pages together?  Something like this:
+
+<pre>
+	sidebar_pagespec => {
+	    "foo/*" => 'sidebars/foo_sidebar',
+	    "bar/* and !bar/*/*' => 'bar/bar_top_sidebar',
+	    "* and !foo/* and !bar/*" => 'sidebars/general_sidebar',
+	},
+</pre>
+
+One could do something similar for *pageheader*, *pagefooter* and *rightbar* if desired.
+
+Another thing which I find compelling - but probably because I am using [[plugins/contrib/field]] - is to be able to treat the included page as if it were *part* of the page it was included into, rather than as an included page.  I mean things like \[[!if ...]] would test against the page name of the page it's included into rather than the name of the sidebar/header/footer page.  It's even more powerful if one combines this with field/getfield/ftemplate/report, since one could make "generic" headers and footers that could apply to a whole set of pages.
+
+Header example:
+<pre>
+#{{$title}}
+\[[!ftemplate id="nice_data_table"]]
+</pre>
+
+Footer example:
+<pre>
+------------
+\[[!report template="footer_trail" trail="trailpage" here_only=1]]
+</pre>
+
+(Yes, I am already doing something like this on my own site.  It's like the PmWiki concept of GroupHeader/GroupFooter)
+
+-- [[KathrynAndersen]]
+
+[[!tag wishlist]]

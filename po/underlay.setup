@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+# Configuration file for ikiwiki that uses the po plugin to build/update
+# po and pot files for pages in the underlays.
+
+use IkiWiki::Setup::Standard {
+	# List here all languages that have translations.
+	# Listing languages without active translations
+	# will excessively bloat things.
+        po_slave_languages => [
+		'es|Español',
+		'de|Deutsch',
+		'fr|Français',
+		'da|Dansk',
+		'cs|česky',
+	],
+	po_master_language => 'en|English',
+	po_translatable_pages => "*",
+	add_plugins => [qw{po}],
+
+	wikiname => "ikiwiki",
+	srcdir => "underlays",
+	destdir => "html",
+	templatedir => "templates",
+	# we don't want to pull in the normal underlays
+	underlaydirbase => "underlays/empty",
+	underlaydir => "underlays/empty",
+	disable_plugins => [qw{openid}], # needs special underlay
+	discussion => 0,
+	locale => '',
+	verbose => 1,
+	syslog => 0,
+}

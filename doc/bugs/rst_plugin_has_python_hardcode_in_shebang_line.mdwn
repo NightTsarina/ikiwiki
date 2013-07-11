@@ -1,0 +1,15 @@
+Current the rst plugin uses this shebang line:
+
+   #!/usr/bin/python
+
+The problem is that rst plugin uses some feature (for example, iterator comprehension) which is unavailable on old version of Python.
+
+So rst plugin will not work on a machine which has an old version of python in system path even though
+the user have installed a new version of python in other place.  For example, I am using ikiwiki with the rst plugin on Mac OS X 10.4 which ships python 2.3 but I do have python2.6 installed on /opt/local/bin/python (via macports).
+
+Thus I suggest to change the shebang line to:
+
+   #!/usr/bin/env python
+
+> [[done]], although the irony of all the perl hashbangs in ikiwiki
+> being hardcoded doesn't escape me. --[[Joey]] 

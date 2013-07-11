@@ -1,0 +1,59 @@
+The new internal page feature is designed for something like
+[[plugins/aggregate]].
+
+How to transition to it though? inlines of aggregated content would need to
+change their pagespecs to use `internal()`.
+
+> [[patch]] in git://git.debian.org/git/users/smcv/ikiwiki.git, branch "aggregate".
+> Migration is a two-step process: first change all your pagespecs to use `internal()`, then add `internalize="yes"` to all your aggregate invocations. --smcv.pseudorandom.co.uk
+
+> Thanks for working on this.
+> 
+> I see one problem, if internalize is flipped on and there are existing
+> aggregated pages, htmlfn will not return the right filename for those
+> pages when expiring them. Seems that `$was_internal` (or just the full
+> source filename) should be recorded on a per-guid basis. Could you do
+> that?
+> 
+> I'm weighing the added complexity of having an internalize option
+> (which people would have to add, and would probably forget), with just
+> making aggregate create all new pages as internal, and having a flag day
+> where all inlines and other uses of aggregated pages have to change
+> pagespecs to use `isinternal()`.
+> 
+> There are real bugs that are fixed by making
+> aggregated plugins internal, including:
+> - Avoids web edits to aggregated pages. (Arguably a security hole;
+>   though they can be locked..)
+> - Significant speed improvements.
+> - Less disk use.
+> 
+> If internal has to be manually enabled, people will forget to. I'd rather
+> not have to worry about these bugs in the future. So, I'm thinking flag
+> day. --[[Joey]]
+
+> OK, there's a simpler approach in the same repository, branch
+> "aggregateinternal". It just adds an aggregateinternal option
+> for the whole wiki.
+>
+> On a flag day, everyone has to change their inline directives
+> to use `internal()`, after which this option can be switched on.
+> When changing the option, you'll have to clean up the mess from
+> old aggregated pages by hand, and re-aggregate.
+>
+> If this is a direction you prefer, the next step would be to
+> add support for existing wikis setting this option - for instance
+> it could look for non-internal pages that were previously
+> aggregated, and convert them to internal, the first time aggregation
+> runs. --smcv
+
+> Sure, that seems reasonable. Perhaps `ikiwiki-transition` could be used
+> to move the pages, and even, possibly update the pagespecs (not sure how
+> it could figure out which ones tho). --[[Joey]]
+
+> I've patched ikiwiki-transition to have an aggregateinternal mode.
+> See my aggregateinternal branch, again.
+> "ikiwiki-transition aggregateinternal $setupfile" moves the pages around,
+> although it doesn't update the pagespecs (I wouldn't know how...) --[[smcv]]
+
+[[!tag patch done]]

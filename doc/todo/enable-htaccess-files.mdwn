@@ -1,0 +1,80 @@
+    Index: IkiWiki.pm
+    ===================================================================
+    --- IkiWiki.pm  (revision 2981)
+    +++ IkiWiki.pm  (working copy)
+    @@ -26,7 +26,7 @@
+     memoize("file_pruned");
+     
+     sub defaultconfig () {
+    -       wiki_file_prune_regexps => [qr/\.\./, qr/^\./, qr/\/\./,
+    +       wiki_file_prune_regexps => [qr/\.\./, qr/^\.(?!htaccess)/, qr/\/\.(?!htaccess)/,
+                    qr/\.x?html?$/, qr/\.ikiwiki-new$/,
+                    qr/(^|\/).svn\//, qr/.arch-ids\//, qr/{arch}\//],
+           wiki_link_regexp => qr/\[\[(?:([^\]\|]+)\|)?([^\s\]#]+)(?:#([^\s\]]+))?\]\]/,
+
+> Note that the above patch is **completely broken**. 
+> It removes the crucial excludes of all files starting with a dot.
+> The negative regexps for htaccess have no effect, so the whole
+> thing only "works" because it allows *any* file starting with a dot.
+> If you applied this patch to your ikiwiki, you opened a huge security
+> hole. --[[Joey]] 
+
+[[!tag patch patch/core]]
+
+This lets the site administrator have a `.htaccess` file in their underlay
+directory, say, then get it copied over when the wiki is built. Without
+this, installations that are located at the root of a domain don't get the
+benefit of `.htaccess` such as improved directory listings, IP blocking,
+URL rewriting, authorisation, etc. 
+
+> I'm concerned about security ramifications of this patch. While ikiwiki
+> won't allow editing such a .htaccess file in the web interface, it would
+> be possible for a user who has svn commit access to the wiki to use it to
+> add a .htaccess file that does $EVIL.
+> 
+> Perhaps this should be something that is configurable via the setup file
+> instead. --[[Joey]]
+
+> See 
+
+---
+
+Hi, I would like to have my htaccess files in svn repository so ikiwiki would export that file to my webspace with every commit.
+
+That way I have revision control on that file too. That may be a security concern, but I trust everybody that has svn commit
+access and such .htaccess files should not be accessible through wiki cgi. Of course, it could default to 'off'.
+
+> See [[!debbug 447267]] for a patch for this.
+
+>> It looks to me as though this functionality won't be included in ikiwiki
+>> unless someone who wants it takes responsibility for updating the patch
+>> from that Debian bug to be applicable to current versions, so that there's a
+>> setup file parameter for extra filenames to allow, defaulting to none
+>> (i.e. a less simplistic patch than the one at the top of this page).
+>> Joey, is this an accurate summary? --[[smcv]]
+
+---
+
+bump! I would like to see some form of this functionality included in ikiwiki. I use a patched version, but
+its a bit of a PITA to constantly apply it (and to forget sometimes!). I know that security concern is important to consider,
+but I use ikiwiki with a very small group of people collaborating so svn/web access is under control
+and htaccess is for limiting access to some areas of wiki.   
+It should be off by default of course. --Max
+
+---
++1 I want `.htaccess` so I can rewrite some old Wordpress URLs to make feeds work again. --[[hendry]]
+
+> Unless you cannot modify apache's configuration, you do not need htaccess
+> to do that. Apache's documentation recommends against using htaccess
+> unless you're a user who cannot modify the main server configuration.
+> --[[Joey]] 
+
+---
++1 for various purposes (but sometimes the filename isn't `.htaccess`, so please make it configurable) --[[schmonz]]
+
+> I've described a workaround for one use case at the [[plugins/rsync]] [[plugins/rsync/discussion]] page. --[[schmonz]]
+
+---
+
+[[done]], you can use the `include` setting to override the default
+excludes now. Please use extreme caution when doing so. --[[Joey]] 

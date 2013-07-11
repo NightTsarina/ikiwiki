@@ -1,0 +1,23 @@
+# Monthcalendar
+
+This plugin displays a calendar, containing in each of its day the list of links of pages published on this day. It can be used, for example, to display archives of blog posts, or to announce events.
+
+## Usage
+
+### Directive
+
+    \[[!monthcalendar type="month" year="2012" month="06" pages="events/*"]]
+
+### Automation
+
+By using the following line in template `calendarmonth.tmpl`, you can have `ikiwiki-calendar` using this plugin to display monthly archives.
+
+    \[[!monthcalendar type="month" year="<TMPL_VAR YEAR>" month="<TMPL_VAR MONTH>" pages="<TMPL_VAR PAGESPEC>"]]
+
+## Code
+
+Code and documentation can be found here : [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/Monthcalendar]].
+
+## Example
+
+This plugin is used in [our website](http://www.gresille.org/evenements/calendrier/2012/03)

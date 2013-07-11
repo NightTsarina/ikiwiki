@@ -1,0 +1,9 @@
+To accomplish this on a blog setup, I ran:
+
+    mkdir ${SRCDIR}/templates
+    cp /usr/share/ikiwiki/templates/calendar* ${SRCDIR}/templates/
+    sed -i 's/^\(\[\[!calendar\)/\1 week_start_day="1"/' ${SRCDIR}/templates/calendar* ${SRCDIR}/sidebar.mdwn
+
+where `${SRCDIR}` was the source directory for the blog. This overrides the standard templates with ones that have the `week_start_day="1"` option added. If the upstream templates change, one has to manually update the locally overriding ones.
+
+I personally managed to forget about having to change also the initially auto-generated `sidebar.mdwn` page, which led to some brain activity for me.

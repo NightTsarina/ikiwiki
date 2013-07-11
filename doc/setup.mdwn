@@ -1,0 +1,152 @@
+This tutorial will walk you through setting up a wiki with ikiwiki.
+
+[[!toc ]]
+
+## Install ikiwiki
+
+If you're using Debian or Ubuntu, ikiwiki is an <code><a href="http://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_basic_package_management_operations">apt-get</a> install ikiwiki</code> away.
+If you're not, see the [[download]] and [[install]] pages.
+
+## Create your wiki
+
+All it takes to create a fully functional wiki using ikiwiki is running
+one command.
+[[!template id=note text="""
+For more control, advanced users may prefer to set up a wiki
+[[by_hand|byhand]].
+"""]]
+
+	% ikiwiki --setup /etc/ikiwiki/auto.setup
+
+Or, set up a blog with ikiwiki, run this command instead.
+
+	% ikiwiki --setup /etc/ikiwiki/auto-blog.setup
+
+`librpc-xml-perl` and `python-docutils` dependencies are needed.
+
+Either way, it will ask you a couple of questions.
+
+	What will the wiki be named? foo
+	What revision control system to use? git
+	What wiki user (or openid) will be admin? joey
+	Choose a password:
+
+Then, wait for it to tell you an url for your new site..
+
+	Successfully set up foo:
+		url:         http://example.com/~joey/foo
+		srcdir:      ~/foo
+		destdir:     ~/public_html/foo
+		repository:  ~/foo.git
+	To modify settings, edit ~/foo.setup and then run:
+		ikiwiki --setup ~/foo.setup
+
+Done! 
+
+## Using the web interface
+
+Now you can go to the url it told you, and edit pages in your new wiki
+using the web interface.
+
+(If the web interface doesn't seem to allow editing or login, you may
+need to [[configure_the_web_server|tips/dot_cgi]].)
+
+## Checkout and edit wiki source
+
+Part of the fun of using ikiwiki is not being limited to using the
+web for editing pages, and instead using your favorite text editor and
+[[Revision_Control_System|rcs]]. 
+
+To do this, you need to check out a copy of the source to your wiki.
+(You should avoid making changes directly to the `srcdir`, as that
+checkout is reserved for use by ikiwiki itself.)
+
+Depending on which [[Revision_Control_System|rcs]] you chose to use,
+you can run one of these commands to check out your own copy of your wiki's
+source. (Remember to replace "foo" with the real directory name.)
+
+	git clone foo.git foo.src
+	svn checkout file://`pwd`/foo.svn/trunk foo.src
+	cvs -d `pwd`/foo get -P ikiwiki
+	bzr clone foo foo.src
+	hg clone foo foo.src
+	darcs get foo.darcs foo.src
+	# TODO monotone, tla
+
+Now to edit pages by hand, go into the directory you checked out (ie,
+"foo.src"), and fire up your text editor to edit `index.mdwn` or whatever
+other page you want to edit. If you chose to set up a blog, there is even a
+sample first post in `posts/first_post.mdwn` that you can edit.
+
+Once you've edited a page, use your revision control system to commit
+the changes. For distributed revision control systems, don't forget to push
+your commit.
+
+Once the commit reaches the repository, ikiwiki will notice it, and
+automatically update the wiki with your changes.
+
+## Customizing the wiki
+
+There are lots of things you can configure to customize your wiki.
+These range from changing the wiki's name, to enabling [[plugins]],
+to banning users and locking pages.
+
+If you log in as the admin user you configured earlier, and go to
+your Preferences page, you can click on "Setup" to customize many
+wiki settings and plugins.
+
+Some settings cannot be configured on the web, for security reasons or
+because misconfiguring them could break the wiki. To change these settings,
+you can manually edit the setup file, which is named something like
+"foo.setup". The file lists all available configuration settings
+and gives a brief description of each.
+
+After making changes to this file, you need to tell ikiwiki to use it:
+
+	% ikiwiki --setup foo.setup
+
+Alternatively, you can ask ikiwiki to change settings in the file for you:
+
+	% ikiwiki --changesetup foo.setup --plugin goodstuff
+
+See [[usage]] for more options.
+
+## Customizing file locations
+
+As a wiki compiler, ikiwiki builds a wiki from files in a source directory,
+and outputs the files to a destination directory. The source directory is
+a working copy checked out from the version control system repository.
+
+When you used `auto.setup`, ikiwiki put the source directory, destination
+directory, and repository in your home directory, and told you the location
+of each. Those locations were chosen to work without customization, but you
+might want to move them to different directories.
+
+First, move the destination directory and repository around.
+   
+	% mv public_html/foo /srv/web/foo.com
+	% mv foo.git /srv/git/foo.git
+
+If you moved the repository to a new location, checkouts pointing at the
+old location won't work, and the easiest way to deal with this is to delete
+them and re-checkout from the new repository location.
+   
+	% rm -rf foo
+	% git clone /srv/git/foo.git
+
+Finally, edit the setup file. Modify the settings for `srcdir`, `destdir`,
+`url`, `cgiurl`, `cgi_wrapper`, `git_wrapper`, etc to reflect where
+you moved things. Remember to run `ikiwiki --setup` after editing the
+setup file.
+
+## Enjoy your new wiki!
+
+Add yourself to [[IkiWikiUsers]]. And check out
+the [[tips]] to find out how to get more out of ikiwiki.
+
+----
+
+_Notes_:
+
+- If you are searching for the file where the users are stored, it's in `your_repository/.ikiwiki/userdb`. The one which is in YOUR REPOSITORY, it cannot be found into your `~/.ikiwiki`.
+- If you want to enable a plugin you **WILL HAVE** to add it to the `add_plugins` array in the `*.setup` file (or to use the `--plugin` switch while calling `ikiwiki`). Uncommenting the plugin options/configuration fields in the setup is not **ALWAYS** sufficient. You have been warned.

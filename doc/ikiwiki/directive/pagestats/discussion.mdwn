@@ -1,0 +1,18 @@
+I am trying to create a tag cloud using:  
+           
+     \[[!pagestats  pages="tags/*"]]
+
+Nothing shows up when I first used this directive. I found that I had to create a page for the tag for it to show up in pagestats.
+I would rather not find and create a page for every tag I have created or will create. Is there an easier way to create a list of tags?
+
+Thanks
+
+> Hello unknown person.
+
+> I think it would require a different approach to what "tags" are, and/or what "pagestats" are.  The pagestats plugin gives statistical information about *pages*, so it requires the pages in question to exist before it can get information about them.  The tags plugin creates links to tag *pages*, with the expectation that a human being will create said pages and put whatever content they want on them (such as describing what the tag is about, and a map linking back to the tagged pages).
+
+> The approach that [PmWiki](http://www.pmwiki.org) takes is that it enables the optional auto-creation of (empty) pages which match a particular "group" (set of sub-pages); thus one could set all the "tags/*" pages to be auto-created, creating a new tags/foo page the first time the \[[!tag foo]] directive is used. See [[todo/auto-create_tag_pages_according_to_a_template]] for more discussion on this idea.
+> -- [[KathrynAndersen]]
+
+> Update: Ikiwiki can auto-create tags now, though it only defaults to
+> doing so when tagbase is set. --[[Joey]] 

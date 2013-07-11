@@ -1,0 +1,31 @@
+[[!tag wishlist]]
+
+It would be nice if ikiwiki, particularly [[plugins/comments]]
+(but also, ideally, recentchanges) supported user avatar icons.
+
+> Update: Done for comments, but not for anything else, and the directive
+> below would be a nice addition. --[[Joey]] 
+
+Idea is to add a directive that displays a small avatar image for a user.
+Pass it a user's the email address, openid, username, or the md5 hash
+of their email address:
+
+	\[[!avatar user@example.com]]
+	\[[!avatar http://joey.kitenet.net/]]
+	\[[!avatar user]]
+	\[[!avatar hash]]
+
+These directives can then be hand-inserted onto pages, or more likely,
+included in eg, a comment post via a template.
+
+An optional second parameter can be included, containing additional
+options to pass in the 
+[gravatar url](http://en.gravatar.com/site/implement/url).
+For example, this asks for a smaller gravatar, and if a user does
+not have a gravatar, uses a cute auto-generated "wavatar" avatar.
+
+	\[[!gravatar user@example.com "size=40&default=wavatar"]]
+
+The `gravitar_options` setting in the setup file can be used to
+specify additional options to pass. So for example if you want
+to use wavatars everywhere, set it to "default=wavatar".

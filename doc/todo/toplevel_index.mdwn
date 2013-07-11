@@ -1,0 +1,37 @@
+Some inconsistences around the toplevel [[index]] page:
+
+* [[ikiwiki]] is a separate page; links to [[ikiwiki]] should better go to
+  the index though.
+
+  > At least for this wiki, I turned out to have a use for [[ikiwiki]]
+  > pointing to a different page, though the general point might still
+  > stand.
+
+* The toplevel [[ikiwiki/Discussion]] page has some weird parentlinks
+  behavior. This could be special cased around with the following patch.
+  However, I'm unsure if I like the idea of more special cases around this.
+  It would be better to find a way to make the toplevel index page not be a
+  special case at all.
+
+Here is a patch:
+
+	--- IkiWiki/Render.pm   (revision 1187)
+	+++ IkiWiki/Render.pm   (working copy)
+	@@ -71,6 +71,7 @@
+	        my $path="";
+	        my $skip=1;
+	        return if $page eq 'index'; # toplevel
+	+       $path=".." if $page=~s/^index\///;
+	        foreach my $dir (reverse split("/", $page)) {
+	                if (! $skip) {
+	                        $path.="../";
+
+   > Came up with a better patch for this, [[done]] --[[Joey]]
+
+---
+
+> I would like to suggest another tack, namely a bigger, better special case. 
+> The basic idea is that all indices of the form foo/bar/index get the wiki path foo/bar.
+> You could do this today using [[todo/index.html_allowed]], except that the toplevel 
+> page "index" becomes "", which causes all sorts of chaos. The discussion page would 
+> become /discussion, and the weird parentlinks behavior would go away. --Ethan

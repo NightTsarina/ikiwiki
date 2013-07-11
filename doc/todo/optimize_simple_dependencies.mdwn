@@ -1,0 +1,95 @@
+I'm still trying to optimize ikiwiki for a site using
+[[plugins/contrib/album]], and checking which pages depend on which pages
+is still taking too long. Here's another go at fixing that, using [[Will]]'s
+suggestion from [[todo/should_optimise_pagespecs]]:
+
+> A hash, by itself, is not optimal because
+> the dependency list holds two things: page names and page specs.  The hash would
+> work well for the page names, but you'll still need to iterate through the page specs.
+> I was thinking of keeping a list and a hash.  You use the list for pagespecs
+> and the hash for individual page names.  To make this work you need to adjust the
+> API so it knows which you're adding.  -- [[Will]]
+
+If you have P pages and refresh after changing C of them, where an average
+page has E dependencies on exact page names and D other dependencies, this
+branch should drop the complexity of checking dependencies from
+O(P * (D+E) * C) to O(C + P*E + P*D*C). Pages that use inline or map have
+a large value for E (e.g. one per inlined page) and a small value for D (e.g.
+one per inline).
+
+Benchmarking:
+
+Test 1: a wiki with about 3500 pages and 3500 photos, and a change that
+touches about 350 pages and 350 photos
+
+Test 2: the docwiki (about 700 objects not excluded by docwiki.setup, mostly
+pages), docwiki.setup modified to turn off verbose, and a change that touches
+the 98 pages of plugins/*.mdwn
+
+In both tests I rebuilt the wiki with the target ikiwiki version, then touched
+the appropriate pages and refreshed.
+
+Results of test 1: without this branch it took around 5:45 to rebuild and
+around 5:45 again to refresh (so rebuilding 10% of the pages, then deciding
+that most of the remaining 90% didn't need to change, took about as long as
+rebuilding everything). With this branch it took 5:47 to rebuild and 1:16
+to refresh.
+
+Results of test 2: rebuilding took 14.11s without, 13.96s with; refreshing
+three times took 7.29/7.40/7.37s without, 6.62/6.56/6.63s with.
+
+(This benchmarking was actually done with my [[plugins/contrib/album]] branch,
+since that's what the huge wiki needs; that branch doesn't alter core code
+beyond the ready/depends-exact branch point, so the results should be
+equally valid.)
+
+--[[smcv]]
+
+> Now [[merged|done]] --[[smcv]]
+
+----
+
+> We discussed this on irc; I had some worries that things may have been
+> switched to `add_depends_exact` that were not pure page names. My current
+> feeling is it's all safe, but who knows. It's easy to miss something.
+> Which makes me think this is not a good interface.
+> 
+> Why not, instead, make `add_depends` smart. If it's passed something
+> that is clearly a raw page name, it can add it to the exact depends hash.
+> Else, add it to the pagespec hash. You can tell if it's a pure page name
+> by matching on `$config{wiki_file_regexp}`.
+
+>> Good thinking. Done in commit 68ce514a 'Auto-detect "simple dependencies"',
+>> with a related bugfix in e8b43825 "Force %depends_exact to lower case".
+>>
+>> Performance impact: Test 2 above takes 0.2s longer to rebuild (probably
+>> from all the calls to lc, which are, however, necessary for correctness)
+>> and has indistinguishable performance for a refresh.
+>>
+>> Test 1 took about 6 minutes to rebuild and 1:25 to refresh; those are
+>> pessimistic figures, since I've added 90 more photos and 90 more pages
+>> (both to the wiki as a whole, and the number touched before refreshing)
+>> since testing the previous version of this branch. --[[smcv]]
+
+> Also I think there may be little optimisation value left in
+> 7227c2debfeef94b35f7d81f42900aa01820caa3, since the "regular" dependency
+> lists will be much shorter.
+
+>> You're probably right, but IMO it's not worth reverting it - a set (hash with
+>> dummy values) is still the right data structure. --[[smcv]]
+
+> Sounds like inline pagenames has an already exstant bug WRT
+> pages moving, which this should not make worse. Would be good to verify.
+
+>> If you mean the standard "add a better match for a link-like construct" bug
+>> that also affects sidebar, then yes, it does have the bug, but I'm pretty
+>> sure this branch doesn't make it any worse. I could solve this at the cost
+>> of making pagenames less useful for interactive use, by making it not
+>> respect [[ikiwiki/subpage/LinkingRules]], but instead always interpret
+>> its paths as relative to the top of the wiki - that's actually all that
+>> [[plugins/contrib/album]] needs. --[[smcv]]
+
+> Re coding, it would be nice if `refresh()` could avoid duplicating
+> the debug message, etc in the two cases. --[[Joey]]
+
+>> Fixed in commit f805d566 "Avoid duplicating debug message..." --[[smcv]]

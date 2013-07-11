@@ -1,0 +1,35 @@
+I'm having some difficulties with ikiwiki's notion of time.
+
+For (regular) pages, the *last edited* date is the one where the file
+was indeed last modified according to the file system information.
+The *created* date (commented out in the HTML) is, at least for
+`--getctime` operation, the date, where the file was last registered
+as changed with the VCS.
+
+Now, at least with git, the thing is that when you're checking out files,
+they'll get the checkout-time's current time stamp.
+
+What I strive for is the following: *created* be the date when the file
+(under its current name) was *first* registered with the VCS (which is
+more logical in my opinion), and *last edited* be the date the file was
+last registered as changed with the VCS, which is the current
+`--getctime` *created* date.
+
+This means that I can build the HTML files from different checkouts of the
+VCS and they won't differ in the time stamps they contain in the HTML.
+
+What is the rationale for ikiwiki's current behavior with respect to these
+time stamps?
+
+--[[tschwinge]]
+
+> Presumably it's the authors of the git and mercurial backends
+> not understanding the documentation for `rcs_getctime`,
+> which states:
+> 
+>>This is used to get the page creation time for a file from the RCS, by
+>>looking it up in the history.
+> 
+> I've fixed both broken implementations to correctly look
+> up the first, not the last, commit. Other VCS do not seem
+> to have the problem. --[[Joey]] 

@@ -1,0 +1,17 @@
+When installing ikiwiki the perl module path is setup correctly
+
+    use lib '/usr/local/ikiwiki-3.20100312/share/perl/5.10.0';
+
+This is not true for ikiwiki-transition:
+
+    $ PATH=/usr/local/ikiwiki-3.20100312/bin ikiwiki-transition prefix_directives ikiwiki.setup
+    Can't locate IkiWiki.pm in @INC (@INC contains: /etc/perl /usr/local/lib/perl/5.10.0
+     /usr/local/share/perl/5.10.0 /usr/lib/perl5 /usr/share/perl5 /usr/lib/perl/5.10 /usr/share/perl/5.10 /usr/local/lib/site_perl .)
+     at /usr/local/ikiwiki-3.20100312/bin/ikiwiki-transition line 4.
+    BEGIN failed--compilation aborted at /usr/local/ikiwiki-3.20100312/bin/ikiwiki-transition line 4.
+
+The missing line should be added.
+
+Thanks!
+
+[[done]] --[[Joey]] 

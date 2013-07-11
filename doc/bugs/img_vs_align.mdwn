@@ -1,0 +1,38 @@
+The *[[ikiwiki/directive/img]]* directive allows for specifying an
+*align* parameter -- which is of limited usability as the image is
+embedded as `<p><img ...></p>`.  That's at least what I see on
+<http://www.bddebian.com:8888/~hurd-web/hurd/status/>.  On the other
+hand, CSS is supposed to be used instead, I guess.  (But how...  I forgot
+almost of my CSS foo again ;-) it seems.) --[[tschwinge]]
+
+> [[!img logo/ikiwiki.png align=right]]The img tag doesn't create P tags, but if you have surrounded the img directive with newlines, they will result in paragraph tags.
+>
+> I've edited the URL you provided to demonstrate this -- hope you don't mind! I've also added an inline, right-aligned image to this page.[[!tag done]]
+> -- [[Jon]]
+
+> Contrary to all of the above, html does not care about P tags when
+> floating an image to the left or right via align. Proof:
+> <http://kitenet.net/~joey/pics/toomanypicturesofjoey/>, where the image
+> is in its own paragraph but still floats. Also, I re-modified a local
+> copy of the hurd page to enclose the image in a P, and it still floats.
+> 
+> Tested with Chromium and Firefox. --[[Joey]]
+
+>> Uh, sorry for not confirming what I supposed to be with looking into
+>> the relevant standard.  It just seemed too obvious to me that the
+>> closure of `<p>...</p>` would confine whatever embedded stuff may be
+>> doing.  (Meaning, I didn't expect that the *img*'s alignment would
+>> propagate to the *p*'s and would thus be visible from the outside.)
+>> 
+>> I confirm (Firefox, Ubuntu jaunty) that your picture page is being
+>> shown correctly -- thus I suppose that there's a buglet in our CSS
+>> scripts again...
+>> 
+>> --[[tschwinge]]
+
+>>> It seems, the 'align=right' parameter gets filtered in my installation
+>>> Are there other plugins, that could throw the parameter away?
+>>> --[[jwalzer]]
+
+>>>> Can't think of anything. htmlscrubber doesn't; tidy doesn't.
+>>>> --[[Joey]] 

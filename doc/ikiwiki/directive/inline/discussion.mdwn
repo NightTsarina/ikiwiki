@@ -1,0 +1,163 @@
+## Combine inline and toggle
+
+Is it possible to combine the behaviour of toggle and inline? ie, have it present of list of 'headlines' which are created from seperate subpages which can be clicked to expand to the body of the inlined page. Thanks.
+
+-- Thiana
+
+---
+## How do you provide the per post discussion links in your own blog?
+
+> That's configured by the "actions" parameter to the inline directive. See
+> docs in [[plugins/inline]]. --[[Joey]]
+
+And do you have any ideas/hints about implementing a "comments" feature.
+What I'm after is something for users who don't quite understand the Wiki
+style for discussions.  I would like to have a form for them to post a
+comment and have the comment appended to the discussion Wiki-style.  Maybe
+take it as far as implementing "replies" to other comments.
+
+-- Marcelo
+
+> See [[plugins/comments]]
+> --[[Joey]]
+
+---
+
+## More dynamic `rootpage` parameter of inline plugin?
+
+(Moved to [[todo/dynamic_rootpage]])
+
+---
+
+## Excluding Images
+
+Is there a simple way to exclude images, stylesheets, and other
+"non-page" files other than a blacklist approach like
+`pages="* and !*.png and !*.css"`?  --[[JasonBlevins]]
+
+> The [[plugins/filecheck]] plugin adds a 'ispage()' pagespec test that can do that.
+> --[[Joey]]
+
+---
+
+## Documentation for parameter `template`?
+
+I would be especially interested in a list of variables which can be used in such a template.
+
+> I try to keep ikiwiki's templates self-documenting, so if you take
+> a look at a template used by inline, such as the default `/usr/share/ikiwiki/template/inlinepage.tmpl`,
+> you can see all or nearly all the template variables in use in it.
+
+I have a page template with some structured information as parameters. For
+example `location="nowhere"` and `price="20"`. Is there a possibility to
+extract those information, i. e. access the parameters, to compose the item
+for the inline directive from these information? For example the line »Go
+to nowhere for 20 bugs.« is shown inlined.
+
+--[[PaulePanter]]
+
+> Let's not confuse the template directive with the templates used by inline.
+> When a page is inlined, any template directives in it are first expanded,
+> using the user-defined templates for that. Then, the inline directive's
+> template is used to insert it into the inlining page.
+> 
+> So no, you can't reference template directive parameters inside inline's
+> template, because it's already expanded at that point. --[[Joey]] 
+
+>> Thank you for the explanation. Can you think of another way to accomplish
+>> my goals?
+>>
+>> Right now, I only see the option to edit the title with the
+>> `[[/ikiwiki/directive/meta]]` directive and the field `title`.
+>>
+>> How could a solution look like?
+>>
+>> 1. The possibility to add custom fields to the `meta` directive.
+>> 1. The possibility to specify in a page, how the page should be displayed
+>>    when used by inlined. That could be done by a new directive `cinlined`
+>>    (for »custom inlined«) which is chosen by the `inline` directive to
+>>    display if told to do so.
+>>
+>>    [[!cinlined text="""Text which can also use Parameter, bla blubb …"""]]
+>> --[[PaulePanter]]
+>>> You can make the body of a page change depending on whether it's being
+>>> inlined, with the [[ikiwiki/directive/if]] directive from the
+>>> [[plugins/conditional]] plugin:
+>>>
+>>>     \[[!if test="inlined()"
+>>>       then="""[[!template id=productsummary
+>>>         location="Warehouse 23" price=20
+>>>         ]]"""
+>>>       else="""[[!template id=productdetail
+>>>         location="Warehouse 23" price=20
+>>>         description="Every home should have one"
+>>>         ]]"""
+>>>     ]]
+>>>
+>>> Perhaps that does some of what you want?
+>>>
+>>> If you want to go beyond that, my inclination would be to write
+>>> a simple plugin to deal with whatever it is you want to do (bug
+>>> metadata or product metadata or whatever) rather than prematurely
+>>> generalizing. --[[smcv]]
+
+## meta parameters are not enough
+
+I think I have the same problem as Paule, as I want extra arbitary parameters in my template.
+
+This is what I am doing currently, which makes my skin crawl. In `wgts/foo.mdwn`
+I have resorted to using AUTHORURL as the location of this widgets icon:
+
+	[[!meta authorurl="/ico/aHR0cDovL2JvbmRpLm9tdHAub3JnL3dpZGdldHMvYmF0dGVyeQ==.png" ]]
+
+In templates I have a file called `wgtlist.tmpl`:
+
+	<div class="widget">
+	<TMPL_IF NAME="AUTHORURL">
+	<img src="<TMPL_VAR AUTHORURL>" />
+	</TMPL_IF>
+	<TMPL_IF NAME="PERMALINK">
+	<a href="<TMPL_VAR PERMALINK>"><TMPL_VAR TITLE></a><br />
+	<TMPL_ELSE>
+	<a href="<TMPL_VAR PAGEURL>"><TMPL_VAR TITLE></a><br />
+	</TMPL_IF>
+	Posted <TMPL_VAR CTIME>
+	</div>
+
+My index page has:
+
+	[[!inline pages="./wgts/*" show=5 feeds=no actions=no rootpage="wgts" archive="yes" template=wgtlist]]
+
+Else can you please suggest a smarter way of getting certain data out from pages for a inline index?
+
+--[[hendry]]
+
+## A different idea: smuggling hook routines in through %params.
+
+The part that fetches the inlined content is quite compact. It's just the if ($needcontent) {} chunk. Would a patch that accepts a perl sub smuggled through something like $params{inliner_} be accepted? If that param exists, call it instead of the current content of that chunk. Pass $page, %params, and $template. Receive $content, possibly seeing $template modified. The custom directives can add inliner_ to %params and call IkiWiki::preprocess_inline. I suppose IkiWiki::Plugin::inline could be modified to strip any *_ out of the directive's arguments to prevent any custom behavior from leaking into the inline directive.
+
+I'm about to try this for a CV/resume type of thing. I want only one element with a specific id out of the generated content (with a little post-processing). I don't need performance for my case.
+
+Update: Pretty much works. I need a way to skip sources, but inline shrinks the list of all pages *before* trying to form them. Next little bit...
+
+--[[JasonRiedy]]
+
+---
+
+## Interaction of `show` and `feedshow`
+
+Reading the documentation I would think that `feedshow` does not
+influence `show`.
+
+	\[[!inline pages="./blog/*" archive=yes quick=yes feedshow=10 sort=title reverse=yes]]
+
+Only ten pages are listed in this example although `archive` is set to
+yes. Removing `feedshow=10` all matching pages are shown.
+
+Is that behaviour intended?
+
+> Is something going wrong because `quick="yes"` [[»turns off generation of any feeds«|inline]]? --[[PaulePanter]]
+
+--[[PaulePanter]]
+
+>> Bug was that if feedshow was specified without show it limited to it incorrectly. Fixed. --[[Joey]] 

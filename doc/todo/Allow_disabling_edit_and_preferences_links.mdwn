@@ -1,0 +1,81 @@
+This patch allows disabling the edit and preferences link in the config file.  It is backwards compatible (so peoples edit and preferences links won't suddenly vanish).
+
+To disable edit or prefs respectively, add the following to the config file:
+
+<pre>
+  'edit' => 0,
+  'prefs' => 0, 
+</pre>
+
+Patch:
+<pre>
+--- /usr/share/perl5/IkiWiki/Render.pm.orig     2008-12-23 16:49:00.000000000 +1300
++++ /usr/share/perl5/IkiWiki/Render.pm  2008-12-23 16:55:40.000000000 +1300
+@@ -80,8 +80,10 @@
+        my $actions=0;
+ 
+        if (length $config{cgiurl}) {
+-               $template->param(editurl => cgiurl(do => "edit", page => $page));
+-               $template->param(prefsurl => cgiurl(do => "prefs"));
++               $template->param(editurl => cgiurl(do => "edit", page => $page))
++                       if ! defined $config{edit} || (defined $config{edit} && $config{edit} == 1);
++               $template->param(prefsurl => cgiurl(do => "prefs"))
++                       if ! defined $config{prefs} || (defined $config{prefs} && $config{prefs} == 1);
+                $actions++;
+        }
+
+</pre>
+
+> On irc, you said, "That was to allow the hack to of using wikistatedir to
+> allow me to generate two websites, one with inline editting, the other a
+> static page for public consumption."
+> 
+> The edit and preferences links can already be disabled by editing
+> `page.tmpl`. (Look for PREFSURL and EDITURL).
+> 
+> More to the point though, disabling those links does not disable anyone
+> consticting the urls by hand and logging in and editing a page. So you'd
+> really want to disable the editpage plugin in the setup file for the
+> public, static wiki. Sounds like you might also want to turn off cgi
+> entirely for that build. --[[Joey]] 
+
+>> I want to retain the same page.tmpl for both sites (different templates
+>> will just increase the maintenance hell), so disabling the links in the
+>> config for one public site works better in my case.
+>>
+>> I do have the editpage plugin disabled for the public static wiki, but
+>> the link still appears on the site.  I want to keep the cgi on, so that
+>> the site is still searchable. --[[puck]]
+
+>>> For me, disabling the editpage plugin does make the "Edit" link
+>>> disappear (this is with 3.03) but as far as I can tell, "Preferences"
+>>> is not controlled by any plugin.  It would be nice if it were; I am
+>>> trying to achieve a configuration where the only action supported
+>>> via CGI is blog-style comments.  --[Zack](http://zwol.livejournal.com/)
+
+>>> Like [[puck]], I'd like to keep search available but I want to disable all
+>>> login facitilities and thus disable the "Preferences" link.
+>>>
+>>> After digging a little bit in the source code, my first attempt was to make
+>>> the "Preferences" link appear only if there is `sessioncgi` hooks
+>>> registered.  But this will not work as the [[plugins/inline]] plugin also
+>>> defines it.
+>>>
+>>> Looking for `auth` hooks currently would not work as at least
+>>> [[plugins/passwordauth]] does not register one.
+>>>
+>>> Adding a new `canlogin` hook looks like overkill to me.  [[Joey]], how
+>>> about making registration of the `auth` hook mandatory for all plugins
+>>> making sense of the "Preferences" link? --[[Lunar]]
+
+>>>> Hmm, using the `auth` hook existance does seem like a nice solution.
+>>>> While splitting the preferences code out into its own plugin is
+>>>> easily enough done, it has the minor problem of being yet another
+>>>> file nearly all ikiwikis will have to load, and also, prefs would
+>>>> have to be disabled manually. So I like that using the hook would
+>>>> cause it to auto-disable if nothing uses it. It's a bit ugly that
+>>>> passwordauth doesn't need an auth hook (it could be reorged to
+>>>> use it instead of formbuilder, maybe) and would probably just have an
+>>>> empty one. Thanks for the idea. --[[Joey]]  [[done]]
+
+>>>>> Thanks for implementing it! --[[Lunar]]

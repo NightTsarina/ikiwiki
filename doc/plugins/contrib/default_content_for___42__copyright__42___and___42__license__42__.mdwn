@@ -1,0 +1,62 @@
+[[!template id=plugin name=copyright author="[[tschwinge]]"]]
+[[!template id=plugin name=license author="[[tschwinge]]"]]
+
+[[!meta title="default content for *copyright* and *license*"]]
+
+Someone was just asking for it and I had written these two plugins already some months ago,
+so I'm now publishing them here.
+
+[`copyright.pm`](http://git.savannah.gnu.org/cgit/hurd/web.git/plain/.library/IkiWiki/Plugin/copyright.pm)
+and
+[`license.pm`](http://git.savannah.gnu.org/cgit/hurd/web.git/plain/.library/IkiWiki/Plugin/license.pm)
+
+Usage instructions are found inside the two plugin files.
+
+--[[tschwinge]]
+
+I was asking about this in IRC the other day, but someone pointed me at the
+[[Varioki|todo/varioki_--_add_template_variables___40__with_closures_for_values__41___in_ikiwiki.setup]]
+plugin. It seems to me that it would be a better idea to have a way of defining
+template variables in general, rather than having to add a new plugin for every
+template variable somebody wants to use.
+
+--[[bma]]
+
+Copyright and license values are not "template values", they are values
+tracked by the [[meta]] plugin, and that various code compares and uses to fill
+out the templates. Something like varioki cannot do that. --[[Joey]]
+
+Somewhat more detailed usage documentation would be appreciated. I tried to setup
+those plugins with a current ikiwiki release, i.e. 2.61, but they appeared to do
+nothing, really. Also, those example pages don't seem to use those plugins, even;
+they set "copyright" and "license" properties using ordinary [[meta]] tags. Maybe
+I'm missing something terribly obvious? --Peter
+
+> Only obvious if you read the source :-). You need to put a file named "copyright.html"
+>(respectively "license.html") in your wiki. Everything underneath that (in the wikilink sense) will use that
+>content for the license or copyright. Saves putting \[[meta license="foo"]] in every page [[DavidBremner]]
+
+By the way: these need not be *HTML* files; `copyright.mdwn`,
+respectively `license.mdwn`, or every other format supported
+by ikiwiki are likewise fine.  --[[tschwinge]]
+
+> Jon has done something similar in [[todo/allow_site-wide_meta_definitions]];
+> his version has the advantages that it doesn't invent magical page names,
+> and can extend beyond just copyright and license, but has the disadvantage
+> that it doesn't support setting defaults for a given "subdirectory"
+> only. --[[smcv]]
+
+> I downloaded the two *.pm files and made them executable, and put in 
+> `$ ls /usr/local/lib/site_perl/IkiWiki/Plugin/` and added `copyright.mdwn` and `license.mdwn` 
+> and rebuilt the wiki, but the copyright/license text doesn't show up. Does these plugin work with Ikiwiki `3.20100815`?
+> -- 9unmetal
+
+>> Solved by email long ago; the problem was that the user had not put them
+>> into the *add_plugins* set in the wiki's `ikiwiki.setup`.  --[[tschwinge]]
+
+[[!template id=gitbranch branch=smcv/contrib/defcopyright author="[[tschwinge]]"]]
+
+> For `./gitremotes` convenience (taking the Linus approach to backups :-) )
+> I've added this to my git repository as a branch. No review, approval or
+> ownership is implied, feel free to replace this with a branch in any other
+> repository --[[smcv]]

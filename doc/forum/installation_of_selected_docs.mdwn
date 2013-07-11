@@ -1,0 +1,29 @@
+[[!meta date="2007-09-06 19:47:23 +0000"]]
+
+# Installation of selected docs (html)
+
+The latest release has around 560 files (over 2MB) in html.
+
+Any suggestions or ideas on limiting what html is installed?
+
+For example, I don't see value in every ikiwiki install out there to also install personal "users" ikiwiki pages.
+
+For now I copy ikiwiki.setup. And then use pax with -L switch to copy the targets of the symlinks of the basewiki.
+
+I was thinking of making a list of desired documents from the html directory to install.
+
+--JeremyReed
+
+> You don't need any of them, unless you want to read ikiwiki's docs locally.
+> 
+> I don't understand why you're installing the basewiki files manually;
+> ikiwiki has a Makefile that will do this for you. --[[Joey]]
+
+>> The Makefile's install doesn't do what I want so I use different installer for it.
+>> It assumes wrong location for man pages for me. (And it should consider using INSTALLVENDORMAN1DIR and
+>> MAN1EXT but I don't know about section 8 since I don't know of perl value for that.)
+>> I don't want w3m cgi installed; it is optional for my package.
+>> I will just patch for that instead of using my own installer.
+>> Note: I am working on the pkgsrc package build specification for this. This is for creating
+>> packages for NetBSD, DragonFly and other systems that use pkgsrc package system.
+>> --JeremyReed

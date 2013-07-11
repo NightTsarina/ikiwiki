@@ -1,0 +1,113 @@
+# Danish translation of directives/ikiwiki/directive/pagestats page for ikiwiki.
+# Copyright (C) 2008-2009 Jonas Smedegaard <dr@jones.dk>
+# This file is distributed under the same license as the ikiwiki package.
+# Jonas Smedegaard <dr@jones.dk>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki 3.15\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
+"PO-Revision-Date: 2009-07-23 00:06+0200\n"
+"Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#. type: Plain text
+msgid ""
+"The `pagestats` directive is supplied by the [[!iki plugins/pagestats "
+"desc=pagestats]] plugin."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"This directive can generate stats about how pages link to each other. It can "
+"produce either a tag cloud, or a table counting the number of links to each "
+"page."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"Here's how to use it to create a [[tag]] cloud, with tags sized based on "
+"frequency of use:"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+
+#. type: Plain text
+msgid ""
+"Here's how to create a list of tags, sized by use as they would be in a "
+"cloud."
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgid "\t\\[[!pagestats style=\"list\" pages=\"tags/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+
+#. type: Plain text
+msgid "And here's how to create a table of all the pages on the wiki:"
+msgstr "Og sådan her dannes en tabel over alle sider i wikien:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats style=\"table\"]]\n"
+msgstr "\t\\[[!pagestats style=\"table\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `among` parameter limits the pages whose outgoing links are "
+"considered. For instance, to display a cloud of tags used on blog entries, "
+"while ignoring other pages that use those tags, you could use:"
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgid "\t\\[[!pagestats pages=\"tags/*\" among=\"blog/posts/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+
+#. type: Plain text
+msgid "Or to display a cloud of tags related to Linux, you could use:"
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgid "\t\\[[!pagestats pages=\"tags/* and !tags/linux\" among=\"tagged(linux)\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `show` parameter limits display to the specified number of "
+"pages. For instance, to show a table of the top ten pages with the most "
+"links:"
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "\t\\[[!pagestats style=\"table\"]]\n"
+msgid "\t\\[[!pagestats style=\"table\" show=\"10\"]]\n"
+msgstr "\t\\[[!pagestats style=\"table\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `class` parameter can be used to control the class of the "
+"generated tag cloud `div` or page stats `table`."
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

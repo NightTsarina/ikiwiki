@@ -1,0 +1,82 @@
+Now that google supports using thier profiles as OpenIDs, that can be used
+directly to sign into ikiwiki. Just use, for example, 
+<http://www.google.com/profiles/joeyhess> . Tested and it works. --[[Joey]] 
+
+> This seems to work fine if you use the profile directly as an OpenID.  It doesn't seem to work with delegation.  From that I can see, this is a deliberate decision by Google for security reasons.  See the response [here](http://groups.google.com/group/google-federated-login-api/browse_thread/thread/825067789537568c/23451a68c8b8b057?show_docid=23451a68c8b8b057). -- [[Will]]
+
+### adding the GMail OpenID as an admin is unhandy
+Adding the non-human-friendly OpenID from Gmail as an admin for ikiwiki (if you haven't set up a profile with a readabe URL) is unhandy; first, you need to discover the URL, for example, by making a web edit with it (like me [here](http://source.ikiwiki.branchable.com/?p=source.git;a=search;s=https://www.google.com/accounts/o8/id%3Fid%3DAItOawl3JW_Ow4xMqj98Ig1vwGx_AnjUSsgwE8E;st=author)), and then copy the URL to ikiwiki.setup. --Ivan Z.
+
+## historical discussion
+
+when I login via to this wiki (or ours) via Google's OpenID, I get this error:
+
+Error: OpenID failure: no_identity_server: The provided URL doesn't declare its OpenID identity server. 
+
+Any idea how to fix this??
+
+> Google is [doing things with openid that are not in the spec](http://googledataapis.blogspot.com/2008/10/federated-login-for-google-account.html)
+> and it's not clear to me that they intend regular openid to work at all.
+> What is your google openid URL so I can take a look at the data they are
+> providing? --[[Joey]] 
+
+
+http://openid-provider.appspot.com/larrylud
+
+> I've debugged this some and filed
+> <https://rt.cpan.org/Ticket/Display.html?id=48728> on the Openid perl
+> module. It's a pretty easy fix, so I hope upstream will fix it quickly.
+> --[[Joey]] 
+
+>> A little more information here:  I'm using that same openid provider at the moment.  Note that
+>> that provider isn't google - it is someone using the google API to authenticate.  I normally have it
+>> set up as a redirect from my home page (which means I can change providers easily).
+
+    <link rel="openid.server" href="http://openid-provider.appspot.com/will.uther">
+    <link rel="openid.delegate" href="http://openid-provider.appspot.com/will.uther">
+
+>> In that mode it works (I used it to log in to make this edit).  However, when I try the openid
+>> URL directly, it doesn't work.  I think there is something weird with re-direction.  I hope this
+>> isn't a more general security hole.
+>> -- [[Will]]
+
+----
+
+So, while the above bug will probably get fixed sooner or later,
+the best approach for those of you needing a google openid now is
+to use gmail.
+
+
+Just a note that someone has apparently figured out how to use a google
+openid, and not a third-party provider either, to edit this site. 
+The openid is
+<https://www.google.com/accounts/o8/id?id=AItOawltlTwUCL_Fr1siQn94GV65-XwQH5XSku4>
+(what a mouthfull!), and I don't know who that is or how to use it since it
+points to a fairly useless xml document, rather than a web page. --[[Joey]]
+
+> That string is what's received via the discovery protocol. The user logging in with a Google account is not supposed to write that when logging in, but rather <https://www.google.com/accounts/o8/id>. The OpenID client library will accept that and redirect the user to a sign in page, which will return that string as the OpenID. It's not really usable as an identifier for edits and whatnots, but an alternative would be to use the attribute exchange extension to get the email address and display that. See <http://code.google.com/apis/accounts/docs/OpenID.html#Parameters>.
+
+> Yahoo's OpenID implementation works alike, but I haven't looked at it as much. It uses <https://me.yahoo.com/> to receive the endpoint.
+
+> I've added buttons that submit the two above URLs for logging in with a Google and Yahoo OpenID, respectively, to my locally changed OpenID login plugin.
+
+> Using the Google profile page as the OpenID is really orthogonal to the above. --[[kaol]]
+
+>> First, I don't accept that the openid google returns from their 
+>> generic signin url *has* to be so freaking ugly. For contrast, 
+>> look at the openid you log in as if you use the yahoo url.
+>> <https://me.yahoo.com/joeyhess#35f22>. Nice and clean, now
+>> munged by ikiwiki to "joeyhess [me.yahoo.com]".
+>> 
+>> Displaying email addresses is not really an option, because ikiwiki
+>> can't leak user email addresses like that. Displaying nicknames or
+>> usernames is, see [[todo/Separate_OpenIDs_and_usernames]].
+>>
+>> It would probably be good if the openid plugin could be configured with
+>> a list of generic openid urls, so it can add quick login buttons using
+>> those urls.
+>>
+>> The ugly google url will still be exposed here and there where
+>> a unique user id is needed. That can be avoided by not using the generic
+>> <https://www.google.com/accounts/o8/id>, but instead your own profile
+>> like <http://www.google.com/profiles/joeyhess>. --[[Joey]] 

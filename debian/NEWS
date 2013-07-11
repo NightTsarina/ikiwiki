@@ -1,0 +1,572 @@
+ikiwiki (3.20110122) unstable; urgency=low
+
+  If you have custom CSS that uses "#feedlinks" or "#blogform", you will
+  need to change it to instead use ".feedlinks" and ".blogform"
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 14 Jan 2011 14:34:54 -0400
+
+ikiwiki (3.20100515) unstable; urgency=low
+
+  There are two significant changes to the page.tmpl template in this version.
+  If you have a locally modified version of that template, you will need to
+  update it at least to contain the following in the HTML <head>:
+
+    <TMPL_IF DYNAMIC>
+    <TMPL_IF FORCEBASEURL><base href="<TMPL_VAR FORCEBASEURL>" /><TMPL_ELSE>
+    <TMPL_IF BASEURL><base href="<TMPL_VAR BASEURL>" /></TMPL_IF>
+    </TMPL_IF>
+    </TMPL_IF>
+
+  Also, the footer should be wrapped in <TMPL_UNLESS DYNAMIC> ... </TMPL_UNLESS>
+  
+  There is a new "comment()" pagespec, that can be used to match a
+  comment on a page. It is recommended it be used instead of the old
+  method of using a pagespec such as "internal(comment_*)" to match
+  things that looked like comments. The old pagespec will now also match
+  comments that are held for moderation; likely not what you want.
+
+  There have also been some changes to the style.css in this version,
+  particularly to support the new openid selector. If you have a modified
+  version, of style.css, updating it (or moving it to local.css) is
+  recommended.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 05 May 2010 21:47:08 -0400
+
+ikiwiki (3.20100427) unstable; urgency=low
+
+  This version of ikiwiki has a lot of changes that you need to know about.
+
+  Now you can include customised versions of templates in the source
+  of your wiki. (For example, templates/page.tmpl.) When these templates
+  are changed, ikiwiki will automatically rebuild pages that use them.
+
+  Allowing untrusted users to upload attachments with the ".tmpl"
+  extension is not recommended, as that allows anyone to change
+  a wiki's templates.
+
+  The --getctime switch is renamed to --gettime, and it also gets the 
+  file modification time. And it's a lot faster (when using git). But
+  the really important change is, you don't have to remember to use this
+  switch. Now ikiwiki will do it when it needs to.
+
+  At last, the "tagged()" pagespec only matches tags, not regular wikilinks.
+  If your wiki accidentially relied on the old, buggy behavior, you might
+  need to change its pagespecs to use "link()".
+
+  Many of your wishes have been answered: Now tag pages can automatically be
+  created when new tags are used. This feature is enabled by default if you
+  have configured a tagbase. It can be turned on or off using the
+  tag_autocreate setting.
+
+  These changes may also affect some users:
+
+  * The title_natural sort method (as used by the inline directive, etc)
+    has been moved to the new sortnaturally plugin, which is not enabled
+    by default since it requires the Sort::Naturally perl module.
+
+  * The add_templates option has been removed from the underlay plugin.
+    If you used this option, you can instead use templates/ subdirectories
+    inside underlay directories added by the add_underlays option.
+
+  Due to the above and other changes, all wikis need to be rebuilt on
+  upgrade to this version. If you listed your wiki in /etc/ikiwiki/wikilist
+  this will be done automatically when the Debian package is upgraded. Or
+  use ikiwiki-mass-rebuild to force a rebuild.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 27 Apr 2010 00:00:00 -0400
+
+ikiwiki (3.20091017) unstable; urgency=low
+
+  To take advantage of significant performance improvements, all
+  wikis need to be rebuilt on upgrade to this version. If you
+  listed your wiki in /etc/ikiwiki/wikilist this will be done
+  automatically when the Debian package is upgraded. Or use
+  ikiwiki-mass-rebuild to force a rebuild.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 05 Oct 2009 16:48:59 -0400
+
+ikiwiki (3.1415926) unstable; urgency=low
+
+  In order to fix a performance bug, all wikis need to be rebuilt on
+  upgrade to this version. If you listed your wiki in
+  /etc/ikiwiki/wikilist this will be done automatically when the
+  Debian package is upgraded. Or use ikiwiki-mass-rebuild to force
+  a rebuild.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 25 Aug 2009 17:24:43 -0400
+
+ikiwiki (3.13) unstable; urgency=low
+
+  The `ikiwiki-transition deduplinks` command introduced in the
+  last release was buggy. If you followed the NEWS file instructions
+  and ran it, you should run `ikiwiki -setup` to rebuild your wiki
+  to fix the problem.
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 22 May 2009 13:04:02 -0400
+
+ikiwiki (3.12) unstable; urgency=low
+
+  You may want to run `ikiwiki-transition deduplinks your.setup`
+  after upgrading to this version of ikiwiki. This command will
+  optimise your wiki's saved state, removing duplicate information
+  that can slow ikiwiki down.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 06 May 2009 00:25:06 -0400
+
+ikiwiki (3.01) unstable; urgency=low
+
+  If your wiki uses git, and you have a `diffurl` configured in
+  its setup file, you should be aware that gitweb has stopped
+  supporting the url form commonly used for the `diffurl`.
+
+  You can change your setup to use the newer gitweb url form:
+
+    http://git.example.com/gitweb.cgi?p=wiki.git;a=blobdiff;f=[[file]];h=[[sha1_to]];hp=[[sha1_from]];hb=[[sha1_commit]];hpb=[[sha1_parent]]
+
+  The changes from the old form are the addition of the `hpb` parameter,
+  and the change to the value used for the `hb` parameter.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 05 Jan 2009 18:18:05 -0500
+
+ikiwiki (3.00) unstable; urgency=low
+
+  The 3.0 release of ikiwiki changes several defaults and finishes
+  some transitions. You will need to modify your wikis to work with
+  ikiwiki 3.0. A document explaining the process is available
+  in </usr/share/doc/ikiwiki/html/tips/upgrade_to_3.0.html>
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 23 Dec 2008 16:14:18 -0500
+
+ikiwiki (2.62) unstable; urgency=low
+
+  TexImg standard preamble changed
+
+  The teximg plugin now has a configurable LaTeX preamble.
+  As part of this change the `mchem` LaTeX package has been removed from
+  the default LaTeX preamble as it wasn't included in many TeX installations.
+
+  The previous behaviour can be restored by adding the following to your
+  ikiwiki setup:
+
+        teximg_prefix => '\documentclass{scrartcl}
+                \usepackage[version=3]{mhchem}
+                \usepackage{amsmath}
+                \usepackage{amsfonts}
+                \usepackage{amssymb}
+                \pagestyle{empty}
+                \begin{document}',
+
+  In addition, the rendering mechanism has been changed to use `dvipng` by
+  default, if available.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 24 Aug 2008 15:00:40 -0400
+
+ikiwiki (2.60) unstable; urgency=low
+
+  Admin preferences are moving from the web interface to the setup file.
+  There are three new options in the setup file: `locked_pages`, `banned_users`,
+  and `allowed_attachments`. The admin prefs page can still be used, but
+  that's deprecated, and the prefs will be hidden if a value is not already
+  set. If a value is set in the web interface, you're encouraged to move that
+  setting to your setup file now, since version 3.0 will remove the deprecated
+  admin prefs web interface.
+
+  Also, the layout of the setup file has changed in a significant way in this
+  release. Old setup files will continue to work, but new features, like the
+  new websetup interface, require a new format setup file. You can convert
+  old setup files into the new format by running 
+  `ikiwiki-transition setupformat ikiwiki.setup`
+
+ -- Joey Hess <joeyh@debian.org>  Fri, 01 Aug 2008 17:02:14 -0400
+
+ikiwiki (2.52) unstable; urgency=low
+
+  All wikis need to be rebuilt on upgrade to this version. If you listed your
+  wiki in /etc/ikiwiki/wikilist this will be done automatically when the
+  Debian package is upgraded. Or use ikiwiki-mass-rebuild to force a rebuild.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 06 Jul 2008 15:10:05 -0400
+
+ikiwiki (2.49) unstable; urgency=low
+
+  The search plugin no longer uses hyperestraier. Instead, to use it you
+  will now need to install xapian-omega, and the Search::Xapian,
+  HTML::Scrubber, and Digest::SHA1 perl modules. Ie,
+  `apt-get install xapian-omega libsearch-xapian-perl libhtml-scrubber-perl libdigest-sha1-perl`
+
+  Also, wikis that use the search plugin will need to be rebuilt,
+  since the search form has changed. This will not be done automatically,
+  but can be done by running `ikiwiki-mass-upgrade` as root, or
+  running `ikiwiki -setup` on individual setup files.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 04 Jun 2008 00:29:28 -0400
+
+ikiwiki (2.48) unstable; urgency=high
+
+  If you allowed password based logins to your wiki, those passwords were
+  stored in cleartext in the userdb. To guard against exposing users'
+  passwords, I recommend you install the Authen::Passphrase perl module, and
+  then run `ikiwiki-transition hashpassword /path/to/srcdir` to replace all
+  existing cleartext passwords with strong (blowfish) hashes.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 29 May 2008 14:39:34 -0400
+
+ikiwiki (2.46) unstable; urgency=low
+ 
+  There were some significant template changes in ikiwiki 2.42 (and 1.33.5).
+  If you have locally modified versions of the templates, they need to be
+  updated. Most notably, the editpage.tmpl has a new FIELD-SID added to it,
+  without which web editing will fail.
+ 
+ -- Joey Hess <joeyh@debian.org>  Tue, 06 May 2008 14:30:14 -0400
+
+ikiwiki (2.40) unstable; urgency=low
+
+  ikiwiki now has an new syntax for preprocessor directives, using the
+  prefix '!':
+
+  [[!directive ...]]
+
+  This new syntax no longer relies on spaces to distinguish between
+  wikilinks and preprocessor directives.  Thus, wikilinks can use spaces
+  in their link text, and preprocessor directives without arguments (such
+  as "toc") need not use a trailing space.
+
+  To enable the new syntax, set prefix_directives to true in your ikiwiki
+  config.  For backward compatibility with existing wikis,
+  prefix_directives currently defaults to false.  In ikiwiki 3.0,
+  prefix_directives will default to true, and wikis which have not yet
+  converted to the new syntax will need to set prefix_directives to false
+  in their setup files.
+
+  To convert your wiki to the new syntax, ikiwiki provides a new script
+  ikiwiki-transition.
+
+  Even with prefix_directives disabled, ikiwiki now allows an optional '!'
+  prefix on preprocessor directives (but still requires a space).  Thus, a
+  directive which uses a '!' prefix and contains a space will work with
+  ikiwiki 2.40 and newer, regardless of the value of prefix_directives.
+  This allows the underlay to work with all ikiwikis.
+
+ -- Josh Triplett <josh@freedesktop.org>  Sat, 26 Jan 2008 16:26:47 -0800
+
+ikiwiki (2.30) unstable; urgency=low
+
+  Ever feel that ikiwiki's handling of RecentChanges wasn't truely in the
+  spirit of a wiki compiler? Well, that's changed. The RecentChanges page is
+  now a static page, not a CGI. Users can subscribe to its rss/atom feeds.
+  Custom RecentChanges pages can be easily set up that display only changes
+  to a subset of pages, or only changes by a subset of users.
+  
+  All wikis need to be rebuilt on upgrade to this version. If you listed your
+  wiki in /etc/ikiwiki/wikilist this will be done automatically when the
+  Debian package is upgraded. Or use ikiwiki-mass-rebuild to force a rebuild.
+
+  With this excellent new RecentChanges support, the mail notification system
+  is its age (and known to be variously buggy and underimplemented for
+  various VCSes), and so ikiwiki's support for sending commit mails is REMOVED
+  from this version. If you were subscribed to commit mails, you should be
+  able to accomplish the same thing by subscribing to a RecentChanges feed.
+
+  The "notify" field in setup files is no longer used, and
+  silently ignored. You may want to remove it from your setup file.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 29 Jan 2008 17:18:31 -0500
+
+ikiwiki (2.20) unstable; urgency=low
+
+  The template plugin has begin to htmlize the variables passed to templates.
+  This is normally what you want, but to get the old behavior and get at the
+  raw value, you can use `<TMPL_VAR raw_variable>` in a template.
+ 
+ -- Joey Hess <joeyh@debian.org>  Sat, 08 Dec 2007 16:04:43 -0500
+
+ikiwiki (2.16) unstable; urgency=low
+
+  Many of the pages in ikiwiki's basewiki have been moved and renamed in this
+  release, to avoid the basewiki including pages with names like "blog".
+  Redirection pages have been left behind for these moved pages temporarily,
+  and will be removed later.
+
+  If you use the calendar plugin, ikiwiki is now smarter and your nightly
+  cron job to update the wiki doesn't need to rebuild everything. Just pass
+  --refresh to ikiwiki in the cron job and it will update only pages that
+  contain out of date calendars.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 08 Dec 2007 16:04:43 -0500
+
+ikiwiki (2.14) unstable; urgency=low
+
+  This version of ikiwiki is more picky about symlinks in the path leading
+  to the srcdir, and will refuse to use a srcdir specified by such a path.
+  This was necessary to avoid some potential exploits, but could potentially
+  break (semi-)working wikis. If your wiki has a srcdir path containing a
+  symlink, you should change it to use a path that does not.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 26 Nov 2007 14:57:57 -0500
+
+ikiwiki (2.9) unstable; urgency=low
+
+  Since ikiwiki 2.0 was released, some limitiations have been added to what
+  ikiwiki considers a WikiLink. In short, if there are any spaces in between
+  the brackets, ikiwiki no longer considers it to be a WikiLink. If your wiki
+  contains things meant to be WikiLinks that contain spaces, you will need to
+  fix them, by replacing the spaces with underscores.
+  
+  WikiLink have always been documented to not contain spaces, but bugs in
+  ikiwiki made it treat some text with spaces as WikiLinks. Most of these
+  bugs were fixed in version 2.2, and a final bug was fixed in this 2.9
+  release. These fixes are necessary to avoid ambiguity between
+  WikiLinks and PreProcessorDirectives. Apologies for any inconvenience
+  these bugs (and their fixes) may have caused.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 29 Sep 2007 14:37:18 -0400
+
+ikiwiki (2.6) unstable; urgency=low
+
+  In this version the rst plugin allows raw html to be embedded in rst files.
+  As long as the htmlscrubber is enabled, this should be safe. If you are
+  using the rst plugin without the htmlscrubber in a publically writable wiki,
+  you should turn on the htmlscrubber.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 29 Jul 2007 18:37:22 -0400
+
+ikiwiki (2.5) unstable; urgency=low
+
+  Due to some config changes in this version, wrappers need to be rebuilt on
+  upgrade. If you listed your wiki in /etc/ikiwiki/wikilist this will be
+  one automatically when the Debian package is upgraded.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 29 Jul 2007 17:54:40 -0400
+
+ikiwiki (2.1) unstable; urgency=low
+
+  Some wikis need to be rebuilt on upgrade to this version, due to changes to
+  page templates and the style sheet. If you listed your wiki in
+  /etc/ikiwiki/wikilist this will be done automatically when the Debian
+  package is upgraded. Or use ikiwiki-mass-rebuild to force a rebuild.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 26 Apr 2007 15:50:36 -0400
+
+ikiwiki (2.00) unstable; urgency=low
+
+  With the 2.0 release of ikiwiki, some major changes have been made to the
+  default configuration:
+
+  * The 'usedirs' setting is enabled by default. This *will* break all URLs
+    to wikis that did not have 'usedirs' turned on before, unless you follow
+    the procedure described at <http://ikiwiki.info/tips/switching_to_usedirs>,
+    or edit your setup file to turn usedirs off:
+       usedirs => 0,
+
+  * OpenID logins are now enabled by default, if the Net::OpenID::Consumer
+    perl module is available. Password logins are also still enabled
+    by default. If you like, you can turn either OpenID or password logins
+    off via the 'disable_plugins' setting.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 29 Apr 2007 19:00:43 -0400
+
+ikiwiki (1.51) unstable; urgency=low
+
+  Some wikis need to be rebuilt on upgrade to this version, due to changes to
+  page layout and the style sheet. If you listed your wiki in
+  /etc/ikiwiki/wikilist this will be done automatically when the Debian
+  package is upgraded. Or use ikiwiki-mass-rebuild to force a rebuild.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 26 Apr 2007 15:50:36 -0400
+
+ikiwiki (1.50) unstable; urgency=low
+
+  Permalinks and guids in rss and atom feeds for wikis using the usedirs
+  options will change in this release. If you have already enabled usedirs,
+  you may need to take steps to avoid flooding aggregators.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 14 Apr 2007 16:08:46 -0400
+
+ikiwiki (1.49) unstable; urgency=low
+
+  Third-party plugins that use htmlpage() or abs2rel() to generate links
+  may need changes to support the new "usedirs" option.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 01 Apr 2007 16:20:09 -0400
+
+ikiwiki (1.47) unstable; urgency=low
+ 
+  Due to a security fix, wikis that have the htmlscrubber enabled can no
+  longer use the meta plugin to insert html link and meta tags.
+
+  Some special case methods have been added for safely including stylesheets,
+  and for doing openid delegation. See the meta plugin docs for details.
+ 
+ -- Joey Hess <joeyh@debian.org>  Wed, 21 Mar 2007 14:18:40 -0400
+
+ikiwiki (1.45) unstable; urgency=low
+
+  Wikis need to be rebuilt on upgrade to this version. If you listed your wiki
+  in /etc/ikiwiki/wikilist this will be done automatically when the Debian
+  package is upgraded. Or use ikiwiki-mass-rebuild to force a rebuild.
+
+ -- Joey Hess <joeyh@debian.org>  Wed,  7 Mar 2007 23:02:52 -0500
+
+ikiwiki (1.44) unstable; urgency=low
+
+  The htmllink() function has changed slightly and plugins that use it may
+  need to change how they call it. This function's first three parameters
+  are unchanged, but additional options are now passed using named
+  parameters. If you used htmllink with more than 3 parameters, you will
+  need to change it. The plugin interface version has been increased to 1.02
+  to reflect this change.
+
+ -- Joey Hess <joeyh@debian.org>  Mon, 19 Feb 2007 21:10:12 -0500
+
+ikiwiki (1.42) unstable; urgency=low
+
+  The anonok setting in config files has been removed. To enable
+  httpauth support on your wiki, you should now enable the anonok plugin,
+  instead.
+
+  Third-party plugins that use pagespec_match() should be updated to pass
+  the new third parameter (from) to that function. This is needed for the
+  new relative glob matching to work.
+
+ -- Joey Hess <joeyh@debian.org>  Thu,  1 Feb 2007 16:57:59 -0500
+
+ikiwiki (1.34) unstable; urgency=low
+
+  The httpauth setting in config files has been removed. To enable
+  httpauth support on your wiki, you should now enable the httpauth plugin,
+  instead.
+
+  This release includes OpenID support that is enabled through the openid
+  plugin. I recommend turning this on to make it easier for users to sign
+  in to your wiki.
+
+ -- Joey Hess <joeyh@debian.org>  Sun, 19 Nov 2006 20:53:05 -0500
+
+ikiwiki (1.32) unstable; urgency=low
+
+  There is a change to the plugin interface in this version. Any plugins that
+  modify data in %links should pass scan => 1 when registering the hook that
+  does so.
+
+ -- Joey Hess <joeyh@debian.org>  Sat, 28 Oct 2006 00:13:12 -0400
+
+ikiwiki (1.29) unstable; urgency=low
+
+  Wikis need to be rebuilt on upgrade to this version. If you listed your wiki
+  in /etc/ikiwiki/wikilist this will be done automatically when the Debian
+  package is upgraded. Or use ikiwiki-mass-rebuild to force a rebuild.
+
+  There is a change to the plugin interface in this version. Plugins that use
+  %renderedfiles will need to be updated, as the hash's values are now arrays
+  of rendered files. Plugins that cause a page to render additional files
+  should use the new will_render function to register the files.
+
+ -- Joey Hess <joeyh@debian.org>  Sun,  8 Oct 2006 17:27:56 -0400
+
+ikiwiki (1.22) unstable; urgency=low
+  
+  Due to some changes in the CSS, wikis should be rebuilt on upgrade to this
+  version. If you listed your wiki in /etc/ikiwiki/wikilist this will be done
+  automatically when the Debian package is upgraded. Or use ikiwiki-mass-rebuild
+  to force a rebuild.
+
+  If you have modified versions of ikiwiki's html templates, you will need
+  to update your templates to link to the stylesheet file using
+  "<TMPL_VAR BASEURL>style.css" instead of the old method which used
+  STYLEURL.
+
+  There have also been some changes to the plugin interface:
+  Any plugins that use santize, htmlize, or format hooks will need to be
+  updated for this version of ikiwiki since these hooks have been changed
+  to use named parameters.
+
+ -- Joey Hess <joeyh@debian.org>  Tue, 22 Aug 2006 15:33:12 -0400
+
+ikiwiki (1.13) unstable; urgency=low
+
+  The GlobList format which was used for specifiying sets of pages, has been
+  replaced with a new, more expressive PageSpec format. While GlobLists will
+  continue to work, that format is deprecated, and you are encouraged to use
+  PageSpecs from now on, and also to change any GlobLists in your wiki to
+  PageSpecs. See the new PageSpec page for details.
+  
+  You will need to rebuild your wiki when upgrading to this version. If you
+  listed your wiki in /etc/ikiwiki/wikilist this will be done automatically
+  when the Debian package is upgraded. Or use ikiiki-mass-rebuild to force a
+  rebuild.
+
+ -- Joey Hess <joeyh@debian.org>  Tue,  1 Aug 2006 18:29:51 -0400
+
+ikiwiki (1.11) unstable; urgency=low
+
+  Some changes to tags in this release, due to a new tag plugin. If you have
+  been using the meta plugin to tag pages, you'll want to enable the tag
+  plugin too, and change things like this:
+
+  [[meta link="foobar"]]
+
+  To this:
+
+  [[tag foobar]]
+
+  The new tags will appear at page footers, and are also easier to type.
+
+  There have also been some changes to the plugin interface, particularly the
+  interface of pagetemplate hooks has changed. See the changelog for details.
+
+ -- Joey Hess <joeyh@debian.org>  Thu, 27 Jul 2006 17:03:09 -0400
+
+ikiwiki (1.8) unstable; urgency=low
+
+  If your wiki is configured with a setup file, you should modify it to
+  stop setting the "plugin" list directly, and instead add or remove plugins
+  via the add_plugins and disable_plugins lines. For example, if you had:
+
+  	plugin => [qw{inline smiley search}],
+
+  Change it to these lines, which disables the default htmlscrubber plugin
+  and adds the two additional plugins:
+
+  	add_plugins => [qw{smiley search}],
+  	disable_plugins => [qw{htmlscrubber}],
+
+  Making this change makes your ikiwiki setup file more future-proof since
+  new default plugins will be automatically used.
+  
+  You will need to rebuild your ikiwiki wrappers when upgrading to this
+  version. If you listed your wiki in /etc/ikiwiki/wikilist this will be
+  done automatically when the Debian package is upgraded. Or use
+  ikiiki-mass-rebuild --refresh to force a refresh.
+
+ -- Joey Hess <joeyh@debian.org>  Mon,  3 Jul 2006 16:59:29 -0400
+
+ikiwiki (1.1) unstable; urgency=low
+
+  There have been several configuration changes in this release of ikiwiki:
+
+  The --svn and --no-svn switches are removed, instead you should use
+   --rcs=svn or --no-rcs. ikiwiki setup files that set svn => 1 should
+  be changed to set rcs => "svn"; if your setup file sets svn => 0
+  then change it to use rcs => "" to disable svn.
+
+  The --hyperestraier switch is gone too. To enable searching, turn on the
+  search plugin, by passing --plugin=search or through the plugin setting in
+  the setup file.
+
+  The --sanitize and --no-sanitize switches are also gone, replaced with the
+  htmlscrubber plugin. This plugin is enabled by default, to disable it,
+  use --disable-plugin=htmlscrubber, or modify the plugin setting in the
+  setup file.
+
+  Discussion pages are enabled by default, but if your wiki is configured
+  with a setup file, you need to edit it to keep them enabled on upgrade
+  to this version. Add a line reading:
+  discussion => 1,
+
+  You will need to rebuild your wiki when upgrading to this version.
+  If you listed your wiki in /etc/ikiwiki/wikilist this will be done
+  automatically when the Debian package is upgraded. Or use
+  ikiiki-mass-rebuild to force a rebuild.
+
+ -- Joey Hess <joeyh@debian.org>  Tue,  2 May 2006 14:13:59 -0400

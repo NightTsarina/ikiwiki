@@ -1,0 +1,52 @@
+[[!template id=plugin name=mscgen author="[[users/Tjgolubi]]"]]
+[[!tag type/widget]]
+
+## NAME
+
+IkiWiki::Plugin::mscgen - embed message sequence chart
+
+## SYNOPSIS
+
+In the ikiwiki setup file, enable this plugin by adding it to the list of active plugins.
+
+    add_plugins:
+      - mscgen
+
+## DESCRIPTION
+
+This plugin provides the msc [[ikiwiki/directive]].
+This directive allows embedding [mscgen](http://www.mcternan.me.uk/mscgen/)
+message sequence chart graphs in an ikiwiki page.
+
+Here's an example that shows how an mscgen message sequence chart is embedded into an ikiwiki page.
+
+    \[[!msc src="""
+      arcgradient = 8;
+
+      a [label="Client"],b [label="Server"];
+
+      a=>b [label="data1"];
+      a-xb [label="data2"];
+      a=>b [label="data3"];
+      a<=b [label="ack1, nack2"];
+      a=>b [label="data2", arcskip="1"];
+      |||;
+      a<=b [label="ack3"];
+      |||;
+    """]]
+
+Security implications: to be determined.
+
+This plugin borrows heavily from the [[graphviz|plugins/graphviz]] plugin written by [[JoshTriplett]].
+
+## PREREQUISITES
+    IkiWiki
+    mscgen
+    Digest::SHA
+
+## DOWNLOAD
+
+* browse at GitHub: <http://github.com/tjgolubi/ikiwiki.mscgen>
+* repo at git://github.com/tjgolubi/ikiwiki.mscgen.git
+
+

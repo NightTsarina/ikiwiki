@@ -1,0 +1,153 @@
+# German translation of directives/ikiwiki/directive/cutpaste page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-03-12 09:29+0530\n"
+"PO-Revision-Date: 2010-03-14 13:59+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `copy`, `cut` and `paste` directives are supplied by the [[!iki "
+"plugins/cutpaste desc=cutpaste]] plugin."
+msgstr ""
+"Die `copy`- `cut`- und `paste`-Anweisungen werden durch die [[!iki "
+"plugins/cutpaste desc=cutpaste]]-Erweiterung bereitgestellt."
+
+#. type: Plain text
+msgid "With these directives you can store and recall pieces of text in a page:"
+msgstr ""
+"Mit diesen Anweisungen kann man Textabschnitte innerhalb einer Seite "
+"speichern und wieder abrufen:"
+
+#. type: Bullet: ' * '
+msgid ""
+"`\\[[!cut id=name text=\"text\"]]` memorizes the text allowing to recall it "
+"using the given ID.  The text being cut is not included in the output."
+msgstr ""
+"`\\[[!cut id=name text=\"text\"]]` merkt sich den Text und erlaubt es, ihn "
+"über die angegebene id wieder abzurufen. Der Text taucht an dieser Stelle "
+"nicht in der Ausgabe auf."
+
+#. type: Bullet: ' * '
+msgid ""
+"`\\[[!copy id=name text=\"text\"]]` memorizes the text allowing to recall it "
+"using the given ID.  The text being cut *is* included in the output."
+msgstr ""
+"`\\[[!copy id=name text=\"text\"]]` merkt sich den Text und erlaubt es, ihn "
+"über die angegebene id wieder abzurufen. Der Text *wird* an dieser Stelle "
+"ausgegeben."
+
+#. type: Bullet: ' * '
+msgid "`\\[[!paste id=name]]` is replaced by the previously memorized text."
+msgstr "`\\[[!paste id=name]]` wird durch den zuvor gemerkten Text ersetzt."
+
+#. type: Plain text
+msgid ""
+"The text being cut, copied and pasted can freely include wiki markup, "
+"including more calls to cut, copy and paste."
+msgstr ""
+"Der ausgeschnittene, kopierte und eingefügte Text kann beliebige "
+"Wiki-Formatierungsanweisungen enthalten, inklusive weiterer Aufrufe von "
+"`cut`, `copy` und `paste`."
+
+#. type: Plain text
+msgid ""
+"You do not need to memorize the text before using it: a cut directive can "
+"follow the paste directive that uses its text.  In fact, this is quite "
+"useful to postpone big blocks of text like long annotations and have a more "
+"natural flow.  For example:"
+msgstr ""
+"Man muss sich einen Text nicht vor seiner Verwendung merken: Eine "
+"`cut`-Anweisung kann auch erst nach der `paste`-Anweisung kommen, die ihren "
+"Text verwendet. Dies ist ein durchaus nützlich, um größere Blöcke von Text "
+"wie lange Anmerkungen erst später anzugeben und so für einen natürlicheren "
+"Textfluss zu sorgen. Zum Beispiel:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!toggleable id=\"cut\" text=\"[[!paste id=cutlongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"copy\" text=\"[[!paste id=copylongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"paste\" text=\"[[!paste id=pastelongdesc]]\"]]\n"
+msgstr ""
+"\t\\[[!toggleable id=\"cut\" text=\"[[!paste id=beschreibungcut]]\"]]\n"
+"\t\\[[!toggleable id=\"copy\" text=\"[[!paste id=beschreibungcopy]]\"]]\n"
+"\t\\[[!toggleable id=\"paste\" text=\"[[!paste id=beschreibungpaste]]\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t[...some time later...]\n"
+msgstr "\t[&hellip; und später &hellip;]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=cutlongdesc text=\"\"\"\n"
+msgstr "\t\\[[!cut id=beschreibungcut text=\"\"\"\n"
+
+#. type: Plain text
+#:
+#, no-wrap
+msgid "\t   blah blah blah\n"
+msgstr "\t   bla bla bla\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=copylongdesc text=\"\"\"\n"
+msgstr "\t\\[[!cut id=beschreibungcopy text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=pastelongdesc text=\"\"\"\n"
+msgstr "\t\\[[!cut id=beschreibungpaste text=\"\"\"\n"
+
+#. type: Plain text
+msgid ""
+"This can potentially be used to create loops, but ikiwiki is clever and "
+"breaks them."
+msgstr ""
+"Auf diese Weise können möglicherweise Schleifen erzeugt werden, aber ikiwiki "
+"ist schlau und bricht diese auf."
+
+#. type: Plain text
+msgid ""
+"Since you can paste without using double quotes, copy and paste can be used "
+"to nest directives that require multiline parameters inside each other:"
+msgstr ""
+"Da man `paste` ohne Anführungszeichen verwenden kann, können mit `copy` und "
+"`paste` Anweisungen ineinander geschachtelt werden, die mehrzeilige Parameter "
+"benötigen:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!toggleable id=foo text=\"\"\"\n"
+msgstr "\t\\[[!toggleable id=foo text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t  [[!toggleable id=bar text=\"[[!paste id=baz]]\"]]\n"
+msgstr "\t  [[!toggleable id=bar text=\"[[!paste id=baz]]\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=baz text=\"\"\"\n"
+msgstr "\t\\[[!cut id=baz text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tmultiline parameter!\n"
+msgstr "\tmehrzeiliger Parameter!\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+

@@ -1,0 +1,15 @@
+I originally set up ikiwiki by using the debian package, but had some odd issues, so i figured i'd try installing from git. To do that i uninstalled the debian package and then did the Makefile dance from the git dir. In that process the original dirs configured in templatedir underlaydir in my wiki were deleted; HOWEVER when rebuilding the script just went ahead and did not even note the lack of those dirs. It would be nice if it threw errors if the dirs were configured, but non-existant.
+
+> Hmm. This behavior was explicitly coded into ikiwiki for underlay dirs:
+> [commit](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=cb4b99929757f970d5ae697f0d09514ad624ed46).
+> Pity I didn't say why, but presumably there are cases 
+> where one of the underlaydirs is expected to be missing, or where
+> this robustness of not crashing is needed.
+> 
+> The situation with missing templatedirs is more clear: When
+> it's looking for a given template file it just tries to open it in each
+> directory in turn, and uses the first file found; checking that a
+> directory exists would be extra work and there's a nice error message if 
+> a template cannot be found. --[[Joey]]
+
+>> I'd agree with the thought behind that ... if it actually had thrown an error. However it did not. How about just checking the config variables when the template and/or config is set up? --Mithaldu

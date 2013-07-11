@@ -1,0 +1,85 @@
+I've set up a couple of sites where the users use ikiwiki in fairly standard mode as a CMS and I then set up another ikiwiki setup file that's got the edit options turned off, but is pointing at the same git repository in the background.  I then make the post-update hook for each be <tt>post-update-hook.ikiwiki</tt> and <tt>post-update-hook.ikiwiki-public</tt> and have the <tt>post-update</tt> hook itself be a script like:
+
+    #!/bin/sh
+    
+    $0.ikiwiki "$@"
+    $0.ikiwiki-public "$@"
+
+obviously this results in duplication of most of the <tt>ikiwiki.setup</tt>, a spare working directory that (perhaps) isn't needed, and an extra post-update hook plus wrapper script that is really needless extra complication.
+
+If instead there was a way of specifying additional destdir's, or perhaps more generally a way of specifying that there should be multiple passes through the build process using alternative values for some of the variables, then one could have both the private wiki view, and the public static view generated with minimal additional configuration.
+
+One idea that occurs to me is an <tt>additional_configs</tt> list where one would specify files containing just the settings you want to override compared with the main setup file.
+
+Alternatively, one might invent a new way of specifying alternative settings.  i.e.:
+
+     additionalsites:
+       - public
+
+     destdir: /home/wiki/wiki-view
+     destdir[public]: /home/wiki/public_html
+
+     disable_plugins: []
+     disable_plugins[public]:
+       - recentchanges
+       - editpage
+
+     url: https://example.com/editors/
+     url[public]: http://www.example.com/
+
+     ...
+
+where the existance of the <tt>additionalsites</tt> list provokes additional runs through using the settings with matching extra bits to be used to override the defaults found in the rest of the file.
+
+Just brainstorming a bit after [[liw]]'s comment about this being useful on IRC, and thought I'd write the idea up while I was thinking about it. -[[fil]]
+
+> I don't think you can avoid ikiwiki needing to store a different
+> `.ikiwiki` directory with state for each site. Differences in
+> configuration can affect the state it stores in arbitrary ways,
+> ranging from which pages are even built to what plugins are enabled and
+> store state. This also means that it doesn't make sense to try and
+> share state amoung rebuilds of the same site.
+> 
+> There is a hidden, and undocumented configuration setting `wikistatedir`
+> that can actually be pointed at a different directory than `.ikiwiki`.
+> Then you can rebuild multiple configurations from one working directory.
+> 
+> Another handy trick is to use the old perl-format (not yaml) setup file,
+> and parameterize it using `$ENV{FOO}`, then you can build two different
+> setups from the same setup file.
+> --[[Joey]]
+
+> > My post-update script has grown a bit, as I'm using ikiwiki-hosting now, so want to let the users update stuff themselves:
+> > 
+> >     #!/bin/sh
+> >     
+> >     PUB_URL=http://truestedt.hands.com
+> >     PUB_TMPL=$HOME/source-public/templates-public
+> >     
+> >     # make the public config, in case of updates via ikiwiki-hosting
+> >     sed -e 's/^\(srcdir\|destdir\|git_wrapper\): .*/&-public/;s#^\(url:\).*#\1 '$PUB_URL'#;s/^\(cgi_wrapper:\).*/\1 '"''"'/;s#^\(templatedir:\).*#\1 '$PUB_TMPL'#;s/^\(cgiurl\|historyurl\):/#&/;/disable_plugins:/a \
+> >     - recentchanges\
+> >     - editpage' ~/ikiwiki.setup > ~/ikiwiki.setup-public
+> >     #echo 'wikistatedir: source/.ikiwiki-public' >> ~/ikiwiki.setup-public
+> >     [ -d ~/source-public ] || cp -a ~/source ~/source-public
+> >     [ -d ~/public_html-public ] || mkdir ~/public_html-public
+> >     
+> >     # run normal post-update hook
+> >     ./hooks/post-update-ikiwiki "$@"
+> >     
+> >     # run post-update hook for the public version of the site
+> >     ./hooks/post-update-ikiwiki-public "$@"
+> >     
+> >     exec git update-server-info
+> >
+> > I tried using wikistatedir, as you suggested, but then wiki edits are not reflected on the second site (AFAICT), so reverted to having a full checkout of the source.
+> > I'm guessing that that's because the second run through with the post-update hook sees no changes that it needs to worry about in the source directory, but it's just
+> > possible that I got confused while testing, as the sed is pretty fragile, so some of the time it was failing because of sed syntax errors.
+> >
+> > It strikes me that one ought to be able to have a plugin that takes the current config, applies a few minor tweaks to it (perhaps by loading an extra config file) and
+> > then does some or all of the tasks normally run by main() again, targeting a new directory -- that way there would be no need for the two post-updates, and whatever
+> > provoked a rebuild would always do both, whether on the command line or via CGI.
+> > I just don't know quite where the right place to plumb such a plugin in would be -- also, it would be good to separate out the bits of main() that we'd be calling
+> > so that both the plugin and main calls them in the same way, to ease future maintenance
+> >
+> > Any hints on where to start with such a plugin, gratefully received :-)  -[[fil]]

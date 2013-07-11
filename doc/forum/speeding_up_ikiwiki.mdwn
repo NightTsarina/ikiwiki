@@ -1,0 +1,90 @@
+My website takes a fairly long time to render. It takes a long time to do
+things like add pages, too. I'd like to try and understand what takes the
+time and what I might be able to do to speed things up.
+
+I have 1,234 objects on my site (yikes!). 717 are items under "/log" which
+I think might be the main culprit because there are some complex pagespecs
+operating in that area (e.g. log/YYYY/MM/DD, YYYY/MM and YYYY for YYYY >=
+2003, YYYY <= 2008 which include every page under log/ which was modified
+in the corresponding YYYY or YYYY/MM or YYYY/MM/DD). There is very little
+linking between the world outside of /log and that within it.
+
+I was interested in generating a graphical representation of ikiwiki's idea of
+page inter-dependencies. I started by looking at the '%links' hash using the
+following plugin:
+
+    #!/usr/bin/perl
+    package IkiWiki::Plugin::deps;
+    
+    use warnings;
+    use strict;
+    use IkiWiki 3.00;
+    
+    
+    sub import {
+        hook(type => "format", id => "deps", call => \&fooble);
+    }
+    
+    my $hasrun = 0;
+    
+    sub fooble ($$) {
+        if(0 == $hasrun) {
+            $hasrun = 1;
+            open MYFILE, ">/home/jon/deps.dot";
+            foreach my $key (keys %links) {
+                my $arrref = $links{$key};
+                foreach my $page (@$arrref) {
+                    print MYFILE "$key -> $page;\n";
+                }
+            }
+            close MYFILE;
+        }
+    }
+    
+    1
+
+The resulting file was enormous: 2,734! This turns out to be because of the following code in scan() in Render.pm:
+
+    if ($config{discussion}) {$
+        # Discussion links are a special case since they're
+        # not in the text of the page, but on its template.
+        $links{$page}=[ $page."/".gettext("discussion") ];
+
+Worst case (no existing discussion pages) this will double the number of link
+relationships. Filtering out all of those, the output drops to 1,657. This
+number is still too large to really visualize: the graphviz PNG and PDF output
+engines segfault for me, the PS one works but I can't get any PS software to
+render it without exploding.
+
+Now, the relations in the links hash are not the same thing as Ikiwiki's notion of dependencies. Can anyone point me at  that data structure / where I might be able to add some debugging foo to generate a graph of it?
+
+Once I've figured out that I might be able to optimize some pagespecs. I
+understand pagespecs are essentially translated into sequential perl code. I
+might gain some speed if I structure my complex pagespecs so that the tests
+which have the best time complexity vs. "pages ruled out" ratio are performed
+first.
+
+I might also be able to find some dependencies which shouldn't be there and
+remove the dependency.
+
+In general any advice people could offer on profiling ikiwiki would be great.
+I did wonder about invoking the magic profiling arguments to perl via the CGI
+wrapper.
+
+
+-- [[Jon]]
+
+> Dependencies go in the `%IkiWiki::depends` hash, which is not exported. It
+> can also be dumped out as part of the wiki state - see [[tips/inside_dot_ikiwiki]].
+>
+> Nowadays, it's a hash of pagespecs, and there
+> is also a `IkiWiki::depends_simple` hash of simple page names.
+>
+> I've been hoping to speed up IkiWiki too - making a lot of photo albums
+> with my [[plugins/contrib/album]] plugin makes it pretty slow.
+>
+> One thing that I found was a big improvement was to use `quick=yes` on all
+> my `archive=yes` [[ikiwiki/directive/inline]]s. --[[smcv]]
+
+> Take a look at [[tips/optimising_ikiwiki]] for lots of helpful advice.
+> --[[Joey]] 

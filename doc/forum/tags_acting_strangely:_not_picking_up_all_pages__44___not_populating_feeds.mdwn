@@ -1,0 +1,28 @@
+Ok, I'm confused.  See http://lovesgoodfood.com/jason/tags/napowrimo/ and
+http://lovesgoodfood.com/jason/tags/NaPoWriMo/ for two examples of not
+picking up pages quite right.  I didn't realize that tags are randomly
+case-sensitive while still capitalized in the output title?  See the list
+of backlinks on each.  Also, the only pages actually being ''listed'' are
+from a year ago, but the backlinks include current pages.  The posts
+''are'' being included on http://lovesgoodfood.com/jason/tags/poetry/ .
+The feeds are populated on my host, but not on my laptop (Debian
+unstable-ish, as opposed to a git pull on my host).
+
+Halp?  I've blown away the old (including .ikiwiki) and rebuilt to no
+effect.  The tag pages are meant to be transients (loaded by default,
+according to the docs?), but they're still being created.  Nothing seems
+quite correct.
+
+-- JasonRiedy
+
+> What's going on with the case sensativity is that ikiwiki is
+> case-insensative, but in the edge case where there are somehow two pages
+> that vary only in case, it makes at least a token (partial, probably
+> incomplete and buggy) gesture at having the case of links to them
+> influence which one is linked to.
+> 
+> Possibly this is interacting badly with tag page autocreation when
+> different cases are used for a tag?
+> 
+> I don't know why new posts are not showing up in the tags. Can I download
+> the source from somewhere? --[[Joey]]

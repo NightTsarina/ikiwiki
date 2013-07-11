@@ -1,0 +1,73 @@
+Goal: Web interface to allow reverting of changes.
+
+Interface: 
+
+At least at first, it will be exposed via the recentchanges
+page, with revert icons next to each change. We may want a dynamic 
+per-page interface that goes back more than 100 changes later.
+
+Limiting assumptions:
+
+* No support for resolving conflicts in reverts; such a revert would just
+  fail and not happen.
+* No support for reset-to-this-point; initially the interface would only
+  revert a single commit, and if a bunch needed to go, the user would have
+  to drive that one at a time.
+
+Implementation plan: 
+
+* `rcs_revert` hook that takes a revision to revert.
+* CGI: `do=revert&rev=foo`
+* recentchanges plugin adds above to recentchanges page
+* prompt user to confirm (to avoid spiders doing reverts),
+  check that user is allowed to make the change, commit reversion,
+  and refresh site.
+
+Peter Gammie has done an initial implementation of the above.
+[[!template id=gitbranch branch=peteg/revert author="[[users/peteg]]"]]
+
+>> It is on a separate branch now. --[[users/peteg]]
+
+> Review: --[[Joey]] 
+> 
+> The revert commit will not currently say what web user did the revert.
+> This could be fixed by doing a --no-commit revert first and then using
+> rcs_commit_staged.
+>> Fixed, I think. --[[users/peteg]]
+>
+> So I see one thing I completly forgot about is `check_canedit`. Avoiding users
+> using reverting to make changes they would normally not be allowed to do is
+> tricky. I guess that a easy first pass would be to only let admins do it.
+> That would be enough to get the feature out there..
+> 
+> I'm thinking about having a `rcs_preprevert`. It would take a rev and look
+> at what changes reverting it would entail, and return the same data
+> structure that `rcs_recieve` does. This could be done by using `git revert
+> --no-commit`, and then examining the changes, and then `git reset` to drop
+> them.
+>> We can use the existing `git_commit_info` with the patch ID - no need to touch the working directory. -- [[users/peteg]]
+> 
+> Then the code that is currently in IkiWiki/Receive.pm, that calls
+> `check_canedit` and `check_canremove` to test the change, can be
+> straightforwardly refactored out, and used for checking reverts too.
+>> Wow, that was easy. :-) -- [[users/peteg]]
+> 
+> (The data from `rcs_preprevert` could also be used for a confirmation
+> prompt -- it doesn't currently include enough info for diffs, but at
+> least could have a list of changed files.)
+>
+> Note that it's possible for a git repo to have commits that modify wiki
+> files in a subdir, and code files elsewhere. `rcs_preprevert` should
+> detect changes outside the wiki dir, and fail, like `rcs_receive` does.
+>> Taken care of by refactoring `rcs_receive` in `git.pm`
+>> I've tested it lightly in my single-user setup. It's a little nasty that the `attachment` plugin
+>> gets used to check whether attachments are allowed -- there really should be a hook for that.
+>>> I agree, but have not figured out a way to make a hook work yet.
+>>> --[[Joey]] 
+>>
+>> Please look it over and tell me what else needs fixing... -- [[users/peteg]]
+
+>>> I have made my own revert branch and put a few^Wseveral fixes in there.
+>>> All merged to master now! --[[Joey]] 
+
+[[done]]

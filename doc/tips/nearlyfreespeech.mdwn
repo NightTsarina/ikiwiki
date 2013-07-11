@@ -1,0 +1,108 @@
+[NearlyFreeSpeech.net](http://NearlyFreeSpeech.net) is a shared hosting
+provider with very cheap pay as you go pricing. Here's how to install ikiwiki
+there if you don't have a dedicated server.
+
+Note that you can also follow these instructions, get your wiki set up on
+NearlyFreeSpeech, and then use the [[plugins/Amazon_S3]] plugin to inject
+the static web pages into Amazon S3. Then NearlyFreeSpeech will handle the
+CGI, and S3 will handle the web serving. This might be a more cost effective,
+scalable, or robust solution than using NearlyFreeSpeech alone.
+
+## Register for an account and set up a site
+
+After you [get an account](https://www.nearlyfreespeech.net/about/start.php),
+create a site using their web interface. 
+
+Mine is named `ikiwiki-test` and I used their DNS instead of getting my
+own, resulting in <http://ikiwiki-test.nfshost.com/>. (Not being kept up
+anymore.)
+
+They gave me 2 cents free funding for signing up, which is enough to pay
+for 10 megabytes of bandwidth, or about a thousand typical page views, at
+their current rates. Plenty to decide if this is right for you. If it is,
+$5 might be a good starting amount of money to put in your account.
+
+## ssh in and configure the environment
+
+ssh into their server using the ssh hostname and username displayed on
+the site's information page. For me this was:
+
+	ssh joeyh_ikiwiki-test@ssh.phx.nearlyfreespeech.net
+
+Now set up .profile to run programs from ~/bin.
+
+	cd $HOME
+	echo "PATH=$PATH:$HOME/bin" > .profile
+	. .profile
+
+## Download an unpack ikiwiki
+
+Use `wget` to [[download]] the ikiwiki tarball. Then unpack it:
+
+	tar zxvf ikiwiki*.tar.gz
+
+## Install perl modules
+
+As an optional step, you can use CPAN to install the perl modules ikiwiki
+uses into your home directory. This should not be necessary, mostly,
+because the system has most modules installed already.
+
+So, you might want to skip this step and come back to it later if ikiwiki
+doesn't work.
+
+	PERL5LIB=`pwd`/ikiwiki:`pwd`/ikiwiki/cpan:`pwd`/lib/perl5 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->install("Bundle::IkiWiki")'
+	
+	PERL5LIB=`pwd`/ikiwiki:`pwd`/ikiwiki/cpan:`pwd`/lib/perl5 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->force(install => "Bundle::IkiWiki::Extras")'
+
+This will take a while. As long as the first command succeeds, ikiwiki will be
+usable. The second command adds extra modules that some plugins use, so it's
+ok if installation of some of them fail.
+
+## Build and install ikiwiki
+
+	cd ikiwiki
+	export MAKE=gmake
+	perl Makefile.PL INSTALL_BASE=$HOME PREFIX=
+	$MAKE
+	$MAKE install
+
+## Set up a wiki in the usual way
+
+With ikiwiki installed, you can follow the regular [[setup]] tutorial for
+settng up your wiki. Make sure to set `destdir` to `/home/htdocs/` so that
+the wiki is published on the web site. I recommend using git for revision
+control; you can then clone your wiki's git repository as an offsite backup.
+
+Here is an example of how I set up a wiki:
+
+	mkdir ~/wiki
+	cd ~/wiki
+	cp -r ~/ikiwiki/doc/examples/blog/* .
+	ikiwiki -dumpsetup ikiwiki.setup
+	nano ikiwiki.setup
+	# Set destdir to /home/htdocs
+	# Set srcdir to /home/private/wiki
+	# Set url to http://yoursite.nfshost.com/
+	# Set cgiurl to http://yoursite.nfshost.com/ikiwiki.cgi
+	# Uncomment the `rcs => "git"` line.
+	# Set the cgi_wrapper path to /home/htdocs/ikiwiki.cgi
+	# Set the git_wrapper path to /home/private/wiki.git/hooks/post-update
+	# Configure the rest to your liking and save the file.
+	ikiwiki-makerepo git . ../wiki.git
+	ikiwiki -setup ikiwiki.setup
+
+## Clean up
+
+Finally, you can save a _lot_ of disk space by cleaning up the ikiwiki
+tarball and .cpan directory and a few other peices of cruft. Since you'll be
+charged one cent per month per megabyte, this is a quick way to save several
+dollars.
+
+rm -rf ~/ikiwiki*.tar.gz ~/.cpan ~/ikiwiki ~/man ~/lib/perl5/5.8.8
+
+That should cut things down to less than 2 megabytes. If you want to save
+even more space, delete unused perl modules from ~/lib/perl5
+
+## Enjoy!
+
+Have fun and do good things. --[[Joey]]

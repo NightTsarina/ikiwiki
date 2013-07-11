@@ -1,0 +1,6 @@
+> On FreeBSD, perl defaults to installation in `/usr/local/bin/perl` since it is not a part of the base system. If the option to create symlinks in `/usr/bin` is not selected, > building and running ikiwiki will fail because the shebang lines use `#!/usr/bin/perl [args]`. Changing this to `#!/usr/bin/env -S perl [args]` fixes the issue.
+
+I think this should be a concern of ikiwiki's official FreeBSD port.
+
+At any rate, even if it is decided that ikiwiki should be fixed, then it is probably better to use
+`$installbin/perl` from `-MConfig` and not the `env` hack.

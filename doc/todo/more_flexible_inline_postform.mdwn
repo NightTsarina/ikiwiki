@@ -1,0 +1,23 @@
+Using the [[plugins/inline]] plugin, you can get an inline-postform for
+creating new pages.
+
+It would be quite nice to have the flexibility to do this outside of the
+inline directive.
+
+I've got a proof-of-concept hacked inline comment submission example at
+<http://dev.jmtd.net/comments/> for example. I've just copied the HTML from
+the post form and stuck it inside a [[plugins/toggle]].
+
+(Before Simon completed the comments plugin, I thought this would the a
+logical first step towards doing comment-like things with inlined pages).
+
+-- [[Jon]]
+
+> Perhaps what we need is a `postform` plugin/directive that inline depends
+> on (automatically enables); its preprocess method could automatically be
+> invoked from preprocess_inline when needed. --[[smcv]]
+
+>> I've been looking at this stuff again. I think you are right, this would
+>> be the right approach. The comments plugin could use it similarly, allowing
+>> sites which desire it to have an inline comment submission form on all
+>> pages with comments enabled. I'm going to take a look. -- [[Jon]]

@@ -1,0 +1,28 @@
+[[!comment format=mdwn
+ username="https://launchpad.net/~tale"
+ nickname="tale"
+ subject="comment 2"
+ date="2011-12-27T16:18:31Z"
+ content="""
+In both old and new host gitorigin_branch is empty string in ikiwiki.setup.
+
+    tale@tugelbend:~$ grep -i gitorigin ikiwiki.setup 
+	gitorigin_branch => '',
+
+The branches subdir is empty on both hosts:
+
+    tale@tugelbend:~$ LANG=C ls -lha wiki/src.git/branches/
+    total 8.0K
+    drwxr-xr-x 2 tale tale 4.0K Dec 24  2009 .
+    drwxr-xr-x 7 tale tale 4.0K Dec 24  2009 ..
+    tale@tugelbend:~$ 
+
+I do not know what value I should assign to gitorigin_branch.
+
+I tried 
+
+    wiki.git/hooks/post-update
+
+but nothing seems to happen. No output, web page stays the same. File timestamps are not updated 
+on the dest directory. 
+"""]]

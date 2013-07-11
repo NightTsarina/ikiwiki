@@ -1,0 +1,41 @@
+Implementing tags in terms of links is clever, but it would be nice if it was
+opaque in both directions: tagging and matching tags. Writing pagespecs to
+find out which pages are tagged with a given name means that the pagespec is
+tied to whatever the tagbase is.
+
+This patch adds a pagespec function 'tag' which lets you write pagespecs to
+match tagged pages independent of whatever the tagbase is set to.
+
+ -- [[users/Jon]] 2009/02/17
+
+> So, this looks good, appreciate the patch.
+> 
+> The only problem I see is it could be confusing if `tag(foo)` matched
+> a page that just linked to the tag via a wikilink, w/o actually tagging it.
+
+>> (My [[!taglink wishlist]].) Yes, this is confusing and not nice. I observed this misbehavior, because I wanted to match two different lists of pages (only tagged or linked in any way), but it didn't work. Would this feature require a complex patch? --Ivan Z.
+
+>>> If you link to a page 'foo' which happens to be a tag then the page you link from will turn up in the set of pages returned by tagged(foo). The only way to avoid this would be for the tag plugin to not use wikilinks as an implementation method. That itself would not be too hard to do, but there might be people relying on the older behaviour. A better alternative might be to have a "tag2" plugin (or a better name) which implements tagging entirely separately. -- [[Jon]]
+>>>> I see; at least, your response is encouraging (that it's not hard). I could even find some work that can give similar features: [[structured page data#another_kind_of_links]] -- they envisage a pagespec like `data_link(Depends on,bugs/bugA)`, thus a "separation of dependencies between bugs from arbitrary links".
+
+>>>> Indeed, having many relations that can be used in the formulas defining classes of objects (like pagespecs here) is a commonly imagined thing, so this would be a nice feature. (I'll be trying out the patches there first, probably.) In general, extending the language of pagespecs to something more powerful (like [[!wikipedia description logics]]) seems to be a nice possible feature. I saw more discussions of ideas [[!taglink about_the_extension_of_the_pagespec_language_in_the_direction_similar_to_description_logics|pagespec_in_DL_style]] somewhere else here. --Ivan Z.
+
+> One other thing, perhaps it should be called `tagged()`? --[[Joey]] 
+
+[[!tag patch done]]
+
+    --- a/plugins/IkiWiki/Plugin/tag.pm	2009-02-16 11:30:11.000000000 +0000
+    +++ b/plugins/IkiWiki/Plugin/tag.pm	2009-02-17 15:40:03.000000000 +0000
+    @@ -125,4 +125,12 @@
+     	}
+     }
+     
+    +package IkiWiki::PageSpec;
+    +
+    +sub match_tag ($$;@) {
+    +	my $page = shift;
+    +	my $glob = shift;
+    +    return match_link($page, IkiWiki::Plugin::tag::tagpage($glob));
+    +}
+    +
+     1

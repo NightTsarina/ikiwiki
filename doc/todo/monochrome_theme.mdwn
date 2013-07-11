@@ -1,0 +1,48 @@
+[[!template id=gitbranch branch=jmtd/monochrome_theme author="[[Jon]]"
+
+]][As requested](http://jmtd.net/log/goodreads/), please find a new theme named
+'monochrome' in listed git repo/branch. [Here's the screenshot of what it looks like](https://github.com/jmtd/ikiwiki/blob/30af2437cd41d394930864e93b3c2319d1ec2b06/doc/themes/monochrome.png). — [[Jon]]
+
+Perhaps controversially, I think that this would be a good basis for a default theme for the ikiwiki website. (I suspect more work is needed, I have not tested the theme against every plugin which provides theme-able bits and pieces, nor with e.g. HTML5 mode turned on, etc. etc.) Whilst the anti-theme is the best default for an ikiwiki instance (although an argument could be made against that, too!), the site needs to try to advertise some of the potential of ikiwiki to visitors, and serve as an example of what can be done. I'd appreciate thoughts of frequent ikiwiki contributors on this proposal ☺  — [[Jon]]
+
+> I appreciate you putting that branch together. I was ready to merge it,
+> but `themes/monochrome/style.css` seems to contain a lot of redundant
+> things that are in ikiwiki's normal style.css. This is especially
+> redundant since ikiwiki's style.css gets prepended to the theme's stylesheet
+> at build time! Can you remove those redundant bits please? (PITA I know,
+> but it will make maintaining this much easier.) --[[Joey]]
+
+>> Sure I'll sort that out.  Sorry, I didn't realise the prepending was an automatic process. I did it manually. It should be quick for me to fix. — [[Jon]]
+
+>>> Fixed. I rebased the branch; hopefully that won't cause your script issues.  — [[Jon]]
+
+>>>> I've merged your branch.
+>>>> 
+>>>> Looking more closely at the css, I do have a few questions:
+>>>> 
+>>>> * Is the google-provided font really necessary? I consider that a sort
+>>>>   of web bug, I would prefer users of ikiwiki not need to worry that
+>>>>   their referer information is being sent to some third party.
+>>>>   I'd also prefer for ikiwiki sites to always be functional when
+>>>>   viewed offline.
+>>>> * The external link markup needs the local url to be put into
+>>>>   local.css to work right, correct? I wonder if this is too much of a
+>>>>   complication to ask of users. It seems to be it could either be left
+>>>>   out of the theme, or perhaps ikiwiki could be made to expand
+>>>>   something in the css to the site's url at build time.
+>>>> 
+>>>> --[[Joey]]
+
+>>>>>Thanks for merging!
+>>>>>
+>>>>> * the font is not necessary. I will check, it might be license-compatible
+>>>>>   and thus could be bundled. As things stand, if people have no 'net connection
+>>>>>   or the font fails to load, the theme still "works". Good point RE the referral
+>>>>>   situation.
+>>>>>
+>>>>> * The external link markup works without customizing the CSS, but if something
+>>>>>   generates a non-relative link within the content area of a page, it will be
+>>>>>   styled as an external link.  By default, nothing does this in ikiwiki afaik,
+>>>>>   so the impact is pretty small. (except perhaps if someone specifies an absolute
+>>>>>   `cgiurl` path?)  The additional customization is belt-and-braces.
+>>>>>   — [[Jon]]

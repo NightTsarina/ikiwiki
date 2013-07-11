@@ -1,0 +1,123 @@
+Hi Joey and many thanks for your work on ikiwiki, as usual you give us a very good soft...
+
+I want to be able to edit my website from a navigator (with the CGI) and
+from my favorite editor on my laptop. I have managed to use the subversion wrapper
+so I have write a post-commit hook with : 
+
+    cd /~/wikisrc/ 
+    svn up
+    /usr/bin/ikiwiki --setup ../ikiwiki.setup
+
+at the end.
+
+This configuration works for me, the svn wrapper doesn't seems to
+do the svn up stuff so I wonder if I've missed something...
+
+Regards.
+
+> Well, you've created a post-commit script that runs ikiwiki in setup mode.
+> That's not how it's generally done, instead you generally configure
+> ikiwiki to generate a post-commit _binary_ that runs ikiwiki in update
+> mode. That binary can be installed directly as the post-commit hook, or
+> called from an existing post-commit hook script, and it will handle the
+> necessary svn up, and will update the wiki much quicker than your --setup
+> command above (which rebuilds the entire wiki and all wrappers each
+> commit)!
+>
+> In this wiki's setup file, I configure ikiwiki to generate a post-commit
+> wrapper binary like so:
+> 
+> 	wrappers => [
+> 	{
+> 		wrapper => "/srv/svn/ikiwiki/hooks/post-commit",
+> 		wrappermode => "04755",
+> 		notify => 1,
+> 	}
+>	],
+
+
+Hello, I've setup ikiwiki with subversion. I can edit pages from web browser using CGI and, when I go to recentchanges, it shows that modification with "web" word. But, if I modify any .mdwn file, it gets updated in website but it doesn't show in recentchanges entry with "svn" word. If I run "svn ci -m changes", it shows in recentchanges correctly.
+
+So, I think I miss something, because I don't think I must run "svn add" or "svn commit" anytime I modify or create a wiki file.
+
+Thanks
+
+> Yes, ikiwiki does expect you to use your revision control system to check
+> in changes. Otherwise, recentchanges cannot work right, since it uses the
+> commit history from your revision control system. --[[Joey]]
+
+-----
+
+I'm working on an [[rcs]] plugin for CVS, adapted from `svn.pm`, in order
+to integrate ikiwiki at sites where that's all they've got. What's working
+so far: web commit (post-commit hook and all), diff, add (under certain
+conditions), and remove. What's not working: with rcs_add(), iff any of the
+new page's parent dirs aren't already under CVS control and the post-commit
+hook is enabled, the browser and ikiwiki stall for several seconds trying
+to add it, then time out. (If I kill ikiwiki when this is happening, it cvs
+adds the topmost parent that needed adding; if I wait for timeout, it
+doesn't. I think.) If I disable the post-commit hook and do the same kind
+of thing, the page is created and saved.
+
+In case you're lucky enough not to know, cvs adds on directories are weird
+-- they operate immediately against the repository, unlike file adds:
+
+    $ cvs add randomdir
+    Directory /Users/schmonz/Documents/cvswiki/repository/ikiwiki/randomdir added to the repository
+
+I was able to work out that when I'm seeing this page save misbehavior, my
+plugin is somewhere inside `system("cvs", "-Q", "add", "$file")`, which was
+never returning. If I changed it to anything other than cvs it iterated
+correctly over all the parent dirs which needed to be added to CVS, in the
+proper order. (cvs add isn't recursive, sadly.)
+
+Can you offer an educated guess what's going wrong here? --[[Schmonz]]
+
+> Got `rcs_recentchanges` working, believe it or not, thanks to [cvsps](http://www.cobite.com/cvsps/). If I can figure out this interaction between the post-commit hook and `cvs add` on directories, the CVS plugin is mostly done. Could it be a locking issue? Where should I be looking? Any suggestions appreciated. --[[Schmonz]]
+
+>> Okay, it is definitely a locking issue. First, on the conjecture that
+>> `cvs add <directory>` was triggering the post-commit hook and confusing
+>> ikiwiki, I wrapped the ikiwiki post-commit binary with a shell script
+>> that exited 0 if the triggering file was a directory. The first half of
+>> the conjecture was correct -- my wrapper got triggered -- but the web
+>> add of `one/two/three.mdwn` (where `one` and `two` weren't existing
+>> CVS-controlled dirs) remained hung as before. There were two ikiwiki
+>> processes running. On a whim, I killed the one with the higher PID; `cvs
+>> add one` immediately completed successfully, then back to a hang and two
+>> ikiwiki processes. I killed the newer one again and then `cvs add
+>> one/two` and `cvs add one/two/three.mdwn` completed and the web add was
+>> successful. --[[Schmonz]]
+
+>>> Aaaaaand I was wrong about the second half of the conjecture being
+>>> wrong. The wrapper script wasn't correctly identifying directories;
+>>> with that fixed, everything works. I've created a
+>>> [[rcs/cvs]] page. Thanks for listening. :-)
+>>> --[[Schmonz]]
+
+>> Here is a comment I committed to my laptop from Madrid Airport before
+>> your most recent updates, in case it's still useful:
+>>
+>> Locking certianly seems likely to be a problem. ikiwiki calls `rcs_add`
+>> *before* disabling the post-commit plugin, since all over VCS allow
+>> adding something in a staged manner. You can see this in, for example,
+>> `editpage.pm` lines 391+.
+>> 
+>> So I guess what happens is that ikiwiki has taken the wiki lock, calls
+>> `rcs_add`, which does a `cvs add`, which runs the post commit hook,
+>> since it is not disabled -- which blocks waiting for the wiki lock.
+>>
+>> I guess you can fix this in either of three ways: Modify lots of places
+>> in ikiwiki to disable the post commit hook before calling `rcs_add`,
+>> or make cvs's `rcs_add` temporarily disable the commit hook and
+>> re-enable it (but only if it was not already disabled, somehow),
+>> or make cvs's `rcs_add` only make note that it needs to call `cvs add`
+>> later, and do so at `rcs_commit`. The last of these seems easist,
+>> especially since ikiwiki always commits after an add, in the same
+>> process, so you could just use a temporary list of things to add.
+>> --[[Joey]] 
+
+>>> Thanks for the comments. Attempting to set up a wiki on a different system with a different version of `cvs`, I've encountered a new locking problem within CVS: `cvs commit` takes a write lock, post-commit ikiwiki calls `rcs_update()`, `cvs update` wants a read lock and blocks. The easiest fix I can think of is to make `cvs commit` return and relinquish its lock -- so instead of my wrapper script `exec`ing ikiwiki's post-commit hook, I amp it off and exit 0. Seems to do the trick and, if I grok ikiwiki's behavior here, is not dangerous. (Beats me why my development `cvs` doesn't behave the same WRT locking.)
+
+>>> I was all set to take your third suggestion, but now that there's more than one CVS oddity fixed trivially in a wrapper script, I think I prefer doing it that way.
+
+>>> I'd be glad for the CVS plugin to be included in ikiwiki, if and when you deem it ready. Please let me know what needs to be done for that to happen. --[[Schmonz]]

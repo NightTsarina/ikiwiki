@@ -1,0 +1,90 @@
+I'm trying to convert hand written html site to ikiwiki and maintain url compatibility. html plugin with indexpages=1 converts all dir_name/index.html correctly to dir_name urls with wiki/css based content, but somedir/somefile.html files are only accessible as somedir/somefile/. Non .html files seem to accessible with their full paths, for example somedir/pic.jpg from hand written html can be accessed by same path under ikiwiki.
+
+How to make somedir/somefile.html accessible as somedir/somefile.html under ikiwiki?
+
+Thanks,
+
+-Mikko
+
+> Hello! The options you need to investigate are `--usedirs` and
+> `--no-usedirs`. The default `--usedirs` takes any source page foo
+> (regardless of its format, be it markdown or html) and converts it into a
+> destination page foo/index.html (URL foo/). By comparison, `--no-usedirs`
+> maps the source file onto a destination file directly: src/foo.html becomes
+> dest/foo.html, src/bar.mdwn becomes dest/bar.html, etc.
+> 
+> It sounds like you want `--no-usedirs`, or the corresponding `usedirs => 0,`
+> option in your setup file. See [[usage]] for more information. -- [[Jon]]
+
+Thanks, usedirs seems to be just the thing I need.
+
+-Mikko
+
+Actually usedirs didn't do exactly what I want. The old site contains both
+somedir/index.html and somedir/somename.html files. With html plugin and 
+indexpages=1 the somedir/index.html pages are accessed correctly but 
+somedir/somefile.html files not.
+
+With usedirs => 0, somedir/somename.html pages are accessed correctly but
+somedir/index.html pages are not. Actually the handwritten somedir/index.html
+files were removed on a rebuild:
+
+    $ ikiwiki -setup blog.setup -rebuild -v
+    ...
+    removing test2/index.html, no longer built by test2
+
+Is there a way for both index.html and somename.html raw html files to show up through ikiwki?
+
+-Mikko
+
+> I think you want usedirs => 0 and indexpages => 0?
+>
+> What IkiWiki does is to map the source filename to an abstract page name
+> (indexpages alters how this is done), then map the abstract page name
+> to an output filename (usedirs alters how this is done).
+>
+> The three columns here are input, abstract page name, output:
+>
+>     usedirs => 0, indexpages => 0:
+>         a/index.html -> a/index -> a/index.html
+>         a/b.html -> a/b -> a/b.html
+>     usedirs => 1, indexpages => 0:
+>         a/index.html -> a/index -> a/index/index.html
+>         a/b.html -> a/b -> a/b/index.html
+>     usedirs => 0, indexpages => 1:
+>         a/index.html -> a -> a.html
+>         a/b.html -> a/b -> a/b.html
+>     usedirs => 1, indexpages => 1:
+>         a/index.html -> a -> a/index.html
+>         a/b.html -> a/b -> a/b/index.html
+>
+> The abstract page name is what you use in wikilinks and pagespecs.
+>
+> What I would suggest you do instead, though, is break your URLs once
+> (but put in Apache redirections), to get everything to be consistent;
+> I strongly recommend usedirs => 1 and indexpages => 0, then always
+> advertising URLs that look like <http://www.example.com/a/b/>. This is
+> what ikiwiki.info itself does, for instance. --[[smcv]]
+
+Thanks for the explanation. usedirs => 0 and indexpages => 0 does the trick,
+but I'll try to setup mod_rewrite from foo/bar.html to foo/bar in the final 
+conversion.
+
+-Mikko
+
+> That's roughly what I do, but you can do it with `Redirect` and `RedirectMatch` from `mod_alias`, rather than fire up rewrite. Mind you I don't write a generic rule, I have a finite set of pages to redirect which I know. -- [[Jon]]
+
+I'm getting closer. Now with usedirs => 1 and raw html pages, ikiwiki transforms foo/index.html to foo/index/index.html.
+Can ikiwiki be instructed map foo/index.html to page foo instead that foo/index?
+
+-Mikko
+
+> If you don't already have a foo.html in your source, why not just rename foo/index.html to foo.html? With usedirs, it will then map to foo/index.html. Before, you had 'foo/' and 'foo/index.html' as working URLS, and they will work after too. 
+> 
+> If you did have a foo.html and a foo/index.html, hmm, that's a tricky one. -- [[Jon]]
+
+> We may be going round in circles - that's what indexpages => 1 does :-)
+> See the table I constructed above, which explains the mapping from input
+> files to abstract page names, and then the mapping from abstract page
+> names to output files. (I personally think that moving your source pages
+> around like Jon suggested is a better solution, though. --[[smcv]]

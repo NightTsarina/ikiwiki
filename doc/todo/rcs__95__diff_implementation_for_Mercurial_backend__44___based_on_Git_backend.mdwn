@@ -1,0 +1,40 @@
+(**Note:** this patch is built on top of [[Attempt to extend Mercurial backend support]] and [[rcs__95__get__123__c__44__m__125__time_implementation_for_Mercurial_backend__44___based_on_Git_backend]]. The former is needed for the `safe_hg()` definition. The latter only shows up in the very last line matching of this patch.)
+
+CC of `rcs_diff` implementation in `git.pm` with few changes. Mercurial provides the `hg diff -g` switch, which outputs the diff in Git-format, making the implementation easy. I think it's a good idea to base `mercurial.pm` as much as possible om `git.pm` to simplify and be able to benefit from the maintenance of `git.pm`, which probably is more used.
+
+[Patch at my hg repo](http://510x.se/hg/program/ikiwiki/diff/cc73d670bf99/Plugin/mercurial.pm) ([raw format](http://510x.se/hg/program/ikiwiki/raw-file/cc73d670bf99/Plugin/mercurial.pm)).
+
+--[[Daniel Andersson]]
+
+> Guess that makes sense, [[done]] --[[Joey]] 
+
+---
+
+	diff -r 1b6c46b62a28 -r cc73d670bf99 Plugin/mercurial.pm
+	--- a/Plugin/mercurial.pm	Tue Jul 19 13:35:17 2011 +0200
+	+++ b/Plugin/mercurial.pm	Tue Jul 19 13:35:37 2011 +0200
+	@@ -307,7 +307,23 @@
+	 }
+	 
+	 sub rcs_diff ($;$) {
+	-	# TODO
+	+	my $rev=shift;
+	+	my $maxlines=shift;
+	+	my @lines;
+	+	my $addlines=sub {
+	+		my $line=shift;
+	+		return if defined $maxlines && @lines == $maxlines;
+	+		push @lines, $line."\n"
+	+			if (@lines || $line=~/^diff --git/);
+	+		return 1;
+	+	};
+	+	safe_hg(undef, $addlines, "hg", "diff", "-c", $rev, "-g");
+	+	if (wantarray) {
+	+		return @lines;
+	+	}
+	+	else {
+	+		return join("", @lines);
+	+	}
+	 }
+	 
+	 {

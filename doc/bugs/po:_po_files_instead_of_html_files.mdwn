@@ -1,0 +1,30 @@
+On the home page of my wiki, when i click on the link "ikiwiki", i get the english file instead of the french file.  
+At the bottom of this page, there is the "Links" line:  
+Links: index index.fr templates templates.fr  
+When i click on "templates.fr", i get the po.file instead of html.  
+   
+    Sorry for the noise! I set "po_master_language" to fr and all was ok.
+
+> Any chance you could be a bit more verbose about what the
+> misconfiguration was? I don't think the po plugin should behave like that
+> in any configuration. Unless, perhaps, it was just not configured to
+> support any languages at all, and so the po file was treated as a raw
+> file. --[[Joey]] 
+  
+>> I can reproduce the bug with:  
+ 	# po plugin  
+	# master language (non-PO files)  
+	po_master_language => {  
+	  code => 'en',  
+	  name => 'English'  
+	},  
+	# slave languages (PO files)  
+	po_slave_languages => [qw{fr|Français}],  
+
+>>> I've never found any `.po` file in the destination directory on
+>>> any of my PO-enabled ikiwiki instances. Without more information,
+>>> there's nothing I can do: the config snippet pasted above is more
+>>> or less the example one and does not allow me to reproduce the
+>>> bug. --[[intrigeri]]
+
+>>>> I think it's best to close this as unreproducible. [[done]] --[[Joey]] 

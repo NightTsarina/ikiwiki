@@ -1,0 +1,36 @@
+[[!template id=gitbranch branch=smcv/ready/sslcookie-auto author="[[smcv]]"]]
+[[!tag patch]]
+
+At the moment `sslcookie => 0` never creates secure cookies, so if you log in
+with SSL, your browser will send the session cookie even over plain HTTP.
+Meanwhile `sslcookie => 1` always creates secure cookies, so you can't
+usefully log in over plain http.
+
+This branch adds `sslcookie => 0, sslcookie_auto => 1` as an option; this
+uses the `HTTPS` environment variable, so if you log in over SSL you'll
+get a secure session cookie, but if you log in over HTTP, you won't.
+(The syntax for the setup file is pretty rubbish - any other suggestions?)
+
+> Does this need to be a configurable option at all? The behavior could
+> just be changed in the sslcookie = 0 case. It seems sorta reasonable
+> that, once I've logged in via https, I need to re-login if I then
+> switch to http.
+
+>> Even better. I've amended the branch to have this behaviour, which
+>> turns it into a one-line patch. --[[smcv]]
+
+> And, if your change is made, the sslcookie option could probably itself
+> be dropped too -- at least I don't see a real use case for it if ikiwiki
+> is more paranoid about cookies by default.
+
+>> I haven't done that; it might make sense to do so, but I think it'd be
+>> better to leave it in as a safety-catch (or in case someone's
+>> using a webserver that doesn't put `$HTTPS` in the environment). --s
+
+> Might be best to fix
+> [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]]
+> first, so that dual https/http sites can better be set up. --[[Joey]]
+
+>> Thanks for merging that! :-) --s
+
+[[merged|done]] --[[Joey]] 

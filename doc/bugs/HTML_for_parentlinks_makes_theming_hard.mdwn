@@ -1,0 +1,45 @@
+I'm trying to make a pretty theme for ikiwiki and I'm making progress (or at least I think I am :-).  However I've noticed an issue when it comes to theming.  On the front page the wiki name is put inside the "title" span and on all the other pages, it's put in the "parentlinks" span.  See here:
+
+From [my dev home page](http://adam.shand.net/iki-dev/):
+
+<code>
+&lt;div class="header">  
+&lt;span>  
+&lt;span class="parentlinks">  
+ 
+&lt;/span>  
+&lt;span class="title">  
+adam.shand.net/iki-dev  
+&lt;/span>  
+&lt;/span>&lt;!--.header-->  
+ 
+&lt;/div>  
+</code>
+
+From a sub-page of [my dev home page](http://adam.shand.net/iki-dev/recipes/navajo_fry_bread/):
+
+<code>
+&lt;div class="header">  
+&lt;span>  
+&lt;span class="parentlinks">  
+ 
+&lt;a href="../">adam.shand.net/iki-dev</a>/  
+ 
+&lt;/span>  
+&lt;span class="title">  
+recipes 
+&lt;/span>   
+&lt;/span>&lt;!--.header-->  
+ 
+&lt;/div>  
+</code>
+
+I understand the logic behind doing this (on the front page it is the title as well as the name of the wiki) however if you want to do something different with the title of a page vs. the name of the wiki it makes things pretty tricky.
+
+I'll just modify the templates for my own site but I thought I'd report it as a bug in the hopes that it will be useful to others.
+
+Cheers,  
+[[AdamShand]].
+
+----
+> I just noticed that it's also different on the comments, preferences and edit pages.  I'll come up with a diff and see what you guys think.  -- Adam.

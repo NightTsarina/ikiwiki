@@ -1,0 +1,26 @@
+There will be a *talk* by Stephane Bortzmeye about *OpenID* within the program of the
+[*umeet 2007* online conference](http://umeet.uninet.edu/umeet2007/english/pres.html).
+
+It is scheduled for 2007-12-20 18:00 UTC.
+
+See <http://umeet.uninet.edu/umeet2007/english/prog.html> for the complete program
+and for information about how to join.
+
+--[[tschwinge]]
+
+----
+<a id="Yahoo_unsupported" />
+[[!tag bugs]]
+
+It looks like OpenID 2.0 (the only supported by Yahoo) is not supported in ikiwiki. :( I signed up at http://openid.yahoo.com/ , and tried to login to my ikiwiki with the new ID (of the form: https://me.yahoo.com/a-username), but Yahoo told me:
+
+> Sorry! You will not be able to login to this website as it is using an older version of the the OpenID technology. Yahoo! only supports OpenID 2.0 because it is more secure. For more information, check out the OpenID documentation at [Yahoo! Developer Network](http://developer.yahoo.com/openid/).
+
+-- Ivan Z.
+
+They have more on OpenID 2.0 in [their FAQ](http://developer.yahoo.com/openid/faq.html). --Ivan Z.
+
+----
+I'm trying to add a way to query the data saved by the OpenID plugin from outside of ikiwiki, to see what identity the user has been authenticated as, if any. I'm thinking of designating some directories as internal pages and check the identity against a list in a mod_perl access hook. I would also write a CGI script that would return a JSON formatted reply to tell if the user is authenticated for those pages and query it with AJAX and only render links to the internal pages if the user would have access to them. That's just a couple of ideas I'm working on first, but I can imagine that there's any number of other tricks that people could implement with that sort of a thing.
+
+Also, this isn't really specific to OpenID but to all auth plugins, but I'm going to use only OpenID for authentication so that's what I'm targeting right now. I suppose that would be worth its own TODO item. --[[kaol]]

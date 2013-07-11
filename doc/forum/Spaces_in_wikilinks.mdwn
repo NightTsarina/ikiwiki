@@ -1,0 +1,104 @@
+[[!meta date="2007-07-02 13:21:29 +0000"]]
+
+# Spaces in WikiLinks?
+
+Hello Joey,
+
+I've just switched from ikiwiki 2.0 to ikiwiki 2.2 and I'm really surprised
+that I can't use the spaces in WikiLinks. Could you please tell me why the spaces
+aren't allowed in WikiLinks now?
+
+My best regards,
+
+--[[PaweB|ptecza]]
+
+> See [[bugs/Spaces_in_link_text_for_ikiwiki_links]]
+
+----
+
+# Build in OpenSolaris?
+
+Moved to [[bugs/build_in_opensolaris]] --[[Joey]]
+
+----
+
+# Various ways to use Subversion with ikiwiki
+
+I'm playing around with various ways that I can use subversion with ikiwiki.
+
+* Is it possible to have ikiwiki point to a subversion repository which is on a different server?  The basic checkin/checkout functionality seems to work but there doesn't seem to be any way to make the post-commit hook work for a non-local server?
+
+> This is difficult to do since ikiwiki's post-commit wrapper expects to
+> run on a machine that contains both the svn repository and the .ikiwiki
+> state directory. However, with recent versions of ikiwiki, you can get
+> away without running the post-commit wrapper on commit, and all you lose
+> is the ability to send commit notification emails.
+
+> (And now that [[recentchanges]] includes rss, you can just subscribe to
+> that, no need to worry about commit notification emails anymore.)
+
+* Is it possible / sensible to have ikiwiki share a subversion repository with other data (either completely unrelated files or another ikiwiki instance)?  This works in part but again the post-commit hook seems problematic.
+
+--[[AdamShand]]
+
+> Sure, see ikiwiki's subversion repository for example of non-wiki files
+> in the same repo. If you have two wikis in one repository, you will need
+> to write a post-commit script that calls the post-commit wrappers for each
+> wiki.
+
+----
+
+# Regex for Valid Characters in Filenames
+
+I'm sure that this is documented somewhere but I've ransacked the wiki and I can't find it.  :-(  What are the allowed characters in an ikiwiki page name?  I'm writing a simple script to make updating my blog easier and need to filter invalid characters (so far I've found that # and , aren't allowed ;-)).  Thanks for any pointers.  -- [[AdamShand]]
+
+> The default `wiki_file_regexp` matches filenames containing only
+> `[-[:alnum:]_.:/+]`
+> 
+> The titlepage() function will convert freeform text to a valid
+> page name. See [[todo/should_use_a_standard_encoding_for_utf_chars_in_filenames]]
+> for an example. --[[Joey]]
+
+>> Perfect, thanks! 
+>>
+>> In the end I decided that I didn't need any special characters in filenames and replaced everything but alphanumeric characters with underscores.  In addition to replacing bad characters I also collapse multiple underscores into a single one, and strip off trailing and leading underscores to make tidy filenames.  If it's useful to anybody else here's a sed example:
+>>
+>>     # echo "++ Bad: ~@#$%^&*()_=}{[];,? Iki: +_-:./ Num: 65.5 ++" | sed -e 's/[^A-Za-z0-9_]/_/g' -e 's/__*/_/g' -e 's/^_//g' -e 's/_$//g'
+>>     Bad_Iki_Num_65_5
+>>
+>>--[[AdamShand]]
+
+# Upgrade steps from RecentChanges CGI to static page?
+
+Where are the upgrade steps for RecentChanges change from CGI to static feed?
+I run multiple ikiwiki-powered sites on multiple servers, but today I just upgraded one to 2.32.3.
+Please have a look at
+<http://bsdwiki.reedmedia.net/wiki/recentchanges.html>
+Any suggestions?
+
+> There are no upgrade steps required. It does look like you need to enable
+> the meta plugin to get a good recentchanges page though.. --[[Joey]]
+
+# News site where articles are submitted and then reviewed before posting?
+
+I am considering moving a news site to Ikiwiki. I am hoping that Ikiwiki has a feature where anonymous posters can submit a form that moderators can review and then accept for it to be posted on a news webpage (like front page of the website).
+
+> Well, you can have one blog that contains unreviewed articles, and
+> moderators can then add a tag that makes the article show up in the main
+> news feed. There's nothing stopping someone submitting an article
+> pre-tagged though. If you absolutely need to lock that down, you could
+> have one blog with unreviewed articles in one subdirectory, and reviewers
+> then move the file over to another subdirectory when they're ready to
+> publish it. (This second subdirectory would be locked to prevent others
+> from writing to it.) --[[Joey]]
+
+Also it would be good if the news page would keep maybe just the latest 10 entries with links to an archive that make it easy to browse to old entries by date. (Could have over a thousand news articles.)
+
+> The inline plugin allows setting up things like this.
+
+Plus users be able to post feedback to news items. If anonymous, they must be approved first. I'd prefer to not use normal "wiki" editor for feedback.
+
+Any thoughts or examples on this? Any links to examples of news sites or blogs with outside feedback using ikiwiki?
+
+Thanks --[[JeremyReed]]
+

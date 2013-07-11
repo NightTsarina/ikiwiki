@@ -1,0 +1,17 @@
+In the [[plugins/osm]], we use an absolute URL to download the OpenLayers.js script file. This has two downsides:
+
+ 1. if the wiki is behind HTTPS, this will create a nasty SSL warning in the browser and we don't want that
+ 2. if we want the map to work offline, we need to load the js locally
+
+For those reasons, I think the location of that script should be customizable. --[[anarcat]]
+
+[[!template  id=gitbranch branch=anarcat/master author="[[anarcat]]"]]
+
+There is now a [[patch]] for this, thanks to Genevieve, available in my master branch.
+
+Note that there's an update to the patch in my master branch, that allows changing the URL for tiles too.
+
+> There's a lot of stuff in your master branch. Which commit is it,
+> or if you want me to merge it, spin a branch I can merge. --[[Joey]]
+
+> > I believe this was already fixed, actually - it's commit 409c4e48f983d10aceb6321148d7f440d17eb28f, which you cherry-picked on August 5th in d926c4a. So this is [[done]], thanks! -- [[anarcat]]

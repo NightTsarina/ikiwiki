@@ -1,0 +1,52 @@
+At the moment the text area in the edit form has a fixed size of 20 rows.
+
+On longer pages its not very comfortable to edit pages with such a small box. The whole screen size should be used instead([example](http://img3.imagebanana.com/img/bl10u9mb/editingtodo_1241804460828.png)).
+
+> The whole screen width is used, via the following
+> from style.css:
+>
+>	{
+>	 width: 100%;
+>	}
+>
+> Perhaps you have replaced it with a modified style sheet that does not
+> include that? --[[Joey]]
+
+>> The screen shot was made with http://ikiwiki.info/ where i didn't change anything. The width is optimally used. The problem is the height.
+
+>>> You confused me by talking about rows...  
+>>> I don't know how to allow CSS to resize a textarea
+>>> to the full browser height. The obvious `height: 75%;`
+>>> does not work, at least in firefox and epiphany.
+>>> 
+>>> Ah, of course, if it did work, it'd make it be 75% of
+>>> the full *page* height, and not the browser window height.
+>>>
+>>> According to
+>>> [this page](http://stackoverflow.com/questions/632983/css-height-if-textarea-as-a-percentage-of-the-viewport-height):
+>>>>>50% of what? Parent says ‘auto’, which means base it on the height of the child content. Which depends on the height on the parent. Argh! etc.
+>>>>>
+>>>>>So you have to give its parent a percentage height. And the parent's parent, all the way up to the root.
+>>> So, other than a javascript-based resizer, some very tricky and invasive CSS
+>>> seems to be needed. Please someone let me know if you succeed in doing that.
+>>> --[[Joey]] 
+
+>>>>>> the javascript approach would need to work something like this: you need to know about the "bottom-most" item on the edit page, and get a handle for that object in the DOM. You can then obtain the absolute position height-wise of this element and the absolute position of the bottom of the window to determine the pixel-difference. Then, you set the height of the textarea to (current height in px) + determined-value. This needs to be re-triggered on various resize events, at least for the window and probably for other elements too. I may have a stab at this at some point. -- [[Jon]]
+
+Google chrome has a completly elegant fix for this problem: All textareas
+have a small resize handle in a corner, that can be dragged around. No
+nasty javascript needed. IMHO, this is the right solution, and I hope other
+browsers emulate it. [[done]]
+--[[Joey]]
+
+Wouldn't it be possible to just implement an integer-valued setting for this, accessible via the "Setup" wiki page? This would require a wiki regen, but such a setting would not be changed frequently I suppose. Also, Mediawiki has this implemented as a per-user setting (two settings, actually, -- number of rows and columns of the edit area); such a per-user setting would be the best possible implementation, but I'm not sure if ikiwiki already supports per-user settings. Please consider implementing this as the current 20 rows is a great PITA for any non-trivial page.
+
+> I don't think it would need a wiki rebuild, as the textarea is generated dynamically by the CGI when you perform a CGI action, and (as far as I know) is not cooked into any static content. -- [[Jon]]
+
+>> There is no need for a configuration setting for this -- to change
+>> the default height from 20 rows to something else, you can just put
+>> something like this in your `local.css`: --[[Joey]] 
+
+	#editcontent {
+		height: 50em;
+	}

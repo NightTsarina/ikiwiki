@@ -1,0 +1,63 @@
+Any setting to disable having a discussion of a discussion?
+The [[features]] page says every page, but I don't want every page.
+I do want discussion subpage, but I don't want to have, for example: discussion/ discussion/ discussion.
+-- [[JeremyReed]]
+
+> Discussion pages should clearly be a special case that don't get Discussion
+> links put at the top... aaand.. [[bugs/done]]! --[[Joey]]
+
+>> This bug appears to have returned. For example,
+>> [[plugins/contrib/unixauth/discussion]] has a Discussion link. -- [[schmonz]]
+
+>>> Lots of case issues this time. Audited for and fixed them all. [[done]]
+>>> --[[Joey]] 
+
+>>> Joey, I've just seen that you closed that bug in ikiwiki 1.37, but it seems
+>>> you fixed it only for English "discussion" page. The bug still occurs
+>>> for the international "discussion" pages. I have backported ikiwiki 1.40
+>>> and I can see "Dyskusja" link on my Polish "dyskusja" pages. --[[Paweł|ptecza]]
+
+>>> Yes, I missed that string when internationalizing ikiwiki, fixed now.
+
+>>>> Thanks a lot for the quick fix, Joey! It works for me :)
+
+>>>> BTW, I had to apply the patch manually, because I have a problem
+>>>> with building ikiwiki 1.41 Debian package:
+
+>>>>        ptecza@devel2:~/svn/ikiwiki$ LANG=C dpkg-buildpackage -uc -us -rfakeroot
+>>>>        [...]
+>>>>        make[2]: Entering directory `/home/ptecza/svn/ikiwiki/po'
+>>>>        msgfmt -o bg.mo bg.po
+>>>>        msgfmt -o cs.mo cs.po
+>>>>        msgfmt -o es.mo es.po
+>>>>        msgfmt -o fr.mo fr.po
+>>>>        msgfmt -o gu.mo gu.po
+>>>>        msgfmt -o pl.mo pl.po
+>>>>        Merging ikiwiki.pot and sv.pomsgmerge: sv.po: warning: Charset missing in header.
+>>>>                                  Message conversion to user's charset will not work.
+>>>>        sv.po:10:2: parse error
+>>>>        sv.po:10: keyword "mine" unknown
+>>>>        sv.po:14: keyword "r2262" unknown
+>>>>        sv.po:37:2: parse error
+>>>>        sv.po:37: keyword "mine" unknown
+>>>>        sv.po:43: keyword "r2262" unknown
+>>>>        sv.po:52:2: parse error
+>>>>        sv.po:52: keyword "mine" unknown
+>>>>        sv.po:56: keyword "r2262" unknown
+>>>>        msgmerge: found 9 fatal errors
+>>>>        make[2]: *** [sv.po] Error 1
+>>>>        make[2]: Leaving directory `/home/ptecza/svn/ikiwiki/po'
+>>>>        make[1]: *** [extra_build] Error 2
+>>>>        make[1]: Leaving directory `/home/ptecza/svn/ikiwiki'
+>>>>        make: *** [build-stamp] Error 2
+
+>>>> I think you should be notified about it :) --[[Paweł|ptecza]]
+
+>>>>> You have an unresolved svn conflict in some files in po, looks like.
+
+>>>>>> Thanks for the hint! You're absolutely right again, Joey! It's because of
+>>>>>> I always do `svn up` command (for CVS repo `cvs up` is enough :) )
+>>>>>> and I never use `svn status` command. Yes, now I know I should do it :)
+
+>>>>>> First I removed conflicting `sv.po` file and next I updated it and
+>>>>>> it has resolved the problem. --[[Paweł|ptecza]]

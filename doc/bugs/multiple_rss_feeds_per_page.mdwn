@@ -1,0 +1,31 @@
+Pages with multiple inline macros try to use the same URL for the RSS feed for each inline. As a result, the last inline "wins" and overwrites the other feeds on the same page.
+
+Josh Triplett suggests that the inline macro should take a parameter for the feed basename, and refuse to generate feeds after the first one if that parameter is not specified. That sounds like a good solution to me.
+
+> That's a reasonable fix to this longstanding bug. Autoincrementing a
+> basename value would also work.
+> 
+> I've known about this bug since well, the day I wrote rss support, but
+> I haven't seen a use case that really motivated me to take the time to
+> fix it. Fixes or good motivation both accepted. :-) --[[Joey]]
+
+> A good reason to support autoincrementing might be that it's possible
+> to have a blog feed that inlines another blog feed. On purpose, or
+> semi-on-accident, it happened to me:
+> 
+> <http://kitenet.net/~joey/code/whatsnew/>
+> 
+> The result was that my whatsnew feed actually contains my Words2Nums
+> feed, or something. --[[joey]]
+
+> I've implemented autoincrementing unique feeds, the first one on a page
+> is a .rss, next is .rss2, etc.
+> 
+> There may be room for manual specification of feed basenames, but it is tricky to do that
+> well. One problem is that if page foo adds a feed with basename bar,
+> the resulting "foo_bar.rss" would have the same name as a feed for page
+> foo_bar. (Assuming usedirs is not set.) This is also why I stuck the
+> number on the end of the filename extension -- it's slightly ugly, but
+> it avoids all such naming ambiguities.
+> 
+> Anyway, I think this is [[done]] --[[Joey]]

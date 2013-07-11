@@ -1,0 +1,46 @@
+Hi,
+
+XML error:
+
+    Created <time datetime="2009-03-24T18:02:14Z" pubdate class="relativedate" title="Tue, 24 Mar 2009 14:02:14 -0400">2009-03-24</time>
+
+The pubdate REQUIRES a date, so e.g. `pubdate="2009-03-24T18:02:14Z"`
+
+> No, `pubdate="pubdate"`. It's a boolean attribute. applied && [[done]]
+> --[[Joey]] 
+>> awesome, thanks for fixing my fix ;) --[[simonraven]]
+
+Otherwise the XML parser chokes.
+
+<http://www.whatwg.org/specs/web-apps/current-work/multipage/text-level-semantics.html#attr-time-pubdate>
+
+(indented exactly 4 spaces)
+
+<pre>
+    diff --git a/IkiWiki.pm b/IkiWiki.pm
+    index 1f2ab07..6ab5b56 100644
+    --- a/IkiWiki.pm
+    +++ b/IkiWiki.pm
+    @@ -1004,7 +1004,7 @@ sub displaytime ($;$$) {
+        my $time=formattime($_[0], $_[1]);
+        if ($config{html5}) {
+            return '&lt;time datetime="'.date_3339($_[0]).'"'.
+    -         ($_[2] ? ' pubdate' : '').
+    +           ($_[2] ? ' pubdate="'.date_3339($_[0]).'"' : '').
+                '>'.$time.'&lt;/time&gt;';
+        }
+        else {
+    diff --git a/IkiWiki/Plugin/relativedate.pm b/IkiWiki/Plugin/relativedate.pm
+    index fe8ef09..8c4a1b4 100644
+    --- a/IkiWiki/Plugin/relativedate.pm
+    +++ b/IkiWiki/Plugin/relativedate.pm
+    @@ -59,7 +59,7 @@ sub mydisplaytime ($;$$) {
+     
+        if ($config{html5}) {
+            return '&lt;time datetime="'.IkiWiki::date_3339($time).'"'.
+    -         ($pubdate ? ' pubdate' : '').$mid.'&lt;/time&gt;';
+    +           ($pubdate ? ' pubdate="'.IkiWiki::date_3339($time).'"' : '').$mid.'&lt;/time&gt;';
+        }
+        else {
+            return '&lt;span'.$mid.'&lt;/span&gt;';
+</pre>

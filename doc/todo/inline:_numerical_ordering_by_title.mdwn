@@ -1,0 +1,254 @@
+Could you please add numerical ordering by title to [[inline|plugins/inline]]
+plugin? Now I can do only alphabetical order by title, but sometime it's not enough.
+
+> Implemented, see [[natural_sorting]] [[!tag done]] --[[Joey]] 
+
+BTW, it seems that ordering by title is rather ordering by filename of page.
+For me "title" means title of page I can set using `title` parameter
+of [[meta|plugins/meta]] plugin :)
+
+Why do I need that feature? I've just been migrating an info site of our university
+[mail system](http://poczta.uw.edu.pl/) to Ikiwiki from very static, console handling
+Makefile+[WML](http://thewml.org/)+XML+XSL=HTML solution. I have many news files
+(`1.mdwn`, `2.mdwn`, etc.) and unfortunately I did very stupid thing. I've commited
+all of them in the same revision of our Subversion repo...
+
+Now I have a problem with sorting these files using inline plugin. I can't do
+sorting by age, because both old and young news files have the same age. I can't
+sort by title too. For example, when I sort them by title, then `9.mdwn` page is
+between `90.mdwn` and `89.mdwn` pages... It sucks, of course. Sorting by mtime
+also is not a solution for me, because it means that I can't touch/fix old news
+anymore.
+
+Do you have any idea how to workaround that issue? --[[Paweł|ptecza]]
+
+> Delete all files. Add files back one at a time, committing after adding
+> each file. Sort by date. --[[Joey]]
+
+>> The simplest solutions are the best :D Thanks for the hint! I didn't
+>> want to do it before, because I was affaid that my Subversion keeps
+>> old date of creation of file. --[[Paweł|ptecza]]
+
+> Maybe you can rename `9.mdwn` to `09.mdwn`? See `rename(1)`, it renames multiple files
+> in one go. --[[buo]]
+
+>> Thanks for your suggestion! But what about if number of my news files grows to 100+?
+
+>>     $ ls
+>>     09.mdwn  100.mdwn  101.mdwn  102.mdwn  89.mdwn  90.mdwn
+
+>> I don't want to rename all previous files to add `0` prefix. --[[Paweł|ptecza]]
+
+>>> Rather than adding 0's or or a 'sorttype' parameter, I'd just fix the sort order.
+>>> Both MacOS and Windows use a smarter sort order than just lexical in their
+>>> file browsers (e.g. <http://support.microsoft.com/default.aspx?kbid=319827>,
+>>> <http://docs.info.apple.com/article.html?artnum=300989>).
+>>>
+>>> The [Unicode Collation algorithm](http://en.wikipedia.org/wiki/Unicode_collation_algorithm)
+>>> would seem to be a reasonable sort order.  (See also <http://www.unicode.org/unicode/reports/tr10/>.)
+>>> Unfortunately the standard perl implementation, [Unicode::Collate](http://perldoc.perl.org/Unicode/Collate.html)
+>>> doesn't handle the optional [numbers](http://www.unicode.org/unicode/reports/tr10/#Customization)
+>>> extension which is what you want.  --[[Will]]
+
+---
+
+Below is my simple patch. Feel free to use it or comment!
+
+I have also 2 considerations for inline sorting:
+
+1. Maybe changing name of `sort` parameter to `sortby` or `sortkey` will
+   be good idea?
+
+   > No, that would break existing wikis. --[[Joey]]
+   >> It's no problem. You just have `ikiwiki-transition` utility :D --[[Paweł|ptecza]]
+
+1. Maybe you should use `title` sort key for title from meta plugin and `name`, 
+   `filename`, `page` or `pagename` for page names? In the future you can also
+   sort by meta author, license or another key.
+
+   > There are many places in ikiwiki that do not use meta title info and
+   > could. I'd prefer to deal with that issue as a whole, not here,
+   > --[[Joey]]
+
+--[[Paweł|ptecza]]
+
+    --- inline.pm-orig  2008-09-02 09:53:20.000000000 +0200
+    +++ inline.pm       2008-09-02 10:09:02.000000000 +0200
+    @@ -186,7 +186,15 @@
+        }
+
+        if (exists $params{sort} && $params{sort} eq 'title') {
+    -           @list=sort { pagetitle(basename($a)) cmp pagetitle(basename($b)) } @list;
+    +           if (! $params{sorttype} || $params{sorttype} eq 'lexical') {
+    +                   @list=sort { pagetitle(basename($a)) cmp pagetitle(basename($b)) } @list;
+    +           }
+    +           elsif ($params{sorttype} eq 'numeric') {
+    +                   @list=sort { pagetitle(basename($a)) <=> pagetitle(basename($b)) } @list;
+    +           }
+    +           else {
+    +                   return sprintf(gettext("unknown sort type %s"), $params{sorttype});
+    +           }
+        }
+        elsif (exists $params{sort} && $params{sort} eq 'mtime') {
+                @list=sort { $pagemtime{$b} <=> $pagemtime{$a} } @list;
+    @@ -195,7 +203,7 @@
+                @list=sort { $pagectime{$b} <=> $pagectime{$a} } @list;
+        }
+        else {
+    -           return sprintf(gettext("unknown sort type %s"), $params{sort});
+    +           return sprintf(gettext("unknown sort key %s"), $params{sort});
+        }
+
+        if (yesno($params{reverse})) {
+
+> To users, "sort" already determines the type of sort. It can be by title,
+> or by date, etc. Adding a separate "sorttype" value is thus fairly
+> confusing. --[[Joey]]
+
+>> OK. I will be more careful when I play with inline plugin :) --[[Paweł|ptecza]]
+
+---
+
+Joey, have you forgotten about that request? ;) --[[Paweł|ptecza]]
+
+> Okie.  Here is a different [[patch]] based on my comment above.  It doesn't introduce
+> a new key, but rather changes the title sorting order. Two caveats:
+
+ * I've only tested this in `inline`, not the other places I changed the sort order.
+ * I'm unsure if the regexp used in the split should be `/(-?\d+)/` instead of `/(\d+)/`.
+    As written, '-' is interpreted as a hyphen rather than a minus sign.
+
+> --[[Will]]
+
+>> I"m not comfortable with tossing out perl's default collator and trying
+>> to maintain some other one going forward. Especially not for such an
+>> edge case. --[[Joey]]
+
+>> Hi Will! Your idea looks interesting for me, but I'm affraid that it's too big
+>> change in Ikiwiki... Maybe I'm wrong? ;) What do you think, Joey? --[[Paweł|ptecza]]
+
+>>> It isn't that big a change.  It is just supplying a sort order to the sort.  The
+>>> patch is a little larger because I then went through and made that sort
+>>> order available in other places where it makes sense.  (Looking at the
+>>> patch again briefly, I should have also used it in the `map` plugin.)
+>>>
+>>> If you wanted a simple patch, you could just move the `titlecmp` function
+>>> into the inline plugin and only use it there.  The problem with that is that
+>>> it only fixes the inline plugin. -- [[Will]]
+
+>>>> Will, I agree with you that it's improved way of sort order. But on the other
+>>>> hand I prefer to be careful when I change something in a several places,
+>>>> because I don't want to break any working things when I fix one thing.
+>>>> I hope that Joey agree with us too and all Ikiwiki users will be happy
+>>>> after applying your patch ;) --[[Paweł|ptecza]]
+
+----
+
+    diff --git a/IkiWiki.pm b/IkiWiki.pm
+    index c0f5dea..d001f8d 100644
+    --- a/IkiWiki.pm
+    +++ b/IkiWiki.pm
+    @@ -20,7 +20,7 @@ use Exporter q{import};
+     our @EXPORT = qw(hook debug error template htmlpage add_depends pagespec_match
+                      bestlink htmllink readfile writefile pagetype srcfile pagename
+                      displaytime will_render gettext urlto targetpage
+    -		 add_underlay
+    +		 add_underlay titlecmp
+                      %config %links %pagestate %renderedfiles
+                      %pagesources %destsources);
+     our $VERSION = 2.00; # plugin interface version, next is ikiwiki version
+    @@ -835,6 +835,42 @@ sub titlepage ($) {
+     	return $title;
+     }
+     
+    +sub titlecmp ($$) {
+    +	my $titleA=shift;
+    +	my $titleB=shift;
+    +	
+    +	my @listA=split(/(\d+)/,$titleA);
+    +	my @listB=split(/(\d+)/,$titleB);
+    +	
+    +	while (@listA && @listB) {
+    +		# compare bits of text
+    +		my $a = shift @listA;
+    +		my $b = shift @listB;
+    +		my $c = ($a cmp $b);
+    +		return $c if ($c);
+    +
+    +		if (@listA && @listB) {
+    +			# compare numbers
+    +			$a = shift @listA;
+    +			$b = shift @listB;
+    +			$c = $a <=> $b;
+    +			return $c if ($c);
+    +			
+    +			# 01 is different to 1
+    +			$c = (length($a) <=> length($b));
+    +			return $c if ($c);
+    +
+    +			$c = ($a cmp $b);
+    +			return $c if ($c);
+    +		}
+    +	}
+    +	
+    +	return 1 if (@listA);
+    +	return -1 if (@listB);
+    +	
+    +	return 0;
+    +}
+    +
+     sub linkpage ($) {
+     	my $link=shift;
+     	my $chars = defined $config{wiki_file_chars} ? $config{wiki_file_chars} : "-[:alnum:]+/.:_";
+    diff --git a/IkiWiki/Plugin/brokenlinks.pm b/IkiWiki/Plugin/brokenlinks.pm
+    index 37752dd..ccaa399 100644
+    --- a/IkiWiki/Plugin/brokenlinks.pm
+    +++ b/IkiWiki/Plugin/brokenlinks.pm
+    @@ -59,7 +59,7 @@ sub preprocess (@) {
+     			map {
+     				"<li>$_</li>"
+     			}
+    -			sort @broken)
+    +			sort titlecmp @broken)
+     		."</ul>\n";
+     }
+     
+    diff --git a/IkiWiki/Plugin/inline.pm b/IkiWiki/Plugin/inline.pm
+    index 8efef3f..263e7a6 100644
+    --- a/IkiWiki/Plugin/inline.pm
+    +++ b/IkiWiki/Plugin/inline.pm
+    @@ -192,7 +192,7 @@ sub preprocess_inline (@) {
+     	}
+     
+     	if (exists $params{sort} && $params{sort} eq 'title') {
+    -		@list=sort { pagetitle(basename($a)) cmp pagetitle(basename($b)) } @list;
+    +		@list=sort { titlecmp(pagetitle(basename($a)),pagetitle(basename($b))) } @list;
+     	}
+     	elsif (exists $params{sort} && $params{sort} eq 'mtime') {
+     		@list=sort { $pagemtime{$b} <=> $pagemtime{$a} } @list;
+    diff --git a/IkiWiki/Plugin/orphans.pm b/IkiWiki/Plugin/orphans.pm
+    index b910758..10a1d87 100644
+    --- a/IkiWiki/Plugin/orphans.pm
+    +++ b/IkiWiki/Plugin/orphans.pm
+    @@ -56,7 +56,7 @@ sub preprocess (@) {
+     				htmllink($params{page}, $params{destpage}, $_,
+     					 noimageinline => 1).
+     				"</li>"
+    -			} sort @orphans).
+    +			} sort titlecmp @orphans).
+     		"</ul>\n";
+     }
+     
+    diff --git a/IkiWiki/Render.pm b/IkiWiki/Render.pm
+    index ceb7c84..00798e1 100644
+    --- a/IkiWiki/Render.pm
+    +++ b/IkiWiki/Render.pm
+    @@ -89,7 +89,7 @@ sub genpage ($$) {
+     		$template->param(have_actions => 1);
+     	}
+     
+    -	my @backlinks=sort { $a->{page} cmp $b->{page} } backlinks($page);
+    +	my @backlinks=sort { titlecmp($a->{page}, $b->{page}) } backlinks($page);
+     	my ($backlinks, $more_backlinks);
+     	if (@backlinks <= $config{numbacklinks} || ! $config{numbacklinks}) {
+     		$backlinks=\@backlinks;

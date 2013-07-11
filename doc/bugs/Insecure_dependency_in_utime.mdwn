@@ -1,0 +1,14 @@
+ikiwiki.setup: Insecure dependency in utime while running with -T switch at /usr/pkg/lib/perl5/vendor_perl/5.8.0/IkiWiki/Plugin/recentchanges.pm line 158.
+BEGIN failed--compilation aborted at (eval 5) line 164.
+
+This was in ikiwiki\_2.32.3.
+
+I worked-around this by doing:
+
+        utime IkiWiki::possibly_foolish_untaint($change->{when}), IkiWiki::possibly_foolish_untaint($change->{when}), "$config{srcdir}/$file
+
+> Don't build ikiwiki with taint checking. It's known to be broken in
+> apparently all versions of perl, apparently leaking taint flags at random.
+> See [[Insecure_dependency_in_mkdir]] --[[Joey]]
+
+[[!tag done]]

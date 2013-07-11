@@ -1,0 +1,278 @@
+# Czech translation of basewiki/ikiwiki/pagespec page for ikiwiki.
+# Copyright (C) 2009 Miroslav Kure <kurem@debian.cz>
+# This file is distributed under the same license as the ikiwiki package.
+# Miroslav Kure <kurem@debian.cz>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki/basewiki\n"
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2009-08-26 14:14+0200\n"
+"Last-Translator: Miroslav Kure <kurem@debian.cz>\n"
+"Language-Team: Czech <debian-l10n-czech@lists.debian.org>\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+msgid ""
+"To select a set of pages, such as pages that are locked, pages whose commit "
+"emails you want subscribe to, or pages to combine into a blog, the wiki uses "
+"a PageSpec. This is an expression that matches a set of pages."
+msgstr ""
+"Pro výběr množiny stránek (jako jsou například zamknuté stránky, stránky, u "
+"nichž chcete dostávat maily se změnami nebo třeba stránky, které chcete "
+"zkombinovat do blogu) používá wiki něco s názvem PageSpec. PageSpec je "
+"výraz, který se shoduje s množinou stránek."
+
+#. type: Plain text
+msgid ""
+"The simplest PageSpec is a simple list of pages. For example, this matches "
+"any of the three listed pages:"
+msgstr ""
+"Nejjednodušší PageSpec je jednoduchý seznam stránek. Například následující "
+"se shoduje s libovolnou ze tří zmíněných stránek:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tfoo or bar or baz\n"
+msgstr "\tstránka1 or stránka2 or stránka3\n"
+
+#. type: Plain text
+msgid ""
+"More often you will want to match any pages that have a particular thing in "
+"their name. You can do this using a glob pattern. \"`*`\" stands for any "
+"part of a page name, and \"`?`\" for any single letter of a page name. So "
+"this matches all pages about music, and any [[SubPage]]s of the SandBox, but "
+"does not match the SandBox itself:"
+msgstr ""
+"Mnohem častěji budete chtít vybrat stránky, které obsahují ve svém názvu "
+"konkrétní řetězec. K tomu můžete použít tzv. vzor, který může obsahovat "
+"zástupné znaky. „`*`“ znamená libovolnou část názvu stránky, „`?`“ zastupuje "
+"jedno písmeno názvu stránky. Následující příklad vybere všechny stránky o "
+"hudbě a všechny [[podstránky|SubPage]] [[pískoviště|SandBox]] (ve wiki "
+"uložené jako SandBox), ale ne pískoviště samotné:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t*music* or SandBox/*\n"
+msgstr "\t*music* or SandBox/*\n"
+
+#. type: Plain text
+msgid ""
+"You can also prefix an item with \"`!`\" to skip pages that match it. So to "
+"match all pages except for Discussion pages and the SandBox:"
+msgstr ""
+"Výraz můžete uvodit znakem „`!`“ a negovat tak jeho význam, tj. přeskočit "
+"dané stránky. Například chcete-li vybrat všechny stránky ve wiki kromě "
+"diskuzí (uložené jako Discussion) a pískoviště (SandBox), použijte:"
+
+#. type: Bullet: '	* '
+msgid "and !SandBox and !*/Discussion"
+msgstr "and !SandBox and !*/Discussion"
+
+#. type: Plain text
+msgid ""
+"Some more elaborate limits can be added to what matches using these "
+"functions:"
+msgstr "S komplikovanějšími výběry mohou pomoci následující funkce:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"* \"`glob(someglob)`\" - matches pages and other files that match the given glob.\n"
+"  Just writing the glob by itself is actually a shorthand for this function.\n"
+"* \"`page(glob)`\" - like `glob()`, but only matches pages, not other files\n"
+"* \"`link(page)`\" - matches only pages that link to a given page (or glob)\n"
+"* \"`tagged(tag)`\" - matches pages that are tagged or link to the given tag (or\n"
+"  tags matched by a glob)\n"
+"* \"`backlink(page)`\" - matches only pages that a given page links to\n"
+"* \"`creation_month(month)`\" - matches only files created on the given month\n"
+"* \"`creation_day(mday)`\" - or day of the month\n"
+"* \"`creation_year(year)`\" - or year\n"
+"* \"`created_after(page)`\" - matches only files created after the given page\n"
+"  was created\n"
+"* \"`created_before(page)`\" - matches only files created before the given page\n"
+"  was created\n"
+"* \"`internal(glob)`\" - like `glob()`, but matches even internal-use \n"
+"  pages that globs do not usually match.\n"
+"* \"`title(glob)`\", \"`author(glob)`\", \"`authorurl(glob)`\",\n"
+"  \"`license(glob)`\", \"`copyright(glob)`\", \"`guid(glob)`\" \n"
+"  - match pages that have the given metadata, matching the specified glob.\n"
+"* \"`user(username)`\" - tests whether a modification is being made by a\n"
+"  user with the specified username. If openid is enabled, an openid can also\n"
+"  be put here. Glob patterns can be used in the username. For example, \n"
+"  to match all openid users, use `user(*://*)`\n"
+"* \"`admin()`\" - tests whether a modification is being made by one of the\n"
+"  wiki admins.\n"
+"* \"`ip(address)`\" - tests whether a modification is being made from the\n"
+"  specified IP address.\n"
+"* \"`comment(glob)`\" - matches comments to a page matching the glob.\n"
+"* \"`comment_pending(glob)`\" - matches unmoderated, pending comments.\n"
+"* \"`postcomment(glob)`\" - matches only when comments are being \n"
+"  posted to a page matching the specified glob\n"
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"For example, to match all pages in a blog that link to the page about music "
+"and were written in 2005:"
+msgstr ""
+"Například pro výběr všech stránek v blogu, které se odkazují na stránku o "
+"hudbě a byly napsány v roce 2005:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tblog/* and link(music) and creation_year(2005)\n"
+msgstr "\tblog/* and link(music) and creation_year(2005)\n"
+
+#. type: Plain text
+msgid ""
+"Note the use of \"and\" in the above example, that means that only pages "
+"that match each of the three expressions match the whole. Use \"and\" when "
+"you want to combine expression like that; \"or\" when it's enough for a page "
+"to match one expression. Note that it doesn't make sense to say \"index and "
+"SandBox\", since no page can match both expressions."
+msgstr ""
+"Povšimněte si použití „and“ v předchozím příkladu. Znamená to, že se vyberou "
+"pouze stránky, které splňují všechny tři podmínky zároveň. Pokud by stačilo, "
+"aby byla platná alespoň jedna ze zadaných podmínek, použijte „or“. Poznámka: "
+"výraz „index and SandBox“ nikdy nevrátí žádnou stránku, protože není možné, "
+"aby nějaká stránka splňovala obě podmínky zároveň."
+
+#. type: Plain text
+msgid ""
+"More complex expressions can also be created, by using parentheses for "
+"grouping. For example, to match pages in a blog that are tagged with either "
+"of two tags, use:"
+msgstr ""
+"Při vytváření komplexnějších výrazů můžete použít závorky. Například pro "
+"výběr stránek v blogu, které mají alespoň jeden ze dvou štítků, můžete "
+"použít:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tblog/* and (tagged(foo) or tagged(bar))\n"
+msgstr "\tblog/* and (tagged(štítek1) or tagged(štítek2))\n"
+
+#. type: Plain text
+msgid ""
+"Note that page names in PageSpecs are matched against the absolute filenames "
+"of the pages in the wiki, so a pagespec \"foo\" used on page \"a/b\" will "
+"not match a page named \"a/foo\" or \"a/b/foo\". To match relative to the "
+"directory of the page containing the pagespec, you can use \"./\". For "
+"example, \"./foo\" on page \"a/b\" matches page \"a/foo\"."
+msgstr ""
+"Jména stránek v PageSpec se porovnávají vůči absolutním jménům souborů wiki "
+"stránek, takže PageSpec „něco“ použité na stránce „a/b“ nenajde „a/něco“ ani "
+"„a/b/něco“. Chcete-li vyhledávat relativně k adresáři stránky, která "
+"obsahuje PageSpec, můžete použít „./“. To znamená, že „./něco“ na stránce „a/"
+"b“ najde stránku „a/něco“."
+
+#~ msgid ""
+#~ "\"`link(page)`\" - matches only pages that link to a given page (or glob)"
+#~ msgstr ""
+#~ "„`link(stránka)`“ - vybere stránky, které odkazují na danou stránku "
+#~ "(resp. stránky, pokud použijete zástupné znaky)"
+
+#~ msgid ""
+#~ "\"`tagged(tag)`\" - matches pages that are tagged or link to the given "
+#~ "tag (or tags matched by a glob)"
+#~ msgstr ""
+#~ "„`tagged(štítek)`“ - vybere stránky, které obsahují daný štítek (resp. "
+#~ "štítky, pokud použijete zástupné znaky), nebo na něj odkazují"
+
+#~ msgid "\"`backlink(page)`\" - matches only pages that a given page links to"
+#~ msgstr ""
+#~ "„`backlink(stránka)`“ - vybere pouze stránky, na které odkazuje daná "
+#~ "stránka"
+
+#~ msgid ""
+#~ "\"`creation_month(month)`\" - matches only pages created on the given "
+#~ "month"
+#~ msgstr ""
+#~ "„`creation_month(měsíc)`“ - vybere pouze stránky vytvořené v daném měsíci"
+
+#~ msgid "\"`creation_day(mday)`\" - or day of the month"
+#~ msgstr ""
+#~ "„`creation_day(den_měsíce)`“ - vybere pouze stránky vytvořené daného dne "
+#~ "v měsíci"
+
+#~ msgid "\"`creation_year(year)`\" - or year"
+#~ msgstr ""
+#~ "„`creation_year(rok)`“ - vybere pouze stránky vytvořené v daném roce"
+
+#~ msgid ""
+#~ "\"`created_after(page)`\" - matches only pages created after the given "
+#~ "page was created"
+#~ msgstr ""
+#~ "„`created_after(stránka)`“ - vybere pouze stránky vytvořené po vytvoření "
+#~ "dané stránky"
+
+#~ msgid ""
+#~ "\"`created_before(page)`\" - matches only pages created before the given "
+#~ "page was created"
+#~ msgstr ""
+#~ "„`created_before(stránka)`“ - vybere pouze stránky vytvořené před "
+#~ "vytvořením dané stránky"
+
+#~ msgid ""
+#~ "\"`glob(someglob)`\" - matches pages that match the given glob. Just "
+#~ "writing the glob by itself is actually a shorthand for this function."
+#~ msgstr ""
+#~ "„`glob(vzor)`“ - vybere stránky, které odpovídají danému vzoru. Použití "
+#~ "samotného vzoru je zkratkou za tuto funkci."
+
+#~ msgid ""
+#~ "\"`internal(glob)`\" - like `glob()`, but matches even internal-use pages "
+#~ "that globs do not usually match."
+#~ msgstr ""
+#~ "„`internal(vzor)`“ - jako `glob()`, ale vybere i stránky pro interní "
+#~ "potřebu, které glob() obvykle přeskočí."
+
+#~ msgid ""
+#~ "\"`title(glob)`\", \"`author(glob)`\", \"`authorurl(glob)`\", \"`license"
+#~ "(glob)`\", \"`copyright(glob)`\" - match pages that have the given "
+#~ "metadata, matching the specified glob."
+#~ msgstr ""
+#~ "„`title(vzor)`“, „`author(vzor)`“, „`authorurl(vzor)`“, „`license(vzor)"
+#~ "`“, „`copyright(vzor)`“ - vybere stránky, které obsahují metadata "
+#~ "odpovídající zadanému vzoru."
+
+#, fuzzy
+#~| msgid ""
+#~| "\"`user(username)`\" - tests whether a modification is being made by a "
+#~| "user with the specified username. If openid is enabled, an openid can "
+#~| "also be put here."
+#~ msgid ""
+#~ "\"`user(username)`\" - tests whether a modification is being made by a "
+#~ "user with the specified username. If openid is enabled, an openid can "
+#~ "also be put here. Glob patterns can be used in the username. For example, "
+#~ "to match all openid users, use `user(*://*)`"
+#~ msgstr ""
+#~ "„`user(uživatelskéjméno)`“ - testuje, zda změnu provádí uživatel s daným "
+#~ "uživatelským jménem. Je-li povoleno openid, můžete ho použít místo "
+#~ "uživatelského jména."
+
+#~ msgid ""
+#~ "\"`admin()`\" - tests whether a modification is being made by one of the "
+#~ "wiki admins."
+#~ msgstr "„`admin()`“ - testuje, zda změnu provádí některý ze správců wiki."
+
+#~ msgid ""
+#~ "\"`ip(address)`\" - tests whether a modification is being made from the "
+#~ "specified IP address."
+#~ msgstr "„`ip(adresa)`“ - testuje, zda změnu provádí někdo z dané IP adresy."
+
+#~ msgid ""
+#~ "\"`postcomment(glob)`\" - matches only when comments are being posted to "
+#~ "a page matching the specified glob"
+#~ msgstr ""
+#~ "„`postcomment(vzor)`“ - shoduje se pouze pokud se komentáře ukládají do "
+#~ "stránky odpovídající zadanému vzoru"

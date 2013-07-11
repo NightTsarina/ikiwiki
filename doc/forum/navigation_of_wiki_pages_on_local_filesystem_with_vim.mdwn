@@ -1,0 +1,130 @@
+**UPDATE** I have created a [[page|tips/follow_wikilinks_from_inside_vim]] in
+the tips section about the plugin, how to get it, install it and use it. Check
+that out. --[[jerojasro]]
+
+I wrote a vim function to help me navigate the wiki when I'm editing it. It extends the 'gf' (goto file) functionality. Once installed, you place the cursor on a wiki page name and press 'gf' (without the quotes); if the file exists, it gets loaded.
+
+This function takes into account the ikiwiki linking rules when deciding which file to go to.
+
+> 'gf' gets in the way when there are directories with the same name of a wiki page. The 
+> function below doesn't implement the linking rules properly (test the link (ignoring case),
+> if there is no match ascend the dir. hierarchy and start over, until we reach the root of
+> the wiki). I'm rewriting it to follow these rules properly
+> 
+> I think the page for [[LinkingRules|ikiwiki/subpage/linkingrules]] should say that ikiwiki **ascends**
+> the dir. hierarchy when looking for a wikilink, not that it **descends** it. Am I correct? --[[jerojasro]]
+
+>> Conventionally, the root directory is considered to be lower than other
+>> directories, so I think the current wording is correct. --[[Joey]]
+
+let me know what you think
+
+>         " NOTE: the root of the wiki is considered the first directory that contains a
+>         " .ikiwiki folder, except $HOME/.ikiwiki (the usual ikiwiki libdir)
+> 
+> That's not going to work in all situations; for example, with an ikiwiki which uses git as the backend, the normal setup is that one has
+> 
+> * a bare git repository
+> * a git repository which ikiwiki builds the wiki from (which has a .ikiwiki directory in it)
+> * an *additional* git repository cloned from the bare repository, which is used for making changes from the command-line rather than the web.  It is this repository in which one would be editing files with vim, and *this* repository does not have a .ikiwiki directory in it.  It does have a .git directory in the root, however, so I suppose you could use that as a method of detection of a root directory, but of course that would only work for git repositories.
+> 
+> -- [[KathrynAndersen]]
+> 
+>> You are completely right; all of my wikis are compiled both locally and
+>> remotely, and so the local repo also has a `.ikiwiki` folder. And that's not the
+>> "usual" setup.
+>> 
+>> checking for a `.git` dir would not work when the wiki's source files aren't
+>> located at the root of the repo.
+>> 
+>> So, besides of doing a `touch .ikiwiki` at the root of the wiki in your local
+>> repo, do you see any alternative?
+>> 
+>> -- [[jerojasro]]
+
+well. I've rewritten the whole thing, to take into account:
+  
+  * file matching ignoring case (MyPage matches mypage.mdwn)
+  * checking all the way down (up) to the root of the wiki (if there is a link `\[[foo]]` on `a/b/page`),
+  try `a/b/page/foo`, then `a/b/foo`, and so on, up to `foo`
+  * the alternate name for a page: when looking for the file for `\[[foo]]`, try both `foo.mdwn` and `foo/index.mdwn`
+
+you can find the file [here](http://git.devnull.li/cgi-bin/gitweb.cgi?p=vim-jerojasro.git;a=blob;f=.vim/ftplugin/ikiwiki_nav.vim;hb=HEAD). To use it, place it in `$HOME/.vim/ftplugin`. After that, hitting `<CR>` (Enter) in normal mode over a wikilink will take you to that page, if it exists.
+
+the plugin has, as of now, two problems:
+ 
+  * doesn't work with wikilinks that take more than one line (though this isn't really that bad)
+  * it assumes that the root of the wiki is the first directory down the filesystem hierarchy that 
+  has a `.ikiwiki` folder on it. If your copy of the wiki doesn't have it, you must create it for 
+  the plugin to work
+
+-- [[jerojasro]]
+
+> Interesting. I was at one point looking at "potwiki.vim", which implements a local wiki and follows CamelCase links, creating new files where necessary etc., to see if it could be adapted for ikiwiki (See [[tips/vim syntax highlighting/discussion]]). I didn't get anywhere. -- [[Jon]]
+
+>> when I wrote the plugin I also considered the possibility of creating files (and their dirs, if necessary) 
+>> from new wikilinks; the changes needed to get that working are fairly small -- [[jerojasro]]
+
+> Seems about ready for me to think about pulling it into ikiwiki
+> alongside [[tips/vim_syntax_highlighting/ikiwiki.vim]]. If you'll
+> please slap a license on it. :) --[[Joey]] 
+>
+>> GPL version 2 or later (if that doesn't cause any problems here). I'll add it
+>> to the file --[[jerojasro]]
+>>
+>>> I see you've put the plugin on vim.org. Do you think it makes sense to
+>>> also include a copy in ikiwiki? --[[Joey]] 
+>>> 
+>>>> mmm, no. There would be two copies of it, and the git repo. I'd rather have 
+>>>> a unique place for the "official" version (vim.org), and another for the dev 
+>>>> version (its git repo).
+>>>> 
+>>>> actually, I would also suggest to upload the [[`ikiwiki.vim`|tips/vim_syntax_highlighting]] file to vim.org --[[jerojasro]]
+>>>>>
+>>>>> If you have any interest in maintaining the syntax highlighting
+>>>>> plugin and putting it there, I'd be fine with that. I think it needs
+>>>>> some slight work to catch up with changes to ikiwiki's directives
+>>>>> (!-prefixed now), and wikilinks (able to have spaces now). --[[Joey]]
+
+<a id='syn-maintenance'>
+
+>>>>> 
+>>>>>> I don't really know too much about syntax definitions in vim. But I'll give it a stab. I know it fails when there are 2 \[[my text|link]] wikilinks in the same page.
+>>>>>> I'm not promising anything, though ;) --[[jerojasro]]
+>
+> Also, I have a possible other approach for finding ikiwiki's root. One
+> could consider that any subdirectory of an ikiwiki wiki is itself
+> a standalone wiki, though probably one missing a toplevel index page.
+> The relative wikilinks work such that this assumption makes sense;
+> you can build any subdirectory with ikiwiki and probably get something
+> reasonable with links that work, etc.
+> 
+> So, if that's the case, then one could say that the directory that the
+> user considers to be the toplevel of their wiki is really also a subwiki,
+> enclosed in a succession of parents that go all the way down to the root
+> directory (or alternatively, to the user's home directory). I think that
+> logically makes some sense.
+> 
+> And if that's the case, you can resolve an absolute link by looking for
+> the page closest to the root that matches the link.
+>
+>> I like your idea; it doesn't alter the matching of the relative links, and
+>> should work fine with absolute links too. I'll implement it, though I see
+>> some potential (but small) issues with it --[[jerojasro]]
+> 
+> It may even make sense to change ikiwiki's own handling of "absolute"
+> links to work that way. But even without changing ikiwiki, I think it
+> would be a reasonable thing for vim to do. It would only fail in two
+> unusual circumstances:
+> 
+> 1. There is a file further down, outside what the user considers
+>    the wiki, that matches. Say a `$HOME/index.mdwn`
+> 2. An absolute link is broken in that the page linked to does
+>    not exist in the root of the wiki. But it does exist in a subdir, 
+>    and vim would go to that file.
+> 
+> --[[Joey]] 
+>
+>> your approach will add more noise when the plugin grows the page-creation
+>> feature, since there will be no real root to limit the possible locations for
+>> the new page. But it is far better than demanding for a `.ikiwiki` dir --[[jerojasro]]

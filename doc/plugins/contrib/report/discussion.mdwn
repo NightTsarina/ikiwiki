@@ -1,0 +1,80 @@
+Wow, this plugin does a lot... it seems to be `inline` (but without the feeds
+or the ability to not have `archive="yes"`), plus part of
+[[plugins/contrib/trail]], plus some sorting, plus an ingenious workaround
+for template evaluation being relatively stateless.
+
+A large part of this plugin would just fall off if one of the versions of
+"[[todo/allow_plugins_to_add_sorting_methods]]" was merged, which was a
+large part of the idea of that feature request :-) To make use of that
+you'd have to use `pagespec_match_list` in the trail case too, but that's
+easy enough - just add `list => [@the_trail_pages]` to the arguments.
+
+Another large part would fall off if this plugin required, and internally
+invoked, `inline` (like my `comments` plugin does) - `inline` runs
+`pagetemplate` hooks, and in particular, it'll run the `field` hook.
+Alternatively, this plugin could invoke `pagetemplate` hooks itself,
+removing the special case for `field`.
+
+Perhaps the `headers` thing could migrate into inline somehow? That might
+lead to making inline too big, though.
+
+> I think inline is *already* too big, honestly. --[[KathrynAndersen]]
+
+>> A fair point; perhaps my complaint should be that *inline* does
+>> too many orthogonal things. I suppose the headers feature wouldn't
+>> really make sense in an inline that didn't have `archive="yes"`,
+>> so it'd make sense to recommend this plugin as a replacement
+>> for inlining with archive=yes (for which I now realise "inline"
+>> is the wrong verb anyway :-) ) --s
+
+>>> I think *inline* would be a bit less unwieldy if there was some way of factoring out the feed stuff into a separate plugin, but I don't know if that's possible. --K.A.
+
+Is the intention that the `trail` part is a performance hack, or a way
+to select pages? How does it relate to [[todo/wikitrails]] or
+[[plugins/contrib/trail]]? --[[smcv]]
+
+> The `trail` part is *both* a performance hack, and a way to select pages.  I have over 5000 pages on my site, I need all the performance hacks I can get.
+> For the performance hack, it is a way of reducing the need to iterate through every single page in the wiki in order to find matching pages.
+> For the way-to-select-pages, yes, it is intended to be similar to [[todo/wikitrails]] and [[plugins/contrib/trail]] (and will be more similar with the new release which will be happening soon; it will add prev_* and next_* variables).
+> The idea is that, rather than having to add special "trail" links on PageA to indicate that a page is part of the trail,
+> it takes advantage of the `%links` hash, which already contains, for each page, an array of the links from that page to other pages.  No need for special markup, just use what's there; a trail is defined as "all the pages linked to from page X", and since it's an array, it has an order already.
+> But to avoid that being too limiting, one can use a `pages=...` pagespec to filter that list to a subset; only the pages one is interested in.
+> And one can also sort it, if one so desires.
+> --[[KathrynAndersen]] 
+
+>> That's an interesting approach to trails; I'd missed the fact that
+>> links are already ordered.
+>>
+>> This does have the same problems as tags, though: see
+>> [[bugs/tagged()_matching_wikilinks]] and
+>> [[todo/matching_different_kinds_of_links]]. I suppose the question
+>> now is whether new code should be consistent with `tag` (and
+>> potentially be fixed at the same time as tag itself), or try to
+>> avoid those problems?
+>>
+>> The combination of `trail` with another pagespec in this plugin
+>> does provide a neat way for it to work around having unwanted
+>> pages in the report, by limiting by a suitable tag or subdirectory
+>> or something. --s
+
+>>> Either that, or somehow combine tagging with fields, such that one could declare a tag, and it would create both a link and a field with a given value.  (I've been working on something like that, but it still has bugs).
+>>> That way, the test for whether something is tagged would be something like "link(tag/foo) and field(tag foo)".
+>>> --K.A.
+
+>>>> I can see that this'd work well for 1:1 relationships like next
+>>>> and previous, but I don't think that'd work for pages with more than
+>>>> one tag - as far as I can see, `field`'s data model is that each
+>>>> page has no more than one value for each field?
+>>>> [[todo/Matching_different_kinds_of_links]] has some thoughts about
+>>>> how it could be implemented, though. --s
+
+>>>>> You have a point there.  I'm not sure what would be better: to add the concept of arrays/sets to `field`, or to think of tags as a special case.  Problem is, I find tags as they currently exist to be too limiting.  I prefer something that can be used for Faceted Tagging <http://en.wikipedia.org/wiki/Faceted_classification>; that is, things like Author:Fred Nurk, Genre:Historical, Rating:Good, and so on.  Of course, that doesn't mean that each tag is limited to only one value, either; just to take the above examples, something might have more than one author, or have multiple genres (such as Historical + Romance).
+
+>>>>> It might be that adding arrays to the `field` plugin is a good way to go: after all, even though field=value is the most common, with the flexibility of things like YAML, one could define all sorts of things.  What I'm not so sure about is how to return the values when queried, since some things would be expecting scalars all the time.  Ah, perhaps I could use wantarray?
+>>>>> Is there a way of checking a HTML::Template template to see if it expecting an array for a particular value?
+>>>>> --[[KathrynAndersen]]
+
+How about arrays?
+-----------------
+
+In [[plugins/contrib/getfield/discussion]], I outline how there's a problem in getfield displaying array refs when the data is a YAML array. I also propose a patch there so that arrays are join'd with a space separator, which is less than ideal, but at least works for getfield. However, for report, I am not sure it's as good. Should it make two rows for those? How should we parse this? Thanks. -- [[anarcat]]

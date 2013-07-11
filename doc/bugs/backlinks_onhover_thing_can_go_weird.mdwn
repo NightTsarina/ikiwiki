@@ -1,0 +1,43 @@
+I was just hovering over the '...' next to the backlinks on a page on
+<http://ikiwiki.info/>. In terms of the size of my browser window, this was
+towards the bottom-right of the screen.
+
+When I hovered over the '...', the additional backlinks float appeared. This
+caused the page length to grow down, meaning a horizontal scrollbar was added
+to the page. This meant the text reflowed, and the '...' moved outside of my
+mouse pointer region.
+
+This caused an infinite loop of box appears... text moves, box disappears...
+box re-appears.. which was not very visually pleasant.
+
+In general I think that the onhover float is a bit of bad UI. Even a truncated
+list of backlinks looks cluttered due to there being no delimiters. I moved to
+having an always-complete list of backlinks and having them as LI elements
+inside a UL to make it look neater, although I appreciate that would make some
+pages very long indeed.
+
+How about doing something a little like [[plugins/toggle]] for the excess
+items instead?
+
+-- [[Jon]]
+
+----
+
+An additional, related issue: if the box expands beyond the bottom of the
+page, you might move your mouse pointer to the scrollbar in order to move
+further down the list, but of course then you are outside the hover region.
+
+-- [[Jon]]
+
+> I agree, browser handling of this CSS is often not good.
+> 
+> A toggle would be the perfect UI, but the heaviness of needing
+> to include 30 lines of javascript to do it, plus then it only working
+> with javascript enabled, is also not optimal.
+> 
+> Another idea would be to make the "..." a link to the ikiwiki cgi. 
+> The cgi could then have a mode that displays all the backlinks of a page
+> in a list.
+> 
+> Yet another idea: Find some more refined CSS for handling a variable
+> size popup.. --[[Joey]] 

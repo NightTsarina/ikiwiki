@@ -1,0 +1,98 @@
+Hello,
+
+I had to fix a location of one page in my repo via `svn move` and now I have
+a problem with rebuilding my ikiwiki pages:
+
+    ikiwiki --setup ikiwiki.setup
+    [...]
+    tworzenie strony ubuntu/linki.mdwn
+    tworzenie strony knoppix/bootowalny_pendrive_usb.mdwn
+    tworzenie strony helponformatting.mdwn
+    Insecure dependency in eval while running with -T switch at /usr/share/perl5/IkiWiki/Plugin/conditional.pm line 30.
+    BEGIN failed--compilation aborted at (eval 5) line 110.
+
+Temporarily I've disabled conditional plugin to avoid that bug.
+
+PS. I still use ikiwiki 1.50 backported for Debian 'sarge'.
+
+--[[Paweł|ptecza]]
+
+---
+
+Hello again :)
+
+I've just builded successfully ikiwiki 2.00 package for Debian 'sarge'.
+Unfortunately, now I still can't to rebuild my ikiwiki pages:
+
+    ikiwiki --setup ikiwiki.setup
+    [...]
+    renderowanie ikiwiki/backport.mdwn
+    renderowanie ikiwiki/instalacja.mdwn
+    renderowanie ikiwiki/problemy.mdwn
+    Insecure dependency in eval while running with -T switch at /usr/share/perl5/IkiWiki.pm line 1005.
+    BEGIN failed--compilation aborted at (eval 5) line 111.
+
+I didn't apply your following old patch against `Ikiwiki.pm` file:
+
+    --- IkiWiki.pm-orig 2007-05-10 11:16:47.000000000 +0200
+    +++ IkiWiki.pm      2007-05-10 11:16:07.000000000 +0200
+    @@ -993,7 +993,18 @@
+        my $spec=shift;
+        my $from=shift;
+ 
+    -   return eval pagespec_translate($spec);
+    +   my $pagespec = pagespec_translate($spec);
+    +
+    +   my $newpagespec;
+    +
+    +   local($1);
+    +   if ($pagespec =~ /(.*)/) {
+    +           $newpagespec = $1;
+    +   } else {
+    +           die "oh";
+    +   }
+    +
+    +   return eval $newpagespec;
+     }
+ 
+     package IkiWiki::PageSpec;
+
+because `patch` command fails:
+
+    patch -p0 < ../IkiWiki.pm.patch 
+    patching file IkiWiki.pm
+    Hunk #1 FAILED at 993.
+    1 out of 1 hunk FAILED -- saving rejects to file IkiWiki.pm.rej
+
+Could you please fix that patch?  I guess how to do it, but I don't want
+to break the code I distribute in my backport ;)
+
+--[[Paweł|ptecza]]
+
+> It's not my patch.. IIRC my suggestion was simply to do this: --[Joey]]
+
+	Index: IkiWiki.pm
+	===================================================================
+	--- IkiWiki.pm	(revision 3565)
+	+++ IkiWiki.pm	(working copy)
+	@@ -1005,7 +1005,7 @@
+ 			unshift @params, "location";
+	 	}
+	 
+	-	my $ret=eval pagespec_translate($spec);
+	+	my $ret=eval possibly_foolish_untaint(pagespec_translate($spec));
+	 	return IkiWiki::FailReason->new("syntax error") if $@;
+	 	return $ret;
+	 }
+
+>> Thanks a lot, Joey! It works :)
+>>
+>> BTW, I was quite sure that you sent me the old patch via e-mail long time ago.
+>> Maybe I found it at old ikiwiki home page? I don't remember it now.
+>>
+>> --[[Paweł|ptecza]]
+
+----
+
+I'm marking this [[done]] since it only affects sarge. Sarge users should
+use the patch above. --[[Joey]]

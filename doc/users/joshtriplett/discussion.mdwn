@@ -1,0 +1,68 @@
+Can we please have a very brief HOWTO?
+
+I have a Moin wiki in /var/www/wiki and want to create an IkIwiki clone of it in /var/www/ikiwiki backed by a git repos in /data/ikiwiki.
+
+I tried:
+
+    mkdir /var/www/ikiwiki
+    mkdir /data/ikiwiki
+    PATH=.:/usr/lib/git-core:$PATH ./moin2iki /data/ikiwiki http://localhost/wiki
+
+Help please!but this failed. (BTW, I don't usually put . in my PATH).  The failure appears to be that the converter doesn't actually create an ikiwiki instance, but appears to want to update one:
+
+    fatal: ambiguous argument 'master': unknown revision or path not in the working tree.
+    Use '--' to separate paths from revisions
+    fatal: ambiguous argument 'master': unknown revision or path not in the working tree.
+    Use '--' to separate paths from revisions
+    fatal: Not a valid object name master
+    Traceback (most recent call last):
+      File "/home/peterc/src/moin2iki/git-map", line 125, in <module>
+        if __name__ == "__main__": sys.exit(main(sys.argv[1:]))
+      File "/home/peterc/src/moin2iki/git-map", line 117, in main
+        print git_map_file('commit', new_head)
+      File "/home/peterc/src/moin2iki/git-map", line 33, in git_map_file
+        f(inproc.stdout, outproc.stdin, sha, arg)
+      File "/home/peterc/src/moin2iki/git-map", line 64, in handle_commit
+        string, tree = lines.pop(0).split()
+    IndexError: pop from empty list
+
+OK, so I created one:
+
+    ikiwiki --setup /etc/ikiwiki/auto.setup
+    .....
+This process created several files and directories in my home directory:
+
+    wiki.git/
+    public_html/wiki/
+    wiki.setup
+    .ikiwiki/
+
+Following the instructions on the setup page, I did:
+    mv wiki.git /data/ikiwiki
+    ( cd /data/ikiwiki; git clone -l wiki.git wiki; )
+    mv .ikiwiki /data/ikiwiki/ikiwiki
+    mv ~/public_html/wiki /var/ikiwiki/
+
+then did again
+
+    PATH=.:/usr/lib/git-core:$PATH ./moin2iki /data/ikiwiki/wiki http://www/wiki
+
+and saw no output, and no change to the filesystem.
+
+I'm totally confused.  It looks as though the script calls moin2git iff the target directory isn't there, but the script fails in interesting ways if it is.
+
+The other thing I saw was:
+
+    2009-12-04 09:00:31,542 WARNING MoinMoin.log:139 using logging configuration read from built-in fallback in MoinMoin.log module!
+    Traceback (most recent call last):
+      File "./moin2git", line 128, in <module>
+        if __name__ == '__main__': main(*sys.argv[1:])
+      File "./moin2git", line 43, in main
+        r = request.RequestCLI()
+    AttributeError: 'module' object has no attribute 'RequestCLI'
+
+Moin version is 1.8.5
+
+Help please!
+
+> Please take a look at [[tips/Convert_moinmoin_to_ikiwiki]] again, the code has radically changed and should now be easier to use *and* work with 1.8.x. --[[anarcat]]

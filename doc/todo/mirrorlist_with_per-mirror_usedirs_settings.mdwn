@@ -1,0 +1,103 @@
+I've got a wiki that is built at two places:
+
+* a static copy, aimed at being viewed without any web server, using
+  a web browser's `file:///` urls => usedirs is disabled to get nice
+  and working links
+* an online copy, with usedirs enabled in order to benefit from the
+  language negotiation using the po plugin
+
+I need to use mirrorlist on the static copy, so that one can easily
+reach the online, possibly updated, pages. But as documented, "pages are
+assumed to exist in the same location under the specified url on each
+mirror", so the generated urls are wrong.
+
+My `mirrorlist` branch contains a patch that allows one to configure usedirs
+per-mirror. Note: the old configuration format is still supported, so this should
+not break existing wikis.
+
+OT: as a bonus, this branch contains a patch to support {hashes,arrays} of
+{hashes,arrays} in `$config`, which I missed a bit when writing the po plugin,
+and decided this time it was really needed to implement this feature.
+
+--[[intrigeri]]
+
+> Ping. --[[intrigeri]]
+
+[[!tag patch]]
+
+>> (I'm not an ikiwiki committer, opinions may vary.)
+>>
+>>> In my opinion, you're an ikiwiki committer! --[[Joey]]
+>>
+>> This would be easier to review if there weren't a million merges from
+>> master; perhaps either leave a branch as-is, or rebase it, or merge
+>> only at "significant" times like after a release?
+>>
+>> I believe Joey's main objection to complex $config entries is that
+>> it's not at all clear what [[plugins/websetup]] would do with them.
+>> Would something like this make a reasonable alternative?
+>>
+>>      $config{mirrorlist} = ["nousedirs|file:///home/intrigeri/wiki",
+>>          "usedirs|http://example.com/wiki", "http://example.net"];
+>>
+>> From how I understand tainting, this:
+>>
+>>      $untainted{$_} = possibly_foolish_untaint($tainted->{$_})
+>>
+>> probably needs to untaint the key too:
+>>
+>>      my $key = possibly_foolish_untaint($_);
+>>      $untainted{$key} = possibly_foolish_untaint($tainted->{key});
+>>
+>> --[[smcv]]
+
+>>> You are fully right about the complex `$config` entries. I'll
+>>> convert this to use what you are suggesting, i.e. what we ended up
+>>> choosing for the `po_slave_languages` setting.
+>>>
+>>> About the merges in this branch: Joey told me once he did not care
+>>> about this; moreover the `--no-merges` git log option makes it
+>>> easy to filter these out. I'll try merging tagged releases only in
+>>> the future, though.
+>>>
+>>> --[[intrigeri]]
+
+>>>> FWIW, I don't care about merge commits etc because I review
+>>>> `git diff ...intrigeri/mirrorlist` -- and if I want to dig deeper
+>>>> into the why of some code, I'll probably checkout the branch and
+>>>> use git blame.
+>>>>
+>>>> I agree with what smcv said, my other concern though is that
+>>>> this is such an edge case, that supporting it just adds clutter.
+>>>> Have to wonder if it wouldn't perhaps be better to do something
+>>>> using the goto plugin and cgiurl, so that the mirror doesn't have
+>>>> to know about the configuration of the other mirror. --[[Joey]]
+
+>>>>> I have implemented something using the cgi + goto in my (history
+>>>>> rewrite warning) mirrorlist branch. Please review, please pull.
+>>>>> --[[intrigeri]]
+
+>>>>>> Ping? I've merged 3.20110321 in my `mirrorlist` branch and
+>>>>>> checked it still works properly. --[[intrigeri]]
+
+>>>>>>> Joey: ping? I've rebased my `mirrorlist` branch on top of
+>>>>>>> 3.20120419, and checked it still works properly. I really
+>>>>>>> would like to see this functionality merged in time
+>>>>>>> for Wheezy. --[[intrigeri]]
+
+>>>>> concerning goto/cgiurl, what about having that as the default in
+>>>>> mirrorlist, but keeping ``nousedirs|file:///home/intrigeri/wiki`` and
+>>>>> ``usedirs|http://example.com/wiki`` valid for cgi-less cases?
+>>>>> that would keep typical installation with a clutter-less configuration,
+>>>>> and support more individual setups too.
+>>>>> --[[chrysn]]
+
+>>>>>> I would not mind. On the other hand Joey was concerned about
+>>>>>> cluttering the code to support edge cases, which I fully
+>>>>>> understand. The case you (chrysn) are describing being even
+>>>>>> more specific than the one I was initially talking of, I think
+>>>>>> this should not block the merge of the branch I have been
+>>>>>> proposing. Support for the usecase you are suggesting can
+>>>>>> always be added later if needed. --[[intrigeri]]
+
+>>>>>>> Well, that came out nice and clean. [[done]] --[[Joey]] 

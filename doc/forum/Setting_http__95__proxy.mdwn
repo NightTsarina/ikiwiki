@@ -1,0 +1,22 @@
+Hi! My wiki is behind a proxy and, as I understood looking in the web, I need to set the environment variables using ENV inside the wiki's config.
+
+So far I tried:
+
+ENV: {
+  http_proxy => 'http://proxy.uns.edu.ar:1280/',
+  https_proxy => 'http://proxy.uns.edu.ar:1280/'
+}
+
+without luck, as I get:
+
+
+YAML::XS::Load Error: The problem:
+
+    found unexpected ':'
+
+was found at document: 1, line: 85, column: 22
+while scanning a plain scalar at line: 85, column: 3
+usage: ikiwiki [options] source dest
+       ikiwiki --setup configfile
+
+What am I missing? (maybe learning perl?)

@@ -1,0 +1,79 @@
+Perhaps I'm just too stupid to find the proper way to do this, but how
+would I add a new page to the wiki without selecting to edit an already
+installed one and frobbing the URL to direct to the to-be-created page?
+--[[ThomasSchwinge]]
+
+Good point. Of course one way is to start with creating a link to the page,
+which also helps prevent orphans. But other wikis based on CGI do have this
+a bit easier, since they can detect an attempt to access a nonexistant page
+and show an edit page. Ikiwiki can't do that (unless its web server is
+configured to do smart things on a 404, like maybe call ikiwiki.cgi which
+could be modified to work as a smart 404 -> edit handler).
+
+> Since this todo was opened, the [[plugins/404]] plugin has been added;
+> it does exactly that. Only if you have Apache, at the moment, though. --[[smcv]]
+
+Some wikis also provide a UI means for creating a new page. If we can find
+something good, that can be added to ikiwiki's UI. --[[Joey]]
+
+Hmm, maybe just a preprocessor directive that creates a form inside a page,
+like is used for blog posting already would suffice? Then the main page of
+a wiki could have a form for adding new pages, if that directive were
+included there. Won't work for subpages though, unless the directive were
+added to the parent page. However, unconnected subpages are surely an even
+rarer thing to want than unconnected top level pages. --[[Joey]]
+
+> Here is a simple plugin that does that. Perhaps options could be added to
+> it, but I couldn't really think of any.
+> <http://jameswestby.net/scratch/create.diff>
+> -- JamesWestby
+
+> For what it's worth, the following works:  
+> `\[[!inline pages=!* rss=no atom=no postform=yes postformtext="Add a new page titled:"]]`  
+> Add `rootpage=/` if you do this in `index.mdwn` to avoid creating subpages.
+> --[[JeremieKoenig]]
+
+
+Maybe a very simple PHP frontend for serving the
+statically generated pages, that would display a page editing form or
+something like that for non-existent pages, wouldn't be too bad a thing
+and resource hog? Just a thought... --[[Tuomov]]
+
+----
+
+A quick round-up of how other wikis address this problem:
+
+ * mediawiki *used* to Offer a search box with two buttons: 'Go'
+   and 'Search'.  'Go' brought you to a page with the name you
+   typed if it exists, and searches otherwise.  In the latter case,
+   you get a link like this at the top of the search results:
+
+> *There is no page titled "Testing". You can create this page.*
+
+ * wikia mediawikis have an "add a page" button that pops-up a JS
+   pseudo-window asking for a page name. On submission, you end
+   up at an edit window for the page.
+ * wikipedia now makes it quite hard to create new pages. The old
+   'go' button is gone, nearly all search terms end up at an actual
+   article, a "no results" match does not have helpful create link
+   options.
+ * Moin Moin has a two-button search: "Titles" and "Text".  Neither
+   offer a "create page" option for 0-match searches.
+ * the original c2.com wiki has no helpful link for this either.
+
+So - the direction of travel would appear to be *away* from having
+"new page" functionality.
+
+I would suggest the following for ikiwiki:
+
+ * Extend the search results page to include a "create this page" link,
+   perhaps toggleable, perhaps only if the search term matches some
+   criteria for what makes a sensible page name
+ * Some combination of JamesWestby's "create" plugin, extracting the
+   current stuff inside [[plugins/inline]] (see also:
+   [[more flexible inline postform]]) -- more generally, rationalising
+   where that code lives so it can be used in more contexts.
+ * documenting the `inline` hack above (which I use extensively on my
+   private wikis, by the way!) as a [[tip|tips]].
+
+-- [[Jon]]

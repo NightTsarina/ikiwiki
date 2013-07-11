@@ -1,0 +1,43 @@
+The example you gave looks a bit odd.
+
+This is what I did from your example (still trying to learn the more complex things ;).
+
+<pre>
+\[[!template id=note text="""
+\[[!aggregate expirecount=5 name=kijkaqawej url=http://identi.ca/kjikaqawej
+feedurl=http://identi.ca/api/statuses/user_timeline/kjikaqawej.atom]]
+\[[!inline pages="internal(kijkaqawej/*)" template=microblog show=5 feeds=no]] """]]
+</pre>
+
+mine, live, here: <http://simonraven.kisikew.org/blog/meta/microblog-feed/>
+
+I expected something like: sidebar, with a number, and displaying them in the sidebar, but they don't display (similar to what you have on your blog).
+
+On the [[/ikiwiki/pagespec]] page, it says "internal" pages aren't "first-class" wiki pages, so it's best not to directly display them, so how do you manage to display them? I'd like to display their name, and what they link to in the sidebar, or otherwise in the main body.
+
+> That's what the inline does, displays the internal pages.
+> 
+> You need to fix your pagespec to refer to where the pages are aggregated
+> to, under the page that contains the aggregate directive. In your example,
+> it should be `internal(./blog/meta/microblog-feed/kijkaqawej/*)` --[[Joey]]
+
+>> Oooh, I see, it's referring to an absolute path (relative to the site), right?
+>> Thanks :).
+
+>>> Right, PageSpecs are always absolute paths unless prefixed with `./`
+>>> (somewhat confusingly since WikiLinks are always realtive unless
+>>> previxed with `/` ...) --[[Joey]] 
+
+>> This is not working for me at all, all I get is some SHA1 hash all the time. I've tried variants of the `internal()` arg, and nothing gets spit out. --[[simonraven]]
+
+>>> Sounds like [[!debbug 380212]]?
+>>> If so, the fix is to use Text::Markdown, or markdown 1.0.2 instead of buggy
+>>> old markdown 1.0.1. --[[Joey]]
+
+>> `ii  libtext-markdown-perl            1.0.21-1                         Markdown and MultiMarkdown markup languages library`
+>>
+>> I'm using `Text::Markdown` due to its "multi-markdown" support. Yes, it does seem exactly like [[!debbug 380212]] .
+>> Maybe update it from CPAN + dh-make-perl (if there's a new one, that is) --[[simonraven]]
+>> I've just built and installed `libtext-markdown-perl 1.0.21-1` from dh-make-perl & CPAN, and regenerated that page.. let's see what happens... no hashes, but nothing else either:
+>>
+>> "kijkaqawej: last checked 10 minutes ago (25 posts)" -- inside of a box, no display of posts.

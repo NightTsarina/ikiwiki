@@ -1,0 +1,188 @@
+Ikiwiki is a wiki compiler, which means that, unlike a traditional wiki,
+all the work needed to display your wiki is done up front. Where you can
+see it and get annoyed at it. In some ways, this is better than a wiki
+where a page view means running a program to generate the page on the fly.
+
+But enough excuses. If ikiwiki is taking too long to build your wiki,
+let's fix that. Read on for some common problems that can be avoided to
+make ikiwiki run quick.
+
+[[!toc]]
+
+(And if none of that helps, file a [[bug|bugs]]. One other great thing about
+ikiwiki being a wiki compiler is that it's easy to provide a test case when
+it's slow, and get the problem fixed!)
+
+## rebuild vs refresh
+
+Are you building your wiki by running a command like this?
+
+	ikiwiki -setup my.setup
+
+If so, you're always telling ikiwiki to rebuild the entire site, from
+scratch. But, ikiwiki is smart, it can incrementally update a site,
+building only things affected by the changes you make. You just have to let
+it do so:
+
+	ikiwiki -setup my.setup -refresh
+
+Ikiwiki automatically uses an incremental refresh like this when handing
+a web edit, or when run from a [[rcs]] post-commit hook. (If you've
+configured the hook in the usual way.) Most people who have run into this
+problem got in the habit of running `ikiwiki -setup my.setup` by hand
+when their wiki was small, and found it got slower as they added pages.
+
+## use the latest version
+
+If your version of ikiwiki is not [[!version]], try upgrading. New
+optimisations are frequently added to ikiwiki, some of them yielding
+*enormous* speed increases.
+
+## run ikiwiki in verbose mode
+
+Try changing a page, and run ikiwiki with `-v` so it will tell you
+everything it does to deal with that changed page. Take note of
+which other pages are rebuilt, and which parts of the build take a long
+time. This can help you zero in on individual pages that contain some of
+the expensive things listed below. 
+
+## expensive inlines
+
+Do you have an archive page for your blog that shows all posts, 
+using an inline that looks like this?
+
+	\[[!inline pages="blog/*" show=0]]
+
+Or maybe you have some tag pages for your blog that show all tagged posts,
+something like this?
+
+	\[[!inline pages="blog/* and tagged(foo)" show=0]]
+
+These are expensive, because they have to be updated whenever you modify a
+matching page. And, if there are a lot of pages, it generates a large html
+file, which is a lot of work. And also large RSS/Atom files, which is even
+more work!
+
+To optimise the inline, consider enabling quick archive mode. Then the
+inline will only need to be updated when new pages are added; no RSS
+or Atom feeds will be built, and the generated html file will be much
+smaller.
+	
+	\[[!inline pages="blog/*" show=0 archive=yes quick=yes]]
+	
+	\[[!inline pages="blog/* and link(tag)" show=0 archive=yes quick=yes]]
+
+Only downsides: This won't show titles set by the [[ikiwiki/directive/meta]]
+directive. And there's no RSS feed for users to use -- but if this page
+is only for the archives or tag for your blog, users should be subscribing
+to the blog's main page's RSS feed instead.
+
+For the main blog page, the inline should only show the latest N posts,
+which won't be a performance problem:
+
+	\[[!inline pages="blog/*" show=30]]
+
+## expensive maps
+
+Do you have a sitemap type page, that uses a map directive like this?
+
+	\[[!map pages="*" show=title]]
+
+This is expensive because it has to be updated whenever a page is modified.
+The resulting html file might get big and expensive to generate as you
+keep adding pages.
+
+First, consider removing the "show=title". Then the map will not show page
+titles set by the [[ikiwiki/directive/meta]] directive -- but will also
+only need to be generated when pages are added or removed, not for every
+page change.
+
+Consider limiting the map to only show the toplevel pages of your site,
+like this:
+
+	\[[!map pages="* and !*/*" show=title]]
+
+Or, alternatively, to drop from the map parts of the site that accumulate
+lots of pages, like individual blog posts:
+
+	\[[!map pages="* and !blog/*" show=title]]
+
+## sidebar issues
+
+If you enable the [[plugins/sidebar]] plugin, be careful of what you put in
+your sidebar. Any change that affects what is displayed by the sidebar
+will require an update of *every* page in the wiki, since all pages include
+the sidebar.
+
+Putting an expensive map or inline in the sidebar is the most common cause
+of problems. At its worst, it can result in any change to any page in the
+wiki requiring every page to be rebuilt.
+
+## avoid htmltidy
+
+A few plugins do neat stuff, but slowly. Such plugins are tagged
+[[plugins/type/slow]].
+
+The worst offender is possibly [[plugins/htmltidy]]. This runs an external
+`tidy` program on each page that is built, which is necessarily slow. So don't
+use it unless you really need it; consider using the faster
+[[plugins/htmlbalance]] instead.
+
+## be careful of large linkmaps
+
+[[plugins/Linkmap]] generates a cool map of links between pages, but
+it does it using the `graphviz` program. And any changes to links between
+pages on the map require an update. So, avoid using this to map a large number
+of pages with frequently changing links. For example, using it to map
+all the pages on a traditional, highly WikiLinked wiki, is asking for things
+to be slow. But using it to map a few related pages is probably fine.
+
+This site's own [[plugins/linkmap]] rarely slows it down, because it
+only shows the index page, and the small set of pages that link to it.
+That is accomplished as follows:
+
+	\[[!linkmap pages="index or (backlink(index)"]]
+
+## overhead of the search plugin
+
+Be aware that the [[plugins/search]] plugin has to update the search index
+whenever any page is changed. This can slow things down somewhat.
+
+## profiling
+
+If you have a repeatable change that ikiwiki takes a long time to build,
+and none of the above help, the next thing to consider is profiling
+ikiwiki. 
+
+The best way to do it is:
+
+* Install [[!cpan Devel::NYTProf]]
+* `PERL5OPT=-d:NYTProf`
+* `export PER5OPT`
+* Now run ikiwiki as usual, and it will generate a `nytprof.out` file.
+* Run `nytprofhtml` to generate html files.
+* Those can be examined to see what parts of ikiwiki are being slow.
+
+## scaling to large numbers of pages
+
+Finally, let's think about how huge number of pages can affect ikiwiki.
+
+* Every time it's run, ikiwiki has to scan your `srcdir` to find
+  new and changed pages. This is similar in speed to running the `find`
+  command. Obviously, more files will make it take longer.
+
+* Also, to see what pages match a [[ikiwiki/PageSpec]] like "blog/*", it has
+  to check if every page in the wiki matches. These checks are done quite
+  quickly, but still, lots more pages will make PageSpecs more expensive.
+
+* The backlinks calculation has to consider every link on every page
+  in the wiki. (In practice, most pages only link to at most a few dozen
+  other pages, so this is not a `O(N^2)`, but closer to `O(N)`.)
+
+* Ikiwiki also reads and writes an `index` file, which contains information
+  about each page, and so if you have a lot of pages, this file gets large,
+  and more time is spent on it. For a wiki with 2000 pages, this file
+  will run about 500 kb.
+
+If your wiki will have 100 thousand files in it, you might start seeing
+the above contribute to ikiwiki running slowly.

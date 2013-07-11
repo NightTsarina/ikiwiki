@@ -1,0 +1,87 @@
+Version 2.0 of bzr seems to break the bzr plugin.
+
+I traced this to the bzr_log method in the plugin, and patching that seems to fix it. The plugin just needs to parse the input little bit differently.
+--liw
+
+> Patch applied, [[done]] (but, it would be good if it could be tested with
+> an older bzr, and it's a pity bzr's human-targeted log has to be parsed,
+> I assume there is no machine-targeted version?) --[[Joey]] 
+
+    From fb897114124e627fd3acf5af8e784c9a77419a81 Mon Sep 17 00:00:00 2001
+    From: Lars Wirzenius <liw@liw.fi>
+    Date: Sun, 4 Apr 2010 21:05:07 +1200
+    Subject: [PATCH] Fix bzr plugin to work with bzr 2.0.
+
+    The output of "bzr log" seems to have changed a bit, so we change the
+    parsing accordingly. This has not been tested with earlier versions of
+    bzr.
+
+    Several problems seemed to occur, all in the bzr_log subroutine:
+
+    1. The @infos list would contain an empty hash, which would confuse the
+       rest of the program.
+    2. This was because bzr_log would push an empty anonymous hash to the
+       list whenever it thought a new record would start.
+    3. However, a new record marker (now?) also happens at th end of bzr log
+       output.
+    4. Now we collect the record to a hash that gets pushed to the list only
+       if it is not empty.
+    5. Also, sometimes bzr log outputs "revno: 1234 [merge]", so we catch only
+       the revision number.
+    6. Finally, there may be non-headers at the of the output, so we ignore
+       those.
+    ---
+     IkiWiki/Plugin/bzr.pm |   23 ++++++++++++++++-------
+     1 files changed, 16 insertions(+), 7 deletions(-)
+
+    diff --git a/IkiWiki/Plugin/bzr.pm b/IkiWiki/Plugin/bzr.pm
+    index 1ffdc23..e813331 100644
+    --- a/IkiWiki/Plugin/bzr.pm
+    +++ b/IkiWiki/Plugin/bzr.pm
+    @@ -73,28 +73,37 @@ sub bzr_log ($) {
+     	my @infos = ();
+     	my $key = undef;
+     
+    +    my $hash = {};
+     	while (<$out>) {
+     		my $line = $_;
+     		my ($value);
+     		if ($line =~ /^message:/) {
+     			$key = "message";
+    -			$infos[$#infos]{$key} = "";
+    +			$$hash{$key} = "";
+     		}
+     		elsif ($line =~ /^(modified|added|renamed|renamed and modified|removed):/) {
+     			$key = "files";
+    -			unless (defined($infos[$#infos]{$key})) { $infos[$#infos]{$key} = ""; }
+    +			unless (defined($$hash{$key})) { $$hash{$key} = ""; }
+     		}
+     		elsif (defined($key) and $line =~ /^  (.*)/) {
+    -			$infos[$#infos]{$key} .= "$1\n";
+    +			$$hash{$key} .= "$1\n";
+     		}
+     		elsif ($line eq "------------------------------------------------------------\n") {
+    +		    if (keys %$hash) {
+    +    		    push (@infos, $hash);
+    +		    }
+    +    		$hash = {};
+     			$key = undef;
+    -			push (@infos, {});
+     		}
+    -		else {
+    +		elsif ($line =~ /: /) {
+     			chomp $line;
+    -				($key, $value) = split /: +/, $line, 2;
+    -			$infos[$#infos]{$key} = $value;
+    +			if ($line =~ /^revno: (\d+)/) {
+    +			    $key = "revno";
+    +			    $value = $1;
+    +			} else {
+    +    			($key, $value) = split /: +/, $line, 2;
+    +    		}
+    +			$$hash{$key} = $value;
+     		} 
+     	}
+     	close $out;
+    -- 
+    1.7.0

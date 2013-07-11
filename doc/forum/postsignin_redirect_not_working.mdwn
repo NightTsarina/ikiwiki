@@ -1,0 +1,30 @@
+I'm confused. I got a plugin working that allows a button to call up a login screen but I can't seem to get it to return to the calling page. I end up on the prefs page.
+
+When the plugin first runs it puts the http_referer into a param:
+
+    $session->param("postsignin" => $ENV{HTTP_REFERER} );
+
+Then when it runs for postsignin its supposed to pull it out and send the user to the original page:
+
+    my $page=$q->param("postsignin");
+    ...
+    IkiWiki::redirect($q, $page);
+    exit;
+
+Full code is available on the plugin page: [[plugins/contrib/justlogin]].
+
+I searched the site and there's very little info available for postsignin or redirect. Perhaps I'm using the wrong function?
+
+> I don't know why you end up on the prefs page. Have you tried
+> looking inside the session database to see what postsignin 
+> parameter is stored?
+> 
+> But, `cgi_postsignin()` assumes it can directly pass the postsignin cgi
+> parameter into `cgi()`. You're expecting it to redirect to an url, and it
+> just doesn't do that. Although I have considered adding a redirect 
+> there, just so that openid login info doesn't appear in the url after
+> signin (which breaks eg, reload). That would likely still not make your
+> code work, since the value of postsignin is a url query string, not a
+> full url.
+> 
+> I'd suggest you put a do=goto redirect into postsignin. --[[Joey]]

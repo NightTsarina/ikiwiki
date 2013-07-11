@@ -1,0 +1,44 @@
+I've just upgraded ikiwiki from version 1.45 to 1.49, using my own Ubuntu Gutsy
+backport. Now I can't rebuild all my wiki pages. Both methods of rebuilding pages fail:
+
+    $ sudo ikiwiki-mass-rebuild 
+    Processing /home/ptecza/path/to/ikiwiki.setup as user ptecza ...
+    failed to set egid 1000 4 20 24 25 29 30 44 46 104 109 110 119 1000 (got back 1000 1000 119 110 109 104 46 44 30 29 25 24 20 4) at /usr/sbin/ikiwiki-mass-rebuild line 38, <$list> line 13.
+    Processing /home/ptecza/path/to/ikiwiki.setup as user ptecza failed with code 65280
+
+    $ ikiwiki --setup ikiwiki.setup
+    pomyślnie utworzono /var/www/path/to/ikiwiki.cgi
+    pomyślnie utworzono /home/ptecza/path/to/hooks/post-commit.ikiwiki
+    terminate called after throwing an instance of 'Xapian::InvalidArgumentError'
+    Aborted
+
+I've installed all needed packages for new search engine and added path
+to `omega` binary in my `ikiwiki.setup` file.
+
+Any ideas how to fix that problem? --[[Paweł|ptecza]]
+
+> Well, it's two separate problems. Xapian is crashing in the C code when
+> asked to create a stemmer for `pl`. This is a Xapain bug, but I've put 
+> in a workaround.
+> 
+> For the first problem, looks like I need a more robust grouplist comparor
+> -- fixed in git.
+>
+> [[done]]
+> --[[Joey]]
+
+>> Thanks a lot for the rapid fix, Joey! Now my ikiwiki works good for me :)
+>>
+>> BTW, why have you replaced Hyper Estraier by Xapian? It seems that second
+>> search engine is faster, but I'm not sure it has the same wide syntax.
+>> Also I can't see how to change number of hits per page... --[[Paweł|ptecza]]
+
+>>> Xapian indexes more quickly, and with the perl interface I was able to
+>>> make updates for changes pages quite efficient. My experience with 
+>>> Hyper Estraier has not been good, with its database often breaking, and
+>>> it sometimes crashing. Xapian also does a ranked search, and supports
+>>> searching for specific metadata like "title:foo". --[[Joey]]
+
+>>>> Thank you very much for the reply! I have never had problems with
+>>>> Hyper Estraier, but I'm not a long-time user of that searching engine.
+>>>> It's good to know about Xapian pros and Hyper Estraier cons. --[[Paweł|ptecza]]

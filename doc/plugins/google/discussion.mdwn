@@ -1,0 +1,25 @@
+This plugin uses the googleform.tmpl
+which produces valid HTML but invalid XHTML.
+This is not very good since the default ikiwiki
+templates produce XHTML instead of HTML.
+
+> Fixed, thanks for the patch! --[[Joey]] 
+
+It works to pass the whole wiki baseurl to Google, not just the
+domain, and appears to be legal. I've got a wiki that'd benefit
+(it's a few directories down from the root). Can the plugin be
+tweaked to do this? --[[schmonz]]
+
+> Done. --[[Joey]] 
+
+The main page said:
+
+> Also, if the same domain has other content, outside the wiki's
+> content, it will be searched as well.
+
+Is it still true now? (Or this statement is out of date?)  --[weakish]
+
+[weakish]: http://weakish.pigro.net
+
+> I checked, and it's never been true; google is given the url to the top
+> of the wiki and only searches things in there. --[[Joey]] 

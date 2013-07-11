@@ -1,0 +1,56 @@
+The `album` directive is supplied by the [[!iki plugins/contrib/album desc=album]] plugin.
+
+Each page containing an `album` directive is treated as a photo album
+or image gallery. Example usage is as simple as:
+
+    \[[!album]]
+
+Every image attached to an album or its [[subpages|ikiwiki/subpage]] is
+considered to be part of the album. A "viewer" page, with the wiki's default
+page extension, will be generated in the
+[[transient underlay|plugins/transient]] to display the
+image, if there isn't already a page of the same name as the image: for
+instance, if `debconf` is an album and `debconf/tuesday/p100.jpg` exists,
+then `debconf/tuesday/p100.mdwn` might be created.
+
+The album is treated as a [[!iki plugins/contrib/trail desc=trail]], which
+gives each viewer page a link back to the album, and a link to the previous
+and next viewer in the album.
+
+The `album` directive also produces an [[ikiwiki/directive/inline]] which
+automatically includes all the viewers for this album, except those that
+will appear in an [[albumsection]]. If every image in the album is in a
+section, then the `album` directive is still required, but won't produce
+any output in the page.
+
+The `inline` can include some extra information about the images, including
+file size and a thumbnail made using [[ikiwiki/directive/img]]). The
+default template is `albumitem.tmpl`, which takes advantage of these things.
+
+## Options
+
+The directive can have some options for the entire album. The defaults are:
+
+    \[[!album
+      sort="-age"
+      size="full"
+      thumbnailsize="96x96"
+      viewertemplate="albumviewer"
+      prevtemplate="albumprev"
+      nexttemplate="albumnext"
+
+* `sort` - sets the order in which images appear, defaulting to earliest
+  creation date first
+* `size` - if not `full`, the [[ikiwiki/directive/img]] in the viewer page
+  will be resized to be no larger than this
+* `thumbnailsize` - the [[ikiwiki/directive/img]] in the album page,
+  which can also be used in the previous/next links, will be no larger than
+  this
+* `viewertemplate` - the template used for the [[albumimage]] in each
+  viewer page
+* `prevtemplate` - the template used to replace `<TMPL_VAR PREV>` if used in
+  the viewer page
+* `nexttemplate` - the template used to replace `<TMPL_VAR NEXT>` if used in
+  the viewer page
+
+[[!meta robots="noindex, follow"]]

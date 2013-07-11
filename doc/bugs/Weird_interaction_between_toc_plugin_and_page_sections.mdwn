@@ -1,0 +1,40 @@
+[[!meta title="Weird interaction between toc plugin and markdown that follows"]]
+
+<http://vcs-pkg.org/people/> goes really weird when I enable the `toc` plugin. It renders the page sections fine without it, but as soon as I turn it on, the following output is generated:
+
+    \[[!meta  title="My Name"]]
+
+      1. Fedora
+      2. Ubuntu
+      3. People grouped by version control system
+      4. GNU Arch (tla/baz)
+      5. Bazaar-NG
+      6. Git users
+      7. Mercurial
+      8. Subversion
+      9. Everyone, sorted by first name
+
+    People grouped by distro ======================== Debian ––
+
+        * jelmer
+        * madduck
+
+    Fedora
+
+I have no idea what's eating the first two headers. But as you can see from the current page, it's not just headers by any markdown...
+
+--[[madduck]]
+
+> This is a markdown bug. It occurs with 1.0.1, but not with the 1.0.2
+> beta. Apparently markdown is getting confused by the div inserted for the
+> toc, not realizing that it has ended, and so not marking up the text as
+> markdown. 1.0.2 fixes many such div-related markdown bugs. I have to call
+> this [[done]] since it's not an ikiwiki bug, recommend upgrading markdown
+> if the slower speed of 1.0.2 doesn't hurt too badly. --[[Joey]]
+
+>> Note how it works on <http://madduck.net/docs/mailfilter/> but adding a rule like in that doc to the people page didn't fix it.
+
+>>> Yes, it's probably confused by the two divs so close to each other, and
+>>> doesn't realize that the text in between is not part of either and is
+>>> markdown. Problem is that the old markdown doesn't have a real html
+>>> parser, it just fakes it --[[Joey]]

@@ -1,0 +1,58 @@
+The [[plugins/toggle]] plugin has no effect when viewed on the Safari web browser.
+
+All toggles appear open all the time.
+
+I don't know if this is true for other webkit browsers (the new Konqueror, the iPhone, etc).
+I'm currently testing in the Safari nightly builds, but I've seen the bug in the current release
+of Safari too.
+
+Looking at the Safari Web Inspector, it believes there is a parse error on line 47 of the
+[[news]] page.  This is the definition of the getElementsByClass(class) function.
+
+    45 }
+    46
+    47 function getElementsByClass(class) {
+       SyntaxError: Parse error
+    48 	var ret = new Array();
+
+> Reproduced in epiphany-webkit on debian.
+> 
+> Also noticed something interesting when I opened the page in vim. It
+> highlighted the "class" like a type definition, not a variable. Sure
+> enough, replacing with "c" fixed it.
+> 
+> I wonder if webkit is actually in the right here, and using a reseved
+> word like, presumably, "class" as a variable name is not legal. As I try
+> to ignore javascript as much as possible, I can't say. [[done]] --[[Joey]]
+
+>> I also started having a look at this.  I found the same issue with the
+>> the variable 'class'.  I'm not a javascript guru so I looked on the web
+>> at other implementations of getElementsByClass() and noticed some
+>> things that we might use.  I took a bunch of different ideas and came
+>> up with this:
+
+    function getElementsByClass(cls, node, tag) {
+    	if (document.getElementsByClass)
+    		return document.getElementsByClass(cls, node, tag);
+    	if (! node) node = document;
+    	if (! tag) tag = '*';
+    	var ret = new Array();
+    	var pattern = new RegExp("(^|\\s)"+cls+"(\\s|$)");
+    	var els = node.getElementsByTagName(tag);
+    	for (i = 0; i < els.length; i++) {
+    		if ( pattern.test(els[i].className) ) {
+    			ret.push(els[i]);
+    		}
+    	}
+    	return ret;
+    }
+
+>> Most of the changes are minor, except that this one will use the
+>> built in function if it is available.  That is likely to be significantly
+>> faster.  Adding the extra parameters doesn't cause a problem --
+>> they're filled in with useful defaults.
+
+>> I don't know if it is worth making this change, but it is there if you want it.
+
+>>> Well, it seems to work. Although god only knows about IE. Suppose I
+>>> might as well.. --[[Joey]]

@@ -1,0 +1,143 @@
+[[!template id=plugin name=ymlfront author="[[rubykat]]"]]
+[[!tag type/meta]]
+[[!toc]]
+## NAME
+
+IkiWiki::Plugin::ymlfront - add YAML-format data to a page
+
+## SYNOPSIS
+
+    # activate the plugin
+    add_plugins => [qw{goodstuff ymlfront ....}],
+
+    # configure the plugin
+    ymlfront_delim => [qw(--YAML-- --YAML--)],
+
+## DESCRIPTION
+
+This plugin provides a way of adding arbitrary meta-data (data fields) to any
+page by prefixing the page with a YAML-format document.  This also provides
+the [[ikiwiki/directive/ymlfront]] directive, which enables one to put
+YAML-formatted data inside a standard IkiWiki [[ikiwiki/directive]].
+
+This is a way to create per-page structured data, where each page is
+treated like a record, and the structured data are fields in that record.  This
+can include the meta-data for that page, such as the page title.
+
+This plugin is meant to be used in conjunction with the [[field]] plugin.
+
+## DETAILS
+
+There are three formats for adding YAML data to a page.  These formats
+should not be mixed - the result is undefined.
+
+1. ymlfront directive
+   
+   See [[ikiwiki/directive/ymlfront]] for more information.
+
+2. default YAML-compatible delimiter
+
+   By default, the YAML-format data in a page is placed at the start of
+   the page and delimited by lines containing precisely three dashes.
+   This is what YAML itself uses to delimit multiple documents.
+   The "normal" content of the page then follows.
+
+   For example:
+
+    	---
+    	title: Foo does not work
+    	Urgency: High
+    	Status: Assigned
+    	AssignedTo: Fred Nurk
+    	Version: 1.2.3
+    	---
+    	When running on the Sprongle system, the Foo function returns incorrect data.
+
+   What will normally be displayed is everything following the second line of dashes.  That will be htmlized using the page-type of the page-file.
+
+3. user-defined delimiter
+
+   Instead of using the default "---" delimiter, the user can define,
+   in the configuration file, the **ymlfront_delim** value, which is an
+   array containing two strings. The first string defines the markup for
+   the start of the YAML data, and the second string defines the markip
+   for the end of the YAML data. These two strings can be the same, or
+   they can be different. In this case, the YAML data section is not
+   required to be at the start of the page, but as with the default, it
+   is expected that only one data section will be on the page.
+
+   For example:
+
+    	--YAML--
+    	title: Foo does not work
+    	Urgency: High
+    	Status: Assigned
+    	AssignedTo: Fred Nurk
+    	Version: 1.2.3
+    	--YAML--
+    	When running on the Sprongle system, the Foo function returns incorrect data.
+
+   What will normally be displayed is everything outside the delimiters,
+   both before and after.  That will be htmlized using the page-type of the page-file.
+
+### Accessing the Data
+
+There are a few ways to access the given YAML data.
+
+* [[getfield]] plugin
+
+  The **getfield** plugin can display the data as individual variable values.
+
+  For example:
+
+    	---
+    	title: Foo does not work
+    	Urgency: High
+    	Status: Assigned
+    	AssignedTo: Fred Nurk
+    	Version: 1.2.3
+    	---
+    	# {{$title}}
+
+    	**Urgency:** {{$Urgency}}\\
+    	**Status:** {{$Status}}\\
+    	**Assigned To:** {{$AssignedTo}}\\
+    	**Version:** {{$Version}}
+
+    When running on the Sprongle system, the Foo function returns incorrect data.
+
+* [[ftemplate]] plugin
+
+  The **ftemplate** plugin is like the [[plugins/template]] plugin, but it is also aware of [[field]] values.
+
+  For example:
+
+    	---
+    	title: Foo does not work
+    	Urgency: High
+    	Status: Assigned
+    	AssignedTo: Fred Nurk
+    	Version: 1.2.3
+    	---
+    	\[[!ftemplate id="bug_display_template"]]
+
+    	When running on the Sprongle system, the Foo function returns incorrect data.
+
+* [[report]] plugin
+
+  The **report** plugin is like the [[ftemplate]] plugin, but it reports on multiple pages, rather than just the current page.
+
+* write your own plugin
+
+  In conjunction with the [[field]] plugin, you can write your own plugin to access the data.
+
+## PREREQUISITES
+
+    IkiWiki
+    IkiWiki::Plugin::field
+    YAML::Any
+
+## DOWNLOAD
+
+* browse at GitHub: <http://github.com/rubykat/ikiplugins/blob/master/IkiWiki/Plugin/ymlfront.pm>
+* git repo at git://github.com/rubykat/ikiplugins.git

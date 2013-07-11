@@ -1,0 +1,41 @@
+I've just backported your ikiwiki 1.43 and installed it, but now
+I can't rebuild my all ikiwiki pages. When I run `ikiwiki --setup ikiwiki.setup`,
+then I can see the following error:
+
+    internal error: smileys.mdwn cannot be found
+    BEGIN failed--compilation aborted at (eval 5) line 111.
+
+I have smiley plugin enabled in my `ikiwiki.setup` file, but I've never
+had `smileys.mdwn` page.
+
+Probably the reason of the problem is that you've removed many pages
+from `basewiki` directory and created symlinks for that pages, but there
+don't exist in the last package:
+
+    $ LANG=C apt-cache policy ikiwiki
+    ikiwiki:
+      Installed: 1.43gpa1
+      Candidate: 1.43gpa1
+      Version Table:
+     *** 1.43gpa1 0
+            500 http://gpa.net.icm.edu.pl sarge/main Packages
+            100 /var/lib/dpkg/status
+
+    $ dpkg -L ikiwiki |grep smileys.mdwn
+
+--[[Paweł|ptecza]]
+
+This seems to be a bug in your 1.43gpal version, whatever that is.. In the package I built, I see:
+
+    joey@kodama:~>dpkg -L ikiwiki | grep smileys.mdwn
+    /usr/share/ikiwiki/basewiki/smileys.mdwn
+    joey@kodama:~>ls -l /usr/share/ikiwiki/basewiki/smileys.mdwn
+    -rw-r--r-- 1 root root 1643 Feb 13 18:03 /usr/share/ikiwiki/basewiki/smileys.mdwn
+
+--[[Joey]]
+
+> You're right. My backport was builded without all symlinks, because I store
+> all rebuilded sources in CVS repo, but it seems that CVS doesn't support symlinks.
+> Grrr... I need to switch to another repo now. --[[Paweł|ptecza]]
+
+>> Ok, [[bugs/done]] then --[[Joey]]

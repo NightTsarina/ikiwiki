@@ -1,0 +1,57 @@
+It seems `backlink(.)` doesn't work, that is, it doesn't match pages linked
+to from the current page.
+
+If I have two test pages, `foo`, which links to `bar`, then (on the `foo`
+page):
+
+ * backlink(foo) lists 'bar'
+ * backlink(.) lists nothing
+
+tested with 3.20120109.
+
+— [[Jon]]
+
+> The attached patch should fix it:
+
+>> [[applied|done]] thanks --[[Joey]] 
+
+    From 30512ac5f6a724bafb1095ab246e0648999f7b6c Mon Sep 17 00:00:00 2001
+    From: Giuseppe Bilotta <giuseppe.bilotta@gmail.com>
+    Date: Fri, 13 Jan 2012 11:02:11 +0100
+    Subject: [PATCH] backlink(.) should behave like backlink(<current page>)
+    
+    Since commit c4d4cad3befbbd444d094cbeb0b6ebba3910a025, the single dot in
+    a pagespec can be used to mean the current page. While this worked
+    correctly in link() it didn't work in backlink(). Fix this by explicitly
+    checking the testpage in backlink against . and replacing it with the
+    current location if necessary.
+    ---
+     IkiWiki.pm |   10 ++++++++--
+     1 files changed, 8 insertions(+), 2 deletions(-)
+    
+    diff --git a/IkiWiki.pm b/IkiWiki.pm
+    index 08e242a..bc56501 100644
+    --- a/IkiWiki.pm
+    +++ b/IkiWiki.pm
+    @@ -2647,8 +2647,14 @@ sub match_link ($$;@) {
+     }
+     
+     sub match_backlink ($$;@) {
+    -	my $ret=match_link($_[1], $_[0], @_);
+    -	$ret->influences($_[1] => $IkiWiki::DEPEND_LINKS);
+    +	my $page=shift;
+    +	my $testpage=shift;
+    +	my %params=@_;
+    +	if ($testpage eq '.') {
+    +		$testpage = $params{'location'}
+    +	}
+    +	my $ret=match_link($testpage, $page, @_);
+    +	$ret->influences($testpage => $IkiWiki::DEPEND_LINKS);
+     	return $ret;
+     }
+     
+    -- 
+    1.7.8.rc2.253.gdbf3
+
+
+> (you need to re-make IkiWiki for it to work)

@@ -1,0 +1,12 @@
+When renaming a page here, ikiwiki destroyed unrelated links from unrelated pages. You can see the effect [here](http://mesh.openisp.ca/recentchanges/#diff-dc8dfa96efd3a4d649f571c3aa776f20b3ce0131), or by checking out the git tree (`git://mesh.openisp.ca/
+`) and looking at commit `dc8dfa96efd3a4d649f571c3aa776f20b3ce0131`.
+
+The renamed page was `configuration/bat-hosts` to `configuration/batman/bat-hosts` and the deleted links were ``\[[AUR | https://aur.archlinux.org/]]` and `\[[CHANGELOG|http://svn.dd-wrt.com:8000/browser/src/router/batman-adv/CHANGELOG]]`. --[[anarcat]]
+
+> <del>Nevermind that, that commit was unrelated to the rename and probably an operator error.</del> - No, actually, I just reproduced this again - see [another example](http://mesh.openisp.ca/recentchanges/#diff-d67dc2f0fdc149b13122fd6cba887a01c693e949).
+
+>> Looks like these all involve the wacky wikilink form that includes an
+>> external url in the link. Fixed rename code to know about those.
+>> [[done]] --[[Joey]]
+
+>>> Phew!!! Thanks a *lot* for that one, it was really annoying! :) --[[anarcat]]

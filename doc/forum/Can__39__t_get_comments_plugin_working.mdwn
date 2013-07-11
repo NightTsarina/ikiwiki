@@ -1,0 +1,16 @@
+I feel like I must be missing something.
+
+My blog is based on Ikiwiki, and uses /yyyy/mm/dd/title/ for blog posts.
+Because I use the plugin that generates index pages for subdirectories, I
+have to use /????/??/??/* to identify posts and avoid missing the index
+pages for years, months and days.
+
+I've enabled the comments plugin, but no matter what I do, I can't seem to make the comment form appear on my posts. I've removed the entire site and have rebuilt. I've set the pagespec to /????/??/??/* and ./????/??/??/*, but neither seems to work. I don't see any output, or anything else to indicate that pages aren't working.
+
+Are there any other plugins that need to be enabled for this to work? I think I've locked things down such that anonymous users can't edit by enabling signinedit and setting a lock, but this may be blocking the ability to comment (though I don't recall seeing anything in the docs about needing additional plugins.)
+
+> Just use '????/??/??/*' , and it will work.
+> [[Pagespecs|ikiwiki/pagespec]] are automatically matched absolute to the
+> top of the site, and adding a leading "/" is not necessary and will 
+> make the PageSpec not match. (And the relative PageSpec with "./" is
+> not right in this case either). --[[Joey]] 

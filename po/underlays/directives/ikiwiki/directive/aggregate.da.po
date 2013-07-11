@@ -1,0 +1,150 @@
+# Danish translation of directives/ikiwiki/directive/aggregrate page for ikiwiki.
+# Copyright (C) 2008-2009 Jonas Smedegaard <dr@jones.dk>
+# This file is distributed under the same license as the ikiwiki package.
+# Jonas Smedegaard <dr@jones.dk>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki 3.15\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
+"PO-Revision-Date: 2009-07-23 00:06+0200\n"
+"Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#. type: Plain text
+msgid ""
+"The `aggregate` directive is supplied by the [[!iki plugins/aggregate "
+"desc=aggregate]] plugin.  This plugin requires extra setup, specifically, a "
+"cron job. See the plugin's documentation for details."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"This directive allows content from other feeds to be aggregated into the "
+"wiki.  Aggregate a feed as follows:"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!aggregate name=\"example blog\" dir=\"example\"\n"
+"\tfeedurl=\"http://example.com/index.rss\"\n"
+"\turl=\"http://example.com/\" updateinterval=\"15\"]]\n"
+msgstr ""
+"\t\\[[!aggregate name=\"eksempel blog\" dir=\"eksempel\"\n"
+"\tfeedurl=\"http://eksempel.dk/index.rss\"\n"
+"\turl=\"http://eksempel.dk/\" updateinterval=\"15\"]]\n"
+
+#. type: Plain text
+msgid ""
+"That example aggregates posts from the specified RSS feed, updating no more "
+"frequently than once every 15 minutes (though possibly less frequently, if "
+"the cron job runs less frequently than that), and puts a page per post under "
+"the example/ directory in the wiki."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"You can then use ikiwiki's [[inline]] directive to create a blog of one or "
+"more aggregated feeds. For example:"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!inline pages=\"internal(example/*)\"]]\n"
+msgstr "\t\\[[!inline pages=\"internal(eksempel/*)\"]]\n"
+
+#. type: Plain text
+msgid ""
+"Note the use of `internal()` in the [[ikiwiki/PageSpec]] to match aggregated "
+"pages. By default, aggregated pages are internal pages, which prevents them "
+"from showing up directly in the wiki, and so this special [[PageSpec]] is "
+"needed to match them."
+msgstr ""
+
+#. type: Title ##
+#, no-wrap
+msgid "usage"
+msgstr "brug"
+
+#. type: Plain text
+msgid ""
+"Here are descriptions of all the supported parameters to the `aggregate` "
+"directive:"
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`name` - A name for the feed. Each feed must have a unique name.  Required."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`url` - The url to the web page for the feed that's being aggregated.  "
+"Required."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`dir` - The directory in the wiki where pages should be saved. Optional, if "
+"not specified, the directory is based on the name of the feed."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`feedurl` - The url to the feed. Optional, if it's not specified ikiwiki "
+"will look for feeds on the `url`. RSS and atom feeds are supported."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`updateinterval` - How often to check for new posts, in minutes. Default is "
+"15 minutes."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`expireage` - Expire old items from this feed if they are older than a "
+"specified number of days. Default is to never expire on age."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`expirecount` - Expire old items from this feed if there are more than the "
+"specified number total. Oldest items will be expired first. Default is to "
+"never expire on count."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`tag` - A tag to tag each post from the feed with. A good tag to use is the "
+"name of the feed. Can be repeated multiple times. The [[tag]] plugin must be "
+"enabled for this to work."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`template` - Template to use for creating the aggregated pages. Defaults to "
+"aggregatepost."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"Note that even if you are using subversion or another revision control "
+"system, pages created by aggregation will *not* be checked into revision "
+"control."
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

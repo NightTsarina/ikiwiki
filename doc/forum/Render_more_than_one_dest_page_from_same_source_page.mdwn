@@ -1,0 +1,51 @@
+Is it possible to render more than one destination page from the same source page?
+That is, same source, slightly different presentation at the other end, needing a different output file.
+
+> It's possible to render more than one output _file_ from a given source
+> page. See, for example, the inline plugin's generation of rss files.
+> This is done by calling `will_render()` and using `writefile()` to
+> generate the additional files. Probably in a format hook if you want
+> to generate html files.
+
+>> Thanks for the tip, I'll take a look at that. -- [[KathrynAndersen]]
+ 
+> It's not possible for one source file to represent multiple wiki pages.
+> There is a 1:1 mapping between source filenames and page names. The
+> difference between wiki pages and output files is that you can use
+> wikilinks to link to wiki pages, etc. --[[Joey]] 
+
+I have two problems that would be solved by being able to do this.
+
+[[!toc startlevel=2]]
+
+##"full" and "print" versions of a page.
+
+One has a page "foo", which is rendered into foo.html.
+One also wants a foo-print.html page, which uses "page-print.tmpl" rather than "page.tmpl" as its template.
+
+I want to do this for every page on the site, automatically, so it isn't feasible to do it by hand.
+
+> Did you know that ikiwiki's `style.css` arranges for pages to display
+> differently when printed out? Things like the Action bar are hidden in
+> printouts (search for `@media print`). So I don't see a reason to need
+> whole files for printing when you can use these style sheet tricks.
+> --[[Joey]] 
+
+>>Fair enough. --[[KathrynAndersen]]
+
+##"en" and "en-us" versions of a page.
+
+My site is in non-US English.  However, I want US-English people to find my site when they search for it when they use US spelling on certain search terms (such as "optimise" versus "optimize").  This requires a (crude) US-English version of the site where the spellings are changed automatically, and the LANG is "en-us" rather than "en".  (No, don't tell me to use keywords; Google ignores keywords and has for a number of years).
+
+So I want the page "foo" to render to "foo.en.html" and "foo.en-us.html" where the content is the same, just some automated word-substitution applied before foo.en-us.html is written.  And do this for every page on the site.
+
+I can't do this with the "po" plugin, as it considers "en-us" not to be a valid language.  And the "po" plugin is probably overkill for what I want anyway.
+
+But I'm not sure how to achieve the result I need.
+
+-- [[KathrynAndersen]]
+
+> Sounds like this could be considered a single page that generates two
+> html files, so could be handled per above. --[[Joey]] 
+
+>>Thanks! --[[KathrynAndersen]]

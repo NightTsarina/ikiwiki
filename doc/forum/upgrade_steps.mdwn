@@ -1,0 +1,147 @@
+[[!meta date="2007-08-27 21:52:18 +0000"]]
+
+I upgrades from 1.40  to 2.6.1. I ran "ikiwiki --setup" using my existing ikiwiki.setup configuration.
+I had many errors like:
+
+    /home/bsdwiki/www/wiki/wikilink/index.html independently created, not overwriting with version from wikilink
+    BEGIN failed--compilation aborted at (eval 5) line 129.
+
+and:
+
+    failed renaming /home/bsdwiki/www/wiki/smileys.ikiwiki-new to /home/bsdwiki/www/wiki/smileys: Is a directory
+    BEGIN failed--compilation aborted at (eval 5) line 129.
+
+Probably about six errors like this. I worked around this by removing the files and directories it complained about.
+Finally it finished.
+
+> As of version 2.0, ikiwiki enables usedirs by default. See
+> [[tips/switching_to_usedirs]] for details. --[[Joey]]
+
+>> I read the config wrong. I was thinking that it showed the defaults even though commented out
+>> (like ssh configs do). I fixed that part. --JeremyReed
+
+My next problem was that ikiwiki start letting me edit without any password authentication. It used to prompt
+me for a password but now just goes right into the "editing" mode.
+The release notes for 2.0 say password auth is still on by default.
+
+> It sounds like you have the anonok plugin enabled?
+
+>> Where is the default documented? My config doesn't have it uncommented.
+
+The third problem is that when editing my textbox is empty -- no content.
+
+This is using my custom rcs.pm which has been used thousands of times.
+
+> Have you rebuilt the cgi wrapper since you upgraded ikiwiki? AFAIK I
+> fixed a bug that could result in the edit box always being empty back in
+> version 2.3. The only other way it could happen is if ikiwiki does not
+> have saved state about the page that it's editing (in .ikiwiki/index).
+
+>> Rebuilt it several times. Now that I think of it, I think my early problem of having
+>> no content in the textbox was before I rebuilt the cgi. And after I rebuilt the whole webpage was empty.
+
+Now I regenerated my ikiwiki.cgi again (no change to my configuration,
+and I just get an empty HTML page when attempting editing or "create".
+
+> If the page is completly empty then ikiwiki is crashing before it can
+> output anything, though this seems unlikely. Check the webserver logs.
+
+Now I see it created directories for my data. I fixed that by setting 
+usedirs (I see that is in the release notes for 2.0) and rerunning ikiwiki --setup
+but I still have empty pages for editing (no textbox no html at all).
+
+> Is IkiWiki crashing? If so, it would probably leave error text in the apache logs. --[[TaylorKillian]]
+
+>> Not using apache. Nothing useful in logs other thn the HTTP return codes are "0" and bytes is "-"
+>> on the empty ikiwiki.cgi output (should say " 200 " followed by bytes).
+
+>>> You need to either figure out what your web server does with stderr
+>>> from cgi programs, or run ikiwiki.cgi at the command line with an
+>>> appropriate environment so it thinks it's being called from a web
+>>> server, so you can see how it's failing. --[[Joey]]
+
+(I am posting this now, but will do some research and post some more.)
+
+Is there any webpage with upgrade steps?
+
+> Users are expected to read [[news]], which points out any incompatible
+> changes or cases where manual action is needed.
+
+>> I read it but read the usedirs option wrong :(.
+>> Also it appears to be missing the news from between 1.40 to 2.0 unless they dont' exist.
+>> If they do exist maybe they have release notes I need?
+
+>>> All the old ones are in the NEWS file. --[[Joey]]
+
+--JeremyReed
+
+My followup: I used a new ikiwiki.setup based on the latest version. But no changes for me.
+
+Also I forgot to mention that do=recentchanges works good for me. It uses my 
+rcs_recentchanges in my rcs perl module.
+
+The do=prefs does nothing though -- just a blank webpage.
+
+> You need to figure out why ikiwiki is crashing. The webserver logs should
+> tell you.
+
+I also set verbose => 1 and running ikiwiki --setup was verbose, but no changes in running CGI.
+I was hoping for some output.
+
+I am guessing that my rcs perl module stopped working on the upgrade. I didn't notice any release notes
+on changes to revision control modules. Has something changed? I will also look.
+
+> No, the rcs interface has not needed to change in a long time. Also,
+> nothing is done with the rcs for do=prefs.
+
+>> Thanks. I also checked differences between 1.40 Rcs plugins and didn't notice anything significant.
+
+--JeremyReed
+
+Another Followup: I created a new ikiwiki configuration and did the --setup to 
+create an entirely different website. I have same problem there. No prompt for password
+and empty webpage when using the cgi.
+I never upgraded any perl modules so maybe a new perl module is required but I don't see any errors so I don't know.
+
+The only errors I see when building and installing ikiwiki are:
+
+    Can't exec "otl2html": No such file or directory at IkiWiki/Plugin/otl.pm line 66.
+
+    gettext 0.14 too old, not updating the pot file
+
+I don't use GNU gettext on here.
+
+I may need to revert back to my old ikiwiki install which has been used to thousands of times (with around
+1000 rcs commits via ikiwiki).
+
+--JeremyReed
+
+I downgraded to version 1.40 (that was what I had before I wrote wrong above).
+Now ikiwiki is working for me again (but using 1.40). I shouldn't have tested on production system :)
+
+--JeremyReed
+
+I am back. On a different system, I installed ikiwiki 2.6.1. Same problem -- blank CGI webpage.
+
+So I manually ran with:
+
+    REQUEST_METHOD=GET QUERY_STRING='do=create&page=jcr' kiwiki.cgi
+
+And clearly saw the error:
+
+    [IkiWiki::main] Fatal: Bad template engine CGI::FormBuilder::Template::div: Can't locate CGI/FormBuilder/Template/div.pm
+
+So I found my version was too old and 3.05 is the first to provide "Div" support. I upgraded my p5-CGI-FormBuilder to 3.0501.
+And ikiwiki CGI started working for me.
+
+The Ikiwiki docs about this requirement got removed in Revision 4367. There should be a page that lists the requirements.
+(I guess I could have used the debian/control file.)
+
+> There is a page, [[install]] documents that 3.05 is needed.
+
+>> Sorry, I missed that. With hundreds of wikipages it is hard to read all of them.
+>> I am updating the download page now to link to it.
+
+I am now using ikiwiki 2.6.1 on my testing system.
+
+--JeremyReed

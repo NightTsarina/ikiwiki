@@ -1,0 +1,151 @@
+A couple of suggestions for improving the usefulness of pagespecs:
+
+* @ to match [^/]* (i.e. all pages exactly one level below this one)
+* initial ./ to mean "from the page the pagespec is running from".
+  This would require some architectural changes and a change to the
+  interface for pagespec_match. What do you think? I have
+  lots of pages a/b/c.mdwn that inline "a/b/c/*".
+
+--Ethan
+
+> I want this too, so that the [[examples]] can use pagespecs that don't
+> have to be changed when the pages are moved around. I don't know how I
+> feel about the "@" thing, but "./" seems good. I take it you've looked at
+> how to implement it?
+>
+> It's worth mentioning that there's a bit of an inconsistency; wikilinks
+> match relative by default and absolute if prefixed with a "/", while
+> pagespecs match absolute by default. It would be nice to clear up that
+> inconsistency somehow, it's on my little list of things in ikiwiki that
+> arn't ideal. :-) --[[Joey]]
+
+I've looked at how to implement "./", yes, and I was a little hesitant
+to disturb the elegant implementation of pagespecs as it is now. That's 
+why I wrote this todo item rather than just a patch. :) As I see it,
+the simplest thing to do is check globs when building the pagespec 
+expression and translate "./foo" to "$from.'/foo'" in the resulting
+expression, and then add the $from paramater to pagespec_match. This does
+require an API change for all plugins which use pagespecs but hopefully
+it should be minor. I will work on a patch tomorrow.
+
+My use case for "@" (which is kind of a crummy symbol, but whatever) is
+my [projects page](http://www.betacantrips.com/projects/). I want to inline 
+"summary" or "introduction" pages that are exactly one level below the 
+inlining page, but not tarballs or other junk that might be in 
+subdirectories. (The issue is confounded here because of my index.mdwn 
+patch, but the principle is the same.) I chose "@" because it's similar in 
+physical shape to "*" but enclosed, suggesting limitations. I also thought
+it would be useful in simplifying hacks like in [[plugins/map]] but I see
+now that I was mistaken.. "four or fewer levels deep" would be 
+"@ or @/@ or @/@/@ or @/@/@/@". Well, I think it has a certain appeal but
+I can see why it might not be much of an improvement. :) --Ethan
+
+> Seems to me that ".." would be the natural thing to use, not "@". --[[Joey]]
+
+>> I don't understand.. "a/b/.." matches a/b/c but not a/b/c/d ? That doesn't 
+>> seem natural to me at all. --Ethan
+
+>>> Ah.. in that case, why not use "a/b/* and !a/b/*/*" ? No need for a new
+>>> symbol. --[[Joey]]
+
+>>>> I know it's not necessary, but it would be helpful. --Ethan
+
+>>>>> I don't see the need for a new syntax since it's only a little long
+>>>>> using the old one. And of course even that can now be shortened: 
+>>>>> "./* and !./*/*" --[[Joey]]
+
+OK, I took a shot at implementing the changes. I was thinking about making
+pagespecs relative by default but I couldn't decide whether page
+`foo/bar` inlining `*` should match `foo/bar/*` or `foo/*`.
+So I punted and left things as absolute, with `./*` matching
+`foo/bar/*`, which I think is pretty clear.
+The patch is at [ikidev](http://ikidev.betacantrips.com/patches/pagespec_enhancements.patch)
+and you can see it work at 
+[this page](http://ikidev.betacantrips.com/one/two/three/index.html) or
+[this page](http://ikidev.betacantrips.com/one/two/three/princess.html) --Ethan
+
+> Nice patch, though I see the following problems with it:
+> * The sole pagespec_match in IkiWiki::Render probably should have `$p`
+>   as its third parameter. This will allow add_depends to add a
+>   dependency on a pagespec that matches relative to the page. I made this
+>   changes and it seems to work, new pages are noticed in updates.
+
+>> OK, word.
+
+> * `! $from` fails to match pages named "0" :-)
+
+>> I don't understand. How did you even get $from into the 
+>> translated pagespec?
+
+> * '/./ matches any letter, not just "." :-) :-)
+
+>> Oof, thanks for catching that.
+
+> * One other major problem. If you look at the doc/examples/blog/index.mdwn
+>   I changed it to use relative globs like "./posts/*", but they didn't work,
+>   because it looked for examples/blog/indexposts/* instead of
+>   examples/blog/index/posts/*. And, of course, what I really expected it to
+>   look for was examples/blog/posts/*. I think you may have made the wrong
+>   choice about that, so I changed it to go the other way. What do you think?
+
+>> I could have sworn I made a change like that -- I was gonna make a call to
+>> basename() or something .. wait, I might have decided not to, because it 
+>> would interfere with my index patch. Yeah, I guess my code was wrong.
+>> Don't "nice patches" usually work? :) My test cases were mostly "./*",
+>> so it slipped under the radar.
+
+>> As for what it should have done, that's much harder! My gut feeling is that
+>> "a/b/c.mdwn" inlining `./*` wants `a/b/c/*` and not `a/b/*`, and this is 
+>> what I programmed for. I also feel that "a/b/c" inlining `./d/*` could go
+>> either way. Ideally we'd check for both, maybe using bestlink?
+
+>> The issue might be confounded some by your use of an index page, and 
+>> ikiwiki doesn't have good support for those yet :) .
+>> I think ideally your index page would be treated as inlining from 
+>> examples/blog/. To resolve this issue we should consider, for example:
+>> clothes/pants inlines `./jeans/*` -- probably means clothes/pants/jeans
+>> vacation/bermuda/blog inlines `./pics/*` -- probably vacation/bermuda/pics
+
+>>> What strikes me about your examples is that the "right thing" is
+>>> utterly contect dependent. Unfortunatly, I don't think that using
+>>> bestlink inside pagespec is possible. bestlinks change as pages are
+>>> added/removed, and dealing with the matches of a pagespec changing when
+>>> some page that is added or removed seems Hard.
+>>>
+>>> Since it seems we have to arbitrarily pick one of the two behaviors, I
+>>> prefer the one I picked for two reasons:
+>>> 1. The other behavior can be obtained easily from it, for example,
+>>>    use ./c/* to limit the matches to that subdir.
+>>> 2. The common case is a bunch of pages in a single directory, not lots
+>>>    of deeply nested subdirs.
+>>> --[[Joey]]
+
+>>>> Context-dependence was my conclusion too. My feeling is that inlining
+>>>> in a subdirectory of the current page is more common, but I don't 
+>>>> really know. However, I think the changes as written should work OK
+>>>> with my index patch and allowing inlining from a/b/c/, so I'm
+>>>> satisfied. --Ethan
+
+> I've committed support for ./ to ikiwiki now, based on your patch.
+> [[todo/done]]
+> --[[Joey]]
+
+>> Cool! I haven't played with it yet, but looking over the patch, I see that
+>> you added another parameter to match_glob, which is an approach that didn't
+>> occur to me. I like it, it's more flexible. --Ethan
+
+One last thing -- could you either change:
+
+                $from=~s!/?[^/]+$!!;
+
+to 
+
+                $from=~s!/?[^/]*$!!;
+
+Or could you put in:
+
+                $glob =~ s!//!/!g;
+
+somewhere? Or should I just add this to my index patch? --Ethan
+
+> If it's specific to your index patch, let's put it in there. --[[Joey]]

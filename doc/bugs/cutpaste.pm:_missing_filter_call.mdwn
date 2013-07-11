@@ -1,0 +1,55 @@
+Consider this:
+
+    $ wget http://schwinge.homeip.net/~thomas/tmp/cutpaste_filter.tar.bz2
+    $ wget http://schwinge.homeip.net/~thomas/tmp/cutpaste_filter.patch
+    
+    $ tar -xj < cutpaste_filter.tar.bz2
+    $ cd cutpaste_filter/
+    $ ./render_locally
+    $ find "$PWD".rendered/ -type f -print0 | xargs -0 grep -H -E 'FOO|BAR'
+    [notice one FOO in there]
+    $ rm -rf .ikiwiki "$PWD".rendered
+    
+    $ cp /usr/share/perl5/IkiWiki/Plugin/cutpaste.pm .library/IkiWiki/Plugin/
+    $ patch -p0 < ../cutpaste_filter.patch
+    $ ./render_locally
+    $ find "$PWD".rendered/ -type f -print0 | xargs -0 grep -H -E 'FOO|BAR'
+    [correct; notice no more FOO]
+
+I guess this needs a general audit -- there are other places where `preprocess`
+is being doing without `filter`ing first, for example in the same file, `copy`
+function.
+
+--[[tschwinge]]
+
+> So, in English, page text inside a cut directive will not be filtered.
+> Because the cut directive takes the text during the scan pass, before
+> filtering happens.
+> 
+> Commit 192ce7a238af9021b0fd6dd571f22409af81ebaf and
+> [[bugs/po_vs_templates]] has to do with this.
+> There I decided that filter hooks should *only* act on the complete
+> text of a page. 
+> 
+> I also suggested that anything that wants to reliably
+> s/FOO/BAR/ should probably use a sanitize hook, not a filter hook.
+> I think that would make sense in this example.
+> 
+> I don't see any way to make cut text be filtered while satisfying these
+> constraints, without removing cutpaste's ability to have forward pastes
+> of text cut laster in the page. (That does seems like an increasingly
+> bad idea..) --[[Joey]]
+
+> > OK -- so the FOO/BAR thing was only a very stripped-down example, of
+> > course, and the real thing is being observed with the
+> > *[[plugins/contrib/getfield]]* plugin.  This one needs to run *before*
+> > `preprocess`ing, for its `{{$page#field}}` syntax is (a) meant to be usable
+> > inside ikiwiki directives, and (b) the field values are meant to still be
+> > `preprocess`ed before being embedded.  That's why it's using the `filter`
+> > hook instead of `sanitize`.
+
+> > Would adding another kind of hook be a way to fix this?  My idea is that
+> > *cut* (and others) would then take their data not during `scan`ning, but
+> > *after* `filter`ing.
+
+> > --[[tschwinge]]

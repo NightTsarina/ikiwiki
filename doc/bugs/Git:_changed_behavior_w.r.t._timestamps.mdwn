@@ -1,0 +1,214 @@
+After some months, I just updated my local ikiwiki sources, and rebuilt
+the Hurd web pages, <http://git.savannah.gnu.org/cgit/hurd/web.git/>.
+
+I was confused, having switched to the new automatic (thanks!) --gettime
+mechanism, why on some pages the timestamps had changed compared to my
+previous use of --getctime and setting files' mtimes (using a script)
+according to the last Git commit.  For example:
+
+community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.html
+
+old:
+
+    Last edited <span class="date">2008-09-11 18:11:53 UTC</span>
+    <!-- Created <span class="date">2008-09-11 17:47:08 UTC</span> -->
+
+new:
+
+    Last edited <span class="date">2008-09-11 18:12:22 UTC</span>
+    <!-- Created <span class="date">2008-09-11 17:47:50 UTC</span> -->
+
+
+I had a look at what git.pm is doing, and began to manually replay /
+investigate:
+
+    $ git log --pretty=fuller --name-only --relative -- community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+    commit 8f1b97bfe45b2f173e3a7d55dee226a9e289a695
+    Author:     arnebab <arne_bab@web.de>
+    AuthorDate: Thu Sep 11 20:11:53 2008 +0200
+    Commit:     arnebab <arne_bab@web.de>
+    CommitDate: Thu Sep 11 20:11:53 2008 +0200
+    
+        Added a link to the X.org guide in this wiki.
+    
+    community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+    
+    commit 3ef8b7d80d80572c436c4c60c71879bc74409816
+    Author:     arnebab <arne_bab@web.de>
+    AuthorDate: Thu Sep 11 19:47:08 2008 +0200
+    Commit:     arnebab <arne_bab@web.de>
+    CommitDate: Thu Sep 11 19:47:08 2008 +0200
+    
+        Minor update on the enty trying to get X working -> 'watch this place for updates'
+    
+    community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+
+OK, these are my old dates.
+
+    $ git log --pretty=format:%ci --name-only --relative -- community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn 
+    2008-09-11 20:11:53 +0200
+    community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+    
+    2008-09-11 19:47:08 +0200
+    community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+    
+    $ git log --pretty=format:%ct --name-only --relative -- community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn 
+    1221156713
+    community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+    
+    1221155228
+    community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+    
+    $ date -d @1221156713
+    Thu Sep 11 18:11:53 UTC 2008
+    $ date -d @1221155228
+    Thu Sep 11 17:47:08 UTC 2008
+
+That's all consistent.
+
+
+But:
+
+    $ perl -le 'use Storable; my $index=Storable::retrieve("indexdb"); use Data::Dumper; print Dumper $index'
+    [...]
+                          'community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn' => {
+                                                                                        'ctime' => '1221155270',
+                                                                                        'dest' => [
+                                                                                                    'community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.html'
+                                                                                                  ],
+                                                                                        'typedlinks' => {
+                                                                                                          'tag' => {}
+                                                                                                        },
+                                                                                        'mtime' => 1221156742,
+                                                                                        'depends_simple' => {
+                                                                                                              'sidebar' => 1
+                                                                                                            },
+                                                                                        'links' => [
+                                                                                                     'community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x/discussion',
+                                                                                                     'Hurd/DebianXorg'
+                                                                                                   ],
+                                                                                        'state' => {
+    [...]
+
+    $ date -d @1221156742
+    Thu Sep 11 18:12:22 UTC 2008
+    $ date -d @1221155270
+    Thu Sep 11 17:47:50 UTC 2008
+
+That's different, and it matches what the new ikiwiki writes into the
+HTML file.
+
+
+Back to Git again, this time without specifying the file:
+
+    $ git log --pretty=format:%ct --name-only --relative
+    [...]
+    1221255713
+    1221255655
+    unsorted/PortingIssues.mdwn
+    
+    1221156742 [Thu Sep 11 18:12:22 UTC 2008]
+    1221156713 [Thu Sep 11 18:11:53 UTC 2008]
+    community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+    
+    1221156267
+    1221156235
+    index.mdwn
+    
+    1221156122
+    1221156091
+    index.mdwn
+    
+    1221155942
+    1221155910
+    index.mdwn
+    
+    1221155270 [Thu Sep 11 17:47:50 UTC 2008]
+    1221155228 [Thu Sep 11 17:47:08 UTC 2008]
+    community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+    
+    1221154986
+    community/gsoc.mdwn
+    community/gsoc/project_ideas.mdwn
+    
+    1221147244
+    whatsnew.html
+    [...]
+
+Aha!
+
+... and some more detail:
+
+    $ git log --pretty=fuller --name-only --relative
+    [...]
+    commit e4e89e1683012c879012522105a3471a00714613
+    Author:     Samuel Thibault <samuel.thibault@ens-lyon.org>
+    AuthorDate: Fri Sep 12 23:40:55 2008 +0200
+    Commit:     Samuel Thibault <samuel.thibault@ens-lyon.org>
+    CommitDate: Fri Sep 12 23:40:55 2008 +0200
+    
+        MSG_NOSIGNAL and IPV6_PKTINFO got fixed
+    
+    unsorted/PortingIssues.mdwn
+    
+    commit c389fae98dff86527be62f895ff7272e4ab1932c
+    Merge: 0339e3e 8f1b97b
+    Author:     GNU Hurd wiki engine <web-hurd@gnu.org>
+    AuthorDate: Thu Sep 11 18:12:22 2008 +0000
+    Commit:     GNU Hurd wiki engine <web-hurd@gnu.org>
+    CommitDate: Thu Sep 11 18:12:22 2008 +0000
+    
+        Merge branch 'master' of wiki@192.168.10.50:wiki
+    
+    commit 8f1b97bfe45b2f173e3a7d55dee226a9e289a695
+    Author:     arnebab <arne_bab@web.de>
+    AuthorDate: Thu Sep 11 20:11:53 2008 +0200
+    Commit:     arnebab <arne_bab@web.de>
+    CommitDate: Thu Sep 11 20:11:53 2008 +0200
+    
+        Added a link to the X.org guide in this wiki.
+    
+    community/weblogs/ArneBab/2008-08-02-gnu_hurd_and_x.mdwn
+    [...]
+
+So, merges are involved there.
+
+What (the new) ikiwiki code does, is use the timestamp when the merge was
+done instead of the timestamp when the commit was done.  Is this
+intentional?  Otherwise I could supply a patch.
+
+--[[tschwinge]]
+
+> In order to be nice and fast, the git backend runs git log once
+> and records data for all files. Rather than looking at the log for a
+> given file. So amoung other things, it does not follow renames.
+> 
+> AFAICS, git log only shows merges modifying files if it was a conflicted
+> merge. As the file is then actually modified to resolve the merge
+> I think it makes sense to count the merge as the last modification in
+> that case. --[[Joey]] 
+
+>> That'd be reasonable, but `git log` will also show merges that are not
+>> conflicting (as in my case).
+
+>>> Actually when displaying a merge, `git log --stat` only lists files that
+>>> were actually modified in a new way as part of the merge resolution.
+>>> Ie, if the merge resolution only joins together some of the parent
+>>> hunks, the file is not listed as having been modified.
+>>>
+>>> So, no, ikiwiki's use of git log will not show files modified in
+>>> non-conflicting merges.
+>>> --[[Joey]]
+
+>> Yet, I'm not totally disagreeing with your choice.  With this `git
+>> log` invocation, you're not able to tell from its output whether a
+>> conflict was resolved or not.
+
+>> Also, it's a bit like the *should we use the **author timestamp** or
+>> **commit timestamp*** discussion.  Your code will always use the
+>> latest timestamp.
+
+>> I guess I'll get my head wrapped around that, and it's fine, so this is
+>> [[done]].
+
+>> --[[tschwinge]]

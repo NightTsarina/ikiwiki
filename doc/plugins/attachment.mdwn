@@ -1,0 +1,27 @@
+[[!template id=plugin name=attachment core=0 author="[[Joey]]"]]
+[[!tag type/web]]
+
+This plugin allows files to be uploaded to the wiki over the web.
+
+For each page `foo`, files in the subdirectory `foo/` are treated as
+attachments of that page. Attachments can be uploaded and managed as
+part of the interface for editing a page.
+
+Warning: Do not enable this plugin on publically editable wikis, unless you
+take care to lock down the types and sizes of files that can be uploaded.
+Bear in mind that if you let anyone upload a particular kind of file
+("*.mp3" files, say), then someone can abuse your wiki in at least three ways:
+
+1. By uploading many mp3 files, wasting your disk space.
+2. By uploading mp3 files that attempt to exploit security holes
+   in web browsers or other players.
+3. By uploading files that claim to be mp3 files, but are really some 
+   other kind of file. Some web browsers may display a `foo.mp3` that
+   contains html as a web page; including running any malicious javascript
+   embedded in that page.
+
+If you enable this plugin, be sure to lock it down, via the
+`allowed_attachments` setup file option. This is a special 
+[[enhanced_PageSpec|ikiwiki/pagespec/attachment]] using tests provided by
+the [[filecheck]] plugin. That plugin will be automatically enabled when
+this plugin is enabled.

@@ -1,0 +1,115 @@
+[[!tag wishlist]]
+
+HTML::Template is an okay templating kit, but it lacks a lot of powerful
+features and thus makes it rather hard to give an ikiwiki site a consistent
+look. If you browse the templates provided in the tarball, you'll notice that
+more than one of them contain the `<html>` tag, which is unnecessary.
+
+> Note that is no longer true, and I didn't have to do such an intrusive
+> change to fix it either. --[[Joey]]
+
+Maybe it's just me, I also find HTML::Template cumbersome to use, due in part
+to its use of capital letters.
+
+> Its entirely optional use of capital letters? --[[Joey]]
+
+Finally, the software seems unmaintained: the mailing list and searchable
+archives linked from
+<http://html-template.sourceforge.net/html_template.html#frequently%20asked%20questions>
+are broken and the author has not replied to my query in months.
+
+I would love to see ikiwiki use the [Template
+Toolkit](http://template-toolkit.org/) as templating engine.
+
+One major reason for TT is its use of slots, a concept I first encountered
+with Zope Page Templates and never wanted to miss it again. Let me quickly
+illustrate, using the HTML::Template syntax for simplicity. Traditionally,
+templating is done with includes:
+
+    Page A                              Page B
+    <TMPL_INCLUDE header>               <TMPL_INCLUDE header>
+    this is page A                      this is page B
+    <TMPL_INCLUDE footer>               <TMPL_INCLUDE footer>
+
+This involves four pages, and if you mistype "footer" on page B,
+it'll be broken in potentially subtle ways.
+
+Now look at the approach with slots:
+
+    MainTemplate
+    This is the header
+    <TMPL_SLOT content>
+    This is the footer
+
+    Page A                              Page B
+    <TMPL_USE MainTemplate>             <TMPL_USE MainTemplate>
+      <TMPL_FILL content>                 <TMPL_FILL content>  
+        This is page A                       This is page B  
+      </TMPL_FILL>                        </TMPL_FILL>     
+    </TMPL_USE>                         </TMPL_USE>
+
+As soon as you think about more structure pages with various slots
+to fill, I am sure you can see the appeal of that approach. If not,
+here is some more documentation: <http://wiki.zope.org/ZPT/METALSpecification11>
+
+I would be glad to volunteer time to make this switch happen, such as rewrite
+the templates. I'd prefer not having to touch Perl though...
+
+
+-----
+
+Yes, Template::Toolkit is very powerful. But I think it's somehow overkill for a wiki. HTML::Template can keep things simple, though.  --[weakish](http://weakish.int.eu.org/blog/)
+
+I'd have to agree that Template::Toolkit is overkill and personally I'm not a fan, but it is very popular (there is even a book) and the new version (3) is alleged to be much more nimble than current version.  --[[ajt]]
+
+HTML::Template's HTML-like markup prevents me from editing templates in KompoZer or other WYSIWYG HTML editors.  The editor tries to render the template markup rather than display it verbatim, and large parts of the template become invisible.  A markup syntax that doesn't confuse editors (such as Template::Toolkit's "[% FOO %]") may promote template customization.  The ability to replace the template engine would be within the spirit of ikiwiki's extensibility. --Rocco
+
+> HTML::Template allows the use of `<!-- TMPL_SOMETHING ... -->`
+> instead of `<TMPL_SOMETHING ...>`, see
+> <http://search.cpan.org/~samtregar/HTML-Template-2.6/Template.pm#NOTES>
+> for details.  I used this PERL regexp to convert my own templates:
+> 
+>     s{<\s*(/?TMPL_[A-Z]+)((\s+\w+(=(['"]?)\w+\5)?)+)?\s*/?>}{<!-- $1$2 -->}gi;
+>
+> (Quoting it properly to use from the shell command-line is
+> nightmarish, write a script with it.)
+> --[[RiccardoMurri]]
+
+I agree that being able to replace the template toolkit would be a great piece of modularity, and one I would use. If I could use the slot-based filling and the conditional logic from Template::Toolkit, we could build much more flexible inline and archivepage templates that would look different depending on where in the wiki we use them. Some of this can currently be accomplished with separate templates for each use case and a manual call to the right template in the !inline directive, but this is limited, cumbersome, and makes it difficult to reuse bits of formatting by trapping all of that information in multiple template files. -Ian
+
+> I don't wish HTML::Template to be *replaced* by Template::Toolkit - as
+> others have said above, it's overkill for my needs.  However, I also
+> agree that HTML::Template has its own problems too.  The idea of making
+> the template system modular, with a choice of which backend to use - I
+> really like that idea. It would enable me to use some other template
+> system I like better, such as Text::Template or Text::NeatTemplate. But I
+> think it would be a lot of work to implement, though perhaps no more work
+> than making the revision-control backend modular, I guess.  One would
+> need to write an IkiWiki template interface that didn't care what the
+> backend was, and yet is somehow still flexible enough to take advantage
+> of special features of different backends.  There are an *awful lot* of
+> things that use templates - not just the `pagetemplate` and `template`
+> plugins, but a number of others which have specialized templates of their
+> own. -- [[KathrynAndersen]]a
+
+>> A modular template system in ikiwiki is unlikely, as template objects
+>> are part of the API,  notably the `pagetemplate` hook. Unless the other
+>> system has a compatible template object. --[[Joey]] 
+
+>>> I hacked an adapter that exposes the HTML::Template API but uses
+>>> Template::Toolkit for the template rendering.  Very rough, but it
+>>> works: my Wikis compile mostly ok.  The code includes a `.tmpl`
+>>> converter script.  Get it from: <http://github.com/riccardomurri/ikiwiki>
+>>> --[[RiccardoMurri]]
+
+---
+
+>>> I found this thing yesterday:
+>>>
+>>> http://search.cpan.org/~rhandom/Template-Alloy-1.016/lib/Template/Alloy.pod
+>>> I think (hope) this can solve all the problems related to this feature request.
+>>> 
+>>> From the url above:
+>>> "With Template::Alloy you can use your favorite template interface and syntax
+>>> and get features from each of the other major template systems."
+>>> --[[Cstamas]]

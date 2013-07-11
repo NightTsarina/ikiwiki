@@ -1,0 +1,19 @@
+[[!template id=plugin name=txt author="[[Gabriel]]"]]
+[[!tag type/format]]
+
+This plugin makes ikiwiki treat files with names ending in ".txt"
+as wiki pages.
+
+Unlike other [[type/format]] plugins, no formatting of markup in 
+txt files is done; the file contents is displayed to the user as
+pre-formatted text, with html markup characters such as ">" escaped.
+
+The only exceptions are that [[WikiLinks|ikiwiki/WikiLink]] and
+[[directives|ikiwiki/directive]] are still expanded by
+ikiwiki, and that, if the [[!cpan URI::Find]] perl module is installed, URLs
+in the txt file are converted to hyperlinks.
+
+----
+
+As a special case, a file `robots.txt` will be copied intact into the
+`destdir`, as well as creating a wiki page named "robots".

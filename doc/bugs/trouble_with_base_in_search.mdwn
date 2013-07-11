@@ -1,0 +1,60 @@
+For security reasons, one of the sites I'm in charge of uses a Reverse Proxy to grab the content from another machine behind our firewall.
+Let's call the out-facing machine Alfred and the one behind the firewall Betty.
+
+For the static pages, everything is fine.  However, when trying to use the search, all the links break.
+This is because, when Alfred passes the search query on to Betty, the search result has a "base" tag which points to Betty, and all the links to the "found" pages are relative.
+So we have
+
+    <base href="Betty.example.com"/>
+    ...
+    <a href="./path/to/found/page/">path/to/found/page</a>
+
+This breaks things for anyone on Alfred, because Betty is behind a firewall and they can't get there.
+
+What would be better is if it were possible to have a "base" which didn't reference the hostname, and for the "found" links not to be relative.
+Something like this:
+
+    <base href="/"/>
+    ...
+    <a href="/path/to/found/page/">path/to/found/page</a>
+
+The workaround I've come up with is this.
+
+1. Set the "url" in the config to '&nbsp;' (a single space).  It can't be empty because too many things complain if it is.
+2. Patch the search plugin so that it saves an absolute URL rather than a relative one.
+
+Here's a patch:
+
+    diff --git a/IkiWiki/Plugin/search.pm b/IkiWiki/Plugin/search.pm
+    index 3f0b7c9..26c4d46 100644
+    --- a/IkiWiki/Plugin/search.pm
+    +++ b/IkiWiki/Plugin/search.pm
+    @@ -113,7 +113,7 @@ sub indexhtml (@) {
+            }
+            $sample=~s/\n/ /g;
+    
+    -       my $url=urlto($params{destpage}, "");
+    +       my $url=urlto($params{destpage}, undef);
+            if (defined $pagestate{$params{page}}{meta}{permalink}) {
+                    $url=$pagestate{$params{page}}{meta}{permalink}
+            }
+
+It works for me, but it has the odd side-effect of prefixing links with a space.  Fortunately that doesn't seem to break browsers.
+And I'm sure someone else could come up with something better and more general.
+
+--[[KathrynAndersen]]
+
+> The `<base href>` is required to be genuinely absolute (HTML 4.01 §12.4).
+> Have you tried setting `url` to the public-facing URL, i.e. with `alfred`
+> as the hostname? That seems like the cleanest solution to me; if you're
+> one of the few behind the firewall and you access the site via `betty`
+> directly, my HTTP vs. HTTPS cleanup in recent versions should mean that
+> you rarely get redirected to `alfred`, because most URLs are either
+> relative or "local" (start with '/'). --[[smcv]]
+
+>> I did try setting `url` to the "Alfred" machine, but that doesn't seem clean to me at all, since it forces someone to go to Alfred when they started off on Betty.
+>> Even worse, it prevents me from setting up a test environment on, say, Cassandra, because as soon as one tries to search, one goes to Alfred, then Betty, and not back to Cassandra at all.
+>> Hardcoded solutions make me nervous.
+
+>> I suppose what I would like would be to not need to use a `<base href>` in searching at all.
+>> --[[KathrynAndersen]]

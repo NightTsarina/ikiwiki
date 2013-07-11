@@ -1,0 +1,54 @@
+How do I setup an old ikiwiki repository on a new system?
+
+I have a git repository from an old ikiwiki system.
+I reformatted that hard drive, but saved the repository.
+
+I copied it the repository to my new system, which is now the "master" host.
+I installed ikiwiki on the new system.
+
+How do I set up an ikiwiki system using a pre-existing repository (instead of creating a new one)? --[[JosephTurian]]
+
+> Well, if you have:
+> * A git repository of the wiki
+> * A setup file for the wiki
+>
+> Then you should:
+> 
+> 1. Manually set up a bare git repository, and push
+>    your backed up repository to it.
+> 2. `git clone` from the bare git repository to 
+>    recreate the ikiwiki srcdir
+> 3. `git clone` from the bare git repository a second time,
+>    to create a checkout you can manually edit (optional)
+>
+> If you preserved your repository, but not the setup file,
+> the easiest way to make one is probably to run
+> `ikiwiki -dumpsetup` and edit the setup file. --[[Joey]] 
+
+> > I get the following errors after running ikiwiki setup:
+
+    shortcut plugin will not work without shortcuts.mdwn
+    shortcut plugin will not work without shortcuts.mdwn
+    successfully generated /home/turian/public_html/iki/ikiwiki.cgi
+    shortcut plugin will not work without shortcuts.mdwn
+    successfully generated /home/turian/repos/iki.git/hooks/post-update
+    Can't stat /usr/share/ikiwiki/basewiki/../javascript: No such file or directory
+     at /home/turian/utils//lib/perl5/site_perl/5.8.8//IkiWiki/Plugin/autoindex.pm line 60
+    Can't stat /usr/share/ikiwiki/basewiki/../smiley: No such file or directory
+     at /home/turian/utils//lib/perl5/site_perl/5.8.8//IkiWiki/Plugin/autoindex.pm line 60
+    Can't stat /usr/share/ikiwiki/basewiki: No such file or directory
+     at /home/turian/utils//lib/perl5/site_perl/5.8.8//IkiWiki/Plugin/autoindex.pm line 60
+    Can't stat /usr/share/ikiwiki/basewiki/../javascript: No such file or directory
+     at /home/turian/utils//lib/perl5/site_perl/5.8.8//IkiWiki/Render.pm line 320
+    Can't stat /usr/share/ikiwiki/basewiki/../smiley: No such file or directory
+     at /home/turian/utils//lib/perl5/site_perl/5.8.8//IkiWiki/Render.pm line 320
+    Can't stat /usr/share/ikiwiki/basewiki: No such file or directory
+     at /home/turian/utils//lib/perl5/site_perl/5.8.8//IkiWiki/Render.pm line 320
+    internal error: smileys.mdwn cannot be found in /home/turian/iki or underlay
+
+> > How do I resolve these errors? I have my PERL5LIB location set correctly.
+
+>>> Well, that's unrelated to the original question, but
+>>> I guess you should set `underlaydir` in your setup file to
+>>> point to whereever you have installed the basewiki directory.
+>>> --[[Joey]] 

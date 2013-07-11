@@ -1,0 +1,81 @@
+The main problem with more sophisticated RST support is that ikiwiki turns 
+preprocessor directives into raw HTML and reST hates inline HTML.
+inline relies on Markdown's handling of raw HTML, specifically
+that it doesn't wrap paragraph-level `<div>`s in `<p>` tags -- see 
+[[todo/htmlvalidation]]. Other plugins might expect their output to be 
+interpreted in certain ways too -- [[Joey]] mentions toggleable and fortune.
+
+Is [prest][1] the perl version of the reST processor referred to in the text?
+It seems to be reasonably well-maintained to me, and differences between it and
+"standard" reST are pretty minor. A fairly exhaustive list, taken from the 
+prest docs, follows:
+
+[1]: http://search.cpan.org/~nodine/Text-Restructured-0.003024/
+
+An exhaustive list of differences between prest and "standard" reST follows:
+
+* fewer alternatives for bullet lists (only "+", "*" and "-")
+* escaped colons are not allowed in field names
+* RCS keyword processing is only activated on "recognized bibliographic 
+    field names"
+* multiple consecutive blockquotes seperated by attributions may not be allowed 
+    (not sure; text could be interpreted either way)
+* a warning about auto-symbol footnotes is missing (maybe it's not relevant?)
+* colons are allowed within hyperlink reference names
+* inline markup can be nested
+* some directives are missing (epigraph, highlights, pull quote, date) and 
+    some have been added (MathML, code execution (disabled by default), enscript)
+* container directive now uses "class" instead of "classes"
+* csv directive doesn't require csv.py
+* references directive doesn't allow options
+
+There may be a few others; my eyes glazed over. --Ethan
+
+rst support for ikiwiki seems to be on hold. rst is much more elegant
+than markdown in my opinion, so I tried it out in ikiwiki. I found out
+in other places that some directives work just fine, like [[meta]] and
+[[tag]], others work fine if you wrap them in `.. raw::`, like [[inline]].
+
+But to make a wiki we need [[WikiLinks]]; they can't be escape-inserted or
+such since they are inline elements in the text.. But images work fine in
+rst's syntax.. what about using rst syntax for wikilinks as well?
+Is it possible to inject something into the parser to turn unmached links
+``WikiLink`_` into ikiwiki links? --ulrik
+
+------
+
+Resolving WikiLinks in rst
+==========================
+
+I wanted to look into if we can hook into rst and influence how links are resolved.
+It turns out it is possible, and I have a working WIP for the rst plugin that does this.
+
+My work in progress for `/usr/lib/ikiwiki/plugins/rst` is here: 
+[[todo/Resolve native reStructuredText links to ikiwiki pages]]
+
+It basically matches normal rst links just like ikiwiki would match a wikilink
+if it existed.
+I can't read perl so I haven't found out so much. The plugin successfully registers backlinks using
+`proxy.rpc('add_link', on_page, bestlink)` (since the destination page will be rebuilt to update),
+but the backlinks don't show up.
+
+I converted one of my pages to rst:
+
+Before: <http://kaizer.se/wiki/kupfer-mdwn>  
+After: <http://kaizer.se/wiki/kupfer-rst>  
+
+I need help on a couple of points
+
+* How to fix the backlinks with `add_link`?
+* How to generate NonExistingLinks using the plugin API?
+* Can we include this in ikiwiki's rst if it is not too hairy?
+
+--ulrik
+
+
+----
+
+> The main problem with more sophisticated RST support is that ikiwiki turns 
+preprocessor directives into raw HTML and reST hates inline HTML.
+
+Is it possible for ikiwiki to store preprocessor directives in memory, and replace them with place holders, then do the rst process.  After the rst processing, process the preprocessor directives and replace place holders.  --[[weakish]]

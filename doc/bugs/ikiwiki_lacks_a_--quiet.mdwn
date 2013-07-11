@@ -1,0 +1,29 @@
+When building ikiwiki in the background, having a --quiet which will only
+report errors would be nice. -- RichiH
+
+> Except for building wrappers, and possibly progress cruft output to
+> stderr by git (gag), ikiwiki is quiet by default. --[[Joey]]
+
+>> Correct, which means it's not quite quiet:
+
+    % ikiwiki --setup foo --rebuild
+    generating wrappers..
+    successfully generated foo
+    successfully generated foo
+    rebuilding wiki..
+    scanning [...]
+    [...]
+    building [...]
+    [...]
+    done
+
+Yes, I can simply redirect the output, but an option would be cleaner, imo. -- Richard
+
+> The output above looks like verbose mode output to me (the scanning/building lines, at least).  Check you haven't enabled it in your setup file by accident. I get the following:
+
+    $ ikiwiki --setup setup
+    successfully generated [cgi]
+    successfully generated [post-update]
+    skipping bad filename [...]
+
+> I've written a patch ([[merged|done]]), pull request sent) that fixes the 'generated...' lines. -- [[Jon]]

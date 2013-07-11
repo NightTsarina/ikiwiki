@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use lib '.'; # For use in nonstandard directory, munged by Makefile.
+use IkiWiki;
+use IkiWiki::Setup;
+use Getopt::Long;
+
+sub usage () {
+	die gettext("usage: ikiwiki-calendar [-f] your.setup [pagespec] [startyear [endyear]]"), "\n";
+}
+
+my $force=0;
+GetOptions(
+	"force" => \$force,
+) || usage();
+my $setup=shift		|| usage();
+my $pagespec;
+if (@ARGV && $ARGV[0] !~ /^\d+$/) {
+	$pagespec=shift;
+}
+my $startyear=shift	|| 1900+(localtime(time))[5];
+my $endyear=shift	|| $startyear;
+
+%config=IkiWiki::defaultconfig();
+IkiWiki::Setup::load($setup);
+IkiWiki::loadplugins();
+IkiWiki::checkconfig();
+
+my $archivebase = 'archives';
+$archivebase = $config{archivebase} if defined $config{archivebase};
+
+if (! defined $pagespec) {
+	$pagespec=$config{archive_pagespec} || "*";
+}
+
+sub writearchive ($$;$) {
+	my $template=template(shift);
+	my $year=shift;
+	my $month=shift;
+
+	my $page=defined $month ? "$year/$month" : $year;
+
+	my $pagefile=newpagefile("$archivebase/$page", $config{default_pageext});
+	$template->param(pagespec => $pagespec);
+	$template->param(year => $year);
+	$template->param(month => $month) if defined $month;
+
+	if ($force || ! -e "$config{srcdir}/$pagefile") {
+		writefile($pagefile, $config{srcdir}, $template->output);
+		IkiWiki::rcs_add($pagefile) if $config{rcs};
+	}
+}
+
+foreach my $y ($startyear..$endyear) {
+	writearchive("calendaryear.tmpl", $y);
+	foreach my $m (qw{01 02 03 04 05 06 07 08 09 10 11 12}) {
+		writearchive("calendarmonth.tmpl", $y, $m);
+	}
+}
+
+IkiWiki::rcs_commit_staged(message => gettext("calendar update"))
+	if $config{rcs};
+
+exec("ikiwiki", "-setup", $setup, "-refresh");
+die "failed to run ikiwiki -setup $setup -refresh\n";

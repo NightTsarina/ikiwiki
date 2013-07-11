@@ -1,0 +1,10 @@
+the [[ikiwiki/directive/calendar]] directive is well usable without ikiwiki-calendar (eg for articles about meetings), but in such situations, it might be useful to have page creating links at the days.
+
+a [[!taglink patch]] to address this [[!taglink wishlist]] item is [[attached|incomplete_patch.pl]].
+
+from the new documentation (also in the patch):
+
+> * `newpageformat` - In month mode, if no articles match the query, the value of
+>   `newpageformat` will be used to strformat the date in question. A good value
+>   is `newpageformat="meetings/%Y-%m-%d"`. It might be a good idea to have
+>   `\[[!meta date="<TMPL_VAR name>"]]` in the edittemplate of `meetings/*`

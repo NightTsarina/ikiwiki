@@ -1,0 +1,32 @@
+[[!template id=plugin name=openid core=1 author="[[Joey]]"]]
+[[!tag type/auth]]
+
+This plugin allows users to use their [OpenID](http://openid.net/) to log
+into the wiki.
+
+The plugin needs the [[!cpan Net::OpenID::Consumer]] perl module.
+Version 1.x is needed in order for OpenID v2 to work.
+
+The [[!cpan LWPx::ParanoidAgent]] perl module is used if available, for
+added security. Finally, the [[!cpan Crypt::SSLeay]] perl module is needed
+to support users entering "https" OpenID urls.
+
+This plugin is enabled by default, but can be turned off if you want to
+only use some other form of authentication, such as [[passwordauth]].
+
+## options
+
+These options do not normally need to be set, but can be useful in
+certain setups.
+
+* `openid_realm` can be used to control the scope of the openid request.
+  It defaults to the `cgiurl` (or `openid_cgiurl` if set); only allowing
+  ikiwiki's [[CGI]] to authenticate. If you have multiple ikiwiki instances,
+  or other things using openid on the same site, you may choose to put them
+  all in the same realm to improve the user's openid experience. It is an
+  url pattern, so can be set to eg "http://*.example.com/"
+
+* `openid_cgiurl` can be used to cause a different than usual `cgiurl`
+  to be used when doing openid authentication. The `openid_cgiurl` must
+  point to an ikiwiki [[CGI]], and it will need to match the `openid_realm`
+  to work.

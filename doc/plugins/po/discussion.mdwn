@@ -1,0 +1,721 @@
+[[!toc ]]
+
+----
+
+# Security review
+
+## Probable holes
+
+_(The list of things to fix.)_
+
+### po4a-gettextize
+
+* po4a CVS 2009-01-16
+* Perl 5.10.0
+
+`po4a-gettextize` uses more or less the same po4a features as our
+`refreshpot` function.
+
+Without specifying an input charset, zzuf'ed `po4a-gettextize` quickly
+errors out, complaining it was not able to detect the input charset;
+it leaves no incomplete file on disk. I therefore had to pretend the
+input was in UTF-8, as does the po plugin.
+
+        zzuf -c -s 13 -r 0.1 \
+            po4a-gettextize -f text -o markdown -M utf-8 -L utf-8 \
+             -m GPL-3 -p GPL-3.pot
+
+Crashes with:
+
+        Malformed UTF-8 character (UTF-16 surrogate 0xdfa4) in substitution
+        iterator at /usr/share/perl5/Locale/Po4a/Po.pm line 1449.
+        Malformed UTF-8 character (fatal) at /usr/share/perl5/Locale/Po4a/Po.pm
+        line 1449.
+
+An incomplete pot file is left on disk. Unfortunately Po.pm tells us
+nothing about the place where the crash happens.
+
+> It's fairly standard perl behavior when fed malformed utf-8. As long
+> as it doesn't crash ikiwiki, it's probably acceptable. Ikiwiki can
+> do some similar things itself when fed malformed utf-8 (doesn't
+> crash tho) --[[Joey]]
+
+----
+
+## Potential gotchas
+
+_(Things not to do.)_
+
+
+### Blindly activating more po4a format modules
+
+The format modules we want to use have to be checked, as not all are
+safe (e.g. the LaTeX module's behaviour is changed by commands
+included in the content); they may use regexps generated from
+the content.
+
+----
+
+## Hopefully non-holes
+
+_(AKA, the assumptions that will be the root of most security holes...)_
+
+### PO file features
+
+No [documented](http://www.gnu.org/software/gettext/manual/gettext.html#PO-Files)
+directive that can be put in po files is supposed to cause mischief
+(ie, include other files, run commands, crash gettext, whatever).
+
+### gettext
+
+#### Security history
+
+The only past security issue I could find in GNU gettext is
+[CVE-2004-0966](http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-0966),
+*i.e.* [Debian bug #278283](http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=278283):
+the autopoint and gettextize scripts in the GNU gettext package (1.14
+and later versions) may allow local users to overwrite files via
+a symlink attack on temporary files.
+
+This plugin would not have allowed to exploit this bug, as it does not
+use, either directly or indirectly, the faulty scripts.
+
+Note: the lack of found security issues can either indicate that there
+are none, or reveal that no-one ever bothered to find or publish them.
+
+#### msgmerge
+
+`refreshpofiles()` runs this external program.
+
+* I was not able to crash it with `zzuf`.
+* I could not find any past security hole.
+
+#### msgfmt
+
+`isvalidpo()` runs this external program.
+
+* I was not able to make it behave badly using zzuf: it exits cleanly
+  when too many errors are detected.
+* I could not find any past security hole.
+
+### po4a
+
+#### Security history
+
+The only past security issue I could find in po4a is
+[CVE-2007-4462](http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-4462):
+`lib/Locale/Po4a/Po.pm` in po4a before 0.32 allowed local users to
+overwrite arbitrary files via a symlink attack on the
+gettextization.failed.po temporary file.
+
+This plugin would not have allowed to exploit this bug, as it does not
+use, either directly or indirectly, the faulty `gettextize` function.
+
+Note: the lack of found security issues can either indicate that there
+are none, or reveal that no-one ever bothered to find or publish them.
+
+#### General feeling
+
+Are there any security issues on running po4a on untrusted content?
+
+To say the least, this issue is not well covered, at least publicly:
+
+* the documentation does not talk about it;
+* grep'ing the source code for `security` or `trust` gives no answer.
+
+On the other hand, a po4a developer answered my questions in
+a convincing manner, stating that processing untrusted content was not
+an initial goal, and analysing in detail the possible issues.
+The following analysis was done with his help.
+
+#### Details
+
+* the core (`Po.pm`, `Transtractor.pm`) should be safe
+* po4a source code was fully checked for other potential symlink
+  attacks, after discovery of one such issue
+* the only external program run by the core is `diff`, in `Po.pm` (in
+  parts of its code we don't use)
+* `Locale::gettext` is only used to display translated error messages
+* Nicolas François "hopes" `DynaLoader` is safe, and has "no reason to
+  think that `Encode` is not safe"
+* Nicolas François has "no reason to think that `Encode::Guess` is not
+  safe". The po plugin nevertheless avoids using it by defining the
+  input charset (`file_in_charset`) before asking `TransTractor` to
+  read any file. NB: this hack depends on po4a internals.
+
+##### Locale::Po4a::Text
+
+* does not run any external program
+* only `do_paragraph()` builds regexp's that expand untrusted
+  variables; according to [[Joey]], this is "Freaky code, but seems ok
+  due to use of `quotementa`".
+
+##### Locale::Po4a::Xhtml
+
+* does not run any external program
+* does not build regexp's from untrusted variables
+
+=> Seems safe as far as the `includessi` option is disabled; the po
+plugin explicitly disables it.
+
+Relies on Locale::Po4a::Xml` to do most of the work.
+
+##### Locale::Po4a::Xml
+
+* does not run any external program
+* the `includeexternal` option makes it able to read external files;
+  the po plugin explicitly disables it
+* untrusted variables are escaped when used to build regexp's
+
+##### Text::WrapI18N
+
+`Text::WrapI18N` can cause DoS
+([Debian bug #470250](http://bugs.debian.org/470250)).
+It is optional, and we do not need the features it provides.
+
+If a recent enough po4a (>=0.35) is installed, this module's use is
+fully disabled. Else, the wiki administrator is warned about this
+at runtime.
+
+##### Term::ReadKey
+
+`Term::ReadKey` is not a hard dependency in our case, *i.e.* po4a
+works nicely without it. But the po4a Debian package recommends
+`libterm-readkey-perl`, so it will probably be installed on most
+systems using the po plugin.
+
+`Term::ReadKey` has too far reaching implications for us to
+be able to guarantee anything wrt. security.
+
+If a recent enough po4a (>=2009-01-15 CVS, which will probably be
+released as 0.35) is installed, this module's use is fully disabled.
+
+##### Fuzzing input
+
+###### po4a-translate
+
+* po4a CVS 2009-01-16
+* Perl 5.10.0
+
+`po4a-translate` uses more or less the same po4a features as our
+`filter` function.
+
+Without specifying an input charset, same behaviour as
+`po4a-gettextize`, so let's specify UTF-8 as input charset as of now.
+
+`LICENSES` is a 21M file containing 100 concatenated copies of all the
+files in `/usr/share/common-licenses/`; I had no existing PO file or
+translated versions at hand, which renders these tests
+quite incomplete.
+
+        zzuf -cv -s 0:10 -r 0.001:0.3 \
+          po4a-translate -d -f text -o markdown -M utf-8 -L utf-8 \
+            -k 0 -m LICENSES -p LICENSES.fr.po -l test.fr
+
+... seems to lose the fight, at the `readpo(LICENSES.fr.po)` step,
+against some kind of infinite loop, deadlock, or any similar beast.
+
+The root of this bug lies in `Text::WrapI18N`, see the corresponding
+section.
+
+
+----
+
+## Fixed holes
+
+
+----
+
+# original contrib/po page, with old commentary
+
+I've been working on a plugin called "po", that adds support for multi-lingual wikis,
+translated with gettext, using [po4a](http://po4a.alioth.debian.org/).
+
+More information:
+
+* It can be found in my "po" branch:
+  `git clone git://gaffer.ptitcanardnoir.org/ikiwiki.git`
+* It is self-contained, *i.e.* it does not modify ikiwiki core at all.
+* It is documented (including TODO and plans for next work steps) in
+  `doc/plugins/po.mdwn`, which can be found in the same branch.
+* No public demo site is available so far, I'm working on this.
+
+My plan is to get this plugin clean enough to be included in ikiwiki.
+
+The current version is a proof-of-concept, mature enough for me to dare submitting it here,
+but I'm prepared to hear various helpful remarks, and to rewrite parts of it as needed.
+
+Any thoughts on this?
+
+> Well, I think it's pretty stunning what you've done here. Seems very
+> complete and well thought out. I have not read the code in great detail
+> yet.
+> 
+> Just using po files is an approach I've never seen tried with a wiki. I
+> suspect it will work better for some wikis than others. For wikis that
+> just want translations that match the master language as closely as
+> possible and don't wander off and diverge, it seems perfect. (But what happens
+> if someone edits the Discussion page of a translated page?)
+> 
+> Please keep me posted, when you get closer to having all issues solved
+> and ready for merging I can do a review and hopefully help with the
+> security items you listed. --[[Joey]]
+
+>> Thanks a lot for your quick review, it's reassuring to hear such nice words
+>> from you. I did not want to design and write a full translation system, when
+>> tools such as gettext/po4a already have all the needed functionality, for cases
+>> where the master/slave languages paradigm fits.
+>> Integrating these tools into ikiwiki plugin system was a pleasure.
+>>
+>> I'll tell you when I'm ready for merging, but in the meantime,
+>> I'd like you to review the changes I did to the core (3 added hooks).
+>> Can you please do this? If not, I'll go on and hope I'm not going to far in
+>> the wrong direction.
+>>
+>>> Sure.. I'm not completly happy with any of the hooks since they're very
+>>> special purpose, and also since `run_hooks` is not the best interface
+>>> for a hook that modifies a variable, where only the last hook run will
+>>> actually do anything. It might be better to just wrap
+>>> `targetpage`, `bestlink`, and `beautify_urlpath`. But, I noticed
+>>> the other day that such wrappers around exported functions are only visible by
+>>> plugins loaded after the plugin that defines them.
+>>> 
+>>> Update: Take a look at the new "Function overriding" section of
+>>> [[plugins/write]]. I think you can just inject wrappers about a few ikiwiki
+>>> functions, rather than adding hooks. The `inject` function is pretty
+>>> insane^Wlow level, but seems to work great. --[[Joey]]
+>>>
+>>>> Thanks a lot, it seems to be a nice interface for what I was trying to achieve.
+>>>> I may be forced to wait two long weeks before I have a chance to confirm
+>>>> this. Stay tuned. --[[intrigeri]]
+>>>>
+>>>>> I've updated the plugin to use `inject`. It is now fully self-contained,
+>>>>> and does not modify the core anymore. --[[intrigeri]]
+>>
+>> The Discussion pages issue is something I am not sure about yet. But I will
+>> probably decide that "slave" pages, being only translations, don't deserve
+>> a discussion page: the discussion should happen in the language in which the
+>> pages are written for real, which is the "master" one. --[[intrigeri]]
+>> 
+>> I think that's a good decision, you don't want to translate discussion,
+>> and if the discussion page turns out multilingual, well, se la vi. ;-)
+>> 
+>> Relatedly, what happens if a translated page has a broken link, and you
+>> click on it to edit it? Seems you'd first have to create a master page
+>> and could only then translate it, right? I wonder if this will be clear
+>> though to the user.
+>>
+>>> Right: a broken link points to the URL that allows to create
+>>> a page that can either be a new master page or a non-translatable
+>>> page, depending on `po_translatable_pages` value. The best
+>>> solution I can thing of is to use [[plugins/edittemplate]] to
+>>> insert something like "Warning: this is a master page, that must
+>>> be written in $MASTER_LANGUAGE" into newly created master pages,
+>>> and maybe another warning message on newly created
+>>> non-translatable pages. It seems quite doable to me, but in order
+>>> to avoid breaking existing functionality, it implies to hack a bit
+>>> [[plugins/edittemplate]] so that multiple templates can be
+>>> inserted at page creation time. [[--intrigeri]]
+>>>
+>>>> I implemented such a warning using the formbuilder_setup hook.
+>>>> --[[intrigeri]]
+>>
+>> And also, is there any way to start a translation of a page into a new
+>> lanauge using the web interface?
+>>
+>>> When a new language is added to `po_slave_languages`, a rebuild is
+>>> triggered, and all missing PO files are created and checked into
+>>> VCS. An unpriviledged wiki user can not add a new language to
+>>> `po_slave_languages`, though. One could think of adding the needed
+>>> interface to translate a page into a yet-unsupported slave
+>>> language, and this would automagically add this new language to
+>>> `po_slave_languages`. It would probably be useful in some
+>>> usecases, but I'm not comfortable with letting unpriviledged wiki
+>>> users change the wiki configuration as a side effect of their
+>>> actions; if this were to be implemented, special care would be
+>>> needed. [[--intrigeri]]
+>>>
+>>>> Actually I meant into any of the currently supported languages.
+>>>> I guess that if the template modification is made, it will list those
+>>>> languages on the page, and if a translation to a language is missing,
+>>>> the link will allow creating it?
+>>>>
+>>>>> Any translation page always exist for every supported slave
+>>>>> language, even if no string at all have been translated yet.
+>>>>> This implies the po plugin is especially friendly to people who
+>>>>> prefer reading in their native language if available, but don't
+>>>>> mind reading in English else.
+>>>>>
+>>>>> While I'm at it, there is a remaining issue that needs to be
+>>>>> sorted out: how painful it could be for non-English speakers
+>>>>> (assuming the master language is English) to be perfectly able
+>>>>> to navigate between translation pages supposed to be written in
+>>>>> their own language, when their translation level is most
+>>>>> often low.
+>>>>>
+>>>>> (It is currently easy to display this status on the translation
+>>>>> page itself, but then it's too late, and how frustrating to load
+>>>>> a page just to realize it's actually not translated enough for
+>>>>> you. The "other languages" loop also allows displaying this
+>>>>> information, but it is generally not the primary
+>>>>> navigation tool.)
+>>>>>
+>>>>> IMHO, this is actually a social problem (i.e. it's no use adding
+>>>>> a language to the supported slave ones if you don't have the
+>>>>> manpower to actually do the translations), that can't be fully
+>>>>> solved by technical solutions, but I can think of some hacks
+>>>>> that would limit the negative impact: a given translation's
+>>>>> status (currently = percent translated) could be displayed next
+>>>>> to the link that leads to it; a color code could as well be used
+>>>>> ("just" a matter of adding a CSS id or class to the links,
+>>>>> depending on this variable). As there is already work to be done
+>>>>> to have the links text generation more customizable through
+>>>>> plugins, I could do both at the same time if we consider this
+>>>>> matter to be important enough. --[[intrigeri]]
+>>>>>
+>>>>>> The translation status in links is now implemented in my
+>>>>>> `po`branch. It requires my `meta` branch changes to
+>>>>>> work, though. I consider the latter to be mature enough to
+>>>>>> be merged. --[[intrigeri]]
+
+>> FWIW, I'm tracking your po branch in ikiwiki master git in the po
+>> branch. One thing I'd like to try in there is setting up a translated
+>> basewiki, which seems like it should be pretty easy to do, and would be
+>> a great demo! --[[Joey]]
+>>
+>>> I have a complete translation of basewiki into danish, available merged into
+>>> ikiwiki at git://source.jones.dk/ikiwiki-upstream (branch underlay-da), and am working with
+>>> others on preparing one in german.  For a complete translated user
+>>> experience, however, you will also need templates translated (there are a few
+>>> translatable strings there too).  My most recent po4a Markdown improvements
+>>> adopted upstream but not yet in Debian (see
+>>> [bug#530574](http://bugs.debian.org/530574)) correctly handles multiple
+>>> files in a single PO which might be relevant for template translation handling.
+>>> --[[JonasSmedegaard]]
+>>
+>>> I've merged your changes into my own branch, and made great
+>>> progress on the various todo items. Please note my repository
+>>> location has changed a few days ago, my user page was updated
+>>> accordingly, but I forgot to update this page at the same time.
+>>> Hoping it's not too complicated to relocated an existing remote...
+>>> (never done that, I'm a Git beginner as well as a Perl
+>>> newbie) --[[intrigeri]]
+>>>>
+>>>> Just a matter of editing .git/config, thanks for the heads up.
+>>>>>
+>>>>> Joey, please have a look at my branch, your help would be really
+>>>>> welcome for the security research, as I'm almost done with what
+>>>>> I am able to do myself in this area. --[[intrigeri]]
+>>>>>>
+>>>>>> I came up with a patch for the WrapI18N issue --[[Joey]]
+
+I've set this plugin development aside for a while. I will be back and
+finish it at some point in the first quarter of 2009. --[[intrigeri]]
+
+> Abstract: Joey, please have a look at my po and meta branches.
+> 
+> Detailed progress report:
+> 
+> * it seems the po branch in your repository has not been tracking my
+>   own po branch for two months. any config issue?
+> * all the plugin's todo items have been completed, robustness tests
+>   done
+> * I've finished the detailed security audit, and the fix for po4a
+>   bugs has entered upstream CVS last week
+> * I've merged your new `checkcontent` hook with the `cansave` hook
+>   I previously introduced in my own branch; blogspam plugin updated
+>   accordingly
+> * the rename hook changes we discussed elsewhere are also part of my
+>   branch
+> * I've introduced two new hooks (`canremove` and `canrename`), not
+>   a big deal; IMHO, they extend quite logically the plugin interface
+> * as highlighted on [[bugs/pagetitle_function_does_not_respect_meta_titles]],
+>   my `meta` branch contains a new feature that is really useful in a
+>   translatable wiki
+> 
+> As a conclusion, I'm feeling that my branches are ready to be
+> merged; only thing missing, I guess, are a bit of discussion and
+> subsequent adjustments.
+> 
+> --[[intrigeri]]
+
+> I've looked it over and updated my branch with some (untested)
+> changes.
+> 
+>> I've merged your changes into my branch. Only one was buggy.
+> 
+> Sorry, I'd forgotten about your cansave hook.. sorry for the duplicate
+> work there.
+> 
+> Reviewing the changes, mostly outside of `po.pm`, I have
+> the following issues.
+>  
+> * renamepage to renamelink change would break the ikiwiki
+>   3.x API, which I've promised not to do, so needs to be avoided
+>   somehow. (Sorry, I guess I dropped the ball on not getting this
+>   API change in before cutting 3.0..)
+>> 
+>> Fixed, see [[todo/need_global_renamepage_hook]].
+>>
+> * I don't understand the parentlinks code change and need to figure it
+>   out. Can you explain what is going on there?
+>> 
+>> I'm calling `bestlink` there so that po's injected `bestlink` is
+>> run. This way, the parent links of a page link to the parent page
+>> version in the proper language, depending on the
+>> `po_link_to=current` and `po_link_to=negotiated` settings.
+>> Moreover, when using my meta branch enhancements plus meta title to
+>> make pages titles translatable, this small patch is needed to get
+>> the translated titles into parentlinks.
+>> 
+> * canrename's mix of positional and named parameters is way too
+>   ugly to get into an ikiwiki API. Use named parameters
+>   entirely. Also probably should just use named parameters
+>   for canremove.
+> * `skeleton.pm.example`'s canrename needs fixing to use either
+>   the current or my suggested parameters.
+>> 
+>> Done.
+>> 
+> * I don't like the exporting of `%backlinks` and `$backlinks_calculated`
+>   (the latter is exported but not used).
+>> 
+>> The commit message for 85f865b5d98e0122934d11e3f3eb6703e4f4c620
+>> contains the rationale for this change. I guess I don't understand
+>> the subtleties of `our` use, and perldoc does not help me a lot.
+>> IIRC, I actually did not use `our` to "export" these variables, but
+>> rather to have them shared between `Render.pm` uses.
+>>
+>>> My wording was unclear, I meant exposing. --[[Joey]]
+>>>  
+>>>> I guess I still don't know Perl's `our` enough to understand clearly.
+>>>> No matter whether these variables are declared with `my` or `our`,
+>>>> any plugin can `use IkiWiki::Render` and then access
+>>>> `$IkiWiki::backlinks`, as already does e.g. the pagestat plugin.
+>>>> So I guess your problem is not with letting plugins use these
+>>>> variables, but with them being visible for every piece of
+>>>> (possibly external) code called from `Render.pm`. Am I right?
+>>>> If I understand clearly, using a brace block to lexically enclose
+>>>> these two `our` declarations, alongside with the `calculate_backlinks`
+>>>> and `backlinks` subs definitions, would be a proper solution, wouldn't
+>>>> it? --[[intrigeri]]
+>>>>
+>>>>> No, %backlinks and the backlinks() function are not the same thing.
+>>>>> The variable is lexically scoped; only accessible from inside
+>>>>> `Render.pm` --[[Joey]] 
+>>>> 
+> * What is this `IkiWiki::nicepagetitle` and why are you
+>   injecting it into that namespace when only your module uses it?
+>   Actually, I can't even find a caller of it in your module.
+>> 
+>> I guess you should have a look to my `meta` branch and to
+>> [[bugs/pagetitle_function_does_not_respect_meta_titles]] in order
+>> to understand this :)
+>>
+>>> It would probably be good if I could merge this branch without 
+>>> having to worry about also immediatly merging that one. --[[Joey]] 
+>>> 
+>>>> I removed all dependencies on my `meta` branch from the `po` one.
+>>>> This implied removing the `po_translation_status_in_links` and
+>>>> `po_strictly_refresh_backlinks` features, and every link text is now
+>>>> displayed in the master language. I believe the removed features really
+>>>> enhance user experience of a translatable wiki, that's why I was
+>>>> initially supposing the `meta` branch would be merged first.
+>>>> IMHO, we'll need to come back to this quite soon after `po` is merged.
+>>>> --[[intrigeri]]
+>>>>
+>>>> Maybe you should keep those features in a meta-po branch?
+>>>> I did a cursory review of your meta last night, have some issues with it, 
+>>>> but this page isn't the place for a detailed review. --[[Joey]] 
+>>>>
+>>>>> Done. --[[intrigeri]]
+>>> 
+> * I'm very fearful of the `add_depends` in `indexhtml`. 
+>   Does this make every page depend on every page that links
+>   to it? Won't this absurdly bloat the dependency pagespecs
+>   and slow everything down? And since nicepagetitle is given
+>   as the reason for doing it, and nicepagetitle isn't used,
+>   why do it?
+>> 
+>> As explained in the 85f865b5d98e0122934d11e3f3eb6703e4f4c620 log:
+>> this feature hits performance a bit. Its cost was quite small in my
+>> real-world use-cases (a few percents bigger refresh time), but
+>> could be bigger in worst cases. When using the po plugin with my
+>> meta branch changes (i.e. the `nicepagetitle` thing), and having
+>> enabled the option to display translation status in links, this
+>> maintains the translation status up-to-date in backlinks. Same when
+>> using meta title to make the pages titles translatable. It does
+>> help having a nice and consistent translated wiki, but as it can
+>> also involve problems, I just turned it into an option.
+>> 
+>>> This has been completely removed for now due to the removal of
+>>> the dependency on my `meta` branch. --[[intrigeri]]
+>> 
+> * The po4a Suggests should be versioned to the first version
+>   that can be used safely, and that version documented in 
+>   `plugins/po.mdwn`.
+>>
+>> Done.
+>> 
+>> --[[intrigeri]]
+> 
+> --[[Joey]] 
+
+I reverted the `%backlinks` and `$backlinks_calculated` exposing.
+The issue they were solving probably will arise again when I'll work
+on my meta branch again (i.e. when the simplified po one is merged),
+but the po thing is supposed to work without these ugly `our`.
+Seems like it was the last unaddressed item from Joey's review, so I'm
+daring a timid "please pull"... or rather, please review again :)
+--[[intrigeri]]
+
+> Ok, I've reviewed and merged into my own po branch. It's looking very
+> mergeable.
+> 
+> * Is it worth trying to fix compatability with `indexpages`?
+>> 
+>> Supporting `usedirs` being enabled or disabled was already quite
+>> hard IIRC, so supporting all four combinations of `usedirs` and
+>> `indexpages` settings will probably be painful. I propose we forget
+>> about it until someone reports he/she badly needs it, and then
+>> we'll see what can be done.
+>> 
+> * Would it make sense to go ahead and modify `page.tmpl` to use
+>   OTHERLANGUAGES and PERCENTTRANSLATED, instead of documenting how to modify it?
+>> 
+>> Done in my branch.
+>> 
+> * Would it be better to disable po support for pages that use unsupported
+>   or poorly-supported markup languages?
+> 
+>> I prefer keeping it enabled, as:
+>> 
+>> * most wiki markups "almost work"
+>> * when someone needs one of these to be fully supported, it's not
+>>   that hard to add dedicated support for it to po4a; if it were
+>>   disabled, I fear the ones who could do this would maybe think
+>>   it's blandly impossible and give up.
+>> 
+ 
+> * What's the reasoning behind checking that the link plugin
+>   is enabled? AFAICS, the same code in the scan hook should
+>   also work when other link plugins like camelcase are used.
+>> 
+>> That's right, fixed.
+>> 
+> * In `pagetemplate` there is a comment that claims the code
+>   relies on `genpage`, but I don't see how it does; it seems
+>   to always add a discussion link?
+>> 
+>> It relies on IkiWiki::Render's `genpage` as this function sets the
+>> `discussionlink` template param iff it considers a discussion link
+>> should appear on the current page. That's why I'm testing
+>> `$template->param('discussionlink')`.
+>> 
+>>> Maybe I was really wondering why it says it could lead to a broken
+>>> link if the cgiurl is disabled. I think I see why now: Discussionlink
+>>> will be set to a link to an existing disucssion page, even if cgi is
+>>> disabled -- but there's no guarantee of a translated discussion page
+>>> existing in that case. *However*, htmllink actually checks
+>>> for this case, and will avoid generating a broken link so AFAICS, the
+>>> comment is actually innacurate.. what will really happen in this case
+>>> is discussionlink will be set to a non-link translation of
+>>> "discussion". Also, I consider `$config{cgi}` and `%links` (etc)
+>>> documented parts of the plugin interface, which won't change; po could
+>>> rely on them to avoid this minor problem. --[[Joey]] 
+>>>> 
+>>>> Done in my branch. --[[intrigeri]]
+>>>> 
+>
+> * Is there any real reason not to allow removing a translation?
+>   I'm imagining a spammy translation, which an admin might not
+>   be able to fix, but could remove.
+>> 
+>> On the other hand, allowing one to "remove" a translation would
+>> probably lead to misunderstandings, as such a "removed" translation
+>> page would appear back as soon as it is "removed" (with no strings
+>> translated, though). I think an admin would be in a position to
+>> delete the spammy `.po` file by hand using whatever VCS is in use.
+>> Not that I'd really care, but I am slightly in favour of the way
+>> it currently works.
+>>
+>>> That would definitly be confusing. It sounds to me like if we end up
+>>> needing to allow web-based deletion of spammy translations, it will
+>>> need improvements to the deletion UI to de-confuse that. It's fine to
+>>> put that off until needed --[[Joey]] 
+>> 
+
+ * As discussed at [[todo/l10n]] the templates needs to be translatable too.  They
+   should be treated properly by po4a using the markdown option - at least with my
+   later patches in [bug#530574](http://bugs.debian.org/530574)) applied.
+
+ * It seems to me that the po plugin (and possibly other parts of ikiwiki) wrongly
+   uses gettext.  As I understand it, gettext (as used currently in ikiwiki) always
+   lookup a single language, That might make sense for a single-language site, but
+   multilingual sites should emit all strings targeted at the web output in each own
+   language.
+
+   So generally the system language (used for e.g. compile warnings) should be separated
+   from both master language and slave languages.
+
+   Preferrably the gettext subroutine could be extended to pass locale as optional
+   secondary parameter overriding the default locale (for messages like "N/A" as
+   percentage in po plugin).  Alternatively (with above mentioned template support)
+   all such strings could be externalized as templates that can then be localized.
+
+# Robustness tests
+
+### Enabling/disabling the plugin
+
+* enabling the plugin with `po_translatable_pages` set to blacklist: **OK**
+* enabling the plugin with `po_translatable_pages` set to whitelist: **OK**
+* enabling the plugin without `po_translatable_pages` set: **OK**
+* disabling the plugin: **OK**
+
+### Changing the plugin config
+
+* adding existing pages to `po_translatable_pages`: **OK**
+* removing existing pages from `po_translatable_pages`: **OK**
+* adding a language to `po_slave_languages`: **OK**
+* removing a language from `po_slave_languages`: **OK**
+* changing `po_master_language`: **OK**
+* replacing `po_master_language` with a language previously part of
+  `po_slave_languages`: needs two rebuilds, but **OK** (this is quite
+  a perverse test actually)
+
+### Creating/deleting/renaming pages
+
+All cases of master/slave page creation/deletion/rename, both via RCS
+and via CGI, have been tested.
+
+### Misc
+
+* general test with `usedirs` disabled: **OK**
+* general test with `indexpages` enabled: **not OK**
+* general test with `po_link_to=default` with `userdirs` enabled: **OK**
+* general test with `po_link_to=default` with `userdirs` disabled: **OK**
+
+Duplicate %links ?
+------------------
+
+I notice code in the scan hook that seems to assume
+that %links will accumulate duplicate links for a page.
+That used to be so, but the bug was fixed. Does this mean
+that po might be replacing the only link on a page, in error? 
+--[[Joey]] 
+
+> It would replace it. The only problematic case is when another
+> plugin has its own reasons, in its `scan` hook, to add a page
+> that is already there to `$links{$page}`. This other plugin's
+> effect might then be changed by po's `scan` hook... which could
+> be either good (better overall l10n) or bad (break the other
+> plugin's goal). --[[intrigeri]]
+
+>> Right.. well, the cases where links are added is very small.
+>> Grepping for `add_link`, it's just done by link, camelcase, meta, and
+>> tag. All of these are supposed to work just link regular links
+>> so I'd think that is ok. We could probably remove the currently scary
+>> comment about only wanting to change the first link. --[[Joey]] 
+
+>>> Commit 3c2bffe21b91684 in my po branch does this. --[[intrigeri]]
+>>>> Cherry-picked --[[Joey]] 

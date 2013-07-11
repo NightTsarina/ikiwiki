@@ -1,0 +1,54 @@
+While ikiwiki can support definition lists (`dl/dt/dd`) through [[multimarkdown|plugins/mdwn]], it doesn't actually /do/ anything with those valuable definitions. It would be interesting for third party plugins to have access to this stuff as a proper data structure. This is what allows MoinMoin to have plugins that collect that data across multiple pages and tabulate it, for example.
+
+What I am proposing here is that the [[variables exported to plugins|plugins/write/#index6h2]] be extended to include a `%dictionnaries` hash. For a markup like this:
+
+[[!format txt """
+Apple
+: Apple is a fruit
+: It's also a computer company
+Orange
+: Orange is a fruit
+"""]]
+
+would result in a data structure like this:
+
+[[!format txt """
+%dicts = {
+  'Apple' => [ "Apple is a fruit", "It's also a computer company" ],
+  'Orange' => [ "Orange is a fruit" ],
+}
+"""]]
+
+Now, I know I can write myself a `format()` parser that would do this on all pages in my own plugin, but then it would need to be adapted to all markups, while markup formatters should be the ones implementing this directly, if possible.
+
+My first use case for this would be to extend the [[plugins/osm]] plugin to tap into those lists, so that I could have this data in the page, visible to the user:
+
+[[!format txt """
+Longitude
+: -45.30
+Latitude
+: 73.67
+"""]]
+
+and then reuse that data in the plugin.
+
+Then for us running the humongous [[koumbit wiki|https://wiki.koumbit.net/]], it is a necessary step to be able to migrate away from MoinMoin to Ikiwiki as we have a lot of pages that tabulate information like this. For example, see our [[ServerList|https://wiki.koumbit.net/ServerList]] ([[source|https://wiki.koumbit.net/ServerList?action=raw]]), being generated from pages like [[this one|https://wiki.koumbit.net/metis.koumbit.net]].
+
+If there are no objections to that concept, I may try to start coding patches. Otherwise this is really just a [[wishlist]]. --[[anarcat]]
+
+> Have you looked at the [[/plugins/contrib/field]] plugin? This gives you the infrastructure, and all you need is to write a plugin that parses the definition list format.  Then you could use [[/plugins/contrib/getfield]], [[/plugins/contrib/ftemplate]] and/or [[/plugins/contrib/report]] to do what you like with the data.
+> --[[KathrynAndersen]]
+
+> ----
+
+> with the recent inclusion of discount to the [[plugins/mdwn]] module, definition lists can be used by default (instead of, as with multimarkdown, after an option is enabled), and look like this:
+>
+>     =Apple=
+>         Apple is a fruit.
+>         Apple is also a company.
+>     =Orange=
+>         Orange is a fruit.
+>
+> (indented with four spaces). this makes definition lists a bit more attractive for definition harvesting.
+>
+> personally, i'd prefer a solution that works from the markup'ed plain text instead of invisible directives, as it integrates more naturally in the flow of designing a document, even though a plugin for explicitly stating invisible facts certainly has its purpose too. (think [[!wikipedia RDFa]] here ;-) ) --[[chrysn]]

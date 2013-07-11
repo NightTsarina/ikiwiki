@@ -1,0 +1,12 @@
+[[!template id=plugin name=moderatedcomments author="[[Joey]]"]]
+[[!tag type/auth type/comments]]
+
+This plugin causes [[comments]] to be held for manual moderation.
+Admins can access the comment moderation queue via their preferences page.
+
+By default, all comments made by anyone who is not an admin will be held
+for moderation. The `moderate_pagespec` setting can be used to specify a
+[[ikiwiki/PageSpec]] to match comments and users who should be moderated.
+For example, to avoid moderating comments from logged-in users, set
+`moderate_pagespec` to "`!user(*)`". Or to moderate everyone except for
+admins, set it to "`!admin(*)`".

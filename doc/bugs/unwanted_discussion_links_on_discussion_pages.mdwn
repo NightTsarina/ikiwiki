@@ -1,0 +1,36 @@
+Background: some po translations (amongst which `fr.po`) translate "discussion" to an upper-cased word (in French: "Discussion").
+By the way, this is wished e.g. in German, where such a noun has to be written with an upper-cased "D", but I can not see
+the logic behind the added "D" in French.
+
+Anyway, this gettext-translated word is used to name the discussion pages, as `$discussionlink` in `Render.pm` is
+built from `gettext("discussion")`. In the same piece of code, a case-sensitive regexp that tests wether the page
+being rendered is a discussion page is case-sensitive.
+
+On the other hand, new discussion pages are created with a name built from `gettext("Discussion")` (please note the upper-cased
+"D"). Such a new page name seems to be automagically downcased.
+
+This leads to newly created discussion pages not being recognized as discussion pages by the
+`$page !~ /.*\/\Q$discussionlink\E$/` regexp, so that then end with an unwanted discussion link.
+
+A simple fix that seems to work is to make this regexp case-insensitive:
+
+    git diff IkiWiki/Render.pm
+    diff --git a/IkiWiki/Render.pm b/IkiWiki/Render.pm
+    index adae9f0..093c25b 100644
+    --- a/IkiWiki/Render.pm
+    +++ b/IkiWiki/Render.pm
+    @@ -77,7 +77,7 @@ sub genpage ($$) {
+            }
+            if ($config{discussion}) {
+                    my $discussionlink=gettext("discussion");
+    -               if ($page !~ /.*\/\Q$discussionlink\E$/ &&
+    +               if ($page !~ /.*\/\Q$discussionlink\E$/i &&
+                       (length $config{cgiurl} ||
+                        exists $links{$page."/".$discussionlink})) {
+                            $template->param(discussionlink => htmllink($page, $page, gettext("Discussion"), noimageinline => 1, forcesubpage => 1));
+
+But the best way would be to avoid assuming implicitely that translators will translate "discussion" and "Discussion" the same way.
+
+> [[done]] --[[Joey]] 
+
+[[!tag patch]]

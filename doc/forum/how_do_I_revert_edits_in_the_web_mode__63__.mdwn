@@ -1,0 +1,46 @@
+Puzzled a bit :-/
+
+> There is no explicit interface for reverting edits. Most of us use `git revert`. --[[Joey]]
+
+>> That's a blow; I was planning on appointing no techies to keep law and order on our pages :-/ Is there a plugin or at least a plan to add such a 'in demand' feature?
+
+>>> A lot of things complicate adding that feature to the web interface.
+>>>
+>>> First, ikiwiki happily uses whatever the VCS's best of breed web
+>>> history interface is. (ie, viewvcs, gitweb). To allow reverting
+>>> past the bottom of the RecentChanges page, it would need to have its 
+>>> own history browser. Not sure I want to go there.
+>>>
+>>> And the mechanics of handling reverting can quickly get complex. 
+>>> Web reverting should only allow users to revert things they can edit,
+>>> but reverting a whole commit in git might touch multiple files.
+>>> Some files may not be editable over the web at all. (The
+>>> [[tips/untrusted_git_push]] also has to deal with those issues.)
+>>> Finally, a revert can fail with a conflict. The revert could touch 
+>>> multiple files, and multiple ones could conflict. The conflict may
+>>> involve non-page files that can't be diffed. So an interface for
+>>> resolving such a conflict could be hard.
+>>> 
+>>> Probably web-based reverting would need to be limited to reverting 
+>>> single file changes, not whole commits, and not having very good
+>>> conflict handling. And maybe only being accessible for changes
+>>> still visible on RecentChanges. With those limitations, it's certianly
+>>> doable (as a plugin even), but given how excellent `git revert` is in
+>>> comparison, I have not had a real desire to do so. --[[Joey]]
+
+>>>> Web edits are single-file anyway, so I wouldn't expect web reverts
+>>>> to handle the multi-file case. OTOH, I've sometimes wished ikiwiki
+>>>> had its own history browser (somewhere down my todo list). --[[schmonz]]
+
+>>>> Yup, having a possibility to revert a single file would suffice.
+
+---
+
+Perer Gammie and I are working on reversion over at [[todo/web_reversion]].
+--[[Joey]] 
+
+Update: Web reversion is now supported by ikiwiki. Only changes committed
+to your wiki after you upgrade to the version of ikiwiki that supports it
+will get revert buttons on the RecentChanges page. If you want to force
+adding buttons for older changes, you can delete `recentchanges/*._change`
+from your srcdir, and rebuild the wiki. --[[Joey]] 

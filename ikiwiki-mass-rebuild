@@ -1,0 +1,90 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+
+my $etcfile="/etc/ikiwiki/wikilist";
+
+sub root {
+	$> == 0;
+}
+
+sub username {
+	(getpwuid($>))[0];
+}
+
+sub processline {
+	my $setup=shift;
+	
+	if (! -f "$setup") {
+		print STDERR "warning: $setup does not exist, skipping\n";
+		return;
+	}
+	print "Processing $setup as user ".username()." ...\n";
+	my $ret=system("ikiwiki", "-setup", $setup, @ARGV);
+	if ($ret != 0) {
+		print STDERR "warning: processing $setup failed with code $ret\n";
+	}
+}
+
+my %users;
+sub processuser {
+	my $user=shift;
+	return if $user=~/^-/ || $users{$user};
+	$users{$user}=1;
+	my $ret=system("su", $user, "-s", "/bin/sh", "-c", "--", "$0 --nonglobal @ARGV");
+	if ($ret != 0) {
+		print STDERR "warning: processing for $user failed with code $ret\n";
+	}
+}
+
+sub processlist {
+	my $file=shift;
+
+	return unless -e $file;
+
+	my $list;
+	open ($list, "<$file") || die "$file: $!";
+	while (<$list>) {
+		chomp;
+		s/^\s+//;
+		s/\s+$//;
+		next if /^#/ || ! length;
+		if (/^([-\w]+)\s+([^\s]+)$/) {
+			my $user=$1;
+			my $setup=$2;
+			if (root()) {
+				processuser($user);
+			}
+			else {
+		       		if (username() eq $user) {
+					processline($setup);
+				}
+			}
+		}
+		elsif (/^([-\w]+)$/) {
+			my $user=$1;
+			if (root()) {
+				processuser($user);
+			}
+			else {
+				my $home=(getpwnam($user))[7];
+				if (defined $home && -d $home) {
+					my $dotfile="$home/.ikiwiki/wikilist";
+					processlist($dotfile);
+				}
+			}
+		}
+	}
+	close $list;
+}
+
+if (@ARGV && $ARGV[0] eq "--nonglobal") {
+	shift;
+	# avoid recursively processing if the wikilist file has a root
+	# user in it
+	if (root()) {
+		exit 1;
+	}
+}
+
+processlist($etcfile);

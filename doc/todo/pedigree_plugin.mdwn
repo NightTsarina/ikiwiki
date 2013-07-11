@@ -1,0 +1,194 @@
+After realizing (thanks to
+[[Allow_TITLE_to_include_part_of_the_path_in_addition_to_the_basename]])
+that I needed some kind of "parentlinks on steroids", I wrote a new
+plugin, called pedigree.
+
+This plugin provides a bunch of loops that one can use in his/her
+`HTML::Template`'s to iterate over all or a subset of a page's
+parents. Inside these loops, half a dozen variables are made
+available, in addition to `PAGE` and `URL` that are already provided
+by parentlinks.
+
+Amongst many possibilities, one can e.g. simply use this plugin to
+give every parent link a different `class=` attribute, depending
+either on its depth in the path leading to the current page, or on its
+distance to it.
+
+The code and documentation (including simple and complex usage
+examples) are in the 'pedigree' Git branch in this repo:
+
+	git://repo.or.cz/ikiwiki/intrigeri.git
+
+Seems there is also a [gitweb](http://repo.or.cz/w/ikiwiki/intrigeri.git).
+
+> Ok, I'll take a look. BTW, could you allow user joey on repo.or.cz
+> push access to the main ikiwiki repo you set up there? --[[Joey]]
+
+>> I did not. The main ikiwiki repo on repo.or.cz seems to have been
+>> been setup by johannes.schindelin@gmx.de ; mine is what they call
+>> a "fork" (but it's not, obviously). -- intrigeri
+
+Any opinions on the idea/design/implementation?
+
+> Seems that there should be a more generic way to do `PEDIGREE_BUT_ROOT`
+> and `PEDIGREE_BUT_TWO_OLDEST` (also `is_second_ancestor`,
+> `is_grand_mother` etc). One way would be to include in `PEDIGREE`
+> a set of values like `depth_1`, `depth_2`, etc. The one corresponding
+> to the `absdepth` would be true. This would allow a template like this:
+
+	<TMPL_LOOP NAME="PEDIGREE">
+	  <TMPL_IF NAME="depth_1">
+	    </TMPL_ELSE>
+	    <TMPL_IF NAME="depth_2">
+	    </TMPL_ELSE>
+	      <TMPL_VAR PAGE> /* only showing pages 2 levels deep */
+	    </TMPL_IF>
+	  </TMPL_IF>
+	</TMPL_LOOP>
+
+> The only missing information would be `reldepth`, but in the above
+> example the author of that template knows that it's `absdepth - 1`
+> (Things would be a lot nicer if `HTML::Template` had equality tests!)
+> 
+> Since this would make it more generic and also fix your one documented
+> bug, I can see no reason not to do it. ;-) --[[Joey]]
+
+>> Thanks for your comments. I'll answer soon. (Grrr, I really
+>> need to find a way to edit this wiki offline, every minute
+>> online costs bucks to me, my old modem gently weeps,
+>> and I hate webbrowsers.) -- intrigeri
+
+>>> Well, I maybe didn't get your idea properly; I may be missing 
+>>> something obvious, but:
+
+>>> * I don't understand how this would replace `is_grand_mother`. As a template
+>>>   writer, I don't know, given an absolute array index (and this is the only
+>>>   piece of data your solution gives me), if it will be e.g. the before-last
+>>>   (how do I say this in correct English?) element of an array whose
+>>>   (variable) size is unknown to me.
+>>> * Knowing that `reldepth`'s value is, in a given loop, always equal to
+>>>   `absdepth - 1` is of little use to me (as a template writer): how do I use
+>>>   this piece of information programmatically in my templates, if I want all
+>>>   links with `reldepth==2` to be given the same style? I guess some bits of
+>>>   Javascript might do the trick, but if it's getting so complicated, I'll
+>>>   just style my parentlinks another way.
+
+>>>> Perhaps I misunderstood what `is_grand_mother` is supposed to do. The
+>>>> docs were not very clear to me. If it's supposed to be 2 down from
+>>>> the page, (and not from the root), this could be achieved by reversing
+>>>> the `depth_n` variables. So the page gets `depth_1` set, its parent gets
+>>>> `depth_2` set, etc. If you want to be able to include/exclude
+>>>> from both ends, you could also have a `height_n` that is 1 for the
+>>>> root, and counts upwards. --[[Joey]]
+
+>>> In my understanding, your suggestion gives us little more than can already
+>>> be achieved anyway with `HTML::Template`'s `loop_context_vars` (i.e.
+>>> `__first__`, `__last__` and `__counter__`). The only added bonus is doing
+>>> custom stuff for an arbitrary element in the loop, chosen by its absolute
+>>> depth. Please correct me if needed.
+
+>>> (Intermezzo: in the meantime, to suit my personal real-world needs, I added
+>>> a `DISTANCE` loop-variable. Quoting the documentation, it's "thedistance,
+>>> expressed in path elements, from the current page to the current path
+>>> element; e.g. this is 1 for the current page's mother, 2 for its
+>>> grand-mother, etc.".)
+
+>>> Anyway, your comments have made me think of other ways to simplify a bit
+>>> this plugin, which admittedly provides too much overlapping functionality.
+>>> Bellow is my reasoning.
+
+>>> In one of my own real world examples, my two main use cases are :
+
+>>> * the "full-blown example" provided in the documentation (i.e.
+>>>   displaying every parent but mother and grand'ma as a group, and giving
+>>>   every of these two last ones their dedicated div);
+>>> * skipping the two oldest parents, and inside what's left, displaying the
+>>>   three youngest parents (i.e. mother, grand'ma and grand'grand'ma), each
+>>>   one with a dedicated style;
+
+>>> Both of these can be achieved by combining `PEDIGREE`, `DISTANCE`, and some
+>>> CSS tricks to hide some parts of the list. `IS_MOTHER` and
+>>> `IS_GRAND_MOTHER`, as well as `PEDIGREE_BUT_TWO_OLDEST`, would be convenient
+>>> shortcuts, but I do not formally need them.
+
+>>> So... it seems things can be simplified greatly:
+
+>>> * I initially added `RELDEPTH` for completeness, but I'm not sure anyone
+>>>   would use it. Let's give it up.
+>>> * Once `RELDEPTH` is lost (modulo Git tendencies to preserve history), the
+>>>   known bug is gone as well, and `PEDIGREE_BUT_ROOT` and
+>>>   `PEDIGREE_BUT_TWO_OLDEST` are now only convenient shortcuts functions;
+>>>   they could as well disappear, if you prefer to.
+
+>>> It appears then that I'd be personally happy with the single `PEDIGREE` loop
+>>> (renamed to `PARENTLINKS`), providing only `PAGE`, `URL`, `ABSDEPTH` (maybe
+>>> renamed to `DEPTH`), and `DISTANCE`. This would make my templates a bit more
+>>> complicated to write and read, but would also keep the plugin's code to the
+>>> bare minimum. Let's say it is my up-to-date proposal. (Well, if the various
+>>> shortcuts don't really annoy you, I'd be glad to keep them ;)
+
+>>>> This sounds fairly similar to what I just described above. (I called
+>>>> DISTANCE "height".) I don't know about the CSS tricks; seems like if
+>>>> `DEPTH_n` and `DISTANCE_n` are provided, you can test for them inside
+>>>> the loop using HTML::Template's lame testing, and isolate any page or
+>>>> range of pages. --[[Joey]]
+
+>>>>> Ok, I definitely like this idea, as an effective and generic
+>>>>> page-range selection tool; this seems the way to go to me.
+
+>>>>> But if you discard the `DEPTH` and `HEIGHT`
+>>>>> counters, we lack a way to **style**, for example, every parent link
+>>>>> depending on its depth or height; one can do this for arbitrary
+>>>>> parents (chosen by their height or depth), but *not* for *any* parent,
+>>>>> since there is no way to express, with HTML::Template, something like
+>>>>> "display the name of the only `DEPTH_n` variable that is currently
+>>>>> true". So I am in favor of keeping the `DEPTH` and `HEIGHT` counters,
+>>>>> to allow constructs like:
+
+	<TMPL_LOOP NAME="PARENTLINKS">
+	<a href="<TMPL_VAR NAME="URL">" class="parentdistance<TMPL_VAR NAME="DISTANCE">">
+	  <TMPL_VAR NAME="PAGE">
+	</a> / 
+	</TMPL_LOOP>
+
+>>>>> This seems to me a nice functionality bonus, and should not
+>>>>> imply too bloated code. I'm thus going to rewrite the plugin
+>>>>> with only `PEDIGREE`, `DEPTH`, `HEIGHT`, `DEPTH_n` and
+>>>>> `HEIGHT_n`. -- intrigeri
+
+>>>>>> Done, and pushed in my pedigree branch. Update: I've also done and
+>>>>>> pushed two commits that rename the plugin and replace 
+>>>>>> the core parentlinks with this one. --[[intrigeri]]
+
+(I'll try never to rebase this branch, but writing this plugin has
+been a pretext for me to start learning Git, so...)
+
+To finish with, it seems no plugin bundled with ikiwiki uses the current
+parentlinks implementation, so one could event think of moving it from the
+core to this plugin (which should then be enabled by default, since the
+default templates do use parentlinks ;).
+
+> I think that moving parentlinks out to a plugin is a good idea.
+> However, if it's done, I think the plugin should be named parentlinks,
+> and should continue to use the same template variables as are used now,
+> to avoid needing to change custom templates. Pedigree is a quite nice
+> name, but renaming it to parentlinks seems to be the way to go to me.
+> --[[Joey]]
+
+>> Agreed. -- intrigeri
+
+>> Just commited a testsuite for this plugin, BTW. It's nearly twice 
+>> big as the plugin itself, I'm wondering... -- intrigeri
+
+Merged, nice work. (Overkill having a test suite. ;-) --[[Joey]] 
+
+> Thanks. If the testsuite reveals itself to be harder to maintain than
+> the plugin, my ego won't be offended to see it removed. It's been
+> nice to find a way, step by step, to work with you on this small
+> plugin thing. I'm starting to feel a bit at home in ikiwiki
+> sourcetree, which is great since I may have to start working on some
+> more ambitious ikiwiki stuff, such as the ~multilingual wiki
+> (master language + translations) support. Expect news from me on
+> this front in the next weeks. --[[intrigeri]]
+
+[[!tag patch done]]

@@ -1,0 +1,34 @@
+## How to insert an image?
+
+I have goodstuff; I don't have img disabled.
+
+I used
+
+    \[[!img utah-2006-100-180.png]]
+
+and
+
+    \[[utah-2006-100-180.png]]
+
+and
+
+    \[[!img utah-2006-100-180.png link=no]]
+
+But it doesn't show the image file I already put in that directory. I can access the file by directly going to it in my browser. I want to see it on my wiki page.
+
+It does show a clickable question mark for ikiwiki.cgi?page=utah-2006-100-180.png&from=roadtrips&do=create
+
+-- [[JeremyReed]]
+
+> The question mark means ikiwiki does not know about your image. 
+> It sounds as if you may have copied it onto your web server's `public_html`
+> type directory manually. For ikiwiki to know about it, you need to put it in 
+> ikiwiki's srcdir with the rest of the wiki content, or you could upload
+> it with the `Edit -> Attachment` web interface.
+> 
+> To display an image that is really legitimately not part of the wiki, 
+> you can't use a directive, but you can insert `<img>` html if you really want to. --[[Joey]] 
+
+I have a local copy of the [[rcs/Git]] page.  After installing the `imagemagick-perl` package some of the elements display and others are missing including the page outlines with turned corners and all of the yellow folders.  Ideas?
+
+-- [[RonParker]]

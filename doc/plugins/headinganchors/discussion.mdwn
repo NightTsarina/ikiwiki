@@ -1,0 +1,49 @@
+Isn't this functionality a part of what [[plugins/toc]] needs and does? Then probably the [[plugins/toc]] plugin's code could be split into the part that implements the [[plugins/contrib/headinganchors]]'s functionality and the TOC generation itself. That will bring more order into the code and the set of available plugins. --Ivan Z.
+
+---
+
+A patch to make it more like MediaWiki:
+
+<pre>--- headinganchors.pm
++++ headinganchors.pm
+@@ -5,6 +5,7 @@
+ use warnings;
+ use strict;
+ use IkiWiki 2.00;
++use URI::Escape;
+ 
+ sub import {
+         hook(type => "sanitize", id => "headinganchors", call => \&headinganchors);
+@@ -14,9 +15,11 @@
+         my $str = shift;
+         $str =~ s/^\s+//;
+         $str =~ s/\s+$//;
+-        $str = lc($str);
+-        $str =~ s/[&\?"\'\.,\(\)!]//mig;
+-        $str =~ s/[^a-z]/_/mig;
++        $str =~ s/\s/_/g;
++        $str =~ s/"//g;
++        $str =~ s/^[^a-zA-Z]/z-/; # must start with an alphabetical character
++        $str = uri_escape_utf8($str);
++        $str =~ s/%/./g;
+         return $str;
+ }
+ </pre>
+
+--Changaco
+
+----
+
+I think using this below would let the source html clear for the browser
+without changing the render:
+
+        #use URI::Escape
+        .
+        .
+
+        #$str = uri_escape_utf8($str);
+        $str = Encode::decode_utf8($str);
+        #$str =~ s/%/./g;
+
+Don't you think ?
+[[mathdesc]]

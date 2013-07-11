@@ -1,0 +1,17 @@
+The message generated for web commits:
+
+> web commit by mädduck
+
+is not utf-8 encoded before passed to Git (which uses utf-8 as default encoding for commit messages). This causes a wrongly-encoded log entry, and makes ikiwiki spew warnings as it creates `recentchanges`:
+
+    utf8 "\xF6" does not map to Unicode at /usr/share/perl5/IkiWiki/Rcs/git.pm line 36, <$OUT> line 57.
+    Malformed UTF-8 character (unexpected non-continuation byte 0x6e, immediately after start byte 0xf6) in pattern match (m//) at /usr/share/perl5/IkiWiki/Rcs/git.pm line 393.
+    utf8 "\xF6" does not map to Unicode at /usr/share/perl5/IkiWiki/Rcs/git.pm line 36, <$OUT> line 5.
+
+(This is version 2.53.3~bpo40+1 for lack of a newer backport for sarge)
+
+Please make sure that commit messages for Git are always utf-8.
+
+This is a change by user `mädduck` to trigger the error.
+
+> [[Fixed|done]] both on the commit and log sides. --[[Joey]] 

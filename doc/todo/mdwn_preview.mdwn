@@ -1,0 +1,339 @@
+ikiwiki needs a wysiwyg markdown editor. While there have been tries using
+WMD etc, they are not fully satisfactory, and also the license of
+everything around WMD is [[unclear|plugins/wmd/discussion]].
+
+[Hallo](https://github.com/bergie/hallo) is the closest to a solution
+I've seen.
+The user can edit the page by clicking on the html part they want to change
+and typing. Selecting text pops up a toolbar to modify it.
+
+[Demo of Hallo with live WYSIWYG markdown editing](http://bergie.github.com/hallo/markdown.html)
+This demo uses showdown, and I still don't know what the license of
+showdown is. However, the showdown part seems to only be to handle the live
+conversion from the markdown source in the edit field to the html. The 
+(edited) html to markdown conversion is accomplished by Hallo.
+
+So, ikiwiki could use this in a page edit UI that does not show the
+markdown at all. The user would edit the live page, entirely in wysiwyg
+mode, and on saving hallo's generated markdown would be saved. Probably
+there would need to be a button to bring up the current markdown editor
+too, but without showdown, changes in it would not immediatly preview, so
+it'd make sense to disable hallo when the editor is visible.
+
+Issue: Ikiwiki directives can generate html. We would not want that html to
+be editable by halo and converted back to markdown. Also, the directives
+need to appear in the html so users can edit them. This seems to call for a
+special page rendering mode for editing, in which directives are either not
+expanded, or are expanded but the generated html wrapped in some tag that
+makes hallo refuse to edit it (which would probably require that feature be
+added to hallo, currently it acts on all blocks with `class=editable`),
+or otherwise allows it to be stripped out at save time. --[[Joey]]
+
+### old discussion
+
+
+The [StackOverflow](http://stackoverflow.com/) site uses markdown for markup.
+It has a fancy javascript thing for showing a real-time preview of what the user
+is editing. It would be nice if ikiwiki could support this, too. The thing they
+use on StackOverflow is supposed to be free software, so it should be easy to
+add to ikiwiki.
+
+> See [[wikiwyg]]. Note that I do not have a copy of the code for that, or
+> it'd be in ikiwiki already. --[[Joey]] 
+
+>> I just had a brief look at the [[wikiwyg]] page and the link to the plugin was
+>> broken.  The StackOverflow site uses the [WMD](http://wmd-editor.com/) editor,
+>> which seems to be related to the [ShowDown](http://attacklab.net/showdown/)
+>> javascript port of Markdown.  Interestingly, [WMD source](http://wmd.googlecode.com/)
+>> is now available under an MIT license, though it is supposedly undergoing heavy
+>> refactoring.  It looks like there was previous discussion ( [[todo/Add_showdown_GUI_input__47__edit]] )
+>> about a showdown plugin.  Maybe a WMD plugin would be worthwhile.  I might
+>> look into it if I have time on the weekend. -- [[Will]]
+
+[[!tag wishlist]]
+
+>>> Below is a simple plugin/[[patch]] to make use of the WMD editor.
+
+>>>> Now added to ikiwiki, thanks! --[[Joey]] 
+
+>>> Turns out it isn't hard at all to
+>>> get a basic version going (which doesn't handle directives at all, nor does it swtich itself off when you're
+>>> editing something other than Markdown source).  I've
+>>> removed the done tag so this is visible as a patch. -- [[Will]]
+
+>>>> Hmm, it would be good if it turned off for !mdwn. Although this could
+>>>> be difficult for a new page, since there is a dropdown selector to
+>>>> choose the markup language then. But it should be doable for editing an
+>>>> existing page.
+
+>>>>> I agree.  I'm working on this for for both new pages and existing pages.
+>>>>> It shouldn't be hard once I get WMD going through the javascript API.
+>>>>> At the moment that is inexplicably failing, and I haven't had time to have a good look at why.
+>>>>> I may not get a chance to look at this again for a few weeks.
+
+>>>> Can I get a license statement (ie, GPL-2+) ffrom you for the plugin?
+>>>> --[[Joey]] 
+
+>>>>> Certainly.  You're free to use the code I posted below under the GPL-2+ license.  You'll note
+>>>>> however that I haven't said anything about the WMD code itself.  The WMD web page says:
+
+>>>>>> "I'm refactoring the code, and will be releasing WMD under the MIT license soon. For now you can download the most recent release (wmd-1.0.1.zip) and use it freely."
+
+>>>>> It might be best to contact <support@attacklab.net> to for an explicit license on that if you want to include it.
+>>>>> -- [[Will]]
+
+> So, I wonder if I should add a copy of the WMD source to ikiwiki, or rely
+> on the user or distribution providing it. It does not seem to be packaged
+> for Debian yet. Hmm, I also can't find any copyright or license info in
+> the zip file. --[[Joey]] 
+
+>> This is a good question.  My thought is that it will probably not be packaged any time soon,
+>> so you're better off adding it to IkiWiki.  I'd contact the author of WMD and ask them.  They
+>> may have more insight.  -- [[Will]]
+
+Note that the WMD plugin does **not** handle directives.  For this reason the normal `preview` button
+remains.  Some CSS to clean up the display of the live WMD preview would be good.
+
+> Can you elucidate the CSS comment -- or will it be obvious what you mean
+> when I try it? Is it what's needed for the live preview? --[[Joey]]
+
+>> In the version of the plugin below, a new `div` is added just below the form.  WMD
+>> populates this div with the HTML it generates from the Markdown source.  This is not very
+>> pretty at the moment - it appears in the same place as the preview used to, but with no
+>> header or anything.  Any standard IkiWiki preview will appear below the WMD live preview.
+>> I recommend having a look at <http://wmd-editor.com/examples/splitscreen>
+>> for what a little CSS could achieve.  -- [[Will]]
+
+> Hmm, now that I've tried it, I notice that it does live preview by
+> default, below the edit window. Which is nice, but then if I hit the
+> preview button, I get two previews.. which is confusing. (Also, minor,
+> but: the live preview is missing the "Page Preview:" header.) --[[Joey]] 
+
+> I wonder how annoying it would be to add some kind of simplistic wikilink
+> support to wmd's preview? And/or a wikilink button? While not supporting
+> directies is fine, not supporting wikilinks in a wiki seems a bit
+> lacking. It may also entice novide users to not use wikilinks and instead
+> use the hyperlinks that wmd does support. --[[Joey]] 
+
+> Bug: When I preview, all the text in the edit field seems to be
+> converted from mdwn to html. I think that wmd is converting the mdwn
+> into html when the form is posted, so it would also save like that.
+> I assume that is designed for websites that do not use markdown
+> internally. Doesn't it have a setting to leave it as markdown?
+>> Found setting, fixed. --[[Joey]] 
+
+>>> As I noted above, I've been working on the non-markdown page issue.
+>>> Below is my a new javascript file that I'm using, and below that a patch
+>>> to enable it.  This patch makes the normal usage prettier - you get
+>>> a side panel with the live preview in it.  It also adds a new config
+>>> option, `wmd_use101api`, which turns on code that tries to use the
+>>> wmd api.  At the moment this code doesn't seem to work - moreover the
+>>> code that uses the new API dies early, so any code after that point is
+>>> completely untested.  I will not
+>>> get a chance to look at this again soon though, so I thought I'd post
+>>> my progress so far.  -- [[Will]]
+
+
+Place the following file in `underlays/wmd/wmd-ikiwiki.js`.
+
+----
+
+    // This is some code to interface the WMD interface 1.0.1 with IkiWiki
+    // The WMD interface is planned to change, so this file will likely need
+    // updating in future.
+    
+    if (useWMDinterface) {
+    	wmd_options = { autostart: false, output: "Markdown" };
+    	var instance = null;
+    
+    	hook("onload", initwmd);
+    } else {
+    	var typeSelector = document.getElementById("type");
+    	
+    	var currentType = getType(typeSelector);
+    	
+    	if (currentType == "mdwn") {
+    		wmd_options = { output: "Markdown" };
+    		document.getElementById("wmd-preview-container").style.display = 'none';
+    	} else {
+    		wmd_options = { autostart: false };
+    		document.getElementById("wmd-preview-container").style.display = 'block';
+    	}
+    }
+    
+    function initwmd() {
+    	if (!Attacklab || !Attacklab.wmd) {
+    		alert("WMD hasn't finished loading!");
+    		return;
+    	}
+    	
+    	var typeSelector = document.getElementById("type");
+    	
+    	var currentType = getType(typeSelector);
+    	
+    	if (currentType == "mdwn") {
+    		window.setTimeout(enableWMD,10);
+    	}
+    	
+    	typeSelector.onchange=function() {
+    		var docType=getType(this);
+    		
+    		if (docType=="mdwn") {
+    			enableWMD();
+    		} else {
+    			disableWMD();
+    		}
+    	}
+    }
+    
+    function getType(typeSelector)
+    {
+    	if (typeSelector.nodeName.toLowerCase() == 'input') {
+    		return typeSelector.getAttribute('value');
+    	} else if (typeSelector.nodeName.toLowerCase() == 'select') {
+    		return typeSelector.value;
+    		// return typeSelector.options[typeSelector.selectedIndex].innerText;
+    	}
+    	return "";
+    }
+    
+    function enableWMD()
+    {
+    	var editContent = document.getElementById("editcontent");
+    	var previewDiv = document.getElementById("wmd-preview");
+    	var previewDivContainer = document.getElementById("wmd-preview-container");
+    	
+    	previewDivContainer.style.display = 'block';
+    	// editContent.style.width = previewDivContainer.style.width;
+    	
+    	/***** build the preview manager *****/
+    	var panes = {input:editContent, preview:previewDiv, output:null};
+    	var previewManager = new Attacklab.wmd.previewManager(panes);
+    
+    	/***** build the editor and tell it to refresh the preview after commands *****/
+    	var editor = new Attacklab.wmd.editor(editContent,previewManager.refresh);
+    
+    	// save everything so we can destroy it all later
+    	instance = {ta:editContent, div:previewDiv, ed:editor, pm:previewManager};
+    }
+    
+    function disableWMD()
+    {
+    	document.getElementById("wmd-preview-container").style.display = 'none';
+    
+    	if (instance != null) {
+    		instance.pm.destroy();
+    		instance.ed.destroy();
+    		// inst.ta.style.width='100%'
+    	}
+    	instance = null;
+    }
+
+
+----
+
+    diff --git a/IkiWiki/Plugin/wmd.pm b/IkiWiki/Plugin/wmd.pm
+    index 9ddd237..743a0b8 100644
+    --- a/IkiWiki/Plugin/wmd.pm
+    +++ b/IkiWiki/Plugin/wmd.pm
+    @@ -17,6 +17,13 @@ sub getsetup () {
+     	return
+     		plugin => {
+     			safe => 1,
+    +			rebuild => 1,
+    +		},
+    +		wmd_use101api => {
+    +			type => "boolean",
+    +			description => "Use the advanced, but unstable, WMD api for markdown preview.",
+    +			safe => 0,
+    +			rebuild => 0,
+     		},
+     }
+     
+    @@ -24,29 +31,25 @@ sub formbuilder_setup (@) {
+     	my %params=@_;
+     	my $form=$params{form};
+     
+    -	return if ! defined $form->field("do");
+    +	return unless defined $form->field("do");
+     	
+     	return unless $form->field("do") eq "edit" ||
+    -			$form->field("do") eq "create" ||
+    -			$form->field("do") eq "comment";
+    -
+    -	$form->tmpl_param("wmd_preview", "<div class=\"wmd-preview\"></div>\n".
+    -		include_javascript(undef, 1));
+    -}
+    -
+    -sub include_javascript ($;$) {
+    -	my $page=shift;
+    -	my $absolute=shift;
+    -
+    -	my $wmdjs=urlto("wmd/wmd.js", $page, $absolute);
+    -	return <<"EOF"
+    -<script type="text/javascript">
+    -wmd_options = {
+    -	output: "Markdown"
+    -};
+    -</script>
+    -<script src="$wmdjs" type="text/javascript"></script>
+    -EOF
+    +				$form->field("do") eq "create" ||
+    +				$form->field("do") eq "comment";
+    +
+    +	my $useAPI = $config{wmd_use101api}?'true':'false';
+    +	my $ikiwikijs = urlto("ikiwiki.js", undef, 1);
+    +	my $wmdIkiwikijs = urlto("wmd-ikiwiki.js", undef, 1);
+    +	my $wmdjs = urlto("wmd.js", undef, 1);
+    +
+    +	my $previewScripts = <<"EOS";
+    +		<script type="text/javascript">useWMDinterface=$useAPI;</script>
+    +		<script src="$ikiwikijs" type="text/javascript"></script>
+    +		<script src="$wmdIkiwikijs" type="text/javascript"></script>
+    +		<script src="$wmdjs" type="text/javascript"></script>
+    +EOS
+    +
+    +	$form->tmpl_param("wmd_preview", $previewScripts);
+     }
+     
+     1
+    diff --git a/doc/style.css b/doc/style.css
+    index a6e6734..36c2b13
+    --- a/doc/style.css
+    +++ b/doc/style.css
+    @@ -76,9 +76,16 @@ div.tags {
+     	float: right;
+     }
+     
+    +/*
+     #editcontent {
+     	width: 100%;
+     }
+    +*/
+    +
+    +#wmd-preview-container {
+    +	width: 49%;
+    +	float: right;
+    +}
+     
+     img {
+     	border-style: none;
+    diff --git a/templates/editpage.tmpl b/templates/editpage.tmpl
+    index b1cf015..1d2f080 100644
+    --- a/templates/editpage.tmpl
+    +++ b/templates/editpage.tmpl
+    @@ -15,6 +15,14 @@ Page type: <TMPL_VAR FIELD-TYPE>
+     <TMPL_VAR FIELD-PAGE>
+     <TMPL_VAR FIELD-TYPE>
+     </TMPL_IF>
+    +<TMPL_IF NAME="WMD_PREVIEW">
+    +<div id="wmd-preview-container">
+    +<div  class="header">
+    +<span>Live preview:</span>
+    +</div>
+    +<div class="wmd-preview" id="wmd-preview"></div>
+    +</div>
+    +</TMPL_IF>
+     <TMPL_VAR FIELD-EDITCONTENT><br />
+     <TMPL_IF NAME="CAN_COMMIT">
+     Optional comment about this change:<br />

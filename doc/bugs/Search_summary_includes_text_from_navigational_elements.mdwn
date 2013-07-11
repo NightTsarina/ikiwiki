@@ -1,0 +1,22 @@
+Each listed result for a search will show some example text from the beginning of the linked page.  It strips out HTML elements, but if there's any navigational text items, they will stay.
+
+For example, each search result on ikiwiki.info shows "(title) ikiwiki/ (title) Edit RecentChanges History Preferences Discussion" at the start of its results.
+
+A way to name some CSS ids that should be removed in search results within the ikiwiki setup file would work.  Here's something similar that a friend proposed:
+
+http://leaf.dragonflybsd.org/mailarchive/users/2009-11/msg00077.html
+
+(bin attachment on that page is actually a .diff.)
+
+> So I was looking at this and I relized that while the search plugin used
+> to use the format hook, and so there was no way to avoid it seeing all
+> the gunk around the page body, it was changed a while ago for different
+> reasons to use its own hook, postscan. So there's really no reason not
+> to move postscan so it runs before said gunk is added to the page.
+> (Aside from a small risk of breaking other third-party plugins that
+> somehow use postscan.)
+> 
+> I've implemented that in git, and it drops the navigation elements nicely.
+> It's perhaps less general than allowing specific divs to be skipped from
+> search, but it seems good enough. Please thank the dragonfly guys for their
+> work on this. [[done]] --[[Joey]] 

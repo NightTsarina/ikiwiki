@@ -1,0 +1,42 @@
+[[!template id=plugin name=unixrelpagespec core=0 author="[[Jogo]]"]]
+
+I don't understand why `./*` correspond to siblings and not subpages.
+This is probably only meaningfull with [[plugins/autoindex]] turned on.
+
+Here is a small plugin wich follow usual Unix convention :
+
+- `./*` expand to subpages
+- `../*` expand to siblings
+
+---
+    #!/usr/bin/perl
+    # UnixRelPageSpec plugin.
+    # by Joseph Boudou <jogo at matabio dot net>
+    
+    package IkiWiki::Plugin::unixrelpagespec;
+    
+    use warnings;
+    use strict;
+    use IkiWiki 3.00;
+    
+    sub import {
+        inject(
+            name => 'IkiWiki::PageSpec::derel',
+            call => \&unix_derel
+        );
+    }
+    
+    sub unix_derel ($$) {
+        my $path = shift;
+        my $from = shift;
+    
+        if ($path =~ m!^\.{1,2}/!) {
+            $from =~ s#/?[^/]+$## if (defined $from and $path =~ m/^\.{2}/);
+            $path =~ s#^\.{1,2}/##;
+            $path = "$from/$path" if length $from;
+        }
+    
+        return $path;
+    }
+    
+    1;

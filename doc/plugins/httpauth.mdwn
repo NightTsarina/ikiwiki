@@ -1,0 +1,37 @@
+[[!template id=plugin name=httpauth author="Alec Berryman"]]
+[[!tag type/auth]]
+
+This plugin allows HTTP basic authentication to be used to log into the
+wiki. In this mode, the web browser authenticates the user by some means,
+and sets the `REMOTE_USER CGI` environment variable. This plugin trusts
+that if that variable is set, the user is authenticated.
+
+## fully authenticated wiki
+
+One way to use the plugin is to configure your web server to require
+HTTP basic authentication for any access to the directory containing the
+wiki (and `ikiwiki.cgi`). The authenticated user will be automatically
+signed into the wiki. This method is suitable only for private wikis.
+
+## separate cgiauthurl
+
+To use httpauth for a wiki where the content is public, and where
+the `ikiwiki.cgi` needs to be usable without authentication (for searching,
+or logging in using other methods, and so on), you can configure a separate
+url that is used for authentication, via the `cgiauthurl` option in the setup
+file. This url will then be redirected to when a user chooses to log in using
+httpauth.
+
+A typical setup is to make an `auth` subdirectory, and symlink `ikiwiki.cgi` 
+into it. Then configure the web server to require authentication only for
+access to the `auth` subdirectory. Then `cgiauthurl` is pointed at this
+symlink.
+
+## using only httpauth for some pages
+
+If you want to only use httpauth for editing some pages, while allowing
+other authentication methods to be used for other pages, you can
+configure `httpauth_pagespec` in the setup file. This makes Edit
+links on pages that match the [[ikiwiki/PageSpec]] automatically use
+the `cgiauthurl`, and prevents matching pages from being edited by
+users authentication via other methods.

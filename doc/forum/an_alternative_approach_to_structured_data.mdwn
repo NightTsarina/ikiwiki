@@ -1,0 +1,63 @@
+## First Pass
+
+Looking at the discussion about [[todo/structured_page_data]], it looks a bit like folks are bogged down in figuring out what *markup* to use for structured page data, something I doubt that people will really agree on.  And thus, little progress is made.
+
+I propose that, rather than worry about what the data looks like, that we take a similar approach
+to the way Revision Control Systems are used in ikiwiki: a front-end + back-end approach.
+The front-end would be a common interface, where queries are made about the structured data,
+and there would be any number of back-ends, which could use whatever markup or format that they desired.
+
+To that purpose, I've written the [[plugins/contrib/field]] plugin for a possible front-end.
+I called it "field" because each page could be considered a "record" where one could request the values of "fields" of that record.
+The idea is that back-end plugins would register functions which can be called when the value of a field is desired.
+
+This is gone into in more depth on the plugin page itself, but I would appreciate feedback and improvements on the approach.
+I think it could be really powerful and useful, especially if it becomes part of ikiwiki proper.
+
+--[[KathrynAndersen]]
+
+> It looks like an interesting idea.  I don't have time right now to look at it in depth, but it looks interesting. -- [[Will]]
+
+> I agree such a separation makes some sense. But note that the discussion on [[todo/structured_page_data]]
+> talks about associating data types with fields for a good reason: It's hard to later develop a good UI for
+> querying or modifying a page's data if all the data has an implicit type "string". --[[Joey]]
+
+>> I'm not sure that having an implicit type of "string" is really such a bad thing.  After all, Perl itself manages with just string and number, and easily converts from one to the other.  Strong typing is generally used to (a) restrict what can be done with the data and/or (b) restrict how the data is input.  The latter could be done with some sort of validated form, but that, too, could be decoupled from looking up and returning the value of a field. --[[KathrynAndersen]]
+
+## Second Pass
+
+I have written additional plugins which integrate with the [[plugins/contrib/field]] plugin to both set and get structured page data.
+
+* [[plugins/contrib/getfield]] - query field values inside a page using {{$*fieldname*}} markup
+* [[plugins/contrib/ftemplate]] - like [[plugins/template]] but uses "field" data as well as passed-in data
+* [[plugins/contrib/ymlfront]] - looks for YAML-format data at the front of a page; this is just one possible back-end for the structured data
+
+--[[KathrynAndersen]]
+
+> I'm not an IkiWiki committer ([[Joey]] is the only one I think)
+> but I really like the look of this scheme. In particular,
+> having `getfield` interop with `field` without being *part of*
+> `field` makes me happy, since I'm not very keen on `getfield`'s
+> syntax (i.e. "ugh, yet another mini-markup-language without a
+> proper escaping mechanism"), but this way people can experiment
+> with different syntaxes while keeping `field` for the
+> behind-the-scenes bits.
+>
+>> I've started using `field` on a private site and it's working
+>> well for me; I'll try to do some code review on its
+>> [[plugins/contrib/field/discussion]] page. --s
+>
+> My [[plugins/contrib/album]] plugin could benefit from
+> integration with `field` for photos' captions and so on,
+> probably... I'll try to work on that at some point.
+>
+> [[plugins/contrib/report]] may be doing too much, though:
+> it seems to be an variation on `\[[inline archive="yes"]]`,
+> with an enhanced version of sorting, a mini version of
+> [[todo/wikitrails]], and some other misc. I suspect it could
+> usefully be divided up into discrete features? One good way
+> to do that might be to shuffle bits of its functionality into
+> the IkiWiki distribution and/or separate plugins, until there's
+> nothing left in `report` itself and it can just go away.
+>
+> --[[smcv]]

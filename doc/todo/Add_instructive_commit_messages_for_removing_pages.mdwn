@@ -1,0 +1,32 @@
+As [[Add instructive commit messages for add _47_ edit pages]], but for `remove.pm`.
+
+I use a `join()` since it at least looks like the plugin is able to remove several pages at once (`foreach` looping over file parameters), thus holding multiple entries in `@pages`. I haven't seen this happen, though.
+
+> I feel that anything that shows a change should show what files were
+> changed (at least as an easily accessible option), so mentioning
+> filenames in commits is almost always clutter.
+> 
+> It could be argued that there should be no message at all here, unless
+> the user provides one (which they currently cannot), as is done when
+> adding files. But the entire removal of a page from a wiki is a fairly
+> unusual circumstance that is probably best highlighted as such in
+> recentchanges. --[[Joey]]
+
+Diff follows. --[[Daniel Andersson]]
+
+[[!tag patch]]
+
+---
+
+	diff -r 4f2ad3a5377e Plugin/remove.pm
+	--- a/Plugin/remove.pm	Fri Jul 15 17:39:04 2011 +0200
+	+++ b/Plugin/remove.pm	Sat Jul 16 03:20:35 2011 +0200
+	@@ -228,7 +228,7 @@
+	 					IkiWiki::rcs_remove($file);
+	 				}
+	 				IkiWiki::rcs_commit_staged(
+	-					message => gettext("removed"),
+	+					message => sprintf(gettext("remove %s"), join(', ', @files)),
+	 					session => $session,
+	 				);
+	 				IkiWiki::enable_commit_hook();

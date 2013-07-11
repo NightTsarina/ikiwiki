@@ -1,0 +1,191 @@
+I've started reviewing this, and the main thing I don't like is the
+post-commit wrapper wrapper that ikiwiki-makerepo is patched to set up.
+That just seems unnecessarily complicated. Why can't ikiwiki itself detect
+the "cvs add <directory>" call and avoid doing anything in that case?
+--[[Joey]] 
+
+> The wrapper wrapper does three things:
+>
+> 7. It ignores `cvs add <directory>`, since this is a weird CVS
+> behavior that ikiwiki gets confused by and doesn't need to act on.
+> 7. It prevents `cvs` locking against itself: `cvs commit` takes a
+> write lock and runs the post-commit hook, which runs `cvs update`,
+> which wants a read lock and sleeps forever -- unless the post-commit
+> hook runs in the background so the commit can "finish".
+> 7. It fails silently if the ikiwiki post-commit hook is missing.
+> CVS doesn't have any magic post-commit filenames, so hooks have to
+> be configured explicitly. I don't think a commit will actually fail
+> if a configured post-commit hook is missing (though I can't test
+> this at the moment).
+>
+> Thing 1 can probably be handled within ikiwiki, if that seems less
+> gross to you.
+
+>> It seems like it might be. You can use a `getopt` hook to check
+>> `@ARGV` to see how it was called. --[[Joey]] 
+
+>>> This does the trick iff the post-commit wrapper passes its args
+>>> along. Committed on my branch. This seems potentially dangerous,
+>>> since the args passed to ikiwiki are influenced by web commits.
+>>> I don't see an exploit, but for paranoia's sake, maybe the wrapper
+>>> should only be built with execv() if the cvs plugin is loaded?
+>>> --[[schmonz]]
+
+>>>> Hadn't considered that. While in wrapper mode the normal getopt is not
+>>>> done, plugin getopt still runs, and so any unsafe options that 
+>>>> other plugins support could be a problem if another user runs
+>>>> the setuid wrapper and passes those options through. --[[Joey]]
+
+>>>>> I've tried compiling the argument check into the wrapper as
+>>>>> the first thing main() does, and was surprised to find that
+>>>>> this doesn't prevent the `cvs add <dir>` deadlock in a web
+>>>>> commit. I was convinced this'd be a reasonable solution,
+>>>>> especially if conditionalized on the cvs plugin being loaded,
+>>>>> but it doesn't work. And I stuck debug printfs at the beginning
+>>>>> of all the rcs_foo() subs, and whatever `cvs add <dir>` is
+>>>>> doing to ikiwiki isn't visible to my plugin, because none of
+>>>>> those subs are getting called. Nuts. Can you think of anything
+>>>>> else that might solve the problem, or should I go back to
+>>>>> generating a minimal wrapper wrapper that checks for just
+>>>>> this one thing? --[[schmonz]]
+
+>>>>>> I don't see how there could possibly be a difference between
+>>>>>> ikiwiki's C wrapper and your shell wrapper wrapper here. --[[Joey]]
+
+>>>>>>> I was comparing strings overly precisely. Fixed on my branch.
+>>>>>>> I've also knocked off the two most pressing to-do items. I
+>>>>>>> think the plugin's ready for prime time. --[[schmonz]]
+
+> Thing 2 I'm less sure of. (I'd like to see the web UI return
+> immediately on save anyway, to a temporary "rebuilding, please wait
+> if you feel like knowing when it's done" page, but this problem
+> with CVS happens with any kind of commit, and could conceivably
+> happen with some other VCS.)
+
+>> None of the other VCSes let a write lock block a read lock, apparently.
+>> 
+>> Anyway, re the backgrounding, when committing via the web, the
+>> post-commit hook doesn't run anyway; the rendering is done via the
+>> ikiwiki CGI. It would certianly be nice if it popped up a quick "working"
+>> page and replaced it with the updated page when done, but that's
+>> unrelated;  the post-commit
+>> hook only does rendering when committing using the VCS directly. The
+>> backgrounding you do actually seems safe enough -- but tacking
+>> on a " &" to the ikiwiki wrapper call doesn't need a wrapper script,
+>> does it? --[[Joey]]
+
+>>> Nope, it works fine to append it to the `CVSROOT/loginfo` line.
+>>> Fixed on my branch. --[[schmonz]]
+
+> Thing 3 I think I did in order to squelch the error messages that
+> were bollixing up the CGI. It was easy to do this in the wrapper
+> wrapper, but if that's going away, it can be done just as easily
+> with output redirection in `CVSROOT/loginfo`.
+>
+> --[[schmonz]]
+
+>> If the error messages screw up the CGI they must go to stdout.
+>> I thought we had stderr even in the the CVS dark ages. ;-) --[[Joey]] 
+
+>>> Some messages go to stderr, but definitely not all. That's why
+>>> I wound up reaching for IPC::Cmd, to execute the command line
+>>> safely while shutting CVS up. Anyway, I've tested what happens
+>>> if a configured post-commit hook is missing, and it seems fine,
+>>> probably also thanks to IPC::Cmd.
+>>> --[[schmonz]]
+
+----
+
+
+Further review.. --[[Joey]] 
+
+I don't understand what `cvs_shquote_commit` is
+trying to do with the test message, but it seems
+highly likely to be insecure; I never trust anything 
+that relies on safely quoting user input passed to the shell. 
+
+(As an aside, `shell_quote` can die on certian inputs.)
+
+Seems to me that, if `IPC::Cmd` exposes input to the shell
+(which I have not verified but its docs don't specify; a bad sign)
+you chose the wrong tool and ended up doing down the wrong
+route, dragging in shell quoting problems and fixes. Since you
+chose to use `IPC::Cmd`	just because you wanted to shut
+up CVS stderr, my suggestion would be to use plain `system`
+to run the command, with stderr temporarily sent to /dev/null:
+
+	open(my $savederr, ">&STDERR");
+	open(STDERR, ">", "/dev/null");
+	my $ret=system("cvs", "-Q", @_);
+	open(STDERR, ">$savederr");
+
+`cvs_runcvs` should not take an array reference. It's
+usual for this type of function to take a list of parameters
+to pass to the command.
+
+> Thanks for reading carefully. I've tested your suggestions and
+> applied them on my branch. --[[schmonz]]
+
+----
+
+I've abstracted out CVS's involvement in the wrapper, adding a new
+"wrapperargcheck" hook to examine `argc/argv` and return success or
+failure (failure causes the wrapper to terminate) and implementing
+this hook in the plugin. In the non-CVS case, the check immediately
+returns success, so the added overhead is just a function call.
+
+Given how rarely anything should need to reach in and modify the
+wrapper -- I'd go so far as to say we shouldn't make it too easy
+-- I don't think it's worth the effort to try and design a more
+general-purpose way to do so. If and when some other problem thinks
+it wants to be solved by a new wrapper hook, it's easy enough to add
+one. Until then, I'd say it's more important to keep the wrapper as
+short and clear as possible. --[[schmonz]]
+
+> I've committed a slightly different hook, which should be general enough
+> that `IkiWiki::Receive` can also use it, so please adapt your code to
+> that. --[[Joey]]
+
+>> Done. --[[schmonz]].
+
+----
+
+I'm attempting to bring some polish to this plugin, starting with
+fuller test coverage. In preparation, I've refactored the tests a
+bunch (and shuffled the code a bit) in my branch. I'm worried,
+however, that my misunderstanding of `git rebase` may have made my
+branch harder for you to pull.
+
+Before I go writing a whole swack of test cases, could you merge
+my latest? Through at least ad0e56cdcaaf76bc68d1b5c56e6845307b51c44a
+there should be no functional change. --[[schmonz]]
+
+Never mind, I was able to convince myself (by cloning `origin`
+afresh and merging from `schmonz/cvs`). The history is a little
+gross but the before-and-after diff looks right.
+
+Bugs found and fixed so far:
+
+* Stop treating text files as binary (`-kb`) on `rcs_add()`
+   (ac8eab29e8394aca4c0b23a6687ec947ea1ac869)
+
+> Merged to current head. --[[Joey]] 
+
+----
+
+Hi! Bugfixes in `schmonz/cvs` I'd like to see merged:
+
+* `6753235d`: Return bounded output from `rcs_diff()` when asked, as
+  the API states.
+* `e45175d5`: Always explicitly set CVS keyword substitution behavior.
+  Fixes behavior when a text file is added under a name formerly
+  used for a binary file.
+* `b30cacdf`: If the previous working directory no longer exists after
+  a CVS operation, don't try to `chdir()` back to it afterward.
+* `91b477c0`: Fix diffurl links (cvsweb expects unescaped '/').
+
+These are all the diffs that exist on the branch, so if the changes
+are acceptable you should be able to simply merge the branch.
+--[[schmonz]]
+
+> All applied. --[[Joey]] 

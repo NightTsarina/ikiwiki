@@ -1,0 +1,46 @@
+[[plugins/recentchangesdiff]] causes rendering to segfault if a commit removes a lot of contents. I removed close to 400 files, total size of about 950Kb in a single commit and now `ikiwiki` segfaults on refresh and rebuild:
+
+    [...]
+    rendering recentchanges.mdwn
+    [1]    5541 segmentation fault  ikiwiki --verbose --setup ikiwiki.setup --refresh
+
+If I disable the plugin, the segfault does not happen, but I have to remove `wc/recentchanges/*` or else it will crash just as well.
+
+This is reproducible, but I cannot provide the source code.
+
+> Can you provide a sanitised version of the source code? I've tried
+> ikiwiki on some files that are just large, and cannot reproduce any
+> problems, so it must be something in the specific file. (A perl bug is
+> also clearly involved here.) --[[Joey]]
+
+The tarball is at http://scratch.madduck.net/__tmp__recentchanges-segfault.tgz - unpack it in `/tmp` and `chdir()` to /tmp/cdt.taF18912, then run
+
+    ikiwiki --setup ikiwiki.setup
+    # segfaults
+    git checkout HEAD^
+    ikiwiki --setup ikiwiki.setup
+    # segfaults
+    rm -rf wc/recentchanges
+    ikiwiki --setup ikiwiki.setup
+    # works
+
+> I can reproduce it fine with that, thanks, and it's really looking like a
+> pure perl bug, that is triggered by markdown. Here's a simpler test case:
+
+	joey@kodama:/tmp>markdown < f
+	zsh: segmentation fault  markdown < f
+
+> Where f is a 6.3 mb file that I
+> extracted from ikiwiki's rendering pipeline.
+
+> It seems to be crashing at markdown line 345, which is a big nasty
+> `s///` statement.
+
+> The good news: markdown version 1.0.2~b8-2 does not trigger this perl bug.
+> I only see it with 1.0.1. (Bad news: Newer versions of markdown are
+> slooooooow, especially on such large files.)
+
+> I'm calling this [[done]] since I've filed [[!debbug 470676]] on perl, and
+> also have modified recentchangesdiff to only show the first 200 lines of
+> diff, which should be enough without bloating the recentchanges into
+> perl-crashing territory. --[[Joey]]

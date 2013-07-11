@@ -1,0 +1,52 @@
+I tried enabling the openid plugin on my site. I tried to log in but got an 
+error when coming back to ikiwiki.cgi: "Error: unknown do parameter". I think
+this means that do=postsignin isn't handled by CGI.pm. 
+
+The URI in question is fairly long, but if you want me to add it here, I can do that.
+
+I didn't really know how to debug this so I grepped for "postsignin" in both 
+openid.pm and passwordauth.pm and found:
+
+    IkiWiki/Plugin/openid.pm:               return_to => IkiWiki::cgiurl(do => "postsignin"),
+    IkiWiki/Plugin/passwordauth.pm:                         IkiWiki::cgi_postsignin($cgi, $session);
+
+Am I barking up the wrong tree? Maybe I'm missing something obvious? 
+
+I'm running 1.38 of ikiwiki and the newest CGI::Session, Net::OpenID::Consumer, 
+Crypt::DH, URI-Fetch. --Ethan
+
+> The url must not have a setting for openid.mode or openid_identifier in
+> it. So the OpenId plugin didn't know that it was trying to log in. I
+> think this points to an issue with the OpenID server. --[[Joey]]
+
+>> I put debugging output in openid.pm and it suggests that the 
+>> verification is taking place successfully. I see "openid.mode=id_res" 
+>> in the URI. On top of that, it's the same Openid server I use
+>> to sign in here on ikiwiki.info. --Ethan
+
+>>> Yikes, I don't really have the newest CGI::Session after all.. 
+>>> let me try updating that. --Ethan
+>>>> Sorry, I'm an idiot -- cookies disabled on my browser. Sorry to 
+>>>> waste your time.. --Ethan
+
+>>>>> No problem, the error message could certianly use improvement.
+>>>>> Although if I disable cookies, myopenid lets me know. Maybe you
+>>>>> should paste the url. --[[Joey]]
+
+I have cookies disabled on my computer, with a bunch of manual
+exceptions. This includes myopenid, ikiwiki.info, livejournal,
+and some others. Unfortunately it didn't include my own domain.
+So the URI that myopenid redirected me to was fine, but because
+I didn't have cookies set, I didn't have a session, and so 
+session->param('postsignin') was undefined, so instead of being
+redirected my query fell through CGI.pm to the bottom of cgi(), 
+where I got the message above. In a perfect world I'd say that
+it would be nice to let the user know that they can't sign in
+w/o cookies, but I don't see any easy way of detecting that 
+from CGI::Session. Maybe you know a way -- I have never used 
+CGI.pm before, this isn't my forte (in case that  wasn't obvious).
+--Ethan
+
+> It's not easily possible to test for cookies, but it is possible to
+> display a better error message in this failure mode. [[bugs/done]]
+> --[[Joey]]

@@ -1,0 +1,11 @@
+Is there here any possibility to modifying ikiwiki (via plugin) for store pages in database. I'm thinking about storing pages in sqlite or mysql for serving it much faster. The idea is from sputnik.org [http://sputnik.freewisdom.org/] but with perl ;-). Could we integrate the sputnik code in ikiwiki as a solution?
+
+-----
+
+ikiwiki generates static pages in a filesystem. It's responsible for editing and regenerating them, but they're served by any old web server. If you go to the trouble of stuffing the generated pages into a database, you'll need to go to further trouble to serve them back out somehow: write your own web server, perhaps, or a module for a particular web server. Either way you'll have sacrificed ikiwiki's interoperability, and it's not at all clear (since you're adding, in the best case, one layer of indirection reading the generated files) you'll have gained any improved page-serving performance. If it's source pages you want to store in a database, then you lose the ability to do random Unixy things to source pages, including managing them in a revision control system.
+
+Static HTML pages in a filesystem and the ability to do random Unixy things are two of the uniquely awesome features of ikiwiki.  It's probably possible to do what you want, but it's unlikely that you really want it. I'd suggest you either get to know ikiwiki better, or choose one of the many wiki implementations that already works as you describe. --[[Schmonz]]
+
+---
+
+Thanks, [[Schmonz]]. You clarify me much things,.... Xan.

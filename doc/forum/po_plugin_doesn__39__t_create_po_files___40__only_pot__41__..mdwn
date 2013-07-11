@@ -1,0 +1,11 @@
+On [[the po plugin's page|plugins/po]] it is clearly stated that "when the plugin has just been enabled, or when a page has just been declared as being translatable, the needed POT and PO files are created". Yet on all my attempts, only the pot file was created. Do I have to create the po files manually somehow? 
+
+To be precise, these are the settings I put in my wiki's setup file to enable the po plugin:
+
+    add_plugins => [qw{... po ...}],
+    po_master_language => 'de|Deutsch',
+    po_slave_languages => 'en|English',
+    po_translatable_pages => "mytranslatedpage",
+    po_link_to => 'current',
+
+… followed by "ikiwiki --setup mysetupfile".

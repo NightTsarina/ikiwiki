@@ -1,0 +1,44 @@
+GitHub's flavor of markdown adds fenced code blocks, delimited by triple-backquotes, like this:
+
+    ```
+    code
+    more code
+    ```
+
+That syntax proves quite a bit more convenient in many cases, because it doesn't require modifying every line of the code block to add indentation.  Please consider adding optional support for this in ikiwiki.  Please also consider turning it on by default for new wikis, though not for existing wikis since it could *potentially* break backward compatibility with existing content.
+
+> I don't think that's an official markdown feature, although it might be available
+> as an extension in some markdown library or other -- possibly one of the ones
+> supported by ikiwiki.
+> 
+> However, aside from compatability, ikiwiki already provides a way to do it that does not
+> require indenting the code: The [[ikiwiki/directive/format]] directive. Which has the benefit of
+> also telling it what kind of code it is, so it can syntax highlight it. Example:
+
+[[!format haskell """
+main :: IO ()
+main = forever $
+  putStrLn "hello, world!"
+"""]]
+
+> --[[Joey]]
+
+> > It is not a standard feature (as much as Markdown is [[standardized|Track_Markdown_Standardisation_Efforts]]...) But it does allow for [syntax hilightning](https://help.github.com/articles/github-flavored-markdown) too, just tag the language name after the backticks. It *seems* that Discount supports github-style backtick format (as well as Pandoc `~~~~` format) but doesn't allow the keyword argument.
+> > 
+> > I strongly support this feature. --[[anarcat]]
+> > 
+> > In fact, it turns out that it already works here!
+> >
+> > ~~~~
+> > this is a pandoc-style fenced in code block
+> > this is another line
+> > ~~~~
+> > 
+> > github-style backticks, however, do not add a wrapping `<pre>` block for some reason:
+> >
+> > ```
+> > this is a github-style fenced in code block
+> > this is another line
+> > ```
+> >
+> > ... maybe a bug in Discount... --[[anarcat]]

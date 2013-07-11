@@ -1,0 +1,32 @@
+If I browse <http://ikiwiki.info> in [emacs-w3m](http://www.emacswiki.org/emacs/emacs-w3m) (without Javascript), I
+can't do a [[search|plugins/search]]: the text field is there (so I can
+enter my search request), but there seems to be no way to make
+actually a search request (i.e., no button). 
+
+(A remark on how it works now in the other browsers: 
+In the more "complete"
+browsers (Chromium etc.), the request is done by pressing Enter in the
+text field.)
+--Ivan Z.
+
+I see, no Javascript is probably involved in using the search form;
+the code is simply:
+
+    <form method="get" action="/ikiwiki.cgi" id="searchform">
+    <div>
+    <input type="text" id="searchbox" name="P" value="" size="16"
+     />
+     </div>
+     </form>
+
+So, if the semantics suggested by HTML is such that such a form is to
+be submitted by some default form submitting action in the UI and it
+doesn't really require a button to be functional, then I'd say it's
+not an ikiwiki's problem, but a missing feature in the UI of emacs-w3m
+or the underlying w3m... Perhaps I'll report this issue to them. --Ivan Z.
+
+[[!tag done]]
+There is no problem at all!
+I'm sorry for this hassle!
+In emacs-w3m, there is the <code>w3m-submit-form</code> command
+(<kbd>C-c C-c</kbd>) to submit the form at point; it works.--Ivan Z.

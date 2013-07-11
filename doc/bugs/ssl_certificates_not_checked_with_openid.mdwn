@@ -1,0 +1,85 @@
+As far as I can tell, ikiwiki is not checking the SSL certificate of the remote host when using openid authentication. If so, this would allow for man-in-the-middle type attacks. Alternatively, maybe I am getting myself confused.
+
+Test #1: Enter URL as openid server that cannot be verified (either because the certificate is self signed or signed by an unknown CA). I get no SSL errors.
+
+Test #2: Download net\_ssl\_test from dodgy source (it uses the same SSL perl library, and test again. It seems to complain (on same site ikiwiki worked with) when it can't verify the signature. Although there is other breakage with the version I managed to download (eg. argument parsing is broken; also if I try to connect to a proxy server, it instructs the proxy server to connect to itself for some weird reason).
+
+For now, I want to try and resolve the issues with net\_ssl\_test, and run more tests. However, in the meantime, I thought I would document the issue here.
+
+-- Brian May
+
+> Openid's security model does not rely on the openid consumer (ie,
+> ikiwiki) performing any sanity checking of the openid server. All the
+> security authentication goes on between your web browser and the openid
+> server. This may involve ssl, or not.
+>
+>> Note that I'm not an openid expert, and the above may need to be taken
+>> with a grain of salt. I also can make no general statements about openid
+>> being secure. ;-) --[[Joey]]
+> 
+> For example, my openid is "http://joey.kitenet.net/". If I log in with
+> this openid, ikiwiki connects to that http url to determine what openid
+> server it uses, and then redirects my browser to the server
+> (https://www.myopenid.com/server), which validates the user and redirects
+> the browser back to ikiwiki with a flag set indicating that the openid
+> was validated. At no point does ikiwiki need to verify that the https url
+> is good.
+> --[[Joey]]
+
+>> Ok, so I guess the worst that could happen when ikiwiki talks to the http
+>> address is that it gets intercepted, and ikiwiki gets the wrong address.
+>> ikiwiki will then redirect the browser to the wrong address. An attacker could
+>> trick ikiwiki to redirect to their site which always validates the user
+>> and then redirects back to ikiwiki. The legitimate user may not even notice.
+>> That doesn't so seem secure to me...
+
+>> All the attacker needs is access to the network somewhere between ikiwiki
+>> and http://joey.kitenet.net/ or the ability to inject false DNS host names
+>> for use by ikiwiki and the rest is simple.
+
+>> -- Brian May
+
+>>> I guess that the place to add SSL cert checking would be in either
+>>> [[!cpan LWPx::ParanoidAgent]] or [[!cpan Net::OpenID::Consumer]]. Adding
+>>> it to ikiwiki itself, which is just a user of those libraries, doesn't
+>>> seem right.
+>>> 
+>>> It's not particularly clear to me how a SSL cert can usefully be
+>>> checked at this level, where there is no way to do anything but
+>>> succeed, or fail; and where the extent of the check that can be done is
+>>> that the SSL cert is issued by a trusted party and matches the domain name
+>>> of the site being connected to. I also don't personally think that SSL
+>>> certs are the right fix for DNS poisoning issues. --[[Joey]]
+
+I was a bit vague myself on the details on openid. So I looked up the standard.
+I was surprised to note that they have already considered these issues, in
+section 15.1.2, <http://openid.net/specs/openid-authentication-2_0.html#anchor41>.
+
+It says:
+
+"Using SSL with certificates signed by a trusted authority prevents these kinds of
+attacks by verifying the results of the DNS look-up against the certificate. Once
+the validity of the certificate has been established, tampering is not possible.
+Impersonating an SSL server requires forging or stealing a certificate, which is
+significantly harder than the network based attacks."
+
+With regards to implementation, I am surprised that the libraries don't seem to
+do this checking, already, and by default. Unfortunately, I am not sure how to test
+this adequately, see [[!debbug 466055]]. -- Brian May
+
+--- 
+
+I think [[!cpan Crypt::SSLeay]] already supports checking the certificate. The trick
+is to get [[!cpan LWP::UserAgent]], which is used by [[!cpan LWPx::ParanoidAgent]] to
+enable this checking.
+
+I think the trick is to set one of the the following environment variables before retrieving
+the data:
+
+$ENV{HTTPS\_CA\_DIR} = "/etc/ssl/certs/";  
+$ENV{HTTPS\_CA\_FILE} = "/etc/ssl/certs/file.pem";  
+
+Unfortunately I get weird results if the certificate verification fails, see [[!debbug 503440]].
+It still seems to work though, regardless.
+
+-- Brian May

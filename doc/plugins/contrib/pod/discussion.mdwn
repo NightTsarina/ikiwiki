@@ -1,0 +1,14 @@
+My one concern about this plugin is the `=for` markup in POD.
+
+> Some format names that formatters currently are known to
+> accept include "roff", "man", "latex", "tex", "text", and "html".
+
+I don't know which of these [[!cpan Pod::Xhtml]] supports. If it currently
+supports, or later support latex, that could be problimatic since that
+could maybe be used to include files or run code. --[[Joey]]
+
+> I don't know, either; the documentation for [[!cpan Pod:Xhtml]] is silent on this subject. --[[KathrynAndersen]]
+
+>> I'm afraid the only approach is to audit the existing code in the perl
+>> module(s), and then hope nothing is added to them later that opens a
+>> security hole. --[[Joey]] 

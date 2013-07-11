@@ -1,0 +1,330 @@
+ikiwiki's simple podcasting, while elegant and minimal, doesn't (as
+mentioned in [[todo/blogging]]) produce full-featured feeds. In
+fancy podcasts, episodes are accompanied by text content. The feeds
+also have lots more metadata.
+
+[[!toc]]
+
+## Status
+
+[[!template id=gitbranch branch=schmonz/fancypodcast author="[[schmonz]]"]]
+[[!tag patch]]
+
+In summary, the branch preserves ikiwiki's existing podcast behavior,
+adds more featureful behavior, and has been tested to work well in
+some common podcatchers. I believe it is ready for review and
+possible integration, and I'd like to get feedback to that effect
+(or to the contrary) before making further enhancements. I know
+[[joey]]'s the final arbiter here, but I'd appreciate any qualified,
+critical eyes ([[smcv]]?) raking over my diffs. --[[schmonz]]
+
+## Features
+
+[[!table data="""
+Feature            |iTunes RSS|iTunes Atom|Downcast RSS|Downcast Atom
+Feed image         |          |           |            |
+Feed title         |(./)      |(./)       |(./)        |(./)
+Feed publisher     |          |           |            |
+Feed "category"    |          |           |            |
+Feed date          |(./)      |(./)       |(./)        |(./)
+Feed description   |(./)      |(./)       |(./)        |
+Episode image      |          |           |            |
+Episode title      |(./)      |(./)       |(./)        |(./)
+Episode date       |(./)      |(./)       |(./)        |(./)
+Episode duration   |          |           |            |
+Episode author     |          |           |            |
+Episode description|(./)      |(./)       |(./)        |
+Episode enclosure  |(./)      |(./)       |(./)        |(./)
+"""]]
+
+## Design
+
+7. For each fancy podcast episode, write a blog post containing
+   `\[[!meta enclosure="WikiLink/to/media.mp3"]]`. (Don't specify
+   more than one enclosure -- but if you do, last one wins.)
+7. When rendering to HTML (single-page or inlined), append a link
+   to the media file.
+7. When rendering to RSS/Atom, the text is the entry's content and
+   the media file is its enclosure.
+7. Don't break simple podcasts in pursuit of fancy podcasts.
+
+## Implementation
+
+### Completed
+
+* Cover the existing simple podcast behavior with tests.
+* Add an `enclosure` field to [[plugins/meta]] that expands the
+  given [[ikiwiki/WikiLink]] to an absolute URL (feed enclosures
+  pretty much need to be, and the reference feeds I've looked at
+  all do this).
+* Write failing tests for the desired single-page and inlined
+  HTML behavior, then make them pass by adding enclosure stanzas
+  to `{,inline}page.tmpl`.
+* Write failing tests for the desired RSS/Atom behavior, then make
+  them pass via changes to `{atom,rss}item.tmpl` and [[plugins/inline]].
+* Match feature-for-feature with
+  [tru_podcast](http://www.rainskit.com/blog/542/tru_podcast-a-podcasting-plugin-for-textpattern)
+  (what [[schmonz]] will be migrating from).
+* Enrich [feed metadata](http://cyber.law.harvard.edu/rss/rss.html)
+  by catching up `rsspage.tmpl` to `atompage.tmpl`.
+* Verify that [[plugins/more]] plays well with fancy podcasts.
+* Verify that the feeds validate.
+* Subscribe to a fancy feed in some common podcatchers and verify
+  display details against a reference podcast.
+* Verify smooth transitions for two common use cases (see testing
+  details below).
+
+### Must-have (for [[schmonz]], anyway)
+
+* Think carefully about UTF-8.
+* Verify that _all_ the tests pass (not just my new ones).
+
+## Migration
+
+### Upgrading within ikiwiki: from simple to fancy
+
+#### My test podcast
+
+For this test, I chose a podcast that tries to work around ikiwiki's
+current limitations by issuing two separate `inline`s:
+
+* One with `feedonly=yes` that includes `.mdwn`, `.pdf`, and `.mp3`
+* One with `feeds=no` that includes only `.mdwn` (and makes a trail)
+
+This has the following effects:
+
+* Browser: sees just the articles (each of which has a manually
+  created link to its corresponding media file)
+* Feedreader: sees all the articles and media in one flat stream
+* Podcatcher: sees just the media (sans articles)
+
+I want instead to write one `inline` with these effects:
+
+* Browser: sees just the articles (each of which automatically links
+  to its enclosure)
+* Feedreader: sees just the articles (each of which specifies its
+  enclosure)
+* Podcatcher: sees just the enclosures (each of which has an enclosing
+  article, rendered as the media's "description")
+
+#### Upgrade steps
+
+7. Set up a non-production copy of the podcast.
+    7. Visually diff RSS and Atom feeds against production.
+    7. Subscribe to the copy (both feeds) in `r2e`, iTunes, Downcast.
+7. Apply fancypodcast patch to the installed ikiwiki:
+    7. `cd ~/Documents/trees/ikiwiki && git checkout fancypodcast`
+    7. `git diff --no-prefix master > ~/Documents/trees/localpatches/www/ikiwiki/fancypodcast.diff`
+    7. `cd ~/Documents/trees/pkgsrc-current/www/ikiwiki && make deinstall && make install clean`
+7. Verify that simple podcasts are unaffected:
+    7. Rerun `ikiwiki --setup`.
+    7. `diff -uB simple-before.rss simple-after.rss`
+        * A few new elements and attributes, as expected.
+    7. `diff -uB simple-before.atom simple-after.atom`
+        * No change.
+7. Remove the feed-only `inline` and enable feeds on the remaining one.
+7. Convert articles' manual download links to `\[[!meta enclosure=""]]`.
+7. I want existing and future podcatchers to get my new fancy
+   episodes, and I know my podcast isn't in any planets, so I'm
+   going to skip [[tips/howto avoid flooding aggregators]].
+7. Rerun `ikiwiki --setup`.
+7. Verify browser shows the same stuff.
+7. `diff -uB simple-after.rss fancy-after.rss   # and atom`
+    * MP3s and PDFs are no longer naked enclosures, but belong to
+      articles as they should.
+    * Articles have updated modification times, as they should.
+7. `r2e run` (both RSS and Atom)
+    * Nothing new with the default `trust-guid = True` (otherwise
+      would expect updated articles).
+7. iTunes "Update Podcast" (both RSS and Atom)
+    * Added one episode per article, with article text as the episode
+      description.
+    * Kept old naked-enclosure episodes around.
+7. Downcast refresh (RSS):
+    * Added one episode per article, with article text as the episode
+      description.
+    * Kept old naked-enclosure episodes around.
+7. Downcast refresh (Atom):
+    * Added one episode per article, with no episode description
+      (expected, see feature table).
+    * Kept old naked-enclosure episodes around.
+
+Different tradeoffs are possible. These seem okay to me.
+
+### Importing into ikiwiki: fancy (from another CMS)
+
+#### My test podcast
+
+For this test, I chose a podcast currently being published with
+Textpattern and tru_podcast, because I'd strongly prefer to publish
+it with ikiwiki instead.
+
+#### Upgrade steps
+
+7. Set up a non-production copy of the podcast.
+    7. Visually diff RSS and Atom feeds against production.
+    7. Subscribe to the copy (both feeds) in `r2e`, iTunes, Downcast.
+7. With a fancypodcast-enabled ikiwiki installed:
+    7. Copy content from Textpattern to ikiwiki:
+        7. Match article paths to preserve `/YYYY/MM/DD/post-title` permalinks.
+        7. Match enclosure paths (or redirect) to preserve Textpattern's URLs.
+        7. Match titles, post dates, and guids with `\[[!meta]]`.
+	    7. Match feed paths with permanent redirects from `/atom/` to
+           `/index.atom` (and same for RSS).
+        7. `\[[!inline]]` the articles.
+    7. Rerun `ikiwiki --setup`.
+7. Stop Textpattern, start ikiwiki.
+7. Verify that podcatchers see the feeds and don't redownload anything.
+7. Naively add two new blog posts, one with an enclosure.
+7. Verify that podcatchers download the new enclosures.
+
+-----
+
+## Future improvements
+
+### iTunes fancy podcasting
+
+* [iTunes-specific tags](https://www.apple.com/itunes/podcasts/specs.html)
+  appear to be RSS-only
+    * If they work in Atom, teach `inline` to optionally iTunesify RSS/Atom.
+    * Else, add `itunes` as a third kind of feed (RSS plus more stuff).
+* Notable tags for feeds:
+    * `itunes:subtitle`
+    * `itunes:author`
+    * `itunes:summary` (same as `description`)
+    * `itunes:owner` (includes `itunes:name` and `itunes:email`)
+    * `itunes:image href=''`
+    * `itunes:publisher`
+    * `itunes:category text=''` (can contain subcategories)
+    * `itunes:keywords`
+* Notable tags for entries:
+    * `itunes:duration`
+        * [[!cpan Audio::TagLib]] might be fastest, if present and applicable
+        * [ffprobe](http://ffmpeg.org/ffprobe.html) is reasonably fast
+        * [mediainfo](http://mediainfo.sourceforge.net/) is way slower
+        * Cache computed durations as pagestate
+
+### Fancy podcast aggregating
+
+* Write tests comparing a fancy podcast (HTML and feeds) against
+  the same podcast aggregated and republished, then make them pass
+  via changes to `aggregatepost.impl` and [[plugins/aggregate]].
+
+### Other ideas
+
+* Don't render template text (e.g., "Use this template to insert a
+  note into a page") in feeds.
+* Optionally specify the enclosure's:
+    * MIME type, in case `File::MimeInfo` guesses wrong.
+    * Duration, in case `ffprobe` guesses wrong.
+* Optionally specify enclosures outside the wiki:
+    * Some people don't want to store big unchanging files in the VCS.
+    * Other people like [podcasting found media](http://huffduffer.com/about).
+    * We'd have to download the file just to compute some metadata
+      about it, and then somehow not frequently re-download it.
+* Configurably generate additional subscription links (such as
+  iTunes) alongside the RSS/Atom ones in [[plugins/inline]].
+* Support Apple's "enhanced podcasts" (if they're still relevant).
+
+### code review
+
+	+                               # XXX better way to compute relative to srcdir?
+	+                               my $file = $absurl;
+	+                               $file =~ s|^$config{url}/||;
+
+I don't think ikiwiki offers a better way to do that, because there is
+normally no reason to do that. Why does it need an url of this form here?
+--[[Joey]] 
+
+> In all the popular, production-quality podcast feeds I've looked
+> at, enclosure URLs are always absolute (even when they could be
+> expressed concisely as relative). [Apple's
+> example](http://www.apple.com/itunes/podcasts/specs.html#example)
+> does too. So I told \[[!meta]] to call `urlto()` with the third
+> parameter true, which means the \[[!inline]] code here gets an
+> absolute URL in `$pagestate{$p}{meta}{enclosure}`. To compute the
+> enclosure's metadata, though, we of course need it as a local path.
+> I didn't see a less
+> [ongepotchket](http://www.jewish-languages.org/jewish-english-lexicon/words/1402)
+> way at the time. If you have a better idea, I'm happy to hear it;
+> if not, I'll add an explanatory comment. --[[schmonz]]
+
+>> I would be more comfortable with this if two two different forms of url
+>> you need were both generated by calling urlto. It'd be fine to call
+>> it more than once. --[[Joey]]
+
+>>> Heh, it was even easier than that! (Hooray for tests.) Done.
+>>> --[[schmonz]]
+
+	+<TMPL_IF HTML5><section id="inlineenclosure"><TMPL_ELSE><div id="inlineenclosure"></TMPL_IF>
+	+<TMPL_IF ENCLOSURE>
+
+Can't we avoid adding this div when there's no enclosure? --[[Joey]]
+
+> Sure, I've moved the `<TMPL_IF ENCLOSURE>` check to outside the
+> section-and-div block for `{,inline}page.tmpl`. --[[schmonz]]
+
+	+<a href="<TMPL_VAR ENCLOSURE>">Download this episode</a>
+
+"Download this episode" is pretty specific to particular use cases.
+Can this be made more generic, perhaps just "Download"? --[[Joey]] 
+
+> Yep, I got a little carried away. Done. --[[schmonz]]
+
+	-<TMPL_IF AUTHOR>
+	-       <title><TMPL_VAR AUTHOR ESCAPE=HTML>: <TMPL_VAR TITLE></title>
+	-       <dcterms:creator><TMPL_VAR AUTHOR ESCAPE=HTML></dcterms:creator>
+
+This change removes the author name from the title of the rss feed, which
+does not seem necessary for fancy podcasts. And it is a change that
+could negatively impact eg, Planet style aggregators using ikiwiki. --[[Joey]]
+
+> While comparing how feeds render in podcatchers, I noticed that
+> RSS and Atom were inconsistent in a couple ways, of which this was
+> one. The way I noticed it: with RSS, valuable title space was being
+> spent to display the author. I figured Atom's display was the one
+> worth matching. You're right, of course, that planets using the
+> default template and somehow relying on the current author-in-the-title
+> rendering for RSS feeds (but not Atom feeds!) would be broken by
+> this change. I'm having trouble imagining exactly what would break,
+> though, since guids and timestamps are unaffected. Would it suffice
+> to provide a note in the changelog warning people to be careful
+> upgrading their planets, and to customize `rssitem.tmpl` if they
+> really prefer the old behavior (or don't want to take any chances)?
+> --[[schmonz]]
+
+>> A specific example I know of is updo.debian.net, when used with
+>> rss2email. Without the author name there, one cannot see who posted
+>> an item. It's worth noting that planet.debian.org does the same thing
+>> with its rss feed. (That's probably what I copied.) Atom feeds may
+>> not have this problem, don't know. --[[Joey]]
+
+>>> Okay, that's easy to reproduce. It looks like this _might_ be
+>>> a simple matter of getting \[[!aggregate]] to populate author in
+>>> `add_page()`. I'll see what I can figure out. --[[schmonz]]
+
+	+++ b/templates/rsspage.tmpl
+	+	xmlns:atom="http://www.w3.org/2005/Atom"
+	+<atom:link href="<TMPL_VAR FEEDURL>" rel="self" type="application/rss+xml" />
+
+Why is it using atom namespace inside an rss feed? What are the chances
+every crummy rss reader on earth is going to understand this? I'd put it at
+about 0%; I doubt ikiwiki's own rss reader understands such a mashup.
+--[[Joey]]
+
+> The validator I used (<http://validator.w3.org/>, I think) told me to.
+> Pretty sure it doesn't make anything work better in the podcatchers
+> I tried. Hadn't considered that it might break some readers.
+> Removed. --[[schmonz]]
+
+	+<generator>ikiwiki</generator>
+
+Does this added tag provide any benefits? --[[Joey]]
+
+> Consistency with the Atom feed, and of course it trumpets ikiwiki
+> to software and/or curious humans who inspect their feeds. The tag
+> arrived only in RSS 2.0, but that's already the version we're
+> claiming to be, and it's over a decade old. Seems much less risky
+> than the atom namespace bits. --[[schmonz]]
+
+>> Sounds ok then. --[[Joey]]

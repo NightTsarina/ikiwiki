@@ -1,0 +1,120 @@
+There's been a lot of work on contrib syntax highlighting plugins. One should be
+picked and added to ikiwiki core.
+
+We want to support both converting whole source files into wiki
+pages, as well as doing syntax highlighting as a preprocessor directive 
+(which is either passed the text, or reads it from a file). But,
+the [[ikiwiki/directive/format]] directive makes this easy enough to 
+do if the plugin only supports whole source files. So, syntax plugins
+do no really need their own preprocessor directive, unless it makes
+things easier for the user.
+
+## The big list of possibilities
+
+* [[plugins/contrib/highlightcode]] uses [[!cpan Syntax::Highlight::Engine::Kate]],
+  operates on whole source files only, has a few bugs (see
+  [here](http://u32.net/Highlight_Code_Plugin/), and needs to be updated to
+  support [[bugs/multiple_pages_with_same_name]]. (Currently a 404 :-( )
+* [[!cpan IkiWiki-Plugin-syntax]] only operates as a directive.
+  Interestingly, it supports multiple highlighting backends, including Kate
+  and Vim.
+* [[plugins/contrib/syntax]] only operates as a directive
+  ([[not_on_source_code_files|automatic_use_of_syntax_plugin_on_source_code_files]]),
+  and uses [[!cpan Text::VimColor]].
+* [[plugins/contrib/sourcehighlight]] uses source-highlight, and operates on
+  whole source files only. Needs to be updated to
+  support [[bugs/multiple_pages_with_same_name]].
+* [[sourcecode|todo/automatic_use_of_syntax_plugin_on_source_code_files/discussion]]
+  also uses source-highlight, and operates on whole source files.
+  Updated to work with the fix for [[bugs/multiple_pages_with_same_name]].  Untested with files with no extension, e.g. `Makefile`.
+* [[users/jasonblevins]]'s code plugin uses source-highlight, and supports both
+  whole file and directive use.
+
+* [hlsimple](http://pivot.cs.unb.ca/git/?p=ikiplugins.git;a=blob_plain;f=IkiWiki/Plugin/hlsimple.pm;hb=HEAD) is a wrapper for the the perl module [[!cpan Syntax::Highlight::Engine::Simple]].  This is pure perl, pretty simple, uses css. It ought to be pretty fast (according to the author, and just because it is not external).
+On the other hand, there are not many predefined languages yet.  Defining language syntaxes is about as much 
+work as source-highlight, but in perl.  I plan to package the base module for debian. Perhaps after the author 
+releases the 5 or 6 language definitions he has running on his web site, it might be suitable for inclusion in ikiwiki. [[DavidBremner]]
+
+* [[plugins/highlight]] uses [highlight](http://www.andre-simon.de) via
+  its swig bindings. It optionally supports whole files, but also
+  integrates with the format directive to allow formatting of *any* of
+  highlight's supported formats. (For whole files, it uses either
+  keepextension or noextension, as appropriate for the type of file.)
+
+## General problems / requirements
+
+* Using non-perl syntax highlighting backends is slower. All things equal,
+  I'd prefer either using a perl module, or a multiple-backend solution that
+  can use a perl module as one option. (Or, if there's a great highlighter
+  python module, we could use an external plugin..)
+
+  Of course, some perl modules are also rather slow.. Kate, for example
+  can only process about 33 lines of C code, or 14 lines of
+  debian/changelog per second. That's **30 times slower than markdown**!
+
+  By comparison, source-highlight can do about 5000 lines of C code per
+  second... And launching the program 100 times on an empty file takes about
+  5 seconds, which isn't bad. And, it has a C++ library, which it
+  seems likely perl bindings could be written for, to eliminate 
+  even that overhead.
+  > [highlight](http://www.andre-simon.de) has similar features to source-highlight, and swig bindings
+  > that should make it trivial in principle to call from perl.  I like highlight a bit better because 
+  > it has a pass-through feature that I find very useful.  My memory is unfortunately a bit fuzzy as to how
+  > well the swig bindings work. [[DavidBremner]]
+
+* Engines that already support a wide variety of file types are of
+  course preferred. If the engine doesn't support a particular type
+  of file, it could fall back to doing something simple like
+  adding line numbers. (IkiWiki-Plugin-syntax does this.)
+* XHTML output.
+* Emitting html that uses CSS to control the display is preferred,
+  since it allows for easy user customization. (Engine::Simple does
+  this; Kate can be configured to do it; source-highlight can be 
+  made to do it via the switches `--css /dev/null --no-doc`)
+* Nothing seems to support 
+  [[wiki-formatted_comments|wiki-formatted_comments_with_syntax_plugin]]
+  inside source files. Doing this probably means post-processing the 
+  results of the highlighting engine, to find places where it's highlighted
+  comments, and then running them through the ikiwiki rendering pipeline.
+  This seems fairly doable with [[!cpan Syntax::Highlight::Engine::Kate]],
+  at least.
+* The whole-file plugins tend to have a problem that things that look like
+  wikilinks in the source code get munged into links by ikiwiki, which can
+  have confusing results. Similar problem with preprocessor directives.
+  One approach that's also been requested for eg,
+  [[plugins/contrib/mediawiki]] is to allow controlling which linkification
+  types a page type can have on it.
+
+  > The previous two points seem to be related.  One thought: instead of
+  > getting the source from the `content` parameter, the plugin could
+  > re-load the page source.  That would stop directives/links from
+  > being processed in the source.  As noted above, comments
+  > could then be parsed for directives/links later.
+  >
+  > Would it be worth adding a `nodirectives` option when registering
+  > an htmlize hook that switches off directive and link processing before
+  > generating the html for a page?
+
+* The whole-file plugins all get confused if there is a `foo.c` and a `foo.h`.
+  This is trivially fixable now by passing the keepextension option when
+  registering the htmlize hooks, though. There's also a noextension option
+  that should handle the
+  case of source files with names that do not contain an extension (ie,
+  "Makefile") -- in this case you just register the while filename
+  in the htmlize hook.
+* Whole-file plugins register a bunch of htmlize hooks. The wacky thing
+  about it is that, when creating a new page, you can then pick "c" or
+  "h" or "pl" etc from the dropdown that normally has "Markdown" etc in it.
+  Is this a bug, or a feature? Even if a feature, plugins with many
+  extensions make the dropdown unusable.. 
+
+  Perhaps the thing to do here is to use the new `longname` parameter to
+  the format hook, to give them all names that will group together at or
+  near the end of the list. Ie: "Syntax: perl", "Source code: c", etc.
+
+---
+
+I'm calling this [[done]] since I added the [[plugins/highlight]]
+plugin. There are some unresolved issues touched on here,
+but they either have the own other bug reports, or are documented
+as semi-features in the docs to the plugin. --[[Joey]] 

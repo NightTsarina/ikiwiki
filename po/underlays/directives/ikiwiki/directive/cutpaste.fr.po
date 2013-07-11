@@ -1,0 +1,139 @@
+# SOME DESCRIPTIVE TITLE
+# Traduction de ikiwiki
+# Copyright (C)2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2009-08-15 18:30-0300\n"
+"PO-Revision-Date: 2009-09-16 07:37+0200\n"
+"Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+msgid ""
+"The `copy`, `cut` and `paste` directives are supplied by the [[!iki plugins/"
+"cutpaste desc=cutpaste]] plugin."
+msgstr ""
+"Les directives `copy`, `cut` and `paste` sont fournies par le module "
+"d'extension [[!iki plugins/cutpaste desc=cutpaste]]."
+
+#. type: Plain text
+msgid ""
+"With these directives you can store and recall pieces of text in a page:"
+msgstr ""
+"Ces directives permettent de sauvegarder et rappeler des parties de texte "
+"d'une page."
+
+#. type: Bullet: ' * '
+msgid ""
+"`\\[[!cut id=name text=\"text\"]]` memorizes the text allowing to recall it "
+"using the given ID.  The text being cut is not included in the output."
+msgstr ""
+"`\\[[!cut id=name text=\"text\"]]` garde en mémoire le texte, qui peut être "
+"rappelé grâce à l'id. Le texte coupé n'est pas inclus dans la sortie."
+
+#. type: Bullet: ' * '
+msgid ""
+"`\\[[!copy id=name text=\"text\"]]` memorizes the text allowing to recall it "
+"using the given ID.  The text being cut *is* included in the output."
+msgstr "`\\[[!copy id=name text=\"text\"]]` garde en mémoire le texte, qui peut être rappelé grâce à l'id. Le texte coupé *est* inclus dans la sortie."
+
+#. type: Bullet: ' * '
+msgid "`\\[[!paste id=name]]` is replaced by the previously memorized text."
+msgstr ""
+"`\\[[!paste id=name]]` est remplacé par le texte précédemment mis en mémoire."
+
+#. type: Plain text
+msgid ""
+"The text being cut, copied and pasted can freely include wiki markup, "
+"including more calls to cut, copy and paste."
+msgstr ""
+"Le texte coupé, copié ou collé peut être inclus dans une balise wiki, avec "
+"d'autres appels encore aux directives cut, copy et paste."
+
+#. type: Plain text
+msgid ""
+"You do not need to memorize the text before using it: a cut directive can "
+"follow the paste directive that uses its text.  In fact, this is quite "
+"useful to postpone big blocks of text like long annotations and have a more "
+"natural flow.  For example:"
+msgstr "Il n'est pas nécessaire de mettre en mémoire le texte avant de l'utiliser. Une directive « cut » peut suivre une directive « paste » qui utilise le texte. Pouvoir différer de gros morceaux de texte comme de longues annotations et pouvoir suivre un cours plus naturel est très pratique. Par exemple :"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!toggleable id=\"cut\" text=\"[[!paste id=cutlongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"copy\" text=\"[[!paste id=copylongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"paste\" text=\"[[!paste id=pastelongdesc]]\"]]\n"
+msgstr ""
+"\t\\[[!toggleable id=\"cut\" text=\"[[!paste id=cutlongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"copy\" text=\"[[!paste id=copylongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"paste\" text=\"[[!paste id=pastelongdesc]]\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t[...some time later...]\n"
+msgstr "\t[...some time later...]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=cutlongdesc text=\"\"\"\n"
+msgstr "\t\\[[!cut id=cutlongdesc text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t   blah blah blah\n"
+msgstr "\t   blah blah blah\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=copylongdesc text=\"\"\"\n"
+msgstr "\t\\[[!cut id=copylongdesc text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=pastelongdesc text=\"\"\"\n"
+msgstr "\t\\[[!cut id=pastelongdesc text=\"\"\"\n"
+
+#. type: Plain text
+msgid ""
+"This can potentially be used to create loops, but ikiwiki is clever and "
+"breaks them."
+msgstr ""
+"Des boucles peuvent résulter mais ikiwiki est intelligent et les rompt."
+
+#. type: Plain text
+msgid ""
+"Since you can paste without using double quotes, copy and paste can be used "
+"to nest directives that require multiline parameters inside each other:"
+msgstr "Puisqu'il est possible de coller sans doubler les guillemets, ces directives copy et paste peuvent servir à emboîter des directives qui demandent des paramètres à plusieurs lignes insérés l'un dans l'autre :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!toggleable id=foo text=\"\"\"\n"
+msgstr "\t\\[[!toggleable id=foo text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t  [[!toggleable id=bar text=\"[[!paste id=baz]]\"]]\n"
+msgstr "\t  [[!toggleable id=bar text=\"[[!paste id=baz]]\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=baz text=\"\"\"\n"
+msgstr "\t\\[[!cut id=baz text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tmultiline parameter!\n"
+msgstr "\tmultiline parameter!\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

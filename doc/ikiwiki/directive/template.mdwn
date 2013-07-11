@@ -1,0 +1,91 @@
+The `template` directive is supplied by the [[!iki plugins/template desc=template]] plugin.
+
+The template directive allows wiki pages to be used as templates.
+These templates can be filled out and inserted into other pages in the
+wiki using the directive. The [[templates]] page lists templates
+that can be used with this directive.
+
+The directive has an `id` parameter
+that identifies the template to use. The remaining parameters are used to
+fill out the template.
+
+## Example
+
+	\[[!template id=note text="""Here is the text to insert into my note."""]]
+
+This fills out the `note` template, filling in the `text` field with
+the specified value, and inserts the result into the page.
+
+## Using a template
+
+Generally, a value can include any markup that would be allowed in the wiki
+page outside the template. Triple-quoting the value even allows quotes to
+be included in it. Combined with multi-line quoted values, this allows for
+large chunks of marked up text to be embedded into a template:
+
+        \[[!template id=foo name="Sally" color="green" age=8 notes="""
+        * \[[Charley]]'s sister.
+        * "I want to be an astronaut when I grow up."
+        * Really 8 and a half.
+        """]]
+
+## Creating a template
+
+The template is a regular wiki page, located in the `templates/`
+subdirectory inside the source directory of the wiki.
+
+Alternatively, templates can be stored in a directory outside the wiki,
+as files with the extension ".tmpl".
+By default, these are searched for in `/usr/share/ikiwiki/templates`,
+the `templatedir` setting can be used to make another directory be searched
+first.  When referring to templates outside the wiki source directory, the "id"
+parameter is not interpreted as a pagespec, and you must include the full filename
+of the template page, including the ".tmpl" extension. E.g.:
+
+    \[[!template id=blogpost.tmpl]]
+
+The template uses the syntax used by the [[!cpan HTML::Template]] perl
+module, which allows for some fairly complex things to be done. Consult its
+documentation for the full syntax, but all you really need to know are a
+few things:
+
+* Each parameter you pass to the template directive will generate a 
+  template variable. There are also some pre-defined variables like PAGE
+  and BASENAME.
+* To insert the value of a variable, use `<TMPL_VAR variable>`. Wiki markup
+  in the value will first be converted to html.
+* To insert the raw value of a variable, with wiki markup not yet converted
+  to html, use `<TMPL_VAR raw_variable>`.
+* To make a block of text conditional on a variable being set use
+  `<TMPL_IF variable>text</TMPL_IF>`.
+* To use one block of text if a variable is set and a second if it's not,
+  use `<TMPL_IF variable>text<TMPL_ELSE>other text</TMPL_IF>`
+
+Here's a sample template:
+
+        <span class="infobox">
+        Name: \[[<TMPL_VAR raw_name>]]<br />
+        Age: <TMPL_VAR age><br />
+        <TMPL_IF color>
+        Favorite color: <TMPL_VAR color><br />
+        <TMPL_ELSE>
+        No favorite color.<br />
+        </TMPL_IF>
+        <TMPL_IF notes>
+        <hr />
+        <TMPL_VAR notes>
+        </TMPL_IF>
+        </span>
+
+The filled out template will be formatted the same as the rest of the page
+that contains it, so you can include WikiLinks and all other forms of wiki
+markup in the template. Note though that such WikiLinks will not show up as
+backlinks to the page that uses the template.
+
+Note the use of "raw_name" inside the [[ikiwiki/WikiLink]] generator in the
+example above. This ensures that if the name contains something that might
+be mistaken for wiki markup, it's not converted to html before being
+processed as a [[ikiwiki/WikiLink]].
+
+
+[[!meta robots="noindex, follow"]]

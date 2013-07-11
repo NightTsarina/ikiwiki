@@ -1,0 +1,84 @@
+ikiwiki should be fully internationalized.
+
+----
+
+As to the hardcoded strings in ikiwiki, I've internationalized the program,
+and there is a po/ikiwiki.pot in the source that can be translated.
+--[[Joey]]
+
+----
+
+> The now merged po plugin handles l10n of wiki pages. The only missing
+> piece now is l10n of the templates.
+> --[[Joey]]
+
+----
+
+## template i18n
+
+From [[Recai]]:
+> Here is my initial work on ikiwiki l10n infrastructure (I'm sending it
+> before finalizing, there may be errors).
+
+I've revised the patches (tested OK):
+
+- $config{lang} patch:
+
+    <http://people.debian.org/~roktas/patches/ikiwiki/ikiwiki-lang.diff>
+
+  + Support for CGI::FormBuilder.
+  + Modify Makefile.PL for l10n.
+
+- l10n infrastructure from Koha project.  (This patch must be applied with
+  '-p1', also, it needs a 'chmod +x l10n/*.pl' after patching.)
+
+  + Leave templates dir untouched, use a temporary translations directory
+    instead.
+  + Fix Makefile (it failed to update templates).
+
+    <http://people.debian.org/~roktas/patches/ikiwiki/ikiwiki-l10n.diff>
+
+However...
+
+> fine.  Also a final note, I haven't examined the quality of generated
+> templates yet.
+
+Looks like, tmpl_process3 cannot preserve line breaks in template files.
+For example, it processed the following template:
+
+    Someone[1], possibly you, requested that you be emailed the password for
+user
+    <TMPL_VAR USER_NAME> on <TMPL_VAR WIKINAME>[2].
+
+    The password is: <TMPL_VAR USER_PASSWORD>
+
+    --
+    ikiwiki
+
+    [1] The user requesting the password was at IP address <TMPL_VAR
+REMOTE_ADDR>
+    [2] Located at <TMPL_VAR WIKIURL>
+
+as (in Turkish):
+
+Birisi[1], ki muhtemelen bu sizsiniz, <TMPL_VAR WIKINAME>[2] üzerindeki
+<TMPL_VAR USER_NAME> kullanıcısına ait parolanın epostalanması isteğinde
+bulundu. Parola: <TMPL_VAR USER_PASSWORD> -- ikiwiki [1] Parolayı isteyen
+kullanıcının ait IP adresi: <TMPL_VAR REMOTE_ADDR>[2] <TMPL_VAR WIKIURL>
+
+This could be easily worked around in tmpl_process3, but I wouldn't like to
+maintain a separate utility.
+
+----
+
+Another way to approach this would be to write a small program that outputs
+the current set of templates. Now i18n of that program is trivial,
+and it can be run once per language to generate localized templates.
+
+Then it's just a matter of installing the templates somewhere, and having
+them be used when a different language is enabled.
+
+It would make sense to make the existing `locale` setting control which
+templates are used. But the [[plugins/po]] plugin would probably want to do
+something more, and use the actual language the page is written in.
+--[[Joey]] 

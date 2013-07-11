@@ -1,0 +1,59 @@
+Source: ikiwiki
+Section: web
+Priority: optional
+Build-Depends: perl, debhelper (>= 9)
+Build-Depends-Indep: dpkg-dev (>= 1.9.0), libxml-simple-perl,
+  libtext-markdown-discount-perl,
+  libtimedate-perl, libhtml-template-perl,
+  libhtml-scrubber-perl, wdg-html-validator,
+  libhtml-parser-perl, liburi-perl (>= 1.36), perlmagick, po4a (>= 0.34),
+  libfile-chdir-perl, libyaml-libyaml-perl, python-support
+Maintainer: Joey Hess <joeyh@debian.org>
+Uploaders: Josh Triplett <josh@freedesktop.org>
+Standards-Version: 3.9.4
+Homepage: http://ikiwiki.info/
+Vcs-Git: git://git.ikiwiki.info/
+
+Package: ikiwiki
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends},
+  libtext-markdown-discount-perl,
+  libhtml-scrubber-perl, libhtml-template-perl,
+  libhtml-parser-perl, liburi-perl (>= 1.36), libyaml-libyaml-perl, libjson-perl
+Recommends: gcc | c-compiler, 
+  libc6-dev | libc-dev,
+  git (>= 1:1.7) | git-core (>= 1:1.5.0) | subversion | tla | bzr (>= 0.91) | mercurial | monotone (>= 0.38) | darcs,
+  libxml-simple-perl, libnet-openid-consumer-perl, libcrypt-ssleay-perl,
+  liblwpx-paranoidagent-perl, libtimedate-perl,
+  libcgi-formbuilder-perl (>= 3.05), libcgi-session-perl (>= 4.14-1),
+  libmail-sendmail-perl, libauthen-passphrase-perl, libterm-readline-gnu-perl,
+  libgravatar-url-perl, librpc-xml-perl,
+Suggests: viewvc | gitweb | viewcvs, libsearch-xapian-perl,
+  xapian-omega (>= 1.0.5), libtext-wikiformat-perl,
+  python, python-docutils, polygen, tidy, libhtml-tree-perl,
+  libxml-feed-perl, libmailtools-perl, perlmagick,
+  libfile-mimeinfo-perl, file,
+  liblocale-gettext-perl (>= 1.05-1), libtext-typography-perl,
+  libtext-csv-perl, graphviz, libnet-amazon-s3-perl,
+  libsparkline-php, texlive, dvipng, libtext-wikicreole-perl,
+  libsort-naturally-perl, libtext-textile-perl, libhighlight-perl,
+  po4a (>= 0.35-1), gettext, libnet-inet6glue-perl,
+  libtext-multimarkdown-perl, libxml-writer-perl
+Conflicts: ikiwiki-plugin-table
+Replaces: ikiwiki-plugin-table
+Provides: ikiwiki-plugin-table
+Description: a wiki compiler
+ Ikiwiki converts a directory full of wiki pages into HTML pages suitable
+ for publishing on a website. Unlike many wikis, ikiwiki does not have its
+ own ad-hoc means of storing page history, and instead uses a revision
+ control system such as Subversion or Git.
+ .
+ Ikiwiki implements all of the other standard features of a wiki, including
+ web-based page editing, user registration and logins, a RecentChanges
+ page, BackLinks, search, Discussion pages, tags, smart merging and conflict
+ resolution, and page locking.
+ .
+ Ikiwiki also supports generating news feeds (RSS and Atom) and blogging.
+ Ikiwiki provides a plugin system which allows many other features to be
+ added. Some of the plugins have additional dependencies, found among the
+ Recommends and Suggests of this package.

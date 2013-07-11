@@ -1,0 +1,43 @@
+[[!template  id=gitbranch branch=anarcat/osm_arbitrary_layers author="[[anarcat]]"]]
+
+I got tired of hacking at the osm.pm every time I wanted to change the layers, so I made it so the layers can be changed in the .setup file. In my master branch, there are now two new configuration settings: `osm_layers` and `osm_layers_order` which replace the hackish `osm_mapurl`. The variables are a hash and an array that allow the operator to define the list of URLs to be loaded as layers and also to change the order of layers. -- [[users/anarcat]]
+
+> I try to avoid adding hashes to config, because websetup does
+> not allow configuring hashes.
+> 
+> The example for `osm_layers_order` is confusing, it makes
+> it look like a perl hash, but it appears to really be a javascript
+> code fragement string, and one that is tightly bound to other
+> configuration too. Why not generate that javascript code from
+> data in a robust way?
+>
+> Does it even make sense to configure this stuff globally?
+> Could the layers be passed as parameters to the osm direction? --[[Joey]]
+>
+> > The reason for `osm_layers_order` is that order is important in the layers: the default layer is the first one and it's not possible to force Perl to have arrays generated in a reliable, reproducable order. Maybe an alternative would be to just set the default layer.
+> > 
+> > That said - maybe you're right and this should be passed as an argument to the OSM directive. The problem then is that you need to pass this stuff around the waypoint directive too. It also makes it hard to have a consistent set of maps all across the wiki. On our site, we have map inserts here and there, and it's nice to have them consistent all around.
+> > 
+> > In closing, I would say that I agree that `.._order` is confusing: maybe I should just have a `_default` to choose the first one? -- [[anarcat]]
+
+>>> If there's no reason to order the other layers, that makes some sense.
+>>> --[[Joey]]
+
+>>>> The layers are ordered because that's the way they are displayed in the menu. Take a look at the base layers on the top left here for an idea: <http://wiki.reseaulibre.ca/ikiwiki.cgi?map=map&do=osm&zoom=12&lat=45.5227&lon=-73.59554>. -- [[anarcat]]
+
+>>>> After sleeping over this - maybe it would be simpler if `osm_layers` was just an array. First, it would get rid of the duplication with `osm_layers_order`. Then I do not feel that having the keys in that hash is worth the duplication anymore. The only reason this is a hash is to provide an arbitrary string description for the layers. We could replace this with an automated description based on the path to the tiles provided.
+>>>> 
+>>>> If that's an acceptable solution for you, I'll go right ahead and rewrite this in a separate branch for merging. Note that on my master branch, there are now 3 main  changes that are not merged: arbitrary OSM layers (includes Google Maps support), KML formatting improvements (indentation, non-duplication of tags), minor OpenLayers improvements (don't sort layers arbitrarily, folders support, higher default zoom level and projection fixes). I can either make a branch for those three things or leave it on my master branch, but be warned that it will be hard to separate those as distinct/orthogonal patches as they mangle each other quite a bit.
+>>>>
+>>>> So basically, I need to know two things from you:
+>>>>
+>>>> 1. on the layers design: a) hash (which include arbitrary descriptions) + default value or b) a simple array with automated descriptions
+>>>> 2. the above changes on a single branch or on 3 different ones?
+>>>>
+>>>> Thanks for your time.  -- [[anarcat]]
+
+>>>>> I have implemented 1.b) and 2. (ie. it's a simple array now, and I split this stuff in different branches.) I'll open another todo for the other branches. --[[anarcat]]
+
+>>>>>> [[merged|done]] --[[Joey]] 
+
+Confirmed, thanks!! --[[anarcat]]

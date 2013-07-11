@@ -1,0 +1,57 @@
+dunno if it just me, but I had to add PREFIX a few places to get 'perl INSTALL_BASE=$HOME' to work
+
+> That will cause the files to be installed into a place that ikiwiki
+> doesn't look for them. It will also cause them to be installed into
+> /usr/etc by default, where ikiwiki also won't find them. 
+> 
+> Thomas Keller also ran into some sort of problem with the MacPort
+> involving the installation into /etc. From that discussion:
+> 
+> Both ikiwiki-update-wikilist and ikiwiki-mass-rebuild hardcode /etc; so
+> do several pages in the doc wiki.
+> 
+> The real problem though is that MakeMaker does not have a standard way
+> of specifying where /etc files go. In Debian we want everything to go
+> into /usr, rather than the default /usr/local, so set PREFIX=/usr -- but
+> we still want config files in /etc, not /usr/etc. The only way I can see
+> around this is to add a nonstandard variable to control the location of
+> /etc, that would override the PREFIX.
+> 
+> Which implies that you can't just use "$installdir/etc/" in the /etc
+> hardcoding scripts, and would instead need to record the new variable
+> at build time, like PREFIX is recorded in $installdir.
+>
+> Instead, let's ignore failure of the lines. [[done]]
+> 
+> --[[Joey]]
+
+<pre>
+From a1e02fbdaba3725730418a837b506e713904ada5 Mon Sep 17 00:00:00 2001
+From: David Bremner <bremner@pivot.cs.unb.ca>
+Date: Fri, 29 Aug 2008 15:18:24 -0300
+Subject: [PATCH] add missing $(PREFIX) to install path
+
+---
+ Makefile.PL |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile.PL b/Makefile.PL
+index 979483c..1f27394 100755
+--- a/Makefile.PL
++++ b/Makefile.PL
+@@ -50,9 +50,9 @@ extra_clean:
+        $(MAKE) -C po clean
+
+ extra_install:
+-       install -d $(DESTDIR)/etc/ikiwiki
+-       install -m 0644 wikilist $(DESTDIR)/etc/ikiwiki
+-       install -m 0644 auto.setup $(DESTDIR)/etc/ikiwiki
++       install -d $(DESTDIR)$(PREFIX)/etc/ikiwiki
++       install -m 0644 wikilist $(DESTDIR)$(PREFIX)/etc/ikiwiki
++       install -m 0644 auto.setup $(DESTDIR)$(PREFIX)/etc/ikiwiki
+
+        install -d $(DESTDIR)$(PREFIX)/share/ikiwiki
+        for dir in `cd underlays && find . -follow -type d ! -regex '.*\.svn.*'`; do \
+--
+1.5.6.3
+</pre>

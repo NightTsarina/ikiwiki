@@ -1,0 +1,346 @@
+# German translation of basewiki/templates page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2010-03-14 15:15+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"[[Ikiwiki]] uses many templates for many purposes. By editing its templates, "
+"you can fully customise this site."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"Templates are located in `/usr/share/ikiwiki/templates` by default; the "
+"`templatedir` setting can be used to make another directory be searched "
+"first. Customised templates can also be placed inside the \"templates/\" "
+"directory in your wiki's source."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"Ikiwiki uses the HTML::Template module as its template engine. This supports "
+"things like conditionals and loops in templates and is pretty easy to learn. "
+"All you really need to know to modify templates is this:"
+msgstr ""
+
+#. type: Bullet: '* '
+#, fuzzy
+#| msgid ""
+#| "To insert the raw value of a variable, with wiki markup not yet converted "
+#| "to html, use `<TMPL_VAR raw_variable>`."
+msgid "To insert the value of a template variable, use `<TMPL_VAR variable>`."
+msgstr ""
+"Um den unformatierten Wert einer Variable einzufügen, der die unveränderten "
+"Wiki-Formatierungsanweisungen enthält, verwende `<TMPL_VAR raw_Variable>`."
+
+#. type: Bullet: '* '
+#, fuzzy
+#| msgid ""
+#| "To make a block of text conditional on a variable being set use `<TMPL_IF "
+#| "NAME=\"variable\">text</TMPL_IF>`."
+msgid ""
+"To make a block of text conditional on a variable being set use `<TMPL_IF "
+"variable>text</TMPL_IF>`."
+msgstr ""
+"Wenn ein Textblock nur dann angezeigt werden soll, wenn eine Variable "
+"gesetzt ist, verwende `<TMPL_IF NAME=\"Variable\">Text</TMPL_IF>`."
+
+#. type: Bullet: '* '
+#, fuzzy
+#| msgid ""
+#| "To use one block of text if a variable is set and a second if it's not, "
+#| "use `<TMPL_IF NAME=\"variable\">text<TMPL_ELSE>other text</TMPL_IF>`"
+msgid ""
+"To use one block of text if a variable is set and a second if it's not, use "
+"`<TMPL_IF variable>text<TMPL_ELSE>other text</TMPL_IF>`"
+msgstr ""
+"Um einen Textblock anzuzeigen, wenn eine Variable gesetzt ist, und einen "
+"anderen, wenn sie es nicht ist, verwende `<TMPL_IF NAME=\"Variable"
+"\">Text<TMPL_ELSE>anderer Text</TMPL_IF>`."
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgid "[[!if test=\"enabled(template)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "template pages"
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"The [[!iki ikiwiki/directive/template desc=\"template directive\"]] allows "
+"wiki pages to be used as templates, filled out and inserted into other pages "
+"in the wiki."
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgid "[[!if test=\"enabled(edittemplate)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "default content for new pages"
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"The [[!iki ikiwiki/directive/edittemplate desc=\"edittemplate directive\"]] "
+"can be used to make new pages default to containing text from a template "
+"page, which can be filled out as the page is edited."
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+msgid ""
+"[[!if test=\"(enabled(template) or enabled(edittemplate))\n"
+"and enabled(inline)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(template) and enabled(inline)\" then=\"\"\"\n"
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid ""
+#| "[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
+#| "sort=title template=titlepage]]\n"
+msgid ""
+"[[!inline pages=\"templates/* and !*.tmpl and !templates/*/* and !*/discussion\"\n"
+"feeds=no archive=yes sort=title template=titlepage\n"
+"rootpage=templates postformtext=\"Add a new template named:\"]]\n"
+msgstr ""
+"[[!inline pages=\"templates/* and !*/discussion\" feeds=no archive=yes\n"
+"sort=title template=titlepage]]\n"
+
+#. type: Title ##
+#, fuzzy, no-wrap
+#| msgid "Using a template"
+msgid "wiki templates"
+msgstr "Verwenden einer Vorlage"
+
+#. type: Plain text
+msgid ""
+"These templates are used to build the wiki. The aim is to keep almost all "
+"html out of ikiwiki and in the templates."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"`page.tmpl` - Used for displaying all regular wiki pages. This is the key "
+"template to customise. [[!if test=\"enabled(pagetemplate)\" then=\"\"\""
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  (The [[!iki ikiwiki/directive/pagetemplate desc=\"pagetemplate directive\"]]\n"
+"  can be used to make a page use a different template than `page.tmpl`.)\"\"\"]]\n"
+"* `rsspage.tmpl` - Used for generating rss feeds for blogs.\n"
+"* `rssitem.tmpl` - Used for generating individual items on rss feeds.\n"
+"* `atompage.tmpl` - Used for generating atom feeds for blogs.\n"
+"* `atomitem.tmpl` - Used for generating individual items on atom feeds.\n"
+"* `inlinepage.tmpl` - Used for displaying a post in a blog.\n"
+"* `archivepage.tmpl` - Used for listing a page in a blog archive page.\n"
+"* `titlepage.tmpl` - Used for listing a page by title in a blog archive page.\n"
+"* `microblog.tmpl` - Used for showing a microblogging post inline.\n"
+"* `blogpost.tmpl` - Used for a form to add a post to a blog (and rss/atom links)\n"
+"* `feedlink.tmpl` - Used to add rss/atom links if `blogpost.tmpl` is not used.\n"
+"* `aggregatepost.tmpl` - Used by the aggregate plugin to create\n"
+"  a page for a post.\n"
+"* `searchform.tmpl`, `googleform.tmpl` - Used by the search plugin \n"
+"  and google plugin to add search forms to wiki pages.\n"
+"* `searchquery.tmpl` - This is a Omega template, used by the\n"
+"  search plugin.\n"
+"* `comment.tmpl` - Used by the comments plugin to display a comment.\n"
+"* `change.tmpl` - Used to create a page describing a change made to the wiki.\n"
+"* `recentchanges.tmpl` - Used for listing a change on the RecentChanges page.\n"
+"* `autoindex.tmpl` - Filled in by the autoindex plugin to make index pages.\n"
+"* `autotag.tmpl` - Filled in by the tag plugin to make tag pages.\n"
+"* `calendarmonth.tmpl`, `calendaryear.tmpl` - Used by ikiwiki-calendar to\n"
+"  make calendar archive pages.\n"
+"* `editpage.tmpl`, `editconflict.tmpl`, `editcreationconflict.tmpl`,\n"
+"  `editfailedsave.tmpl`, `editpagegone.tmpl`, `pocreatepage.tmpl`,\n"
+"  `editcomment.tmpl` `commentmoderation.tmpl`, `renamesummary.tmpl`,\n"
+"  `passwordmail.tmpl`, `openid-selector.tmpl` - Parts of ikiwiki's user\n"
+"  interface; do not normally need to be customised.\n"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#~ msgid ""
+#~ "[[!if test=\"enabled(template)\"\n"
+#~ "then=\"This wiki has templates **enabled**.\"\n"
+#~ "else=\"This wiki has templates **disabled**.\"\n"
+#~ "]]\n"
+#~ msgstr ""
+#~ "[[!meta title=\"Vorlagen\"]]\n"
+#~ "[[!if test=\"enabled(template)\"\n"
+#~ "then=\"In diesem Wiki sind Vorlagen **aktiviert**.\"\n"
+#~ "else=\"In diesem Wiki sind Vorlagen **deaktiviert**.\"\n"
+#~ "]]\n"
+
+#~ msgid ""
+#~ "Templates are files that can be filled out and inserted into pages in the "
+#~ "wiki."
+#~ msgstr ""
+#~ "Vorlagen sind Dateien, die ausgefüllt und in Wiki-Seiten eingefügt werden "
+#~ "können."
+
+#~ msgid ""
+#~ "These templates are available for inclusion onto other pages in this wiki:"
+#~ msgstr ""
+#~ "Diese Vorlagen sind verfügbar und können in andere Seiten dieses Wikis "
+#~ "eingebettet werden:"
+
+#~ msgid "Using a template works like this:"
+#~ msgstr "Eine Vorlage kann folgendermaßen verwendet werden:"
+
+#~ msgid "\t\\[[!template id=note text=\"\"\"Here is the text to insert into my note.\"\"\"]]\n"
+#~ msgstr "\t\\[[!template id=note text=\"\"\"Hier ist der Text, der in meine Notiz eingefügt werden soll.\"\"\"]]\n"
+
+#~ msgid ""
+#~ "This fills out the [[note]] template, filling in the `text` field with "
+#~ "the specified value, and inserts the result into the page."
+#~ msgstr ""
+#~ "Dies verwendet die Vorlage [[note]], wobei das `text`-Feld mit dem "
+#~ "angegebenen Wert gefüllt wird, und fügt das Ergebnis in die Seite ein."
+
+#~ msgid ""
+#~ "Generally, a value can include any markup that would be allowed in the "
+#~ "wiki page outside the template. Triple-quoting the value even allows "
+#~ "quotes to be included in it. Combined with multi-line quoted values, this "
+#~ "allows for large chunks of marked up text to be embedded into a template:"
+#~ msgstr ""
+#~ "Ein Wert kann im allgemeinen beliebige Formatierungsanweisungen "
+#~ "enthalten, die im Wiki außerhalb der Vorlage zulässig sind. Durch die "
+#~ "Verwendung dreier Anführungszeichen können sogar Anführungszeichen "
+#~ "enthalten sein. In Kombination mit mehrzeiligen Werten in "
+#~ "Anführungszeichen können so große Mengen an zu formatierendem Text in die "
+#~ "Vorlage eingefügt werden:"
+
+#~ msgid "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes=\"\"\"\n"
+#~ msgstr "        \\[[!template id=foo name=\"Anna\" color=\"grün\" age=8 notes=\"\"\"\n"
+
+#~ msgid "\\[[Charley]]'s sister."
+#~ msgstr "\\[[Thomas]] Schwester."
+
+#~ msgid "\"I want to be an astronaut when I grow up.\""
+#~ msgstr "\"Ich will ein Astronaut werden, wenn ich erwachsen bin.\""
+
+#~ msgid "Really 8 and a half."
+#~ msgstr "Wirklich achteinhalb."
+
+#~ msgid "Creating a template"
+#~ msgstr "Erstellen einer Vorlage"
+
+#~ msgid ""
+#~ "To create a template, simply add a template directive to a page, and the "
+#~ "page will provide a link that can be used to create the template. The "
+#~ "template is a regular wiki page, located in the `templates/` subdirectory "
+#~ "inside the source directory of the wiki."
+#~ msgstr ""
+#~ "Um eine Vorlage zu erstellen, füge einfach die Anweisung  `template` zu "
+#~ "einer Seite hinzu. Diese Seite bietet dann einen Link zur Erstellung der "
+#~ "Vorlage an. Die Vorlage ist eine normale Wiki-Seite, die im "
+#~ "Unterverzeichnis `templates/` des Wiki-Quellverzeichnisses liegt."
+
+#~ msgid ""
+#~ "The template uses the syntax used by the [[!cpan HTML::Template]] perl "
+#~ "module, which allows for some fairly complex things to be done. Consult "
+#~ "its documentation for the full syntax, but all you really need to know "
+#~ "are a few things:"
+#~ msgstr ""
+#~ "Die Vorlage verwendet die Syntax des Perl-Moduls [[!cpan HTML::"
+#~ "Template]], das die Umsetzung auch komplexer Vorhaben ermöglicht. In "
+#~ "seiner Dokumentation ist die vollständige Syntax beschrieben, zur "
+#~ "Verwendung muss man aber nur das Folgende wirklich wissen:"
+
+#~ msgid ""
+#~ "Each parameter you pass to the template directive will generate a "
+#~ "template variable. There are also some pre-defined variables like PAGE "
+#~ "and BASENAME."
+#~ msgstr ""
+#~ "Jeder Parameter, der der template-Anweisung übergeben wird, erzeugt eine "
+#~ "Variable, die in der Vorlage verwendet werden kann. Es gibt auch einige "
+#~ "vordefinierte Variablen wie PAGE und BASENAME."
+
+#~ msgid ""
+#~ "To insert the value of a variable, use `<TMPL_VAR variable>`. Wiki markup "
+#~ "in the value will first be converted to html."
+#~ msgstr ""
+#~ "Um den Wert einer Variable einzufügen, verwende `<TMPL_VAR Variable>`. "
+#~ "Wiki-Formatierung im Wert wird zuvor zu HTML konvertiert werden."
+
+#~ msgid "Here's a sample template:"
+#~ msgstr "Hier ist eine Beispiel-Vorlage:"
+
+#~ msgid ""
+#~ "        <span class=\"infobox\">\n"
+#~ "        Name: \\[[<TMPL_VAR raw_name>]]<br />\n"
+#~ "        Age: <TMPL_VAR age><br />\n"
+#~ "        <TMPL_IF NAME=\"color\">\n"
+#~ "        Favorite color: <TMPL_VAR color><br />\n"
+#~ "        <TMPL_ELSE>\n"
+#~ "        No favorite color.<br />\n"
+#~ "        </TMPL_IF>\n"
+#~ "        <TMPL_IF NAME=\"notes\">\n"
+#~ "        <hr />\n"
+#~ "        <TMPL_VAR notes>\n"
+#~ "        </TMPL_IF>\n"
+#~ "        </span>\n"
+#~ msgstr ""
+#~ "   <span class=\"infobox\">\n"
+#~ "        Name: \\[[<TMPL_VAR raw_name>]]<br />\n"
+#~ "        Alter: <TMPL_VAR age><br />\n"
+#~ "        <TMPL_IF NAME=\"color\">\n"
+#~ "        Lieblingsfarbe: <TMPL_VAR color><br />\n"
+#~ "        <TMPL_ELSE>\n"
+#~ "        Keine Lieblingsfarbe.<br />\n"
+#~ "        </TMPL_IF>\n"
+#~ "        <TMPL_IF NAME=\"notes\">\n"
+#~ "        <hr />\n"
+#~ "        <TMPL_VAR notes>\n"
+#~ "        </TMPL_IF>\n"
+#~ "        </span>\n"
+
+#~ msgid ""
+#~ "The filled out template will be formatted the same as the rest of the "
+#~ "page that contains it, so you can include WikiLinks and all other forms "
+#~ "of wiki markup in the template. Note though that such WikiLinks will not "
+#~ "show up as backlinks to the page that uses the template."
+#~ msgstr ""
+#~ "Die ausgefüllte Vorlage wird genauso formatiert wie der Rest der Seite, "
+#~ "die sie enthält, man kann also WikiLinks und alle anderen Arten von Wiki-"
+#~ "Formatierung in der Vorlage verwenden. Zu beachten ist aber, dass solche "
+#~ "WikiLinks nicht als Rückwärts-Links zu der Seite auftauchen, die die "
+#~ "Vorlage verwendet."
+
+#~ msgid ""
+#~ "Note the use of \"raw_name\" inside the [[ikiwiki/WikiLink]] generator. "
+#~ "This ensures that if the name contains something that might be mistaken "
+#~ "for wiki markup, it's not converted to html before being processed as a "
+#~ "[[ikiwiki/WikiLink]]."
+#~ msgstr ""
+#~ "Beachte auch die Verwendung von `raw_name` innerhalb des Generators für "
+#~ "den [[ikiwiki/WikiLink]]. Dies stellt sicher, dass der Name nicht nach "
+#~ "HTML konvertiert wird, selbst wenn er etwas enthält, was für eine Wiki-"
+#~ "Formatierungsanweisung gehalten werden könnte, bevor er als [[ikiwiki/"
+#~ "WikiLink]] verarbeitet wird."

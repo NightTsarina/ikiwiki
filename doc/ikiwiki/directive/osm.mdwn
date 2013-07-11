@@ -1,0 +1,69 @@
+The `osm` directive is supplied by the [[!iki plugins/osm desc=osm]] plugin.
+
+This directive inserts an OpenStreetMap map onto a page.
+It is typically combined with the [[waypoint]] directive
+to add points to the map.
+
+## examples
+
+    \[[!osm]]
+    \[[!waypoint lat="45°30N" lon="73°40W" name="My city" tag="city"]]
+
+The osm directive will display the actual map, while the waypoint
+directive adds waypoints to the map.
+
+The above can also be shortened as:
+
+    \[[!waypoint lat="45°30N" lon="73°40W" name="My city" tag="city" embed]]
+
+The tag is also taken from the tags elsewhere in the page, so the
+above is equivalent to:
+
+    \[[!waypoint lat="45°30N" lon="73°40W" name="My city" embed]]
+    \[[!tag city]]
+
+The icon is also taken from the tag if attached to the tag page as
+icon.png (default, modifiable)..
+
+## map display
+
+ * `map` - map to display, defaults to "map"
+ * `zoom` - the level to zoom to on the OSM map
+ * `loc` - lattitude and longitude of the map center
+ * `lat` - lattitude
+ * `lon` - longitude
+ * `editable` - add edit controls in a separate layer
+ * `right` - float the map right
+ * `left` - float the map left (default)
+ * `width` - width of the map
+ * `height` - height of the map
+
+## waypoints
+
+Waypoints can be added to any page. By default the waypoint takes the
+name of the page, which allows you to easily tag pages and make them
+appear on the central map.
+
+Waypoints, by default, show up as a image (the `icon` parameter) link
+to the main map (or the `map` parameter provided). That markup can be
+hidden with the `hidden` parameter.
+
+ * `name` - the name of this point, defaults to the page name (!) must
+   be unique, otherwise later incantation will overwrite previous
+   ones.
+ * `map` - the map to add the point to (defaults to "map")
+ * `desc` - description to embed in the map
+ * `loc` - lattitude and longitude
+ * `lat` - lattitude
+ * `lon` - longitude
+ * `tag` - the type of points, maps to an icon in the osm_types array
+ * `hidden` - do not display the link to the map (will not affect `embed`)
+ * `icon` - URL to the icon to show in the link to the map and within
+   the map
+ * `embed` - embed the map display alongside the point, in which case
+   the regular arguments to the map display can be used
+
+## Links
+
+If two pages with waypoints have a link between them, that link will
+magically show up on the map. Now how awesome is that?

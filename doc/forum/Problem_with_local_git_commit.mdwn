@@ -1,0 +1,42 @@
+I have a problem when I edit my wiki with a text editor and use just git to commit. 
+
+Suppose `iki` is my scrdir and `iki.git` my repository. Then I did `git clone iki.git myiki` to get a copy. Then I do 
+
+    cd myiki 
+    echo "test" >> somepage.mdwm"
+    git add somepage.mdwm
+    git pull 
+    git commit -m "test"
+    git push
+
+Then I get the following error message
+
+    Counting objects: 5, done.        
+    Delta compression using up to 2 threads.
+    Compressing objects: 100% (2/2), done.
+    Writing objects: 100% (3/3), 287 bytes, done.
+    Total 3 (delta 1), reused 0 (delta 0)
+    Unpacking objects: 100% (3/3), done.
+    remote: From /home/myuser/iki
+    remote:    32bb6be..1f3a647  master     -> origin/master
+    remote: There are no candidates for merging among the refs that you just fetched.
+    remote: Generally this means that you provided a wildcard refspec which had no
+    remote: matches on the remote end.
+    remote: 'git pull --prune origin' failed:  at /usr/share/perl5/IkiWiki/Plugin/git.pm line 207.
+    remote: skipping bad filename local.css~
+    remote: skipping bad filename #tex_sandbox.mdwn#
+    To /home/myuser/iki.git
+       32bb6be..1f3a647  master -> master
+
+When I check the repository via gitk I see that everything seems to be ok, if I check the scrdir the same way origin master is one step away from master and the change doesn't appear on the iki web page. Then I tried to do a `sudo git pull --prune origin master` in my scrdir which sets master to the head, but the change isn't there anyway. It foremost appears when I do a second change as above or if I do `sudo ikiwiki --setup iki.setup`.
+
+By the way the setup gives me a similar error message:
+
+    successfully generated /var/www/iki/ikiwiki.cgi  
+    successfully generated /home/myuser/iki.git/hooks/post-update
+    There are no candidates for merging among the refs that you just fetched.
+    Generally this means that you provided a wildcard refspec which had no
+    matches on the remote end.
+    'git pull --prune origin' failed:  at /usr/share/perl5/IkiWiki/Plugin/git.pm line 207.
+
+Any ideas what may be wrong here and how to fix this?

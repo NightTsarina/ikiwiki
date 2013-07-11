@@ -1,0 +1,36 @@
+#!/usr/bin/perl
+# Configuration file for ikiwiki to build its documentation wiki.
+
+# Use git during the build, if it's available and if we're building
+# from a git checkout. This ensures ikiwiki gets the right mtimes and
+# ctimes for files in the doc wiki.
+our $rcs="norcs";
+BEGIN {
+	my $git=`which git 2>&1`;
+	chomp $git;
+	if (-x $git && -d ".git") {
+		$rcs="git";
+	}
+}
+
+use IkiWiki::Setup::Standard {
+	wikiname => "ikiwiki",
+	srcdir => "doc",
+	destdir => "html",
+	templatedir => "templates",
+	underlaydirbase => "underlays",
+	underlaydir => "underlays/basewiki",
+	discussion => 0,
+	exclude => qr/\/discussion|bugs\/*|todo\/*|forum\/*/, # save space
+	locale => '',
+	verbose => 1,
+	syslog => 0,
+	userdir => "users",
+	usedirs => 0,
+	prefix_directives => 1,
+	add_plugins => [qw{goodstuff version haiku polygen fortune table}],
+	# not appropriate for doc dir
+	disable_plugins => [qw{recentchanges openid}],
+	rcs => $rcs,
+	gitorigin_branch => '', # don't pull during build
+}

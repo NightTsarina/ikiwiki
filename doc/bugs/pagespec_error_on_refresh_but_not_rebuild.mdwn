@@ -1,0 +1,32 @@
+I'm getting this error message when I refresh my wiki:
+
+    $ hg commit -u me -m "Minor corrections"
+    refreshing wiki..
+    scanning htmletc/moco-conf-rooms.mdwn
+    building htmletc/moco-conf-rooms.mdwn
+    Use of uninitialized value in concatenation (.) or string at /usr/local/lib/perl5/site_perl/5.8.9/Text/Typography.pm line 542.
+    building sidebar.mdwn, which depends on htmletc/moco-conf-rooms
+    building contact.mdwn, which depends on sidebar
+    building 500.mdwn, which depends on sidebar
+    Use of uninitialized value in concatenation (.) or string at /usr/local/lib/perl5/site_perl/5.8.9/Text/Typography.pm line 542.
+    building ceramics.mdwn, which depends on sidebar
+    building glossary.mdwn, which depends on sidebar
+    syntax error in pagespec "internal(glossary/comment_*)"
+    warning: post-commit hook exited with status 2
+
+But there is no error if I use `ikiwiki --rebuild` to regenerate the whole thing.
+
+> You neglect to say what version of ikiwiki this is,
+> or give any information to reproduce the bug.
+> 
+> My guess: A version older than 3.20100403, which  included
+> 799b93d258bad917262ac160df74136f05d4a451,
+> which could lead to incorrect "syntax error in pagespec"
+> that only happened some of the time.
+> 
+> (The Text::Typography warning seems probably unrelated.)
+> --[[Joey]]
+
+>> I'm sorry, I don't know what I was thinking there.  It's ikiwiki 3.20100212, and manually applying the patch you linked to made the bug go away.  (Upgrading ikiwiki is a pain on nearlyfreespeech, especially if you don't want to keep the build directory around -- please consider making ikiwiki runnable directly from a git clone.)
+
+[[!meta link="done"]]

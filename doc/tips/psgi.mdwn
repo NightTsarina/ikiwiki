@@ -1,0 +1,21 @@
+Here's the app.psgi file if you want to run ikiwiki with [PSGI](http://plackperl.org) instead of apache or other web servers:
+
+    use Plack::App::CGIBin;
+    use Plack::Builder;
+    use Plack::App::File;
+    
+    builder {
+        mount '/ikiwiki.cgi' => Plack::App::CGIBin->new(file => './ikiwiki.cgi')->to_app;
+        enable "Plack::Middleware::Static",
+            path => sub { s!(^(?:/[^.]*)?/?$)!${1}/index.html! },
+                root => '.';
+        mount '/' => Plack::App::File->new(root => ".")->to_app;
+    };
+
+Put it in your destdir and now your can run `plackup -p <port>`.
+
+Note that you should configure your `url` and `cgiurl` to point to the listening address of plackup.
+
+Also, the app.psgi residing in the destdir means that /app.psgi is accessible from the web server.
+
+Hopefully some day ikiwiki web ui will speak psgi natively.

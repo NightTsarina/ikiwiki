@@ -1,0 +1,32 @@
+In setting up my wiki I followed the [[setup]] instruction which point
+to an ikiwiki.setup file that contains "verbose => 0".
+
+I hadn't noticed that setting in there, but later when I changed my
+standard command of:
+
+	ikiwiki --setup ikiwiki.setup
+
+to:
+
+	ikiwiki --verbose --setup ikiwiki.setup
+
+I was quite surprised that that change didn't have any effect.
+
+So two suggestions to fix this:
+
+1. Make command-line arguments override settings in the setup file
+
+> This is difficult to do, since reading a setup file replaces values for
+> config items with the values in the setup file. Also, when you say
+> --setup foo, you're asking ikiwiki to set up the wiki using the
+> comnfiguration in file foo. Which is what it does.
+
+2. Comment out all settings in the example setup file that are simply
+   setting options to their default values. That way, the file will
+   still be self-documenting, but command-line arguments will at least
+   work for these settings while they remain commented out.
+
+> I've done that, I also fixed some issues with --verbose handling earlier.
+> I'm pretty sure that those fixes fix the real issue, so calling this
+> [[done]].
+> --[[Joey]]

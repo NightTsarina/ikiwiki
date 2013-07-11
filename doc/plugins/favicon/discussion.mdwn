@@ -1,0 +1,19 @@
+To change favicon you need edit lib/perl5/site_perl/5.8.8/IkiWiki/Plugin/favicon.pm and change line:
+> $template->param(favicon => "favicon.ico");
+ 
+at the end of file. And rebuild wiki:
+> ikiwiki -setup your_wiki_config
+
+After reload page you'll see your new favicon.
+
+That method allow configure Animated PNG even:
+> ikiwiki.sphynkx.org.ua
+
+----
+Sphynkx
+
+> Typically sites that use animated pngs (ugh!) as favicons just call it
+> `favicon.ico`. It's not as if (most) web servers and browsers trust
+> the filename extension to mean anything anyway. And using favicon.ico
+> makes it more likely to work with old browsers that just always look for
+> that. --[[Joey]] 

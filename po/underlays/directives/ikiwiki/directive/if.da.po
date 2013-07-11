@@ -1,0 +1,132 @@
+# Danish translation of if page for ikiwiki.
+# Copyright (C) 2008-2009 Jonas Smedegaard <dr@jones.dk>
+# This file is distributed under the same license as the ikiwiki package.
+# Jonas Smedegaard <dr@jones.dk>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki 3.15\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
+"PO-Revision-Date: 2009-07-23 00:06+0200\n"
+"Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#. type: Plain text
+msgid ""
+"The `if` directive is supplied by the [[!iki plugins/conditional "
+"desc=conditional]] plugin."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"With this directive, you can make text be conditionally displayed on a "
+"page.  For example:"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!if test=\"enabled(smiley)\"\n"
+"\t      then=\"The smiley plugin is enabled :-)\"\n"
+"\t      else=\"No smiley plugin here..\"]]\n"
+msgstr ""
+"[[!if test=\"enabled(smiley)\"\n"
+"     then=\"Smiley-udvidelsen er aktiveret :-)\"\n"
+"     else=\"Ingen smiley-udvidelse her...\"]]\n"
+
+#. type: Plain text
+msgid ""
+"If the specified `test` succeeds, the `then` text will be displayed, "
+"otherwise the `else` text will be displayed. The `else` part is optional."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"The `then` and `else` values can include any markup that would be allowed in "
+"the wiki page outside the template. Triple-quoting the values even allows "
+"quotes to be included."
+msgstr ""
+"Værdierne `then` og `else` kan indeholde enhver opmærkning som ville være "
+"tilladt på wikisiden udenfor skabelonen. Trippel-citering af værdien "
+"tillader endda at bruge citering som del af værdien."
+
+#. type: Plain text
+msgid ""
+"The `test` is a [[ikiwiki/PageSpec]]; if it matches any page in the wiki "
+"then it succeeds. So you can do things like testing for the existence of a "
+"page or pages, testing to see if any pages were created in a given month, "
+"and so on."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"If you want the [[ikiwiki/PageSpec]] to only match against the page that "
+"contains the conditional, rather than matching against all pages in the "
+"wiki, set the \"all\" parameter to \"no\"."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"In an `if` directive, the regular [[ikiwiki/PageSpec]] syntax is expanded "
+"with the following additional tests:"
+msgstr ""
+"I et `if`-direktiv udvides den normale [[ikiwiki/PageSpec]]-syntaks med "
+"følgende yderligere tests:"
+
+#. type: Bullet: '* '
+msgid "enabled(plugin)"
+msgstr "enabled(udvielse)"
+
+#. type: Plain text
+#, no-wrap
+msgid "  Tests whether the specified plugin is enabled.\n"
+msgstr ""
+
+#. type: Bullet: '* '
+msgid "sourcepage(glob)"
+msgstr "sourcepage(glob)"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  Tests whether the glob matches the name of the page that contains the\n"
+"  conditional.\n"
+msgstr ""
+
+#. type: Bullet: '* '
+msgid "destpage(glob)"
+msgstr "destpage(glob)"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  Tests whether the glob matches the name of the page that is being built.\n"
+"  That might be different than the name of the page that contains the\n"
+"  conditional, if it's being inlined into another page.\n"
+msgstr ""
+
+#. type: Bullet: '* '
+msgid "included()"
+msgstr "included()"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  Tests whether the page is being included onto another page, for example\n"
+"  via [[inline]] or [[map]].  Note that pages inserted into other pages\n"
+"  via [[template]] are not matched here.\n"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

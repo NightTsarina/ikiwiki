@@ -1,0 +1,21 @@
+My web server runs in a chroot jail. This makes things interesting because the paths are slightly different depending on whether you are inside or outside the chroot.
+
+To override an incorrectly guessed path, I set setupconf in the .setup file. I also set allow_symlinks_before_srcdir=>1. However, when I tried websetup, the setup file was correctly changed but these important settings disappeared. This seems like a bug.
+
+> I don't know what "setupconf" is. This is the first mention of it in the
+> ikiwiki source tree. 
+> 
+> I've fixed the `allow_symlinks_before_srcdir` issue. --[[Joey]]
+
+I meant setupfile as in IkiWiki::Setup::dump($config{setupfile}) from IkiWiki/Plugin/websetup.pm
+
+Sorry for the confusion.
+
+> Ok, that's an internal setting that I never envisioned someone digging
+> out and setting in their setup file. It could be made an exported config
+> option, but then every generated setup file will have this setting in it,
+> which will be at best redundant.
+> 
+> Can you find another solution, such as a symlink, for your special case?
+
+I see your point. [[done]]

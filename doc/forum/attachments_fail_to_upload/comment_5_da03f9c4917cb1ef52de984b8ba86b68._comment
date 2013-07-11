@@ -1,0 +1,11 @@
+[[!comment format=mdwn
+ username="http://joey.kitenet.net/"
+ nickname="joey"
+ subject="comment 5"
+ date="2012-03-05T20:48:50Z"
+ content="""
+Your version already contains the unicode fix, which was commit 1572c3c376df36ea09e27a1ea437e3a75cdf0f84.
+
+I think it's possible that the javascript file upload widget is timing out waiting for a response from ikiwiki when uploading the file. Since this is a slow CPU, it might exceed some limit in that code. At this point all I know is that the javascript file upload widget is setting an error flag, which is displayed as \"failed!\" in red. The next step is probably to get a http protocol analizer like firebug and see what if anything is being returned by the ikiwiki.cgi when the attachment is uploaded to it -- it should return some JSON with a `stored_msg` field.
+
+"""]]

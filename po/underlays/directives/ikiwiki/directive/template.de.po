@@ -1,0 +1,204 @@
+# German translation of directives/ikiwiki/directive/template page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2010-03-14 14:09+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `template` directive is supplied by the [[!iki plugins/template "
+"desc=template]] plugin."
+msgstr ""
+"Die `template`-Anweisung wird durch die [[!iki plugins/template "
+"desc=template]]-Erweiterung bereitgestellt."
+
+#. type: Plain text
+msgid ""
+"The template directive allows wiki pages to be used as templates.  These "
+"templates can be filled out and inserted into other pages in the wiki using "
+"the directive. The [[templates]] page lists templates that can be used with "
+"this directive."
+msgstr ""
+
+#. type: Plain text
+#, fuzzy
+#| msgid ""
+#| "[[Templates]] are files that can be filled out and inserted into pages in "
+#| "the wiki, by using the template directive. The directive has an `id` "
+#| "parameter that identifies the template to use. The remaining parameters "
+#| "are used to fill out the template."
+msgid ""
+"The directive has an `id` parameter that identifies the template to use. The "
+"remaining parameters are used to fill out the template."
+msgstr ""
+"[[Vorlagen|templates]] sind Dateien, die ausgefüllt und in Wiki-Seiten "
+"eingefügt werden können, indem die template-Anweisung verwendet wird. Die "
+"Anweisung hat einen `id`-Parameter, der die zu verwendende Vorlage "
+"identifiziert. Die restlichen Parameter werden verwendet, um die Vorlage "
+"auszufüllen."
+
+#. type: Title ##
+#, fuzzy, no-wrap
+#| msgid "Example:"
+msgid "Example"
+msgstr "Beispiel:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!template id=note text=\"\"\"Here is the text to insert into my note.\"\"\"]]\n"
+msgstr "\t\\[[!template id=note text=\"\"\"Hier ist der Text, der in meine Notiz eingefügt werden soll.\"\"\"]]\n"
+
+#. type: Plain text
+msgid ""
+"This fills out the `note` template, filling in the `text` field with the "
+"specified value, and inserts the result into the page."
+msgstr ""
+"Dies füllt die Vorlage `note` aus, wobei das Feld `text` mit dem angegebenen "
+"Wert gefüllt wird, und fügt das Ergebnis in die Seite ein."
+
+#. type: Title ##
+#, no-wrap
+msgid "Using a template"
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"Generally, a value can include any markup that would be allowed in the wiki "
+"page outside the template. Triple-quoting the value even allows quotes to be "
+"included in it. Combined with multi-line quoted values, this allows for "
+"large chunks of marked up text to be embedded into a template:"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "        \\[[!template id=foo name=\"Sally\" color=\"green\" age=8 notes=\"\"\"\n"
+msgstr ""
+
+#. type: Bullet: '        * '
+msgid "\\[[Charley]]'s sister."
+msgstr ""
+
+#. type: Bullet: '        * '
+msgid "\"I want to be an astronaut when I grow up.\""
+msgstr ""
+
+#. type: Bullet: '        * '
+msgid "Really 8 and a half."
+msgstr ""
+
+#. type: Title ##
+#, no-wrap
+msgid "Creating a template"
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"The template is a regular wiki page, located in the `templates/` "
+"subdirectory inside the source directory of the wiki."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"(Alternatively, templates can be stored in a directory outside the wiki, as "
+"files with the extension \".tmpl\".  By default, these are searched for in `/"
+"usr/share/ikiwiki/templates`; the `templatedir` setting can be used to make "
+"another directory be searched first.)"
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"The template uses the syntax used by the [[!cpan HTML::Template]] perl "
+"module, which allows for some fairly complex things to be done. Consult its "
+"documentation for the full syntax, but all you really need to know are a few "
+"things:"
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"Each parameter you pass to the template directive will generate a template "
+"variable. There are also some pre-defined variables like PAGE and BASENAME."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"To insert the value of a variable, use `<TMPL_VAR variable>`. Wiki markup in "
+"the value will first be converted to html."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"To insert the raw value of a variable, with wiki markup not yet converted to "
+"html, use `<TMPL_VAR raw_variable>`."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"To make a block of text conditional on a variable being set use `<TMPL_IF "
+"variable>text</TMPL_IF>`."
+msgstr ""
+
+#. type: Bullet: '* '
+msgid ""
+"To use one block of text if a variable is set and a second if it's not, use "
+"`<TMPL_IF variable>text<TMPL_ELSE>other text</TMPL_IF>`"
+msgstr ""
+
+#. type: Plain text
+msgid "Here's a sample template:"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"        <span class=\"infobox\">\n"
+"        Name: \\[[<TMPL_VAR raw_name>]]<br />\n"
+"        Age: <TMPL_VAR age><br />\n"
+"        <TMPL_IF color>\n"
+"        Favorite color: <TMPL_VAR color><br />\n"
+"        <TMPL_ELSE>\n"
+"        No favorite color.<br />\n"
+"        </TMPL_IF>\n"
+"        <TMPL_IF notes>\n"
+"        <hr />\n"
+"        <TMPL_VAR notes>\n"
+"        </TMPL_IF>\n"
+"        </span>\n"
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"The filled out template will be formatted the same as the rest of the page "
+"that contains it, so you can include WikiLinks and all other forms of wiki "
+"markup in the template. Note though that such WikiLinks will not show up as "
+"backlinks to the page that uses the template."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"Note the use of \"raw_name\" inside the [[ikiwiki/WikiLink]] generator in "
+"the example above. This ensures that if the name contains something that "
+"might be mistaken for wiki markup, it's not converted to html before being "
+"processed as a [[ikiwiki/WikiLink]]."
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#~ msgid ""
+#~ "For a list of available templates, and details about how to create more, "
+#~ "see the [[templates]] page."
+#~ msgstr ""
+#~ "Auf der [[Vorlagen|templates]]-Seite gibt es eine Liste der verfügbaren "
+#~ "Vorlagen und auch eine Anleitung, wie weitere angelegt werden können."

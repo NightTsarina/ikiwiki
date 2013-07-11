@@ -1,0 +1,11 @@
+When the [[plugins/aggregate]] plugin was used for a feed and this is removed (or the
+same feed name given a different rss feed), the old entries don't
+automatically vanish.
+
+I think that if it was just removed, they are never GC'd, because the
+expiry code works on the basis of existing feeds. And if it was replaced,
+old items won't go away until expirecount or expireage is met.
+
+To fix it probably needs an explicit check for items aggregated by feeds
+that no longer provide them, Catching old items for feeds that were changed
+to a different url may be harder yet. --[[Joey]]

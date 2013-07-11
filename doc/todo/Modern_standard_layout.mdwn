@@ -1,0 +1,39 @@
+I think it would be a good idea to think about the standard layout style of ikiwiki, the current layout used in a standard setup and on ikiwiki.info as well looks a bit old-fashioned to me. I guess that a nice modern layout would attract more new ikiwiki users and boost the ikwiki community... 
+
+> FWIW, I agree.  The actiontabs [[theme|themes]] would be a better default, but something which showed what ikiwiki was capable of (or more precicely: that ikiwiki is as capable as other popular wiki softwares) would be better still. — [[Jon]]
+
+>> As an author of plugins that interact with the UI, I think it's good that
+>> a *minimal* ikiwiki has a minimal anti-theme, and that plugins are
+>> developed against the anti-theme - it's a "blank slate" for themes.
+>> [[plugins/contrib/trail]] was much easier to get working in
+>> the default anti-theme than in actiontabs and blueview.
+>>
+>> Technical detail: all the standard themes are done by appending to the
+>> anti-theme's CSS (albeit in ikiwiki's build system rather than during
+>> the wiki build), rather than by replacing it - so themes that haven't
+>> been updated for a new UI element end up using the version of it from
+>> the anti-theme. [[plugins/Comments]] and [[plugins/contrib/trail]]
+>> both need some tweaks per-theme to make them integrate nicely,
+>> but most of the design comes from the anti-theme.
+>>
+>> That doesn't necessarily mean the anti-theme should be the one used
+>> on ikiwiki.info, or used by default in new wikis - from my
+>> point of view, it'd be fine for either of those to be actiontabs
+>> or something The important thing is to *have* a "blank slate" anti-theme
+>> that looks simple but sufficient, as a basis for new styles (either
+>> [[themes]], or wikis that want their own unique stylesheet), and derive
+>> the other themes from it. --[[smcv]]
+
+> Ikiwiki's minimal theme is not modern. It's postmodern. I like it for the
+> reasons described here. <http://kitenet.net/~joey/blog/entry/web_minimalism/>
+> " The minimalism sucked you in, it made the web feel like one coherent,
+> unified thing, unlike the constellation of corporate edifices occupying
+> much of it today."
+> 
+> I see an increasing trend back toward these principles, driven partly
+> by limits of eg, smartphone UI. So I certianly won't be changing the
+> look of any of my ikiwiki sites, including this one.
+> 
+> `auto.setup` and `auto-blog.setup` could have different defaults,
+> or allow a theme to be picked as [Branchable](http://branchable.com/)
+> does. Perhaps actiontabs for auto-blog and default for wikis? --[[Joey]]

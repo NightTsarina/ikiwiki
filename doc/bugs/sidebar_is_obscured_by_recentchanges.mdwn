@@ -1,0 +1,59 @@
+I've set up a simple sidebar on an otherwise fairly default wiki.  The sidebar uses css float:right and sits above most pages quite nicely.
+
+For example, my wiki's [front](http://www.cse.unsw.edu.au/~cs3431/wiki/) and [news](http://www.cse.unsw.edu.au/~cs3431/wiki/news/) pages show the sidebar nicely floating on top of the background.  (As a side note, I had to add:
+
+    #sidebar {
+    	border: 1px solid;
+    	background: white;
+    }	
+
+to <code>local.css</code> to get the border and make sure that the RSS feed's grey title didn't show through on the news page.)
+
+> Hmm the background color setting seems like a change it makes sense to make to
+> style.css .. done.
+> --[[Joey]]
+
+Unfortunately, the [recentchanges](http://www.cse.unsw.edu.au/~cs3431/wiki/recentchanges/) page doesn't look so nice - the sidebar appears below the recentchanges list.
+
+I don't understand why the sidebar is appearing below the recentchanges inline, but above the news inline.
+
+> I don't see the problem here in firefox 3. The sidebar is at the top of
+> both pages. However, it might have to do with the recentchanges page
+> itself using floating elements to build up the table-like display. --[[Joey]]
+
+>> I didn't test in firefox.  I now have screenshots for both firefox and safari.  It is still interesting to compare the layout.  The first is quite broken.  The second is only a little broken.  The third is what I was expecting.
+
+Here is a screenshot of the broken behaviour in Safari:
+
+<img src="http://www.cse.unsw.edu.au/~willu/screenshots/safari-1.png" alt="screenshot of broken behaviour in Safari" width="50%" />
+
+Here is a screenshot of the same thing in FireFox.  Notice that while there are no overlaps, there is still a large gap in the layout.
+
+<img src="http://www.cse.unsw.edu.au/~willu/screenshots/firefox-1.png" alt="screenshot of semi-working behaviour in Firefox" width="50%" />
+
+Here is an inline news page (in Safari, but it looks similar in firefox).  I was expecting both of the previous layouts to look like this.
+
+<img src="http://www.cse.unsw.edu.au/~willu/screenshots/safari-2.png" alt="screenshot of working behaviour in Safari" width="50%" />
+
+What really surprises me is WHY this looks any different.  And when you look at style.css you see that recentchanges and sidebar both use float, whereas normal inline pages do not.
+Note that in the third (working) screenshot, the top bullet point is wrapped.  This is because the sidebar is floated.
+
+I think there is:
+
+  * A display bug in safari, and
+  * It would be nice to clean up the way recentchanges are displayed so that there isn't a vertical gap for the sidebar.  I'll play with this and see what I can do.
+
+Looked at this a little more.  I've found the following.  Here is my current local.css:
+
+    div.recentchanges {
+    	clear: both;
+    	overflow: visible;
+    }
+
+Adding "clear: both;" makes the recentchanges div start below (as in further down the page) the sidebar.  This makes safari behave like firefox above (changes the 1st screenshot to look more like the 2nd screenshot).
+
+Adding "overflow: visible;"  (or removing "overflow: auto" from style.css) makes the sidebar appear above (as in printed over the top of, not higher up the page) the recentchanges (similar to the third screen shot above).  Unfortunately because ".recentchanges .pagelinks" uses "float: right;" it looks strange in other ways.  For this reason I use the "clear:both;" as well.
+
+-- [[users/Will]]
+
+>> Looks like [[Joey]] has added `clear:both;` to style.css, so this is [[bugs/done]]. -- [[Will]]

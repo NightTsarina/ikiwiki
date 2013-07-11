@@ -1,0 +1,22 @@
+[[!tag wishlist]]
+[[!tag patch]]
+
+In our team internal wiki, we wish to impose a policy that all edits must have a comment. Patch in [[!debbug 450620]].
+
+> Good idea! I also hate empty commit comments, but I know that it's also a matter
+> of human mentality. Of course, you can forbid users to commit empty comments,
+> but then they can commit so worthless comments like "\*" or "\* blah". --[[Paweł|ptecza]]
+
+> I don't feel this belongs in ikiwiki core, but would accept a plugin that
+> does it. I think that can be done using a formbuilder_setup hook.
+> BTW, it wuld probably be better to validate against a `comment_regexp`,
+> so that when the evil admins notice that /.+/ is absurdly easy for users
+> to get around (by using " "), they can tighten it down. --[[Joey]]
+
+> Sorry for being dense, but I don't see a way to modify the template from within
+> a plugin, without providing a whole new template for editform, which obviously
+> isn't a workable solution. If the template was modified to allow overriding the
+> portion of the message in question, then I agree that a plugin couuld do the rest.
+> Thoughts appreciated :) --[[Dom]]
+
+> Yes, modifying the template is ok. --[[Joey]]

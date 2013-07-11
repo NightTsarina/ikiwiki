@@ -1,0 +1,969 @@
+I submitted some changes that added 5 "Yes"es and 2 "Fast"s to Mercurial at [[/rcs]], but some functionality is still missing as compared to e.g. `git.pm`, with which it should be able to be equivalent.
+
+To do this, a more basic rewrite would simplify things. I inline the complete file below with comments. I don't expect anyone to take the time to read it all at once, but I'd be glad if those interested in the Mercurial backend could do some beta testing.
+
+* [This specific revision at my hg repo](http://46.239.104.5:81/hg/program/ikiwiki/file/4994ba5e36fa/Plugin/mercurial.pm) ([raw version](http://46.239.104.5:81/hg/program/ikiwiki/raw-file/4994ba5e36fa/Plugin/mercurial.pm)).
+
+* [My default branch](http://510x.se/hg/program/ikiwiki/file/default/Plugin/mercurial.pm) (where updates will be made, will mention here if anything happens) ([raw version](http://510x.se/hg/program/ikiwiki/raw-file/default/Plugin/mercurial.pm)).
+
+(I've stripped the `hgrc`-generation from the linked versions, so it should work to just drop them on top of the old `mercurial.pm`).
+
+I break out my comments from the code to make them more readable. I comment all the changes as compared to current upstream. --[[Daniel Andersson]]
+
+> So, sorry it took me so long (summer vacation), but I've finally
+> gotten around to looking at this. Based mostly just on the comments,
+> it does not seem mergeable as-is, yet. Red flags for me include:
+> 
+> * This is a big rewrite, and the main idea seems to be to copy git.pm
+>   and hack on it until it works, which I think is unlikely to be ideal
+>   as git and mercurial are not really similar at the level used here.
+> * There have been no changes in your hg repo to the code since you
+>   originally committed it. Either it's perfect, or it's not been tested..
+> * `hg_local_dirstate_shelve` writes to a temp file in the srcdir,
+>   which is hardly clean or ideal.
+> * Relies on mercurial bookmarks extension that seems to need to be
+>   turned on (how?)
+> * There are some places where code was taken from git.pm and the
+>   comment asks if it even makes sense for mercurial, which obviously
+>   would need to be cleaned up.
+> * The `rcs_receive` support especially is very ambitious to try to add to
+>   the mercurial code. Does mercurial support anonymous pushes at all? How
+>   would ikiwiki be run to handle such a push? How would it tell 
+>   mercurial not to accept a push if it made prohibited changes?
+>
+> I'm glad we already got so many standalone improvements into
+> mercurial.pm. That's a better approach than rewriting the world, unless
+> the world is badly broken. 
+> 
+> --[[Joey]] 
+
+---
+
+		#!/usr/bin/perl
+		package IkiWiki::Plugin::mercurial;
+
+		use warnings;
+		use strict;
+		use IkiWiki;
+		use Encode;
+		use open qw{:utf8 :std};
+
+
+Pattern to validate hg sha1 sums. hg usually truncates the hash to 12
+characters and prepends a local revision number for output, but internally
+it keeps a 40 character hash. Will use the long version in this code.
+
+		my $sha1_pattern = qr/[0-9a-fA-F]{40}/;
+
+Message to skip in recent changes
+
+		my $dummy_commit_msg = 'dummy commit';
+
+*TODO:* `$hg_dir` not really implemented yet, until a srcdir/repository distinction is
+made as for e.g. Git. Used in `rcs_receive`, and for attachments in `hg_parse_changes`. See comments in those places, though.
+
+		my $hg_dir=undef;
+
+		sub import {
+			hook(type => "checkconfig", id => "mercurial", call => \&checkconfig);
+			hook(type => "getsetup", id => "mercurial", call => \&getsetup);
+			hook(type => "rcs", id => "rcs_update", call => \&rcs_update);
+			hook(type => "rcs", id => "rcs_prepedit", call => \&rcs_prepedit);
+			hook(type => "rcs", id => "rcs_commit", call => \&rcs_commit);
+			hook(type => "rcs", id => "rcs_commit_staged", call => \&rcs_commit_staged);
+			hook(type => "rcs", id => "rcs_add", call => \&rcs_add);
+			hook(type => "rcs", id => "rcs_remove", call => \&rcs_remove);
+			hook(type => "rcs", id => "rcs_rename", call => \&rcs_rename);
+			hook(type => "rcs", id => "rcs_recentchanges", call => \&rcs_recentchanges);
+			hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
+			hook(type => "rcs", id => "rcs_getctime", call => \&rcs_getctime);
+			hook(type => "rcs", id => "rcs_getmtime", call => \&rcs_getmtime);
+			hook(type => "rcs", id => "rcs_preprevert", call => \&rcs_preprevert);
+			hook(type => "rcs", id => "rcs_revert", call => \&rcs_revert);
+
+This last hook is "unsanctioned" from [[Auto-setup and maintain Mercurial wrapper hooks]]. Will try to solve its function
+another way later.
+
+			hook(type => "rcs", id => "rcs_wrapper_postcall", call => \&rcs_wrapper_postcall);
+		}
+
+		sub checkconfig () {
+			if (exists $config{mercurial_wrapper} && length $config{mercurial_wrapper}) {
+				push @{$config{wrappers}}, {
+					wrapper => $config{mercurial_wrapper},
+					wrappermode => (defined $config{mercurial_wrappermode} ? $config{mercurial_wrappermode} : "06755"),
+
+Next line part of [[Auto-setup and maintain Mercurial wrapper hooks]].
+
+					wrapper_postcall => (defined $config{mercurial_wrapper_hgrc_update} ? $config{mercurial_wrapper_hgrc_update} : "1"),
+				};
+			}
+		}
+
+		sub getsetup () {
+			return
+				plugin => {
+					safe => 0, # rcs plugin
+					rebuild => undef,
+					section => "rcs",
+				},
+				mercurial_wrapper => {
+					type => "string",
+					#example => # FIXME add example
+					description => "mercurial post-commit hook to generate",
+					safe => 0, # file
+					rebuild => 0,
+				},
+				mercurial_wrappermode => {
+					type => "string",
+					example => '06755',
+					description => "mode for mercurial_wrapper (can safely be made suid)",
+					safe => 0,
+					rebuild => 0,
+				},
+				mercurial_wrapper_hgrc_update => {
+					type => "string",
+					example => "1",
+					description => "updates existing hgrc to reflect path changes for mercurial_wrapper",
+					safe => 0,
+					rebuild => 0,
+				},
+				historyurl => {
+					type => "string",
+					example => "http://example.com:8000/log/tip/\[[file]]",
+					description => "url to hg serve'd repository, to show file history (\[[file]] substituted)",
+					safe => 1,
+					rebuild => 1,
+				},
+				diffurl => {
+					type => "string",
+					example => "http://localhost:8000/?fd=\[[r2]];file=\[[file]]",
+					description => "url to hg serve'd repository, to show diff (\[[file]] and \[[r2]] substituted)",
+					safe => 1,
+					rebuild => 1,
+				},
+		}
+
+		sub safe_hg (&@) {
+			# Start a child process safely without resorting to /bin/sh.
+			# Returns command output (in list content) or success state
+			# (in scalar context), or runs the specified data handler.
+
+			my ($error_handler, $data_handler, @cmdline) = @_;
+
+			my $pid = open my $OUT, "-|";
+
+			error("Cannot fork: $!") if !defined $pid;
+
+			if (!$pid) {
+				# In child.
+				# hg commands want to be in wc.
+
+This `$hg_dir` logic means nothing and could be stripped until srcdir/repdir distinction is made (it's stripped in upstream `mercurial.pm` right now).
+
+				if (! defined $hg_dir) {
+					chdir $config{srcdir}
+					    or error("cannot chdir to $config{srcdir}: $!");
+				}
+				else {
+					chdir $hg_dir or error("cannot chdir to $hg_dir: $!");
+				}
+
+				exec @cmdline or error("Cannot exec '@cmdline': $!");
+			}
+			# In parent.
+
+			my @lines;
+			while (<$OUT>) {
+				chomp;
+
+				if (! defined $data_handler) {
+					push @lines, $_;
+				}
+				else {
+					last unless $data_handler->($_);
+				}
+			}
+
+			close $OUT;
+
+			$error_handler->("'@cmdline' failed: $!") if $? && $error_handler;
+
+			return wantarray ? @lines : ($? == 0);
+		}
+		# Convenient wrappers.
+		sub run_or_die ($@) { safe_hg(\&error, undef, @_) }
+		sub run_or_cry ($@) { safe_hg(sub { warn @_ }, undef, @_) }
+		sub run_or_non ($@) { safe_hg(undef, undef, @_) }
+
+
+To handle uncommited local changes ("ULC"s for short), I use logic similar to the (non-standard) "shelve" extension to Mercurial. By taking a diff before resetting to last commit, making changes and then applying diff again, one can do things Mercurial otherwise refuses, which is necessary later.
+
+This function creates this diff.
+
+		sub hg_local_dirstate_shelve ($) {
+			# Creates a diff snapshot of uncommited changes existing the srcdir.
+			# Takes a string (preferably revision) as input to create a unique and
+			# identifiable diff name.
+			my $tempdiffname = "diff_".shift;
+			my $tempdiffpath;
+			if (my @tempdiff = run_or_die('hg', 'diff', '-g')) {
+				$"="\n";
+				writefile($tempdiffname, $config{srcdir},
+						"@tempdiff");
+				$"=" ";
+				$tempdiffpath = $config{srcdir}.'/'.$tempdiffname;
+			}
+			return $tempdiffpath;
+		}
+
+This function restores the diff.
+
+		sub hg_local_dirstate_unshelve ($) {
+			# Applies diff snapshot to revert back to initial dir state. If diff
+			# revert succeeds, the diff is removed. Otherwise it stays to not
+			# eradicate the local changes if they were important. This clutters the
+			# directory though. Better ways to handle this are welcome. A true way
+			# around this dance is to have a separate repository for local changes
+			# and push ready commits to the srcdir instead.
+			if (my $tempdiffpath = shift) {
+				if (run_or_cry('hg', 'import', '--no-commit', $tempdiffpath)) {
+					unlink($tempdiffpath);
+					return undef;
+				}
+			}
+		}
+
+This makes online diffing possible. A similar approach as in `git.pm`, which is [discussed to some length in a comment there](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=IkiWiki/Plugin/git.pm;h=cf7fbe9b7c43ee53180612d0411e6202074fb9e0;hb=refs/heads/master#l211), is taken.
+
+		sub merge_past ($$$) {
+			my ($sha1, $file, $message) = @_;
+
+			# Undo stack for cleanup in case of an error
+			my @undo;
+			# File content with conflict markers
+			my $conflict;  
+			my $tempdiffpath; 
+
+			eval {
+				# Hide local changes from Mercurial by renaming the modified
+				# file.  Relative paths must be converted to absolute for
+				# renaming.
+				my ($target, $hidden) = (
+					"$config{srcdir}/${file}",
+					"$config{srcdir}/${file}.${sha1}"
+				);
+				rename($target, $hidden)
+					or error("rename '$target' to '$hidden' failed: $!");
+				# Ensure to restore the renamed file on error.
+				push @undo, sub {
+					return if ! -e "$hidden"; # already renamed
+					rename($hidden, $target)
+					    or warn "rename '$hidden' to '$target' failed: $!";
+				};
+
+
+Take a snapshot of srcdir to be able to restore uncommited local changes ("ULCs") afterwards.
+
+* This must happen _after_ the merging commit in Mercurial, there is no way around it. By design hg refuses to commit merges if there are other changes to tracked content present, no matter how much  you beg.
+
+* ULCs to the file being edited are special: they can't be diffed here since `editpage.pm` already has overwritten the file. When the web edit session started though, the ULC version (not the commited
+version) was read into the form, so in a way, the web user _has already merged_ with the ULC. It is not saved in commit history, but that is the exact consequence of "uncommited" changes. If an ULC is done between the time the web edit started and was submitted, then it is lost, though.  All in all, one shouldn't be editing the srcdir directly when web edits of the same file are allowed. Clone the repo and push changes instead.
+
+Much of these issues disappear, I believe, if one works with a master repo which only is pushed to.
+
+				my $tempdiffpath = hg_local_dirstate_shelve($sha1);
+
+				# Ensure uniqueness of bookmarks.
+				my $bookmark_upstream_head = "current_head_$sha1";
+				my $bookmark_edit_base = "edit_base_$sha1";
+
+				# Git and Mercurial differ in the branch concept. Mercurial's
+				# "bookmarks" are closer in function in this regard.
+
+Bookmarks aren't standard until Mercurial 1.8 ([2011--02--10](http://selenic.com/hg/rev/d4ab9486e514)), but they've been bundled with Mercurial since ~2008, so they can be enabled by writing a `hgrc`, which is also being worked on.
+
+				# Create a bookmark at current tip.
+				push @undo, sub { run_or_cry('hg', 'bookmark', '--delete',
+						$bookmark_upstream_head) };
+				run_or_die('hg', 'bookmark', $bookmark_upstream_head);
+
+				# Create a bookmark at the revision from which the edit was
+				# started and switch to it, discarding changes (they are stored
+				# in $tempdiff and the hidden file at the moment).
+				push @undo, sub { run_or_cry('hg', 'bookmark', '--delete',
+						$bookmark_edit_base) };
+				run_or_die('hg', 'bookmark', '-r', $sha1, $bookmark_edit_base);
+				run_or_die('hg', 'update', ,'-C', $bookmark_edit_base);
+
+				# Reveal the modified file.
+				rename($hidden, $target)
+				    or error("rename '$hidden' to '$target' failed: $!");
+
+				# Commit at the bookmarked revision, creating a new head.
+				run_or_cry('hg', 'commit', '-m', $message);
+
+				# Attempt to merge the newly created head with upstream head.
+				# '--tool internal:merge' to avoid spawning a GUI merger.
+
+(*Semi-TODO:* How do you make this command quiet? On failed merge, it
+always writes to STDERR and clutters the web server log.)
+
+				if (!run_or_non('hg', 'merge', '--tool', 'internal:merge',
+						$bookmark_upstream_head)) {
+					# ..., otherwise return file with conflict markers.
+					$conflict = readfile($target);
+
+					# The hardcore reset approach. Keep your hands inside
+					# the cart.
+					run_or_die('hg', 'rollback');
+					run_or_die('hg', 'update', '-C',
+						$bookmark_upstream_head);
+					if ($tempdiffpath) {
+						hg_local_dirstate_unshelve($tempdiffpath);
+					}
+
+Other approaches tried here:
+
+1. Clean up merge attempt,
+
+	run_or_die('hg', 'update', '-C', $bookmark_upstream_head);
+
+2. Redo "merge", using only upstream head versions,
+
+	run_or_die('hg', 'merge', '--tool', 'internal:local', $bookmark_edit_base);
+
+3. dummy commit to close head.
+
+	run_or_non('hg', 'commit', '-m', $message);
+
+This creates a cluttered and erroneous history. We
+tell Mercurial to merge, even though we in practice
+discard. This creates problems when trying to revert
+changes.
+
+Other attempt:
+
+1. Discard merge attempt and switch to temp head,
+
+	run_or_die('hg', 'update', '-C', $bookmark_edit_base);
+
+2. close the temp head (why do they call the command that in practice closes heads "--close-branch"?),
+
+	run_or_non('hg', 'commit', '--close-branch', '-m', $message);
+
+3. restore working directory to pre-fiddling status.
+
+	run_or_die('hg', 'update', $bookmark_upstream_head);
+
+...but this requires the same amount of forks as the
+above method, and confuses other parts of ikiwiki
+since the upstream head is now the third newest
+revision. Maybe that particular problem is solvable
+by setting a global default bookmark that follows the
+main tip.  It will leave clutter in the revision
+history, though. Two extra commits that in practice
+don't hold relevant information will be recorded for
+each failed merge attempt.
+
+To only create one extra commit, one could imagine
+adding `--close-branch` to the commit that initially
+created the new head (since there is no problem
+merging with closed heads), but it's not possible to
+close and create a head at the same time, apparently.
+
+				}
+			};
+			my $failure = $@;
+
+			# Process undo stack (in reverse order). By policy, cleanup actions
+			# should normally print a warning on failure.
+			while (my $handle = pop @undo) {
+				$handle->();
+			}
+
+			error("Mercurial merge failed!\n$failure\n") if $failure;
+
+			return ($conflict, $tempdiffpath);
+		}
+
+		sub hg_commit_info ($;$;$) {
+			# Return an array of commit info hashes of num commits starting from
+			# the given sha1sum.
+			#
+This could be optimized by using a lookup cache similar to
+`findtimes()`. By adding `KeyAttr => ['node']` to `XMLin()` options, one
+could use the revision ID as key and do a single massive history
+lookup and later just check if the given revision already exists as a
+key.  Right now I'm at the "don't optimize it yet" stage, though.
+
+This uses Mercurial's built-in `--style xml` and parses it with `XML::Simple`. Mercurial's log output is otherwise somewhat cumbersome to get good stuff out of, so this XML solution is quite good, I think. It adds module dependency, but XML::Simple seems fairly standard (but what do I know, I've used 1 Perl installation in my life).
+
+			use XML::Simple;
+			use Date::Parse;
+
+			my ($sha1, $num, $file) = @_;
+
+			my @opts;
+			if (defined $sha1) {
+				if ($sha1 =~ m/^($sha1_pattern)$/) {
+					push @opts, ('-r'. $1.':0');
+				}
+				elsif ($sha1 =~ m/^($sha1_pattern):($sha1_pattern)$/) {
+					push @opts, ('-r', $1.':'.$2);
+				}
+			}
+			push @opts, ('--limit', $num) if defined $num;
+			push @opts, ('--', $file) if defined $file;
+
+			my %env=%ENV;
+			$ENV{HGENCODING} = 'utf-8';
+			my @xml = run_or_cry('hg', 'log', '-v', '--style', 'xml', @opts);
+			%ENV=%env;
+
+			# hg returns empty string if file is not in repository.
+			return undef if !@xml;
+
+Some places it is clear that I'm coding ad-hoc Perl. I don't know if this is a reasonably efficient way to give input to `XMLin`, but it works.
+
+			# Want to preserve linebreaks in multiline comments.
+			$"="\n";
+			my $xmllog = XMLin("@xml",
+				ForceArray => ['logentry', 'parent', 'copy', 'path']);
+			$"=" ";
+
+			my @c_infos;
+			foreach my $rev (@{$xmllog->{logentry}}) {
+				my %c_info;
+				# In Mercurial, "rev" is technically the strictly local
+				# revision number.  What ikiwiki wants is what is called
+				# "node": a globally defined SHA1 checksum.
+				$c_info{rev} = $rev->{node};
+				foreach my $parent (@{$rev->{parent}}) {
+					push @{$c_info{parents}}, {rev => $parent->{node}};
+				}
+				$c_info{user} = $rev->{author}{content};
+				# Mercurial itself parses out and stores an email address if
+				# present in author name. If not, hg sets email to author name.
+				if ( $rev->{author}{content} ne $rev->{author}{email} &&
+					$rev->{author}{email} =~ m/^([^\@]+)\@(.*)$/ ) {
+					if ($2 eq "web") {
+						$c_info{nickname} = $1;
+						$c_info{web_commit} = "1";
+					}
+				}
+				# Mercurial gives date in ISO 8601, well handled by str2time().
+				$c_info{when} = str2time($rev->{date});
+				# Mercurial doesn't allow empty commit messages, so there
+				# should always be a single defined message.
+				$c_info{message} = $rev->{msg}{content};
+				# Inside "paths" sits a single array "path" that contains
+				# multiple paths. Crystal clear :-)
+				foreach my $path (@{$rev->{paths}{path}}) {
+					push @{$c_info{files}}, {
+						# Mercurial doesn't track file permissions as
+						# Git do, so that's missing here.
+						'file' => $path->{content},
+						'status' => $path->{action},
+					};
+				}
+				# There also exists an XML branch "copies"->"copy", containing
+				# source and dest of files that have been copied with "hg cp".
+				# The copy action is also registered in "paths" as a removal of
+				# source and addition of dest, so it's not needed here.
+				push @c_infos, {%c_info};
+				use Data::Dumper;
+			}
+
+			return wantarray ? @c_infos : $c_infos[0];
+		}
+
+		sub hg_sha1 (;$) {
+			# Return head sha1sum (of given file).
+			my $file = shift || q{--};
+
+			# Non-existing file doesn't give error, just empty string.
+			my $f_info = hg_commit_info(undef, 1, $file);
+			my $sha1;
+			if ($f_info->{rev}) {
+				($sha1) = $f_info->{rev} =~ m/($sha1_pattern)/;
+			}
+			else {
+				debug("Empty sha1sum for '$file'.");
+			}
+			return defined $sha1 ? $sha1 : q{};
+		}
+
+		sub rcs_update () {
+			run_or_cry('hg', '-q', 'update');
+		}
+
+		sub rcs_prepedit ($) {
+			# Return the commit sha1sum of the file when editing begins.
+			# This will be later used in rcs_commit if a merge is required.
+			my ($file) = @_;
+
+			return hg_sha1($file);
+		}
+
+		sub rcs_commit (@) {
+			# Try to commit the page; returns undef on _success_ and
+			# a version of the page with the rcs's conflict markers on
+			# failure.
+			my %params=@_;
+
+			# Check to see if the page has been changed by someone else since
+			# rcs_prepedit was called.
+			my $cur    = hg_sha1($params{file});
+			my ($prev) = $params{token} =~ /^($sha1_pattern)$/; # untaint
+
+			if (defined $cur && defined $prev && $cur ne $prev) {
+
+If there was a conflict, the file with conflict markers is returned. Else, the path to the tempdiff, which is to be run to restore previous local state after `rcs_commit_staged`, is returned.
+
+				my ($conflict, $tempdiffpath) =
+					merge_past($prev, $params{file}, $dummy_commit_msg);
+				return defined $conflict
+					? $conflict
+					: rcs_commit_helper(
+						@_,
+						merge => 1,
+						tempdiffpath => $tempdiffpath);
+			}
+
+			return rcs_commit_helper(@_);
+		}
+
+		sub rcs_commit_helper (@) {
+			my %params=@_;
+
+			my %env=%ENV;
+			$ENV{HGENCODING} = 'utf-8';
+
+			my $user="Anonymous";
+			my $nickname;
+			if (defined $params{session}) {
+				if (defined $params{session}->param("name")) {
+					$user = $params{session}->param("name");
+				}
+				elsif (defined $params{session}->remote_addr()) {
+					$user = $params{session}->remote_addr();
+				}
+
+				if (defined $params{session}->param("nickname")) {
+					$nickname=encode_utf8($params{session}->param("nickname"));
+					$nickname=~s/\s+/_/g;
+					$nickname=~s/[^-_0-9[:alnum:]]+//g;
+				}
+				$ENV{HGUSER} = encode_utf8($user . ' <' . $nickname . '@web>');
+			}
+
+			if (! length $params{message}) {
+				$params{message} = "no message given";
+			}
+
+			$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
+
+			my @opts;
+
+Mercurial rejects file arguments when performing a merging commit. It
+only does "all or nothing" commits by design when merging, so given file arguments must be discarded. It should not pose a problem.
+
+			if (exists $params{file} && ! defined $params{merge}) {
+				push @opts, '--', $params{file};
+			}
+
+			# hg commit returns non-zero if nothing really changed.
+			# So we should ignore its exit status (hence run_or_non).
+			run_or_non('hg', 'commit', '-m', $params{message}, '-q', @opts);
+
+If there were uncommited local changes in srcdir before a merge was done, they are restored here.
+
+			if (defined $params{tempdiffpath}) {
+				hg_local_dirstate_unshelve($params{tempdiffpath});
+			}
+
+			%ENV=%env;
+			return undef; # success
+		}
+
+		sub rcs_commit_staged (@) {
+			# Commits all staged changes. Changes can be staged using rcs_add,
+			# rcs_remove, and rcs_rename.
+			return rcs_commit_helper(@_);
+		}
+
+		sub rcs_add ($) {
+			my ($file) = @_;
+
+			run_or_cry('hg', 'add', $file);
+		}
+
+		sub rcs_remove ($) {
+			# Remove file from archive.
+			my ($file) = @_;
+
+			run_or_cry('hg', 'remove', '-f', $file);
+		}
+
+		sub rcs_rename ($$) {
+			my ($src, $dest) = @_;
+
+			run_or_cry('hg', 'rename', '-f', $src, $dest);
+		}
+
+		sub rcs_recentchanges ($) {
+			my ($num) = @_;
+
+			my @c_infos;
+
+			foreach my $c_info (hg_commit_info(undef, $num, undef)) {
+				my @pagenames;
+				for my $page (@{$c_info->{files}}) {
+					my $diffurl=defined $config{diffurl} ?
+						$config{diffurl} : '';
+					# These substitutions enable defining keywords \[[file]]
+					# and \[[r2]] (backward compatibility) in the setup file
+					# that will be exchanged with filename and revision
+					# respectively.
+					$diffurl =~ s/\[\[file\]\]/$page->{file}/go;
+					$diffurl =~ s/\[\[r2\]\]/$c_info->{rev}/go;
+					push @pagenames, {
+						# pagename() strips suffixes and returns the
+						# path to the file as it is to be represented
+						# in the build dir.
+						page => pagename($page->{file}),
+						diffurl => $diffurl,
+					};
+				}
+
+				# It is expected of ikiwiki to get each comment line as a
+				# separate entry.
+				my @messagelines;
+				open my $message, '<', \$c_info->{message};
+				while (<$message>) { push @messagelines, { line => $_ } };
+
+				push @c_infos, {
+					rev        => $c_info->{rev},
+					user       => $c_info->{user},
+					nickname   => defined $c_info->{nickname} ?
+							$c_info->{nickname} : $c_info->{user},
+					committype => $c_info->{web_commit} ? "web" : "hg",
+					when       => $c_info->{when},
+					message    => [@messagelines],
+					pages      => [@pagenames],
+				} if @pagenames;
+			}
+
+			return @c_infos;
+		}
+
+		sub rcs_diff ($;$) {
+			my $rev=shift;
+			my $maxlines=shift;
+			my @lines;
+			my $addlines=sub {
+				my $line=shift;
+				return if defined $maxlines && @lines == $maxlines;
+				push @lines, $line."\n"
+					if (@lines || $line=~/^diff --git/);
+				return 1;
+			};
+			safe_hg(undef, $addlines, "hg", "diff", "-c", $rev, "-g");
+			if (wantarray) {
+				return @lines;
+			}
+			else {
+				return join("", @lines);
+			}
+		}
+
+		{
+		my %time_cache;
+
+This is an upstream change I did a week ago or so. Perhaps it can be merged in some clever way with the updated `hg_commit_info` to make one shared lookup cache. Don't know how much would be gained.
+
+		sub findtimes ($$) {
+			my $file=shift;
+			my $id=shift; # 0 = mtime ; 1 = ctime
+
+			if (! keys %time_cache) {
+				my $date;
+
+				# It doesn't seem possible to specify the format wanted for the
+				# changelog (same format as is generated in git.pm:findtimes(),
+				# though the date differs slightly) without using a style
+				# _file_. There is a "hg log" switch "--template" to directly
+				# control simple output formatting, but in this case, the
+				# {file} directive must be redefined, which can only be done
+				# with "--style".
+				#
+				# If {file} is not redefined, all files are output on a single
+				# line separated with a space. It is not possible to conclude
+				# if the space is part of a filename or just a separator, and
+				# thus impossible to use in this case.
+				# 
+				# Some output filters are available in hg, but they are not fit
+				# for this cause (and would slow down the process
+				# unnecessarily).
+				
+				eval q{use File::Temp};
+				error $@ if $@;
+				my ($tmpl_fh, $tmpl_filename) = File::Temp::tempfile(UNLINK => 1);
+				
+				print $tmpl_fh 'changeset = "{date}\\n{files}\\n"' . "\n";
+				print $tmpl_fh 'file = "{file}\\n"' . "\n";
+				
+				foreach my $line (run_or_die('hg', 'log', '--style', $tmpl_filename)) {
+					# {date} gives output on the form
+					# 1310694511.0-7200
+					# where the first number is UTC Unix timestamp with one
+					# decimal (decimal always 0, at least on my system)
+					# followed by local timezone offset from UTC in
+					# seconds.
+					if (! defined $date && $line =~ /^\d+\.\d[+-]\d*$/) {
+						$line =~ s/^(\d+).*/$1/;
+						$date=$line;
+					}
+					elsif (! length $line) {
+						$date=undef;
+					}
+					else {
+						my $f=$line;
+
+						if (! $time_cache{$f}) {
+							$time_cache{$f}[0]=$date; # mtime
+						}
+						$time_cache{$f}[1]=$date; # ctime
+					}
+				}
+			}
+
+			return exists $time_cache{$file} ? $time_cache{$file}[$id] : 0;
+		}
+
+		}
+
+		sub rcs_getctime ($) {
+			my $file = shift;
+
+			return findtimes($file, 1);
+		}
+
+		sub rcs_getmtime ($) {
+			my $file = shift;
+
+			return findtimes($file, 0);
+		}
+
+The comment just below the function declaration below is taken from `git.pm`. Is it true? Should ikiwiki support sharing its repo with other things? Mercurial-wise that sounds like a world of pain.
+
+> Yes, ikiwiki supports this for git and svn. It's useful when you want
+> a doc/ directory with the wiki for a project. I don't know why
+> it wouldn't be a useful thing to do with mercurial, but it's not
+> required. --[[Joey]]
+
+		{
+		my $ret;
+		sub hg_find_root {
+			# The wiki may not be the only thing in the git repo.
+			# Determine if it is in a subdirectory by examining the srcdir,
+			# and its parents, looking for the .git directory.
+
+			return @$ret if defined $ret;
+
+			my $subdir="";
+			my $dir=$config{srcdir};
+			while (! -d "$dir/.hg") {
+				$subdir=IkiWiki::basename($dir)."/".$subdir;
+				$dir=IkiWiki::dirname($dir);
+				if (! length $dir) {
+					error("cannot determine root of hg repo");
+				}
+			}
+
+			$ret=[$subdir, $dir];
+			return @$ret;
+		}
+
+		}
+
+		sub hg_parse_changes (@) {
+			# Only takes a single info hash as argument in rcs_preprevert, but
+			# should be able to take several in rcs_receive.
+			my @c_infos_raw = shift;
+
+			my ($subdir, $rootdir) = hg_find_root();
+			my @c_infos_ret;
+
+			foreach my $c_info_raw (@c_infos_raw) {
+				foreach my $path (@{$c_info_raw->{files}}) {
+					my ($file, $action, $temppath);
+
+					$file=$path->{file};
+
+					# check that all changed files are in the subdir
+					if (length $subdir && ! ($file =~ s/^$subdir//)) {
+						error sprintf(gettext("you are not allowed to change %s"), $file);
+					}
+
+					if    ($path->{status} eq "M") { $action="change" }
+					elsif ($path->{status} eq "A") { $action="add" }
+					elsif ($path->{status} eq "R") { $action="remove" }
+					else  { error "unknown status ".$path->{status} }
+
+I haven't tested the attachment code below. Is it run when there is an non-trusted file upload?
+
+> It's run when an anonymous git push is done. I don't know if there would
+> be any equivilant with mercurial; if not, it does not makes sense
+> to implement this at all (this function is only used by `rcs_receive`). --[[Joey]] 
+
+					# extract attachment to temp file
+					if (($action eq 'add' || $action eq 'change') &&
+						! pagetype($file)) {
+
+						eval q{use File::Temp};
+						die $@ if $@;
+
+						my $fh;
+						($fh, $temppath)=File::Temp::tempfile(undef, UNLINK => 1);
+						my $cmd = "cd $hg_dir && ".
+							"hg diff -g -c $c_info_raw->{rev} > '$temppath'";
+						if (system($cmd) != 0) {
+							error("failed writing temp file '$temppath'.");
+						}
+					}
+
+					push @c_infos_ret, {
+						file => $file,
+						action => $action,
+						path => $temppath,
+					};
+				}
+			}
+
+			return @c_infos_ret;
+		}
+
+*TODO:* I don't know what's happening here. I've changed the code to adhere to this file's variables and functions, but it refers to a srcdir _and_ a default repo, which currently isn't available in the Mercurial setup.
+
+`rcs_receive` is optional and only runs when running a pre-receive hook. Where `$_` comes from and its format are mysteries to me.
+
+Also, a comment in `git.pm` mentions that we don't want to chdir to a subdir "and only see changes in it" - but this isn't true for either Git or Mercurial to my knowledge. It only seems to happen in `git.pm` since the `git log` command in `git_commit_info` ends with "`-- .`" - if it didn't do that, one wouldn't have to chdir for this reason, I believe.
+
+In this case we need to stay in default repo instead of srcdir though, so `hg_dir="."` _is_ needed, but not for the abovementioned reason :-) (maybe there's more to it, though).
+
+> Implementing some sort of anonymous push handling for mercurial is not something
+> you can funble your way through like this, if it can be done at all.
+> 
+> Hint: `$_` is being populated by the specific format git sends to a
+> specific hook script.
+> --[[Joey]]
+
+		sub rcs_receive () {
+			my @c_infos_ret;
+			while (<>) {
+				chomp;
+				my ($oldrev, $newrev, $refname) = split(' ', $_, 3);
+
+				# only allow changes to hg_default_branch
+
+*TODO:* What happens here? Some Git voodoo. _If_ `$_` has the exact same format for Mercurial, then the below should work just as well here, I think.
+
+				if ($refname !~ m|^refs/heads/$config{hg_default_branch}$|) {
+					error sprintf(gettext("you are not allowed to change %s"), $refname);
+				}
+
+Comment from `git.pm`:
+
+				# Avoid chdir when running git here, because the changes are in
+				# the default git repo, not the srcdir repo.  (Also, if a subdir
+				# is involved, we don't want to chdir to it and only see
+				# changes in it.) The pre-receive hook already puts us in the
+				# right place.
+				$hg_dir=".";
+				push @c_infos_ret,
+					hg_parse_changes(hg_commit_info($newrev.":".$oldrev,
+							undef, undef));
+				$hg_dir=undef;
+			}
+
+			return @c_infos_ret;
+		}
+
+		sub rcs_preprevert ($) {
+			my $rev=shift;
+			my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
+
+The below 4 lines of code are from `git.pm`, but I can't see what they actually do there. Neither Git nor Mercurial only lists changes in working directory when given a command - they always traverse to repository root by themselves. I keep it here for comments, in case I'm missing something.
+
+*UPDATE:* See earlier note about `git log` ending in "`-- .`".
+
+			## Examine changes from root of git repo, not from any subdir,
+			## in order to see all changes.
+			#my ($subdir, $rootdir) = git_find_root();
+			#$git_dir=$rootdir;
+
+			my $c_info=hg_commit_info($sha1, 1, undef) or error "unknown commit";
+
+			# hg revert will fail on merge commits. Add a nice message.
+			if (exists $c_info->{parents} && $c_info->{parents} > 1) {
+				error gettext("you are not allowed to revert a merge");
+			}
+
+			my @c_info_ret=hg_parse_changes($c_info);
+
+			### Probably not needed, if earlier comment is correct.
+			#$hg_dir=undef;
+			return @c_info_ret;
+		}
+
+		sub rcs_revert ($) {
+			# Try to revert the given rev; returns undef on _success_.
+			my $rev = shift;
+			my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
+
+			# Save uncommited local changes to diff file. Attempt to restore later.
+			my $tempdiffpath = hg_local_dirstate_shelve($sha1);
+
+			# Clean dir to latest commit.
+			run_or_die('hg', 'update', '-C');
+
+Some voodoo is needed here. `hg backout --tool internal:local -r $sha1` is *almost* good, but if the reversion is done to the directly previous revision, hg automatically commits, which is bad in this case. Instead I generate a reverse diff and pipe it to `import --no-commit`.
+
+			if (run_or_non("hg diff -c $sha1 --reverse | hg import --no-commit -")) {
+				if ($tempdiffpath) { hg_local_dirstate_unshelve($tempdiffpath) }
+				return undef;
+			}
+			else {
+				if ($tempdiffpath) { hg_local_dirstate_unshelve($tempdiffpath) }
+				return sprintf(gettext("Failed to revert commit %s"), $sha1);
+			}
+		}
+
+Below follows code regarding [[Auto-setup and maintain Mercurial wrapper hooks]]. Will try to solve it in another place later, but the code in itself is working.
+
+Should perhaps add initiation of the bookmark extension here, to support older Mercurial versions.
+
+		sub rcs_wrapper_postcall($) {
+			# Update hgrc if it exists. Change post-commit/incoming hooks with the
+			# .ikiwiki suffix to point to the wrapper path given in the setup file.
+			# Work with a tempfile to not delete hgrc if the loop is interrupted
+			# midway.
+			# I believe there is a better way to solve this than creating new hooks
+			# and callbacks. Will await discussion on ikiwiki.info.
+			my $hgrc=$config{srcdir}.'/.hg/hgrc';
+			my $backup_suffix='.ikiwiki.bak';
+			if (-e $hgrc) {
+				use File::Spec;
+				my $mercurial_wrapper_abspath=File::Spec->rel2abs($config{mercurial_wrapper}, $config{srcdir});
+				local ($^I, @ARGV)=($backup_suffix, $hgrc);
+				while (<>) {
+					s/^(post-commit|incoming)(\.ikiwiki[ \t]*=[ \t]*).*$/$1$2$mercurial_wrapper_abspath/;
+					print;
+				}
+				unlink($hgrc.$backup_suffix);
+			}
+		}
+
+		1

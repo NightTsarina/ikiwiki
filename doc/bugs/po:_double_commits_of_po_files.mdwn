@@ -1,0 +1,22 @@
+When adding a new english page, the po files are created, committed,
+and then committed again. The second commit makes this change:
+
+	-"Content-Type: text/plain; charset=utf-8\n"
+	-"Content-Transfer-Encoding: ENCODING"
+	+"Content-Type: text/plain; charset=UTF-8\n"
+	+"Content-Transfer-Encoding: ENCODING\n"
+
+Same thing happens when a change to an existing page triggers a po file
+update. --[[Joey]] 
+
+> * The s/utf-8/UTF-8 part has been fixed.
+> * The ENCODING\n part is due to an inconsistency in po4a, which
+>   I've just send a patch for. --[[intrigeri]]
+
+>> I resubmitted the patch to po4a upstream, sending it this time to
+>> their mailing-list:
+>> [post archive](http://lists.alioth.debian.org/pipermail/po4a-devel/2010-July/001897.html).
+>> --[[intrigeri]]
+
+>>> Seems to me Debian Squeeze's po4a does not expose this bug anymore
+>>> => [[done]]. --[[intrigeri]]

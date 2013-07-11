@@ -1,0 +1,24 @@
+The standalone 'markdown' utility is perfectly happy with an external link inside a `<h1>`, e.g.:
+
+    # Review of [Dwarf Fortress][]
+    ...
+    [Dwarf Fortress]: http://www.bay12games.com/dwarves/
+
+produces
+
+    <h1>Review of <a href="http://www.bay12games.com/dwarves/">Dwarf Fortress</a></h1>
+
+but when I try to use this construct in an ikiwiki page, I get 
+
+    <h1>Review of [Dwarf Fortress][]</h1>
+
+It works fine with h2 and deeper.  The square brackets also appear in the output of an [[ikiwiki/directive/inline]] directive in archive mode, I haven't tried non-archive mode.
+
+> I think you were confused by markdown's slightly wacky mix of square brackets and parens.
+> The url in a markdown link goes in parens, not square brackets. For example:
+
+# [Google](http://google.com/)
+
+> [[done]] --[[Joey]]
+
+>> It works here but it definitely does *not* work on my wiki; but on further experimentation, I believe my problem is being caused by JasonBlevins' [h1title](http://jblevins.org/git/ikiwiki/plugins.git/plain/h1title.pm) plugin.

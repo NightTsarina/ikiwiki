@@ -1,0 +1,189 @@
+# German translation of directives/ikiwiki/directive/aggregate page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-03-12 09:29+0530\n"
+"PO-Revision-Date: 2010-03-14 13:56+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `aggregate` directive is supplied by the [[!iki plugins/aggregate "
+"desc=aggregate]] plugin.  This plugin requires extra setup, specifically, a "
+"cron job. See the plugin's documentation for details."
+msgstr ""
+"Die `aggregate`-Anweisung wird durch die [[!iki plugins/aggregate "
+"desc=aggregate]]-Erweiterung zur Verfügung gestellt. Diese Erweiterung erfordert "
+"zusätzliche Konfiguration, insbesondere einen cron-Job. Für Details siehe die "
+"Dokumentation der Erweiterung."
+
+#. type: Plain text
+msgid ""
+"This directive allows content from other feeds to be aggregated into the "
+"wiki.  Aggregate a feed as follows:"
+msgstr ""
+"Diese Anweisung erlaubt es, Inhalt von anderen Feeds in diesem Wiki "
+"gesammelt zur Verfügung zu stellen. Dies funktioniert wie folgt:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!aggregate name=\"example blog\" dir=\"example\"\n"
+"\tfeedurl=\"http://example.com/index.rss\"\n"
+"\turl=\"http://example.com/\" updateinterval=\"15\"]]\n"
+msgstr ""
+"\t\\[[!aggregate name=\"Beispiel-Blog\" dir=\"beispiel\"\n"
+"\tfeedurl=\"http://beispiel.de/index.rss\"\n"
+"\turl=\"http://beispiel.de/\" updateinterval=\"15\"]]\n"
+
+#. type: Plain text
+msgid ""
+"That example aggregates posts from the specified RSS feed, updating no more "
+"frequently than once every 15 minutes (though possibly less frequently, if "
+"the cron job runs less frequently than that), and puts a page per post under "
+"the example/ directory in the wiki."
+msgstr ""
+"In diesem Beispiel werden Beiträge aus dem angegebenen RSS-Feed "
+"eingesammelt, und zwar nicht öfter als alle 15 Minuten (möglicherweise "
+"aber seltener, wenn der cron-Job seltener läuft), und dann als eine Seite "
+"pro Beitrag im Verzeichnis `beispiel/` des Wikis gespeichert."
+
+#. type: Plain text
+msgid ""
+"You can then use ikiwiki's [[inline]] directive to create a blog of one or "
+"more aggregated feeds. For example:"
+msgstr ""
+"Man kann dann ikiwikis [[inline]]-Anweisun nutzen, um einen Blog aus "
+"einem oder mehreren eingesammelten Feeds zu erstellen. Zum Beispiel:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!inline pages=\"internal(example/*)\"]]\n"
+msgstr "\t\\[[!inline pages=\"internal(beispiel/*)\"]]\n"
+
+#. type: Plain text
+msgid ""
+"Note the use of `internal()` in the [[ikiwiki/PageSpec]] to match aggregated "
+"pages. By default, aggregated pages are internal pages, which prevents them "
+"from showing up directly in the wiki, and so this special [[PageSpec]] is "
+"needed to match them."
+msgstr ""
+"Dabei ist es wichtig, `internal()` in der [[ikiwiki/PageSpec]] zur Erfassung der "
+"eingesammelten Seiten zu verwenden. Diese werden standardmäßig als interne "
+"Seiten gespeichert: Dies verhindert, dass sie direkt im Wiki auftauchen. Deshalb "
+"ist diese spezielle [[ikiwiki/PageSpec]] nötig, um sie zu erfassen."
+
+#. type: Title ##
+#, no-wrap
+msgid "usage"
+msgstr "Verwendung"
+
+#. type: Plain text
+msgid ""
+"Here are descriptions of all the supported parameters to the `aggregate` "
+"directive:"
+msgstr ""
+"Hier die Beschreibung aller unterstützter Parameter der "
+"`aggregate`-Anweisung:"
+
+#. type: Bullet: '* '
+msgid "`name` - A name for the feed. Each feed must have a unique name.  Required."
+msgstr ""
+"`name` - Ein Name für den Feed. Jeder Feed muss einen nur einmal vergebenen "
+"Namen haben. Erforderlich."
+
+#. type: Bullet: '* '
+msgid ""
+"`url` - The url to the web page for the feed that's being aggregated.  "
+"Required."
+msgstr ""
+"`url` - Die URL mit der Webseite des Feeds, der eingesammelt werden soll. "
+"Erforderlich."
+
+#. type: Bullet: '* '
+msgid ""
+"`dir` - The directory in the wiki where pages should be saved. Optional, if "
+"not specified, the directory is based on the name of the feed."
+msgstr ""
+"`dir` - Das Verzeichnis im Wiki, in dem die Seiten gespeichert werden sollen. "
+"Optional, wenn nicht angegeben, wird der Verzeichnisname vom Namen des Feeds "
+"abgeleitet."
+
+#. type: Bullet: '* '
+msgid ""
+"`feedurl` - The url to the feed. Optional, if it's not specified ikiwiki "
+"will look for feeds on the `url`. RSS and atom feeds are supported."
+msgstr ""
+"`feedurl` - Die URL des Feeds. Optional, wenn nicht angegeben, sucht ikiwiki in "
+"unter der `url` nach feeds. Unterstützt werden RSS- und Atom-Feeds."
+
+#. type: Bullet: '* '
+msgid ""
+"`updateinterval` - How often to check for new posts, in minutes. Default is "
+"15 minutes."
+msgstr ""
+"`updateinterval` - Wie oft nach neuen Beiträgen geschaut werden soll. "
+"Voreingestellt sind 15 Minuten."
+
+#. type: Bullet: '* '
+msgid ""
+"`expireage` - Expire old items from this feed if they are older than a "
+"specified number of days. Default is to never expire on age."
+msgstr ""
+"`expireage` - Entferne alte Einträge aus diesem Feed, wenn sie älter sind als "
+"die angegebene Anzahl von Tagen. Voreingestellt ist, niemals Einträge aufgrund "
+"ihres Alters zu entfernen."
+
+#. type: Bullet: '* '
+msgid ""
+"`expirecount` - Expire old items from this feed if there are more than the "
+"specified number total. Oldest items will be expired first. Default is to "
+"never expire on count."
+msgstr ""
+"`expirecount` - Entferne alte Einträge aus diesem Feed, wenn es insgesamt mehr "
+"als die angegebene Anzahl von Beiträgen gibt. Die ältesten Einträge werden "
+"zuerst entfernt. Voreingestellt ist, niemals Einträge aufgrund der Anzahl zu "
+"entfernen."
+
+#. type: Bullet: '* '
+msgid ""
+"`tag` - A tag to tag each post from the feed with. A good tag to use is the "
+"name of the feed. Can be repeated multiple times. The [[tag]] plugin must be "
+"enabled for this to work."
+msgstr ""
+"`tag` - Ein Tag, mit dem alle Beiträge dieses Feeds versehen werden. Gut eignet "
+"sich der Name des Feeds. Kann mehrmals angegeben werden. Die [[tag]]-Erweiterung "
+"muss "
+"aktiviert sein, damit dies funktioniert."
+
+#. type: Bullet: '* '
+msgid ""
+"`template` - Template to use for creating the aggregated pages. Defaults to "
+"aggregatepost."
+msgstr ""
+"`template` - Vorlage, die bei der Erstellung der eingesammelten Seiten verwendet "
+"wird. Voreingestellt ist `aggregatepost`."
+
+#. type: Plain text
+msgid ""
+"Note that even if you are using subversion or another revision control "
+"system, pages created by aggregation will *not* be checked into revision "
+"control."
+msgstr ""
+"Dabei ist zu beachten, dass die beim Einsammeln erstellten Seiten nicht in der "
+"Versionsverwaltung registriert werden, selbst wenn subversion oder ein "
+"anderes solches System verwendet wird."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+

@@ -1,0 +1,209 @@
+I have a strange problem with editing any page after its first SVN commit.
+I'm not sure whether it's my ikiwiki backport bug or my misunderstanding
+how ikiwiki works.
+
+Assume that I have Foo page with any content and I want to put there link
+to Bar page and next create the page. I do following steps:
+
+1. Click Edit link on Foo page
+
+2. Put the link to Bar page there and commit it by clicking "Save Page"
+  button
+
+  The Bar page is rendered correctly and now I can see ?Bar link. The URL
+  in the address bar of my browser is
+
+  http://my.host.com/wiki/foo.html?updated
+
+3. Click ?Bar link
+
+  Now I can see textarea for editing of page. It's empty, of course.
+
+  The page doesn't exists in my SVN repo yet and my Apache server knows
+  noting about it:
+
+        $ find /my/ikiwiki/src/dir/ -type f -name bar.mdwn
+        $ find /my/ikiwiki/dst/dir/ -type f -name bar.html
+
+4. Add some initial content and click "Save Page" button
+  to commit changes
+
+  The Foo page also is rendered correctly and now I can see what I wrote.
+  The URL in the address bar of my browser is
+
+  http://my.host.com/wiki/bar.html?updated
+
+  The page was added to the SVN repo and my Apache is able to serve it now:
+
+        $ find /my/ikiwiki/src/dir/ -type f -name bar.mdwn
+        /my/ikiwiki/src/dir/bar.mdwn
+        $ find /my/ikiwiki/dst/dir/ -type f -name bar.html
+        /my/ikiwiki/dst/dir/bar.html
+
+5. Change the content of Bar page by clicking Edit link
+
+  I can't do it, because the textarea is empty again. I have to run
+  `ikiwiki --setup ikiwiki.setup` command by hand to rebuild the page.
+  Then I can edit it.
+
+Where is my mistake?
+
+--[[Paweł|ptecza]]
+
+> It's not clear which Edit link you clicked in step 5. Is it the link on
+> the new page, or the old link back on page Foo that you clicked on before
+> to create Bar? It would also be good to see the URL you're at in step 5.
+> --[[Joey]]
+
+>> It was Edit link on new Bar page, of course. The URL in step 5 was
+>> http://my.host.com/wiki/ikiwiki.cgi?page=bar&do=edit.
+
+>> I've forget to add in my previous post that $pagesources{$page}
+>> (cgi_editpage subroutine of /usr/share/perl5/IkiWiki/CGI.pm file)
+>> doesn't exist in step 5. It exists after rebuilding all ikiwiki
+>> pages by hand.
+
+>> BTW, where does ikiwiki store information about rendered pages?
+>> Is it `/my/ikiwiki/src/dir/.ikiwiki/` directory?
+
+>> --[[Paweł|ptecza]]
+
+>>> Well, the missing %pagesources value explains the symptom for sure.
+>>> ikiwiki stores its state in .ikiwiki/index, and that should include
+>>> info about the new page you've created, including the source file for
+>>> it, which is where the data in %pagesources comes from.
+>>>
+>>> It sounds to me like somehow, when you commit a change to svn by
+>>> saving the page, it rebuilds the wiki, but does not update the index
+>>> file. Maybe it's crashing before it can save the index file. Or maybe
+>>> it's possibly be misconfigured, and updating a different index file in
+>>> a different copy of the source? You should be able to figure out what's
+>>> going on my looking at how the index file changes (or not) when you
+>>> create the new page. --[[Joey]]
+
+>>>> I've checked that my ikiwiki really doesn't touch `.ikiwiki/index` file
+>>>> when I create and save a new page. In `error.log` file of my Apache2
+>>>> server I can't see any "Permission denied" messages, but I suspect
+>>>> that a reason of my problem can be the bad access permissions:
+
+>>>>      root@my.host:/my/ikiwiki/src/dir# ls -ld .ikiwiki/
+>>>>      drwxrwsr-x  2 www-data src 4096 2007-01-11 10:00 .ikiwiki/
+>>>>      root@my.host:/my/ikiwiki/src/dir# cd .ikiwiki/
+>>>>      root@my.host:/my/ikiwiki/src/dir/.ikiwiki# ls -l
+>>>>      razem 48
+>>>>      -rw-rw-r--  1 www-data src 17353 2007-01-11 10:00 index
+>>>>      -rw-rw-r--  1 www-data src     0 2007-01-11 10:17 lockfile
+>>>>      -rw-------  1 www-data src 24576 2007-01-11 10:17 sessions.db
+>>>>      -rw-------  1 www-data src     0 2006-11-15 14:45 sessions.db.lck
+>>>>      -rw-------  1 www-data src   404 2007-01-08 10:24 userdb
+
+>>>> What do you think about it? Does it look good? My ikiwiki runs
+>>>> under control of Apache2 server and it's configured to run
+>>>> as `www-data` user and `www-data` group. --[[Paweł|ptecza]]
+
+>>>>> It's a bit weird to run ikiwiki as www-data. This means that www-data
+>>>>> can write to your subversion repository? And the svn post-commit hook
+>>>>> _also_ runs as www-data? It certianly could be some permissions issue
+>>>>> that is not being reported properly. --[[Joey]]
+
+>>>>>> No, my SVN `post-commit` hook runs as `root` (uid) and `www-data` (gid).
+>>>>>> Only `root` user and `src` group have write permissions to my SVN repo.
+
+>>>>>> Could you please show me your permissions for `repodir`, `srcdir`
+>>>>>> and `destdir` and how runs your Apache server? --[[Paweł|ptecza]]
+
+>>>>>>> Ugh, root? My permissions setup is simple, ikiwiki runs as a single
+>>>>>>> user, and that same user can commit to the svn repo and write to
+>>>>>>> all files. --[[Joey]]
+
+>>>>>>>> What's your user? Please show me result of `ls -ld dir` for
+>>>>>>>> directories above :) --[[Paweł|ptecza]]
+
+>>>>>>>>> All my directories are 755 joey:joey. --[[Joey]]
+
+>>>>>>>>>> Thanks! But I have another situation: a multiuser system and a few
+>>>>>>>>>> ikiwiki commiters. --[[Paweł|ptecza]]
+
+>>>>>>>>>>> Joey, I think I've just fixed the permission, but my ikiwiki still
+>>>>>>>>>>> doesn't update my `.ikiwiki/index` file. Could you please explain me
+>>>>>>>>>>> when ikiwiki calls `saveindex()` subroutine? My ikiwiki doesn't do it
+>>>>>>>>>>> when I create a new page and save it or when I update and save
+>>>>>>>>>>> a existing page. It does it only when I run
+>>>>>>>>>>> `ikiwiki --setup ikiwiki.setup` and I'm desperated...
+
+>>>>>>>>>>> BTW, where should I store my `ikiwiki.setup` file? It must be placed
+>>>>>>>>>>> under `$srcdir/.ikiwiki/` directory or it doesn't matter?
+>>>>>>>>>>> Does `ikiwiki.cgi` wrapper know where the `ikiwiki.setup` file
+>>>>>>>>>>> is stored? --[[Paweł|ptecza]]
+
+Sorry I am not indenting for my reply (in my browser the responses are very narrow.)
+
+I also had problem with no webpages getting generated via the CGI unless I ran ikiwiki to regen manually.
+I can't find the discussion here about in the ikiwiki website though. I think it was removed and now I can't find it in the history.
+My problem was caused by not having a revision system defined, so it defaulted to subversion (but I didn't have that installed).
+
+> Note that that confusing default to svn has been changed.. And you're
+> right about how the setup file is used below, BTW. --[[Joey]]
+
+As for your .setup file you can put it anywhere. I don't  think the CGI knows where it is at because its settings are set in the "wrapper".
+In my case, my setup file is in a different home and owned by a different user than the CGI or my generated website. By the way, I also don't keep my .ikiwiki private directory in my source directory by setting wikistatedir (which doesn't seem to be documented).
+
+--[[JeremyReed]]
+
+> Never mind about indentation, Jeremy! :) Thanks a lot you're interested in
+> my problem and you try to help me.
+
+> I use RCS backend and store my ikiwiki sources in SVN repo. Here is my SVN
+> related settings:
+>
+>        rcs => "svn",
+>        svnrepo => "/var/lib/svn/ikiwiki",
+>        svnpath => "trunk/pages",
+>
+> I've noticed the following piece of code in `/usr/share/perl5/IkiWiki/CGI.pm`
+> file (`cgi_editpage()` subroutine):
+>
+>        # save page
+>        page_locked($page, $session);
+>
+>        my $content=$form->field('editcontent');
+>
+>        $content=~s/\r\n/\n/g;
+>        $content=~s/\r/\n/g;
+>        writefile($file, $config{srcdir}, $content);
+>
+>        if ($config{rcs}) {
+>                # Here is RCS stuff
+>                # ...
+>        }
+>        else {
+>                require IkiWiki::Render;
+>                refresh();
+>                saveindex();
+>        }
+>
+>        # The trailing question mark tries to avoid broken
+>        # caches and get the most recent version of the page.
+>        redirect($q, "$config{url}/".htmlpage($page)."?updated");
+>
+> As you can see ikiwiki calls `saveindex()` subroutine if `rcs` variable
+> is not defined. I don't understand it, because in this way ikiwiki
+> doesn't update my `.ikiwiki/index` file. Joey, could you please
+> enlight me here ;)
+>
+> BTW, I also noticed `wikistatedir` variable in the ikiwiki code
+> and I couldn't find any information about it in ikiwiki docs :) --[[Paweł|ptecza]]
+
+>> wikistatedir is a non-configurable internal value.
+>> 
+>> What happens during an edit with the code you quoted is that the "rcs
+>> stuff" results in a commit of the page to svn. This results in the
+>> ikiwiki svn post-commit hook running. The post-commit hook updates the
+>> wiki, and calls saveindex. That's why it's not called in the RCS path in
+>> the code above.
+>> 
+>> It sounds like your post-commit hook is still not set up, or is failing
+>> for some reason (permissions perhaps?) --[[Joey]]
+
+>>> OK, [[bugs/done]]! It was problem with permissions and not upgraded
+>>> `editpage.tmpl` template :) --[[Paweł|ptecza]]

@@ -1,0 +1,22 @@
+On some source .html pages, po4a wrongly detects a malformed document,
+which makes the po plugin error out and the wiki build is aborted.
+
+I've pushed a [[patch]] to my `po` branch to fix this: it makes po4a
+warn, instead of error'ing out, when it detects a malformed input
+document.
+
+This is really a po4a bug which I will report, but since most ikiwiki
+users are gonna live with Squeeze's po4a for a while, I think we
+should workaround it in ikiwiki.
+
+Also, the current state of things makes it a bit too easy to break a
+given ikiwiki site build (DoS) when both the html and po plugins are
+enabled: inserting a html tag without closing it is enough.
+
+--[[intrigeri]]
+
+> Hmm, so this happened while I was away at the beach and I have a big
+> backlog of stuff, only saw it now. I've merged the match for master and
+> will be releasing that soon. I will cherry-pick the fix into at least
+> my debian-stable branch too. I don't know if this is worth doing a whole
+> security advisory for. --[[Joey]]

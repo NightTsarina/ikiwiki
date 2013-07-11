@@ -1,0 +1,27 @@
+The bzr plugin does not seem to define the rcs_diff subroutine.
+I got the follow error after enabling recentchangesdiff:
+
+"Undefined subroutine &IkiWiki::Plugin::bzr::rcs_diff called at /usr/share/perl5/IkiWiki.pm line 1590."
+
+Grepping to verify absence of rcs_diff:
+
+    $ grep rcs_diff /usr/share/perl5/IkiWiki/Plugin/{git,bzr}.pm
+    /usr/share/perl5/IkiWiki/Plugin/git.pm:	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
+    /usr/share/perl5/IkiWiki/Plugin/git.pm:sub rcs_diff ($) {
+    /usr/share/perl5/IkiWiki/Plugin/bzr.pm:	hook(type => "rcs", id => "rcs_diff", call => \&rcs_diff);
+
+> I've added the minimal stub needed to avoid the crash, but for
+> recentchangesdiff to work, someone needs to implement `rcs_diff` for bzr.
+> This should be trivial if you know and use bzr. The function
+> is passed as a parameter the revno of interest and just needs
+> to ask bzr for the diff between that and the previous version. --[[Joey]] 
+
+>> I'll see if I can make a patch. The bzr command to get the revision would
+>> look like this: bzr diff -r revno:$PREV:/path/to/src..revno:$REVNO:/path/to/src
+>> (where $PREV would be $REVNO minus one). --liw
+
+>> Sorry, that was not entirely correct, for some reason. I'll add a patch below that
+>> seems to work. I am unfortunately not ready to set up a git repository that you
+>> can pull from. --liw
+
+[[done]] --[[Joey]] 

@@ -1,0 +1,24 @@
+Hi,
+
+today I encountered a strange behaviour of ikiwiki that I'm trying to understand...
+
+I linked to a subpage using
+
+\[[somename|/path/from/root/dir/filename]]
+
+and saved the file. Then I added it to the repo, committed it, and ran 
+   
+    ikiwiki --setup setupfile.setup
+
+Afterwards some older links of the same style were displayed correctly, but one new link remained black - i.e. with no question mark to it. I figure that means ikiwiki has recognized the syntax but did not create a link in the html file.
+
+I messed around a bit, recompiling many times did not work. After a while I opened the file via the web editing formular and saved it from there ("Save Page"). 
+
+After that the link was there. 
+
+I dont know why. My question is - what does ikiwiki do differently when saved from the web form than when saving an editor and then running ikiwiki --setup setupfile.setup.
+
+Btw. my version is still 3.20100815.7 since I'm on squeeze and like to stick with the repo versions.
+
+Thanks in advance,
+Chris

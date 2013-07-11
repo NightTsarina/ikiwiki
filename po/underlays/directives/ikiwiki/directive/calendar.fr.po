@@ -1,0 +1,200 @@
+# Traduction de ikiwiki
+# Copyright (C)2009 Debian French l10n team <debian-l10n-french@lists.debian.org>
+# This file is distributed under the same license as the PACKAGE Ikiwiki.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki\n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
+"PO-Revision-Date: 2010-07-20 21:54+0200\n"
+"Last-Translator: Philippe Batailler <philippe.batailler@free.fr>\n"
+"Language-Team: French <debian-l10n-french@lists.debian.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bits\n"
+
+#. type: Plain text
+msgid ""
+"The `calendar` directive is supplied by the [[!iki plugins/calendar "
+"desc=calendar]] plugin."
+msgstr ""
+"La directive `calendar` est fournie par le module d'extension [[!iki plugins/"
+"calendar desc=calendar]]."
+
+#. type: Plain text
+msgid ""
+"This directive displays a calendar, similar to the typical calendars shown "
+"on some blogs."
+msgstr ""
+"Cette directive affiche un calendrier, comparable aux calendriers affichés "
+"par certains blogs."
+
+#. type: Title #
+#, no-wrap
+msgid "examples"
+msgstr "Exemples :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!calendar ]]\n"
+msgstr "\t\\[[!calendar ]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!calendar type=\"month\" pages=\"blog/* and !*/Discussion\"]]\n"
+msgstr "\t\\[[!calendar type=\"month\" pages=\"blog/* and !*/Discussion\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!calendar type=\"year\" year=\"2005\" pages=\"blog/* and !*/Discussion\"]]\n"
+msgstr "\t\\[[!calendar type=\"year\" year=\"2005\" pages=\"blog/* and !*/Discussion\"]]\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "setup"
+msgstr "configuration"
+
+#. type: Plain text
+msgid ""
+"The calendar is essentially a fancy front end to archives of previous pages, "
+"usually used for blogs. It can produce a calendar for a given month, or a "
+"list of months for a given year. The month format calendar simply links to "
+"any page posted on each day of the month. The year format calendar links to "
+"archive pages, with names like `archives/2007` (for all of 2007)  and "
+"`archives/2007/01` (for January, 2007)."
+msgstr ""
+"L'agenda, habituellement trouvé dans les blogs, est essentiellement une "
+"interface agréable pour l'archive de pages précédentes. Il peut afficher un "
+"calendrier pour un mois donné ou une liste de mois pour une année donnée. Un "
+"calendrier mensuel lie à chaque jour du mois les pages publiées ce jour. Un "
+"calendrier annuel lie aux pages d'archive, avec des noms comme "
+"`archives/2007` (pour tout 2007) et `archives/2007/01` (pour janvier 2007)."
+
+#. type: Plain text
+msgid ""
+"While you can insert calendar directives anywhere on your wiki, including in "
+"the sidebar, you'll also need to create these archive pages. They typically "
+"use this directive to display a calendar, and also use [[inline]] to display "
+"or list pages created in the given time frame."
+msgstr ""
+"Les directives calendar peuvent être insérées n'importe où dans le wiki, "
+"même dans la barre latérale. Vous devez cependant créer les pages "
+"d'archives. Celles-ci utilisent cette directive pour afficher un calendrier "
+"et aussi la directive [[inline]] pour afficher ou lister les pages créées "
+"dans l'espace de temps donné."
+
+#. type: Plain text
+msgid ""
+"The `ikiwiki-calendar` command can be used to automatically generate the "
+"archive pages. It also refreshes the wiki, updating the calendars to "
+"highlight the current day. This command is typically run at midnight from "
+"cron."
+msgstr ""
+"La commande `ikiwiki-calendar` peut créer automatiquement les pages "
+"d'archives. Elle actualise aussi le wiki, mettant à jour les calendriers "
+"(date du jour en surbrillance). Cette commande est exécutée généralement à "
+"minuit par le programme cron."
+
+#. type: Plain text
+msgid "An example crontab:"
+msgstr "Une crontab possible :"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t0 0 * * * ikiwiki-calendar ~/ikiwiki.setup \"posts/* and !*/Discussion\"\n"
+msgstr "\t0 0 * * * ikiwiki-calendar ~/ikiwiki.setup \"posts/* and !*/Discussion\"\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "usage"
+msgstr "utilisation"
+
+#. type: Bullet: '* '
+msgid ""
+"`type` - Used to specify the type of calendar wanted. Can be one of \"month"
+"\" or \"year\". The default is a month view calendar."
+msgstr ""
+"`type` - Ce paramètre indique le type du calendrier. C'est soit « month » "
+"soit « year », la valeur par défaut étant le calendrier mensuel."
+
+#. type: Bullet: '* '
+msgid ""
+"`pages` - Specifies the [[ikiwiki/PageSpec]] of pages to link to from the "
+"month calendar. Defaults to \"*\"."
+msgstr ""
+"`pages` - Indique  une spécification [[ikiwiki/PageSpec]] pour les pages qui "
+"seront liées au calendrier. La valeur par défaut est « * »."
+
+#. type: Bullet: '* '
+msgid ""
+"`archivebase` - Configures the base of the archives hierarchy.  The default "
+"is \"archives\". Note that this default can also be overridden for the whole "
+"wiki by setting `archivebase` in ikiwiki's setup file.  Calendars link to "
+"pages under here, with names like \"2010/04\" and \"2010\". These pages can "
+"be automatically created using the `ikiwiki-calendar` program."
+msgstr ""
+"`archivebase` - Indique la racine des répertoires d'archives, « archives » "
+"par défaut. On peut changer cette valeur en renseignant `archivebase` dans "
+"le fichier de configuration d'ikiwiki. Les calendriers se lient à des pages "
+"placées là, nommées \"2010/04\" ou \"2010\" par exemple. Ces pages peuvent "
+"être créées automatiquement par le programme `ikiwiki-calendar`."
+
+#. type: Bullet: '* '
+msgid ""
+"`year` - The year for which the calendar is requested. Defaults to the "
+"current year. Can also use -1 to refer to last year, and so on."
+msgstr ""
+"`year` - Indique l'année pour le calendrier annuel. La valeur par défaut est "
+"l'année en cours. On peut aussi utiliser -1 pour se référer à l'année "
+"dernière, ainsi de suite."
+
+#. type: Bullet: '* '
+msgid ""
+"`month` - The numeric month for which the calendar is requested, in the "
+"range 1..12. Used only for the month view calendar, and defaults to the "
+"current month. Can also use -1 to refer to last month, and so on."
+msgstr ""
+"`month` - Ce paramètre indique le chiffre du mois (1..12) pour le "
+"calendrier. Il n'est utilisé que pour le calendrier mensuel, et la valeur "
+"par défaut est le chiffre du mois en cours. On peut aussi utiliser -1 pour "
+"se référer au mois dernier, ainsi de suite."
+
+#. type: Bullet: '* '
+msgid ""
+"`week_start_day` - A number, in the range 0..6, which represents the day of "
+"the week that the month calendar starts with. 0 is Sunday, 1 is Monday, and "
+"so on. Defaults to 0, which is Sunday."
+msgstr ""
+"`week_start_day` - Indique le chiffre (0..6) qui représente le jour par "
+"lequel commence la semaine dans le calendrier. Dimanche, c'est 0, lundi, 1, "
+"etc. La valeur par défaut est 0, dimanche."
+
+#. type: Bullet: '* '
+msgid ""
+"`months_per_row` - In the year calendar, number of months to place in each "
+"row. Defaults to 3."
+msgstr ""
+"`months_per_row` - Ce paramètre indique, dans le calendrier annuel, le "
+"nombre de mois par ligne. La valeur par défaut est 3."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#~ msgid ""
+#~ "The month format calendar simply links to any page posted on each day of "
+#~ "the month. The year format calendar links to archive pages, with names "
+#~ "like `archives/2007` (for all of 2007)  and `archives/2007/01` (for "
+#~ "January, 2007). For this to work, you'll need to create these archive "
+#~ "pages. They typically use [[inline]] to display or list pages created in "
+#~ "the given time frame."
+#~ msgstr ""
+#~ "Le calendrier pour un mois est simplement l'ensemble des liens vers les "
+#~ "pages écrites chaque jour du mois. Le calendrier pour une année est "
+#~ "l'ensemble des liens vers les pages d'archives, comme `archives/2007` "
+#~ "(tout 2007) ou `archives/2007/01` (tout janvier 2007). Pour que cela "
+#~ "fonctionne, il faut créer ces pages d'archive, qui comporteront une "
+#~ "directive [[inline]] pour afficher ou lister les pages créées dans "
+#~ "l'intervalle de temps donné."

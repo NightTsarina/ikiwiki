@@ -1,0 +1,139 @@
+There is currently a restriction in ikiwiki that there cannot be any symlinks in the source path.  This is to deal with a security issue discussed [[here|security#index29h2]].  The issue, as I understand it, is that someone might change a symlink and so cause things on the server to be published when the server admin doesn't want them to be.
+
+I think there are two issues here:
+
+ - Symlinks with the source dir path itself, and
+ - Symlinks inside the source directory.
+
+The first appears to me to be less of a security issue.  If there is a way for a malicious person to change where that path points, then you have problems this check isn't going to solve.  The second is quite clearly a security issue - if someone were to commit a symlink into the source dir they could cause lots of stuff to be published that shouldn't be.
+
+> Correct. However, where does the revision controlled source directory end? Ikiwiki has no way
+> of knowing. It cannot assume that `srcdir` is in revision control, and
+> everything outside is not. For example, ikiwiki's own source tree has the
+> doc wiki source inside `ikiwiki/doc`. So to fully close the source dir
+> symlink issue, it's best to, by default, assume that the revision
+> controlled directories could go down arbitrarily deep, down to the root of
+> the filesystem. --[[Joey]]
+
+>> Fair point.
+
+The current code seems to check this constraint at the top of IkiWiki/Render.pm at the start of refresh().  It seems to only check the source dir itself, not the subdirs.  Then it uses File::Find to recuse which doesn't follow symlinks.
+
+Now my problem:  I have a hosted server where I cannot avoid having a symlink in the source path.  I've made a patch to optionally turn off the symlink checking in the source path itself.  The patch would still not follow symlinks inside the source dir.  This would seem to be ok security-wise for me as I know that path is ok and it isn't going to change on me.
+
+> BTW, if you have a problem, please file it in [[todo]] or [[bugs]] in the
+> future. Especially if you also have a patch. :-) --[[Joey]]
+
+>> Well, I was unsure I wasn't missing something.  I wanted to discuss the concept of the patch as much as submit the patch.  But, ok :)
+
+Is there a huge objection to this patch?
+
+>>> [[patch]] updated.
+
+    diff --git a/IkiWiki/Render.pm b/IkiWiki/Render.pm
+    index 990fcaa..0fb78ba 100644
+    --- a/IkiWiki/Render.pm
+    +++ b/IkiWiki/Render.pm
+    @@ -260,13 +260,15 @@ sub prune ($) {
+     
+     sub refresh () {
+     	# security check, avoid following symlinks in the srcdir path
+    -	my $test=$config{srcdir};
+    -	while (length $test) {
+    -		if (-l $test) {
+    -			error("symlink found in srcdir path ($test)");
+    -		}
+    -		unless ($test=~s/\/+$//) {
+    -			$test=dirname($test);
+    +	if (! $config{allow_insecure_symlinks_in_path_to_srcdir}) {
+    +		my $test=$config{srcdir};
+    +		while (length $test) {
+    +			if (-l $test) {
+    +				error("symlink found in srcdir path ($test)");
+    +			}
+    +			unless ($test=~s/\/+$//) {
+    +				$test=dirname($test);
+    +			}
+     		}
+     	}
+     	
+    diff --git a/doc/ikiwiki.setup b/doc/ikiwiki.setup
+    index 10cb3da..eb86e49 100644
+    --- a/doc/ikiwiki.setup
+    +++ b/doc/ikiwiki.setup
+    @@ -203,4 +203,10 @@ use IkiWiki::Setup::Standard {
+     	# For use with the attachment plugin, a program that returns
+     	# nonzero if its standard input contains an virus.
+     	#virus_checker => "clamdscan -",
+    +	
+    +	# The following setting allows symlinks in the path to your
+    +	# srcdir.  Symlinks are still not followed within srcdir.
+    +	# Allowing symlinks to be followed, even in the path to srcdir,
+    +	# will make some setups insecure.
+    +	#allow_insecure_symlinks_in_path_to_srcdir => 0,
+     }
+
+> No, I don't have a big objection to such an option, as long as it's
+> extremely well documented that it will make many setups insecure.
+> It would be nice to come up with an option name that makes clear that
+> it's allowing symlinks in the path to the `srcdir`, but still not inside
+> the `srcdir`.
+> --[[Joey]]
+
+>> Slightly modified version of patch applied. --[[Joey]]
+
+>> Ok, I'll try to get it cleaned up and documented.
+
+There is a second location where this can be an issue.  That is in the
+front of the wrapper.  There the issue is that the path to the source dir
+as seen on the cgi server and on the git server are different - each has
+symlinks in place to support the other.  The current wrapper gets the
+absolute path to the source dir, and that breaks things for me.  This is a
+slightly different, albeit related, issue to the one above.  The following
+patch fixes things.  Again, patch inline.  Again, this patch could be
+cleaned up :).  I just wanted to see if there was any chance of a patch
+like this being accepted before I bothered.
+
+>>> Patch updated:
+
+    index 79b9eb3..ce1c395 100644
+    --- a/IkiWiki/Wrapper.pm
+    +++ b/IkiWiki/Wrapper.pm
+    @@ -4,14 +4,14 @@ package IkiWiki;
+     
+     use warnings;
+     use strict;
+    -use Cwd q{abs_path};
+     use Data::Dumper;
+     use IkiWiki;
+    +use File::Spec;
+     
+     sub gen_wrapper () {
+    -       $config{srcdir}=abs_path($config{srcdir});
+    -       $config{destdir}=abs_path($config{destdir});
+    -       my $this=abs_path($0);
+    +       $config{srcdir}=File::Spec->rel2abs($config{srcdir});
+    +       $config{destdir}=File::Spec->rel2abs($config{destdir});
+    +       my $this=File::Spec->rel2abs($0);
+            if (! -x $this) {
+                    error(sprintf(gettext("%s doesn't seem to be executable"), $this
+            }
+
+> ikiwiki uses absolute paths for `srcdir`, `destdir` and `this` because
+> the wrapper could be run from any location, and if any of them happen to
+> be a relative path, it would crash and burn.
+
+>> Which makes perfect sense.  It is annoying that abs_path() is also
+>> expanding symlinks.
+
+> I think the thing to do might be to make it check if `srcdir` and
+> `destdir` look like an absolute path (ie, start with "/"). If so, it can
+> skip running `abs_path` on them.
+
+>> I'll do that.  I assume something like <code> File::Spec->file_name_is_absolute( $path ); </code> would have more cross-platformy goodness.
+>> hrm.  I might see if <code> File::Spec->rel2abs( $path ) ; </code> will give absolute an path without expanding symlinks.
+>>> Patch using rel2abs() works well - it no longer expands symlinks.
+
+>>>> That patch is applied now. --[[Joey]]
+
+[[!tag done]]

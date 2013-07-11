@@ -1,0 +1,196 @@
+[[!tag wishlist]]
+
+As noted in [[todo/tag_pagespec_function]], there is a "misbehavior" of a `tagged()` pagespec: it matches even pages which have plain links to the tag page.
+
+And in general, it would be quite useful to be able to distinguish different kinds of links: one more kind, in addition to "tag", is "bug dependency" noted in [[todo/structured_page_data#another_kind_of_links]] and [[todo/tracking_bugs_with_dependencies#another_kind_of_links]].
+
+It could distinguish the links by the `rel=` attribute. ([[Tags already receive a special rel-class|todo/rel_attribute_for_links]].) This means there is a general need for a syntax to specify user-defined rel-classes on wikilink (then bug deps would simply use their special rel-class, either directly, or through a special directive like `\[[!depends ]]`), and to refer to them in pagespecs (in forward and backward direction).
+
+Besides pagespecs, the `rel=` attribute could be used for styles. --Ivan Z.
+
+> FWIW, the `add_link` function introduced in a recent
+> release adds an abstraction that could be used to get
+> part of the way there to storing data about different types of
+> links. That function could easily be extended to take an optional
+> third parameter specifying the link type.
+> 
+> Then there's the question of how to store and access the data. `%links`
+> does not offer a good way to add additional information about links.
+> Now, we could toss `%links` entirely and switch to an accessor function,
+> but let's think about not doing that..
+> 
+> The data that seems to be needed is basically a deep hash, so
+> one could check `$linktype{$page}{tag}{$link}` to see if
+> the page contains a link of the given type. (Note that pages could
+> contain links that were duplicates except for their types.)
+> 
+> There would be some data duplication, unfortuantly, but if `%linktype`
+> is not populated for regular wikilinks, it would at least be limited to
+> tags and other unusual link types, so not too bad.
+> 
+> `%linktype` could be stored in `%pagestate`.. if so
+> the actual use might look like `$pagestate{$page}{linktype}{tag}{$link}`.
+> That could be implemented by the tag plugin right now
+> with no core changes. (BTW, then I originally wrote tag, pagestate
+> was not available, which is why I didn't make it differentiate from
+> normal links.) Might be better to go ahead and add the variable to
+> core though. --[[Joey]] 
+
+>> I've implemented this with the data structure you suggested, except that
+>> I called it `%typedlinks` instead of `%linktype` (it seemed to make more
+>> sense that way). I also ported `tag` to it, and added a `tagged_is_strict`
+>> config option. See below! --[[smcv]]
+
+I saw somewhere else here some suggestions for the wiki-syntax for specifying the relation name of a link. One more suggestion---[the syntax used in Semantic MediaWiki](http://en.wikipedia.org/wiki/Semantic_MediaWiki#Basic_usage), like this:
+
+<pre>
+... the capital city is \[[Has capital::Berlin]] ...
+</pre>
+
+So a part of the effect of [[`\[[!taglink TAG\]\]`|plugins/tag]] could be represented as something like `\[[tag::TAG]]` or (more understandable relation name in what concerns the direction) `\[[tagged::TAG]]`.
+
+I don't have any opinion on this syntax (whether it's good or not)...--Ivan Z.
+
+-------
+
+>> [[!template id=gitbranch author="[[Simon_McVittie|smcv]]" branch=smcv/ready/link-types]]
+>> [[!tag patch]]
+
+## Documentation for smcv's branch
+
+### added to [[ikiwiki/pagespec]]
+
+* "`typedlink(type glob)`" - matches pages that link to a given page (or glob)
+  with a given link type. Plugins can create links with a specific type:
+  for instance, the tag plugin creates links of type `tag`.
+
+### added to [[plugins/tag]]
+
+If the `tagged_is_strict` config option is set, `tagged()` will only match
+tags explicitly set with [[ikiwiki/directive/tag]] or
+[[ikiwiki/directive/taglink]]; if not (the default), it will also match
+any other [[WikiLinks|ikiwiki/WikiLink]] to the tag page.
+
+### added to [[plugins/write]]
+
+#### `%typedlinks`
+
+The `%typedlinks` hash records links of specific types. Do not modify this
+hash directly; call `add_link()`. The keys are page names, and the values
+are hash references. In each page's hash reference, the keys are link types
+defined by plugins, and the values are hash references with link targets
+as keys, and 1 as a dummy value, something like this:
+
+	$typedlinks{"foo"} = {
+		tag => { short_word => 1, metasyntactic_variable => 1 },
+		next_page => { bar => 1 },
+	};
+
+Ordinary [[WikiLinks|ikiwiki/WikiLink]] appear in `%links`, but not in
+`%typedlinks`.
+
+#### `add_link($$;$)`
+ 
+ This adds a link to `%links`, ensuring that duplicate links are not
+ added. Pass it the page that contains the link, and the link text.
+ 
+An optional third parameter sets the link type (`undef` produces an ordinary
+[[ikiwiki/WikiLink]]).
+
+## Review
+
+Some code refers to `oldtypedlinks`, and other to `oldlinktypes`. --[[Joey]]
+
+> Oops, I'll fix that. That must mean missing test coverage, too :-(
+> --s
+
+>> A test suite for the dependency resolver *would* be nice. --[[Joey]]
+
+>>> Bug fixed, I think. A test suite for the dependency resolver seems
+>>> more ambitious than I want to get into right now, but I added a
+>>> unit test for this part of it... --s
+
+I'm curious what your reasoning was for adding a new variable
+rather than using `pagestate`. Was it only because you needed
+the `old` version to detect change, or was there other complexity?
+--J
+
+> You seemed to be more in favour of adding it to the core in
+> your proposal above, so I assumed that'd be more likely to be
+> accepted :-) I don't mind one way or the other - `%typedlinks`
+> costs one core variable, but saves one level of hash nesting. If
+> you're not sure either, then I think the decision should come down
+> to which one is easier to document clearly - I'm still unhappy with
+> my docs for `%typedlinks`, so I'll try to write docs for it as
+> `pagestate` and see if they work any better. --s
+
+>> On reflection, I don't think it's any better as a pagestate, and
+>> the contents of pagestates (so far) aren't documented for other
+>> plugins' consumption, so I'm inclined to leave it as-is, unless
+>> you want to veto that. Loose rationale: it needs special handling
+>> in the core to be a dependency type (I re-used the existing link
+>> type), it's API beyond a single plugin, and it's really part of
+>> the core parallel to pagestate rather than being tied to a
+>> specific plugin. Also, I'd need to special-case it to have
+>> ikiwiki not delete it from the index, unless I introduced a
+>> dummy typedlinks plugin (or just hook) that did nothing... --s
+
+I have not convinced myself this is a real problem, but..
+If a page has a typed link, there seems to be no way to tell
+if it also has a separate, regular link. `add_link` will add
+to `@links` when adding a typed, or untyped link. If only untyped
+links were recorded there, one could tell the difference. But then
+typed links would not show up at all in eg, a linkmap,
+unless it was changed to check for typed links too.
+(Or, regular links could be recorded in typedlinks too,
+with a empty type. (Bloaty.)) --J
+
+> I think I like the semantics as-is - I can't think of any
+> reason why you'd want to ask the question "does A link to B,
+> not counting tags and other typed links?". A typed link is
+> still a link, in my mind at least. --s
+
+>> Me neither, let's not worry about it. --[[Joey]] 
+
+I suspect we could get away without having `tagged_is_strict`
+without too much transitional trouble. --[[Joey]]
+
+> If you think so, I can delete about 5 LoC. I don't particularly
+> care either way; [[Jon]] expressed concern about people relying
+> on the current semantics, on one of the pages requesting this
+> change. --s
+
+>> Removed in a newer version of the branch. --s
+
+I might have been wrong to introduce `typedlink(tag foo)`. It's not
+very user-friendly, and is more useful as a backend for other plugins
+that as a feature in its own right - any plugin introducing a link
+type will probably also want to have its own preprocessor directive
+to set that link type, and its own pagespec function to match it.
+I wonder whether to make a `typedlink` plugin that has the typedlink
+pagespec match function and a new `\[[!typedlink to="foo" type="bar"]]`
+though... --[[smcv]]
+
+> I agree, per-type matchers are more friendly and I'm not enamored of the
+> multi-parameter pagespec syntax. --[[Joey]]
+
+>> Removed in a newer version of the branch. I re-introduced it as a
+>> plugin in `smcv/typedlink`, but I don't think we really need it. --s
+
+----
+
+I am ready to merge this, but I noticed one problem -- since `match_tagged`
+now only matches pages with the tag linktype, a wiki will need to be
+rebuilt on upgrade in order to get the linktype of existing tags in it
+recorded. So there needs to be a NEWS item about this and
+the postinst modified to force the rebuild.
+
+> Done, although you'll need to plug in an appropriate version number when
+> you release it. Is there a distinctive reminder string you grep for
+> during releases? I've used `UNRELEASED` for now. --[[smcv]]
+
+Also, the ready branch adds `typedlink()` to [[ikiwiki/pagespec]],
+but you removed that feature as documented above.
+--[[Joey]]
+
+> [[Done]]. --s

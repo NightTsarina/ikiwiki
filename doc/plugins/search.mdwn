@@ -1,0 +1,18 @@
+[[!template id=plugin name=search author="[[Joey]]"]]
+[[!tag type/web]]
+
+This plugin adds full text search to ikiwiki, using the
+[xapian](http://xapian.org/) engine, its
+[omega](http://xapian.org/docs/omega/overview.html) frontend, and the
+[[!cpan Search::Xapian]], [[!cpan Digest::SHA]], and [[!cpan HTML::Scrubber]]
+perl modules (on debian, check that you have packages `libsearch-xapian-perl`, `libdigest-sha-perl` and `libhtml-scrubber-perl` installed).
+
+The [[ikiwiki/searching]] page describes how to write search queries.
+
+Ikiwiki will handle indexing new and changed page contents. Note that since
+it only indexes page contents, files copied by the [[rawhtml]] plugin will
+not be indexed, nor will other types of data files.
+
+There is one setting you may need to use in the config file. `omega_cgi` 
+should point to the location of the omega cgi program. The default location
+is `/usr/lib/cgi-bin/omega/omega`.

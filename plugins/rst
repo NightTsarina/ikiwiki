@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# rst — xml-rpc-based ikiwiki plugin to process RST files
+#
+# based a little bit on rst.pm by Sergio Talens-Oliag, but only a little bit. :)
+#
+# Copyright © 2007-2008 martin f. krafft <madduck@madduck.net>
+#             2007-2011 Joey Hess <joey@kitenet.net>
+#             2009      Ulrik Sverdrup <ulrik.sverdrup@gmail.com>
+#             2011      Simon McVittie <smcv@debian.org>
+#             2012      W. Trevor King <wking@tremily.us>
+#
+#  Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in the
+#    documentation and/or other materials provided with the distribution.
+# .
+# THIS SOFTWARE IS PROVIDED BY IKIWIKI AND CONTRIBUTORS ``AS IS''
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+# TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE FOUNDATION
+# OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+# OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+#
+__name__ = 'rst'
+__description__ = 'xml-rpc-based ikiwiki plugin to process RST files'
+__version__ = '0.4'
+__author__ = 'martin f. krafft <madduck@madduck.net>'
+__copyright__ = 'Copyright © ' + __author__
+__licence__ = 'BSD-2-clause'
+
+import sys as _sys
+
+from proxy import IkiWikiProcedureProxy
+
+
+publish_parts = None
+
+
+def rst2html(proxy, *args):
+    # delayed import so docutils is only needed if you *use* rst -
+    # http://bugs.debian.org/637604
+    global publish_parts
+    if publish_parts is None:
+        try:
+            from docutils.core import publish_parts
+        except ImportError as e:
+            proxy.error('cannot import docutils.core: {0}: {1}'.format(
+                    e.__class__.__name__, e))
+            raise
+
+    kwargs = _to_dict(args)
+    parts = publish_parts(kwargs["content"],
+                          writer_name="html",
+                          settings_overrides = { 'halt_level': 6
+                                               , 'file_insertion_enabled': 0
+                                               , 'raw_enabled': 1
+                                               })
+    return '\n'.join(parts['html_body'].splitlines()[1:-1])
+
+def _to_dict(args):
+    # args is a list paired by key, value, so we turn it into a dict
+    return dict((k, v) for k, v in zip(*[iter(args)]*2))
+
+def getsetup(proxy, *kwargs):
+    return 'plugin', { 'safe' : 1, 'rebuild' : 1, 'section' : 'format' }
+
+def debug(s):
+    _sys.stderr.write(__name__ + ':DEBUG:{0}\n'.format(s))
+    _sys.stderr.flush()
+
+proxy = IkiWikiProcedureProxy(__name__, debug_fn=None)
+proxy.hook('getsetup', getsetup)
+proxy.hook('htmlize', rst2html)
+proxy.run()

@@ -1,0 +1,149 @@
+The following patch adds a footer div on all pages to ease CSS themeing.
+Indeed, the misc.tmpl, recentchanges.tmpl and editpage.tmpl templates lack such a div.
+
+> So, the problem with this is that the default css inserts a horizontal
+> line at the top of the footer div, and putting an empty footer on these
+> other pages looks a bit weird. Any idea how to get around that?
+> --[[Joey]]
+
+>> Sorry I didn't see that. It definitely looks weird. We could add text  
+>> in all footers or change the CSS stylesheet, but it's not clean IMHO.
+
+>> The idea was about to ease themeing by giving all the pages the same
+>> structure. The current structure is the following one:
+
+>> div header - div actions ... div content - div footer (sometimes)
+
+>> So we could add some new divs in all templates. By default, they will  
+>> be empty and no CSS will be defined for them. This way ikiwiki
+>> standard appearance is not changed but themeing will be eased.
+>> The new page structure could be:
+
+>> * div banner (to show up a logo for example)
+
+>> * div content-wrap containing div header, div actions, ... div content
+>> and div footer
+
+>> * div realfooter (to put credits, "Powered by ikiwiki", "Valid XHTML"...)
+
+>> From my tests, it works: Just adding the divs, without touching the stylesheet,
+>> doesn't change ikiwiki appearance. And themeing is eased :-)
+
+>> I can update the patch, if you want to follow and test this idea. --Fred
+
+>>> Sure, go ahead --[[Joey]]
+
+>>>>Here is an updated patch against current svn. --Fred
+
+	Index: templates/recentchanges.tmpl
+	===================================================================
+	--- templates/recentchanges.tmpl        (révision 3575)
+	+++ templates/recentchanges.tmpl        (copie de travail)
+	@@ -12,7 +12,11 @@
+	 </TMPL_IF>
+	 </head>
+	 <body>
+	+<div id="banner">
+	+</div>
+	 
+	+<div id="content-wrap">
+	+
+	 <div class="header">
+	 <span>
+	 <TMPL_VAR INDEXLINK>/ <TMPL_VAR TITLE>
+	@@ -65,5 +69,10 @@
+	 
+	 <!-- from <TMPL_VAR NAME=WIKINAME> -->
+	 
+	+</div>
+	+
+	+<div id="realfooter">
+	+</div>
+	+
+	 </body>
+	 </html>
+	Index: templates/page.tmpl
+	===================================================================
+	--- templates/page.tmpl (révision 3575)
+	+++ templates/page.tmpl (copie de travail)
+	@@ -13,7 +13,11 @@
+	 <TMPL_IF NAME="META"><TMPL_VAR META></TMPL_IF>
+	 </head>
+	 <body>
+	+<div id="banner">
+	+</div>
+	 
+	+<div id="content-wrap">
+	+
+	 <div class="header">
+	 <span>
+	 <TMPL_LOOP NAME="PARENTLINKS">
+	@@ -95,5 +99,10 @@
+	 <TMPL_IF EXTRAFOOTER><TMPL_VAR EXTRAFOOTER></TMPL_IF>
+	 </div>
+	 
+	+</div>
+	+
+	+<div id="realfooter">
+	+</div>
+	+
+	 </body>
+	 </html>
+	Index: templates/editpage.tmpl
+	===================================================================
+	--- templates/editpage.tmpl     (révision 3575)
+	+++ templates/editpage.tmpl     (copie de travail)
+	@@ -12,6 +12,11 @@
+	 </TMPL_IF>
+	 </head>
+	 <body>
+	+<div id="banner">
+	+</div>
+	+
+	+<div id="content-wrap">
+	+
+	 <TMPL_IF NAME="PAGE_CONFLICT">
+	 <p>
+	 <b>Your changes conflict with other changes made to the page.</b>
+	@@ -86,5 +91,11 @@
+	 <TMPL_VAR PAGE_PREVIEW>
+	 </div>
+	 </TMPL_IF>
+	+
+	+</div>
+	+
+	+<div id="realfooter">
+	+</div>
+	+
+	 </body>
+	 </html>
+	Index: templates/misc.tmpl
+	===================================================================
+	--- templates/misc.tmpl (révision 3575)
+	+++ templates/misc.tmpl (copie de travail)
+	@@ -12,7 +12,11 @@
+	 </TMPL_IF>
+	 </head>
+	 <body>
+	+<div id="banner">
+	+</div>
+	 
+	+<div id="content-wrap">
+	+
+	 <div class="header">
+	 <span>
+	 <TMPL_VAR INDEXLINK>/ <TMPL_VAR TITLE>
+	@@ -23,5 +27,10 @@
+	 <TMPL_VAR PAGEBODY>
+	 </div>
+	 
+	+</div>
+	+
+	+<div id="realfooter">
+	+</div>
+	+
+	 </body>
+	 </html>
+
+> I took a more intrusive approach to avoid ugly names like "realfooter".
+> [[done]] --[[Joey]]

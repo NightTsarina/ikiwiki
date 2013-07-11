@@ -1,0 +1,24 @@
+If one puts localized chars in wikilinks ikiwiki will escape it.
+This works right from a technical point of view, but the URLs will become ugly.
+
+So I made a patch which unaccent chars: <http://users.itk.ppke.hu/~cstamas/code/ikiwiki/unaccentpagetitlenames/>
+This is a one liner change, but requires a bit of reordering in the code.
+
+--[[cstamas]]
+
+> This was previously requested in [[todo/more_customisable_titlepage_function]],
+> in which [[Joey]] said "I don't think that changing titlepage is a good idea,
+> there are compatability problems".
+>
+> The problem is that altering titlepage changes the meaning of your wiki,
+> by resolving all wiki links to different page names. That means that:
+>
+> * unaccenting can't be automatic, it has to be a configuration option
+>   (so you don't accidentally get different behaviour by installing
+>   Text::Unaccent)
+> * upgrading Text::Unaccent becomes risky, as I doubt it guarantees to
+>   have stable rules for how to transliterate into ASCII!
+>
+> --[[smcv]]
+
+[[!tag wishlist patch patch/core]]

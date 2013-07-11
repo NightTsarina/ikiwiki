@@ -1,0 +1,17 @@
+I'm often confused about permissions and I wish ikiwiki could stamp it's foot down and ensure all the permissions are correctly (canonically?) setup.
+
+I keep ending up having to `sudo chown -R :www-data` and `sudo chmod -R g+w` on srcdir, destdir. I'm never quite sure what is the best practice for the srcdirs' `/srv/git/` is. Currently everything looks like `hendry:www-data` with ug+rw.
+
+I think I've triggered these problems by (not thinking and) running `ikiwiki --rebuild --setup /home/hendry/.ikiwiki/mywiki.setup` as my user.
+
+I don't know if there can be some lookup with `/etc/ikiwiki/wikilist`.  Though shouldn't everything be under the `www-data` group in reality?
+
+Also when I use `sudo ikiwiki -setup /etc/ikiwiki/auto.setup`, I think I create a ton of problems for myself since everything is created as the root user, right? And `/etc/ikiwiki/wikilist` doesn't seem to have the latest created wiki added. I have to reluctantly manually do this.
+
+> You should never make files be owned by www-data user or group.
+> Ikiwiki is designed to run as a single user, which can just
+> be your login user; all files should be owned by that user, the
+> ikiwiki.cgi and other wrappers suid to that user. And then there are
+> never any permissions problems. --[[Joey]]
+
+[[done]]

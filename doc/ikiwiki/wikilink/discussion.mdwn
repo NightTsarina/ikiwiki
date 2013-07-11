@@ -1,0 +1,93 @@
+# Creating an [[anchor]] in Markdown
+
+Is it a native Markdown "tag" for creating an [[anchor]]? Unfortunately,
+I haven't any information about it at
+[Markdown syntax](http://daringfireball.net/projects/markdown/syntax) page.
+
+Of course, I know that I can use HTML tag to do it,
+for example &lt;a name="foo" /&gt;, but I don't want to mix Markdown
+and HTML code if it's not necessary.
+
+BTW, ikiwiki doesn't displays the #foo anchor in the example
+("To link to an anchor inside a page...") at [[WikiLink]] page...
+
+--[[Paweł|ptecza]]
+
+> No such syntax exists in markdown.  ikiwiki could certainly have a
+> [[preprocessor_directive|directive]] for it, though.
+> --[[JoshTriplett]]
+
+>> [[!tag wishlist]]
+>> I'd like to implement such a thing.  Joey, what is this supposed to look like?
+>> `\[[anchor WHATEVER]]`?  --[[tschwinge]]
+
+>>> Why would you want to use a preprocessor directive for something that can
+>>> be more shortly and clearly done with plain HTML? Markdown is *designed*
+>>> to be intermixed with HTML. --[[Joey]]
+
+>>>> I tend to disagree.
+>>>> It just doesn't feel right for me to put HTML code straight into Markdown files.
+>>>>
+>>>> Quoting <http://daringfireball.net/projects/markdown/>:
+>>>>
+>>>>> The idea is that a Markdown-formatted document should be publishable as-is, as plain text, *without looking like it’s been marked up with tags or formatting instructions*.
+>>>>
+>>>> Also, in theorie at least, Markdown might also support other output formats than HTML.
+>>>> Those wouldn't know about how to deal with the intermingled HTML code.
+>>>>
+>>>> --[[tschwinge]]
+>>>>>Not sure \[[anchor WHATEVER]] looks any better than &lt;a name="WHATEVER"&gt;...?  --[[sabr]]
+
+> The lack of the `#foo` anchor in the anchor example on [[wikilink]]
+> definitely looks like a bug.  --[[JoshTriplett]]
+
+>> Fixed that --[[Joey]]
+
+>>> Sorry to bring this up (1 year since last change in this page) but what is the status of this? Can we use anchors like it's in [[wikilink]]? This discusion is tagged as wishlist, but isn't listed in [[wishlist]]. What is "fixed that" then? Again, sorry if this is a dead issue, but I have a tendency to create big wiki pages, and anchors are very needed for me, but I've spent all morning trying to make it work and it just doesn't. TY. --rbern
+
+The 'name' attribute of the 'a' element is a depracated way to create a named anchor. The right way to do that is using the 'id' attribute of any element. This is because an anchor may refer to a complete element rather than some point in the page.
+
+Standard purity aside, if you define an anchor (using either 'a name' or 'id') to a single point in the document but refer to a complete section, the browser may just show that specific point at the bottom of the page rather than trying to show all the section.
+--[[tzafrir]]
+
+---
+
+Considering a hierarchy like `foo/bar/bar`, I had the need to link from the
+`foo/bar/bar` page to the `foo/bar` one.  It would have been convenient to
+simply write [[wikilink]]s like `\[[../bar]]` (or even just `\[[..]]`?), but
+this doesn't work, so I had to resort to using `\[[foo/bar]]` instead.
+--[[tschwinge]]
+
+> I believe, that doesn't entirely solve the problem. Just assume, your hierarchy is `/foo/bar/foo/bar`.
+
+> How do you access from the page `/foo/bar/foo/bar` the `/foo/bar` and not `/foo/bar/foo/bar`?
+
+> Do we have a way to implement `\[[../..]]` or `\[[/foo/bar]]`?
+
+> Even worse, trying to link from `/foo/bar` to `/foo/bar/foo/bar` ... this will probably need `\[[./foo/bar]]` --[[Jan|jwalzer]]
+
+>> There is no ".." syntax in wikilinks, but if the link begins with "/" it
+>> is rooted at the top of the wiki, as documented in
+>> [[subpage/linkingrules]]. Therefore, every example page name you listed
+>> above will work unchanged as a wikilink to that page! --[[Joey]]
+
+----
+
+How do I make images clickable?  The obvious guess, \[[foo.png|/index]], doesn't work.  --[[sabr]]
+
+> You can do it using the img plugin. The syntax you suggested would be ambiguous,
+> as there's no way to tell if the text is meant to be an image or displayed as-is.
+> --[[Joey]]
+
+----
+
+Is it possible to refer to a page, say \[[foobar]], such that the link text is taken from foobar's title [[directive/meta]] tag? --Peter
+
+> Not yet. :-) Any suggestion for a syntax for it? Maybe something like \[[|foobar]] ? --[[Joey]]
+
+I like your suggestion because it's short and conscise. However, it would be nice to be able to refer to more or less arbitrary meta tags in links, not just "title". To do that, the link needs two parameters: the page name and the tag name, i.e. \[[pagename!metatag]]. Any sufficiently weird separater can be used instead of '!', of course. I like \[[pagename->metatag]], too, because it reminds me of accessing a data member of a structure (which is what referencing a meta tag is, really). --Peter
+
+> I dislike \[[pagename->metatag]] because other wikis use that as their normal link/label syntax.
+> I'm not sure that it is a good idea to refer to arbitrary meta tags in links in the first place - what other meta tags would you really be interested in?  Description?  Author?  It makes sense to me to refer to the title, because that is a "label" for a page.
+> As for syntax, I do like the \[[|foobar]] idea, or perhaps something like what <a href="http://www.pmwiki.org">PmWiki</a> does - they have their links the other way around, so they go \[[page|label]] and for link-text-as-title, they have \[[page|+]].  So for IkiWiki, that would be \[[+|page]] I guess.
+> --[[KathrynAndersen]]

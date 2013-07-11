@@ -1,0 +1,260 @@
+[[!template id=plugin name=po core=0 author="[[intrigeri]]"]]
+[[!tag type/format]]
+
+This plugin adds support for multi-lingual wikis, translated with
+gettext, using [po4a](http://po4a.alioth.debian.org/).
+
+It depends on the Perl `Locale::Po4a::Po` library (`apt-get install po4a`).
+As detailed bellow in the security section, `po4a` is subject to
+denial-of-service attacks before version 0.35.
+
+[[!toc levels=2]]
+
+Introduction
+============
+
+A language is chosen as the "master" one, and any other supported
+language is a "slave" one.
+
+A page written in the "master" language is a "master" page. It can be
+of any page type supported by ikiwiki, except `po`. It does not have to be
+named a special way: migration to this plugin does not imply any page
+renaming work.
+
+Example: `bla/page.mdwn` is a "master" Markdown page written in
+English; if `usedirs` is enabled, it is rendered as
+`bla/page/index.en.html`, else as `bla/page.en.html`.
+
+Any translation of a "master" page into a "slave" language is called
+a "slave" page; it is written in the gettext PO format. `po` is now
+a page type supported by ikiwiki.
+
+Example: `bla/page.fr.po` is the PO "message catalog" used to
+translate `bla/page.mdwn` into French; if `usedirs` is enabled, it is
+rendered as `bla/page/index.fr.html`, else as `bla/page.fr.html`
+
+(In)Compatibility
+=================
+
+This plugin does not support the `indexpages` mode. If you don't know
+what it is, you probably don't care.
+
+
+Configuration
+=============
+
+Supported languages
+-------------------
+
+`po_master_language` is used to set the "master" language in
+`ikiwiki.setup`, such as:
+
+        po_master_language: en|English
+
+`po_slave_languages` is used to set the list of supported "slave"
+languages, such as:
+
+        po_slave_languages:
+	  - fr|Français
+	  - es|Español
+	  - de|Deutsch
+
+Decide which pages are translatable
+-----------------------------------
+
+The `po_translatable_pages` setting configures what pages are
+translatable. It is a [[ikiwiki/PageSpec]], so you have lots of
+control over what kind of pages are translatable.
+
+The `.po` files are not considered as being translatable, so you don't need to
+worry about excluding them explicitly from this [[ikiwiki/PageSpec]].
+
+Internal links
+--------------
+
+### Links targets
+
+The `po_link_to` option in `ikiwiki.setup` is used to decide how
+internal links should be generated, depending on web server features
+and site-specific preferences.
+
+#### Default linking behavior
+
+If `po_link_to` is unset, or set to `default`, ikiwiki's default
+linking behavior is preserved: `\[[destpage]]` links to the master
+language's page.
+
+#### Link to current language
+
+If `po_link_to` is set to `current`, `\[[destpage]]` links to the
+`destpage`'s version written in the current page's language, if
+available, *i.e.*:
+
+* `foo/destpage/index.LL.html` if `usedirs` is enabled
+* `foo/destpage.LL.html` if `usedirs` is disabled
+
+#### Link to negotiated language
+
+If `po_link_to` is set to `negotiated`, `\[[page]]` links to the
+negotiated preferred language, *i.e.* `foo/page/`.
+
+(In)compatibility notes:
+
+* if `usedirs` is disabled, it does not make sense to set `po_link_to`
+  to `negotiated`; this option combination is neither implemented
+  nor allowed.
+* if the web server does not support Content Negotiation, setting
+  `po_link_to` to `negotiated` will produce a unusable website.
+
+Server support
+==============
+
+Apache
+------
+
+Using Apache `mod_negotiation` makes it really easy to have Apache
+serve any page in the client's preferred language, if available.
+
+Add 'Options MultiViews' to the wiki directory's configuration in Apache.
+
+When `usedirs` is enabled, you should also set `DirectoryIndex index`.
+
+These settings are also recommended, in order to avoid serving up rss files
+as index pages:
+
+	AddType application/rss+xml;qs=0.8 .rss
+	AddType application/atom+xml;qs=0.8 .atom
+
+For details, see [Apache's documentation](http://httpd.apache.org/docs/2.2/content-negotiation.html).
+
+lighttpd
+--------
+
+Recent versions of lighttpd should be able to use
+`$HTTP["language"]` to configure the translated pages to be served.
+
+See [Lighttpd Issue](http://redmine.lighttpd.net/issues/show/1119)
+
+TODO: Example
+
+Usage
+=====
+
+Templates
+---------
+
+When `po_link_to` is not set to `negotiated`, one should replace some
+occurrences of `BASEURL` with `HOMEPAGEURL` to get correct links to
+the wiki homepage.
+
+The `ISTRANSLATION` and `ISTRANSLATABLE` variables can be used to
+display things only on translatable or translation pages.
+
+The `LANG_CODE` and `LANG_NAME` variables can respectively be used to
+display the current page's language code and pretty name.
+
+### Display page's versions in other languages
+
+The `OTHERLANGUAGES` loop provides ways to display other languages'
+versions of the same page, and the translations' status.
+
+An example of its use can be found in the default
+`templates/page.tmpl`. In case you want to customize it, the following
+variables are available inside the loop (for every page in):
+
+* `URL` - url to the page
+* `CODE` - two-letters language code
+* `LANGUAGE` - language name (as defined in `po_slave_languages`)
+* `MASTER` - is true (1) if, and only if the page is a "master" page
+* `PERCENT` - for "slave" pages, is set to the translation completeness, in percents
+
+### Display the current translation status
+
+The `PERCENTTRANSLATED` variable is set to the translation
+completeness, expressed in percent, on "slave" pages. It is used by
+the default `templates/page.tmpl`.
+
+Additional PageSpec tests
+-------------------------
+
+This plugin enhances the regular [[ikiwiki/PageSpec]] syntax with some
+additional tests that are documented [[here|ikiwiki/pagespec/po]].
+
+Automatic PO file update
+------------------------
+
+Committing changes to a "master" page:
+
+1. updates the POT file and the PO files for the "slave" languages;
+   the updated PO files are then put under version control;
+2. triggers a refresh of the corresponding HTML slave pages.
+
+Also, when the plugin has just been enabled, or when a page has just
+been declared as being translatable, the needed POT and PO files are
+created, and the PO files are checked into version control.
+
+Discussion pages and other sub-pages
+------------------------------------
+
+Discussion should happen in the language in which the pages are
+written for real, *i.e.* the "master" one. If discussion pages are
+enabled, "slave" pages therefore link to the "master" page's
+discussion page.
+
+Likewise, "slave" pages are not supposed to have sub-pages;
+[[WikiLinks|ikiwiki/wikilink]] that appear on a "slave" page therefore link to
+the master page's sub-pages.
+
+Translating
+-----------
+
+One can edit the PO files using ikiwiki's CGI (a message-by-message
+interface could also be implemented at some point).
+
+If [[tips/untrusted_git_push]] is setup, one can edit the PO files in one's
+preferred `$EDITOR`, without needing to be online.
+
+Markup languages support
+------------------------
+
+[[Markdown|mdwn]] and [[html]] are well supported. Some other markup
+languages supported by ikiwiki mostly work, but some pieces of syntax
+are not rendered correctly on the slave pages:
+
+* [[reStructuredText|rst]]: anonymous hyperlinks and internal
+  cross-references
+* [[wikitext]]: conversion of newlines to paragraphs
+* [[creole]]: verbatim text is wrapped, tables are broken
+* LaTeX: not supported yet; the dedicated po4a module
+  could be used to support it, but it would need a security audit
+* other markup languages have not been tested.
+
+Renaming a page
+---------------
+
+A translatable page may be renamed using the web interface and the
+[[rename plugin|plugins/rename]], or using the VCS directly; in
+the latter case, *both* the "master" page and every corresponding
+`.po` file must be renamed in the same commit.
+
+Security
+========
+
+[[po/discussion]] contains a detailed security analysis of this plugin
+and its dependencies.
+
+When using po4a older than 0.35, it is recommended to uninstall
+`Text::WrapI18N` (Debian package `libtext-wrapi18n-perl`), in order to
+avoid a potential denial of service.
+
+BUGS
+====
+
+[[!inline pages="bugs/po:* and !bugs/done and !link(bugs/done) and !bugs/*/*"
+feeds=no actions=no archive=yes show=0]]
+
+TODO
+====
+
+[[!inline pages="todo/po:* and !todo/done and !link(todo/done) and !todo/*/*"
+feeds=no actions=no archive=yes show=0]]

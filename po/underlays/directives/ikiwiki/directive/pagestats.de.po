@@ -1,0 +1,117 @@
+# German translation of directives/ikiwiki/directive/pagestats page for ikiwiki.
+# Copyright © 2010 Sebastian Kuhnert <mail@sebastian-kuhnert.de>
+# Redistribution and use in source and compiled forms, with or without
+# modification, are permitted under any circumstances. No warranty.
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2010-03-14 14:05+0530\n"
+"Last-Translator: Sebastian Kuhnert <mail@sebastian-kuhnert.de>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+
+#. type: Plain text
+msgid ""
+"The `pagestats` directive is supplied by the [[!iki plugins/pagestats "
+"desc=pagestats]] plugin."
+msgstr ""
+"Die `pagestats`-Anweisung wird durch die [[!iki plugins/pagestats "
+"desc=pagestats]]-Erweiterung bereitgestellt."
+
+#. type: Plain text
+msgid ""
+"This directive can generate stats about how pages link to each other. It can "
+"produce either a tag cloud, or a table counting the number of links to each "
+"page."
+msgstr ""
+"Diese Anweisung kann Statistiken darüber erzeugen, wie Seiten aufeinander "
+"verlinken. Sie kann entweder eine Tag-Wolke erzeugen oder eine Tabelle mit "
+"den Häufigkeiten, wie oft auf die einzelnen Seiten verwiesen wurde."
+
+#. type: Plain text
+#, fuzzy
+#| msgid "Here's how to use it to create a [[tag]] cloud:"
+msgid ""
+"Here's how to use it to create a [[tag]] cloud, with tags sized based on "
+"frequency of use:"
+msgstr "So kann eine [[tag]]-Wolke erzeugt werden:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+
+#. type: Plain text
+msgid ""
+"Here's how to create a list of tags, sized by use as they would be in a "
+"cloud."
+msgstr ""
+
+#. type: Plain text
+#, fuzzy, no-wrap
+#| msgid "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+msgid "\t\\[[!pagestats style=\"list\" pages=\"tags/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\"]]\n"
+
+#. type: Plain text
+msgid "And here's how to create a table of all the pages on the wiki:"
+msgstr "Und so kann eine Tabelle mit allen Seiten im Wiki erzeugt werden:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats style=\"table\"]]\n"
+msgstr "\t\\[[!pagestats style=\"table\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `among` parameter limits the pages whose outgoing links are "
+"considered. For instance, to display a cloud of tags used on blog entries, "
+"while ignoring other pages that use those tags, you could use:"
+msgstr ""
+"Der optionale Parameter `among` beschränkt die Seiten, deren ausgehende "
+"Links berücksichtigt werden. Zum Beispiel kann folgendermaßen eine Tag-Wolke "
+"erzeugt werden, die nur Vorkommen in Blogeinträgen berücksichtigt:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats pages=\"tags/*\" among=\"blog/posts/*\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/*\" among=\"blog/posts/*\"]]\n"
+
+#. type: Plain text
+msgid "Or to display a cloud of tags related to Linux, you could use:"
+msgstr "Oder um eine Wolke mit Tags anzuzeigen, die mit Linux verwandt sind:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats pages=\"tags/* and not tags/linux\" among=\"tagged(linux)\"]]\n"
+msgstr "\t\\[[!pagestats pages=\"tags/* and not tags/linux\" among=\"tagged(linux)\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `show` parameter limits display to the specified number of "
+"pages. For instance, to show a table of the top ten pages with the most "
+"links:"
+msgstr ""
+"Der optionale Parameter `show` zeigt nur die angegebene Anzahl von Seiten "
+"an. Zum Beispiel kann man eine Tabelle mit den zehn häufigsten Links "
+"anzeigen:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!pagestats style=\"table\" show=\"10\"]]\n"
+msgstr "\t\\[[!pagestats style=\"table\" show=\"10\"]]\n"
+
+#. type: Plain text
+msgid ""
+"The optional `class` parameter can be used to control the class of the "
+"generated tag cloud `div` or page stats `table`."
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
