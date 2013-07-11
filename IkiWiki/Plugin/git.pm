@@ -550,7 +550,10 @@ sub rcs_commit_helper (@) {
 		# Force git to allow empty commit messages.
 		# (If this version of git supports it.)
 		my ($version)=`git --version` =~ /git version (.*)/;
-		if ($version ge "1.5.4") {
+		if ($version ge "1.7.2") {
+			push @opts, "--allow-empty-message";
+		}
+		elsif ($version ge "1.5.4") {
 			push @opts, '--cleanup=verbatim';
 		}
 		else {
