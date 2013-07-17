@@ -303,6 +303,20 @@ could negatively impact eg, Planet style aggregators using ikiwiki. --[[Joey]]
 >>> a simple matter of getting \[[!aggregate]] to populate author in
 >>> `add_page()`. I'll see what I can figure out. --[[schmonz]]
 
+>>>> Yep, that was mostly it. If the feed entry defines an author,
+>>>> and the author is distinct from the feed name, we now show `NAME:
+>>>> AUTHOR`, else just show `NAME` (same as always). In addition,
+>>>> the W3 feed validator says `<dcterms:creator>` is invalid, so
+>>>> I replaced it with `<dc:creator>`, and all of a sudden `r2e`
+>>>> gives me better `From:` headers. With the latest on my branch,
+>>>> when I generate the same planet as updo and run `r2e` over it,
+>>>> the names I get in `From:` look like so:
+
+    "updo: Junio C Hamano"
+    "updo: Greg Kroah-Hartman"
+    "updo: Eric Raymond: esr"` (article author != feed name, so we get both)
+    "updo: Jannis Pohlman: Jannis Pohlmann"` (oops! I tweaked the real updo)
+
 	+++ b/templates/rsspage.tmpl
 	+	xmlns:atom="http://www.w3.org/2005/Atom"
 	+<atom:link href="<TMPL_VAR FEEDURL>" rel="self" type="application/rss+xml" />
@@ -312,7 +326,7 @@ every crummy rss reader on earth is going to understand this? I'd put it at
 about 0%; I doubt ikiwiki's own rss reader understands such a mashup.
 --[[Joey]]
 
-> The validator I used (<http://validator.w3.org/>, I think) told me to.
+> The validator I used (<http://validator.w3.org/feed/>) told me to.
 > Pretty sure it doesn't make anything work better in the podcatchers
 > I tried. Hadn't considered that it might break some readers.
 > Removed. --[[schmonz]]
