@@ -51,7 +51,8 @@ Some more elaborate limits can be added to what matches using these functions:
 * "`admin()`" - tests whether a modification is being made by one of the
   wiki admins.
 * "`ip(address)`" - tests whether a modification is being made from the
-  specified IP address.
+  specified IP address. Glob patterns can be used in the address. For
+  example, `ip(127.0.0.*)`
 * "`comment(glob)`" - matches comments to a page matching the glob.
 * "`comment_pending(glob)`" - matches unmoderated, pending comments.
 * "`postcomment(glob)`" - matches only when comments are being 

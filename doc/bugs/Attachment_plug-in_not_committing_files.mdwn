@@ -1,0 +1,18 @@
+I've added the attachment plug-in to our wiki. I am able to add files to the working copy of the website on the server, but none of the file are being checked into the SVN repository. Using logging I've tracked the problem to line 293 of attachment.pm:
+
+  IkiWiki::rcs_add($_) foreach @attachments;
+
+Here it is trying to add an absolute path to the file when rcs_add is expecting a path relative to the SVN root.
+
+From this code it looks like $dest needs to be absolute and that a relative path needs to be pushed to @attachments:
+
+    rename($filename, $dest);
+    push @attachments, $dest;
+
+I'm using ikiwiki version 3.20120202ubuntu1.
+
+> I don't think this affects git, just because it happens to 
+> allow adding with an absolute path.
+> 
+> So, this is an interesting way svn support can bit rot if nothing
+> is testing it! [[fixed|done]] --[[Joey]]  

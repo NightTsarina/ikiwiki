@@ -770,9 +770,17 @@ sub refresh () {
 	my ($new, $internal_new)=find_new_files($files);
 	my ($del, $internal_del)=find_del_files($pages);
 	my ($changed, $internal_changed)=find_changed($files);
+	my %existingfiles;
 	run_hooks(needsbuild => sub {
 		my $ret=shift->($changed, [@$del, @$internal_del]);
-		$changed=$ret if ref $ret eq 'ARRAY';
+		if (ref $ret eq 'ARRAY' && $ret != $changed) {
+			if (! %existingfiles) {
+				foreach my $f (@$files) {
+					$existingfiles{$f}=1;
+				}
+			}
+			@$changed=grep $existingfiles{$_}, @$ret;
+		}
 	});
 	my $oldlink_targets=calculate_old_links($changed, $del);
 

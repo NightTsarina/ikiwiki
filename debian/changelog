@@ -1,4 +1,12 @@
-ikiwiki (3.20130519) UNRELEASED; urgency=low
+ikiwiki (3.20130711) unstable; urgency=low
+
+  * Deal with git behavior change in 1.7.2 and newer that broke support
+    for commits with an empty commit message.
+  * Pass --no-edit when used with git 1.7.8 and newer.
+
+ -- Joey Hess <joeyh@debian.org>  Wed, 10 Jul 2013 21:49:23 -0400
+
+ikiwiki (3.20130710) unstable; urgency=low
 
   * blogspam: Fix encoding issue in RPC::XML call.
     Thanks, Changaco
@@ -11,8 +19,18 @@ ikiwiki (3.20130519) UNRELEASED; urgency=low
   * osm: Remove trailing slash from KML maps icon.
   * page.tmpl: omit searchform, trails, sidebar and most metadata in CGI
     (smcv)
+  * openid: Automatically upgrade openid_realm to https when
+    accessed via https.
+  * The ip() pagespec can now contain glob characters to match eg, a subnet
+    full of spammers.
+  * Fix crash that could occur when a needsbuild hook returned a file
+    that does not exist.
+  * Fix python proxy to not crash when fed unicode data in getstate
+    and setstate.
+    Thanks, chrysn
+  * Fix committing attachments when using svn.
 
- -- Joey Hess <joeyh@debian.org>  Sun, 23 Jun 2013 14:02:01 -0400
+ -- Joey Hess <joeyh@debian.org>  Wed, 10 Jul 2013 17:45:40 -0400
 
 ikiwiki (3.20130518) unstable; urgency=low
 

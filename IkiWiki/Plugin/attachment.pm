@@ -274,15 +274,15 @@ sub attachments_save {
 	foreach my $filename (glob("$dir/*")) {
 		$filename=Encode::decode_utf8($filename);
 		next unless -f $filename;
-		my $destdir=$config{srcdir}."/".
-			linkpage(IkiWiki::possibly_foolish_untaint(
-				attachment_location($form->field('page'))));
+		my $destdir=linkpage(IkiWiki::possibly_foolish_untaint(
+			attachment_location($form->field('page'))));
+		my $absdestdir=$config{srcdir}."/".$destdir;
 		my $destfile=IkiWiki::basename($filename);
-		my $dest=$destdir.$destfile;
+		my $dest=$absdestdir.$destfile;
 		unlink($dest);
-		IkiWiki::prep_writefile($destfile, $destdir);
+		IkiWiki::prep_writefile($destfile, $absdestdir);
 		rename($filename, $dest);
-		push @attachments, $dest;
+		push @attachments, $destdir.$destfile;
 	}
 	return unless @attachments;
 	require IkiWiki::Render;

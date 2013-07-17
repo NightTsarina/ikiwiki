@@ -1,0 +1,32 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="It's a wiki: any editor can have as many blogs as they want"
+ date="2013-07-17T08:17:05Z"
+ content="""
+Ikiwiki is a wiki, so you can certainly have multiple users. Any user
+with appropriate access can create any number of blogs: they just need
+to put an [[ikiwiki/directive/inline]] directive on any page they can
+edit, with a [[ikiwiki/PageSpec]] pointing to pages (blog posts) in a
+directory where they can create pages.
+
+If you want a limited set of users to be able to edit the wiki without
+making them full wiki admins, you can use [[plugins/lockedit]]:
+
+    locked_pages: * and !(user(bob) or user(chris))
+
+or if you want \"most\" users to only be able to write on their own blog, and
+not on other users' blogs (for instance: Alice the wiki admin can edit
+anything, but Bob can only edit `users/bob/...` and Chris can only edit
+`users/chris/...`) then you can use [[plugins/lockedit]], something like:
+
+    locked_pages: * and !(user(bob) and (users/bob or users/bob/*)) and !(user(chris) and (users/chris or users/chris/*))
+
+(Wiki admins can always edit locked pages.)
+
+If you have lots of users and you know a bit of Perl, you might want
+to [[write a plugin|plugins/write]] that adds a function-like
+[[ikiwiki/PageSpec]] like `owndirectory(users)`, which would match if
+there is a logged-in user and the page being edited is equal to or
+a subpage of their directory in users.
+"""]]
