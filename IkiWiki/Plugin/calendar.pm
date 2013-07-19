@@ -223,38 +223,27 @@ EOF
 				$tag='month-calendar-day-link';
 			}
 			$calendar.=qq{\t\t<td class="$tag $downame{$wday}">};
-			if (scalar(@{$linkcache{$key}}) == 1) {
-				# Only one posting on this page
-				my $page = $linkcache{$key}[0];
+			$calendar.=qq{<div class='popup'>$day<div class='balloon'>};
+			# Several postings on this page
+			$calendar.=qq{<ul>};
+			foreach my $page (@{$linkcache{$key}}) {
+				$calendar.= qq{\n\t\t\t<li>};
+				my $title;
+				if (exists $pagestate{$page}{meta}{title}) {
+					$title = "$pagestate{$page}{meta}{title}";
+				}
+				else {
+					$title = pagetitle(IkiWiki::basename($page));
+				}
 				$calendar.=htmllink($params{page}, $params{destpage}, 
 					$page,
 					noimageinline => 1,
-					linktext => $day,
-					title => pagetitle(IkiWiki::basename($page)));
+					linktext => $title,
+					title => $title);
+				$calendar.= '</li>';
 			}
-			else {
-				$calendar.=qq{<div class='popup'>$day<div class='balloon'>};
-				# Several postings on this page
-				$calendar.=qq{<ul>};
-				foreach my $page (@{$linkcache{$key}}) {
-					$calendar.= qq{\n\t\t\t<li>};
-					my $title;
-					if (exists $pagestate{$page}{meta}{title}) {
-						$title = "$pagestate{$page}{meta}{title}";
-					}
-					else {
-						$title = pagetitle(IkiWiki::basename($page));
-					}
-					$calendar.=htmllink($params{page}, $params{destpage}, 
-						$page,
-						noimageinline => 1,
-						linktext => $title,
-						title => $title);
-					$calendar.= '</li>';
-				}
-				$calendar.=qq{\n\t\t</ul>};
-				$calendar.=qq{</div></div>};
-			}
+			$calendar.=qq{\n\t\t</ul>};
+			$calendar.=qq{</div></div>};
 			$calendar.=qq{</td>\n};
 		}
 		else {
