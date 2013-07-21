@@ -121,6 +121,18 @@ sub preprocess (@) {
 		add_link($page, $value);
 		return "";
 	}
+	elsif ($key eq 'enclosure') {
+		my $link=bestlink($page, $value);
+		if (! length $link) {
+			error gettext("enclosure not found")
+		}
+		add_depends($page, $link, deptype("presence"));
+
+		$value=urlto($link, $page, 1);
+		$pagestate{$page}{meta}{enclosure}=$value;
+		$pagestate{$page}{meta}{enclosurefile}=$link;
+		# fallthrough
+	}
 	elsif ($key eq 'author') {
 		$pagestate{$page}{meta}{author}=$value;
 		if (exists $params{sortas}) {
@@ -316,6 +328,10 @@ sub pagetemplate (@) {
 		eval q{use HTML::Entities};
 		$template->param(title => HTML::Entities::encode_numeric($pagestate{$page}{meta}{title}));
 		$template->param(title_overridden => 1);
+	}
+
+	if (exists $pagestate{$page}{meta}{enclosure}) {
+		$template->param(enclosure => HTML::Entities::encode_entities(IkiWiki::urlabs($pagestate{$page}{meta}{enclosure}, $config{url})));
 	}
 
 	foreach my $field (qw{authorurl}) {

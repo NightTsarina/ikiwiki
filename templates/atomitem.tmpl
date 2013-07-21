@@ -34,11 +34,12 @@
 	<published><TMPL_VAR CDATE_3339></published>
 <TMPL_IF ENCLOSURE>
 	<link rel="enclosure" type="<TMPL_VAR TYPE>" href="<TMPL_VAR ENCLOSURE>" length="<TMPL_VAR LENGTH>" />
-<TMPL_ELSE>
+</TMPL_IF>
+<TMPL_UNLESS SIMPLEPODCAST>
 	<content type="html" xml:lang="en">
 	<TMPL_VAR CONTENT ESCAPE=HTML>
 	</content>
-</TMPL_IF>
+</TMPL_UNLESS>
 <TMPL_IF COMMENTSURL>
 	<link rel="comments" href="<TMPL_VAR COMMENTSURL>" type="text/html" />
 </TMPL_IF>

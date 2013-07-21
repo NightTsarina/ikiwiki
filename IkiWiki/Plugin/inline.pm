@@ -611,6 +611,26 @@ sub absolute_urls ($$) {
 	return $ret;
 }
 
+sub genenclosure {
+	my $itemtemplate=shift;
+	my $url=shift;
+	my $file=shift;
+
+	return unless $itemtemplate->query(name => "enclosure");
+
+	my $size=(srcfile_stat($file))[8];
+	my $mime="unknown";
+	eval q{use File::MimeInfo};
+	if (! $@) {
+		$mime = mimetype($file);
+	}
+	$itemtemplate->param(
+		enclosure => $url,
+		type => $mime,
+		length => $size,
+	);
+}
+
 sub genfeed ($$$$$@) {
 	my $feedtype=shift;
 	my $feedurl=shift;
@@ -627,6 +647,7 @@ sub genfeed ($$$$$@) {
 	foreach my $p (@pages) {
 		my $u=URI->new(encode_utf8(urlto($p, "", 1)));
 		my $pcontent = absolute_urls(get_inline_content($p, $page), $url);
+		my $fancy_enclosure_seen = 0;
 
 		$itemtemplate->param(
 			title => pagetitle(basename($p)),
@@ -648,31 +669,22 @@ sub genfeed ($$$$$@) {
 				$itemtemplate->param(mdate_822 => date_822($pagestate{$p}{meta}{updated}));
 				$itemtemplate->param(mdate_3339 => date_3339($pagestate{$p}{meta}{updated}));
 			}
+
+			if (exists $pagestate{$p}{meta}{enclosure}) {
+				my $absurl = $pagestate{$p}{meta}{enclosure};
+				my $file = $pagestate{$p}{meta}{enclosurefile};
+				genenclosure($itemtemplate, $absurl, $file);
+				$fancy_enclosure_seen = 1;
+			}
 		}
 
-		if ($itemtemplate->query(name => "enclosure")) {
-			my $file=$pagesources{$p};
-			my $type=pagetype($file);
-			if (defined $type) {
-				$itemtemplate->param(content => $pcontent);
-			}
-			else {
-				my $size=(srcfile_stat($file))[8];
-				my $mime="unknown";
-				eval q{use File::MimeInfo};
-				if (! $@) {
-					$mime = mimetype($file);
-				}
-				$itemtemplate->param(
-					enclosure => $u,
-					type => $mime,
-					length => $size,
-				);
-			}
+		my $file=$pagesources{$p};
+		unless ($fancy_enclosure_seen || defined(pagetype($file))) {
+			genenclosure($itemtemplate, $u, $file);
+			$itemtemplate->param(simplepodcast => 1);
 		}
-		else {
-			$itemtemplate->param(content => $pcontent);
-		}
+
+		$itemtemplate->param(content => $pcontent);
 
 		run_hooks(pagetemplate => sub {
 			shift->(page => $p, destpage => $page,
@@ -694,6 +706,7 @@ sub genfeed ($$$$$@) {
 		feeddesc => $feeddesc,
 		guid => $guid,
 		feeddate => date_3339($lasttime),
+		feeddate_822 => date_822($lasttime),
 		feedurl => $feedurl,
 	);
 	run_hooks(pagetemplate => sub {
