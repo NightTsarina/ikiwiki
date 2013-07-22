@@ -1,0 +1,21 @@
+[[!toc]]
+
+First, get familiar with [[howto avoid flooding aggregators]].
+
+## Into ikiwiki, from another CMS
+
+7. Copy content into ikiwiki, taking care to:
+    7. Match article paths to preserve old permalinks.
+    7. Match enclosure paths (or use redirects) to preserve old URLs.
+    7. Match titles, post dates, and guids with `\[[!meta]]`.
+    7. Match feed paths with permanent redirects from old Atom
+       location to `index.atom` (likewise for RSS).
+    7. `\[[!inline]]` the articles.
+7. Rerun `ikiwiki --setup`.
+
+## Within ikiwiki, from basic to fancy
+
+7. Exclude media files from `\[[!inline]]`.
+7. Replace direct `\[[WikiLinks]]` to media files with
+   `\[[!meta enclosure="WikiLink/to/media.mp3"]]`.
+7. Rerun `ikiwiki --setup`.
