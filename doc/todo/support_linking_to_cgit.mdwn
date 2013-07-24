@@ -1,0 +1,17 @@
+As described on [Tails issue #5879](https://labs.riseup.net/code/issues/5879),
+cgit wants URLs like:
+
+        https://git-tails.immerda.ch/tails/commit/wiki/src/todo/fix_localized_iceweasel_search_engine.mdwn?id=c682a361418bef7bce040ea2905691d54be192ab
+
+... while ikiwiki generates links like:
+
+        https://git-tails.immerda.ch/tails/commit/wiki/src/todo%2Ffix_localized_iceweasel_search_engine.mdwn?id=c682a361418bef7bce040ea2905691d54be192ab
+
+on the recentchanges page.
+
+Would it make sense to add an option to skip URL-encoding when doing
+the substitution of `[[file]]` in `diffurl` and `historyurl`?
+
+--intrigeri
+
+[[wishlist]]
