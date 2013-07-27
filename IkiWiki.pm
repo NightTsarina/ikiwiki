@@ -22,7 +22,7 @@ our @EXPORT = qw(hook debug error htmlpage template template_depends
 	htmllink readfile writefile pagetype srcfile pagename
 	displaytime strftime_utf8 will_render gettext ngettext urlto targetpage
 	add_underlay pagetitle titlepage linkpage newpagefile
-	inject add_link add_autofile
+	inject add_link add_autofile useragent
 	%config %links %pagestate %wikistate %renderedfiles
 	%pagesources %destsources %typedlinks);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
@@ -2272,6 +2272,13 @@ sub add_autofile ($$$) {
 	
 	$autofiles{$file}{plugin}=$plugin;
 	$autofiles{$file}{generator}=$generator;
+}
+
+sub useragent () {
+	return LWP::UserAgent->new(
+		cookie_jar => $config{cookiejar},
+		env_proxy => 1,		# respect proxy env vars
+	);
 }
 
 sub sortspec_translate ($$) {

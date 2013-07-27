@@ -80,7 +80,7 @@ sub ping {
 				debug(gettext("LWP not found, not pinging"));
 				return;
 			}
-			$ua=LWP::UserAgent->new;
+			$ua=useragent();
 		}
 		$ua->timeout($config{pinger_timeout} || 15);
 		

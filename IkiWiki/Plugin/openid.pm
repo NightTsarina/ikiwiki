@@ -241,7 +241,7 @@ sub getobj ($$) {
 		$ua=LWPx::ParanoidAgent->new;
 	}
 	else {
-	        $ua=LWP::UserAgent->new;
+		$ua=useragent();
 	}
 
 	# Store the secret in the session.

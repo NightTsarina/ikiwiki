@@ -522,11 +522,8 @@ sub aggregate (@) {
 			}
 			$feed->{feedurl}=pop @urls;
 		}
-		my $res=URI::Fetch->fetch($feed->{feedurl},
-			UserAgent => LWP::UserAgent->new(
-				cookie_jar => $config{cookiejar},
-			),
-		);
+		my $ua=useragent();
+		my $res=URI::Fetch->fetch($feed->{feedurl}, UserAgent=>$ua);
 		if (! $res) {
 			$feed->{message}=URI::Fetch->errstr;
 			$feed->{error}=1;
