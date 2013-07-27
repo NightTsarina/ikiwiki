@@ -12,7 +12,8 @@ Ikiwiki has several plugins that open outbound connections:
 In some networks it is desired (or necessary) for these connections
 to traverse a proxy. Proxies are usually configured via environment
 variables, so for ikiwiki it is probably not desirable (or necessary)
-to manage proxy configuration in the setup file.
+to manage proxy configuration via new purpose-specific settings in
+the setup file; `ENV` ought to suffice.
 
 [[!cpan LWP::UserAgent]] by default doesn't care about the usual
 environment variables, but if its constructor is passed a true
