@@ -22,7 +22,7 @@ our @EXPORT = qw(hook debug error htmlpage template template_depends
 	htmllink readfile writefile pagetype srcfile pagename
 	displaytime strftime_utf8 will_render gettext ngettext urlto targetpage
 	add_underlay pagetitle titlepage linkpage newpagefile
-	inject add_link add_autofile
+	inject add_link add_autofile useragent
 	%config %links %pagestate %wikistate %renderedfiles
 	%pagesources %destsources %typedlinks);
 our $VERSION = 3.00; # plugin interface version, next is ikiwiki version
@@ -511,6 +511,14 @@ sub getsetup () {
 		default => 0,
 		description => "allow symlinks in the path leading to the srcdir (potentially insecure)",
 		safe => 0,
+		rebuild => 0,
+	},
+	cookiejar => {
+		type => "string",
+		default => "$ENV{HOME}/.ikiwiki/cookies",
+		description => "cookie control",
+		example => { file => "$ENV{HOME}/.ikiwiki/cookies" },
+		safe => 0, # hooks into perl module internals
 		rebuild => 0,
 	},
 }
@@ -2272,6 +2280,13 @@ sub add_autofile ($$$) {
 	
 	$autofiles{$file}{plugin}=$plugin;
 	$autofiles{$file}{generator}=$generator;
+}
+
+sub useragent () {
+	return LWP::UserAgent->new(
+		cookie_jar => $config{cookiejar},
+		env_proxy => 1,		# respect proxy env vars
+	);
 }
 
 sub sortspec_translate ($$) {
