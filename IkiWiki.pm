@@ -513,6 +513,14 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
+	cookiejar => {
+		type => "string",
+		default => "$ENV{HOME}/.ikiwiki/cookies",
+		description => "cookie control",
+		example => { file => "$ENV{HOME}/.ikiwiki/cookies" },
+		safe => 0, # hooks into perl module internals
+		rebuild => 0,
+	},
 }
 
 sub defaultconfig () {
