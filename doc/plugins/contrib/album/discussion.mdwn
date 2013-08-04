@@ -456,3 +456,25 @@ Thanks Lukas
 >> So now after two days debugging and tracing, I just fixed that and it works. Well, at least a learnt
 >> a lot about ikiwiki internal ;-)
 >> Thanks for all the work you did on the plugin! --Lukas
+
+----
+Hi smcv, we spoke on irc the other day. Passed `show => "0"` on line 126 in album.pm to remove the limit on the thumbnails shown on the album page. As mentioned above by Jaime setting the thumbnailsize doesn't seem to catch.
+
+ Or rather if I git push after changing the album directive the generated thumbnails (the image files) are the correct size as set in the directive. The html however uses the default size thumbnailsize as hardcoded in album.pm and has broken thumbnails as it links to a file with the default size in the filename.
+
+Issuing ikiwiki --rebuild knocks the system into another gear where the thumbnails show up correctly but this is only due to the html being the same as above (linking to hardcoded thumbnailsize) but the generated thumbnail images are now matching the hardcoded size ignoring the thumbnailsize attribute on the album directive.
+
+For me this behaviour is way beyond my skills to sort out (I'm no coder). The albumplugin ikiwiki combo is very attractive to me and the plugin i soo close to working!
+
+I've changed the behavior of the "slideshow" to show the next image when clicking the large image as downloading a full resolution image is a rare usecase in a gallery of this type imho. The large clicktarget means you are likely to unnecessarily download large files otherwise. I can't quite follow the template, album.pm flow so I can't figure out how to put a "download full resolution" link on the viewer page which would be my next step. ` link => ($nextpage or $album),`
+
+My wishlist for the plugin would include:
+
+- Reading exif info from the imagefile
+- Keeping the full resolution image files out of version control
+- Being able to create new albums by tag or by specifying each image to be included. Could be a simple comma separated list in the album directive.
+
+--kjs
+
+----
+
