@@ -1,0 +1,72 @@
+Hi, by default xapian/omega use locate param from blog.setup to set stemmer language when wiki is indexing.
+
+But, when you search, we use omega cgi, and we not set language, so if you indexing in french, but search in english, you have a bad result.
+
+I propose to set a new param omega_stemmer in blog.setup, to fix the same language when we indexing, and searching. And if omega_stemmer is not set, we use LANG env param.
+
+Bellow, you can find the patch.
+
+
+
+        diff --git a/IkiWiki/Plugin/search.pm b/IkiWiki/Plugin/search.pm
+        index 42d2e0d..08a0a01 100644
+        --- a/IkiWiki/Plugin/search.pm
+        +++ b/IkiWiki/Plugin/search.pm
+        @@ -33,6 +33,13 @@ sub getsetup () {
+                                safe => 0, # external program
+                                rebuild => 0,
+                        },
+        +		omega_stemmer => {
+        +			type => "string",
+        +			example => "en",
+        +			description => "language used for indexing and searching",
+        +			safe => 0, # external program
+        +			rebuild => 0,
+        +		},
+         }
+         
+         sub checkconfig () {
+        @@ -136,7 +143,7 @@ sub indexhtml (@) {
+                # Index document and add terms for other metadata.
+                my $tg = Search::Xapian::TermGenerator->new();
+                if (! $stemmer) {
+        -		my $langcode=$ENV{LANG} || "en";
+        +		my $langcode=$config{omega_stemmer} || $ENV{LANG} || "en";
+                        $langcode=~s/_.*//;
+         
+                        # This whitelist is here to work around a xapian bug (#486138)
+        @@ -183,6 +190,18 @@ sub cgi ($) {
+                        IkiWiki::loadindex();
+                        $ENV{HELPLINK}=htmllink("", "", "ikiwiki/searching",
+                                noimageinline => 1, linktext => "Help");
+        +		my $langcode=$config{omega_stemmer} || $ENV{LANG} || "en";
+        +		$langcode=~s/_.*//;
+        +
+        +		# This whitelist is here to work around a xapian bug (#486138)
+        +		my @whitelist=qw{da de en es fi fr hu it no pt ru ro sv tr};
+        +
+        +		if (grep { $_ eq $langcode } @whitelist) {
+        +                        $ENV{STEMMER}=$langcode;
+        +		}
+        +		else {
+        +                        $ENV{STEMMER}="en";
+        +		}
+                        exec($config{omega_cgi}) || error("$config{omega_cgi} failed: $!");
+                }
+         }
+        diff --git a/templates/searchquery.tmpl b/templates/searchquery.tmpl
+        index 15bc78e..4742460 100644
+        --- a/templates/searchquery.tmpl
+        +++ b/templates/searchquery.tmpl
+        @@ -1,6 +1,6 @@
+         $setmap{prefix,title,S}
+         $setmap{prefix,link,XLINK}
+        -$set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}
+        +$set{thousand,$.}$set{decimal,.}$setmap{BN,,Any Country,uk,England,fr,France}$set{stemmer,$env{STEMMER}}
+         ${
+         $def{PREV,
+         $if{$ne{$topdoc,0},<INPUT TYPE=image NAME="&lt;" ALT="&lt;"
+
+Regards,
+
+[[!tag patch]]
