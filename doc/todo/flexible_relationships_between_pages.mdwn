@@ -1,0 +1,84 @@
+it has been some years since the [[matching different kinds of links]] issue
+was tackled, but hardly a plugin is using it.
+
+in order to enhance on the [[todo/rel attribute for links]] and [[todo/better bug tracking support]]
+issues and to provide a more general infrastructure, i'd like to propose a
+generic plugin for typed links. following the use case i've developed it for,
+i'll call it `blocks` for the moment (but am open to better suggestions).
+
+outline
+=======
+
+the plugin has a **configuration option** called `blocks_names`, which consists
+of pairs of verbs; the typical example is `blocks/blockedby`, but other values
+could be `next/prev up/down` or `owner/owns`.
+
+for each verb in the options, there is a **directive** which is used to state
+the relationship; relationships can be declared on both ends, so a page `bugA`
+with the contents `\[[!blocks bugB]]` is semantically equivalent to a page
+`bugB` with the contents `\[[!blockedby bugA]]`.
+
+for each verb, there is also a **pagespec** which matches all pages that are
+the origin of a relationship to a given page. if `developerA` `\[[!owns
+bug1]]`, then if `bug1` contains `\[[!map pages="owns(.)"]]`, it will show the
+owning developer. these specs match both ways, ie. if `bug1` `\[[!owner
+developerA]]`, the said map directive will still produce the same result.
+
+details
+=======
+
+* single word relationships vs. symmetric relationships
+
+  with some verbs, it is possible that a relationship is only used in one
+  direction (eg `index`, even though one could declare it as
+  `index/isindexof`).
+
+  other verbs are symmetric, eg. `equivalent`, which need different treatment.
+
+* "taglink" style directives
+
+  the [[plugins/tag]] plugin would be a special case for this plugin (apart
+  from the autotag and tagdir features). as there is a `\[[!taglink ...]]`
+  directive, there could be an analogous directive for every single directive.
+
+* implementation notes
+
+  the way pagespec hooks are implemented required some nasty perl tricks, for
+  which the people who showed me felt very bad for having spoilt me. indeed,
+  `no strict refs;` and `*$forward_name = $forward_match;` are not exactly
+  ideal. a change in the pagespec declaration api (why not just `hook` like
+  everything else) would make the implementation cleaner.
+
+* configuration location
+
+  i aimed for static configuration of the `block_names` in the setup file. this
+  could be made more general like in the [[plugins/shortcut]] plugin, but that
+  would make things more complex.
+
+* no html links with `rel=` yet
+
+  as there are no taglink style links between the articles so far, no htmllink
+  gets rendered that could carry the relationship name in its rel field.
+
+  having the inverse relationship description in backlinks (as in the link
+  created by the map directive in the example above) would be hard to
+  implement. (actually, i think it'd be easier to determine the rel values from
+  the taggedlinks for *every* htmllink than to influence the backlinks in this
+  plugin).
+
+* one direction also creates a normal link
+
+  due to the way add\_link treats relationships, the forward relationship is
+  always going to be reflected in the links/backlinks. a section of
+  [[todo/matching different kinds of links]] was dismissed with "let's not
+  worry about it", this plugin might be reason to worry about it again. (i'd
+  consider what is in @links to be a representation of which hyperlinks are
+  there, and in this case, none are generated).
+
+implementation
+==============
+
+there is a working but slightly incomplete (basically where it comes to the
+details mentioned above) implementation in [[blocks.pm]].
+
+--chrysn

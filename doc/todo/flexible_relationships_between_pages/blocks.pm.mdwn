@@ -1,0 +1,129 @@
+#!/usr/bin/perl
+# Ikiwiki "blocks" relationship plugin.
+package IkiWiki::Plugin::blocks;
+
+use warnings;
+use strict;
+use IkiWiki 3.00;
+
+sub import {
+	hook(type => "getsetup", id => "blocks", call => \&getsetup);
+	hook(type => "checkconfig", id => "skeleton", call => \&checkconfig);
+}
+
+sub getsetup () {
+	return
+		plugin => {
+			safe => 1,
+			rebuild => 1,
+		},
+		blocks_names => {
+			type => "string",
+			example => "blocks/blockedby",
+			description => "comma separated list of defined relationship pairs, the forward and backward name separated by a slash",
+			safe => 1,
+			rebuild => 1,
+		},
+}
+
+sub checkconfig () {
+	my $blocksnames;
+	if (defined $config{blocks_names}) {
+		$blocksnames = $config{blocks_names};
+	} else {
+		$blocksnames = "blocks/blockedby";
+	}
+
+	while ( $blocksnames =~ /([^ ]+)/g )
+	{
+		if ( $1 =~ m@([a-zA-Z0-9]+)(/([a-zA-Z0-9]+))?@ )
+		{
+			my $from = $1;
+			my $to = $3;
+			hook(
+				type => "preprocess",
+				shortcut => 1, # gets interpreted by listdirectives; see doc/bugs/cannot_preview_shortcuts.mdwn / ikiwiki commit 354d22e2
+				no_override => 1,
+				id => $from,
+				scan => 1,
+				call => sub { preprocess_blocks($from, 1, @_); }
+			);
+			if ($to)
+			{
+				hook(
+					type => "preprocess",
+					shortcut => 1,
+					no_override => 1,
+					id => $to,
+					scan => 1,
+					call => sub { preprocess_blocks($from, 0, @_); }
+				);
+			}
+
+			my $backward_match; my $backward_name;
+			my $forward_match; my $forward_name;
+
+			$backward_match = sub ($$;@) {
+				my $page=shift;
+				my $glob=shift;
+				return IkiWiki::PageSpec::match_backlink($page, $glob, linktype => $from, @_);
+			};
+
+			$backward_name = "IkiWiki::PageSpec::match_$from";
+
+			if ($to)
+			{
+				$forward_match = sub ($$;@) {
+					my $page=shift;
+					my $glob=shift;
+					return IkiWiki::PageSpec::match_link($page, $glob, linktype => $from, @_);
+				};
+
+				$forward_name = "IkiWiki::PageSpec::match_$to";
+			}
+
+			{
+				no strict 'refs';
+
+				if ($to)
+				{
+					*$forward_name = $forward_match;
+				}
+				*$backward_name = $backward_match;
+			}
+		} else {
+			error gettext("Malformed option in blocks_names");
+		}
+	}
+}
+
+sub preprocess_blocks ($$@) {
+	# with flip=0, the directive occurring on page A pointing at page B
+	# means that A $relation B, with flip=1, it means B $relation A
+	my $relation = shift;
+	my $flip = shift;
+
+	if (! @_) {
+		return "";
+	}
+	my %params=@_;
+	my $page = $params{page};
+	delete $params{page};
+	delete $params{destpage};
+	delete $params{preview};
+
+	foreach my $blocks (keys %params) {
+		$blocks=linkpage($blocks);
+		
+		# hidden WikiLink
+		if ( $flip == 0 ) {
+			add_link($page, $blocks, $relation);
+		} else {
+			add_link($blocks, $page, $relation);
+		}
+	}
+		
+	return "";
+}
+
+1
