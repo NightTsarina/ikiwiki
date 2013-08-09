@@ -41,6 +41,14 @@ details
   > see any situation in which you'd want to do pagespec matching
   > on it? --[[smcv]]
 
+  >> that's why i used `index` as an example of a one-direction relationship.
+  >>
+  >> it wouldn't clog up the link map, though: in order to cleanly match both
+  >> directions, when the "inverse" term of a relationship is used, the link in
+  >> taggedlinks uses the "forward" term, but switches the objects.
+  >>
+  >> --[[chrysn]]
+
   other verbs are symmetric, eg. `equivalent`, which need different treatment.
 
 * "taglink" style directives
@@ -61,6 +69,31 @@ details
   > I think both trail and tag need their own special processing beyond the
   > general case, but maybe not? --[[smcv]]
 
+  >> i'd be all in favor of having this unified and deeper; there has been the
+  >> idea of a `\[[!link]]` directive [[again|todo/link plugin perhaps too general__63__]]
+  >> and [[again|todo/do not make links backwards]].
+  >>
+  >> i like the `\[[!link text=""]]` and `[[!hiddenlink]]` conventions, but
+  >> think that ${REL}="${TARGET}" isn't ideal because it implies that a single
+  >> link can have more than one target. instead, i'd go for
+  >> `\[[!link to="bug123" rel="blocks" text="Bug 123"]]; as with the html rel
+  >> parameter, rel would be a list of whitespace separated values.
+  >>
+  >> positional parameters (`\[[!link bug123 rel="blocks" text="Bug 123"]]` or
+  >> even `\[[!link Bug 123|bug123 rel="blocks"]]`) would be possible, but i
+  >> prefer explicit syntax and not joining stings back again with the
+  >> whitespace that was split off it before.
+  >>
+  >> if the '|' character is not widespread in page names (which i assume it is
+  >> not), instead of using positional parameters in `\[[!link]]` for
+  >> shortcuts, we could extend the regular link syntax; the same relationship
+  >> could then be declared as `\[[Bug 123|bug123|blocks]]`; this would be an
+  >> easy extension to the original link syntax. it would even work for hidden links
+  >> (`\[[|smcv|owner]]`), which previously made no sense because a link with
+  >> neither a physicial representation nor metadat is of no use.
+  >>
+  >> --[[chrysn]]
+
 * implementation notes
 
   the way pagespec hooks are implemented required some nasty perl tricks, for
@@ -71,6 +104,10 @@ details
 
   > How about replacing `blockedby(bug*)` with `linktype(blockedby bug*)` or
   > something? Then you'd only need one pseudo-hook. --[[smcv]]
+
+  >> there has been the topic of pagespecs like `typedlink(type glob)` back in
+  >> the [[matching different kinds of links]] discussion, but it was removed
+  >> in favor of per-type matchers. --[[chrysn]]
 
 * configuration location
 
@@ -107,4 +144,4 @@ implementation
 there is a working but slightly incomplete (basically where it comes to the
 details mentioned above) implementation in [[blocks.pm]].
 
---chrysn
+--[[chrysn]]
