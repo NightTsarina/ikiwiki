@@ -33,6 +33,11 @@ details
   direction (eg `index`, even though one could declare it as
   `index/isindexof`).
 
+  > isindexof is not a very interesting relationship - it just clogs up
+  > the link-map, since the index is "the index of" all pages. I can't
+  > see any situation in which you'd want to do pagespec matching
+  > on it? --[[smcv]]
+
   other verbs are symmetric, eg. `equivalent`, which need different treatment.
 
 * "taglink" style directives
@@ -41,6 +46,18 @@ details
   from the autotag and tagdir features). as there is a `\[[!taglink ...]]`
   directive, there could be an analogous directive for every single directive.
 
+  > This is basically the traillink/trailitem duality, too.
+  > I'd be quite tempted to generalize to something like this:
+  >
+  >     We can't fix [[!link blocks="bug123" text="Bug 123"]] until we do this.
+  >
+  >     [[!hiddenlink owner="smcv"]]
+  >
+  > but perhaps that's too wordy?
+  >
+  > I think both trail and tag need their own special processing beyond the
+  > general case, but maybe not? --[[smcv]]
+
 * implementation notes
 
   the way pagespec hooks are implemented required some nasty perl tricks, for
@@ -48,6 +65,9 @@ details
   `no strict refs;` and `*$forward_name = $forward_match;` are not exactly
   ideal. a change in the pagespec declaration api (why not just `hook` like
   everything else) would make the implementation cleaner.
+
+  > How about replacing `blockedby(bug*)` with `linktype(blockedby bug*)` or
+  > something? Then you'd only need one pseudo-hook. --[[smcv]]
 
 * configuration location
 
@@ -74,6 +94,9 @@ details
   worry about it", this plugin might be reason to worry about it again. (i'd
   consider what is in @links to be a representation of which hyperlinks are
   there, and in this case, none are generated).
+
+  > taglink and traillink already count as wikilinks without generating
+  > any visible HTML. --[[smcv]]
 
 implementation
 ==============
