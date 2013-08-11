@@ -16,3 +16,5 @@ I would like to be able to create links with underscores. I realize this is a fe
 > i assume that this behavior stems from times when wikilinks and [[ikiwiki/directive]]s were not distinguished by \[[ vs \[[! but by the use of whitespace in directives, so whitespace had to be avoided in wikilinks.
 >
 > --[[chrysn]]
+
+> having hacked around in the [[plugins/link]] plugin, i can confirm that the link texts are explicitly de-escaped, and that when no pipe is inside the link (ie links like `\[[cmd_test]]`), the string `"cmd_test"` is regarded as a link (that will subsequently be converted to a readable text) rather than as a readable text (for which a suitable link target is found automatically). --[[chrysn]]
