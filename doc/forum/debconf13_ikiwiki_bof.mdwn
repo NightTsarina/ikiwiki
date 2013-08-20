@@ -1,6 +1,7 @@
 There has been a meeting of people interested in ikiwiki
 [[during debconf13|http://penta.debconf.org/dc13_schedule/events/1060.en.html]]
-on 2013-08-11.
+on 2013-08-11. Videos of the event are linked there for download, or
+[[can be viewed online|http://www.irill.org/videos/debconf13/ikiwiki_BoF.webm]].
 
 Summary
 =======
@@ -95,3 +96,30 @@ dependencies on other pages' title:
   '`<./page_A>`', so page B might need to be rebuilt. Before that is done, its
   cached queries are executed. If their results did not change, page B does not
   need any further action.
+
+vCard support
+-------------
+
+The topic of combining ikiwiki with
+[[calypso|http://keithp.com/blogs/calypso/]] was brought up
+[[in another event|http://penta.debconf.org/dc13_schedule/events/1087.en.html]]
+during the same DebConf.
+
+Short outline: Calypso's collection of vCards can go into an ikiwiki underlay,
+and be rendered with a yet-to-be-completed `.vcf` rendering plugin.
+
+Remaining questions:
+
+* It would be nice to have all contacts inside a group. Should they all be
+  tagged 'Contact'? / How can that be localized?
+
+  Using plugin options in the VCF plugin would be an option. Also, another
+  option could contain a string to be prefixed to the categories defined inside
+  the vCard.
+
+* Linking vCards is not trivial, as they don't have friendly names. This calls
+  for the [[todo/alias directive]].
+
+* Would the same thing be useful with contacts too?
+
+A partial implementation is pending publication.
