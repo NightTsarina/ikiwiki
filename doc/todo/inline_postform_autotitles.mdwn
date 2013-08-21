@@ -1,5 +1,5 @@
 [[!tag wishlist patch plugins/inline]]
-[[!template id=gitbranch branch=chrysn/patches author="[[chrysn]]"]]
+[[!template id=gitbranch branch=chrysn/inlineautotitles author="[[chrysn]]"]]
 
 for postforms in inlines of pages which follow a certain scheme, it might not
 be required to set the title for each individual post, but to automatically set
@@ -8,7 +8,7 @@ this can either be based on timestamp formatting, or use the already existing
 munging mechanism, which appends numbers to page titles in case that page
 already exists.
 
-two patches ([1], [2]) set inline up for that, adding an additional `autotitle`
+two patches (b568eb25, 34bc82f2) set inline up for that, adding an additional `autotitle`
 parameter. if that is given, the regular input of the inline postform will be
 replaced with a hidden input of that text. in addition, the empty title is
 permitted (both for autotitle and regular titles, as they go in the same GET
@@ -42,7 +42,7 @@ common uses of percent as in "reach 10% market share", but might in others as
 in "the 10%-rule").
 
 both can be circumvented by using another GET parameter for autotexts, as
-implemented in [3].
+implemented in 40dc10a4.
 > this patch still does not work perfectly; especially, it should make a
 > distinction between "autotitle is set but equal ''" (in which case it
 > should create a page named `1.mdwn`, and "autotitle is not set, and title is
@@ -61,7 +61,3 @@ having a pre-filled input field instead of an unchangable hidden input might be
 cool (eg for creating an entry with yesterday's date), but would be a bit of a
 problem with static pages. javascript could help with the date part, but name
 munging would be yet another thing.
-
-[1]: http://github.com/github076986099/ikiwiki/commit/b568eb257a3ef5ff49a84ac00a3a7465b643c1e1
-[2]: http://github.com/github076986099/ikiwiki/commit/34bc82f232be141edf036d35e8ef5aa289415072
-[3]: http://github.com/github076986099/ikiwiki/commit/40dc10a4ec7809e401b4497c2abccfba30f7a2af
