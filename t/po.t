@@ -135,7 +135,7 @@ is_deeply(\@{$links{'index.fr'}}, ['translatable.fr', 'nontranslatable'], "$msgp
 is_deeply(\@{$links{'translatable'}}, ['nontranslatable'], "$msgprefix translatable");
 is_deeply(\@{$links{'translatable.es'}}, ['nontranslatable'], "$msgprefix translatable.es");
 is_deeply(\@{$links{'translatable.fr'}}, ['nontranslatable'], "$msgprefix translatable.fr");
-is_deeply(\@{$links{'nontranslatable'}}, ['/', 'translatable', 'translatable.fr', 'translatable.es'], "$msgprefix nontranslatable");
+is_deeply([sort @{$links{'nontranslatable'}}], [sort('/', 'translatable', 'translatable.fr', 'translatable.es')], "$msgprefix nontranslatable");
 
 $config{po_link_to}='current';
 $msgprefix="links (po_link_to=current)";
@@ -146,7 +146,7 @@ is_deeply(\@{$links{'index.fr'}}, [ (map bestlink('index.fr', $_), ('translatabl
 is_deeply(\@{$links{'translatable'}}, [bestlink('translatable', 'nontranslatable')], "$msgprefix translatable");
 is_deeply(\@{$links{'translatable.es'}}, ['nontranslatable'], "$msgprefix translatable.es");
 is_deeply(\@{$links{'translatable.fr'}}, ['nontranslatable'], "$msgprefix translatable.fr");
-is_deeply(\@{$links{'nontranslatable'}}, ['/', 'translatable', 'translatable.fr', 'translatable.es'], "$msgprefix nontranslatable");
+is_deeply([sort @{$links{'nontranslatable'}}], [sort('/', 'translatable', 'translatable.fr', 'translatable.es')], "$msgprefix nontranslatable");
 
 ### targetpage
 $config{usedirs}=0;
