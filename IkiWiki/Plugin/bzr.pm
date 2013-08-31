@@ -302,7 +302,7 @@ sub extract_timestamp (@) {
 	open (my $out, "-|", @_);
 	my @log = bzr_log($out);
 
-	if (length @log < 1) {
+	if (length(scalar(@log)) < 1) {
 		return 0;
 	}
 
