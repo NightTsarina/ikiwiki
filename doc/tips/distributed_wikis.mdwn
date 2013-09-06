@@ -101,9 +101,9 @@ Note that this will also configure CGI so that people can edit the wiki. Note th
 #### Apache configuration
 
     <VirtualHost *:80>
-        ServerName reseaulibre.example.com:80
-        DocumentRoot /var/www/reseaulibre.example.com
-        <Directory /var/www/reseaulibre.example.com>
+        ServerName mirror.example.com:80
+        DocumentRoot /var/www/mirror.example.com
+        <Directory /var/www/mirror.example.com>
             Options Indexes MultiViews ExecCGI
             AllowOverride None
             Order allow,deny
@@ -116,9 +116,9 @@ Note that this will also configure CGI so that people can edit the wiki. Note th
 #### Nginx configuration
 
     server {
-        root /var/www/reseaulibre.example.com/;
+        root /var/www/mirror.example.com/;
         index index.html index.htm;
-        server_name reseaulibre.example.com;
+        server_name mirror.example.com;
 
         location / {
             try_files $uri $uri/ /index.html;
@@ -127,7 +127,7 @@ Note that this will also configure CGI so that people can edit the wiki. Note th
             fastcgi_pass  unix:/tmp/fcgi.socket;
             fastcgi_index ikiwiki.cgi;
             fastcgi_param SCRIPT_FILENAME   /var/www/ikiwiki.cgi;
-            fastcgi_param  DOCUMENT_ROOT      /var/www/reseaulibre.example.com;
+            fastcgi_param  DOCUMENT_ROOT      /var/www/mirror.example.com;
             include /etc/nginx/fastcgi_params;
         }
     }
