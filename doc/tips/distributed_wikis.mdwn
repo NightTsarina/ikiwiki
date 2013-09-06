@@ -3,6 +3,8 @@ making it easy to create and maintain copies and branches of a project. And
 this can be used for all sorts of interesting stuff. Since ikiwiki can use
 git, let's explore some possibilities for distributed wikis.
 
+[[!toc levels=2]]
+
 ## a wiki mirror
 
 The simplest possibility is setting up a mirror. If a wiki exposes its git
@@ -44,3 +46,146 @@ the wiki, and if you could even resolve the conflict using the web
 interface. Not 100% sure as I've not gotten into this situation yet.
 
 --[[Joey]]
+
+## Practical example
+
+Say you have a friend that has already configured a shiny ikiwiki site, and you want to help by creating a mirror. You still need to figure out how to install ikiwiki and everything, hopefully this section will help you with that.
+
+### Installing ikiwiki
+
+You need to install the ikiwiki package for the mirror to work. You can use ikiwiki to publish the actual HTML pages elsewhere if you don't plan on letting people edit the wiki, but generally you want the package to be installed on the webserver for editing to work.
+
+    apt-get install ikiwiki
+
+### Setting up the wiki
+
+(!) Optionnally: create a user just for this wiki. Otherwise the wiki will run as your user from here on.
+
+We assume your username is `user` and that you will host the wiki under the hostname `mirror.example.com`. The original wiki is at `wiki.example.com`. We also assume that your friend was nice enough to provide a copy of the `.setup` file in the `setup` branch, which is the case for any wiki hosted on [branchable.com](http://branchable.com).
+
+    cd ~user
+    # setup srcdir, named source
+    git clone git://wiki.example.com/ source
+    # convenience copy of the setup file
+    git clone -b origin/setup source setup
+    cd setup
+    edit ikiwiki.setup # adapt configuration
+
+When editing ikiwiki.setup, make sure you change the following entries:
+
+    cgiurl: http://mirror.example.com/ikiwiki.cgi
+    cgi_wrapper: /var/www/ikiwiki.cgi
+    srcdir: /home/user/source
+    destdir: /var/www/mirror.example.com
+    libdir: /home/user/source/.ikiwiki
+    git_wrapper: /home/user/source/.git/hooks/post-commit
+    git_test_receive_wrapper: /home/user/source/.git/hooks/pre-receive
+    ENV:
+      TMPDIR: /home/user/tmp
+
+This assumes that your /var/www directory is writable by your user.
+
+### Basic HTML rendering
+
+You should already be able to make a plain HTML rendering of the wiki:
+
+    ikiwiki --setup ikiwiki.setup
+
+### Webserver configuration
+
+You will also need a webserver to serve the content in the `destdir`
+defined above. We assume you will configure a virtual host named `mirror.example.com`. Here are some examples on how to do those, see [[!iki setup]] and [[!iki tips/dot_cgi]] for complete documentation.
+
+Note that this will also configure CGI so that people can edit the wiki. Note that this configuration may involve timeouts if the main site is down.
+
+#### Apache configuration
+
+    <VirtualHost *:80>
+        ServerName reseaulibre.example.com:80
+        DocumentRoot /var/www/reseaulibre.example.com
+        <Directory /var/www/reseaulibre.example.com>
+            Options Indexes MultiViews ExecCGI
+            AllowOverride None
+            Order allow,deny
+            allow from all
+        </Directory>
+        ScriptAlias /ikiwiki.cgi /var/www/ikiwiki.cgi
+        ErrorDocument 404 "/ikiwiki.cgi"
+    </VirtualHost>
+
+#### Nginx configuration
+
+    server {
+        root /var/www/reseaulibre.example.com/;
+        index index.html index.htm;
+        server_name reseaulibre.example.com;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+        location /ikiwiki.cgi {
+            fastcgi_pass  unix:/tmp/fcgi.socket;
+            fastcgi_index ikiwiki.cgi;
+            fastcgi_param SCRIPT_FILENAME   /var/www/ikiwiki.cgi;
+            fastcgi_param  DOCUMENT_ROOT      /var/www/reseaulibre.example.com;
+            include /etc/nginx/fastcgi_params;
+        }
+    }
+
+Start this process as your own user (or the user that has write access
+to `srcdir`, `destdir`, etc):
+
+    spawn-fcgi -s /tmp/fcgi.socket -n -- /usr/sbin/fcgiwrap
+
+Make this writable:
+
+    chmod a+w /tmp/fcgi.socket
+
+### Read-only mirror: done!
+
+At this point, you are done! You can edit your own clone of the wiki, although your changes will not go back to the main site. However, you can always push or pull manually from the `repository` in `~user/source.git` to update the main site.
+
+### Announcing the mirror
+
+Once your mirror works, you can also add it to the list of mirrors. You can ask the mirror where you take it from (and why not, all mirrors) to add it to their setup file. As an example, here's the configuration for the first mirror:
+
+    mirrorlist:
+      example: https://wiki.example.com/
+
+The [[plugins/mirrorlist]] plugin of course needs to be enabled for this to work.
+
+### Alternative configuration
+
+In the above configuration, the master git repository is still on the main site. If that site goes down, there will be delays when editing the wiki mirror. It could also simply fail because it will not be able to push the changes to the master git repo. An alternative is to setup a local bare repository that is synced with the master.
+
+At the setup step, you need to create *two* git repositories on the mirror:
+
+    cd ~user
+    # setup base repository, named source.git
+    git clone --bare git://wiki.example.com/ source.git
+    # setup srcdir, named source
+    git clone source.git
+    # convenience copy of the setup file
+    git clone -b origin/setup source.git setup
+    cd setup
+    edit ikiwiki.setup # adapt configuration
+
+The following entries will be different from the above setup file:
+
+    git_wrapper: /home/user/source.git/hooks/post-commit
+    git_test_receive_wrapper: /home/user/source.git/hooks/pre-receive
+
+To do this, the mirror needs to push back to the master, again using the gitpush plugin:
+
+    git_push_to:
+    - git://wiki.example.com/
+
+This will ensure that commits done on the mirror will propagate back to the master.
+
+### Other guides
+
+Another guide is the [[tips/laptop_wiki_with_git]] guide. To get a
+better understanding of how ikiwiki works, see [[rcs/git]].
+
+[This](http://piny.be/jrayhawk/notes/ikiwiki_creation/) may also be of
+use if the above doesn't work.
