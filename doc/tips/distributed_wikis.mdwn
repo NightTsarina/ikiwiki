@@ -62,12 +62,10 @@ You need to install the ikiwiki package for the mirror to work. You can use ikiw
 We assume your username is `user` and that you will host the wiki under the hostname `mirror.example.com`. The original wiki is at `wiki.example.com`. We also assume that your friend was nice enough to provide a copy of the `.setup` file in the `setup` branch, which is the case for any wiki hosted on [branchable.com](http://branchable.com).
 
     cd ~user
-    # setup base repository, named source.git
-    git clone --bare git://wiki.example.com/ source.git
     # setup srcdir, named source
-    git clone source.git
+    git clone git://wiki.example.com/ source
     # convenience copy of the setup file
-    git clone -b origin/setup source.git setup
+    git clone -b origin/setup source setup
     cd setup
     edit ikiwiki.setup # adapt configuration
 
@@ -78,8 +76,8 @@ When editing ikiwiki.setup, make sure you change the following entries:
     srcdir: /home/user/source
     destdir: /var/www/mirror.example.com
     libdir: /home/user/source/.ikiwiki
-    git_wrapper: /home/user/source.git/hooks/post-commit
-    git_test_receive_wrapper: /home/user/source.git/hooks/pre-receive
+    git_wrapper: /home/user/source/.git/hooks/post-commit
+    git_test_receive_wrapper: /home/user/source/.git/hooks/pre-receive
     ENV:
       TMPDIR: /home/user/tmp
 
@@ -91,26 +89,12 @@ You should already be able to make a plain HTML rendering of the wiki:
 
     ikiwiki --setup ikiwiki.setup
 
-### Editing your copy through git
-
-At this point, your wiki should already be visible in `/var/www/mirror.example.com`, the `destdir`. You can edit it and changes should show up automatically in the `destdir`.
-
-However, you need yet another clone for this, the `srcdir` being used internally by the web interface of Ikiwiki. So clone the `repository` elsewhere:
-
-    git clone ~user/source.git checkout
-    cd checkout
-    edit index.mdwn
-    git commit index.mdwn
-    git push
-
-This will refresh the main page of the wiki, for example.
-
 ### Webserver configuration
 
 You will also need a webserver to serve the content in the `destdir`
 defined above. We assume you will configure a virtual host named `mirror.example.com`. Here are some examples on how to do those, see [[!iki setup]] and [[!iki tips/dot_cgi]] for complete documentation.
 
-Note that this will also configure CGI so that people can edit your copy of the wiki. We'll see how to sync back later.
+Note that this will also configure CGI so that people can edit the wiki. Note that this configuration may involve timeouts if the main site is down.
 
 #### Apache configuration
 
@@ -168,9 +152,26 @@ Once your mirror works, you can also add it to the list of mirrors. You can ask 
 
 The [[plugins/mirrorlist]] plugin of course needs to be enabled for this to work.
 
-### Pushing changes back to the main site
+### Alternative configuration
 
-The final step is to push edits on the mirror back to the master site. That way the mirror is not only for reading, but can also be edited, even when the master is offline or the network is separated.
+In the above configuration, the master git repository is still on the main site. If that site goes down, there will be delays when editing the wiki mirror. It could also simply fail because it will not be able to push the changes to the master git repo. An alternative is to setup a local bare repository that is synced with the master.
+
+At the setup step, you need to create *two* git repositories on the mirror:
+
+    cd ~user
+    # setup base repository, named source.git
+    git clone --bare git://wiki.example.com/ source.git
+    # setup srcdir, named source
+    git clone source.git
+    # convenience copy of the setup file
+    git clone -b origin/setup source.git setup
+    cd setup
+    edit ikiwiki.setup # adapt configuration
+
+The following entries will be different from the above setup file:
+
+    git_wrapper: /home/user/source.git/hooks/post-commit
+    git_test_receive_wrapper: /home/user/source.git/hooks/pre-receive
 
 To do this, the mirror needs to push back to the master, again using the gitpush plugin:
 
