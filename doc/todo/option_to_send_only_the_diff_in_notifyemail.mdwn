@@ -1,9 +1,11 @@
 [[!tag wishlist]]
 
-[[!template  id=gitbranch branch=anarcat/notifyemail_diff author="[[anarcat]]"]]
+[[!template  id=gitbranch branch=anarcat/notifychanges author="[[anarcat]]"]]
 
 It would be nice if [[plugins/notifyemail]] wouldn't send the complete page source, but only the things that changed, when notifying users. They can always follow the link to see the full page if they want.
 
 For bonus points, make that optional. --[[anarcat]]
 
 > I am working on a patch, in the branch mentionned above. So far, my first job was to make sure notifyemail sends a single email per refresh. Next step is to try to figure out the revisions to send to the user - I am not sure it's quite obvious in the iki internals which diffs we're working on, because of the pluggable nature of the software (and even the possibility that not RCS exists at all). So far, I am thinking of using `rcs_recentchanges()`, but how many commits to look back into? Feedback welcome. --[[anarcat]]
+
+> > It turns out it was easier to simply make a completely new plugin for this, which I called "notifychanges" (i don't like that name too much). It is in my notifychanges branch, so i guess we have a [[!taglink patch]] now! --[[anarcat]]
