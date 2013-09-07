@@ -1,3 +1,5 @@
+[[!template  id=gitbranch branch=anarcat/syslog_utf8 author="[[anarcat]]"]]
+
 [[this feature|todo/syslog_should_show_wiki_name]] made it so syslog doesn't work anymore if the site being logged has non-ASCII characters it in.
 
 Specifically, my wiki was named "CⒶTS", and nothing was showing up in syslog. When I changed that to "C@TS", it worked again.
@@ -33,3 +35,5 @@ ok(debug('test'));
 And I couldn't reproduce the problem. Therefore, I suspect the problem may be somewhere else - maybe in the options parsing? One thing that's for sure: when I put that funky character in the title, it breaks logging! If I remove the "eval" above, I get:
 
     Error: Wide character in syswrite at /usr/lib/perl/5.14/Sys/Syslog.pm line 485.
+
+I have improved a little the error handling in log_message() so that we see *something* when syslog fails, see the branch documented above. I can also confirm that reverting [[todo/syslog_should_show_wiki_name]] fixes the bug.
