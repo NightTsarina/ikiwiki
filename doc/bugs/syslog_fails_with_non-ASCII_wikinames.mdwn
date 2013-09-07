@@ -11,3 +11,25 @@ My guess is this sits somewhere here:
 """]]
 
 Yet I am not sure how to fix that kind of problem in Perl... --[[anarcat]]
+
+I tried to make this unit test:
+
+[[!format perl """
+#!/usr/bin/perl
+use warnings;
+use strict;
+use Test::More tests => 5;
+
+BEGIN { use_ok("IkiWiki"); }
+
+$IkiWiki::config{verbose} = 1;
+$IkiWiki::config{syslog} = 1;
+$IkiWiki::config{wikiname} = 'ascii';
+ok(debug('test'));
+$IkiWiki::config{wikiname} = 'not ⒶSCII';
+ok(debug('test'));
+"""]]
+
+And I couldn't reproduce the problem. Therefore, I suspect the problem may be somewhere else - maybe in the options parsing? One thing that's for sure: when I put that funky character in the title, it breaks logging! If I remove the "eval" above, I get:
+
+    Error: Wide character in syswrite at /usr/lib/perl/5.14/Sys/Syslog.pm line 485.
