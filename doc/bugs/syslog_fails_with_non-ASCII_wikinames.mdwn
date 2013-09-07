@@ -14,8 +14,10 @@ My guess is this sits somewhere here:
 
 Yet I am not sure how to fix that kind of problem in Perl... --[[anarcat]]
 
-If I remove the "eval" above, I get:
-
-    Error: Wide character in syswrite at /usr/lib/perl/5.14/Sys/Syslog.pm line 485.
-
-I have improved a little the error handling in log_message() so that we see *something* when syslog fails, see the branch documented above. I can also confirm that reverting [[todo/syslog_should_show_wiki_name]] fixes the bug. Finally, I have a unit test that reproduces the problem in git, and a working [[!taglink patch]] for the bug, again in git.
+> If I remove the "eval" above, I get:
+> 
+>     Error: Wide character in syswrite at /usr/lib/perl/5.14/Sys/Syslog.pm line 485.
+> 
+> I have improved a little the error handling in log_message() so that we see *something* when syslog fails, see the branch documented above. I can also confirm that  reverting [[todo/syslog_should_show_wiki_name]] fixes the bug. Finally, I have a unit test that reproduces the problem in git, and a working [[!taglink patch]] for the bug, again in git.
+> 
+> > One last note: I noticed that this problem also happens elsewhere in ikiwiki. For example, the [[plugins/notifyemail]] plugin will silently fail to send notifications if the pages contain unicode. The [[plugins/notifychanges]] plugin I am working on (in [[todo/option to send only the diff in notifyemail]]) seems to be working around the issue so far, but there's no telling which similar problem are out there.
