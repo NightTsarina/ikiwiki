@@ -1,0 +1,13 @@
+[[this feature|todo/syslog_should_show_wiki_name]] made it so syslog doesn't work anymore if the site being logged has non-ASCII characters it in.
+
+Specifically, my wiki was named "CⒶTS", and nothing was showing up in syslog. When I changed that to "C@TS", it worked again.
+
+My guess is this sits somewhere here:
+
+[[!format perl """
+		return eval {
+			Sys::Syslog::syslog($type, "[$config{wikiname}] %s", join(" ", @_));
+		};
+"""]]
+
+Yet I am not sure how to fix that kind of problem in Perl... --[[anarcat]]
