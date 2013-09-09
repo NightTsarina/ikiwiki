@@ -1,0 +1,17 @@
+In the login page, the icons of:
+
+ * livejournal.com
+ * myopenid.com - which is [closing](http://tech.slashdot.org/story/13/09/04/228229/myopenid-to-shut-down-in-february)
+ * verisign.com
+ * yahoo.com
+ * aol.com
+ * claimid.com
+ * flickr.com - which should be the same as yahoo
+ * wordpress.com
+ * google.com
+
+... are all hotlinked. Which means that on every ikiwiki out there, whenever someone logs in, the web browser of that person actually report backs to all those entities, some of which are known to collaborate with the US government in illegal spying of american citizens and, well, the world at large (see [[!wikipedia PRISM]], but also the patriot act and various warrantless wiretapping provisions established since 2001).
+
+In the old days, we used to call those [[!wikipedia web bugs]]. Nowadays, they seem so pervasive that we don't even notice. Nevertheless, I think it would be important to remove those snitches from the ikiwiki home page.
+
+A simple fix would be to ship those icons with ikiwiki and serve them locally, but there may be legal issues with redistributing those icons in the source code... Would it be covered by fair use? The [upstream library](https://code.google.com/p/openid-selector/) doesn't actually exhibit that problem, and ships those icons directly as a [PNG sprite](https://code.google.com/p/openid-selector/source/browse/#svn%2Ftrunk%2Fimages). -- [[anarcat]]
