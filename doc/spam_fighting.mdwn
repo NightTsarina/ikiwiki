@@ -10,7 +10,8 @@ to the setup branch in git to be able to update the ban list, get in touch
 with joey with a ssh public key. Once your key is added, you will be able
 to edit the ikiwiki.setup file on the setup branch, and push changes.
 You will also be able to access the recent web server logs to find IP
-addresses, by running: `ssh b-ikiwiki@ikiwiki.info logdump > access.log`
+addresses from recent web edits, by running: `ssh b-ikiwiki@ikiwiki.info
+logdump | grep 'GET .*\?updated HTTP\/' > access.log`.
 
 ## Spam commits
 
@@ -22,4 +23,5 @@ d1dbd8e | 2013/08/19 | webschen1 | 79.228.8.176
 6602052 | 2013/08/21 | webschen1 | 31.17.11.19
 d93a948 | 2013/09/05 | soman81   | 31.17.11.19
 568fdb0 | 2013/09/05 | soman81   | 31.17.11.19
+d759052 | 2013/09/08 | spain1001 | 80.187.106.2
 """]]

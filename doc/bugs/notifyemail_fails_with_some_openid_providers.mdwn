@@ -1,0 +1,67 @@
+This bug affects [[plugins/notifyemail]] but is probably caused more by [[plugins/openid]]. When using OpenID to login to a site, no email notification is sent to the user (pagespec set to `*`) when a modification is done on the wiki. I believe this is because the OpenID plugin assumes the email comes from the OpenID provider - which is not necessarily going to succeed if, for privacy reason, the OpenID provider refuses to transmit the email to ikiwiki.
+
+In the OpenID plugin, the email is actually fetched when authenticating and is stored in the session, like so:
+
+[[!format perl """
+sub auth ($$) {
+# [...]
+			my @extensions;
+			if ($vident->can("signed_extension_fields")) {
+				@extensions=grep { defined } (
+					$vident->signed_extension_fields('http://openid.net/extensions/sreg/1.1'),
+					$vident->signed_extension_fields('http://openid.net/srv/ax/1.0'),
+				);
+			}
+			my $nickname;
+			foreach my $ext (@extensions) {
+				foreach my $field (qw{value.email email}) {
+					if (exists $ext->{$field} &&
+					    defined $ext->{$field} &&
+					    length $ext->{$field}) {
+						$session->param(email => $ext->{$field});
+						if (! defined $nickname &&
+						    $ext->{$field}=~/(.+)@.+/) {
+							$nickname = $1;
+						}
+						last;
+					}
+				}
+
+"""]]
+
+This is based on the assumption that the openid provider supports "sreg" or "ax" extensions, which is not mandatory, and even then, the provider is not forced to provide the email.
+
+Earlier in the plugin, the email field is actually hidden:
+
+[[!format perl """
+sub formbuilder_setup (@) {
+	my %params=@_;
+
+	my $form=$params{form};
+	my $session=$params{session};
+	my $cgi=$params{cgi};
+	
+	if ($form->title eq "preferences" &&
+	       IkiWiki::openiduser($session->param("name"))) {
+		$form->field(name => "openid_identifier", disabled => 1,
+			label => htmllink("", "", "ikiwiki/OpenID", noimageinline => 1),
+			value => "", 
+			size => 1, force => 1,
+			fieldset => "login",
+			comment => $session->param("name"));
+		$form->field(name => "email", type => "hidden");
+	}
+}
+"""]]
+
+I believe this could be worked around simply by re-enabling that field and allowing the user to specify an email there by hand, making a note that the OpenID provider's email is used by default.
+
+[[!template  id=gitbranch branch=anarcat/openid_email author="[[anarcat]]"]]
+
+The dumbest [[!taglink patch]] that actually fixes the problem for me is in the branch mentionned here.
+
+It would probably be better to add a comment on the field as indicated above, but it's a good proof of concept.
+
+Any other ideas? --[[anarcat]]
+
+> Note: it seems that my email *is* given by my OpenID provider, no idea why this is not working, but the fix proposed in my branch works. --[[anarcat]]
