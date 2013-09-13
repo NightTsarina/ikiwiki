@@ -109,3 +109,30 @@ Please, let me know what to do to avoid this kind of error.
 > for backwards compatibility?
 >
 > --[[smcv]]
+
+>> [[!template id=gitbranch author="[[smcv]]" branch=smcv/definetemplate]]
+>> [[!tag patch]]
+>> OK, here is a branch implementing what I said. It adds the `definetemplate`
+>> directive to [[plugins/goodstuff]] as its last commit.
+>>
+>> Templates with the current strange semantics will still work, until
+>> IkiWiki breaks compatibility.
+>>
+>> Possible controversies:
+>>
+>> * Should the `definetemplate` plugin be core, or in goodstuff, or neither?
+>>
+>> * Should \[[!definetemplate]] be allowed on any page (with the implementation
+>>   of `template("foo")` looking for a `definetemplate` in `templates/foo`,
+>>   then a `definetemplate` in `foo`, then fall back to the current logic)?
+>>   If not, should \[[!definetemplate]] raise an error when used on a page not
+>>   in `templates/`, since it will have no practical effect there?
+>>
+>> * Is it OK to rely on `definetemplate` being enabled in the basewiki's
+>>   templates?
+>>
+>> * Should the "use definetemplate" wording in the documentation of
+>>   template and edittemplate be stronger? Should those plugins automatically
+>>   load definetemplate?
+>>
+>> --[[smcv]]
