@@ -6,7 +6,7 @@ use warnings;
 use strict;
 use IkiWiki;
 
-my (%backlinks, %rendered);
+my (%backlinks, %rendered, %scanned);
 our %brokenlinks;
 my $links_calculated=0;
 
@@ -154,6 +154,8 @@ sub genpage ($$) {
 
 sub scan ($) {
 	my $file=shift;
+	return if $scanned{$file};
+	$scanned{$file}=1;
 
 	debug(sprintf(gettext("scanning %s"), $file));
 
