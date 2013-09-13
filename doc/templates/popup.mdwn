@@ -1,4 +1,3 @@
-<TMPL_UNLESS mouseover>
 Use this template to create a popup window that is displayed when the mouse
 is over part of the page. This template has two parameters:
 <ul>
@@ -10,7 +9,9 @@ large for good usability.
 </ul>
 Note that browsers that do not support the CSS will display the popup
 inline in the page, inside square brackets.
-</TMPL_UNLESS>
+
+[[templatebody <<ENDBODY
 <span class="popup"><TMPL_VAR mouseover>
 <span class="paren">[</span><span class="balloon"><TMPL_VAR popup></span><span class="paren">]</span>
 </span>
+ENDBODY]]

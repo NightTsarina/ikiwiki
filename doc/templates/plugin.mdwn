@@ -1,3 +1,4 @@
+[[!templatebody <<ENDBODY
 <span class="infobox">
 Plugin: <TMPL_VAR name><br />
 Author: <TMPL_VAR author><br />
@@ -8,7 +9,8 @@ Currently enabled: [[!if test="enabled(<TMPL_VAR name>)" then="yes" else="no"]]<
 </span>
 [[!if test="sourcepage(plugins/contrib/*)" then="""[[!meta title="<TMPL_VAR name> (third party plugin)"]]"""]]
 <TMPL_IF core>[[!tag plugins/type/core]]</TMPL_IF>
-<TMPL_UNLESS name>
+ENDBODY]]
+
 This template is used to create an infobox for an ikiwiki plugin. It uses
 these parameters:
 <ul>
@@ -16,4 +18,3 @@ these parameters:
 <li>author - the author of the plugin
 <li>core - set to a true value if the plugin is enabled by default
 </ul>
-</TMPL_UNLESS>
