@@ -136,3 +136,25 @@ Please, let me know what to do to avoid this kind of error.
 >>   load definetemplate?
 >>
 >> --[[smcv]]
+
+>>> this looks like a good idea to me.
+>>>
+>>> * i'd put it in core, and add a transition for the time compatibility gets
+>>>   broken, provided the transitioning system will be used in that. templates
+>>>   can't be expected to just work as markdown+ikiwiki too.
+>>>
+>>>   (it being in core would also solve my qualms about `section => "web"` /
+>>>   `\[[!tag type/web]]`).
+>>>
+>>> * if definetemplate gets deemed core, no "use definetemplate!" notes on the
+>>>   template/edittemplate pages will be required any more.
+>>>
+>>> * first i was sceptical of the approach of re-running scan to make sure the
+>>>   `my %templates` is filled, but it is indeed a practical solution.
+>>>
+>>> * the name "`definetemplate`" gives me the first impression that something
+>>>   is assigned (as in `#define`), but actually it highlights a region in the
+>>>   file. wouldn't "`templatebody`" be a better description of the meaning of
+>>>   the directive?
+>>>
+>>> --[[chrysn]]
