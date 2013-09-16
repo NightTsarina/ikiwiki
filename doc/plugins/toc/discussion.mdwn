@@ -17,3 +17,10 @@ copy of the template and removing its `<TMPL_UNLESS text>...</TMPL_UNLESS>`
 section. Besides needing to generate guaranteed-unique anchor names,
 are there other reasons this directive couldn't be made to work on
 inlined pages?  --[[schmonz]]
+
+> Workaround: `\[[!template id=note text=" \[[!toc]]"]]`
+> (with whitespace) should work, because then Perl will consider
+> the string to be a true value.
+>
+> Longer-term, my branch on [[bugs/template_creation_error]]
+> aims to fix this sort of thing. --[[smcv]]
