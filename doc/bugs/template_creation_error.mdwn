@@ -158,3 +158,40 @@ Please, let me know what to do to avoid this kind of error.
 >>>   the directive?
 >>>
 >>> --[[chrysn]]
+
+>>>> Thanks for your feedback!
+>>>> Looking at its description on this wiki, I agree that `type/web` doesn't
+>>>> fit, and core does seem better. I like your `templatebody` suggestion,
+>>>> too, particularly if templates remain restricted to `/templates`.
+>>>> I'll try to come up with better wording for the documentation to say
+>>>> "use `templatebody`, like this", with a note about backwards
+>>>> compatibility later.
+>>>>
+>>>> Rationale for `my %templates`: yes it does seem a bit odd, but
+>>>> if I used `$pagestate{$tpage}{template}` instead of a `my` variable,
+>>>> I'd sometimes _still_ have to force a `scan`, because
+>>>> [[plugins/template]] has to expand the template at scan time so that
+>>>> it can contain links etc. - so I have to make sure that if the
+>>>> template has changed, it has already been scanned (scanning happens
+>>>> in random order, so that can't be guaranteed). This means there's
+>>>> no benefit in reading it back from the index, so it might as well
+>>>> just be in-memory.
+>>>>
+>>>> I suppose an alternative way to do it would be to remember what was
+>>>> passed to `needsbuild`, and only force a `scan` for templates that
+>>>> were in that list - which potentially reduces CPU time and I/O a
+>>>> little, in exchange for a bigger index. I could do that if Joey
+>>>> wants me to, but I think the current approach is simpler,
+>>>> so I'll stick with the current approach if it isn't vetoed.
+>>>> --[[smcv]]
+
+>>>>> @name: even outside `/templates`, `\[[!templatebody]]` would be
+>>>>> interpreted as "when this page is used as a template, this is what its
+>>>>> contents should be", and be suitable.
+>>>>>
+>>>>> @`%templates`: my surprise wasn't to it not being in `%pagestate`, but
+>>>>> rather that the `scan` function was used for it at all, rather than plain
+>>>>> directive parsing that ignores everything else -- but i agree that it's
+>>>>> the right thing to do in this situation.
+>>>>>
+>>>>> --[[chrysn]]
