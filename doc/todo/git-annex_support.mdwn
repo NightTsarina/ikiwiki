@@ -3,3 +3,9 @@ A dear [[wishlist]] which would resolve [[this question|forum/ikiwiki_and_big_fi
 I am not sure how this would work, but from my POV, it should do a `git annex get` when new commits are pushed to its bare repo. This would assume, of course, that there's another repo somewhere that ikiwiki has access to, which works for HTTP-style remotes, but could be more problematic for SSH remotes that require a key.
 
 Another solution would be to make ikiwiki a remote itself and allow users to push big files to it. The only problem I see with this is those files would end up in the bare repository and not necessarily show up in the web rendering. Ideally, a big file pushed would be hardlinked between the two repos, but it seems [git-annex doesn't support that yet](http://git-annex.branchable.com/todo/wishlist:_use_hardlinks_for_local_clones). --[[anarcat]]
+
+> One technical problem with this is that ikiwiki doesn't allow symlinks
+> for [[security]], but git-annex relies on symlinks (unless you're in
+> direct mode, but I'm not sure that's really desirable here).
+> I'd like to make symlinks possible without compromising security,
+> but it'll be necessary to be quite careful. --[[smcv]]
