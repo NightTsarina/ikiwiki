@@ -10,7 +10,7 @@ Why doesn't the TOC appear in the edit page preview?  It only appears when the p
 > Fixed. --[[Joey]]
 
 Just ran into a side effect of `\[[!toc]]` being a NOP in pages
-which are inlined: pages with `\[[!template id=note text="\[[!toc]]"]]`
+which are inlined: pages with `\[[!template id=note text="[[!toc]]"]]`
 wound up having the note rendered in feeds as "Use this template
 to insert a note into a page". Worked around this by making a local
 copy of the template and removing its `<TMPL_UNLESS text>...</TMPL_UNLESS>`
@@ -18,9 +18,14 @@ section. Besides needing to generate guaranteed-unique anchor names,
 are there other reasons this directive couldn't be made to work on
 inlined pages?  --[[schmonz]]
 
-> Workaround: `\[[!template id=note text=" \[[!toc]]"]]`
+> Workaround: `\[[!template id=note text=" [[!toc]]"]]`
 > (with whitespace) should work, because then Perl will consider
 > the string to be a true value.
 >
 > Longer-term, my branch on [[bugs/template_creation_error]]
 > aims to fix this sort of thing. --[[smcv]]
+
+>> Workaround seems not to. Maybe whitespace is getting trimmed
+>> along the way and it stays falsish. Interested in your branch;
+>> sorry I can't offer precise feedback right now, but it looks sane
+>> at a glance. --[[schmonz]]
