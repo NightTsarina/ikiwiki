@@ -1,0 +1,14 @@
+For security reasons, ikiwiki.cgi should only be accessed via HTTPS, which is easy to set in the config, however each wiki page contains
+
+    <link rel="stylesheet" href="http://ikiwiki.info/style.css" type="text/css" />
+    <link rel="stylesheet" href="http://ikiwiki.info/local.css" type="text/css" />
+
+regardless of whether the site is accessed via HTTP or HTTPS, which causes most modern browsers to automatically disable javascript and complain about the site only being partially encrypted. Features such as the openID-selector stop working unless the user manually allows the browser to execute unsafe scripts on the site.
+
+This can be fixed by setting the base wiki url to a protocol relative url, such as
+
+    //wiki.example.com
+
+but this breaks all sorts of things, like the 404 plugin and wiki rebuilds will throw the following perl warning several times:
+
+    Use of uninitialized value in string ne at /usr/share/perl5/IkiWiki.pm line 586
