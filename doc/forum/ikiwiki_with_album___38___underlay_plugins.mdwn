@@ -28,18 +28,20 @@ Build ikiwiki for good measure
 
 Clone to laptop and initialise annex repo
 
-    git clone ssh://$server/$wiki ./$wrkdir
-    git clone ssh://$server/$wiki.underlay ./$wiki.underlay
+    git clone ssh://$server/$wiki.git ~/$wiki
+    git clone ssh://$server/$wiki.underlay ~/$wiki.underlay
     cd $wiki.underday;git-annex init $wrkunderlay
     git remote add $srcunderlay ssh://$server/$wiki.underlay
+
+You now have an annex repo in the local $wiki.underlay called $wrkunderlay and one in the $wiki.underlay directory on the remote server called $srcunderlay.
     
 ## Add content locally
 
-Clone remote bare repo at $gitdir to local $wrkdir on laptop. Add content to $wrkdir in this case create $album.mdwn files for every album `git add;git commit` files containing at the minimum the following
+Add content to local $wiki directory in this case create $album.mdwn files for every album you have. Then `git add;git commit` files containing at the minimum the following
 
     [[!album ]]
 
-Create directories in $wrkunderlay corresponding to the album files in $wrkdir. Ie. create a directory named $album for every $album.mdwn file. Copy hi-res jpg files to each directory in $wrkunderlay and add + commit. 
+Create directories in the local $wiki.underlay corresponding to the album files in the local $wiki dir. Ie. create a directory named $album for every $album.mdwn file. Copy hi-res jpg files to each directory in the local $wiki.underlay and add + commit. 
 
     git annex add .
     git commit -m 'jpgs added'
@@ -52,6 +54,8 @@ Create directories in $wrkunderlay corresponding to the album files in $wrkdir. 
 That's it! Ikiwiki should update the website and treat the jpg's as if they were part of the standard file structure.
 
 How to accomplish this using the web interface is another questions. I guess the plugins have to setup and upload to underlaydir somehow.
+
+My guess is that you have to git-annex copy the $wiki.underlay files to $srcunderlay **before** running git push from the local $wiki directory. Haven't tested this yet though.
 
 
 
