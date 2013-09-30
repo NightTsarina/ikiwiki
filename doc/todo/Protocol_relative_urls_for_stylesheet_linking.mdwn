@@ -1,0 +1,32 @@
+For security reasons, ikiwiki.cgi should only be accessed via HTTPS, which is easy to set in the config, however each wiki page contains
+
+    <link rel="stylesheet" href="http://ikiwiki.info/style.css" type="text/css" />
+    <link rel="stylesheet" href="http://ikiwiki.info/local.css" type="text/css" />
+
+regardless of whether the site is accessed via HTTP or HTTPS, which causes most modern browsers to automatically disable javascript and complain about the site only being partially encrypted. Features such as the openID-selector stop working unless the user manually allows the browser to execute unsafe scripts on the site.
+
+This can be fixed by setting the base wiki url to a protocol relative url, such as
+
+    //wiki.example.com
+
+but this breaks all sorts of things, like the 404 plugin and wiki rebuilds will throw the following perl warning several times:
+
+    Use of uninitialized value in string ne at /usr/share/perl5/IkiWiki.pm line 586
+
+> With a vaguely recent ikiwiki, if your `url` and `cgiurl` settings have the
+> same hostname (e.g.
+> `url => "http://www.example.com", cgiurl => "https://www.example.com/ikiwiki.cgi"`),
+> most links are path-only (e.g. `/style.css`), and in particular,
+> CGI-generated pages should generate those links. This was the implementation of
+> [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]].
+>
+> If your`$config{url}` and `$config{cgiurl}` have different hostnames (e.g.
+> `url => "http://wiki.example.com", cgiurl => "http://cgi.example.com/ikiwiki.cgi"`)
+> then you might still have this problem. In principle, IkiWiki could generate
+> protocol-relative URLs in this situation, but it isn't clear to me how
+> widely-supported those are.
+>
+> If you set both the `$config{url}` and `$config{cgiurl}` to https, but make
+> the resulting HTML available over HTTP as well as HTTPS, that should work
+> fine - accesses will be over http until the user either explicitly
+> navigates to https, or navigates to the CGI. --[[smcv]]
