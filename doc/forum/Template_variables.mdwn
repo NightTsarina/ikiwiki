@@ -4,12 +4,12 @@ I am very confused with the template variables. I cannot find any documentation 
 
 I see that in the default templates, there are things like this (rssitem.tmpl): 
 
-<TMPL_IF AUTHOR>
+    <TMPL_IF AUTHOR>
         <title><TMPL_VAR AUTHOR ESCAPE=HTML>: <TMPL_VAR TITLE></title>
         <dcterms:creator><TMPL_VAR AUTHOR ESCAPE=HTML></dcterms:creator>
-<TMPL_ELSE>
+    <TMPL_ELSE>
         <title><TMPL_VAR TITLE></title>
-</TMPL_IF>
+    </TMPL_IF>
 
 But I don't get this in my RSS, and I don't know how to add those variables, except for mentions of some plugins that are not yet merged.
 
