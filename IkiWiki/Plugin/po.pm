@@ -346,6 +346,12 @@ sub pagetemplate (@) {
 	if ($template->query(name => "lang_code")) {
 		$template->param(lang_code => $lang_code);
 	}
+	if ($template->query(name => "html_lang_code")) {
+		$template->param(html_lang_code => htmllangcode($lang_code));
+	}
+	if ($template->query(name => "html_lang_dir")) {
+		$template->param(html_lang_dir => htmllangdir($lang_code));
+	}
 	if ($template->query(name => "lang_name")) {
 		$template->param(lang_name => languagename($lang_code));
 	}
@@ -857,6 +863,19 @@ sub lang ($) {
 	return $master_language_code;
 }
 
+sub htmllangcode ($) {
+	(my $lang = shift) =~ tr/_/-/;
+	return $lang;
+}
+
+sub htmllangdir ($) {
+	my $lang = shift;
+	if ($lang =~ /^(ar|fa|he)/) {
+		return 'rtl';
+	}
+	return 'ltr';
+}
+
 sub islanguagecode ($) {
 	my $code=shift;
 
@@ -1053,6 +1072,8 @@ sub otherlanguagesloop ($) {
 		push @ret, {
 			url => urlto_with_orig_beautiful_urlpath(masterpage($page), $page),
 			code => $master_language_code,
+			html_code => htmllangcode($master_language_code),
+			html_dir => htmllangdir($master_language_code),
 			language => $master_language_name,
 			master => 1,
 		};
@@ -1063,6 +1084,8 @@ sub otherlanguagesloop ($) {
 		push @ret, {
 			url => urlto_with_orig_beautiful_urlpath($otherpage, $page),
 			code => $lang,
+			html_code => htmllangcode($lang),
+			html_dir => htmllangdir($lang),
 			language => languagename($lang),
 			percent => percenttranslated($otherpage),
 		}
