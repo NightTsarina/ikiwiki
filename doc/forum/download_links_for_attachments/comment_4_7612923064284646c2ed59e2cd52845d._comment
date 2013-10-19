@@ -1,0 +1,34 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 4"
+ date="2013-10-18T16:56:09Z"
+ content="""
+> \[[setup.txt]] - opens the plain text in the same browser window
+
+That's the browser's choice: the web server says \"this is text/plain\"
+and the browser decides to display it in the window. IkiWiki doesn't
+actually serve the file, just provides a link to it; to force it
+to be downloaded rather than opened, you'd have to configure
+your web server to offer it as \"Content-Disposition: attachment\"
+(e.g. <http://www.jtricks.com/bits/content_disposition.html>).
+
+The only way IkiWiki could get involved in this would be to
+have the file download go via the CGI script, which could
+add that header. That isn't currently a feature it has;
+you could maybe add a plugin if you need this?
+
+> \[[settings.xml]] - opens the formatted xml as html
+
+Again, this is between the web server and the browser.
+
+> \[[.gitignore]] - it does not recognise this file
+
+IkiWiki excludes files related to the source code control systems
+it uses, in order to avoid accidentally publishing a `.gitignore`
+that's intended to control ignored files for the git repo
+containing the pages' source. This is controlled by the
+`wiki_file_prune_regexps`, `exclude` and `include` config options.
+You can put `.gitignore` in `include` if you need to publish
+files with that name.
+"""]]
