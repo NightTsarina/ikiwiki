@@ -1,0 +1,28 @@
+# Syntax highlighting of recent changes
+
+Hello,
+is there a simple way to highlight the diff printed in the [[/recentchanges]]
+page? I imagined several solutions, but I am still wondering about the best one.
+
+* One might activate the [[plugins/highlight]] and [[plugins/format]] plugins,
+  and change the [[change.tmpl|/templates]] template, to use this plugin. But as
+  the diff is formatted not to mess up html (e.g. `\[[link]]` becomes
+  `&#91;&#91;link&#93;&#93;`), the output would be unreadable.
+* One might improve [[plugins/recentchangesdiff]] plugin by adding an option
+  `diff_escape_html=>yes/no` to it. Setting this to `no` would leave html
+  unescaped, so that it would be correctly rendered by plugin
+  [[plugins/format]].
+* One might change the [[plugins/recentchangesdiff]] plugin, to add syntax
+  highlighting to diffs, but this would duplicate plugin [[plugins/highlight]].
+
+In my opinion, the second solution is the best one. However, to be neat the
+`change.tmpl` template might detect that both plugin [[plugins/format]] and
+`diff_escape_html` option are enabled, and, depending on it, output the diff
+in `<pre>DIFF</pre>` tags or in the `\[[!format diff """DIFF"""]]` directive.
+
+Letting user edit `change.tmpl` template to enable this feature is also
+possible, but this would prevent him from benefiting of the later improvement
+of this template. In my opinion, an ideal solution would require the user
+nothing more than enabling some plugins or options.
+
+-- Louis
