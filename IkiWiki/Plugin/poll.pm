@@ -30,7 +30,7 @@ sub preprocess (@) {
 	my $showtotal=IkiWiki::yesno($params{total});
 	my $showpercent=IkiWiki::yesno($params{percent});
 	my $expandable=IkiWiki::yesno($params{expandable});
-	$pagenum{$params{page}}++;
+	my $num=++$pagenum{$params{page}}{$params{destpage}};
 
 	my %choices;
 	my @choices;
@@ -66,7 +66,7 @@ sub preprocess (@) {
 		}
 		if ($open && exists $config{cgiurl}) {
 			$ret.="<input type=\"hidden\" name=\"do\" value=\"poll\" />\n";
-			$ret.="<input type=\"hidden\" name=\"num\" value=\"$pagenum{$params{page}}\" />\n";
+			$ret.="<input type=\"hidden\" name=\"num\" value=\"$num\" />\n";
 			$ret.="<input type=\"hidden\" name=\"page\" value=\"$params{page}\" />\n";
 			$ret.="<input type=\"hidden\" name=\"choice\" value=\"$choice\" />\n";
 			$ret.="<input type=\"submit\" value=\"".gettext("vote")."\" />\n";
@@ -81,7 +81,7 @@ sub preprocess (@) {
 		$ret.="<p>\n";
 		$ret.="<form method=\"POST\" action=\"".IkiWiki::cgiurl()."\">\n";
 		$ret.="<input type=\"hidden\" name=\"do\" value=\"poll\" />\n";
-		$ret.="<input type=\"hidden\" name=\"num\" value=\"$pagenum{$params{page}}\" />\n";
+		$ret.="<input type=\"hidden\" name=\"num\" value=\"$num\" />\n";
 		$ret.="<input type=\"hidden\" name=\"page\" value=\"$params{page}\" />\n";
 		$ret.=gettext("Write in").": <input name=\"choice\" size=50 />\n";
 		$ret.="<input type=\"submit\" value=\"".gettext("vote")."\" />\n";
