@@ -14,5 +14,7 @@ There has got to be a way to run the CGI wrapper under fastcgi or modperl (apach
 > > Otherwise the general idea would be to launch a daemon per site that would have a pool of fastcgi processes to answer requests. The common setup pattern here is that users have a fixed quota of processes running as their user, listening either on the network (hackish: a port need to be allocated for each user) or on a socket (documented above, but then the webserver needs write access).
 > >
 > > Perl has had extensive support for FastCGI for quite a while. It seems to me a simple daemon could be written to wrap around the `.cgi`, it's a common way things are deployed. [RT](http://rt.bestpractical.com/) for example can run as a regular CGI, under `mod_perl` or `FastCGI` indiscrimenatly, the latter being more reliable and faster. They use [Plack](http://search.cpan.org/dist/Plack/) to setup that server (see the [startup script](https://github.com/bestpractical/rt/blob/stable/sbin/rt-server.in) for an example). But of course, [TIMTOWTDI](http://search.cpan.org/search?query=fastcgi&mode=all). --[[anarcat]]
+> > 
+> > Also related: [[todo/multi-thread_ikiwiki]], [[todo/rewrite_ikiwiki_in_haskell]]. :) --[[anarcat]]
 
 [[!tag wishlist]]
