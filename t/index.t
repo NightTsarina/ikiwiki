@@ -38,8 +38,6 @@ $depends{"bar"}={"foo*" => 1};
 $depends{"bar.png"}={};
 $pagestate{"bar"}{meta}{title}="a page about bar";
 $pagestate{"bar"}{meta}{moo}="mooooo";
-# only loaded plugins save state, so this should not be saved out
-$pagestate{"bar"}{nosuchplugin}{moo}="mooooo";
 
 ok(saveindex(), "save index");
 ok(-s "$config{wikistatedir}/indexdb", "index file created");
