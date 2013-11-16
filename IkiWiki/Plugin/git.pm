@@ -29,6 +29,8 @@ sub import {
 	hook(type => "rcs", id => "rcs_receive", call => \&rcs_receive);
 	hook(type => "rcs", id => "rcs_preprevert", call => \&rcs_preprevert);
 	hook(type => "rcs", id => "rcs_revert", call => \&rcs_revert);
+	hook(type => "rcs", id => "rcs_find_changes", call => \&rcs_find_changes);
+	hook(type => "rcs", id => "rcs_get_current_rev", call => \&rcs_get_current_rev);
 }
 
 sub checkconfig () {
@@ -462,17 +464,54 @@ sub git_commit_info ($;$) {
 	return wantarray ? @ci : $ci[0];
 }
 
-sub git_sha1 (;$) {
-	# Return head sha1sum (of given file).
-	my $file = shift || q{--};
+sub rcs_find_changes ($) {
+	my $oldrev=shift;
 
+	my @raw_lines = run_or_die('git', 'log',
+		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
+		'--no-renames', , '--reverse',
+		'-r', "$oldrev..HEAD", '--', '.');
+
+	# Due to --reverse, we see changes in chronological order.
+	my %changed;
+	my %deleted;
+	my $nullsha = 0 x 40;
+	my $newrev;
+	while (my $ci = parse_diff_tree(\@raw_lines)) {
+		$newrev=$ci->{sha1};
+		foreach my $i (@{$ci->{details}}) {
+			my $file=$i->{file};
+			if ($i->{sha1_to} == $nullsha) {
+				delete $changed{$file};
+				$deleted{$file}=1;
+			}
+			else {
+				delete $deleted{$file};
+				$changed{$file}=1;
+			}
+		}
+	}
+
+	return (\%changed, \%deleted, $newrev);
+}
+
+sub git_sha1_file ($) {
+	my $file=shift;
+	git_sha1("--", $file);
+}
+
+sub git_sha1 (@) {
 	# Ignore error since a non-existing file might be given.
 	my ($sha1) = run_or_non('git', 'rev-list', '--max-count=1', 'HEAD',
-		'--', $file);
+		'--', @_);
 	if (defined $sha1) {
 		($sha1) = $sha1 =~ m/($sha1_pattern)/; # sha1 is untainted now
 	}
 	return defined $sha1 ? $sha1 : '';
+}
+
+sub rcs_get_current_rev () {
+	git_sha1();
 }
 
 sub rcs_update () {
@@ -488,7 +527,7 @@ sub rcs_prepedit ($) {
 	# This will be later used in rcs_commit if a merge is required.
 	my ($file) = @_;
 
-	return git_sha1($file);
+	return git_sha1_file($file);
 }
 
 sub rcs_commit (@) {
@@ -499,7 +538,7 @@ sub rcs_commit (@) {
 
 	# Check to see if the page has been changed by someone else since
 	# rcs_prepedit was called.
-	my $cur    = git_sha1($params{file});
+	my $cur    = git_sha1_file($params{file});
 	my ($prev) = $params{token} =~ /^($sha1_pattern)$/; # untaint
 
 	if (defined $cur && defined $prev && $cur ne $prev) {

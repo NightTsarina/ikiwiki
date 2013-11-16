@@ -1259,6 +1259,20 @@ and an error message on failure.
 This hook and `rcs_preprevert` are optional, if not implemented, no revert
 web interface will be available.
 
+### `rcs_find_changes($)`
+
+Finds changes committed since the passed RCS-specific rev. Returns
+a hash of the files changed, a hash of the files deleted, and the
+current rev.
+
+This hook is optional.
+
+### `rcs_get_current_rev()`
+
+Gets a RCS-specific rev, which can later be passed to `rcs_find_changes`.
+
+This hook is optional.
+
 ### PageSpec plugins
 
 It's also possible to write plugins that add new functions to

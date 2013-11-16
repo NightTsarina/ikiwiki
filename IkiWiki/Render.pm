@@ -287,9 +287,22 @@ sub srcdir_check () {
 	
 }
 
-sub find_src_files () {
+# Finds all files in the srcdir, and the underlaydirs.
+# Returns the files, and their corresponding pages.
+#
+# When run in only_underlay mode, adds only the underlay files to
+# the files and pages passed in.
+sub find_src_files (;$$$) {
+	my $only_underlay=shift;
 	my @files;
+	if (defined $_[0]) {
+		@files=@{shift()};
+	}
 	my %pages;
+	if (defined $_[0]) {
+		%pages=%{shift()};
+	}
+
 	eval q{use File::Find};
 	error($@) if $@;
 
@@ -297,6 +310,8 @@ sub find_src_files () {
 	die $@ if $@;
 	my $origdir=getcwd();
 	my $abssrcdir=Cwd::abs_path($config{srcdir});
+	
+	@IkiWiki::underlayfiles=();
 
 	my ($page, $underlay);
 	my $helper=sub {
@@ -323,6 +338,7 @@ sub find_src_files () {
 			if (! -l "$abssrcdir/$f" && ! -e _) {
 				if (! $pages{$page}) {
 					push @files, $f;
+					push @IkiWiki::underlayfiles, $f;
 					$pages{$page}=1;
 				}
 			}
@@ -336,12 +352,14 @@ sub find_src_files () {
 		}
 	};
 
-	chdir($config{srcdir}) || die "chdir $config{srcdir}: $!";
-	find({
-		no_chdir => 1,
-		wanted => $helper,
-	}, '.');
-	chdir($origdir) || die "chdir $origdir: $!";
+	unless ($only_underlay) {
+		chdir($config{srcdir}) || die "chdir $config{srcdir}: $!";
+		find({
+			no_chdir => 1,
+			wanted => $helper,
+		}, '.');
+		chdir($origdir) || die "chdir $origdir: $!";
+	}
 
 	$underlay=1;
 	foreach (@{$config{underlaydirs}}, $config{underlaydir}) {
@@ -355,6 +373,50 @@ sub find_src_files () {
 	};
 
 	return \@files, \%pages;
+}
+
+# Given a hash of files that have changed, and a hash of files that were
+# deleted, should return the same results as find_src_files, with the same
+# sanity checks. But a lot faster!
+sub process_changed_files ($$) {
+	my $changed_raw=shift;
+	my $deleted_raw=shift;
+
+	my @files;
+	my %pages;
+
+	foreach my $file (keys %$changed_raw) {
+		my $page = pagename($file);
+		next if ! exists $pagesources{$page} && file_pruned($file);
+		my ($f) = $file =~ /$config{wiki_file_regexp}/; # untaint
+		if (! defined $f) {
+			warn(sprintf(gettext("skipping bad filename %s"), $file)."\n");
+			next;
+		}
+		push @files, $f;
+		if ($pages{$page}) {
+			debug(sprintf(gettext("%s has multiple possible source pages"), $page));
+		}
+		$pages{$page}=1;
+	}
+
+	# So far, we only have the changed files. Now add in all the old
+	# files that were not changed or deleted, excluding ones that came
+	# from the underlay.
+	my %old_underlay;
+	foreach my $f (@IkiWiki::underlayfiles) {
+		$old_underlay{$f}=1;
+	}
+	foreach my $page (keys %pagesources) {
+		my $f=$pagesources{$page};
+		unless ($old_underlay{$f} || exists $pages{$page} || exists $deleted_raw->{$f}) {
+			$pages{$page}=1;
+			push @files, $f;
+		}
+	}
+
+	# add in the underlay
+	find_src_files(1, \@files, \%pages);
 }
 
 sub find_new_files ($) {
@@ -762,14 +824,32 @@ sub gen_autofile ($$$) {
 	return 1;
 }
 
+sub want_find_changes {
+	$config{only_committed_changes} &&
+	exists $IkiWiki::hooks{rcs}{rcs_find_changes} &&
+	exists $IkiWiki::hooks{rcs}{rcs_get_current_rev}
+}
 
 sub refresh () {
 	srcdir_check();
 	run_hooks(refresh => sub { shift->() });
-	my ($files, $pages)=find_src_files();
-	my ($new, $internal_new)=find_new_files($files);
-	my ($del, $internal_del)=find_del_files($pages);
-	my ($changed, $internal_changed)=find_changed($files);
+	my ($files, $pages, $new, $internal_new, $del, $internal_del, $changed, $internal_changed);
+	if (! $config{rebuild} && want_find_changes() && defined $IkiWiki::lastrev) {
+		my ($changed_raw, $del_raw);
+		($changed_raw, $del_raw, $IkiWiki::lastrev) = $IkiWiki::hooks{rcs}{rcs_find_changes}{call}->($IkiWiki::lastrev);
+		($files, $pages)=process_changed_files($changed_raw, $del_raw);
+	}
+	else {
+		($files, $pages)=find_src_files();
+	}
+	if (want_find_changes()) {
+		if (! defined($IkiWiki::lastrev)) {
+			$IkiWiki::lastrev=$IkiWiki::hooks{rcs}{rcs_get_current_rev}{call}->();
+		}
+	}
+	($new, $internal_new)=find_new_files($files);
+	($del, $internal_del)=find_del_files($pages);
+	($changed, $internal_changed)=find_changed($files);
 	my %existingfiles;
 	run_hooks(needsbuild => sub {
 		my $ret=shift->($changed, [@$del, @$internal_del]);

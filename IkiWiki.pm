@@ -14,7 +14,7 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	%pagestate %wikistate %renderedfiles %oldrenderedfiles
 	%pagesources %delpagesources %destsources %depends %depends_simple
 	@mass_depends %hooks %forcerebuild %loaded_plugins %typedlinks
-	%oldtypedlinks %autofiles};
+	%oldtypedlinks %autofiles @underlayfiles $lastrev};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error htmlpage template template_depends
@@ -131,6 +131,13 @@ sub getsetup () {
 		default => '',
 		example => "Please wait",
 		description => "message to display when overloaded (may contain html)",
+		safe => 1,
+		rebuild => 0,
+	},
+	only_committed_changes => {
+		type => "boolean",
+		default => 0,
+		description => "enable optimization of only refreshing committed changes?",
 		safe => 1,
 		rebuild => 0,
 	},
@@ -1881,6 +1888,8 @@ sub loadindex () {
 	foreach my $page (keys %renderedfiles) {
 		$destsources{$_}=$page foreach @{$renderedfiles{$page}};
 	}
+	$lastrev=$index->{lastrev};
+	@underlayfiles=@{$index->{underlayfiles}} if ref $index->{underlayfiles};
 	return close($in);
 }
 
@@ -1934,6 +1943,9 @@ sub saveindex () {
 		}
 	}
 	
+	$index{lastrev}=$lastrev;
+	$index{underlayfiles}=\@underlayfiles;
+
 	$index{version}="3";
 	my $ret=Storable::nstore_fd(\%index, $out);
 	return if ! defined $ret || ! $ret;
