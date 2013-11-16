@@ -1914,11 +1914,7 @@ sub saveindex () {
 		}
 
 		if (exists $pagestate{$page}) {
-			foreach my $id (@plugins) {
-				foreach my $key (keys %{$pagestate{$page}{$id}}) {
-					$index{page}{$src}{state}{$id}{$key}=$pagestate{$page}{$id}{$key};
-				}
-			}
+			$index{page}{$src}{state}=$pagestate{$page};
 		}
 	}
 
