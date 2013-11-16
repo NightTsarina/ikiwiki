@@ -1781,7 +1781,8 @@ sub enable_commit_hook () {
 
 sub loadindex () {
 	%oldrenderedfiles=%pagectime=();
-	if (! $config{rebuild}) {
+	my $rebuild=$config{rebuild};
+	if (! $rebuild) {
 		%pagesources=%pagemtime=%oldlinks=%links=%depends=
 		%destsources=%renderedfiles=%pagecase=%pagestate=
 		%depends_simple=%typedlinks=%oldtypedlinks=();
@@ -1821,10 +1822,16 @@ sub loadindex () {
 
 	foreach my $src (keys %$pages) {
 		my $d=$pages->{$src};
-		my $page=pagename($src);
+		my $page;
+		if (exists $d->{page} && ! $rebuild) {
+			$page=$d->{page};
+		}
+		else {
+			$page=pagename($src);
+		}
 		$pagectime{$page}=$d->{ctime};
 		$pagesources{$page}=$src;
-		if (! $config{rebuild}) {
+		if (! $rebuild) {
 			$pagemtime{$page}=$d->{mtime};
 			$renderedfiles{$page}=$d->{dest};
 			if (exists $d->{links} && ref $d->{links}) {
@@ -1895,6 +1902,7 @@ sub saveindex () {
 		my $src=$pagesources{$page};
 
 		$index{page}{$src}={
+			page => $page,
 			ctime => $pagectime{$page},
 			mtime => $pagemtime{$page},
 			dest => $renderedfiles{$page},
