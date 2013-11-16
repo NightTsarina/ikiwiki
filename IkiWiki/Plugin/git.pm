@@ -481,7 +481,7 @@ sub rcs_find_changes ($) {
 		$newrev=$ci->{sha1};
 		foreach my $i (@{$ci->{details}}) {
 			my $file=$i->{file};
-			if ($i->{sha1_to} == $nullsha) {
+			if ($i->{sha1_to} eq $nullsha) {
 				delete $changed{$file};
 				$deleted{$file}=1;
 			}
