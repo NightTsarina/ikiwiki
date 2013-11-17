@@ -476,7 +476,7 @@ sub rcs_find_changes ($) {
 	my %changed;
 	my %deleted;
 	my $nullsha = 0 x 40;
-	my $newrev;
+	my $newrev=$oldrev;
 	while (my $ci = parse_diff_tree(\@raw_lines)) {
 		$newrev=$ci->{sha1};
 		foreach my $i (@{$ci->{details}}) {
