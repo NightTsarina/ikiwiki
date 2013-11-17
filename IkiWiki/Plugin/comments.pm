@@ -104,6 +104,9 @@ sub getsetup () {
 sub checkconfig () {
 	$config{comments_commit} = 1
 		unless defined $config{comments_commit};
+	if (! $config{comments_commit}) {
+		$config{only_committed_changes}=0;
+	}
 	$config{comments_pagespec} = ''
 		unless defined $config{comments_pagespec};
 	$config{comments_closed_pagespec} = ''
