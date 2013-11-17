@@ -148,20 +148,22 @@ That is accomplished as follows:
 Be aware that the [[plugins/search]] plugin has to update the search index
 whenever any page is changed. This can slow things down somewhat.
 
-## profiling
+## cgi overload workaround
 
-If you have a repeatable change that ikiwiki takes a long time to build,
-and none of the above help, the next thing to consider is profiling
-ikiwiki. 
+If the ikiwiki.cgi takes a long time to run, it's possible
+that under load, your site will end up with many
+of them running, all waiting on some long-running thing,
+like a site rebuild. This can prevent the web server from doing anything
+else.
 
-The best way to do it is:
+A workaround for this problem is to set `cgi_overload_delay` to 
+a number of seconds. Now if ikiwiki.cgi would block waiting
+for something, it will instead display a Please wait message (configurable
+via `cgi_overload_message`, which can contain arbitrary html),
+and set the page to reload it after the configured number of seconds.
 
-* Install [[!cpan Devel::NYTProf]]
-* `PERL5OPT=-d:NYTProf`
-* `export PER5OPT`
-* Now run ikiwiki as usual, and it will generate a `nytprof.out` file.
-* Run `nytprofhtml` to generate html files.
-* Those can be examined to see what parts of ikiwiki are being slow.
+This takes very little load, as it all happens within compiled C code.
+Note that it is currently limited to GET requests, not POST requests.
 
 ## scaling to large numbers of pages
 
@@ -170,6 +172,12 @@ Finally, let's think about how huge number of pages can affect ikiwiki.
 * Every time it's run, ikiwiki has to scan your `srcdir` to find
   new and changed pages. This is similar in speed to running the `find`
   command. Obviously, more files will make it take longer.
+
+  You can avoid this scanning overhead, if you're using git, by setting
+  `only_committed_changes`. This makes ikiwiki -refresh query git for
+  changed files since the last time, which tends to be a lot faster.
+  However, it only works if all files in your wiki are committed to git
+  (or stored in the [[/plugins/transient]] underlay).
 
 * Also, to see what pages match a [[ikiwiki/PageSpec]] like "blog/*", it has
   to check if every page in the wiki matches. These checks are done quite
@@ -186,3 +194,18 @@ Finally, let's think about how huge number of pages can affect ikiwiki.
 
 If your wiki will have 100 thousand files in it, you might start seeing
 the above contribute to ikiwiki running slowly.
+
+## profiling
+
+If you have a repeatable change that ikiwiki takes a long time to build,
+and none of the above help, the next thing to consider is profiling
+ikiwiki. 
+
+The best way to do it is:
+
+* Install [[!cpan Devel::NYTProf]]
+* `PERL5OPT=-d:NYTProf`
+* `export PER5OPT`
+* Now run ikiwiki as usual, and it will generate a `nytprof.out` file.
+* Run `nytprofhtml` to generate html files.
+* Those can be examined to see what parts of ikiwiki are being slow.
