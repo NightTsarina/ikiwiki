@@ -824,17 +824,14 @@ sub gen_autofile ($$$) {
 	return 1;
 }
 
-sub want_find_changes {
-	$config{only_committed_changes} &&
-	exists $IkiWiki::hooks{rcs}{rcs_find_changes} &&
-	exists $IkiWiki::hooks{rcs}{rcs_get_current_rev}
-}
-
 sub refresh () {
 	srcdir_check();
 	run_hooks(refresh => sub { shift->() });
 	my ($files, $pages, $new, $internal_new, $del, $internal_del, $changed, $internal_changed);
-	if (! $config{rebuild} && want_find_changes() && defined $IkiWiki::lastrev && length $IkiWiki::lastrev) {
+	my $want_find_changes=$config{only_committed_changes} &&
+		exists $IkiWiki::hooks{rcs}{rcs_find_changes} &&
+		exists $IkiWiki::hooks{rcs}{rcs_get_current_rev};
+	if (! $config{rebuild} && $want_find_changes && defined $IkiWiki::lastrev && length $IkiWiki::lastrev) {
 		my ($changed_raw, $del_raw);
 		($changed_raw, $del_raw, $IkiWiki::lastrev) = $IkiWiki::hooks{rcs}{rcs_find_changes}{call}->($IkiWiki::lastrev);
 		($files, $pages)=process_changed_files($changed_raw, $del_raw);
@@ -842,7 +839,7 @@ sub refresh () {
 	else {
 		($files, $pages)=find_src_files();
 	}
-	if (want_find_changes()) {
+	if ($want_find_changes) {
 		if (! defined($IkiWiki::lastrev) || ! length $IkiWiki::lastrev) {
 			$IkiWiki::lastrev=$IkiWiki::hooks{rcs}{rcs_get_current_rev}{call}->();
 		}
