@@ -33,6 +33,13 @@ sub getsetup () {
 			safe => 0, # external program
 			rebuild => 0,
 		},
+		google_search => {
+			type => "booblean",
+			example => 1,
+			description => "use google site search rather than internal xapian index?",
+			safe => 1,
+			rebuild => 0,
+		},
 }
 
 sub checkconfig () {
@@ -74,6 +81,8 @@ my $scrubber;
 my $stemmer;
 sub indexhtml (@) {
 	my %params=@_;
+
+	return if $config{google_search};
 
 	setupfiles();
 
@@ -165,6 +174,8 @@ sub indexhtml (@) {
 }
 
 sub delete (@) {
+	return if $config{google_search};
+
 	my $db=xapiandb();
 	foreach my $page (@_) {
 		my $pageterm=pageterm(pagename($page));
@@ -176,14 +187,20 @@ sub cgi ($) {
 	my $cgi=shift;
 
 	if (defined $cgi->param('P')) {
-		# only works for GET requests
-		chdir("$config{wikistatedir}/xapian") || error("chdir: $!");
-		$ENV{OMEGA_CONFIG_FILE}="./omega.conf";
-		$ENV{CGIURL}=IkiWiki::cgiurl();
-		IkiWiki::loadindex();
-		$ENV{HELPLINK}=htmllink("", "", "ikiwiki/searching",
-			noimageinline => 1, linktext => "Help");
-		exec($config{omega_cgi}) || error("$config{omega_cgi} failed: $!");
+		if ($config{google_search}) {
+			print $cgi->redirect("https://www.google.com/search?sitesearch=$config{cgiurl}&q=".$cgi->param('P'));
+			exit 0;
+		}
+		else {
+			# only works for GET requests
+			chdir("$config{wikistatedir}/xapian") || error("chdir: $!");
+			$ENV{OMEGA_CONFIG_FILE}="./omega.conf";
+			$ENV{CGIURL}=IkiWiki::cgiurl();
+			IkiWiki::loadindex();
+			$ENV{HELPLINK}=htmllink("", "", "ikiwiki/searching",
+				noimageinline => 1, linktext => "Help");
+			exec($config{omega_cgi}) || error("$config{omega_cgi} failed: $!");
+		}
 	}
 }
 
