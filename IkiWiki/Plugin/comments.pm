@@ -35,6 +35,7 @@ sub import {
 	# Load goto to fix up user page links for logged-in commenters
 	IkiWiki::loadplugin("goto");
 	IkiWiki::loadplugin("inline");
+	IkiWiki::loadplugin("transient");
 }
 
 sub getsetup () {
@@ -555,8 +556,8 @@ sub editcomment ($$) {
 		$postcomment=0;
 
 		if (! $ok) {
-			$location=unique_comment_location($page, $content, $config{srcdir}, "._comment_pending");
-			writefile("$location._comment_pending", $config{srcdir}, $content);
+			$location=unique_comment_location($page, $content, $IkiWiki::Plugin::transient::transientdir, "._comment_pending");
+			writefile("$location._comment_pending", $IkiWiki::Plugin::transient::transientdir, $content);
 
 			# Refresh so anything that deals with pending
 			# comments can be updated.
@@ -681,12 +682,17 @@ sub commentmoderation ($$) {
 				}
 
 				my $page=IkiWiki::dirname($f);
-				my $file="$config{srcdir}/$f";
-				my $filedir=$config{srcdir};
+				my $filedir=$IkiWiki::Plugin::transient::transientdir;
+				my $file="$filedir/$f";
 				if (! -e $file) {
 					# old location
-					$file="$config{wikistatedir}/comments_pending/".$f;
-					$filedir="$config{wikistatedir}/comments_pending";
+					$file="$config{srcdir}/$f";
+					$filedir=$config{srcdir};
+					if (! -e $file) {
+						# older location
+						$file="$config{wikistatedir}/comments_pending/".$f;
+						$filedir="$config{wikistatedir}/comments_pending";
+					}
 				}
 
 				if ($action eq 'Accept') {
@@ -800,6 +806,8 @@ sub comments_pending () {
 		chdir($origdir) || die "chdir $origdir: $!";
 	};
 	
+	$find_comments->($IkiWiki::Plugin::transient::transientdir, "._comment_pending");
+	# old location
 	$find_comments->($config{srcdir}, "._comment_pending");
 	# old location
 	$find_comments->("$config{wikistatedir}/comments_pending/",
