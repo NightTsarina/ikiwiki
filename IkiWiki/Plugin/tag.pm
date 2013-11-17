@@ -58,9 +58,6 @@ sub checkconfig () {
 	if (! defined $config{tag_autocreate_commit}) {
 		$config{tag_autocreate_commit} = 1;
 	}
-	if (! $config{tag_autocreate_commit}) {
-		$config{only_committed_changes}=0;
-	}
 }
 
 sub taglink ($) {

@@ -33,9 +33,6 @@ sub checkconfig () {
 	if (! defined $config{autoindex_commit}) {
 		$config{autoindex_commit} = 1;
 	}
-	if (! $config{autoindex_commit}) {
-		$config{only_committed_changes}=0;
-	}
 }
 
 sub genindex ($) {
