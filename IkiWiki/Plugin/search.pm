@@ -188,7 +188,7 @@ sub cgi ($) {
 
 	if (defined $cgi->param('P')) {
 		if ($config{google_search}) {
-			print $cgi->redirect("https://www.google.com/search?sitesearch=$config{cgiurl}&q=".$cgi->param('P'));
+			print $cgi->redirect("https://www.google.com/search?sitesearch=$config{url}&q=".$cgi->param('P'));
 			exit 0;
 		}
 		else {
