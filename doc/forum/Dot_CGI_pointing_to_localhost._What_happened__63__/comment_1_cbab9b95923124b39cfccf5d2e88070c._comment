@@ -1,0 +1,14 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 1"
+ date="2013-11-22T09:03:38Z"
+ content="""
+The CGI automatically builds self-referential URLs based on how you
+accessed it, so if your web host puts it behind a
+[reverse proxy](https://en.wikipedia.org/wiki/Reverse_proxy) or
+something, that might make it try to redirect to localhost?
+
+If that's it, then `$q->url` with `$params{cgiurl}` in
+`IkiWiki/CGI.pm` and `IkiWiki/Plugin/openid.pm` would work around it.
+"""]]
