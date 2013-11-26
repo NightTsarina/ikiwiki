@@ -28,6 +28,8 @@ is standard, but a few special settings are needed:
 * Configure a cgi wrapper as usual, but configure the git wrapper to
   be written to the `post-commit` hook of the git clone, rather than the
   usual `post-update` hook.
+  
+    git_wrapper: /home/user/foo-wiki/.git/post-commit
 
 * By default, ikiwiki pulls and pushes from `origin`. This shouldn't be 
   done on the laptop, because the origin may not be accessible (when the
@@ -36,7 +38,7 @@ is standard, but a few special settings are needed:
 
   Make sure you have ikiwiki 2.11 or better installed, and set:
   
-  	gitorigin_branch => "",
+  	gitorigin_branch: 
 
 * You can optionally enable to the [[plugins/mirrorlist]] plugin,
   and configure it so that each page links to the corresponding page on the
@@ -44,7 +46,22 @@ is standard, but a few special settings are needed:
 
 Now just run `ikiwiki -setup wiki.setup -getctime` and you should be
 good to go. (You only need the slow `-getctime` option the first time you
-run setup.)
+run setup.) If you have taken your `wiki.setup` file from an existing
+wiki, you may need to change certain parameters to adapt to the paths
+on your laptop, a few examples:
+
+    srcdir: /home/user/foo-wiki
+    destdir: /home/user/public_html
+    # optional
+    url: http://foo-wiki.localhost
+    # disable CGI, unless you want to get really funky
+    cgiurl: 
+    cgi_wrapper: 
+    libdir: /home/user/foo-wiki/.ikiwiki
+    ENV:
+        TMPDIR: /home/user/tmp
+    cookiejar:
+        file:
 
 Use standard git commands to handle pulling from and pushing to the server.
 
