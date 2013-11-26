@@ -19,9 +19,6 @@ for setting up ikiwiki with git.
 Next, `git clone` the source (`$REPOSITORY`, not `$SRCDIR`)
 from the server to the laptop.
 
-Now, set up a [[web_server|dot_cgi]] on your laptop, if it doesn't
-already have one.
-
 Now you need to write a setup file for ikiwiki on the laptop. Mostly this
 is standard, but a few special settings are needed:
 
@@ -54,14 +51,22 @@ on your laptop, a few examples:
     destdir: /home/user/public_html
     # optional
     url: http://foo-wiki.localhost
-    # disable CGI, unless you want to get really funky
-    cgiurl: 
-    cgi_wrapper: 
     libdir: /home/user/foo-wiki/.ikiwiki
     ENV:
         TMPDIR: /home/user/tmp
     cookiejar:
         file:
+
+Now, set up a [[web_server|dot_cgi]] on your laptop, if it doesn't
+already have one. You can also skip that step if you want only to
+render the wiki and not allow edition, in which case you'll want the
+following:
+
+    # disable CGI, unless you want to get really funky
+    cgiurl: 
+    cgi_wrapper: 
+
+You can also direct people to the main server for web edition there.
 
 Use standard git commands to handle pulling from and pushing to the server.
 
