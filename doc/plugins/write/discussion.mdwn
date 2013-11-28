@@ -43,38 +43,4 @@ distributed wiki.
 
 ---
 
-Since there's no mailing list, I'll post my request for help here :-)
-
-I would like to use ikiwiki to build a static site which needs some transformations to be made on binary assets. A simple example is to translate a .odp presentation to .pdf using (e.g.) unoconv. If I add a new .odp attachment, or push one into the repo, I want the corresponding .pdf to appear in the generated site. What's the right place to hook in to do this?
-
-I've made an experimental prototype which hooks into needsbuild, builds the pages then and there, and at the same time removes them from the list of pages to be built.
-
-~~~
-sub needsbuild {
-    my $files=shift;
-    my $nfiles=[];
-    foreach my $f (@$files) {
-        if ($f =~ /\.odp$/) {
-            my $g = $f;
-            $g =~ s/\.odp$/\.pdf/;
-            debug("building $f to $g");
-            will_render($f, $g);
-            if (system("unoconv","-f","pdf","-o",IkiWiki::dirname("$config{destdir}/$g"),srcfile($f)) != 0) {
-                error("unoconv: failed to translate $f to $g");
-            }
-        }
-        else {
-            push @$nfiles, $f;
-        }
-    };
-    return $nfiles;
-}
-~~~
-
-It appears to work, but is this the right way to do it, bearing in mind ikiwiki's dependency tracking and the like? And is the usage of will_render() correct?
-
-[[BrianCandler]]
-
----
-
 I would find this page clearer split up into sub-pages. Does anyone agree/disagree? -- [[users/Jon]]
