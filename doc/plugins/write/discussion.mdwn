@@ -43,4 +43,28 @@ distributed wiki.
 
 ---
 
+Since there's no mailing list, I'll post my request for help here :-)
+
+I would like to use ikiwiki to build a static site which needs some transformations to be made on binary assets. A simple example is to translate a .odp presentation to .pdf using (e.g.) unoconv. I'd probably make a plugin with a config which maps extensions to shell commands. But what's the right place to hook in to do this?
+
+I can see that binary assets are normally hardlinked or copied verbatim. The logic from `sub render` in `IkiWiki/Render.pm` is:
+
+* If the private hash $rendered{$file} is already set, skip
+* If the extension is known to pagetype(), i.e. it has been registered for the htmlize hook, send content through the full cycle of `genpage(htmlize(linkify(preprocess(filter(readfile)))))`
+* ...except for extensions which start with underscore, in which case the processing is aborted before the write
+* Any file whose extension is unknown to pagetype() is either hardlinked or copied directly to the target directory
+
+Options I can see are:
+
+* Register .odp as a htmlize extension, use the scan hook(), inside there write out the file and alter the page name so that it has an underscore (xxx.odp -> xxx._odp)
+* Use the scan() hook, write out the file, directly manipulate the private %rendered hash to stop `sub render` handling it
+* use needsbuild to build the page as a side effect and at the same time remove it from the list of pages to be built
+* other way??
+
+It's not clear to me which of these is the right way to go, taking into account all the existing logic for rebuilding pages on demand. (For example: if I git add and push a new .odp to the repository, I want the .pdf to be generated automatically in the output site through the post-commit hook)
+
+[[BrianCandler]]
+
+---
+
 I would find this page clearer split up into sub-pages. Does anyone agree/disagree? -- [[users/Jon]]
