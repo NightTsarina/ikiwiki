@@ -1,0 +1,65 @@
+For some reason, on a wiki hosted locally using [ikiwiki-hosting](http://ikiwiki-hosting.branchable.com), web edits do not get committed and pushed to the central repository anymore.
+
+For example, I just did an edit on the web interface, which went on without error, but then the modified files are not committed:
+
+[[!format txt """
+o-cats@marcos:~/source$ git status
+# On branch master
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#       modified:   2014/summer.mdwn
+#
+no changes added to commit (use "git add" and/or "git commit -a")
+"""]]
+
+The files and the .cgi are owned by the right user:
+
+[[!format txt """
+o-cats@marcos:~/source$ ls -al 2014/summer.mdwn
+-rw-r--r-- 1 o-cats o-cats 2812 Nov 28 23:35 2014/summer.mdwn
+o-cats@marcos:~/source$ ls -al  /var/www/o-cats/ikiwiki.cgi
+-rwxr-xr-x 1 o-cats o-cats 15596 Oct  4 12:16 /var/www/o-cats/ikiwiki.cgi
+"""]]
+
+The virtual host is configured to run as the right user:
+
+[[!format txt """
+<VirtualHost *:80>
+        ServerAdmin root@localhost
+        ServerName foo.example.com
+
+        SuexecUserGroup o-cats o-cats
+
+        UserDir disabled
+
+        DocumentRoot /home/o-cats/public_html
+        <Directory />
+                DirectoryIndex index.html index
+                AllowOverride None
+        </Directory>
+        <Directory /home/o-cats/public_html>
+                Options Indexes MultiViews
+                AllowOverride None
+                Order allow,deny
+                allow from all
+        </Directory>
+        <Directory /var/www>
+                Options ExecCGI
+                AllowOverride None
+                Order allow,deny
+                allow from all
+        </Directory>
+        ScriptAlias /ikiwiki.cgi /var/www/o-cats/ikiwiki.cgi
+
+        ErrorLog /var/log/ikiwiki-hosting/o-cats/error.log
+        LogLevel warn
+        CustomLog /var/log/ikiwiki-hosting/o-cats/access.log combined
+
+
+        ErrorDocument 404 "/ikiwiki.cgi"
+</VirtualHost>
+"""]]
+
+What's going on all of a sudden? This is Debian wheezy. --[[anarcat]]
