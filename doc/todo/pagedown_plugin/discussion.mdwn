@@ -126,7 +126,20 @@ Given all the above, what about upgrading this plugin to use pagedown instead of
                 }
         }
 """]]
->>      ideally, we would show the edit box next to the page preview...
+>>      ideally, we would show the edit box next to the page preview... And there's a way to do that too! But it requires some more CSS hackery, like [this](http://css-tricks.com/scrollfollow-sidebar/), for example:
+>>
+>>     #wmd-preview {
+>>       position: relative;
+>>       margin: 15px auto;
+>>       float: left;
+>>       width: 50%;
+>>     }
+>>     form {
+>>       position: fixed;
+>>       margin-left: 50%;
+>>     }
+>>
+>> But this is getting a little crazy and I need to sleep now.
 >>
 >> [[!template id=gitbranch branch=anarcat/pagedown author="[[anarcat]]"]]
 >>
