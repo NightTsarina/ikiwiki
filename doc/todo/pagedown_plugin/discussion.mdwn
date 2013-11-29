@@ -57,3 +57,40 @@ Given all the above, what about upgrading this plugin to use pagedown instead of
 > It does not, however, have a markdown to html converter -- for 
 > previewing it has to talk to the server with AJAX.
 > --[[Joey]]
+
+
+>> Showdown has a pretty explicit [license.txt file](https://github.com/coreyti/showdown/blob/master/license.txt)
+>> and it basically looks like a BSD license. That license.txt file was imported into 
+>> github directly from the upstream showdown source, so it seems credible. That zip file
+>> is still available [on archive.org](http://wayback.archive.org/web/20100612163302/http://attacklab.net/showdown/showdown-v0.9.zip),
+>> and does mention a BSD copyright.
+>>
+>> So Showdown itself is clean: it's free. Nowhere does it say it derives from WMD, or
+>> if it does, it doesn't matter *because* it was made by the same author **and then** 
+>> released under that free license. But even then, it does *not* mention being a
+>> derivative of WMD.
+>> 
+>> I agree the license behind WMD is murky. One the one hand, the [google code page](https://code.google.com/p/wmd/)
+>> mentions the code will be relicensed under MIT but "for now" we can "use it freely":
+>> 
+>> > *I'm refactoring the code, and will be releasing WMD under the MIT license soon. For
+>> now you can download the most recent release (wmd-1.0.1.zip) and use it freely.*
+>>
+>> That zip file is again offline, but it's also [on archive.org](http://web.archive.org/web/20101226145228/http://wmd-editor.com/downloads/wmd-1.0.1.zip).
+>> Things get a little more murky there: the file doesn't actually mention any copyright 
+>> statement, and the code is actually obfuscated, something that is mentionned on the aforementionned
+>> Stack Exchange thread. The [terms and conditions of WMD](http://web.archive.org/web/20100323043113/http://wmd-editor.com/terms)
+>> are pretty hostile however:
+>>
+>>> *All rights reserved. You may not duplicate, copy, or reuse any portion of the HTML/CSS, JavaScript, or visual design elements or concepts without express written permission from AttackLab.*
+>>
+>> But one could argue they apply only to WMD, and *not* showdown, which has been
+>> explicitely published under a different license. And maybe that was the whole 
+>> point here: the stack exchange people were trying to negociate having the 
+>> clear and free version of WMD for their own use, maybe showdown is actually
+>> what came out of this and what allows Stack exchange to do their thing...
+>> 
+>> And besides: the point here is that we *can't actually use WMD safely*, but
+>> we **can use pagedown safely!**.
+>> 
+>> So let's work on merging that pretty branch already shall we? :) --[[anarcat]]
