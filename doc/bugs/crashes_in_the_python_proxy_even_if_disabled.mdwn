@@ -39,3 +39,14 @@ error: ikiwiki failed
 """]]
 
 \xe9 is "é" in latin1, it may be the last letter of my name. no clue how it got there. suspecting this is related to the fix in [[bugs/proxy.py_utf8_troubles]], since this was not happening before the upgrade from squeeze. --[[anarcat]]
+
+> Ooops... turns out the plugin *was* enabled, through the `rst` plugin. After disabling it, the crash is gone, but one page isn't rendered anymore:
+> 
+>     removing art/histoireinternet/index.html, no longer built by art/histoireinternet.rst
+> 
+> Here is that source file: http://anarc.at/art/histoireinternet.rst - and it seems encoded properly:
+>
+>     $ curl -s http://anarc.at/art/histoireinternet.rst | iconv -f utf8 -t latin1 | iconv -f latin1 -t utf8 > /dev/null
+>     $
+> 
+> So I am not sure what is going on here... --[[anarcat]]
