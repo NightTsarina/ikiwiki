@@ -50,3 +50,12 @@ error: ikiwiki failed
 >     $
 > 
 > So I am not sure what is going on here... --[[anarcat]]
+
+>> Python is decoding what it receives from IkiWiki using the default `ascii`
+>> codec. To match IkiWiki's "all source text is UTF-8" assumption, the
+>> Python proxy should explicitly decode incoming text from bytes
+>> (`str`) to `unicode` using the `utf8` codec instead.
+>>
+>> Python's conservative default is "`ascii`, regardless of locale" -
+>> this minimizes the chance of silently incorrect decoding, but
+>> unfortunately also maximizes the chance of crashing. --[[smcv]]
