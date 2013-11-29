@@ -105,10 +105,29 @@ Given all the above, what about upgrading this plugin to use pagedown instead of
 >>  1. two previews are showed (the showdown one and the regular ikiwiki one),
 >>     which can be confusing, but is still necessary because the showdown one 
 >>     doesn't parse ikiwiki directives. 
->>  2. the wiki needs to be rebuilt when the plugin is activated, which is not
->>     done by default
+>>  2. the wiki needs to be rebuilt when the plugin is first activated for the
+>>     stylesheets to regenerate. new wikis are not affected, and this can be
+>>     deployed massively on farms without user intervention.
 >>  3. on large pages, the edit screen isn't in the first screen, so it's not 
 >>     obvious we're editing the page, which is also a little confusing - we 
->>     would need an anchor in there...
+>>     would need an anchor in there... Update: a simple patch fixes that... 
+>>     but in a rather crude way:
 >>
->> So let's work on merging that pretty branch already shall we? :) --[[anarcat]]
+>>  [[!format diff """
+--- a/IkiWiki/Render.pm
++++ b/IkiWiki/Render.pm
+@@ -87,7 +87,7 @@ sub genpage ($$) {
+        my $actions=0;
+        if (length $config{cgiurl}) {
+                if (IkiWiki->can("cgi_editpage")) {
+-                       $template->param(editurl => cgiurl(do => "edit", page => $page));
++                       $template->param(editurl => cgiurl(do => "edit", page => $page) . '#editcontent');
+                        $actions++;
+                }
+        }
+"""]]
+>>      ideally, we would show the edit box next to the page preview...
+>>
+>> [[!template id=gitbranch branch=anarcat/pagedown author="[[anarcat]]"]]
+>>
+>> Anyways, let's work on merging that pretty branch already shall we? :) --[[anarcat]]
