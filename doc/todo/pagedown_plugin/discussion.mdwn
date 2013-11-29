@@ -95,4 +95,17 @@ Given all the above, what about upgrading this plugin to use pagedown instead of
 >> And besides: the point here is that we *can't actually use WMD safely*, but
 >> we **can use pagedown safely!**.
 >> 
+>> I tried the plugin: it works, and it works well. It's also fairly trivial to
+>> install the upstream showdown library, which is not shipped with the plugin
+>> (which alleviates all possible copyright problems). You can take test the 
+>> plugin at <http://testwiki.anarc.at/>
+>> 
+>> There are only two issues I could find during testing:
+>> 
+>>  1. two previews are showed (the showdown one and the regular ikiwiki one),
+>>     which can be confusing, but is still necessary because the showdown one 
+>>     doesn't parse ikiwiki directives. 
+>>  2. the wiki needs to be rebuilt when the plugin is activated, which is not
+>>     done by default
+>>
 >> So let's work on merging that pretty branch already shall we? :) --[[anarcat]]
