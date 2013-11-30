@@ -159,11 +159,11 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
         xml = _xmlrpc_client.dumps(sum(kwargs.items(), args), cmd)
         self._debug_fn(
             "calling ikiwiki procedure `{0}': [{1}]".format(cmd, xml))
-        _IkiWikiExtPluginXMLRPCHandler._write(out_fd, xml)
+        _IkiWikiExtPluginXMLRPCHandler._write(out_fd, xml.encode('utf8'))
 
         self._debug_fn('reading response from ikiwiki...')
 
-        xml = _IkiWikiExtPluginXMLRPCHandler._read(in_fd)
+        xml = _IkiWikiExtPluginXMLRPCHandler._read(in_fd).decode('utf8')
         self._debug_fn(
             'read response to procedure {0} from ikiwiki: [{1}]'.format(
                 cmd, xml))
@@ -250,7 +250,7 @@ class IkiWikiProcedureProxy(object):
 #            kwargs = dict([args[i:i+2] for i in xrange(1, len(args), 2)])
             ret = function(self, *args)
             self._debug_fn(
-                    "{0} hook `{1}' returned: [{2}]".format(type, name, ret))
+                    "{0} hook `{1}' returned: [{2}]".format(type, name, repr(ret)))
             if ret == IkiWikiProcedureProxy._IKIWIKI_NIL_SENTINEL:
                 raise InvalidReturnValue(
                     'hook functions are not allowed to return {0}'.format(
