@@ -507,7 +507,7 @@ sub include_javascript ($) {
 		}
 	}
 	if ($loader) {
-		return embed_map_code($page) . "<script type=\"text/javascript\" charset=\"utf-8\">$loader</script>";
+		return embed_map_code($page) . "<script type=\"text/javascript\">$loader</script>";
 	}
 	else {
         	return '';
@@ -534,7 +534,7 @@ sub cgi($) {
 	print "<html><body>";
 	print "<div id=\"mapdiv-$map\"></div>";
 	print embed_map_code();
-	print "<script type=\"text/javascript\" charset=\"utf-8\">";
+	print "<script type=\"text/javascript\">";
 	print map_setup_code($map, $map,
 		lat => "urlParams['lat']",
 		lon => "urlParams['lon']",
