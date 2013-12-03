@@ -16,3 +16,7 @@ This is ikiwiki 3.20130904.1~bpo70+1 on Debian wheezy, with some patches applied
  * [[bugs/crashes_in_the_python_proxy_even_if_disabled]]
 
 Weird... --[[anarcat]]
+
+> Well, the pagespec seems to be matching correctly, given that it thinks the mime type is application/octet-stream.
+> If File::MimeInfo::Magic is installed, ikiwiki uses it. If not, or if it fails to find any mime type, it falls back to using `file -bi`,
+> and if that fails, it falls back to a default of application/octet-stream. --[[Joey]]
