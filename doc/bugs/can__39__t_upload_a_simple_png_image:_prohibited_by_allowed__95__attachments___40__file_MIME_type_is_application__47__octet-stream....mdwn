@@ -6,7 +6,7 @@ When uploading a PNG file on the wiki, through the webinterface or anonymous git
 
     virusfree() and (mimetype(image/*) or mimetype(text/*) or mimetype(application/x-gzip) or mimetype(application/vnd.oasis.opendocument.*)) and maxsize(2048kb)
 
-Maybe a bug in the [[filecheck]] plugin?
+Maybe a bug in the [[plugins/filecheck]] plugin?
 
 This is ikiwiki 3.20130904.1~bpo70+1 on Debian wheezy, with some patches applied, namely:
 
@@ -20,3 +20,38 @@ Weird... --[[anarcat]]
 > Well, the pagespec seems to be matching correctly, given that it thinks the mime type is application/octet-stream.
 > If File::MimeInfo::Magic is installed, ikiwiki uses it. If not, or if it fails to find any mime type, it falls back to using `file -bi`,
 > and if that fails, it falls back to a default of application/octet-stream. --[[Joey]]
+
+> > File::MimeInfo::Magic is installed:
+> > 
+> >     ii  libfile-mimeinfo-perl    0.16-1                 all           Perl module to determine file types
+> > 
+> > it turns out there's (still) a problem with the way we use the module. This test code:
+> > 
+> >     #!/usr/bin/perl -w
+> >     my $file='icon.png';
+> >     use File::MimeInfo::Magic;
+> >     print "mime::magic: " . File::MimeInfo::Magic::magic($file) . "\n";
+> >     print "mime::default: " . File::MimeInfo::Magic::default($file) . "\n";
+> > 
+> > ...returns:
+> > 
+> >     mime::magic: image/png
+> >     mime::default: application/octet-stream
+> > 
+> > `file -ib` returns the right thing (`image/png; charset=binary`).
+> > 
+> > So it *should* work: it seems that the `::default` code kicks in even if the `::magic` one actually works.
+> > 
+> > I have traced down the problem to this block of code:
+> > 
+> >         if (! defined $mimetype || $mimetype !~s /;.*//) {
+> >                 # Fall back to default value.
+> >                 $mimetype=File::MimeInfo::Magic::default($file)
+> > 
+> > If you take a look deeply, this will fire up the default if there's no semicolon in the mimetype, which is expected for `file` calls, but not for `::magic()` calls. So `::magic()` works, but then the `::default` kicks in anyways.
+> >
+> > [[!template  id=gitbranch branch=anarcat/dev/magic-fails author="[[anarcat]]"]]
+> > 
+> > I have a stupid [[patch]] in my git repo which just appends a semicolon to the `::magic()` output, but maybe this should be done in another way...
+> > 
+> > --[[anarcat]]
