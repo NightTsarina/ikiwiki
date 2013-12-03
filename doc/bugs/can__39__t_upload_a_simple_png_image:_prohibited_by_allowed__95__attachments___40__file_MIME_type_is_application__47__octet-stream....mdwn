@@ -1,0 +1,18 @@
+When uploading a PNG file on the wiki, through the webinterface or anonymous git, i get:
+
+    icon.png		prohibited by allowed_attachments (file MIME type is application/octet-stream, not application/vnd.oasis.opendocument.*)
+
+`attachment_allowed_attachments` is set to:
+
+    virusfree() and (mimetype(image/*) or mimetype(text/*) or mimetype(application/x-gzip) or mimetype(application/vnd.oasis.opendocument.*)) and maxsize(2048kb)
+
+Maybe a bug in the [[filecheck]] plugin?
+
+This is ikiwiki 3.20130904.1~bpo70+1 on Debian wheezy, with some patches applied, namely:
+
+ * [[todo/option_to_send_only_the_diff_in_notifyemail]]
+ * [[bugs/syslog_fails_with_non-ASCII_wikinames]]
+ * [[bugs/notifyemail_fails_with_some_openid_providers]]
+ * [[bugs/crashes_in_the_python_proxy_even_if_disabled]]
+
+Weird... --[[anarcat]]
