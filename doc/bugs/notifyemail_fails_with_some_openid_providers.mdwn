@@ -1,3 +1,5 @@
+[[!template  id=gitbranch branch=anarcat/dev/openid_email author="[[anarcat]]"]]
+
 This bug affects [[plugins/notifyemail]] but is probably caused more by [[plugins/openid]]. When using OpenID to login to a site, no email notification is sent to the user (pagespec set to `*`) when a modification is done on the wiki. I believe this is because the OpenID plugin assumes the email comes from the OpenID provider - which is not necessarily going to succeed if, for privacy reason, the OpenID provider refuses to transmit the email to ikiwiki.
 
 In the OpenID plugin, the email is actually fetched when authenticating and is stored in the session, like so:
@@ -56,9 +58,7 @@ sub formbuilder_setup (@) {
 
 I believe this could be worked around simply by re-enabling that field and allowing the user to specify an email there by hand, making a note that the OpenID provider's email is used by default.
 
-[[!template  id=gitbranch branch=anarcat/openid_email author="[[anarcat]]"]]
-
-The dumbest [[!taglink patch]] that actually fixes the problem for me is in the branch mentionned here.
+The dumbest [[!taglink patch]] that actually fixes the problem for me is in the branch mentionned above.
 
 It would probably be better to add a comment on the field as indicated above, but it's a good proof of concept.
 

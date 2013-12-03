@@ -1,0 +1,67 @@
+[[!template  id=gitbranch branch=anarcat/dev/proxy-utf8-fail author="[[anarcat]]"]]
+
+ikiwiki 3.20130904.1~bpo70+1
+
+rebuilding the whole wiki:
+
+[[!format txt """
+anarcat@marcos:ikiwiki*$ sudo ikisite changesetup wiki.anarc.at --rebuild
+Subroutine import redefined at /usr/share/perl5/IkiWiki/Plugin/translinks.pm line 19.
+Subroutine getsetup redefined at /usr/share/perl5/IkiWiki/Plugin/translinks.pm line 29.
+Subroutine pagetemplate redefined at /usr/share/perl5/IkiWiki/Plugin/translinks.pm line 38.
+Subroutine otherlanguagesloop redefined at /usr/share/perl5/IkiWiki/Plugin/translinks.pm line 51.
+Use of uninitialized value $body in split at /usr/share/perl5/Text/MultiMarkdown.pm line 1131.
+uncaught exception: 'ascii' codec can't encode character u'\xe9' in position 289: ordinal not in range(128)
+Traceback (most recent call last):
+  File "/usr/lib/ikiwiki/plugins/proxy.py", line 309, in run
+    self._in_fd, self._out_fd)
+  File "/usr/lib/ikiwiki/plugins/proxy.py", line 192, in handle_rpc
+    ret = self._dispatcher.dispatch(method, params)
+  File "/usr/lib/ikiwiki/plugins/proxy.py", line 84, in dispatch
+    return self._dispatch(method, params)
+  File "/usr/lib/python2.7/SimpleXMLRPCServer.py", line 420, in _dispatch
+    return func(*params)
+  File "/usr/lib/ikiwiki/plugins/proxy.py", line 253, in hook_proxy
+    "{0} hook `{1}' returned: [{2}]".format(type, name, ret))
+UnicodeEncodeError: 'ascii' codec can't encode character u'\xe9' in position 289: ordinal not in range(128)
+
+Traceback (most recent call last):
+  File "/usr/lib/ikiwiki/plugins/rst", line 86, in <module>
+    proxy.run()
+  File "/usr/lib/ikiwiki/plugins/proxy.py", line 317, in run
+    self.error('uncaught exception: {0}\n{1}'.format(e, tb))
+  File "/usr/lib/ikiwiki/plugins/proxy.py", line 298, in error
+    self.rpc('error', msg)
+  File "/usr/lib/ikiwiki/plugins/proxy.py", line 233, in rpc
+    *args, **kwargs)
+  File "/usr/lib/ikiwiki/plugins/proxy.py", line 173, in send_rpc
+    raise GoingDown()
+proxy.py.GoingDown
+error: ikiwiki failed
+"""]]
+
+\xe9 is "é" in latin1, it may be the last letter of my name. no clue how it got there. suspecting this is related to the fix in [[bugs/proxy.py_utf8_troubles]], since this was not happening before the upgrade from squeeze. --[[anarcat]]
+
+> Ooops... turns out the plugin *was* enabled, through the `rst` plugin. After disabling it, the crash is gone, but one page isn't rendered anymore:
+> 
+>     removing art/histoireinternet/index.html, no longer built by art/histoireinternet.rst
+> 
+> Here is that source file: http://anarc.at/art/histoireinternet.rst - and it seems encoded properly:
+>
+>     $ curl -s http://anarc.at/art/histoireinternet.rst | iconv -f utf8 -t latin1 | iconv -f latin1 -t utf8 > /dev/null
+>     $
+> 
+> So I am not sure what is going on here... --[[anarcat]]
+
+>> Python is decoding what it receives from IkiWiki using the default `ascii`
+>> codec. To match IkiWiki's "all source text is UTF-8" assumption, the
+>> Python proxy should explicitly decode incoming text from bytes
+>> (`str`) to `unicode` using the `utf8` codec instead.
+>>
+>> Python's conservative default is "`ascii`, regardless of locale" -
+>> this minimizes the chance of silently incorrect decoding, but
+>> unfortunately also maximizes the chance of crashing. --[[smcv]]
+
+> > > Right, I know that. The trick is to find the rabbit hole. :P
+> > > 
+> > > And I found it. With my dev/proxy-utf8-fail, this doesn't fail anymore. Yay, a [[patch]] ready for commit! --[[anarcat]]

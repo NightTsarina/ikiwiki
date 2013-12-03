@@ -1,0 +1,48 @@
+Put something like this in the setup file:
+
+~~~
+conversion:
+  - from: odt
+    to: pdf
+    command: [unoconv, -f, pdf, -o, $OUTPUTDIR, $INPUTFILE]
+  - from: ditaa
+    to: png
+    command: [ditaa, $INPUTFILE, $OUTPUTFILE, -s, 0.7]
+~~~
+
+However `Dumper($config{conversion})` shows:
+
+~~~
+$VAR1 = [
+          'HASH(0x164e1a0)',
+          'HASH(0x164e3c8)'
+        ];
+~~~
+
+I think it is getting mangled in `sub merge` in `IkiWiki/Setup.pm` and its calls to `possibly_foolish_untaint`
+
+Workaround: force the array values to be strings, and then re-parse them using YAML::XS::Load:
+
+~~~
+conversion:
+  - |
+    from: [odt, odp]
+    to: pdf
+    command: [unoconv, -f, pdf, -o, $OUTPUTDIR, $INPUTFILE]
+  - |
+    from: ditaa
+    to: png
+    command: [ditaa, $INPUTFILE, $OUTPUTFILE, -s, 0.7]
+
+...
+
+sub checkconfig {
+    if (!defined $config{conversion} || ref $config{conversion} ne "ARRAY") {
+        error(sprintf(gettext("Must specify '%s' and it must be a list"), "conversion"));
+    }
+    for (my $i=0; $i < @{$config{conversion}}; $i++) {
+      $config{conversion}->[$i] = YAML::XS::Load($config{conversion}->[$i]) if
+          ref $config{conversion}->[$i] ne 'HASH';
+    }
+}
+~~~
