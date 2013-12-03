@@ -187,5 +187,6 @@ WriteMakefile(
 		'HTML::Parser'		=> "0",
 		'URI'			=> "0",
 		'Data::Dumper'		=> "2.11",
+		'YAML::XS'		=> "0",
 	},
 );
