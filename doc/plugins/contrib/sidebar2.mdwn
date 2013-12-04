@@ -31,6 +31,13 @@ etc.
 The default, which gives the behaviour of the sidebar plugin, is
 `global_sidebars => ["sidebar", "sidebar", "*"]`.
 
+*Remark: It would be more sensible to have a list of lists, as the following example, but I did not manage to do so because of [[this bug|bugs/structured_config_data_is_mangled]].*
+
+    global_sidebars => [
+      ["var1", "page1", "pagespec1"],
+      ["var2", "page2", "pagespec2"],
+      ]
+
 # Improvements over sidebar plugin
 
 * You can add several "sidebars" to your wiki. For example, to have a sidebar, a submeno that appear only in pages documentations, and a footer, your `global_sidebars` would be:
