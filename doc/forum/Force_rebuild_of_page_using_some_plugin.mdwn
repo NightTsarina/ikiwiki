@@ -1,0 +1,5 @@
+I'm writing a plugin and I'd like to force all the pages that include a directive which my plugin defines to be rebuilt when the wiki is refreshed (whether or not those pages have changed).
+
+I've found the "needsbuild" hook which I could use to get pages to be rebuilt. But how can I work out which pages include my directive? And will needsbuild get called for every occurrence of my directive? I only need to rebuild those pages once (obviously). When the needsbuild hook gets called, is it because the directive match its 'id' hook() parameter has been encountered? And does needsbuild know what page is being processed?
+
+Or is there some other way of doing this?
