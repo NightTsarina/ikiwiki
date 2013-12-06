@@ -46,3 +46,16 @@ sub checkconfig {
     }
 }
 ~~~
+
+> `getsetup` defines config options to be one of: boolean, string, integer,
+> pagespec, "internal" (non-user-visible string), ref to an array of one of
+> those scalar types, or ref to a hash { string => one of those scalar types }.
+> IkiWiki::Setup also appears to support regexps (qr//), although that's
+> not documented (presumably they're treated the same as strings).
+> 
+> Supporting arbitrary arrays/hashes as values would require some way to
+> untaint the values recursively.
+>
+> Complex config data also can't be used with the [[plugins/websetup]]
+> plugin, which currently supports everything that IkiWiki::Setup does,
+> except for hashes. --[[smcv]]
