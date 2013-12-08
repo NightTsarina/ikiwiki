@@ -29,7 +29,7 @@ The crucial steps are:
 
         git config annex.largefiles 'largerthan=100kb and not (include=*.mdwn or include=*.txt)'
 
- 2. make the bare repository (the remote of `$srcdir`) ignored by git-annex:
+ 4. make the bare repository (the remote of `$srcdir`) ignored by git-annex:
 
         cd $srcdir
         git config remote.origin.annex-ignore true
@@ -37,22 +37,53 @@ The crucial steps are:
 
     (!) This needs to be done on *ANY* clone of the repository, which is annoying, but it's important because we don't want to see git-annex stuff in the bare repo. (why?)
 
+ 5. deploy the following crappy plugin to make commits work again and make sure the right files are added in git-annex:
+
+[[!format perl """
+#!/usr/bin/perl
+package IkiWiki::Plugin::gitannex;
+
+use warnings;
+use strict;
+use IkiWiki 3.00;
+
+sub import {
+        hook(type => "getsetup", id => "gitannex", call => \&getsetup);
+	hook(type => "savestate", id => "gitannex", call => \&rcs_commit);
+        # we need to handle all rcs commands maybe?
+}
+
+sub getsetup () {
+        return
+                plugin => {
+                        safe => 1, # rcs plugin
+                        rebuild => undef,
+                        section => "misc",
+                },
+}
+
+# XXX: we want to copy or reuse safe_git
+
+sub rcs_commit (@) {
+    chdir $config{srcdir};
+    `git annex add --auto`;
+    `git annex sync`;
+}
+
+sub rcs_commit_staged (@) {
+    rcs_commit($@);
+}
+
+1
+"""]]
 This assumes you know what `srcdir`, `repository` and so on mean, if you forgot (like me), see this reference: [[rcs/git/]].
+
 
 What doesn't work
 -----------------
 
-With a recent version of git-annex: mostly everything. :) Since git-annex in `direct` mode now [sets the repository as bare](http://git-annex.branchable.com/devblog/day_48__direct_mode_guard_design/), *nothing* gets committed at all.
-
-What would need to happen in ikiwiki would be to detect that `$srcdir` is running git-annex in direct mode and then do some magic. Here is a tentative incantation in shell:
-
-    if [ $(git config core.bare) == 'true' ] &&
-       [ $(git config annex.direct) == 'true' ]; then
-        git annex add --auto
-        git -c core.bare=false commit -m'testing git-annex with ikiwiki'
-    fi
-
-This probably needs to happen around line 571 of `git.pm` or, more likely, in a new `git-annex` plugin.
+ * the above plugin is kind of flaky and ugly.
+ * it's not an RCS plugin, but probably should be, replacing the git plugin, because really: git doesn't work at all anymore at this point
 
 What remains to be clarified
 ----------------------------
