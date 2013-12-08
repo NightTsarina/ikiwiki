@@ -19,25 +19,43 @@ The crucial steps are:
 
  1. setup a git annex remote in `$srcdir`
 
-    cd $srcdir
-    git annex init
+ 2. configure direct mode because ikiwiki ignores symlinks for [[security]] reasons:
+
+        cd $srcdir
+        git annex init
+        git annex direct
+
+ 3. configure files to be considered by git-annex (those will be not committed into git directly):
+
+        git config annex.largefiles 'largerthan=100kb and not (include=*.mdwn or include=*.txt)'
 
  2. make the bare repository (the remote of `$srcdir`) ignored by git-annex:
 
-    cd $srcdir
-    git config remote.origin.annex-ignore true
-    git config remote.origin.annex-sync false
+        cd $srcdir
+        git config remote.origin.annex-ignore true
+        git config remote.origin.annex-sync false
 
     (!) This needs to be done on *ANY* clone of the repository, which is annoying, but it's important because we don't want to see git-annex stuff in the bare repo. (why?)
 
- 3. enable direct mode on `$srcdir` because ikiwiki ignores symlinks for [[security]] reasons:
-
-    cd $srcdir
-    git annex direct
-
 This assumes you know what `srcdir`, `repository` and so on mean, if you forgot (like me), see this reference: [[rcs/git/]].
 
-What remains to be clarified:
+What doesn't work
+-----------------
+
+With a recent version of git-annex: mostly everything. :) Since git-annex in `direct` mode now [sets the repository as bare](http://git-annex.branchable.com/devblog/day_48__direct_mode_guard_design/), *nothing* gets committed at all.
+
+What would need to happen in ikiwiki would be to detect that `$srcdir` is running git-annex in direct mode and then do some magic. Here is a tentative incantation in shell:
+
+    if [ $(git config core.bare) == 'true' ] &&
+       [ $(git config annex.direct) == 'true' ]; then
+        git annex add --auto
+        git -c core.bare=false commit -m'testing git-annex with ikiwiki'
+    fi
+
+This probably needs to happen around line 571 of `git.pm` or, more likely, in a new `git-annex` plugin.
+
+What remains to be clarified
+----------------------------
 
  * how do files get pushed to the `$srcdir`? Only through the web interface?
  * why do we ignore the bare repository?
