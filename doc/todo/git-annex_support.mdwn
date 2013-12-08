@@ -9,3 +9,37 @@ Another solution would be to make ikiwiki a remote itself and allow users to pus
 > direct mode, but I'm not sure that's really desirable here).
 > I'd like to make symlinks possible without compromising security,
 > but it'll be necessary to be quite careful. --[[smcv]]
+
+First implementation
+====================
+
+So as the [[discussion]] shows, it seems it's perfectly possible to actually do this! There's this [gallery site](http://stockholm.kalleswork.net) which uses the [[plugins/contrib/album]] plugin and git-annex to manage its files.
+
+The crucial steps are:
+
+ 1. setup a git annex remote in `$srcdir`
+
+    cd $srcdir
+    git annex init
+
+ 2. make the bare repository (the remote of `$srcdir`) ignored by git-annex:
+
+    cd $srcdir
+    git config remote.origin.annex-ignore true
+    git config remote.origin.annex-sync false
+
+    (!) This needs to be done on *ANY* clone of the repository, which is annoying, but it's important because we don't want to see git-annex stuff in the bare repo. (why?)
+
+ 3. enable direct mode on `$srcdir` because ikiwiki ignores symlinks for [[security]] reasons:
+
+    cd $srcdir
+    git annex direct
+
+This assumes you know what `srcdir`, `repository` and so on mean, if you forgot (like me), see this reference: [[rcs/git/]].
+
+What remains to be clarified:
+
+ * how do files get pushed to the `$srcdir`? Only through the web interface?
+ * why do we ignore the bare repository?
+
+See the [[discussion]] for a followup on that. --[[anarcat]]
