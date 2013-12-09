@@ -1,0 +1,62 @@
+[[!template id=plugin name=taskreport author="[[Louis|spalax]]"]]
+
+# Taskreport
+
+The taskreport plugin provides the `task` directive (see below), displaying
+[taskwarrior](http://taskwarrior.org) data as a table.
+
+## Plugin options
+
+* `task_bin`: path to the task binary. Default is "task".
+* `task_common`: arguments to all task calls. Can be used, for example, to set
+  a non-default taskrc location.
+* `task_dir`: directory where to find task data files, if non-default. This
+  directory must be handled by IkiWiki. Otherwise, use the `task_common`
+  argument. This argument must be relative to the root of the wiki sources.
+* `task_tmpdir`: directory where to copy task data files before calling task.
+  It can be used to circumvent [[lack of `--read-only`
+  option|http://taskwarrior.org/issues/424]]. Otherwise, those data files may
+  be modified by the task call. Setting this directory ensure that they are
+  not. This argument should be absolute (I do not know what would happen
+  otherwise).
+* `task_columns`: List of default columns to display with the
+  [[task|ikiwiki/directive/task]] directive. Default is all available columns.
+
+
+## Directive
+
+### Directive options
+
+Options are:
+
+* `arg`: arguments to add to the task call. For example, to display a list of
+  pending tasks tagged `ikiwiki`, set it to `"status:pending +ikiwiki"`.
+* `show`: number of tasks to show. Default is 0, and means: print all tasks.
+* `sort`: tasks are sorted according to this column. Default is `urgency`.
+* `reverse`: set yes to reverse order.
+* `annotations`: set to yes to display annotations. Default is "yes".
+
+### Task system call
+
+When using this directive, the result of the following system call is printed:
+
+    TASK_BIN export rc.verbose=nothing TASK_COMMON [rc.data.location=DIR] ARG
+
+* `TASK_BIN` and `TASK_COMMON` are the `task_bin` and `task_common` options set in ikiwiki setup.
+* If `task_dir` and `task_tmpdir` are set in ikiwiki setup, `DIR` is `task_tmpdir` ; if only `task_dir` is set, `DIR` is `task_dir` ; otherwise, this part is not used.
+* `ARG` is the `arg` option of the directive.
+
+### CSS
+
+To allow CSS customization, the following classes are used.
+
+* `task` is the class of the table.
+* `urgency`, `project`, etc. are the class of the `th` and `td` elements for the corresponding task attributes.
+* `annotation` is the class of the `tr` element of the table containing an annotation.
+
+
+## Download and install
+
+Code and documentation can be found here : [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/Jscalendar]]
+
+-- Louis
