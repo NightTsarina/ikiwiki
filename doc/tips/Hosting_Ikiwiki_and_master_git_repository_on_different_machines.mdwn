@@ -119,14 +119,26 @@ repository.
 
 ## Configure the git repository (on the git machine) to update the wiki after a push
 
-- Add in the `post-receive` hook (file `SITE.git/hooks/post-receive`):
+Add in the `post-receive` hook (file `SITE.git/hooks/post-receive`):
 
-        wget "http://WIKI-URL/ikiwiki.cgi?do=ping" -O /dev/stdout
+      git log -1 --format=format:%ae HEAD | grep -e '@web$' -e 'USER@HOST' ||  wget "http://WIKI-URL/ikiwiki.cgi?do=ping" -O /dev/stdout
 
-  If your wiki is password protected, use:
+If your wiki is password protected, use:
 
-        wget "http://LOGIN:PASSWORD@WIKI-URL/ikiwiki.cgi?do=ping" -O /dev/stdout
+      git log -1 --format=format:%ae HEAD | grep -e '@web$' -e 'USER@HOST' ||  wget "http://LOGIN:PASSWORD@WIKI-URL/ikiwiki.cgi?do=ping" -O /dev/stdout
 
+The bit before `wget` is here to prevent updating the wiki while it is
+updating, which can lead to a deadlock. Indeed, when the wiki is edited via
+web, or a tag page is automatically added, IkiWiki pushes the changes to the
+Git machine. Then, the hook on this latter machine tries to pull changes from
+the IkiWiki machine, and here is the deadlock. Explanations of the command:
+
+* `git log -1 --format=format:%ae HEAD`: Looks for the user name of the
+  latest commit.
+* `grep -e '@web$' -e 'USER@HOST': Check whether this last commit was pushed
+  from the IkiWiki machine (change `USER@HOST` to the appropriate string).
+* `wget ...`: If the last commit does not come from the IkiWiki machine
+  (which means it comes from another machine), update the wiki.
 
 ## Going further
 
