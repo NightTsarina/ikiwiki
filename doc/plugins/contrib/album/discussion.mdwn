@@ -515,3 +515,11 @@ Here's a context-diff of my fix:
 </pre>
 
 -- [[KathrynAndersen]]
+
+----
+
+I've found another bug. The album plugin doesn't allow one to have more than 10 items in an album section. This is because it uses "inline" to display album sections, and the default for inline is to show only 10 items. So it only shows 10 items.
+
+What would be good is if the album directive could have a "show" parameter which is passed on to preprocess_inline, so that users could decide how many items to show (including ALL of them, if they give show=0).
+
+-- [[KathrynAndersen]]
