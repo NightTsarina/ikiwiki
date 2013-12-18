@@ -476,3 +476,42 @@ My wishlist for the plugin would include:
 
 ----
 
+I've tracked down the "always showing the 96x96 thumbnails" bug!
+
+The problem is in the pagetemplate function, which calls "thumbnail" to determine the name of the thumbnail image to use. As you know, the "img" method of generating thumbnails includes the size of the thumbnail as part of its name (to ensure that resizing thumbnails will create a new file of the correct size). The problem is... that in the pagetemplate function, the thumbnailsize is NOT passed in to the call to "thumbnail", so it always returns the default size, 96x96. Hence nothing that anyone can do will change the thumbnails to anything else. Oh, the different-sized thumbnail images ARE created, but they're never linked to.
+
+Here's a context-diff of my fix:
+
+<pre>
+*** /home/kat/files/repos/ikiwiki_smcv/IkiWiki/Plugin/album.pm	2013-12-18 14:50:06.861623226 +1100
+--- album.pm	2013-12-18 15:51:09.393582879 +1100
+***************
+*** 484,489 ****
+--- 484,490 ----
+  		my $viewer = $params{page};
+  		my $album = $pagestate{$viewer}{album}{album};
+  		my $image = $pagestate{$viewer}{album}{image};
++                 my $thumbnailsize = $pagestate{$album}{album}{thumbnailsize};
+  
+  		return unless defined $album;
+  		return unless defined $image;
+***************
+*** 495,501 ****
+  
+  		if ($template->query(name => 'thumbnail')) {
+  			$template->param(thumbnail =>
+! 				thumbnail($viewer, $params{destpage}));
+  		}
+  		if (IkiWiki::isinlinableimage($image)
+  			&& ($template->query(name => 'imagewidth') ||
+--- 496,502 ----
+  
+  		if ($template->query(name => 'thumbnail')) {
+  			$template->param(thumbnail =>
+! 				thumbnail($viewer, $params{destpage}, $thumbnailsize));
+  		}
+  		if (IkiWiki::isinlinableimage($image)
+  			&& ($template->query(name => 'imagewidth') ||
+</pre>
+
+-- [[KathrynAndersen]]
