@@ -628,12 +628,12 @@ sub add_page (@) {
 		       -e "$config{srcdir}/".htmlfn($page.$c)) {
 			$c++
 		}
+		$page=$page.$c;
 
 		$guid->{page}=$page;
 		eval { write_page($feed, $guid, $mtime, \%params) };
 		if ($@) {
 			# assume failure was due to a too long filename
-			# (or o
 			$c="";
 			$page=$feed->{dir}."/item";
 			while (exists $IkiWiki::pagecase{lc $page.$c} ||
@@ -641,6 +641,7 @@ sub add_page (@) {
 			      -e "$config{srcdir}/".htmlfn($page.$c)) {
 				$c++
 			}
+			$page=$page.$c;
 
 			$guid->{page}=$page;
 			write_page($feed, $guid, $mtime, \%params);
