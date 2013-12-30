@@ -1,0 +1,31 @@
+If you edit via web, and don't enter a comment, the commit message for the ensuing Git commit is empty.  Git by default will not commit with a blank commit message, so the edited file is still there in the working files for Ikiwiki but not committed into Git.
+
+A subsequent commit (including another web page edit with comments) will pull this change in with any new editing.  We found this by having spam edits suddenly appear on various pages with no corresponding commits to match.
+
+IkiWiki/plugin/git.pm checks for a version of git greater than 1.5.4, and if greater, commits with a blank message and '--cleanup=verbatim'.  The cleanup option doesn't let the message get committed.  Relatively new versions of git support '--allow-empty-message' but I haven't been able to identify when that feature was added.  Instead I opted for a default message.
+
+    544,545d543
+    < 	# git will not commit with a blank comment, though this 
+    < 	# can be overridden in later versions.  
+    547c545,553
+    < 		$params{message}.="No commit message specified.";
+    ---
+    > 		# Force git to allow empty commit messages.
+    > 		# (If this version of git supports it.)
+    > 		my ($version)=`git --version` =~ /git version (.*)/;
+    > 		if ($version ge "1.5.4") {
+    > 			push @opts, '--cleanup=verbatim';
+    > 		}
+    > 		else {
+    > 			$params{message}.=".";
+    > 		}
+
+The other option would be to change only line 549:
+
+    push @opts, '--cleanup=verbatim';
+
+to
+
+    push @opts, '--allow-empty-message';
+
+[[!tag  bugs patch]]
