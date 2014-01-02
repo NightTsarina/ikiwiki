@@ -1,0 +1,24 @@
+ikiwiki 3.20140102 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * aggregate: Improve display of post author.
+   * poll: Fix behavior of poll buttons when inlined.
+   * Fixed unncessary tight loop hash copy in saveindex where a pointer
+     can be used instead. Can speed up refreshes by nearly 50% in some
+     circumstances.
+   * Optimized loadindex by caching the page name in the index.
+   * Added only\_committed\_changes config setting, which speeds up wiki
+     refresh by querying git to find the files that were changed, rather
+     than looking at the work tree. Not enabled by default as it can
+     break some setups where not all files get committed to git.
+   * comments: Write pending moderation comments to the transient underlay
+     to avoid conflict with only\_committed\_changes.
+   * search: Added google\_search option, which makes it search google
+     rather than using the internal xapain database.
+     (googlesearch plugin is too hard to turn on when xapain databases
+     corrupt themselves, which happens all too frequently).
+   * osm: Remove invalid use of charset on embedded javascript tags.
+     Closes: #[731197](http://bugs.debian.org/731197)
+   * style.css: Add compatibility definitions for more block-level
+     html5 elements. Closes: #[731199](http://bugs.debian.org/731199)
+   * aggregrate: Fix several bugs in handling of empty and colliding
+     titles when generating filenames."""]]
