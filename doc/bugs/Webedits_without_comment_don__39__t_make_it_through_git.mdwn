@@ -29,3 +29,22 @@ to
     push @opts, '--allow-empty-message';
 
 [[!tag  bugs patch]]
+
+> This is already [[fixed|done]] since 3.20130711. git versions since 1.7.2
+> are affected. Here's the commit if you want to backport it:
+> [[b162563|http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=b162563dc1c6126953e66cdcc508f389b9d39d8e]].
+>
+> As a general comment on synthesizing commit messages, I personally don't
+> think ikiwiki should invent an untranslated English commit message
+> if the user didn't provide one - using an obviously trivial commit message,
+> ".", seems more honest. OTOH, the `bzr` and `mercurial` plugins both use
+> an untranslated "no message given", and `darcs` uses "empty message".
+> It should either consistently use ".", or consistently use gettext(x)
+> for some standardized value of x, perhaps "no message given". Joey,
+> any preference?
+>
+> The other RCS plugins (`cvs`, `svn`, `tla`) never need to deal with an
+> empty commit message because they prepend something like "web commit
+> from smcv", so the message can never be empty.
+>
+> --[[smcv]]
