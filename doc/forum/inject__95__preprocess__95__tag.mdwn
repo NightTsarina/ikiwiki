@@ -1,0 +1,50 @@
+[[!meta title="Cannot manage to *inject* *preprocess_tag*"]]
+
+Hello,    
+I am trying to write a plugin that changes the way the
+[[ikiwiki/directive/tag]] [[ikiwiki/directive]] works, and I am trying to do so
+by using the [[inject|plugins/write/#index81h3]] function. The piece of code
+that should (if I understood well the `inject` function) do the trick is :
+
+      sub import {
+        inject(
+          name => 'IkiWiki::Plugin::tag::preprocess_tag',
+          call => \&my_preprocess_tag
+        );
+      }
+
+Howere, this does not change anything about the effect of the `tag` directive.
+
+I have tried some variants, like calling `inject` outside the `import`
+function, or calling `IkiWiki::loadplugin("tag");` to ensure that the
+[[plugins/tag]] is loaded, but none of these things work. Any idea?
+
+*Disclaimer:* although proficient in several languages, I am a beginner in Perl.
+
+Here is the full code of (a very early version of) my plugin.
+
+    #! /usr/bin/perl
+    require 5.002;
+    package IkiWiki::Plugin::parenttag;
+
+    use warnings;
+    use strict;
+    use IkiWiki 3.00;
+
+    my $orig_preprocess_tag=\&preprocess_tag;
+
+    sub import {
+      inject(
+        name => 'IkiWiki::Plugin::tag::preprocess_tag',
+        call => \&my_preprocess_tag
+      );
+    }
+
+    sub my_preprocess_tag(@) {
+      print "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nWorking!\n";
+      return "TODO";
+    }
+
+    1
+
+-- [[Louis|spalax]]
