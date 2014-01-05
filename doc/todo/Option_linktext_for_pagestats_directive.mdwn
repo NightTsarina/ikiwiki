@@ -1,0 +1,92 @@
+Hello,    
+here is a proposal to add a new option to [[ikiwiki/directive]]
+[[ikiwiki/directive/pagestats]] (from plugin [[plugins/pagestats]]).
+
+This adds global option `pagestats_linktext` (and directive option `linktext`) to specify whether directive `pagestats` should use the page name or the [[title|ikiwiki/directive/meta]] of tags.
+
+Here is a [[patch]], for both code and documentation.
+
+[[!toggle id=diff text="View patch"]]
+[[!toggleable id=diff text="""
+    diff --git a/IkiWiki/Plugin/pagestats.pm b/IkiWiki/Plugin/pagestats.pm
+    index 17b26f7..a65fd7a 100644
+    --- a/IkiWiki/Plugin/pagestats.pm
+    +++ b/IkiWiki/Plugin/pagestats.pm
+    @@ -29,11 +29,31 @@ sub getsetup () {
+     			rebuild => undef,
+     			section => "widget",
+     		},
+    +		pagestats_linktext => {
+    +			type => "string",
+    +			example => "title",
+    +			description => "Set link text to be whether page title (page) or meta title (title).",
+    +			safe => 1,
+    +			rebuild => 1,
+    +		},
+    +}
+    +
+    +sub linktext ($$) {
+    +	# Return the text of the link to a tag, depending on option linktext.
+    +	use Data::Dumper;
+    +	my $page = $_[0];
+    +	my $linktype = $_[1];
+    +	if (($linktype eq "title") and (exists $pagestate{$page}{meta}{title})) {
+    +		return $pagestate{$page}{meta}{title};
+    +	} else {
+    +		return undef;
+    +	}
+     }
+     
+     sub preprocess (@) {
+     	my %params=@_;
+     	$params{pages}="*" unless defined $params{pages};
+    +	$params{linktext} = $config{pagestats_linktext} unless defined $params{linktext};
+     	my $style = ($params{style} or 'cloud');
+     	
+     	my %counts;
+    @@ -78,7 +98,7 @@ sub preprocess (@) {
+     		return "<table class='".(exists $params{class} ? $params{class} : "pageStats")."'>\n".
+     			join("\n", map {
+     				"<tr><td>".
+    -				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1).
+    +				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1, linktext => linktext($_, $params{linktext})).
+     				"</td><td>".$counts{$_}."</td></tr>"
+     			}
+     			sort { $counts{$b} <=> $counts{$a} } keys %counts).
+    @@ -101,8 +121,8 @@ sub preprocess (@) {
+     			
+     			$res.="<li>" if $style eq 'list';
+     			$res .= "<span class=\"$class\">".
+    -			        htmllink($params{page}, $params{destpage}, $page).
+    -			        "</span>\n";
+    +							htmllink($params{page}, $params{destpage}, $page, linktext => linktext($page, $params{linktext})).
+    +							"</span>\n";
+     			$res.="</li>" if $style eq 'list';
+     
+     		}
+    diff --git a/doc/ikiwiki/directive/pagestats.mdwn b/doc/ikiwiki/directive/pagestats.mdwn
+    index 8d904f5..56970e6 100644
+    --- a/doc/ikiwiki/directive/pagestats.mdwn
+    +++ b/doc/ikiwiki/directive/pagestats.mdwn
+    @@ -37,4 +37,6 @@ links:
+     The optional `class` parameter can be used to control the class
+     of the generated tag cloud `div` or page stats `table`.
+     
+    +The optional `linktext` parameter can be used to control the text that is displayed for each tag. It can be `page` (the name of the page is used) or `title` (the title, according to the [[ikiwiki/directive/meta]] [[ikiwiki/directive]], is used). This option can be set globally in the setup using option `pagestats_linktext`; default is `page`.
+    +
+     [[!meta robots="noindex, follow"]]
+    diff --git a/doc/plugins/pagestats.mdwn b/doc/plugins/pagestats.mdwn
+    index 347e39a..6a72a9a 100644
+    --- a/doc/plugins/pagestats.mdwn
+    +++ b/doc/plugins/pagestats.mdwn
+    @@ -4,3 +4,7 @@
+     This plugin provides the [[ikiwiki/directive/pagestats]]
+     [[ikiwiki/directive]], which can generate stats about how pages link to
+     each other, or display a tag cloud.
+    +
+    +Their is one global option for the setup file:
+    +
+    +* `pagestats_linktext` controls the text that is displayed for each tag. If `page` (the default), the name of the page is used; if `title`, its title (according to the [[ikiwiki/directive/meta]] [[ikiwiki/directive]]) is used.
+"""]]
+
+-- [[Louis|spalax]]
