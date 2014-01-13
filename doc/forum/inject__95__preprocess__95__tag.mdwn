@@ -48,3 +48,28 @@ Here is the full code of (a very early version of) my plugin.
     1
 
 -- [[Louis|spalax]]
+
+> Hello,    
+> I managed to replace the tag original `preprocess_tag` function, using a different approach than using `inject`:
+> 
+>     my $orig_preprocess_tag;
+> 
+>     sub import {
+>       IkiWiki::loadplugin("tag");
+>       $orig_preprocess_tag = \&{$IkiWiki::hooks{preprocess}{tag}{call}};
+>       hook(type => "preprocess", id => "tag", call => \&my_preprocess_tag);
+>     }
+> 
+> And later on, I can call the original `preprocess_tag` function using:
+> 
+>     $orig_preprocess_tag->(...)
+> 
+> The problem is that I am digging into `IkiWiki.pm` package to extract data from `IkiWiki::hooks`, which is not guaranteed to work in the future, contrary to `inject`.
+> 
+> Two questions:
+> 
+> - how ugly is my solution?
+> - is it possible to use `inject` to replace the `IkiWiki::Plugin::tag::preprocess_tag` function?
+> 
+> -- [[Louis|spalax]]
+
