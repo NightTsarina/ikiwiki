@@ -90,3 +90,37 @@ Here is a [[patch]], for both code and documentation.
 """]]
 
 -- [[Louis|spalax]]
+
+> Hello,    
+> do not accept my patch: it is an ugly hack that works for me, but its too narrow to be merged in IkiWiki:
+> 
+>   - it assumes the [[ikiwiki/directive/pagestats]] directive only deals with tags, which is wrong;
+>   - such a feature (allowing displaying tags using their title), if enabled, should be enabled for the [[plugins/tag]] plugin (and maybe other plugins [[I have in mind|users/spalax]]) as well.
+> 
+> I cannot manage to find a solution to my problem that suits me.
+> 
+> # My problem
+> 
+> On two sites I maintain using IkiWiki, I have tags that:
+> 
+> - have special characters in it (like [[·|http://en.wikipedia.org/wiki/Interpunct]]) that generate ugly URLs;
+> - have subtags (e.g. `math/calculus`, `math/algebra`, `physics/mechanic` etc.).
+> 
+> That is, having [[ikiwiki/directive/taglink]] or [[ikiwiki/directive/pagestats]] displaying tags using the pagename (that is something derived from the basename of the URL) is not sufficient for me. I would like to be able to display them using their title, their full name (from the `tagbase` parameter), or both.
+> 
+> # Solution?
+> 
+> A solution would be to provide a `tagtext` config option, set to one of `page` (use pagename), `title` (use [[ikiwiki/directive/meta]] title), `path` (use path, since the tagbase), `pathtitle` (use path, and use title for each of the subtags); or a boolean `display_tagtitle` and `display_tagpath`, which would handle the way tags are displayed.
+> 
+> I see at least two drawbacks to this solution:
+> 
+> - I do not know what would be the default of these options, not to break backward compatibility: [[ikiwiki/directive/taglink]] would suggest `page`, whereas the footer would suggest `path`.
+> - The [[ikiwiki/directive/pagestats]] directive would need an optional boolean parameter `tag`, to specify whether to use these options or not.
+> 
+> # *My* problem ?
+> 
+> I actually wonder if someone else also have this problem: as far as I can see on other sites using IkiWiki and tags, I would not be surprised if others are satisfyed with the current way tags are displayed: I do not remember having seen subtags, or tags in non-English language with weird characters in them.
+> 
+> So, I wonder whether this discussion would benefit IkiWiki, or if I should just go on with my hack (or maybe a plugin, but I think it would be quite difficult to do, given that the very same function is used to display tags and to uniquely identify them).
+> 
+> -- [[Louis|spalax]]

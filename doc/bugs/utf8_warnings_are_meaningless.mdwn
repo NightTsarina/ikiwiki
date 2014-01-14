@@ -1,0 +1,9 @@
+Hunting down what was generating
+
+    utf8 "\xEB" does not map to Unicode at /usr/share/perl5/IkiWiki.pm line 873, <$in> chunk 1.
+
+lead me to a call to `utf8::valid`, which lead to http://perldoc.perl.org/utf8.html which says this is an "INTERNAL" function:
+
+> Main reason for this routine is to allow Perl's testsuite to check that operations have left strings in a consistent state. You most probably want to use `utf8::is_utf8()` instead.
+
+Apparently the main point of the function is to emit the warning in unit tests - problem is, in the ikiwiki context, the only useful thing to warn about would be the name of the file you're trying to parse, not the name of the source code.  Alternatively, since the code does continue on with the data, *not* whining about it might be an option :-) but an actionable message would be better.
