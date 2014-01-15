@@ -589,6 +589,7 @@ sub map_setup_code($;@) {
 	}
         $options{'layers'} = $config{osm_layers};
 
+	$name=~s/'//g; # $name comes from user input
 	return "mapsetup('mapdiv-$name', " . to_json(\%options) . ");";
 }
 
