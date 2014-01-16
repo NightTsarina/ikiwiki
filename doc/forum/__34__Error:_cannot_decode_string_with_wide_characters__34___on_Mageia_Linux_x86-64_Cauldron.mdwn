@@ -1,0 +1,20 @@
+When running ikiwiki-3.20140102-1.mga4 on Mageia Linux x86-64 4/Cauldron with perl-5.18.1-3.mga4 , I am getting this error after I try to preview a page that contains unicode, at least in firefox-24.2.0-2.mga4 (note that I added "use Carp::Always;" to Ikiwiki.pm to get the stack trace):
+
+<pre>
+Error: Cannot decode string with wide characters at /usr/lib/perl5/vendor_perl/5.18.1/x86_64-linux-thread-multi/Encode.pm line 215. 
+Encode::decode_utf8('# Freenode programming channel FAQ\x{d}\x{a}\x{d}\x{a}This page is intended t...') called at /usr/lib/perl5/vendor_perl/5.18.1/IkiWiki/CGI.pm line 117 
+IkiWiki::decode_form_utf8('CGI::FormBuilder=HASH(0x2f7b880)') called at /usr/lib/perl5/vendor_perl/5.18.1/IkiWiki/Plugin/editpage.pm line 90 
+IkiWiki::cgi_editpage('CGI=HASH(0x21ad628)', 'CGI::Session=HASH(0x280fb88)') called at /usr/lib/perl5/vendor_perl/5.18.1/IkiWiki/CGI.pm line 442
+IkiWiki::__ANON__('CODE(0x23ec970)') called at /usr/lib/perl5/vendor_perl/5.18.1/IkiWiki.pm line 2085
+IkiWiki::run_hooks('sessioncgi', 'CODE(0x2a5be20)') called at /usr/lib/perl5/vendor_perl/5.18.1/IkiWiki/CGI.pm line 442
+IkiWiki::cgi() called at /usr/bin/ikiwiki line 191 eval {...} called at /usr/bin/ikiwiki line 191
+IkiWiki::main() called at /usr/bin/ikiwiki line 228
+</pre>
+
+I have upgraded the ikiwiki instance using "ikiwiki -setup" and am running ikiwiki.cgi on a local Apache server.
+
+Can anyone shed any light on this problem and guide me what I need to do to fix it?
+
+Regards,
+
+-- [Shlomi Fish](http://www.shlomifish.org/)
