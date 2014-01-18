@@ -1,3 +1,8 @@
+[[!meta title="Option disp for pagestats directive"]]
+
+[[!toggle id=old text="Old, outdated, monologue"]]
+
+[[!toggleable id=old text="""
 Hello,    
 here is a proposal to add a new option to [[ikiwiki/directive]]
 [[ikiwiki/directive/pagestats]] (from plugin [[plugins/pagestats]]).
@@ -6,8 +11,6 @@ This adds global option `pagestats_linktext` (and directive option `linktext`) t
 
 Here is a [[patch]], for both code and documentation.
 
-[[!toggle id=diff text="View patch"]]
-[[!toggleable id=diff text="""
     diff --git a/IkiWiki/Plugin/pagestats.pm b/IkiWiki/Plugin/pagestats.pm
     index 17b26f7..a65fd7a 100644
     --- a/IkiWiki/Plugin/pagestats.pm
@@ -87,7 +90,6 @@ Here is a [[patch]], for both code and documentation.
     +Their is one global option for the setup file:
     +
     +* `pagestats_linktext` controls the text that is displayed for each tag. If `page` (the default), the name of the page is used; if `title`, its title (according to the [[ikiwiki/directive/meta]] [[ikiwiki/directive]]) is used.
-"""]]
 
 -- [[Louis|spalax]]
 
@@ -124,3 +126,59 @@ Here is a [[patch]], for both code and documentation.
 > So, I wonder whether this discussion would benefit IkiWiki, or if I should just go on with my hack (or maybe a plugin, but I think it would be quite difficult to do, given that the very same function is used to display tags and to uniquely identify them).
 > 
 > -- [[Louis|spalax]]
+"""]]
+
+I eventually managed to get something that suits me, for the problem described above (I want [[ikiwiki/directive/pagestats]] directive to display [[title|ikiwiki/directive/meta]] rather than page name).
+
+Here is a [[patch]] that adds an option `disp` for the [[ikiwiki/directive/pagestats]], acting exactly the same as option `show` for the [[ikiwiki/directive/map]] directive (but parameter `show` was already used for something else). That is, if one wants its tags displayed using their [[title|ikiwiki/directive/meta]] rather than their page name, she can use param `disp`, is in:
+
+    \[[!pagestats  pages="tags/*" disp=title]]
+
+[[!toggle id=patch text="Patch"]]
+[[!toggleable id=patch text="""
+    diff --git a/IkiWiki/Plugin/pagestats.pm b/IkiWiki/Plugin/pagestats.pm
+    index 17b26f7..8a5e100 100644
+    --- a/IkiWiki/Plugin/pagestats.pm
+    +++ b/IkiWiki/Plugin/pagestats.pm
+    @@ -31,6 +31,19 @@ sub getsetup () {
+     		},
+     }
+     
+    +sub linktext ($%) {
+    +	# Return the text of the link to a tag, depending on option linktext.
+    +	my ($page, %params) = @_;
+    +  if (exists $params{disp} && 
+    +      exists $pagestate{$page} &&
+    +      exists $pagestate{$page}{meta}{$params{disp}}) {
+    +    return $pagestate{$page}{meta}{$params{disp}};
+    +  }
+    +  else {
+    +    return undef;
+    +  }
+    +}
+    +
+     sub preprocess (@) {
+     	my %params=@_;
+     	$params{pages}="*" unless defined $params{pages};
+    @@ -78,7 +91,7 @@ sub preprocess (@) {
+     		return "<table class='".(exists $params{class} ? $params{class} : "pageStats")."'>\n".
+     			join("\n", map {
+     				"<tr><td>".
+    -				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1).
+    +				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1, linktext => linktext($_, %params)).
+     				"</td><td>".$counts{$_}."</td></tr>"
+     			}
+     			sort { $counts{$b} <=> $counts{$a} } keys %counts).
+    @@ -101,7 +114,7 @@ sub preprocess (@) {
+     			
+     			$res.="<li>" if $style eq 'list';
+     			$res .= "<span class=\"$class\">".
+    -			        htmllink($params{page}, $params{destpage}, $page).
+    +							htmllink($params{page}, $params{destpage}, $page, linktext => linktext($page, %params)).
+     			        "</span>\n";
+     			$res.="</li>" if $style eq 'list';
+ 
+"""]]
+
+Regards,  
+-- [[Louis|spalax]]
