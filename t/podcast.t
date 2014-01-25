@@ -3,10 +3,10 @@ use warnings;
 use strict;
 
 BEGIN {
-	eval q{use XML::Feed; use HTML::Parser; use HTML::LinkExtor};
+	eval q{use XML::Feed; use HTML::Parser; use HTML::LinkExtor; use File::MimeInfo};
 	if ($@) {
 		eval q{use Test::More skip_all =>
-			"XML::Feed and/or HTML::Parser not available"};
+			"XML::Feed and/or HTML::Parser or File::MimeInfo not available"};
 	}
 	else {
 		eval q{use Test::More tests => 136};
