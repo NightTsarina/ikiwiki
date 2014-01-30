@@ -72,7 +72,7 @@ sub ping {
 		my $ua;
 		eval q{use LWPx::ParanoidAgent};
 		if (!$@) {
-			$ua=LWPx::ParanoidAgent->new;
+			$ua=LWPx::ParanoidAgent->new(agent => $config{useragent});
 		}
 		else {
 			eval q{use LWP};

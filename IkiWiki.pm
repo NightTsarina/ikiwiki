@@ -527,6 +527,14 @@ sub getsetup () {
 		safe => 0, # hooks into perl module internals
 		rebuild => 0,
 	},
+	useragent => {
+		type => "string",
+		default => undef,
+		example => "Wget/1.13.4 (linux-gnu)",
+		description => "set custom user agent string for outbound HTTP requests e.g. when fetching aggregated RSS feeds",
+		safe => 0,
+		rebuild => 0,
+	},
 }
 
 sub defaultconfig () {
@@ -2301,6 +2309,7 @@ sub useragent () {
 	return LWP::UserAgent->new(
 		cookie_jar => $config{cookiejar},
 		env_proxy => 1,		# respect proxy env vars
+		agent => $config{useragent},
 	);
 }
 
