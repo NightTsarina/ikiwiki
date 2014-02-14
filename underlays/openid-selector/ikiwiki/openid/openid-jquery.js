@@ -44,7 +44,7 @@ var providers_small = {
     },
     aol: {
         name: 'AOL',     
-	icon: 'http://aol.com/favicon.ico',
+        icon: 'ikiwiki/openid/aol.png',
         label: 'Enter your AOL username:',
         url: 'http://openid.aol.com/{username}'
     },
