@@ -42,12 +42,6 @@ var providers_small = {
         label: 'Enter your Wordpress.com username:',
         url: 'http://{username}.wordpress.com/'
     },
-    myopenid: {
-        name: 'MyOpenID',
-	icon: 'http://myopenid.com/favicon.ico',
-        label: 'Enter your MyOpenID username:',
-        url: 'http://{username}.myopenid.com/'
-    },
     claimid: {
         name: 'ClaimID',
 	icon: 'http://claimid.com/favicon.ico',
