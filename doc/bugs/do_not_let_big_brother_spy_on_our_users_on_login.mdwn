@@ -44,14 +44,27 @@ A simple fix would be to ship those icons with ikiwiki and serve them locally, b
 >> input box. I might implement that option anyway - on websites mainly used
 >> by technologists, the OpenID selector is a bit of a waste of time.
 >>
+>>> Not done yet. -s
+>>
 >> One way to have recognisable icons would be to ship DFSG imitations of
 >> the "real" logos in the underlay. Between gnome-online-accounts and
 >> Empathy, we can probably find most of them (mostly or perhaps all done by
 >> Jakub Steiner).
 >>
+>>> [[!template id=gitbranch branch=smcv/ready/openid author="[[smcv]]"]]
+>>> [[!tag patch]]
+>>> Here's a git branch. I deleted the shut-down ClaimID and MyOpenID providers,
+>>> used icons from GNOME Online Accounts and Wordpress where available, and
+>>> drew my own for the rest.
+>>> [See it in use here](http://blueview.hosted.pseudorandom.co.uk/ikiwiki.cgi?do=prefs)
+>>> -s
+>>
 >> If people want the "real" logos, we could have some code to make IkiWiki
 >> download the favicons into transient underlay (which I think is
 >> higher-priority?), or into a higher-priority underlay if necessary,
 >> during the wiki build, so they'll be served from the wiki's own server.
+>>
+>>> Not done yet. I'm not sure whether I'm going to bother, but I'd review
+>>> someone else's implementation. -s
 >>
 >> --[[smcv]]
