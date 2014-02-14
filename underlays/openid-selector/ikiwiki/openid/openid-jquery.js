@@ -50,7 +50,7 @@ var providers_small = {
     },
     verisign: {
         name: 'Verisign',
-	icon: 'http://verisign.com/favicon.ico',
+        icon: 'ikiwiki/openid/verisign.png',
         label: 'Enter your Verisign username:',
         url: 'http://{username}.pip.verisignlabs.com/'
     }
