@@ -8,12 +8,12 @@ This code is licenced under the New BSD License.
 var providers_large = {
     google: {
         name: 'Google',
-	icon: 'http://google.com/favicon.ico',
+        icon: 'ikiwiki/openid/goa-account-google.png',
         url: 'https://www.google.com/accounts/o8/id'
     },
     yahoo: {
         name: 'Yahoo',      
-	icon: 'http://yahoo.com/favicon.ico',
+        icon: 'ikiwiki/openid/goa-account-yahoo.png',
         url: 'http://me.yahoo.com/'
     },    
     openid: {
@@ -32,7 +32,7 @@ var providers_small = {
     },
     flickr: {
 	name: 'Flickr',        
-	icon: 'http://flickr.com/favicon.ico',
+	icon: 'ikiwiki/openid/goa-account-flickr.png',
 	label: 'Enter your Flickr username:',
 	url: 'http://flickr.com/photos/{username}/'
     },
