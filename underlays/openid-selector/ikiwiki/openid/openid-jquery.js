@@ -38,7 +38,7 @@ var providers_small = {
     },
     wordpress: {
         name: 'Wordpress',
-	icon: 'https://s2.wp.com/i/favicon.ico',
+	icon: 'ikiwiki/openid/wordpress.png',
         label: 'Enter your Wordpress.com username:',
         url: 'http://{username}.wordpress.com/'
     },
