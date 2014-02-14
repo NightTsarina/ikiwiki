@@ -26,7 +26,7 @@ var providers_large = {
 var providers_small = {
     livejournal: {
         name: 'LiveJournal',
-	icon: 'http://livejournal.com/favicon.ico',
+        icon: 'ikiwiki/openid/livejournal.png',
         label: 'Enter your Livejournal username:',
         url: 'http://{username}.livejournal.com/'
     },
