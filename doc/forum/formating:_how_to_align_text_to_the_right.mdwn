@@ -1,4 +1,4 @@
-as in title, how to align text to the right?
+As in title, how to align text to the right?
 
 > Add to your local.css a class that aligns text to the right:
 
@@ -13,3 +13,8 @@ as in title, how to align text to the right?
 > [[templates/note]] template does something similar. --[[Joey]]
 
 >> Thanks!
+
+-----
+> Doing this myself and noted that [[markdown]] down does not allow the use of block level elements directly and thus, cannot switch the `span` suggested above for `div` in changing block level elements.  Perhaps the *correct* thing to do here is create a template **but** a workaround I found useful was to over-ride the `inline` nature of the `span` element, as follows
+     .align_right { display: block ; text-align: right ; }
+> you may also like to remove the padding and margins since they will be provided by the enclosing block.
