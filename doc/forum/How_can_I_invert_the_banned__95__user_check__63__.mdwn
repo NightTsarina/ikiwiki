@@ -26,3 +26,8 @@ PS: the user is authenticated via 'httpauth', would that make a difference?
 > --[[smcv]]
 
 >> That was my initial setup but it wasn't working and I got caught-up on the `banned_user` idea.  It would seem I was getting tricked by some credential-caching-weirdness.  Fired up another browser and `locked_pages` works perfectly.  Thanks.  -- fergus
+
+>>> Browsers generally remember HTTP auth credentials until they're closed
+>>> or get a 401 error, and don't generally have a way to "log out".
+>>> As far as I'm aware, there's nothing that [[plugins/httpauth]] can
+>>> do about that. --[[smcv]]
