@@ -15,6 +15,30 @@ As in title, how to align text to the right?
 >> Thanks!
 
 -----
+<div class="notebox">
+[[!format mdwn """
+This is my text with [a markdown link](#).
+
+Here's a *second* paragraph.
+"""]]
+</div>
+
+> There is more than one way to do it. If [[plugins/format]] is enabled, then this:
+>
+>     <div class="notebox">
+>     \[[!format mdwn """
+>     This is my text with [a markdown link](#).
+>
+>     Here's a *second* paragraph.
+>     """]]
+>     </div>
+>
+> is rendered like the box in this page.
+>
+> (I'm using the `notebox` class used by the `note` template here, but you could
+> use any class.) --[[smcv]]
+
+-----
 > Doing this myself and noted that [[ikiwiki/markdown]] down does not allow the enclosure of block level elements directly; and thus we cannot switch the `span` suggested above for `div` in changing block level elements (not if you wish to include markdown, anyway).  For example, I want to create a paragraph (with markdown text) which is right aligned, and so add the following
 
 >>     <span class="right_align">
@@ -26,26 +50,3 @@ As in title, how to align text to the right?
 >>     .align_right { display: block ; text-align: right ; }
 
 > you may also like to remove the padding and margins since they will be provided by the enclosing block. -- fergus
-
-<div class="notebox">
-[[!format mdwn """
-This is my text with [a markdown link](#).
-
-Here's a *second* paragraph.
-"""]]
-</div>
-
->> There is more than one way to do it. If [[plugins/format]] is enabled, then this:
->>
->>     <div class="notebox">
->>     \[[!format mdwn """
->>     This is my text with [a markdown link](#).
->>
->>     Here's a *second* paragraph.
->>     """]]
->>     </div>
->>
->> is rendered like the box in this page.
->>
->> (I'm using the `notebox` class used by the `note` template here, but you could
->> use any class.) --[[smcv]]
