@@ -1,0 +1,33 @@
+Trying to lockdown a wiki so that it can only be edited by certain users and figured I'd just set
+
+     banned_users:
+     - !user(myadmin)
+
+in my config but it doesn't work.  I'm sure I must be doing something daft?
+
+PS: the user is authenticated via 'httpauth', would that make a difference?
+
+> That's not how `banned_users` works. Make yourself an admin:
+>
+>     adminuser:
+>     - myadmin
+>
+> and disallow editing by non-admins:
+>
+>     locked_pages: '*'
+>
+> You can enable the `opendiscussion` and/or `anonok` plugins if you want
+> unprivileged users, perhaps logging in with an OpenID, to be able to
+> edit discussion pages (if enabled via `discussion`) or post comments.
+>
+> You can also relax the `locked_pages` setting if you want unprivileged
+> users to be able to edit certain areas of the site.
+>
+> --[[smcv]]
+
+>> That was my initial setup but it wasn't working and I got caught-up on the `banned_user` idea.  It would seem I was getting tricked by some credential-caching-weirdness.  Fired up another browser and `locked_pages` works perfectly.  Thanks.  -- fergus
+
+>>> Browsers generally remember HTTP auth credentials until they're closed
+>>> or get a 401 error, and don't generally have a way to "log out".
+>>> As far as I'm aware, there's nothing that [[plugins/httpauth]] can
+>>> do about that. --[[smcv]]
