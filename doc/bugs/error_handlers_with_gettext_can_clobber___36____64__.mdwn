@@ -1,9 +1,9 @@
-[[!template id=gitbranch name=smcv/ready/careful-eval author="[[smcv]]"]]
+[[!template id=gitbranch branch=smcv/ready/careful-eval author="[[smcv]]"]]
 [[!tag patch]]
 
-As noted in the Try::Tiny man page, eval/$@ can be quite awkward in
-corner cases, because $@ has the same properties and problems as C's
-errno. While writing a regression test for definetemplate
+As noted in the [[!cpan Try::Tiny]] man page, eval/$@ can be quite
+awkward in corner cases, because $@ has the same properties and problems
+as C's errno. While writing a regression test for definetemplate
 in which it couldn't find an appropriate template, I received
     
     <span class="error">Error: failed to process template
@@ -19,4 +19,8 @@ which turned out to be because the "catch"-analogous block called
 gettext before it used $@, and gettext can call define_gettext,
 which uses eval.
 
-Fixed in my branch smcv/ready/careful-eval. --[[smcv]]
+Fixed in my branch smcv/ready/careful-eval. Another possibility
+for fixing this would be to depend on something like Try::Tiny,
+which is already indirectly recommended by ikiwiki, because
+[[!cpan RPC::XML]], [[!cpan XML::Feed]], etc., depend on it.
+--[[smcv]]
