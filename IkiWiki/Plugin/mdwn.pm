@@ -92,8 +92,9 @@ sub htmlize (@) {
 					$markdown_sub=\&Markdown::Markdown;
 				}
 				else {
+					my $error = $@;
 					do "/usr/bin/markdown" ||
-						error(sprintf(gettext("failed to load Markdown.pm perl module (%s) or /usr/bin/markdown (%s)"), $@, $!));
+						error(sprintf(gettext("failed to load Markdown.pm perl module (%s) or /usr/bin/markdown (%s)"), $error, $!));
 					$markdown_sub=\&Markdown::Markdown;
 				}
 			}

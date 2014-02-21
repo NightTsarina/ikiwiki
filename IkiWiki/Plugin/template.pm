@@ -41,9 +41,11 @@ sub preprocess (@) {
 			blind_cache => 1);
 	};
 	if ($@) {
+		# gettext can clobber $@
+		my $error = $@;
 		error sprintf(gettext("failed to process template %s"),
 			htmllink($params{page}, $params{destpage},
-				"/templates/$params{id}"))." $@";
+				"/templates/$params{id}"))." $error";
 	}
 
 	$params{basename}=IkiWiki::basename($params{page});
