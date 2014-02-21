@@ -2021,11 +2021,19 @@ sub template_depends ($$;@) {
 	if (defined $page && defined $tpage) {
 		add_depends($page, $tpage);
 	}
-	
+
 	my @opts=(
 		filter => sub {
 			my $text_ref = shift;
 			${$text_ref} = decode_utf8(${$text_ref});
+			run_hooks(readtemplate => sub {
+				${$text_ref} = shift->(
+					id => $name,
+					page => $tpage,
+					content => ${$text_ref},
+					untrusted => $untrusted,
+				);
+			});
 		},
 		loop_context_vars => 1,
 		die_on_bad_params => 0,
