@@ -1,7 +1,13 @@
 <span class="infobox">
 Available in a [[!taglink /git]] repository [[!taglink branch|/branches]].<br />
-Branch: <TMPL_VAR branch><br />
+Branch: <TMPL_IF browse>
+<a href="<TMPL_VAR browse>"><TMPL_VAR branch></a>
+<TMPL_ELSE>
+<TMPL_VAR branch>
+</TMPL_IF><br />
+<TMPL_IF author>
 Author: <TMPL_VAR author><br />
+<TMPL_IF>
 </span>
 <TMPL_UNLESS branch>
 This template is used to create an infobox for a git branch. It uses
