@@ -18,17 +18,25 @@ the directive displaying a note about the template being registered, add
 "silent=yes".
 
 Often the template page contains a simple skeleton for a particular type of
-page. For the bug report pages in the above example, it might look
-something like:
+page, wrapped in a [[templatebody]] directive. For the bug report pages in
+the above example, it might look something like:
 
+	\[[!templatebody <<ENDBODY
 	Package: 
 	Version: 
 	Reproducible: y/n
 	Details:
+	ENDBODY]]
 
 The template page can also contain [[!cpan HTML::Template]] directives,
 like other ikiwiki [[templates]]. Currently only one variable is
 set: `<TMPL_VAR name>` is replaced with the name of the page being
 created.
+
+Text outside the [[templatebody]] directive is not part of the template,
+and can be used to document it.
+
+If the template does not contain a [[templatebody]] directive, the entire
+source of the page is used for the template. This is deprecated.
 
 [[!meta robots="noindex, follow"]]

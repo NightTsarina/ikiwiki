@@ -217,6 +217,9 @@ value is ignored.
 
 Runs on the raw source of a page or `*.tmpl` file that is being
 used as a template, before it is parsed by [[!cpan HTML::Template]].
+For instance, the [[plugins/templatebody]] plugin uses this to return
+the content of the [[ikiwiki/directive/templatebody]] directive (if there
+is one) instead of the page's full content.
 
 The function is passed named parameters:
 
