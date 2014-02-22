@@ -31,6 +31,19 @@ sub getsetup () {
 		},
 }
 
+sub linktext ($%) {
+	# Return the text of the link to a tag, depending on option linktext.
+	my ($page, %params) = @_;
+  if (exists $params{disp} && 
+      exists $pagestate{$page} &&
+      exists $pagestate{$page}{meta}{$params{disp}}) {
+    return $pagestate{$page}{meta}{$params{disp}};
+  }
+  else {
+    return undef;
+  }
+}
+
 sub preprocess (@) {
 	my %params=@_;
 	$params{pages}="*" unless defined $params{pages};
@@ -84,7 +97,7 @@ sub preprocess (@) {
 		return "<table class='".(exists $params{class} ? $params{class} : "pageStats")."'>\n".
 			join("\n", map {
 				"<tr><td>".
-				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1).
+				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1, linktext => linktext($_, %params)).
 				"</td><td>".$counts{$_}."</td></tr>"
 			}
 			sort { $counts{$b} <=> $counts{$a} } keys %counts).
@@ -107,7 +120,7 @@ sub preprocess (@) {
 			
 			$res.="<li>" if $style eq 'list';
 			$res .= "<span class=\"$class\">".
-			        htmllink($params{page}, $params{destpage}, $page).
+							htmllink($params{page}, $params{destpage}, $page, linktext => linktext($page, %params)).
 			        "</span>\n";
 			$res.="</li>" if $style eq 'list';
 
