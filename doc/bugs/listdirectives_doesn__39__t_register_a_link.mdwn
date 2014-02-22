@@ -34,7 +34,7 @@ The [[ikiwiki/directive/listdirectives]]` directive doesn't register a link betw
 > --[[smcv]]
 
 > No follow-up or objection for a while, so considering this to
-> be [[working as designed|done]]. --[[smcv]]
+> be working as designed. --[[smcv]]
 
 > > Seems I'm a bit late to butt in, but would it be possible to have two
 > > further phases after the scan phase, the first running map and inline 
@@ -48,4 +48,49 @@ The [[ikiwiki/directive/listdirectives]]` directive doesn't register a link betw
 > > is simply wrong/useless (at least it is for me). And there is no easy workaround like for listdirectives
 > > -- [[holger]]
 
- 
+>>> Hmm. I think this can be done without introducing any "phases",
+>>> even, but it would require each plugin that generates links according
+>>> to a pagespec to have either a conditional call into the orphans plugin,
+>>> or a call to a new core function in ikiwiki that exists solely to
+>>> support the orphans plugin. Something like this, maybe:
+>>>
+>>>     # in map.pm, inline.pm, pagestats.pm etc., at scan time
+>>>     if (IkiWiki::Plugin::orphans->can("add_reachable")) {
+>>>         IkiWiki::Plugin::orphans::add_reachable($page, $pagespec);
+>>>     }
+>>>
+>>>     # in orphans.pm (pseudocode; note that this does not *evaluate*
+>>>     # $pagespec, only stores it, so it's OK to do this at scan time)
+>>>     sub needsbuild ($pages)
+>>>         for each page in $pages
+>>>             clear $pagestate{location}{orphans}{reachable}
+>>>     sub reachable ($location, $pagespec)
+>>>         add $pagespec to @{$pagestate{location}{orphans}{reachable}}
+>>>
+>>>     # in preprocess function in orphans.pm (pseudocode)
+>>>     # executed at build time, not at scan time, so pagespecs work
+>>>
+>>>     for each maybe_orphan with no links to it
+>>>         for each location with a list of reachable pagespecs
+>>>             make the page with the orphans directive depend on \
+>>>                 the page that is the location
+>>>             for each of those pagespecs
+>>>                 if pagespec matches orphan
+>>>                     take orphan off the list
+>>>                     go to next orphan
+>>>     output list of orphans
+>>>
+>>> (Maybe parentlinks should also annotate the parent/ancestors of
+>>> each page as reachable from that page.)
+>>>
+>>> Do other people (mainly Joey) think that'd be acceptable, or
+>>> too intrusive?
+>>>
+>>> Taking this off the list of resolved bugs again while we think about it.
+>>>
+>>> I suspect that in the presence of autoindex, what you really want might
+>>> be less "there's a link to it" and more "there's a path to it from
+>>> the root of the wiki", which is why I called the proposed function
+>>> "add_reachable". On the other hand, maybe that's too computationally
+>>> intensive to actually do; I haven't tried it.
+>>> --[[smcv]]
