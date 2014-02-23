@@ -1508,7 +1508,7 @@ sub preprocess ($$$;$$) {
 					push @params, $val, '';
 				}
 			}
-			if ($preprocessing{$page}++ > 3) {
+			if ($preprocessing{$page}++ > 8) {
 				# Avoid loops of preprocessed pages preprocessing
 				# other pages that preprocess them, etc.
 				return "[[!$command <span class=\"error\">".
