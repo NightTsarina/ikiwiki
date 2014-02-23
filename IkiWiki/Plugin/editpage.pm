@@ -400,10 +400,12 @@ sub cgi_editpage ($$) {
 		eval { writefile($file, $config{srcdir}, $content) };
 		$config{cgi}=1;
 		if ($@) {
+			# save $@ in case a called function clobbers it
+			my $error = $@;
 			$form->field(name => "rcsinfo", value => rcs_prepedit($file),
 				force => 1);
 			my $mtemplate=template("editfailedsave.tmpl");
-			$mtemplate->param(error_message => $@);
+			$mtemplate->param(error_message => $error);
 			$form->tmpl_param("message", $mtemplate->output);
 			$form->field("editcontent", value => $content, force => 1);
 			$form->tmpl_param("page_select", 0);

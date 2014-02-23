@@ -229,8 +229,10 @@ sub attachment_store {
 		check_canattach($session, $final_filename, $tempfile);
 	};
 	if ($@) {
-		json_response($q, $form, $dest."/".$filename, $@);
-		error $@;
+		# save error in case called functions clobber $@
+		my $error = $@;
+		json_response($q, $form, $dest."/".$filename, $error);
+		error $error;
 	}
 
 	# Move the attachment into holding directory.

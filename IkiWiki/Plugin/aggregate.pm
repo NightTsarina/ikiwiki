@@ -553,7 +553,9 @@ sub aggregate (@) {
 			};
 		}
 		if ($@) {
-			$feed->{message}=gettext("feed crashed XML::Feed!")." ($@)";
+			# gettext can clobber $@
+			my $error = $@;
+			$feed->{message}=gettext("feed crashed XML::Feed!")." ($error)";
 			$feed->{error}=1;
 			debug($feed->{message});
 			next;
@@ -675,7 +677,9 @@ sub write_page ($$$$$) {
 		$template=template($feed->{template}, blind_cache => 1);
 	};
 	if ($@) {
-		print STDERR gettext("failed to process template:")." $@";
+		# gettext can clobber $@
+		my $error = $@;
+		print STDERR gettext("failed to process template:")." $error";
 		return;
 	}
 	$template->param(title => $params{title})

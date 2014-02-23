@@ -351,7 +351,8 @@ sub cgi_getsession ($) {
 			{ FileName => "$config{wikistatedir}/sessions.db" })
 	};
 	if (! $session || $@) {
-		error($@." ".CGI::Session->errstr());
+		my $error = $@;
+		error($error." ".CGI::Session->errstr());
 	}
 	
 	umask($oldmask);

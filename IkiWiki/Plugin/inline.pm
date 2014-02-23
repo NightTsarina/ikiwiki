@@ -391,7 +391,9 @@ sub preprocess_inline (@) {
 					blind_cache => 1);
 			};
 			if ($@) {
-				error sprintf(gettext("failed to process template %s"), $params{template}.".tmpl").": $@";
+				# gettext can clobber $@
+				my $error = $@;
+				error sprintf(gettext("failed to process template %s"), $params{template}.".tmpl").": $error";
 			}
 		}
 		my $needcontent=$raw || (!($archive && $quick) && $template->query(name => 'content'));
