@@ -743,6 +743,7 @@ sub debug ($) {
 }
 
 my $log_open=0;
+my $log_failed=0;
 sub log_message ($$) {
 	my $type=shift;
 
@@ -753,9 +754,18 @@ sub log_message ($$) {
 			Sys::Syslog::openlog('ikiwiki', '', 'user');
 			$log_open=1;
 		}
-		return eval {
-			Sys::Syslog::syslog($type, "[$config{wikiname}] %s", join(" ", @_));
+		eval {
+			# keep a copy to avoid editing the original config repeatedly
+			my $wikiname = $config{wikiname};
+			utf8::encode($wikiname);
+			Sys::Syslog::syslog($type, "[$wikiname] %s", join(" ", @_));
 		};
+                if ($@) {
+                    print STDERR "failed to syslog: $@" unless $log_failed;
+                    $log_failed=1;
+                    print STDERR "@_\n";
+                }
+                return $@;
 	}
 	elsif (! $config{cgi}) {
 		return print "@_\n";
