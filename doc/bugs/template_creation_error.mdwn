@@ -110,8 +110,6 @@ Please, let me know what to do to avoid this kind of error.
 >
 > --[[smcv]]
 
->> [[!template id=gitbranch author="[[smcv]]" branch=smcv/definetemplate]]
->> [[!tag patch]]
 >> OK, here is a branch implementing what I said. It adds the `definetemplate`
 >> directive to [[plugins/goodstuff]] as its last commit.
 >>
@@ -195,3 +193,14 @@ Please, let me know what to do to avoid this kind of error.
 >>>>> the right thing to do in this situation.
 >>>>>
 >>>>> --[[chrysn]]
+
+>>>>>> [[!template id=gitbranch author="[[smcv]]" branch=smcv/ready/templatebody
+         browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/templatebody]]
+>>>>>> [[!tag patch]]
+>>>>>> Branch and directive renamed to `ready/templatebody` as chrysn suggested.
+>>>>>> It's on-by-default now (or will be if that branch is merged).
+>>>>>> Joey, any chance you could review this?
+>>>>>>
+>>>>>> There is one known buglet: `template_syntax.t` asserts that the entire
+>>>>>> file is a valid HTML::Template, whereas it would ideally be doing the
+>>>>>> same logic as IkiWiki itself. I don't think that's serious. --[[smcv]]
