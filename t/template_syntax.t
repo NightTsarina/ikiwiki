@@ -3,7 +3,7 @@ use warnings;
 use strict;
 use Test::More;
 
-my @templates=glob("templates/*.tmpl"), glob("doc/templates/*.mdwn");
+my @templates=(glob("templates/*.tmpl"), glob("doc/templates/*.mdwn"));
 plan(tests => 2*@templates);
 
 use HTML::Template;
