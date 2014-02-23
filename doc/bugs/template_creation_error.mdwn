@@ -210,3 +210,11 @@ Please, let me know what to do to avoid this kind of error.
 >>>>>>> rebuild of a site with many pages. Ikiwiki already keeps a lot
 >>>>>>> of info in memory, and this adds to it, for what is a fairly
 >>>>>>> minor reason. It seems to me there should be a way to avoid this. --[[Joey]] 
+
+>>>>>>>> Maybe. Are plugins expected to cope with scanning the same
+>>>>>>>> page more than once? If so, it's just a tradeoff between
+>>>>>>>> "spend more time scanning the template repeatedly" and
+>>>>>>>> "spend more memory on avoiding it", and it would be OK to
+>>>>>>>> omit that, or reduce it to a set of scanned *templates*
+>>>>>>>> (in practice that would mean scanning each template twice
+>>>>>>>> in a rebuild). --s
