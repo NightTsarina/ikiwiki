@@ -204,3 +204,9 @@ Please, let me know what to do to avoid this kind of error.
 >>>>>> There is one known buglet: `template_syntax.t` asserts that the entire
 >>>>>> file is a valid HTML::Template, whereas it would ideally be doing the
 >>>>>> same logic as IkiWiki itself. I don't think that's serious. --[[smcv]]
+
+>>>>>>> Looking over this, I notice it adds a hash containing all scanned
+>>>>>>> files. This seems to me to be potentially a scalability problem on
+>>>>>>> rebuild of a site with many pages. Ikiwiki already keeps a lot
+>>>>>>> of info in memory, and this adds to it, for what is a fairly
+>>>>>>> minor reason. It seems to me there should be a way to avoid this. --[[Joey]] 
