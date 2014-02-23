@@ -14,4 +14,14 @@ Easy to reproduce offline:
 * `touch templates/gitbranch.mdwn`
 * `/usr/bin/perl -Iblib/lib ikiwiki.in -setup docwiki.setup -refresh`
 
+NYTProf says:
+
+    # spent 279s (237+41.8) within IkiWiki::bestlink which was called 13988949 times, avg 20µs/call:
+    # 13150827 times (222s+37.2s) by IkiWiki::PageSpec::match_link at line 2692, avg 20µs/call
+    # 829606 times (14.9s+4.51s) by IkiWiki::PageSpec::match_link at line 2687, avg 23µs/call
+    ...
+    sub bestlink ($$) {
+
+which is about half the execution time (458s on my laptop).
+
 --[[smcv]]
