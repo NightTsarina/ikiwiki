@@ -16,13 +16,14 @@ BEGIN {
 		die $@;
 	}
 }
-use Test::More tests => 18;
+use Test::More tests => 22;
 
 BEGIN { use_ok("IkiWiki"); }
 
 %config=IkiWiki::defaultconfig();
 $config{rcs} = "git";
 $config{srcdir} = "$dir/src";
+$config{diffurl} = '/nonexistent/cgit/plain/[[file]]';
 IkiWiki::loadplugins();
 IkiWiki::checkconfig();
 
@@ -93,5 +94,27 @@ is($changes[0]{pages}[0]{"page"}, "newdir/test5");
 
 IkiWiki::rcs_remove("newdir/test5.mdwn");
 IkiWiki::rcs_commit_staged(message => "Remove the 5th page");
+
+# diffurl escaping
+ok(mkdir($config{srcdir}."/diffurl_dir"));
+my $test3 = readfile("t/test1.mdwn");
+writefile('test3.mdwn', $config{srcdir}."/diffurl_dir", $test3);
+IkiWiki::rcs_add("diffurl_dir/test3.mdwn");
+IkiWiki::rcs_commit(
+	file => "diffurl_dir/test3.mdwn",
+	message => "Added a page in diffurl_dir",
+	token => "moo",
+);
+
+@changes = IkiWiki::rcs_recentchanges(5);
+
+is($#changes, 4);
+is($changes[0]{pages}[0]{"page"}, "diffurl_dir/test3");
+
+unlike(
+	$changes[0]{pages}[0]{"diffurl"},
+	qr{%2F}m,
+	q{path separators are preserved when UTF-8scaping filename}
+);
 
 system "rm -rf $dir";

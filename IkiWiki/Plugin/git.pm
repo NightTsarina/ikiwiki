@@ -660,7 +660,9 @@ sub rcs_recentchanges ($) {
 		my @pages;
 		foreach my $detail (@{ $ci->{'details'} }) {
 			my $file = $detail->{'file'};
-			my $efile = uri_escape_utf8($file);
+			my $efile = join('/',
+				map { uri_escape_utf8($_) } split('/', $file)
+			);
 
 			my $diffurl = defined $config{'diffurl'} ? $config{'diffurl'} : "";
 			$diffurl =~ s/\[\[file\]\]/$efile/go;
