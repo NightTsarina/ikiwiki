@@ -329,8 +329,12 @@ sub preprocess_inline (@) {
 
 	my $ret="";
 
-	if (length $config{cgiurl} && ! $params{preview} && (exists $params{rootpage} ||
-	    (exists $params{postform} && yesno($params{postform}))) &&
+	my $postform = (exists $params{rootpage});
+	if (exists $params{postform}) {
+		$postform = yesno($params{postform});
+	}
+
+	if (length $config{cgiurl} && ! $params{preview} && $postform &&
 	    IkiWiki->can("cgi_editpage")) {
 		# Add a blog post form, with feed buttons.
 		my $formtemplate=template_depends("blogpost.tmpl", $params{page}, blind_cache => 1);
