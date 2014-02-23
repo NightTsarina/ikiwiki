@@ -609,7 +609,7 @@ sub rcs_commit_helper (@) {
 	# So we should ignore its exit status (hence run_or_non).
 	if (run_or_non('git', 'commit', '-m', $params{message}, '-q', @opts)) {
 		if (length $config{gitorigin_branch}) {
-			run_or_cry('git', 'push', $config{gitorigin_branch});
+			run_or_cry('git', 'push', $config{gitorigin_branch}, $config{gitmaster_branch});
 		}
 	}
 	
