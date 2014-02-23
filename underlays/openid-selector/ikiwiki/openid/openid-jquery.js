@@ -8,12 +8,12 @@ This code is licenced under the New BSD License.
 var providers_large = {
     google: {
         name: 'Google',
-	icon: 'http://google.com/favicon.ico',
+        icon: 'ikiwiki/openid/goa-account-google.png',
         url: 'https://www.google.com/accounts/o8/id'
     },
     yahoo: {
         name: 'Yahoo',      
-	icon: 'http://yahoo.com/favicon.ico',
+        icon: 'ikiwiki/openid/goa-account-yahoo.png',
         url: 'http://me.yahoo.com/'
     },    
     openid: {
@@ -26,43 +26,31 @@ var providers_large = {
 var providers_small = {
     livejournal: {
         name: 'LiveJournal',
-	icon: 'http://livejournal.com/favicon.ico',
+        icon: 'ikiwiki/openid/livejournal.png',
         label: 'Enter your Livejournal username:',
         url: 'http://{username}.livejournal.com/'
     },
     flickr: {
 	name: 'Flickr',        
-	icon: 'http://flickr.com/favicon.ico',
+	icon: 'ikiwiki/openid/goa-account-flickr.png',
 	label: 'Enter your Flickr username:',
 	url: 'http://flickr.com/photos/{username}/'
     },
     wordpress: {
         name: 'Wordpress',
-	icon: 'https://s2.wp.com/i/favicon.ico',
+	icon: 'ikiwiki/openid/wordpress.png',
         label: 'Enter your Wordpress.com username:',
         url: 'http://{username}.wordpress.com/'
     },
-    myopenid: {
-        name: 'MyOpenID',
-	icon: 'http://myopenid.com/favicon.ico',
-        label: 'Enter your MyOpenID username:',
-        url: 'http://{username}.myopenid.com/'
-    },
-    claimid: {
-        name: 'ClaimID',
-	icon: 'http://claimid.com/favicon.ico',
-        label: 'Enter your ClaimID username:',
-        url: 'http://claimid.com/{username}'
-    },
     aol: {
         name: 'AOL',     
-	icon: 'http://aol.com/favicon.ico',
+        icon: 'ikiwiki/openid/aol.png',
         label: 'Enter your AOL username:',
         url: 'http://openid.aol.com/{username}'
     },
     verisign: {
         name: 'Verisign',
-	icon: 'http://verisign.com/favicon.ico',
+        icon: 'ikiwiki/openid/verisign.png',
         label: 'Enter your Verisign username:',
         url: 'http://{username}.pip.verisignlabs.com/'
     }
