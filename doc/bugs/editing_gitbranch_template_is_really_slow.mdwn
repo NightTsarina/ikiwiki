@@ -1,0 +1,17 @@
+On this wiki, editing `templates/gitbranch.mdwn` causes a really slow
+refresh, orders of magnitude slower than a full rebuild: a large number of
+pages depend on that template, or link to a page that embeds that template,
+and so on.
+
+I suspect that, as with my optimization pass for `album`'s benefit, the
+costly thing is evaluating lots of pagespecs. I'm profiling it to see
+whether the problem is there are any low-hanging fruit.
+
+Easy to reproduce offline:
+
+* comment out the `exclude` option in `docwiki.setup`
+* `/usr/bin/perl -Iblib/lib ikiwiki.in -setup docwiki.setup -rebuild`
+* `touch templates/gitbranch.mdwn`
+* `/usr/bin/perl -Iblib/lib ikiwiki.in -setup docwiki.setup -refresh`
+
+--[[smcv]]
