@@ -1,3 +1,4 @@
+[[!template id=gitbranch branch=anderbubble/edittemplate author="Jonathon Anderson"]]
 [[!tag wishlist patch]]
 
 I use a default template for all new pages:
@@ -17,3 +18,31 @@ I've already made these changes in my installation, and have made my patches ava
 Changes to the structure of `$pagestate{$registering_page}{edittemplate}{$pagespec}` mean that a `cgi` rebuild is necessary (for reasons I don't entirely understand); but I think that's preferable to creating an entirely separate `$pagestate` namespace for storing parameters.  That said, I'm not really a perl programmer, so corrections are welcome.
 
 > I like this patch. I hate seeing things I've already read get marked as unread in my rss feed. -- [[JoshBBall]]
+
+>> (I don't have commit access so take this with a pinch of salt -
+>> I'm just trying to help deal with the code-review backlog.)
+>>
+>> I mostly like the first and third patches in the branch (adding v4
+>> (random) UUIDs, and adding the timestamps). I'd be tempted to rename
+>> `time` and `formatted_time` to `iso_time` and `time`, but that's
+>> a matter of taste, and perhaps people with commit access have
+>> stronger opinions one way or another. I haven't researched
+>> whether there's precendent for any particular naming style
+>> elsewhere in ikiwiki.
+>>
+>> The UUID bit would require adding some reference to libuuid-tiny-perl
+>> to the Debian packaging - I think a `Recommends` is too strong
+>> but a `Suggests` seems OK.
+>>
+>> I don't like the second patch (adding URL-namespaced UUID support).
+>> I'm having a hard time thinking of any situation in which a v4 UUID
+>> would be unsuitable, which means it's unnecessary complexity.
+>> FYI, the reason that it makes a rebuild is necessary is that
+>> you've restructured `$pagestate`, which is carried over from one
+>> refresh to the next (that's its purpose), and you haven't
+>> built in any migration or backwards-compatibility code that will
+>> cope with it being in the old format. My inclination would be to
+>> drop that patch. If there's a really good reason to prefer
+>> v3/v5 UUIDs, please describe it and I'll try to suggest some
+>> better way based on that, maybe global configuration in `$config`.
+>> --[[smcv]]
