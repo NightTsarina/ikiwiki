@@ -24,4 +24,8 @@ NYTProf says:
 
 which is about half the execution time (458s on my laptop).
 
+Adding code to log each call to match_backlink indicates that a large part
+of the problem is that there are about a million calls to
+`bestlink(plugins/goodstuff)` with various pages and locations.
+
 --[[smcv]]
