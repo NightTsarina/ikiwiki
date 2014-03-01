@@ -438,6 +438,16 @@ sub editcomment ($$) {
 			$page));
 	}
 
+	# There's no UI to get here, but someone might construct the URL,
+	# leading to a comment that exists in the repository but isn't
+	# shown
+	if (!pagespec_match($page, $config{comments_pagespec},
+		location => $page)) {
+		error(sprintf(gettext(
+			"comments on page '%s' are not allowed"),
+			$page));
+	}
+
 	if (pagespec_match($page, $config{comments_closed_pagespec},
 		location => $page)) {
 		error(sprintf(gettext(
