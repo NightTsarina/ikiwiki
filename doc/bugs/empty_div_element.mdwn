@@ -1,0 +1,31 @@
+For some more flexibility in creating a stylesheet for ikiwiki, it would be nice if there were a few unused elements on the page that one can move around and assign content to using CSS.
+
+For instance, something like this:
+
+    <div class='aux' id='aux1'></div>
+    <div class='aux' id='aux2'></div>
+
+etc. For bonus points, the number could be configurable. To avoid empty content, style.css should have something like this:
+
+    .extra {
+        display: none;
+    }
+
+This can then be used to move things around. For instance, I have on my website's CSS stylesheet the following:
+
+    #aux1 {
+        position: fixed;
+        width: 150px;
+        height: 150px;
+        bottom: 0px;
+        left: 0px;
+        background-image: url("wouter3.png");
+        background-position: top right;
+        background-repeat: no-repeat;
+        background-origin: content-box;
+        display-block;
+    }
+
+which adds my hackergochi to the bottom left of the webpage, with some margin.
+
+I tried looking for something like this, but I couldn't find it. Perhaps I just didn't look in the right places, though; apologies if that is the case.
