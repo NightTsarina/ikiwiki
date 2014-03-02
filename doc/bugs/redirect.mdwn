@@ -3,14 +3,10 @@ I suppose this isn't technically a bug, but whetever.
 I want symbolic links to be rendered as HTTP redirects. For example,
 if we do this,
 
-```
-touch foo.mkdwn
-ln -s foo.mkdwn bar.mkdwn
-git push baz.branchable.com
-```
+    touch foo.mkdwn
+    ln -s foo.mkdwn bar.mkdwn
+    git push baz.branchable.com
 
 then the following command should print 302
 
-```
-curl -o /dev/null -s -w "%{http_code}" http://baz.thomaslevine.com/bar/
-```
+    curl -o /dev/null -s -w "%{http_code}" http://baz.thomaslevine.com/bar/
