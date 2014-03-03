@@ -29,3 +29,37 @@ of the problem is that it evaluates the pagespec
 `backlink(plugins/goodstuff)` up to a million times, with various pages and locations.
 
 --[[smcv]]
+
+> [[!template id=gitbranch branch=smcv/ready/perf
+author="[[Simon McVittie|smcv]]"
+browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/perf]]
+> [[!tag patch]]
+>
+> Previously, if a page like `plugins/trail` contained a conditional like
+>
+>     [[!if test="backlink(plugins/goodstuff)" all=no]]
+>
+> (which it gets via `templates/gitbranch`), then the
+> [[plugins/conditional]] plugin would give `plugins/trail` a dependency on
+> `(backlink(plugins/goodstuff)) and plugins/trail`. This dependency is
+> useless: that pagespec can never match any page other than
+> `plugins/trail`, but if `plugins/trail` has been modified or deleted,
+> then it's going to be rendered or deleted *anyway*, so there's no point
+> in spending time evaluating match_backlink for it.
+>
+> Conversely, the influences from the result were not taken into account,
+> so `plugins/trail` did not have the
+> `{ "plugins/goodstuff" => $DEPEND_LINKS }` dependency that it should.
+>
+> We should invert that, depending on the influences but not on the test.
+>
+> This is at least an order of magnitude faster: when I edit the docwiki
+> as described above, a refresh takes 37s with nytprof overhead, compared
+> with 458s with nytprof overhead before this change. Without nytprof,
+> that refresh takes 14s, which is faster than the 24s rebuild again.
+> I didn't record how long the refresh took without nytprof before this
+> change, but it was something like 200s.
+>
+> `bestlink` is still the single most expensive function in this refresh
+> at ~ 9.5s, with `match_glob` at ~ 5.2s as the runner-up.
+> --[[smcv]]
