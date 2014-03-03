@@ -10,3 +10,17 @@ if we do this,
 then the following command should print 302
 
     curl -o /dev/null -s -w "%{http_code}" http://baz.thomaslevine.com/bar/
+
+> An interesting idea, but it conflicts somewhat with wanting symlinks to be
+> treated as the referenced file when it's safe to do so, which would be
+> great for [[todo/git-annex support]], and also good to avoid duplication
+> for files in system-wide underlays.
+>
+> Also, I don't think this is possible without help from the web server
+> configuration: for instance, under Apache, I believe the only way to get
+> an HTTP 302 redirect is via Apache-specific `.htaccess` files or
+> system-level Apache configuration.
+>
+> In current ikiwiki, you can get a broadly similar effect by either
+> using \[[!meta redir=foo]] (which does a HTML `<meta>` redirect)
+> or reconfiguring the web server. --[[smcv]]
