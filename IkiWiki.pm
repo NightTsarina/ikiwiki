@@ -14,7 +14,7 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	%pagestate %wikistate %renderedfiles %oldrenderedfiles
 	%pagesources %delpagesources %destsources %depends %depends_simple
 	@mass_depends %hooks %forcerebuild %loaded_plugins %typedlinks
-	%oldtypedlinks %autofiles @underlayfiles $lastrev};
+	%oldtypedlinks %autofiles @underlayfiles $lastrev $phase};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error htmlpage template template_depends
@@ -33,6 +33,11 @@ our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
 our $DEPEND_CONTENT=1;
 our $DEPEND_PRESENCE=2;
 our $DEPEND_LINKS=4;
+
+# Phases of processing.
+sub PHASE_SCAN () { 0 }
+sub PHASE_RENDER () { 1 }
+$phase = PHASE_SCAN;
 
 # Optimisation.
 use Memoize;
