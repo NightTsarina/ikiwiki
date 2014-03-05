@@ -218,3 +218,39 @@ Please, let me know what to do to avoid this kind of error.
 >>>>>>>> omit that, or reduce it to a set of scanned *templates*
 >>>>>>>> (in practice that would mean scanning each template twice
 >>>>>>>> in a rebuild). --s
+
+>>>>>>>>> [Commit f7303db5](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=f7303db5)
+>>>>>>>>> suggests that scanning the same page more than once is problematic,
+>>>>>>>>> so that solution is probably not going to work.
+>>>>>>>>>
+>>>>>>>>> The best idea I've come up with so far is to track whether
+>>>>>>>>> we're in the scan or render phase. If we're in the scan
+>>>>>>>>> phase, I think we do need to keep track of which pages
+>>>>>>>>> we've scanned, so we don't do them again? (Or perhaps that's
+>>>>>>>>> unnecessary - commit f7303db5 removed a scan call that's in
+>>>>>>>>> the render phase.) If we're in the render phase, we can assume
+>>>>>>>>> that all changed pages have been scanned already, so we can
+>>>>>>>>> drop the contents of `%scanned` and rely on a single boolean
+>>>>>>>>> flag instead.
+>>>>>>>>>
+>>>>>>>>> `%scanned` is likely to be no larger than `%rendered`, which
+>>>>>>>>> we already track, and whose useful lifetime does not overlap
+>>>>>>>>> with `%scanned` now. I was tempted to merge them both and call
+>>>>>>>>> the result `%done_in_this_phase`, but that would lead to really
+>>>>>>>>> confusing situations if a bug led to `render` being called sooner
+>>>>>>>>> than it ought to be.
+>>>>>>>>>
+>>>>>>>>> My ulterior motive here is that I would like to formalize
+>>>>>>>>> the existence of different phases of wiki processing - at the
+>>>>>>>>> moment there are at least two phases, namely "it's too soon to
+>>>>>>>>> match pagespecs reliably" and "everything has been scanned,
+>>>>>>>>> you may use pagespecs now", but those phases don't have names,
+>>>>>>>>> so [[plugins/write]] doesn't describe them.
+>>>>>>>>>
+>>>>>>>>> I'm also considering adding warnings
+>>>>>>>>> if people try to match a pagespec before scanning has finished,
+>>>>>>>>> which can't possibly guarantee the right result, as discussed in
+>>>>>>>>> [[conditional_preprocess_during_scan]]. My `wip-too-soon` branch
+>>>>>>>>> is a start towards that; the docwiki builds successfully, but
+>>>>>>>>> the tests that use IkiWiki internals also need updating to
+>>>>>>>>> set `$phase = PHASE_RENDER` before they start preprocessing. --s
