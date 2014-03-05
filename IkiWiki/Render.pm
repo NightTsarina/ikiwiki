@@ -154,7 +154,7 @@ sub genpage ($$) {
 
 sub scan ($) {
 	my $file=shift;
-	return if $scanned{$file};
+	return if $phase > PHASE_SCAN || $scanned{$file};
 	$scanned{$file}=1;
 
 	debug(sprintf(gettext("scanning %s"), $file));
@@ -883,6 +883,9 @@ sub refresh () {
 
 	# At this point it becomes OK to start matching pagespecs.
 	$phase = PHASE_RENDER;
+	# Save some memory: we no longer need to keep track of which pages
+	# we've scanned
+	%scanned = ();
 
 	remove_del(@$del, @$internal_del);
 
