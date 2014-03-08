@@ -97,3 +97,16 @@ The [[ikiwiki/directive/listdirectives]]` directive doesn't register a link betw
 >>>> 
 >>>> (I'll interpet Joeys silence as a good sign ;-). Is there a difference between "link to it" and "path to it"? If we assume autoindex produces bonafide "first class" links there shouldn't be one!?
 >>>> So far your idea sounds great, says me without any knowledge of the source. I'll try to grok it. Is there a medium for silly questions, a wiki seems not the right fit for that? -- [[holger]]
+
+>>>>> Yes, there *has* to be a difference between a first class wikilink
+>>>>> and the thing to which `map` and `inline` can contribute.
+>>>>> `map` and `inline` use a pagespec to decide what they include,
+>>>>> and pagespecs can't be evaluated and get a correct answer until the
+>>>>> set of links has been collected, because their results often depend
+>>>>> on the set of links. Otherwise, suppose you had a page `foo` whose only
+>>>>> contents were this:
+>>>>>
+>>>>>     \[[!inline pages="!backlink(foo)"]]
+>>>>>
+>>>>> If `inline` generated links, it would inline exactly those pages that
+>>>>> it doesn't inline. That's never going to end well :-) --[[smcv]]
