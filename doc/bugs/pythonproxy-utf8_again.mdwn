@@ -1,0 +1,16 @@
+[[!template  id=gitbranch branch=chrysn/more-proxy-utf8-fail author="[[chrysn]]"]]
+
+the recently introduced fixes for [[crashes in the python proxy even if disabled]]
+caused the typical python2 implicit conversion failures ("'ascii' codec
+can't...") on my debian sid system -- to fix it, i had to revert commit 154c4ea9e.
+
+i did not dig down all the way to the xml / xmlrpc modules, but my impression
+is that some module changed its behavior between stable and sid and now
+generates `unicode` strings instead of `str`.
+
+a [[patch]] to allow both versions by inspecting the types and en-/decoding on
+demand should work both for anarcat's and my case. i did not test the python3
+version, but i'm pretty sure it was already broken after the abovementioned
+patch.
+
+-- [[chrysn]]
