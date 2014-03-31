@@ -58,6 +58,8 @@ i'm new to ikiwiki, apologies if this is dealt with elsewhere.  -brush
 
 ----
 
+## design feedback from joeyh on an earlier version
+
 You had wanted my feedback on the design of this. I have not looked at the
 code or tried it yet, but here goes. --[[Joey]]	
 
@@ -259,6 +261,8 @@ code or tried it yet, but here goes. --[[Joey]]
 
 ----
 
+## alternative "special extension" design (conclusion: "don't")
+
 '''I think the "special extension" design is a dead-end, but here's what
 happened when I tried to work out how it would work. --[[smcv]]'''
 
@@ -405,13 +409,19 @@ Things that would be nice, and are probably possible:
 
 ----
 
+## bug: unable to vary thumbnail size
+
 Hi smcv, great plugin. I am an ikiwiki newbie but so far I've had success using your plugin.
 I've integrated the jquery masonry plugin into the albumitem template and it works great.
 But is there a way to create thumnails of different sizes? I've passed thumnailsize option
 and value to album directive and while it does create the new thumbnail sizes it doesn't use them,
 The 96x96 thumbnails still appear on the page no matter what I do. - jaime
 
+> [[KathrynAndersen]] fixed this, see below. --[[smcv]]
+
 ----
+
+## failed installation
 
 Hi, the plugin looks great, but I am probably too dumb to use it ;( here is what I did:
 created page gal.mdwn with just \[\[!album\]\] directive (no arguments) and subdirectory gal/ with images in form img_1234.jpg
@@ -458,13 +468,44 @@ Thanks Lukas
 >> Thanks for all the work you did on the plugin! --Lukas
 
 ----
-Hi smcv, we spoke on irc the other day. Passed `show => "0"` on line 126 in album.pm to remove the limit on the thumbnails shown on the album page. Setting it on the album directive didn't work. As mentioned above by Jaime setting the thumbnailsize doesn't catch either. Or rather if I git push after changing the album directive the generated thumbnails (the image files) are the correct size as set in the directive. The html however uses the default thumbnailsize as hardcoded in album.pm and has broken thumbnails as it links to a file with the default size in the filename.
+
+## bug + patch: not all images shown on album page
+
+Hi smcv, we spoke on irc the other day. Passed `show => "0"` on line 126 in album.pm to remove the limit on the thumbnails shown on the album page. Setting it on the album directive didn't work.
+
+--kjs
+
+> That sounds like a correct solution. I'll fix that in my branch when I work on
+> this again. --[[smcv]]
+
+----
+
+## bug: thumbnailsize doesn't work
+
+As mentioned above by Jaime setting the thumbnailsize doesn't catch either. Or rather if I git push after changing the album directive the generated thumbnails (the image files) are the correct size as set in the directive. The html however uses the default thumbnailsize as hardcoded in album.pm and has broken thumbnails as it links to a file with the default size in the filename.
+
+> [[KathrynAndersen]] fixed this, see below. --[[smcv]]
 
 Issuing `ikiwiki --rebuild` knocks the system into another gear where the thumbnails show up correctly but this is only due to the html being the same as above (linking to hardcoded thumbnailsize) but the generated thumbnail images are now matching the hardcoded size ignoring the thumbnailsize attribute on the album directive.
 
 For me this behaviour is way beyond my skills to sort out (I'm no coder). The albumplugin ikiwiki combo is very attractive to me and the plugin i soo close to working!
 
+--kjs
+
+----
+
+## wishlist + patch: make clicking on the large image go to the next
+
 I've changed the behavior of the "slideshow" to show the next image when clicking the large image as downloading a full resolution image is a rare use case in a gallery of this type imho. The large clicktarget means you are likely to unnecessarily download large files otherwise. I can't quite follow the template, album.pm flow so I can't figure out how to put a "download full resolution" link on the viewer page which would be my next step. To achieve the next link i added ` link => ($nextpage or $album),` around line 454 in `my $img`
+
+--kjs
+
+> That seems reasonable. I'll consider that when I work on this
+> plugin again next. --[[smcv]]
+
+----
+
+## wishlist from kjs
 
 My wishlist for the plugin would include:
 
@@ -474,7 +515,15 @@ My wishlist for the plugin would include:
 
 --kjs
 
+> I want the first two of those too, perhaps one day I'll get round to
+> implementing them.
+>
+> For the third, you can get the same practical effect using an inline
+> as documented in the main page. --[[smcv]]
+
 ----
+
+## suggested fix for thumbnail size bug
 
 I've tracked down the "always showing the 96x96 thumbnails" bug!
 
@@ -516,10 +565,29 @@ Here's a context-diff of my fix:
 
 -- [[KathrynAndersen]]
 
+> I haven't tried this change, but it seems sane. I'll apply it
+> when I next work on this plugin.
+>
+> (OOI: why not a unified diff? The VCS world seems to have
+> settled on those as universal, and I find them easier to
+> read.)
+>
+> --[[smcv]]
+
 ----
+
+## bug: inability to show more than 10 items
 
 I've found another bug. The album plugin doesn't allow one to have more than 10 items in an album section. This is because it uses "inline" to display album sections, and the default for inline is to show only 10 items. So it only shows 10 items.
 
 What would be good is if the album directive could have a "show" parameter which is passed on to preprocess_inline, so that users could decide how many items to show (including ALL of them, if they give show=0).
 
 -- [[KathrynAndersen]]
+
+> My intention was that all items would always be shown, so I would always pass
+> `show => 0` to `preprocess_inline` (as kjs suggested above), but that must have
+> got lost somewhere. I'll apply it next time I work on this plugin.
+>
+> An optional `show` parameter would be a possible enhancement beyond that,
+> although I don't know how useful it would be; if it isn't passed, the
+> default should be 0 (unlimited). --[[smcv]]
