@@ -91,6 +91,14 @@ to download):
 
 ## Bugs
 
+* `thumbnailsize` doesn't actually work, they're always 96x96.
+  [[KathrynAndersen]] suggested a fix on the [[discussion]] page;
+  search for her name and look for a context diff.
+
+* The album index is limited to 10 images. kjs suggested a fix on
+  the [[discussion]] page: the plugin should pass `show => 0`
+  to `preprocess_inline`.
+
 * There's currently a hard-coded list of extensions that are treated as
   images: `png`, `gif`, `jpg`, `jpeg` or `mov` files. More image and video
   types could be added in future.
