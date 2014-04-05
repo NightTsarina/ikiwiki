@@ -467,6 +467,11 @@ sub git_commit_info ($;$) {
 sub rcs_find_changes ($) {
 	my $oldrev=shift;
 
+	# Note that git log will sometimes show files being added that
+	# don't exist. Particularly, git merge -s ours can result in a
+	# merge commit where some files were not really added.
+	# This is why the code below verifies that the files really
+	# exist.
 	my @raw_lines = run_or_die('git', 'log',
 		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
 		'--no-renames', , '--reverse',
@@ -482,12 +487,16 @@ sub rcs_find_changes ($) {
 		foreach my $i (@{$ci->{details}}) {
 			my $file=$i->{file};
 			if ($i->{sha1_to} eq $nullsha) {
-				delete $changed{$file};
-				$deleted{$file}=1;
+				if (! -e "$config{srcdir}/$file") {
+					delete $changed{$file};
+					$deleted{$file}=1;
+				}
 			}
 			else {
-				delete $deleted{$file};
-				$changed{$file}=1;
+				if (-e "$config{srcdir}/$file") {
+					delete $deleted{$file};
+					$changed{$file}=1;
+				}
 			}
 		}
 	}
