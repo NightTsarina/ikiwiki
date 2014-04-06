@@ -510,8 +510,9 @@ I've changed the behavior of the "slideshow" to show the next image when clickin
 My wishlist for the plugin would include:
 
 - Reading exif info from the imagefile
-- Keeping the full resolution image files out of version control
-- Being able to create new albums by tag or bym anually picking images from other albums. Could be a simple comma separated list of viewer names, or even full urls, in the album directive.
+- ~~Keeping the full resolution image files out of version control~~ Solved this by simply creating a underlay for the images. Works out of the box for my non cgi workflow.
+- Being able to create new albums by tag or by manually picking images from other albums. Could be a simple comma separated list of viewer names, or even full urls, in the album directive.
+- A counter showing **current image/total number of images in album**. This would mean that you know how many images you have left to click through before you have seen all images in an album. This gives you enought info to decide weather to click through or go back/leave.
 
 --kjs
 
@@ -520,6 +521,7 @@ My wishlist for the plugin would include:
 >
 > For the third, you can get the same practical effect using an inline
 > as documented in the main page. --[[smcv]]
+>> The downside to current behaviour is that clicking an inlined thumbnail will take you to the original album context. Previous/Next image will not match the thumbnails in the inline but the thumbnails in the album. This is a bit confusing for users and prevents using the image in multiple contexts without duplicating the image. To achieve what I'm looking for there would have to be several AlbumViewer pages for a single image.
 
 ----
 
