@@ -65,6 +65,7 @@ sub preprocess (@) {
 	my $dir = $params{page};
 	my $base = IkiWiki::basename($file);
 	my $issvg = $base=~s/\.svg$/.png/i;
+	my $ispdf = $base=~s/\.pdf$/.png/i;
 
 	eval q{use Image::Magick};
 	error gettext("Image::Magick is not installed") if $@;
@@ -124,7 +125,7 @@ sub preprocess (@) {
 				# don't actually write resized file in preview mode;
 				# rely on width and height settings
 				if (! $params{preview}) {
-					$im->set($issvg ? (magick => 'png') : ());
+					$im->set(($issvg || $ispdf) ? (magick => 'png') : ());
 					my @blob = $im->ImageToBlob();
 					writefile($imglink, $config{destdir}, $blob[0], 1);
 				}
