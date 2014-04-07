@@ -68,7 +68,7 @@ sub preprocess (@) {
 
 	eval q{use Image::Magick};
 	error gettext("Image::Magick is not installed") if $@;
-	my $im = Image::Magick->new($issvg ? (magick => "png") : ());
+	my $im = Image::Magick->new();
 	my $imglink;
 	my $r = $im->Read($srcfile);
 	error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
@@ -124,6 +124,7 @@ sub preprocess (@) {
 				# don't actually write resized file in preview mode;
 				# rely on width and height settings
 				if (! $params{preview}) {
+					$im->set($issvg ? (magick => 'png') : ());
 					my @blob = $im->ImageToBlob();
 					writefile($imglink, $config{destdir}, $blob[0], 1);
 				}
