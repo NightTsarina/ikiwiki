@@ -66,12 +66,16 @@ sub preprocess (@) {
 	my $base = IkiWiki::basename($file);
 	my $issvg = $base=~s/\.svg$/.png/i;
 	my $ispdf = $base=~s/\.pdf$/.png/i;
+	my $pagenumber = exists($params{pagenumber}) ? int($params{pagenumber}) : 0;
+	if ($pagenumber != 0) {
+		$base = "p$pagenumber-$base";
+	}
 
 	eval q{use Image::Magick};
 	error gettext("Image::Magick is not installed") if $@;
 	my $im = Image::Magick->new();
 	my $imglink;
-	my $r = $im->Read($srcfile);
+	my $r = $im->Read("$srcfile\[$pagenumber]");
 	error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 	
 	my ($dwidth, $dheight);
