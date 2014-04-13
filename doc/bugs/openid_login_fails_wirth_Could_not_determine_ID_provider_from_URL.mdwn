@@ -133,3 +133,19 @@ $ perl -e 'use LWPx::ParanoidAgent;
 500 Can't read entity body: Ressource temporairement non disponible
 500 Can't read entity body: Ressource temporairement non disponible
 ~~~~
+
+Workaround - disable error checking:
+
+~~~~
+--- /home/anarcat/src/ikiwiki/IkiWiki/Plugin/openid.pm  2014-02-03 20:21:09.502878631 -0500
++++ /usr/share/perl5/IkiWiki/Plugin/openid.pm   2014-04-13 16:00:06.875744596 -0400
+@@ -237,7 +237,7 @@
+
+        my $ua;
+        eval q{use LWPx::ParanoidAgent};
+-       if (! $@) {
++       if (! $@ && 0) {
+                $ua=LWPx::ParanoidAgent->new;
+        }
+        else {
+~~~~
