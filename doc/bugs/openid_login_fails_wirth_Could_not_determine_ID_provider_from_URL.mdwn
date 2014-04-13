@@ -106,3 +106,9 @@ Thanks [jwz](http://www.jwz.org/blog/2014/03/apple-broke-lwp-in-a-new-and-exciti
 I tried the workaround of hardcoding the path to the CA root, using `PERL_LWP_SSL_CA_PATH=/etc/ssl/certs`, but then I hit *another* bug in LWP: [#738493](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=738493).
 
 Note that this bug is similar to [[bugs/ssl_certificates_not_checked_with_openid/]], but backwards: it checks the SSL certs but then fails to verify.
+
+I filed this bug in the Debian BTS as [#702124](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=702124). Downgrading to wheezy's version of LWPx::ParanoidAgent doesn't fix the problem, instead i get this error:
+
+    500 Can't read entity body: Resource temporarily unavailable
+
+... yet the commandline client works fine... I'm out of ideas for this sucker.
