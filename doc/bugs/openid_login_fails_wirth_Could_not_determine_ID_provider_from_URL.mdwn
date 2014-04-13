@@ -112,3 +112,24 @@ I filed this bug in the Debian BTS as [#702124](https://bugs.debian.org/cgi-bin/
     500 Can't read entity body: Resource temporarily unavailable
 
 ... yet the commandline client works fine... I'm out of ideas for this sucker.
+
+Update: i found a way to reproduce the problem even with LWPx::ParanoidAgent 1.07:
+
+~~~~
+$ perl -e 'use LWPx::ParanoidAgent;
+  print $LWPx::ParanoidAgent::VERSION, " $]\n";
+  $ua = new LWPx::ParanoidAgent; for (my $i = 0; $i< 10 ; $i++) { $c = LWPx::ParanoidAgent->new->get
+      ("https://id.koumbit.net/anarcat")
+      ->decoded_content; if (length($c) < 100) { print $c; } else { print length($c),"\n";}}'
+1.07 5.018002
+5720
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+~~~~
