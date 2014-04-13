@@ -3,3 +3,106 @@ On some ikiwikis that I run, I get the following error on OpenID logins:
     no_identity_server: Could not determine ID provider from URL.
 
 I seem recall having that error before, and fixing it, but it always seems to come back and I forget how to fix it. So I'll just open this bug and document it if i can figure it out... -- [[users/anarcat]]
+
+The Perl module manual says:
+
+>            "no_identity_server"
+>               (CV) Tried to do discovery on a URL that does not seem to have any providers at all.
+
+Yet on the server side, I see no request coming in on the OpenID provider... 
+
+Adding debugging helps in figuring out wtf is going on:
+
+~~~~
+anarcat@marcos:~$ diff -u ~/src/ikiwiki/IkiWiki/Plugin/openid.pm /usr/share/perl5/IkiWiki/Plugin/openid.pm
+--- /home/anarcat/src/ikiwiki/IkiWiki/Plugin/openid.pm  2014-02-03 20:21:09.502878631 -0500
++++ /usr/share/perl5/IkiWiki/Plugin/openid.pm   2014-04-13 11:45:25.413297420 -0400
+@@ -257,6 +256,7 @@
+        return Net::OpenID::Consumer->new(
+                ua => $ua,
+                args => $q,
++               debug => 1,
+                consumer_secret => sub { return shift()+$secret },
+                required_root => auto_upgrade_https($q, $cgiurl),
+        );
+~~~~
+
+In my case, I see:
+
+
+~~~~
+[Sun Apr 13 11:45:35.796531 2014] [cgi:error] [pid 7299] [client 162.223.3.24:39547] AH01215: [DEBUG Net::OpenID::Consumer] Cache MISS for https://id.koumbit.net/anarcat, referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:45:35.842520 2014] [cgi:error] [pid 7299] [client 162.223.3.24:39547] AH01215: [DEBUG Net::OpenID::Consumer] Cache MISS for https://id.koumbit.net/anarcat, referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:45:35.845603 2014] [cgi:error] [pid 7299] [client 162.223.3.24:39547] AH01215: [DEBUG Net::OpenID::Consumer] semantic info (https://id.koumbit.net/anarcat) = , referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:45:35.845672 2014] [cgi:error] [pid 7299] [client 162.223.3.24:39547] AH01215: [DEBUG Net::OpenID::Consumer] fail(no_identity_server) Could not determine ID provider from URL., referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+~~~~
+
+There are three places in the code the original error message happens:
+
+* Net::OpenID::claimed_identity
+* Net::OpenID::verified_identity
+* Net::OpenID::_find_openid_server
+
+We'll look at the last one because it's where the URL data is actually fetched.
+
+[[!format perl """
+sub _find_openid_server {
+    my Net::OpenID::Consumer $self = shift;
+    my $url = shift;
+    my $final_url_ref = shift;
+
+    my $sem_info = $self->_find_semantic_info($url, $final_url_ref) or
+        return;
+
+    return $self->_fail("no_identity_server") unless $sem_info->{"openid.server"};
+    $sem_info->{"openid.server"};
+}
+"""]]
+
+From there we look at `_find_semantic_info()`, which is supposed to hit the OpenID server, but doesn't somehow.... By cranking up debugging, we can see that the consumer fails to verify the HTTPS signature on the host:
+
+~~~~
+[Sun Apr 13 11:58:30.284511 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: [DEBUG Net::OpenID::Consumer] url dump (https://id.koumbit.net/anarcat, SCALAR(0x3275ac0)) = 500 Can't verify SSL peers without knowing which Certificate Authorities to trust, referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:58:30.284551 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: , referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:58:30.284573 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: This problem can be fixed by either setting the PERL_LWP_SSL_CA_FILE, referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:58:30.284593 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: envirionment variable or by installing the Mozilla::CA module., referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:58:30.284597 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: , referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+~~~~
+
+To get this little wonder, I had to change the `_find_semantic_info()` as followed:
+
+~~~~
+sub _find_semantic_info {
+    my Net::OpenID::Consumer $self = shift;
+    my $url = shift;
+    my $final_url_ref = shift;
+
+    my $doc = $self->_get_url_contents($url, $final_url_ref);
+    $self->_debug("url dump ($url, $final_url_ref) = " . $doc) if $self->{debug};
+    my $info = _document_to_semantic_info($doc);
+    $self->_debug("semantic info ($url) = " . join(", ", map { $_.' => '.$info->{$_} } keys %$info)) if $self->{debug};
+
+    return $info;
+}
+~~~~
+
+A minimal test case would be:
+
+~~~~
+perl -e 'use LWPx::ParanoidAgent;
+  print $LWPx::ParanoidAgent::VERSION, " $]: ";
+  print length(LWPx::ParanoidAgent->new->get
+      ("https://id.koumbit.net/anarcat")
+      ->decoded_content), "\n";'
+~~~~
+
+And the results vary according to the version of perl:
+
+* wheezy: 1.07 5.014002: 5720
+* jessie: 1.10 5.018002: 398
+
+Thanks [jwz](http://www.jwz.org/blog/2014/03/apple-broke-lwp-in-a-new-and-exciting-way-on-10-9-2/) for that.. And this *could* have been packaged in Debian, except it overlaps with the `ca-certificates` package, so it was [basically barred entry](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=702124).
+
+I tried the workaround of hardcoding the path to the CA root, using `PERL_LWP_SSL_CA_PATH=/etc/ssl/certs`, but then I hit *another* bug in LWP: [#738493](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=738493).
+
+Note that this bug is similar to [[bugs/ssl_certificates_not_checked_with_openid/]], but backwards: it checks the SSL certs but then fails to verify.
