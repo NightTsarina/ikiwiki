@@ -101,7 +101,7 @@ And the results vary according to the version of perl:
 * wheezy: 1.07 5.014002: 5720
 * jessie: 1.10 5.018002: 398
 
-Thanks [jwz](http://www.jwz.org/blog/2014/03/apple-broke-lwp-in-a-new-and-exciting-way-on-10-9-2/) for that.. And this *could* have been packaged in Debian, except it overlaps with the `ca-certificates` package, so it was [basically barred entry](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=702124).
+Thanks [jwz](http://www.jwz.org/blog/2014/03/apple-broke-lwp-in-a-new-and-exciting-way-on-10-9-2/) for that.. Mozilla::CA *could* have been packaged in Debian, except it overlaps with the `ca-certificates` package, so it was [basically barred entry](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=702124).
 
 I tried the workaround of hardcoding the path to the CA root, using `PERL_LWP_SSL_CA_PATH=/etc/ssl/certs`, but then I hit *another* bug in LWP: [#738493](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=738493).
 
