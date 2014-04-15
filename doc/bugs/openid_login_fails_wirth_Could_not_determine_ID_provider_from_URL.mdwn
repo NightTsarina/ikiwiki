@@ -71,7 +71,7 @@ From there we look at `_find_semantic_info()`, which is supposed to hit the Open
 
 To get this little wonder, I had to change the `_find_semantic_info()` as followed:
 
-~~~~
+[[!format perl """
 sub _find_semantic_info {
     my Net::OpenID::Consumer $self = shift;
     my $url = shift;
@@ -84,7 +84,7 @@ sub _find_semantic_info {
 
     return $info;
 }
-~~~~
+"""]]
 
 A minimal test case would be:
 
