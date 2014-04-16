@@ -123,3 +123,31 @@ this without that feature initially.
 >
 > -- [[Louis|spalax]]
 
+>> One big request is more efficient than lots of small requests,
+>> if we model the CSS as all changing equally infrequently.
+>> In terms of bytes, each file needs some code in the HTML `<head>`,
+>> plus the HTTP request and response headers, plus the actual file.
+>> On the first page-view, a visitor will have to download all the CSS anyway
+>> (one request/response pair per CSS file). On subsequent page-views, there
+>> will be one request/"304 Not Modified" response per CSS file, unless the
+>> CSS files can be marked "to be cached forever" (which can be done if
+>> they have content-based filenames).
+>>
+>> In terms of time, [[!wp HTTP_pipelining desc="according to Wikipedia"]]
+>> browsers don't generally pipeline requests, so the page won't finish
+>> loading until one round-trip time per uncached CSS file has elapsed.
+>>
+>> Having lots of small files with content-based filenames would be the
+>> next best thing - not particularly efficient on a generic web server,
+>> but they could at least be marked as "cache forever" in server
+>> configuration. I'd be OK with doing that if it makes ikiwiki more
+>> maintainable, but I don't think concatenating all the CSS at
+>> compile time is actually going to be a problem in practice.
+>> The individual small files are still going to be available
+>> for the wiki operator to edit.
+>>
+>> If some CSS files change with a significantly different frequency,
+>> *then* it might become worthwhile to separate them, but I don't
+>> think that's the case (apart from possibly local.css, which is why
+>> I'm not sure whether to include it in this).
+>> --smcv
