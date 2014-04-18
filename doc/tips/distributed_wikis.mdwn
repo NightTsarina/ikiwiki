@@ -11,9 +11,8 @@ There are three possible level of decentralisation:
 
  0. [[default setup|rcs/git]], no decentralisation
  1. [[a simple HTML mirror|tips/Git_repository_and_web_server_on_different_hosts/]]
- 2. separate `srcdir`, still requires a central bare repo - uses [[plugin/pinger]]
- 3. completely distinct ikiwiki installs, synchronised with
-    [[plugin/gitpush]]
+ 2. separate `srcdir`, still requires a central bare repo - uses [[plugins/pinger]]
+ 3. completely distinct ikiwiki installs, synchronised with [[plugins/contrib/gitpush]]
 
 Here's a graphic overview of those:
 
@@ -24,15 +23,14 @@ Here's a graphic overview of those:
 In the default setup, all the resources are stored on the central
 servers. Users can still clone and edit the git repo by hand and
 contribute by git, but otherwise all the changes happen on a single
-web interface.
+web interface. This basic setup is best described in [[rcs/git]].
 
 ### Separate webserver and git repository
 
 [[!img tips/Git_repository_and_web_server_on_different_hosts/separate-webserver.svg size=400x]]
 
-In the configuration described in
-[[tips/Git_repository_and_web_server_on_different_hosts]], the
-webserver is separate from the git repository. The webserver part
+This is the configuration described in
+[[tips/Git_repository_and_web_server_on_different_hosts]]. The webserver part
 hosts the HTML files, the ikiwiki [[cgi]] but everything else is on
 the git server.
 
@@ -50,7 +48,7 @@ server on edits.
 [[!img decentralized_wikis.svg size=400x]]
 
 In this configuration, each wiki is fully independent and pushes its
-changes to other wikis using the [[plugins/gitpush]] plugin.
+changes to other wikis using the [[plugins/contrib/gitpush]] plugin.
 
 ## a wiki mirror
 
@@ -222,7 +220,7 @@ The following entries will be different from the above setup file:
     git_wrapper: /home/user/source.git/hooks/post-commit
     git_test_receive_wrapper: /home/user/source.git/hooks/pre-receive
 
-To do this, the mirror needs to push back to the master, again using the gitpush plugin:
+To do this, the mirror needs to push back to the master, again using the [[plugins/contrib/gitpush]] plugin:
 
     git_push_to:
     - git://wiki.example.com/
