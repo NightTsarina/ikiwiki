@@ -149,3 +149,24 @@ Workaround - disable error checking:
         }
         else {
 ~~~~
+
+> I get the same trouble with OpenID and some locally installed versions of IkiWiki on Debian wheezy (server) as well as on 13.10 Ubuntu (laptop). To be precise I hit the *other* bug in LWP: [#738493](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=738493).
+>
+> My only workaround for now was to fix `PERL_LWP_SSL_VERIFY_HOSTNAME` to 0 directly in `ikiwiki` :-(  -- [[users/bbb]]
+
+~~~~
+*** /home/bruno/opt/ikiwiki/bin/ikiwiki.bad     2014-04-17 15:41:38.868972152 +0200
+--- /home/bruno/opt/ikiwiki/bin/ikiwiki 2014-04-17 15:04:56.524996905 +0200
+*************** sub main () {
+*** 226,229 ****
+        }
+  }
+  
+! main;
+--- 226,229 ----
+        }
+  }
+  
+! $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0 ; main;
+~~~~
+
