@@ -52,22 +52,6 @@ Step by step setup instructions for this are detailed below.
 In this configuration, each wiki is fully independent and pushes its
 changes to other wikis using the [[plugins/contrib/gitpush]] plugin.
 
-### branching a wiki
-
-It follows that setting up a branch of a wiki is just like the fully decentralised mirror above, except
-we don't want it to push changes back to the origin. The easy way to
-accomplish this is to clone the origin git repository using a readonly
-protocol (ie, "git://"). Then you can't push to it.
-
-If a page on your branch is modified and other modifications are made to
-the same page in the origin, a conflict might occur when that change is
-pulled in. How well will this be dealt with and how to resolve it? I think
-that the conflict markers will just appear on the page as it's rendered in
-the wiki, and if you could even resolve the conflict using the web
-interface. Not 100% sure as I've not gotten into this situation yet.
-
---[[Joey]]
-
 ## Step by step setup instructions
 
 The first two ways of setting up ikiwiki are better described in [[setup]] or [[tips/Git_repository_and_web_server_on_different_hosts]]. The remainder of this page describes the latter two more complex distributed setups. 
@@ -190,15 +174,6 @@ and you want a mirror, and not a branch, you should disable web edits on
 your mirror. (You could also point the cgiurl for your mirror at the origin
 wiki if you do not want to incur that overhead or do not want to, or can't, run a CGI.)
 
-### Announcing the mirror
-
-Once your mirror works, you can also add it to the list of mirrors. You can ask the mirror where you take it from (and why not, all mirrors) to add it to their setup file. As an example, here's the configuration for the first mirror:
-
-    mirrorlist:
-      example: https://wiki.example.com/
-
-The [[plugins/mirrorlist]] plugin of course needs to be enabled for this to work.
-
 ### Fully decentralized configuration
 
 In the above configuration, the master git repository is still on the main site. If that site goes down, there will be delays when editing the wiki mirror. It could also simply fail because it will not be able to push the changes to the master git repo. An alternative is to setup a local bare repository that is synced with the master.
@@ -227,10 +202,36 @@ To do this, the mirror needs to push back to the master, using the [[plugins/con
 
 This will ensure that commits done on the mirror will propagate back to the master.
 
-### Other guides
+## Other guides
 
 Another guide is the [[tips/laptop_wiki_with_git]] guide. To get a
 better understanding of how ikiwiki works, see [[rcs/git]].
 
 [This](http://piny.be/jrayhawk/notes/ikiwiki_creation/) may also be of
 use if the above doesn't work.
+
+### Announcing the mirror
+
+Once your mirror works, you can also add it to the list of mirrors. You can ask the mirror where you take it from (and why not, all mirrors) to add it to their setup file. As an example, here's the configuration for the first mirror:
+
+    mirrorlist:
+      example: https://wiki.example.com/
+
+The [[plugins/mirrorlist]] plugin of course needs to be enabled for this to work.
+
+### branching a wiki
+
+It follows that setting up a branch of a wiki is just like the fully decentralised mirror above, except
+we don't want it to push changes back to the origin. The easy way to
+accomplish this is to clone the origin git repository using a readonly
+protocol (ie, "git://"). Then you can't push to it.
+
+If a page on your branch is modified and other modifications are made to
+the same page in the origin, a conflict might occur when that change is
+pulled in. How well will this be dealt with and how to resolve it? I think
+that the conflict markers will just appear on the page as it's rendered in
+the wiki, and if you could even resolve the conflict using the web
+interface. Not 100% sure as I've not gotten into this situation yet.
+
+--[[Joey]]
+
