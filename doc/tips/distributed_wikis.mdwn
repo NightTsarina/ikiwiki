@@ -5,6 +5,53 @@ git, let's explore some possibilities for distributed wikis.
 
 [[!toc levels=2]]
 
+## Overview
+
+There are three possible level of decentralisation:
+
+ 0. [[default setup|rcs/git]], no decentralisation
+ 1. [[a simple HTML mirror|tips/Git_repository_and_web_server_on_different_hosts/]]
+ 2. separate `srcdir`, still requires a central bare repo - uses [[plugin/pinger]]
+ 3. completely distinct ikiwiki installs, synchronised with
+    [[plugin/gitpush]]
+
+Here's a graphic overview of those:
+
+### Default setup - one central server
+
+[[!img rcs/git/wiki-edit-flow.svg size=490x align=center]]
+
+In the default setup, all the resources are stored on the central
+servers. Users can still clone and edit the git repo by hand and
+contribute by git, but otherwise all the changes happen on a single
+web interface.
+
+### Separate webserver and git repository
+
+[[!img tips/Git_repository_and_web_server_on_different_hosts/separate-webserver.svg align=center]]
+
+In the configuration described in
+[[tips/Git_repository_and_web_server_on_different_hosts]], the
+webserver is separate from the git repository. The webserver part
+hosts the HTML files, the ikiwiki [[cgi]] but everything else is on
+the git server.
+
+### Decentralised pinger setup
+
+[[!img ping-setup.svg align=center]]
+
+In this configuration, the mirrors all have their own `srcdir`, but
+still need to push and pull from the same central bare git repo. The
+[[plugins/pinger]] plugin is used to ping the mirrors from the central
+server on edits.
+
+### Fully decentralised setup
+
+[[!img .svg align=center]]
+
+In this configuration, each wiki is fully independent and pushes its
+changes to other wikis using the [[plugins/gitpush]] plugin.
+
 ## a wiki mirror
 
 The simplest possibility is setting up a mirror. If a wiki exposes its git
