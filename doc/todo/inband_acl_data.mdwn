@@ -1,0 +1,73 @@
+it [[!tag wishlist]] would be nice to have acls that get their data from wiki pages.
+
+a particular use case is the [debienna wiki](http://debienna.at/) (our local
+debian usergroup), where there are few admins, but everyone who has been
+granted edit rights to the wiki should be allowed to allow other people in.
+those people can register their accounts on their own, but may only write to a
+dedicated page where they request write privileges.
+
+the setup file should look like this:
+
+    locked_pages: '!PleaseClearForEditing and !user_in_page(DebiennaGroup)'
+
+and DebiennaGroup would contain
+
+    * \[[chrysn]]
+    * \[[albert]]
+    * \[[rhonda]]
+
+etc.
+
+a suggested implementation is published on
+`git://prometheus.amsuess.com/ikiwiki-plugins` and is short enough to be quoted
+here:
+
+<!-- don't copy/paste from here, clone the git or copy/paste from the ikiwiki rendered version, i had to scape [ -->
+
+    #!/usr/bin/perl
+    # Ikiwiki "user_in_page" pagespec
+    # 
+    # The pagespec user_in_page(some_page) returns success if the currently logged
+    # in user is mentioned in a wikilink on some_page (which might be relative to
+    # the currently active page, which allows per-directory restrictions).
+    #
+    # To be precise, the string \[[${USERNAME}]] has to be present in the some_page
+    # source file.
+    
+    package IkiWiki::Plugin::user_in_page;
+    
+    package IkiWiki::PageSpec;
+    
+    sub match_user_in_page ($$;@) {
+    	my $page=shift;
+    	my $userlistpage=shift;
+    	my %params=@_;
+    	my $user=$params{user};
+    
+    	# this is relative to page, but this is intentional
+    	my $userlistpagename = IkiWiki::bestlink($page, $userlistpage);
+    
+    	# FIXME: pagesources seems not to be defined in do=edit
+    	my $userlistpagefile = "$userlistpagename/index.mdwn";
+    
+    	my $userlistpagedata = IkiWiki::readfile(IkiWiki::srcfile($userlistpagefile));
+    
+    	if ($userlistpagedata =~ /\Q\[[$user]]\E/ ) {
+    		return IkiWiki::SuccessReason->new("User $user is listed in $userlistpagename");
+    	} else {
+    		return IkiWiki::FailReason->new("User $user is not listed in $userlistpagename");
+    	}
+    }
+    
+    1
+
+before i complete this as a proposed plugin, i'd like to know
+
+* if you have better ideas to check for the delimited user name than the
+  \[[$user]] scheme?
+
+* i had to manually expand `$pagename` to `$pagename/index.mdwn` as
+  %pagesources seems to be empty in the context of `?do=edit`. how is this
+  supposed to work?
+
+--[[chrysn]]
