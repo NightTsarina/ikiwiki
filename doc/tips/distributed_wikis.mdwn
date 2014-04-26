@@ -7,12 +7,13 @@ git, let's explore some possibilities for distributed wikis.
 
 ## Overview
 
-There are three possible level of decentralisation:
+There are several possible level of decentralisation:
 
  0. [[default setup|rcs/git]], no decentralisation
  1. [[a simple HTML mirror|tips/Git_repository_and_web_server_on_different_hosts/]]
- 2. separate `srcdir`, still requires a central bare repo - uses [[plugins/pinger]]
- 3. completely distinct ikiwiki installs, synchronised with [[plugins/contrib/gitpush]]
+ 2. [[separate ikiwiki and git servers|tips/Hosting_Ikiwiki_and_master_git_repository_on_different_machines]]
+ 3. separate `srcdir`, still requires a central bare repo - uses [[plugins/pinger]]
+ 4. completely distinct ikiwiki installs, synchronised with [[plugins/contrib/gitpush]]
 
 Here's a graphic overview of those:
 
@@ -33,6 +34,15 @@ This is the configuration described in
 [[tips/Git_repository_and_web_server_on_different_hosts]]. The webserver part
 hosts the HTML files, the ikiwiki [[cgi]] but everything else is on
 the git server.
+
+### Separate ikiwiki web server, and git server
+
+[[!img Hosting_Ikiwiki_and_master_git_repository_on_different_machines/separate-web-git-servers.svg size=400x]]
+
+This is the configuration described in
+[[tips/Git_repository_and_web_server_on_different_hosts]]. One server hosts the web server (and the [[Ikiwiki cgi|cgi]]) and the git source dir; a second server hosts the git bare repository.
+
+
 
 ### Decentralised pinger setup
 
