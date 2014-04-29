@@ -5,3 +5,18 @@ Would it work if the mirrored wiki was configured with cgiurl set to the cgiurl 
 > leave the user on a page on the origin wiki when they save the edit.)
 > I've put a mention of this option in the page.
 > --[[Joey]]
+
+---
+
+### Separate ikiwiki web server, and git server
+
+> I don't understand how this configuration is different from the previous one, could you clarify? the image link is broken as well. [[anarcat]]
+>
+>> Sorry. I did a mistake. I hope this is more clear now. [[Louis|spalax]]
+>>
+>>> I still don't understand the difference, and I can't reach the URL you have given above. Previously, to upload stuff I created a clone of the git repository and asked joeyh to pull, like [[this|todo/improve_decentralised_wikis_documentation_and_graphics/]]. --[[anarcat]]
+>>>
+>>>> Upload: I am setting up a clone on github and asking joeyh to pull.
+>>>>
+>>>> Difference between *Separate webserver and git repository* and *Separate ikiwiki web server, and git server* : the only difference is that in the first case, the git srcdir is on the same server as the git main repository, whereas in the second case, it is present on the same server as the web server. One use case is when one as a very limited access to the server hosting the git repository, and cannot setup the git srcdir (because of, for instance, a (reasonably?) paranoid sysadmins would require the creation of a new user to own the git srcdir).
+ 
