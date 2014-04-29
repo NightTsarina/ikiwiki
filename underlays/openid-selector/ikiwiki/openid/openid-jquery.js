@@ -6,10 +6,11 @@ This code is licenced under the New BSD License.
 */
 
 var providers_large = {
-    google: {
-        name: 'Google',
-        icon: 'ikiwiki/openid/goa-account-google.png',
-        url: 'https://www.google.com/accounts/o8/id'
+    verisign: {
+        name: 'Verisign',
+        icon: 'ikiwiki/openid/verisign.png',
+        label: 'Enter your Verisign username:',
+        url: 'http://{username}.pip.verisignlabs.com/'
     },
     yahoo: {
         name: 'Yahoo',      
@@ -17,7 +18,7 @@ var providers_large = {
         url: 'http://me.yahoo.com/'
     },    
     openid: {
-        name: 'OpenID',     
+        name: 'Other OpenID',     
 	icon: 'wikiicons/openidlogin-bg.gif',
         label: 'Enter your OpenID:',
         url: null
@@ -47,12 +48,6 @@ var providers_small = {
         icon: 'ikiwiki/openid/aol.png',
         label: 'Enter your AOL username:',
         url: 'http://openid.aol.com/{username}'
-    },
-    verisign: {
-        name: 'Verisign',
-        icon: 'ikiwiki/openid/verisign.png',
-        label: 'Enter your Verisign username:',
-        url: 'http://{username}.pip.verisignlabs.com/'
     }
 };
 var providers = $.extend({}, providers_large, providers_small);
