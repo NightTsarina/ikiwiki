@@ -17,6 +17,7 @@ I assume the [[rcs]] used is [[rcs/git]], but it might be done for other rcs.
 
 # Similar and related tips and problems
 
+- [[tips/distributed_wikis]] References different way of distributing wikis (including this one).
 - [[http://www.icanttype.org/blog/ikiwiki_git_remote_repo/]] Similar to what I
   am describing, excepted that you must be able to connect to the machine
   hosting Ikiwiki using ssh.
@@ -143,9 +144,7 @@ the IkiWiki machine, and here is the deadlock. Explanations of the command:
 ## Going further
 
 - *Web server on a third machine* It should be possible to use a third machine
-  to host the web server. A hook might be used to export the rendered wiki on
-  this server, or use a nfs repository as the destination repository of
-  ikiwiki. However, allowing web modifications (using CGI) might be tricky…
+  to host the web server, using [[this documentation|tips/Git_repository_and_web_server_on_different_hosts/]].
 - *Using [[gitolite|https://github.com/sitaramc/gitolite]] to manage
   repositories on the git machine* Simply replace the manipulations of git on
   the git machine by the corresponding manipulations using gitolite.
