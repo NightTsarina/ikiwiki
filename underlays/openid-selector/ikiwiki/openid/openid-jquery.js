@@ -18,7 +18,7 @@ var providers_large = {
         url: 'http://me.yahoo.com/'
     },    
     openid: {
-        name: 'Other OpenID',     
+        name: 'OpenID',     
 	icon: 'wikiicons/openidlogin-bg.gif',
         label: 'Enter your OpenID:',
         url: null
