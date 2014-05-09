@@ -150,6 +150,6 @@ the IkiWiki machine, and here is the deadlock. Explanations of the command:
   the git machine by the corresponding manipulations using gitolite.
     * With gitolite, you can use this line in a `post-update` hook:
 
-        `[ x"$GL_USER" = x"`*`gitolite-user`*`" ] || wget ...`
+        `[ x"$GL_USER" = x"`*`gitolite-user`*`" ] || wget ...` where *gitolite-user* is the name of the public key registered through gitolite.
 
-        thus, you filter out precisely the events that originate from the server-to-be-pinged, no matter what the commit id says. (For example, if you push commits you created on a local CGI ikiwiki, they'd be called '@web' as well).
+        Thus, you filter out precisely the events that originate from the server-to-be-pinged, no matter what the commit id says. (For example, if you push commits you created on a local CGI ikiwiki, they'd be called '@web' as well).
