@@ -1,0 +1,15 @@
+I returned to one of my old ikiwiki blogs and received the above error message after entering (on the web interface of the blog) a title for a new post. 
+
+I found the following three locks in the .ikiwiki directory of the blog:
+
+-rw-r--r-- 1 zoidberg zoidberg     0 May 23 15:10 cgilock
+-rw-r--r-- 1 zoidberg zoidberg     0 May 23 15:20 lockfile
+-rw------- 1 zoidberg zoidberg     0 May 23 15:10 sessions.db.lck
+
+When I delete these and and again try to create a new post the above error message reappears and the locks have been recreated.
+
+Re-running 'ikiwiki --setup myblog.setup' disclosed a couple of permission problems (files owned by root - bah), but fixing them has had no effect on hte behavior of the blog.
+
+I really would like to rehab this ikiwiki blog!
+
+*Thanks!*
