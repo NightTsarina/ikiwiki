@@ -37,7 +37,7 @@ sub podcast {
 		'simplepost'	=> undef,
 		'piano.mp3'	=> 'audio/mpeg',
 		'scroll.3gp'	=> 'video/3gpp',
-		'walter.ogg'	=> 'video/x-theora+ogg',
+		'walter.ogg'	=> 'audio/ogg',
 	);
 
 	for my $format (qw(atom rss)) {
