@@ -593,3 +593,38 @@ What would be good is if the album directive could have a "show" parameter which
 > An optional `show` parameter would be a possible enhancement beyond that,
 > although I don't know how useful it would be; if it isn't passed, the
 > default should be 0 (unlimited). --[[smcv]]
+
+----
+
+## bug?: all albums and pages become interdependent 
+*(ikiwiki master branch 2014-06-06 and smcv album4 branch)*
+
+On a site with the following structure where all album$n.mdwn files have the ``[[!album]]`` directive set. All albums and albumviewers get rebuilt whenever any one of the pages is touched and the command ``ikiwiki --setup debug.setup --refresh --verbose`` is issued.
+
+    /index.mdwn
+    |-album01.mdwn
+    |-album01/
+    | |-imgA.jpg
+    | |-imgB.jpg
+    |
+    |-album02.mdwn
+    |-album02/
+    | |-imgC.jpg
+    | |-imgD.jpg
+    |
+    |-album03.mdwn
+    |-album03/
+    | |-imgE.jpg
+    | |-imgF.jpg
+
+This happens even if the indexpage has no links and when the tree is one level deeper than above with a folder between the index and each ``album$0n`` tuple. Touching index.mdwn rebuilds for instance imgF viewer and output like for example the following as a result of changing ``album01.mdwn`` and issuing ``ikiwiki --setup debug.setup --refresh --verbose``
+
+    building album02/imgC, its previous or next page has changed
+    building album03/imgE, its previous or next page has changed
+    building album02.mdwn, which depends on album02/imgC
+
+In other words using the album plugin means all changes trigger full rebuilds (as far as I can tell). With my workflow this hasn't been much of an issue as my sites are static and updated maximum once a week but it does make comments unfeasible.
+
+Perhaps there is something in my setup that triggers this problem? If anyone has an ikiwiki album installation where ``--refresh`` limits the scope of the rebuild to just one album I'd be interested to hear. See <http://img.kalleswork.net> for an live website that has this problem. I've tested a simpler debug site without any customization as well. --[[kjs]]
+
+
