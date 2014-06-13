@@ -1,0 +1,85 @@
+[[!template id=plugin name=datetime_cmp author="[[Louis|spalax]]"]]
+[[!tag type/pagespec]]
+
+# Datetime_cmp
+
+This plugin provides a family of
+[pagespec](http://ikiwiki.info/ikiwiki/pagespec/) matching pages according to
+creation or modification times.
+
+It also sets the date of the next modification of the page on relevant date, so
+that the page will be rebuilt if the condition changes.
+
+## List of functions
+
+The list of functions is given by the following regexp:
+
+    [ct](date|time)_(lt|gt|leq|geq|eq|neq)_(abs|page|now|today)(|_delta)
+
+where:
+
+  * `[ct]`: compare creation or modification time or date:
+    * `c`reation time;
+    * `m`odification time.
+  * `(date|time)`: compare full date and time, or only date (useful when time is irrelevant):
+    * `time`: compare full date and time;
+    * `date`: compare only date.
+  * `(lt|gt|leq|geq|eq|neq)`: operator of comparison:
+    * `lt`: less than;
+    * `gt`: greater than;
+    * `leq`: less or equal than;
+    * `geq`: greater or equal than;
+    * `eq`: equal;
+    * `neq`: not equal.
+  * `(abs|page|now|today)`: element to compare to:
+    * `abs`: absolute date or time (given in argument);
+    * `page`: other page (given in argument);
+    * `now`: date or time of compilation;
+    * `today`: same meaning as `now`.
+  * `(|_delta)`: used to add a time delta (to use comparisons such as *created at least two day after `some_page`*):
+    * *empty*: no delta;
+    * `_delta`: delta (given in argument).
+
+### Number of arguments
+
+[[!table header=no data="""
+         | `now` `today`  | `page`            | `abs`
+no delta | *no arguments* | `pagename`        | `date`
+delta    | `delta`        | `pagename, delta` | `date, delta`
+"""]]
+
+### Format of arguments
+
+* *date* or *time*: anything that can be recognized by perl [[str2time|http://search.cpan.org/~rse/lcwa-1.0.0/lib/lwp/lib/HTTP/Date.pm]] function, *without any comma*.
+* *delta*: One of the following patterns:
+  * `Y-M-D`: positive date;
+  * `H:M:S`: positive time;
+  * `Y-M-D H:M:S`: positive date and time;
+  * Add `-` at the beginning of the string to make durations negative.
+* several arguments: when two arguments are provided, they are passed as one string, which is then split according to the last comma.
+
+## Time zones
+
+Key `timezone` in the setup file is used to define time zone. If not set, we
+try to guess the local time zone.
+
+## Examples
+
+### Some functions
+
+* `ctime_gt_page(foo)`: match pages created after page `foo`.
+* `cdate_eq_today()`: match pages created the day the wiki is compiled.
+* `mtime_eq_now()`: match pages modified the time the wiki is compiled (likely no page, since comparison is done up to the milisecond).
+* `cdate_geq_page_delta(foo, 00-00-01)`: match pages created at least one day after page `foo`.
+* `cdate_gt_page(foo)`: same as the previous one.
+* `mdate_gt_today_delta(-00-01-00)`: match pages modified one month ago, or later (can be used to display recent changes).
+
+### Use case
+
+It can be used to display a list of upcoming events.
+
+	\[[!inline pages="events/* and cdate_geq_today()" reverse=yes sorted=meta(date)]]
+
+## Code
+
+Code and documentation this way: [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/datetime_cmp]].
