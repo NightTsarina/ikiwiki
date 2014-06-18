@@ -27,9 +27,11 @@ my $time=time;
 my @now=localtime($time);
 
 sub import {
+	hook(type => "checkconfig", id => "calendar", call => \&checkconfig);
 	hook(type => "getsetup", id => "calendar", call => \&getsetup);
 	hook(type => "needsbuild", id => "calendar", call => \&needsbuild);
 	hook(type => "preprocess", id => "calendar", call => \&preprocess);
+	hook(type => "scan", id => "calendar", call => \&scan);
 }
 
 sub getsetup () {
@@ -49,11 +51,41 @@ sub getsetup () {
 		archive_pagespec => {
 			type => "pagespec",
 			example => "page(posts/*) and !*/Discussion",
-			description => "PageSpec of pages to include in the archives; used by ikiwiki-calendar command",
+			description => "PageSpec of pages to include in the archives, if option `calendar_autocreate` is true.",
 			link => 'ikiwiki/PageSpec',
 			safe => 1,
 			rebuild => 0,
 		},
+		calendar_autocreate => {
+			type => "boolean",
+			example => 1,
+			description => "autocreate new calendar pages?",
+			safe => 1,
+			rebuild => undef,
+		},
+		calendar_autocreate_commit => {
+			type => "boolean",
+			example => 1,
+			default => 1,
+			description => "commit autocreated calendar pages",
+			safe => 1,
+			rebuild => 0,
+		},
+}
+
+sub checkconfig () {
+	if (! defined $config{calendar_autocreate}) {
+		$config{calendar_autocreate} = defined $config{archivebase} || defined $config{calendar_autocreate_commit};
+	}
+	if (! defined $config{calendar_autocreate_commit}) {
+		$config{calendar_autocreate_commit} = 1;
+	}
+	if (! defined $config{archive_pagespec}) {
+		$config{archive_pagespec} = '*';
+	}
+	if (! defined $config{archivebase}) {
+		$config{archivebase} = 'archives';
+	}
 }
 
 sub is_leap_year (@) {
@@ -68,6 +100,85 @@ sub month_days {
 		$days_in_month++;
 	}
 	return $days_in_month;
+}
+
+sub autocreate {
+	my ($page, $pagefile, $year, $month) = @_;
+	my $message=sprintf(gettext("creating calendar page %s"), $page);
+	debug($message);
+
+	my $template;
+	if (defined $month) {
+		$template=template("calendarmonth.tmpl");
+	} else {
+		$template=template("calendaryear.tmpl");
+	}
+	$template->param(year => $year);
+	$template->param(month => $month) if defined $month;
+	$template->param(pagespec => $config{archive_pagespec});
+
+	my $dir = $config{srcdir};
+	if (! $config{calendar_autocreate_commit}) {
+		$dir = $IkiWiki::Plugin::transient::transientdir;
+	}
+
+	writefile($pagefile, $dir, $template->output);
+	if ($config{rcs} && $config{calendar_autocreate_commit}) {
+		IkiWiki::disable_commit_hook();
+		IkiWiki::rcs_add($pagefile);
+		IkiWiki::rcs_commit_staged(message => $message);
+		IkiWiki::enable_commit_hook();
+	}
+}
+
+sub calendarlink($;$) {
+	my ($year, $month) = @_;
+	if (defined $month) {
+		return $config{archivebase} . "/" . $year . "/" . $month;
+	} else {
+		return $config{archivebase} . "/" . $year;
+	}
+}
+
+sub gencalendaryear {
+	my $year = shift;
+
+	if ($config{calendar_autocreate}) {
+
+		# Building year page
+		my $page = calendarlink($year);
+		my $pagefile = newpagefile($page, $config{default_pageext});
+		add_autofile(
+			$pagefile, "calendar",
+			sub {return autocreate($page, $pagefile, $year);}
+		);
+
+		# Building month pages
+		foreach my $month (qw{01 02 03 04 05 06 07 08 09 10 11 12}) {
+			my $page = calendarlink($year, $month);
+			my $pagefile = newpagefile($page, $config{default_pageext});
+			add_autofile(
+				$pagefile, "calendar",
+				sub {return autocreate($page, $pagefile, $year, $month);}
+			);
+		}
+
+		# Filling potential gaps in years (e.g. calendar goes from 2010 to 2014,
+		# and we just added year 2005. We have to had years 2006 to 2009.
+		if (not exists $wikistate{calendar}{minyear}) {
+			$wikistate{calendar}{minyear} = $year;
+		} elsif ($wikistate{calendar}{minyear} > $year) {
+			gencalendaryear($year + 1);
+			$wikistate{calendar}{minyear} -= 1;
+		}
+		if (not exists $wikistate{calendar}{maxyear}) {
+			$wikistate{calendar}{maxyear} = $year;
+		}
+		if ($wikistate{calendar}{maxyear} < $year) {
+			gencalendaryear($year - 1);
+			$wikistate{calendar}{maxyear} += 1;
+		}
+	}
 }
 
 sub format_month (@) {
@@ -274,7 +385,7 @@ EOF
 
 sub format_year (@) {
 	my %params=@_;
-	
+
 	my @post_months;
 	foreach my $p (pagespec_match_list($params{page}, 
 				"creation_year($params{year}) and ($params{pages})",
@@ -508,7 +619,19 @@ sub needsbuild (@) {
 			}
 		}
 	}
+
 	return $needsbuild;
+}
+
+sub scan (@) {
+	my %params=@_;
+	my $page=$params{page};
+
+	# Check if year pages have to be generated
+	if (pagespec_match($page, $config{archive_pagespec})) {
+		my @ctime = localtime($IkiWiki::pagectime{$page});
+		gencalendaryear($ctime[5]+1900);
+	}
 }
 
 1
