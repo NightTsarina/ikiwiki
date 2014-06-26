@@ -103,3 +103,37 @@ Some later changes to trail:
 --[[smcv]]
 
 > Applied --[[Joey]] 
+
+----
+
+### Trail plugin creates unexpected interdependencies?
+*(ikiwiki master branch 2014-06-06 also tested with 3.20140228 release)*
+
+I noticed the problem when using the [[/plugins/contrib/album]] plugin but a bit of testing revealed that the [[trail]] plugin, which is used by [[/plugins/contrib/album]] may be the cause of the problem.
+
+On a site with the following structure where all albumN.mdwn files have the `\[[!inline  pages="page(./album01/*)" trail="yes"]]` directive set. All albumN pages and imgN pages get rebuilt whenever any one of the albumN or imgN pages are changed and the command  `ikiwiki --setup wiki.setup --refresh --verbose`
+ is issued.
+
+    /index.mdwn                        Contains no links maps or inlines
+    |-album01.mdwn                 [[!inline  pages="page(./album01/*)" trail="yes"]]
+    |-album01/
+    | |-imgA.mdwn
+    | |-imgB.mdwn
+    |
+    |-album02.mdwn                 [[!inline  pages="page(./album02/*)" trail="yes"]]
+    |-album02/
+    | |-imgC.mdwn
+    | |-imgD.mdwn
+    |
+    |-album03.mdwn                 [[!inline  pages="page(./album03/*)" trail="yes"]]
+    |-album03/
+    | |-imgE.mdwn
+    | |-imgF.mdwn
+
+Changing the index.mdwn page also triggers a full rebuild of all pages with [[trail]] directives. My sites tend to look like the above but with double digit numbers of files in at each level. Changing any file then means a full rebuild of a rather complex site which takes a long time.
+
+My setup and test may very well have mistakes but perhaps someone using the trail plugin could check (using the --verbose flag) if all their trails get rebuild when changing only one. I also find it curious that changes to the parent index.mdwn page triggers the same behaviour.
+
+I have removed a similar comment from the album discussion.
+
+ --[[kjs]]
