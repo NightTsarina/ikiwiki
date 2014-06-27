@@ -11,6 +11,51 @@ This plugin automatically enables the [[filecheck]], [[img]], [[inline]],
 [[trail]] and [[transient]] plugins. The [[meta]] plugin is also
 recommended.
 
+## Demo
+
+* [HTML page of thumbnails](http://ikialbum.hosted.pseudorandom.co.uk/album/)
+  as an entry point to the album
+* Each thumbnail links to
+  [a "viewer" HTML page](http://ikialbum.hosted.pseudorandom.co.uk/album/img_0120/)
+  with a full size image, optional next/previous thumbnail links, and
+  optional [[plugins/comments]]
+
+## Installation
+
+[[!template id=gitbranch branch=smcv/album4 author="[[Simon_McVittie|smcv]]"]]
+
+Available from [[smcv]]'s git repository, in the `album4` branch.
+I've called it `album` to distinguish it from
+[[contrib/gallery|plugins/contrib/gallery]], although `gallery` might well be
+a better name for this functionality.
+
+(The Summer of Code [[plugins/contrib/gallery]] plugin does the
+next/previous UI in Javascript using Lightbox, which means that
+individual photos can't be bookmarked in a meaningful way, and
+the best it can do as a fallback for non-Javascript browsers
+is to provide a direct link to the image.)
+
+Updated, April 2012: rebased onto the version of [[trail]] that got merged
+
+### Manual installation
+
+First, you need a version of ikiwiki with the [[trail]] plugin merged in
+(version 3.20120203 or later).
+
+Manual installation requires these files (use the "raw" link in gitweb
+to download):
+
+* [album.pm](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/IkiWiki/Plugin/album.pm)
+  in an `IkiWiki/Plugin` subdirectory of your configured `plugindir`
+* [albumviewer.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumviewer.tmpl),
+  [albumitem.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumitem.tmpl),
+  [albumnext.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumnext.tmpl) and
+  [albumprev.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumprev.tmpl),
+   in your configured `templatedir`, or a `templates` subdirectory of your wiki repository
+* the album-related bits from the end of the
+  [stylesheet](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/doc/style.css)
+  (put them in your local.css)
+
 ## Changing the templates
 
 When a viewer page is generated or inlined into an album, the template can
@@ -43,51 +88,6 @@ you can use an [[ikiwiki/directive/inline]] with the `albumitem`
 template:
 
 	\[[!inline pages="..." sort="-age" template="albumitem"]]
-
-----
-
-[[!template id=gitbranch branch=smcv/album4 author="[[Simon_McVittie|smcv]]"]]
-
-Available from [[smcv]]'s git repository, in the `album4` branch.
-I've called it `album` to distinguish it from
-[[contrib/gallery|plugins/contrib/gallery]], although `gallery` might well be
-a better name for this functionality.
-
-(The Summer of Code [[plugins/contrib/gallery]] plugin does the
-next/previous UI in Javascript using Lightbox, which means that
-individual photos can't be bookmarked in a meaningful way, and
-the best it can do as a fallback for non-Javascript browsers
-is to provide a direct link to the image.)
-
-Updated, April 2012: rebased onto the version of [[trail]] that got merged
-
-## Manual installation
-
-First, you need a version of ikiwiki with the [[trail]] plugin merged in
-(version 3.20120203 or later).
-
-Manual installation requires these files (use the "raw" link in gitweb
-to download):
-
-* [album.pm](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/IkiWiki/Plugin/album.pm)
-  in an `IkiWiki/Plugin` subdirectory of your configured `plugindir`
-* [albumviewer.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumviewer.tmpl),
-  [albumitem.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumitem.tmpl),
-  [albumnext.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumnext.tmpl) and
-  [albumprev.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumprev.tmpl),
-   in your configured `templatedir`, or a `templates` subdirectory of your wiki repository
-* the album-related bits from the end of the
-  [stylesheet](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/doc/style.css)
-  (put them in your local.css)
-
-## Demo
-
-* [HTML page of thumbnails](http://ikialbum.hosted.pseudorandom.co.uk/album/)
-  as an entry point to the album
-* Each thumbnail links to
-  [a "viewer" HTML page](http://ikialbum.hosted.pseudorandom.co.uk/album/img_0120/)
-  with a full size image, optional next/previous thumbnail links, and
-  optional [[plugins/comments]]
 
 ## Bugs
 
