@@ -31,9 +31,9 @@ all of the themes.
 
 ## Installation
 
-[[!template id=gitbranch branch=smcv/album4 author="[[Simon_McVittie|smcv]]"]]
+[[!template id=gitbranch branch=smcv/album5 author="[[Simon_McVittie|smcv]]"]]
 
-Available from [[smcv]]'s git repository, in the `album4` branch.
+Available from [[smcv]]'s git repository, in the `album5` branch.
 I've called it `album` to distinguish it from
 [[contrib/gallery|plugins/contrib/gallery]], although `gallery` might well be
 a better name for this functionality.
@@ -44,7 +44,8 @@ individual photos can't be bookmarked in a meaningful way, and
 the best it can do as a fallback for non-Javascript browsers
 is to provide a direct link to the image.)
 
-Updated, April 2012: rebased onto the version of [[trail]] that got merged
+Updated, June 2014: integrated changes from [[KathrynAndersen]],
+Lukas Lipavsky and kjs
 
 ### Manual installation
 
@@ -54,15 +55,15 @@ First, you need a version of ikiwiki with the [[trail]] plugin merged in
 Manual installation requires these files (use the "raw" link in gitweb
 to download):
 
-* [album.pm](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/IkiWiki/Plugin/album.pm)
+* [album.pm](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/IkiWiki/Plugin/album.pm)
   in an `IkiWiki/Plugin` subdirectory of your configured `plugindir`
-* [albumviewer.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumviewer.tmpl),
-  [albumitem.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumitem.tmpl),
-  [albumnext.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumnext.tmpl) and
-  [albumprev.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/templates/albumprev.tmpl),
+* [albumviewer.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/templates/albumviewer.tmpl),
+  [albumitem.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/templates/albumitem.tmpl),
+  [albumnext.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/templates/albumnext.tmpl) and
+  [albumprev.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/templates/albumprev.tmpl),
    in your configured `templatedir`, or a `templates` subdirectory of your wiki repository
 * the album-related bits from the end of the
-  [stylesheet](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album4:/doc/style.css)
+  [stylesheet](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/doc/style.css)
   (put them in your local.css)
 
 ## Changing the templates
@@ -100,14 +101,6 @@ template:
 
 ## Bugs
 
-* `thumbnailsize` doesn't actually work, they're always 96x96.
-  [[KathrynAndersen]] suggested a fix on the [[discussion]] page;
-  search for her name and look for a context diff.
-
-* The album index is limited to 10 images. kjs suggested a fix on
-  the [[discussion]] page: the plugin should pass `show => 0`
-  to `preprocess_inline`.
-
 * There's currently a hard-coded list of extensions that are treated as
   images: `png`, `gif`, `jpg`, `jpeg` or `mov` files. More image and video
   types could be added in future.
@@ -134,9 +127,9 @@ template:
 
 * The generated viewer page should extract as much metadata as possible from
   the photo's EXIF tags (creation/modification dates, author, title, caption,
-  copyright). [[smcv]] has a half-written implementation which runs
-  `scanimage` hooks, and has an `exiftool` plugin using [[!cpan Image::ExifTool]]
-  as a reference implementation of that hook.
+  copyright). [[smcv]] once had a half-written implementation which runs
+  `scanimage` hooks, and an `exiftool` plugin using [[!cpan Image::ExifTool]]
+  as a reference implementation of that hook, but has lost that code somewhere :-(
 
 * There should be an option to reduce the size of photos and write them into
   an underlay (perhaps just the transient underlay), for this workflow:
