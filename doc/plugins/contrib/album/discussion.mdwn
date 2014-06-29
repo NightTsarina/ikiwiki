@@ -604,8 +604,15 @@ immediately obvious from the diff), and integrate some or all of your
 changes. Since Joey shows no signs of wanting to merge it, and "out of tree"
 installation is currently a pain, I might split out the CSS changes into a
 separate `ikiwiki/album.css` so that the only thing that needs to be merged
-into style.css and each theme (or into local.css) is an appropriate
+into style.css (or into local.css) is an appropriate
 `@import` rule.
+
+It shouldn't be necessary to add the album stuff to each individual
+theme's style.css unless you actually want an actiontabs album and
+a blueview album to be styled differently, because the IkiWiki Makefile
+concatenates them: for instance, `/usr/share/ikiwiki/themes/actiontabs/style.css`
+is the output of `cat doc/style.css themes/actiontabs/style.css`. So adding it
+to `style.css` should be enough?
 
 Regarding commit `Change the default thumbnail size`: as far as I
 understand it, `size => 96x96` is meant to set the image size to
