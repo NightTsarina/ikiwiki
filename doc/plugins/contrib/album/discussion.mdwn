@@ -1,3 +1,5 @@
+## installation queries from brush
+
 thanks for this plugin.  it might help me in my application, which is to provide album/galleries which can be edited (ie. new images added, taken away, etc.) through web interface.
 
 > That's my goal eventually, too. Perhaps you can help to
@@ -594,5 +596,23 @@ What would be good is if the album directive could have a "show" parameter which
 > although I don't know how useful it would be; if it isn't passed, the
 > default should be 0 (unlimited). --[[smcv]]
 
+## cbaines' branch
 
+Regarding the CSS changes: I'll try to have a look soon, work out
+what actually changed (since you re-ordered the CSS, so it isn't
+immediately obvious from the diff), and integrate some or all of your
+changes. Since Joey shows no signs of wanting to merge it, and "out of tree"
+installation is currently a pain, I might split out the CSS changes into a
+separate `ikiwiki/album.css` so that the only thing that needs to be merged
+into style.css and each theme (or into local.css) is an appropriate
+`@import` rule.
 
+Regarding commit `Change the default thumbnail size`: as far as I
+understand it, `size => 96x96` is meant to set the image size to
+be as large as possible given these constraints: width ≤ 96px,
+height ≤ 96px, and the original aspect ratio is preserved. So I
+would hope that 96x96 doesn't distort the thumbnails. What distortion
+are you seeing, and which versions of Imagemagick and Perlmagick
+are you using?
+
+--[[smcv]]
