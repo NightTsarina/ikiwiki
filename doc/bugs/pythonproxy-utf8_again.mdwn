@@ -14,3 +14,23 @@ version, but i'm pretty sure it was already broken after the abovementioned
 patch.
 
 -- [[chrysn]]
+
+> update 2014-06-29: the problem persists, but i found it is not trivial to
+> reproduce. to demonstrate, use this test plugin:
+>
+>    #!/usr/bin/env python
+>    # -*- coding: utf-8 -*-
+>    
+>    from proxy import IkiWikiProcedureProxy
+>    
+>    def preprocess(self, proxy, *args):
+>        return repr(self.rpc('pagetype', 'schön'))
+>    
+>    proxy = IkiWikiProcedureProxy(__name__)
+>    proxy.hook('preprocess', preprocess, id='testdirective')
+>    proxy.run()
+>
+> note that when the 'schön' is stored in a variable, the exception changes --
+> it seems to me that the issue is related to the way exceptions are encoded.
+>
+> the suggested patch still applies and solves the issue. --[[chrysn]]
