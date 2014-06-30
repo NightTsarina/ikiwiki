@@ -34,3 +34,15 @@ patch.
 > it seems to me that the issue is related to the way exceptions are encoded.
 >
 > the suggested patch still applies and solves the issue. --[[chrysn]]
+
+>> In this patch band:
+>>
+>>     -        xml = _IkiWikiExtPluginXMLRPCHandler._read(in_fd).decode('utf8')
+>>     +        response = _IkiWikiExtPluginXMLRPCHandler._read(in_fd)
+>>     +        if isinstance(response, unicode):
+>>     +            xml = response.encode('utf8')
+>>
+>> I think you mean `response.decode`, not `response.encode`.
+>>
+>> Other than that it looks good to me. I like the use of `repr` in debug
+>> messages. --[[smcv]]
