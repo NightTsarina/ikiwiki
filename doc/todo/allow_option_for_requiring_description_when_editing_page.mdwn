@@ -1,1 +1,24 @@
 allow option for requiring description when editing page. This is so if a commit to an rcs is used, the commit message will not be blank.
+
+> Duplicate of [[todo/Allow_web_edit_form_comment_field_to_be_mandatory]] where
+> Joey indicated that he didn't want this in ikiwiki core, but would
+> accept a plugin that did it.
+>
+> Expanding on what Joey said there a little, the problem I have with
+> *requiring* a commit message is that solving a social problem
+> by technical means rarely works. If you can't persuade users
+> to obey a policy like "provide a nonempty commit message", then
+> you can't persuade them to obey a policy like "provide a *useful*
+> nonempty commit message" either. I used to work on a project
+> whose Bugzilla had been configured or patched to require a comment
+> whenever you changed a field (e.g. priority, cc, ...) and in
+> practice that just led to a lot of wasted time when people tried
+> to triage bugs quickly, and a lot of comments whose text was
+> ".", " ", or on at least one occasion, ☃
+> (U+2603 SNOWMAN).
+>
+> If your chosen RCS has a technical constraint that the commit
+> message must be non-empty (and will just not work otherwise),
+> that's another matter; I'd say that in that situation
+> it's appropriate for its plugin to replace empty commit
+> messages with "." or gettext("update") or something. --smcv
