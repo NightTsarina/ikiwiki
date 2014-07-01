@@ -34,7 +34,8 @@ These variables might be set:
 * `<TMPL_VAR name>` is replaced with the name of the page being
   created.
   
-* `<TMPL_VAR uuid>` is replaced with a version 4 (random) UUID.
+* `<TMPL_VAR uuid>` is replaced with a version 4 (random) UUID
+  suitable for use in `\[[!meta guid="urn:uuid:<TMPL_VAR uuid>"]]`.
   (Requires the `UUID::Tiny` Perl module if not running on Linux.)
 
 * `<TMPL_VAR time>` is replaced with the current (template generation)
