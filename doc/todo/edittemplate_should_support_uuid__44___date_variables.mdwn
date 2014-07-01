@@ -46,3 +46,27 @@ Changes to the structure of `$pagestate{$registering_page}{edittemplate}{$pagesp
 >> v3/v5 UUIDs, please describe it and I'll try to suggest some
 >> better way based on that, maybe global configuration in `$config`.
 >> --[[smcv]]
+
+>>> [[!template id=gitbranch branch=smcv/ready/edittemplate
+  browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/edittemplate
+  author="Jonathon Anderson, [[smcv]]"]]
+>>> Here is a version of that branch that I would merge if I could.
+>>> Changes since Jonathon's version:
+>>>
+>>> * only generate a UUID if needed
+>>> * read `/proc/sys/kernel/random/uuid` instead of using [[!cpan UUID::Tiny]]
+>>>   if available, to avoid the dependency on at least Linux
+>>> * remove v3/v5 UUID support since I don't really see the point,
+>>>   and if included, it would need a migration path for `$pagestate`
+>>> * use RFC 3339 time format for `time` to make the timezone unambiguous
+>>> * add `html_time` which is the output of `IkiWiki::displaytime`, e.g.
+>>>   a `<time>` element on HTML5 wikis
+>>>
+>>> I'm not entirely sure what the use-case is for `formatted_time`,
+>>> so perhaps either `html_time` or `formatted_time` should be
+>>> removed; but it's not as if they really cost anything.
+>>>
+>>> There doesn't seem to be any strong convention for how we name
+>>> timestamp variables/objects, so I left the naming as it was.
+>>>
+>>> --[[smcv]]
