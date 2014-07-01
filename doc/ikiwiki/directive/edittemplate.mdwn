@@ -39,6 +39,8 @@ These variables might be set:
   (Requires the `UUID::Tiny` Perl module if not running on Linux.)
 
 * `<TMPL_VAR time>` is replaced with the current (template generation)
-  time, using a fixed format, `%Y-%m-%d %H:%M:%S`.
+  time using a fixed format (RFC 3339, `%Y-%m-%dT%H:%M:%SZ`),
+  suitable for use in `\[[!meta date="<TMPL_VAR time>"]]`
+  (see [[meta]]) or `\[[!date "<TMPL_VAR time>"]]` (see [[date]]).
 
 [[!meta robots="noindex, follow"]]
