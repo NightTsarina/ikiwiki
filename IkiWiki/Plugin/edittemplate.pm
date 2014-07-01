@@ -140,13 +140,19 @@ sub filltemplate ($$) {
 	$template->param(name => $page);
 
 	if ($template->query(name => 'uuid')) {
-		eval {
-			require UUID::Tiny;
-			UUID::Tiny->import(':std');
-			my $uuid;
-			$uuid = create_uuid_as_string(UUID_V4());
-			$template->param(uuid => $uuid);
-		};
+		my $uuid;
+		if (open(my $fh, "<", "/proc/sys/kernel/random/uuid")) {
+			$uuid = <$fh>;
+			chomp $uuid;
+			close $fh;
+		}
+		else {
+			eval {
+				require UUID::Tiny;
+				$uuid = UUID::Tiny::create_uuid_as_string(UUID::Tiny::UUID_V4());
+			};
+		}
+		$template->param(uuid => $uuid);
 	}
 
 	return $template->output;
