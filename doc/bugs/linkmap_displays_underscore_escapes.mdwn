@@ -17,6 +17,17 @@ the attached [[!taglink patch]] fixes this; from its commit message:
 
 the output will look much better (at least in my wikis) with the "[[bugs/pagetitle function does not respect meta titles]]" issue fixed.
 
+> I agree that it's (likely to be) a bug to not use `pagetitle()`. I
+> haven't reviewed this particular implementation yet but I'll try to
+> do that soon.
+>
+> I don't think it's correct for `pagetitle()` to output `\[[!meta title]]`
+> though, as discussed on the linked bug: it appears in an assortment of
+> contexts where the full formal title of the page seems inappropriate.
+> If you want linkmap to use `\[[!meta title]]`, I think it would be
+> better to give it a `show` parameter, like `\[[!map]]` has?
+> --[[smcv]]
+
 the patch is stored in [[the patch.pl]] as created by git-format-patch, and can
 be pulled from the abovementioned branch.
 
