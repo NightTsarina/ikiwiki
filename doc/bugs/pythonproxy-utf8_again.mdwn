@@ -18,17 +18,17 @@ patch.
 > update 2014-06-29: the problem persists, but i found it is not trivial to
 > reproduce. to demonstrate, use this test plugin:
 >
->    #!/usr/bin/env python
->    # -*- coding: utf-8 -*-
->    
->    from proxy import IkiWikiProcedureProxy
->    
->    def preprocess(self, proxy, *args):
->        return repr(self.rpc('pagetype', 'schön'))
->    
->    proxy = IkiWikiProcedureProxy(__name__)
->    proxy.hook('preprocess', preprocess, id='testdirective')
->    proxy.run()
+>     #!/usr/bin/env python
+>     # -*- coding: utf-8 -*-
+>     
+>     from proxy import IkiWikiProcedureProxy
+>     
+>     def preprocess(self, proxy, *args):
+>         return repr(self.rpc('pagetype', 'schön'))
+>     
+>     proxy = IkiWikiProcedureProxy(__name__)
+>     proxy.hook('preprocess', preprocess, id='testdirective')
+>     proxy.run()
 >
 > note that when the 'schön' is stored in a variable, the exception changes --
 > it seems to me that the issue is related to the way exceptions are encoded.
@@ -46,3 +46,9 @@ patch.
 >>
 >> Other than that it looks good to me. I like the use of `repr` in debug
 >> messages. --[[smcv]]
+
+>>> afaict, encode is fine there -- the relevant methods in python2 are
+>>> `unicode.encode` which gives a `str`, and `str.decode` which usually gives
+>>> a `unicode`. (i'd happily ditch python2 and port all plugins to python3,
+>>> where this is all easier, but my [[todo/vCard rendering]] still uses an
+>>> ancient module.) --[[chrysn]]
