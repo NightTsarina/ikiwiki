@@ -1,3 +1,4 @@
+[[!meta author="spalax"]]
 [[!template id=plugin name=poetry author="[[Louis|spalax]]"]]
 
 # Poetry
@@ -10,12 +11,15 @@ render poetry (or songs).
 ### Typography
 
 In regular text, there are two different meaning of a new line: a break between
-two paragraphs, and the word wrap.
+two paragraphs, and the line wrap.
 
 When rendering poetry, we need a third one: the carriage return between two
-verse lines. This one should be different from the word wrap carriage return,
-otherwise one will not be able to tell apart these two (generally, wrapped text
-is indented, whereas verse lines are not).
+verse lines. This one should be different from the line wrap carriage return,
+otherwise one will not be able to tell apart these two: is a word displayed at
+the begenning of its line a new verse line, or the previous verse line,
+continuing on a new line because it is too long?
+
+Generally, wrapped text is indented, whereas verse lines are not.
 
 ### Markdown
 

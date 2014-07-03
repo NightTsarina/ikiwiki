@@ -1,8 +1,11 @@
+[[!meta author="spalax"]]
 [[!template id=plugin name=monthcalendar author="[[Louis|spalax]]"]]
 
 # Monthcalendar
 
 This plugin displays a calendar, containing in each of its day the list of links of pages published on this day. It can be used, for example, to display archives of blog posts, or to announce events.
+
+The difference between this plugin and the [[plugins/calendar]] plugin is that the calendar displayed by this plugin is a big one, containing the full title of every page indexed in it.
 
 ## Usage
 
@@ -15,6 +18,109 @@ This plugin displays a calendar, containing in each of its day the list of links
 By using the following line in template `calendarmonth.tmpl`, you can have `ikiwiki-calendar` using this plugin to display monthly archives.
 
     \[[!monthcalendar type="month" year="<TMPL_VAR YEAR>" month="<TMPL_VAR MONTH>" pages="<TMPL_VAR PAGESPEC>"]]
+
+## CSS
+
+Here is an example of CSS properly rendering the calendar produced by this
+plugin.
+[[!toggle id=css text="CSS"]]
+[[!toggleable id=css text="""
+    /* Calendar */
+    .monthcalendar
+    {
+        color:#aaa;
+        /* font-size:18pt; */
+        margin-top:1em;
+        margin-bottom:1em;
+    		width: 100%;
+    }
+    
+    .monthcalendar table,
+    .monthcalendar td,
+    .monthcalendar th
+    {
+    	border: 1px solid #ccc;
+    }
+    
+    #content .monthcalendar td
+    {
+        padding: 0;
+        position: relative;
+    }
+    
+    .monthcalendar td div
+    {
+        min-height: 10ex;
+        height: 100%;
+        position: relative;
+    }
+    
+    .monthcalendar th
+    {
+    	vertical-align: middle;
+    }
+    
+    .monthcalendar td ul
+    {
+        padding-left: 0.5em;
+        list-style: dot;
+        list-style-position: inside;
+        text-align: left;
+        font-size: 8pt;
+        position: relative;
+        z-index: 10;
+        font-weight: bold;
+    }
+    
+    table.monthcalendar
+    {
+    	table-layout: fixed;
+    }
+    
+    .monthcalendar .selflink
+    {
+        color:#444444;
+    }
+    
+    .monthcalendar-day-head {
+    	text-transform:capitalize;
+    }
+    
+    .monthcalendar-head {
+    	text-transform:capitalize;
+    }
+    
+    .monthcalendar-daynumber
+    {
+        float: left;
+        position: absolute;
+        display: block;
+        font-size: 7ex;
+        color: #ccc;
+        line-height: 100%;
+        z-index: 5;
+        padding-top: 0.3ex;
+        text-align: right;
+        width: 1.8em;
+    }
+    
+    /* List of pages */
+    
+    .monthcalendar-pagelist {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .monthcalendar-item {
+      opacity: 0;
+      height: 0;
+    }
+    
+    .monthcalendar-item:target {
+      opacity: 1;
+      height: initial;
+    }
+"""]]
 
 ## Code
 

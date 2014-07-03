@@ -1,9 +1,10 @@
+[[!meta author="spalax"]]
 [[!template id=plugin name=sidebar2 author="[[Louis|spalax]]"]]
 [[!tag type/chrome]]
 
 *Claim:* The [[sidebar|plugins/sidebar]] plugin has nothing
 to do with sidebars. This plugin renders some page (which happens to be named
-`sidebar`) and put the result in template variable `SIDEBAR`, in template
+`sidebar`) and put the result in template variable `SIDEBAR` of template
 `page.tmpl`. But the fact that it is a sidebar, i.e. a bar appearing on the
 side on the screen, is done by CSS.
 
@@ -40,7 +41,7 @@ The default, which gives the behaviour of the sidebar plugin, is
 
 # Improvements over sidebar plugin
 
-* You can add several "sidebars" to your wiki. For example, to have a sidebar, a submeno that appear only in pages documentations, and a footer, your `global_sidebars` would be:
+* You can add several "sidebars" to your wiki. For example, to have a sidebar, a submenu that appears only in documentation pages (`doc/*`), and a footer, your `global_sidebars` would be:
 
       global_sidebars => [
         "sidebar", "sidebar", "*",
