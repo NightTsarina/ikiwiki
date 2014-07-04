@@ -67,3 +67,25 @@ Any other ideas? --[[anarcat]]
 > Note: it seems that my email *is* given by my OpenID provider, no idea why this is not working, but the fix proposed in my branch works. --[[anarcat]]
 
 >> Note: this is one of two patches i need to apply at every upgrade. The other being [[can__39__t_upload_a_simple_png_image:_prohibited_by_allowed__95__attachments___40__file_MIME_type_is_application__47__octet-stream...]]. --[[anarcat]]
+
+>>> Is there any sort of check that the owner of the given email address
+>>> wants to receive email from us, or way for the owner of that email
+>>> address to stop getting the emails?
+>>>
+>>> With passwordauth, if someone maliciously subscribes my email
+>>> address to high-traffic pages or something (by using it as the
+>>> email address of their wiki login), I can at least use
+>>> password-recovery to hijack their account and unsubscribe myself.
+>>> If they're signing in with an OpenID not associated with my
+>>> email address and then changing the email address in the userdb
+>>> to point to me, I don't think I can do that.
+>>>
+>>> With OpenID, I think we're just trusting that the OpenID provider
+>>> wouldn't give us an unverified email address, which also seems
+>>> a little unwise.
+>>>
+>>> It might be better to give ikiwiki a concept of verifying an
+>>> email address (the usual send-magic-token flow) and only be
+>>> willing to send notifications to a verified address?
+>>>
+>>> --[[smcv]]
