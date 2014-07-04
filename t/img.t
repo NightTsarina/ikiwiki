@@ -51,11 +51,8 @@ sub size($) {
 
 my $outpath = "t/tmp/out/imgconversions";
 is(size("$outpath/10x-redsquare.png"), "10x10");
-SKIP: {
-	# FIXME this is a workaround for libimage-magick-perl which has issues with svg
-	skip "skip svg test due to imagemagick 8:6.8.8.9 bug (6.7 works, so does graphicsmagick)", 1 if $INC{"Image/Magick/Q16.pm"};
-	is(size("$outpath/10x-emptysquare.png"), "10x10");
-}
+# if this fails, you need libmagickcore-6.q16-2-extra installed
+is(size("$outpath/10x-emptysquare.png"), "10x10");
 is(size("$outpath/12x-twopages.png"), "12x12");
 is(size("$outpath/16x-p1-twopages.png"), "16x2");
 
