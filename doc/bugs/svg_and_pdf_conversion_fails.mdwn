@@ -43,3 +43,16 @@ should be safe for inclusion.
 >> branch. In practice I think this means JPEG -> JPEG and everything
 >> else -> PNG, since JPEG is commonly used for photos and photo-like
 >> images that don't compress well under lossless compression. --[[smcv]]
+
+>>> i've added a unit test and tested it with the [[!debsid perlmagick]]
+>>> package, the [[!debsid graphicsmagick-libmagick-dev-compat]] package and
+>>> the experimental [[!debpts libimage-magick-perl]] package (where the
+>>> [[!debpts libmagickcore-6.q16-2-extra]] package is required too), in the
+>>> meantime filing [[!debbug 753770]]. (why is it that it sometime seems i
+>>> find more bugs in ikiwiki's dependencies than in itself when working with
+>>> it?)
+>>>
+>>> the unit test also checks for file removal when it is not created any more,
+>>> which works, so my biggest fear about the all-to-png change is unwarranted.
+>>> i'll have a look at that some time, but i think as things are, this is
+>>> ready now, please review again. --[[chrysn]]
