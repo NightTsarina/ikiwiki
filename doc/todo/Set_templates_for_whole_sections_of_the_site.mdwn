@@ -39,3 +39,25 @@ I've written a new plugin, sectiontemplate, available in the `page_tmpl` branch 
 >>>>> --[[KathrynAndersen]]
 
 Just a quick note that Kathryn's branch is ready.[[!template id=gitbranch branch=rubykat/pagetemplate author="[[KathrynAndersen]]"]][[!tag patch]] --[[Will]]
+
+> Review:
+>
+> The indentation seems odd. IkiWiki is mostly indented with hard tabs;
+> this seems to be a mixture of tabs and spaces, assuming 4 spaces per tab.
+>
+> [[!format perl """
+sub checkconfig () {
+...
+               ! defined IkiWiki::template_file($tmpl))
+"""]]
+>
+> I think `checkconfig` is too soon to rely on `template_file`
+> producing correct results? It looks in `%pagesources` which has not
+> yet been updated.
+>
+> If we had a "just before building" hook, that would be a good time
+> to emit warnings; or doing it once per run, on-demand, triggered
+> by the first call to the `templatefile` hook could work. Or the
+> hook could just silently ignore bad pagespecs?
+>
+> --[[smcv]]
