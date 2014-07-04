@@ -25,3 +25,21 @@ should be safe for inclusion.
 > meantime, i noticed that the desired effect doesn't happen when no explicit
 > size is set. as scalable graphics don't necessarily have a natural size
 > anyway, i don't consider that a showstopper. --[[chrysn]]
+
+>> This all looks good in principle, but I would like to do a more detailed
+>> review, and test it with "real ImageMagick" in case its behaviour differs
+>> from GraphicsMagick.
+>>
+>> An automated regression test for the desired behaviour in `t/` would
+>> be great. There are SVGs and PNGs in the docwiki already; there are no
+>> JPEGs or PDFs, but perhaps you could add a trivially small example
+>> of each to `t/`? Imitating `t/tag.t` or `t/trail.t`, and skipping the
+>> test if the required modules are missing like `t/podcast.t` does,
+>> seems like it would work best.
+>>
+>> I agree that everything not in an interoperable web format should be
+>> converted to PNG when it's scaled down, but yes, that's more likely
+>> to be a breaking change, so it seems best to do that as a separate
+>> branch. In practice I think this means JPEG -> JPEG and everything
+>> else -> PNG, since JPEG is commonly used for photos and photo-like
+>> images that don't compress well under lossless compression. --[[smcv]]
