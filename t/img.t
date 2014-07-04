@@ -5,6 +5,10 @@
 # sizes, and checks if they vanish when not required in the build process any
 # more
 #
+# if you have trouble here, be aware that there are three debian packages that
+# can provide Image::Magick: perlmagick, libimage-magick-perl and
+# graphicsmagick-libmagick-dev-compat
+#
 package IkiWiki;
 
 use warnings;
@@ -12,21 +16,23 @@ use strict;
 use Test::More;
 
 BEGIN { use_ok("IkiWiki"); }
+BEGIN { use_ok("Image::Magick"); }
 
 ok(! system("rm -rf t/tmp; mkdir -p t/tmp/in"));
 
-ok(! system("convert canvas:red -scale 20x20 t/tmp/in/simple.png"));
-ok(! system("convert t/tmp/in/simple.png -extent 20x10 t/tmp/in/long.png"));
-ok(! system("convert t/tmp/in/simple.png t/tmp/in/simple-svg.svg"));
+ok(! system("cp t/img/redsquare.png t/tmp/in/redsquare.png"));
+writefile("emptysquare.svg", "t/tmp/in", '<svg width="10" height="10"/>');
 # using different image sizes for different pages, so the pagenumber selection can be tested easily
-ok(! system("convert t/tmp/in/simple.png t/tmp/in/long.png t/tmp/in/simple-pdf.pdf"));
+ok(! system("cp t/img/twopages.pdf t/tmp/in/twopages.pdf"));
 
 writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
-[[!img simple.png]]
-[[!img simple.png size=10x]]
-[[!img simple-svg.svg size=10x]]
-[[!img simple-pdf.pdf size=10x]]
-[[!img simple-pdf.pdf size=10x pagenumber=1]]
+[[!img redsquare.png]]
+[[!img redsquare.png size=10x]]
+[[!img emptysquare.svg size=10x]]
+<!-- FIXME this is a workaround for perlmagick which errs on the first pdf -->
+[[!img twopages.pdf size=10x]]
+[[!img twopages.pdf size=12x]]
+[[!img twopages.pdf size=16x pagenumber=1]]
 EOF
 );
 
@@ -36,11 +42,24 @@ my $command = "perl -I. ./ikiwiki.out -set usedirs=0 -plugin img t/tmp/in t/tmp/
 
 ok(! system($command));
 
+sub size($) {
+	my $filename = shift;
+	my $im = Image::Magick->new();
+	$im->Read($filename);
+	my $w = $im->Get("width");
+	my $h = $im->Get("height");
+	return "${w}x${h}";
+}
+
 my $outpath = "t/tmp/out/imgconversions";
-ok(`identify $outpath/10x-simple.png` =~ "PNG 10x10 ");
-ok(`identify $outpath/10x-simple-svg.png` =~ "PNG 10x10 ");
-ok(`identify $outpath/10x-simple-pdf.png` =~ "PNG 10x10 ");
-ok(`identify $outpath/10x-p1-simple-pdf.png` =~ "PNG 10x5 ");
+is(size("$outpath/10x-redsquare.png"), "10x10");
+SKIP: {
+	# FIXME this is a workaround for libimage-magick-perl which has issues with svg
+	skip "skip svg test due to imagemagick 8:6.8.8.9 bug (6.7 works, so does graphicsmagick)", 1 if $INC{"Image/Magick/Q16.pm"};
+	is(size("$outpath/10x-emptysquare.png"), "10x10");
+}
+is(size("$outpath/12x-twopages.png"), "12x12");
+is(size("$outpath/16x-p1-twopages.png"), "16x2");
 
 # now let's remove them again
 
