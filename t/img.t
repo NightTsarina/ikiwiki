@@ -29,8 +29,6 @@ writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
 [[!img redsquare.png]]
 [[!img redsquare.png size=10x]]
 [[!img emptysquare.svg size=10x]]
-<!-- FIXME this is a workaround for perlmagick which errs on the first pdf -->
-[[!img twopages.pdf size=10x]]
 [[!img twopages.pdf size=12x]]
 [[!img twopages.pdf size=16x pagenumber=1]]
 EOF
