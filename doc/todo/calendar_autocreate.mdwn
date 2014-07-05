@@ -23,6 +23,14 @@ won't be offended if you correct stuff you consider awkward):
 > them by default - I'd prefer to avoid cluttering git history with generated
 > pages. (Indeed, should the option even exist?)
 >
+> > I copied those options from the [[plugins/tag]] plugin: the
+> > `tag_autocreate_commit` option exists and default to 1.
+> >
+> > It should definitely exists: suppose a calendar page is created and not
+> > commited, and later, someone tries to push some changes where a page with
+> > the same name has been created. This would result in a conflict. The
+> > `calendar_autocreate_commit` prevents this.
+>
 > I'd personally do the conditional in gencalendaryear more like:
 >
 > [[!format perl """
@@ -30,6 +38,8 @@ return unless $config{calendar_autocreate};
 """]]
 >
 > to reduce the indentation depth of the more interesting code.
+>
+> > [[I agree|https://github.com/paternal/ikiwiki/commit/7f18c1ce48630507b744fa56b83999e8ca684606]]
 >
 > The recursion to generate missing years:
 >
@@ -89,10 +99,24 @@ sub gencalendaryear {
 }
 """]]
 >
+>
+> > [[I agree|https://github.com/paternal/ikiwiki/commit/7f18c1ce48630507b744fa56b83999e8ca684606]]
+>
 > I'm not sure about generating missing years at all, though: if the
 > generation is entirely dynamic, and there were no posts at all during
 > a particular year (or month for that matter), shouldn't we just skip
 > the year/month? That seems to be what e.g. Wordpress does.
+>
+> > [[Done|https://github.com/paternal/ikiwiki/commit/59b46942e01b32138d056381249effbbaf773892]].
+> > I added an option `calendar_fill_gaps` to chose between the two
+> > alternatives (since skipping empty months and years would change the
+> > default behaviour of this plugin).
+> >
+> > I think the code is a bit ugly at some places. Perl is not one the the
+> > programming languages I am fluent into. Sorry.
+> >
+> > PS: Good idea, thought. I now have to implement a similar thing for
+> > [[plugins/contrib/jscalendar]].
 >
 > This piece of ikiwiki-calendar functionality is lost:
 >
@@ -108,6 +132,20 @@ sub gencalendaryear {
 > highlight for today (although I'm not sure how best to implement that -
 > perhaps a config option representing "I am going to use ikiwiki-calendar").
 >
+> > This is not lost. What ikiwiki-calendar do is simply: build the missing
+> > `archive/year/month` pages, and run `ikiwiki -refresh`. With my patch, the
+> > `ikiwiki -refresh` includes:
+> >
+> > - the build of missing `archive/year/month` pages;
+> > - highlighting the current day (this was already the case).
+> >
+> > So one can simply drop the `ikiwiki-calendar ...` for `ikiwiki --refresh
+> > ...` in cron to get the same result.
+> >
+> > I
+> > [[tried|https://github.com/paternal/ikiwiki/commit/7a92444e56fe023cea3b074dc5e6b5c4acdb6114]]
+> > to make the documentation clearer.
+>
 > [[!format diff """
 -\[[!template id=plugin name=calendar author="\[[ManojSrivastava]]"]]
 -\[[!tag type/widget]]
@@ -116,4 +154,9 @@ sub gencalendaryear {
 > Why did you remove that? It's useful information about the plugin
 > which I think ought to stay.
 >
+> > Oops! It was a mistake.
+> > [[Corrected|https://github.com/paternal/ikiwiki/commit/de9842ecc8914e11e73148dae78cd6909b535262]].
+>
 > --[[smcv]]
+>
+> > Thank you for this review. -- [[Louis|spalax]]
