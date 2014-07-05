@@ -71,6 +71,14 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 0,
 		},
+		calendar_fill_gaps => {
+			type => "boolean",
+			example => 1,
+			default => 1,
+			description => "if set, when building calendar pages, also build pages of year and month when no pages were published (building empty calendars).",
+			safe => 1,
+			rebuild => 0,
+		},
 }
 
 sub checkconfig () {
@@ -85,6 +93,9 @@ sub checkconfig () {
 	}
 	if (! defined $config{archivebase}) {
 		$config{archivebase} = 'archives';
+	}
+	if (! defined $config{calendar_fill_gaps}) {
+		$config{calendar_fill_gaps} = 1;
 	}
 }
 
@@ -140,6 +151,18 @@ sub calendarlink($;$) {
 	}
 }
 
+sub gencalendarmonth{
+	my $year = shift;
+	my $month = sprintf("%02d", shift);
+
+	my $page = calendarlink($year, $month);
+	my $pagefile = newpagefile($page, $config{default_pageext});
+	add_autofile(
+		$pagefile, "calendar",
+		sub {return autocreate($page, $pagefile, $year, $month);}
+	);
+}
+
 sub gencalendaryear {
 	my $year = shift;
 	my %params = @_;
@@ -154,33 +177,39 @@ sub gencalendaryear {
 		sub {return autocreate($page, $pagefile, $year);}
 	);
 
-	# Building month pages
-	foreach my $month (qw{01 02 03 04 05 06 07 08 09 10 11 12}) {
-		my $page = calendarlink($year, $month);
-		my $pagefile = newpagefile($page, $config{default_pageext});
-		add_autofile(
-			$pagefile, "calendar",
-			sub {return autocreate($page, $pagefile, $year, $month);}
-		);
-	}
-
-	# Filling potential gaps in years (e.g. calendar goes from 2010 to 2014,
-	# and we just added year 2005. We have to had years 2006 to 2009).
-	return if $params{norecurse};
 	if (not exists $wikistate{calendar}{minyear}) {
-		$wikistate{calendar}{minyear} = $year;
-	} elsif ($wikistate{calendar}{minyear} > $year) {
-		foreach my $other ($year + 1 .. $wikistate{calendar}{minyear} - 1) {
-			gencalendaryear($other, norecurse => 1);
-		}
 		$wikistate{calendar}{minyear} = $year;
 	}
 	if (not exists $wikistate{calendar}{maxyear}) {
 		$wikistate{calendar}{maxyear} = $year;
-	} elsif ($wikistate{calendar}{maxyear} < $year) {
-		foreach my $other ($wikistate{calendar}{maxyear} + 1 .. $year - 1) {
-			gencalendaryear($other, norecurse => 1);
+	}
+
+	if ($config{calendar_fill_gaps}) {
+		# Building month pages
+		foreach my $month (1 .. 12) {
+			gencalendarmonth($year, $month);
 		}
+
+		# Filling potential gaps in years (e.g. calendar goes from 2010 to 2014,
+		# and we just added year 2005. We have to had years 2006 to 2009).
+		return if $params{norecurse};
+		if ($wikistate{calendar}{minyear} > $year) {
+			foreach my $other ($year + 1 .. $wikistate{calendar}{minyear} - 1) {
+				gencalendaryear($other, norecurse => 1);
+			}
+			$wikistate{calendar}{minyear} = $year;
+		}
+		if ($wikistate{calendar}{maxyear} < $year) {
+			foreach my $other ($wikistate{calendar}{maxyear} + 1 .. $year - 1) {
+				gencalendaryear($other, norecurse => 1);
+			}
+			$wikistate{calendar}{maxyear} = $year;
+		}
+	}
+	if ($year < $wikistate{calendar}{minyear}) {
+		$wikistate{calendar}{minyear} = $year;
+	}
+	if ($year >  $wikistate{calendar}{maxyear}) {
 		$wikistate{calendar}{maxyear} = $year;
 	}
 }
@@ -207,19 +236,28 @@ sub format_month (@) {
 		push(@{$linkcache{"$year/$mtag/$mday"}}, $p);
 	}
 		
-	my $pmonth = $params{month} - 1;
-	my $nmonth = $params{month} + 1;
+	my $archivebase = 'archives';
+	$archivebase = $config{archivebase} if defined $config{archivebase};
+	$archivebase = $params{archivebase} if defined $params{archivebase};
+  
+	my $pmonth = $params{month};
 	my $pyear  = $params{year};
-	my $nyear  = $params{year};
-
-	# Adjust for January and December
-	if ($params{month} == 1) {
-		$pmonth = 12;
-		$pyear--;
+	while (((not exists $pagesources{"$archivebase/$pyear/" . sprintf("%02d", $pmonth)}) and ($pyear >= $wikistate{calendar}{minyear})) or ($pmonth == $params{month} and $pyear == $params{year})) {
+		$pmonth -= 1;
+		if ($pmonth == 0) {
+			$pyear -= 1;
+			$pmonth = 12;
+		}
 	}
-	if ($params{month} == 12) {
-		$nmonth = 1;
-		$nyear++;
+
+	my $nmonth = $params{month};
+	my $nyear  = $params{year};
+	while (((not exists $pagesources{"$archivebase/$nyear/" . sprintf("%02d", $nmonth)}) and ($nyear <= $wikistate{calendar}{maxyear})) or ($nmonth == $params{month} and $nyear == $params{year})) {
+		$nmonth += 1;
+		if ($nmonth == 13) {
+			$nyear += 1;
+			$nmonth = 1;
+		}
 	}
 
 	# Add padding.
@@ -244,10 +282,6 @@ sub format_month (@) {
 	my $pmonthname=strftime_utf8("%B", localtime(timelocal(0,0,0,1,$pmonth-1,$pyear-1900)));
 	my $nmonthname=strftime_utf8("%B", localtime(timelocal(0,0,0,1,$nmonth-1,$nyear-1900)));
 
-	my $archivebase = 'archives';
-	$archivebase = $config{archivebase} if defined $config{archivebase};
-	$archivebase = $params{archivebase} if defined $params{archivebase};
-  
 	# Calculate URL's for monthly archives.
 	my ($url, $purl, $nurl)=("$monthname $params{year}",'','');
 	if (exists $pagesources{"$archivebase/$params{year}/$params{month}"}) {
@@ -400,22 +434,29 @@ sub format_year (@) {
 		my $mtime = $IkiWiki::pagectime{$p};
 		my @date  = localtime($mtime);
 		my $month = $date[4] + 1;
+		my $year  = $date[5] + 1900;
 
 		$post_months[$month]++;
 	}
 		
 	my $calendar="\n";
-	
-	my $pyear = $params{year}  - 1;
-	my $nyear = $params{year}  + 1;
-
-	my $thisyear = $now[5]+1900;
-	my $future_month = 0;
-	$future_month = $now[4]+1 if $params{year} == $thisyear;
 
 	my $archivebase = 'archives';
 	$archivebase = $config{archivebase} if defined $config{archivebase};
 	$archivebase = $params{archivebase} if defined $params{archivebase};
+	
+	my $pyear = $params{year}  - 1;
+	while ((not exists $pagesources{"$archivebase/$pyear"}) and ($pyear > $wikistate{calendar}{minyear})) {
+		$pyear -= 1;
+	}
+	my $nyear = $params{year}  + 1;
+	while ((not exists $pagesources{"$archivebase/$nyear"}) and ($nyear < $wikistate{calendar}{maxyear})) {
+		$nyear += 1;
+	}
+
+	my $thisyear = $now[5]+1900;
+	my $future_month = 0;
+	$future_month = $now[4]+1 if $params{year} == $thisyear;
 
 	# calculate URL's for previous and next years
 	my ($url, $purl, $nurl)=("$params{year}",'','');
@@ -635,6 +676,7 @@ sub scan (@) {
 	if (pagespec_match($page, $config{archive_pagespec})) {
 		my @ctime = localtime($IkiWiki::pagectime{$page});
 		gencalendaryear($ctime[5]+1900);
+		gencalendarmonth($ctime[5]+1900, $ctime[4]+1);
 	}
 }
 

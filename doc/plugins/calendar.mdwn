@@ -19,6 +19,10 @@ pages from templates (overriding the existing ones).
   `archivebase` and `calendar_autocreate_commit` are set.
 * `calendar_autocreate_commit` -  If set, causes new archive pages to be
   checked into version control. Defaults to 1.
+* `calendar_fill_gaps` - If set (and `calendar_autocreate` is set as well),
+  build calendar pages of emty years and months (but does not build pages older
+  than the older page, and younger than the younger page of the pagespec). If
+  not, thoses empty calendar pages will be skipped.
 
 ## CSS
 
