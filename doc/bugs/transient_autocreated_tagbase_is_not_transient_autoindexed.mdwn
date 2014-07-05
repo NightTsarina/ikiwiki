@@ -31,3 +31,13 @@ Shouldn't `ikiwiki-tag-test/raw/.ikiwiki/transient/tag.mdwn` and `ikiwiki-tag-te
 > git repositories any more? My `autoindex-more` branch changes
 > the logic so it will do what you want in the `autoindex_commit => 0`
 > case, and amends the appropriate regression test. --[[smcv]]
+
+>> the autoindex-more-often branch looks good to me in general.
+>>
+>> i do have doubts about the 3ba2ef1a patch ("remove unnecessary special case
+>> for transient underlay"): now that we consider the complete transient
+>> directory as well, the sequence in which the refresh hooks are called starts
+>> to matter, and pages created by other plugins in a similar fashion as by
+>> autoindex will only be included the next time refresh gets called.
+>>
+>> --[[chrysn]]
