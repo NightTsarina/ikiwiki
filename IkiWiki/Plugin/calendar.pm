@@ -142,42 +142,46 @@ sub calendarlink($;$) {
 
 sub gencalendaryear {
 	my $year = shift;
+	my %params = @_;
 
-	if ($config{calendar_autocreate}) {
+	return unless $config{calendar_autocreate};
 
-		# Building year page
-		my $page = calendarlink($year);
+	# Building year page
+	my $page = calendarlink($year);
+	my $pagefile = newpagefile($page, $config{default_pageext});
+	add_autofile(
+		$pagefile, "calendar",
+		sub {return autocreate($page, $pagefile, $year);}
+	);
+
+	# Building month pages
+	foreach my $month (qw{01 02 03 04 05 06 07 08 09 10 11 12}) {
+		my $page = calendarlink($year, $month);
 		my $pagefile = newpagefile($page, $config{default_pageext});
 		add_autofile(
 			$pagefile, "calendar",
-			sub {return autocreate($page, $pagefile, $year);}
+			sub {return autocreate($page, $pagefile, $year, $month);}
 		);
+	}
 
-		# Building month pages
-		foreach my $month (qw{01 02 03 04 05 06 07 08 09 10 11 12}) {
-			my $page = calendarlink($year, $month);
-			my $pagefile = newpagefile($page, $config{default_pageext});
-			add_autofile(
-				$pagefile, "calendar",
-				sub {return autocreate($page, $pagefile, $year, $month);}
-			);
+	# Filling potential gaps in years (e.g. calendar goes from 2010 to 2014,
+	# and we just added year 2005. We have to had years 2006 to 2009).
+	return if $params{norecurse};
+	if (not exists $wikistate{calendar}{minyear}) {
+		$wikistate{calendar}{minyear} = $year;
+	} elsif ($wikistate{calendar}{minyear} > $year) {
+		foreach my $other ($year + 1 .. $wikistate{calendar}{minyear} - 1) {
+			gencalendaryear($other, norecurse => 1);
 		}
-
-		# Filling potential gaps in years (e.g. calendar goes from 2010 to 2014,
-		# and we just added year 2005. We have to had years 2006 to 2009.
-		if (not exists $wikistate{calendar}{minyear}) {
-			$wikistate{calendar}{minyear} = $year;
-		} elsif ($wikistate{calendar}{minyear} > $year) {
-			gencalendaryear($year + 1);
-			$wikistate{calendar}{minyear} -= 1;
+		$wikistate{calendar}{minyear} = $year;
+	}
+	if (not exists $wikistate{calendar}{maxyear}) {
+		$wikistate{calendar}{maxyear} = $year;
+	} elsif ($wikistate{calendar}{maxyear} < $year) {
+		foreach my $other ($wikistate{calendar}{maxyear} + 1 .. $year - 1) {
+			gencalendaryear($other, norecurse => 1);
 		}
-		if (not exists $wikistate{calendar}{maxyear}) {
-			$wikistate{calendar}{maxyear} = $year;
-		}
-		if ($wikistate{calendar}{maxyear} < $year) {
-			gencalendaryear($year - 1);
-			$wikistate{calendar}{maxyear} += 1;
-		}
+		$wikistate{calendar}{maxyear} = $year;
 	}
 }
 
