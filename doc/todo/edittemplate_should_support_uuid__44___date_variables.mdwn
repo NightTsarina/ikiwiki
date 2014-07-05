@@ -70,3 +70,10 @@ Changes to the structure of `$pagestate{$registering_page}{edittemplate}{$pagesp
 >>> timestamp variables/objects, so I left the naming as it was.
 >>>
 >>> --[[smcv]]
+
+>>>> the ready/edittemplate branch looks good to me too. `formatted_time` and
+>>>> `html_time` probably don't hurt, but personally i'd not add either and
+>>>> instead expose displaytime as a directive, for otherwise migrating to
+>>>> html5 would leave old evaluations of displaytime around in the repository.
+>>>> (example template: `\[[!meta date="<TMPL_VAR time>"]]I wrote this post at
+>>>> \[[!displaytime "<TMPL_VAR time>"]]`). --[[chrysn]]
