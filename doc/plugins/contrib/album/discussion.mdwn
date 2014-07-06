@@ -614,6 +614,14 @@ concatenates them: for instance, `/usr/share/ikiwiki/themes/actiontabs/style.css
 is the output of `cat doc/style.css themes/actiontabs/style.css`. So adding it
 to `doc/style.css` should be enough?
 
+> I don't think this is the case? Or at least, looking at the generated
+> stylesheet for the examples built using my branch, I would expect there to be
+> two copies of the album rules in the stylesheet [1], but there does not
+> appear to be. This could quite easily be a result of some mistake in my part
+> in not isolating the build though. --[[cbaines]]
+>
+> 1: <http://cbaines.net/projects/ikiwiki/album/dest/basic-actiontabs/style.css>
+
 Regarding commit `Change the default thumbnail size`: as far as I
 understand it, `size => 96x96` is meant to set the image size to
 be as large as possible given these constraints: width ≤ 96px,
@@ -623,3 +631,7 @@ are you seeing, and which versions of Imagemagick and Perlmagick
 are you using?
 
 --[[smcv]]
+
+> I rebuilt the examples using both your album4 and album5 branches, and I only
+> see this in the album4 branch. So this is probably ok to ignore.
+> --[[cbaines]]
