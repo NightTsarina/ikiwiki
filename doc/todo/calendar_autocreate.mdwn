@@ -31,6 +31,17 @@ won't be offended if you correct stuff you consider awkward):
 > > the same name has been created. This would result in a conflict. The
 > > `calendar_autocreate_commit` prevents this.
 >
+> > > `tag_autocreate_commit` exists because when tag autocreation
+> > > was introduced, they were always in the `$srcdir` and committed.
+> > > I changed it so that it was possible to put them in the [[plugins/transient]]
+> > > underlay and not commit them.
+> > >
+> > > When automatic tag pages (or autoindex pages) are not committed, they
+> > > go in the transient underlay, which means they can't cause conflicts:
+> > > independent page creation will simply mask them (a page in the
+> > > `$srcdir` hides a page of the same name in an underlay). I thought
+> > > this implementation did the same when not committing? --[[smcv]]
+>
 > I'd personally do the conditional in gencalendaryear more like:
 >
 > [[!format perl """
