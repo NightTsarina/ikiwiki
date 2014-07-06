@@ -62,6 +62,11 @@ i'm new to ikiwiki, apologies if this is dealt with elsewhere.  -brush
 
 ## design feedback from joeyh on an earlier version
 
+Not entirely relevant any more.
+[[!toggle id="old-design-feedback" text="show"]]
+[[!toggleable id="old-design-feedback" text="""
+[[!toggle id="old-design-feedback" text="hide"]]
+
 You had wanted my feedback on the design of this. I have not looked at the
 code or tried it yet, but here goes. --[[Joey]]	
 
@@ -260,6 +265,7 @@ code or tried it yet, but here goes. --[[Joey]]
 >> changed, and only update those viewers where it has. But the dependency
 >> type stuff is still very new, and not plugin friendly .. so only just
 >> possible, --[[Joey]] 
+"""]]
 
 ----
 
@@ -267,6 +273,10 @@ code or tried it yet, but here goes. --[[Joey]]
 
 '''I think the "special extension" design is a dead-end, but here's what
 happened when I tried to work out how it would work. --[[smcv]]'''
+
+[[!toggle id="special-extension-sketch" text="show"]]
+[[!toggleable id="special-extension-sketch" text="""
+[[!toggle id="special-extension-sketch" text="hide"]]
 
 Suppose that each viewer is a JPEG-or-GIF-or-something, with extension
 ".albumimage". We have a gallery "memes" with three images, badger,
@@ -408,10 +418,17 @@ Things that would be nice, and are probably possible:
 * some way to deep-link to memes/badger.jpg with a wikilink, without knowing a
   priori that it's secretly a JPEG (probably harder than it looks - you'd
   have to make a directive for it and it's probably not worth it)
+"""]]
 
 ----
 
-## bug: unable to vary thumbnail size
+## resolved bug reports
+
+[[!toggle id="fixed-bugs" text="show"]]
+[[!toggleable id="fixed-bugs" text="""
+[[!toggle id="fixed-bugs" text="hide"]]
+
+### bug: unable to vary thumbnail size
 
 Hi smcv, great plugin. I am an ikiwiki newbie but so far I've had success using your plugin.
 I've integrated the jquery masonry plugin into the albumitem template and it works great.
@@ -419,11 +436,11 @@ But is there a way to create thumnails of different sizes? I've passed thumnails
 and value to album directive and while it does create the new thumbnail sizes it doesn't use them,
 The 96x96 thumbnails still appear on the page no matter what I do. - jaime
 
-> [[KathrynAndersen]] fixed this, see below. --[[smcv]]
+> Fixed in album5 branch, thanks to [[KathrynAndersen]]. --[[smcv]]
 
 ----
 
-## failed installation
+### failed installation
 
 Hi, the plugin looks great, but I am probably too dumb to use it ;( here is what I did:
 created page gal.mdwn with just \[\[!album\]\] directive (no arguments) and subdirectory gal/ with images in form img_1234.jpg
@@ -471,7 +488,7 @@ Thanks Lukas
 
 ----
 
-## bug + patch: not all images shown on album page
+### bug + patch: not all images shown on album page
 
 Hi smcv, we spoke on irc the other day. Passed `show => "0"` on line 126 in album.pm to remove the limit on the thumbnails shown on the album page. Setting it on the album directive didn't work.
 
@@ -480,13 +497,17 @@ Hi smcv, we spoke on irc the other day. Passed `show => "0"` on line 126 in albu
 > That sounds like a correct solution. I'll fix that in my branch when I work on
 > this again. --[[smcv]]
 
+>> Fixed in `album5` branch --s
+
 ----
 
-## bug: thumbnailsize doesn't work
+### bug: thumbnailsize doesn't work
 
 As mentioned above by Jaime setting the thumbnailsize doesn't catch either. Or rather if I git push after changing the album directive the generated thumbnails (the image files) are the correct size as set in the directive. The html however uses the default thumbnailsize as hardcoded in album.pm and has broken thumbnails as it links to a file with the default size in the filename.
 
 > [[KathrynAndersen]] fixed this, see below. --[[smcv]]
+
+>> Fixed in `album5` branch --s
 
 Issuing `ikiwiki --rebuild` knocks the system into another gear where the thumbnails show up correctly but this is only due to the html being the same as above (linking to hardcoded thumbnailsize) but the generated thumbnail images are now matching the hardcoded size ignoring the thumbnailsize attribute on the album directive.
 
@@ -494,40 +515,7 @@ For me this behaviour is way beyond my skills to sort out (I'm no coder). The al
 
 --kjs
 
-----
-
-## wishlist + patch: make clicking on the large image go to the next
-
-I've changed the behavior of the "slideshow" to show the next image when clicking the large image as downloading a full resolution image is a rare use case in a gallery of this type imho. The large clicktarget means you are likely to unnecessarily download large files otherwise. I can't quite follow the template, album.pm flow so I can't figure out how to put a "download full resolution" link on the viewer page which would be my next step. To achieve the next link i added ` link => ($nextpage or $album),` around line 454 in `my $img`
-
---kjs
-
-> That seems reasonable. I'll consider that when I work on this
-> plugin again next. --[[smcv]]
-
-----
-
-## wishlist from kjs
-
-My wishlist for the plugin would include:
-
-- Reading exif info from the imagefile
-- ~~Keeping the full resolution image files out of version control~~ Solved this by simply creating a underlay for the images. Works out of the box for my non cgi workflow.
-- Being able to create new albums by tag or by manually picking images from other albums. Could be a simple comma separated list of viewer names, or even full urls, in the album directive.
-- A counter showing **current image/total number of images in album**. This would mean that you know how many images you have left to click through before you have seen all images in an album. This gives you enought info to decide weather to click through or go back/leave.
-
---kjs
-
-> I want the first two of those too, perhaps one day I'll get round to
-> implementing them.
->
-> For the third, you can get the same practical effect using an inline
-> as documented in the main page. --[[smcv]]
->> The downside to current behaviour is that clicking an inlined thumbnail will take you to the original album context. Previous/Next image will not match the thumbnails in the inline but the thumbnails in the album. This is a bit confusing for users and prevents using the image in multiple contexts without duplicating the image. To achieve what I'm looking for there would have to be several AlbumViewer pages for a single image. --kjs
-
-----
-
-## suggested fix for thumbnail size bug
+### suggested fix for thumbnail size bug
 
 I've tracked down the "always showing the 96x96 thumbnails" bug!
 
@@ -578,9 +566,11 @@ Here's a context-diff of my fix:
 >
 > --[[smcv]]
 
+>> Fixed in `album5` --s
+
 ----
 
-## bug: inability to show more than 10 items
+### bug: inability to show more than 10 items
 
 I've found another bug. The album plugin doesn't allow one to have more than 10 items in an album section. This is because it uses "inline" to display album sections, and the default for inline is to show only 10 items. So it only shows 10 items.
 
@@ -596,7 +586,65 @@ What would be good is if the album directive could have a "show" parameter which
 > although I don't know how useful it would be; if it isn't passed, the
 > default should be 0 (unlimited). --[[smcv]]
 
-## cbaines' branch
+>> Fixed in `album5` --s
+
+----
+
+### cbaines' commit to change default thumbnail size
+
+Regarding commit `Change the default thumbnail size`: as far as I
+understand it, `size => 96x96` is meant to set the image size to
+be as large as possible given these constraints: width ≤ 96px,
+height ≤ 96px, and the original aspect ratio is preserved. So I
+would hope that 96x96 doesn't distort the thumbnails. What distortion
+are you seeing, and which versions of Imagemagick and Perlmagick
+are you using?
+
+--[[smcv]]
+
+> I rebuilt the examples using both your album4 and album5 branches, and I only
+> see this in the album4 branch. So this is probably ok to ignore.
+> --[[cbaines]]
+>
+>> OK, I'll assume that was a duplicate of an earlier patch, probably the
+>> one from KathrynAndersen. --s
+
+"""]]
+
+----
+
+## wishlist + patch: make clicking on the large image go to the next
+
+I've changed the behavior of the "slideshow" to show the next image when clicking the large image as downloading a full resolution image is a rare use case in a gallery of this type imho. The large clicktarget means you are likely to unnecessarily download large files otherwise. I can't quite follow the template, album.pm flow so I can't figure out how to put a "download full resolution" link on the viewer page which would be my next step. To achieve the next link i added ` link => ($nextpage or $album),` around line 454 in `my $img`
+
+--kjs
+
+> That seems reasonable. I'll consider that when I work on this
+> plugin again next. --[[smcv]]
+
+----
+
+## wishlist from kjs
+
+My wishlist for the plugin would include:
+
+- Reading exif info from the imagefile
+- ~~Keeping the full resolution image files out of version control~~ Solved this by simply creating a underlay for the images. Works out of the box for my non cgi workflow.
+- Being able to create new albums by tag or by manually picking images from other albums. Could be a simple comma separated list of viewer names, or even full urls, in the album directive.
+- A counter showing **current image/total number of images in album**. This would mean that you know how many images you have left to click through before you have seen all images in an album. This gives you enought info to decide weather to click through or go back/leave.
+
+--kjs
+
+> I want the first two of those too, perhaps one day I'll get round to
+> implementing them.
+>
+> For the third, you can get the same practical effect using an inline
+> as documented in the main page. --[[smcv]]
+>> The downside to current behaviour is that clicking an inlined thumbnail will take you to the original album context. Previous/Next image will not match the thumbnails in the inline but the thumbnails in the album. This is a bit confusing for users and prevents using the image in multiple contexts without duplicating the image. To achieve what I'm looking for there would have to be several AlbumViewer pages for a single image. --kjs
+
+----
+
+## cbaines' CSS changes
 
 Regarding the CSS changes: I'll try to have a look soon, work out
 what actually changed (since you re-ordered the CSS, so it isn't
@@ -612,7 +660,7 @@ theme's style.css unless you actually want an actiontabs album and
 a blueview album to be styled differently, because the IkiWiki Makefile
 concatenates them: for instance, `/usr/share/ikiwiki/themes/actiontabs/style.css`
 is the output of `cat doc/style.css themes/actiontabs/style.css`. So adding it
-to `doc/style.css` should be enough?
+to `doc/style.css` should be enough? --[[smcv]]
 
 > I don't think this is the case? Or at least, looking at the generated
 > stylesheet for the examples built using my branch, I would expect there to be
@@ -621,17 +669,6 @@ to `doc/style.css` should be enough?
 > in not isolating the build though. --[[cbaines]]
 >
 > 1: <http://cbaines.net/projects/ikiwiki/album/dest/basic-actiontabs/style.css>
-
-Regarding commit `Change the default thumbnail size`: as far as I
-understand it, `size => 96x96` is meant to set the image size to
-be as large as possible given these constraints: width ≤ 96px,
-height ≤ 96px, and the original aspect ratio is preserved. So I
-would hope that 96x96 doesn't distort the thumbnails. What distortion
-are you seeing, and which versions of Imagemagick and Perlmagick
-are you using?
-
---[[smcv]]
-
-> I rebuilt the examples using both your album4 and album5 branches, and I only
-> see this in the album4 branch. So this is probably ok to ignore.
-> --[[cbaines]]
+>
+>> I searched for `/* relevant to the index page */` and found it twice,
+>> so I stand by what I said :-) --s
