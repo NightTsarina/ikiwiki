@@ -641,6 +641,61 @@ My wishlist for the plugin would include:
 > For the third, you can get the same practical effect using an inline
 > as documented in the main page. --[[smcv]]
 >> The downside to current behaviour is that clicking an inlined thumbnail will take you to the original album context. Previous/Next image will not match the thumbnails in the inline but the thumbnails in the album. This is a bit confusing for users and prevents using the image in multiple contexts without duplicating the image. To achieve what I'm looking for there would have to be several AlbumViewer pages for a single image. --kjs
+>>
+>>> Hmm, OK. That breaks the "one picture : one page" mental model,
+>>> unfortunately. The pictures themselves can't be first-class wiki pages (see
+>>> lengthy design discussions with Joey above) because they aren't something
+>>> that produces HTML, and don't have human-readable text source code.
+>>> In the current (album5) design, the viewer pages that are automatically
+>>> created to go alongside the pictures are basically stand-ins for the
+>>> pictures, as far as metadata, wikilinks, tags and other "first-class
+>>> wiki page" things are concerned.
+>>>
+>>> If there are to be viewer pages elsewhere in the wiki, I don't think
+>>> inheriting the picture's metadata is desired. Suppose you have a
+>>> picture of Alice and Bob in the album "holiday in Exampleton, 2010",
+>>> and it is tagged people/alice, people/bob and places/exampleton; the
+>>> other contexts it appears in might include "pictures of Alice" and
+>>> "pictures near Exampleton". If you look at the tag page for
+>>> places/exampleton, I doubt you want to see that photo listed three
+>>> times - once is enough, there's only one actual photo after all. So
+>>> I think the "main" viewer page should be the only one that has
+>>> the taglinks for people/alice, people/bob, places/exampleton.
+>>>
+>>> My next question is, should the viewer page representing that
+>>> particular picture in its context of "pictures near Exampleton"
+>>> (i.e. its "next" and "previous" links go to the next and
+>>> previous picture near Exampleton, regardless of whether it was
+>>> on an earlier or later visit) be a first-class wiki page
+>>> at all?
+>>>
+>>> * Does it make any sense to comment on "this picture in this
+>>>   context", if your wiki has comments, or should the only
+>>>   place you can comment on it be its "main" viewer page?
+>>> * Is there any need for it to be possible to make a wikilink
+>>>   to that particular picture in that particular context,
+>>>   or does it only need wikilinks "to the picture" (which,
+>>>   as an implementation detail, really go to its "main" viewer
+>>>   page)?
+>>> * Can the picture in that particular context have tags
+>>>   that are orthogonal to the tags its "main" viewer page has?
+>>> * ... and so on for various wiki features
+>>>
+>>> It sound as though the answer might ideally be that this secondary
+>>> viewer page doesn't need to be a first-class wiki page at all,
+>>> only a HTML output... except that the trail plugin works in terms
+>>> of next and previous first-class wiki pages, not next and
+>>> previous HTML outputs, and the HTML-generation pipeline
+>>> is really aimed towards real pages.
+>>>
+>>> Perhaps the secondary viewer page should end up looking
+>>> something like this:
+>>>
+>>>     \[[!albumviewer original=holiday-in-exampleton-2010/img1234
+>>>       comment="To edit picture metadata, edit the original page instead"]]
+>>>
+>>> and one of the side-effects of the albumviewer directive should be to
+>>> replace [[plugins/comments]] with a link to the original? --s
 
 ----
 
