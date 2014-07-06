@@ -47,3 +47,23 @@ Shouldn't `ikiwiki-tag-test/raw/.ikiwiki/transient/tag.mdwn` and `ikiwiki-tag-te
 >> is tagge `tags/project`. will that be an autoindex or an autotag?)
 >>
 >> --[[chrysn]]
+
+>>> That's a fair point. I think what happens is down to commit vs. refresh
+>>> timing.
+>>>
+>>> If pages tagged t/p/c, t/p/i and t/p are all created between one
+>>> refresh and the next, with none of those tag pages existing, I think the
+>>> answer is that they would all be autotags, because until t/p/c and
+>>> t/p/i are created, there's no reason to need t/p as an autoindex.
+>>>
+>>> If there were already pages tagged t/p/c and t/p/i at the previous
+>>> refresh, then t/p would already be an autoindex, and that's a
+>>> valid page, so autotagging wouldn't touch it.
+>>>
+>>> I can't see much reason to prefer one over the other; the ideal answer
+>>> is probably to have a tag-cloud *and* a list of child pages, but this
+>>> seems a weird enough thing to do that I'd be OK with a wiki user
+>>> having to disambiguate it themselves. "Whichever automatic process
+>>> happens first, happens" is at least easy to explain, and I consider
+>>> both autoindices and autotags to be time-saving conveniences rather
+>>> than something fundamental. --s
