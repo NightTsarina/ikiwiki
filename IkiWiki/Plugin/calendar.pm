@@ -25,6 +25,7 @@ use Time::Local;
 
 my $time=time;
 my @now=localtime($time);
+my %changed;
 
 sub import {
 	hook(type => "checkconfig", id => "calendar", call => \&checkconfig);
@@ -32,6 +33,7 @@ sub import {
 	hook(type => "needsbuild", id => "calendar", call => \&needsbuild);
 	hook(type => "preprocess", id => "calendar", call => \&preprocess);
 	hook(type => "scan", id => "calendar", call => \&scan);
+	hook(type => "build_affected", id => "calendar", call => \&build_affected);
 
 	IkiWiki::loadplugin("transient");
 }
@@ -102,6 +104,26 @@ sub month_days {
 		$days_in_month++;
 	}
 	return $days_in_month;
+}
+
+sub build_affected {
+	my %affected;
+  my ($ayear, $amonth, $valid);
+
+  foreach my $year (keys %changed) {
+    ($ayear, $valid) = nextyear($year, $config{archivebase});
+    $affected{calendarlink($ayear)} = sprintf(gettext("building calendar for %s, its previous or next year has changed"), $ayear) if ($valid);
+    ($ayear, $valid) = previousyear($year, $config{archivebase});
+    $affected{calendarlink($ayear)} = sprintf(gettext("building calendar for %s, its previous or next year has changed"), $ayear) if ($valid);
+    foreach my $month (keys $changed{$year}) {
+      ($ayear, $amonth, $valid) = nextmonth($year, $month, $config{archivebase});
+      $affected{calendarlink($ayear, sprintf("%02d", $amonth))} = sprintf(gettext("building calendar for %s/%s, its previous or next month has changed"), $amonth, $ayear) if ($valid);
+      ($ayear, $amonth, $valid) = previousmonth($year, $month, $config{archivebase});
+      $affected{calendarlink($ayear, sprintf("%02d", $amonth))} = sprintf(gettext("building calendar for %s/%s, its previous or next month has changed"), $amonth, $ayear) if ($valid);
+    }
+  }
+
+	return %affected;
 }
 
 sub autocreate {
@@ -196,6 +218,66 @@ sub gencalendaryear {
 	}
 }
 
+sub previousmonth($$$) {
+  my $year = shift;
+  my $month = shift;
+  my $archivebase = shift;
+
+	my $pmonth = $month;
+	my $pyear  = $year;
+	while ((not exists $pagesources{"$archivebase/$pyear/" . sprintf("%02d", $pmonth)}) or ($pmonth == $month and $pyear == $year)) {
+		$pmonth -= 1;
+		if ($pmonth == 0) {
+			$pyear -= 1;
+			$pmonth = 12;
+      return ($pyear, $pmonth, 0) unless $pyear >= $wikistate{calendar}{minyear};
+		}
+	}
+  return ($pyear, $pmonth, 1);
+}
+
+sub nextmonth($$$) {
+  my $year = shift;
+  my $month = shift;
+  my $archivebase = shift;
+
+	my $nmonth = $month;
+	my $nyear  = $year;
+	while ((not exists $pagesources{"$archivebase/$nyear/" . sprintf("%02d", $nmonth)}) or ($nmonth == $month and $nyear == $year)) {
+		$nmonth += 1;
+		if ($nmonth == 13) {
+			$nyear += 1;
+			$nmonth = 1;
+      return ($nyear, $nmonth, 0) unless $nyear <= $wikistate{calendar}{maxyear};
+		}
+	}
+  return ($nyear, $nmonth, 1);
+}
+
+sub previousyear($$) {
+  my $year = shift;
+  my $archivebase = shift;
+
+  my $pyear = $year - 1;
+  while (not exists $pagesources{"$archivebase/$pyear"}) {
+    $pyear -= 1;
+    return ($pyear, 0) unless ($pyear >= $wikistate{calendar}{minyear});
+  }
+  return ($pyear, 1);
+}
+
+sub nextyear($$) {
+  my $year = shift;
+  my $archivebase = shift;
+
+  my $nyear = $year + 1;
+  while (not exists $pagesources{"$archivebase/$nyear"}) {
+    $nyear += 1;
+    return ($nyear, 0) unless ($nyear <= $wikistate{calendar}{maxyear});
+  }
+  return ($nyear, 1);
+}
+
 sub format_month (@) {
 	my %params=@_;
 
@@ -222,25 +304,8 @@ sub format_month (@) {
 	$archivebase = $config{archivebase} if defined $config{archivebase};
 	$archivebase = $params{archivebase} if defined $params{archivebase};
   
-	my $pmonth = $params{month};
-	my $pyear  = $params{year};
-	while (((not exists $pagesources{"$archivebase/$pyear/" . sprintf("%02d", $pmonth)}) and ($pyear >= $wikistate{calendar}{minyear})) or ($pmonth == $params{month} and $pyear == $params{year})) {
-		$pmonth -= 1;
-		if ($pmonth == 0) {
-			$pyear -= 1;
-			$pmonth = 12;
-		}
-	}
-
-	my $nmonth = $params{month};
-	my $nyear  = $params{year};
-	while (((not exists $pagesources{"$archivebase/$nyear/" . sprintf("%02d", $nmonth)}) and ($nyear <= $wikistate{calendar}{maxyear})) or ($nmonth == $params{month} and $nyear == $params{year})) {
-		$nmonth += 1;
-		if ($nmonth == 13) {
-			$nyear += 1;
-			$nmonth = 1;
-		}
-	}
+  my ($pyear, $pmonth, $pvalid) = previousmonth($params{year}, $params{month}, $archivebase);
+  my ($nyear, $nmonth, $nvalid) = nextmonth($params{year}, $params{month}, $archivebase);
 
 	# Add padding.
 	$pmonth=sprintf("%02d", $pmonth);
@@ -427,14 +492,8 @@ sub format_year (@) {
 	$archivebase = $config{archivebase} if defined $config{archivebase};
 	$archivebase = $params{archivebase} if defined $params{archivebase};
 	
-	my $pyear = $params{year}  - 1;
-	while ((not exists $pagesources{"$archivebase/$pyear"}) and ($pyear > $wikistate{calendar}{minyear})) {
-		$pyear -= 1;
-	}
-	my $nyear = $params{year}  + 1;
-	while ((not exists $pagesources{"$archivebase/$nyear"}) and ($nyear < $wikistate{calendar}{maxyear})) {
-		$nyear += 1;
-	}
+  my ($pyear, $pvalid) = previousyear($params{year}, $archivebase);
+  my ($nyear, $nvalid) = nextyear($params{year}, $archivebase);
 
 	my $thisyear = $now[5]+1900;
 	my $future_month = 0;
@@ -569,6 +628,10 @@ sub preprocess (@) {
 	}
 	
 	$params{month} = sprintf("%02d", $params{month});
+  if (not exists $changed{$params{year}}) {
+    $changed{$params{year}} = ();
+  }
+  $changed{$params{year}}{$params{month}} = 1;
 	
 	if ($params{type} eq 'month' && $params{year} == $thisyear
 	    && $params{month} == $thismonth) {

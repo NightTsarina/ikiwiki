@@ -19,9 +19,14 @@ pages from templates (overriding the existing ones).
 * `calendar_fill_gaps` - If set (and `calendar_autocreate` is set as well),
   build calendar pages of emty years and months (but does not build pages older
   than the older page, and younger than the younger page of the pagespec). If
-  not, thoses empty calendar pages will be skipped. *Note:* The archive pages
-  will not be automatically updated if this option changes. It is up to the
-  user to delete relevant pages, and rebulid the wiki.
+  not, thoses empty calendar pages will be skipped. *Please note:*
+  * The archive pages will not be automatically updated if this option changes.
+    It is up to the user to delete relevant pages, and rebuild the wiki.
+  * When `calendar_fill_gaps` is set, and post is deleted, making the
+    corresponding year/month empty, the corresponding page is left, and shows
+    an empty calendar. This is on purpose, not to break any external link
+    pointing to this particular page. If you do not like it, delete the
+    relevant pages, and rebuild the wiki.
 
 ## CSS
 
