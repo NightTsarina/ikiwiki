@@ -32,6 +32,8 @@ sub import {
 	hook(type => "needsbuild", id => "calendar", call => \&needsbuild);
 	hook(type => "preprocess", id => "calendar", call => \&preprocess);
 	hook(type => "scan", id => "calendar", call => \&scan);
+
+	IkiWiki::loadplugin("transient");
 }
 
 sub getsetup () {
@@ -63,14 +65,6 @@ sub getsetup () {
 			safe => 1,
 			rebuild => undef,
 		},
-		calendar_autocreate_commit => {
-			type => "boolean",
-			example => 1,
-			default => 1,
-			description => "commit autocreated calendar pages",
-			safe => 1,
-			rebuild => 0,
-		},
 		calendar_fill_gaps => {
 			type => "boolean",
 			example => 1,
@@ -83,10 +77,7 @@ sub getsetup () {
 
 sub checkconfig () {
 	if (! defined $config{calendar_autocreate}) {
-		$config{calendar_autocreate} = defined $config{archivebase} || defined $config{calendar_autocreate_commit};
-	}
-	if (! defined $config{calendar_autocreate_commit}) {
-		$config{calendar_autocreate_commit} = 1;
+		$config{calendar_autocreate} = defined $config{archivebase};
 	}
 	if (! defined $config{archive_pagespec}) {
 		$config{archive_pagespec} = '*';
@@ -128,18 +119,9 @@ sub autocreate {
 	$template->param(month => $month) if defined $month;
 	$template->param(pagespec => $config{archive_pagespec});
 
-	my $dir = $config{srcdir};
-	if (! $config{calendar_autocreate_commit}) {
-		$dir = $IkiWiki::Plugin::transient::transientdir;
-	}
+	my $dir = $IkiWiki::Plugin::transient::transientdir;
 
 	writefile($pagefile, $dir, $template->output);
-	if ($config{rcs} && $config{calendar_autocreate_commit}) {
-		IkiWiki::disable_commit_hook();
-		IkiWiki::rcs_add($pagefile);
-		IkiWiki::rcs_commit_staged(message => $message);
-		IkiWiki::enable_commit_hook();
-	}
 }
 
 sub calendarlink($;$) {
