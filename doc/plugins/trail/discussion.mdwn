@@ -170,3 +170,10 @@ I have removed a similar comment from the album discussion.
 
 >> Let me know if you need anything else. Would be great to hear it works
 >> as expected for everyone else ;) --[[kjs]]
+
+>>> Hmm. Investigating the indexdb:
+>>>
+>>>     perl -le 'use Storable; my $index = Storable::retrieve("stockholm/.ikiwiki/indexdb"); use Data::Dumper; print Dumper $index' |less
+>>>
+>>> indicates that `20130504` depends on `internal(*)` and so does `20130505`.
+>>> I don't know why yet. --s
