@@ -1,0 +1,14 @@
+[[!template id=gitbranch branch=smcv/ready/trail-sort
+author="[[Simon McVittie|smcv]]"
+browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/trail-sort]]
+[[!tag patch users/smcv/ready]]
+
+On [[trail's discussion page|plugins/trail/discussion]], [[kjs]] pointed out
+that [[plugins/trail]] and [[plugins/contrib/album]] get excessive
+dependencies on `internal(*)`. I tracked this down to their (ab)use of
+`pagespec_match_list` with the pagespec `internal(*)` to sort a pre-existing
+list of pages.
+
+They should just sort the pages instead; they'll already have all the
+dependencies they need. My branch adds `IkiWiki::sort_pages` but does not
+make it plugin API just yet. --[[smcv]]
