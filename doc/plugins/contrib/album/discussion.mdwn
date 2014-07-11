@@ -833,3 +833,33 @@ to `doc/style.css` should be enough? --[[smcv]]
 >>> And right you are, unsure how I missed that. My album branch is now rebased
 >>> on your album5 branch (with the two now useless commits removed).
 >>> --[[cbaines]]
+
+cbaines, would you mind publishing an album with more realistic pixel-sizes
+of images using your modified CSS? It's difficult to get an idea of how it
+will degrade under conditions like "image size > browser window" with
+images as small as the ones you used. You might find
+<http://git.pseudorandom.co.uk/smcv/ikiwiki-demos/ikialbum.git>
+(`git clone git://git.pseudorandom.co.uk/git/smcv/ikiwiki-demos/ikialbum.git`),
+or the same techniques, useful: it contains images with a realistic pixel
+count, but very very lossy JPEG compression, to keep the size in bytes low.
+
+It's much, much easier to review changes if you use separate commits for
+cosmetic changes like "separate index CSS from viewer CSS" and "more
+consistent indentation", and functional changes like turning the prev/next
+links from absolutely-positioned to floating. I'd be happy to apply
+the cosmetic changes if they were in commits that were literally only
+cosmetic changes, with no functional effect.
+
+For the functional bits: I think I'd have used floating boxes instead of the
+absolutely-positioned boxes that are currently used if they provided the effect
+I wanted. I can't remember exactly why I didn't do that now, but
+it might have been because if the browser window shrinks below the image width,
+floats have weird behaviour (they push the actual image out of the way), or because
+I wanted the entire left/right margin of the image to be clickable to have
+a large click-target for scrolling through the album.
+
+If there's something specific that you think is wrong with the CSS in my
+branch, could you please explain it, and perhaps we can come up with something
+that matches both our requirements?
+
+--smcv
