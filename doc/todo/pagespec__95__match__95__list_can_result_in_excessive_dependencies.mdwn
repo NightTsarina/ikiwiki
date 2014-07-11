@@ -1,0 +1,41 @@
+If you say
+
+    pagespec_match_list($page, $spec, list => \@pages)
+
+with a small list `@pages` and a vague pagespec `$spec`, `$page` ends
+up depending on (every page that matches) `$spec`. For instance, if you
+already have a list of subpages of the sandbox, and you want to filter it
+to only the discussion pages, you can do that like
+
+    pagespec_match_list("sandbox", "*/discussion",
+        list => ["sandbox/discussion", "sandbox/things", "sandbox/stuff"])
+
+but then a change to *any* discussion page will refresh the sandbox.
+
+The [[bugs/trails depend on everything]] bug was a particularly bad
+case of this, with the widest possible pagespec `internal(*)`
+matched against a small list (the trail).
+
+In principle it would be nice if `pagespec_match_list` could detect
+this situation and make sandbox depend on only those subpages instead.
+
+Perhaps if the `list` parameter is given, `p_m_l` should add a
+by-name (simple) dependency on each page in that list, instead
+of a dependency on the pagespec? Or perhaps it should be documented
+that plugins can pass `deptype => 0` to take responsibility for
+their own dependency handling, and then do whatever they need?
+
+Uses of `pagespec_match_list` with a non-trivial list, in-tree,
+after [[bugs/trails depend on everything]] is fixed:
+
+* brokenlinks: really does need to depend on the whole pagespec,
+  but that could be done separately
+
+* inline: the inliner already depends on the inlined pages
+  so no extra dependency is needed
+
+* pagestats: same as brokenlinks
+
+My album plugin is in the same situation as inline.
+
+--[[smcv]]
