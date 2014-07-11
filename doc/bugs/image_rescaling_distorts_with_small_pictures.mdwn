@@ -1,1 +1,12 @@
 If you use the rescaling feature of the directive [[ikiwiki/directive/img/]] with a smaller image it will distort. E.g. an image with 150x250 rescaled into size=200x200. --bastla
+
+> More specifically: `img` normally preserves aspect ratio:
+> `size=200x200` normally means "as large as possible, keeping
+> the width 200px or less, the height 200px or less, and the
+> aspect ratio correct". So a 4:3 image with `size=200x200`
+> would actually come out 200px wide and 150px tall.
+>
+> However, when (desired width is specified) && (desired height is specified)
+> && ((width > desired width) || (height > desired height)),
+> it uses exactly the desired size, without preserving aspect ratio.
+> --smcv
