@@ -21,7 +21,7 @@ BEGIN { use_ok("Image::Magick"); }
 ok(! system("rm -rf t/tmp; mkdir -p t/tmp/in"));
 
 ok(! system("cp t/img/redsquare.png t/tmp/in/redsquare.png"));
-writefile("emptysquare.svg", "t/tmp/in", '<svg width="10" height="10"/>');
+writefile("emptysquare.svg", "t/tmp/in", '<svg width="30" height="30"/>');
 # using different image sizes for different pages, so the pagenumber selection can be tested easily
 ok(! system("cp t/img/twopages.pdf t/tmp/in/twopages.pdf"));
 

@@ -80,73 +80,67 @@ sub preprocess (@) {
 	
 	my ($dwidth, $dheight);
 
-	if ($params{size} ne 'full') {
+	if ($params{size} eq 'full') {
+		$dwidth = $im->Get("width");
+		$dheight = $im->Get("height");
+	} else {
 		my ($w, $h) = ($params{size} =~ /^(\d*)x(\d*)$/);
 		error sprintf(gettext('wrong size format "%s" (should be WxH)'), $params{size})
 			unless (defined $w && defined $h &&
 			        (length $w || length $h));
-		
-		if ((length $w && $w > $im->Get("width")) ||
-		    (length $h && $h > $im->Get("height"))) {
-		    	# resizing larger
-			$imglink = $file;
 
-			# don't generate larger image, just set display size
-			if (length $w && length $h) {
-				($dwidth, $dheight)=($w, $h);
-			}
-			# avoid division by zero on 0x0 image
-			elsif ($im->Get("width") == 0 || $im->Get("height") == 0) {
-				($dwidth, $dheight)=(0, 0);
-			}
-			# calculate unspecified size from the other one, preserving
-			# aspect ratio
-			elsif (length $w) {
-				$dwidth=$w;
-				$dheight=$w / $im->Get("width") * $im->Get("height");
-			}
-			elsif (length $h) {
-				$dheight=$h;
-				$dwidth=$h / $im->Get("height") * $im->Get("width");
-			}
-		}
-		else {
-			# resizing smaller
-			my $outfile = "$config{destdir}/$dir/${w}x${h}-$base";
-			$imglink = "$dir/${w}x${h}-$base";
-		
-			will_render($params{page}, $imglink);
+		if ($im->Get("width") == 0 || $im->Get("height") == 0) {
+			($dwidth, $dheight)=(0, 0);
+		} elsif (! length $w || (length $h && $im->Get("height")*$w > $h * $im->Get("width"))) {
+			# using height because only height is given or ...
+			# because original image is more portrait than $w/$h
+			# ... slimness of $im > $h/w
+			# ... $im->Get("height")/$im->Get("width") > $h/$w
+			# ... $im->Get("height")*$w > $h * $im->Get("width")
 
-			if (-e $outfile && (-M $srcfile >= -M $outfile)) {
-				$im = Image::Magick->new;
-				$r = $im->Read($outfile);
-				error sprintf(gettext("failed to read %s: %s"), $outfile, $r) if $r;
-			}
-			else {
-				$r = $im->Resize(geometry => "${w}x${h}");
-				error sprintf(gettext("failed to resize: %s"), $r) if $r;
-
-				# don't actually write resized file in preview mode;
-				# rely on width and height settings
-				if (! $params{preview}) {
-					$im->set(($issvg || $ispdf) ? (magick => 'png') : ());
-					my @blob = $im->ImageToBlob();
-					writefile($imglink, $config{destdir}, $blob[0], 1);
-				}
-				else {
-					$imglink = $file;
-				}
-			}
-
-			# always get the true size of the resized image
-			$dwidth  = $im->Get("width"); 
-			$dheight = $im->Get("height");
+			$dheight=$h;
+			$dwidth=$h / $im->Get("height") * $im->Get("width");
+		} else { # (! length $h) or $w is what determines the resized size
+			$dwidth=$w;
+			$dheight=$w / $im->Get("width") * $im->Get("height");
 		}
 	}
-	else {
-		$imglink = $file;
-		$dwidth = $im->Get("width");
+
+	if ($dwidth < $im->Get("width") || $ispdf) {
+		# resize down, or resize to pixels at all
+
+		my $outfile = "$config{destdir}/$dir/$params{size}-$base";
+		$imglink = "$dir/$params{size}-$base";
+
+		will_render($params{page}, $imglink);
+
+		if (-e $outfile && (-M $srcfile >= -M $outfile)) {
+			$im = Image::Magick->new;
+			$r = $im->Read($outfile);
+			error sprintf(gettext("failed to read %s: %s"), $outfile, $r) if $r;
+		}
+		else {
+			$r = $im->Resize(geometry => "${dwidth}x${dheight}");
+			error sprintf(gettext("failed to resize: %s"), $r) if $r;
+
+			# don't actually write resized file in preview mode;
+			# rely on width and height settings
+			if (! $params{preview}) {
+				$im->set(($issvg || $ispdf) ? (magick => 'png') : ());
+				my @blob = $im->ImageToBlob();
+				writefile($imglink, $config{destdir}, $blob[0], 1);
+			}
+			else {
+				$imglink = $file;
+			}
+		}
+
+		# always get the true size of the resized image (it could be
+		# that imagemagick did its calculations differently)
+		$dwidth  = $im->Get("width");
 		$dheight = $im->Get("height");
+	} else {
+		$imglink = $file;
 	}
 	
 	if (! defined($dwidth) || ! defined($dheight)) {
