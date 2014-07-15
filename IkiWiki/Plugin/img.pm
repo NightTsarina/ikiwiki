@@ -75,6 +75,7 @@ sub preprocess (@) {
 	error gettext("Image::Magick is not installed") if $@;
 	my $im = Image::Magick->new();
 	my $imglink;
+	my $imgdatalink;
 	my $r = $im->Read("$srcfile\[$pagenumber]");
 	error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 	
@@ -123,15 +124,17 @@ sub preprocess (@) {
 			$r = $im->Resize(geometry => "${dwidth}x${dheight}");
 			error sprintf(gettext("failed to resize: %s"), $r) if $r;
 
+			$im->set(($issvg || $ispdf) ? (magick => 'png') : ());
+			my @blob = $im->ImageToBlob();
 			# don't actually write resized file in preview mode;
 			# rely on width and height settings
 			if (! $params{preview}) {
-				$im->set(($issvg || $ispdf) ? (magick => 'png') : ());
-				my @blob = $im->ImageToBlob();
 				writefile($imglink, $config{destdir}, $blob[0], 1);
 			}
 			else {
-				$imglink = $file;
+				eval q{use MIME::Base64};
+				error($@) if $@;
+				$imgdatalink = "data:image/".$im->Get("magick").";base64,".encode_base64($blob[0]);
 			}
 		}
 
@@ -148,14 +151,9 @@ sub preprocess (@) {
 	}
 
 	my ($fileurl, $imgurl);
-	if (! $params{preview}) {
-		$fileurl=urlto($file, $params{destpage});
-		$imgurl=urlto($imglink, $params{destpage});
-	}
-	else {
-		$fileurl=urlto($file);
-		$imgurl=urlto($imglink);
-	}
+	my $urltobase = $params{preview} ? undef : $params{destpage};
+	$fileurl=urlto($file, $urltobase);
+	$imgurl=$imgdatalink ? $imgdatalink : urlto($imglink, $urltobase);
 
 	if (! exists $params{class}) {
 		$params{class}="img";
