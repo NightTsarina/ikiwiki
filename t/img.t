@@ -43,7 +43,8 @@ ok(! system($command));
 sub size($) {
 	my $filename = shift;
 	my $im = Image::Magick->new();
-	$im->Read($filename);
+	my $r = $im->Read($filename);
+	return "no image" if $r;
 	my $w = $im->Get("width");
 	my $h = $im->Get("height");
 	return "${w}x${h}";
@@ -58,17 +59,19 @@ is(size("$outpath/16x-p1-twopages.png"), "16x2");
 
 # now let's remove them again
 
-writefile("imgconversions.mdwn", "t/tmp/in", "nothing to see here");
+if (1) { # for easier testing
+	writefile("imgconversions.mdwn", "t/tmp/in", "nothing to see here");
 
-ok(! system("$command --refresh"));
+	ok(! system("$command --refresh"));
 
-ok(! -e "$outpath/10x-simple.png");
-ok(! -e "$outpath/10x-simple-svg.png");
-ok(! -e "$outpath/10x-simple-pdf.png");
-ok(! -e "$outpath/10x-p1-simple-pdf.png");
+	ok(! -e "$outpath/10x-simple.png");
+	ok(! -e "$outpath/10x-simple-svg.png");
+	ok(! -e "$outpath/10x-simple-pdf.png");
+	ok(! -e "$outpath/10x-p1-simple-pdf.png");
 
-# cleanup
-ok(! system("rm -rf t/tmp"));
+	# cleanup
+	ok(! system("rm -rf t/tmp"));
+}
 done_testing;
 
 1;
