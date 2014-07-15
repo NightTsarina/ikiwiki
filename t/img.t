@@ -28,6 +28,7 @@ ok(! system("cp t/img/twopages.pdf t/tmp/in/twopages.pdf"));
 writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
 [[!img redsquare.png]]
 [[!img redsquare.png size=10x]]
+[[!img redsquare.png size=30x50]] expecting 30x30
 [[!img emptysquare.svg size=10x]]
 [[!img twopages.pdf size=12x]]
 [[!img twopages.pdf size=16x pagenumber=1]]
@@ -51,7 +52,14 @@ sub size($) {
 }
 
 my $outpath = "t/tmp/out/imgconversions";
+open (my $outhtmlfd, "<", "$outpath.html");
+local $/=undef;
+my $outhtml = <$outhtmlfd>;
+close $outhtmlfd;
+
 is(size("$outpath/10x-redsquare.png"), "10x10");
+ok(! -e "$outpath/30x-redsquare.png");
+ok($outhtml =~ /width="30" height="30".*expecting 30x30/);
 # if this fails, you need libmagickcore-6.q16-2-extra installed
 is(size("$outpath/10x-emptysquare.png"), "10x10");
 is(size("$outpath/12x-twopages.png"), "12x12");
