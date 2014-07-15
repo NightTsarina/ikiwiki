@@ -10,3 +10,15 @@ If you use the rescaling feature of the directive [[ikiwiki/directive/img/]] wit
 > && ((width > desired width) || (height > desired height)),
 > it uses exactly the desired size, without preserving aspect ratio.
 > --smcv
+
+>> [[!template id=gitbranch branch=chrysn/imgforpdf-and-more author="[[chrysn]]"]]
+>>
+>> [[!tag patch]]
+>>
+>> i've implemented a fix for this along with a unit test.
+>>
+>> the patch branch is based on the imgforpdf branch
+>> ([[bugs/svg and pdf conversion fails]]), because it would not cleanly merge.
+>> the  branch also enhances on how images are handled in preview, falling back
+>> to data: urls if the image has not been rendered in a saved version. please
+>> review. --[[chrysn]]
