@@ -22,3 +22,23 @@ If you use the rescaling feature of the directive [[ikiwiki/directive/img/]] wit
 >> the  branch also enhances on how images are handled in preview, falling back
 >> to data: urls if the image has not been rendered in a saved version. please
 >> review. --[[chrysn]]
+
+>>> Mostly [[looks good to me|users/smcv/ready]].
+>>>
+>>> Minor things, which wouldn't stop me merging it if I could:
+>>>
+>>> * `$imgdatalink = "data:image/".$im->Get("magick").";base64,".encode_base64($blob[0]);`:
+>>>   is the ImageMagick file type always valid as the second part of
+>>>   a MIME type?
+>>> * In this code:
+>>>
+>>>       +open (my $outhtmlfd, "<", "$outpath.html");
+>>>       +local $/=undef;
+>>>       +my $outhtml = <$outhtmlfd>;
+>>>       +close $outhtmlfd;
+>>>
+>>>   no block is closed, so the "local" is ineffective, so the `<>` operator
+>>>   remains in read-entire-file mode afterwards. To avoid odd side-effects,
+>>>   I would suggest using `readfile()` like `t/trail.t` does.
+>>>
+>>> --[[smcv]]
