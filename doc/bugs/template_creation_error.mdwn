@@ -198,7 +198,7 @@ Please, let me know what to do to avoid this kind of error.
 
 [[!template id=gitbranch author="[[smcv]]" branch=smcv/ready/templatebody
   browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/templatebody]]
-[[!tag patch]]
+[[!tag patch users/smcv/ready]]
 Branch and directive renamed to `ready/templatebody` as chrysn suggested.
 It's on-by-default now (or will be if that branch is merged).
 Joey, any chance you could review this?
@@ -255,3 +255,10 @@ same logic as IkiWiki itself. I don't think that's serious. --[[smcv]]
 >>> is a start towards that; the docwiki builds successfully, but
 >>> the tests that use IkiWiki internals also need updating to
 >>> set `$phase = PHASE_RENDER` before they start preprocessing. --s
+
+>>>> reviewing those modifications, i think this is a good way to go. along
+>>>> with warning about pagespecs evaluated in scan phase, i think it should be
+>>>> an error to invoke scan in the render phase; that would mean that
+>>>> `readtemplate` needs to check whether it's invoked as a scan or not to
+>>>> decide whether to scan the template page, but would be generally more
+>>>> robust for future plugin writing. --[[chrysn]]

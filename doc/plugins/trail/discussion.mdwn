@@ -103,3 +103,70 @@ Some later changes to trail:
 --[[smcv]]
 
 > Applied --[[Joey]] 
+
+----
+
+### Trail plugin creates unexpected interdependencies?
+*(ikiwiki master branch 2014-06-06 also tested with 3.20140228 release)*
+
+I noticed the problem when using the [[/plugins/contrib/album]] plugin but a bit of testing revealed that the [[trail]] plugin, which is used by [[/plugins/contrib/album]] may be the cause of the problem.
+
+On a site with the following structure where all albumN.mdwn files have the `\[[!inline  pages="page(./album01/*)" trail="yes"]]` directive set. All albumN pages and imgN pages get rebuilt whenever any one of the albumN or imgN pages are changed and the command  `ikiwiki --setup wiki.setup --refresh --verbose`
+ is issued.
+
+    /index.mdwn                        Contains no links maps or inlines
+    |-album01.mdwn                 \[[!inline  pages="page(./album01/*)" trail="yes"]]
+    |-album01/
+    | |-imgA.mdwn
+    | |-imgB.mdwn
+    |
+    |-album02.mdwn                 \[[!inline  pages="page(./album02/*)" trail="yes"]]
+    |-album02/
+    | |-imgC.mdwn
+    | |-imgD.mdwn
+    |
+    |-album03.mdwn                 \[[!inline  pages="page(./album03/*)" trail="yes"]]
+    |-album03/
+    | |-imgE.mdwn
+    | |-imgF.mdwn
+
+Changing the index.mdwn page also triggers a full rebuild of all pages with [[trail]] directives. My sites tend to look like the above but with double digit numbers of files in at each level. Changing any file then means a full rebuild of a rather complex site which takes a long time.
+
+My setup and test may very well have mistakes but perhaps someone using the trail plugin could check (using the --verbose flag) if all their trails get rebuild when changing only one. I also find it curious that changes to the parent index.mdwn page triggers the same behaviour.
+
+I have removed a similar comment from the album discussion.
+
+ --[[kjs]]
+
+> I would expect changing imgE.mdwn to rebuild album03.mdwn (because album03
+> inlines imgE) and vice versa (because imgE uses album03's \[[!meta title]]).
+>
+> I would not expect changing imgE.mdwn or album03.mdwn to affect album02
+> or imgC.
+>
+> I would also not expect changing index.mdwn to rebuild anything else
+> unless there is a valid dependency reason to do so.
+>
+> Can you reproduce this problem in a wiki that does not contain anything
+> private, and publish its git repo somewhere? (I realise photo galleries
+> tend to be more personal/private than typical wikis, so you don't
+> necessarily want to link the real thing - that's why my album demos
+> tend to use dummy data). --[[smcv]]
+
+>> I was expecting the same depends pattern you describe.
+>> My photo wikis are mostly public so I've set up a publicly accessible repo 
+>> (update-server-info type, git clone the first link below), a low-res copy of 
+>> the underlay and a quick sanitized setup file.
+
+>>* [[http://www.kalleswork.net/downloads/stockholm/.git]]
+>>* [[http://www.kalleswork.net/downloads/stockholm.underlay.tar.gz]]
+>>* [[http://www.kalleswork.net/downloads/stockholm.setup]]
+
+>> It might be a bit unwieldly and the site itself at [[http://stockholm.kalleswork.net]] 
+>> uses a few tweaks to the album templates and css, but I don't currently 
+>> have access to the machine where I setup a cleaner debug wiki to test. 
+>> (travelling atm). The images will likely be distorted due to the up scaling 
+>> bug in the [[img]] plugin but other than that it should work.
+
+>> Let me know if you need anything else. Would be great to hear it works
+>> as expected for everyone else ;) --[[kjs]]

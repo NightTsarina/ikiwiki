@@ -1,0 +1,31 @@
+It might be nice to be able to control [[plugins/comments]] by inserting
+directives in individual pages:
+
+* disable comments where they would normally be enabled, e.g. for a blog
+  post you know is going to cause flamey responses (`\[[!closecomments]]`
+  to reject new comments but display old ones, `\[[!nocomments]]` to
+  hide comments too?)
+
+* direct comments to a different wiki page or an off-site URL,
+  e.g. if you have mentioned/posted something in two places
+  and you want to collect all the comments together
+  (maybe `\[[!commenton page=other/page]]`,
+  `\[[!commenton url="http://newsblog.example.com/the-next-big-thing"]]`?)
+
+* (maybe) enable comments where they would not normally be enabled?
+  (I'm unsure about this one, it would need to be under some level of
+  admin control - maybe a new pagespec for pages where comments are
+  disabled by default but may be enabled by directives)
+
+The use that got me thinking about this is that if the
+[[plugins/contrib/album]] plugin evolves to be able to have the same
+picture appear in more than one trail as kjs requested, all except the
+"original" (defined as the page to which the picture was attached) should
+probably either disable comments, or direct comments to the "original".
+
+I don't plan to work on this myself unless I find that I need it
+(for album or otherwise).
+
+--[[smcv]]
+
+[[!tag wishlist]]

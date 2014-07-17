@@ -14,3 +14,166 @@ won't be offended if you correct stuff you consider awkward):
 [[!template  id=gitbranch branch=spalax/calendar-autocreate browse="https://github.com/paternal/ikiwiki/tree/calendar-autocreate" author="[[Louis|spalax]]"]]
 
 --[[Louis|spalax]]
+
+> An attempt at a review (although note that I don't have commit access,
+> so my opinion is not final):
+>
+> Should `calendar_autocreate_commit` really default to 1? I would personally
+> expect that any new features that synthesize new pages should not commit
+> them by default - I'd prefer to avoid cluttering git history with generated
+> pages. (Indeed, should the option even exist?)
+>
+> > I copied those options from the [[plugins/tag]] plugin: the
+> > `tag_autocreate_commit` option exists and default to 1.
+> >
+> > It should definitely exists: suppose a calendar page is created and not
+> > commited, and later, someone tries to push some changes where a page with
+> > the same name has been created. This would result in a conflict. The
+> > `calendar_autocreate_commit` prevents this.
+>
+> > > `tag_autocreate_commit` exists because when tag autocreation
+> > > was introduced, they were always in the `$srcdir` and committed.
+> > > I changed it so that it was possible to put them in the [[plugins/transient]]
+> > > underlay and not commit them. It defaults to 1 to preserve existing
+> > > functionality.
+> > >
+> > > When automatic tag pages (or autoindex pages) are not committed, they
+> > > go in the transient underlay, which means they can't cause conflicts:
+> > > independent page creation will simply mask them (a page in the
+> > > `$srcdir` hides a page of the same name in an underlay). I thought
+> > > this implementation did the same when not committing? --[[smcv]]
+>
+> > > > I did not realize how easy it was to use the [[plugins/transient]]
+> > > > plugin! I [[took it into
+> > > > account|https://github.com/paternal/ikiwiki/commit/492a22ac75f8b41a427a98c44525b01a6fd181b5]].
+> > > > -- [[Louis|spalax]]
+>
+> I'd personally do the conditional in gencalendaryear more like:
+>
+> [[!format perl """
+return unless $config{calendar_autocreate};
+"""]]
+>
+> to reduce the indentation depth of the more interesting code.
+>
+> > [[I agree|https://github.com/paternal/ikiwiki/commit/7f18c1ce48630507b744fa56b83999e8ca684606]]
+>
+> The recursion to generate missing years:
+>
+> [[!format perl """
+if (not exists $wikistate{calendar}{minyear}) {
+        $wikistate{calendar}{minyear} = $year;
+} elsif ($wikistate{calendar}{minyear} > $year) {
+        gencalendaryear($year + 1);
+        $wikistate{calendar}{minyear} -= 1;
+}
+"""]]
+>
+> does seem to be correct on closer examination, but it took me a while
+> to work out that it would actually do the right thing by recursing:
+>
+> * generate 2005
+>   * recurse to generate 2006
+>     * recurse to generate 2007
+>       * recurse to generate 2008
+>         * recurse to generate 2009
+>           * recurse to try to generate 2010 (no effect)
+>         * minyear = minyear - 1 = 2010 - 1 = 2009
+>       * minyear = minyear - 1 = 2009 - 1 = 2008
+>     * minyear = minyear - 1 = 2008 - 1 = 2007
+>   * minyear = minyear - 1 = 2007 - 1 = 2006
+> * minyear = minyear - 1 = 2006 - 1 = 2005
+>
+> I think it might be clearer (as well as less
+> recursion-happy) to use iteration:
+>
+> * generate 2005
+>   * recurse to generate 2006
+>   * ...
+>   * recurse to generate 2009
+> * minyear = 2005
+>
+> something like this:
+>
+> [[!format perl """
+sub gencalendaryear {
+        my $year = shift;
+        my %params = @_;
+        ...
+        # generate this year
+        ...
+        # Filling potential gaps in years [...] years 2006 to 2009.
+        return if $params{norecurse};
+        if (not exists $wikistate{calendar}{minyear}) {
+                $wikistate{calendar}{minyear} = $year;
+        } elsif ($wikistate{calendar}{minyear} > $year) {
+                foreach my $other ($year + 1 .. $wikistate{calendar}{minyear} - 1) {
+                        gencalendar($year, norecurse => 1);
+                }
+                $wikistate{calendar}{minyear} = $year;
+        }
+        # ... and the opposite for maxyear
+}
+"""]]
+>
+>
+> > [[I agree|https://github.com/paternal/ikiwiki/commit/7f18c1ce48630507b744fa56b83999e8ca684606]]
+>
+> I'm not sure about generating missing years at all, though: if the
+> generation is entirely dynamic, and there were no posts at all during
+> a particular year (or month for that matter), shouldn't we just skip
+> the year/month? That seems to be what e.g. Wordpress does.
+>
+> > [[Done|https://github.com/paternal/ikiwiki/commit/59b46942e01b32138d056381249effbbaf773892]].
+> > I added an option `calendar_fill_gaps` to chose between the two
+> > alternatives (since skipping empty months and years would change the
+> > default behaviour of this plugin).
+> >
+> > I think the code is a bit ugly at some places. Perl is not one the the
+> > programming languages I am fluent into. Sorry.
+> >
+> > PS: Good idea, thought. I now have to implement a similar thing for
+> > [[plugins/contrib/jscalendar]].
+>
+> This piece of ikiwiki-calendar functionality is lost:
+>
+> [[!format diff """
+- ... It also refreshes the wiki, updating the calendars to
+-highlight the current day. This command is typically run at midnight from
+-cron.
+"""]]
+>
+> If I understand correctly, the highlight will be on the day at which
+> the wiki was last refreshed, which seems arbitrary and confusing.
+> If ikiwiki-calendar is not used, I'd say there should just not be a
+> highlight for today (although I'm not sure how best to implement that -
+> perhaps a config option representing "I am going to use ikiwiki-calendar").
+>
+> > This is not lost. What ikiwiki-calendar do is simply: build the missing
+> > `archive/year/month` pages, and run `ikiwiki -refresh`. With my patch, the
+> > `ikiwiki -refresh` includes:
+> >
+> > - the build of missing `archive/year/month` pages;
+> > - highlighting the current day (this was already the case).
+> >
+> > So one can simply drop the `ikiwiki-calendar ...` for `ikiwiki --refresh
+> > ...` in cron to get the same result.
+> >
+> > I
+> > [[tried|https://github.com/paternal/ikiwiki/commit/7a92444e56fe023cea3b074dc5e6b5c4acdb6114]]
+> > to make the documentation clearer.
+>
+> [[!format diff """
+-\[[!template id=plugin name=calendar author="\[[ManojSrivastava]]"]]
+-\[[!tag type/widget]]
+"""]]
+>
+> Why did you remove that? It's useful information about the plugin
+> which I think ought to stay.
+>
+> > Oops! It was a mistake.
+> > [[Corrected|https://github.com/paternal/ikiwiki/commit/de9842ecc8914e11e73148dae78cd6909b535262]].
+>
+> --[[smcv]]
+>
+> > Thank you for this review. -- [[Louis|spalax]]

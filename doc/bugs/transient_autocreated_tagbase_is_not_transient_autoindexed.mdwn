@@ -6,9 +6,11 @@
 
 Shouldn't `ikiwiki-tag-test/raw/.ikiwiki/transient/tag.mdwn` and `ikiwiki-tag-test/rendered/tag/index.html` exist?
 
-[[!tag patch]]
-[[!template id=gitbranch branch=smcv/ready/autoindex author=smcv]]
-[[!template id=gitbranch branch=smcv/ready/autoindex-more-often author=smcv]]
+[[!tag patch users/smcv/ready]]
+[[!template id=gitbranch branch=smcv/ready/autoindex author=smcv
+  browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/autoindex]]
+[[!template id=gitbranch branch=smcv/ready/autoindex-more-often author=smcv
+  browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/autoindex-more-often]]
 
 > To have a starting point to (maybe) change this, my `ready/autoindex`
 > branch adds a regression test for the current behaviour, both with
@@ -29,3 +31,44 @@ Shouldn't `ikiwiki-tag-test/raw/.ikiwiki/transient/tag.mdwn` and `ikiwiki-tag-te
 > git repositories any more? My `autoindex-more` branch changes
 > the logic so it will do what you want in the `autoindex_commit => 0`
 > case, and amends the appropriate regression test. --[[smcv]]
+
+>> the autoindex-more-often branch looks good to me in general.
+>>
+>> i do have doubts about the 3ba2ef1a patch ("remove unnecessary special case
+>> for transient underlay"): now that we consider the complete transient
+>> directory as well, the sequence in which the refresh hooks are called starts
+>> to matter, and pages created by other plugins in a similar fashion as by
+>> autoindex will only be included the next time refresh gets called.
+>>
+>> *addendum:* i just found where i discussed the issue of fighting transient
+>> pages last, it was on [[todo/alias directive]]. the example cited there
+>> (conflicts with autotag) would probably work here as well. (imagine a
+>> `tags/project/completed` and a `tags/project/inprogress` exist, and a page
+>> is tagge `tags/project`. will that be an autoindex or an autotag?)
+>>
+>> --[[chrysn]]
+
+>>> That's a fair point. I think what happens is down to commit vs. refresh
+>>> timing.
+>>>
+>>> If pages tagged t/p/c, t/p/i and t/p are all created between one
+>>> refresh and the next, with none of those tag pages existing, I think the
+>>> answer is that they would all be autotags, because until t/p/c and
+>>> t/p/i are created, there's no reason to need t/p as an autoindex.
+>>>
+>>> If there were already pages tagged t/p/c and t/p/i at the previous
+>>> refresh, then t/p would already be an autoindex, and that's a
+>>> valid page, so autotagging wouldn't touch it.
+>>>
+>>> I can't see much reason to prefer one over the other; the ideal answer
+>>> is probably to have a tag-cloud *and* a list of child pages, but this
+>>> seems a weird enough thing to do that I'd be OK with a wiki user
+>>> having to disambiguate it themselves. "Whichever automatic process
+>>> happens first, happens" is at least easy to explain, and I consider
+>>> both autoindices and autotags to be time-saving conveniences rather
+>>> than something fundamental. --s
+
+>>>> i think a behavior that does the right thing when there is a right thing
+>>>> and *something* when there is ambiguity is ok for now; especially, it's
+>>>> not up to the autoindex branch to come up with a solution to the general
+>>>> problem. --[[chrysn]]

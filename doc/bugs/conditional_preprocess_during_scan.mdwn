@@ -55,3 +55,58 @@ reprocessed is done so in the same conditions as the original call.
 >> with vicious conditional dependency circles that would break/unbreak
 >> depending on which pass we are in. And I believe this is an intrinsic
 >> limitation of the system, which cannot be solved at all.
+
+>>> One way forward that I can think of for this issue is to
+>>> have a way to tell `\[[!if]]` which answer it should assume for
+>>> scanning purposes, so it would assume that answer when running
+>>> in the scan phase, and really evaluate the pagespec when running
+>>> in the render phase. For instance:
+>>>
+>>>     \[[!if test="enabled(foo)" scan_assume=yes then="""
+>>>     \[[!foo]]
+>>>     """]]
+>>>
+>>> could maybe scan \[[!foo]] unconditionally.
+>>>
+>>> This makes me wonder whether `\[[!if]]` was too general: by having
+>>> the full generality of pagespecs, it reduces its possible uses to
+>>> "those contexts where pagespecs work".
+>>>
+>>> Another possibility might be to have "complex" pagespecs and sort
+>>> orders (those whose correct answer requires scanning to have completed,
+>>> like `link()` and sorting by `meta(title)`) throw an error when used in
+>>> the scan phase, but simple pagespecs like `enabled()` and `glob()`, and
+>>> simple sort orders like `title` and `path`, could continue to work?
+>>> My `wip-too-soon` work-in-progress branch is heading in this direction,
+>>> although it currently makes `pagespec_match` fail completely and does
+>>> not even allow "simple" pagespecs and sort orders.
+>>>
+>>> At the moment, if a pagespec cannot be evaluated, `\[[!if]]` will
+>>> produce neither the `then` clause nor the `else` clause. This could
+>>> get pretty confusing if it is run during the scan phase and produces
+>>> an error, then run during the render phase and succeeds: if you had,
+>>> say,
+>>>
+>>>     \[[!if run_during_scan=1 test="link(foo)" then="""
+>>>     there is a link to foo
+>>>     \[[!tag there_is_a_link_to_foo]]
+>>>     """ else="""
+>>>     there is no link to foo
+>>>     \[[!tag there_is_no_link_to_foo]]
+>>>     """]]
+>>>
+>>> then the resulting page would contain one of the snippets of text,
+>>> but its metadata would contain neither of the tags. Perhaps the plugin
+>>> would have to remember that it failed during the scan phase, so that
+>>> it could warn about the failure during the render phase instead of,
+>>> or in addition to, producing its normal output?
+>>>
+>>> Of the conditional-specific tests, `included()` and `destpage(glob)`
+>>> can never match during scan.
+>>>
+>>> Does anyone actually use `\[[!if]]` in ways that they would want to
+>>> be active during scan, other than an `enabled(foo)` test?
+>>> I'm increasingly tempted to add `\[[!ifenabled foo]]` to solve
+>>> that single case, and call that a solution to this bug...
+>>>
+>>> --[[smcv]]

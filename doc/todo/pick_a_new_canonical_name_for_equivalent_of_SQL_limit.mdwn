@@ -1,0 +1,38 @@
+In [[todo/Option_linktext_for_pagestats_directive]] I wrote:
+
+> It's unfortunate that map and pagestats have different meanings for
+> the show parameter. I'm tempted to propose a patch that adds something
+> like limit (by analogy with SQL) or max as the canonical name for the
+> "number of things to match" parameter, at which point a non-numeric show
+> could mean [what [[spalax]] proposed].
+
+It isn't immediately obvious whether `show` should be used like
+`\[[!map show=title]]` or like `\[[!inline show=10]]`. I can't think of
+any better names for the "which property to display" parameter that don't
+have the problem of being a synonym for show so you can't easily tell which
+is which, and I think that suggests that it might be better to rename the
+"number of items to display" parameter instead.
+
+This would allow recycling the name `show` so that a non-numeric
+value is interpreted analogous to `\[[!map show=title]]`,
+for instance to solve [[todo/Option_linktext_for_pagestats_directive]].
+
+If a committer (I think that just means Joey?) would review it, I'd be happy
+to put together a patch that adds the chosen name to all the directives
+that currently interpret `show` to mean "number of items", preferring the
+new name but retaining compatibility for a numeric `show`.
+
+Some possibilities (using inline as my example directive here):
+
+* `\[[!inline limit=10]]` like SQL `select * from foo limit 10`
+* `\[[!inline max-count=10]]` like `git log --max-count=10`
+* `\[[!inline max=10]]`
+* `\[[!inline n=10]]`, `\[[!inline num=10]]`, `\[[!inline number=10]]`
+* `\[[!inline count=10]]`
+
+Which of those do Joey/other contributors prefer?
+
+Or if keeping `show=10` is preferred, what should be the conventional name
+for functionality like `\[[!map show=title]]`?
+
+I personally like the idea of `\[[!inline limit=10]]`. --[[smcv]]
