@@ -261,4 +261,10 @@ same logic as IkiWiki itself. I don't think that's serious. --[[smcv]]
 >>>> an error to invoke scan in the render phase; that would mean that
 >>>> `readtemplate` needs to check whether it's invoked as a scan or not to
 >>>> decide whether to scan the template page, but would be generally more
->>>> robust for future plugin writing. --[[chrysn]]
+>>>> robust for future plugin writing.
+>>>>
+>>>> **addendum**: if the new phase state is used to create warnings/errors
+>>>> about improper ikiwiki api use of plugins (which is something i'd
+>>>> advocate), that should likewise warn if `add_link` actually adds a link in
+>>>> the render phase.  such a warning would have helped spotting the
+>>>> link-related [[template evaluation oddities]] earlier. --[[chrysn]]

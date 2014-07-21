@@ -170,3 +170,16 @@ I have removed a similar comment from the album discussion.
 
 >> Let me know if you need anything else. Would be great to hear it works
 >> as expected for everyone else ;) --[[kjs]]
+
+>>> Hmm. Investigating the indexdb:
+>>>
+>>>     perl -le 'use Storable; my $index = Storable::retrieve("stockholm/.ikiwiki/indexdb"); use Data::Dumper; print Dumper $index' |less
+>>>
+>>> indicates that `20130504` depends on `internal(*)` and so does `20130505`.
+>>>
+>>> After adding some `Carp::cluck` calls to the bits of IkiWiki.pm that add
+>>> dependencies, this turns out to be two similar issues, in `album` and
+>>> `trail`: they each use `pagespec_match_list` with the pagespec
+>>> `internal(*)` in order to apply a trivial filter (accept everything)
+>>> to an existing list for its side-effect of sorting that list.
+>>> Bug filed as [[bugs/trails depend on everything]] --smcv

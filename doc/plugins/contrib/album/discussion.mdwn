@@ -649,8 +649,28 @@ My wishlist for the plugin would include:
 >>> In the current (album5) design, the viewer pages that are automatically
 >>> created to go alongside the pictures are basically stand-ins for the
 >>> pictures, as far as metadata, wikilinks, tags and other "first-class
->>> wiki page" things are concerned.
->>>
+>>> wiki page" things are concerned. --s
+
+>>>> I can see why it's important to keep these models simple and have figured out
+>>>> that the viewer pages are stand-ins for the image. Just as a tought though. If 
+>>>> this relationship was made more explicit ie. the viewer pages *are the content*
+>>>> just initially generated from the image metadata with a link to the image. Then 
+>>>> the mental model would stay intact and more in line with how html and the 
+>>>> implementation works.
+>>>>
+>>>> One thing to point out is that last time I tried pages can be members of 
+>>>> arbitrary numbers of trails/albums. You just get multiple rows of navigation, one
+>>>> for each trail. This doesn't quite work as it's hard to know which one to click.
+>>>>
+>>>> --k
+
+>>>>> Pages can be part of arbitrarily many trails, yes - that's a consequence of
+>>>>> how trails are created. If you can think of a better way to present a page
+>>>>> that's in more than one trail, I'd welcome ideas... I did originally have an
+>>>>> implementation where only one trail would generate links, but when I tried
+>>>>> it on some (rather artificial) overlapping trails, the result was more
+>>>>> confusing. --s
+
 >>> If there are to be viewer pages elsewhere in the wiki, I don't think
 >>> inheriting the picture's metadata is desired. Suppose you have a
 >>> picture of Alice and Bob in the album "holiday in Exampleton, 2010",
@@ -661,14 +681,21 @@ My wishlist for the plugin would include:
 >>> times - once is enough, there's only one actual photo after all. So
 >>> I think the "main" viewer page should be the only one that has
 >>> the taglinks for people/alice, people/bob, places/exampleton.
->>>
+>>> --s
+
+>>>> The problem exposed by the tag page issue is very tricky. As you'd
+>>>> probably want the exif info, captions and titles to transfer. Just not 
+>>>> necessarily the tags.
+>>>> --k
+
 >>> My next question is, should the viewer page representing that
 >>> particular picture in its context of "pictures near Exampleton"
 >>> (i.e. its "next" and "previous" links go to the next and
 >>> previous picture near Exampleton, regardless of whether it was
 >>> on an earlier or later visit) be a first-class wiki page
 >>> at all?
->>>
+>>> --s
+
 >>> * Does it make any sense to comment on "this picture in this
 >>>   context", if your wiki has comments, or should the only
 >>>   place you can comment on it be its "main" viewer page?
@@ -696,6 +723,81 @@ My wishlist for the plugin would include:
 >>>
 >>> and one of the side-effects of the albumviewer directive should be to
 >>> replace [[plugins/comments]] with a link to the original? --s
+
+>>>> One thing to consider is the built in difference between the original and 
+>>>> the secondary inferred by the fact that the first is an `album` the second
+>>>> an `inline` --k
+
+>>>>> I had assumed that both the "original" album (the one where the picture
+>>>>> is physically located), and any other places you wanted to display it,
+>>>>> would be some other directive whose implementation includes a call to
+>>>>> `preprocess_inline`. `inline` on its own is not enough to create
+>>>>> viewer pages to display the pictures, regardless of whether you
+>>>>> want them to be one-per-picture or many-per-picture, and I'm not
+>>>>> going to wedge yet more functionality into that plugin :-)
+>>>>>
+>>>>> It might be a good idea for the thing that displays pictures not
+>>>>> physically located below that point to be a different directive, yes.
+>>>>> --s
+
+>>>> ### Single viewer 
+>>>> For my own usecase what you describe makes sense. I see the content of an inline object
+>>>> (struggling a bit with what terms to user here) as a particular composition of
+>>>> viewers. Perhaps comments should only be possible on the page with the inline rather 
+>>>> than the secondary viewer pages as the inline page not the image viewer is 
+>>>> the first-class page in this scenario? The inline page would also be the page you tag 
+>>>> etc. to make it show up in various contexts such as the tag page.
+>>>>
+>>>> With the thinking outlined above I'd say that the secondary viewer should be a 
+>>>> non editable clone of the original viewer without any source. Just html output with 
+>>>> backlinks to the original page. This means that there are limitations to how these 
+>>>> secondary viewers can be used as the title, caption etc might fit some contexts 
+>>>> better than others. Personally this is fine as I see these inline based albums as 
+>>>> compositions or views on existing content.
+>>>> --k
+>>>>
+>>>>> This is basically what I thought at first, but I realised while
+>>>>> writing my earlier comments that it would be necessary
+>>>>> to hack up [[plugins/trail]] fairly seriously to make it produce
+>>>>> a trail through things that are not first-class wiki pages, and
+>>>>> I'm not sure how much it would be necessary to subvert the
+>>>>> rendering pipeline to get the right parentlinks and so on. --s
+>>>>
+>>>> ###Multiple viewers alternative
+>>>> The alternative is having a page say in `/story/album.mdwn` with the following directive
+>>>> \[[!inline  pages="/01/IMGP6494 or /02/IMGP6601 or /04/IMGP6922" sort="title"  show="0" template="albumitem"]]
+>>>> that creates new fully fledged editable viewers for each image in `/story/album/'
+>>>> without tags being auto populated but backlinks to the original album viewer.
+>>>> --k
+>>>>
+>>>>> It can't *only* be an inline, because an inline wouldn't generate the
+>>>>> viewer pages, but I see what you mean. --s
+>>>>>
+>>>>>> That's actually excellent as the inline is a very useful feature
+>>>>>> the way it works now. I started writing about this yesterday but
+>>>>>> got interrupted. My indexes of albums use the inline in it's current
+>>>>>> form. --k
+>>>>  
+>>>> This would make the viewers completely independent allowing for unique titles, captions and comments
+>>>> depending on context. Very useful when creating powerpoint like slideshows where you might need 
+>>>> different captions depending on the context. In your example wiki with photos from gigs this would allow 
+>>>> a page with an album inline about stage lighting with a selections of images and captions that highlight
+>>>> relevant things in the image as well as a separate inline album page, with some of the same images, 
+>>>> about drumming styles and posture/grip of drummers.
+>>>>
+>>>> I started writing all this supporting your single page case but looking at it now from my limited
+>>>> understanding of how ikiwiki works it seems the multiple viewers option is conceptually cleaner 
+>>>> and more flexible. It relies on three things:
+
+>>>> * A mental model where the viewer page is the content not the image
+>>>> * That tags aren't automatically transferred from the original context. This doesn't seem that critical however.
+>>>> * Backlinks to the other places the image is used.
+>>>>
+>>>> --[[kjs]]
+
+I've added "--k" to some of your comments so other readers (possibly including
+my future self) can keep track of our conversation, I hope you don't mind :-)
+--s
 
 ----
 
@@ -727,3 +829,37 @@ to `doc/style.css` should be enough? --[[smcv]]
 >
 >> I searched for `/* relevant to the index page */` and found it twice,
 >> so I stand by what I said :-) --s
+>>
+>>> And right you are, unsure how I missed that. My album branch is now rebased
+>>> on your album5 branch (with the two now useless commits removed).
+>>> --[[cbaines]]
+
+cbaines, would you mind publishing an album with more realistic pixel-sizes
+of images using your modified CSS? It's difficult to get an idea of how it
+will degrade under conditions like "image size > browser window" with
+images as small as the ones you used. You might find
+<http://git.pseudorandom.co.uk/smcv/ikiwiki-demos/ikialbum.git>
+(`git clone git://git.pseudorandom.co.uk/git/smcv/ikiwiki-demos/ikialbum.git`),
+or the same techniques, useful: it contains images with a realistic pixel
+count, but very very lossy JPEG compression, to keep the size in bytes low.
+
+It's much, much easier to review changes if you use separate commits for
+cosmetic changes like "separate index CSS from viewer CSS" and "more
+consistent indentation", and functional changes like turning the prev/next
+links from absolutely-positioned to floating. I'd be happy to apply
+the cosmetic changes if they were in commits that were literally only
+cosmetic changes, with no functional effect.
+
+For the functional bits: I think I'd have used floating boxes instead of the
+absolutely-positioned boxes that are currently used if they provided the effect
+I wanted. I can't remember exactly why I didn't do that now, but
+it might have been because if the browser window shrinks below the image width,
+floats have weird behaviour (they push the actual image out of the way), or because
+I wanted the entire left/right margin of the image to be clickable to have
+a large click-target for scrolling through the album.
+
+If there's something specific that you think is wrong with the CSS in my
+branch, could you please explain it, and perhaps we can come up with something
+that matches both our requirements?
+
+--smcv
