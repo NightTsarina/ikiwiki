@@ -13,7 +13,13 @@ It would be great if it were possible to support multi-row table headers in the 
 [[!tag wishlist patch]]
 
 > This seems like weird overloading of the header parameter - it's
-> table data, except when it isn't. Perhaps
+> table data, except when it isn't.
+
+> > My first cut (now rebased out of existence I think) introduced a
+> > new "headerblock" parameter, but trying to clearly document the
+> > interaction of data/headerblock/header parameters was too awkward. -- [[Jon]]
+
+> Perhaps
 > something like this would be easier to use in practice?
 > (and also more featureful :-) )
 >
@@ -23,7 +29,17 @@ It would be great if it were possible to support multi-row table headers in the 
 >     ikiwiki | no | yes | yes
 >     Starcraft | yes | yes | via Wine
 >     """]]
->
+
+> > Thanks for your prompt feedback!
+> > 
+> > This would probably be good, yes, and having mixed row/column headers is
+> > definitely a nice-to-have. I don't relish the prospect of writing the parser
+> > but I see you've made a stab already...
+> > 
+> > One thing you'd lose, but it's debatable whether this is valuable, would be
+> > to have the header defined in the directive, and the remaining table data
+> > declared in an external CSV. -- [[Jon]]
+
 > intended to be rendered like
 >
 > <table>
@@ -56,3 +72,8 @@ It would be great if it were possible to support multi-row table headers in the 
 > `header="1 row, first 2 cols, last column"`.
 >
 > --[[smcv]]
+
+> > To be clear I think your suggestion is a good one, but my hack has
+> > addressed my immediate need so it's the one I'm deploying at $ork for the
+> > time being. I'm unlikely to have time to implement this solution in the
+> > near future. -- [[Jon]]
