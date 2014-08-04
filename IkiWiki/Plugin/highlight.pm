@@ -72,10 +72,10 @@ sub checkconfig () {
 		  $data_dir -> getConfDir() . "/filetypes.conf";
 	      }
 	}
+	# note that this is only used for old versions of highlight
+	# where $data_dir will not be defined.
 	if (! exists $config{langdefdir}) {
-		$config{langdefdir}=
-		     ($data_dir ? $data_dir->getLangPath("")
-		      : "/usr/share/highlight/langDefs");
+		$config{langdefdir}= "/usr/share/highlight/langDefs";
 
 	}
 	if (exists $config{tohighlight} && read_filetypes()) {
@@ -155,17 +155,27 @@ sub read_filetypes () {
 }
 
 
+sub searchlangdef {
+  my $lang=shift;
+
+  if ($data_dir) {
+    return $data_dir->getLangPath($lang . ".lang");
+  } else {
+    return "$config{langdefdir}/$lang.lang";
+  }
+
+}
 # Given a filename extension, determines the language definition to
 # use to highlight it.
 sub ext2langfile ($) {
 	my $ext=shift;
 
-	my $langfile="$config{langdefdir}/$ext.lang";
+	my $langfile=searchlangdef($ext);
 	return $langfile if exists $highlighters{$langfile};
 
 	read_filetypes() unless $filetypes_read;
 	if (exists $ext2lang{$ext}) {
-		return "$config{langdefdir}/$ext2lang{$ext}.lang";
+		return searchlangdef($ext2lang{$ext});
 	}
 	# If a language only has one common extension, it will not
 	# be listed in filetypes, so check the langfile.
