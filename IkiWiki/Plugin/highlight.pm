@@ -60,9 +60,17 @@ sub checkconfig () {
 	}
 
 	if (! exists $config{filetypes_conf}) {
-		$config{filetypes_conf}= 
-		     ($data_dir ? $data_dir->getConfDir() : "/etc/highlight/")
-			  . "filetypes.conf";
+	  if (! $data_dir ) {
+		$config{filetypes_conf}= "/etc/highlight/filetypes.conf";
+	      } elsif ( $data_dir -> can('searchFile') ) {
+		# 3.18 +
+		$config{filetypes_conf}=
+		  $data_dir -> searchFile("filetypes.conf");
+	      } else {
+		# 3.9 +
+		$config{filetypes_conf}=
+		  $data_dir -> getConfDir() . "/filetypes.conf";
+	      }
 	}
 	if (! exists $config{langdefdir}) {
 		$config{langdefdir}=
