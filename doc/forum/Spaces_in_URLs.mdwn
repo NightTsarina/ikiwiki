@@ -8,3 +8,7 @@ Now that I've moved to Ikiwiki, that doesn't work. So I moved the file here:
 Is there a better approach to maintaining this link than setting an alias in Apache?
 
 > You can add the space character to the `wiki_file_chars` argument in your setup file. -- [[Jon]]
+
+>> a space character is not allowed in a url; user agents that read one usually represent it in percent encoded form (`%20`). if you use that, things also work for direct links, which i assume caused the problem (for both the links in the original description render correctly): `\[[http://dada.pink/scarsdale/Statement%2020140527.pdf]]` renders [[http://dada.pink/scarsdale/Statement%2020140527.pdf]].
+>>
+>> spaces are allowed in internal pages because wiki page names are not urls per se but converted using conversion rules -- this allows people to not think about url rules and just link to pages, but when you're linking outside ikiwiki, some strings just aren't valid urls. --[[chrysn]]
