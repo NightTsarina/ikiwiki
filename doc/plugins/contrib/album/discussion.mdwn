@@ -843,12 +843,23 @@ images as small as the ones you used. You might find
 or the same techniques, useful: it contains images with a realistic pixel
 count, but very very lossy JPEG compression, to keep the size in bytes low.
 
+> I have now created a large (images) example, you can find all the examples
+> here [1]. I have also built all the examples with the album5 branch, you can
+> find the results here [2].
+>
+> 1: <http://cbaines.net/projects/ikiwiki/album/dest/>
+> 2: <http://cbaines.net/projects/ikiwiki/album/dest-album5/>
+
 It's much, much easier to review changes if you use separate commits for
 cosmetic changes like "separate index CSS from viewer CSS" and "more
 consistent indentation", and functional changes like turning the prev/next
 links from absolutely-positioned to floating. I'd be happy to apply
 the cosmetic changes if they were in commits that were literally only
 cosmetic changes, with no functional effect.
+
+> I have now rewritten the CSS changes to get a smaller diff. The only big
+> functional change is from the previous patch is the max-width stuff to cope
+> better with large images.
 
 For the functional bits: I think I'd have used floating boxes instead of the
 absolutely-positioned boxes that are currently used if they provided the effect
@@ -863,3 +874,16 @@ branch, could you please explain it, and perhaps we can come up with something
 that matches both our requirements?
 
 --smcv
+
+> I don't think that something specific is wrong with CSS in the album5 branch,
+> but it does not display large [3], or small [4] images very well. It might be
+> possible to resolve the image size issues without changing from absolute
+> positioning, but I felt (for no particular reason) that I would do it using
+> floats.
+>
+> The clickable region on the margin seems the most likely reason to me to go
+> with absolute positioning, as an initial look at doing this with floats
+> suggests that it is non-trivial.
+>
+> 3: <http://cbaines.net/projects/ikiwiki/album/dest-album5/large-goldtype/album/3/>
+> 4: <http://cbaines.net/projects/ikiwiki/album/dest-album5/basic-blueview/album/ikiwiki_old/>
