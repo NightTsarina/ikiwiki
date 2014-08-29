@@ -1819,7 +1819,8 @@ sub loadindex () {
 			open ($in, "<", "$config{wikistatedir}/indexdb") || return;
 		}
 		else {
-			$config{gettime}=1; # first build
+			# gettime on first build
+			$config{gettime}=1 unless defined $config{gettime};
 			return;
 		}
 	}
