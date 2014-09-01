@@ -157,7 +157,6 @@ sub filltemplate ($$) {
 
 	my $time = time();
 	$template->param(time => IkiWiki::formattime($time, "%Y-%m-%d %H:%M:%S"));
-	$template->param(formatted_time => IkiWiki::formattime($time));
 
 	return $template->output;
 }
