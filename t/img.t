@@ -52,10 +52,7 @@ sub size($) {
 }
 
 my $outpath = "t/tmp/out/imgconversions";
-open (my $outhtmlfd, "<", "$outpath.html");
-local $/=undef;
-my $outhtml = <$outhtmlfd>;
-close $outhtmlfd;
+my $outhtml = readfile("$outpath.html");
 
 is(size("$outpath/10x-redsquare.png"), "10x10");
 ok(! -e "$outpath/30x-redsquare.png");
