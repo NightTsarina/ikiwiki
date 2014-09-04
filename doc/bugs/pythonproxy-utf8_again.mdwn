@@ -1,4 +1,6 @@
 [[!template  id=gitbranch branch=chrysn/more-proxy-utf8-fail author="[[chrysn]]"]]
+[[!template id=gitbranch author="[[chrysn]], [[smcv]]" branch=smcv/ready/more-proxy-utf8-fail
+  browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/more-proxy-utf8-fail]]
 
 the recently introduced fixes for [[crashes in the python proxy even if disabled]]
 caused the typical python2 implicit conversion failures ("'ascii' codec
@@ -54,6 +56,9 @@ patch.
 >>> ancient module.) --[[chrysn]]
 
 >>>> You were right about this, `encode` is appropriate to go from `unicode`
->>>> to `str` under Python 2. I'm a bit concerned that it might break
->>>> Python 3 (see also [[bugs/rst_plugin_hangs_when_used_with_Python_3]]).
->>>> Testing now. --[[smcv]]
+>>>> to `str` under Python 2. However, Python 3 is still broken.
+>>>>
+>>>> My `ready/more-proxy-utf8-fail` branch, based on yours,
+>>>> [[fixes the`rst` test when run under Python 3|bugs/rst_plugin_hangs_when_used_with_Python_3]]
+>>>> and hopefully also fixes this one. Please check that it still
+>>>> fixes your test-case too. --[[smcv]]
