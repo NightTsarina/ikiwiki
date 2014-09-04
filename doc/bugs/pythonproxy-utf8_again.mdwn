@@ -52,3 +52,8 @@ patch.
 >>> a `unicode`. (i'd happily ditch python2 and port all plugins to python3,
 >>> where this is all easier, but my [[todo/vCard rendering]] still uses an
 >>> ancient module.) --[[chrysn]]
+
+>>>> You were right about this, `encode` is appropriate to go from `unicode`
+>>>> to `str` under Python 2. I'm a bit concerned that it might break
+>>>> Python 3 (see also [[bugs/rst_plugin_hangs_when_used_with_Python_3]]).
+>>>> Testing now. --[[smcv]]
