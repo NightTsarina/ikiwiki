@@ -28,6 +28,7 @@ ml = _IkiWikiExtPluginXMLRPCHandler._read(in_fd).decode('utf8')
 without decode('utf8') is working
 
 > That call was introduced
-> [[to fix a bug under Python 2|bugs/pythonproxy-utf8_again]]
-> so it cannot just be removed. Perhaps it needs to be conditional
-> on major Python version :-(
+> [[to fix a bug under Python 2|bugs/crashes_in_the_python_proxy_even_if_disabled]]
+> so it cannot just be removed, but perhaps it can be improved. This is
+> probably related to
+> [[this follow-up bug under Python 2|bugs/pythonproxy-utf8_again]]. --smcv
