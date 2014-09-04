@@ -159,7 +159,8 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
         xml = _xmlrpc_client.dumps(sum(kwargs.items(), args), cmd)
         self._debug_fn(
             "calling ikiwiki procedure `{0}': [{1}]".format(cmd, repr(xml)))
-        if isinstance(xml, unicode):
+        # ensure that encoded is a str (bytestring in Python 2, Unicode in 3)
+        if str is bytes and not isinstance(xml, str):
             encoded = xml.encode('utf8')
         else:
             encoded = xml
@@ -168,7 +169,7 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
         self._debug_fn('reading response from ikiwiki...')
 
         response = _IkiWikiExtPluginXMLRPCHandler._read(in_fd)
-        if isinstance(response, unicode):
+        if str is bytes and not isinstance(response, str):
             xml = response.encode('utf8')
         else:
             xml = response
