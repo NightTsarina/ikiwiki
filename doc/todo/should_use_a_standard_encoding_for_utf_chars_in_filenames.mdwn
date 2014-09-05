@@ -58,4 +58,20 @@ I hope it's a bug, not a feature and you fix it soon :) --[[Paweł|ptecza]]
 >>>>> There is a Perl [Unicode::IMAPUtf7](http://search.cpan.org/~fabpot/Unicode-IMAPUtf7-2.01/lib/Unicode/IMAPUtf7.pm)
 >>>>> module at the CPAN, but probably it hasn't been debianized yet :( --[[Paweł|ptecza]]
 
+> Note: [libencode-imaputf7-perl][1] has made it into debian.
+>
+> I would value some clarification, in the ikiwiki setup file I have
+>
+>     wiki_file_chars: -[:alnum:][\p{Arabic}()]+/.:_
+>
+> Ikiwiki doesn't seem to produce any errors on the commandline for this, but
+> when I attempt to create a new post with Arabic characters from the web I get the following error :
+>
+>     Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215. 
+>
+> Should the modified regexp not be sufficient?
+> Ikiwiki 3.20140815.
+> --[[mhameed]]
+
 [[wishlist]]
+[1]: https://packages.debian.org/search?suite=all&section=all&arch=any&searchon=names&keywords=libencode-imaputf7-perl
