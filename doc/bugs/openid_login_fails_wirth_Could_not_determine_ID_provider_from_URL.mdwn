@@ -18,6 +18,14 @@ On some ikiwikis that I run, I get the following error on OpenID logins:
 > > ~~~~
 > > 
 > > may not be the best place to fiddle around with this, but then again it makes sense that it applies to the whole program. it should probably be reported upstream as well. also in my git repo. -- [[anarcat]]
+> >
+> > > This seems Debian-specific. I would be inclined to consider this to be
+> > > a packaging/system-integration (i.e. non-upstream) bug in
+> > > `liblwpx-paranoidagent-perl` rather than an upstream bug in IkiWiki;
+> > > it certainly seems inappropriate to put this Debian-specific path
+> > > in upstream IkiWiki. If it can't be fixed in LWPX::ParanoidAgent for
+> > > whatever reason, applying it via some sort of sed in ikiwiki's
+> > > `debian/rules` might be more reasonable? --[[smcv]]
 
 [[!template  id=gitbranch branch=anarcat/dev/ssl_ca_path author="[[anarcat]]"]] 
 
