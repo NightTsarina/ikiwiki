@@ -1,0 +1,24 @@
+since my latest jessie upgrade here, charsets are all broken when editing a page. the page i'm trying to edit is [this wishlist](http://anarc.at/wishlist/), and it used to work fine. now, instead of:
+
+`Voici des choses que vous pouvez m'acheter si vous êtes le Père Nowel (yeah right):`
+
+... as we see in the rendered body right now, when i edit the page i see:
+
+`Voici des choses que vous pouvez m'acheter si vous �tes le P�re Nowel (yeah right):`
+
+... a typical double-encoding nightmare. The actual binary data is this for the word "Père" according to `hd`:
+
+~~~~
+anarcat@marcos:ikiwiki$ echo "Père" | hd
+00000000  50 c3 a8 72 65 0a                                 |P..re.|
+00000006
+anarcat@marcos:ikiwiki$ echo "P�re" | hd
+00000000  50 ef bf bd 72 65 0a                              |P...re.|
+00000007
+~~~~
+
+I had put ikiwiki on hold during the last upgrade, so it was upgraded separately. The bug happens both with 3.20140613 and 3.20140831. The major thing that happened today is the upgrade from perl 5.18 to 5.20. Here's the output of `egrep '[0-9] (remove|purge|install|upgrade)' /var/log/dpkg.log | pastebinit -b paste.debian.net` to give an idea of what was upgraded today:
+
+http://paste.debian.net/plain/119944
+
+This is a major bug which should probably be fixed before jessie, yet i can't seem to find a severity statement in reportbug that would justify blocking the release based on this - unless we consider non-english speakers as "most" users (i don't know the demographics well enough). It certainly makes ikiwiki completely unusable for my users that operate on the web interface in french... --[[anarcat]]
