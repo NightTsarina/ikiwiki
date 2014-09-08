@@ -26,6 +26,33 @@ anarcat@marcos:ikiwiki$ echo "P�re" | hd
 >
 > A packet capture of the incorrect HTTP request/response headers and body
 > might be enlightening? --[[smcv]]
+>
+> > Here are the headers according to chromium:
+> > 
+> > ~~~~
+> > GET /ikiwiki.cgi?do=edit&page=wishlist HTTP/1.1
+> > Host: anarc.at
+> > Connection: keep-alive
+> > Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+> > User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36
+> > Referer: http://anarc.at/wishlist/
+> > Accept-Encoding: gzip,deflate,sdch
+> > Accept-Language: fr,en-US;q=0.8,en;q=0.6
+> > Cookie: openid_provider=openid; ikiwiki_session_anarcat=XXXXXXXXXXXXXXXXXXXXXXX
+> > 
+> > HTTP/1.1 200 OK
+> > Date: Mon, 08 Sep 2014 21:22:24 GMT
+> > Server: Apache/2.4.10 (Debian)
+> > Set-Cookie: ikiwiki_session_anarcat=XXXXXXXXXXXXXXXXXXXXXXX; path=/; HttpOnly
+> > Vary: Accept-Encoding
+> > Content-Encoding: gzip
+> > Content-Length: 4093
+> > Keep-Alive: timeout=5, max=100
+> > Connection: Keep-Alive
+> > Content-Type: text/html; charset=utf-8
+> > ~~~~
+> > 
+> > ... which seem fairly normal... getting more data than this is a little inconvenient since the data is gzip-encoded and i'm kind of lazy extracting that from the stream. Chromium does seem to auto-detect it as utf8 according to the menus however... not sure what's going on here. I would focus on the following error however, since it's clearly emanating from the CGI... --[[anarcat]]
 
 Clicking on the Cancel button yields the following warning:
 
