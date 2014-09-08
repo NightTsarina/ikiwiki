@@ -48,6 +48,11 @@ I hope it's a bug, not a feature and you fix it soon :) --[[Paweł|ptecza]]
 >>>>>> What's your locale? I have both pl\_PL (ISO-8859-2) and pl\_PL.UTF-8,
 >>>>>> but I use pl\_PL. Is it wrong? --[[Paweł|ptecza]]
 
+>>>>>>> IkiWiki assumes UTF-8 throughout, so escaped filename characters
+>>>>>>> should be `__x____y____z__` where x, y, z are the bytes of the
+>>>>>>> UTF-8 encoding of the character. I don't know how to achieve that
+>>>>>>> from a non-UTF-8 locale. --[[smcv]]
+
 >>>> Now, as to UTF7, in retrospect, using a standard encoding might be a
 >>>> better idea than coming up with my own encoding for filenames. Can 
 >>>> you provide a pointer to a description to modified-UTF7? --[[Joey]]
@@ -60,6 +65,10 @@ I hope it's a bug, not a feature and you fix it soon :) --[[Paweł|ptecza]]
 
 > Note: [libencode-imaputf7-perl][1] has made it into debian.
 >
+>> "IMAP UTF-7" uses & as an escape character, which seems like a recipe
+>> for shell injection vulnerabilities... so I would not recommend it
+>> for this particular use. --[[smcv]]
+
 > I would value some clarification, in the ikiwiki setup file I have
 >
 >     wiki_file_chars: -[:alnum:][\p{Arabic}()]+/.:_
