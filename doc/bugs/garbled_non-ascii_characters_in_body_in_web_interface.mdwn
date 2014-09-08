@@ -17,6 +17,20 @@ anarcat@marcos:ikiwiki$ echo "P�re" | hd
 00000007
 ~~~~
 
+Clicking on the Cancel button yields the following warning:
+
+~~~~
+Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215.
+~~~~
+
+The apache logs yield:
+
+~~~~
+[Mon Sep 08 16:17:43.995827 2014] [cgi:error] [pid 2609] [client 192.168.0.3:47445] AH01215: Died at /usr/share/perl5/IkiWiki/CGI.pm line 467., referer: http://anarc.at/ikiwiki.cgi?do=edit&page=wishlist
+~~~~
+
+Interestingly enough, I can't reproduce the bug here (at least in this page). Also, editing the page through git works fine.
+
 I had put ikiwiki on hold during the last upgrade, so it was upgraded separately. The bug happens both with 3.20140613 and 3.20140831. The major thing that happened today is the upgrade from perl 5.18 to 5.20. Here's the output of `egrep '[0-9] (remove|purge|install|upgrade)' /var/log/dpkg.log | pastebinit -b paste.debian.net` to give an idea of what was upgraded today:
 
 http://paste.debian.net/plain/119944
