@@ -17,6 +17,16 @@ anarcat@marcos:ikiwiki$ echo "P�re" | hd
 00000007
 ~~~~
 
+> I don't know what that is, but it isn't the usual double-UTF-8 encoding:
+>
+>     >>> u'è'.encode('utf-8')
+>     '\xc3\xa8'
+>     >>> u'è'.encode('utf-8').decode('latin-1').encode('utf-8')
+>     '\xc3\x83\xc2\xa8'
+>
+> A packet capture of the incorrect HTTP request/response headers and body
+> might be enlightening? --[[smcv]]
+
 Clicking on the Cancel button yields the following warning:
 
 ~~~~
