@@ -5,7 +5,7 @@ I hope it's a bug, not a feature and you fix it soon :) --[[Paweł|ptecza]]
 
 > ikiwiki only allows a very limited set of characters raw in page names,
 > this is done as a deny-by-default security thing. All other characters
-> need to be encoded in __code__ format, where "code" is the character
+> need to be encoded in `__code__` format, where "code" is the character
 > number. This is normally done for you, but if you're adding a page
 > manually, you need to handle it yourself. --[[Joey]]
 
@@ -72,6 +72,12 @@ I hope it's a bug, not a feature and you fix it soon :) --[[Paweł|ptecza]]
 > Should the modified regexp not be sufficient?
 > Ikiwiki 3.20140815.
 > --[[mhameed]]
+
+>> This seems like a bug: in principle non-ASCII in `wiki_file_chars` should work,
+>> in practice it does not. I would suggest either using the default
+>> `wiki_file_chars`, or digging into the code to find what is wrong.
+>> Solving this sort of bug usually requires having a clear picture of
+>> which "strings" are bytestrings, and which "strings" are Unicode. --[[smcv]]
 
 [[wishlist]]
 [1]: https://packages.debian.org/search?suite=all&section=all&arch=any&searchon=names&keywords=libencode-imaputf7-perl
