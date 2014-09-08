@@ -60,6 +60,17 @@ Clicking on the Cancel button yields the following warning:
 Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215.
 ~~~~
 
+> Looks as though you might be able to get a Python-style backtrace for this
+> by setting `$Carp::Verbose = 1`.
+>
+> The error is that we're taking some string (which string? only a backtrace
+> would tell you) that is already flagged as Unicode, and trying to decode
+> it from byte-blob to Unicode again, analogous to this Python:
+>
+>     some_bytes.decode('utf-8').decode('utf-8')
+>
+> --[[smcv]]
+
 The apache logs yield:
 
 ~~~~
