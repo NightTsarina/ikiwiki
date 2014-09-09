@@ -1,13 +1,10 @@
 I'm trying to put a list of tags in a table, so I carefully make a newline-free taglist.tmpl and then do:
 
-<pre>
-| [ [!inline pages="link(/category/env)" feeds=no archive=yes sort=title template=taglist] ] |
-</pre>
+    | \[[!inline pages="link(/category/env)" feeds=no archive=yes sort=title template=taglist]] |
 
-but there's a line in <pre>inline.pm</pre> that does:
-<pre>
-        return "&lt;div class=\"inline\" id=\"$#inline\"&gt;&lt;/div&gt;\n\n";
-</pre>
+but there's a line in `inline.pm` that does:
+
+    return "&lt;div class=\"inline\" id=\"$#inline\"&gt;&lt;/div&gt;\n\n";
 
 And the extra newlines break the table.  Can they be safely removed?
 
@@ -23,4 +20,10 @@ And the extra newlines break the table.  Can they be safely removed?
 > I don't think you're deriving much benefit from Markdown's table syntax
 > here, if you have to mix it with HTML::Template and ikiwiki directives,
 > and be pathologically careful with whitespace. "Right tool for the job"
-> and all that :-) --[[smcv]]
+> and all that :-)
+>
+> When I edited this page I was amused to find that you used HTML,
+> not Markdown, as its format. It seems oddly appropriate to my answer, but
+> I've converted it to Markdown and adjusted the formatting, for easier
+> commenting.
+> --[[smcv]]
