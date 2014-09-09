@@ -11,3 +11,16 @@ but there's a line in <pre>inline.pm</pre> that does:
 
 And the extra newlines break the table.  Can they be safely removed?
 
+> If you want an HTML table, I would suggest using an HTML table, which
+> should pass through Markdown without being interpreted further:
+>
+>     <table><tr>
+>     \[[!inline pages="link(/category/env)" feeds=no archive=yes sort=title template=tagtd]]
+>     </tr></table>
+>
+> where tagtd.tmpl is of the form `<td>your markup here</td>`.
+>
+> I don't think you're deriving much benefit from Markdown's table syntax
+> here, if you have to mix it with HTML::Template and ikiwiki directives,
+> and be pathologically careful with whitespace. "Right tool for the job"
+> and all that :-) --[[smcv]]
