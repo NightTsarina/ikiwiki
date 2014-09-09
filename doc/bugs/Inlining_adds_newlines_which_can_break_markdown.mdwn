@@ -15,10 +15,24 @@ And the extra newlines break the table.  Can they be safely removed?
 >     \[[!inline pages="link(/category/env)" feeds=no archive=yes sort=title template=tagtd]]
 >     </tr></table>
 >
-> where tagtd.tmpl is of the form `<td>your markup here</td>`.
+> where tagtd.tmpl is of the form `<td>your markup here</td>`; or even just
+>
+>     \[[!inline pages="link(/category/env)" feeds=no archive=yes sort=title template=tagtable]]
+>
+> where tagtable.tmpl looks like
+>
+>     <TMPL_IF FIRST>
+>     <table><tr>
+>     </TMPL_IF>
+>
+>     <td>your tag here</td>
+>
+>     <TMPL_IF LAST>
+>     </tr></table>
+>     </TMPL_IF>
 >
 > I don't think you're deriving much benefit from Markdown's table syntax
-> here, if you have to mix it with HTML::Template and ikiwiki directives,
+> if you have to mix it with HTML::Template and ikiwiki directives,
 > and be pathologically careful with whitespace. "Right tool for the job"
 > and all that :-)
 >
