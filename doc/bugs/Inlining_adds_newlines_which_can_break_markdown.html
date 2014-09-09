@@ -1,0 +1,13 @@
+I'm trying to put a list of tags in a table, so I carefully make a newline-free taglist.tmpl and then do:
+
+<pre>
+| [ [!inline pages="link(/category/env)" feeds=no archive=yes sort=title template=taglist] ] |
+</pre>
+
+but there's a line in <pre>inline.pm</pre> that does:
+<pre>
+        return "&lt;div class=\"inline\" id=\"$#inline\"&gt;&lt;/div&gt;\n\n";
+</pre>
+
+And the extra newlines break the table.  Can they be safely removed?
+
