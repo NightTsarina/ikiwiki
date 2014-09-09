@@ -24,3 +24,6 @@ then the following command should print 302
 > In current ikiwiki, you can get a broadly similar effect by either
 > using \[[!meta redir=foo]] (which does a HTML `<meta>` redirect)
 > or reconfiguring the web server. --[[smcv]]
+
+>> The CGI spec (http://www.ietf.org/rfc/rfc3875) says that a CGI can cause a redirect by returning a Location: header.
+>> So it's possible; desirable (due to your point about conflicting with git-annex support) is a different matter.
