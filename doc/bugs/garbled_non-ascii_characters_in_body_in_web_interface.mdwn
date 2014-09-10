@@ -99,3 +99,19 @@ http://paste.debian.net/plain/119944
 This is a major bug which should probably be fixed before jessie, yet i can't seem to find a severity statement in reportbug that would justify blocking the release based on this - unless we consider non-english speakers as "most" users (i don't know the demographics well enough). It certainly makes ikiwiki completely unusable for my users that operate on the web interface in french... --[[anarcat]]
 
 Note that on this one page, i can't even get the textarea to display and i immediately get `Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215`: http://anarc.at/ikiwiki.cgi?do=edit&page=hardware%2Fserver%2Fmarcos.
+
+Also note that this is the same as [[forum/"Error: cannot decode string with wide characters" on Mageia Linux x86-64 Cauldron]], I believe. The backtrace I get here is:
+
+~~~~
+Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215. Encode::decode_utf8("**Menu**\x{d}\x{a}\x{d}\x{a} * [[\x{fffd} propos|index]]\x{d}\x{a} * [[Logiciels|software]]"...)
+called at /usr/share/perl5/IkiWiki/CGI.pm line 117 IkiWiki::decode_form_utf8(CGI::FormBuilder=HASH(0x2ad63b8))
+called at /usr/share/perl5/IkiWiki/Plugin/editpage.pm line 90 IkiWiki::cgi_editpage(CGI=HASH(0xd514f8), CGI::Session=HASH(0x27797e0))
+called at /usr/share/perl5/IkiWiki/CGI.pm line 443 IkiWiki::__ANON__(CODE(0xfaa460))
+called at /usr/share/perl5/IkiWiki.pm line 2101 IkiWiki::run_hooks("sessioncgi", CODE(0x2520138))
+called at /usr/share/perl5/IkiWiki/CGI.pm line 443 IkiWiki::cgi()
+called at /usr/bin/ikiwiki line 192 eval {...}
+called at /usr/bin/ikiwiki line 192 IkiWiki::main()
+called at /usr/bin/ikiwiki line 231
+~~~~
+
+so this would explain the error on cancel, but doesn't explain the weird encoding i get when editing the page... <sigh>...
