@@ -212,12 +212,14 @@ sub gencalendaryear {
 >     +  }
 >     +  $changed{$params{year}}{$params{month}} = 1;
 >
-> $changed{$params{year}} is a scalar but `()` is a list. I think you want `{}`
+> `$changed{$params{year}}` is a scalar (you can tell because it starts with the
+> `$` sigil) but `()` is a list. I think you want `{}`
 > (a scalar that is a reference to an empty anonymous hash).
 >
 > However, that whole `if` block can be omitted, and you can just use
 > `$changed{$params{year}}{$params{month}} = 1;`, because Perl will automatically
-> create $changed{$params{year}} as a reference to a hash (the term to look
+> create `$changed{$params{year}}` as a reference to an empty hash, in order to
+> put the pair `$params{month} => 1` in it (the term to look
 > up if you're curious is "autovivification").
 >
 > --[[smcv]]
