@@ -70,6 +70,19 @@ Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/pe
 >     some_bytes.decode('utf-8').decode('utf-8')
 >
 > --[[smcv]]
+> > 
+> > I couldn't figure out where to set that Carp thing - it doesn't work simply by setting it in /usr/bin/ikiwiki - so i am not sure how to use this. However, with some debugging code in Encode.pm, i was able to find a case of double-encoding - in the left menu, for example, which is the source of the Encode.pm crash.
+> > 
+> > It seems that some unicode semantics changed in Perl 5.20, or more precisely, in Encode.pm 2.53, according to [this](https://code.activestate.com/lists/perl-unicode/3314/). 5.20 does have significant Unicode changes, but I am not sure they are related (see [perldelta](https://metacpan.org/pod/distribution/perl/pod/perldelta.pod)). Doing more archeology, it seems that Encode.pm is indeed where the problem started, all the way back in [commit 8005a82](https://github.com/dankogai/p5-encode/commit/8005a82d8aa83024d72b14e66d9eb97d82029eeb#diff-f3330aa405ffb7e3fec2395c1fc953ac) (august 2013), taken from [pull request #11](https://github.com/dankogai/p5-encode/pull/11) which expressively forbids double-decoding, in effect failing like python does in the above example you gave (Perl used to silently succeed instead, a rather big change if you ask me).
+> > 
+> > So stepping back, it seems that this would be a bug in Ikiwiki. It could be in any of those places:
+> > 
+> > ~~~~
+> > anarcat@marcos:ikiwiki$ grep -r decode_utf8 IkiWiki* | wc -l
+> > 31
+> > ~~~~
+> > 
+> > Now the fun part is to determine which one should be turned off... or should we duplicate the logic that was removed in decode_utf8, or make a safe_decode_utf8 for ourselves? --[[anarcat]]
 
 The apache logs yield:
 
@@ -84,3 +97,5 @@ I had put ikiwiki on hold during the last upgrade, so it was upgraded separately
 http://paste.debian.net/plain/119944
 
 This is a major bug which should probably be fixed before jessie, yet i can't seem to find a severity statement in reportbug that would justify blocking the release based on this - unless we consider non-english speakers as "most" users (i don't know the demographics well enough). It certainly makes ikiwiki completely unusable for my users that operate on the web interface in french... --[[anarcat]]
+
+Note that on this one page, i can't even get the textarea to display and i immediately get `Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215`: http://anarc.at/ikiwiki.cgi?do=edit&page=hardware%2Fserver%2Fmarcos.
