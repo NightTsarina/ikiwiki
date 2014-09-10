@@ -56,16 +56,22 @@ Weird... --[[anarcat]]
 > > 
 > > --[[anarcat]]
 
+> > > [[!template  id=gitbranch branch=ready/more-magic author="[[smcv]]" browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/commitdiff/ready/more-magic]]
 > > > If the regex match isn't necessary and it's just about deleting the
-> > > parameters, I think I'd prefer something like
+> > > parameters, I think I'd prefer
 > > >
 > > >     if (! defined $mimetype) {
 > > >         ...
 > > >     }
 > > >     $mimetype =~ s/;.*//;
 > > >
-> > > but I'd be hesitant to do that without knowing why Joey implemented it
-> > > the way it is. If it's about catching a result from file(1) that
+> > > as done in my `ready/more-magic` branch.
+> > >
+> > > I'm a little hesitant to do that without knowing why Joey implemented it
+> > > the way it is, but as far as I can tell it's just an oversight.
+> > >
+> > > Or, if the result of the s/// is checked for a reason, and it's
+> > > about catching a result from file(1) that
 > > > is not, in fact, a MIME type at all (empty string or error message
 > > > or something), maybe something more like this?
 > > >
@@ -76,3 +82,10 @@ Weird... --[[anarcat]]
 > > > > I don't mind either way, but i feel this should be fixed for the next release, as I need to reapply this patch at every upgrade now. -- [[anarcat]]
 
 > > > > > This is still a problem in 3.20140831. -- [[anarcat]]
+
+> > > > > > I still don't think appending a semicolon is the right answer:
+> > > > > > at best it's equivalent to what I suggested, and at worst it's
+> > > > > > disabling a check that does have some reason behind it.
+> > > > > > I've turned the version I suggested above into a proper branch.
+> > > > > > Review by someone who can commit to ikiwiki.git would be appreciated.
+> > > > > > --[[smcv]]
