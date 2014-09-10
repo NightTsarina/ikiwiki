@@ -218,8 +218,8 @@ sub gencalendaryear {
 >
 > However, that whole `if` block can be omitted, and you can just use
 > `$changed{$params{year}}{$params{month}} = 1;`, because Perl will automatically
-> create `$changed{$params{year}}` as a reference to an empty hash, in order to
-> put the pair `$params{month} => 1` in it (the term to look
+> create `$changed{$params{year}}` as a reference to an empty hash if necessary,
+> in order to put the pair `$params{month} => 1` in it (the term to look
 > up if you're curious is "autovivification").
 >
 > --[[smcv]]
