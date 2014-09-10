@@ -1,0 +1,61 @@
+[[!comment format=mdwn
+ username="https://www.google.com/accounts/o8/id?id=AItOawk6z7Jsfi_XWfzFJNZIjYUcjgrthg4aPUU"
+ nickname="Alejandro"
+ subject="Same Trick in Apache"
+ date="2014-09-10T18:58:24Z"
+ content="""
+I got it working with Apache 2.4 and Virtual Hosts on both HTTP 1.1 and HTTPS (SNI). The procedure is somewhat analogous to the nginx procedure above. So here is my set-up in the hopes will help other avoid this pain.
+
+## Set-up
+
+    CLIENT <---- HTTPS ----> REVERSE PROXY <---- HTTP ----> IKIWIKI
+
+
+## The HTTP to HTTPS Redirect
+
+To assure that all your HTTP requests are being redirected to HTTPS I chose to use mod_rewrite because simple Redirect does not pass query parameters. You will want an HTTP VHost that will redirect with something like the one below (notice the subtle ? before query string). **Note: This will NOT re-write ikiwiki's http:// URLs (base tag, etc.)**. For that I use a content filter like you will see below. This HTTP to HTTPS redirect is required though for both security and for the /foo/?updated URI form in this set-up.
+
+<pre>
+
+&lt;VirtualHost *:80&gt;
+    ServerName imass.name
+    RewriteEngine On
+    RewriteCond %{HTTPS} off
+    RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}?%{QUERY_STRING}
+    ErrorLog /var/log/imass.name-error.log
+    LogLevel warn
+    CustomLog /var/log/imass.name-access.log combined
+&lt;/VirtualHost&gt;
+
+</pre>
+
+## The SSL Virtual Host
+
+This part is a bit more tricky. First I am using SNI as I don't care for non-SNI user agents. Second, you need to use a filter that replaces all http:// to https:// before the response is set. Note that this alone won't deal with ?update so you will need the HTTP to HTTPS set-up above anyway. Third, I use HTTP Auth so I don't know if this will work with your particular Auth set-up (although it should IMHO), YMMV:
+
+<pre>
+
+&lt;VirtualHost *:443&gt;
+    ServerName imass.name
+    ProxyHTMLEnable On
+    ProxyHTMLExtended On
+    SSLEngine on
+    SSLCertificateFile XXX
+    SSLCertificateKeyFile XXX
+    SSLCertificateChainFile XXX
+    SSLOptions +StdEnvVars
+    ProxyPreserveHost On
+    ProxyHTMLURLMap http:// https://
+    ProxyPass / http://192.168.101.101/
+    ProxyPassReverse / http://192.168.101.101/
+    LogLevel warn
+    ErrorLog /var/log/imass.name-ssl-error.log
+    TransferLog \"/var/log/imass.name-ssl-access.log\"
+    CustomLog \"/var/log/imass.name-ssl-request.log\" \"%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \\"%r\\" %b\"
+&lt;/VirtualHost&gt;
+
+</pre>
+
+
+
+"""]]
