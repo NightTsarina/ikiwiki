@@ -30,6 +30,25 @@ Discussion
 > > 
 > > Originally, I named that parameter `backwards_links`, but then it wouldn't make sense in the long term, and isn't exactly neutral: it assume the current way is backwards! Your suggestion is interesting however, but I don't think the rtl/ltr nomenclature is problematic, with proper documentation of course... --[[anarcat]]
 
+> > > I still don't think `rtl`/`ltr` is the right terminology here. I think
+> > > the "API" should say what you mean: the distinction being made is
+> > > "text first" vs. "link first", so, say that.
+> > >
+> > > As far as I understand it, RTL languages like Arabic typically write
+> > > text files "in logical order" (first letter is first in the bytestream)
+> > > and only apply RTL rendering on display, and IkiWiki will parse files
+> > > in logical order too; so if a link's text and destination are both
+> > > written in Arabic, in your proposed order (text before link), an
+> > > Arabic reader starting from the right would still see the text
+> > > before the link. So I don't think it would make sense to suggest that
+> > > one order was more appropriate for RTL languages than the other: if
+> > > it's "right" (for whatever opinion of "right") in English, then it's
+> > > "right" in Arabic too.
+> > >
+> > > (If the destination is written in Latin then it gets
+> > > more complicated, because the destination will be rendered LTR within an
+> > > otherwise RTL document. I think the order still works though.) --[[smcv]]
+
 There's a caveat: we can't have a per-wiki backwards_links option, because of the underlay, common to all wikis, which needs to be converted. So the option doesn't make much sense. Not sure how to deal with this... Maybe this needs to be at the package level? --[[anarcat]]
 
 > I've thought about adding a direction-neutral `\[[!link]]` directive -
@@ -80,6 +99,7 @@ I think we can approach this rationnally:
 
  1. left to right (text then link) can be considered more natural, and should therefore be supported
  2. it is supported in markdown using regular markdown links. in the proposed branch, the underlay wikilinks are converted to use regular markdown links
+    > Joey explicitly rejected this for a valid reason (it breaks inlining). See above. --[[smcv]]
  3. ikiwiki links break other markup plugins, like mediawiki and creole, as those work right to left.
  4. those are recognized "standards" used by other popular sites, like Wikipedia, or any wiki supporting the Creole markup, which is [most wikis](http://www.wikicreole.org/wiki/Engines)
 
