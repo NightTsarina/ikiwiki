@@ -112,3 +112,34 @@ The [[ikiwiki/directive/listdirectives]]` directive doesn't register a link betw
 >>>>> it doesn't inline. That's never going to end well :-) --[[smcv]]
 >>>>>> We have to differentiate between what users of ikiwiki consider first class links and what internally is happening. For the user any link contributing to the structured access tree is first class. The code on the other hand has to differentiate between the static links, then generated links, then orphan links. Three "passes", even your proposed solution could be seen as adding another pass since the orphan plugin has to run after all the plugins generating (first class user) links.   -- [[holger]]
 
+>>>>>>> I think the difference between your point of view, and what ikiwiki
+>>>>>>> currently implements / what its design is geared towards, is this:
+>>>>>>> ikiwiki says A links to B if the *source code* of A contains an
+>>>>>>> explicit link to B. You say A links to B if the *compiled HTML*
+>>>>>>> of A contains a link to B.
+>>>>>>>
+>>>>>>> Would you agree with that characterization?
+>>>>>>>
+>>>>>>> I suspect that "link in the source code" may be the more useful concept
+>>>>>>> when using links for backlinks (I think the original implementation is
+>>>>>>> <http://c2.com/cgi/wiki?BackLink>) and as pseudo-tags
+>>>>>>> (<http://c2.com/cgi/wiki?WikiCategories>). The fact that this is what
+>>>>>>> `link()` and `backlink()` mean could be better-documented: it's
+>>>>>>> entirely possible that the author of their documentation (Joey?)
+>>>>>>> thought it was obvious that that's what they mean, because they
+>>>>>>> were coming from a compiler/source-code mindset.
+>>>>>>>
+>>>>>>> Also, backlinks become rather all-engulfing if their presence in
+>>>>>>> the compiled output counts as a link, since after a render pass, they
+>>>>>>> would all become bidirectional; and as I noted previously, if pagespecs
+>>>>>>> can match by linkedness (which we want) and plugins can generate lists
+>>>>>>> of links according to pagespecs (which we also want), then links in the
+>>>>>>> compiled output can certainly get into [[!wp Russell's paradox]]-like
+>>>>>>> situations, such as the page that links to every page to which it
+>>>>>>> does not link.
+>>>>>>>
+>>>>>>> For the special case of deciding what is orphaned, sure, it's the
+>>>>>>> compiled HTML that is the more relevant thing;
+>>>>>>> that's why I talked about "reachability" rather than "links".
+>>>>>>>
+>>>>>>> --[[smcv]]
