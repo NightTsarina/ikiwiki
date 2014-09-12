@@ -177,3 +177,49 @@ sub gencalendaryear {
 > --[[smcv]]
 >
 > > Thank you for this review. -- [[Louis|spalax]]
+
+---
+
+[[smcv]], can you please go on reviewing this?
+
+> I don't think I'm really the reviewer you want, since I don't have commit
+> access (as you might be able to tell from the number of pending branches
+> I have)... but nobody with commit access seems to be available to do
+> reviews at the moment, so I'm probably the best you're going to get.
+>
+>     +    0 0 * * * ikiwiki ~/ikiwiki.setup --refresh
+>
+> I think that should be `ikiwiki --setup ~/ikiwiki.setup --refresh`
+>
+> The indentation of some of the new code in `IkiWiki/Plugin/calendar.pm`
+> is weird. Please use one hard tab (U+0009) per indent step: you seem
+> to have used a mixture of one hard tab per indent or two spaces
+> per indent, which looks bizarre for anyone whose tab size is not
+> 2 spaces.
+>
+>     +	return unless $config{calendar_autocreate};
+>
+> This is checked in `gencalendaryear` but not in `gencalendarmonth`.
+> Shouldn't `gencalendarmonth` do it too? Alternatively, do the check
+> in `scan`, which calls `gencalendarmonth` directly.
+>
+>     +		my $year  = $date[5] + 1900;
+>
+> You calculate this, but you don't seem to do anything with it?
+>
+>     +  if (not exists $changed{$params{year}}) {
+>     +    $changed{$params{year}} = ();
+>     +  }
+>     +  $changed{$params{year}}{$params{month}} = 1;
+>
+> `$changed{$params{year}}` is a scalar (you can tell because it starts with the
+> `$` sigil) but `()` is a list. I think you want `{}`
+> (a scalar that is a reference to an empty anonymous hash).
+>
+> However, that whole `if` block can be omitted, and you can just use
+> `$changed{$params{year}}{$params{month}} = 1;`, because Perl will automatically
+> create `$changed{$params{year}}` as a reference to an empty hash if necessary,
+> in order to put the pair `$params{month} => 1` in it (the term to look
+> up if you're curious is "autovivification").
+>
+> --[[smcv]]

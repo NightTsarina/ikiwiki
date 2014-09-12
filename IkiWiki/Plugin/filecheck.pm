@@ -150,7 +150,7 @@ sub match_mimetype ($$;@) {
 		chomp $mimetype;
 		close $file_h;
 	}
-	if (! defined $mimetype || $mimetype !~s /;.*//) {
+	if (! defined $mimetype) {
 		# Fall back to default value.
 		$mimetype=File::MimeInfo::Magic::default($file)
 			if $mimeinfo_ok;
@@ -158,6 +158,8 @@ sub match_mimetype ($$;@) {
 			$mimetype="unknown";
 		}
 	}
+	# Ignore any parameters, we only want the type itself
+	$mimetype =~ s/;.*//;
 
 	my $regexp=IkiWiki::glob2re($wanted);
 	if ($mimetype!~$regexp) {

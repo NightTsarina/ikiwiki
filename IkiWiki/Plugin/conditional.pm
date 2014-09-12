@@ -33,11 +33,15 @@ sub preprocess_if (@) {
 	    # An optimisation to avoid needless looping over every page
 	    # for simple uses of some of the tests.
 	    $params{test} =~ /^([\s\!()]*((enabled|sourcepage|destpage|included)\([^)]*\)|(and|or))[\s\!()]*)+$/) {
-		add_depends($params{page}, "($params{test}) and $params{page}");
 		$result=pagespec_match($params{page}, $params{test},
 				location => $params{page},
 				sourcepage => $params{page},
 				destpage => $params{destpage});
+		my $i = $result->influences;
+		foreach my $k (keys %$i) {
+			# minor optimization: influences are always simple dependencies
+			$IkiWiki::depends_simple{$params{page}}{lc $k} |= $i->{$k};
+		}
 	}
 	else {
 		$result=pagespec_match_list($params{page}, $params{test},

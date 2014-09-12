@@ -47,8 +47,8 @@ Changes to the structure of `$pagestate{$registering_page}{edittemplate}{$pagesp
 >> better way based on that, maybe global configuration in `$config`.
 >> --[[smcv]]
 
->>> [[!template id=gitbranch branch=smcv/ready/edittemplate
-  browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/edittemplate
+>>> [[!template id=gitbranch branch=smcv/ready/edittemplate2
+  browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/edittemplate2
   author="Jonathon Anderson, [[smcv]]"]]
 >>> Here is a version of that branch that I [[would merge|users/smcv/ready]] if I could.
 >>> Changes since Jonathon's version:
@@ -77,3 +77,11 @@ Changes to the structure of `$pagestate{$registering_page}{edittemplate}{$pagesp
 >>>> html5 would leave old evaluations of displaytime around in the repository.
 >>>> (example template: `\[[!meta date="<TMPL_VAR time>"]]I wrote this post at
 >>>> \[[!displaytime "<TMPL_VAR time>"]]`). --[[chrysn]]
+
+>>>>> That's a very good point; and Joey added `\[[!date "<TMPL_VAR time">]]`,
+>>>>> which does the same thing as your hypothetical `\[[!displaytime]]`,
+>>>>> almost 5 years ago. Branch replaced by `smcv/ready/edittemplate2`
+>>>>> which drops `formatted_time` and `html_time`, and adds a suggestion
+>>>>> to use `\[[!date]]`. --[[smcv]]
+
+>>>>>> [[merged|done]] --[[smcv]]

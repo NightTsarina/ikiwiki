@@ -14,7 +14,7 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	%pagestate %wikistate %renderedfiles %oldrenderedfiles
 	%pagesources %delpagesources %destsources %depends %depends_simple
 	@mass_depends %hooks %forcerebuild %loaded_plugins %typedlinks
-	%oldtypedlinks %autofiles @underlayfiles $lastrev};
+	%oldtypedlinks %autofiles @underlayfiles $lastrev $phase};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error htmlpage template template_depends
@@ -33,6 +33,11 @@ our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
 our $DEPEND_CONTENT=1;
 our $DEPEND_PRESENCE=2;
 our $DEPEND_LINKS=4;
+
+# Phases of processing.
+sub PHASE_SCAN () { 0 }
+sub PHASE_RENDER () { 1 }
+$phase = PHASE_SCAN;
 
 # Optimisation.
 use Memoize;
@@ -152,7 +157,8 @@ sub getsetup () {
 		type => "internal",
 		default => [qw{mdwn link inline meta htmlscrubber passwordauth
 				openid signinedit lockedit conditional
-				recentchanges parentlinks editpage}],
+				recentchanges parentlinks editpage
+				templatebody}],
 		description => "plugins to enable by default",
 		safe => 0,
 		rebuild => 1,
@@ -2022,11 +2028,19 @@ sub template_depends ($$;@) {
 	if (defined $page && defined $tpage) {
 		add_depends($page, $tpage);
 	}
-	
+
 	my @opts=(
 		filter => sub {
 			my $text_ref = shift;
 			${$text_ref} = decode_utf8(${$text_ref});
+			run_hooks(readtemplate => sub {
+				${$text_ref} = shift->(
+					id => $name,
+					page => $tpage,
+					content => ${$text_ref},
+					untrusted => $untrusted,
+				);
+			});
 		},
 		loop_context_vars => 1,
 		die_on_bad_params => 0,
@@ -2460,6 +2474,19 @@ sub pagespec_match ($$;@) {
 	return $sub->($page, @params);
 }
 
+# e.g. @pages = sort_pages("title", \@pages, reverse => "yes")
+#
+# Not exported yet, but could be in future if it is generally useful.
+# Note that this signature is not the same as IkiWiki::SortSpec::sort_pages,
+# which is "more internal".
+sub sort_pages ($$;@) {
+	my $sort = shift;
+	my $list = shift;
+	my %params = @_;
+	$sort = sortspec_translate($sort, $params{reverse});
+	return IkiWiki::SortSpec::sort_pages($sort, @$list);
+}
+
 sub pagespec_match_list ($$;@) {
 	my $page=shift;
 	my $pagespec=shift;
@@ -2565,20 +2592,47 @@ our @ISA = 'IkiWiki::SuccessReason';
 
 package IkiWiki::SuccessReason;
 
+# A blessed array-ref:
+#
+# [0]: human-readable reason for success (or, in FailReason subclass, failure)
+# [1]{""}:
+#      - if absent or false, the influences of this evaluation are "static",
+#        see the influences_static method
+#      - if true, they are dynamic (not static)
+# [1]{any other key}:
+#      the dependency types of influences, as returned by the influences method
+
 use overload (
+	# in string context, it's the human-readable reason
 	'""'	=> sub { $_[0][0] },
+	# in boolean context, SuccessReason is 1 and FailReason is 0
 	'0+'	=> sub { 1 },
+	# negating a result gives the opposite result with the same influences
 	'!'	=> sub { bless $_[0], 'IkiWiki::FailReason'},
+	# A & B = (A ? B : A) with the influences of both
 	'&'	=> sub { $_[1]->merge_influences($_[0], 1); $_[1] },
+	# A | B = (A ? A : B) with the influences of both
 	'|'	=> sub { $_[0]->merge_influences($_[1]); $_[0] },
 	fallback => 1,
 );
+
+# SuccessReason->new("human-readable reason", page => deptype, ...)
 
 sub new {
 	my $class = shift;
 	my $value = shift;
 	return bless [$value, {@_}], $class;
 }
+
+# influences(): return a reference to a copy of the hash
+# { page => dependency type } describing the pages that indirectly influenced
+# this result, but would not cause a dependency through ikiwiki's core
+# dependency logic.
+#
+# See [[todo/dependency_types]] for extensive discussion of what this means.
+#
+# influences(page => deptype, ...): remove all influences, replace them
+# with the arguments, and return a reference to a copy of the new influences.
 
 sub influences {
 	my $this=shift;
@@ -2588,15 +2642,46 @@ sub influences {
 	return \%i;
 }
 
+# True if this result has the same influences whichever page it matches,
+# For instance, whether bar matches backlink(foo) is influenced only by
+# the set of links in foo, so its only influence is { foo => DEPEND_LINKS },
+# which does not mention bar anywhere.
+#
+# False if this result would have different influences when matching
+# different pages. For instance, when testing whether link(foo) matches bar,
+# { bar => DEPEND_LINKS } is an influence on that result, because changing
+# bar's links could change the outcome; so its influences are not the same
+# as when testing whether link(foo) matches baz.
+#
+# Static influences are one of the things that make pagespec_match_list
+# more efficient than repeated calls to pagespec_match.
+
 sub influences_static {
 	return ! $_[0][1]->{""};
 }
+
+# Change the influences of $this to be the influences of "$this & $other"
+# or "$this | $other".
+#
+# If both $this and $other are either successful or have influences,
+# or this is an "or" operation, the result has all the influences from
+# either of the arguments. It has dynamic influences if either argument
+# has dynamic influences.
+#
+# If this is an "and" operation, and at least one argument is a
+# FailReason with no influences, the result has no influences, and they
+# are not dynamic. For instance, link(foo) matching bar is influenced
+# by bar, but enabled(ddate) has no influences. Suppose ddate is disabled;
+# then (link(foo) and enabled(ddate)) not matching bar is not influenced by
+# bar, because it would be false however often you edit bar.
 
 sub merge_influences {
 	my $this=shift;
 	my $other=shift;
 	my $anded=shift;
 
+	# This "if" is odd because it needs to avoid negating $this
+	# or $other, which would alter the objects in-place. Be careful.
 	if (! $anded || (($this || %{$this->[1]}) &&
 	                 ($other || %{$other->[1]}))) {
 		foreach my $influence (keys %{$other->[1]}) {
@@ -2608,6 +2693,8 @@ sub merge_influences {
 		$this->[1]={};
 	}
 }
+
+# Change $this so it is not considered to be influenced by $torm.
 
 sub remove_influence {
 	my $this=shift;

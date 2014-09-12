@@ -4,6 +4,37 @@ On some ikiwikis that I run, I get the following error on OpenID logins:
 
 > Is this fixed now that [[!debbug 738493]] has been fixed? --[[smcv]]
 
+> > No, it isn't. I still get: `no_identity_server: Could not determine ID provider from URL.` from the latest ikiwiki in jessie (3.20140831), with liblwpx-paranoidagent-perl 1.10-3. Debugging tells me it's still related to the `500 Can't verify SSL peers without knowing which Certificate Authorities to trust` error, so probably because `Mozilla::CA` is not packaged ([[!debbug 702124]]). I still had to apply the patch to disable SSL verification at the end of this file. However, setting `$ENV{PERL_LWP_SSL_CA_PATH} = '/etc/ssl/certs';` seems to work now, so the following dumb patch works:
+> > 
+> > ~~~~
+> > --- /usr/bin/ikiwiki.orig       2014-09-08 15:48:35.715868902 -0400
+> > +++ /usr/bin/ikiwiki    2014-09-08 15:50:29.666779878 -0400
+> > @@ -225,4 +225,5 @@
+> >         }
+> >  }
+> > 
+> > +$ENV{PERL_LWP_SSL_CA_PATH} = '/etc/ssl/certs';
+> >  main;
+> > ~~~~
+> > 
+> > may not be the best place to fiddle around with this, but then again it makes sense that it applies to the whole program. it should probably be reported upstream as well. also in my git repo. -- [[anarcat]]
+> >
+> > > This seems Debian-specific. I would be inclined to consider this to be
+> > > a packaging/system-integration (i.e. non-upstream) bug in
+> > > `liblwpx-paranoidagent-perl` rather than an upstream bug in IkiWiki;
+> > > it certainly seems inappropriate to put this Debian-specific path
+> > > in upstream IkiWiki. If it can't be fixed in LWPX::ParanoidAgent for
+> > > whatever reason, applying it via some sort of sed in ikiwiki's
+> > > `debian/rules` might be more reasonable? --[[smcv]]
+> > >
+> > > > by "upstream", i did mean `liblwpx-paranoidagent-perl`. so yeah, maybe this should be punted back into that package's court again. :( --[[anarcat]]
+> > > > 
+> > > > done, by bumping the severity of [[!debbug 744404]] to release-criticial. --[[anarcat]]
+> > > > 
+> > > > > ooh cool, the bug was fixed already with an upload, so this should probably be considered [[done]] at this point, even without the patch below! great! -- [[anarcat]]
+
+[[!template  id=gitbranch branch=anarcat/dev/ssl_ca_path author="[[anarcat]]"]] 
+
 I seem recall having that error before, and fixing it, but it always seems to come back and I forget how to fix it. So I'll just open this bug and document it if i can figure it out... -- [[users/anarcat]]
 
 The Perl module manual says:
@@ -157,18 +188,13 @@ Workaround - disable error checking:
 > My only workaround for now was to fix `PERL_LWP_SSL_VERIFY_HOSTNAME` to 0 directly in `ikiwiki` :-(  -- [[users/bbb]]
 
 ~~~~
-*** /home/bruno/opt/ikiwiki/bin/ikiwiki.bad     2014-04-17 15:41:38.868972152 +0200
---- /home/bruno/opt/ikiwiki/bin/ikiwiki 2014-04-17 15:04:56.524996905 +0200
-*************** sub main () {
-*** 226,229 ****
+--- /usr/bin/ikiwiki.orig       2014-09-08 15:48:35.715868902 -0400
++++ /usr/bin/ikiwiki    2014-09-08 15:48:38.895947911 -0400
+@@ -225,4 +225,5 @@
         }
-  }
-  
-! main;
---- 226,229 ----
-        }
-  }
-  
-! $ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0 ; main;
+ }
+
++$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
+ main;
 ~~~~
 

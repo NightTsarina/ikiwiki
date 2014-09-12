@@ -26,3 +26,46 @@ This brutal patch implement your solution as a temporary fix.
 As I am not sure that remembering `PERL5LIB` is a good idea, I think that a prettier solution will be to add a config variable (let's say `cgi_wrapper_perllib`) which, if fixed, contains the `PERL5LIB` value to include in the wrapper, or another (let's say `cgi_wrapper_remember_libdir`), which, if fixed, remember the current `PERL5LIB`.
 
 -- Bruno
+
+**Update:** I had not seen this bug earlier, but I ran into the same issue and made a more general solution. You can already add stuff to `%config{ENV}` in the setup file, but it was being processed too late for `PERL5LIB` to do any good.
+[This change](https://github.com/jcflack/ikiwiki/compare/early-env) moves the `%config{ENV}` handling earlier in the wrapper, so anything specified there is placed back in the actual environment before Perl gets control. Problem solved!
+
+-- Chap
+
+> Thanks, this looks like a nicer solution than the above. Some review:
+>
+>     + $val =~ s/([\\"])/\\$1/g;
+>
+> This is *probably* OK, because the configuration is unlikely to include
+> non-ASCII, but I'd prefer something that covers all possibilities,
+> like this:
+>
+>     my $tmp = $val;
+>     utf8::encode($tmp) if utf8::is_utf8($tmp);
+>     $tmp =~ s/([^A-Za-z0-9])/sprintf "\\x%02x", $1/ge;
+>
+> and then passing $tmp to addenv.
+>
+>     + delete $config{ENV};
+>
+> I don't think this is particularly necessary: there doesn't seem any harm
+> in having it in the storable too?
+>
+> --[[smcv]]
+
+Happy to make the escaping change, thanks for the sharp eye.
+
+> [[Merged|done]] with that change. --[[smcv]]
+
+My thinking on `delete` is once it's handled, it's handled. The C code
+is going to put this straight into the real environment and then do
+a simple `exec` ... is there any way this hasn't been handled?
+
+It just takes up space twice in the generated wrapper otherwise.
+Admittedly it's not much space, but seems to be even less point ... ?
+
+-- Chap
+
+> That makes sense, as long as nothing else is going to read
+> `$config{ENV}` for purposes other than copying it into the actual
+> environment. --[[smcv]]

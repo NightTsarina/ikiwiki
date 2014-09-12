@@ -31,16 +31,25 @@ large chunks of marked up text to be embedded into a template:
 
 ## Creating a template
 
-The template is a regular wiki page, located in the `templates/`
+The template is in a regular wiki page, located in the `templates/`
 subdirectory inside the source directory of the wiki.
+The contents of the [[templatebody]] directive are used as the
+template. Anything outside that directive is not included in the template,
+and is usually used as documentation describing the template.
+
+If the template does not contain a [[templatebody]] directive, the entire
+source of the page is used for the template. This is deprecated, because
+it leads to the template markup being interpreted as ordinary
+page source when the page is built, as well as being used as the template.
 
 Alternatively, templates can be stored in a directory outside the wiki,
 as files with the extension ".tmpl".
 By default, these are searched for in `/usr/share/ikiwiki/templates`,
 the `templatedir` setting can be used to make another directory be searched
 first.  When referring to templates outside the wiki source directory, the "id"
-parameter is not interpreted as a pagespec, and you must include the full filename
-of the template page, including the ".tmpl" extension. E.g.:
+parameter is not interpreted as a pagespec, you must include the full filename
+of the template page including the ".tmpl" extension,
+and the templatebody directive is not used. E.g.:
 
     \[[!template id=blogpost.tmpl]]
 
@@ -63,6 +72,7 @@ few things:
 
 Here's a sample template:
 
+        \[[!templatebody <<ENDBODY
         <span class="infobox">
         Name: \[[<TMPL_VAR raw_name>]]<br />
         Age: <TMPL_VAR age><br />
@@ -76,6 +86,10 @@ Here's a sample template:
         <TMPL_VAR notes>
         </TMPL_IF>
         </span>
+        ENDBODY]]
+
+	This template describes a person. Parameters: name, age,
+	color (favorite color, optional), notes (optional).
 
 The filled out template will be formatted the same as the rest of the page
 that contains it, so you can include WikiLinks and all other forms of wiki

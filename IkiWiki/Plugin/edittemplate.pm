@@ -139,6 +139,25 @@ sub filltemplate ($$) {
 
 	$template->param(name => $page);
 
+	if ($template->query(name => 'uuid')) {
+		my $uuid;
+		if (open(my $fh, "<", "/proc/sys/kernel/random/uuid")) {
+			$uuid = <$fh>;
+			chomp $uuid;
+			close $fh;
+		}
+		else {
+			eval {
+				require UUID::Tiny;
+				$uuid = UUID::Tiny::create_uuid_as_string(UUID::Tiny::UUID_V4());
+			};
+		}
+		$template->param(uuid => $uuid);
+	}
+
+	my $time = time();
+	$template->param(time => IkiWiki::date_3339($time));
+
 	return $template->output;
 }
 
