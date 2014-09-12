@@ -3,6 +3,14 @@ ikiwiki (3.20140912) UNRELEASED; urgency=medium
   * Don't double-decode CGI submissions with Encode.pm >= 2.53,
     fixing "Error: Cannot decode string with wide characters".
     Thanks, Antoine Beaupré
+  * Avoid making trails depend on everything in the wiki by giving them
+    a better way to sort the pages
+  * Don't let users post comments that won't be displayed
+  * Fix encoding of Unicode strings in Python plugins.
+    Thanks, chrysn
+  * Improve performance and correctness of the [[!if]] directive
+  * Let [[!inline rootpage=foo postform=no]] disable the posting form
+  * Switch default [[!man]] shortcut to manpages.debian.org. Closes: #700322
 
  -- Simon McVittie <smcv@debian.org>  Fri, 12 Sep 2014 21:23:58 +0100
 
