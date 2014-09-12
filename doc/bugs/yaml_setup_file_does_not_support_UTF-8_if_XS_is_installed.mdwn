@@ -1,0 +1,104 @@
+I converted an ikiwiki setup file to YAML as
+[[documented|tips/yaml_setup_files]].
+
+On my Debian Squeeze system, attempting to build the wiki using the
+YAML setup file triggers the following error message:
+
+	YAML::XS::Load Error: The problem:
+
+	    Invalid trailing UTF-8 octet
+
+	was found at document: 0
+	usage: ikiwiki [options] source dest
+	       ikiwiki --setup configfile
+
+Indeed, my setup file contains UTF-8 characters.
+
+Deinstalling YAML::XS ([[!debpkg libyaml-libyaml-perl]]) resolves this
+issue. According to YAML::Any's POD, YAML::Syck is used instead of
+YAML::XS in this case since it's the best YAML implementaion available
+on my system.
+
+No encoding-related setting is mentionned in YAML::XS' POD. We may
+consider there is a bug in there. I'll see if it's known / fixed
+somewhere as soon as I get online.
+
+Joey, as a (hopefully) temporary workaround, what do you think of
+explicitely using YAML::Syck (or whatever other YAML implementation
+that does not expose this bug) rather than letting YAML::Any pick its
+preferred one?
+
+--[[intrigeri]]
+
+> Upgrading YAML::XS ([[!debpkg libyaml-libyaml-perl]]) to current sid
+> version (0.34-1) fixes this bug for me. --[[intrigeri]]
+
+>> libyaml-syck-perl's description mentions that the module is now
+>> deprecated. (I had to do some ugly workaround to make unicode work with
+>> Syck earlier.) So it appears the new YAML::Xs is the
+>> way to go longterm, and presumably YAML::Any will start depending on it
+>> in due course? --[[Joey]]
+
+>>> Right. Since this bug is fixed in current testing/sid, only
+>>> Squeeze needs to be taken care of. As far as Debian Squeeze is
+>>> concerned, I see two ways out of the current buggy situation:
+>>>
+>>> 1. Add `Conflicts: libyaml-libyaml-perl (< 0.34-1~)` to the
+>>>    ikiwiki packages uploaded to stable and squeeze-backports.
+>>>    Additionally uploading the newer, fixed `libyaml-libyaml-perl`
+>>>    to squeeze-backports would make the resulting situation a bit
+>>>    easier to deal with from the Debian stable user point of view.
+>>> 2. Patch the ikiwiki packages uploaded to stable and
+>>>    squeeze-backports:
+>>>    - either to workaround the bug by explicitly using YAML::Syck
+>>>      (yeah, it's deprecated, but it's Debian stable)
+>>>    - or to make the bug easier to workaround by the user, e.g. by
+>>>      warning her of possible problems in case YAML::Any has chosen
+>>>      YAML::XS as its preferred implementation (the
+>>>      `YAML::Any->implementation` module method can come in handy
+>>>      in this case).
+>>>
+>>> I tend to prefer the first aforementioned solution, but any of
+>>> these will anyway be kinda ugly, so...
+
+>>>> I was wrong: I just experienced that bug with YAML::XS 0.34-1
+>>>> too. Seems like [[!cpanrt 54683]]. --[[intrigeri]]
+
+>>>>> Yes, [[!debbug 625713]] reports this also affects debian unstable.
+>>>>> So, I will add a conflict I guess. [[done]] --[[Joey]]
+
+>>>>>> With the additional info and test cases I provided on the
+>>>>>> Debian bug (Message #22), I now doubt this is a YAML::XS bug
+>>>>>> very much. Also, the RT bug I linked to happens with `use
+>>>>>> utf8`, which is not the case in ikiwiki AFAIK => I think you
+>>>>>> shall reconsider whether this bug really is YAML::XS' fault, or
+>>>>>> YAML::Any's fault, or Perl's fault, or... the way ikiwiki
+>>>>>> slurps and untaints UTF-8 YAML setup files. Sorry for providing
+>>>>>> information that may have been misguided. --[[intrigeri]]
+
+>>>>>>> `use utf8` is completely irrelevant; that only tells
+>>>>>>> perl to support utf8 in its source code.
+>>>>>>>
+>>>>>>> I don't know what `Path::Class::File` is, but if it
+>>>>>>> provides non-decoded bytes to the module than it would likely
+>>>>>>> avoid this failure, while resulting in parsed yaml where every
+>>>>>>> string was likewise not decoded unicode, which is not very useful.
+>>>>>>> --[[Joey]]
+
+>>>>>>>> You guessed right about the non-decoded bytes being passed to
+>>>>>>>> YAML::XS, except this is the way it shall be done. YAML::XS
+>>>>>>>> POD reads: "YAML::XS only deals with streams of utf8 octets".
+>>>>>>>> Feed it with non-decoded UTF-8 bytes and it gives you
+>>>>>>>> properly encoded UTF-8 Perl strings in exchange.
+>>>>>>>>
+>>>>>>>> Once this has been made clear, since 1. this module indeed
+>>>>>>>> seems to be the future of YAML in Perl, and 2. is depended on
+>>>>>>>> by other popular software such as dh-make-perl (on the 2nd
+>>>>>>>> degree), I suggest using it explicitly instead of the current
+>>>>>>>> "try to support every single YAML Perl module and end up
+>>>>>>>> conflicting with the now recommended one" nightmare.
+>>>>>>>> --[[intrigeri]]
+
+>>>>>>>>> Ok, [[done]] (although YAML::Syck does also still work.) --[[Joey]]
+
+>>>>>>>>>> Thanks a lot. --[[intrigeri]]

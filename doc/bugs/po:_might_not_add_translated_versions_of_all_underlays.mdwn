@@ -1,0 +1,16 @@
+[[plugins/po]]'s `checkconfig` looks in the `underlaydirs`, but plugins that
+add underlays typically do so in their own `checkconfig`.
+
+As far as I can see, this will result in it not adding translated versions
+of underlays added by a plugin that comes after it in `$config{add_plugins}`;
+for instance, if you have `add_plugins => qw(po smiley)`, you'll probably
+not get the translated versions of `smileys.mdwn`. (I haven't tested this.)
+
+> It doesn't happen because smiley adds the underlay unconditionally on 
+> import. Which is really more usual.
+
+To see them all, `po` should use `last => 1` when registering the hook.
+--[[smcv]]
+
+> At least all that don't last their hooks too! But, added, since
+> it will make the problem much less likely to occur. --[[Joey]] [[done]]

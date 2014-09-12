@@ -1,0 +1,67 @@
+[[ikiwiki/directive/template]]s expose odd behavior when it comes to composing
+links and directives:
+
+* the parameters are passed through the preprocessor twice, once on
+  per-parameter basis and once for the final result (which usually contains the
+  preprocessed parameters).
+
+  one of the results it that you have to write:
+
+      \[[!template id="infobox" body="""
+          Just use the \\\[[!template]] directive!
+      """]]
+
+  (that'd be three backslashes in front of the opening [.)
+
+  <!-- if you read this and wonder why there are only three backslashes in the
+  source code too, look at how backslash-escaping directives is implemented.
+  -->
+
+  this also means that parts which are not used by the template at all still
+  have their side effects without showing.
+
+  furthermore, the evaluation sequence is hard to predict. this might or might
+  not be a problem, depending on whether someone comes up with a less contrived
+  example (this one assumes a ``\[[!literal value]]`` directive that just
+  returns value but protects it from the preprocessor):
+
+  we can use `\[[!literal """[[!invalid example]]"""]]`, but we can't use
+  `\[[!template id=literalator value="""[[!invalid example]]"""]]` with a
+  'literalator' template `<span class="literal">\[[!literal """<TMPL_VAR
+  value>"""]]</span>` because then the `invalid` directive comes to action in
+  the first (per-argument) preprocessor run
+
+* links in templates are not stored at all; they appear, but the backlinks
+  don't work unless the link is explicit in one of the arguments.
+
+      \[[!template id="linker" destination="foo"]]
+
+  with a 'linker' template like
+
+      Go to \[[<TMPL_VAR destination>]]!
+
+  would result in a link to 'destination', but would not be registered in the
+  scan phase and thus not show a backlink from 'foo'.
+
+  (a ``\[[!link to=...]]`` directive, as suggested in
+  [[todo/flexible relationships between pages]], does get evaluated properly
+  though.)
+
+  this seems to be due to linkification being called before preprocess rather
+  than as a part of it, or (if that is on purpose) by the template plugin not
+  running linkification as an extra step (not even once).
+
+(nb: there is a way to include the ``raw_`` value of a directive, but that only
+refers to htmlification, not directive evaluation.)
+
+both those behaviors are non-intuitive and afaict undocumented. personally, i'd
+swap them out for passing the parameters as-is to the template, then running
+the linkifier and preprocessor on the final result. that would be as if all
+parameters were queried `raw_` -- then again, i don't see where `raw_` makes
+anything not work that worked originally, so obviously i'm missing something.
+
+
+i think it boils down to one question: are those behaviors necessary for
+compatibility reasons, and if yes, why?
+
+--[[chrysn]]

@@ -1,0 +1,8 @@
+[[!template  id=gitbranch branch=cbaines/osm-layers-patch author="[[cbaines]]"]]
+
+Using the osm plugin with a simple \[[!osm]] directive does not seem to work, a "TypeError: mapProjection is null" is given. I believe this is because the client side Javascript uses the options.layers, which is always Null. 
+
+[[!tag patch]]
+I have produced a patch for this issue, but beware, while it appears to fix the problem for me, I have little understanding of perl and the existing code base.
+
+> It looks sound, but I have yet to test it. --[[anarcat]]

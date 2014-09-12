@@ -1,0 +1,98 @@
+The po plugin needs to be updated to match the urlto sub API and
+signature changes. Else a wiki with the po plugin enabled cannot be
+refreshed / rebuilt because of (correct) Perl errors.
+
+My po branch contains a fix.
+--[[intrigeri]]
+
+> The commit looks sane to me, for what it's worth. Joey, please
+> consider merging? --[[smcv]]
+
+>> Merged. --[[Joey]] 
+
+Also, I fear the lack of any useful `$from` parameter might break some
+l10n'd link niceness when using `po_link_to = current` but I have not
+investigated this yet.
+--[[intrigeri]]
+
+> If `urlto` is called without a second parameter, it means we need
+> a URL valid from either the CGI URL or any page in the wiki,
+> (so we'd previously have set the third parameter true), but we
+> don't *necessarily* need an absolute URL - so return what you'd
+> have returned if asked for an absolute URL, but looking like
+> `/bugs/` rather than `http://ikiwiki.info/bugs/` if possible.
+>
+> It looks as though `beautify_urlpath` under `po_link_to = current`,
+> and 3-argument `urlto`, aren't tested by `t/po.t` - perhaps you
+> could add some test cases there? To test 3-argument `urlto` you'd
+> need to add `$config{baseurl} = "http://example.com"` or
+> something. --[[smcv]]
+
+>> I'm leaving this bug report open until this can be checked. --[[Joey]] 
+
+>>> My `ready/urlto` branch improves the test coverage. The bugfix from
+>>> that branch fixes most of `po` too, but leaves behind some perhaps
+>>> less-than-ideal behaviour: links where the current language is unknown,
+>>> with `po_link_to = current`, always go to the master language,
+>>> whereas perhaps it'd be better to go to the negotiated language in
+>>> this case? --[[smcv]]
+
+>>>> Thanks for taking care, thanks for these improvements!
+>>>>
+>>>> OTOH I consider any of these behaviours (either the brand new one
+>>>> = link to master language, or the alternative one = link to
+>>>> negotiated) as a regression. Any of these is contrary to what
+>>>> `po_link_to = current` is supposed to do according to the
+>>>> documentation.
+>>>>
+>>>> Let's be less technical, let me display my practical usecase
+>>>> (making this possible was one of the main reasons I initially
+>>>> implemented `po_link_to = current`).
+>>>>
+>>>> Summary: the current state of things is an annoying regression
+>>>> and it needs to be fixed.
+>>>>
+>>>> Context: I participate in building a Live system based on Debian
+>>>> Live; the project's multilingual website
+>>>> ([T(A)ILS](https://amnesia.boum.org/) is built using ikiwiki. A
+>>>> static / offline copy is shipped on ISO images; this is the way
+>>>> end-user documentation lands on the CDs. Note that no webserver
+>>>> runs on the Live system to serve this wiki, so `po_link_to =
+>>>> current` is compulsory. A user can choose her preferred language
+>>>> at boot time. Depending on her decision, The desktop shortcut
+>>>> that points to the embedded documentation (i.e. static wiki)
+>>>> links to a different entry point depending on the chosen
+>>>> language.
+>>>>
+>>>> The previous (documented) behaviour was deadly simple:  if I am
+>>>> presented a page in English (master language) it means it does
+>>>> not exist in my preferred language; the computer always displays
+>>>> me the best available version according to my needs. The new
+>>>> behaviour brings a troubling seemingly random factor into the
+>>>> user navigation experience and IMHO is a mess from a web
+>>>> ergonomics point of view (no content negotiation available,
+>>>> remember): I sometimes am shown an English page although it is
+>>>> fully translated in my language one click away, and on the
+>>>> contrary I sometimes I am shown the optimal page. This, is, well,
+>>>> interesting. This practically forces the non-English speaking
+>>>> website visitor to check the otherlanguages list on every single
+>>>> page to make sure *herself* there is nothing better available,
+>>>> and sometimes click on her preferred language link to get a page
+>>>> she actually can read.
+>>>>
+>>>> I unfortunately might not be able to dedicate the needed time to
+>>>> help fix this in a timely manner, so I don't want to urge anyone.
+>>>> Take care!  --[[intrigeri]]
+
+>>>>> I can see why this is bad, but to the best of my knowledge it's
+>>>>> not a regression: each of the calls to 1-argument `urlto` was
+>>>>> previously a call to 3-argument `urlto`, which always produces
+>>>>> a fully absolute URL, so in either case there isn't enough
+>>>>> context to know the current language. Links that were previously
+>>>>> 2-argument `urlto` still have a defined second argument;
+>>>>> I've just edited `plugins/write` to clarify why the second
+>>>>> argument should be provided whenever possible. --[[smcv]]
+
+>>>>>> Ok. I am sorry for the burden that arose from my
+>>>>>> misunderstanding. No need to keep this bug open then =>
+>>>>>> [[done]] --[[intrigeri]]

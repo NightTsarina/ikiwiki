@@ -1,0 +1,24 @@
+At the very top of the main ikiwiki executable script the `PATH` environment is set like this:
+
+    $ENV{PATH}="/usr/local/bin:/usr/bin:/bin:/opt/local/bin";
+
+This makes it a little hard to specify which specific binaries should be used, especially if there is more than one of them available (see c.f. <http://trac.macports.org/ticket/26333> where the MacPorts-supplied, up-to-date subversion should be used and not an arcane one from the base distro / OS). Is there a specific reason why ikiwiki wipes out `$PATH` like this or could that line be improved to
+
+    $ENV{PATH}="$ENV{PATH}:/usr/local/bin:/usr/bin:/bin:/opt/local/bin";
+
+? The alternative is of course to patch ikiwiki as suggested in the bug, but I wanted to ask here first :)
+
+> You can use the ENV setting in your setup file to set any environment
+> variables you like. Since ikiwiki.cgi is run by the web browser, that
+> is the best way to ensure ikiwiki always runs with a given variable set.
+> 
+> As a suid program, the ikiwiki wrappers have to sanitize the environment.
+> The ikiwiki script's own sanitization of PATH was done to make perl taint
+> checking happy, but as taint checking is disabled anyway, I have removed
+> that. [[done]] --[[Joey]] 
+
+Question: Do ikiwiki.cgi and the RCS post-commit script sanitize the $PATH separately from bin/ikiwiki?  If not, then bin/ikiwiki is probably right to sanitize the $PATH; otherwise you've created a security hole with access to the account that ikiwiki is SUID to. It'd be nice if /opt/local/bin were earlier in the $PATH, but that can be changed (as noted) in the setup file. [[Glenn|geychaner@mac.com]] (Also the person who started this by filing an issue with MacPorts; I'm experimenting with ikiwiki for collaborative documentation.)
+
+> The suid wrappers remove all environment variables except for a few used
+> for CGI. PATH is not propigated by them, so when they run ikiwiki it will
+> get the system's default path now. --[[Joey]]

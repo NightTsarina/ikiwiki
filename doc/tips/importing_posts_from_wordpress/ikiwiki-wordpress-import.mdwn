@@ -1,0 +1,468 @@
+[[!meta title="ikiwiki-wordpress-import"]]
+
+I converted the script to Perl.  The new version gets your name and email automatically from your git config, converts the body of your posts to markdown, and also imports comments.  More importantly it works with the latest wordpress, which the python version does not.  Note that it's still not 100% perfect and I intend to make a few modifications still, but they will require access to the mysql database and that may render the script useless to some users.
+
+-----
+[[!format perl '''
+#!/usr/bin/env perl
+
+use 5.16.1;
+use warnings;
+
+use XML::Simple;
+use DateTime::Format::Strptime;
+use HTML::WikiConverter;
+use LWP::UserAgent;
+use Try::Tiny;
+use Digest::MD5 'md5_hex';
+
+die "usage: $0 import_file subdir [branch] | git-fast-import"
+   unless @ARGV == 2 or @ARGV == 3;
+
+chomp(my $name = qx(git config --get user.name));
+chomp(my $email = qx(git config --get user.email));
+
+my ($file, $subdir, $branch) = @ARGV;
+
+my %events;
+
+POST:
+for my $x (grep $_->{'wp:status'} eq 'publish', @{XMLin($file)->{channel}{item}}) {
+   state $date_parser = DateTime::Format::Strptime->new(
+      pattern => '%F %T',
+      time_zone => 'UTC',
+   );
+
+   my $stub = $x =~ m<([^/]+)\/$>
+      ? $1
+      : lc($x->{title} =~ s/\W/-/gr =~ s/-$//r)
+   ;
+
+   my $guid = $x->{guid}{content} || $x->{link};
+   utf8::encode($x->{title});
+   my $msg = qq($x->{title}\n\nfrom WordPress [$guid]);
+   my $timestamp = $date_parser
+      ->parse_datetime($x->{'wp:post_date_gmt'})
+      ->epoch;
+
+   my $c = $x->{category};
+   $c = [$c] if ref $c && ref $c ne 'ARRAY';
+
+   my $content =
+      sprintf(qq([[!meta title="%s"]]\n), $x->{title} =~ s/"/\\"/gr) .
+      convert_content($x->{'content:encoded'}) . "\n\n" .
+      join("\n",
+         map '[[!tag ' . s/ /-/r . ']]',
+         keys %{
+            +{
+               map { $_ => 1 }
+               grep $_ ne 'uncategorized',
+               map $_->{nicename},
+               @$c
+            }
+         }
+      );
+
+   $events{$timestamp} = join "\n",
+      "commit refs/heads/$branch",
+      "committer $name <$email> $timestamp +0000",
+      'data <<8675309',
+      $msg,
+      '8675309',
+      "M 644 inline $subdir/$stub.mdwn",
+      'data <<8675309',
+      $content,
+      '8675309'
+   ;
+
+   get_comments($x->{link}, "$subdir/$stub")
+      if $x->{'wp:post_type'} eq 'post'
+}
+
+sub get_comments {
+   my ($url, $dir) = @_;
+
+   state $ua = LWP::UserAgent->new;
+
+   my $content = $ua->get("$url/feed")->decoded_content;
+   my $first;
+   my $bail;
+   my $decoded =
+      try { XMLin($content, ForceArray => ['item']) }
+      catch { $bail = 1 };
+
+   return if $bail;
+
+   COMMENT:
+   for my $x (@{$decoded->{channel}{item}}) {
+      my $date = $x->{pubDate};
+      $date =~ s/^\S+\s//;
+      $date =~ s/\s\S+$//;
+
+      #ghetto
+      $date =~ s/Jan/01/;
+      $date =~ s/Feb/02/;
+      $date =~ s/Mar/03/;
+      $date =~ s/Apr/04/;
+      $date =~ s/May/05/;
+      $date =~ s/Jun/06/;
+      $date =~ s/Jul/07/;
+      $date =~ s/Aug/08/;
+      $date =~ s/Sep/09/;
+      $date =~ s/Oct/10/;
+      $date =~ s/Nov/11/;
+      $date =~ s/Dec/12/;
+
+      state $date_parser = DateTime::Format::Strptime->new(
+         pattern => '%d %m %Y %T',
+         time_zone => 'UTC',
+      );
+
+      my $datetime = $date_parser
+         ->parse_datetime($date);
+
+      my $timestamp = $datetime->epoch;
+      my $formatted_date = "$timestamp";
+
+      my $msg = 'Added a comment';
+      my $content = convert_content($x->{'content:encoded'});
+      utf8::encode($x->{'dc:creator'});
+
+      $events{$timestamp} = join "\n",
+         "commit refs/heads/$branch",
+         # still need to get email address
+         "committer $x->{'dc:creator'} <$x->{'dc:creator'}> $timestamp +0000",
+         'data <<8675309',
+         $msg,
+         '8675309',
+         "M 644 inline " . unique_comment_location($dir, $content),
+         'data <<8675309',
+
+      <<"COMMENT",
+[[!comment format=mdwn
+ username="$x->{'dc:creator'}"
+ date="$formatted_date"
+ content="""
+$content
+"""]]
+COMMENT
+      '8675309'
+      ;
+   }
+}
+
+say $events{$_} for sort keys %events;
+
+sub convert_content {
+   my $body = shift;
+
+   utf8::encode($body);
+
+   state $converter = HTML::WikiConverter->new(
+      dialect              => 'Markdown',
+      link_style           => 'inline',
+      unordered_list_style => 'dash',
+      image_style          => 'inline',
+      image_tag_fallback   => 0,
+   );
+
+   # I know I know you can't parse XML with regular expressions.  Go find a real
+   # parser and send me a patch
+   my $in_code = 0;
+
+   my $start_code = qr(<pre[^>]*>);
+   # (?:) is a no op but keeps ikiwiki from breaking my script
+   my $end_code = qr(</p(?:)re>);
+
+   $body =~ s(&#(?:8217|039);)(')g;
+   $body =~ s(&(?:quot|#822[01]);)(")g;
+   $body =~ s(&lt;)(<)g;
+   $body =~ s(&gt;)(>)g;
+   $body =~ s(&amp;)(&)g;
+   $body =~ s(&#8230;)(...)g;
+   $body =~ s(&#821[12];)(-)g;
+   $body =~ s(&#8216;)(')g;
+   $body =~ s(&#8242;)(')g;
+   $body =~ s(&infin;)(∞)g;
+   $body =~ s(&nbsp;)()g;
+   $body =~ s(<code[^>]*>)(<p(?:)re>)g;
+   $body =~ s(</c(?:)ode>)(</p(?:)re>)g;
+
+   my @tokens =
+      map {; split qr[(?=<p(?:)re>)] }
+      map {; split qr[</p(?:)re>\K] }
+      split /\n\n/,
+      $body;
+
+   my @new_tokens;
+   for my $t (@tokens) {
+      if (
+         ($in_code && $t !~ $end_code) ||
+         ($t =~ $start_code && $t =~ $end_code)
+      ) {
+         # do nothing
+      } elsif ($t =~ $start_code) {
+         $in_code = 1;
+      } elsif ($t =~ $end_code) {
+         $in_code = 0;
+      } else {
+         die "$t !!! '$1'" if $t =~ m/&([^;\s]+);/ && $1 !~ /[lg]t/;
+
+         $t = "<p>$t</p>"
+      }
+      push @new_tokens, $t
+   }
+
+   $converter->html2wiki(join "\n\n", @new_tokens)
+}
+
+sub unique_comment_location {
+   my ($dir, $content) = @_;
+
+   utf8::encode($content);
+   my $md5 = md5_hex($content);
+
+   my $location;
+   my $i = 0;
+   do {
+      $i++;
+      $location = "$dir/comment_${i}_$md5._comment";
+   } while -e $location;
+
+   return $location
+}
+
+''']]
+-----
+
+I modified the script a bit so categories and tags would actually show up in the output file.
+
+-----
+[[!format '''
+#!/usr/bin/env python
+
+"""
+    Purpose:
+    Wordpress-to-Ikiwiki import tool
+
+    Copyright:
+    Copyright (C) 2007  Chris Lamb <chris@chris-lamb.co.uk>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Usage: run --help as an argument with this script.
+
+    Notes:
+    I added some extra bits to include the \[[!tag foo]] stuff in the post,
+    as it wasn't before, at all. I'll diff the versions out so you can see
+    the mess I made :).
+
+"""
+
+import os, sys
+import time
+import re
+
+from BeautifulSoup import BeautifulSoup
+
+import codecs, htmlentitydefs
+
+codecs.register_error('html_replace', lambda x: (''.join([u'&%s;' \
+    % htmlentitydefs.codepoint2name[ord(c)] for c in x.object[x.start:x.end]]), x.end))
+
+def main(name, email, subdir, branch='master'):
+    soup = BeautifulSoup(sys.stdin.read())
+
+    # Regular expression to match stub in URL.
+    stub_pattern = re.compile(r'.*\/(.+)\/$')
+
+    for x in soup.findAll('item'):
+        # Ignore draft posts
+        if x.find('wp:status').string != 'publish': continue
+
+        match = stub_pattern.match(x.guid.string)
+        if match:
+            stub = match.groups()[0]
+        else:
+            # Fall back to our own stubs
+            stub = re.sub(r'[^a-zA-Z0-9_]', '-', x.title.string).lower()
+
+        commit_msg = """Importing WordPress post "%s" [%s]""" % (x.title.string, x.guid.string)
+        timestamp = time.mktime(time.strptime(x.find('wp:post_date_gmt').string, "%Y-%m-%d %H:%M:%S"))
+
+        content = '\[[!meta title="%s"]]\n\n' % (x.title.string.replace('"', r'\"'))
+        content += x.find('content:encoded').string.replace('\r\n', '\n')
+
+        # categories = x.findAll('category')
+        # categories = x.findAll({'category':True}, attrs={'domain':re.compile(('category|tag'))})
+        # categories = x.findAll({'category':True}, domain=["category", "tag"])
+        # categories = x.findAll({'category':True}, nicename=True)
+        """
+        We do it differently here because we have duplicates otherwise.
+        Take a look:
+        &lt;category&gt;&lt;![CDATA[Health]]&gt;&lt;/category&gt;
+        &lt;category domain="category" nicename="health"&gt;&lt;![CDATA[Health]]&gt;&lt;/category&gt;
+
+        If we do the what original did, we end up with all tags and cats doubled.
+        Therefore we only pick out nicename="foo". Our 'True' below is our 'foo'.
+        I'd much rather have the value of 'nicename', and tried, but my
+        python skillz are extremely limited....
+        """
+        categories = x.findAll('category', nicename=True)
+        if categories:
+            content += "\n"
+            for cat in categories:
+                # remove 'tags/' because we have a 'tagbase' set.
+                # your choice: 'tag', or 'taglink'
+                # content += "\n\[[!tag %s]]" % (cat.string.replace(' ', '-'))
+                content += "\n\[[!taglink %s]]" % (cat.string.replace(' ', '-'))
+                # print >>sys.stderr, cat.string.replace(' ', '-')
+
+        # moved this thing down
+        data = content.encode('ascii', 'html_replace')
+        print "commit refs/heads/%s" % branch
+        print "committer %s &lt;%s&gt; %d +0000" % (name, email, timestamp)
+        print "data %d" % len(commit_msg)
+        print commit_msg
+        print "M 644 inline %s" % os.path.join(subdir, "%s.mdwn" % stub)
+        print "data %d" % len(data)
+        print data
+
+if __name__ == "__main__":
+    if len(sys.argv) not in (4, 5):
+        print >>sys.stderr, "%s: usage: %s name email subdir [branch] < wordpress-export.xml | git-fast-import " % (sys.argv[0], sys.argv[0])
+    else:
+        main(*sys.argv[1:])
+
+''']]
+-----
+
+I have another version of the script, which uses the `timestamp` from the script, and inserts that as a \[[!meta date="foodate"]]. I'm posting it here just in case I happen to be doing something to the httpd.
+
+(Hopefully I've escaped everything properly; if I missed something, check the source.)
+
+-----
+[[!format '''
+#!/usr/bin/env python
+
+"""
+    Purpose:
+    Wordpress-to-Ikiwiki import tool
+
+    Copyright:
+    Copyright (C) 2007  Chris Lamb <chris@chris-lamb.co.uk>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Usage: run --help as an argument with this script.
+
+    Notes:
+    I added some extra bits to include the \[[!tag foo]] stuff in the post,
+    as it wasn't before, at all. I'll diff the versions out so you can see
+    the mess I made :).
+
+"""
+
+import os, sys
+import time
+import re
+
+from datetime import datetime
+from BeautifulSoup import BeautifulSoup
+
+import codecs, htmlentitydefs
+
+codecs.register_error('html_replace', lambda x: (''.join([u'&%s;' \
+    % htmlentitydefs.codepoint2name[ord(c)] for c in x.object[x.start:x.end]]), x.end))
+
+def main(name, email, subdir, branch='master'):
+    soup = BeautifulSoup(sys.stdin.read())
+
+    # Regular expression to match stub in URL.
+    stub_pattern = re.compile(r'.*\/(.+)\/$')
+
+    for x in soup.findAll('item'):
+        # Ignore draft posts
+        if x.find('wp:status').string != 'publish': continue
+
+        match = stub_pattern.match(x.guid.string)
+        if match:
+            stub = match.groups()[0]
+        else:
+            # Fall back to our own stubs
+            stub = re.sub(r'[^a-zA-Z0-9_]', '-', x.title.string).lower()
+
+        commit_msg = """Importing WordPress post "%s" [%s]""" % (x.title.string, x.guid.string)
+        timestamp = time.mktime(time.strptime(x.find('wp:post_date_gmt').string, "%Y-%m-%d %H:%M:%S"))
+        content = '\[[!meta title="%s"]]\n' % (x.title.string.replace('"', r'\"'))
+        content += "\[[!meta date=\"%s\"]]\n" % datetime.fromtimestamp(timestamp)
+        content += x.find('content:encoded').string.replace('\r\n', '\n')
+
+        """
+        We do it differently here because we have duplicates otherwise.
+        Take a look:
+        &lt;category&gt;&lt;![CDATA[Health]]&gt;&lt;/category&gt;
+        &lt;category domain="category" nicename="health"&gt;&lt;![CDATA[Health]]&gt;&lt;/category&gt;
+
+        If we do the what original did, we end up with all tags and cats doubled.
+        Therefore we only pick out nicename="foo". Our 'True' below is our 'foo'.
+        I'd much rather have the value of 'nicename', and tried, but my
+        python skillz are extremely limited....
+        """
+        categories = x.findAll('category', nicename=True)
+        if categories:
+            content += "\n"
+            for cat in categories:
+                # remove 'tags/' because we have a 'tagbase' set.
+                # your choice: 'tag', or 'taglink'
+                # content += "\n\[[!tag %s]]" % (cat.string.replace(' ', '-'))
+                content += "\n\[[!taglink %s]]" % (cat.string.replace(' ', '-'))
+                # this is just debugging, and for fun
+                # print >>sys.stderr, cat.string.replace(' ', '-')
+
+        # moved this thing down
+        data = content.encode('ascii', 'html_replace')
+        print "commit refs/heads/%s" % branch
+        print "committer %s &lt;%s&gt; %d +0000" % (name, email, timestamp)
+        print "data %d" % len(commit_msg)
+        print commit_msg
+        print "M 644 inline %s" % os.path.join(subdir, "%s.mdwn" % stub)
+        print "data %d" % len(data)
+        print data
+
+if __name__ == "__main__":
+    if len(sys.argv) not in (4, 5):
+        print >>sys.stderr, "%s: usage: %s name email subdir [branch] < wordpress-export.xml | git-fast-import " % (sys.argv[0], sys.argv[0])
+    else:
+        main(*sys.argv[1:])
+
+''']]
+-----
+
+
+[[!tag wordpress]]
+[[!tag python]]
+[[!tag conversion]]
+[[!tag ikiwiki]]

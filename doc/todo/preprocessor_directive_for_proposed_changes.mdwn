@@ -1,0 +1,60 @@
+There are some kind of changes to the underlying repository
+which can't be made through the web interface:
+
+  * changes to files outside the wiki, to locked pages;
+  * advanced RCS operations such as merge, move, copy or del;
+  * changes you're not confident enough to apply outright.
+
+Of course in these cases, you can add your request to a discussion page
+and wait for someone with the access/confidence to apply them.
+Maybe this can be enhanced with a [[ikiwiki/Directive]]:
+
+<pre>
+\[[!suggest op=merge dstfile=trunk srcfile=branches/jk oldrev=1234 newrev=1342]]
+
+\[[!suggest op=move srcpage=/blog dstpage=/blog_support]]
+
+\[[!suggest patch="""
+Index: IkiWiki/CGI.pm
+===================================================================
+--- IkiWiki/CGI.pm      (révision 4119)
++++ IkiWiki/CGI.pm      (copie de travail)
+@@ -497,9 +497,11 @@
+(...)
+"""]]
+</pre>
+
+These would expand to a description of the changes,
+and provide "apply theses changes", "preview changes", and maybe
+"show diff" buttons. When those would be clicked,
+an rcs_ function would be called to apply the changes in
+the working copy, and depending on the request they would
+be svn diff'ed or rendered and shown, and kept.
+(all the affected pages would be inlined for the preview)
+
+Ultimately my planned [[review_mechanism]] would manage pages
+with such directives by itself.
+
+Thinking about it, describing changes inside a directive rather
+than as pages of their own is a bad remedy for the temporary
+lack of web-based file upload in ikiwiki.
+
+Implementing this as new pages formats would be simpler,
+and combined with inlining and file uploading it would be
+at least as powerful. It would be easier to handle changes
+automatically (for instance, moving the change pages once
+they have been applied). There would still be associated
+discussion pages in markdown.
+
+Regular pages could be used as change pages as well,
+if they provide subpages in a format describing changes.
+This would allow grouping and documenting changes.
+
+I'm still uncertain about many things, so please anyone feel free to comment.
+Specifically:
+
+  * Would it be possible to detect already applied changes
+    (without extra state, that is), and propose to "revert
+    changes" in that case?
+
+--[[JeremieKoenig]]

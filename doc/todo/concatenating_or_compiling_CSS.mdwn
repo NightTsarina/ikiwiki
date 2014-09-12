@@ -1,0 +1,159 @@
+It would be great if IkiWiki could apply some sort of preprocessing to
+CSS. I'm just "thinking out loud" at the moment, but I might write
+a plugin.
+
+The simplest starting point would be concatenating a list of files:
+
+* The actiontabs and monochrome themes are not ready for use as-is;
+  the Makefile constructs the real stylesheet by concatenating the
+  anti-theme's CSS and the relevant theme's CSS. It would be better
+  if they could just drop a file in an underlay, and IkiWiki would
+  concatenate the anti-theme stylesheet and the theme's file.
+
+* The blueview theme is the same, but the theme's CSS also starts
+  with a couple of stylesheets from YUI. IkiWiki could maybe
+  concatenate the anti-theme stylesheet, the two YUI stylesheets
+  and the blueview-specific part? Or maybe that's too complicated.
+
+* The goldtype theme is the blueview theme with some overrides
+  added to the end. Again, IkiWiki could concatenate all the pieces.
+
+* The [[plugins/contrib/album]] plugin needs to append some
+  stuff to the stylesheet, making its installation more involved
+  than it ought to be. If it could append the pieces by putting them
+  in an underlay, installation would just be a matter of "add
+  the files".
+
+I'm not sure whether local.css should be concatenated too, or whether
+it should be separate.
+
+It would also be great if the same mechanism could be extended
+to compile CSS-like languages like [[!debpkg ruby-sass desc=SASS]]
+or [[!debpkg node-less desc=LESS]] down to CSS, but for dependency
+reasons, I don't think the themes shipped with IkiWiki should rely on that.
+
+If the compiled CSS ended up with a content-based filename (perhaps
+ikiwiki/compiled-HASH.css where HASH is the (possibly truncated) MD5 or SHA1
+hash of the content), that would mitigate stale CSS being served from cache
+(as long as the HTML has a short expiry, which is desirable anyway),
+and ikiwiki-hosting could maybe even do something like this to allow
+long-term caching of the files with content-based names:
+
+    <LocationMatch /ikiwiki/compiled-[a-f0-9]+\.css>
+        ExpiresByType text/css "now plus 1 year"
+    </LocationMatch>
+
+A similar mechanism could maybe be used to minify JavaScript.
+
+## vague syntax proposal: controlled by directive
+
+    \[[!css files="""
+        style.css
+        ikiwiki/plugin*.css
+        ikiwiki/theme*.css
+        local.css
+    """]]
+
+* *css* directive, placed in any page, concatenates the given files
+  and uses them as the stylesheet for that page and its subpages,
+  replacing `<TMPL_VAR BASEURL>style.css`
+
+* the files can be globs, which are sorted lexicographically within
+  a glob, and do not have to match anything (so it's OK if you don't
+  have anything that matches `plugin*.css`); "-" happens to sort
+  before ".", so theme-base.css would sort before theme.css,
+  which is nice to have
+
+* the default would be `style.css`, then `ikiwiki/plugin*.css`,
+  then `ikiwiki/theme*.css` and maybe `local.css`, as in the
+  example above
+
+* `style.css` would continue to be the anti-theme
+
+* themes would ship `ikiwiki/theme.css` instead of `style.css`,
+  resulting in concatenation
+
+* goldtype would ship `ikiwiki/theme-base.css` (which is a copy of
+  blueview, or a symlink to blueview if we can make symlinks safe)
+  and `ikiwiki/theme.css` (which is the goldtype additions)
+
+* [[plugins/contrib/album]] would put its templates and
+  `ikiwiki/plugin-album.css` in an underlay
+
+* any non-contrib plugin with complicated CSS requirements
+  could also move its CSS to an underlay
+
+I think this could be done entirely in a plugin, except for this
+change to `page.tmpl` to allow the `<style>`s to be overridden:
+
+    <TMPL_IF COMPILED_CSS>
+        <style type="text/css" href="<TMPL_VAR BASEURL><TMPL_VAR COMPILED_CSS>" />
+    <TMPL_ELSE>
+        <!-- ... what it does now ... -->
+    </TMPL_IF>
+
+The plugin could also optionally minify its output, and either pass input
+files through an external SASS/SCSS/LESS implementation according
+to their extension, or have a hook system to do so.
+
+People who want SASS/LESS would probably just do this in their top-level page:
+
+    \[[!css files="mywiki.less"]]
+
+and do the inclusion/concatenation logic via @import.
+
+Security consideration: the SASS/LESS compilers will read arbitrary local
+files, so if you use those languages, ability to upload the appropriate
+extension would have to be locked-down. Perhaps it's better to implement
+this without that feature initially.
+
+--[[smcv]]
+
+> Although I understand the need to improve CSS inclusion, I wonder why you are
+> proposing concatenating CSS rather than including them as several `<link
+> type="text/css" href="FILE.css" rel="stylesheet">` lines
+> in the header: unless I am missing something, I see this as far more simpler
+> than concatenating them.
+>
+> This would imply that a template variable `CSS` is added to the page
+> template, to be filled with those lines.
+>
+> Whatever solution is used, I agree that such a thing would be useful:
+> adding CSS (rather than replacing the existing one) should be easier.
+>
+> -- [[Louis|spalax]]
+
+>> One big request is more efficient than lots of small requests,
+>> if we model the CSS as all changing equally infrequently.
+>> In terms of bytes, each file needs some code in the HTML `<head>`,
+>> plus the HTTP request and response headers, plus the actual file.
+>> On the first page-view, a visitor will have to download all the CSS anyway
+>> (one request/response pair per CSS file). On subsequent page-views, there
+>> will be one request/"304 Not Modified" response per CSS file, unless the
+>> CSS files can be marked "to be cached forever" (which can be done if
+>> they have content-based filenames).
+>>
+>> In terms of time, [[!wikipedia HTTP_pipelining desc="according to Wikipedia"]]
+>> browsers don't generally pipeline requests, so the page won't finish
+>> loading until one round-trip time per uncached CSS file has elapsed.
+>>
+>> Having lots of small files with content-based filenames would be the
+>> next best thing - not particularly efficient on a generic web server,
+>> but they could at least be marked as "cache forever" in server
+>> configuration. I'd be OK with doing that if it makes ikiwiki more
+>> maintainable, but I don't think concatenating all the CSS at
+>> compile time is actually going to be a problem in practice.
+>> The individual small files are still going to be available
+>> for the wiki operator to edit.
+>>
+>> If some CSS files change with a significantly different frequency,
+>> *then* it might become worthwhile to separate them, but I don't
+>> think that's the case (apart from possibly local.css, which is why
+>> I'm not sure whether to include it in this).
+>> --smcv
+
+>>> I must admit that I am not aware of how those several CSS inclusion lines
+>>> tend to make browsing less smooth. Please withdraw my comment.
+>>>
+>>> As you pointed out, CSS inclusion is more painful than it should be, and
+>>> your proposal seems to answer that. Go ahead! --[[Louis|spalax]]

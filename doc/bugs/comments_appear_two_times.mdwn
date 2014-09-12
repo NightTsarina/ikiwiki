@@ -1,0 +1,24 @@
+When a comment is added to page named "directory/page" it also appears in the page "directory".
+
+This seems to happen at least with versions 3.20100815.6 and 3.20110225. Id didn't happen in version from about a year ago. I created a testing ikiwiki installation demonstrating this bug. The same comment can be seen at <http://rtime.felk.cvut.cz/~sojka/blog/posts/directory/post/> and at <http://rtime.felk.cvut.cz/~sojka/blog/posts/directory/>. The corresponding git repo can be cloned by
+
+    git clone git://rtime.felk.cvut.cz/~sojka/blog.git
+
+> Unfortunatly, that git repo seems to be empty. 
+> Perhaps you forgot to push to it? Thank you for working
+> to provide a way to reproduce this!
+> 
+> Myself, I cannot reproduce it. Eg, my blog has all posts
+> under <http://kitenet.net/~joey/blog/entry/>, but that page
+> shows none of the comments to my blog posts. And here on ikiwiki.info,
+> posts on the forum have comments, but they don't show up as comments
+> to the [[forum]] page.
+> --[[Joey]]
+
+>> The repo can be cloned now. There was a problem with permissions. --[[wentasah]]
+
+>>> I see the bug now. Probably most configs hide it by setting
+>>> `comments_pagespec` more tightly. It was introduced by
+>>> d9d910f6765de6ba07508ab56a5a0f93edb4c8ad, and/or later
+>>> changes to actually use the `comments()` PageSpec.
+>>> Fixed in git! [[done]] --[[Joey]] 

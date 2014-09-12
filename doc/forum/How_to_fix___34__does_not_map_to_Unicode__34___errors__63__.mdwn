@@ -1,0 +1,20 @@
+I'm getting a number of errors like this when running ikiwiki:
+
+    utf8 "\xA2" does not map to Unicode at /usr/local/share/perl/5.10.0/IkiWiki.pm line 739, <$in> chunk 1.
+
+I think it's because some of my files contain non-utf8, non-unicode, or somehow bad characters in them, probably fancy quotes and the like that have been copy-and-pasted from my web browser. The problem is that I have hundreds of files, I transferred them all over from pyblosxom to ikiwiki at once, and the error message doesn't tell me which file the error comes from. How can I fix this?
+
+Thanks  
+-- seanh
+
+> Unfortunatly, these messages are logged by perl so there's no way to add
+> a filename to them.
+> 
+> If you run the build in --verbose mode, you should see which page ikiwiki
+> is working on, and unless it inlines some other page, you can be pretty
+> sure that page contains invalid utf-8 if the message is then printed.
+>
+> Another option is to use the `isutf8` program from 
+> [moreutils](http://kitenet.net/~joey/code/moreutils/),
+> and run it on each file, it will tell you the line number
+> and character position that is invalid. --[[Joey]] 

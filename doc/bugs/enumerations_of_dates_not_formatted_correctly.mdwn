@@ -1,0 +1,43 @@
+When an enumeration contains entries starting with ordinal numbers, e.g., for lists of meeting dates, ikiwiki turns them all into the 1st.
+
+Testcase:
+
+*The following lists should read: 1. January, 27. March, 99. November, 42. April*
+**But instead it reads:**
+
+* 1. January
+* 27. March
+* 99. November
+* 42. April
+
+> That's a consequence of Markdown syntax. The syntax for ordered lists
+> (HTML `<ol>`) in Markdown is to use arbitrary numeric prefixes in that style,
+> so your text gets parsed as:
+>
+>     <ul>
+>         <li>
+>             <ol>
+>                 <li>January</li>
+>             </ol>
+>         </li>
+>         ...
+>
+> You can avoid that interpretation by escaping the dot with a backslash
+> (`1\. January`) like so:
+>
+> * 1\. January
+> * 27\. March
+>
+> or by writing "1st January" and so on. --[[smcv]]
+
+>> I think that this is a bug in Text::Markdown (and probably other
+>> versions of markdown). The [markdown spec)(http://daringfireball.net/projects/markdown/syntax.text),
+>> though unmaintained and bitrotted into near illegibility, seems to say
+>> that list items can only be preceeded by whitespace:
+>> 
+>>> "List markers typically start at the left margin, but may be indented by
+>>> up to three spaces."
+>> 
+>> So "* * * 1. 2. 3." should not be parsed as a deeply nested list.
+>> 
+>> Forwarded to [upsteam RT](https://rt.cpan.org/Ticket/Display.html?id=65116). [[done]] --[[Joey]]

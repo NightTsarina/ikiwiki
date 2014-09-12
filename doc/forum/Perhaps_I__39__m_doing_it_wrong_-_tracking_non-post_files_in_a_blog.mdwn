@@ -1,0 +1,7 @@
+I've been searching on this topic for a while and haven't found a solution, so I'd like to ask here.
+
+I have a blog which I mostly use as a tech-note reminder system for myself (how did I setup my server, etc).  Occasionally I find it useful to include files which are not posts, and links to those files.
+
+Right now, I scp the files to the server to get them in a place accessible by the web server, then use a relative link within the post.  This works, but it strikes me that the files are as much a part of the post as the post itself, and therefore should be tracked.  The problem with tracking the files is the inline directive gives those files their own entries as posts in the blog.  I do not want them to have their own entries, but I *do* want them co-located with the file containing the post from which they are referenced.
+
+So, is there a way to have *only* `*.mdwn` files be picked up as posts by the inline directive (I tried using a PageSpec of `*.mdwn`, but that didn't work)?  Or, conversely, to exclude other files from being picked up as posts?  Or am I not seeing another way to go about this task?

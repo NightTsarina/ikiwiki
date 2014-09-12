@@ -1,0 +1,18 @@
+This is a half-baked thought of mine so I thought I would post it in forum for discussion.
+
+There are some things that ikiwiki.cgi is asked to do which do not involve changing the repository: these include form generation, handling logins, the "goto" from [[recentchanges]], edit previews, etc.
+
+For one thing I am working on slowly ([[todo/interactive todo lists]]), I've hit a situation where I am likely to need to implement doing markup evaluation for a subset of a page. The problem I face is, if a user edits content in the browser, markup, ikiwiki directives etc. need to be expanded. I could possibly do this with a round-trip through edit preview, but that would be for the whole content of a page, and I hit the problem with editing a list item.
+
+> (slight addendum on this front. I'm planning to split the javascript code for interactive todo lists into two parts: one for handling round trips of content to and from ikiwiki.cgi, and the various failure modes that might occur (permission denied, edit conflicts, login required, etc.) ; then the list-specific stuff can build on top of this. The first chunk might be reusable by others for other AJAXY-edit fu.)
+
+Anyway - I've realised that a big part of the interactive todo lists stuff is trying to handle round trips to ikiwiki.cgi through javascript. A web services API would make handling the various conditions of this easier (e.g. need to login, login failed, etc.). I'm not sure what else might benefit from a web services API and I have no real experience of either using or writing them so I don't know what pros/cons there are for REST vs SOAP etc.
+
+Second, and in a way related, I've been mooting hacking fastcgi support into ikiwiki. Essentially one ikiwiki.cgi process would persist and serve CGI-ish requests on stdin/stdout. The initial content-scanning and dependency generation would happen once and not need to be repeated for future requests. Although, all state-changing operations would need to be careful to ensure the in-memory models were accurate. Also, I don't know how suited the data structures would be for persistence, since the current model is build em up, throw em away, they might not be space-efficient enough for persistence.
+
+If I did attempt this, I would want to avoid restructuring things in a way which would impair ikiwiki's core philosophy of being a static compiler. -- [[Jon]]
+
+> This is quite interesting! There is a related discussion about FastCGI
+> support (and therefore better support for Nginx, for example) in
+> [[todo/fastcgi_or_modperl_installation_instructions/]]... --
+> [[anarcat]]

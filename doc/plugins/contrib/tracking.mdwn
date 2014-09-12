@@ -1,0 +1,30 @@
+[[!template id=plugin name=tracking author="[[BerndZeimetz]]"]]
+[[!toc]]
+[[!tag plugins]] [[!tag patch]] [[!tag wishlist]]
+
+## NAME
+
+IkiWiki::Plugin::tracking - enable google/piwik visitor tracking
+
+## SYNOPSIS
+
+    # activate the plugin
+    add_plugins => [qw{goodstuff tracking ....}],
+
+    # to use Piwik:
+    piwik_id => '1',
+    piwik_https_url => "https://ssl.example.com/piwik/",
+    piwik_http_url => "http://www.example.com/piwik/",
+
+    # to use Google Analytics:
+    google_analytics_id => "UA-xxxxxx-x"
+
+## DESCRIPTION
+
+This plugin includes the necessary tracking codes for Piwik and/or Google Analytics on all pages. Tracking codes will only be included if the necessary config options are set. The plugin could be enhanced to support goals/profiles and similar things, but I do not plan to do so.
+
+## DOWNLOAD
+
+* single files: [tracking.pm](http://git.recluse.de/?p=users/bzed/ikiwiki.git;a=blob;f=IkiWiki/Plugin/tracking.pm;hb=refs/heads/tracking) [piwik.tmpl](http://git.recluse.de/?p=users/bzed/ikiwiki.git;a=blob;f=templates/piwik.tmpl;hb=refs/heads/tracking) [google_analytics.tmpl](http://git.recluse.de/?p=users/bzed/ikiwiki.git;a=blob;f=templates/google_analytics.tmpl;hb=refs/heads/tracking)
+* browse repository: <http://git.recluse.de/?p=users/bzed/ikiwiki.git;a=shortlog;h=refs/heads/tracking>
+* git repo: `git://git.recluse.de/users/bzed/ikiwiki.git` or <http://git.recluse.de/repos/users/bzed/ikiwiki.git> (Use the tracking branch)

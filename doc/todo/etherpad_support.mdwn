@@ -1,0 +1,22 @@
+[[Other wikis are doing it|https://www.mediawiki.org/wiki/Extension:EtherEditor]], why not jump the fray? The idea here would be to make the main editor hook into etherpad. 
+
+Trivial implementation
+----------------------
+
+There are a lot of funky things that would be done here, but the basic functionality would be to throw the document in etherpad and make everyone that edits the same page join the same etherpad. Only one person would need to save the document, but the last person to save it would save the last version. Documents would be left on the etherpad server. That's what I would call the trivial way to go around this.
+
+This would translate in a simple javascript hook for the editor page. The pad name could simply be the page name, which makes it insecure for private wikis.
+
+Garbage-collecting implementation
+---------------------------------
+
+This would require a bit more work. With this implementation, a "counter" would be implemented for every user that would edit the page simultaneously. Once a user saves the page, the counter goes down, when the counter reaches zero, the pad is deleted.
+
+Resources
+---------
+
+ * [etherpad jquery plugin](https://github.com/ether/etherpad-lite-jquery-plugin) - for embeding in any page
+ * [embed parameters](https://github.com/ether/etherpad-lite/wiki/Embed-Parameters) - for embeding using an iframe, probably not what we want
+ * [other integrations](https://github.com/ether/etherpad-lite/wiki/Third-party-web-services-that-have-support-for-Etherpad-Lite) - document us here when done
+ * [no Perl API implementation](https://github.com/ether/etherpad-lite/wiki/HTTP-API-client-libraries) - we'll have to write our own?
+ * [API documentation](http://etherpad.org/doc/v1.2.0/)

@@ -1,0 +1,43 @@
+When I added or edited a page, no commit message was written out (Mercurial backend, though I guess it shouldn't matter). This was done for e.g. the `rename` plugin. I made a naive but seemingly working change to `editpage.pm` to add a message.
+
+I modeled the message on `rename.pm`, which used a lowercase initial letter and imperative form of the verb. This is not the case for e.g. the `comment` plugin, which says "Added a comment: ", so I guess there is no strict rule on style in this case.
+
+Diff follows. --[[Daniel Andersson]]
+
+> This is somewhat intentional. It's pretty usual for changes to be made
+> to a wiki without bothering to say what changed; the change speaks for
+> itself and it would just be clutter to mention what file was changed,
+> since any reasonable interface will show the filename, or a link,
+> or some summary of what files were affected when showing a change.
+
+>> I use the Mercurial backend, and Mercurial doesn't allow empty commit messages, so if there were no message, it would default to "no message given" (hardcoded in `mercurial.pm`), which is also clutter, and non-descriptive at that. But I'm on board with your reasoning. It's a matter of taste (and somewhat backend), I guess. I might continue to locally use this patch (with the caveat below fixed when commit message is given), but I won't push for it to be included upstream. --[[Daniel Andersson]]
+
+>>> Hmm.. It would be possible to make the mercurial backend 
+>>> include the filename (or just "added" or "edited") in the commit
+>>> message. It might take some work, especially to handle
+>>> `rcs_commit_staged`, since it would probably need to cache
+>>> what files have been staged for commit. --[[Joey]] 
+
+> Also your patch stomps over any commit message that the user *does*
+> provide, so certianly cannot be applied as-is. --[[Joey]] 
+
+>> Yes, "naive" was the word :-) . --[[Daniel Andersson]]
+
+[[!tag patch]]
+
+---
+
+	diff -r ee177ca9bf36 Plugin/editpage.pm
+	--- a/Plugin/editpage.pm	Fri Jul 15 17:58:04 2011 +0200
+	+++ b/Plugin/editpage.pm	Sat Jul 16 03:01:13 2011 +0200
+	@@ -405,6 +405,10 @@
+	 		if ($config{rcs}) {
+	 			if (! $exists) {
+	 				rcs_add($file);
+	+				$message = "add $file";
+	+			}
+	+			else {
+	+				$message = "edit $file";
+	 			}
+	 
+	 			# Prevent deadlock with post-commit hook by

@@ -1,0 +1,99 @@
+I want to write my blog posts in a convenient format (Emacs org mode)
+but do not want commenters to be able to use this format for security
+reasons. This patch allows to configure which formats are allowed for
+writing comments.
+
+Effectively, it restricts the formats enabled with add_plugin to those
+mentioned in comments_allowformats. If this is empty, all formats are
+allowed, which is the behavior without this patch.
+
+The patch can be pulled from my repo ([gitweb](https://rtime.felk.cvut.cz/gitweb/sojka/ikiwiki.git/commitdiff/c42fd7d7580d081f3e3f624fd74219b0435230f6?hp=bfc9dc93c9f64a9acfff4683b69995d5a0edb0ea))
+
+    git pull git://rtime.felk.cvut.cz/sojka/ikiwiki.git restrict-comment-formats
+---
+
+<pre>
+From c42fd7d7580d081f3e3f624fd74219b0435230f6 Mon Sep 17 00:00:00 2001
+From: Michal Sojka <sojkam1@fel.cvut.cz>
+Date: Tue, 5 Mar 2013 10:54:51 +0100
+Subject: [PATCH] Add configuration to restrict the formats allowed for
+ comments
+
+I want to write my blog posts in a convenient format (Emacs org mode)
+but do not want commenters to be able to use this format for security
+reasons. This patch allows to configure which formats are allowed for
+writing comments.
+
+Effectively, it restricts the formats enabled with add_plugin to those
+mentioned in comments_allowformats. If this is empty, all formats are
+allowed, which is the behavior without this patch.
+---
+ IkiWiki/Plugin/comments.pm |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/IkiWiki/Plugin/comments.pm b/IkiWiki/Plugin/comments.pm
+index 285013e..151e839 100644
+--- a/IkiWiki/Plugin/comments.pm
++++ b/IkiWiki/Plugin/comments.pm
+@@ -90,6 +90,15 @@ sub getsetup () {
+ 			safe => 0,
+ 			rebuild => 0,
+ 		},
++		comments_allowformats => {
++			type => 'string',
++			default => '',
++			example => 'mdwn txt',
++			description => 'Restrict formats for comments to (no restriction if empty)',
++			safe => 1,
++			rebuild => 0,
++		},
++
+ }
+ 
+ sub checkconfig () {
+@@ -101,6 +110,8 @@ sub checkconfig () {
+ 		unless defined $config{comments_closed_pagespec};
+ 	$config{comments_pagename} = 'comment_'
+ 		unless defined $config{comments_pagename};
++	$config{comments_allowformats} = ''
++		unless defined $config{comments_allowformats};
+ }
+ 
+ sub htmlize {
+@@ -128,12 +139,18 @@ sub safeurl ($) {
+ 	}
+ }
+ 
++sub isallowed ($) {
++    my $format = shift;
++    return ! $config{comments_allowformats} || $config{comments_allowformats} =~ /\b$format\b/;
++}
++
+ sub preprocess {
+ 	my %params = @_;
+ 	my $page = $params{page};
+ 
+ 	my $format = $params{format};
+-	if (defined $format && ! exists $IkiWiki::hooks{htmlize}{$format}) {
++	if (defined $format && (! exists $IkiWiki::hooks{htmlize}{$format} ||
++				! isallowed($format))) {
+ 		error(sprintf(gettext("unsupported page format %s"), $format));
+ 	}
+ 
+@@ -332,7 +349,7 @@ sub editcomment ($$) {
+ 
+ 	my @page_types;
+ 	if (exists $IkiWiki::hooks{htmlize}) {
+-		foreach my $key (grep { !/^_/ } keys %{$IkiWiki::hooks{htmlize}}) {
++		foreach my $key (grep { !/^_/ && isallowed($_) } keys %{$IkiWiki::hooks{htmlize}}) {
+ 			push @page_types, [$key, $IkiWiki::hooks{htmlize}{$key}{longname} || $key];
+ 		}
+ 	}
+-- 
+1.7.10.4
+
+</pre>
+
+[[!tag patch]]
+
+> [[done]] --[[Joey]]

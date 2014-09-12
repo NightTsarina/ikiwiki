@@ -1,0 +1,10 @@
+[[!comment format=mdwn
+ username="https://launchpad.net/~ojwb"
+ nickname="ojwb"
+ subject="comment 6"
+ date="2013-08-26T03:20:05Z"
+ content="""
+As a Xapian database is updated, changes are written out straight away to most of the tables, but the postlist changes are batched up in memory and only written to disk just before they are committed (or to free up memory during a large transaction).  So the empty postlist table you're seeing means that some documents were indexed, but the indexer stopped running before anything was committed.  By default, there's an auto-commit every 10000 documents added, removed, or changed, so it presumably managed to process less than 10000 documents.
+
+The issue with 1.2.5 RPMs may be down to there being two versions of the Xapian perl bindings, both of which claim to be Search::Xapian and both of which have been packaged up as RPMs.  For Xapian 1.2.x, you probably want to use the XS bindings (perl-Search-Xapian) not those generated with SWIG (xapian-bindings-perl).  The SWIG-generated ones are aimed to replace the XS ones, but in 1.2.x they're not really ready for prime time.  If your perl bindings are described with a 4 coponent version (e.g. 1.2.15.0) then you should be good; if it's 3 components (e.g. 1.2.15) then you probably want the other ones.
+"""]]

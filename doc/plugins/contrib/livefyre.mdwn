@@ -1,0 +1,14 @@
+[[!template id=plugin name=livefyre core=0 author="[[cmauch]]"]]
+[[!tag  type/special-purpose]]
+
+[LiveFyre](http://www.livefyre.com) is a third party comment and discussion system similar in some ways to Disqus or IntenseDebate.  All three services use javascript to attach comments to your site without the need to use a native commenting system.  
+
+This plugin is designed to replace the commenting system in IkiWiki entirely.  It embeds LiveFyre comments on your ikiwiki blog or posts.  It is was originally based on the [Disqus Plugin](https://code.google.com/p/ikiwiki-plugin-disqus/).  After a few days of noticing odd page title names on the livefyre moderation interface, I updated the script to make use of JSON.  I made extensive use of the [integration guide](https://github.com/Livefyre/livefyre-docs/wiki/StreamHub-Integration-Guide) to get it all running.
+
+It's loud and messy and slow, but kind of neat too.
+
+Requires the [[!cpan JSON]], [[!cpan JSON::WebToken]], and [[!cpan Digest::MD5]] perl modules to be available. 
+
+You can grab the source [here](https://bitbucket.org/cmauch/ikiwiki/src/master/IkiWiki/Plugin/livefyre.pm)
+
+See the POD documention in the module for installation and configuration instructions.

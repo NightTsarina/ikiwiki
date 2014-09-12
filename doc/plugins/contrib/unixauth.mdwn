@@ -1,0 +1,21 @@
+[[!template id=plugin name=unixauth core=0 author="[[schmonz]]"]]
+[[!tag type/auth]]
+
+[[!template id=gitbranch branch=unixauth author="[[schmonz]]"]]
+
+This plugin authenticates users against the Unix user database. It presents a similar UI to [[plugins/passwordauth]], but simpler, as there's no need to be able to register or change one's password.
+
+To authenticate, either [checkpassword](http://cr.yp.to/checkpwd.html) or [pwauth](http://www.unixpapa.com/pwauth/) must be installed and configured. `checkpassword` is strongly preferred. If your web server runs as an unprivileged user -- as it darn well should! -- then `checkpassword` needs to be setuid root. (Or your ikiwiki CGI wrapper, I guess, but don't do that.) Other checkpassword implementations are available, notably [checkpassword-pam](http://checkpasswd-pam.sourceforge.net/).
+
+Config variables that affect the behavior of `unixauth`:
+
+* `unixauth_type`: defaults to unset, can be "checkpassword" or "pwauth"
+* `unixauth_command`: defaults to unset, should contain the full path and any arguments
+* `unixauth_requiressl`: defaults to 1, can be 0
+* `sslcookie`: needs to be 1 if `unixauth_requiressl` is 1 (perhaps this should be done automatically?)
+
+__Security__: [As with passwordauth](/security/#index14h2), be wary of sending usernames and passwords in cleartext. Unlike passwordauth, sniffing `unixauth` credentials can get an attacker much further than mere wiki access. Therefore, this plugin defaults to not even _displaying_ the login form fields unless we're running under SSL. Nobody should be able to do anything remotely dumb until the admin has done at least a little thinking. After that, dumb things are always possible. ;-)
+
+`unixauth` needs the `HTTPS` environment variable, available in ikiwiki 2.67 or later (fixed in #[502047](http://bugs.debian.org/502047)), without which it fails closed.
+
+The plugin has not been tested with newer versions of ikiwiki. [[schmonz]] hopes to have time to polish this plugin soon.

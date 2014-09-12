@@ -1,0 +1,46 @@
+This is an offshoot of [[this rant|translation/discussion/#index3h1]].
+
+Basically, while I can appreciate the [[plugins/po]] plugin for more or less "static" site, or more organised wikis, for certain wikis, it's way too overhead.
+
+## Stories
+
+The following stories should be answered by that plugin:
+
+ 1. a user browses the wiki, finds that the page is translated in another language and clicks on the language to see that page translated
+ 2. a user browses the wiki and gets automatically the right language
+ 3. an editor creates a wiki page, and it gets assigned a language
+ 4. a translator sees that page and translates it to another language, and that page is linked with the first one, both ways (in that stories 1 and 2 can work)
+ 5. (optional) a translator can see the list of pages needing translation and translate pages
+ 6. (optional) an editor changes a wiki page, the translated page is marked as "dirty" (ie. needing translation)
+
+## Fundamental constraints
+
+This issue is about creating a "wikipedia-like" translation structure where:
+
+ 1. there's no "master language"
+ 2. there's a loose connexion between pages
+ 3. not all pages are necessarily translated, nor is it a goal
+
+Those are fundamental constraints that should be required by that plugin. It doesn't mean that the plugin cannot be used otherwise, but that's all it needs to respect to fulfill the requirements here.
+
+## Optional constraints
+
+There can be more constraints that we may want to impose or not, which will make things more or less complicated:
+
+ 4. the page URLs need to be translatable - it would make [[!wikipedia Content_negotiation]] fail, so it would require the CGI for story 2. it would also make it harder to create the connexion between pages, as metadata would be needed in each page
+ 5. the language must not be visible in the URL - same as #4
+ 6. translation system must also be usable from the commandline/git repository - #5 and #6 would be basically impossible to implement there
+
+## Basic spec
+
+ 1. a hook that looks for foo.la.mdwn pages, where la is a language code (defined where..?), and that lists available translations - 
+    this is where most of the work needs to happen. we can probably reuse the builtin template stuff that got injected with the [[plugins/po]] plugin was imported, to start with
+ 2. instructions on how to setup [[!wikipedia Content_negotiation]] so that the above works out of the box - just documentation
+ 3. a button to create such translations - that would be through the [[pageactions hook|plugins/write/#index15h3]]
+ 4. a default language setting? - that's obviously the getsetup hook
+ 5. a set of language code settings? - same
+ 6. content-negotiation - the po module has good code for that
+
+## Authors
+
+ * [[anarcat]]

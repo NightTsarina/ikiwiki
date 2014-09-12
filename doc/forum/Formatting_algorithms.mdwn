@@ -1,0 +1,54 @@
+I'm using ikiwiki for a software project, and in the design process one of the things I sometimes write  
+algorithms. It doesn't happen much, but for components of functional nature it's very useful.
+
+I've been thinking how to write them in the wiki. I can use a numbered list and manually make  
+keywords __bold__, but it's not optimal. I could also use plain text formatting and indent using tabs,  
+but again there is no highlighting of any keywords or formatting of structures.  
+Before I do that, I'd like to know if there are better options.
+
+One option I know is LaTeX, which has some very nice packages. You write pseudo-code which looks  
+very much like source code, and the result looks great, very readable and high quality.
+
+I saw the [[plugins/teximg]] plugin, but the explanation there is poor: Does the plugin handle things  
+that aren't formulas? Could it work with a LaTeX document or with an algorithm environment?
+
+Of course, of you have other suggestions I'll be happy to hear. I want to make a careful choice before  
+I start writing many algorithms :-)
+
+> You may try to see if you can select a pseudo-code languages in one of the
+> highlight plugins ([[plugins/contrib/highlightcode]],
+> [[plugins/contrib/sourcehighlight]], [[plugins/highlight]], other ?). The
+> list of supported languages with the [[plugins/highlight]] plugin is
+> [[here|http://www.andre-simon.de/doku/highlight/en/langs.php]], and if you
+> cannot find your languages, I think you can define your own
+> [[here|http://www.andre-simon.de/doku/highlight/en/plugins.php]].
+>
+> -- [[Louis|spalax]]
+
+>> Thanks, I looked at it. I don't think there's any special language for algorithms
+>> (anyway I couldn't find any), but for the record I found the following possibilities:
+>>
+>> 1. LaTeX: Not very readable in source form, but could be highlighted, didn't try
+>> 2. Writing in a subset of Python/Pascal/Fortran and using their highlighting
+>> 3. Define a new highlight syntax
+>>
+>> What about [[plugins/teximg]]? If it can be used to generate algorithms from LaTeX, it would be
+>> an easy excellent solution.
+>>
+>> --[[fr33domlover]]
+
+> [[plugins/teximg]] is the best thing that currently exists. Since it isn't
+> enabled on this wiki, and the author's ikiwiki has disappeared, I put one of
+> the test formulas into a private test wiki of mine. Here's a screenshot:
+> <http://imgur.com/nT6mefx>
+> 
+> I think it would be great if someone [[wrote a
+> plugin for something nicer|todo/Add_nicer_math_formatting]]. -- [[Jon]]
+
+>> [[plugins/teximg]] is fine for math (al least for GUI browsers, I didn't try with w3m etc.),
+>> but what I'm looking for is a solution for formatting **algorithms**. If teximg can help
+>> with that, great, otherwise there's the 3 workarounds I mentioned above.
+>>
+>> Do you have any ideas not mentioned? :-)
+>>
+>> -- [[fr33domlover]]

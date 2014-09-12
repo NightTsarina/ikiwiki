@@ -1,0 +1,9 @@
+[[!template id=gitbranch branch=smcv/ready/urlto author="[[Simon_McVittie|smcv]]"]]
+[[!tag patch]]
+
+urlto() has a special-case for a zero-length first argument, but it
+produces a relative path even if the third argument is given and true.
+
+My `ready/urlto` branch simplifies this special case so it works. --[[smcv]]
+
+[[merged|done]] --[[Joey]] 

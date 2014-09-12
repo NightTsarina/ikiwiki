@@ -1,0 +1,44 @@
+In SVN commits 3478, 3480, 3482, and
+3485, I added a fieldset around the passwordauth fields, and
+some additional documentation.  However, this needs some additional work to
+work correctly with the registration part of the form, as well as the
+buttons.  It may also need some CSS love, and some means to style multiple
+formbuilder fieldsets differently.  I reverted these four commits to avoid
+regressions before the 2.0 release; after the release, we should look at it
+again. --[[JoshTriplett]]
+
+FormBuilder forms can be made much more ameanable to styling by passing
+these parameters:
+
+	name => "signin",
+	template => {type => 'div'},
+
+This results in a form that uses div instead of a table for layout, and adds
+separate id attributes to every form element, including the fieldsets, so that
+different forms can be styled separately. The only downside is that it doesn't
+allow creating a custom template for the form, but a) nobody has done that and
+b) stylesheets are much easier probably. So I think this is the way to go, we
+just have to get stylin'. :-)
+
+	.fb_submit {
+		float: left;
+		margin: 2px 0;
+	}
+	#signin_openid_url_label {
+		float: left;
+		margin-right: 1ex;
+	}
+	#signin_openid {
+	        padding: 10px 10px;
+	        border: 1px solid #aaa;
+	        background: #eee; 
+	        color: black !important;
+	}
+
+That looks pretty good.. putting the passwordauth part in a box of its own with
+the submit buttons I don't know how to do.
+
+I'm happy enough with what we have now though, with the above improvements.
+Hope you are too, as I'm calling this [[done]]..
+
+--[[Joey]]

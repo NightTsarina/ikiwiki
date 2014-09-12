@@ -1,0 +1,44 @@
+#!/usr/bin/perl
+# This program uses the po plugin's internals to convert the po files that
+# it generates back into translated wiki source files that can be used as a
+# underlay for a non-English wiki.
+use warnings;
+use strict;
+use IkiWiki;
+
+# Load the passed setup file and initialize ikiwiki config.
+%config=IkiWiki::defaultconfig();
+require IkiWiki::Setup;
+IkiWiki::Setup::load(shift);
+IkiWiki::loadplugins();
+IkiWiki::checkconfig();
+
+require IkiWiki::Render;
+IkiWiki::srcdir_check();
+my ($files, $pages)=IkiWiki::find_src_files();
+
+foreach my $file (@$files) {
+	my $page=pagename($file);
+	$pagesources{$page}=$file; # used by po plugin functions
+}
+
+$IkiWiki::phase = IkiWiki::PHASE_RENDER;
+
+foreach my $lang (@{$config{po_slave_languages}}) {
+	my ($ll, $name)=IkiWiki::Plugin::po::splitlangpair($lang);
+	$config{destdir}="../underlays/locale/$ll";
+
+	foreach my $file (@$files) {
+		my $page=pagename($file);
+		my ($masterpage, $lang) = IkiWiki::Plugin::po::_istranslation($page);
+		next unless defined $lang && $lang eq $ll;
+		
+		my $content=IkiWiki::Plugin::po::po_to_markup($page, readfile(srcfile($file)));
+		# avoid wasting space if the page is not translated at all
+		my $mastercontent=readfile(srcfile($pagesources{$masterpage}));
+		if ($content ne $mastercontent) {
+			writefile($masterpage.".".$config{default_pageext},
+				$config{destdir}, $content);
+		}
+	}
+}

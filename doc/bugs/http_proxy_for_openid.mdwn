@@ -1,0 +1,85 @@
+If I try to authenticate using openid to my site, it tries to create a http or https connection to the openid server. This doesn't work, because the direct connection is blocked by the firewall.
+
+It would be good if ikiwiki supported setting up a proxy server to solve this.
+
+I have found if I add:
+
+    newenviron[i++]="HTTPS_PROXY=http://host.domain.com:3128";
+
+to IkiWiki/Wrapper.pm it solves the problem for https requests, however it obviously would be preferred if the proxy name is not hard coded.
+
+Also, the ability to set HTTPS\_CA\_FILE and HTTPS\_CA\_DIR might benefit some people. Then again, it I can't see any evidence that the SSL certificate of the server is being checked. See the [[bug_report|ssl_certificates_not_checked_with_openid]] I filed on this separate issue.
+
+Unfortunately, HTTP\_PROXY doesn't work for http:// requests, it looks like that library is different.
+
+---
+
+Update 2008-10-26:
+
+Better solution, one that works for both http and https, and uses config options. It appears to work...
+
+Note that using $ua->proxy(['https'], ...); won't work, you get a "Not Implemented" error, see <http://community.activestate.com/forum-topic/lwp-https-requests-proxy>. Also see [[!debbug 129528]].
+
+Also note that the proxy won't work with liblwpx-paranoidagent-perl, I had to remove liblwpx-paranoidagent-perl first.
+
+<pre>
+louie:/usr/share/perl5/IkiWiki/Plugin# diff -u openid.pm.old openid.pm
+--- openid.pm.old	2008-10-26 12:18:58.094489360 +1100
++++ openid.pm	2008-10-26 12:40:05.763429880 +1100
+@@ -165,6 +165,14 @@
+ 	        $ua=LWP::UserAgent->new;
+ 	}
+ 
++	if (defined($config{"http_proxy"})) {
++		$ua->proxy(['http'], $config{"http_proxy"});
++	}
++
++	if (defined($config{"https_proxy"})) {
++		$ENV{HTTPS_PROXY} = $config{"https_proxy"};
++	}
++
+ 	# Store the secret in the session.
+ 	my $secret=$session->param("openid_secret");
+ 	if (! defined $secret) {
+</pre>
+
+Brian May
+
+> Rather than adding config file settings for every useful environment 
+> variable, there is a ENV config file setting that can be used to set
+> any environment variables you like. So, no changed needed.
+> --[[Joey]] 
+
+>> One thing I don't like about using ikiwiki for tracking bugs is I don't
+>> get notified when changes are made :-(.
+>>
+>> Anyway, if you look at the code I pasted above, the environment variables
+>> do not work for http:// - you have to use $ua->proxy(...) for them.
+>> This is significant, because all openid servers in my version appear to have been
+>> defined with http:// not https://  in /usr/share/ikiwiki/openid-selector/ikiwiki/openid/openid-jquery.js
+>>
+>> Use $ua->env_proxy() to get it to read the environment variables. Then http:// does work.
+>>
+>> Unfortunately this breaks https:// even more - but nothing I do seems to make https:// work anymore.
+
+
+>>> LWP::UserAgent defaults to not caring about proxy settings in
+>>> the environment. (To give control over the result, I guess?) 
+>>> To get it to care, pass `env_proxy => 1` to the constructor. Affected
+>>> plugins: aggregate, openid, pinger. This probably wants to be on
+>>> by default, and might not need to be configurable. --[[schmonz]]
+
+>>>> Okay, in a real-world scenario it does need to be 
+>>>> configurable. A working implementation (tested with aggregate,
+>>>> not tested with the other two plugins) is in my git, commit
+>>>> 91c46819dee237a281909b0c7e65718eb43f4119. --[[schmonz]]
+
+>>>>> Oh, and according to the LWPx::ParanoidAgent docs, "proxy support is 
+>>>>> explicitly removed", so if ikiwiki can preferentially find that 
+>>>>> installed, even with the above commit, `openid` won't be able to 
+>>>>> traverse a proxy. --[[schmonz]]
+
+[[!template id=gitbranch branch=schmonz/proxy author="[[schmonz]]"]]
+
+>>>>>> I've redone this from scratch, much more simply, on a new
+>>>>>> branch. --[[schmonz]].

@@ -1,0 +1,29 @@
+I'd like to see some way to include certain files from the underlay only when the wiki has certain plugins enabled.  For example:
+
+* Only include smileys.mdwn and the smileys subdirectory if you enable the [[plugins/smiley]] plugin.
+* Exclude openid.mdwn if you disable the [[plugins/openid]] plugin.
+* Include shortcuts.mdwn only if you enable the [[plugins/shortcut]] plugin.
+* Include blog.mdwn only if you don't disable the [[plugins/inline]] plugin.
+* Include favicon.ico only if you enable the [[plugins/favicon]] plugin.
+* Include wikiicons/diff.png (and the wikiicons directory) only if you enable the CGI.
+* Include a hypothetical restructuredtexthelp.rst or similar for other formats only with those formats enabled.
+
+I can see two good ways to implement this.  Ideally, with
+[[conditional_text_based_on_ikiwiki_features]] available, ikiwiki could
+parse a page like conditionalpages.mdwn, which could contain a set of
+conditional-wrapped page names; that seems like the most elegant and
+ikiwiki-like approach.  Alternatively, ikiwiki.setup could contain a
+Perl-generated exclude option by default; that would work, but it seems
+hackish.
+
+> Another way might be to have a third directory of source files where
+> plugins could drop in pages, and only build the files from there if their
+> plugins were enabled.
+> 
+> Using the conditionals in a page to control what other pages get built
+> feels complex to me.
+> 
+> Instead, this has been implmented as the `add_underlay()` function.
+> [[done]]
+> --[[Joey]]
+

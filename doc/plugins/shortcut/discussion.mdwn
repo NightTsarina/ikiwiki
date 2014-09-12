@@ -1,0 +1,18 @@
+The plugin depends on [[mdwn]].  If you have
+disabled [[mdwn]], to get [[shortcut]] work, you need
+commit in a shortcuts.ext (ext is `rcs|creole|html|txt|etc`),
+and edit/patch [[shortcut]].
+
+Maybe use the `default_pageext` is better than hardcode .mdwn?
+
+--[[weakish]]
+
+> done, it will use `default_pageext` now --[[Joey]] 
+
+---
+
+Instead of modifying the [[basewiki]]'s [[shortcuts]] file for local needs --
+thus copying it at some point and losing continuity with upstream enhancements --
+what about handling a `shortcuts-local.mdwn` or `shortcuts/local.mdwn` (if such
+a file exists in the wiki), and additionally process that one.  Possibily a
+conditional `\[[!inline]]` could be used.  --[[tschwinge]]

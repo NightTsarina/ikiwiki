@@ -1,0 +1,135 @@
+[[!tag wishlist]]I would quite like the ability to write a page (blog post in
+practice) but for the page to not be displayed until a date and time after it
+is added to the wiki. I've thought this through a bit, but would appreciate
+feedback from people before I go any further. Would anyone else find this
+useful?
+
+Thinking about how to implement this in ikiwiki, perhaps a conditional
+pagespec would be best (which could be tidied up into a template)
+
+    \[[!if test="current_date_before(<TMPL_VAR date>)"
+    then="""[[!tag draft]]"""
+    else="""[[!meta date="<TMPL_VAR date>"]]"""
+    ]]
+
+…pre-supposing a scheme whereby tagging 'draft' hides the page from an
+aggregation somewhere.  With a template, this could collapse to
+
+    \[[!template id=publishafter date="Thu Aug 30 14:13:06 BST 2012"]]
+
+This would require implementing the `current_date_before` pagespec.
+
+You would also need a regularly scheduled wiki refresh and a way of marking the
+unpublished pages as 'dirty' so they were always scanned on refresh until their
+publish date has occurred. That could perhaps be implemented via a small plugin
+which defined a pagespec which ensured the page was 'dirty':
+
+    \[[!meta date="<TMPL_VAR date>"]]
+    \[[!if test="!current_date_before(<TMPL_VAR date>)"
+    then="""[[!tag draft]][[!dirty]]"""
+    ]]
+
+The following is an attempt at the dirty part:
+
+    #!/usr/bin/perl
+    package IkiWiki::Plugin::dirty;
+    # provides a pagespec 'dirty' which ensures the page will always be
+    # re-scanned for content on wiki refresh.
+    
+    use warnings;
+    use strict;
+    use IkiWiki 3.00;
+    
+    hook(type => "preprocess", id => "dirty", call => \&preprocess);
+    hook(type => "needsbuild", id => "dirty", call => \&needsbuild);
+    
+    sub preprocess (@) {
+      my %params = @_;
+      $pagestate{$params{page}}{dirty}{dirty} = 1;
+      return '';
+    }
+    
+    sub needsbuild (@) {
+      my $pages= shift;
+      my %p2 = map { $_ => 1 } @$pages;
+      my %d2 = map { $_ => 1 } @$deleted;
+    
+      foreach my $page (keys %pagestate) {
+        if(exists $pagestate{$page}{dirty}{dirty}) {
+          push @$pages, $pagesources{$page} unless
+            (exists $p2{$pagesources{$page}} or exists $d2{$pagesources{$page}});
+          delete $pagestate{$page}{dirty}{dirty};
+        }
+      }
+    
+      return $pages;
+    }
+    
+    1
+
+Although it doesn't fit, the `current_date_before` pagespec could be implemented
+in the same plugin. I tried the following (before the trailing `1`):
+
+    package IkiWiki::PageSpec;
+    use Date::Parse;
+    
+    sub match_current_date_before ($$;@) {
+      shift;
+      my $date = shift;
+      my $out = str2time($date);
+      if(defined $out) {
+        return IkiWiki::SuccessReason->new("time before now") if $out < time();
+        return IkiWiki::FailReason->new("time not before now");
+      } else { return IkiWiki::ErrorReason->new("couldn't parse time $date")};
+    }
+
+I always hit the `ErrorReason` branch when I try to use it, even with strings
+which work fine in test scripts.  If anyone can help me debug that I'd be very
+grateful.
+If anyone has any clues as to why this doesn't work 
+
+Thoughts on the whole idea? — [[Jon]]
+
+> There is an old todo about it: [[tagging_with_a_publication_date]].
+> I feel my idea there about making a pagespec that is limited to
+> items in the present/past, combined with setting the meta data, is a good
+> way.. --[[Joey]]  
+
+>> Thanks for your response Joey. Should I merge these two TODOs, then?
+>> So if I understand you correctly, you would prefer some new pagespecs
+>> to match future/past dates, and a plugin which kept track of pages with
+>> a future date and kept them 'dirty' (similar to the above), which means
+>> avoiding the need for a `dirty` pagespec in the page itself. Is that
+>> about right?
+>> 
+>> I came up with the following, but I haven't adapted `dirty.pm` inline
+>> with my understanding above, yet.
+
+    sub match_infuture ($$;@) {
+      my $page = shift;
+      return IkiWiki::SuccessReason->new("page time is in the future")
+        if $IkiWiki::pagectime{$page} > time;
+      return IkiWiki::FailReason->new("page time is not in the future");
+    }
+
+>> I've managed to get my original suggestion working. The problem was
+>> I was using quotes when invoking the pagespec, which stopped `str2time`
+>> working. 
+>> 
+>> Let me know if I've understood your POV correctly and I'll see about
+>> tidying this up and putting it in a branch.
+>> 
+>> Finally, a way of scheduling future runs of ikiwiki *within ikiwiki
+>> itself* might be useful for other things too, and would avoid the 
+>> need for a cron job in this case. (I'm thinking of a plugin that
+>> implemented itself in terms of cron, or at, or both, or possibly
+>> other things depending on what people want to support). But that would
+>> be substantially more work, more than I can afford atm at least. — [[Jon]]
+
+> Some times ago, I wrote a Pagespec function that matches pages that have
+> creation date in the future: [[plugins/contrib/created_in_future/]]. It can
+> be enhanced to create the `current_date_before(<DATE>)` pagespec. The
+> interesting part of my plugin is that it makes IkiWiki rebuild pages on the
+> right date.
+>
+> -- [[Louis|spalax]]

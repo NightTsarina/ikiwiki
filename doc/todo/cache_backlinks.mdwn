@@ -1,0 +1,25 @@
+I'm thinking about caching the backlinks between runs. --[[Joey]] 
+
+* It would save some time (spent resolving every single link
+  on every page, every run). The cached backlinks could be
+  updated by only updating backlinks from changed pages.
+  (Saved time is less than 1/10th of a second for docwiki.)
+
+* It may allow attacking [[bugs/bestlink_change_update_issue]],
+  since that seems to need a copy of the old backlinks.
+  Actually, just the next change will probably solve that:
+
+* It should allow removing the `%oldlink_targets`, `%backlinkchanged`,
+  and `%linkchangers` calculation code. Instead, just generate
+  a record of which pages' backlinks have changed when updating
+  the backlinks, and then rebuild those pages.
+
+Proposal:
+
+* Store a page's backlinks in the index, same as everything else.
+
+* Do *something* to generate or store the `%brokenlinks` data.
+  This is currently generated when calculating backlinks, and
+  is only used by the brokenlinks plugin. It's not the right
+  "shape" to be stored in the index, but could be changed around
+  to fit.

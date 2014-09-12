@@ -1,0 +1,33 @@
+When I try to edit a page that has a forward slash in the URL, I get "Error:
+bad page name". I think the problem is because the forward slash is escaped as
+`%252F` instead of `%2F`.
+
+For example, if I go to `http://ciffer.net/~svend/tech/hosts/` and click Edit,
+I am sent to a page with the URL
+`http://ciffer.net/~svend/ikiwiki.cgi?page=tech%252Fhosts&do=edit`.
+
+I am running ikiwiki 3.20100504~bpo50+1 on Debian Lenny.
+
+
+> But on your page, the Edit link is escaped normally and correctly (using %2F).
+> Look at the page source!
+> 
+> The problem is that your web server is forcing a hard (302) redirect
+> to the doubly-escaped url. In wireshark I see your web server send back:
+
+	HTTP/1.1 302 Found\r\n
+	Apache/2.2.9 (Debian) PHP/5.2.6-1+lenny9 with Suhosin-Patch
+	Location: http://ciffer.net/~svend/ikiwiki.cgi?page=tech%252Fhosts&do=edit
+
+> You'll need to investigate why your web server is doing that... --[[Joey]]
+
+>> Thanks for pointing me in the right direction. I have the following redirect
+>> in my Apache config.
+
+	RewriteEngine on
+	RewriteCond %{HTTP_HOST} ^www\.ciffer\.net$
+	RewriteRule /(.*) http://ciffer.net/$1 [L,R]
+
+>> and my ikiwiki url setting contained `www.ciffer.net`, which was causing the
+>> redirect. Correcting the url fixed the problem. I'm still not sure why
+>> Apache was mangling the URL. --[[Svend]]

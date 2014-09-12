@@ -1,0 +1,154 @@
+[[!template id=plugin name=album author="[[Simon_McVittie|smcv]]"]]
+[[!tag type/chrome]]
+
+This plugin provides the [[ikiwiki/directive/album]] [[ikiwiki/directive]],
+which turns a page into a photo album or image gallery, containing all
+images attached to the album or its subpages. It also provides the
+[[ikiwiki/directive/albumsection]] and [[ikiwiki/directive/albumimage]]
+directives.
+
+This plugin automatically enables the [[filecheck]], [[img]], [[inline]],
+[[trail]] and [[transient]] plugins. The [[meta]] plugin is also
+recommended.
+
+## Demo
+
+* [HTML page of thumbnails](http://ikialbum.hosted.pseudorandom.co.uk/album/)
+  as an entry point to the album
+* Each thumbnail links to
+  [a "viewer" HTML page](http://ikialbum.hosted.pseudorandom.co.uk/album/img_0120/)
+  with a full size image, optional next/previous thumbnail links, and
+  optional [[plugins/comments]]
+
+### Altered Demo
+
+[[!template id=gitbranch branch=cbaines/album]]
+This uses the album plugin, with some altered css, and with the css applied to
+all of the themes.
+
+* [Simple album, rendered using mutiple themes](http://cbaines.net/projects/ikiwiki/album/dest/basic)
+  using the ikiwiki logo.
+
+## Installation
+
+[[!template id=gitbranch branch=smcv/album5 author="[[Simon_McVittie|smcv]]"]]
+
+Available from [[smcv]]'s git repository, in the `album5` branch.
+I've called it `album` to distinguish it from
+[[contrib/gallery|plugins/contrib/gallery]], although `gallery` might well be
+a better name for this functionality.
+
+(The Summer of Code [[plugins/contrib/gallery]] plugin does the
+next/previous UI in Javascript using Lightbox, which means that
+individual photos can't be bookmarked in a meaningful way, and
+the best it can do as a fallback for non-Javascript browsers
+is to provide a direct link to the image.)
+
+Updated, June 2014: integrated changes from [[KathrynAndersen]],
+Lukas Lipavsky and kjs
+
+An `album6` branch is also available, but is less suitable
+for manual installation since it needs core IkiWiki changes
+(until [[bugs/trails depend on everything]] is fixed).
+
+### Manual installation
+
+First, you need a version of ikiwiki with the [[trail]] plugin merged in
+(version 3.20120203 or later).
+
+Manual installation requires these files (use the "raw" link in gitweb
+to download):
+
+* [album.pm](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/IkiWiki/Plugin/album.pm)
+  in an `IkiWiki/Plugin` subdirectory of your configured `plugindir`
+* [albumviewer.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/templates/albumviewer.tmpl),
+  [albumitem.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/templates/albumitem.tmpl),
+  [albumnext.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/templates/albumnext.tmpl) and
+  [albumprev.tmpl](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/templates/albumprev.tmpl),
+   in your configured `templatedir`, or a `templates` subdirectory of your wiki repository
+* the album-related bits from the end of the
+  [stylesheet](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/blob/album5:/doc/style.css)
+  (put them in your local.css)
+
+## Changing the templates
+
+When a viewer page is generated or inlined into an album, the template can
+contain these extra variables:
+
+* `<TMPL_VAR ALBUM>` - page name of the album
+* `<TMPL_VAR ALBUMURL>` - relative URL to the album
+* `<TMPL_VAR ALBUMTITLE>` - title of the album, usually taken from
+  a [[ikiwiki/directive/meta]] directive
+* `<TMPL_VAR CAPTION>` - caption for the image
+* `<TMPL_VAR THUMBNAIL>` - a small [[ikiwiki/directive/img]] for the image
+* `<TMPL_VAR IMAGEWIDTH>` - width of the full-size image in pixels
+* `<TMPL_VAR IMAGEHEIGHT>` - height of the full-size image in pixels
+* `<TMPL_VAR IMAGEFILESIZE>` - size of the image, e.g. `1.2 MiB`
+* `<TMPL_VAR IMAGEFORMAT>` - format of the image, typically `JPEG`
+
+The template for the viewer page can also contain:
+
+* `<TMPL_VAR IMG>` - a large [[ikiwiki/directive/img]] to display the image
+* `<TMPL_VAR PREV>` - a link to the previous viewer, typically with a
+  thumbnail
+* `<TMPL_VAR NEXT>` - a link to the next viewer, typically with a
+  thumbnail
+
+## Including album entries elsewhere
+
+To display images from elsewhere in the wiki with the same appearance as
+an [[ikiwiki/directive/album]] or [[ikiwiki/directive/albumsection]],
+you can use an [[ikiwiki/directive/inline]] with the `albumitem`
+template:
+
+	\[[!inline pages="..." sort="-age" template="albumitem"]]
+
+## Bugs
+
+* There's currently a hard-coded list of extensions that are treated as
+  images: `png`, `gif`, `jpg`, `jpeg` or `mov` files. More image and video
+  types could be added in future.
+
+* Videos aren't currently handled very well; ideally, something like
+  totem-video-thumbnailer would be used.
+
+* The plugin doesn't do anything special to handle albums that are subpages
+  of each other. If, say, `debconf` and `debconf/monday` are both albums,
+  then `debconf/monday/p100.jpg` will currently be assigned to one or the
+  other, arbitrarily. It should probably pick the closest (longest) album name.
+  (I'm not sure that it can do this reliably, though, since the scan stage
+  runs in an undefined order.)
+
+* The plugin doesn't do anything special to handle photos with similar names.
+  If you have `p100.jpg` and `p100.png`, one will get a viewer page called
+  `p100` and the other will be ignored. (I'm not sure what we could do better,
+  though.)
+
+* If there's no `albumimage` in a viewer page, one should probably be appended
+  automatically.
+
+## TODO
+
+* The generated viewer page should extract as much metadata as possible from
+  the photo's EXIF tags (creation/modification dates, author, title, caption,
+  copyright). [[smcv]] once had a half-written implementation which runs
+  `scanimage` hooks, and an `exiftool` plugin using [[!cpan Image::ExifTool]]
+  as a reference implementation of that hook, but has lost that code somewhere :-(
+
+* There should be an option to reduce the size of photos and write them into
+  an underlay (perhaps just the transient underlay), for this workflow:
+
+  * your laptop's local ikiwiki has two underlays, `photos` and `webphotos`
+  * `photos` contains full resolution photos with EXIF tags
+  * for each photo that exists in `photos` but not in `webphotos`, the album
+    plugin automatically resamples it down to a web-compatible resolution
+    ([[smcv]] uses up to 640x640), optimizes it with `jpegoptim`, strips out
+    all EXIF tags, and and writes it into the corresponding location
+    in `webphotos`
+  * `webphotos` is what you rsync to the web server
+  * the web server's ikiwiki only has `webphotos` as an underlay
+
+* Eventually, there could be a specialized CGI user interface to batch-edit
+  all the photos of an album (so for each photo, you get an edit box each for
+  title, author, copyright etc.) - this would work by making programmatic
+  edits to all the `albumimage` directives.

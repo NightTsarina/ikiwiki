@@ -1,0 +1,44 @@
+When I create a new page and upload an attachment all is fine.
+
+If I try to upload a second attachment (or remove the previously uploaded attachment), no upload happens. Instead the page gets created. No matter what I typed in, I just get a map to show the attachment. Now I can edit this page and everything is fine again.
+
+Another workaround is to first save the text and then edit and upload the rest.
+
+Is this a problem on my site or does anyone else see this?
+
+(If it's my fault feel free to move this to [[forum]].)
+
+> I don't see a behavior like that. 
+> I don't know what you mean when you say "I just get a map to show the
+> attachment" A map?
+> 
+> What version of ikiwiki? What browser? Is javascript enabled? --[[Joey]] 
+
+>> I mean the [[ikiwiki/directive/map]] directive.
+>> It was ikiwiki 3.20110430.
+>> Tried Firefox and uzbl (webkit) with or without javascript.
+>>
+>> Just updated to 3.20110905. Now the problem has changed. Instead of saving the page with the second upload and leading me to it, it leaves me in the editform but creates the page anyway.
+>> When saving I get informed, that someone else created the page. Obviously it was ikiwiki itself with the mentioned map:
+>> \[[!map pages="path/to/page/* and ! ...
+>>
+>> This told me that [[plugins/autoindex]] is the bad guy. Deactivating this plugin helps out. Don't know if this is worth fixing... I can live without that plugin. --bacuh
+
+>>> The right fix would probably be for `do=create` to allow replacing a page
+>>> in the transient underlay without complaining (like the behaviour that
+>>> `do=edit` normally has).
+
+>>>> ... which it turns out it already does. --[[smcv]]
+
+>>> That wouldn't help you unless [[plugins/autoindex]]
+>>> defaulted to making transient pages (`autoindex_commit => 0`), but if we
+>>> can fix [[removal_of_transient_pages]] then maybe that default can change?
+>>> --[[smcv]]
+
+>>>> It turns out that with `autoindex_commit => 0`, the failure mode is
+>>>> different. The transient map is created when you attach the
+>>>> attachment. When you save the page, it's written into the srcdir,
+>>>> the map is deleted from the transientdir, and the ctime/mtime
+>>>> in the indexdb are those of the file in the srcdir, but for some
+>>>> reason the HTML output isn't re-generated (despite a refresh
+>>>> happening). --[[smcv]]

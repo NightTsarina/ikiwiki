@@ -1,0 +1,22 @@
+[[!comment format=mdwn
+ username="https://launchpad.net/~tale"
+ nickname="tale"
+ subject="branch = master, still no luck"
+ date="2011-12-28T03:22:57Z"
+ content="""
+I learned from docs setting gitorigin_branch to empty string disables git pushing and pulling. So guessing 
+
+gitorigin_branch => 'master',
+
+seemed a good idea. 
+
+However, now ikiwiki -setup gives:
+
+    taleman@porixi:~$ ikiwiki -setup ikiwiki.setup 
+    successfully generated /var/www/ikiwiki/debian.fi/ikiwiki.cgi
+    successfully generated /home/taleman/wiki/wiki.git/hooks/post-update
+    fatal: 'master': unable to chdir or not a git archive
+    fatal: The remote end hung up unexpectedly
+    'git pull master' failed:  at /usr/share/perl5/IkiWiki/Plugin/git.pm line 195.
+    taleman@porixi:~$
+"""]]

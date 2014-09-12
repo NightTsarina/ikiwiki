@@ -1,0 +1,185 @@
+I believe the `trail3-integrated` and `trail3-prebuild` branches address
+Joey's review comments from IRC:
+
+    06-12-2011 19:01:07 <joeyh>: ok, light review finished. so, if you want
+    to make a branch with inline trail=yes, and perhaps also adding a hook
+    so you don't need to inject, I think I can merge it right away
+
+I haven't published instructions for using this version as a
+standalone plugin, because it needs core and inline changes.
+
+Commits up to 63bb8b42 make the trail plugin better-integrated,
+including `\[[!inline trail=yes]]`. 63bb8b42 is the commit to
+merge if you don't like the design of my hooks.
+
+Commit 24168b99 adds a `build_affected` hook, run at about the
+same time as `render_backlinks`, and uses it to render the
+extra pages. This removes the need for `trail` to inject
+anything. In principle, backlinks etc. could use this hook
+too, if they weren't core.
+
+Commit d0dea308 on the `trail3-prebuild` branch adds a
+`prebuild` hook, which runs after everything has been scanned
+but before anything is rendered. This removes the need
+for `trail` to run its old `prerender` function in its
+render hooks (preprocess, pagetemplate etc.) to collate
+metadata before it renders anything. However, I'm not sure
+that this is really the right thing to do, which is why it's
+in its own branch: the `prebuild` hook is a lot like
+`needsbuild` (but later), so it's called even if no trail
+or trail member has actually been edited.
+
+For it to be useful for `trail`, the `prebuild` hook has to run
+after both pagespecs and sorting work. The other use case
+I've seen for a similar hook was for Giuseppe Bilotta to
+sort an inline-of-inlines by mtime of newest post, but that
+can't be the same hook, because it has to run after pagespecs
+work, but before sorting.
+
+--[[smcv]]
+
+> I've merged trail3-integrated, but not prebuild. I don't exactly dislike
+> prebuild, but dunno that the hook prolieration is worth the minor cleanup
+> it allows in trail. --[[Joey]]
+
+>> Hmm, t/trail.t is failing several tests here. To reproduce, I build the
+>> debian package from a clean state, or `rm -rf .t` between test runs. --[[Joey]]
+
+<pre>
+t/trail.t .................... 1/? 
+#   Failed test at t/trail.t line 211.
+#   Failed test at t/trail.t line 213.
+#   Failed test at t/trail.t line 215.
+#   Failed test at t/trail.t line 217.
+#   Failed test at t/trail.t line 219.
+#   Failed test at t/trail.t line 221.
+#   Failed test at t/trail.t line 223.
+#   Failed test at t/trail.t line 225.
+#   Failed test at t/trail.t line 227.
+#   Failed test at t/trail.t line 229.
+#   Failed test at t/trail.t line 231.
+</pre>
+
+> Looking at the first of these, it expected "trail=sorting n=sorting/new p="
+> but gets: "trail=sorting n=sorting/ancient p=sorting/new"
+>
+> Looking at the second failure, it expected "trail=sorting n=sorting/middle p=sorting/old$"
+> but got: "trail=sorting n=sorting/old p=sorting/end"
+> 
+> Perhaps a legitimate bug? --[[Joey]] 
+
+>> I saw this while developing, but couldn't reproduce it, and assumed
+>> I'd failed to update `blib` before `make test`, or some such.
+>> In fact it's a race condition, I think.
+>>
+>> The change and failure here is that `sorting.mdwn` is modified
+>> to sort its trail in reverse order of title. Previously, it
+>> was sorted by order of directives in the page, and secondarily
+>> by whatever sort order each directive specified (e.g.
+>> new, old and ancient were sorted by increasing age).
+>> `old` appearing between `new` and `ancient`, and `new` appearing
+>> between `end` and `old`, indicates that this re-sorting has not
+>> actually taken effect, and the old sort order is still used.
+>>
+>> I believe this is because the system time (as an integer) remained
+>> the same for the entire test, and mtimes as used in ikiwiki
+>> only have a 1-second resolution. We can either fix this with
+>> utime or sleep; I chose utime, since sleeping for 1 second would
+>> slow down the test significantly. Please merge or cherry-pick
+>> `smcv/trail-test` (there's only one commit). --[[smcv]]
+
+----
+
+[[!template id=gitbranch branch=smcv/ready/trail author=smcv]]
+
+Some later changes to trail:
+
+* Display the trail links at beginning/end of default `page.tmpl`
+  as suggested on IRC
+* Improve CSS, particularly in blueview and goldtype themes
+  ([example](http://blueview.hosted.pseudorandom.co.uk/posts/second_post/))
+* Fix a possible bug regarding state deletion
+
+--[[smcv]]
+
+> Applied --[[Joey]] 
+
+----
+
+### Trail plugin creates unexpected interdependencies?
+*(ikiwiki master branch 2014-06-06 also tested with 3.20140228 release)*
+
+I noticed the problem when using the [[/plugins/contrib/album]] plugin but a bit of testing revealed that the [[trail]] plugin, which is used by [[/plugins/contrib/album]] may be the cause of the problem.
+
+On a site with the following structure where all albumN.mdwn files have the `\[[!inline  pages="page(./album01/*)" trail="yes"]]` directive set. All albumN pages and imgN pages get rebuilt whenever any one of the albumN or imgN pages are changed and the command  `ikiwiki --setup wiki.setup --refresh --verbose`
+ is issued.
+
+    /index.mdwn                        Contains no links maps or inlines
+    |-album01.mdwn                 \[[!inline  pages="page(./album01/*)" trail="yes"]]
+    |-album01/
+    | |-imgA.mdwn
+    | |-imgB.mdwn
+    |
+    |-album02.mdwn                 \[[!inline  pages="page(./album02/*)" trail="yes"]]
+    |-album02/
+    | |-imgC.mdwn
+    | |-imgD.mdwn
+    |
+    |-album03.mdwn                 \[[!inline  pages="page(./album03/*)" trail="yes"]]
+    |-album03/
+    | |-imgE.mdwn
+    | |-imgF.mdwn
+
+Changing the index.mdwn page also triggers a full rebuild of all pages with [[trail]] directives. My sites tend to look like the above but with double digit numbers of files in at each level. Changing any file then means a full rebuild of a rather complex site which takes a long time.
+
+My setup and test may very well have mistakes but perhaps someone using the trail plugin could check (using the --verbose flag) if all their trails get rebuild when changing only one. I also find it curious that changes to the parent index.mdwn page triggers the same behaviour.
+
+I have removed a similar comment from the album discussion.
+
+ --[[kjs]]
+
+> I would expect changing imgE.mdwn to rebuild album03.mdwn (because album03
+> inlines imgE) and vice versa (because imgE uses album03's \[[!meta title]]).
+>
+> I would not expect changing imgE.mdwn or album03.mdwn to affect album02
+> or imgC.
+>
+> I would also not expect changing index.mdwn to rebuild anything else
+> unless there is a valid dependency reason to do so.
+>
+> Can you reproduce this problem in a wiki that does not contain anything
+> private, and publish its git repo somewhere? (I realise photo galleries
+> tend to be more personal/private than typical wikis, so you don't
+> necessarily want to link the real thing - that's why my album demos
+> tend to use dummy data). --[[smcv]]
+
+>> I was expecting the same depends pattern you describe.
+>> My photo wikis are mostly public so I've set up a publicly accessible repo 
+>> (update-server-info type, git clone the first link below), a low-res copy of 
+>> the underlay and a quick sanitized setup file.
+
+>>* [[http://www.kalleswork.net/downloads/stockholm/.git]]
+>>* [[http://www.kalleswork.net/downloads/stockholm.underlay.tar.gz]]
+>>* [[http://www.kalleswork.net/downloads/stockholm.setup]]
+
+>> It might be a bit unwieldly and the site itself at [[http://stockholm.kalleswork.net]] 
+>> uses a few tweaks to the album templates and css, but I don't currently 
+>> have access to the machine where I setup a cleaner debug wiki to test. 
+>> (travelling atm). The images will likely be distorted due to the up scaling 
+>> bug in the [[img]] plugin but other than that it should work.
+
+>> Let me know if you need anything else. Would be great to hear it works
+>> as expected for everyone else ;) --[[kjs]]
+
+>>> Hmm. Investigating the indexdb:
+>>>
+>>>     perl -le 'use Storable; my $index = Storable::retrieve("stockholm/.ikiwiki/indexdb"); use Data::Dumper; print Dumper $index' |less
+>>>
+>>> indicates that `20130504` depends on `internal(*)` and so does `20130505`.
+>>>
+>>> After adding some `Carp::cluck` calls to the bits of IkiWiki.pm that add
+>>> dependencies, this turns out to be two similar issues, in `album` and
+>>> `trail`: they each use `pagespec_match_list` with the pagespec
+>>> `internal(*)` in order to apply a trivial filter (accept everything)
+>>> to an existing list for its side-effect of sorting that list.
+>>> Bug filed as [[bugs/trails depend on everything]] --smcv

@@ -1,0 +1,54 @@
+The `edittemplate` directive is supplied by the [[!iki plugins/edittemplate desc=edittemplate]] plugin.
+
+This directive allows registering template pages, that provide default
+content for new pages created using the web frontend. To register a
+template, insert an [[ikiwiki/directive/edittemplate]] directive on some other
+page.
+
+	\[[!edittemplate template="bugtemplate" match="bugs/*"]]
+ 
+A recommended place to put the directive is on the parent page
+of the pages that will be created using the template. So the above
+example would be put on the bugs page. (Do not put the directive on the
+template page itself.)
+
+In the above example, the page named "bugtemplate" is registered as a
+template to be used when any page named "bugs/*" is created. To avoid
+the directive displaying a note about the template being registered, add
+"silent=yes".
+
+Often the template page contains a simple skeleton for a particular type of
+page, wrapped in a [[templatebody]] directive. For the bug report pages in
+the above example, it might look something like:
+
+	\[[!templatebody <<ENDBODY
+	Package: 
+	Version: 
+	Reproducible: y/n
+	Details:
+	ENDBODY]]
+
+The template page can also contain [[!cpan HTML::Template]] directives,
+like other ikiwiki [[templates]].
+
+These variables might be set:
+
+* `<TMPL_VAR name>` is replaced with the name of the page being
+  created.
+  
+* `<TMPL_VAR uuid>` is replaced with a version 4 (random) UUID
+  suitable for use in `\[[!meta guid="urn:uuid:<TMPL_VAR uuid>"]]`.
+  (Requires the `UUID::Tiny` Perl module if not running on Linux.)
+
+* `<TMPL_VAR time>` is replaced with the current (template generation)
+  time using a fixed format (RFC 3339, `%Y-%m-%dT%H:%M:%SZ`),
+  suitable for use in `\[[!meta date="<TMPL_VAR time>"]]`
+  (see [[meta]]) or `\[[!date "<TMPL_VAR time>"]]` (see [[date]]).
+
+Text outside the [[templatebody]] directive is not part of the template,
+and can be used to document it.
+
+If the template does not contain a [[templatebody]] directive, the entire
+source of the page is used for the template. This is deprecated.
+
+[[!meta robots="noindex, follow"]]

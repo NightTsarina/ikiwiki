@@ -1,0 +1,11 @@
+If you have a page like
+
+    \[[!if test="enabled(smileys)" then=":-P"]]
+
+then enabling or disabling the smileys plugin will not rebuild it.
+
+Unfortunately, I can't think of a good way to solve this without
+introducing a special case for `enabled()` in Render.pm, either a
+new dependency type `"enabled(smileys)" => $DEPENDS_ENABLED`
+or a special case that treats `"enabled(smileys)" => $DEPENDS_PRESENCE`
+differently. --[[smcv]]

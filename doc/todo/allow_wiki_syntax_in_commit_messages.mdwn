@@ -1,0 +1,21 @@
+Commit messages should allow wiki syntax, and RecentChanges should format them
+accordingly.
+
+--[[JoshTriplett]]
+
+That's a neat idea! It would probably have to be only the simpler bits,
+without preprocessor directives -- wouldn't want a commit message inlining
+a whole page into RecentChanges. Of course, it could only use _one_ of the
+available markups, ie the default markdown. --[[Joey]]
+
+To go along with this, the preview should show the formatted commit message.
+--[[JoshTriplett]]
+
+This is really easy to do now, but it would have to be limited to applying
+markdown formatting (or whatever formatter is default I suppose) to the
+content, and *not* to expanding any WikiLinks or preprocessor directives.
+Especially with the new static RecentChanges, expanding even wikilinks
+would be pretty tricky to do. Applying markdown formatting seems like a
+reasonable thing; it would make commit messages that have the form of a
+bulletted list be marked up nicely, and would also handle _emphasised_
+words etc, and even http links. --[[Joey]]

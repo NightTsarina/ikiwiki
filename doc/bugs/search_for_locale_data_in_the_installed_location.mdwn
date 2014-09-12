@@ -1,0 +1,25 @@
+It seems like gettext only searches for locale information in /usr/share/locale, by default. I installed ikiwiki into /usr/local, therefore the locale information wasn't found. This patch fixes the issue:
+
+    --- a/IkiWiki.pm
+    +++ b/IkiWiki.pm
+    @@ -1057,6 +1057,7 @@ sub gettext {
+                                    $gettext_obj=undef;
+                                    return shift;
+                            }
+    +                       $gettext_obj->dir("$installdir/share/locale/");
+                    }
+                    return $gettext_obj->get(shift);
+            }
+
+[[!tag patch patch/core]]
+-- [[ThomasBleher]]
+
+> According to my testing, this patch makes ikiwiki's localisation fail for
+> `LANG=fr_FR` when everything is installed to the default locations, 
+> though `LANG=es_ES` works. I don't understand this behavior, especially
+> since strace shows it successfully opening the file
+> `/usr/share/locale/fr/LC_MESSAGES/ikiwiki.mo`.
+> 
+> (Also, it should check that $installdir is set before using it.)
+> 
+> --[[Joey]]

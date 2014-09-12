@@ -1,0 +1,16 @@
+The use of typed links for tags and some of the consequent changes
+introduced some unwanted functionality variations in the tag system. Two
+problems in particular could be observed, when compared to the use of
+tags in older versions of IkiWiki:
+
+* tags in feeds (both rss and atom) would use the file path as their
+  name (e.g. you would have `<category term="tags/sometag" />` in an atom
+  item for a page tagged sometag with a tagbase of tags), whereas they
+  appeared pure before
+* tags containing a slash character would appear without the slash
+  character but be used with the slash character in other circumstances
+  (effect visible by tagging a page with a name such as "with/slash")
+
+I've written a [[patch]] to fix this issues by introducing a `tagname()` function that reverts `taglink()`, and it's available [[here|http://sprunge.us/SHRj]] as well as on my [[git|http://git.oblomov.eu/ikiwiki]]
+
+> [[Applied|done]], with some regexp improvements. --[[Joey]] 

@@ -1,0 +1,170 @@
+I am using ikiwiki 2.6.1.
+
+I can't figure out the locked pages.
+
+As an admin in preferences, I put in my Locked Pages:
+
+index and downloads
+
+I don't want anyone to be able to edit the front page or my downloads page.
+
+That didn't work. I am using a different web browser as a different non-ikiwiki-admin user.
+
+So I changed it to
+
+/index and /downloads
+
+That stopped me from editing the front page. It didn't say it was locked just repeatedly gave me the ikiwiki login. (How can I get it to tell me it is locked instead?)
+
+I also tried
+
+/index and /downloads/index
+
+But I could still edit my downloads page.
+
+Can someone share some hints on how to lock these two pages?
+
+My source pages for the lock are:
+
+source/downloads.mdwn
+source/index.mdwn
+
+My webpages to lock are:
+
+public\_html/downloads/index.html
+public\_html/index.html
+
+> So I tried again with using "or" instead of "and":
+>
+> index or downloads
+>
+> And that worked. I now get a message saying it is locked and cannot be edited.
+> To me saying "lock both 'index and downloads'" made sense while now it reads like: "lock either 'index or downloads'". Maybe the [[PageSpec]] should define "and" and "or" (beyond the examples it has).
+>
+> Also why did my "/index and /downloads" prevent editing the index by repeatedly showing login webpage?
+>
+> -JeremyReed
+
+>> I've clarified and/or in [[PageSpec]].
+>> 
+>> I can't reproduce "/index and /downloads" causing the login webpage to
+>> be shown repeatedly. Sure you weren't having some independent issue with
+>> logging in? --[[Joey]]
+
+----
+
+I have a page for a tag.  On that page I want to list every page on my wiki that has been so tagged.  Easy enough, right?
+
+> \[[!inline pages="link(Categories/Ikiwiki_Plugins)" feeds=no archive=yes sort=title template=titlepage]]
+
+> (I'm using tagbase => "Categories" because I'm converting from Mediawiki) 
+
+This works beautifully in my sandbox: <http://iki.u32.net/sandbox>  But it is totally blank on the page where I actually do want output!  <http://iki.u32.net/Categories/Ikiwiki_Plugins>
+
+How can I fix this?  --[[sabr]]
+
+> I don't see why that wouldn't work. Can I download the source to your
+> wiki from somewhere to investigate? --[[Joey]]
+
+----
+
+Should negation work with user(), with locked_pages in setup?  I
+experimented with setting locked_pages => 'user(someuser)' and was able to
+edit as a different user.  However, setting locked_pages =>
+'!user(someuser)' doesn't seem to allow edits for only 'someuser' - it
+locks out all users.
+
+> Negation works with anything in any PageSpec. I tested the case you
+> describe, and a negated pagespec worked for me; all users except the
+> listed user (and except wiki admins of course) were locked out.
+> --[[Joey]] 
+
+>> It must be a local problem, then, cause I've tried it with two separate 
+>> machines.  Both are running the most recent release of ikiwiki in 
+>> pkgsrc - 2.66.  Perhaps an update to a newer version would solve the issue.
+
+----
+
+Is there a way to refer to all subpages of the current page, if  the name of the 
+current page is not known (i.e. the pagespec is used in a template)? The ./ syntax
+does not seem suitable for this, as
+
+> \[[!map pages="./*"]]
+
+also lists the current page and all its siblings.
+
+---
+
+I am a little lost. I want to match the start page `/index.mdwn`. So I use
+
+    \[[!inline pages="/index"]]
+
+which does not work though. I also tried it in this Wiki. Just take a look at the end of the [[SandBox|sandbox]]. --[[PaulePanter]]
+
+> Unlike wikilinks, pagespecs match relative to the top of the wiki by
+> default. So lose the "/" and it will work. --[[Joey]]
+
+
+----
+
+I'd like to create a collapsable tree with a map, eg
+
+* top level item
+
+* * second level item1
+
+* * * content 1
+
+* * * content 2
+
+* * * content 3
+
+* * second level item2
+
+* * second level item3
+
+
+but I can't work out how to specify "all items at this level, and all directories at ../ and all the other directories to the root
+
+any ideas?
+
+> I don't think pagespecs currently support that. How would such a made-up
+> pagespec look? I can imagine it supporting something like `glob(../*) and not
+> glob(../*/*)` to match all "directories" of the parent page, and so on up
+> to the root. --[[Joey]] 
+
+>> I don't know, perhaps some way of nesting pagespecs 
+>>> glob(../* unless $_ eq 'second level item'{ glob 'second level item'/*}) 
+
+>> but that could get messy, perhaps a new cmd 'pagetree' or something 
+>> might be better? --Colin
+
+>>> You could probably do a lot worse than stealing terminology from 
+>>> [XPath Axes](http://www.w3.org/TR/xpath/#axes),
+>>> passing the "argument" through `bestlink` if there is one, and
+>>> treating an empty argument as "this page", something like:
+>>>
+>>> * `ancestor(/plugins/contrib/album)` matches `plugins` or
+>>>   `plugins/contrib`
+>>>   but not `plugins/map` or `plugins/contrib/album`
+>>>   (does it match `index`? answers on a postcard)
+>>> * `descendant(/plugins)` is basically `plugins/*`
+>>> * `child(/plugins)` is basically `plugins/* and !plugins/*/*`
+>>> * `self(/plugins)` is just `plugins` but without interpreting
+>>>   globs
+>>> * `ancestor-or-self(/plugins)`, `descendant-or-self(/plugins)`
+>>>   are syntactic sugar for e.g. `ancestor(/plugins) or self(/plugins)`
+>>> * `self()` always matches the current page (not destpage)
+>>> * `ancestor-or-self()` always matches the current pages and all
+>>>   pages that would go in its [[plugins/parentlinks]]
+>>>
+>>> XPath has `following-sibling` and `preceding-sibling` axes for
+>>> siblings, but pagespecs are unordered, so we'd probably want
+>>> to invent `sibling()` - so `sibling(/plugins/map)` matches
+>>> `plugins/inline` but not `plugins/map` or `plugins/contrib/album`.
+>>>
+>>> Then, the requested functionality would be `sibling() or ancestor()`,
+>>> or possibly `sibling() or ancestor() or self()`?
+>>> --[[smcv]]
+
+>>>> I like that idea! --[[KathrynAndersen]]

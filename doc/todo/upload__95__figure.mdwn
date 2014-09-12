@@ -1,0 +1,22 @@
+I would like to upload a svg figure to illustrate [[this tip|tips/Hosting_Ikiwiki_and_master_git_repository_on_different_machines/]] (this figure would also appear [[here|tips/distributed_wikis]]). 
+
+Unfortunately, Github shows [[raw code|https://github.com/paternal/ikiwiki/blob/paternal/upload-svg/doc/tips/Hosting_Ikiwiki_and_master_git_repository_on_different_machines/separate-web-git-servers.svg]] instead of the image. 
+
+[[!template  id=gitbranch branch=spalax/paternal/upload-svg browse="https://github.com/paternal/ikiwiki/tree/paternal/upload-svg" author="[[Louis|spalax]]"]]
+
+[[!tag patch]]
+
+--[[Louis|spalax]]
+
+> Unfortunately SVG can contain embedded JavaScript, so anyone who can
+> upload arbitrary SVG to this wiki can execute JavaScript in its security
+> context, leading to stealing login cookies and other badness. GitHub
+> won't display arbitrary user-supplied SVG for the same reasons.
+>
+> I've seen various attempts to sanitize SVG via a whitelist, but it's
+> just too large a specification to be confident that you're right, IMO.
+>
+> This particular SVG [[looks good to me|users/smcv/ready]] and I've
+> mirrored it in my own git repo. --[[smcv]]
+
+>> [[merged|done]] --[[smcv]]

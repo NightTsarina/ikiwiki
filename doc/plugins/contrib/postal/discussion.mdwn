@@ -1,0 +1,24 @@
+It seems like the filter 'postal-accept.pl' I wrote doesn't refresh thoroughly enough.  When a comment is added  it calls
+
+         IkiWiki::add_depends($page,$comments_page);
+
+And then after adding the actual comment, it ends with
+
+         IkiWiki::refresh();
+         IkiWiki::saveindex();
+
+Sure enough, the page being commented on is refreshed, but not any inline pages (e.g. tags pages, blog top level) that contain it.
+Is there a way to recursively refresh? Or should it work that way by default. I guess it is some part of the api that I don't understand, 
+since I think not many people grub about in the internals of ikiwiki this way.
+It would be nice to figure this out, doing a full rebuild every time I get a blog comment is not that fun.
+
+[[DavidBremner]]
+
+> Ikiwiki currently doesn't have support for transitive dependencies.
+> This is discussed deep inside [[todo/tracking_bugs_with_dependencies]]
+> and in [[todo/inlines_inheriting_links]]. 
+> 
+> FYI, the [[plugins/comments]] plugin avoids this problem by only showing the
+> comments on the page, and not on pages that inline it. --[[Joey]] 
+>> Ok, thanks for the speedy response. I guess I should do the same thing.
+>> [[DavidBremner]]

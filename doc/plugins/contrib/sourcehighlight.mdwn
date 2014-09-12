@@ -1,0 +1,30 @@
+[[!template id=plugin name=sourcehighlight core=0 author="[[DavidBremner]]"]]
+
+I noticed several places in the wiki talking about similar ideas, so I decided to put a page here to point to what I am working on.
+
+I have implemented a simple wrapper around
+ [source-highlight](http://www.gnu.org/software/src-highlite/).  You can find the latest version in 
+[git](http://pivot.cs.unb.ca/git?p=ikiplugins.git;a=blob_plain;f=IkiWiki/Plugin/sourcehighlight.pm;hb=HEAD).
+You must specify `highlight_lang=>"foo,bar"` in your setup file.
+where foo and bar are the (source-supported) languages you want to
+highlight
+### Issues
+
+- I would like to have a link to the raw source; using will_render() and then copying the file should work.
+
+> You might also like to look at the [[todo/source_link]] todo. -- [[Will]]
+
+- Is there a way to configure the colors used by source-highlight (other than editing the globally installed "default.style" file)? It would help if I could pass the command arbitrary command-line arguments; then I could configure which config file it's supposed to use. For instance, I'm not a fan of hard-coding the colors into the HTML output. IMHO, css-style formatting should be preferred. All that can be set via the command line ... --Peter
+
+> I don't really have time right now, but it should be easy to add, if you look at how src-lang is handled.  Patches are welcome :-) --[[DavidBremner]]
+
+Note that [[Will]] wrote a plugin that uses source-highlight also. It's
+available
+[[here|todo/automatic_use_of_syntax_plugin_on_source_code_files/discussion]].
+--[[Joey]]
+
+To be honest, [[Will]]'s version of this looks more polished.  I will try his 
+plugin and see if it can just replace mine. --[[DavidBremner]]
+
+
+*Updated* Now uses keepextension so multiple extensions should be OK

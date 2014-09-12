@@ -1,0 +1,67 @@
+### "meta openid" problems
+
+I have add the followning to _index.mdwn_ on my site.
+
+    \[[!meta openid="http://certifi.ca/lunix"
+    server="http://certifi.ca/_serve"]]
+
+This resulted in the following being added to my site
+
+    <link href="http://certifi.ca/_serve" rel="openid.server" />
+    <link href="http://certifi.ca/_serve" rel="openid2.provider" />
+    <link href="http://certifi.ca/lunix" rel="openid.delegate" />
+    <link href="http://certifi.ca/lunix" rel="openid2.local_id" /> -->
+
+Perhaps I have done something wrong but this fails to work when I try to log in to several sites using my sites url as my login.  
+If I edit index.html and remove the two openid2 lines all works fine.  
+**Is there a way to only add openid version 1 tags to my index.html ?  
+Or a way to make it work the way it is ?** --[Mick](http://www.lunix.com.au)
+
+> Before I think about adding a way to not add the openid 2 tags,
+> I'd like to know what the problem is. Is there something
+> wrong with the tags? Does your openid provider not support
+> openid 2, and the site you are logging into sees the openid 2 tags
+> and uses it, not falling back to openid 1? 
+> 
+> Since certifi.ca is a public openid provider (run by a
+> guy I know even!), I should be
+> able to reproduce your problem if you can tell me what
+> site(s) you are trying to log into. --[[Joey]]
+
+----------
+
+I was using _phpMyID_ and its not _openid2_ compliant so I switched to certifi.ca to counteract that but I really  
+want to go back to running my own provider.  
+I can't login to identi.ca.unless I comment out the openid2 lines.(this may be there problem, I get sent to certifi.ca's site and redirected back to identi.ca)    
+I will test all the different openid enabled sites I log into today and see what happens.  
+It seems that since I have moved my site to its final location and made it live over night I am able to login to most places now.   
+I do not have a proper understanding of the inner workings of openid so not exactly sure what part is failing but I think the problem  
+lays with the consumers not falling back to the openid1 tags when they are openid1 only consumers.  --[Mick](http://www.lunix.com.au)  
+
+> So, just to clarify, certifi.ca works ok (I verified this, logging into identi.ca using it).
+> You had the problem running your own openid provider which did not support 2.0, in which case,
+> consumers seem justified in not falling back (guess; I don't know the 2.0 spec).
+> The only way this seems fixable is to add an option to meta to allow disabling openid 2. Which
+> should be easy enough to do. --[[Joey]] 
+
+I can't log into identi.ca with openid2 tags. strange. I will look at that again today.  
+Having the option to disable openid2 tags would be perfect. 
+Thanks Joey. --[Mick](http://www.lunix.com.au)
+
+>> Actually, it seems that identi.ca / certifi.ca do
+>> not interoperate when using openid2. It actually
+>> fails half the time, and succeeds half the time;
+>> seems to be picking openid1 and openid2 randomly and failing
+>> on the latter. I have emailed Evan Prodromou about this weird behavior.
+>> Not clear to me if identi.ca or certifi.ca is at fault,
+>> but luckily he runs both..
+>> --[[Joey]] 
+
+Ahh so it's not just me.  
+It's handy having contacts in the _right_ places.  --[Mick](http://www.lunix.com.au)
+
+>> ikiwiki's next release will allow adding 'delegate=1' to the 
+>> meta directive to only delegate to openid1. --[[Joey]] 
+
+## awesome.  
+--[Mick](http://www.lunix.com.au)

@@ -1,0 +1,292 @@
+Since some preprocessor directives insert raw HTML, it would be good to 
+specify, per-format, how to pass HTML so that it goes through the format 
+OK. With Markdown we cross our fingers; with reST we use the "raw" 
+directive.
+
+I added an extra named parameter to the htmlize hook, which feels sort of
+wrong, since none of the other hooks take parameters. Let me know what 
+you think. --Ethan
+
+Seems fairly reasonable, actually. Shouldn't the `$type` come from `$page`
+instead of `$destpage` though? Only other obvious change is to make the
+escape parameter optional, and only call it if set. --[[Joey]]
+
+> I couldn't figure out what to make it from, but thinking it through, 
+> yeah, it should be $page. Revised patch follows. --Ethan
+
+>> I've updated the patch some more, but I think it's incomplete. ikiwiki
+>> emits raw html when expanding WikiLinks too, and it would need to escape
+>> those. Assuming that escaping html embedded in the middle of a sentence
+>> works.. --[[Joey]]
+
+>>> Revised again. I get around this by making another hook, htmlescapelink,
+>>> which is called to generate links in whatever language. In addition, it 
+>>> doesn't (can't?) generate
+>>> spans, and it doesn't handle inlineable image links. If these were 
+>>> desired, the approach to take would probably be to use substitution
+>>> definitions, which would require generating two bits of code for each
+>>> link/html snippet, and putting one at the end of the paragraph (or maybe
+>>> the document?).
+>>> To specify that (for example) Discussion links are meant to be HTML and
+>>> not rst or whatever, I added a "genhtml" parameter to htmllink. It seems
+>>> to work -- see <http://ikidev.betacantrips.com/blah.html> for an example.
+>>> --Ethan
+
+## Alternative solution
+
+[Here](http://www.jk.fr.eu.org/ikiwiki/format-escapes-2.diff) is a patch
+largely inspired from the one below, which is up to date and written with
+[[todo/multiple_output_formats]] in mind. "htmlize" hooks are generalized
+to "convert" ones, which can be registered for any pair of filename
+extensions.
+
+Preprocessor directives are allowed to return the content to be inserted
+as a hash, in any format they want, provided they provide htmlize hooks for it.
+Pseudo filename extensions (such as `"_link"`) can also be introduced,
+which aren't used as real extensions but provide useful intermediate types.
+
+--[[JeremieKoenig]]
+
+> Wow, this is in many ways a beautiful patch. I did notice one problem,
+> if a link is converted to rst and then from there to a hyperlink, the
+> styling info usially added to such a link is lost. I wonder if it would
+> be better to lose _link stuff and just create link html that is fed into
+> the rst,html converter. Other advantage to doing that is that link
+> creation has a rather complex interface, with selflink, attrs, url, and
+> content parameters.
+> 
+> --[[Joey]]
+
+>> Thanks for the compliment. I must confess that I'm not too familiar with
+>> rst. I am using this todo item somewhat as a pretext to get the conversion
+>> stuff in, which I need to implement some other stuff. As a result I was
+>> less careful with the rst plugin than with the rest of the patch.
+>> I just updated the patch to fix some other problems which I found with
+>> more testing, and document the current limitations.
+
+>> Rst cannot embed raw html in the middle of a paragraph, which is why
+>> "_link" was necessary. Rst links are themselves tricky and can't be made to
+>> work inside of words without knowledge about the context.
+>> Both problems could be fixed by inserting marks instead of the html/link,
+>> which would be replaced at a later stage (htmlize, format), somewhat
+>> similiar to the way the toc plugin works. When I get more time I will
+>> try to fix the remaining glitches this way.
+
+>> Also, I think it would be useful if ikiwiki had an option to export
+>> the preprocessed source. This way you can use docutils to convert your
+>> rst documents to other formats. Raw html would be loosed in such a
+>> process (both with directives and marks), which is another
+>> argument for `"_link"` and other intermediate forms. I think I can
+>> come up with a way for rst's convert_link to be used only for export
+>> purposes, though.
+
+>> --[[JeremieKoenig]]
+
+> Another problem with this approach is when there is some html (say a
+> table), that contains a wikilink. If the link is left up to the markup
+> lamguage to handle, it will never convert it to a link, since the table
+> will be processed as a chunk of raw html.
+> --[[Joey]]
+
+### Updated patch
+
+I've created an updated [patch](http://www.idletheme.org/code/patches/ikiwiki-format-escapes-rlk-2007-09-24.diff) against the current revision.  No real functionality changes, except for a small test script, one minor bugfix (put a "join" around a scalar-context "map" in convert_link), and some wrangling to get it merged properly; I thought it might be helpful for anyone else who wants to work on the code.
+
+(With that out of the way, I think I'm going to take a stab at Jeremie's plan to use marks which would be replaced post-htmlization.  I've also got an eye towards [[todo/multiple_output_formats]].)
+
+--Ryan Koppenhaver
+
+## Original patch
+[[!tag patch patch/core plugins/rst]]
+
+<pre>
+Index: debian/changelog
+===================================================================
+--- debian/changelog	(revision 3197)
++++ debian/changelog	(working copy)
+@@ -24,6 +24,9 @@
+     than just a suggests, since OpenID is enabled by default.
+   * Fix a bug that caused link(foo) to succeed if page foo did not exist.
+   * Fix tags to page names that contain special characters.
++  * Based on a patch by Ethan, add a new htmlescape hook, that is called
++    when a preprocssor directive emits inline html. The rst plugin uses this
++    hook to support inlined raw html.
+ 
+   [ Josh Triplett ]
+   * Use pngcrush and optipng on all PNG files.
+Index: IkiWiki/Render.pm
+===================================================================
+--- IkiWiki/Render.pm	(revision 3197)
++++ IkiWiki/Render.pm	(working copy)
+@@ -96,7 +96,7 @@
+ 		if ($page !~ /.*\/\Q$discussionlink\E$/ &&
+ 		   (length $config{cgiurl} ||
+ 		    exists $links{$page."/".$discussionlink})) {
+-			$template->param(discussionlink => htmllink($page, $page, gettext("Discussion"), noimageinline => 1, forcesubpage => 1));
++			$template->param(discussionlink => htmllink($page, $page, gettext("Discussion"), noimageinline => 1, forcesubpage => 1, genhtml => 1));
+ 			$actions++;
+ 		}
+ 	}
+Index: IkiWiki/Plugin/rst.pm
+===================================================================
+--- IkiWiki/Plugin/rst.pm	(revision 3197)
++++ IkiWiki/Plugin/rst.pm	(working copy)
+@@ -30,15 +30,36 @@
+ html = publish_string(stdin.read(), writer_name='html', 
+        settings_overrides = { 'halt_level': 6, 
+                               'file_insertion_enabled': 0,
+-                              'raw_enabled': 0 }
++                              'raw_enabled': 1 }
+ );
+ print html[html.find('<body>')+6:html.find('</body>')].strip();
+ ";
+ 
+ sub import {
+ 	hook(type => "htmlize", id => "rst", call => \&htmlize);
++	hook(type => "htmlescape", id => "rst", call => \&htmlescape);
++	hook(type => "htmlescapelink", id => "rst", call => \&htmlescapelink);
+ }
+ 
++sub htmlescapelink ($$;@) {
++	my $url = shift;
++	my $text = shift;
++	my %params = @_;
++
++	if ($params{broken}){
++		return "`? <$url>`_\ $text";
++	}
++	else {
++		return "`$text <$url>`_";
++	}
++}
++
++sub htmlescape ($) {
++	my $html=shift;
++	$html=~s/^/  /mg;
++	return ".. raw:: html\n\n".$html;
++}
++
+ sub htmlize (@) {
+ 	my %params=@_;
+ 	my $content=$params{content};
+Index: doc/plugins/write.mdwn
+===================================================================
+--- doc/plugins/write.mdwn	(revision 3197)
++++ doc/plugins/write.mdwn	(working copy)
+@@ -121,6 +121,26 @@
+ The function is passed named parameters: "page" and "content" and should
+ return the htmlized content.
+ 
++### htmlescape
++
++	hook(type => "htmlescape", id => "ext", call => \&htmlescape);
++
++Some markup languages do not allow raw html to be mixed in with the markup
++language, and need it to be escaped in some way. This hook is a companion
++to the htmlize hook, and is called when ikiwiki detects that a preprocessor
++directive is inserting raw html. It is passed the chunk of html in
++question, and should return the escaped chunk.
++
++### htmlescapelink
++
++	hook(type => "htmlescapelink", id => "ext", call => \&htmlescapelink);
++
++Some markup languages have special syntax to link to other pages. This hook
++is a companion to the htmlize and htmlescape hooks, and it is called when a
++link is inserted. It is passed the target of the link and the text of the 
++link, and an optional named parameter "broken" if a broken link is being
++generated. It should return the correctly-formatted link.
++
+ ### pagetemplate
+ 
+ 	hook(type => "pagetemplate", id => "foo", call => \&pagetemplate);
+@@ -355,6 +375,7 @@
+ * forcesubpage  - set to force a link to a subpage
+ * linktext - set to force the link text to something
+ * anchor - set to make the link include an anchor
++* genhtml - set to generate HTML and not escape for correct format
+ 
+ #### `readfile($;$)`
+ 
+Index: doc/plugins/rst.mdwn
+===================================================================
+--- doc/plugins/rst.mdwn	(revision 3197)
++++ doc/plugins/rst.mdwn	(working copy)
+@@ -10,10 +10,8 @@
+ Note that this plugin does not interoperate very well with the rest of
+ ikiwiki. Limitations include:
+ 
+-* reStructuredText does not allow raw html to be inserted into
+-  documents, but ikiwiki does so in many cases, including
+-  [[WikiLinks|ikiwiki/WikiLink]] and many
+-  [[Directives|ikiwiki/Directive]].
++* Some bits of ikiwiki may still assume that markdown is used or embed html
++  in ways that break reStructuredText. (Report bugs if you find any.)
+ * It's slow; it forks a copy of python for each page. While there is a
+   perl version of the reStructuredText processor, it is not being kept in
+   sync with the standard version, so is not used.
+Index: IkiWiki.pm
+===================================================================
+--- IkiWiki.pm	(revision 3197)
++++ IkiWiki.pm	(working copy)
+@@ -469,6 +469,10 @@
+ 	my $page=shift; # the page that will contain the link (different for inline)
+ 	my $link=shift;
+ 	my %opts=@_;
++	# we are processing $lpage and so we need to format things in accordance
++	# with the formatting language of $lpage. inline generates HTML so links
++	# will be escaped seperately.
++	my $type=pagetype($pagesources{$lpage});
+ 
+ 	my $bestlink;
+ 	if (! $opts{forcesubpage}) {
+@@ -494,12 +498,17 @@
+ 	}
+ 	if (! grep { $_ eq $bestlink } map { @{$_} } values %renderedfiles) {
+ 		return $linktext unless length $config{cgiurl};
+-		return "<span><a href=\"".
+-			cgiurl(
+-				do => "create",
+-				page => pagetitle(lc($link), 1),
+-				from => $lpage
+-			).
++		my $url = cgiurl(
++				 do => "create",
++				 page => pagetitle(lc($link), 1),
++				 from => $lpage
++				);
++
++		if ($hooks{htmlescapelink}{$type} && ! $opts{genhtml}){
++			return $hooks{htmlescapelink}{$type}{call}->($url, $linktext,
++							       broken => 1);
++		}
++		return "<span><a href=\"". $url.
+ 			"\">?</a>$linktext</span>"
+ 	}
+ 	
+@@ -514,6 +523,9 @@
+ 		$bestlink.="#".$opts{anchor};
+ 	}
+ 
++	if ($hooks{htmlescapelink}{$type} && !$opts{genhtml}) {
++	  return $hooks{htmlescapelink}{$type}{call}->($bestlink, $linktext);
++	}
+ 	return "<a href=\"$bestlink\">$linktext</a>";
+ }
+ 
+@@ -628,6 +640,14 @@
+ 				preview => $preprocess_preview,
+ 			);
+ 			$preprocessing{$page}--;
++
++			# Handle escaping html if the htmlizer needs it.
++			if ($ret =~ /[<>]/ && $pagesources{$page}) {
++				my $type=pagetype($pagesources{$page});
++				if ($hooks{htmlescape}{$type}) {
++					return $hooks{htmlescape}{$type}{call}->($ret);
++				}
++			}
+ 			return $ret;
+ 		}
+ 		else {
+</pre>

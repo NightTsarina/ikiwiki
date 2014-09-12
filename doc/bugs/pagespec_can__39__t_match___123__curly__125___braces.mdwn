@@ -1,0 +1,44 @@
+I want match pages which have actually curly braces in the names (like this one), but this matches a lot of pages without the braces in their names :( :
+
+[[!inline show="3" feeds="no" archive="yes" pages="*_{*}_*"]]
+
+(note: the inline above has been restricted to 3 matches to keep this page
+concise. Hopefully it is still clear that this page is not in the output set,
+and the 3 pages in the output set do not contain curly braces in their
+titles).
+
+When escaped, it doesn't work at all:
+
+[[!inline show="3" feeds="no" archive="yes" pages="*_\{*}_*"]]
+
+[[!inline show="3" feeds="no" archive="yes" pages="*_{*\}_*"]]
+
+More tests:
+
+"\*{\*":
+
+[[!inline show="3" feeds="no" archive="yes" pages="*{*"]]
+
+"\*\\{\*":
+
+[[!inline show="3" feeds="no" archive="yes" pages="*\{*"]]
+
+> This is due to the current handling of quoting and escaping issues
+> when converting a pagespec to perl code. `safequote` is used to
+> safely quote an input string as a `q{}` quote, and it strips
+> curlies when doing so to avoid one being used to break out of the `q{}`.
+> 
+> Alternative ways to handle it would be:
+>
+> * Escape curlies. But then you have to deal with backslashes
+>   in the user's input as they could try to defeat your escaping.
+>   Gets tricky.
+>
+> * Avoid exposing user input to interpolation as a string. One
+>   way that comes to mind is to have a local string lookup hash,
+>   and insert each user specified string into it, then use the hash
+>   to lookup the specified strings at runtime. [[done]]
+> 
+> --[[Joey]] 
+
+Thank you! I'll try it. --Ivan Z.

@@ -1,0 +1,169 @@
+[[!template id=gitbranch branch=jon/pagespec_alias author="[[Jon]]"]]
+[[!tag patch wishlist]]I quite often find myself repeating a boiler-plate
+[[ikiwiki/pagespec]] chunk, e.g.
+
+    and !*.png and !*.jpg...
+
+it would be quite nice if I could conveniently bundle them together into a
+pagespec "alias", and instead write
+
+    and !image()...
+
+I wrote the following plugin to achieve this:
+
+    <snip old patch; see git branch outlined above>
+
+I need to reflect on this a bit more before I send a pull request.  In
+particular I imagine the strict/warnings stuff will make you puke.  Also, I'm
+not sure whether I should name-grab 'alias' since [[todo/alias_directive]] is
+an existing wishlist item.
+
+> I think it would make sense to have "pagespec" in the name somehow.
+
+>> Good idea, how about `pagespecalias`? — [[Jon]]
+
+> No, the strict/warnings does not make me puke. Have you read my perl
+> code? :-P
+> 
+> Note that your XXX is right. It would be a security hole to not validate
+> `$key`, as anyone with websetup access could cause it to run arbitrary
+> perl code.
+> 
+> Well, except that websetup doesn't currently support configuring hashes
+> like used here. Which is a pity, but has led me to try to avoid using
+> such hashes in the setup file.
+
+> > If I removed the `getsetup` subroutine, it would not be exposed via
+> > website, is that right?  I suppose it doesn't hurt to validate key, even if
+> > this risk was not there.  Is the use of a hash here a blocker for adoption?
+> > — [[Jon]]
+
+> Have you considered not defining the pagespec aliases in the setup file, but
+> instead as directives on pages in the wiki? Using pagestate could store
+> up the aliases that have been defined. It could however, be hard to get
+> the dependencies right; any page that uses a pagespec containing 
+> an alias `foo` would need to somehow depend on the page where the alias
+> was defined. --[[Joey]] 
+
+> > I haven't thought the dependency issue through beyond "that might be hard".
+> > Personally, I don't like defining stuff like this in pages, but I appreciate
+> > some do.  There could be some complex scenarios where some pages rely on a
+> > pagespec alias defined on others; and could have their meanings changed by
+> > changing the definition.  A user might have permission to edit a page with a
+> > definition on it but not on the pages that use it, and similar subtle permission
+> > bugs.  I'm also not sure what the failure mode is if someone redefines an alias,
+> > and whether there'd be an unpredictable precedence problem.
+> > How about both methods? — [[Jon]]
+
+Here's an example setup chunk:
+
+     pagespec_aliases:
+       image: "*.png or *.jpg or *.jpeg or *.gif or *.ico"
+       helper: "*.css or *.js"
+       boring: "image() or helper()"
+
+The above demonstrates self-referential dynamic pagespec aliases.  It doesn't work,
+however, to add ' or internal()' to `boring`, for some reason.
+
+-- [[Jon]]
+
+> Probably needs to be `or internal(*)` --[[Joey]] 
+
+> > Ah yes, could be, thanks. — [[Jon]]
+
+> another useful pagespec alias for large maps:
+
+       basewiki: "sandbox or templates or templates/* or ikiwiki or ikiwiki/* or shortcuts or recentchanges or wikiicons/*"
+
+> -- [[Jon]]
+
+>> Useful indeed! --[[Joey]] 
+
+
+>>> I've tweaked my patch in light of your above feedback:  The plugin has been
+>>> renamed, and I now validate keys.  I've also added documentation and tests
+>>> to the branch.  I haven't read rubykat's code properly yet, and don't have
+>>> access at the time of writing (I'm on a beach in Greece ☺), but I expect it
+>>> would be possible to extend what I've got here to support defining the
+>>> aliases in a PageSpec, once the dependency stuff has been reasoned out
+>>> properly.
+>>>
+>>> I'd like to solve the issue of this not being web-configurable by
+>>> implementing support for more nested datatypes in [[plugins/websetup]]. —
+>>> [[Jon]]
+
+>>>> Well, it's a difficult problem. websetup builds a form using
+>>>> CGI::FormBuilder, which makes it easy to build the simple UI we have
+>>>> now, but sorta precludes anything more complicated. And anything with
+>>>> a nested datatype probably needs a customized UI for users to be able
+>>>> to deal with it. I don't think websetupability need be a deal-breaker
+>>>> for this patch. I personally like special pages like Kathryn is doing
+>>>> more than complex setup files. --[[Joey]]
+
+>>>>> I've ran out of time to keep working on this, so I'm just going to
+>>>>> submit it as a 'contrib' plugin and leave things at that for now.
+>>>>> — [[Jon]]
+
+---------------------------
+
+Based on the above, I have written an experimental plugin called "subset".
+It's in my "ikiplugins" repo on github, in the "experimental" branch.
+<https://github.com/rubykat/ikiplugins/blob/experimental/IkiWiki/Plugin/subset.pm>
+
+It takes Joey's suggestion of defining the subsets (aliases) as directives;
+I took the example of the [[plugins/shortcut]] plugin and designated a single special page as the one where the directives are defined,
+though unlike "shortcut" I haven't hardcoded the name of the page; it defaults to "subsets" but it can be re-defined in the config.
+
+I've also added a feature which one might call subset-caching; I had to override `pagespec_match_list` to do it, however.
+An extra parameter added to `pagespec_match_list` called `subset` which
+
+* limits the result to look *only* within the set of pages defined by the subset (uses the "list" option to pagespec_match_list to do this)
+* caches the result of the subset search so that the second time subset "foo" is used, it uses the stored result of the first search for "foo".
+
+This speeds things up if one is using a particular subset more than once, which one probably is if one bothered to define the subset in the first place.
+The speed increase is most dramatic when the site has a large number of pages and the number of pages in the subset is small.
+(this is similar to the "trail" concept I used in my [[plugins/contrib/report]] plugin, but not quite the same)
+
+Note that things like [[plugins/map]] can't make use of "subset" (yet) because they don't pass along all the parameters they're given.
+But [[plugins/contrib/report]] actually works without alteration because it does pass along all the parameters.
+
+Unfortunately I haven't figured out how to do the dependencies - I'd really appreciate help on that.
+
+--[[KathrynAndersen]]
+
+> > Cool!  I like the caching idea.  I'm not sure about the name.  I don't like defining
+> > stuff in pages, but I appreciate this is a matter of taste, and would be happy with
+> > supporting both. — [[Jon]]
+
+>>> I've now gone and completely re-done "subset" so that it is less like an alias, but it a bit clearer and simpler:
+>>> instead of having a separate "match_" function for every alias, I simply have one function, "match_subset"
+>>> which takes the name of the subset.  Thus a \[[!subset name="foo"...]] would be called `subset(foo)` rather than `foo()`.
+
+>>> There are a few reasons for this:<br/>
+>>> (a) it's more secure not to be evaluating code on the fly<br/>
+>>> (b) it's simpler<br/>
+>>> (c) (and this was my main reason) it makes it possible to do caching without having to have a separate "subset" argument.
+>>> I've done a bit of a hack for this: basically, the PageSpec is checked to see if the very start of the PageSpec is `subset(foo) and` or if the whole pagespec is just `subset(foo)` and if either of those is true, then it does the subset caching stuff.
+>>> The reason I check for "and" is that if it is "subset(foo) or something" then it would be an error to use the subset cache in that case.
+>>> The reason I just check the start of the PageSpec is because I don't want to have to do complex parsing of the PageSpec.
+
+>>> As for defining subsets in the config rather than on pages, I perfectly understand that desire, and I could probably add that in.
+
+>>> As for the name "subset"... well, it's even less like an alias now, and "alias" is already a reserved name.  What other names would you suggest?
+
+>>>--[[KathrynAndersen]]
+
+>>>> Regarding my comments:  I wasn't clear what you are/were intending to
+>>>> achieve with your modifications.  I've aimed for a self-contained plugin
+>>>> which could be merged with ikiwiki proper.  I think I initially took your
+>>>> developments as being an evolution of that with the same goal, which is
+>>>> why I commented on the (change of) name.  However, I guess your work is
+>>>> more of a fork than a continuation,  in which case you can call it
+>>>> whatever you like ☺  I like some of the enhancements you've made, but
+>>>> having the aliases/subsets/"things" work in any pagespec (inside map, or
+>>>> inline) is a deal-breaker for me. — [[Jon]]
+
+>>>>> I'm a bit confused by your statement "having the aliases/subsets/"things" work in any pagespec (inside map, or inline) is a deal-breaker for me".
+>>>>> Do you mean that you want them to work in any pagespec, or that you *don't* want them to work in any pagespec? -- [[KathrynAndersen]]
+
+>>>>>> I mean I would want them to work in any pagespec. — [[Jon]]

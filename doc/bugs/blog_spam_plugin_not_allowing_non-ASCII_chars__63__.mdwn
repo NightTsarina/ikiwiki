@@ -1,0 +1,15 @@
+Hi,
+
+I'm trying to add a comment, and ikiwiki fails with this error message:
+
+    Error: HTTP::Message content must be bytes at /usr/share/perl5/RPC/XML/Client.pm line 308
+
+This seems to happen because I had a non-ASCII character in the comment (an ellipse, …).
+The interesting part is that the comment preview works fine, just the save fails. Probably
+this means that the blogspam plugin is the culprit (hence the error in RPC::XML::Client library).
+I'm using version 3.20100815~bpo50+. Thanks!
+
+> I've filed an upstream bug about this on RPC::XML:
+> <https://rt.cpan.org/Ticket/Display.html?id=61333>
+> 
+> Worked around it in blogspam by decoding. [[done]] --[[Joey]]

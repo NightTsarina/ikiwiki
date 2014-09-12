@@ -1,0 +1,169 @@
+[[!tag plugins/meta patch]]
+[[!template id=gitbranch branch=jon/defaultmeta author="[[Jon]]"]]
+
+I'd like to define [[plugins/meta]] values to apply across all pages
+site-wide unless the pages define their own: default values for meta
+definitions essentially.
+
+    <snip old patch, see below for latest>
+
+-- [[Jon]]
+
+> This doesn't support multiple-argument meta directives like
+> `link=x rel=y`, or meta directives with special side-effects like
+> `updated`.
+>
+> The first could be solved (if you care) by a syntax like this:
+>
+>     meta_defaults => [
+>         { copyright => "© me" },
+>         { link => "about:blank", rel => "silly", },
+>     ]
+>
+> The second could perhaps be solved by invoking `meta::preprocess` from within
+> `scan` (which might be a simplification anyway), although this is complicated
+> by the fact that some (but not all!) meta headers are idempotent.
+> 
+> --[[smcv]]
+
+>> Thanks for your comment. I've revised the patch to use the config syntax
+>> you suggest. I need to perform some more testing to make sure I've
+>> addressed the issues you highlight.
+>> 
+>> I had to patch part of IkiWiki core, the merge routine in Setup, because
+>> the use of `possibly_foolish_untaint` was causing the hashrefs at the deep
+>> end of the data structure to be converted into strings. The specific change
+>> I've made may not be acceptable, though -- I'd appreciate someone providing
+>> some feedback on that hunk!
+
+>>> Well, re that hunk, taint checking is currently disabled, but
+>>> if the perl bug that disallows it is fixed and it is turned back on,
+>>> the hash values will remain tainted, which will probably lead to
+>>> problems.
+>>>
+>>> I'm also leery of using such a complex data structure in config.
+>>> The websetup plugin would be hard pressed to provide a UI for such a
+>>> data structure. (It lacks even UI for a single hash ref yet, let alone
+>>> a list.)
+>>> 
+>>> Also, it seems sorta wrong to have two so very different syntaxes to 
+>>> represent the same meta data. A user without a lot of experience will
+>>> be hard pressed to map from a directive to this in the setup file.
+>>>
+>>> All of which leads me to think the setup file could just contain
+>>> a text that could hold meta directives. Which generalizes really to
+>>> a text that contains any directives, and is, perhaps appended to the
+>>> top of every page. Which nearly generalizes to the sidebar plugin,
+>>> or perhaps something more general than that... 
+>>>
+>>> However, excessive generalization is the root of all evil, so 
+>>> I'm not necessarily saying that's a good idea. Indeed, my memory
+>>> concerns below invalidate this idea pretty well. --[[Joey]] 
+
+    <snip old patch>
+
+-- [[Jon]]
+
+>> Ok, I've had a bit of a think about this. There are currently 15 supported
+>> meta fields. Of these: title, licence, copyright, author, authorurl,
+>> and robots might make sense to define globally and override on a per-page
+>> basis.
+>> 
+>> Less so, description (due to its impact on map); openid (why would
+>> someone want more than one URI to act as an openid endpoint to the same
+>> place?); updated. I can almost see why someone might want to set a global
+>> updated value. Almost.
+>> 
+>> Not useful are permalink, date, stylesheet (you already have a global
+>> stylesheet), link, redir, and guid.
+>>
+>> In other words, the limitations of my first patch that [[smcv]] outlined
+>> are only relevant to defined fields that you wouldn't want to specify a
+>> global default for anyway.
+>>
+>>> I generally agree with this. It is *possible* that meta would have a new
+>>> field added, that takes parameters and make sense to use globally.
+>>> (Indeed, this later happened to some extent with the sortas parameters
+>>> being added to some metas.)
+>>> --[[Joey]] 
+>>
+>> Due to this, and the added complexity of the second patch (having to adjust
+>> `IkiWiki/Setup.pm`), I think the first patch makes more sense. I've thus
+>> reverted to it here.
+>>
+>> Is this merge-worthy?
+
+    <snip old patch>
+
+-- [[Jon]]
+
+>>> Merry Christmas/festive season/happy new year folks. I've been away from
+>>> ikiwiki for the break, and now I've returned to watching recentchanges.
+>>> Hopefully I'll be back in the mix soon, too. In the meantime, Joey, have
+>>> you had a chance to look at this yet? -- [[Jon]]
+
+>>>> Ping :) Hi.  [[Joey]], would you consider this patch for the next
+>>>> ikiwiki release? -- [[Jon]]
+
+>>> For this to work with websetup and --dumpsetup, it needs to define the
+>>> `meta_*` settings in the getsetup function.
+>>>> 
+>>>> I think this will be problematic with the current implementation of this
+>>>> patch. The datatype here is an array of hash references, with each hash
+>>>> having a variable (and arbitrary) number of key/value pairs.  I can't
+>>>> think of an intuitive way of implementing a way of editing such a
+>>>> datatype in the web interface, let alone registering the option in
+>>>> getsetup.
+>>>> 
+>>>> Perhaps a limited set of defined meta values could be exposed via
+>>>> websetup (the obvious ones: author, copyright, license, etc.) -- [[Jon]]
+>>>
+>>> I also have some concerns about both these patches, since both throw
+>>> a lot of redundant data at meta, which then stores it in a very redundant
+>>> way. Specifically, meta populates a per-page `%metaheaders` hash
+>>> as well as storing per-page metadata in `%pagestate`. So, if you have
+>>> a wiki with 10 thousand pages, and you add a 1k site-wide license text,
+>>> that will bloat the memory usage of ikiwiki by in excess of 2
+>>> megabytes. It will also cause ikiwiki to write a similar amount more data
+>>> to its state file which has to be loaded back in each
+>>> run.
+>>>
+>>> Seems that this could be managed much more efficiently by having
+>>> meta special-case the site-wide settings, not store them in these
+>>> per-page data structures, and just make them be used if no per-page
+>>> metadata of the given type is present. --[[Joey]]
+>>>> 
+>>>> that should be easy enough to do. I will work on a patch. -- [[Jon]]
+>>>>> Hi — I've written a new patch which I hope addresses the concerns raised
+>>>>> with the previous ones. The new approach is to hard-code in `scan()`
+>>>>> which of the meta types are supported in the setup file.  If one is
+>>>>> defined, then `scan()` calls `preprocess()`, as [[smcv]] suggested,
+>>>>> rather than stuffing redundant data into ikiwiki's data structures.
+>>>>> 
+>>>>> Two types supported in the setup file have optional arguments: `author`
+>>>>> and `title`.  These are supported by having special-cased setup keys
+>>>>> `meta_author_sortas` and `meta_title_sortas`.  Future expansion of the
+>>>>> number of supported types, or addition of arguments to existing ones,
+>>>>> can similarly be special-cased.
+>>>>> 
+>>>>> The setup data structure is no longer complicated with an
+>>>>> array-of-hashes, which means this is suitable for exposing via websetup.
+>>>>> `getsetup()` has been adjusted accordingly.
+>>>>> 
+>>>>> The patch can be found at the git branch described above.
+>>>>>  — [[Jon]]
+
+>>>>>> I wish I could take pity on you and just merge this, but 
+>>>>>> AFAICS it still suffers from the memory bloat described above.
+>>>>>> Specifically, when `scan` calls `preprocess`, it
+>>>>>> stores the metadata in `%pagestate` etc. --[[Joey]]
+
+>>>>>>> No pity required — but whoops, yes, that was a bit of a mistake
+>>>>>>> ☺ I guess I'll have to split the current `preprocess` in half.
+>>>>>>> — [[Jon]]
+
+>>>>>>>> I've been taking another look at this today, as I'm very keen to
+>>>>>>>> close various open loops of mine in IkiWiki to move on and do some
+>>>>>>>> other stuff.  However, I'm not actually *using* this at the moment,
+>>>>>>>> so whilst I think it's a good idea, I can't really motivate myself
+>>>>>>>> to fix it anymore. I guess for now, this should just rot. — [[Jon]]

@@ -1,0 +1,15 @@
+Hi,
+
+> Hi! :) First, many thanks for this enlightening information! You are leading the way in a glorious trail of flames! ;) -a
+
+I'm currently using git-annex with ikiwiki for a website of mine. [stockholm.kalleswork.net](http://stockholm.kalleswork.net). The site relies heavily on the osm and album plugins. The site just went online and is a bit of an experiment, things seem a bit fragile but works for now. (ikiwiki 3.20130904.1)(git-annex 4.20130904.1)
+
+The trick I had to do to get git-annex, ikiwiki and the album plugin to work was to initialize an annex remote in the `$srcdir`. Then block the bare origin (ie wiki.git folder) with `annex-sync = false` and `annex-ignore = true` on **both** the server and the working laptop. This is to avoid polluting the wiki.git bare repo with annex stuff.
+
+> Why are you ignoring the bare remote actually? It seems it would be the proper way to batch-upload files into the server... -a
+
+Another critical thing for this to work was to set the `$srcdir` on the server to direct mode `git-annex direct` before adding any content anywhere. On the laptop I can use indirect mode without problems.
+
+For now syncing annex, pushing updates to mdwns etc all seem to work and the album plugin picks up images etc. I'm sure there are problems ahead with this setup but it does seem to work. I barely know how to use git, git-annex and ikiwiki and much less understand how it works behind the scenes. So do let me know if there are fatal flaws in my setup ;) -- Kalle
+
+> I am not sure how git-annex'd files are pushed to the `$srcdir`. Usually, you clone from the bare repo, so any git annex command will work on that repository, yet you explicitely ignore it. How *do* you push files into the `$srcdir`? Only on the web interface? Thanks again! --[[anarcat]]

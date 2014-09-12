@@ -1,0 +1,149 @@
+it has been some years since the [[matching different kinds of links]] issue
+was tackled, but hardly a plugin is using it.
+
+in order to enhance on the [[todo/rel attribute for links]] and [[todo/better bug tracking support]]
+issues and to provide a more general infrastructure, i'd like to propose a
+generic plugin for typed links. it can be also viewed of a way to have
+[[todo/structured page data]] that consists of URLs inside the wiki.
+
+following the use case i've developed it for, i'll call it `blocks` for the
+moment (but am open to better suggestions).
+
+outline
+=======
+
+the plugin has a **configuration option** called `blocks_names`, which consists
+of pairs of verbs; the typical example is `blocks/blockedby`, but other values
+could be `next/prev up/down` or `owner/owns`.
+
+for each verb in the options, there is a **directive** which is used to state
+the relationship; relationships can be declared on both ends, so a page `bugA`
+with the contents `\[[!blocks bugB]]` is semantically equivalent to a page
+`bugB` with the contents `\[[!blockedby bugA]]`.
+
+for each verb, there is also a **pagespec** which matches all pages that are
+the origin of a relationship to a given page. if `developerA` `\[[!owns
+bug1]]`, then if `bug1` contains `\[[!map pages="owns(.)"]]`, it will show the
+owning developer. these specs match both ways, ie. if `bug1` `\[[!owner
+developerA]]`, the said map directive will still produce the same result.
+
+details
+=======
+
+* single word relationships vs. symmetric relationships
+
+  with some verbs, it is possible that a relationship is only used in one
+  direction (eg `index`, even though one could declare it as
+  `index/isindexof`).
+
+  > isindexof is not a very interesting relationship - it just clogs up
+  > the link-map, since the index is "the index of" all pages. I can't
+  > see any situation in which you'd want to do pagespec matching
+  > on it? --[[smcv]]
+
+  >> that's why i used `index` as an example of a one-direction relationship.
+  >>
+  >> it wouldn't clog up the link map, though: in order to cleanly match both
+  >> directions, when the "inverse" term of a relationship is used, the link in
+  >> taggedlinks uses the "forward" term, but switches the objects.
+  >>
+  >> --[[chrysn]]
+
+  other verbs are symmetric, eg. `equivalent`, which need different treatment.
+
+* "taglink" style directives
+
+  the [[plugins/tag]] plugin would be a special case for this plugin (apart
+  from the autotag and tagdir features). as there is a `\[[!taglink ...]]`
+  directive, there could be an analogous directive for every single directive.
+
+  > This is basically the traillink/trailitem duality, too.
+  > I'd be quite tempted to generalize to something like this:
+  >
+  >     We can't fix [[!link blocks="bug123" text="Bug 123"]] until we do this.
+  >
+  >     [[!hiddenlink owner="smcv"]]
+  >
+  > but perhaps that's too wordy?
+  >
+  > I think both trail and tag need their own special processing beyond the
+  > general case, but maybe not? --[[smcv]]
+
+  >> i'd be all in favor of having this unified and deeper; there has been the
+  >> idea of a `\[[!link]]` directive [[again|todo/link plugin perhaps too general__63__]]
+  >> and [[again|todo/do not make links backwards]].
+  >>
+  >> i like the `\[[!link text=""]]` and `[[!hiddenlink]]` conventions, but
+  >> think that ${REL}="${TARGET}" isn't ideal because it implies that a single
+  >> link can have more than one target. instead, i'd go for
+  >> `\[[!link to="bug123" rel="blocks" text="Bug 123"]]; as with the html rel
+  >> parameter, rel would be a list of whitespace separated values.
+  >>
+  >> positional parameters (`\[[!link bug123 rel="blocks" text="Bug 123"]]` or
+  >> even `\[[!link Bug 123|bug123 rel="blocks"]]`) would be possible, but i
+  >> prefer explicit syntax and not joining stings back again with the
+  >> whitespace that was split off it before.
+  >>
+  >> if the '|' character is not widespread in page names (which i assume it is
+  >> not), instead of using positional parameters in `\[[!link]]` for
+  >> shortcuts, we could extend the regular link syntax; the same relationship
+  >> could then be declared as `\[[Bug 123|bug123|blocks]]`; this would be an
+  >> easy extension to the original link syntax. it would even work for hidden links
+  >> (`\[[|smcv|owner]]`), which previously made no sense because a link with
+  >> neither a physicial representation nor metadat is of no use.
+  >>
+  >> --[[chrysn]]
+
+* implementation notes
+
+  the way pagespec hooks are implemented required some nasty perl tricks, for
+  which the people who showed me felt very bad for having spoilt me. indeed,
+  `no strict refs;` and `*$forward_name = $forward_match;` are not exactly
+  ideal. a change in the pagespec declaration api (why not just `hook` like
+  everything else) would make the implementation cleaner.
+
+  > How about replacing `blockedby(bug*)` with `linktype(blockedby bug*)` or
+  > something? Then you'd only need one pseudo-hook. --[[smcv]]
+
+  >> there has been the topic of pagespecs like `typedlink(type glob)` back in
+  >> the [[matching different kinds of links]] discussion, but it was removed
+  >> in favor of per-type matchers. --[[chrysn]]
+
+  >>> note to self: should use the ``inject`` function to avoid `no strict refs`. --[[chrysn]]
+
+* configuration location
+
+  i aimed for static configuration of the `block_names` in the setup file. this
+  could be made more general like in the [[plugins/shortcut]] plugin, but that
+  would make things more complex.
+
+* no html links with `rel=` yet
+
+  as there are no taglink style links between the articles so far, no htmllink
+  gets rendered that could carry the relationship name in its rel field.
+
+  having the inverse relationship description in backlinks (as in the link
+  created by the map directive in the example above) would be hard to
+  implement. (actually, i think it'd be easier to determine the rel values from
+  the taggedlinks for *every* htmllink than to influence the backlinks in this
+  plugin).
+
+* one direction also creates a normal link
+
+  due to the way add\_link treats relationships, the forward relationship is
+  always going to be reflected in the links/backlinks. a section of
+  [[todo/matching different kinds of links]] was dismissed with "let's not
+  worry about it", this plugin might be reason to worry about it again. (i'd
+  consider what is in @links to be a representation of which hyperlinks are
+  there, and in this case, none are generated).
+
+  > taglink and traillink already count as wikilinks without generating
+  > any visible HTML. --[[smcv]]
+
+implementation
+==============
+
+there is a working but slightly incomplete (basically where it comes to the
+details mentioned above) implementation in [[blocks.pm]].
+
+--[[chrysn]]

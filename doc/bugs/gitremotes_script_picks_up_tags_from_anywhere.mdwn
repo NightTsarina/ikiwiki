@@ -1,0 +1,22 @@
+[[!tag patch]]
+[[!template id=gitbranch branch=smcv/ready/no-tags author="[[smcv]]"]]
+
+The `gitremotes` script picks up tags from any repository, including those
+used for local .debs that were never actually present in Debian:
+
+    smcv@reptile% git tag | grep -c nmu
+    52
+
+This can be avoided with the `tagopt = --no-tags` option in .git/config;
+see <http://git.pseudorandom.co.uk/smcv/ikiwiki.git?a=shortlog;h=refs/heads/ready/no-tags>
+
+> *done* thanks. Also cleared propigated tags out of origin. 
+> 
+> Hmm, in testing I still see tags get pulled the first time a remote
+> is added. If those are then locally deleted, it doesn't pull them again
+> with the `--no-tags`.
+> --[[Joey]] 
+
+>> Oh, I see why. Try the same branch again... --[[smcv]]
+
+>>> [[done]] --[[Joey]] 

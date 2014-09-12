@@ -1,0 +1,46 @@
+I'm trying to use ikiwiki for the first time. In the start, I had problems
+with installing the package, because I don't have a root account on my
+server.
+
+When I solved this, I finally set up my wiki, but whenever I try to edit a
+page, I get an error: “Error: bad page name”.
+
+What am I doing wrong? The wiki is at
+<http://atrey.karlin.mff.cuni.cz/~onderka/wiki/>, the setupfile I used at
+<http://atrey.karlin.mff.cuni.cz/~onderka/wiki/ikiwiki.setup>.
+
+> This means that one of the checks that ikiwiki uses to prevent
+> editing files with strange or insecure names has fired incorrectly.
+> Your setup file seems fine.
+> We can figure out what is going wrong through a series of tests:
+> 
+> * Test if your perl has a problem with matching alphanumerics:
+>   `perl -le 'print int "index"=~/^([-[:alnum:]+\/.:_]+)$/'`
+> * Check if something is breaking pruning of disallowed files:
+>   `perl -le 'use IkiWiki; %config=IkiWiki::defaultconfig(); print ! IkiWiki::file_pruned("index")'`
+> --[[Joey]] 
+
+>>Both seem to run fine:
+
+    onderka@atrey:~$ perl -le 'print int "index"=~/^([-[:alnum:]+\/.:_]+)$/'
+    1
+    onderka@atrey:~$ perl -le 'use IkiWiki; %config=IkiWiki::defaultconfig(); print ! IkiWiki::file_pruned("index")'
+    1
+
+>>> Try installing this [instrumented
+>>> version](http://kitenet.net/~joey/tmp/editpage.pm) of
+>>> `IkiWiki/Plugin/editpage.pm`, which will add some debugging info
+>>> to the error message. --[[Joey]] 
+
+>>>>When I tried to `make` ikiwiki with this file, I got the error
+
+    ../IkiWiki/Plugin/editpage.pm:101: invalid variable interpolation at "$"
+
+>>>>> Sorry about that, I've corrected the above file. --[[Joey]] 
+
+>>>>>> Hmm, funny. Now that I reinstalled it with your changed file, it started working. I didn't remember how exactly did I install it the last time, so this time, it seems I did it correctly. Thank you very much for your help.
+
+>>>>>>> Well, this makes me suspect you installed an older version of
+>>>>>>> ikiwiki and my file, which is from the latest version, included a
+>>>>>>> fix for whatever bug you were seeing. If I were you, I'd ensure
+>>>>>>> that I have a current version of ikiwiki installed. --[[Joey]] 

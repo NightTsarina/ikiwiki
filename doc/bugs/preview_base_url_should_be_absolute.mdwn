@@ -1,0 +1,53 @@
+The edit page CGI defines a `base` tag with an URL which is not
+absolute, which can break the preview function in some circumstances
+(with e.g. images not showing). The trivial [[patch]] that fixes
+it can be found [[here|http://sprunge.us/EPHT]] as well as on [[my
+git|http://git.oblomov.eu/ikiwiki]].
+
+> That patch does mean that if you're accessing the CGI via HTTPS but your
+> $config{url} and $config{cgiurl} are HTTP, you'll get preview images loaded
+> via HTTP, causing the browser to complain. See
+> [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]]
+> for background.
+>
+> Perhaps the CGI could form its `<base>` URL by using
+> `URI->new_abs(urlto(...), $cgi->url)` instead?
+>
+> You'd also need to change `IkiWiki/Wrapper.pm` to pass at least the
+> SERVER_NAME and SERVER_PORT through the environment, probably.
+>
+> Joey's last comment on
+> [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]]
+> suggests that this might already work, but I'm not quite sure how - I'd
+> expect it to need more environment variables? --[[smcv]]
+>
+>> `CGI::url` uses `REQUEST_URI`. So it could be used, but I don't see
+>> how to get from the `CGI::url` to an url to the page that is being
+>> edited. --[[Joey]]
+>>> (The right rune seems to be: `URI->new_abs(urlto($params{page}), $cgi->url))` --[[Joey]] 
+
+---
+
+Update: This bug is worse than it first appeared, and does not only affect
+previewing. The cgi always has a `<base>` url, and it's always relative,
+and that can break various links etc. For example, when the 404 plugin
+displays a missing page, it has a Recentchanges link, which would be broken
+if the cgi was in an unusual place.
+
+`misctemplate` needs to *always* set an absolute baseurl. Which is a problem,
+since `misctemplate` is not currently passed a cgi object from which to
+construct one. --[[Joey]]
+
+Update: Worse and worse. `baseurl(undef)` can be a relative url, but
+nearly every use of it I can find actually needs to be absolute. 
+the numerous `redirect($q, baseurl(undef))` all need to be absolute
+according to `CGI` documentation.
+
+So, I'm seriously thinking about reverting the part of
+[[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]]
+that made `baseurl(undef)` relative. 
+And I suppose, re-opening that todo. :( --[[Joey]]
+
+----
+
+This was fixed in version 3.20110105 [[done]] --[[Joey]]

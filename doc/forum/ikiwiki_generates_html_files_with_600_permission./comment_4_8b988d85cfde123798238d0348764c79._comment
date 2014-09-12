@@ -1,0 +1,22 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 4"
+ date="2011-11-28T09:52:38Z"
+ content="""
+Joey merged my branch, so from the next release of ikiwiki you'll be able
+to say `umask => 'public'` (or `private` or `group` for the other two
+potentially-useful umasks).
+
+I'm not sure what you mean about mixing modes? The wrapper modes are
+something else - the wrapper modes are about who can run the CGI (or the
+git commit hook) and whether they're setuid (run as the user who owns
+the wiki) or not (run as the web server user or the git push user),
+whereas `umask` is about the permissions that ikiwiki will assign to
+new files it creates (like the HTML).
+
+A typical public wiki like this one will have `umask => 'public'`;
+the wrapper modes will either be `0755` or `04755` (both octal),
+depending on the details of how the web server runs the CGI
+and how git pushes are done.
+"""]]

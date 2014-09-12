@@ -1,0 +1,151 @@
+[[!meta title="Thomas Schwinge"]]
+# Thomas Schwinge
+
+<thomas@schwinge.name>  
+<http://schwinge.homeip.net/~thomas/>
+
+I have converted the [GNU Hurd](http://www.gnu.org/software/hurd/)'s previous
+web pages and previous wiki pages to a *[[ikiwiki]]* system; and all that while
+preserving the previous content's history, which was stored in a CVS repository
+for the HTML web pages and a TWiki RCS repository for the wiki; see
+<http://www.gnu.org/software/hurd/colophon.html>.
+
+# Issues to Work On
+
+## Stability of Separate Builds
+
+The goal is that separate builds of the same source files should yield the
+exactly same HTML code (of course, except for changes due to differences in
+Markdown rendering, for example).
+
+  * Timestamps -- [[forum/ikiwiki__39__s_notion_of_time]], [[forum/How_does_ikiwiki_remember_times__63__]]
+
+    Git set's the current *mtime* when checking out files.  The result is that
+    <http://www.gnu.org/software/hurd/contact_us.html> and
+    <http://www.bddebian.com:8888/~hurd-web/contact_us/> show different *Last
+    edited* timestamps.
+
+    This can either be solved by adding a facility to Git to set the
+    checked-out files' *mtime* according to the *AuthorDate* / *CommitDate*
+    (which one...), or doing that retroactively with the
+    <http://www.gnu.org/software/hurd/set_mtimes> script before building, or
+    with a ikiwiki-internal solution.
+
+  * HTML character entities
+
+    <http://www.gnu.org/software/hurd/purify_html>
+
+### \[[!map]] behavior
+
+The \[[!map]] on, for example,
+<http://www.gnu.org/software/hurd/tag/open_issue_hurd.html>, should not show
+the complete hierarchy of pages, but instead just the pages that actually *do*
+contain the \[[!tag open_issue_hurd]].
+
+> `tagged(open_issue_hurd)` in its pagespec should do that. --[[Joey]]
+
+>> Well, that's exactly what this page contains: \[[!map
+>> pages="tagged(open_issue_hurd) and !open_issues and !*/discussion"
+>> show=title]]
+>> 
+>> This is currently rendered as can be seen on
+>> <http://www.gnu.org/software/hurd/tag/open_issue_hurd.html>, but I'd imagine
+>> it to be rendered by **only** linking to the pages that actually do contain
+>> the tag, (**only** the outer leaf ones, which are *capturing stdout and
+>> stderr*, *ramdisk*, *syncfs*, ...; but **not** to *hurd*, *debugging*,
+>> *translator*, *libstore*, *examples*, ...).  Otherwise, the way it's being
+>> rendered at the moment, it appears to the reader that *hurd*, *debugging*,
+>> *translator*, *libstore*, *examples*, ... were all tagged, too, and not only
+>> the outer ones.
+
+## Anchors -- [[ikiwiki/wikilink/discussion]]
+
+## Default Content for Meta Values -- [[plugins/contrib/default_content_for___42__copyright__42___and___42__license__42__]]
+
+This will decrease to be relevant, as we're going to add copyright and
+licensing headers to every single file.
+
+## [[bugs/img vs align]]
+
+## Texinfo -- [[plugins/contrib/texinfo]]
+
+Not very important.  Have to consider external commands / files / security (see
+[[plugins/teximg]] source code)?
+
+## Shortcuts -- [[plugins/shortcut/discussion]]
+
+## \[[!meta redir]] -- [[todo/__42__forward__42__ing_functionality_for_the_meta_plugin]]
+
+Implement a checker that makes sure that no pages that use \[[!meta redir]]
+redirect to another page (and are thus considered legacy pages for providing
+stable URLs, for example) are linked to from other wiki pages.  This is useful
+w.r.t. backlinks.  Alternative, the backlinks to the \[[!meta redir]]-using
+pages could perhaps be passed on to the referred-to page?
+
+> I found that backlinks was an easy way to find such links to such pages.
+> (Although the redirection made it hard to see the backlinks!) --[[Joey]] 
+
+## \[[!meta redir]] -- tell what's going on
+
+Add functionality that a text like *this page's content has moved to [new
+page]; in a few seconds you'll be redirected thither* is displayed on every
+page that uses \[[!meta redir]].
+
+## Sendmail -- [[todo/passwordauth:_sendmail_interface]]
+
+## [[bugs/Broken Parentlinks]]
+
+## Modifying [[plugins/inline]] for showing only an *appetizer*
+
+Currently ikiwiki's inline plugin will either show the full page or nothing of
+it.  Often that's too much.  One can manually use the [[plugins/toggle]] plugin
+-- see the *News* section on <http://www.gnu.org/software/hurd/>.  Adding a new
+mode to the inline plugin to only show an *appetizer* ending with *... (read
+on)* after a customizable amount of characters (or lines) would be a another
+possibility.  The *... (read on)* would then either toggle the full content
+being displayed or link to the complete page.
+
+> You're looking for [[plugins/more]] (or possibly a way to do that automatically, 
+> I suppose. --[[Joey]] 
+
+## Prefix For the HTML Title
+
+The title of each page (as in `<html><head><title>`...) should be prefixed with
+*GNU Project - GNU Hurd -*.  We can either do this directly in `page.tmpl`, or
+create a way to modify the `TITLE` template variable suitably.
+
+## [[plugins/inline]] feedfile option
+
+Not that important.  Git commit b67632cdcdd333cf0a88d03c0f7e6e62921f32c3.  This
+would be nice to have even when *not* using *usedirs*.  Might involve issues as
+discussed in *N-to-M Mapping of Input and Output Files* on
+[[plugins/contrib/texinfo]].
+
+## Unverified -- these may be bugs, but have yet to be verified
+
+  * ikiwiki doesn't change its internal database when \[[!meta date]] /
+    \[[!meta updated]] are added / removed, and thusly these meta values are
+    not promulgated in RSS / Atom feeds.
+
+    > I would rather see this filed as a bug, but FWIW, the problem
+    > is probably that meta does not override the mdate_3339
+    > template variable used by the atom and rss templates.
+    > (Meta does store ctime directly in the ikiwiki database, but cannot
+    > store mtime in \%pagemtime because it would mess up detection of when
+    > actual file mtimes change.) --[[Joey]]
+
+  * Complicated issue w.r.t. *no text was copied in this page*
+    ([[plugins/cutpaste]]) in RSS feed (only; not Atom?) under some conditions
+    (refresh only, but not rebuild?).  Perhaps missing to read in / parse some
+    files?
+    [[Reported|bugs/Error:_no_text_was_copied_in_this_page_--_missing_page_dependencies]].
+
+  * [[plugins/recentchanges]]
+
+      * Creates non-existing links to changes.
+
+      * Invalid *directory link* with `--usedirs`.
+
+      * Doesn't honor `$timeformat`.
+
+      * Does create `recentchangees.*` files even if that is overridden.

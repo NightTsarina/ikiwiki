@@ -1,0 +1,67 @@
+[Project Honeypot](http://projecthoneypot.org/) has an HTTP:BL API available to subscribed (it's free, accept donations) people/orgs. There's a basic perl package someone wrote, I'm including a copy here.
+
+[from here](http://projecthoneypot.org/board/read.php?f=10&i=112&t=112)
+
+> The [[plugins/blogspam]] service already checks urls against
+> the surbl, and has its own IP blacklist. The best way to
+> support the HTTP:BL may be to add a plugin
+> [there](http://blogspam.repository.steve.org.uk/file/cc858e497cae/server/plugins/).
+> --[[Joey]] 
+
+<pre>
+package Honeypot;
+
+use Socket qw/inet_ntoa/;
+
+my $dns = 'dnsbl.httpbl.org';
+my %types = (
+0	=> 'Search Engine',
+1	=> 'Suspicious',
+2	=> 'Harvester',
+4	=> 'Comment Spammer'
+);
+sub query {
+my $key = shift || die 'You need a key for this, you get one at http://www.projecthoneypot.org';
+my $ip = shift || do {
+warn 'no IP for request in Honeypot::query().';
+return;
+};
+
+my @parts = reverse split /\./, $ip;
+my $lookup_name = join'.', $key, @parts, $dns;
+
+my $answer = gethostbyname ($lookup_name);
+return unless $answer;
+$answer = inet_ntoa($answer);
+my(undef, $days, $threat, $type) = split /\./, $answer;
+my @types;
+while(my($bit, $typename) = each %types) {
+push @types, $typename if $bit & $type;
+}
+return {
+days => $days,
+threat => $threat,
+type => join ',', @types
+};
+
+}
+1;
+</pre>
+
+From the page:
+
+> The usage is simple:
+
+> use Honeypot;
+> my $key = 'XXXXXXX'; # your key
+> my $ip = '....'; the IP you want to check
+> my $q = Honeypot::query($key, $ip);
+
+> use Data::Dumper;
+> print Dumper $q;
+
+Any chance of having this as a plugin?
+
+I could give it a go, too. Would be fun to try my hand at Perl. --[[simonraven]]
+
+[[!tag wishlist]]

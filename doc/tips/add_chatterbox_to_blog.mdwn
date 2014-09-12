@@ -1,0 +1,24 @@
+If you use twitter or identi.ca, here's how to make a box
+on the side of your blog that holds your recent status updates
+from there, like I have on [my blog](http://kitenet.net/~joey/blog/)
+--[[Joey]] 
+
+* Enable the [[plugins/aggregate]] plugin, and set up a cron
+  job for it.
+* At the top of your blog's page, add something like the following.
+  You'll want to change the urls of course. Be sure to also change
+  the inline directive's [[PageSpec]] to link to the location the
+  feed is aggregated to, which will be a subpage of the page
+  you put this on (blog in this example):
+
+	\[[!template id=note text="""  
+	\[[!aggregate expirecount=5 name="dents" url="http://identi.ca/joeyh"  
+	feedurl="http://identi.ca/api/statuses/user_timeline/joeyh.atom"]]  
+	\[[!inline pages="internal(./blog/dents/*)" template=microblog
+	show=5 feeds=no]]
+	"""]]
+
+* To filter out `@-replies`, append "and !*@*" to the [[ikiwiki/PageSpec]].
+  The same technique can be used for other filtering.
+
+Note: Works best with ikiwiki 3.10 or better.

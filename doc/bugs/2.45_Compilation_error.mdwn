@@ -1,0 +1,198 @@
+I have perl 5.10.0. Ikiwiki 2.44 compiles fine. Compiling 2.45 fails after 'make':
+
+    perl -Iblib/lib   ikiwiki.out -libdir . -setup docwiki.setup -refresh
+    refreshing wiki..
+    docwiki.setup: Failed to load plugin IkiWiki::Plugin::goodstuff: Failed to load plugin IkiWiki::Plugin::shortcut: Too many arguments for IkiWiki::srcfile at IkiWiki/Plugin/shortcut.pm line 16, near "1)"
+    Compilation failed in require at (eval 31) line 2.
+    BEGIN failed--compilation aborted at (eval 31) line 2.
+    BEGIN failed--compilation aborted at (eval 23) line 2.
+    BEGIN failed--compilation aborted at (eval 10) line 21.
+    make: *** [extra_build] Error 255
+
+> I can't reproduce this. It looks like your IkiWiki.pm is out of sync with
+> your IkiWiki/Plugin/shortcut.pm. The ones distributed in 2.45 are in
+> sync. Or your perl is failing to use the right version of Ikiwiki.pm, 
+> perhaps using a previously installed version. But the -Iblib/lib
+> instructs perl to look in that directory first, and the Makefile
+> puts Ikiwiki.pm there. --[[Joey]]
+
+>> I removed all traces of the previous installation, and now 2.45 compiles.
+>> I don't know why it was picking up the old version of Ikiwiki.pm, but now it
+>> works. Please close this bug, and thanks for the help.
+
+>>> Where were the files from the old installation? I still don't
+>>> understand why they would be seen, since -Iblib/lib is passed to perl.
+>>> --[[Joey]]
+
+>>>> They were under /usr/local/{bin,lib,share}. I can try to provide more info,
+>>>> or try to reproduce it, if you need me to.
+
+>>>>> Well, here are some things to try.
+
+	perl -Iblib/lib -V
+
+>>>>> This should have blib/lib first in the listed @INC
+
+	joey@kodama:~/src/ikiwiki>strace perl -Iblib/lib -e 'use IkiWiki' 2>&1 |grep IkiWiki.pm
+	stat64("blib/lib/IkiWiki.pmc", 0xbfa1594c) = -1 ENOENT (No such file or directory)
+	stat64("blib/lib/IkiWiki.pm", {st_mode=S_IFREG|0444, st_size=31982, ...}) = 0
+	open("blib/lib/IkiWiki.pm", O_RDONLY|O_LARGEFILE) = 5
+
+>>>>> This is how perl finds IkiWiki.pm here. Note that I've run "make" first.
+
+OK, this is what I'm getting:
+
+    $ perl -Iblib/lib -V
+    @INC:
+    blib/lib
+    /usr/lib/perl5/site_perl/5.10.0
+    /usr/share/perl5/site_perl/5.10.0
+    /usr/lib/perl5/vendor_perl
+    /usr/share/perl5/vendor_perl
+    /usr/share/perl5/vendor_perl
+    /usr/lib/perl5/core_perl
+    /usr/share/perl5/core_perl
+    /usr/lib/perl5/current
+    /usr/lib/perl5/site_perl/current
+
+I ran the following in my current 2.45 source dir, where the `make` already succeded. If you need it, I can post the output
+in the case where `make` fails.
+
+    $ strace perl -Iblib/lib -e 'use IkiWiki' 2>&1 |grep IkiWiki.pm
+    stat64("blib/lib/IkiWiki.pmc", 0xbfa6167c) = -1 ENOENT (No such file or directory)
+    stat64("blib/lib/IkiWiki.pm", {st_mode=S_IFREG|0444, st_size=31901, ...}) = 0
+    open("blib/lib/IkiWiki.pm", O_RDONLY|O_LARGEFILE) = 3
+
+> I need to see it in the case where it's failing. --[[Joey]]
+
+I finally had some time to look into this again.
+
+I wiped ikiwiki off my system, and then installed version 2.41. I tried installing
+2.46 and get the same error as above, so I'll be using 2.46 below. (BTW, the debian
+page still lists 2.45 as current; I had to fiddle with the download link to get 2.46).
+
+After running `./Makefile.PL` I get:
+
+    $ perl -Iblib/lib -V
+    [bunch of lines snipped]
+      @INC:
+    blib/lib
+    [bunch of paths snipped]
+
+Running the strace:
+
+    $ strace perl -Iblib/lib -e 'use IkiWiki' 2>&1 |grep IkiWiki.pm
+
+I get a bunch of ENOENTs and then at the end:
+
+    stat64("./IkiWiki.pmc", 0xbfa2fe5c)     = -1 ENOENT (No such file or directory)
+    stat64("./IkiWiki.pm", {st_mode=S_IFREG|0644, st_size=31987, ...}) = 0
+    open("./IkiWiki.pm", O_RDONLY|O_LARGEFILE) = 3
+
+After running `make` (and having it fail as described above):
+
+    $ strace perl -Iblib/lib -e 'use IkiWiki' 2>&1 |grep IkiWiki.pm
+    stat64("blib/lib/IkiWiki.pmc", 0xbfd7999c) = -1 ENOENT (No such file or directory)
+    stat64("blib/lib/IkiWiki.pm", {st_mode=S_IFREG|0444, st_size=31901, ...}) = 0
+    open("blib/lib/IkiWiki.pm", O_RDONLY|O_LARGEFILE) = 3
+
+I don't know what is going on, but I'll run any more tests you need me to.
+
+> No help.  
+> The only further thing I can think to try is `strace -f` the entire failing
+> `make` run (or the ikiwiki command that's failing in it, if you can
+> reproduce the failure at the command line). --[[Joey]]
+
+I have 2.46 installed and I can reproduce the bug reported against 2.49. The command that fails is:
+
+    $ /usr/bin/perl -Iblib/lib   ikiwiki.out -libdir . -setup docwiki.setup -refresh
+    docwiki.setup: Failed to load plugin IkiWiki::Plugin::inline: Too many arguments for IkiWiki::htmlize at IkiWiki/Plugin/inline.pm line 359, near "))"
+    Compilation failed in require at (eval 14) line 2.
+    BEGIN failed--compilation aborted at (eval 14) line 2.
+    BEGIN failed--compilation aborted at (eval 10) line 21.
+
+strace -f produces a 112K file. I don't know enough to be comfortable analyzing it.
+However, lines like:
+
+    stat64("/usr/local/share/perl5/site_perl/5.10.0/IkiWiki.pm", {st_mode=S_IFREG|0444, st_size=31982, ...}) = 0
+
+make me think the make process is not completely independent of a previous
+installation. Joey, should I email you the strace log file?
+
+> Email it (joey@ikiwiki.info), or post it to a website somewhere.
+> --[[Joey]]
+
+> The relevant part of the file is:
+
+	execve("/usr/bin/perl", ["/usr/bin/perl", "-Iblib/lib", "ikiwiki.out", "-libdir", ".", "-setup", "docwiki.setup", "-refresh"], [/* 55 vars */]) = 0
+	[...]
+	stat64("blib/lib/5.10.0/i686-linux-thread-multi", 0xbfa72240) = -1 ENOENT (No such file or directory)
+	stat64("blib/lib/5.10.0", 0xbfa72240)   = -1 ENOENT (No such file or directory)
+	stat64("blib/lib/i686-linux-thread-multi", 0xbfa72240) = -1 ENOENT (No such file or directory)
+	[...]
+	stat64("/usr/local/share/perl5/site_perl/5.10.0/IkiWiki.pmc", 0xbfa71e5c) = -1 ENOENT (No such file or directory)
+	stat64("/usr/local/share/perl5/site_perl/5.10.0/IkiWiki.pm", {st_mode=S_IFREG|0444, st_size=31982, ...}) = 0
+	open("/usr/local/share/perl5/site_perl/5.10.0/IkiWiki.pm", O_RDONLY|O_LARGEFILE) = 4
+
+> So it doesn't look for IkiWiki.pm in blib at all. But it clearly has been asked to look in blib, since it
+> looks for the 3 directories in it. When I run the same thing locally, I get:
+
+	execve("/usr/bin/perl", ["/usr/bin/perl", "-Iblib/lib", "ikiwiki.out", "-libdir", ".", "-setup", "docwiki.setup", "-refresh"], [/* 55 vars */]) = 0
+	[...]
+	stat64("blib/lib/5.10.0/i486-linux-gnu-thread-multi", 0xbf84f320) = -1 ENOENT (No such file or directory)
+	stat64("blib/lib/5.10.0", 0xbf84f320) = -1 ENOENT (No such file or directory)
+	stat64("blib/lib/i486-linux-gnu-thread-multi", 0xbf84f320) = -1 ENOENT (No such file or directory)
+	[...]
+	stat64("blib/lib/IkiWiki.pmc", 0xbf84ef4c) = -1 ENOENT (No such file or directory)
+	stat64("blib/lib/IkiWiki.pm", {st_mode=S_IFREG|0444, st_size=32204, ...}) = 0
+	open("blib/lib/IkiWiki.pm", O_RDONLY|O_LARGEFILE) = 6
+
+> The thing I really don't understand is why, on the system where perl fails
+> to look in blib when straced as above, we've already established it *does*
+> look for it when `perl -Iblib/lib -e 'use IkiWiki'` is straced.
+> 
+> The only differences between the two calls to perl seem to be:
+> * One runs `perl`, and the other `/usr/bin/perl` -- are these really
+>   the same program? Does `perl -lblib/lib ikiwiki.out -libdir . -setup docwiki.setup -refresh`
+>   fail the same way as the `/usr/bin/perl` variant?
+> * The `-libdir .`, which causes ikiwiki to modify `@INC`, adding "." to 
+>   the front of it.
+> 
+> I'm entirely at a loss as to why I cannot reproduce this with the same
+> versions of perl and ikiwiki as the two people who reported it. There must
+> be something unusual about your systems that we have not figured out yet. --[[Joey]]
+
+Joey, thanks for your time and effort looking into this.
+
+I checked with `which`: `perl` is indeed `/usr/bin/perl`. The commands fail similarly when
+calling `perl` and `/usr/bin/perl`.
+
+However, you might be into something with your `libdir` idea. If I remove it from the
+command line, the command succeeds. In other words, if I run
+
+    perl -Iblib/lib   ikiwiki.out -setup docwiki.setup -refresh
+
+then it works perfectly.
+
+> Well, that's just weird, because `libdir` is handled by code in IkiWiki.pm.
+> So I don't see how setting it could affect its searching for IkiWiki.pm at all,
+> actually. It could only affect its searching for files loaded later. Anyway,
+> can I get a strace of it succeeding this way?
+> 
+> Also, can you show me the first 15 lines of your `ikiwiki.out`? It's occurred to me
+> you might have an unusual `use lib` line in it.
+
+By the way, I'm running Arch linux. The perl build script is a bit long, but I
+see they install a patch to modify @INC: <http://repos.archlinux.org/viewvc.cgi/perl/repos/core-i686/perl-5.10.0-archlinux-inc-order.patch?revision=1&view=markup>
+
+Would you suggest I try rebuilding perl without this patch? Debian has a huge perl patch (102K!);
+it's not straightforward for me to see if they do something similar to Arch.
+
+> I think Debian has a similar patch.
+
+---
+
+[[done]] -- apparently this was a problem due to a distribution's
+customisation to perl, or something. Seems to late now to track down what,
+unfortunatly. And ikiwiki's Makefile no longer uses the "-libdir" switch
+that seemed to trigger the bug. --[[Joey]]

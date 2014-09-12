@@ -1,0 +1,111 @@
+[[!template  id=gitbranch branch=anarcat/dev/openid_email author="[[anarcat]]"]]
+
+This bug affects [[plugins/notifyemail]] but is probably caused more by [[plugins/openid]]. When using OpenID to login to a site, no email notification is sent to the user (pagespec set to `*`) when a modification is done on the wiki. I believe this is because the OpenID plugin assumes the email comes from the OpenID provider - which is not necessarily going to succeed if, for privacy reason, the OpenID provider refuses to transmit the email to ikiwiki.
+
+In the OpenID plugin, the email is actually fetched when authenticating and is stored in the session, like so:
+
+[[!format perl """
+sub auth ($$) {
+# [...]
+			my @extensions;
+			if ($vident->can("signed_extension_fields")) {
+				@extensions=grep { defined } (
+					$vident->signed_extension_fields('http://openid.net/extensions/sreg/1.1'),
+					$vident->signed_extension_fields('http://openid.net/srv/ax/1.0'),
+				);
+			}
+			my $nickname;
+			foreach my $ext (@extensions) {
+				foreach my $field (qw{value.email email}) {
+					if (exists $ext->{$field} &&
+					    defined $ext->{$field} &&
+					    length $ext->{$field}) {
+						$session->param(email => $ext->{$field});
+						if (! defined $nickname &&
+						    $ext->{$field}=~/(.+)@.+/) {
+							$nickname = $1;
+						}
+						last;
+					}
+				}
+
+"""]]
+
+This is based on the assumption that the openid provider supports "sreg" or "ax" extensions, which is not mandatory, and even then, the provider is not forced to provide the email.
+
+Earlier in the plugin, the email field is actually hidden:
+
+[[!format perl """
+sub formbuilder_setup (@) {
+	my %params=@_;
+
+	my $form=$params{form};
+	my $session=$params{session};
+	my $cgi=$params{cgi};
+	
+	if ($form->title eq "preferences" &&
+	       IkiWiki::openiduser($session->param("name"))) {
+		$form->field(name => "openid_identifier", disabled => 1,
+			label => htmllink("", "", "ikiwiki/OpenID", noimageinline => 1),
+			value => "", 
+			size => 1, force => 1,
+			fieldset => "login",
+			comment => $session->param("name"));
+		$form->field(name => "email", type => "hidden");
+	}
+}
+"""]]
+
+I believe this could be worked around simply by re-enabling that field and allowing the user to specify an email there by hand, making a note that the OpenID provider's email is used by default.
+
+The dumbest [[!taglink patch]] that actually fixes the problem for me is in the branch mentionned above.
+
+It would probably be better to add a comment on the field as indicated above, but it's a good proof of concept.
+
+Any other ideas? --[[anarcat]]
+
+> Note: it seems that my email *is* given by my OpenID provider, no idea why this is not working, but the fix proposed in my branch works. --[[anarcat]]
+
+>> Note: this is one of two patches i need to apply at every upgrade. The other being [[can__39__t_upload_a_simple_png_image:_prohibited_by_allowed__95__attachments___40__file_MIME_type_is_application__47__octet-stream...]]. --[[anarcat]]
+
+>>> Is there any sort of check that the owner of the given email address
+>>> wants to receive email from us, or way for the owner of that email
+>>> address to stop getting the emails?
+>>>
+>>> With passwordauth, if someone maliciously subscribes my email
+>>> address to high-traffic pages or something (by using it as the
+>>> email address of their wiki login), I can at least use
+>>> password-recovery to hijack their account and unsubscribe myself.
+>>> If they're signing in with an OpenID not associated with my
+>>> email address and then changing the email address in the userdb
+>>> to point to me, I don't think I can do that.
+>>>
+>>> With OpenID, I think we're just trusting that the OpenID provider
+>>> wouldn't give us an unverified email address, which also seems
+>>> a little unwise.
+>>>
+>>> It might be better to give ikiwiki a concept of verifying an
+>>> email address (the usual send-magic-token flow) and only be
+>>> willing to send notifications to a verified address?
+>>>
+>>> --[[smcv]]
+>>>
+>>>> hmm... true, that is a problem, especially for hostile wikis. but then any hostile site could send you such garbage - they would be spammers then. otherwise, you could ask the site manager to disable that account...
+>>>>
+>>>> this doesn't seem to be a very big security issue that would merit implementing a new verification mechanism, especially since we don't verify email addresses on accounts right now. what we could do however is allow password authentication on openid accounts, and allow those users to actually change settings like their email addresses. however, I don't think this should be blocking that functionality right now. --[[anarcat]]
+>>>>
+>>>> besides, the patch I am proposing doesn't make the vulnerability worse at all, it exists right now without the patch. my patch only allows users that **don't** have an email set (likely because their openid provider is more discreet) to set one... --[[anarcat]]
+
+>>>>> Maybe this is too much paint for one bikeshed, but I guess the email-verification idea seems worthwhile to me
+>>>>> and not terribly hard to implement (though I'm not stepping forward at the moment) ... store it with a flag
+>>>>> saying whether it's verified, send a magic cookie to it, let the user supply the cookie to toggle the flag.
+>>>>> I could also see leaving the email field hidden for OpenID login, but perhaps detecting the first use of a new
+>>>>> OpenID (it's not in the userdb, right?) and suggesting a stop on the preferences page, where if the provider
+>>>>> did supply an e-mail address, it could be already filled in as default (maybe still unverified if we don't want
+>>>>> to assume the provider did that). -- Chap
+
+>>>>>> So yay, I want a poney too, aka i agree that email verification would be nice.
+>>>>>>
+>>>>>> But the problem is that is a separate feature request, which should be filed as a
+>>>>>> separate [[wishlist]] item. What I am describing above is an actual *bug* that should be fixed regardless of
+>>>>>> the color you want that poney to be. :p -- [[anarcat]]

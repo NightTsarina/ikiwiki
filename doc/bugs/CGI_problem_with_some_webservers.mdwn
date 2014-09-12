@@ -1,0 +1,108 @@
+The "ikwiki.cgi?page=index&do=edit" function has a problem
+when running with [[!debpkg thttpd]] or [[!debpkg mini-httpd]]:
+for some reason the headers ikiwiki outputs are transmitted
+as the page content. Surprisingly, the "do=prefs" function
+works as expected.
+
+Here is what it looks like in iceweasel:
+
+    Set-Cookie: ikiwiki_session_apnkit=99dad8d796bc6c819523649ef25ea447; path=/
+    Date: Tue, 14 Aug 2007 17:16:32 GMT
+    Content-Type: text/html; charset=utf-8
+    
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html>
+    (...)
+
+Ikiwiki runs fine with [[!debpkg boa]].
+
+--[[JeremieKoenig]]
+
+It doesn't work for signin either.
+What is the reason for these "header => 1" in FormBuilder initialisations?
+Why do they appear two times with conflicting values in the very same hashes?
+
+--[[JeremieKoenig]]
+
+> Clearly those duplicate header settings are a mistake. But in all cases, the
+> `header => 0` came second, so it _should_ override the other value and
+> can't be causing this problem. (cgi_signin only sets it to 0, too).
+> 
+> What version of formbuilder are you using? If you run ikiwiki.cgi at the
+> command line, do you actually see duplicate headers? I don't:
+
+	joey@kodama:~/html>REQUEST_METHOD=GET QUERY_STRING="page=index&do=edit" ./ikiwiki.cgi
+	Set-Cookie: ikiwiki_session_joey=41a847ac9c31574c1e8f5c6081c74d12; path=/
+	Date: Tue, 14 Aug 2007 18:04:06 GMT
+	Content-Type: text/html; charset=utf-8
+	
+	<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+
+> Do thttpd and mini-httpd perhaps not realize that Set-Cookis is the start of
+> the headers? --[[Joey]]
+
+>> Thanks for your help: I think I found the problem!
+>> Ikiwiki outputs (in my case) the following
+>> error message on stderr, followed by an empty line:
+
+    /srv/ikiwiki/wc/index.mdwn:  (Not a versioned resource)
+
+>> Probably thttpd and mini-httpd read stderr as well as stdout, while apache
+>> and boa don't. When using a shell-script wrapper as the CGI,
+>> which redirects ikiwiki's error output to /dev/null, it works better.
+
+>> The edit still fails to commit, because in my wiki, index.mdwn is
+>> pulled from the base wiki and somehow ikiwiki wants to change it
+>> rather that create it.
+
+>> --[[JeremieKoenig]]
+
+>>> If thttpd and mini-httpd interpret CGI's stderr as stdout, then
+>>> they're not properly following the CGI spec, and will break with tons
+>>> of cgi scripts besides ikiwiki. And of course there are many many cases
+>>> where ikiwiki might output to stderr, and that's the right thing to do.
+>>> So I don't see any way to address this in ikiwiki. --[[Joey]]
+
+>>>> (reported as [[!debbug 437927]] and [[!debbug 437932]]) --[[JeremieKoenig]]
+
+Marking [[done]] since it's not really an ikiwiki bug. --[[Joey]]
+
+----
+
+I'm using boa and getting some odd behaviour if I don't set the `umask`
+option in the config file.  Editing a page through the web interface and
+hitting "Save Page" regenerates the `index.html` file with no world-read
+permissions.  As a result, the server serves a "403 - Forbidden" error page
+instead of the page I was expecting to return to.
+
+There are only two ways I found to work around this: adding a `umask 022`
+option to the config file, or re-compiling the wiki from the command line
+using `ikiwiki --setup`.  Setting up a git back-end and re-running `ikiwiki
+--setup` from inside a hook had no effect; it needed to be at the terminal.
+--Paul
+
+> Since others seem to have gotten ikiwiki working with boa, 
+> I'm guessing that this is not a generic problem with boa, but that
+> your boa was started from a shell that had an unusual umask and inherited
+> that. --[[Joey]] 
+
+>> That's right; once I'd worked out what was wrong, it was clear that any
+>> webserver should have been refusing to serve the page.  I agree about the
+>> inherited umask; I hadn't expected that.  Even if it's unusual, though, it
+>> probably won't be uncommon - this was a stock Ubuntu 9.04 install.  --Paul
+
+(I'm new to wiki etiquette - would it be more polite to leave these details
+on the wiki, or to remove them and only leave a short summary?  Thanks.
+--Paul)
+
+> Well, I just try to keep things understandable and clear, whether than
+> means deleting bad old data or not. That said, this page is a bug report,
+> that was already closed. It's generally better to open a new bug report
+> rather than edit an old closed one. --[[Joey]] 
+                                      
+>> Thanks for the feedback, I've tidied up my comment accordingly.  I see
+>> your point about the bug; sorry for cluttering the page up.  I doubt it's
+>> worth opening a new page at this stage, but will do so if there's a next
+>> time.  The solution seems worth leaving, though, in case anyone else in my
+>> situation picks it up.  --Paul

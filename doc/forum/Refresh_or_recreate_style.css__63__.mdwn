@@ -1,0 +1,40 @@
+I was trying to use plain blueview theme but that's not what I see in the installed style.css:
+
+    ~/src/ikiwiki/themes/blueview$ grep bzed style.css
+    /*    bzed theme for ikiwiki
+    ~/src/ikiwiki/themes/blueview$ wc -l style.css
+    281 style.css
+    $ grep bzed ~/www/style.css
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    $ wc -l ~/www/style.css
+    7913
+
+I have installed ikiwiki to my home directory on the shared server and it seems the big css file is there too:
+
+    $ grep bzed ~/bin/share/ikiwiki/themes/blueview/style.css 
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    /*    bzed theme for ikiwiki
+    $ wc -l ~/bin/share/ikiwiki/themes/blueview/style.css 
+    7913
+
+Is the style.css really supposed to be that big?
+If not, how to create it from scratch?
+
+Reason why I'm debugging the css is that I'd like to make it better on small handset screens, like drop all margins, inline or hide sidebar etc. Chromium shows that the processed css is quite a mess.

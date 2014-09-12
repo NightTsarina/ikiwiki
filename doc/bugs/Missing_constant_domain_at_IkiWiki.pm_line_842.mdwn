@@ -1,0 +1,50 @@
+I can't build my ikiwiki 1.40 backport for Debian 'sarge':
+
+    $ LANG=C dpkg-buildpackage -us -uc -rfakeroot
+    [...]
+    ./pm_filter /usr 1.40 /usr/share/perl5 <IkiWiki/Plugin/favicon.pm >blib/lib/IkiWiki/Plugin/favicon.pm
+    ./pm_filter /usr 1.40 /usr/share/perl5 <IkiWiki/Plugin/shortcut.pm >blib/lib/IkiWiki/Plugin/shortcut.pm
+    ./pm_filter /usr 1.40 /usr/share/perl5 <IkiWiki/Plugin/aggregate.pm >blib/lib/IkiWiki/Plugin/aggregate.pm
+    ./ikiwiki.in doc html --templatedir=templates --underlaydir=basewiki \
+    --wikiname="ikiwiki" --verbose --no-rcs \
+            --exclude=/discussion --no-discussion --userdir=users \
+            --plugin=goodstuff \
+            --plugin=haiku --plugin=polygen --plugin=fortune
+    Missing constant domain at IkiWiki.pm line 842
+    make[1]: *** [extra_build] Error 22
+    make[1]: Leaving directory `/home/ptecza/svn/ikiwiki'
+    make: *** [build-stamp] Error 2
+
+--[[Paweł|ptecza]]
+
+This is because of an old version of Locale::gettext which doesn't
+include the OO interface. I had this problem too, but installing a
+new version of Locale::gettext fixed it. --Ethan
+
+> I suppose I should document it needing a new enough version. Or find a
+> way to use the non-OO version while still getting proper UTF-8 strings,
+> which is why I began to use the OO version in the first place..
+> 
+> Looks like the OO interface was added in version 1.04
+> 
+> And there's no good way to get utf-8 strings w/o the OO interface, that I
+> can see.
+> 
+> So, what I've done is documented that it needs Locale::gettext 1.04, and
+> made it not crash if run with an older version, though it also won't
+> gettext anything in that case. Might be a bit confusing if someone misses
+> the docs about it needing the newer version and wonders why gettext
+> doesn't work, but I consider it good enough to mark this [[bugs/done]]. 
+> --[[Joey]]
+
+>> Thanks for the hint, guys! :) I've just backported liblocale-gettext-perl
+>> 1.05 package and it seems that now I can build my ikiwiki successfully
+>> and it even works :) --[[Paweł|ptecza]]
+
+Thanks for the note on this, made it very easy to figure out what was going on.  Just pointing out though that the Debian package doesn't require a new version of liblocale-gettext-perl.  I just got bit by this bug setting up a dev ikiwiki box on a mixed stable/testing box.  -- [[Adam]]
+
+> The Debian package has this:
+>
+>     Suggests: [...], liblocale-gettext-perl (>= 1.05-1), [...]
+>
+> --[[JoshTriplett]]

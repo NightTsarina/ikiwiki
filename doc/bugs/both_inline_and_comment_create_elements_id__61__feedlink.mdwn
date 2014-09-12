@@ -1,0 +1,15 @@
+The [[plugins/inline]] and [[plugins/comments]] plugins both generate feed links.
+
+In both cases, the generated markup include an element with `id="feedlink"`.
+
+[XHTML 1.0 Strict](http://www.w3.org/TR/xhtml1/#h-4.10) (Ikiwiki's default output type) forbids multiple elements with the same ID:
+
+> In XML, fragment identifiers are of type ID, and there can only be a single attribute of type ID per element. Therefore, in XHTML 1.0 the id attribute is defined to be of type ID. In order to ensure that XHTML 1.0 documents are well-structured XML documents, XHTML 1.0 documents MUST use the id attribute when defining fragment identifiers on the elements listed above. See the HTML Compatibility Guidelines for information on ensuring such anchors are backward compatible when serving XHTML documents as media type text/html.
+
+As does [W3C's HTML5](http://www.w3.org/TR/html5/elements.html#the-id-attribute).
+
+Any page with both a comments feed and an inline feed will be invalid XHTML 1.0 Strict or HTML 5.
+
+-- [[Jon]]
+
+> [[news/version_3.2011012]] suggests this is fixed for `inline`, at least, I will test to see if it is cleared up for comments too. -- [[Jon]]

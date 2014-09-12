@@ -1,0 +1,60 @@
+[[!template  id=gitbranch branch=chrysn/imgforpdf author="[[chrysn]]"]]
+
+when using the [[img plugin|plugins/img]] with an svg file, it is supposed to
+convert it into a png for display in all browsers, and because the typical use
+case is rendering small preview versions.
+
+this currently doesn't work (at least with graphicsmagick-libmagick-dev-compat
+1.3.18-1) due to the sequence imagemagick options are set, needs an extension
+to work for pdfs (or any other imagemagick compatibile file) too, and should
+have an additional parameter for page selection.
+
+i've provided a series of [[!taglink patch]]es in the chrysn/imgforpdf [[git]]
+branch.
+
+i'd prefer to go a step further, and not only convert pdf and svg files to png,
+but everything (with the possible exception of jpg files), as most other image
+formats can't be displayed in a browser anyway -- but i didn't in this patch
+series, as it would alter the file names of existing images, i don't know if
+that needs special care or breaks something i don't use; this way, my patches
+should be safe for inclusion.
+
+--[[chrysn]]
+
+> update 2014-06-29: the patch still applies and fixes the issue. in the
+> meantime, i noticed that the desired effect doesn't happen when no explicit
+> size is set. as scalable graphics don't necessarily have a natural size
+> anyway, i don't consider that a showstopper. --[[chrysn]]
+
+>> This all looks good in principle, but I would like to do a more detailed
+>> review, and test it with "real ImageMagick" in case its behaviour differs
+>> from GraphicsMagick.
+>>
+>> An automated regression test for the desired behaviour in `t/` would
+>> be great. There are SVGs and PNGs in the docwiki already; there are no
+>> JPEGs or PDFs, but perhaps you could add a trivially small example
+>> of each to `t/`? Imitating `t/tag.t` or `t/trail.t`, and skipping the
+>> test if the required modules are missing like `t/podcast.t` does,
+>> seems like it would work best.
+>>
+>> I agree that everything not in an interoperable web format should be
+>> converted to PNG when it's scaled down, but yes, that's more likely
+>> to be a breaking change, so it seems best to do that as a separate
+>> branch. In practice I think this means JPEG -> JPEG and everything
+>> else -> PNG, since JPEG is commonly used for photos and photo-like
+>> images that don't compress well under lossless compression. --[[smcv]]
+
+>>> i've added a unit test and tested it with the [[!debsid perlmagick]]
+>>> package, the [[!debsid graphicsmagick-libmagick-dev-compat]] package and
+>>> the experimental [[!debpts libimage-magick-perl]] package (where the
+>>> [[!debpts libmagickcore-6.q16-2-extra]] package is required too), in the
+>>> meantime filing [[!debbug 753770]]. (why is it that it sometime seems i
+>>> find more bugs in ikiwiki's dependencies than in itself when working with
+>>> it?)
+>>>
+>>> the unit test also checks for file removal when it is not created any more,
+>>> which works, so my biggest fear about the all-to-png change is unwarranted.
+>>> i'll have a look at that some time, but i think as things are, this is
+>>> ready now, please review again. --[[chrysn]]
+
+>>>> [[merged|done]] --[[smcv]]

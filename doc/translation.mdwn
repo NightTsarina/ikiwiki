@@ -1,0 +1,46 @@
+If you want to translate your wiki into another language, there are
+essentially three pieces needed for a complete translation:
+
+1. The messages in the ikiwiki program itself need to be translated.
+   Ikiwiki is internationalised, and most such messages are already marked
+   with `gettext()`. The source tarball includes a `po/ikiwiki.pot`
+   that can be copied and translated as a po file. All very standard.
+
+   Note that a few things in the source are not currently translated. These
+   include:
+
+   * Error messages of the "should never happen" variety.
+   * Certian info in commit messages, which is not visible from inside the
+     wiki, but is visible in the commit logs. This needs to stay in English
+     so that ikiwiki can parse it back out of the logs.
+   * Some parts of FormBuilder forms, which should be translatable by
+     adding templates. Note that these forms don't need templates for the
+     English version.
+   * The name of the `index` page, which has a special meaning to browsers
+     anyway.
+   * The names of some other pages, like `sidebar` and `openid`.
+   * The names and values of parameters, both to the program, in the setup
+     file, and in preprocessor directives.
+
+1. The [[basewiki]] needs to be translated. The
+   [[plugins/po]] ikiwiki plugin will allow translating
+   wikis using po files and can be used for this.
+
+   There is now a website, [l10n.ikiwiki.info](http://l10n.ikiwiki.info)
+   that both demos the translated basewiki, and allows easy translation of
+   it.
+
+   To generate the po and pot files for translating the basewiki,
+   get ikiwiki's source, edit the `po/underlay.setup` file,
+   adding your language. Then run 'make -C po underlays`.
+   This will generate many po files under `po/underlays`. The first
+   ones you'll want to translate are in the `po/underlays/basewiki` directory,
+   which is really not very large, just a few thousand words.
+   After that is done, you can tackle those under
+   `po/underlays/directives`, which are a much larger (tens of
+   thousands of words).
+
+1. The templates also need to be translated. Some work has been done on an
+   infrastructure for maintaining translated templates, as documented in
+   [[todo/l10n]], but until that's complete, you'd need to copy and
+   translate the templates by hand.

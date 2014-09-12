@@ -1,0 +1,21 @@
+[[!tag wishlist]]
+
+It would be nice to have pagespecs support "link(.)" as syntax.
+This would match pages that link to the page that invokes the pagespec.
+The use case is a blog with tags, and having a page for each tag
+which uses !inline to list all posts with the tag.
+
+Joey said on IRC that "probably changing the derel() function in 
+IkiWiki.pm is the best way to do it".
+
+> I implemented this suggestion in the simplest possible way, [[!taglink patch]] available [[here|http://git.oblomov.eu/ikiwiki/patch/f4a52de556436fdee00fd92ca9a3b46e876450fa]].
+> An alternative approach, very similar, would be to make the empty page parameter mean current page (e.g. `link()` would mean pages linking here). The patch would be very similar.
+> -- GB
+
+>> Thanks for this, and also for your recent spam-fighting.
+>> Huh, I was right about changing derel, didn't realize it would be
+>> so obvious a change. :) Oh well, I managed to complicate it
+>> some in optimisation pass.. ;)
+>>
+>> Note that your git-daemon on git.oblomov.eu seems down.
+>> I pulled the patch from gitweb, [[done]] --[[Joey]]

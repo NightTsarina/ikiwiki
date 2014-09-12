@@ -1,0 +1,26 @@
+I have some problems with a blog wiki that I try to setup.
+
+Everything seemed to work correctly with utf-8 until
+I tried to have a page name with utf-8 characters that
+contained a blog. More testing showed that the 'from'-parameter
+in the form didn't like utf-8. Just that variable, everything
+else works fine.
+
+As soon as I try to add a new entry I get "bad page name"
+instead of the editpage.
+
+Here is an example:
+The page itself is named 'hönshuset.mdwn' and it contains
+this blog inline:
+
+\[\[!inline  pages="honshuset/*" postform=yes ]]
+
+Looking at the form, it is the from-parameter that contains 'hönshuset'
+that triggers the problem. If I rename the file to honshuset.mdwn
+everything works fine.
+
+For some reason the from-parameter seems to depend on both the filename and
+the rootpage parameter. If I add *rootpage*, then I must not use
+utf-8 characters in *rootpage* or in the source filename.
+
+I use ikiwiki 3.20120629 in Debian sid.

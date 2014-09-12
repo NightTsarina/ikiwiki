@@ -1,0 +1,289 @@
+[[!tag patch plugins/inline patch/core]]
+
+The `IkiWiki::pagetitle` function does not respect title changes via `meta.title`. It really should, so that links rendered with `htmllink` get the proper title in the link text.
+
+--[[madduck]]
+
+----
+
+It is possible to set a Page-Title in the meta-plugin, but that one isn't
+reused in parentlinks. This patch may fix it.
+
+<ul>
+<li> I give pagetitle the full path to a page.
+<li> I redefine the 'pagetitle'-sub to deal with it.
+<li> to maintain compatibility for IkiWikis without the meta-plugin, i added a 'basename' to the Original-pagetitle.
+</ul>
+
+<pre>
+diff -c /usr/share/perl5/IkiWiki/Render.pm.distrib /usr/share/perl5/IkiWiki/Render.pm
+*** /usr/share/perl5/IkiWiki/Render.pm.distrib  Wed Aug  6 07:34:55 2008
+--- /usr/share/perl5/IkiWiki/Render.pm  Tue Aug 26 23:29:32 2008
+***************
+*** 102,108 ****
+        $template->param(
+                title => $page eq 'index' 
+                        ? $config{wikiname} 
+!                       : pagetitle(basename($page)),
+                wikiname => $config{wikiname},
+                content => $content,
+                backlinks => $backlinks,
+--- 102,108 ----
+        $template->param(
+                title => $page eq 'index' 
+                        ? $config{wikiname} 
+!                       : pagetitle($page),
+                wikiname => $config{wikiname},
+                content => $content,
+                backlinks => $backlinks,
+
+diff -c /usr/share/perl5/IkiWiki/Plugin/parentlinks.pm.distrib /usr/share/perl5/IkiWiki/Plugin/parentlinks.pm
+*** /usr/share/perl5/IkiWiki/Plugin/parentlinks.pm.distrib      Wed Aug  6 07:34:55 2008
+--- /usr/share/perl5/IkiWiki/Plugin/parentlinks.pm      Tue Aug 26 23:19:43 2008
+***************
+*** 44,50 ****
+                        "height_$height" => 1,
+                };
+                $path.="/".$dir;
+!               $title=IkiWiki::pagetitle($dir);
+                $i++;
+        }
+        return @ret;
+--- 44,50 ----
+                        "height_$height" => 1,
+                };
+                $path.="/".$dir;
+!               $title=IkiWiki::pagetitle($path);
+                $i++;
+        }
+        return @ret;
+
+diff -c /usr/share/perl5/IkiWiki.pm.distrib /usr/share/perl5/IkiWiki.pm
+*** /usr/share/perl5/IkiWiki.pm.distrib Wed Aug  6 07:48:34 2008
+--- /usr/share/perl5/IkiWiki.pm Tue Aug 26 23:47:30 2008
+***************
+*** 792,797 ****
+--- 792,799 ----
+        my $page=shift;
+        my $unescaped=shift;
+  
++       $page=basename($page);
++ 
+        if ($unescaped) {
+                $page=~s/(__(\d+)__|_)/$1 eq '_' ? ' ' : chr($2)/eg;
+    	}
+
+diff -c /usr/share/perl5/IkiWiki/Plugin/meta.pm.distrib /usr/share/perl5/IkiWiki/Plugin/meta.pm
+*** /usr/share/perl5/IkiWiki/Plugin/meta.pm.distrib     Wed Aug  6 07:34:55 2008
+--- /usr/share/perl5/IkiWiki/Plugin/meta.pm     Tue Aug 26 23:30:58 2008
+***************
+*** 3,8 ****
+--- 3,9 ----
+  package IkiWiki::Plugin::meta;
+  
+  use warnings;
++ no warnings 'redefine';
+  use strict;
+  use IkiWiki 2.00;
+  
+***************
+*** 289,294 ****
+--- 290,319 ----
+        }
+  }
+  
++ sub IkiWiki::pagetitle ($;$) {
++       my $page=shift;
++       my $unescaped=shift;
++ 
++       if ($page =~ m#/#) {
++               $page =~ s#^/##;
++               $page =~ s#/index$##;
++               if ($pagestate{"$page/index"}{meta}{title}) {
++                       $page = $pagestate{"$page/index"}{meta}{title};
++               } else {
++                       $page = IkiWiki::basename($page);
++               }
++       }
++ 
++       if ($unescaped) {
++               $page=~s/(__(\d+)__|_)/$1 eq '_' ? ' ' : chr($2)/eg;
++       }
++       else {
++               $page=~s/(__(\d+)__|_)/$1 eq '_' ? ' ' : "&#$2;"/eg;
++       }
++ 
++       return $page;
++ }
++ 
+  package IkiWiki::PageSpec;
+  
+  sub match_title ($$;@) {
+
+</pre>
+
+----
+
+> A few quick notes about it:
+
+> - Using <code>inline</code> would avoid the redefinition + code duplication.
+> - A few plugins would need to be upgraded.
+> - It may be necessary to adapt the testsuite in `t/pagetitle.t`, as well.
+>
+> --[[intrigeri]]
+>
+>> It was actually more complicated than expected. A working prototype is
+>> now in my `meta` branch, see my userpage for the up-to-date url.
+>> Thus tagging patch. --[[intrigeri]]
+>>
+>>> Joey, please consider merging my `meta` branch. --[[intrigeri]]
+
+So, looking at your meta branch: --[[Joey]] 
+
+* Inter-page dependencies. If page A links to page B, and page B currently
+  has no title, then A will display the link as "B". Now page B is modified
+  and a title is added. Nothing updates "A".
+  The added overhead of rebuilding every page that links to B when B is
+  changed (as the `indexhtml` hook of the po plugin does) is IMHO a killer.
+  That could be hundreds or thousands of pages, making interactive editing
+  way slow. This is probably the main reason I had not attempted this whole
+  thing myself. IMHO this calls for some kind of intellegent dependency
+  handler that can detect when B's title has changed and only rebuild pages
+  that link to B in that case.
+* Looks like some plugins that use `pagetitle` to format it for display
+  were not changed to use `nicepagetitle` (for example, rename).
+  But most of those callers intend to display the page name
+  as a title, but including the parent directories in the path. (Ie,
+  "renaming foo/page title to bar/page title" -- 
+  you want to know it's moved from foo to bar.) `nicepagetitle` does not
+  allow doing that since it always takes the `basename`.
+* I don't like the name `nicepagetitle`. It's not very descriptive, is it?
+  And it seems very confusing to choose whether to use the "nice" or original
+  version. My hope is that adding a second function is unnecessary.
+  As I understand it, you added a new function for two reasons: 
+  1) It needs the full page name, not basename.
+  2) `titlepage(pagetitle($page))` reversability.
+  
+  1) If you look at all the callers
+  Of `pagetitle` most of them pass a complete page name, not just the
+  basename. In most cases `pagetitle` is used to display the full name
+  of the page, including any subdirectory it's in. So why not just make
+  it consitently be given the full name of the page, with another argument
+  specifying if we want to get back just the base name.
+
+  2) I can't find any code that actually uses the reversability like that.
+  The value passed to `titlepage` always comes from some external
+  source. Unless I missed one.
+* The use of `File::Spec->rel2abs` is a bit scary.
+* Does it really make sense to call `pagetitle` on the meta title
+  in meta's `nicepagetitle`? What if the meta title is something like
+  "foo_bar" -- that would be changed to "foo bar".
+* parentlinks is changed to use `nicepagetitle(bestlink($page, $path))`.
+  Won't `bestlink` return "" if the parent page in question does not exist?
+* `backlinks()` is changed to add an additional `title` field
+  to the hash returned, but AFAICS this is not used in the template.
+* Shouldn't `Render.pm` use nicepagetitle when getting the title for the
+  page template? Then meta would not need to override the title in the
+  `pagetemplate` hook. (Although this would eliminate handling of
+  `title_overridden` -- but that is little used and would not catch
+  all the other ways titles can be overridden with this patch anyway.)
+
+> I'm not a reviewer or anything, but can I chime in on changes to pagetitle?
+> I don't think having meta-titles in wikilinks and the parentlinks path by
+> default is necessarily a good thing. I don't consider the meta-title of a page
+> as used in `<title>` to be the same thing as the short title you
+> want in those contexts - IMO, the meta-title is the "formal" title of the page,
+> enough to identify it with no other context, and frequently too long to be used
+> as a link title or a parentlink, whereas the parentlinks title in particular
+> should be some abbreviated form that's enough to identify it in context.
+> [tbm](http://www.cyrius.com/) expressed a similar opinion when I was discussing
+> ikiwiki with him at the weekend.
+>
+> It's a matter of taste whether wikilinks are "like a parentlink" or "like a
+> `<title>`"; I could be persuaded either way on that one.
+>
+> An example from my site: [this page](http://www.pseudorandom.co.uk/2004/debian/ipsec/)
+> is the parent of [this page](http://www.pseudorandom.co.uk/2004/debian/ipsec/wifi/)
+> with a title too long to use in the latter's parentlinks; I think the titles of
+> both those pages are too long to use as wikilink text too. Similarly, tbm's page
+> about [Debian on Orion devices from Buffalo](http://www.cyrius.com/debian/orion/buffalo/)
+> can simply be called "Buffalo" in context.
+>
+> Having a `\[[!meta abbrev="..."]]` that took precedence over title
+> in parentlinks and possibly wikilinks might be a good way to fix this? Or if your
+> preference goes the other way, perhaps a `\[[!meta longtitle=""]]` could take
+> precedence when generating the `<title>` and the title that comes after the
+> parentlinks. --[[smcv]]
+
+>> I think you've convinced me. (I had always had some doubt in my mind as
+>> to whether using titles in all these other places would make sense.)
+>> 
+>> Instead of meta abbrev, you could have a meta pagename that
+>> overrides the page name displayed everywhere (in turn overridden by
+>> meta title iff the page's title is being displayed). But is this complexity
+>> needed? We have meta redir, so if you want to change the name of a page,
+>> you can just rename it, and put in a stub redirection page so links
+>> still work.
+>> 
+>> This leaves the [[plugins/contrib/po]] plugin, which really does need
+>> a way to change the displayed page name everywhere, and at least a
+>> subset of the changes in the meta branch are needed to support that.
+>> 
+>> (This would also get around my concern about inter-page dependency
+>> handling, since po contains a workaround for that, and it's probably
+>> acceptable to use potentially slow methods to handle this case.)
+>> --[[Joey]] 
+
+>>> I'm glad to implement whatever decision we'll make, but I don't
+>>> clearly understand what this discussion's conclusion is. It seems
+>>> like we agree at least on one point: meta page titles shall not be
+>>> displayed all over the place by default; I have therefore disabled
+>>> `meta_overrides_page_title` by default in my `meta` branch.
+>>> 
+>>> My next question is then: do we only want to satisfy the `po`
+>>> plugin needs? Or do we want to allow people who want this, such as
+>>> [[madduck]], to turn on a config switch so that meta page titles
+>>> are displayed as wikilinks titles? In the latter case, what level
+>>> of configurability do we want? I can think of a quite inelegant
+>>> way to implement full configurability, and provide a configuration
+>>> switch for every place where links are displayed, such as
+>>> wikilinks, parentlinks, etc., but I don't think the added bonus is
+>>> worth the complexity of it.
+>>> 
+>>> I think we can roughly split the needs into three categories:
+>>> 
+>>> 1. never display any modified page title in links; this is the
+>>>    current behaviour, and we should keep it as the default one
+>>> 2. display modified page titles only at well chosen places; that
+>>>    could be "manual" wikilinks, I mean those generated by the
+>>>    `link`, `camelcase` & al. plugins, the recentchanges page, and
+>>>    maybe a few other places; keep the usual pagename-based title
+>>>    for every other link, such as the parentlinks ones.
+>>>    The inter-page dependency problem remains, though. As a first
+>>>    step, I'm in favour of the "slow, but correct" implementation,
+>>>    with a big warning stating that enabling this option can make
+>>>    a wiki really sluggish; if someone really wants this to work
+>>>    fast, he/she'll implement a clever dependency handler :)
+>>> 3. display modified page titles all over the place; IMHO, we
+>>>    should implement only the bits needed so that the `po` plugin
+>>>    can set this up, rather than provide this as
+>>>    a user-configurable option.
+>>> 
+>>> So my question is: do we want to implement the #2 case, or not?
+>>> I propose myself to only implement #1 and #3 to start with, but do
+>>> it in a way that leaves room for #2.
+>>> 
+>>> --[[intrigeri]]
+>>>
+>>>> I agree, we should concentrate on getting just enough functionality
+>>>> for the po plugin, because I want to merge the po plugin soon.
+>>>> If #2 gets tackled later, we will certianly have all kinds of fun.
+>>>> no matter what is done for the po plugin. --[[Joey]] 
+
+>>>>> For the record: I've gotten used to the lack of this feature,
+>>>>> and it now seems much less important to me than it was when
+>>>>> initially developing the po plugin. So, I'm hereby officially
+>>>>> removing this from my plate. If anyone else wants to start from
+>>>>> scratch, or from my initial work, I'm happy to review the
+>>>>> po-related part of things -- just drop me an email in this
+>>>>> case. --[[intrigeri]]

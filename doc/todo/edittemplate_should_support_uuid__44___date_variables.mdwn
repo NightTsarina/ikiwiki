@@ -1,0 +1,87 @@
+[[!template id=gitbranch branch=anderbubble/edittemplate author="Jonathon Anderson"]]
+[[!tag wishlist patch]]
+
+I use a default template for all new pages:
+
+    \[[!meta title="<TMPL_VAR name>"]]
+    \[[!meta author=]]
+    \[[!meta date="<TMPL_VAR time>"]]
+    \[[!meta guid="urn:uuid:<TMPL_VAR uuid>"]]
+    \[[!tag ]]
+
+This encourages me to include useful metadata on the page.  In particular, though, I've modified the `edittemplate` plugin to generate a uuid for use in the guid, for use in `inline`.  Importantly, this keeps `inline` from flooding aggregators when I rename these pages.
+
+I've also noticed that IkiWiki seems to use the creation time for the generated page for the page date.  This means that when I do a rebuild, `inline`d pages get shuffled.  The inclusion of a `time` variable in `edittemplate` (and in a `meta` declaration for all such pages) prevents the date from changing unexpectedly.
+
+I've already made these changes in my installation, and have made my patches available in the `edittemplate` branch of git://civilfritz.net/ikiwiki.git.
+
+Changes to the structure of `$pagestate{$registering_page}{edittemplate}{$pagespec}` mean that a `cgi` rebuild is necessary (for reasons I don't entirely understand); but I think that's preferable to creating an entirely separate `$pagestate` namespace for storing parameters.  That said, I'm not really a perl programmer, so corrections are welcome.
+
+> I like this patch. I hate seeing things I've already read get marked as unread in my rss feed. -- [[JoshBBall]]
+
+>> (I don't have commit access so take this with a pinch of salt -
+>> I'm just trying to help deal with the code-review backlog.)
+>>
+>> I mostly like the first and third patches in the branch (adding v4
+>> (random) UUIDs, and adding the timestamps). I'd be tempted to rename
+>> `time` and `formatted_time` to `iso_time` and `time`, but that's
+>> a matter of taste, and perhaps people with commit access have
+>> stronger opinions one way or another. I haven't researched
+>> whether there's precendent for any particular naming style
+>> elsewhere in ikiwiki.
+>>
+>> The UUID bit would require adding some reference to libuuid-tiny-perl
+>> to the Debian packaging - I think a `Recommends` is too strong
+>> but a `Suggests` seems OK.
+>>
+>> I don't like the second patch (adding URL-namespaced UUID support).
+>> I'm having a hard time thinking of any situation in which a v4 UUID
+>> would be unsuitable, which means it's unnecessary complexity.
+>> FYI, the reason that it makes a rebuild is necessary is that
+>> you've restructured `$pagestate`, which is carried over from one
+>> refresh to the next (that's its purpose), and you haven't
+>> built in any migration or backwards-compatibility code that will
+>> cope with it being in the old format. My inclination would be to
+>> drop that patch. If there's a really good reason to prefer
+>> v3/v5 UUIDs, please describe it and I'll try to suggest some
+>> better way based on that, maybe global configuration in `$config`.
+>> --[[smcv]]
+
+>>> [[!template id=gitbranch branch=smcv/ready/edittemplate2
+  browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/edittemplate2
+  author="Jonathon Anderson, [[smcv]]"]]
+>>> Here is a version of that branch that I [[would merge|users/smcv/ready]] if I could.
+>>> Changes since Jonathon's version:
+>>>
+>>> * only generate a UUID if needed
+>>> * read `/proc/sys/kernel/random/uuid` instead of using [[!cpan UUID::Tiny]]
+>>>   if available, to avoid the dependency on at least Linux
+>>> * remove v3/v5 UUID support since I don't really see the point,
+>>>   and if included, it would need a migration path for `$pagestate`
+>>> * use RFC 3339 time format for `time` to make the timezone unambiguous
+>>> * add `html_time` which is the output of `IkiWiki::displaytime`, e.g.
+>>>   a `<time>` element on HTML5 wikis
+>>>
+>>> I'm not entirely sure what the use-case is for `formatted_time`,
+>>> so perhaps either `html_time` or `formatted_time` should be
+>>> removed; but it's not as if they really cost anything.
+>>>
+>>> There doesn't seem to be any strong convention for how we name
+>>> timestamp variables/objects, so I left the naming as it was.
+>>>
+>>> --[[smcv]]
+
+>>>> the ready/edittemplate branch looks good to me too. `formatted_time` and
+>>>> `html_time` probably don't hurt, but personally i'd not add either and
+>>>> instead expose displaytime as a directive, for otherwise migrating to
+>>>> html5 would leave old evaluations of displaytime around in the repository.
+>>>> (example template: `\[[!meta date="<TMPL_VAR time>"]]I wrote this post at
+>>>> \[[!displaytime "<TMPL_VAR time>"]]`). --[[chrysn]]
+
+>>>>> That's a very good point; and Joey added `\[[!date "<TMPL_VAR time">]]`,
+>>>>> which does the same thing as your hypothetical `\[[!displaytime]]`,
+>>>>> almost 5 years ago. Branch replaced by `smcv/ready/edittemplate2`
+>>>>> which drops `formatted_time` and `html_time`, and adds a suggestion
+>>>>> to use `\[[!date]]`. --[[smcv]]
+
+>>>>>> [[merged|done]] --[[smcv]]

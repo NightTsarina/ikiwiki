@@ -1,0 +1,53 @@
+<http://khjk.org/~pesco/ikiwiki-darcs/> (now a darcs repo)
+
+I've taken all the good stuff from the above (now deleted --[[Joey]]) and added the missing hooks. The code hasn't seen a lot of testing, so some bugs are likely yet to surface. Also, I'm not experienced with perl and don't know where I should have used the function `possibly_foolish_untaint`.
+
+> Review of this one:
+> 
+> * Should use tab indentation. (fixed)
+> * `rcs_getctime` should not need to use a ctime cache (such a cache should 
+>   also not be named `.ikiwiki.ctimes`). `rcs_getctime` is run exactly
+>   once per page, ever, and the data is cached in ikiwiki's index. (fixed)
+> * I doubt that ENV{DARCS} will be available, since the wrapper clobbers> the entire
+>   environment. I'd say remove that. (fixed)
+> * I don't understand what `darcs_info` is doing, but it seems to be
+>   parsing xml with a regexp?
+> * Looks like `rcs_commit` needs a few improvements, as marked TODO
+> * `rcs_remove` just calls unlink? Does darcs record notice the file was removed
+>    and automatically commit the removal?
+> * Is the the darcs info in [[rcs/details]] still up-to-date re this version? (fixed)
+> --[[Joey]]
+
+> Update:
+>
+> I think I've addressed all of the above except for the XML parsing in `darcs_info`.
+> The function determines the md5 hash of the last patch the given file appears in.
+> That's indeed being done with regexps but my Perl isn't good enough for a quick recode
+> right now.
+>
+> As for the darcs info in [[rcs/details]], it does not accurately describe the way
+> this version works. It's similar, but the details differ slightly.
+> You could copy my description above to replace it.
+>
+>> done --[[Joey]] 
+> 
+> There is still some ironing to do, for instance the current version doesn't allow for
+> modifying attachments by re-uploading them via CGI ("darcs add failed"). Am I assuming
+> correctly that "adding" a file that's already in the repo should just be a no-op?
+> --pesco
+
+>> It should result in the new file contents being committed by
+>> `rcs_commit_staged`. For some revision control systems, which
+>> automatically commit modifications, it would be a no-op. --[[Joey]]
+
+>>> Done. --pesco
+
+----
+
+I've finally merged this into ikiwiki master. The plugin looks quite
+complete, with only the new `rcs_receive` hook missing, and I
+hope it works as good as it looks. :) If anyone wants to work on improving
+it, there are some TODOs as mentioned above that could still be improved.
+--[[Joey]] 
+
+[[!tag patch done]]

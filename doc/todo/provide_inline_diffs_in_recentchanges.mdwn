@@ -1,0 +1,27 @@
+[[!template  id=gitbranch branch=anarcat/inline_diffs author="[[anarcat]]"]]
+
+It would rock if I could view diffs from the web without going via feeds. I envision toggle-style buttons on the recentchanges page, or just links to the CGI, which then displays the diff... --[[madduck]]
+
+> The diffs are actually there, enabled by the [[plugins/recentchangesdiff]]
+> plugin, but they are hidden in the XHTML version by the stylesheet.
+> You might try a user stylesheet with `div.diff { display: block }`.
+> --[[JasonBlevins]]
+
+> > I have implemented this in a branch in my repository (see the side box).
+> > 
+> > Unfortunately it has some issues:
+> > 
+> > 1. <del>it assumes the toggle.js code is loaded somehow</del> - now loaded manually
+> > 2. <del>if the toggle code isn't loaded the diffs are displayed (which is arguably better than showing nothing since we ship the diff to the UA anyways...)</del> - i actually think that's fine
+> > 3. <del>it will show only if there's a revert URL, which is backwards, but otherwise the display is weird, with each button on its own line</del> fixed!
+> > 4. <del>if the diffurl parameter is set in the template, we'd actually see two sets of glasses, which is silly.</del> - just added a tmp_unless to fix this.
+> >
+> > I feel this should nevertheless be implemented because if we're going to compile all this crap in the page anyways and send it to the client, why not allow the user to show it? I also feel that showing it by default is a lesser evil for non-javascript users.
+> >
+> > -- [[anarcat]] 2012-03-03
+
+> > > I have pushed a new version of this patch to my branch, which fixes all the above issues. I think this is ready to be merged now. -- [[anarcat]] 2012-07-19
+
+>>>> [[done]] --[[Joey]] 
+
+[[!tag wishlist patch]]

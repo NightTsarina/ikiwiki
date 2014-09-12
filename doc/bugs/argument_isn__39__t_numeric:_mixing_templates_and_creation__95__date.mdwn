@@ -1,0 +1,62 @@
+I get the following error when building my wiki
+
+    Argument "\x{3c}\x{54}..." isn't numeric in numeric eq (==) at /usr/share/perl5/IkiWiki.pm line 2547.
+    Argument "\x{3c}\x{54}..." isn't numeric in numeric eq (==) at /usr/share/perl5/IkiWiki.pm line 2547.
+
+that line corresponds to
+
+    sub match_creation_year ($$;@) {
+	if ((localtime($IkiWiki::pagectime{shift()}))[5] + 1900 == shift) { <-- this one
+		return IkiWiki::SuccessReason->new('creation_year matched');
+	}
+
+A git bisect shows that the offending commit introduced this hunk
+
+
+    --- /dev/null
+    +++ b/templates/all_entry.mdwn
+    @@ -0,0 +1,23 @@
+    +## <TMPL_VAR year>
+    +
+    +There
+    +<TMPL_IF current>
+    +have been
+    +<TMPL_ELSE>
+    +were
+    +</TMPL_IF>
+    +[[!pagecount pages="
+    +log/* and !tagged(aggregation) and !*/Discussion and !tagged(draft)
+    +and creation_year(<TMPL_VAR year>)
+    +and !*.png and !*.jpg
+    +"]] posts
+    +<TMPL_IF current>
+    +so far
+    +</TMPL_IF>
+    +in <TMPL_VAR year>.
+    +
+    +[[!inline pages="
+    +    log/* and !tagged(aggregation) and !*/Discussion and !tagged(draft)
+    +    and creation_year(<TMPL_VAR year>)
+    +    and !*.png and !*.jpg
+    +    " archive=yes feeds=no]]
+
+The lines which feature creation_year(<TMPL_VAR year>) are most likely the culprits.  That would explain why the error was repeated twice, and would tally with the file in `templates/` being rendered, rather than the inclusionists.
+
+A workaround is to move the template outside of the srcdir into the external templates directory and include the file suffix when using it, e.g.
+
+    \[[!template id=all_entry.tmpl year=2010 current=true]]
+
+I believed (until I tested) that the [[ikiwiki/directive/if]] directive, with the `included()` test, would be an option here, E.g.
+
+    \[[!if test="included()" then="""
+    ...template...
+    """ else="""
+    Nothing to see here.
+    """]]
+
+However this doesn't work.  I assume "included" in this context means e.g. via an `inline` or `map`, not template trans-clusion. -- [[Jon]]
+
+> As far as I know, this bug was fixed in
+> 4a75dee651390b79ce4ceb1d951b02e28b3ce83a on October 20th. [[done]] --[[Joey]]
+
+>> Sorry Joey, I'll make sure to reproduce stuff against master in future. [[Jon]]

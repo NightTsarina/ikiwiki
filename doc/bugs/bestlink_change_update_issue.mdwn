@@ -1,0 +1,32 @@
+* Has bugs updating things if the bestlink of a page changes due to
+  adding/removing a page. For example, if Foo/Bar links to "Baz", which is
+  Foo/Baz, and Foo/Bar/Baz gets added, it will update the links in Foo/Bar
+  to point to it, but will forget to update the backlinks in Foo/Baz.
+
+  The buggy code is in `refresh()`, when it determines what
+  links, on what pages, have changed. It only looks at
+  changed/added/deleted pages when doing this. But when Foo/Bar/Baz
+  is added, Foo/Bar is not changed -- so the change it its
+  backlinks is not noticed.
+
+  To fix this, it needs to consider, when rebuilding Foo/Bar for the changed
+  links, what oldlinks Foo/Bar had. If one of the oldlinks linked to
+  Foo/Baz, and not links to Foo/Bar/Baz, it could then rebuild Foo/Baz.
+
+  Problem is that in order to do that, it needs to be able to tell that
+  the oldlinks linked to Foo/Baz. Which would mean either calculating
+  all links before the scan phase, or keeping a copy of the backlinks
+  from the last build, and using that. The first option would be a lot
+  of work for this minor issue.. it might be less expensive to just rebuild
+  *all* pages that Foo/Bar links to.
+
+  Keeping a copy of the backlinks has some merit. It could also be
+  incrementally updated.
+
+  This old bug still exists as of 031d1bf5046ab77c796477a19967e7c0c512c417.
+
+* And if Foo/Bar/Baz is then removed, Foo/Bar gets a broken link,
+  instead of changing back to linking to Foo/Baz.
+
+  This part was finally fixed by commit
+  f1ddf4bd98821a597d8fa1532092f09d3d9b5483.

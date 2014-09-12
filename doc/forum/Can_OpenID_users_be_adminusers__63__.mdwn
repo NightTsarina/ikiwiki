@@ -1,0 +1,69 @@
+I've just finished an upgrade to 3.141 and am trying to give myself admin rights to play with the new webadmin features.  My login is via OpenID but from reading on the wiki I believe that OpenID users should be able to be granted admin rights.  However I'm obviously doing something wrong as when I click on the "Preferences" link at the top of the page I don't see any admin features.
+
+My login is: http://adam.shand.net/
+
+In .ikiwiki/userdb I see:
+
+> adam@shand.net
+> email <br>
+> password <br>
+> locked_pages <br>
+> banned <br>
+> 1229722296 <br>
+> regdate <br>
+> http://adam.shand.net/ <br>
+
+And in my config file I have:
+
+> adminuser => [qw{http://adam.shand.net/}],
+
+Any pointers to what I'm doing wrong would be much appreciated.
+
+Thanks,
+Adam.
+
+> This is certianly supposed to work. For example, the admin
+> user on my ikiwikis is `http://joey.kitenet.net/`
+> 
+> The only caveat I know of to make it work is that the 
+> adminuser openid url has to exactly match the openid url that
+> ikiwiki sees when you log in. Including any trailing slash,
+> and the `http://`. --[[Joey]] 
+ 
+>> Hrm, it's not working.  I'm sure I've made a silly mistake somewhere but
+>> I've looked and looked and just can't find it.  Any suggestions on where
+>> to look for debugging information would be much appreciated. -- [[Adam]]
+
+>>> Well, you could use this patch to add debugging info about admin
+>>> username comparisons:
+
+<pre>
+diff --git a/IkiWiki/UserInfo.pm b/IkiWiki/UserInfo.pm
+index 0bf100a..77b467a 100644
+--- a/IkiWiki/UserInfo.pm
++++ b/IkiWiki/UserInfo.pm
+@@ -71,6 +71,8 @@ sub userinfo_setall ($$) {
+ sub is_admin ($) {
+ 	my $user_name=shift;
+ 
++	print STDERR "is_admin test @{$config{adminuser}} vs $user_name: ".(grep { $_ eq $user_name } @{$config{adminuser}})."\n";
++
+ 	return grep { $_ eq $user_name } @{$config{adminuser}};
+ }
+ 
+</pre>
+
+>>>> After applying that change to what is probably
+>>>> `/usr/share/perl5/IkiWiki/UserInfo.pm` on your system, 
+>>>> when you go to the preferences page it should log in your web server's
+>>>> error.log, something like this:
+
+	[Wed Jul 08 12:54:35 2009] [error] [client 127.0.1.1] is_admin test http://joey.kitenet.net/ vs http://joey.kitenet.net/: 1
+
+>>>> So you can see if the two usernames/openids match. If the end is "0",
+>>>> they don't match. If nothing is logged, you have not enabled the websetup plugin.
+>>>> If the end if "1" you should see the "Setup" button, if not the
+>>>> problem is not in determining if you're an admin, but elsewhere..
+>>>> --[[Joey]]
+
+I was being incredibly stupid and missed that websetup is a **plugin** and thus needed to be enabled.  Many thanks for your patient assistance, by helping me eliminate the unlikely it eventually led me to the obvious.  Cheers.  -- [[Adam]]

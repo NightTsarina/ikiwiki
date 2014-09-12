@@ -1,0 +1,44 @@
+Using a new debian 6.0.5 system, I get the following error trying to run the script:
+
+    ~/bin/ikiwiki-wordpress-import.py "Name" email@domain log < ~/share/wordpress.2012-08-23.xml.edited | git-fast-import
+    Traceback (most recent call last):
+      File "/home/luke/bin/ikiwiki-wordpress-import.py", line 139, in <module>
+        main(*sys.argv[1:])
+      File "/home/luke/bin/ikiwiki-wordpress-import.py", line 65, in main
+        content += x.find('content:encoded').string.replace('\r\n', '\n')
+    AttributeError: 'NoneType' object has no attribute 'replace'
+    git-fast-import statistics:
+
+Any ideas on what I am doing wrong would be appreciated.
+
+-----
+
+When I attempt to use this script, I get the following error:
+warning: Not updating refs/heads/master (new tip 26b1787fca04f2f9772b6854843fe99fe06e6088 does not contain fc0ad65d14d88fd27a6cee74c7cef3176f6900ec).  I have git 1.5.6.5, any ideas?
+
+Thanks!!
+
+-----
+
+### KeyError: 146
+
+I also get this error, here's the output (it seems to stem from an error in the python script):
+
+<pre>
+Traceback (most recent call last):
+  File "../ikiwiki-wordpress-import.py", line 74, in <module>
+    main(*sys.argv[1:])
+  File "../ikiwiki-wordpress-import.py", line 54, in main
+    data = content.encode('ascii', 'html_replace')
+  File "../ikiwiki-wordpress-import.py", line 30, in <lambda>
+    % htmlentitydefs.codepoint2name[ord(c)] for c in x.object[x.start:x.end]]), x.end))
+KeyError: 146
+warning: Not updating refs/heads/master (new tip 6dca6ac939e12966bd64ce8a822ef14fe60622b2 does not contain 60b798dbf92ec5ae92f18acac3075c4304aca120)
+git-fast-import statistics:
+</pre>
+
+etc.
+
+(Removed now dead info and blah blah.)
+
+> It works fine.... The script is picky about having everything in proper UTF-8, **and** proper XML and HTML escaping. You need that to have a successful import. I let Emacs remove DOS line endings, and it works OK (if on *nix of some sort, of course). Thing is with this `git fast-import`, is that you have to `git reset` afterwards, (let's say you put them in posts/) `git checkout posts`, `git add posts`, then commit. I don't know if this a characteristic with `git fast-import`, but this is the way I get my posts to exist on the filesystem. If I don't do this, then I lose the data. If you get that "Not updating..." error, then just --force the import in. --[[users/simonraven]]

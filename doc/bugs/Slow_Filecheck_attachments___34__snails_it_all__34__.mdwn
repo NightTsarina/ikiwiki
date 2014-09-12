@@ -1,0 +1,47 @@
+Saving a wiki page in ikwiki or 
+<tt>ikiwiki --setup wiki.setup --rebuild</tt> takes a **dozen minutes** on a tiny tiny wiki (10 user-added pages)!
+
+I profiled ikiwiki with [[!cpan Devel::SmallProf]] : see [[users/mathdesc]] for details.
+
+And I came to the conclusion that [[plugins/filecheck]] on attachment was the only cause.
+It always go the fallback code using time-consuming file even there it's look like it's
+not successful. 
+
+<pre>
+ # Get the mime type.
+        #
+        # First, try File::Mimeinfo. This is fast, but doesn't recognise
+        # all files.
+        eval q{use File::MimeInfo::Magic};                    
+        my $mimeinfo_ok=! $@;                                     
+        my $mimetype;
+        if ($mimeinfo_ok) {
+                my $mimetype=File::MimeInfo::Magic::magic($file);
+        }                                                         
+        
+        # Fall back to using file, which has a more complete
+        # magic database.
+        if (! defined $mimetype) {
+                open(my $file_h, "-|", "file", "-bi", $file); 
+                $mimetype=<$file_h>;                                 
+                chomp $mimetype;                            
+                close $file_h;                   
+        }
+        if (! defined $mimetype || $mimetype !~s /;.*//) {
+                # Fall back to default value.
+                $mimetype=File::MimeInfo::Magic::default($file)
+                        if $mimeinfo_ok; 
+                if (! defined $mimetype) {
+                        $mimetype="unknown";
+                }                                                  
+        }        
+</pre>
+
+I found on [[plugins/filecheck/discussion/]] what [[users/DavidBremner/]] described as :
+> no way to detect text/plain using File::MimeInfo::Magic::magic()
+But I can't figure out if my issue is boarder and includes this or not.. 
+
+Any ideas , solve :) more that welcome.
+
+> [[done]], as isbear noted in [[discussion]], there was a bug that
+> prevented File::MimeInfo::Magic from ever being used. --[[Joey]]

@@ -1,0 +1,17 @@
+ikiwiki allows to commit changes to the doc wiki over the `git://...` protocol.
+It would be nice if there'd be a uniform way to view these changes before `git
+push`ing.  For the GNU Hurd's web pages, we include a *render_locally* script,
+<http://www.gnu.org/software/hurd/render_locally>, with instructions on
+<http://www.gnu.org/software/hurd/contributing/web_pages.html>, section
+*Preview Changes*.  With ikiwiki, one can use `make docwiki`, but that excludes
+a set of pages, as per `docwiki.setup`.  --[[tschwinge]]
+
+> `ikiwiki -setup some.setup --render file.mdwn` will build the page and
+> dump it to stdout. So, for example:
+
+	ikiwiki -setup docwiki.setup --render doc/todo/preview_changes_before_git_commit.mdwn | w3m -T text/html
+
+> You have to have a setup file, though it suffices to make up your own
+> if you don't have the real one. Using ikiwiki.info's real setup file
+> won't actually work since it uses a search plugin that gets unhappy
+> if this is not in `/srv/web/ikiwiki.info`. --[[Joey]]

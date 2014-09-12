@@ -1,0 +1,96 @@
+It seems that the [[ikiwiki/directive/inline]] directive doesn't generate wikilinks to the pages it includes.  For example I would expect the following to inline all bugs inside this bug report:
+
+\[[!inline pages="bugs/* and !*/discussion and backlink(bugs)" feeds=no postform=no archive=yes show="10"]]
+
+and note that it only included the 'normal' wikilinks (and also note that this page is not marked done even though the done page is inlined).
+One might also wonder if inline would make this page link to any internal links on those inlined pages too, but I think
+that would be overkill.
+
+I'm not even really sure if this is a bug or defined behaviour, but I thought it might work and it didn't.  Regardless,
+the correct behaviour, whichever is decided, should be documented.  -- [[Will]]
+
+It appears that [[ikiwiki/directive/map]] also doesn't wikilink to the pages it links.  Perhaps in each of these
+cases there should be another parameter to the directive that allows linking to switched on.  Just switching
+it on universally at this point might break a number of people's pagespecs.  -- [[Will]]
+
+> There's a simple reason why these directives don't generate a record of a
+> wikilink between them and the pages they include: Semantically, inlining
+> a page is not the same as writing a link to it. Nor is generating a map that
+> lists a page the same as linking to it. I don't think this is a bug.
+> --[[Joey]] 
+
+>> Fair enough.  I guess we can mark this as [[done]] then.
+>>
+>> Just a bit of background on where I was going here... I was looking for
+>> a simpler way of attacking [[todo/tracking_bugs_with_dependencies]].
+>> In particular, rather than introducing changes to the pagespec definition,
+>> I wondered if you could use wiki pages as the defined pagespec and 
+>> introduce a 'match_mutual' function which matches whenever two pages
+>> link to the same third page, then you don't need to alter the pagespec
+>> handling code.
+>>
+>> But that requires being able use use a pagespec to decide what pages
+>> are linked to.  e.g. I want to make an 'openbugs' page that links to all
+>> open bugs.  Then I could make a 'readybugs' page that links to
+>> `backlink(openbugs) and !mutualLink(openbugs)`.  That is, all bugs
+>> that are open and do not themselves link to an open bug.
+>>
+>> The problem with all this is that it introduces an ordering dependency,
+>> as I noted below.  I think the original proposal is better, because it
+>> handles that ordering dependency in the definition of the pagespecs.
+>> --[[Will]]
+
+Here is a patch to make map link to its linked pages (when passed `link="yes"`).  It is a bit problematic in that it uses a pagespec
+to decide what to link to (which is why I wanted it).  However, at the time the pagespec is used the links
+for each page haven't finished being calculated (we're using the pagespec to figure out those links,
+remember).  This means that some pagespec match functions may not work correctly.  Sigh.  
+It would be nice to find a topological ordering of the pages and scan them in that order
+so that everything we need is found before we need it, but this patch doesn't do that (it would be
+complex).
+
+If you just use simple pagespecs you'll be fine.  Unfortunately I really wanted this for more complex
+pagespecs.  -- [[Will]]
+
+    diff --git a/IkiWiki/Plugin/map.pm b/IkiWiki/Plugin/map.pm
+    index 3284931..57c0a7a 100644
+    --- a/IkiWiki/Plugin/map.pm
+    +++ b/IkiWiki/Plugin/map.pm
+    @@ -13,7 +13,7 @@ use IkiWiki 3.00;
+     
+     sub import {
+     	hook(type => "getsetup", id => "map", call => \&getsetup);
+    -	hook(type => "preprocess", id => "map", call => \&preprocess);
+    +	hook(type => "preprocess", id => "map", call => \&preprocess, scan => 1);
+     }
+     
+     sub getsetup () {
+    @@ -27,7 +27,9 @@ sub getsetup () {
+     sub preprocess (@) {
+     	my %params=@_;
+     	$params{pages}="*" unless defined $params{pages};
+    -	
+    +
+    +	return if (!defined wantarray && !IkiWiki::yesno($params{link}));
+    +
+     	my $common_prefix;
+     
+     	# Get all the items to map.
+    @@ -42,6 +44,9 @@ sub preprocess (@) {
+     			else {
+     				$mapitems{$page}='';
+     			}
+    +			if (!defined wantarray && IkiWiki::yesno($params{link})) {
+    +				push @{$links{$params{page}}}, $page;
+    +			}
+     			# Check for a common prefix.
+     			if (! defined $common_prefix) {
+     				$common_prefix=$page;
+    @@ -62,6 +67,8 @@ sub preprocess (@) {
+     		}
+     	}
+     	
+    +	return if ! defined wantarray;
+    +	
+     	# Common prefix should not be a page in the map.
+     	while (defined $common_prefix && length $common_prefix &&
+     	       exists $mapitems{$common_prefix}) {

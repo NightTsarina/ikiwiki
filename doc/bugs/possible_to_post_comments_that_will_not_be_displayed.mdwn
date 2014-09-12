@@ -1,0 +1,34 @@
+[[!template id=gitbranch branch=smcv/ready/comments author="[[smcv]]"
+browse="http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/comments"]]
+[[!tag patch users/smcv/ready]]
+
+The ability to post comments depends on several factors:
+
+* `comments_pagespec` controls whether comments on a particular
+  page will be displayed
+* `comments_closed_pagespec` controls whether comments on
+  a particular page are allowed
+* the `check_canedit` call controls whether comments are allowed
+  for a particular combination of page and user
+
+If `check_canedit` says that a user can post a comment
+(in particular, if [[plugins/opendiscussion]] is enabled or
+[[plugins/lockedit]] is disabled or permissive),
+and `comments_closed_pagespec` does not contradict it,
+then users who construct a `do=comment` CGI URL manually
+can post comments that will not be displayed. I don't think
+this is a security flaw as such, which is why I'm not
+reporting it privately, but it violates least-astonishment.
+
+My `ready/comments` branch fixes this, by changing the test
+at submission time from (pseudocode)
+
+    !comments_closed_pagespec && check_canedit
+
+to
+
+    comments_pagespec && !comments_closed_pagespec && check_canedit
+
+--[[smcv]]
+
+> [[merged|done]] --[[smcv]]

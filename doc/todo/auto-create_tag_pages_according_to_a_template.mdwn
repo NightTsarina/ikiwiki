@@ -1,0 +1,270 @@
+It would be great if I could tell ikiwiki to automatically instantiate pages for each [[tag|/tags]], according to a template, especially when `$tagbase` is set.
+
+Tags are mainly specific to the object to which they’re stuck. However, I often use them the other way around, too: as concepts. And sometimes I’d like to see all pages related to a given concept (“tagged with a given tag”). The only way to do this with ikiwiki is to instantiate a page for each tag and slap a map on it. This is quite tedious and I’d really love to see Ikiwiki do so by default for all tags.
+
+Also see: <http://madduck.net/blog/2008.01.06:new-blog/> and <http://users.itk.ppke.hu/~cstamas/code/ikiwiki/autocreatetagpage/>
+
+[[!tag wishlist plugins/tag patch patch/core]]
+
+I would love to see this as well. -- dato
+
+---
+
+I have create a patch to [[tag.pm|plugins/tag]] for add the option for auto create tag pages.
+A new setting is used to enable or disable auto-create tag pages, `tag_autocreate`.
+The new tag file is created during the preprocess phase. 
+The new tag file is then complied during the change phase.
+
+*see git history of this page if you want the patch --[[smcv]]*
+
+This uses a [[template|templates]] called `autotagpage.tmpl`, here is my template file:
+
+    \[[!inline pages="link(<TMPL_VAR TAG>)" archive="yes"]]
+
+
+A quirk I have not figured out is during the `sub change`, see my comments in the code.
+I am not sure if that is the best way to handle it.
+
+[[!tag patch]]
+-- Jeremy Schultz <jeremy.schultz@uleth.ca>
+
+No, this doesn't help:
+
+	+       # This refresh/saveindex is to fix the Tags link
+	+       # With out this additional refresh/saveindex the tag link displays ?tag
+	+       IkiWiki::refresh();
+	+       IkiWiki::saveindex();
+
+On the second extra pass, it doesn't notice that it has to update the "?"-link. If I run ikiwiki once more, it is updated. I don't know yet how this should be fixed, because I don't know the internals of ikiwiki well enough. Something inhibits detecting the need to update in refresh() in Render.pm; perhaps, this condition: 
+
+		if (! $pagemtime{$page}) {
+                   ...
+				push @add, $file;
+                   ...
+                }
+
+is not satisfied for the newly created tag page. I shall put debug msgs into Render.pm to find out better how it works. --Ivan Z.
+
+---
+
+I've made another attempt at fixing this
+
+The current progress can be found at my [git repository][gitweb] on branch
+`autotag`:
+
+	git://git.liegesta.at/git/ikiwiki
+
+[gitweb]: http://git.liegesta.at/?p=ikiwiki.git;a=shortlog;h=refs/heads/autotag (gitweb for branch autotag)
+
+It's not entirely finished yet, but already quite usable. Testing and comments
+on code quality, implementation details, as well as other patches would be
+appreciated.
+
+Here's what it does right now:
+
+* enabled by setting `tag_autocreate=1` in the configuration.
+* Tag pages will be created in `tagbase` from the template `autotag.tmpl`.
+* Will correctly render all links, and dependencies. Well, AFAIK.
+* When a tag page is deleted it will automatically recreated from template. (I
+consider this a feature, not a bug)
+* Requires a rebuild on first use.
+* Adds a function `add_autofile()` to the plugin API, to do all this.
+
+Todo/Bugs:
+
+* Will still create a page even if there's a page other than `$tag` under
+`tagbase` satisfying the tag link. (details? --[[Joey]])
+* Call from `IkiWiki.pm` to `Render.pm`, which adds a module dependency in the
+wrong direction. (fixed --[[Joey]] )
+* Add files to RCS.
+* Unit tests.
+* Proper documentation. (fixed (mostly) --[[Joey]])
+
+--[[David_Riebenbauer]]
+
+> Starting review of this. Some of your commits are to very delicate,
+> optimised, and security-sensitive ground, so I have to look at them very
+> carefully. --[[Joey]]
+
+>> First of, sorry that it took me so damn long to answer. I didn't lose
+>> interest but it took a while for me to find the time and motivation
+>> to address you suggestions. --[[David_Riebenbauer]]
+
+> * In the refactoring in [f3abeac919c4736429bd3362af6edf51ede8e7fe][],
+>   you introduced at least 2 bugs, one a possible security hole.
+>   Now one part of the code tests `if ($file)` and the other
+>   caller tests `if ($f)`. These two tests both tested `if (! defined $f)`
+>   before. Notice that the variable needs to be the untainted variable
+>   for both. Also notice that `if ($f)` fails if `$f` contains `0`,
+>   which is a very common perl gotcha.
+> * Your refactored code changes `-l $_ || -d _` to `-l $file || -d $file`.
+>   The latter makes one more stat system call; note the use of a
+>   bare `_` in the first to make perl reuse the stat buffer.
+> * (As a matter of style, could you put a space after the commas in your
+>   perl?)
+
+>> The first two points should be addressed in
+>> [da5d29f95f6e693e8c14be1b896cf25cf4fdb3c0][]. And sure, I can add the
+>> spaces. --[[David_Riebenbauer]]
+
+> I'd like to cherry-pick the above commit, once it's in shape, before
+> looking at the rest in detail. So just a few other things that stood out.
+> 
+> * Commit [4af4d26582f0c2b915d7102fb4a604b176385748][] seems unnecessary.
+>   `srcfile($file, 1)` already is documented to return undef if the
+>   file does not exist. (But without the second parameter, it throws
+>   an error.)
+
+>> You're right. I must have been some confused by some other promplem I
+>> introduced then. Reverted. --[[David_Riebenbauer]]
+
+> * Commit [f58f3e1bec41ccf9316f37b014ce0b373c8e49e1][] adds a line
+>   that is intented by a space, not a tab.
+
+>> Sorry, That one was reverted anyway. --[[David_Riebenbauer]]
+
+> * Commit [f58f3e1bec41ccf9316f37b014ce0b373c8e49e1][] says that auto-added
+>   files will be recreated if the user deletes them. That seems bad.
+>   `autoindex` goes to some trouble to not recreate deleted files.
+
+>> I reverted the commit and addressed the issue in
+>> [a358d74bef51dae31332ff27e897fe04834571e6][] and
+>> [981400177d68a279f485727be3f013e68f0bf691][].
+ --[[David_Riebenbauer]]
+
+>>> This doesn't seem to have all the refinements that autoindex has:
+>>>
+>>> * `autoindex` attaches the record of deletions to the `index` page, which
+>>>   is (nearly) guaranteed to exist; this one attaches the record of
+>>>   deletions to the deleted page's page state. Won't that tend to result
+>>>   in losing the record along with the deleted page?
+
+>>>> This is probably on of the harder things to do, 'cause there are (most of the
+>>>> time) several pages that are responsible for the creation of a single tag page.
+>>>> Of course I could attach the info to all of them.
+
+>>>> With current behaviour I think the information in `%pagestate` is kept around
+>>>> regardless whether the corresponding page exists or not.
+>>>> --[[David_Riebenbauer]]
+
+>>>>> Sorry, I'll try to be clearer: `autoindex` hard-codes that the index page
+>>>>> of the entire wiki is the one responsible for storing the page state. That
+>>>>> page isn't responsible for the creation of the tag page, it's just an
+>>>>> arbitrary page that's (more or less) guaranteed to exist. --[[smcv]]
+
+>>>>> I don't like that [[plugins/autoindex]] has to do that,
+>>>>> but `%pagestate` values are only stored for pages that exist,
+>>>>> so it was necessary. (Another way to look at this is that
+>>>>> `%pagestate` is not the ideal data structure.) --[[Joey]]
+
+>>>>>> Aha! Having looked at [[plugins/write]] again, it turns out that what this
+>>>>>> feature should really use is `%wikistate`, I think? :-) --[[smcv]]
+
+>>>>>>> Ah, indeed, that came after I wrote autoindex. I've fixed autoindex to
+>>>>>>> use it. --[[Joey]]
+
+>>>>> Ok, now I know what you mean. --[[David_Riebenbauer]]
+
+>>> * `autoindex` forgets that a page was deleted when that page is
+>>>   re-created
+
+>>>> Yes, I forgot about that and that is a bug. I'll fix that.
+>>>> --[[David_Riebenbauer]]
+
+>>>>> In my branch, it keeps a list of autofiles that were created,
+>>>>> not deleted. And I think that turns out to be necessary, really.
+>>>>> However, I see no way to clean out that list on deletion and
+>>>>> manual recreation -- it still needs to remember it was once an autofile,
+>>>>> in order to avoid recreating it if it's deleted yet again. --[[Joey]]
+
+>>>>>> Are these really the semantics we want? It seems strange to me
+>>>>>> that this:
+>>>>>>
+>>>>>> * tag a page as foo
+>>>>>> * tags/foo automatically appears
+>>>>>> * delete tags/foo
+>>>>>> * create tags/foo manually
+>>>>>> * delete tags/foo again
+>>>>>> * tags/foo isn't automatically created
+>>>>>>
+>>>>>> isn't the same as this:
+>>>>>>
+>>>>>> * create tags/foo
+>>>>>> * delete tags/foo
+>>>>>> * tag a page as foo
+>>>>>> * tags/foo automatically appears
+>>>>>>
+>>>>>> or even this:
+>>>>>>
+>>>>>> * create tags/foo
+>>>>>> * tag a page as foo
+>>>>>> * delete tags/foo
+>>>>>> * tags/foo automatically appears (?)
+>>>>>>
+>>>>>> --[[smcv]]
+
+>>>>>>> I agree that the last of these is not desired. It could be avoided
+>>>>>>> by extending the list of autofiles to include those that were not
+>>>>>>> created due to the file/page already existing.
+>>>>>>> 
+>>>>>>> Hmm, that would fix the previous scenario too. --[[Joey]] 
+
+>>> * `autoindex` forgets that a page was deleted when it's no longer needed
+>>>   anyway (this may be harder for `autotag`?)
+
+>>>> I don't think so. AFAIK ikiwiki can detect whether there are taglinks to a page
+>>>> anyway, so it should be quite easy. I'll try to implement that too.
+>>>> --[[David_Riebenbauer]]
+
+>>> It'd probably be an interesting test of the core change to port
+>>> `autoindex` to use it? (Adding the file to the RCS would be
+>>> necessary to get parity with `autoindex`.) --[[smcv]]
+
+>>>> Good suggestion. Adding the files to RCS is on my todo list anyway.
+>>>> --[[David_Riebenbauer]]
+
+>>>>> I think it may be better to allow the `add_autofile` caller
+>>>>> to specify if it is added to RCS. In my branch, it can do
+>>>>> so by just making the callback it registers call `rcs_add`; 
+>>>>> and I have tag do this. Other plugins might want autofiles
+>>>>> that do not get checked in, conceivably.
+>>>>> --[[Joey]] 
+
+> Regarding the call from `IkiWiki.pm` to `Render.pm`, wouldn't this be
+> quite easy to solve by moving `verify_src_file` to IkiWiki.pm? --[[smcv]]
+
+>> True. I'll do that. --[[David_Riebenbauer]]
+>> Fixed in my branch --[[Joey]]
+
+[[!template id=gitbranch branch=origin/autotag author="[[Joey]]"]]
+I've pushed an autotag branch of my own, which refactors
+things a bit and fixes bugs around deletion/recreation.
+I've tested it fairly thouroughly. --[[Joey]]
+
+[f3abeac919c4736429bd3362af6edf51ede8e7fe]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f3abeac919c4736429bd3362af6edf51ede8e7fe (commitdiff for f3abeac919c4736429bd3362af6edf51ede8e7fe)
+[4af4d26582f0c2b915d7102fb4a604b176385748]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=4af4d26582f0c2b915d7102fb4a604b176385748 (commitdiff for 4af4d26582f0c2b915d7102fb4a604b176385748)
+[f58f3e1bec41ccf9316f37b014ce0b373c8e49e1]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=f58f3e1bec41ccf9316f37b014ce0b373c8e49e1 (commitdiff for f58f3e1bec41ccf9316f37b014ce0b373c8e49e1)
+[da5d29f95f6e693e8c14be1b896cf25cf4fdb3c0]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=da5d29f95f6e693e8c14be1b896cf25cf4fdb3c0 (commitdiff for da5d29f95f6e693e8c14be1b896cf25cf4fdb3c0)
+[a358d74bef51dae31332ff27e897fe04834571e6]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=a358d74bef51dae31332ff27e897fe04834571e6 (commitdiff for a358d74bef51dae31332ff27e897fe04834571e6)
+[981400177d68a279f485727be3f013e68f0bf691]: http://git.liegesta.at/?p=ikiwiki.git;a=commitdiff;h=981400177d68a279f485727be3f013e68f0bf691 (commitdiff for 981400177d68a279f485727be3f013e68f0bf691)
+
+-------------------
+
+Even if this is already marked as done, I'd like to suggest an alternative
+solution:
+
+Instead of creating a file that gets checked in into the RCS, the source files
+could be left out and the output files be written as long as there is no
+physical source file (think of a virtual underlay). Something similar would be
+required to implement [[todo/alias directive]], which couldn't be easily done
+by writing to the RCS as the page's contents can change depending on which
+other pages claim it as an alias. --[[chrysn]]
+
+I agree with [[chrysn]]. In fact, is there any good reason that the core tag
+plugin doesn't do this? The current usability is horrible, to the point that
+I have gone 2.5 years with Ikiwiki and haven't yet started using tags.
+--[Eric](http://wiki.pdxhub.org/people/eric)
+
+> See [[todo/transient_pages]] for progress on this. --[[smcv]]
+
+[[!tag done]]

@@ -1,0 +1,64 @@
+This really look like a general PERL problem, but google search returns no relative result of undfined method 'distribution' at FireTime.pm at all. Answer on where to look for answer is appreciated too. Using perl 5.18 on NETBSD 6.1
+
+<pre>
+$ PERL5LIB=`pwd`/ikiwiki:`pwd`/ikiwiki/cpan:`pwd`/lib/perl5 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->install("Bundle::IkiWiki")'
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+        LC_ALL = "en_US.UTF-8",
+        LANG = "en_US.UTF-8"
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale ("C").
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+        LC_ALL = "en_US.UTF-8",
+        LANG = "en_US.UTF-8"
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale ("C").
+
+CPAN.pm requires configuration, but most of it can be done automatically.
+If you answer 'no' below, you will enter an interactive dialog for each
+configuration option instead.
+
+Would you like to configure as much as possible automatically? [yes] yes
+
+ <install_help>
+
+Warning: You do not have write permission for Perl library directories.
+
+To install modules, you need to configure a local Perl library directory or
+escalate your privileges.  CPAN can help you by bootstrapping the local::lib
+module or by configuring itself to use 'sudo' (if available).  You may also
+resolve this problem manually if you need to customize your setup.
+
+What approach do you want?  (Choose 'local::lib', 'sudo' or 'manual')
+ [local::lib] local::lib
+
+Autoconfigured everything but 'urllist'.
+
+Now you need to choose your CPAN mirror sites.  You can let me
+pick mirrors for you, you can select them from a list or you
+can enter them by hand.
+
+Would you like me to automatically choose some CPAN mirror
+sites for you? (This means connecting to the Internet) [yes] yes
+Trying to fetch a mirror list from the Internet
+Fetching with LWP:
+http://www.perl.org/CPAN/MIRRORED.BY
+
+Looking for CPAN mirrors near you (please be patient)
+.......................... done!
+
+New urllist
+  http://cpan.llarian.net/
+  http://mirrors.syringanetworks.net/CPAN/
+  http://noodle.portalus.net/CPAN/
+
+Autoconfiguration complete.
+
+Attempting to bootstrap local::lib...
+
+Writing /arpa/tz/w/weiwu/.local/share/.cpan/CPAN/MyConfig.pm for bootstrap...
+commit: wrote '/arpa/tz/w/weiwu/.local/share/.cpan/CPAN/MyConfig.pm'
+Can't call method "distribution" on an undefined value at /usr/pkg/lib/perl5/5.18.0/CPAN/FirstTime.pm line 1257.
+$ rm -r /arpa/tz/w/weiwu/.local/share/.cpan/
+</pre>

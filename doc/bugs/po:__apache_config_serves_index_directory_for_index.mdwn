@@ -1,0 +1,85 @@
+Similarly to [[po:_apache_config_serves_index.rss_for_index]],
+the [[plugins/po]] apache config has another bug. 
+
+The use of "DirectoryIndex index", when combined with multiviews, is intended
+to serve up a localized version of the index.??.html file.
+
+But, if the site's toplevel index page has a discussion page, that
+is "/index/discussion/index.html". Or, if the img plugin is used to scale
+an image on the index page, that will be "/index/foo.jpg". In either case,
+the "index" directory exists, and so apache happily displays that
+directory, rather than the site's index page!
+
+--[[Joey]]
+
+> Ack, we do have a problem. Seems like ikiwiki's use of `index/` as
+> the directory for homepage's sub-pages and attachments makes it
+> conflict deeply with Apache's `MultiViews`: as the [MultiViews
+> documentation](http://httpd.apache.org/docs/2.2/mod/mod_negotiation.html#multiviews)
+> says, `index.*` are considered as possible matches only if the
+> `index/` directory *does not exist*. Neither type maps nor
+> `mod_mime` config parameters seem to allow overriding this behavior.
+> Worse even, I guess any page called `index` would have the same
+> issues, not only the wiki homepage.
+
+> I can think of two workarounds, both kinda stink:
+>
+> 1. Have the homepage's `targetpage` be something else than
+>    `index.html`.
+> 2. Have the directory for the homepage's sub-pages and attachments
+>    be something else than `index`.
+>
+> I doubt either of those can be implemented without ugly special
+> casing. Any other idea? --[[intrigeri]]
+
+>> As I understand it, this is how you'd do it with type maps:
+>>
+>> * turn off MultiViews
+>> * `AddHandler type-map .var`
+>> * `DirectoryIndex index.var`
+>> * make `index.var` a typemap (text file) pointing to `index.en.html`,
+>>   `index.fr.html`, etc.
+>>
+>> I'm not sure how well that fits into IkiWiki's structure, though;
+>> perhaps the master language could be responsible for generating the
+>> type-map on behalf of all slave languages, or something?
+>>
+>> Another possibility would be to use filenames like `index.html.en`
+>> and `index.html.fr`, and set `DirectoryIndex index.html`? This could
+>> get problematic for languages whose ISO codes conventionally mean
+>> something else as extensions (Polish, `.pl`, is the usual example,
+>> since many sites interpret `.pl` as "this is a (Perl) CGI").
+>> --[[smcv]]
+
+>>> There is something to be said about "index/foo" being really ugly
+>>> and perhaps it would be nice to use something else. There does not
+>>> appear to even be one function that could be changed; "$page/foo" is
+>>> hardwired into ikiwiki in many places as a place to dump subsidiary
+>>> content -- and it's not even consistent, since there is also eg,
+>>> "$page.rss". I agree, approaching it from this direction would be a
+>>> mess or a lot of work.
+>>>
+>>> Type maps seem like a valid option, but also a lot of clutter.
+>>> 
+>>> `index.html.pl` does seem to be asking for trouble, even if apache
+>>> can be configured to DTRT. It would make serving actual up perl scripts
+>>> hard, at least. But that is some good out of the box thinking.. 
+>>> perhaps "index.foo.pl.html"?
+>>>
+>>> However, that would mean that 
+>>> web servers need to be configured differently to serve translated
+>>> and non-translated sites. The current apache configuration for po
+>>> can be used with non-po sites and they still work. --[[Joey]]
+
+>>>> I am vulnerable to the same problem because I use MultiViews, though I don't use the `po` module;
+>>>> I have to serve both Australian English and American English for my company's website
+>>>> (for SEO purposes; certain words that relate to our products are spelt differently in US and Australian English, and we need to be able to be googled with both spellings).
+>>>> I'm just fortunate that nobody has thought to add attachments to the front page yet.
+>>>> I raise this to point out that this is going to be a recurring problem that won't necessarily be fixed by changing the `po` module in isolation.
+>>>>
+>>>> One could argue that "index" is already a special case, since it is the top page of the site.
+>>>> Things like parentlinks already use a special case for the top page (checking the variable HAS_PARENTLINKS).
+>>>> Likewise, when --usedirs is true, index is treated as a special case, since it generates "index.html" and not "index/index.html".
+>>>>
+>>>> Unfortunately, I'm not sure what the best approach to solving this would be.
+>>>> --[[KathrynAndersen]]

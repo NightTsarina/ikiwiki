@@ -1,0 +1,77 @@
+[[!template id=plugin name=highlight author="[[Joey]]"]]
+[[!tag type/format]]
+
+This plugin allows ikiwiki to syntax highlight source code, using
+a fast syntax highlighter that supports over a hundred programming
+languages and file formats.
+
+## prerequisites
+
+You will need to install the perl bindings to the
+[highlight library](http://www.andre-simon.de/). In Debian
+they are in the [[!debpkg libhighlight-perl]] package. If
+your distribution does not have them, look in `examples/swig`
+in highlight's source.
+
+## embedding highlighted code
+
+To embed highlighted code on a page, you can use the
+[[format]] plugin.
+
+For example:
+
+	\[[!format c """
+	void main () {
+		printf("hello, world!");
+	}
+	"""]]
+
+	\[[!format diff """
+	-bar
+	+foo
+	"""]]
+
+You can do this for any extension or language name supported by
+the [highlight library](http://www.andre-simon.de/) -- basically anything
+you can think of should work.
+
+## highlighting entire source files
+
+To enable syntax highlighting of entire standalone source files, use the
+`tohighlight` setting in your setup file to control which files should be
+syntax highlighted. Here is a typical setting for it, enabling highlighting
+for files with the extensions .c, etc, and also for any files named
+"Makefile".
+
+	tohighlight => ".c .h .cpp .pl .py Makefile:make",
+
+It knows what language to use for most filename extensions (see
+`/etc/highlight/filetypes.conf` for a partial list), but if you want to
+bind an unusual filename extension, or any file without an extension
+(such as a Makefile), to a language, you can do so by appending a colon
+and the name of the language, as illustrated for Makefiles above.
+
+With the plugin configured this way, source files become full-fledged
+wiki pages, which means they can include [[WikiLinks|ikiwiki/wikilink]]
+and [[directives|ikiwiki/directive]] like any other page can, and are also
+affected by the [[smiley]] plugin, if it is enabled. This can be annoying
+if your code accidentially contains things that look like those.
+
+On the other hand, this also allows your syntax highlighed
+source code to contain markdown formatted comments and hyperlinks
+to other code files, like this:
+
+	/* \[[!format mdwn """
+		This comment will be formatted as *markdown*!
+
+		See \[[bar.h]].
+	""]] */
+
+Finally, bear in mind that this lets anyone who can edit a page in your
+wiki also edit source code files that are in your wiki. Use appropriate
+caution.
+
+## colors
+
+The colors etc used for the syntax highlighting are entirely configurable
+by CSS. See ikiwiki's [[style.css]] for the defaults.

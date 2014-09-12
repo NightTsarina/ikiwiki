@@ -1,0 +1,14 @@
+[[!meta author="spalax"]]
+[[!template id=plugin name=parenttag author="[[Louis|spalax]]"]]
+[[!tag type/tags]]
+
+This plugin deals with subtags (e.g. `mathematics/calculus`). Whenever a page is tagged, it is automatically tagged with its subtags as well: the following directives are equivalent:
+
+    \[[!tag mathematics/calculus]]
+    \[[!tag mathematics mathematics/calculus]]
+
+The `taglink` directive is changed as well: instead of displaying the leaf of the tag, the full path (up to `tagbase` configuration option) is displayed, each bit linking to its corresponding page. For instance, directive `\[[!taglink mathematics/calculus]]` creates a link similar to `\[[TAGBASE/mathematics]]/\[[TAGBASE/mathematics/calculus]]`.
+
+## Code
+
+Code and documentation can be found here : [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/Parenttag]].

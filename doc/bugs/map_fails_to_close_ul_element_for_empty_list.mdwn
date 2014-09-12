@@ -1,0 +1,93 @@
+[[!tag plugins/map patch]]
+
+input:
+
+    before.
+    \[[!map pages="sdfsdfsdfsd/*"]]
+    after.
+
+Presuming that the pagespec does not match, output:
+
+    <p>before.
+    <div class="map">
+    <ul>
+    </div></p>
+
+The UL element is not closed.
+
+Patch:
+
+    --- /usr/share/perl5/IkiWiki/Plugin/map.pm  2009-05-06 00:56:55.000000000 +0100
+    +++ IkiWiki/Plugin/map.pm   2009-06-15 12:23:54.000000000 +0100
+    @@ -137,11 +137,11 @@
+            $openli=1;
+            $parent=$item;
+        }
+    -   while ($indent > 0) {
+    +   while ($indent > 1) {
+            $indent--;
+            $map .= "</li>\n</ul>\n";
+        }
+    -   $map .= "</div>\n";
+    +   $map .= "</ul>\n</div>\n";
+        return $map;
+     }
+     
+
+-- [[Jon]]
+
+> Strictly speaking, a `<ul>` with no `<li>`s isn't valid HTML either...
+> could `map` instead delay emitting the first `<ul>` until it determines that
+> it will have at least one item? Perhaps refactoring that function into
+> something easier to regression-test would be useful. --[[smcv]]
+
+>> You are right (just checked 4.01 DTD to confirm). I suspect refactoring
+>> the function would be wise. From my brief look at it to formulate the
+>> above I thought it was a bit icky.  I'm not a good judge of what would
+>> be regression-test friendly but I might have a go at reworking it. With
+>> this variety of problem I have a strong inclination to use HOFs like map,
+>> grep. - [[Jon]]
+
+>>> The patch in [[map/discussion|plugins/map/discussion]] has the same
+>>> problem, but does suggest a simpler approach to solving it (bail out
+>>> early if the map has no items at all). --[[smcv]]
+
+>>>> Thanks for pointing out the problem. I guess this patch should solve it.
+>>>> --[[harishcm]]
+
+>>>>> Well, I suppose that's certainly a minimal patch for this bug :-)
+>>>>> I'm not the IkiWiki maintainer, but if I was, I'd apply it, so I've put
+>>>>> it in a git branch for Joey's convenience. Joey, Jon: any opinion?
+>>>>>
+>>>>> If you want to be credited for this patch under a name other than
+>>>>> "harishcm" (e.g. your real name), let me know and I'll amend the branch.
+>>>>> (Or, make a git branch of your own and replace the reference just below,
+>>>>> if you prefer.) --[[smcv]]
+
+>>>>>> The current arrangement looks fine to me. Thanks. --[[harishcm]]
+
+> [[merged|done]] --[[Joey]] 
+
+Patch:
+
+    --- /usr/local/share/perl/5.8.8/IkiWiki/Plugin/map.pm
+    +++ map.pm
+    @@ -80,7 +80,17 @@
+     	my $indent=0;
+     	my $openli=0;
+     	my $addparent="";
+    -	my $map = "<div class='map'>\n<ul>\n";
+    +	my $map = "<div class='map'>\n";
+    +
+    +	# Return empty div if %mapitems is empty
+    +	if (!scalar(keys %mapitems)) {
+    +		$map .= "</div>\n";
+    +		return $map; 
+    +	} 
+    +	else { # continue populating $map
+    +		$map .= "<ul>\n";
+    +	}
+    +
+     	foreach my $item (sort keys %mapitems) {
+     		my @linktext = (length $mapitems{$item} ? (linktext => $mapitems{$item}) : ());
+     		$item=~s/^\Q$common_prefix\E\///

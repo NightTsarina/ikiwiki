@@ -1,0 +1,14 @@
+Given an uploaded image via: \[\[!img NAME.svg alt="image"\]\]
+
+Viewing the generated page shows the following error:
+
+"\[\[!img Error: failed to read name.svg: Exception 420: no decode delegate for this image format `/home/user/path/name.svg' @ error/svg.c/ReadSVGImage/2815\]\]"
+
+The caps in the image title were somehow converted to small letters and then the image is saved as a directory.  Very puzzling.  
+I get the same error when image names are small letters.
+
+The error also occurs with png images.  
+
+How do I fix this?
+
+Later investigation ... I got around the problem by creating the mark-up in a new directory.  However, if I try to create a new directory with the same name as the directory containing the problem code, the problem re-emerges -- the old directory is apparently not overwritten.  Perhaps this is an issue with the git storage.    

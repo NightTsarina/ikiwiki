@@ -1,0 +1,25 @@
+Would you consider Recommending `libtext-markdown-discount` instead of
+depending on it?  It isn't available in wheezy, and the sid version is the
+wrong side of a perl transition, unfortunately.  This is the only
+dependency preventing the stock sid version of ikiwiki from being
+installable on a wheezy host. -- [[Jon]]
+
+> That's a temporary problem. Actually, I just checked and it's already
+> resolved; discount is in testing now, as is the latest ikiwiki.
+> 
+> Ikiwiki depends on enough perl modules
+> to make sure it will work, and since it uses discount by default,
+> it needs to depend on it. If I make the dependency on
+> `libtext-markdown-discount-perl | libtext-markdown-perl',
+> then users will not automatically transition to using discount, which
+> I want them to do. [[done]] --[[Joey]]
+
+>> Sorry, I made a mistake in the phrasing of my original request. It's
+>> not installable on *squeeze*, which is what I care about, rather than
+>> *wheezy*.  Someone needs to backport `libtext-markdown-discount` I
+>> guess. — [[Jon]]
+
+>>> For squeeze, it will be appropriate for an ikiwiki backport to
+>>> still depend on the old markdown. Although a discount backport would be 
+>>> nice! I don't want the current ikiwiki to be held back by requirement
+>>> that it be installable as-is on squeeze. --[[Joey]]

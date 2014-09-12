@@ -1,0 +1,99 @@
+A dear [[wishlist]] which would resolve [[this question|forum/ikiwiki_and_big_files]]: ikiwiki should support git-annex repositories.
+
+I am not sure how this would work, but from my POV, it should do a `git annex get` when new commits are pushed to its bare repo. This would assume, of course, that there's another repo somewhere that ikiwiki has access to, which works for HTTP-style remotes, but could be more problematic for SSH remotes that require a key.
+
+Another solution would be to make ikiwiki a remote itself and allow users to push big files to it. The only problem I see with this is those files would end up in the bare repository and not necessarily show up in the web rendering. Ideally, a big file pushed would be hardlinked between the two repos, but it seems [git-annex doesn't support that yet](http://git-annex.branchable.com/todo/wishlist:_use_hardlinks_for_local_clones). --[[anarcat]]
+
+> One technical problem with this is that ikiwiki doesn't allow symlinks
+> for [[security]], but git-annex relies on symlinks (unless you're in
+> direct mode, but I'm not sure that's really desirable here).
+> I'd like to make symlinks possible without compromising security,
+> but it'll be necessary to be quite careful. --[[smcv]]
+
+First implementation
+====================
+
+So as the [[discussion]] shows, it seems it's perfectly possible to actually do this! There's this [gallery site](http://stockholm.kalleswork.net) which uses the [[plugins/contrib/album]] plugin and git-annex to manage its files.
+
+The crucial steps are:
+
+ 1. setup a git annex remote in `$srcdir`
+
+ 2. configure direct mode because ikiwiki ignores symlinks for [[security]] reasons:
+
+        cd $srcdir
+        git annex init
+        git annex direct
+
+ 3. configure files to be considered by git-annex (those will be not committed into git directly):
+
+        git config annex.largefiles 'largerthan=100kb and not (include=*.mdwn or include=*.txt)'
+
+ 4. make the bare repository (the remote of `$srcdir`) ignored by git-annex:
+
+        cd $srcdir
+        git config remote.origin.annex-ignore true
+        git config remote.origin.annex-sync false
+
+    (!) This needs to be done on *ANY* clone of the repository, which is annoying, but it's important because we don't want to see git-annex stuff in the bare repo. (why?)
+
+ 5. deploy the following crappy plugin to make commits work again and make sure the right files are added in git-annex:
+
+[[!format perl """
+#!/usr/bin/perl
+package IkiWiki::Plugin::gitannex;
+
+use warnings;
+use strict;
+use IkiWiki 3.00;
+
+sub import {
+        hook(type => "getsetup", id => "gitannex", call => \&getsetup);
+	hook(type => "savestate", id => "gitannex", call => \&rcs_commit);
+        # we need to handle all rcs commands maybe?
+}
+
+sub getsetup () {
+        return
+                plugin => {
+                        safe => 1, # rcs plugin
+                        rebuild => undef,
+                        section => "misc",
+                },
+}
+
+# XXX: we want to copy or reuse safe_git
+
+sub rcs_commit (@) {
+    chdir $config{srcdir};
+    `git annex add --auto`;
+    `git annex sync`;
+}
+
+sub rcs_commit_staged (@) {
+    rcs_commit($@);
+}
+
+1
+"""]]
+This assumes you know what `srcdir`, `repository` and so on mean, if you forgot (like me), see this reference: [[rcs/git/]].
+
+
+What doesn't work
+-----------------
+
+ * the above plugin is kind of flaky and ugly.
+ * it's not an RCS plugin, but probably should be, replacing the git plugin, because really: git doesn't work at all anymore at this point
+
+What remains to be clarified
+----------------------------
+
+ * how do files get pushed to the `$srcdir`? Only through the web interface?
+ * why do we ignore the bare repository?
+
+See the [[discussion]] for a followup on that. --[[anarcat]]
+
+Alternative implementation
+==========================
+
+An alternative implementation, which remains to be detailed but is mentionned in [[forum/ikiwiki_and_big_files]], is to use the [[underlay]] feature combined with the `hardlink` option to deploy the git-annex'd files. Then git-annex is separate from the base ikiwiki git repo. --[[anarcat]]

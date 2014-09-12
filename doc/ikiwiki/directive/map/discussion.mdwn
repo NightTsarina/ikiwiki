@@ -1,0 +1,99 @@
+### Sorting
+
+Is there a way to have the generated maps sorted by *title* instead of *filename* when show=title is used?
+Thanks 
+
+-- Thiana
+
+> [[bugs/map_sorts_by_pagename_and_not_title_when_show__61__title_is_used]] --[[Joey]] 
+
+----
+
+Question: Is there a way to generate a listing that shows *both* title and description meta information? Currently, a \[\[!map ...]] shows only one of the two, but I'd like to generate a navigation that looks like a description list. For example:
+
+ * This is the title meta information.
+
+   This is the description meta information
+
+ * This is another title.  
+
+   And so on ...
+
+Is that possible?
+
+--Peter
+
+> the map directive could be made to use templates as the [[inline directive|ikiwiki/directive/inline]] does. (for the ambitious, the map functionality might even be special-cased into the inline plugin, i think) --[[chrysn]]
+
+----
+
+The site I'm trying to set up right now (not really a wiki - no public editing) is divided into topics.  Topics are pages that have `\[[!meta link="/topic"]]`.  Topic pages contain an index of their subpages (done with `\[[!inline]]`); the subpages are the real content.  I want a map in the sidebar that lists:
+
+ * all of the topics;
+ * all of the first-level subpages of the *current topic only*.
+
+That is, if the current page is "Topic A" or "Topic A/Page 1", then the map should look like
+
+    Topic A
+        Page 1
+        Page 2
+        Page 3
+    Topic B
+    Topic C
+
+but if the current page is "Topic B" or one of its subpages, then the map should look like
+
+    Topic A
+    Topic B
+        Page 1
+        Page 2
+        Page 3
+    Topic C
+
+On the top-level index page, or on any other page that is neither a topic nor a subpage of a topic, the map should list only the topics.
+
+Is there any way to do that?  I don't mind mucking around with `\[[!meta]]` on every page if that's what it takes.
+
+-- Zack
+
+> I think that you're looking for this:
+> 
+> `pages="((Topic*/* or Topic*) and ./*) or (Topic* and ! Topic*/*)"`
+> 
+> Let's pull that [[PageSpec]] apart. 
+> 
+> * `(Topic*/* or Topic*)` matches all pages that are underneath a Topic
+>    page or are a topic page themselves.
+> * `and ./*` further adds the limitation that the pages have to be
+>   in the same directory as the page that is displaying the map. So,
+>   for `Topic_A/Page_1`, it will match `Topic_A/*`; for `Topic_A`,
+>   it will match `Topic_*` but not subpages.
+> * Finally, `Topic* and ! Topic*/*` matches all the toplevel topic pages,
+>   since we always want those to show up.
+> 
+> I haven't tested that this works or displays, but I hope it gets you
+> on the right track. PS, be aware of
+> [[this_sidebar_issue|todo/Post-compilation_inclusion_of_the_sidebar]]!
+> --[[Joey]]
+
+>> Thanks, but this assumes that topic pages are named `Topic<something>`.
+>> They aren't.  They are tagged with `\[[!meta link="/topic"]]`, and as
+>> far as I can tell there is no [[PageSpec]] notation for "subpages of a
+>> page that satisfies link(foo)"...
+>> -- Zack
+
+>>> I think that the ideas and code in
+>>> [[todo/tracking_bugs_with_dependencies]] might also handle this case.
+>>> --[[Joey]]
+
+----
+
+I feel like this should be obvious, but I can't figure out how to sort numerically. 
+
+I have `map pages="./* and !*/Discussion and !*/sidebar"`  and a bunch of pages with names like 1, 2, 3, 11, 12, 1/1.1, 12/12.3 etc. I want to sort them numerically. I see lots of conversation implying there's a simple way to do it, but not how.
+
+> No, you can't: map can't currently use a non-default sort order. If it
+> could, then you could use [[plugins/sortnaturally]]. There's a
+> [[feature_request|todo/sort_parameter_for_map_plugin_and_directive]];
+> [[a_bug_references_it|bugs/map_sorts_by_pagename_and_not_title_when_show=title_is_used]].
+> --[[smcv]]

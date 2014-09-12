@@ -1,0 +1,29 @@
+What is overyone's idea about the ever-growing list of pages in bugs/ etc.?
+Once linked to `done`, they're removed from the rendered [[bugs]] page -- but
+they're still present in the repository.
+
+Shouldn't there be some clean-up at some point for those that have been
+resolved?  Or should all of them be kept online forever?
+
+--[[tschwinge]]
+
+> To answer a question with a question, what harm does having the done bugs
+> around cause? At some point in the future perhaps the number of done pages
+> will be large enough to be a time or space concern. Do you think we've
+> reached a point now? One advantage of having them around is that people
+> running older versions of the Ikiwiki software may find the page explaining
+> that the bug is fixed if they perform a search. -- [[Jon]]
+
+> I like to keep old bugs around. --[[Joey]]
+
+So, I guess it depends on whether you want to represent the development of the
+software (meaning: which bugs are open, which are fixed) *(a)* in a snapshot of
+the repository (a checkout; that is, what you see rendered on
+<http://ikiwiki.info/>), or *(b)* if that information is to be contained in the
+backing repository's revision history only.  Both approaches are valid.  For
+people used to using Git for accessing a project's history, *(b)* is what
+they're used to, but for those poor souls ;-) that only use a web browser to
+access this database, *(a)* is the more useful approach indeed.  For me, using
+Git, it is a bit of a hindrance, as, when doing a full-text search for a
+keyword on a checkout, I'd frequently hit pages that reported a bug, but are
+tagged `done` by now.  --[[tschwinge]]

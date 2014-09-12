@@ -1,0 +1,18 @@
+I enabled multimarkdown to make use of footnotes in my file. I have the multimarkdown plugin,
+as well as the command-line program. If I write a document with footnotes:
+
+    This line has a footnote[^1]
+    
+    [^1]: this is the footnote
+
+and compile it from the cli, the reference becomes a link to the footnote and the footnote
+gets a backreferencing link appended. When compiled in ikiwiki with the goodstuff plugin
+enabled, the links are created but their hrefs are empty (so they do not actually act as links).
+Disabling the htmlscrubber plugin fixes this issue
+
+[[!tag multimarkdown htmlscrubber]]
+
+> href was of the form: #fnref:1 , scrubbed by overzealous protocol
+> scrubbing.
+
+[[done]] --[[Joey]] 

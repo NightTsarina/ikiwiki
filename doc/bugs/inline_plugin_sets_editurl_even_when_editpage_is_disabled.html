@@ -1,0 +1,16 @@
+see subject, simple patch below
+<pre>
+--- a/IkiWiki/Plugin/inline.pm
++++ b/IkiWiki/Plugin/inline.pm
+@@ -371,7 +371,8 @@ sub preprocess_inline (@) {
+          }
+          if (length $config{cgiurl} && defined $type) {
+            $template->param(have_actions => 1);
+-           $template->param(editurl => cgiurl(do => "edit", page => $page));
++           $template->param(editurl => cgiurl(do => "edit", page => $page))
++             if IkiWiki->can("cgi_editpage");
+          }
+        }
+</pre>
+
+[[done]] --[[Joey]]

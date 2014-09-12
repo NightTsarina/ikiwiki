@@ -1,0 +1,54 @@
+#!/usr/bin/perl
+# Ikiwiki setup automator -- blog version.
+# 
+# This setup file causes ikiwiki to create a wiki, containing a blog,
+# check it into revision control, generate a setup file for the new
+# wiki, and set everything up.
+#
+# Just run: ikiwiki -setup /etc/ikiwiki/auto-blog.setup
+#
+# By default, it asks a few questions, and confines itself to the user's home
+# directory. You can edit it to change what it asks questions about, or to
+# modify the values to use site-specific settings.
+
+require IkiWiki::Setup::Automator;
+
+our $wikiname=IkiWiki::Setup::Automator::ask(
+	gettext("What will the blog be named?"), gettext("blog"));
+our $wikiname_short=IkiWiki::Setup::Automator::sanitize_wikiname($wikiname);
+our $rcs=IkiWiki::Setup::Automator::ask(
+	gettext("What revision control system to use?"), "git");
+our $admin=IkiWiki::Setup::Automator::ask(
+	gettext("What wiki user (or openid) will be admin?"), $ENV{USER});
+use Net::Domain q{hostfqdn};
+our $domain=hostfqdn() || IkiWiki::Setup::Automator::ask(
+	gettext("What is the domain name of the web server?"), "");
+
+IkiWiki::Setup::Automator->import(
+	wikiname => $wikiname,
+	adminuser => [$admin],
+	rcs => $rcs,
+	srcdir => "$ENV{HOME}/$wikiname_short",
+	destdir => "$ENV{HOME}/public_html/$wikiname_short",
+	repository => "$ENV{HOME}/$wikiname_short.".($rcs eq "monotone" ? "mtn" : $rcs),
+	dumpsetup => "$ENV{HOME}/$wikiname_short.setup",
+	url => "http://$domain/~$ENV{USER}/$wikiname_short",
+	cgiurl => "http://$domain/~$ENV{USER}/$wikiname_short/ikiwiki.cgi",
+	cgi_wrapper => "$ENV{HOME}/public_html/$wikiname_short/ikiwiki.cgi",
+	adminemail => "$ENV{USER}\@$domain",
+	add_plugins => [qw{goodstuff websetup comments blogspam calendar sidebar trail}],
+	disable_plugins => [qw{}],
+	libdir => "$ENV{HOME}/.ikiwiki",
+	rss => 1,
+	atom => 1,
+	syslog => 1,
+	
+	example => "blog",
+	comments_pagespec => "posts/* and !*/Discussion",
+	blogspam_pagespec => "postcomment(*)",
+	archive_pagespec => "page(posts/*) and !*/Discussion",
+	global_sidebars => 0,
+	discussion => 0,
+	locked_pages => "* and !postcomment(*)",
+	tagbase => "tags",
+)

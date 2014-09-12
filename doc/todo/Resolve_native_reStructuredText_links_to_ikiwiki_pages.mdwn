@@ -1,0 +1,333 @@
+_NB! this page has been refactored, hopefully it is clearer now_  
+_I propose putting discussion posts somewhere in the vincity of
+the secttion Individual reStructuredText Issues_
+
+## Design ##
+
+**Goal**
+
+To be able to use rst as a first-class markup language in ikiwiki. I think
+most believe this is almost impossible (ikiwiki is built around markdown).
+
+## Wikilinks ##
+
+**WikiLinks**, first and foremost, are needed for a wiki. rST already allows
+specifying absolue and relative URL links, and relative links can be used to
+tie together wiki of rst documents.
+
+1. Below are links to a small, working implementation for resolving
+   undefined rST references using ikiwiki's mechanism. This is **Proposal 1**
+   for rst WikiLinks.
+
+2. Looking over at rST-using systems such as trac and MoinMoin; I think it
+   would be wiser to implement wikilinks by the `:role:` mechanism, together
+   with allowing a custom URL scheme to point to wiki links. This is
+   **Proposal 2**.
+
+        This is a simple wiki page, with :wiki:`WikiLinks` and other_ links
+        
+        .. _other: wiki:wikilink
+
+        We can get rid of the role part as well for WikiLinks::
+        
+            .. default-role:: wiki
+        
+        Enables `WikiLinks` but does not impact references such as ``other``
+        This can be made the default for ikiwiki.
+
+Benefits of using a `:role:` and a `wiki: page/subpage` URL scheme are
+following:
+
+1. rST documents taken out of the context (the wiki) will not fail as bad as
+   if they have lots of Proposal-1 links: They look just the same as valid
+   references, and you have to edit them all.
+   In contrast, should the `:wiki:` role disappear, one line is enough
+   to redefined it and silence all the warnings for the document:
+
+        .. role:: wiki (title)
+
+### Implementation ###
+
+Implementation of Proposal-2 wikilinks are in the branch
+[rst-wikilinks][rst-wl]
+
+
+        This is a simple wiki page, with :wiki:`WikiLinks` and |named| links
+        
+        .. |named| wiki:: Some Page
+
+        We can get rid of the role part as well for WikiLinks::
+        
+            .. default-role:: wiki
+        
+        Enables `WikiLinks` but does not impact references such as ``named``
+        This can be made the default for ikiwiki.
+
+[rst-wl]: http://github.com/engla/ikiwiki/commits/rst-wikilinks
+
+**rst-wikilinks** patch series includes changes at the end to use ikiwiki's
+'htmllink' for the links (which is the only sane thing to do to work in all configurations).
+This means a :wiki:`Link` should render just exactly like [[Link]] whether
+the target exists or not.
+
+On top of **rst-wikilinks** is [rst-customize][rst-custom] which adds two
+power user features: Global (python) file to read in custom directives
+(unsafe), and a wikifile as "header" file for all parsed .rst files (safe,
+but disruptive since all .rst depend on it). Well, the customizations have
+to be picked and chosen from this, but at least the global python file can
+be very convenient.
+
+> Did you consider just including the global rst header text into an item
+> in the setup file? --[[Joey]] 
+>
+>> Then `rst_header` would not be much different from the python script
+>> `rst_customize`. rst_header is as safe as other files (though disruptive
+>> as noted), so it should/could be a editable file in the Wiki. A Python
+>> script of course can not be. There is nothing you can do in the
+>> rst_header (that you sensibly would do, I think) that couldn't be done in
+>> the Python script. `rst_header` has very limited use, but it is another
+>> possibility, mainly for the user-editable aspect. --[[ulrik]]
+>>
+>> (I foresaw only two things to be added to the rst_header: the default
+>> role could be configured there (as with rst_wikirole), and if you have a
+>> meta-role like :shortcut:, shortcuts could be defined there.)
+>
+> I have some discussion on the [docutils mailing list][dml], the developers
+> of docutils seems to favor "Proposal 1", while I defend my ideas. They
+> want all users of ReST to use only the basic featureset to remain
+> compatible, of course. -- [[ulrik]]
+
+[dml]: http://thread.gmane.org/gmane.text.docutils.user/5376
+
+Some rst-custom [examples are here](http://kaizer.se/wiki/rst_examples/)
+
+[rst-custom]: http://github.com/engla/ikiwiki/commits/rst-customize
+
+## Directives ##
+
+Now **Directives**: As it is now, ikiwiki goes though (roughly):
+filter, preprocess, htmlize, format as major stages of content
+transformation. rST has major problems to work with any HTML that enters the
+picture before it.
+
+1. Formatting rST in `htmlize` (as is done now): Raw html can be escaped by
+   raw blocks:
+
+        .. raw:: html
+   	
+	        \[[!inline and do stuff]]
+
+   (This can be simplified to alias the above as `.. ikiwiki::`)
+   This escape method works, if ikwiki can be persuaded to maintain the
+   indent when inserting html, so that it stays inside the raw block.
+
+2. Formatting rST in `filter` (idea)
+   1. rST does not have to see any HTML (raw not needed)
+   2. rST directives can alias ikiwiki syntax:
+     
+        ..ikiwiki:: inline pages= ...
+
+   3. Using rST directives as ikiwiki directives can be complicated;
+      but rST directives allow a direct line (after :: on first line),
+      an option list, and a content block.
+
+> You've done a lot of work already, but ...
+> 
+> The filter approach seems much simpler than the other approaches
+> for users to understand, since they can just use identical ikiwiki
+> markup on rst pages as they would use anywhere else. This is very desirable
+> if the wiki allows rst in addition to mdwn, since then users don't have
+> to learn two completly different ways of doing wikilinks and directives.
+> I also wonder if even those familiar with rst would find entirely natural
+> the ways you've found to shoehorn in wikilinks, named wikilinks, and ikiwiki
+> directives?
+> 
+> Htmlize in filter avoids these problems. It also leaves open the possibility
+> that ikiwiki could become smarter about the rendering chain later, and learn
+> to use a better order for rst (ie, htmlize first). If that later happened,
+> the htmlize in filter hack could go away. --[[Joey]] 
+
+> (BTW, the [[plugins/txt]] plugin already does html formatting
+> in filter, for similar reasons.) --[[Joey]]
+
+>> Thank you for the comments! Forget the work, it's not so much.
+>> I'd rank the :wiki: link addition pretty high, and the other changes way
+>> behind that:
+>>
+>> The :wiki:`Wiki Link` syntax is *very* appropriate as rst syntax
+>> since it fits well with other uses of roles (notice that :RFC:`822`
+>> inserts a link to RFC822 etc, and that the default role is a *title* role
+>> (title of some work); thus very appropriate for medium-specific links like
+>> wiki links. So I'd rank :wiki: links a worthwhile addition regardless of
+>> outcome here, since it's a very rst-like alternative for those who wish to
+>> use more rst-like syntax (and documents degrades better outside the wiki as
+>> noted).
+>>
+>>> Unsure about the degredation argument. It will work some of
+>>> the time, but ikiwiki's [[ikiwiki/subpage/linkingrules]]
+>>> are sufficiently different from normal html relative link
+>>> rules that it often won't work. --[[Joey]]
+>>>
+>>>> With degradation I mean that if you take a file out of the wiki; the
+>>>> links degrade to stylized text. If using default role, they degrade to
+>>>> :title: which renders italicized text (which I find is exactly
+>>>> appropriate). There is no way for them to degrade into links, except of
+>>>> course if you reimplement the :wiki: role. You can also respecify
+>>>> either the default role (the `wikilink` syntax) or the :wiki: role (the
+>>>> :wiki:`wikilink` syntax) to any other markup, for example None.
+>>>> --[[ulrik]]
+>> 
+>> The named link syntax (just like the :wiki: role) are inspired from
+>> [trac][tracrst] and a good fit, but only if the wiki is committed to
+>> using only rst, which I don't think is the case.
+>>
+>> The rst-customize changes are very useful for custom directive
+>> installations (like the sourcecode directive, or shortcut roles I show
+>> in the examples page), but there might be a way for the user to inject
+>> docutils addons that I'm missing (one very ugly way would be to stick
+>> them in sitecustomize.py which affects all Python programs).
+>>
+>> With the presented changes, I already have a working RestructuredText
+>> wiki, but I'm admitting that using .. raw:: html around all directives is
+>> very ugly (I use few directives: inline, toggle, meta, tag, map)
+>>
+>> On filter/htmlize: Well **rst** is clearly antisocial: It can't see HTML,
+>> and ikiwiki directives are wrappend in paragraph tags. (For wikilinks
+>> this is probably no problem). So the suggestion about `.. ikiwiki:` is
+>> partly because it looks good in rst syntax, but also since it would emit
+>> a div to wrap around the element instead of a paragraph.
+>>
+>> I don't know if you mean that rst could be reordered to do htmlize before
+>> other phases? rst must be before any preprocess hook to avoid seeing any
+>> HTML.
+>>
+>>> One of my long term goals is to refactor all the code in ikiwiki
+>>> that manually runs the various stages of the render pipeline,
+>>> into one centralized place. Once that's done, that place can get
+>>> smart about what order to run the stages, and use a different
+>>> order for rst. --[[Joey]]
+>>
+>> If I'm thinking right, processing to HTML already in filter means any
+>> processing in scan can be reused directly (or skipped if it's legal to
+>> emit 'add_link' in filter.)
+>>
+>> -- [[ulrik]] 
+
+>>> Seems it could be, yes. --[[Joey]]
+>>>
+>>>> It is not clear how we can work around reST wrapping directives with
+>>>> paragraph tags. Also, some escaping of xml characters & <> might
+>>>> happen, but I can't imagine right now what breakage can come from that.
+>>>> -- [[ulrik]]
+
+[tracrst]: http://trac.edgewall.org/wiki/WikiRestructuredText
+
+### Implementation ###
+
+Preserving indents in the preprocessor are in branch [pproc-indent][ppi]
+
+(These simple patches come with a warning: _Those are the first lines of
+Perl I've ever written!_)
+
+> This seems like a good idea, since it solves issues for eg, indented
+> directives in mdwn as well. But, looking at the diff, I see a clear bug:
+>
+>	-                               return "[[!$command <span class=\"error\">".
+>	+                               $result = "[[!$command <span class=\"error\">".
+> 
+> That makes it go on and parse an infinitely nested directive chain, instead
+> of immediatly throwing an error.
+> 
+> Also, it seems that the "indent" matching in the regexps may be too broad,
+> wouldn't it also match whitespace before a directive that was not at the beginning 
+> of a line, and treat it as an indent? With some bad luck, that could cause mdwn
+> to put the indented output in a pre block. --[[Joey]] 
+>
+>> You are probably right about the bug. I'm not quite sure what the nested
+>> directives examples looks like, but I must have overlooked how the
+>> recursion counter works; I thought simply changing if to elif the next
+>> few lines would solve that. I'm sorry for that!
+>>
+>> We don't have to change the `$handle` function at all, if it is possible
+>> to do the indent substitution all in one line instead of passing it to
+>> handle, I don't know if it is possible to turn:
+>>
+>> 		$content =~ s{$regex}{$handle->($1, $2, $3, $4, $5)}eg;
+>>
+>> into
+>>
+>> 		$content =~ s{$regex}{s/^/$1/gm{$handle->($2, $3, $4, $5)}}eg;
+>>
+>> Well, no idea how that would be expressed, but I mean, replace the indent
+>> directly in $handle's return value.
+>>
+>>> Yes, in effect just `indent($1, handle->($2,$,4))` --[[Joey]] 
+>>
+>> The indent-catching regex is wrong in the way you mention, it has been
+>> nagigng my mind a bit as well; I think matching start of line + spaces
+>> and tabs is the only thing we want.
+>> -- [[ulrik]]
+>> 
+>>> Well, seems you want to match the indent at the start of the line containing
+>>> the directive, even if the directive does not start the line. That would
+>>> be quite hard to make a regexp do, though. --[[Joey]]
+>>
+>> I wasted a long time getting the simpler `indent($1, handle->($2,$,4))` to
+>> work (remember, I don't know perl at all). Somehow `$1` does not arrive, I
+>> made a simple testcase that worked, and I conclude something inside $handle
+>> results in the value of $1 not arriving as it should!
+>>
+>> Anyway, instead a very simple incremental patch is in [pproc-indent][ppi]
+>> where the indentation regex is `(^[ \t]+|)` instead, which seems to work
+>> very well (and the regex is multiline now as well). I'm happy to rebase the
+>> changes if you want or you can just squash the four patches 1+3 => 1+1
+>> -- [[ulrik]]
+
+[ppi]: http://github.com/engla/ikiwiki/commits/pproc-indent
+
+## Discussion ##
+
+I guess you (or someone) has been through this before and knows why it
+simply won't work. But I hoped there was something original in the above;
+and I know there are wiki installations where rST works. --ulrik
+
+**Individual reStructuredText Issues**
+
+* We resolve rST links without definition, we don't help resolving defined
+  relative links, so we don't support specifying link name and target
+  separately.
+  
+  * Resolved by |replacement| links with the wiki:: directive.
+
+**A first implementation: Resolving unmatched links**
+
+I have a working minimal implementation letting the rst renderer resolve
+undefined native rST links to ikiwiki pages. I have posted it as one patch at:
+
+Preview commit: http://github.com/engla/ikiwiki/commit/486fd79e520da1d462f00f40e7a90ab07e9c6fdf  
+Repository: git://github.com/engla/ikiwiki.git  
+
+Design issues of the patch:
+
+The page is rST-parsed once in 'scan' and once in 'htmlize' (the first to generate backlinks). Can the parse output be safely reused?
+
+> The page content fed to htmlize may be different than that fed to scan,
+> as directives can change the content. If you cached the input and output
+> at scan time, you could reuse the cached data at htmlize time for inputs
+> that are the same -- but that could be a very big cache! --[[Joey]] 
+
+>> I would propose using a simple heuristic: If you see \[[ anywhere on the
+>> page, don't cache it. It would be an effective cache for pure-rst wikis
+>> (without any ikiwiki directives or wikilinks).
+>> However, I think that if the cache does not work for a big load, it should
+>> not work at all; small loads are small so they don't matter. --ulrik
+
+-----
+
+Another possiblity is using empty url for wikilinks (gitit uses this approach), for example:
+
+    `SomePage <>`_
+
+Since it uses *empty* url, I would like to call it *proposal 0* :-)  --[weakish]
+
+[weakish]: http://weakish.pigro.net

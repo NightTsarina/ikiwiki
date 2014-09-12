@@ -1,0 +1,18 @@
+[[!meta title="How to have a plugin delete a file?"]]
+
+When using the [[plugins/contrib/jscalendar]] plugin,  it creates in the
+[[plugins/transient]] directory some files (a bit like the
+[[plugins/recentchanges]] plugin does). When the calendar that triggered
+creation of this file is removed, I would like to remove the corresponding
+page as well, but I cannot, because I get the following error.
+
+    internal error: jscalendar/90cde8dfad6413813b324a15ae2d1d95041aedd69e7be36c02b0cd4a58c4af73.jscalendar cannot be found in <path of wiki> or underlay
+
+My guess is that:
+
+* the page is stored, internally, in some list of pages to render (as it depends on the page containing the calendar that was just deleted);
+* my plugin delete this page (using `IkiWiki::prune()` or `unlink()`, in the `rendered()` or `needsbuild()` hook);
+* IkiWiki tries to render the page, but cannot (since I just deleted it), and throws the error.
+
+My question is: How can I tell IkiWiki that I *deleted* this page, and that it is no longer necessary to render it? Is there a hook in which I can safely do this?
+

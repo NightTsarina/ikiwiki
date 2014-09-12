@@ -1,0 +1,20 @@
+The `sidebar` directive is supplied by the [[!iki plugins/sidebar desc=sidebar]] plugin.
+
+This directive can specify a custom sidebar to display on the page,
+overriding any sidebar that is displayed globally.
+
+If no custom sidebar content is specified, it forces the sidebar page to
+be used as the sidebar, even if the `global_sidebars` setting has been
+used to disable use of the sidebar page by default.
+
+## examples
+
+	\[[!sidebar content="""
+	This is my custom sidebar for this page.
+
+	\[[!calendar pages="posts/*"]]
+	"""]]
+
+	\[[!sidebar]]
+
+[[!meta robots="noindex, follow"]]

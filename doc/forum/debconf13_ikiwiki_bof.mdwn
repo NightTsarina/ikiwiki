@@ -1,0 +1,108 @@
+There has been a meeting of people interested in ikiwiki
+[[during debconf13|http://penta.debconf.org/dc13_schedule/events/1060.en.html]]
+on 2013-08-11. Videos of the event are linked there for download, or
+[[can be viewed online|http://www.irill.org/videos/debconf13/ikiwiki_BoF.webm]].
+
+Summary
+=======
+
+Ikiwiki's state and development
+-------------------------------
+
+Ikiwiki has reached a stable state with a working ecosystem, with the majority
+of changes being minor adaptions and bugfixes these days.
+
+It is unlikely that there will be a major overhaul any time soon.
+
+If incompatible changes are to be made, that might warrant a 4.$DATE
+transition, especially given that the [[ikiwiki-transition]] mechanism has not
+been used for some time. Potential changes for such a transition will be
+discussed (see below).
+
+Names of pages and links
+------------------------
+
+Several of [[the issues chrysn deals with|users/chrysn]] revolve about the
+differences betwen a page's name, its title, the name of source and destination
+page, how they are converted, and which is used when.
+
+chrysn has starting to draft a page on [[plugins/write/names]], and
+would appreciate review and comments.
+
+Themability
+-----------
+
+The default theme of ikiwiki is more appealing to the people who are expected
+to run an ikiwiki setup; end users with Web 2.$current_minor_version
+expectations often don't have there tastes served well.
+
+[[Recently|version 3.20130518]], templates have become more theming friendly,
+but for the general case still require the theme to be known to mainline
+ikiwiki, lest generic templates diverge. A planned feature is generalized
+sidebars, where more places inside the template can be filled using the same
+mechanism as currently used in the [[pluginssidebar]] pluin, but changes there
+require a complete rebuild. (Not worse than the rebuilds required when changing
+the main templates, but it would be more tempting to frequently change them.)
+
+Examples of fancy ikiwiki themes have been brought up:
+
+  * https://www.gresille.org/
+  * https://nos-oignons.net/
+  * http://www.rezine.org/accueil/association/
+  * https://cas-libres.poivron.org/
+
+A generalized version of the [[bootstrap|http://twitter.github.com/bootstrap/]]
+[[theme|theme market]] would be appreciated, as the current one is targeted
+towards a particular installation.
+
+Performance
+-----------
+
+Rebuilding many pages takes considerable time, especially when sidebars are
+changed.
+
+A faster way to use the page index (eg. sqlite) would help speeding up the
+usual rebuilds, but would not help speeding up massive rebuilds.
+
+RDF backend
+-----------
+
+On the priority level "crazy ideas", it was discussed to augment or finally
+change the index to an RDF triple collection. Statements would be extracted
+from the source pages in the scan hook, and form a triple store. Pagespecs
+would be resolved to SPARQL queries against that database; also the
+[[todo/structured page data]] fields could be addressed with this.
+
+Optimizations are still possible, even more generally, for example with
+dependencies on other pages' title:
+
+* page A sets its own title with `\[[!meta title="the A page"]]`, which results
+  in the statement '`<./page_A> dc:title "the A page" .`'.
+
+* page B uses some kind of auto-titling link to page A: `\[[~|page A]]`, which
+  queries for '`<./page_A> dc:title ?a`'.
+
+* When page B is built, it is stored that it depends on statements involving
+  the term `<./page_A>`, and the current hash value of all statements about
+  that term. (Those will be computed for all observed statements at scan time.
+  Pages that use more complex queries might not be able to list all their
+  dependencies.)
+
+  Also, the queries and query results executing during building page B are
+  stored in a separate cache.
+
+* When some other page starts linking to page A, the first cache is
+  invalidated, as now there are more statements on the subject of
+  '`<./page_A>`', so page B might need to be rebuilt. Before that is done, its
+  cached queries are executed. If their results did not change, page B does not
+  need any further action.
+
+vCard support
+-------------
+
+The topic of combining ikiwiki with
+[[calypso|http://keithp.com/blogs/calypso/]] was brought up
+[[in another event|http://penta.debconf.org/dc13_schedule/events/1087.en.html]]
+during the same DebConf.
+
+For further details, see [[todo/vCard rendering]].

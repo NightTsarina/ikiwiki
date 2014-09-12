@@ -1,0 +1,145 @@
+The [[ikiwiki/directive/listdirectives]]` directive doesn't register a link between the page and the subpages. This is a problem because then the [[ikiwiki/directive/orphans]] directive then marks the directives as orphans... Maybe it is a but with the orphans directive however... A simple workaround is to exclude those files from the orphans call... --[[anarcat]]
+
+> There's a distinction between wikilinks (matched by `link()`,
+> `backlink()` etc.) and other constructs that produce a
+> hyperlink. Some directives count as a wikilink (like `tag`)
+> but many don't (notably `inline`, `map`, `listdirectives`,
+> and `orphans` itself). As documented in
+> [[ikiwiki/directive/orphans]], orphans will tend to list
+> pages that are only matched by inlines/maps, too.
+>
+> The rule of thumb seems to be that a link to a particular
+> page counts as a wikilink, but a directive that lists
+> pages matching some pattern does not; so I think
+> `listdirectives` is working as intended here.
+> `orphans` itself obviously shouldn't count as a wikilink,
+> because that would defeat the point of it :-)
+>
+> Anything that uses a [[ikiwiki/pagespec]] to generate links,
+> like `inline` and `map`, can't generate wikilinks, because
+> wikilinks are gathered during the scan phase, and pagespecs
+> can't be matched until after the scan phase has finished
+> (otherwise, it'd be non-deterministic whether all wikilinks
+> had been seen yet, and `link()` in pagespecs wouldn't work
+> predictably).
+>
+> I suggest just using something like:
+>
+>     \[[!orphans pages="* and !blog/* and !ikiwiki/directive/*"]]
+>
+> This wiki's example of listing [[plugins/orphans]] has a
+> more elaborate pagespec, which avoids bugs, todo items etc.
+> as well.
+>
+> --[[smcv]]
+
+> No follow-up or objection for a while, so considering this to
+> be working as designed. --[[smcv]]
+
+> > Seems I'm a bit late to butt in, but would it be possible to have two
+> > further phases after the scan phase, the first running map and inline 
+> > and the second orphan? Then map and inline could log or register their 
+> > links (obviously somewhere were it won't change the result of the link function)
+> > and orphan could take them into account. This logging could be
+> > turned on by parameter to not waste time for users not needing this and 
+> > make it tunable (i.e. so that the user can decide which map directives count and which don't)
+> > 
+> > For someone using map and especially autoindex the output of the orphans directive
+> > is simply wrong/useless (at least it is for me). And there is no easy workaround like for listdirectives
+> > -- [[holger]]
+
+>>> Hmm. I think this can be done without introducing any "phases",
+>>> even, but it would require each plugin that generates links according
+>>> to a pagespec to have either a conditional call into the orphans plugin,
+>>> or a call to a new core function in ikiwiki that exists solely to
+>>> support the orphans plugin. Something like this, maybe:
+>>>
+>>>     # in map.pm, inline.pm, pagestats.pm etc., at scan time
+>>>     if (IkiWiki::Plugin::orphans->can("add_reachable")) {
+>>>         IkiWiki::Plugin::orphans::add_reachable($page, $pagespec);
+>>>     }
+>>>
+>>>     # in orphans.pm (pseudocode; note that this does not *evaluate*
+>>>     # $pagespec, only stores it, so it's OK to do this at scan time)
+>>>     sub needsbuild ($pages)
+>>>         for each page in $pages
+>>>             clear $pagestate{location}{orphans}{reachable}
+>>>     sub reachable ($location, $pagespec)
+>>>         add $pagespec to @{$pagestate{location}{orphans}{reachable}}
+>>>
+>>>     # in preprocess function in orphans.pm (pseudocode)
+>>>     # executed at build time, not at scan time, so pagespecs work
+>>>
+>>>     for each maybe_orphan with no links to it
+>>>         for each location with a list of reachable pagespecs
+>>>             make the page with the orphans directive depend on \
+>>>                 the page that is the location
+>>>             for each of those pagespecs
+>>>                 if pagespec matches orphan
+>>>                     take orphan off the list
+>>>                     go to next orphan
+>>>     output list of orphans
+>>>
+>>> (Maybe parentlinks should also annotate the parent/ancestors of
+>>> each page as reachable from that page.)
+>>>
+>>> Do other people (mainly Joey) think that'd be acceptable, or
+>>> too intrusive?
+>>>
+>>> Taking this off the list of resolved bugs again while we think about it.
+>>>
+>>> I suspect that in the presence of autoindex, what you really want might
+>>> be less "there's a link to it" and more "there's a path to it from
+>>> the root of the wiki", which is why I called the proposed function
+>>> "add_reachable". On the other hand, maybe that's too computationally
+>>> intensive to actually do; I haven't tried it.
+>>> --[[smcv]]
+>>>> 
+>>>> (I'll interpet Joeys silence as a good sign ;-). Is there a difference between "link to it" and "path to it"? If we assume autoindex produces bonafide "first class" links there shouldn't be one!?
+>>>>
+>>>> So far your idea sounds great, says me without any knowledge of the source. I'll try to grok it. Is there a medium for silly questions, a wiki seems not the right fit for that? -- [[holger]]
+>>>>> Yes, there *has* to be a difference between a first class wikilink
+>>>>> and the thing to which `map` and `inline` can contribute.
+>>>>> `map` and `inline` use a pagespec to decide what they include,
+>>>>> and pagespecs can't be evaluated and get a correct answer until the
+>>>>> set of links has been collected, because their results often depend
+>>>>> on the set of links. Otherwise, suppose you had a page `foo` whose only
+>>>>> contents were this:
+>>>>>
+>>>>>     \[[!inline pages="!backlink(foo)"]]
+>>>>>
+>>>>> If `inline` generated links, it would inline exactly those pages that
+>>>>> it doesn't inline. That's never going to end well :-) --[[smcv]]
+>>>>>> We have to differentiate between what users of ikiwiki consider first class links and what internally is happening. For the user any link contributing to the structured access tree is first class. The code on the other hand has to differentiate between the static links, then generated links, then orphan links. Three "passes", even your proposed solution could be seen as adding another pass since the orphan plugin has to run after all the plugins generating (first class user) links.   -- [[holger]]
+
+>>>>>>> I think the difference between your point of view, and what ikiwiki
+>>>>>>> currently implements / what its design is geared towards, is this:
+>>>>>>> ikiwiki says A links to B if the *source code* of A contains an
+>>>>>>> explicit link to B. You say A links to B if the *compiled HTML*
+>>>>>>> of A contains a link to B.
+>>>>>>>
+>>>>>>> Would you agree with that characterization?
+>>>>>>>
+>>>>>>> I suspect that "link in the source code" may be the more useful concept
+>>>>>>> when using links for backlinks (I think the original implementation is
+>>>>>>> <http://c2.com/cgi/wiki?BackLink>) and as pseudo-tags
+>>>>>>> (<http://c2.com/cgi/wiki?WikiCategories>). The fact that this is what
+>>>>>>> `link()` and `backlink()` mean could be better-documented: it's
+>>>>>>> entirely possible that the author of their documentation (Joey?)
+>>>>>>> thought it was obvious that that's what they mean, because they
+>>>>>>> were coming from a compiler/source-code mindset.
+>>>>>>>
+>>>>>>> Also, backlinks become rather all-engulfing if their presence in
+>>>>>>> the compiled output counts as a link, since after a render pass, they
+>>>>>>> would all become bidirectional; and as I noted previously, if pagespecs
+>>>>>>> can match by linkedness (which we want) and plugins can generate lists
+>>>>>>> of links according to pagespecs (which we also want), then links in the
+>>>>>>> compiled output can certainly get into [[!wikipedia Russell's paradox]]-like
+>>>>>>> situations, such as the page that links to every page to which it
+>>>>>>> does not link.
+>>>>>>>
+>>>>>>> For the special case of deciding what is orphaned, sure, it's the
+>>>>>>> compiled HTML that is the more relevant thing;
+>>>>>>> that's why I talked about "reachability" rather than "links".
+>>>>>>>
+>>>>>>> --[[smcv]]

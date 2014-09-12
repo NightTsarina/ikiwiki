@@ -1,0 +1,192 @@
+# Introduction
+I had some trouble installing ikiwiki on to a shared hosting service (DreamHost) and figured I'd post the results, since it was pretty rough to get installed.  These instructions should work for Perl generally (some of the docs are borrowed from Catalyst's docs), but are tailored for Ikiwiki.  There are a few items I'll file as bugs, as well, to aid future installation, but frankly the problems appear to be with installing perl as a non-root user, not anything specific to iki.
+
+**Note: CPAN seems to die without warning, or die after successfully install modules.  It appears to just like dying.  If you encounter this, retry the last command after restarting CPAN.** Unfortunately, this doc can't cover how to fix any other problems with CPAN beyond what you find here.
+
+# Fixing CPAN
+[These instructions are paraphrased from Catalyst's documentation](http://dev.catalystframework.org/wiki/Dreamhost) :
+
+We're going to assume that you're installing CPAN and other Perl modules into ~/site/perl.
+
+In your .bashrc/.bash_profile/.profile, add:
+
+    export PERL5LIB="$HOME/site/perl/share/perl/5.8:$HOME/site/perl/share/perl/5.8.4:$HOME/site/perl/lib/perl5:$HOME/site/perl/lib/perl/5.8.4"
+
+These locations may be different on your computer. For example, I use:
+
+    export PERL5LIB="$HOME/site/perl/lib/perl5:$HOME/site/perl/lib/perl5/site_perl/5.8.8:$PERL5LIB"
+
+You probably want to add *~/site/perl/bin/* to your path, as well, since Ikiwiki's scripts are put in there.
+
+Make sure to source your modified file (or logout/login).  Next, run :
+
+    perl -MCPAN -e shell 
+
+and say no to manual configuration.  (Ed : I assume this sets up a basic CPAN with the existing site config.)
+
+Exit CPAN shell and restart, then run :
+
+    o conf makepl_arg PREFIX=~/site/perl
+    o conf commit
+    install CPAN
+
+Exit CPAN shell and restart, say no to manual configuration.  Note that I used defaults except for the mbuildpl_arg parameter, which I set to *--install-base=~/site/perl/*.  I believe this obviates the need for the first configuration parameter in the next section, but if you're paranoid, specify both (note added to next section).  My output looked like this :
+
+    user@server:~$ perl -MCPAN -e shell
+    Sorry, we have to rerun the configuration dialog for CPAN.pm due to 
+    some missing parameters...
+
+    Normally CPAN.pm keeps config variables in memory and changes need to
+    be saved in a separate 'o conf commit' command to make them permanent
+    between sessions. If you set the 'auto_commit' option to true, changes
+    to a config variable are always automatically committed to disk.
+
+     <auto_commit>
+    Always commit changes to config variables to disk? [no] 
+
+    A Build.PL is run by perl in a separate process. Likewise we run
+    './Build' and './Build install' in separate processes. If you have any
+    parameters you want to pass to the calls, please specify them here.
+
+    Typical frequently used settings:
+
+        --install_base /home/xxx             # different installation directory
+
+     <mbuildpl_arg>
+    Parameters for the 'perl Build.PL' command? [] --install-base=~/site/perl/
+
+    Parameters for the './Build' command? Setting might be:
+
+        --extra_linker_flags -L/usr/foo/lib  # non-standard library location
+
+     <mbuild_arg>
+    Your choice: [] 
+
+    Do you want to use a different command for './Build install'? Sudo
+    users will probably prefer:
+
+        su root -c ./Build
+     or
+        sudo ./Build
+     or
+        /path1/to/sudo -u admin_account ./Build
+
+     <mbuild_install_build_command>
+    or some such. Your choice: [./Build] 
+
+    Parameters for the './Build install' command? Typical frequently used
+    setting:
+
+        --uninst 1                           # uninstall conflicting files
+
+     <mbuild_install_arg>
+    Your choice: [] 
+
+    Please remember to call 'o conf commit' to make the config permanent!
+
+    cpan shell -- CPAN exploration and modules installation (v1.9205)
+    ReadLine support enabled
+
+Next, run :
+
+    o conf mbuildpl_arg --install-base=~/site/perl (This may be optional, given the prior step to configure this)
+    o conf prefer_installer MB
+    o conf commit
+    install Module::Build
+
+After this step, you should have a working CPAN and Module::Build installed.  This is the starting point for being able to successfully install modules via CPAN.
+
+# Update old modules
+I updated particular modules out of paranoia.  Either installation errors (during previous installs) or notes on the web led me to install these.  If you know what you're doing, you can skip this, but if you're perl-fu is as weak as mine, you're better off installing them.
+
+    install File::BaseDir
+    install Module::Build
+    install File::Temp
+    install Digest::SHA
+    install YAML
+    install Test::Builder
+    install Test::Pod
+    install Test::Pod::Coverage
+
+# Install modules for Ikiwiki
+Install the modules required for Ikiwiki.  I install all of the ones required *and* suggested because most of what I want to do requires most of these modules.
+
+    install Text::Markdown URI HTML::Parser HTML::Template
+    install CGI CGI::Session CGI::FormBuilder
+    install Mail::Sendmail HTML::Scrubber
+    install RPC::XML XML::Simple XML::Feed File::MimeInfo Locale::gettext
+
+# Changes to Ikiwiki's build/install process
+An explanation of why each of these changes were made will follow these instructions.  To tell the default install where your libraries are, well modify docwiki.setup (just another ikiwiki setup file) to add the "libdir" configuration, using ${HOME}/site/perl/lib/perl5 as the value (you'll see this again in your final ikiwiki config).
+
+Next, you'll need to pass the directory where you installed your perl modules (*~/site/perl/ in this example*) into the MakeMaker build script (verbose isn't required, but gives you more feedback since you're following along at home):
+
+    user@server:~/ikiwiki$ perl Makefile.PL PREFIX=${HOME}/site/perl/ NOTAINT=1
+    Using PERL=/usr/bin/perl
+    Writing Makefile for IkiWiki
+
+The README suggests the NOTAINT for buggy Perl impls, of which mine is one.  So, add NOTAINT=1 after your calls to 'make'.  The NOTAINT=1 doesn't seem to remove the problem below.
+
+Next, we'll need to [patch the bug described here](http://ikiwiki.info/bugs/Insecure_dependency_in_eval_while_running_with_-T_switch/) (incidentally, this bug isn't on the bugs/ or bugs/done/ page, for some reason.  It's only findable via search).  Edit the Ikiwiki.pm file to look like below (line numbers prefix each line) :
+
+    1202         #my $ret=eval pagespec_translate($spec);
+    1203         my $ret=eval possibly_foolish_untaint(pagespec_translate($spec));
+
+At this point, you can run *make* and then *make install* (*make test* fails for reasons explained below).
+
+# Ikiwiki setup
+You can follow the normal installation process, excepting a few changes in your ikiwiki.setup documents.
+
+In ikiwiki.setup, you have to make your source and destination folders have your full *unsymlinked* home directory.  The home dir you see (/home/username) is actually a symlink from /home/.yourserver/username.  You need to find what this is and use that directly.  Run *ls -la* on ~ to find it, the output should look like :
+
+    [good]$ ls -la ~
+    lrwxrwxrwx  1 root staff 25 2007-08-03 16:44 /home/user -> /home/.server/user
+
+So far, it looks like only the source and destination parameters require this unsymlinked path, but for paranoia reasons, you may want to put them everywhere. The changelog for version 2.14 explains why this happens.
+
+Next, add your installed Perl module directory to the *libdir* parameter.  It should look something like :
+
+        #libdir => "/home/me/.ikiwiki/",
+        libdir => "/home/.server/user/site/perl/lib/perl5/",
+
+# CGI Wrapper
+The CGI wrapper file will be created automatically by "ikiwiki --setup path/to/setup", as long as you have inserted a valid filename to be created into the setup file.  On DreamHost, be careful not to put the ikiwiki.cgi file in a directory that has different owner/group than the file itself (such as the main site.domain.tld/ directory): this will cause suexec to fail.
+
+The wrapper mode of "06755" doesn't seem to work.  "755" appears to.  However, this may be completely insecure and/or buggy, so if you know better than I, edit this doc and add it here.
+
+# Pre-created SVN repository
+DreamHost has a pretty installation and management GUI for SVN, but it means your SVN rep is pre-created.  As such, you can't use the installation script they mention in the setup document, because it creates the repository for you.  As such, you simply use the relevant portion of the script, but skip the repository creation.  That part (from the version I installed from, *make sure you check your file as well*) is : 
+
+        cd your/ikiwiki/source/dir/here
+        svn mkdir "file:///home/user/svn/yoursvnrepositoryhere/whereyouwanttoinstallto" -m "create trunk directory"
+        svn co "file:///home/user/svn/yoursvnrepositoryhere/whereyouwanttoinstallto" . # Note the dot, it's important
+        svn propset svn:ignore ".ikiwiki" . # Note the dot, it's important
+        svn add *
+        svn commit -m "initial import"
+
+# Make installing OpenID not suck
+If you try to install the Net::OpenID::Consumer module, it takes forever (and for me, fails 90% of the time).  Following the [tip found here](http://www.windley.com/archives/2007/04/speeding_up_cryptdh.shtml), installing the GMP (big math) plugin greatly speeds up the process and makes it, well, work for me.  However, getting this to be used by Perl requires a few more steps.  First, follow the directions [to install GMP](http://gmplib.org/) (grab the package and read the INSTALL doc), but the quick steps are :
+
+    ./configure --prefix=YOUR_INSTALL_PATH_HERE # use something like ${HOME}/usr/local/
+    make
+    make check
+    make install
+
+Then you'll have to add a few variables to your path [referenced by your compiled](http://www.psc.edu/general/software/packages/gcc/manual/gcc_36.html), namely :
+
+    export C_INCLUDE_PATH=YOUR_INSTALL_PATH_HERE/include/
+    export LIBRARY_PATH=YOUR_INSTALL_PATH_HERE/lib/
+    export LD_LIBRARY_PATH=YOUR_INSTALL_PATH_HERE/lib/
+
+Then you should be able to install the module, and it'll be faster.
+
+# Why do I have to do all of this?
+IANA Perl Expert.  This is just what I found.
+
+[This appears to be a presentation outlining the problem](http://schwern.org/~schwern/talks/PREFIX/slides/slide001.html) -- Note, this site was up a few days ago, but appears to be down now.  YMMV.
+
+Part of the problem appears to be where modules decide to install themselves.  Markdown, for example, installs itself to .../lib/perl5, which somehow never makes it's way into any of the INC paths used in the Perl.  Not sure why, really.  The rest of the modules seem to work well with the PREFIX option, but Markdown doesn't install to the path used from the PREFIX (hence the manual modification of Makefile.PL).
+
+Basically, some stuff obeys the (apparently defunct and never really functional) PREFIX option, while the newer modules that use Module::Build, use the *install-base* option.  It would be nice if Ikiwiki could handle being installed in a non-root situation, but I have no real suggestions on how to make that happen.
+
+I'm willing to setup an account for committers wanting to try installing this on a DH server.  I know who Joey is, so if he can vouch for you, I'll set up the account ASAP.  You can reach me at mreynolds+dhwikiproblem@loopysoft.com .

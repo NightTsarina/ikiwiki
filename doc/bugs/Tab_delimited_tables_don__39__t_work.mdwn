@@ -1,0 +1,22 @@
+Table directive should support tab-delimited data, especially important since this is the format you will get if copy/pasting from an HTML table or spreadsheet (Gnumeric, OO Calc, Excel). Test case which fails:
+
+[[!table format=dsv delimiter="\t" data="""
+1	2
+2	4
+"""]]
+
+> They do work, but C-style backslash escapes aren't recognised,
+> so the syntax `delimiter="\t"` (as in your test case) looks
+> for the literal string `\t`. Replacing `\t` with a literal
+> tab character makes it work - here's a test (I changed the data
+> to make the table layout more obvious):
+>
+> [[!table format=dsv delimiter="	" data="""
+left	2
+2	right
+alpha	beta
+"""]]
+>
+> So, I think this can be considered [[not_a_bug|done]]? --[[smcv]]
+
+>> I've clarified the documentation. --[[smcv]]

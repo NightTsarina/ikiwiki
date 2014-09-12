@@ -1,0 +1,141 @@
+I've found myself wanting to know which [[plugins]] are switched on so I know which pre-processor commands I can use.  The attached [[patch]] adds a new plugin that generates the list of available plugins. -- [[Will]]
+
+> Good idea, I do see a few problems:
+> 
+> - preprocessor directives do not necessarily have the same name as the
+>   plugin that contains them (for example, the graphviz plugin adds a graph
+>   directive). Won't keys `%{IkiWiki::hooks{preprocess}}` work?
+
+>>> Er, yeah - that's a much better solution. :) -- and done
+
+> - "listplugins" is a bit misnamed since it only does preprocessor directives.
+
+>>> Yes.  Initially this was going to list all enabled plugins.  Then when searching
+>>> for enabled plugins I changed my mind and decided that a list of pre-processor
+>>> directives was more useful.  I'll fix that too. -- changed to `listpreprocessors`
+
+> - comment was copied from version plugin and still mentions version :-)
+
+>>> :-) -- fixed
+
+> - Seems like [[ikiwiki/formatting]] could benefit from including the
+>   list.. however, just a list of preprocessor directive names is not
+>   the most user-friendly thing that could be put on that page. It would
+>   be nice if there were also a short description and maybe an example of
+>   use. Seems like the place to include that info would be in the call
+>   to `hook()`.
+>   (Maybe adding that is more involved than you want to go though..)
+> 
+> --[[Joey]]
+
+>> Adding a whole new hook for a usage example is more effort than I
+>> wanted to go to.  I was thinking of either:
+
+>>> Just to clarify, I meant adding new parameters to the same hook call
+>>> that registers the plugin. --[[Joey]]
+
+>>    - Adding a configuration for a wiki directory.  If a matching page is in the
+>>      specified wiki directory then the plugin name gets turned into a link to that
+>>      page
+>>    - Adding configuration for an external URL.  Each plugin name is added as
+>>       a link to the plugin name appended to the URL.
+
+>>The first option is easier to navigate and wouldn't produce broken links,
+>>but requires all the plugin documentation to be local.  The second option
+>>can link back to the main IkiWiki site, but if you have any non-standard
+>>plugins then you'll get broken links.
+>>
+>>Hrm.  After listing all of that, maybe your idea with the hooks is the better
+>>solution.  I'll think about it some more. -- [[Will]]
+
+>>> I've also run into this problem with the websetup plugin, and
+>>> considered those ideas too. I don't like the external url, because
+>>> ikiwiki.info may be out of sync with the version of ikiwiki being used.
+>>> (Or maybe it's gone! :-) The first idea is fine, except for the bloat
+>>> issue. If turning on listpreprocessors and/or websetup means adding
+>>> hundreds of pages (and of kilobytes) to your wiki, that could be an
+>>> incentive to not turn them on..
+>>>
+>>> Hmm.. maybe the thing to do is to use _internal pages for the plugins;
+>>> then the individual pages would not be rendered, and your inlines would
+>>> still work. Although I don't know how websetup would use it then, and
+>>> also they would have to be non-internal for ikiwiki's own docwiki. Hmm.
+>>> Maybe these are two different things; one is a set of pages describing
+>>> preprocessor directives, and the second a set of pages describing
+>>> plugins. They're so closely related though it seems a shame to keep
+>>> them separate..
+>>> --[[Joey]]
+
+>>> I started implementing the hook based solution, and decided I didn't like
+>>> it because there was no nice way to rebuild pages when the preprocessor
+>>> descriptions changed.  So instead I assumed that the the [[plugins]] pages
+>>> would be moved into the underlay directory.  This plugin then uses an
+>>> `inline` directive to include those pages.  You can use the `inline`
+>>> parameter to decide if you want to include all the descriptions or
+>>> just the titles.  There is also an option to auto-create default/blank
+>>> description pages if they are missing (from a template).  As preprocessor
+>>> commands don't list unless they have a description page, auto-creation
+>>> is enabled by default.
+>>>
+>>>  There are three new templates that are needed.  These are for:
+>>>
+>>>  - The auto-created description pages are generated from `preprocessor-description.tmpl`.
+>>>  - When only pre-processor names are listed, the `listpreprocessors-listonly.tmpl` template is used.
+>>>  - When pre-processor descriptions are included inline, the `listpreprocessors-inline.tmpl` template is used.
+>>>
+>>> -- [[Will]]
+
+>>>> Just a quick note: pages are only created for pre-processor commands
+>>>> that exist when the `refresh` hook is called.  This is before the [[shortcuts]] are
+>>>> processed.  However, the list of available pre-processor commands will include
+>>>> shortcuts if they have description pages (the list is generated later, after the
+>>>> shortcuts have been added).  While this was unplanned, it seems a reasonable
+>>>> tradeoff between including all the large number of shortcuts and including none. -- [[Will]]
+
+>>>>>> I think that using an inline is elegant! However, I don't understand
+>>>>>> why it has to create stub description pages? I doubt that, if a
+>>>>>> directive is missing a page, the stub will be filled out in many
+>>>>>> wikis. And it adds a lot of complexity, particularly committing a
+>>>>>> bunch of generated pages to revision control when the user just
+>>>>>> wants a plugin list seems undesirable.
+>>>>>>
+>>>>>> Seems to me it could use the inline for pages that exist, and append
+>>>>>> to the bottom a generated text for anything that is currently missing.
+>>>>>> The generated text could even have a page creation link in it if
+>>>>>> you wanted.
+>>>>>> --[[Joey]]
+
+>>>>>>> I kinda agree about the page generation.  I don't like mixing an
+>>>>>>> inlined and a list though.  Besides which, that ends
+>>>>>>> up keeping much of complexity of the page generation because
+>>>>>>> the code still has to detect which pages are missing.  I've added
+>>>>>>> a patch that uses a list of wikilinks instead.  This way available
+>>>>>>> pages get linked correctly, and missing pages get normal creation
+>>>>>>> links.  The old patch is still here if you decide you prefer that. -- [[Will]]
+
+>>>>>>>> Can you explain the full/early list (why track both?) and generated parameter?
+
+>>>>>>>>> If you add in all the shortcuts you get quite a long list.  My original idea
+>>>>>>>>> was to just track the plugin commands.  This is the early list.  But then
+>>>>>>>>> I thought that it might be nice for someone looking at wiki source and
+>>>>>>>>> seeing a shortcut to know where it came from.  So I decided to make
+>>>>>>>>> displaying the full list an option, with the original concept as the default.
+
+>>>>>>>>> Another option here might be to generate the full list every time, but give
+>>>>>>>>> generated pre-processor commands (e.g. shortcuts) a different css class.
+>>>>>>>>> I'm not sure that is better than what I have though. 
+
+>>>>>>>>> I keep track of both in the page state because if a command moves from
+>>>>>>>>> a shortcut to the early list (or vice versa) it changes what should be
+>>>>>>>>> displayed in the default use of the plugin.  I thought about tracking just what
+>>>>>>>>> was actually used on the page, but I don't know in the needsbuild hook whether the `generated`
+>>>>>>>>> parameter has been supplied (or maybe the plugin is used twice on the page -
+>>>>>>>>> once in each form).  It was just easier to track both.
+
+>>>>>>>> Only code change I'd suggest is using `htmllink` rather than 
+>>>>>>>> generating a wikilink.
+
+>>>>>>>>> Yeah - that would make sense.  done. -- [[Will]]
+
+Patch is applied (along with some changes..). [[done]] (But, see
+[[directive_docs]].

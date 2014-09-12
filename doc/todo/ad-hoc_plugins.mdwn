@@ -1,0 +1,66 @@
+with pypy's sandbox module, it is possible to run user supplied code safely; that can be used for ad-hoc [[!taglink plugins]].
+
+ad-hoc plugins are little code snipplets that work similar to plugins, are limited in what they can do, but their code resides inside the wiki.
+
+## use cases
+
+* calendar modules for non-standard calendars.
+
+  an article mentioning Maladay could note it as `\[[!template id=discdate date="The Aftermath 5, 579 YOLD"]]`, which could run a script parsing the date and showing an appropriate gregorian daten in parentheses after the date in [[!wikipedia Discordian calendar]]
+
+* url operations for services that don't use the widespread url calculation patterns
+
+  a template for geocoordinates that offers links to various geo-services could take various input formats and generate urls like http://geohash.org/u2edk850cxh31 from `\[[!template id=geoinfos n=48.2081743 e=16.3738189]]`.
+
+## implementation in ikiwiki
+
+### `\[[!pythontemplate id=foo arg=value]]`
+
+the easiest way to enable ad-hoc plugins that came to my mind was creating a plugin like template, pythontemplate, that uses the same calling convention as the template plugin. i have implemented the plugin in perl, in a way that doesn't need any additional python code apart from what is shipped in pypy (in the [[!debpkg python-pypy.translator.sandbox]] package). the implementation is far from mature, but works.
+
+### `\[[!foo argument option=value]]`
+
+an implementation in the style of the [[ikiwiki/directive/shortcut]] directive would be easier to use, and would allow positional arguments too. (the template way of calling, with id= identification, requires parsing all arguments to a hash).
+
+### `hook(type="preprocess", id="foo", call=preprocess)`
+
+if one was to allow more features to wiki editors, one could even export the ikiwiki rpc api to python pages. (pages would get their `import()` function called via rpc, and coold `hook` into ikiwiki.) the security implications of such a feature would be much harder to overview, though, and the rpc would probably need filtering mechanisms.
+
+## implementation in python
+
+on the python side, i've prepared a `pythontemplate` module that can be imported from the template python programs. for example, it contains an argparse module that's adapted to ikiwiki specifics by formatting help output in a way suitable for wiki inclusion, and that silently handles the `page` and `destpage` options.
+
+The discordian calendar described above could look like this:
+
+    """Explain dates in discordian calendar"""
+    from pythontemplate.argparse import ArgumentParser
+    p = ArgumentParser(description=__doc__)
+    p.add_argument("--date", help="Date in discordian calendar")
+    
+    args = p.parse_args()
+    
+    def convert_date(...):
+        ...
+    
+    print "%s <small>(%s)</small>"%(args.date, convert_date(args.date))
+
+Using argparse might be a bit of overkill here, but has the nice property of enabling `\[[!pythontemplate id=discdate help=true]]` for a documentation page.
+
+## security implications
+
+a simple implementation like my current one or a shortcut-style one is secure by design:
+
+* the perl module decides which python script inside the wiki is to be executed. it takes the arguments to preprocess and prepares them being passed over to the script in argv.
+* the perl module launches the secure pypy-sandbox. it tells it to allow read access to the script itself and the python library, and to run the script in an otherwise isolated environment. it passes the arguments by means of argv, receives the resulting html+directive text from stdout, and evaluates the return status and stderr in case of problems.
+
+time and memory limits can be passed to the sandbox process, so the worst thing a wiki editor could do would be to use up both resources to the defined limit whenever someone edits a page triggering the script.
+
+some details on pypy-sandbox internals:
+
+an interact script provides an "operating system" to the pypy sandbox binary itself, which it launches. the only syscalls the sandbox binary can do are stdio read/write, and every time the script being run inside wants to do something that would normally trigger a syscall, it talks to the interact script. for example, if the script tries to import the library, the binary asks the interact script for a file handle using an open() line, and the interact script will look in the virtual filesystem it keeps if such a file is present there. (it is, as it was instructed thus by the perl module).
+
+## performance / optimizations
+
+the current implementation amounts to an invocation to classical python and another invocation to pypy per directive. this also means that pypy will never get to play its big strength, just in time optimization.
+
+running a complete foreign language plugin using the xmlrpc interface in the sandbox would alleviate the problem, but the security implications would be difficult. a middle path (running a single pypy sandbox binary per ikiwiki run, but still calling into it only for directive evaluation) seems feasible. there is no direct support for such a thing in pypy yet, but it shouldn't be too hard to do, and even if the separations between the individual directive evaluations could be torn down from inside, the worst thing an attacker could do would be to have side effects between different directive evaluations).

@@ -1,0 +1,5 @@
+When I originally looked at the "exclude" option, I thought it meant that it excluded pages completely, but it apparently doesn't.  What I've found in practice is that a file which matches the "exclude" regex is excluded from *processing*, but it is still copied over to the destination directory.  Thus, for example, if I have "^Makefile$" as the exclude pattern, and I have a file `src/foo/Makefile`, then that file is copied unaltered into `dest/foo/Makefile`.  However, what I want is for `src/foo/Makefile` to be completely ignored: that it is not only not processed, but not even *copied* into the destination directory.
+
+I'm not sure if the current behaviour is a bug or a feature, but I would like a "totally ignore this file" feature if it's possible to have one.
+
+-- [[KathrynAndersen]]

@@ -1,0 +1,31 @@
+I got this failure when trying to build ikiwiki version 3.20100403:
+
+	$ perl Makefile.PL INSTALL_BASE=/opt/ikiwiki PREFIX=
+	Writing Makefile for IkiWiki
+	$ make
+
+*...snip...*
+
+	./pm_filter /opt/ikiwiki 3.20100403 /opt/ikiwiki/lib/perl5 < ikiwiki.in > ikiwiki.out
+	chmod +x ikiwiki.out
+	./pm_filter /opt/ikiwiki 3.20100403 /opt/ikiwiki/lib/perl5 < ikiwiki-transition.in > ikiwiki-transition.out
+	chmod +x ikiwiki-transition.out
+	./pm_filter /opt/ikiwiki 3.20100403 /opt/ikiwiki/lib/perl5 < ikiwiki-calendar.in > ikiwiki-calendar.out
+	chmod +x ikiwiki-calendar.out
+	HOME=/home/me /usr/bin/perl -Iblib/lib   ikiwiki.out -libdir . -dumpsetup ikiwiki.setup
+	Use of uninitialized value $IkiWiki::Setup::config{"setuptype"} in concatenation (.) or string at IkiWiki/Setup.pm line 53.
+	Can't locate IkiWiki/Setup/.pm in @INC (@INC contains: . /opt/ikiwiki/lib/perl5/i486-linux-gnu-thread-multi /opt/ikiwiki/lib/perl5 blib/lib /etc/perl /usr/local/lib/perl/5.10.1 /usr/local/share/perl/5.10.1 /usr/lib/perl5 /usr/share/perl5 /usr/lib/perl/5.10 /usr/share/perl/5.10 /usr/local/lib/site_perl .) at (eval 35) line 3.
+
+	make: *** [ikiwiki.setup] Error 2
+
+Note that I had been trying to upgrade with an installed ikiwiki 3.20091114
+already in place under /opt/ikiwiki.  The build does not fail for me
+if I first remove the old ikiwiki installation, nor does it fail with
+3.20100403 or newer installed at /opt/ikiwiki.  Hence this is not
+really a critical bug, although it's somewhat perplexing to me why it
+ought to make a difference.
+
+> So, using INSTALL_BASE causes a 'use lib' to be hardcoded into the `.out`
+> files; which overrides the -libdir and the -I, and so the old version
+> of IkiWiki.pm is used.
+> [[fixed|done]] --[[Joey]] 

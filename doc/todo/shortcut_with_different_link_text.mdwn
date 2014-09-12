@@ -1,0 +1,67 @@
+I'd like the ability to use a shortcut, but declare an explicit link text
+rather than using the link text defined on [[/shortcuts]].  For example, if I
+create a shortcut `protogit` pointing to files in the xcb/proto.git gitweb
+repository, I don't always want to use the path to the file as the link text;
+I would like to src/xcb.xsd, but use the link text "XML Schema for the X
+Window System protocol".  --[[JoshTriplett]]
+
+> If I understand you correctly, you can use Markdown \[your link text\]\(the path or URL\) . Using your example:
+> [XML Schema for the X Window System protocol](src/xcb.xsd)
+>
+> If I don't understand this, can you give an HTML example? --[[JeremyReed]]
+
+>> The problem is like that in [[bugs/shortcuts_don't_escape_from_Markdown]]. We would like to use 
+>> the shortcuts plugin but add a descriptive text -- in this case \[[!xcbgit src/xcb.xsd|XML Schema...]]
+>> The file src/xcb.xsd could be any url, and the point of shortcuts is that you get to shorten it.
+>> --Ethan
+
+>>> Some clarifications:
+>>> You can always write something like
+>>> `[XML Schema for the X Window System Protocol](http://gitweb.freedesktop.org/?p=xcb/proto.git;a=blob;hb=HEAD;f=src/xcb.xsd)`
+>>> to get [XML Schema for the X Window System Protocol](http://gitweb.freedesktop.org/?p=xcb/proto.git;a=blob;hb=HEAD;f=src/xcb.xsd).
+>>> However, I want to define a [[plugins/shortcut]] to save the typing.  If I
+>>> define something like `protogit` pointing to
+>>> `http://gitweb.freedesktop.org/?p=xcb/proto.git;a=blob;hb=HEAD;f=%s`, then
+>>> I can write `\[[!protogit src/xcb.xsd]]`; however, I then can't change the
+>>> link text to anything other than what the shortcut defines as the link
+>>> text. I want to write something like
+>>> `\[[XML Schema for the X Window System Protocol|protogit src/xcb.xsd]]`,
+>>> just as I would write a wikilink like
+>>> `\[[the_shortcuts_on_this_wiki|shortcuts]]` to get
+>>> [[the_shortcuts_on_this_wiki|shortcuts]]. (The order you suggest, with the
+>>> preprocessor directive first, seems quite confusing since wikilinks work
+>>> the other way around.) --[[JoshTriplett]]
+
+> How about [xcbgit XML_Schema|src/xcb.xsd]. That's the same way round
+> as a wikilink, if you look at it the right way. The syntax Josh suggests
+> is not currently possible in ikiwiki.
+> 
+> However.. [[Short_wikilinks]] has some similar objectives in a way, and
+> over there a similar syntax to what Josh proposes was suggested. So maybe
+> I should modify how ikiwiki preprocessors work to make it doable.
+> Although, I seem to have come up with a clear alternative syntax over
+> there. --[[Joey]]
+
+---
+
+One possible alternative, would be a general `\[[!url ]]` scheme for all kinds of links. As mentioned in [[Short_wikilinks]], I have wanted a way to enter links to the wiki with markdown-style references,
+specifying the actual target elsewhere from the text, with just a short reference in the text. To facilitate automatic conversion from earlier (already markdownised) "blog", I finally ended up writing a custom plugin that simply gets the location of wikipage, and use markdown mechanisms:
+
+    Here [is][1] a link.
+
+      [1]: [[!l a_page_in_the_wiki]]
+
+    Obviously [this]([[!l another_page]]) also works, although the syntax is quite cumbersome.
+
+So that the 'l' plugin inserts the location the page there, and markdown does the rest. My plugin currently fails if it can't find the page, as that is sufficient for my needs. Differing colouring for non-existing pages is not doable in a straightforward manner with this approach.
+
+For external links, that is no concern, however. So you could define for each shortcut an alternative directive, that inserts the URL. Perhaps `\[[!url shortcutname params]]` or `\[[@shortcutname params]]` (if the preprocessor supported the @), and this could be extended to local links in an obvious manner: `\[[!url page]]` or `\[[@page]]`. Now, if you could just get rid off the parantheses for markdown, for the short inline links --[[tuomov]] (who'd really rather not have two separate linking mechanisms: ikiwiki's heavy syntax and markdown's lighter one).
+
+---
+
+I've added code to make the \[[!foo 123]] syntax accept a _desc_
+parameter. I've named it like this to signal that it overrides the
+_desc_ provided at description time. `%s` is expanded here as well.
+
+[[todo/done]] -- Adeodato Simó
+  

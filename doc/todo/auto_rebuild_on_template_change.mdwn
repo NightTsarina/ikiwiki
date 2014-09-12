@@ -1,0 +1,78 @@
+If `page.tmpl` is changed, it would be nice if ikiwiki automatically
+noticed, and rebuilt all pages. If `inlinepage.tmpl` is changed, a rebuild
+of all pages using it in an inline would be stellar.
+
+This would allow setting:
+
+	templatedir => "$srcdir/templates",
+
+.. and then the [[templates]] are managed like other wiki files; and
+like other wiki files, a change to them automatically updates dependent
+pages.
+
+Originally, it made good sense not to have the templatedir inside the wiki.
+Those templates can be used to bypass the htmlscrubber, and you don't want
+just anyone to edit them. But the same can be said of `style.css` and
+`ikiwiki.js`, which *are* in the wiki. We rely on `allowed_attachments`
+being set to secure those to prevent users uploading replacements. And we
+assume that users who can directly (non-anon) commit *can* edit them, and
+that's ok.
+
+So, perhaps the easiest way to solve this [[wishlist]] would be to
+make templatedir *default* to "$srcdir/templates/, and make ikiwiki
+register dependencies on `page.tmpl`, `inlinepage.tmpl`, etc, as they're
+used. Although, having every page declare an explicit dep on `page.tmpl`
+is perhaps a bit much; might be better to implement a special case for that
+one. Also, having the templates be copied to `destdir` is not desirable.
+In a sense, these template would be like internal pages, except not wiki
+pages, but raw files.
+
+The risk is that a site might have `allowed_attachments` set to
+`templates/*` or `*.tmpl` something like that. I think such a configuration
+is the *only* risk, and it's unlikely enough that a NEWS warning should
+suffice.
+
+(This would also help to clear up the tricky disctinction between
+wikitemplates and in-wiki templates.)
+
+Note also that when using templates from "$srcdir/templates/", `no_includes`
+needs to be set. Currently this is done by the two plugins that use
+such templates, while includes are allowed in `templatedir`.
+
+Have started working on this.
+[[!template id=gitbranch branch=origin/templatemove author="[[Joey]]"]]
+
+> But would this require that templates be parseable as wiki pages?  Because that would be a nuisance. --[[KathrynAndersen]]
+
+>> It would be better for them not to be rendered separately at all.
+>> --[[Joey]]  
+
+>>> I don't follow you. --[[KathrynAndersen]]
+
+>>>> If they don't render to output files, they clearly don't
+>>>> need to be treated as wiki pages. (They need to be treated
+>>>> as raw files anyway, because you don't want random users editing them 
+>>>> in the online editor.) --[[Joey]] 
+
+>>>>> Just to be clear, the raw files would not be copied across to the output
+>>>>> directory? -- [[Jon]]
+
+>>>>>> Without modifying ikiwiki, they'd be copied to the output directory as
+>>>>>> (e.g.) http://ikiwiki.info/templates/inlinepage.tmpl; to not copy them,
+>>>>>> it'd either be necessary to make them be internal pages
+>>>>>> (templates/inlinepage._tmpl) or special-case them in some other way.
+>>>>>> --[[smcv]]
+
+>>>>>>> In my branch, I left in support for the templatedir, and also
+>>>>>>> /usr/share/ikiwiki/templates. So, users do not have to put their
+>>>>>>> custom templates in templates/ in the wiki. If they do, 
+>>>>>>> the templates are copied to the destdir like other non-wiki page files
+>>>>>>> are. The templates are not wiki pages, except those used by a few
+>>>>>>> things like the [[plugins/template]] plugin.
+>>>>>>> 
+>>>>>>> That seems acceptable, since users probably don't need to modify
+>>>>>>> many templates, so the clutter is small. (Especially when
+>>>>>>> compared to the other clutter the basewiki always puts in destdir.)
+>>>>>>> This could be revisted later. --[[Joey]] 
+
+[[done]]

@@ -1,0 +1,58 @@
+The po plugin systematically overrides the title of the homepage with the wikiname. This prevents explicitly changing it with a meta directive. It should rather check whether it was overridden before setting it back.
+
+Here is a simple patch for that:
+
+    diff --git a/Plugin/po.pm b/Plugin/po.pm
+    index 6395ebd..a048c6a 100644
+    --- a/Plugin/po.pm
+    +++ b/Plugin/po.pm
+    @@ -333,7 +333,7 @@ sub pagetemplate (@) {
+                && $masterpage eq "index") {
+                    $template->param('parentlinks' => []);
+            }
+    -       if (ishomepage($page) && $template->query(name => "title")) {
+    +       if (ishomepage($page) && $template->query(name => "title") && !$template->query(name => "title_overridden")) {
+                    $template->param(title => $config{wikiname});
+            }
+     }
+
+Thanks.
+
+> I fixed this patch a bit and applied it to my po branch, thanks
+> (commit 406485917).
+>
+> But... a bug (probably in HTML::Template) prevents this
+> theoretically correct solution to actually work.
+> Setting a parameter that does not appear in the template, such as
+> `title_overridden`, is not working on my install: the value does not
+> seem to be stored anywhere, and when accessing it later using
+> `$template->param('title_overridden')` it is always undef.
+> Adding `<TMPL_IF TMPL_VAR TITLE_OVERRIDDEN></TMPL_IF>` in
+> `page.tmpl` is a working, but ugly workaround.
+>
+> I am nevertheless in favour of merging the fix into ikiwiki.
+> We'll then need to find how to find the remaining (smaller) bug so
+> that this code can actually work.
+>
+> I'd like others to test my po branch and see if they can reproduce
+> the bug I am talking of.
+>
+> --[[intrigeri]]
+
+>> Commit 406485917 looks fine to me, FWIW --[[smcv]]
+
+>>> I tracked the HTML::Template bug (or missing documentation?) a bit
+>>> more. This lead to commit b2a2246ba in my po branch, that enables
+>>> HTML::Template's parent_global_vars option which makes
+>>> title_overridden work.
+>>>
+>>> OTOH I feel this workaround is a bit ugly as this option is not
+>>> documented. IMHO being forced to use it reveals a bug in
+>>> HTML::Template. I reported this:
+>>> https://rt.cpan.org/Public/Bug/Display.html?id=64158.
+>>>
+>>> But still, I think we need to apply the workaround as
+>>> HTML::Template's author has not updated any dist on CPAN for more
+>>> than one year. --[[intrigeri]]
+
+>>>> All merged, [[done]]. --[[Joey]] 

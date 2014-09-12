@@ -1,0 +1,37 @@
+[[!template id=gitbranch branch=chrysn/linkmapenhancement author="[[chrysn]]"]]
+
+[[ikiwiki/directive/linkmap]]s display the file name instead of the pagetitle, showing unsightly underscore escapes and underscores instead of blanks to users.
+
+the attached [[!taglink patch]] fixes this; from its commit message:
+
+    display the pagetitle() in linkmaps
+    
+    without this patch, linkmaps display underscores and underscore escape
+    sequences in the rendered output.
+    
+    this introduces a pageescape function, which invoces pagetitle() to get
+    rid of underscore escapes and wraps the resulting utf8 string
+    appropriately for inclusion in a dot file (using dot's html encoding
+    because it can represent the '\"' dyad properly, and because it doesn't
+    need special-casing of newlines).
+
+the output will look much better (at least in my wikis) with the "[[bugs/pagetitle function does not respect meta titles]]" issue fixed.
+
+> [[Looks good to me|users/smcv/ready]].
+>
+> I don't think it's correct for `pagetitle()` to output `\[[!meta title]]`
+> though, as discussed on the linked bug: it appears in an assortment of
+> contexts where the full formal title of the page seems inappropriate.
+> If you want linkmap to use `\[[!meta title]]`, I think it would be
+> better to give it a `show` parameter, like `\[[!map]]` has?
+> --[[smcv]]
+
+>> sounds good; i'll have a look at it the next time i touch the linkmap
+>> plugin. the patch at hand would be a starting point for that. --[[chrysn]]
+
+the patch is stored in [[the patch.pl]] as created by git-format-patch, and can
+be pulled from the abovementioned branch.
+
+> update 2014-06-29: branch still merges cleanly and works. --[[chrysn]]
+
+>> [[merged|done]] --[[smcv]]

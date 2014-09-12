@@ -1,0 +1,12 @@
+It seems that rebuild a wiki (`ikiwiki --rebuild`) after changing the `underlaydir` config option doesn't remove the pages coming from the previous underlaydir. 
+
+I've noticed this with the debian package version 3.20100102.3~bpo50+1.
+
+Perhaps it is possible to improve this or mention it in the manual page?
+
+--prosper
+
+> --rebuild causes ikiwiki to throw away all its info about what it built
+> before, so it will never clean up pages that have been removed, by any
+> means. Suggest you do a --refresh, possibly followed by a --rebuild
+> if that is really necessary. --[[Joey]]

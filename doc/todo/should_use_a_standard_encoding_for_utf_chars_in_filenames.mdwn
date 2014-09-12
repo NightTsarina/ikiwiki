@@ -1,0 +1,100 @@
+It seems that I can't use Polish characters in post title.
+When I try to do it, then I can see error message: "Błąd: bad page name".
+
+I hope it's a bug, not a feature and you fix it soon :) --[[Paweł|ptecza]]
+
+> ikiwiki only allows a very limited set of characters raw in page names,
+> this is done as a deny-by-default security thing. All other characters
+> need to be encoded in `__code__` format, where "code" is the character
+> number. This is normally done for you, but if you're adding a page
+> manually, you need to handle it yourself. --[[Joey]]
+
+>> Assume I have my own blog and I want to send a new post with Polish
+>> characters in a title. I think it's totally normal and common thing
+>> in our times. Do you want to tell me I shouldn't use my native
+>> characters in the title? It can't be true ;)
+
+>> In my opinion encoding of title is a job for the wiki engine,
+>> not for me. Joey, please try to look at a problem from my point
+>> of view. I'm only user and I don't have to understand
+>> what the character number is. I only want to blog :)
+
+>> BTW, why don't you use the modified-UTF7 coding for page names
+>> as used in IMAP folder names with non-Latin letters? --[[Paweł|ptecza]]
+
+>>> Joey, do you intend to fix that bug or it's a feature
+>>> for you? ;) --[[Paweł|ptecza]]
+
+>>>> Of course you can put Polish characters in the title. but the page
+>>>> title and filename are not identical. Ikiwiki has to place some limits
+>>>> on what filenames are legal to prevent abuse. Since
+>>>> the safest thing to do in a security context is to deny by default and
+>>>> only allow a few well-defined safe things, that's what it does, so
+>>>> filenames are limited to basic alphanumeric characters.
+>>>>
+>>>> It's not especially hard to transform your title into get a legal
+>>>> ikiwiki filename: 
+
+	joey@kodama:~>perl -MIkiWiki -le 'print IkiWiki::titlepage(shift).".mdwn"' "Błąd"
+	B__197____130____196____133__d.mdwn
+
+>>>>> Thanks for the hint! It's good for me, but rather not for common users :)
+
+>>>>>> Interesting... I have another result:
+>>>>>>
+>>>>>>        perl -MIkiWiki -le 'print IkiWiki::titlepage(shift).".mdwn"' "Błąd"
+>>>>>>        B__179____177__d.mdwn
+>>>>>>
+>>>>>> What's your locale? I have both pl\_PL (ISO-8859-2) and pl\_PL.UTF-8,
+>>>>>> but I use pl\_PL. Is it wrong? --[[Paweł|ptecza]]
+
+>>>>>>> IkiWiki assumes UTF-8 throughout, so escaped filename characters
+>>>>>>> should be `__x____y____z__` where x, y, z are the bytes of the
+>>>>>>> UTF-8 encoding of the character. I don't know how to achieve that
+>>>>>>> from a non-UTF-8 locale. --[[smcv]]
+
+>>>> Now, as to UTF7, in retrospect, using a standard encoding might be a
+>>>> better idea than coming up with my own encoding for filenames. Can 
+>>>> you provide a pointer to a description to modified-UTF7? --[[Joey]]
+
+>>>>> The modified form of UTF7 is defined in [RFC 2060](http://www.ietf.org/rfc/rfc2060.txt)
+>>>>> for IMAP4 protocol (please see section 5.1.3 for details).
+
+>>>>> There is a Perl [Unicode::IMAPUtf7](http://search.cpan.org/~fabpot/Unicode-IMAPUtf7-2.01/lib/Unicode/IMAPUtf7.pm)
+>>>>> module at the CPAN, but probably it hasn't been debianized yet :( --[[Paweł|ptecza]]
+
+> Note: [libencode-imaputf7-perl][1] has made it into debian.
+>
+>> "IMAP UTF-7" uses & as an escape character, which seems like a recipe
+>> for shell injection vulnerabilities... so I would not recommend it
+>> for this particular use. --[[smcv]]
+
+> I would value some clarification, in the ikiwiki setup file I have
+>
+>     wiki_file_chars: -[:alnum:][\p{Arabic}()]+/.:_
+>
+> Ikiwiki doesn't seem to produce any errors on the commandline for this, but
+> when I attempt to create a new post with Arabic characters from the web I get the following error :
+>
+>     Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215. 
+>
+> Should the modified regexp not be sufficient?
+> Ikiwiki 3.20140815.
+> --[[mhameed]]
+
+>> This seems like a bug: in principle non-ASCII in `wiki_file_chars` should work,
+>> in practice it does not. I would suggest either using the default
+>> `wiki_file_chars`, or digging into the code to find what is wrong.
+>> Solving this sort of bug usually requires having a clear picture of
+>> which "strings" are bytestrings, and which "strings" are Unicode. --[[smcv]]
+
+>>> mhameed confirmed on IRC that anarcat's [[patch]] from
+>>> [[bugs/garbled_non-ascii_characters_in_body_in_web_interface]] fixes this.
+>>> --[[smcv]]
+
+>>>> Merged that patch. Not marking this page as done, because the todo
+>>>> about using a standard encoding still stands (although I'm not at
+>>>> all sure there's an encoding that would be better). --[[smcv]]
+
+[[wishlist]]
+[1]: https://packages.debian.org/search?suite=all&section=all&arch=any&searchon=names&keywords=libencode-imaputf7-perl

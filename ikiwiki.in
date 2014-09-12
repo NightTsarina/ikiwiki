@@ -1,0 +1,229 @@
+#!/usr/bin/perl
+package IkiWiki;
+
+use warnings;
+use strict;
+use lib '.'; # For use in nonstandard directory, munged by Makefile.
+use IkiWiki 3.00;
+
+sub usage () {
+	die gettext("usage: ikiwiki [options] source dest"), "\n",
+	    gettext("       ikiwiki --setup configfile"), "\n";
+}
+
+sub setup (@) {
+	require IkiWiki::Setup;
+	my $verbose=$config{verbose};
+	my $syslog=$config{syslog};
+	IkiWiki::Setup::load($_[1]);
+	$config{setupverbose}=$config{verbose};
+	$config{setupsyslog}=$config{syslog};
+	$config{verbose}=$verbose || $config{setupverbose};
+	$config{syslog}=$syslog;
+	$config{setup}=1;
+}
+
+sub getconfig () {
+	if (! exists $ENV{WRAPPED_OPTIONS}) {
+		%config=defaultconfig();
+		eval q{use Getopt::Long};
+		Getopt::Long::Configure('pass_through');
+		GetOptions(
+			"setup|s=s" => \&setup,
+			"dumpsetup|s=s" => \$config{dumpsetup},
+			"changesetup|s=s" => sub {
+				$config{changesetup}=$_[1];
+				$config{genwrappers}=1;
+				$config{refresh}=1;
+				setup(@_);
+			},
+			"wikiname=s" => \$config{wikiname},
+			"verbose|v!" => \$config{verbose},
+			"syslog!" => \$config{syslog},
+			"rebuild!" => \$config{rebuild},
+			"refresh!" => \$config{refresh},
+			"clean!" => \$config{clean},
+			"post-commit" => \$config{post_commit},
+			"render=s" => \$config{render},
+			"wrappers!" => \$config{genwrappers},
+			"wrappergroup=s" => \$config{wrappergroup},
+			"usedirs!" => \$config{usedirs},
+			"prefix-directives!" => \$config{prefix_directives},
+			"getctime" => \$config{gettime},
+			"gettime!" => \$config{gettime},
+			"numbacklinks=i" => \$config{numbacklinks},
+			"rcs=s" => \$config{rcs},
+			"no-rcs" => sub { $config{rcs}="" },
+			"cgi!" => \$config{cgi},
+			"discussion!" => \$config{discussion},
+			"w3mmode!" => \$config{w3mmode},
+			"url=s" => \$config{url},
+			"cgiurl=s" => \$config{cgiurl},
+			"historyurl=s" => \$config{historyurl},
+			"diffurl=s" => \$config{diffurl},
+			"svnpath" => \$config{svnpath},
+			"adminemail=s" => \$config{adminemail},
+			"timeformat=s" => \$config{timeformat},
+			"sslcookie!" => \$config{sslcookie},
+			"userdir=s" => \$config{userdir},
+			"htmlext=s" => \$config{htmlext},
+			"libdir=s" => \$config{libdir},
+			"exclude=s@" => sub {
+				push @{$config{wiki_file_prune_regexps}}, $_[1];
+			},
+			"include=s@" => sub {
+				$config{include}=defined $config{include} && length $config{include} ? "$config{include}|$_[1]" : $_[1];
+			},
+			"adminuser=s@" => sub {
+				push @{$config{adminuser}}, $_[1]
+			},
+			"templatedir=s" => sub {
+				$config{templatedir}=possibly_foolish_untaint($_[1])
+			},
+			"underlaydir=s" => sub {
+				$config{underlaydir}=possibly_foolish_untaint($_[1])
+			},
+			"wrapper:s" => sub {
+				$config{wrapper}=$_[1] ? possibly_foolish_untaint($_[1]) : "ikiwiki-wrap"
+			},
+			"wrappermode=i" => sub {
+				$config{wrappermode}=possibly_foolish_untaint($_[1])
+			},
+			"plugin=s@" => sub {
+				push @{$config{add_plugins}}, $_[1]
+					unless grep { $_ eq $_[1] } @{$config{add_plugins}};
+			},
+			"disable-plugin=s@" => sub {
+				push @{$config{disable_plugins}}, $_[1];
+			},
+			"set=s" => sub {
+				my ($var, $val)=split('=', $_[1], 2);
+				if (! defined $var || ! defined $val) {
+					die gettext("usage: --set var=value"), "\n";
+				}
+				$config{$var}=$val;
+			},
+			"set-yaml=s" => sub {
+				my ($var, $val)=split('=', $_[1], 2);
+				if (! defined $var || ! defined $val) {
+					die gettext("usage: --set-yaml var=value"), "\n";
+				}
+				eval q{use YAML::XS; use Encode};
+				die $@ if $@;
+				$config{$var}=Load(encode_utf8($val)."\n");
+			},
+			"version" => sub {
+				print "ikiwiki version $IkiWiki::version\n";
+				exit;
+			},
+			"help|h" => sub { $SIG{__WARN__}=sub {}; die },
+		) || usage();
+
+		if (! $config{setup}) {
+			loadplugins();
+			if (@ARGV == 2) {
+				$config{srcdir} = possibly_foolish_untaint(shift @ARGV);
+				$config{destdir} = possibly_foolish_untaint(shift @ARGV);
+				checkconfig();
+			}
+			else {
+				usage() unless $config{dumpsetup};
+			}
+		}
+	}
+	else {
+		# wrapper passes a full config structure in the environment
+		# variable
+		eval possibly_foolish_untaint($ENV{WRAPPED_OPTIONS});
+		if ($@) {
+			error("WRAPPED_OPTIONS: $@");
+		}
+		delete $ENV{WRAPPED_OPTIONS};
+
+		loadplugins();
+		checkconfig();
+	}
+}
+
+sub main () {
+	getconfig();
+	
+	if ($config{setup}) {
+		delete $config{setup};
+		loadplugins();
+		checkconfig();
+
+		if (@{$config{wrappers}} && 
+		    ! $config{render} && ! $config{dumpsetup} &&
+		    ! $config{clean} &&
+		    ((! $config{refresh} && ! $config{post_commit})
+		     || $config{genwrappers})) {
+			require IkiWiki::Wrapper;
+			gen_wrappers();
+		}
+		
+		# setup implies a wiki rebuild by default
+		if (! $config{refresh} && ! $config{render} &&
+		    ! $config{post_commit} && ! $config{clean}) {
+			$config{rebuild}=1;
+		}
+	}
+
+	if ($config{changesetup}) {
+		require IkiWiki::Setup;
+		IkiWiki::Setup::dump($config{changesetup});
+	}
+
+	if ($config{dumpsetup}) {
+		$config{srcdir}="" if ! defined $config{srcdir};
+		$config{destdir}="" if ! defined $config{destdir};
+		$config{syslog}=1 if $config{setupsyslog};
+		checkconfig();
+		require IkiWiki::Setup;
+		IkiWiki::Setup::dump($config{dumpsetup});
+	}
+	elsif ($config{wrapper}) {
+		lockwiki();
+		require IkiWiki::Wrapper;
+		gen_wrapper();
+	}
+	elsif ($config{cgi}) {
+		require IkiWiki::CGI;
+		eval {cgi()};
+		if ($@) {
+			cgierror($@);
+		}
+	}
+	elsif ($config{render}) {
+		require IkiWiki::Render;
+		commandline_render();
+	}
+	elsif ($config{post_commit} && ! commit_hook_enabled()) {
+		# do nothing
+	}
+	elsif ($config{clean}) {
+		require IkiWiki::Render;
+		foreach my $wrapper (@{$config{wrappers}}) {
+			prune($wrapper->{wrapper});
+		}
+		clean_rendered();
+		system("rm", "-rf", $config{wikistatedir});
+	}
+	else {
+		if ($config{rebuild}) {
+			debug(gettext("rebuilding wiki.."));
+		}
+		else {
+			debug(gettext("refreshing wiki.."));
+		}
+		lockwiki();
+		loadindex();
+		require IkiWiki::Render;
+		rcs_update();
+		refresh();
+		saveindex();
+		debug(gettext("done"));
+	}
+}
+
+main;

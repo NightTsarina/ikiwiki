@@ -1,0 +1,35 @@
+Basically, what I need is a two-sided wiki:
+
+* one side would be the published version, with the ikiwiki CGI disabled;
+* another would be the developement version, which would be editable online.
+
+These two sides would correspond to branches in the repository.
+Each time someone makes a change to the developement version,
+the created revision number would be added to a list of changes to be reviewed,
+maybe by a pre/post-commit hook. This would be done only if a published version of
+the page exists, and could be requested when a new page needs to be published.
+Some kind of priviledged user could then move the change around,
+from the "review needed" queue to the "accepted" or "rejected" ones.
+This would be done in a way that would trigger the appropriate VCS merge operations.
+
+A generic "change queue" mechanism could be used for translations or other stuff as well.
+Each change would have its own wiki page under changes/revNNNN.
+Change queues would be wiki pages as well (probably using [[inlines|plugins/inline]]);
+[[Pagespecs|ikiwiki/Pagespec]] and [[tags]] would be used to control the queues to which a given change would belong.
+
+--[[JeremieKoenig]]
+
+> You can achieve something like this right now, by using Git.  The
+> development and published versions each have their own repository, with
+> remotes set up so they push either to two backend repositories or to two
+> different branches of the same backend repository.  You can then merge from
+> one to the other whenever you want.
+>
+> You could theoretically do this with SVN as well.
+>
+> I do like the idea you suggest of reviewing and merging changes through the
+> web interface, though.
+>
+> -- [[JoshTriplett]]
+
+[[!tag wishlist]]

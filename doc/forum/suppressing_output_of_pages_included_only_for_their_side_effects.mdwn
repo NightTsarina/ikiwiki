@@ -1,0 +1,16 @@
+In particular, it's kind of annoying that using the sidebar plugin results in the creation of a free-standing sidebar.html (which in the simplest case of course includes a copy of *its own content* as a sidebar).  It would be nice if there were a way to tell Ikiwiki to treat a file like sidebar.mdwn as "inline only": allow its content to be inlined but not to render it separately nor allow linking to it.
+
+In reading through the code and associated docs, it appears that the ideal method is for the file to be removed from the $changed array by plugin's "needsbuild" hook.  Either the sidebar plugin could define such a hook, or perhaps a more general solution is the creation of a meta variable or config file regexp that would handle it according to the user's wishes.
+
+I'm about ready to code up such a change but want to find out if I'm thinking along the right lines.  --[[blipvert]]
+
+> Internal pages should be able to be used for this, as they are used for
+> comments. So you'd have
+> `sidebar._mdwn`. However, mwdn would need to be changed to register a
+> htmlize hook for the `_mdwn` extension for that to really work.
+> 
+> But, if there's no rendered sidebar page, how can users easily edit the page
+> in the web interface? In the specific case of the sidebar, It seems
+> better to have the page display something different when built standalone
+> than when built as the sidebar.
+> --[[Joey]]

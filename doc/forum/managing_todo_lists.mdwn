@@ -1,0 +1,44 @@
+I keep some TODO lists on ikiwiki pages. I'm half-tempted to write a plugin
+to make ticking items off and adding items easier via the web interface. I'm
+aware though that this is not really what ikiwiki is designed for. Would
+anyone else find this useful? -- [[users/jon]]
+
+----
+
+My subsequent thoughts about how to approach this are two-fold.
+
+Firstly, a filetype for todo lists, probably OPML, but I haven't looked to see
+if there is something more suitable. A plugin that converts this source into a
+traditional page output, i.e. a DOM tree of ul or ol and li elements.
+
+Secondly, some magic javascript to make editing the list via the web page 
+more interactive: add items, strike items out, reorder items etc., without
+round-tripping to the cgi for each operation.
+
+Finally, a mechanism whereby the changes made to the page live can be
+committed back to the repository:
+
+ * ...perhaps the input → output conversion is reversible, and the HTML DOM
+   representing the list can be transformed back into the source and submitted
+   to the cgi like a regular edit: issues include the result of other
+   postprocessing: templates, wikilinks, etc.
+ * perhaps an embedded copy of the source is included in the output and the
+   javascript operates on that in tandem with the static copy
+   * perhaps the "output" is generated live by the JS at view time (with maybe
+     a plugin-generated rendered output for non JS environments)
+
+I envisage a button called "commit changes" appearing once some changes are
+made that submits the changes to the CGI, perhaps via a back channel. I'm not
+sure how to handle embeds or challenges from the CGI such as a login challenge
+(maybe the back channel would not be necessary in the first cut).
+
+> You might look at the [[plugins/hnb]] plugin. HNB supports checklists.
+> There's not a fancy web interface, but the hnb command-line program can
+> be used to edit them. --[[Joey]] 
+
+>> thanks - I'll give it a look. I spent a few hours writing some javascript to manipulate a ul/li DOM tree in an outliner-fashion the other day. I might be able to join the puzzle pieces together sometime. [[Jon]]
+
+a solution for this could be similar to a solution for [[todo/structured page data]], as todo lists are definitely a form of structured data. (in both cases, the page's current content is rendered into a html form, whose result is then saved as the page's new contents) --[[chrysn]]
+
+> Thanks for the link: yup, there's definitely some common ground there.
+> -- [[Jon]]

@@ -1,0 +1,18 @@
+[[!template id=gitbranch branch=smcv/ready/git-push-origin-master
+  browse="http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/git-push-origin-master"
+  author="[[smcv]]"]]
+[[!tag patch]]
+
+git's behaviour when doing "git push origin" is configurable, and the
+default is going to change in 2.0. In particular, if you've set
+push.default to "nothing" (the "explicit is better than implicit" option),
+the regression test will warn:
+
+    fatal: You didn't specify any refspecs to push, and push.default
+    is "nothing".
+    'git push origin' failed:  at .../lib/IkiWiki/Plugin/git.pm line 220.
+
+The solution is to do "git push origin master" instead (but with the
+configured remote and branch names). --[[smcv]]
+
+> [[fixed|done]] --[[Joey]]

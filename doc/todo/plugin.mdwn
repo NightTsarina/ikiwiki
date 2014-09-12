@@ -1,0 +1,118 @@
+Suggestions of ideas for plugins:
+
+* enable editable, non-htmlized files
+
+    Some months ago, before upgrading my wiki, I used svn to check in an XML file
+    and a companion XSL file for client-side styling. That was cool, ikiwiki
+    copied them over unchanged and the file could be linked to as `\[[foo|foo.xml]]`.
+
+    I even had the XSL produce an `Edit` link at the top, because I wanted a simple
+    way for a web user to edit the XML. But I had to hack stuff to make the edit CGI
+    not say `foo.xml is not an editable page`.
+
+    I did that in a kind of slash-and-burn way, and apparently that's the one change
+    that was uncommitted when I upgraded ikiwiki, so now it's in the same place
+    as the wikiwyg project. On the bright side, that's a chance to think about how to
+    do it better.
+
+    Any suggestions for appropriate uses of existing plugins, or the plugin API,
+    to selectively add to the set of files in the working copy that the edit CGI
+    will consider editable? --ChapmanFlack 17July2008
+
+    > It looks like 80% of the job would be accomplished by hooking `htmlize` for
+    > the `.xml` extension. That would satisfy the `pagetype` test that causes
+    > the edit CGI to say `not an editable page`. (That happens too early for a
+    > `canedit` hook.) The `htmlize` hook could just
+    > copy in to out unchanged (this is an internal wiki, I'm not thinking hard
+    > about evil XML content right now). For extra credit, an `editcontent` hook
+    > could validate the XML. (Can an `editcontent` hook signal a content error?)
+
+    > The tricky bit seems to be to register the fact that the target file should
+    > have extension `.xml` and not `.html`.  Maybe what's needed is a generalized
+    > notion of an `htmlize` hook, one that specifies its output extension as well
+    > as its input, and isn't assumed to produce html? --ChapmanFlack 17July2008
+
+    > Belay that, there's nothing good about trying to use `htmlize` for this; too
+    > many html-specific assumptions follow. For now I'm back to an embarrassing quick
+    > hack that allows editing my xml file.  But here's the larger generalization I
+    > think this is driving at:
+
+    > IkiWiki is currently a tool that can compile a wiki by doing two things:
+    > 1. Process files of various input types _foo_ into a single output type, html, by
+    >    finding suitable _foo_->html plugins, applying various useful transformations
+    >    along the way.
+    > 1. Process files of other input types by copying them with no useful transformations at all.
+
+    > What it could be: a tool that compiles a wiki by doing this:
+    > 1. Process files of various input types _foo_ into various output types _bar_, by
+    >    finding suitable _foo_->_bar_ plugins, applying various useful transformations along
+    >    the way, but only those that apply to the _foo_->_bar_ conversion.
+    > 1. The second case above is now just a special case of 1 where _foo_->_foo_ for any
+    >    unknown _foo_ is just a copy, and no other transformations apply.
+
+    > In some ways this seems like an easy and natural generalization. `%renderedfiles`
+    > is already mostly there, keeping the actual names of rendered files without assuming
+    > an html extension. There isn't a mechanism yet to say which transformations for
+    > linkification, preprocessing, etc., apply to which in/out types, but it could be
+    > easily added without a flag day. Right now, they _all_ apply to any input type for
+    > which an `htmlize` hook exists, and _none_ otherwise. That rule could be retained
+    > with an optional hook parameter available to override it.
+
+    > The hard part is just that right now the assumption of html as the one destination
+    > type is in the code a lot. --ChapmanFlack
+
+    >> Readers who bought this also liked: [[format_escape]], [[multiple_output_formats]]
+    >> --[[JeremieKoenig]]
+
+* list of registered users - tricky because it sorta calls for a way to rebuild the page when a new user is registered. Might be better as a cgi?
+> At best, this could only show the users who have logged in, not all
+> permitted by the current auth plugin(s).  HTTP auth would need
+> web-server-specific code to list all users, and openid can't feasibly do so
+> at all. --[[JoshTriplett]]
+
+* For PlaceWiki I want to be able to do some custom plugins, including one
+  that links together subpages about the same place created by different
+  users. This seems to call for a plugin that applies to every page w/o any
+  specific marker being used, and pre-or-post-processes the full page
+  content. It also needs to update pages when related pages are added,
+  so it needs to register dependencies pre-emptively between pages,
+  or something. It's possible that this is a special case of backlinks and
+  is best implemented by making backlinks a plugin somehow. --[[Joey]]
+
+* random page (cgi plugin; how to link to it easily?)
+
+* How about an event calendar. Events could be sub-pages with an embedded 
+  code to detail recurrance and/or event date/time
+
+* rcs plugin ([[JeremyReed]] has one he has been using for over a month with over 850 web commits with 13 users with over ten commits each.)
+
+* asciidoc or txt2tags format plugins
+
+  Should be quite easy to write, the otl plugin is a good example of a
+  similar formatter.
+
+>>Isn't there a conflict between ikiwiki using \[\[  \]\] and asciidoc using the same?
+>>There is a start of an asciidoc plugin at <http://www.mail-archive.com/asciidoc-discuss@metaperl.com/msg00120.html>
+>>-- KarlMW
+
+* manpage plugin: convert **"ls(1)"** style content into Markdown like **\[ls(1)\]\(http://example.org/man.cgi?name=ls&sect=1\)** or into HTML directly.
+
+> With a full installation of groff available, man offers HTML output.  Might
+> take some fiddling to make it fit into the ikiwiki templates, and you might
+> or might not want to convert pages in the SEE ALSO as
+> well. --[[JoshTriplett]]
+
+* As I couldn't find another place to ask, I'll try here. I would like to install some contributed plugins, but can not find anywhere to downlod them.
+
+  > Not sure what you mean, the [[plugins/contrib]] page lists contributed plugins, and each of their pages tells where to download the plugin from.. --[[Joey]]
+
+* I wrote a very crude wrapper around tex4ht to render TeX files.  I hesitate to give it a contrib/plugins page in its current state, but if someone wants to play, [here](http://www.cs.unb.ca/~bremner/wiki/software/ikiwiki/tex4ht.pm) it is.--[[DavidBremner]]
+
+* Setting default values for the meta plugin in the setup file, particularly author, license, and copyright, would be useful 
+There is work in progress at 
+[[plugins/contrib/default_content_for___42__copyright__42___and___42__license__42__]]
+-- [[DavidBremner]]
+
+* Would it make sense to have a hook to set the page name?  This would solve a problem I see with 
+[[source_code_highlighting|plugins/contrib/sourcehighlight]]
+-- [[DavidBremner]]

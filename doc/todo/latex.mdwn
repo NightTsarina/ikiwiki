@@ -1,0 +1,244 @@
+How about a plugin adding a
+[[preprocessor_directive|ikiwiki/directive]] to render some given LaTeX
+and include it in the page?  This could either render the LaTeX as a PNG via
+[[!debpkg dvipng]] and include the resulting image in the page, or perhaps
+render via [HeVeA](http://pauillac.inria.fr/~maranget/hevea/index.html),
+[TeX2page](http://www.ccs.neu.edu/~dorai/tex2page/tex2page-doc.html), or
+similar. Useful for mathematics, as well as for stuff like the LaTeX version
+of the ikiwiki [[/logo]].
+
+> [[users/JasonBlevins]] has also a plugin for including [[LaTeX]] expressions (by means of `itex2MML`) -- [[plugins/mdwn_itex]] (look at his page for the link). --Ivan Z.
+
+>> I've [[updated|mdwn_itex]] Jason's plugin for ikiwiki 3.x.  --[[wtk]]
+
+>>> I've updated [[Jason's pandoc plugin|users/jasonblevins]] to permit the TeX processing to be managed via Pandoc. See <https://github.com/profjim/pandoc-iki> for details. --Profjim
+
+----
+
+ikiwiki could also support LaTeX as a document type, again rendering to HTML.
+
+> [[users/JasonBlevins]] has also a [[plugins/pandoc]] plugin (look at his page for the link): in principle, [Pandoc](http://johnmacfarlane.net/pandoc/) can read and write [[LaTeX]]. --Ivan Z.
+
+----
+
+Conversely, how about adding a plugin to support exporting to LaTeX?
+
+>> I did some tests with using Markdown and a customized HTML::Latex and html2latex
+>> and it appears it will work for me now. (I hope to use ikiwiki for many
+>> to collaborate on a printed book that will be generated at least once per day in PDF format.)
+>>
+>> --JeremyReed
+
+>>> Have a look at [pandoc](http://code.google.com/p/pandoc/).  It can make PDFs via pdflatex. --[[roktas]]
+
+>>>> Interesting, just yesterday I was playing with pandoc to make PDFs from my Markdown. Could someone advise me on how to embed these PDFs into ikiwiki? I need some guidance in implementing this. --[[JosephTurian]]
+
+>>>> [[users/JasonBlevins]] has a [[plugins/pandoc]] plugin (look at his page for the link). --Ivan Z.
+
+----
+
+[here](http://ng.l4x.org/gitweb/gitweb.cgi?p=ikiwiki.git/.git;a=blob;f=IkiWiki/Plugin/latex.pm) is a first stab at
+a latex plugin. Examples [here](http://ng.l4x.org/latex/). Currently without image support for hevea. And the latex2html
+output has the wrong charset and no command line switch to change that. Dreamland.
+
+As this link is not working, I setted a mirror here: <a href="http://satangoss.sarava.org/ikiwiki/latex.pm">http://satangoss.sarava.org/ikiwiki/latex.pm</a>.
+
+
+----
+
+Okay, now is the time for a mid term report i think.
+
+The LaTeX Plugin for ikiwiki is now usable, except for the security check. This means at the moment the latex code is not validated, but only added into a very basic latex template. and the image is generated via this path: latex -> dvips -> convert (.tex -> .dvi -> .ps -> .png).
+The resulting .png is moved into the imagefolder. The name of this image is the md5hash of the code the user wrote into the wiki. So on a second run there is no need to recreate this image, if it exists. This will fasten up all but the first generation of the page. 
+The generation of the image is done in an temporary folder in /tmp created with tempdir from File::Temp. The tmp-folder name is something like: $md5sumdigest.XXXXXXXX. if there is an .tex file already in this dir it will be overwritten. 
+
+So until now i finished the basic things, now the most important task is to make an good input validation.
+This is a bit eased since it is not possible to execute shell commands in perl. Furthermore adding additional packages won't work since the code comes from the user is inserted after \begin{document}. Therefore this will result in an error (and this will stop latex from working --> no image is created).
+
+So my task for the next weeks is to write an good input validation. 
+I think this progress is okay, since I'll had to learn the last 5-6 weeks for my final exams in university therefore I can't do anything. From now on I have 3 months of freetime and I'll use them to work heavily on this plugin. 
+So I think I'm inside my own timetable. :)
+
+ps: Since I found nothere the possibility to upload an file, here is an link to my page where you can have a look. Comments are very welcome ;-)
+https://www.der-winnie.de/~winnie/gsoc07/tex.pm
+
+You'll find an demo site here:
+https://www.der-winnie.de/wiki/opensource/gsoc2007/
+I'll add some more complex formulas over the days. But this is basically only pure latex. ;-)
+
+-- Patrick Winnertz
+
+> Looks like you're very well on schedule.
+
+> But I wonder: Do you have any plans to work on the latex to html side of
+> things too? This page kinda combines both uses of latex; creating gifs
+> for formulas etc, and creating html. Dreamland already has a latex2html
+> using plugin submitted above, but it still needs some work, and
+> particularly, needs the same input validation stuff. And then there's the
+> idea of using html2latex, to convert an ikiwiki site into a book. Any
+> plans to work on that too? I guess I'm not sure what the scope is of what
+> you plan to do as part of GSoC.
+
+>> Yes I plan to write an html -> tex (or pdf) plugin as well. But I think it is better to work first on the first one and complete it and then work and complete the second one. If it is in the scope of GSoC i don't know, but I'll write it since it is fun to write on an Opensource project ;-)
+
+>> For latex-> html:
+>> I have the problem that I don't really see the sense to create html code (this means text or charts) from latex code. But if you like I can also add this variant to create html code. In my eyes it is much more important that it is possible to have complex chemical/physical & math formulas on the website without the need to use extern programs. (and upload the pictures manually).
+
+>>> Well, I suppose someone might just like latex and want to use it as the
+>>> markup for their wiki, rather than learning markdown. I guess Midnight
+>>> wanted it enough to write his plugin. But the use case is not too
+>>> compelling to me either, honestly. --[[Joey]]
+
+### code review
+
+> The main problem I see with the code is that you seem to unnecessarily create a dummy div tag
+> in preprocess, and then in format you call create(), which generates an img tag. So, why not 
+> just create the img tag in preprocess?
+
+>> Mh okay, I'll improve this. 
+
+Fixed
+
+> Another problem: Looks like if latex fails to create the image, the user won't be shown any
+> of its error message, but just "failed to generate image from code". I suspect that in this 
+> case being able to see the error message would be important.
+
+>> Yes, that's true. It would be _very_ hard to provide the user the output of latex since this is really very much. For an simple formula as \frac{1}{2} this could be 2 printed out.
+
+>>> YM 2 printed pages? Yes, I'm familar with latex's insane errors. :-)
+>>> However, IMHO, it's worth considering this and doing something. Perhaps
+>>> put the error inside some kind of box in the html so it's delimited
+>>> from the rest of the page. (Actually, ikiwiki preprocessor directives in
+>>> general could mark up their errors better.)
+
+Okay, I'll provide the log as an link in the wiki. But there should be a kind of mechanism how they can be removed. This could lead to an DOS (create via a bot so much nonsense code that the disk is full.)
+
+Fixed, the log is now provided if latex will fail.
+
+> The url handling could stand to be improved. Currently it uses $config{url}, so it depends on that being set. Some ikiwiki builds don't have an url set. The thing to do is to use urlto(), to generate a nice relative url from the page to the image. 
+
+>> Mh... i choose one single dir explizitly since if you use on several pages the same formula  this would really improve the time to generate the formulas and it would waste extra space if you store every formula 3-4 times. But if you really like I'll change this behaviour. 
+
+>>> No, that makes sense! (My comments about $config{url} still stand
+>>> though.
+
+Yes of course, I'll improve the url handling. My comment was only about the several folder ;-)
+
+Fixed. Now I use urlto and will_render.
+
+> Another (minor) problem with the url handling is that you put all the images in a "teximages" directory in the toplevel of the wiki. I think it would be better to put each image in the subdirectory for the page that created it. See how the `img` and `sparkline` plugins handle this.
+
+> It looks like if the tempdir already exists, tempdir() will croak(), thus crashing ikiwiki. It would be good to catch a failure there and fail more gracefully.
+
+>> Okay, I'll improve this behaviour. Maybe: if tempdir croak rerun it to get another not existing dir? (But only x times so that this is no endless loop, with x maybe = 3). 
+>> Then it would not be necessary to inform the user about not generating the image. 
+
+>>> Or just propigate up an error message. If it's failing, someone is
+>>> probably trying to DOS ikiwiki or something. :-)
+
+Fixed. I now use eval { create_tmp } and then:  if ($?) { $returncode = 0 } else { save .tex file ... } ...
+
+
+> I'm not sure why you're sanitising the PATH before calling latex. This could be problimatic on systems where latex is not in /bin or /usr/bin
+
+>> Okay what do you suggest to use as PATH? 
+>> I'll have to change the default settings, since we ikiwiki runs in taint mode. (which is good ;-))
+
+>>> But, ikiwiki already sanitises path and deletes the IFS and CDPATH etc.
+>>> See ikiwiki.in.
+
+Fixed. I'll removed these two lines completly.
+
+-----
+Okay here an short timetable how I want to proceed further:
+
+* Until weekend (21-22. July) I'll try to fix all errors above. (done)
+* From 22.July until 29. July I'll try to set up a first security check
+  My plans are two parts of a security check:
+    * One with an array of blacklisted regular expression. (This would blacklist all the well known and easy to fetch things like \include {/path/to/something} and things like closing the math formula environment ($$). (done)
+    * the second step will be based on Tom::latex, which will help to parse and get a tree view of the code.
+
+Okay what do you think of this procedure?
+
+> --[[Joey]]
+
+>> -- [[PatrickWinnertz]]
+
+----
+
+> It would be nice if it would output image tags with style="height:1em;" so that the formulas scale
+> with the rest of the text if you change the font size in your browser (ctrl + +/-).
+
+
+Thanks for the comment.. is fixed. 
+Mh... not really fixed :S I added it into the return but it is somehow ignored. I'll figure out why.
+
+-----
+
+Okay, the last version of the tex plugin for ikiwiki can be downloaded [here](https://www.der-winnie.de/~winnie/gsoc07/tex.pm). 
+
+> I've looked this over, fixed the indenting, fixed some variable names
+> ("$foo" is a bad variable name), removed a gratuotuous use of `tie`,
+> fixed a bug (the first time it was run, it tried to write the png file
+> before the teximages/ directory existed) and checked the result in.
+> 
+> Can you please flesh out [[plugins/teximg]] with
+> whatever documentation people who know tex will expect to see?
+
+Okay, I'll fill this up today I think with information about the plugin
+
+Done. Is that docu fine with you?
+
+>> Perhaps add some documentation about the kind of tex code that can be
+>> used, or a link to some documentation so people who don't know latex
+>> well can figure this out?
+
+> Also, please review my changes. In particular, I changed the @badthings
+> array to use qr//, which is much clearer, but it needs to be tested that
+> I didn't break the checking code when I did it. It would be nice to write
+> a test case that tries to feed it bad code and makes sure it rejects it.
+
+I'll test this now on my server. I'll report here later.
+Okay, checked. it works fine. My blacklist tests were successfull.
+
+>
+> Does it really make sense to have an alt tag for the image
+> that contains the tex code? Will that make any sense when browsing
+> without images?
+
+Mh.. For people who know latex very well this would be enough to imagine how the image would look like. 
+This are of course the minority of people (but I guess also the minority of people are using non-gui browsers).
+
+
+
+> I'm thinking about renameing the preprocessor directive to teximg.
+> \[[!teximg code="" alt="foo"]] makes sense.. Would it make sense to rename
+> the whole plugin, or do you think that other tex stuff should go in this
+> same plugin?
+
+I'll think over this until I'm at work ;) Only for rendering images... not for generating .tex files .../wiki/
+the name is all the same i think. If you like teximg better than switch :)
+
+
+> Note: I removed the style= attribute, since as I've told you, the
+> htmlsanitizer strips those since they can be used to insert javascript. I
+> put in a class=teximage instead; the style sheet could be modified to
+> style that, if you want to send a patch for that.
+
+Ah yes.. sorry forgot to update the plugin in my public_html folder %-). This was my last change in this plugin :) Sorry.
+
+
+> 
+> --[[Joey]]
+
+-----
+
+I'm using a [plugin](http://metameso.org/~joe/math/tex.pm) created by [Josef Urban](http://www.cs.ru.nl/~urban) that gets LaTeX into ikiwiki by using [LaTeXML](http://dlmf.nist.gov/LaTeXML).  This could well be "the right way" to go (long term) but the plugin still does not render math expressions right, because ikiwiki is filtering out requisite header information.  Examples (I recommend you use Firefox to view these!) are available [here](http://li101-104.members.linode.com/aa/math/) and [here](http://li101-104.members.linode.com/aa/simple/).  Compare that last example to the [file generated by LaTeXML directly](http://metameso.org/~joe/math/math.xml).  I posted the sources [here](http://metameso.org/aa/sources/) for easy perusal.  How to get ikiwiki to use the original DOCTYPE and html fields?  I could use some help getting this polished off. --[[jcorneli]]
+
+> update: it seems important to force the browser to think of the content as xml, e.g. [http://metameso.org/~joe/math/example.xml](http://metameso.org/~joe/math/example.xml) has the same source code as [http://metameso.org/~joe/math/example.html](http://metameso.org/~joe/math/example.html) and the former shows math working, but the latter doesn't. --[[jcorneli]]
+
+>> Looking at the source code, it seems Ikiwiki is doing more than filtering header information - it is filtering out all HTML formatting around MathML constituent objects.  In the first example, we see that formatting for tables and such is preserved. --[[jcorneli]]
+
+
+[[!tag soc]]
+[[!tag wishlist]]

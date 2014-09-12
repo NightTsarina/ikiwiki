@@ -1,0 +1,18 @@
+I managed to install ikiwiki on eggplant farms, with most basic features except markdown.
+
+I think ikiwiki is more suitable for VPS/dedicated server. Shared hosting doesn't fit.
+
+I just (2009/04/27) installed ikiwiki on DreamHost and the CPAN instructions here are unnecessarily complicated. I used "cpan" instead of "perl -MCPAN -e shell" and had no trouble with  that portion of the install. --[[schmonz]]
+
+After tiring of managing things by hand, I've switched to using
+pkgsrc as an unprivileged user. This uses a bit more disk for my
+own copies of perl, python, etc., but in exchange I can `cd
+.../pkgsrc/www/ikiwiki && make install` and everything just works.
+Plus I get all the benefits of a package system, like easy uninstalling
+and being notified of outdated or insecure software.
+
+The only catch: sometimes the package dependency tree gets too deep
+for DreamHost's user process limit, resulting in build death. I
+work around this by resuming the build partway down the tree, then
+trying again from whatever I was actually trying to install.
+--[[schmonz]]

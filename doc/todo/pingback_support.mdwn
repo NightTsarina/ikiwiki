@@ -1,0 +1,41 @@
+A "pingback" is a system whereby URLs you might reference in a blog post are
+contacted by the blog publishing software at publishing time (i.e., once) so
+that they might update a list of "pingbacks" to the URL. The originating
+URL's blog software might then display a list of pingbacks, or an excerpt of
+the text from your blog, perhaps interleaved with comments, etc.
+
+At a technical level, external URLs are extracted from your blog post by the
+blogging software, fetched, inspected for information to determine whether the
+remote server is configured to support pingbacks (look for link tags, or HTTP
+headers) and the relevant pingback URL sent an XML-RPC packet.
+
+There are other technologies to achieve the same thing: trackbacks predate
+pingbacks but are more vulnerable to spam due to design problems.
+
+The spec for pingbacks is at <http://www.hixie.ch/specs/pingback/pingback>.
+
+I would like to somehow use pingbacks in conjunction with ikiwiki. I suppose
+this could be achieved using a commit hook and some external software in which
+case I will consider this done with an entry in [[tips]]; otherwise a
+[[plugins|plugin]] to implement pingbacks would be great.
+
+-- [[Jon]] (Wed Jan 14 13:48:47 GMT 2009)
+
+> I think it's now possible to implement trackback and pingback receiving
+> support in ikiwiki. One easy way to do it would be to hook it into the
+> existing [[plugins/comments]] plugin -- each pingback/trackback that
+> ikiwiki recieves would result in the creation if a new comment, which
+> would be subject to the usual comment filtering (ie, blogspam) and
+> moderation and would then show up amoung the other, regular comments on
+> the page.
+>
+> (One wrinkle: would need to guard against duplicate pings. Maybe by
+> checking existing comments for any that have the same url?)
+> 
+> As for sending trackbacks and pingbacks, this could fairly easily be
+> implemented using a `editcontent` hook. Since this hook is called
+> whenever a page is posted or edited, and gets the changed content, it can
+> simply scan it for urls (may have to htmlize first?), and send pings to
+> all urls found. --[[Joey]] 
+
+>> Is there any update on this? This would be highly useful and is the main reason why I am not using my blog more regularly, yet. (And yes, now that git-annex is doing everything I need and more, I thought I should revisit this one, as well). -- RichiH

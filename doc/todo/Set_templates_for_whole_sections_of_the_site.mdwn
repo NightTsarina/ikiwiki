@@ -1,0 +1,63 @@
+At the moment, IkiWiki allows you to set the template for individual pages using the [[plugins/pagetemplate]] directive/plugin, but not for whole sections of the wiki.
+
+I've written a new plugin, sectiontemplate, available in the `page_tmpl` branch of my git repository that allows setting the template by pagespec in the config file.
+
+-- [[Will]]
+
+> This is an excellent idea and looks ready for merging.
+> Before I do though, would it perhaps make sense to merge
+> this in with the pagetemplate plugin? They do such a similar thing,
+> and unless letting users control the template by editing a page is not
+> wanted, I can't see any reason not to combine them. --[[Joey]]
+
+> One other idea is moving the pagespec from setup file to a directive.
+> The edittemplate plugin does that, and it might be nice
+> to be consistent with that. To implement it, you'd have to
+> make the scan hook store the template pagespecs in `%pagestate`,
+> so a bit more complicated. --[[Joey]] 
+
+>> I started with the pagetemplate plugin, which is why they're so similar.  I guess they could be combined.
+>> I had a brief think about having the specs and templates defined in a directive rather than the config file, but it got tricky.
+>> How do you know what needs to be rebuilt when?  There is probably a solution, maybe even an obvious one, but I thought that getting something done was more important than polishing it.
+>> In the worst case, admins can always use the web interface to change the setup :).
+
+>> I wanted this to put comments on my new blog, and was more interested in that goal than this subgoal.  I've moved most of my web pages to IkiWiki and there is only one small part that is the blog.
+>> I wanted to use [[Disqus comments|tips/Adding_Disqus_to_your_wiki/]], but only on the blog pages.  (I'm using Disqus rather than IkiWiki comments because I don't want to have to deal with spam, security, etc.  I'll happily just let someone else host the comments.) -- [[Will]]
+
+>>> Yes, handing the rebuild is a good reason not to use directives for
+>>> this.
+>>>
+>>> I do still think combining this with pagetemplate would be good.
+>>> --[[Joey]] 
+
+>>>> This is exactly what I was looking for and it took me a while to find it. I very much support the idea to provide this as a regular plugin, be it merged with pagetemplate or stand-alone. Thank you for your work and code! --BenTo
+
+>>>> Any update on this. This could be very helpful as I plan to run a section of a wiki with a different language (and language settings like RTL-ed CSS). --Nezmer
+
+>>>>> I've implemented this functionality as part of `pagetemplate` as on my "pagetemplate" branch of ikiwiki at https://github.com/rubykat/ikiwiki/tree/pagetemplate - do you want to pull this, Joey?
+>>>>> It isn't implemented quite the same way as Will did; I have the template name first and the pagespec last, but it does the same thing.
+>>>>> --[[KathrynAndersen]]
+
+Just a quick note that Kathryn's branch is ready.[[!template id=gitbranch branch=rubykat/pagetemplate author="[[KathrynAndersen]]"]][[!tag patch]] --[[Will]]
+
+> Review:
+>
+> The indentation seems odd. IkiWiki is mostly indented with hard tabs;
+> this seems to be a mixture of tabs and spaces, assuming 4 spaces per tab.
+>
+> [[!format perl """
+sub checkconfig () {
+...
+               ! defined IkiWiki::template_file($tmpl))
+"""]]
+>
+> I think `checkconfig` is too soon to rely on `template_file`
+> producing correct results? It looks in `%pagesources` which has not
+> yet been updated.
+>
+> If we had a "just before building" hook, that would be a good time
+> to emit warnings; or doing it once per run, on-demand, triggered
+> by the first call to the `templatefile` hook could work. Or the
+> hook could just silently ignore bad pagespecs?
+>
+> --[[smcv]]

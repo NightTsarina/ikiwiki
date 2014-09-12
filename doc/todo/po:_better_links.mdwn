@@ -1,0 +1,12 @@
+Once the fix to
+[[bugs/pagetitle_function_does_not_respect_meta_titles]] from
+[[intrigeri]]'s `meta` branch is merged into ikiwiki upstream, the
+generated links' text will be optionally based on the page titles set
+with the [[meta|plugins/meta]] plugin, and will thus be translatable.
+It will also allow displaying the translation status in links to slave
+pages. Both were implemented, and reverted in commit
+ea753782b222bf4ba2fb4683b6363afdd9055b64, which should be reverted
+once [[intrigeri]]'s `meta` branch is merged.
+
+An integration branch, called `meta-po`, merges [[intrigeri]]'s `po`
+and `meta` branches, and thus has this additional features.

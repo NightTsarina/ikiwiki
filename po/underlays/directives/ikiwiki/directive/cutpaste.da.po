@@ -1,0 +1,135 @@
+# Danish translation of directives/ikiwiki/directive/cutpaste page for ikiwiki.
+# Copyright (C) 2008-2009 Jonas Smedegaard <dr@jones.dk>
+# This file is distributed under the same license as the ikiwiki package.
+# Jonas Smedegaard <dr@jones.dk>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki 3.15\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
+"PO-Revision-Date: 2009-07-23 00:06+0200\n"
+"Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
+"Language-Team: None\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#. type: Plain text
+msgid ""
+"The `copy`, `cut` and `paste` directives are supplied by the [[!iki plugins/"
+"cutpaste desc=cutpaste]] plugin."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"With these directives you can store and recall pieces of text in a page:"
+msgstr ""
+
+#. type: Bullet: ' * '
+msgid ""
+"`\\[[!cut id=name text=\"text\"]]` memorizes the text allowing to recall it "
+"using the given ID.  The text being cut is not included in the output."
+msgstr ""
+
+#. type: Bullet: ' * '
+msgid ""
+"`\\[[!copy id=name text=\"text\"]]` memorizes the text allowing to recall it "
+"using the given ID.  The text being cut *is* included in the output."
+msgstr ""
+
+#. type: Bullet: ' * '
+msgid "`\\[[!paste id=name]]` is replaced by the previously memorized text."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"The text being cut, copied and pasted can freely include wiki markup, "
+"including more calls to cut, copy and paste."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"You do not need to memorize the text before using it: a cut directive can "
+"follow the paste directive that uses its text.  In fact, this is quite "
+"useful to postpone big blocks of text like long annotations and have a more "
+"natural flow.  For example:"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"\t\\[[!toggleable id=\"cut\" text=\"[[!paste id=cutlongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"copy\" text=\"[[!paste id=copylongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"paste\" text=\"[[!paste id=pastelongdesc]]\"]]\n"
+msgstr ""
+"\t\\[[!toggleable id=\"cut\" text=\"[[!paste id=cutlongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"copy\" text=\"[[!paste id=copylongdesc]]\"]]\n"
+"\t\\[[!toggleable id=\"paste\" text=\"[[!paste id=pastelongdesc]]\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t[...some time later...]\n"
+msgstr "\t[...noget tid senere...]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=cutlongdesc text=\"\"\"\n"
+msgstr "\t\\[[!cut id=cutlongdesc text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t   blah blah blah\n"
+msgstr "\t   blah blah blah\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=copylongdesc text=\"\"\"\n"
+msgstr "\t\\[[!cut id=copylongdesc text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=pastelongdesc text=\"\"\"\n"
+msgstr "\t\\[[!cut id=pastelongdesc text=\"\"\"\n"
+
+#. type: Plain text
+msgid ""
+"This can potentially be used to create loops, but ikiwiki is clever and "
+"breaks them."
+msgstr ""
+
+#. type: Plain text
+msgid ""
+"Since you can paste without using double quotes, copy and paste can be used "
+"to nest directives that require multiline parameters inside each other:"
+msgstr ""
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!toggleable id=foo text=\"\"\"\n"
+msgstr "\t\\[[!toggleable id=foo text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t  [[!toggleable id=bar text=\"[[!paste id=baz]]\"]]\n"
+msgstr "\t  [[!toggleable id=bar text=\"[[!paste id=baz]]\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t\\[[!cut id=baz text=\"\"\"\n"
+msgstr "\t\\[[!cut id=baz text=\"\"\"\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tmultiline parameter!\n"
+msgstr "\tflere linjer lang parameter!\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

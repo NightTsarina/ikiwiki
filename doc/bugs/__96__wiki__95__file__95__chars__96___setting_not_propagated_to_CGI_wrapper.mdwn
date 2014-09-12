@@ -1,0 +1,28 @@
+I've set `wiki_file_chars` to a non-standard value in the setup file:
+
+    wiki_file_chars => "-[:alnum:]+/.:_\x{1f310}\x{1f430}",
+
+(In case you're wondering, [this is the page](http://xn--9dbdkw.se/🌐/).)
+
+ikiwiki recognises my pages when I run it from the command line, but
+when I edit something through the CGI "script", ikiwiki would suddenly
+not recognise them.
+
+By running `strings` on the CGI wrapper I found that the option
+`wiki_file_regexp` was still at its original setting.  So as a workaround,
+I added this to the setup file and everything worked:
+
+    wiki_file_regexp => qr/(^[-[:alnum:]+\/.:_\x{1f310}\x{1f430}]+$)/,
+
+Maybe the CGI wrapper should specially call `checkconfig`, which is
+the function responsible for updating `wiki_file_regexp`?
+
+--[[legoscia]]
+
+> You have to regrenerate the cgi wrapper after changing your setup file
+> for the configuration changes to take effect.
+> 
+> I tested it, setting `wiki_file_chars => "moocow"`,
+> running ikiwiki -refresh -wrappers my.setup, and looking at strings:
+> `'wiki_file_regexp' => qr/(?-xism:(^[moocow]+$))/`
+> So, this appears to have been user error. [[done]] --[[Joey]]

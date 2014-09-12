@@ -1,0 +1,45 @@
+# Adaptation to Newer Versions of ikiwiki
+
+I tried using this plugin, but to no success so far.  I used *gallery* git branch,
+rebased it onto the *origin/master*, built a Debian package and installed that one.
+
+However, I can't even get simply things like this to work:
+
+    $ cat web/index.mdwn
+    [[!gallery imagedir="b" vcs="0"]]
+    $ ls web/b/
+    1.jpg  2.jpg  3.jpg  4.jpg
+    $ ikiwiki [...] --plugin gallery web web.rendered
+    [...]
+    $ grep gallery web.rendered/index.html 
+    <p>[[!gallery Failed to Read Directory b.]]</p>
+
+When using `vcs="1"` it's no better:
+
+    $ ikiwiki [...] --plugin gallery web web.rendered
+    scanning index.mdwn
+    internal error: b/800x600-1.jpg cannot be found in web or underlay
+
+--[[tschwinge]]
+
+Its probably because of the restriction of permissions by plugins in newer version of IkiWiki. 
+For the time being, you can turn resizing off till I look into conditional underlay directory feature. 
+
+USAGE : [[!gallery imagedir="directory" resize="0"]]
+
+New version updated at SVN REPO : http://ned.snow-crash.org:8080/svn/ikiwiki-gallery/
+
+--[[arpitjain]]
+
+
+# Bug With Referring to *js* and *css* Files
+
+In the generated files `gallery/index/index.html` and `gallery/index/*/gallery_*`
+it should not be referred to `/js` but to `../../js` and `../../../js`, respectively.
+Likewise for `/css`.
+
+
+# All Thumbnails on One Page
+
+Could `rows="0"` be used to state that all thumbnails should be put on the same page,
+no matter how much there are?

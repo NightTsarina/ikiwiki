@@ -1,0 +1,44 @@
+It looks like there is no way to logout of ikiwiki at present, meaning that if you edit the ikiwiki in, say, a cybercafe, the cookie remains... is there some other security mechanism in place that can check for authorization, or should I hack in a logout routine into ikiwiki.cgi?
+
+> Click on "Preferences". There is a logout button there. --liw
+
+> It would be nice if it were not buried there, but putting it on the
+> action bar statically would be confusing. The best approach might be to
+> use javascript. --[[Joey]] 
+
+
+>> I agree that javascript seems to be a solution, but my brain falls 
+>> off the end of the world while looking at ways to manipulate the DOM. 
+>> (I'd argue also in favor of the openid_provider cookie expiring 
+>>  in less time than it does now, and being session based)
+
+>>> (The `openid_provider` cookie is purely a convenience cookie to
+>>> auto-select the user's openid provider the next time they log
+>>> in. As such, it cannot be a session cookie. It does not provide any
+>>> personally-identifying information so it should not really matter 
+>>> when it expires.) --[[Joey]]
+
+>> It would be nice to move navigational elements to the upper right corner 
+>> of the page...
+
+>> I have two kinds of pages (wiki and blog), and three classes of users  
+
+>> anonymous users - display things like login, help, and recentchanges,
+
+>> non-admin users - on a per subdir basis (blog and !blog) display 
+>> logout, help, recentchanges, edit, comment 
+
+>> admin users - logout, help, recentchanges, edit, comment, etc
+
+
+I was referred to this page from posting to the forum. I am also interested in being able to use user class and status to modify the page. I will try to put together a plugin. From what I can see there needs to be a few items in it.
+
+* It should expose a link to a dedicated login page that, once logged in, returns the user to the calling page, or at least the home page. I have started a plugin to do this: [[/plugins/contrib/justlogin]]
+
+* it needs to expose a link to a little json explaining the type of user and login status.
+
+* it should expose a link that logs the person out and returns to the calling page, or at least the home page.
+
+Then there would need to be a little javascript to use these links appropriately. I have little javascript experience but I know that can be done. I am less sure if it is possible to add this functionality to a plugin so I'll start with that. If no one objects I will continue to post here if I make progress. If anyone has any suggestions on how to modify my approach to code it in an easier way I'd appreciate the input. [[justint]]
+
+

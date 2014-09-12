@@ -1,0 +1,29 @@
+[[!template id=gitbranch branch=smcv/ready/careful-eval author="[[smcv]]"
+  browse="http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/careful-eval"]]
+[[!tag patch]]
+
+As noted in the [[!cpan Try::Tiny]] man page, eval/$@ can be quite
+awkward in corner cases, because $@ has the same properties and problems
+as C's errno. While writing a regression test for definetemplate
+in which it couldn't find an appropriate template, I received
+    
+    <span class="error">Error: failed to process template
+    <span class="createlink">deftmpl</span> </span>
+    
+instead of the intended
+    
+    <span class="error">Error: failed to process template
+    <span class="createlink">deftmpl</span> template deftmpl not
+    found</span>
+    
+which turned out to be because the "catch"-analogous block called
+gettext before it used $@, and gettext can call define_gettext,
+which uses eval.
+
+Fixed in my branch smcv/ready/careful-eval. Another possibility
+for fixing this would be to depend on something like Try::Tiny,
+which is already indirectly recommended by ikiwiki, because
+[[!cpan RPC::XML]], [[!cpan XML::Feed]], etc., depend on it.
+--[[smcv]]
+
+[[fixed in 3.20140227|done]] --s

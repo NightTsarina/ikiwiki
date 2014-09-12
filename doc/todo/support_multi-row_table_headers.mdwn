@@ -1,0 +1,79 @@
+[[!template id=gitbranch branch=jon/table_headerblock author="[[Jon]]"]]
+It would be great if it were possible to support multi-row table headers in the [[plugins/table]] plugin, so you could do e.g.
+
+        \[[!table header="""
+        Name | Platform ||
+        | Windows | Mac | Linux
+        """ data="""
+        ikiwiki | ‧ | ✓ | ✓
+        """]]
+
+-- [[Jon]]
+
+[[!tag wishlist patch]]
+
+> This seems like weird overloading of the header parameter - it's
+> table data, except when it isn't.
+
+> > My first cut (now rebased out of existence I think) introduced a
+> > new "headerblock" parameter, but trying to clearly document the
+> > interaction of data/headerblock/header parameters was too awkward. -- [[Jon]]
+
+> Perhaps
+> something like this would be easier to use in practice?
+> (and also more featureful :-) )
+>
+>     \[[!table header="2 rows 1 column" data="""
+>     Name | Platform ||
+>     | Windows | Mac | Linux
+>     ikiwiki | no | yes | yes
+>     Starcraft | yes | yes | via Wine
+>     """]]
+
+> > Thanks for your prompt feedback!
+> > 
+> > This would probably be good, yes, and having mixed row/column headers is
+> > definitely a nice-to-have. I don't relish the prospect of writing the parser
+> > but I see you've made a stab already...
+> > 
+> > One thing you'd lose, but it's debatable whether this is valuable, would be
+> > to have the header defined in the directive, and the remaining table data
+> > declared in an external CSV. -- [[Jon]]
+
+> intended to be rendered like
+>
+> <table>
+> <tr><th>Name</th><th colspan=2>Platform</th>
+> <tr><th></th><th>Windows</th><th>Mac</th><th>Linux</th></tr>
+> <tr><th>ikiwiki</th><td>no</td><td>yes</td><td>yes</td></tr>
+> <tr><th>Starcraft</th><td>yes</td><td>yes</td><td>via Wine</td></tr>
+> </table>
+>
+> (Deliberately switching to plain-text to make it more obvious
+> what's a `<th>` and what's `<td>`.)
+>
+> Vague pseudocode for parsing `headers`
+> (possibly even valid Perl, I'm not sure):
+>
+>     my ($header_rows, $header_cols);
+>     while ($header =~ s/(\d*)\W*(\w+)//) {
+>         my $n = ($1 or 0);
+>         my $what = $2;
+>         if ($what =~ m/rows?/) {
+>             $header_rows = $n;
+>         }
+>         elif ($what =~ m/col(?:umn)?s?/) {
+>             $header_cols = $n;
+>         }
+>     }
+>
+> and it would even be fairly easy to extend to support
+> `(first|last|)\W*(\d*)\W*(\w+)` later, e.g.
+> `header="1 row, first 2 cols, last column"`.
+>
+> --[[smcv]]
+
+> > To be clear I think your suggestion is a good one, but my hack has
+> > addressed my immediate need so it's the one I'm deploying at $ork for the
+> > time being. I'm unlikely to have time to implement this solution in the
+> > near future. -- [[Jon]]

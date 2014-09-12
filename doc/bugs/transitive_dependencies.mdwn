@@ -1,0 +1,94 @@
+If a sidebar contains a map, or inline (etc), one would expect a
+add/remove of any of the mapped/inlined pages to cause a full wiki
+rebuild. But this does not happen.
+
+If page A inlines page B, which inlines page C, a change to C will cause B
+to be updated, but A will not "notice" that this means A needs to be
+updated.
+
+One way to look at this bug is that it's a bug in where dependencies are
+recorded when preprocessing the rendered or sidebar page. The current code
+does:
+
+	add_depends($params{page}, $somepage);
+
+Where `$params{page}` is page B. If this is changed to `$params{destpage}`,
+then the dependency is added to page A, and updates to C cause it to
+change. This does result in the page A's getting lots more dependency info
+recorded than before (essentially a copy of all the B's dependency info).
+
+It's also a fragile, since all plugins that handle dependencies have to be
+changed, and do this going forward. And it seems non-obvious that this should
+be done. Or really, whether to use `page` or `destpage` there. Currently,
+making the "wrong" choice and using `destpage` instead of `page` (which nearly
+everything uses) will just result in semi-redundant dependency info being
+recorded. If we make destpage mandatory to fix this, goofing up will lead to
+this bug coming back. Ugh.
+
+----
+
+## rebuild = change approach
+
+[[!template id=gitbranch branch=origin/transitive-dependencies author="[[joey]]"]]
+
+Another approach to fix it is to say that anything that causes a
+rebuild of B is treated as a change of B. Then when C is changed, B is
+rebuilt due to dependencies, and in turn this means A is rebuilt because B
+"changed". 
+
+This is essentially what is done with wikilinks now, and why, if a sidebar
+links to page C, add/remove of C causes all pages to be rebuilt, as seen 
+here:
+
+	removing old page meep
+	building sidebar.mdwn, which links to meep
+	building TourBusStop.mdwn, which depends on sidebar
+	building contact.mdwn, which depends on sidebar
+	...
+
+Downsides here:
+
+* Means a minimum of 2x as much time spent resolving dependencies,
+  at least in my simple implementation, which re-runs the dependency
+  resolution loop until no new pages are rebuilt.
+  (I added an optimisation that gets it down to 1.5X as much work on
+  average, still 2x as much worst case. I suppose building a directed
+  graph and traversing it would be theoretically more efficient.)
+* Causes extra work for some transitive dependencies that we don't
+  actually care about. This is amelorated, but not solved by 
+  the current work on [[todo/dependency_types]].
+  For example, changing index causes
+  plugins/brokenlinks to update in the first pass; if there's a second
+  pass, plugins/map is no longer updated (contentless dependencies FTW),
+  but plugins is, because it depends on plugins/brokenlinks.
+  (Of course, this is just a special case of the issue that a real
+  modification to plugins/brokenlinks causes an unnecessary update of
+  plugins, and could be solved by adding more dependency types.)
+
+[[done]] --[[Joey]] 
+
+> Some questions/comments...  I've thought about this a lot for [[todo/tracking_bugs_with_dependencies]].
+> 
+>  * When you say that anything that causes a rebuild of B is treated as a change of B, are you: i) Treating
+> any rebuild as a change, or ii) Treating any rebuild that gives a new result as a change?  Option ii) would
+> lead to fewer rebuilds.  Implementation is easy: when you're about to rebuild a page, load the old rendered html in.  Do the rebuild.  Compare
+> the new and old html.  If there is a difference, then mark that page as having changed.  If there is no difference
+> then you don't need to mark that pages as changed, even though it has been rebuilt.  (This would ignore pages in meta-data that don't
+> cause changes in html, but I don't think that is a huge issue.)
+
+>> That is a good idea. I will have to look at it to see if the overhead of
+>> reading back in the html of every page before building actually is a
+>> win though. So far, I've focused on avoiding unnecessary rebuilds, and
+>> there is still some room for more dependency types doing so.
+>> (Particularly for metadata dependencies..) --[[Joey]] 
+
+>  * The second comment I have relates to cycles in transitive dependencies.  At the moment I don't think this is
+> possible, but with some additions it may well become so.  This could be problematic as it could lead to a)
+> updates that never complete, or b) it being theoretically unclear what the final result should be (i.e. you
+> can construct logical paradoxes in the system).  I think the point above about marking things as changed only when
+> the output actually changes fixes any cases that are well defined.  For logical paradoxes and infinite loops (e.g.
+> two pages that include each other), you might want to put a limit on the number of times you'll rebuild a page in any
+> given run of ikiwiki.  Say, only allow a page to rebuild twice on any run, regardless of whether a page it depends on changes.
+> This is not a perfect solution, but would be a good approximation. -- [[Will]]
+
+>> Ikiwiki only builds any given output file once per run, already. --[[Joey]] 

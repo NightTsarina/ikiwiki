@@ -1,0 +1,203 @@
+[[!meta title="Option disp for pagestats directive"]]
+
+[[!toggle id=old text="Old, outdated, monologue"]]
+
+[[!toggleable id=old text="""
+Hello,    
+here is a proposal to add a new option to [[ikiwiki/directive]]
+[[ikiwiki/directive/pagestats]] (from plugin [[plugins/pagestats]]).
+
+This adds global option `pagestats_linktext` (and directive option `linktext`) to specify whether directive `pagestats` should use the page name or the [[title|ikiwiki/directive/meta]] of tags.
+
+Here is a [[patch]], for both code and documentation.
+
+    diff --git a/IkiWiki/Plugin/pagestats.pm b/IkiWiki/Plugin/pagestats.pm
+    index 17b26f7..a65fd7a 100644
+    --- a/IkiWiki/Plugin/pagestats.pm
+    +++ b/IkiWiki/Plugin/pagestats.pm
+    @@ -29,11 +29,31 @@ sub getsetup () {
+     			rebuild => undef,
+     			section => "widget",
+     		},
+    +		pagestats_linktext => {
+    +			type => "string",
+    +			example => "title",
+    +			description => "Set link text to be whether page title (page) or meta title (title).",
+    +			safe => 1,
+    +			rebuild => 1,
+    +		},
+    +}
+    +
+    +sub linktext ($$) {
+    +	# Return the text of the link to a tag, depending on option linktext.
+    +	use Data::Dumper;
+    +	my $page = $_[0];
+    +	my $linktype = $_[1];
+    +	if (($linktype eq "title") and (exists $pagestate{$page}{meta}{title})) {
+    +		return $pagestate{$page}{meta}{title};
+    +	} else {
+    +		return undef;
+    +	}
+     }
+     
+     sub preprocess (@) {
+     	my %params=@_;
+     	$params{pages}="*" unless defined $params{pages};
+    +	$params{linktext} = $config{pagestats_linktext} unless defined $params{linktext};
+     	my $style = ($params{style} or 'cloud');
+     	
+     	my %counts;
+    @@ -78,7 +98,7 @@ sub preprocess (@) {
+     		return "<table class='".(exists $params{class} ? $params{class} : "pageStats")."'>\n".
+     			join("\n", map {
+     				"<tr><td>".
+    -				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1).
+    +				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1, linktext => linktext($_, $params{linktext})).
+     				"</td><td>".$counts{$_}."</td></tr>"
+     			}
+     			sort { $counts{$b} <=> $counts{$a} } keys %counts).
+    @@ -101,8 +121,8 @@ sub preprocess (@) {
+     			
+     			$res.="<li>" if $style eq 'list';
+     			$res .= "<span class=\"$class\">".
+    -			        htmllink($params{page}, $params{destpage}, $page).
+    -			        "</span>\n";
+    +							htmllink($params{page}, $params{destpage}, $page, linktext => linktext($page, $params{linktext})).
+    +							"</span>\n";
+     			$res.="</li>" if $style eq 'list';
+     
+     		}
+    diff --git a/doc/ikiwiki/directive/pagestats.mdwn b/doc/ikiwiki/directive/pagestats.mdwn
+    index 8d904f5..56970e6 100644
+    --- a/doc/ikiwiki/directive/pagestats.mdwn
+    +++ b/doc/ikiwiki/directive/pagestats.mdwn
+    @@ -37,4 +37,6 @@ links:
+     The optional `class` parameter can be used to control the class
+     of the generated tag cloud `div` or page stats `table`.
+     
+    +The optional `linktext` parameter can be used to control the text that is displayed for each tag. It can be `page` (the name of the page is used) or `title` (the title, according to the [[ikiwiki/directive/meta]] [[ikiwiki/directive]], is used). This option can be set globally in the setup using option `pagestats_linktext`; default is `page`.
+    +
+     [[!meta robots="noindex, follow"]]
+    diff --git a/doc/plugins/pagestats.mdwn b/doc/plugins/pagestats.mdwn
+    index 347e39a..6a72a9a 100644
+    --- a/doc/plugins/pagestats.mdwn
+    +++ b/doc/plugins/pagestats.mdwn
+    @@ -4,3 +4,7 @@
+     This plugin provides the [[ikiwiki/directive/pagestats]]
+     [[ikiwiki/directive]], which can generate stats about how pages link to
+     each other, or display a tag cloud.
+    +
+    +Their is one global option for the setup file:
+    +
+    +* `pagestats_linktext` controls the text that is displayed for each tag. If `page` (the default), the name of the page is used; if `title`, its title (according to the [[ikiwiki/directive/meta]] [[ikiwiki/directive]]) is used.
+
+-- [[Louis|spalax]]
+
+> Hello,    
+> do not accept my patch: it is an ugly hack that works for me, but its too narrow to be merged in IkiWiki:
+> 
+>   - it assumes the [[ikiwiki/directive/pagestats]] directive only deals with tags, which is wrong;
+>   - such a feature (allowing displaying tags using their title), if enabled, should be enabled for the [[plugins/tag]] plugin (and maybe other plugins [[I have in mind|users/spalax]]) as well.
+> 
+> I cannot manage to find a solution to my problem that suits me.
+> 
+> # My problem
+> 
+> On two sites I maintain using IkiWiki, I have tags that:
+> 
+> - have special characters in it (like [[·|http://en.wikipedia.org/wiki/Interpunct]]) that generate ugly URLs;
+> - have subtags (e.g. `math/calculus`, `math/algebra`, `physics/mechanic` etc.).
+> 
+> That is, having [[ikiwiki/directive/taglink]] or [[ikiwiki/directive/pagestats]] displaying tags using the pagename (that is something derived from the basename of the URL) is not sufficient for me. I would like to be able to display them using their title, their full name (from the `tagbase` parameter), or both.
+> 
+> # Solution?
+> 
+> A solution would be to provide a `tagtext` config option, set to one of `page` (use pagename), `title` (use [[ikiwiki/directive/meta]] title), `path` (use path, since the tagbase), `pathtitle` (use path, and use title for each of the subtags); or a boolean `display_tagtitle` and `display_tagpath`, which would handle the way tags are displayed.
+> 
+> I see at least two drawbacks to this solution:
+> 
+> - I do not know what would be the default of these options, not to break backward compatibility: [[ikiwiki/directive/taglink]] would suggest `page`, whereas the footer would suggest `path`.
+> - The [[ikiwiki/directive/pagestats]] directive would need an optional boolean parameter `tag`, to specify whether to use these options or not.
+> 
+> # *My* problem ?
+> 
+> I actually wonder if someone else also have this problem: as far as I can see on other sites using IkiWiki and tags, I would not be surprised if others are satisfyed with the current way tags are displayed: I do not remember having seen subtags, or tags in non-English language with weird characters in them.
+> 
+> So, I wonder whether this discussion would benefit IkiWiki, or if I should just go on with my hack (or maybe a plugin, but I think it would be quite difficult to do, given that the very same function is used to display tags and to uniquely identify them).
+> 
+> -- [[Louis|spalax]]
+"""]]
+
+I eventually managed to get something that suits me, for the problem described above (I want [[ikiwiki/directive/pagestats]] directive to display [[title|ikiwiki/directive/meta]] rather than page name).
+
+Here is a [[patch]] that adds an option `disp` for the [[ikiwiki/directive/pagestats]], acting exactly the same as option `show` for the [[ikiwiki/directive/map]] directive (but parameter `show` was already used for something else). That is, if one wants its tags displayed using their [[title|ikiwiki/directive/meta]] rather than their page name, she can use param `disp`, is in:
+
+    \[[!pagestats  pages="tags/*" disp=title]]
+
+[[!toggle id=patch text="Patch"]]
+[[!toggleable id=patch text="""
+    diff --git a/IkiWiki/Plugin/pagestats.pm b/IkiWiki/Plugin/pagestats.pm
+    index 17b26f7..8a5e100 100644
+    --- a/IkiWiki/Plugin/pagestats.pm
+    +++ b/IkiWiki/Plugin/pagestats.pm
+    @@ -31,6 +31,19 @@ sub getsetup () {
+     		},
+     }
+     
+    +sub linktext ($%) {
+    +	# Return the text of the link to a tag, depending on option linktext.
+    +	my ($page, %params) = @_;
+    +  if (exists $params{disp} && 
+    +      exists $pagestate{$page} &&
+    +      exists $pagestate{$page}{meta}{$params{disp}}) {
+    +    return $pagestate{$page}{meta}{$params{disp}};
+    +  }
+    +  else {
+    +    return undef;
+    +  }
+    +}
+    +
+     sub preprocess (@) {
+     	my %params=@_;
+     	$params{pages}="*" unless defined $params{pages};
+    @@ -78,7 +91,7 @@ sub preprocess (@) {
+     		return "<table class='".(exists $params{class} ? $params{class} : "pageStats")."'>\n".
+     			join("\n", map {
+     				"<tr><td>".
+    -				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1).
+    +				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1, linktext => linktext($_, %params)).
+     				"</td><td>".$counts{$_}."</td></tr>"
+     			}
+     			sort { $counts{$b} <=> $counts{$a} } keys %counts).
+    @@ -101,7 +114,7 @@ sub preprocess (@) {
+     			
+     			$res.="<li>" if $style eq 'list';
+     			$res .= "<span class=\"$class\">".
+    -			        htmllink($params{page}, $params{destpage}, $page).
+    +							htmllink($params{page}, $params{destpage}, $page, linktext => linktext($page, %params)).
+     			        "</span>\n";
+     			$res.="</li>" if $style eq 'list';
+ 
+"""]]
+
+Regards,  
+-- [[Louis|spalax]]
+
+> Saved to my git repository as `contrib/spalax/pagestats-disp`.
+> I'd rather find a better name than `disp` for the parameter.
+> I think `display` would be an improvement, but that doesn't solve the
+> problem of "it's a synonym for show, and non-obvious which is which".
+> Maybe `linktext`?
+> 
+> It's unfortunate that `map` and `pagestats` have different meanings for
+> the `show` parameter. I'm tempted to propose a patch that adds something
+> like `limit` (by analogy with SQL) or `max` as the canonical name for the
+> "number of things to match" parameter, at which point a non-numeric
+> `show` could mean this thing. --[[smcv]]
+
+>> [[!template id=gitbranch branch=smcv/pagestats-show
+author="[[Louis|spalax]], [[smcv]]"
+browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/pagestats-show]]
+>> Here's a branch. It depends on my `ready/limit` branch
+>> from [[todo/pick a new canonical name for equivalent of SQL limit]].
+>> --[[smcv]]

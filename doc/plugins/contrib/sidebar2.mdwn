@@ -1,0 +1,96 @@
+[[!meta author="spalax"]]
+[[!template id=plugin name=sidebar2 author="[[Louis|spalax]]"]]
+[[!tag type/chrome]]
+
+*Claim:* The [[sidebar|plugins/sidebar]] plugin has nothing
+to do with sidebars. This plugin renders some page (which happens to be named
+`sidebar`) and put the result in template variable `SIDEBAR` of template
+`page.tmpl`. But the fact that it is a sidebar, i.e. a bar appearing on the
+side on the screen, is done by CSS.
+
+What if I want a sidebar, and a [[navigation bar|plugins/contrib/navbar]], and
+a footer a bit more elaborated than the one in the template, etc.? This plugin
+allows this.
+
+# Configuration
+
+If no option is given, or if option `global_sidebars` is a boolean, this plugin
+is identical to the [[sidebar plugin|plugins/sidebar/]] (if not, please [report
+a bug](https://atelier.gresille.org/projects/gresille-ikiwiki/issues)).
+Otherwise, `global_sidebars` is a list of sidebars to include. The list is as
+follow:
+
+    global_sidebars => [
+      "var1", "page1", "pagespec1",
+      "var2", "page2", "pagespec2",
+      ]
+
+The meaning is: if available, render `page1` in pages matching `pagespec1`, and
+put it in variable `var1` of the page template, and so on for `var2`, `page2`,
+etc.
+
+The default, which gives the behaviour of the sidebar plugin, is
+`global_sidebars => ["sidebar", "sidebar", "*"]`.
+
+*Remark: It would be more sensible to have a list of lists, as the following example, but I did not manage to do so because of [[this bug|bugs/structured_config_data_is_mangled]].*
+
+    global_sidebars => [
+      ["var1", "page1", "pagespec1"],
+      ["var2", "page2", "pagespec2"],
+      ]
+
+# Improvements over sidebar plugin
+
+* You can add several "sidebars" to your wiki. For example, to have a sidebar, a submenu that appears only in documentation pages (`doc/*`), and a footer, your `global_sidebars` would be:
+
+      global_sidebars => [
+        "sidebar", "sidebar", "*",
+        "menu", "/doc/menu", "doc/*",
+        "footer", "/footer", "*"
+        ]
+
+* You can enable sidebars only in certain pages matching the pagespec. If, for
+  the same template variable, several pagespec match the current page, the
+  first page in the list is taken into account.
+
+  For example, the following configuration says: render `menu` as the sidebar
+  for every page, excepted subpages of `doc`, for which the `doc_menu` page
+  should be rendered.
+
+      global_sidebars => [
+        "sidebar", "doc_menu", "doc/*",
+        "sidebar", "menu", "*",
+        ]
+
+# Directive
+
+The behaviour of the `sidebar` directive is similar to the directive of the
+original [[sidebar|plugins/sidebar]], excepted that a new `var` argument is
+available.
+
+If this `var` argument is set, instead of applying to the default `sidebar`
+template variable, the directive applies to the value given in the argument.
+
+For example, the following command forces the `footer` sidebar to appear on the
+current page.
+
+    \[[!sidebar var=footer]]
+
+The following command forces the `footer` sidebar to appaer, containing the
+content given in argument.
+
+    \[[!sidebar var=footer content="TEST"]]
+
+# Which pages to render?
+
+Here is the decision process to decide what is rendered in a template variable
+handled by this plugin.
+
+1. If the page contains the [[sidebar|ikiwiki/directive/sidebar]] directive, with a `content` argument, this content is rendered.
+2. If the page contains the [[sidebar|ikiwiki/directive/sidebar]] directive with no `content` argument, the first rule for the considered template variable is applied, disregarding the pagespec.
+3. If none of the above, the first rule having its pagespec patching the current page is applied.
+4. If none of the above, the variable is left empty.
+
+# Download and install
+
+Code and documentation: [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/Sidebar2]].

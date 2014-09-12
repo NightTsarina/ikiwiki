@@ -1,0 +1,32 @@
+The `graph` directive is supplied by the [[!iki plugins/graphviz desc=graphviz]] plugin.
+
+This directive allows embedding [graphviz](http://www.graphviz.org/)
+graphs in a page.  Example usage:
+
+	\[[!graph src="a -> b -> c; a -> c;"]]
+
+Nodes on the graph can link to external urls using regular graphviz syntax,
+and a clickable imagemap will be created. As a special extension for
+ikiwiki, [[WikiLinks|ikiwiki/wikilink]] can also be used. For example:
+
+	\[[!graph src="""
+	google [ href="http://google.com/" ]
+	sandbox [ href=\[[SandBox]] ]
+	help [ href=\[[ikiwiki/formatting]] ]
+	newpage [ href=\[[NewPage]] ]
+	
+	google -> sandbox -> help -> newpage -> help -> google;
+	"""]]
+
+The `graph` directive supports the following parameters:
+
+- `src` - The graphviz source to render.
+- `type` - The type of graph to render: `graph` or `digraph`.  Defaults to
+  `digraph`.
+- `prog` - The graphviz program to render with: `dot`, `neato`, `fdp`, `twopi`,
+  or `circo`.  Defaults to `dot`.
+- `height`, `width` - Limit the size of the graph to a given height and width,
+  in inches. You must specify both to limit the size; otherwise, graphviz will
+  choose a size, without any limit.
+
+[[!meta robots="noindex, follow"]]

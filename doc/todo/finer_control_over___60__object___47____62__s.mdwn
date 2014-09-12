@@ -1,0 +1,98 @@
+IIUC, the current version of [HTML::Scrubber][] allows for the `object` tags to be either enabled or disabled entirely.  However, while `object` can be used to add *code* (which is indeed a potential security hole) to a document, reading [Objects, Images, and Applets in HTML documents][objects-html] reveals that the &ldquo;dangerous&rdquo; are not all the `object`s, but rather those having the following attributes:
+
+    classid     %URI;          #IMPLIED  -- identifies an implementation --
+    codebase    %URI;          #IMPLIED  -- base URI for classid, data, archive--
+    codetype    %ContentType;  #IMPLIED  -- content type for code --
+    archive     CDATA          #IMPLIED  -- space-separated list of URIs --
+
+It seems that the following attributes are, OTOH, safe:
+
+    declare     (declare)      #IMPLIED  -- declare but don't instantiate flag --
+    data        %URI;          #IMPLIED  -- reference to object's data --
+    type        %ContentType;  #IMPLIED  -- content type for data --
+    standby     %Text;         #IMPLIED  -- message to show while loading --
+    height      %Length;       #IMPLIED  -- override height --
+    width       %Length;       #IMPLIED  -- override width --
+    usemap      %URI;          #IMPLIED  -- use client-side image map --
+    name        CDATA          #IMPLIED  -- submit as part of form --
+    tabindex    NUMBER         #IMPLIED  -- position in tabbing order --
+
+Should the former attributes be *scrubbed* while the latter left intact, the use of the `object` tag would seemingly become safe.
+
+Note also that allowing `object` (either restricted in such a way or not) automatically solves the [[/todo/svg]] issue.
+
+For Ikiwiki, it may be nice to be able to restrict [URI's][URI] (as required by the `data` and `usemap` attributes) to, say, relative and `data:` (as per [RFC 2397][]) ones as well, though it requires some more consideration.
+
+&mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
+
+[[wishlist]]
+
+> SVG can contain embedded javascript.
+
+>> Indeed.
+
+>> So, a more general tool (`XML::Scrubber`?) will be necessary to
+>> refine both [XHTML][] and SVG.
+
+>> &hellip; And to leave [MathML][] as is (?.)
+
+>> &mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
+
+> The spec that you link to contains
+> examples of objects that contain python scripts, Microsoft OLE 
+> objects, and Java. And then there's flash. I don't think ikiwiki can
+> assume all the possibilities are handled securely, particularly WRT XSS
+> attacks.
+> --[[Joey]]
+
+>> I've scanned over all the `object` examples in the specification and
+>> all of those that hold references to code (as opposed to data) have a
+>> distinguishing `classid` attribute.
+
+>> While I won't assert that it's impossible to reference code with
+>> `data` (and, thanks to `text/xhtml+xml` and `image/svg+xml`, it is
+>> *not* impossible), throwing away any of the &ldquo;insecure&rdquo;
+>> attributes listed above together with limiting the possible URI's
+>> (i.&nbsp;e., only *local* and certain `data:` ones for `data` and
+>> `usemap`) should make `object` almost as harmless as, say, `img`.
+
+>>> But with local data, one could not embed youtube videos, which surely
+>>> is the most obvious use case?
+
+>>>> Allowing a &ldquo;remote&rdquo; object to render on one's page is a
+     security issue by itself.
+     Though, of course, having an explicit whitelist of URI's may make
+     this issue more tolerable.
+     &mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
+
+>>> Note that youtube embedding uses an
+>>> object element with no classid. The swf file is provided via an
+>>> enclosed param element. --[[Joey]]
+
+>>>> I've just checked a random video on YouTube and I see that the
+     `.swf` file is provided via an enclosed `embed` element.  Whether
+     to allow those or not is a different issue.
+     &mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
+
+>> (Though it certainly won't solve the [[SVG_problem|/todo/SVG]] being
+>> restricted in such a way.)
+
+>> Of the remaining issues I could only think of recursive
+>> `object` &mdash; the one that references its container document.
+
+>> &mdash;&nbsp;[[Ivan_Shmakov]], 2010-03-12Z.
+
+## See also
+
+* [Objects, Images, and Applets in HTML documents][objects-html]
+* [[plugins/htmlscrubber|/plugins/htmlscrubber]]
+* [[todo/svg|/todo/svg]]
+* [RFC 2397: The &ldquo;data&rdquo; URL scheme. L.&nbsp;Masinter. August 1998.][RFC 2397]
+* [Uniform Resource Identifier &mdash; the free encyclopedia][URI]
+
+[HTML::Scrubber]: http://search.cpan.org/~podmaster/HTML-Scrubber-0.08/Scrubber.pm
+[MathML]: http://en.wikipedia.org/wiki/MathML
+[objects-html]: http://www.w3.org/TR/1999/REC-html401-19991224/struct/objects.html
+[RFC 2397]: http://tools.ietf.org/html/rfc2397
+[URI]: http://en.wikipedia.org/wiki/Uniform_Resource_Identifier
+[XHTML]: http://en.wikipedia.org/wiki/XHTML

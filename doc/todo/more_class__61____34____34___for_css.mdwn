@@ -1,0 +1,83 @@
+I'm writing my own CSS for ikiwiki. During this effort I often found the need of adding more class="" attributes to the default ikiwiki templates. This way more presentational aspects of visual formatting can be delegated to CSS and removed from the HTML structure.
+
+In this patch I plan to collect changes in this direction.
+
+The first, one-liner, patch is to use a "div" element with a
+class="actions" attribute for inline page as is done with non-inlined page.
+This way the same CSS formatting can be applied to div.actions in the CSS,
+while at the moment it must be duplicated for a span.actions (which I
+believe is also incorrect, since it will contain a "ul" element, not sure
+though). In case the markup should be differentiated it will still be
+possible relying on the fact that a div.actions is contained or not in a
+div.inlinepage.
+
+Here's the one-liner:
+
+> applied --[[Joey]]
+
+----
+
+The following adds a div element with class="trailer" around the meta-information
+added after an inlined page (namely: the post date, the tags, and the actions):
+
+    --- inlinepage.tmpl.orig        2006-12-28 16:56:49.000000000 +0100
+    +++ inlinepage.tmpl     2006-12-28 17:02:06.000000000 +0100
+    @@ -17,6 +17,8 @@
+     </span>
+     <TMPL_VAR CONTENT>
+
+    +<div class="trailer">
+    +
+     <span class="pageinfo">
+     Posted <TMPL_VAR CTIME>
+     </span>
+    @@ -44,3 +46,5 @@
+     </TMPL_IF>
+
+     </div>
+    +
+    +</div>
+
+[[!tag patch]]
+
+> Unfortunately, the inlinepage content passes through markdown, and markdown
+> gets confused by these nested div's and puts p's around one of them, generating
+> broken html. If you can come up with a way to put in the div that passes
+> the test suite, or a fix to markdown, I will accept it, but the above patch
+> fails the test suite. --[[Joey]]
+
+>> Just a note...  This discrepancy doesn't exist in [pandoc](http://code.google.com/p/pandoc/) as
+>> demonstrated in the relevant [page](http://code.google.com/p/pandoc/wiki/PandocVsMarkdownPl).
+>> Pandoc is a _real parser_ for markdown (contrasting the regexp based implementation of 
+>> markdown.pl).  I've almost finished the Debian packaging.  John is working on a `--strict` mode
+>> which will hopefully make pandoc a drop-in replacement for markdown.  I'll upload pandoc after 
+>> his work has finished.  Whether it could be used in IkiWiki is an open question, but having
+>> alternatives is always a good thing and perhaps, the fact that pandoc can make markdown->LaTeX
+>> conversion may lead to new possibilities. --[[Roktas]]
+
+>>> I confirm that this ([[!debbug 405058]]) has just been fixed in markdown
+>>> [`1.0.2b7`](http://packages.debian.org/experimental/web/markdown) (BTW, thanks to your bug
+>>> report Joey).  FYI, I've observed some performance drop with `1.0.2b7` compared to `1.0.1`,
+>>> especially noticable with big files.  This was also confirmed by someone else, for example,
+>>> see this [thread](http://six.pairlist.net/pipermail/markdown-discuss/2006-August/000152.html)
+>>> --[[Roktas]]
+
+>>>> 1.0.2b7 is slower, but ok, and parses much better. I'm waiting for it
+>>>> to at least get into debian testing before I make ikiwiki depend on it
+>>>> though. --[[Joey]]
+
+>> This Markdown issue seems to have been worked around by the optimization
+>> in which \[[!inline]] is replaced with a placeholder, and the
+>> placeholder is later replaced by the HTML. Meanwhile, this patch
+>> has been obsoleted by applying a similar one (wrapping things in a div
+>> with class inlinefooter). That was the last remaining unapplied patch
+>> on this page, so I think this whole page can be considered [[done]].
+>> --[[smcv]]
+
+----
+
+I'd like a class attribute on the `<span>` tag surrounding wikilinks
+that refer to non-existent pages, in Ikiwiki.pm:htmllink, so that such
+broken links can be styled more dramatically with CSS. --Jamey
+
+> added --[[Joey]]

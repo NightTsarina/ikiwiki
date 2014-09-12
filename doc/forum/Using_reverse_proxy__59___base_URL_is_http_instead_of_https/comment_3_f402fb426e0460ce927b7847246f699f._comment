@@ -1,0 +1,19 @@
+[[!comment format=mdwn
+ username="amcalvo"
+ ip="78.53.114.169"
+ subject="Workaround for Nginx"
+ date="2014-05-05T21:49:10Z"
+ content="""
+Thank you for the analysis. I have worked around the issue by using the <http://wiki.nginx.org/HttpSubModule>, something like:
+
+~~~
+location {
+    # Proxy stuff...
+    sub_filter 'http://example.com' 'https://example.com';
+
+}
+~~~
+
+Best regards,
+amc.
+"""]]

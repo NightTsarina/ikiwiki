@@ -1,0 +1,19 @@
+A [[!taglink patch]] in my git repository (the inline-pagenames branch) adds
+the following parameter to the [[ikiwiki/directive/inline]] directive:
+
+> * `pagenames` - If given instead of `pages`, this is interpreted as a
+>    space-separated list of links to pages (with the same
+>   [[ikiwiki/SubPage/LinkingRules]] as in a [[ikiwiki/WikiLink]]), and they are inlined
+>   in exactly the order given: the `sort` and `pages` parameters cannot be used
+>   in conjunction with this one.
+
+This is on my [[wishlist]] for my [[plugins/contrib/album]] plugin, which currently
+uses it internally (as it has already collected the pages in order). It could also
+be useful for other things, like [[todo/wikitrails]]. --[[smcv]]
+
+[[!tag plugins/inline]]
+
+> It's sort of a pity that a pagespec like "a or b or c" doesn't somehow
+> match to (a, b, c) in that order, but I don't see how that would be
+> generally possible. While this feels a bit like bloat and inline already
+> has far too many parameters, I have [[merged|done]] it. --[[Joey]] 

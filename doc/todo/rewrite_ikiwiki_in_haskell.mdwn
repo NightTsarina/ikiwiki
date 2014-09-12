@@ -1,0 +1,65 @@
+[[!tag wishlist blue-sky]]
+
+In the long term, I have been considering rewriting ikiwiki in haskell.
+It's appealing for a lot of reasons, including:
+
+* No need to depend on a C compiler and have wrappers. Instead, ikiwiki
+  binaries could be built on demand to do the things wrappers are used for
+  now (cgi, post-commit, etc).
+* Potentially much faster. One problem with the now very modular ikiwiki is
+  that it has to load up dozens of perl modules each time it runs, which
+  means both opening lots of files and evaluating them. A haskell version
+  could run from one pre-compiled file. Other speed efficienies are also
+  likely with haskell. For example, pandoc is apparently an order of
+  magnitude faster than perl markdown implementations.
+* Many plugins could be written in pure functional code, with no side
+  effects. Not all of them, of course.
+* It should be much easier to get ikiwiki to support parallel compilation
+  on multi-core systems using haskell.
+* A rewrite would be an opportunity to utterly break compatability and
+  redo things based on experience. Since the haskell libraries used for
+  markdown, templates, etc, are unlikely to be very compatable with the perl
+  versions, and since perl plugins obviously wouldn't work, and perl setup
+  files wouldn't be practical to keep, a lot of things would unavoidably
+  change, and at that point changinge everything else I can think of
+  probably wouldn't hurt (much).
+
+  - Re templates, it would be nice to have a template library that
+    doesn't use html-ish templating tags, since those are hard for users to
+    edit in html editors currently.
+  - This would be a chance to make WikiLinks with link texts read
+    "the right way round" (ie, vaguely wiki creole compatably).
+    *[See also [[todo/link_plugin_perhaps_too_general?]] --[[smcv]]]*
+  - The data structures would probably be quite different.
+  - I might want to drop a lot of the command-line flags, either
+    requiring a setup file be used for those things, or leaving the
+    general-purpose `--set var=value` flag.
+  - Sometimes the current behavior of `--setup` seems confusing; it might
+    only cause a setup file to be read, and not force rebuild mode.
+  - Hard to say how the very high level plugin interface design would change,
+    but at the least some of the names of hooks could stand a rename, and
+    their parameter passing cleaned up.
+
+We know that a big, break-the-world rewrite like this can be a very
+bad thing for a project to attempt. It would be possible to support
+external plugins written in haskell today, without any rewrite; and a few
+of the benefits could be obtained by, eg, making the mdwn plugin be a
+haskell program that uses pandoc. I doubt that wouod be a good first step
+to converting ikiwiki to haskell, because such a program would have very
+different data structures and intercommuniucation than a pure haskell
+version.
+
+Some other things to be scared about:
+
+* By picking perl, I made a lot of people annoyed (and probably turned
+  several people away from using ikiwiki). But over time there turned out
+  to be a lot of folks who knew perl already (even if rustily), and made
+  some *very* useful contributions. I doubt there's as large a pool of haskell
+  programmers, and it's probably harder for a python user to learn haskell
+  than perl if they want to contribute to ikiwiki.
+* It might be harder for users of hosting services to install a haskell based
+  ikiwiki than the perl version. Such systems probably don't have ghc and
+  a bunch of haskell libraries. OTOH, it might be possible to build a
+  static binary at home and upload it, thus avoiding a messy installation
+  procedure entirely.
+  --[[Joey]] 

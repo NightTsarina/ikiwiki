@@ -1,0 +1,75 @@
+A simple plugin to allow per-page customization of a template by passing paramaters to HTML::Template. For those times when a whole pagetemplate is too much work. --Ethan
+
+[[!tag patch]]
+
+> The implementation looks fine to me (assuming it works with current ikiwiki),
+> apart from the "XXX" already noted in the patch. The design could reasonably
+> be considered premature generalization, though - how often do you actually
+> need to define new tmplvars?
+>
+> As for the page/destpage/preview thing, it would be good if the preprocess
+> hook could distinguish between software-supplied and user-supplied
+> parameters (the [[plugins/tag]] plugin could benefit from this too). Perhaps
+> the IkiWiki core could be modified so that
+> `hook(type => "preprocess", splitparams => 1, ...)` would invoke preprocess
+> with { page => "foo", destpage => "bar", ... } as a special first argument,
+> and the user-supplied parameters as subsequent arguments? Then plugins like
+> tag could use:
+>
+>     my $ikiparams = shift;
+>     my %params = @_;
+>
+>     add_tags($ikiparams->{page}, keys %params);
+>
+> --[[smcv]]
+
+----
+
+    #!/usr/bin/perl
+    package IkiWiki::Plugin::tmplvars;
+
+    use warnings;
+    use strict;
+    use IkiWiki 2.00;
+
+    my %tmplvars;
+
+    sub import {
+	    hook(type => "preprocess", id => "tmplvars", call => \&preprocess);
+	    hook(type => "pagetemplate", id => "tmplvars", call => \&pagetemplate);
+    }
+
+    sub preprocess (@) {
+	    my %params=@_;
+
+	    if ($params{page} eq $params{destpage}) {
+		    my $page = $params{page};
+		    if (undef $tmplvars{$page}){
+			    $tmplvars{$page} = {};
+		    }
+		    # XXX: The only way to get at just the user-specified params is
+		    # to try to remove all the Ikiwiki-supplied ones.
+		    delete $params{page};
+		    delete $params{destpage};
+		    delete $params{preview};
+		    foreach my $arg (keys %params){
+			    $tmplvars{$page}->{$arg} = $params{$arg};
+		    }
+	    }
+    
+    }
+    
+    sub pagetemplate (@) {
+            my %params=@_;
+            my $template = $params{template};
+
+            if (exists $tmplvars{$params{page}}) {
+                    foreach my $arg (keys %{$tmplvars{$params{page}}}){
+                            $template->param($arg => $tmplvars{$params{page}}->{$arg});
+                    }
+            }
+
+            return undef;
+    }
+
+    1

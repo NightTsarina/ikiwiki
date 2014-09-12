@@ -1,0 +1,20 @@
+[[!template id=gitbranch branch=jon/remove_action author="[[Jon]]"]]
+
+The "remove" plugin allows one to remove pages via the web, but you first have
+to click on 'edit' to get to the 'remove' button. This is a bit
+counter-intuitive, and ikiwiki has an action list, so it would be good if
+"remove" (and also "rename" for that plugin) added items to the action list.
+
+First cut series of patches in the indicated branch.  A bit more review is
+needed, in my tests removals work and are committed to the vcs but
+recentchanges isn't regenerated for some reason (probably the constructed `<a>`
+link needs to add/adjust the parameters to emulate a formbuilder form
+submission more carefully).
+
+I haven't begun on the 'rename' plugin. -- [[Jon]]
+
+[[!tag wishlist patch]]
+
+> I accidentally pushed an incomplete patch to that branch that starts the
+> work of doing the same for rename, but it's not working yet, to merge one
+> would need to cherry-pick the other patches for now. Sorry. -- [[Jon]]

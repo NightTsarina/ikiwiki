@@ -1,0 +1,49 @@
+Here's a simple way to create pages in which the page body (or a part of it) goes right-to-left.
+This includes things you insert into the page, such as polls and blockquotes and
+lists and a progress bar and so on. Some things don't work perfectly, but if
+you want to have some RTL pages in your wiki, this will probably do.
+
+It does not modify the things around the body, such as the page header and the
+footer. Only what is rendered from the mdwn file is affected.
+
+# 1 Add an RTL Template
+
+Create a new template page *templates/rtl.mdwn* with the following content:
+
+    <div class="rtl">
+    <TMPL_VAR text>
+    </div>
+    <TMPL_UNLESS text>
+    Use this template to insert RTL text into a page. 
+    This template has one parameter:
+    <ul>
+    <li>`text` - the text to display in RTL
+    </ul>
+    </TMPL_UNLESS>
+
+# 2 Add an RTL class to the CSS
+
+In your *local.css* add the following:
+
+[[!format css """
+/* rtl template */
+.rtl {
+    direction: rtl;
+}
+"""]]
+
+# 3 Use the Template
+
+To make a page or part of it RTL, use the [[ikiwiki/directive/template]] directive:
+
+    \[[!template id="rtl" text="""
+    
+    This text will be aligned to the right. You can write here in Hebrew, Arabic, etc. You can
+    put here anything you want to put on the page. As said above, some elements may not
+    align perfectly, but:
+
+    1. It can be solved per case
+    2. It's not critical, everything works quite well and is readable. If you have any comments,
+        suggestions, improvements, bugs, etc - please share here :-)
+    
+    """]]

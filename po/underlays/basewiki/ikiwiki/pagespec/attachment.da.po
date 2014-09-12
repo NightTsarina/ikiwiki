@@ -1,0 +1,123 @@
+# Danish translation of basewiki/ikiwiki/pagespec/attachment page for ikiwiki.
+# Copyright (C) 2008, 2009, 2011, Jonas Smedegaard <dr@jones.dk>
+# This file is distributed under the same license as the ikiwiki package.
+# Jonas Smedegaard <dr@jones.dk>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki 3.20110430\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-18 22:29+0000\n"
+"PO-Revision-Date: 2011-05-05 13:37+0200\n"
+"Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
+"Language-Team: None\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"[[!if test=\"enabled(attachment)\"\n"
+"     then=\"This wiki has attachments **enabled**.\"\n"
+"     else=\"This wiki has attachments **disabled**.\"]]\n"
+msgstr ""
+"[[!if test=\"enabled(attachment)\"\n"
+"     then=\"Denne wiki har vedhæftninger **aktiveret**.\"\n"
+"     else=\"Denne wiki har vedhæftninger **deaktiveret**.\"]]\n"
+
+#. type: Plain text
+msgid ""
+"If attachments are enabled, the wiki admin can control what types of "
+"attachments will be accepted, via the `allowed_attachments` configuration "
+"setting."
+msgstr ""
+"Hvis vedhæftninger er aktiveret, kan wiki-administratoren styre hvilke typer "
+"vedhæftninger der vil blive accepteret gennem opsætningsindstillingen "
+"`allowed_attachments`."
+
+#. type: Plain text
+msgid ""
+"For example, to limit most users to uploading small images, and nothing "
+"else, while allowing larger mp3 files to be uploaded by joey into a specific "
+"directory, and check all attachments for viruses, something like this could "
+"be used:"
+msgstr ""
+"Som eksempel, for at begrænse de fleste brugere i at lægge små billeder op, "
+"og intet andet, og at tillade større mp3-filer at blive lagt op af joey til "
+"en bestemt mappe, og checke alle vedhæftninger for vira, kunne noget i stil "
+"med dette bruges:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) and maxsize(15mb)) or (mimetype(image/*) and maxsize(50kb)))\n"
+msgstr "\tvirusfree() and ((user(joey) and podcast/*.mp3 and mimetype(audio/mpeg) and maxsize(15mb)) or (mimetype(image/*) and maxsize(50kb)))\n"
+
+#. type: Plain text
+msgid ""
+"The regular [[ikiwiki/PageSpec]] syntax is expanded with the following "
+"additional tests:"
+msgstr ""
+"Den normale [[ikiwiki/PageSpec]]-syntaks er udvidet med følgende yderligere "
+"tests:"
+
+#. type: Bullet: '* '
+msgid ""
+"\"`maxsize(size)`\" - tests whether the attachment is no larger than the "
+"specified size. The size defaults to being in bytes, but \"kb\", \"mb\", \"gb"
+"\" etc can be used to specify the units."
+msgstr ""
+"\"`maxsize(størrelse)`\" - tester hvorvidt vedhæftningen højst fylder den "
+"angivne størrelse. Størrelsen angives som standard i bytes, men \"kb\", \"mb"
+"\", \"gb\" osv. kan bruges til at angive enheder."
+
+#. type: Bullet: '* '
+msgid ""
+"\"`minsize(size)`\" - tests whether the attachment is no smaller than the "
+"specified size."
+msgstr ""
+"\"`minsize(størrelse)`\" - tester hvorvidt størrelsen mindst fylder den "
+"angivne størrelse."
+
+#. type: Bullet: '* '
+msgid ""
+"\"`ispage()`\" - tests whether the attachment will be treated by ikiwiki as "
+"a wiki page. (Ie, if it has an extension of \".mdwn\", or of any other "
+"enabled page format)."
+msgstr ""
+"\"`ispage()`\" - tester hvorvidt vedhæftningen bliver håndteret af ikiwiki "
+"som en wikiside. (altså om den har endelsen \".mdwn\", eller et hvilket som "
+"helst andet aktiveret sideformat)."
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  So, if you don't want to allow wiki pages to be uploaded as attachments,\n"
+"  use `!ispage()` ; if you only want to allow wiki pages to be uploaded\n"
+"  as attachments, use `ispage()`.\n"
+msgstr ""
+"  Derfor, hvis du ikke vil tillade wikisider at blive lagt op som vedhæftninger,\n"
+"  så brug `!ispage()` ; hvis du kun vil tillade wikisider at blive lagt op som\n"
+"  vedhæftninger, så brug `ispage()`.\n"
+
+#. type: Bullet: '* '
+msgid ""
+"\"`mimetype(foo/bar)`\" - checks the MIME type of the attachment. You can "
+"include a glob in the type, for example `mimetype(image/*)`."
+msgstr ""
+"\"`mimetype(foo/bar)`\" - checker MIME-typen for vedhæftningen. Du kan "
+"angive et glob som type, eksampelvis `mimetype(image/*)`."
+
+#. type: Bullet: '* '
+msgid "\"`virusfree()`\" - checks the attachment with an antiviral program."
+msgstr "\"`virusfree()`\" - checker vedhæftningen med et antivirusprogram."

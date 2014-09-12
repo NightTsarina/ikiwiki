@@ -1,0 +1,47 @@
+I'm using the trail plugin with the actiontabs theme, and the prev/next links
+seem to appear in a strange way on the page.
+
+I use modified CSS, but it changes just the colors and some font sizes.
+Nothing related to positions and trails.
+
+Here's an example - the top prev/next links appear above the action tabs.
+Is this normal? I'm using the ikiwiki version from Debian 7 stable.
+
+- If you use OpenNIC: <http://www.partager.null/tools/systems/admin-guides/ssl/Preparing_the_Tools/>
+- If you don't (will work only until the IP changes): <http://85.65.55.38/tools/systems/admin-guides/ssl/Preparing_the_Tools/>
+
+I can look at the CSS and try to figure this out, but I don't know much CSS or
+how the trail plugin works. If anyone uses trails, especially with actiontabs, and
+can help me - it will be great.
+
+Thanks in advance!
+
+--[[fr33domlover]]
+
+> I looked at the file *page.tmpl* and it seems I may be able to change
+> the trail link location if I edit that file. Would it be a good/possible solution to
+> edit it and put it in the git repo to be used instead of the default one?
+>
+> --[[fr33domlover]]
+
+>> That's how I intended trails to look with actiontabs:
+>> <http://actiontabs.hosted.pseudorandom.co.uk/posts/second_post/> is
+>> another example.
+>>
+>> With the way the actiontabs theme works, if you want to move the
+>> trail bits down into the content area (white background in the
+>> unedited theme) you might have to alter both `page.tmpl`
+>> and the actiontabs CSS. You'll see that the actiontabs CSS
+>> has a special case for trails, because the tabs and the trail
+>> links would overlap otherwise - you might have to remove
+>> that special case. --[[smcv]]
+
+>>> Thanks, I'll try that. But I've been using those trails in the last
+>>> several hours and I'm beginning to get used to the current
+>>> layout. Maybe I'll just keep it :-)
+>>>
+>>> (Anyway the way trail links look on my wiki is valid, it's exactly
+>>> like on your link, only with different colors. I suppose it's
+>>> just a cosmetic issue then)
+>>>
+>>> --[[fr33domlover]]

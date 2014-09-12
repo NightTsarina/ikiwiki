@@ -1,0 +1,40 @@
+I was suprised that, when using the map directive, a pagespec of "*"
+listed all the translated pages as well as regular pages. That can 
+make a big difference to an existing wiki when po is turned on,
+and seems generally not wanted.
+(OTOH, you do want to match translated pages by
+default when locking pages.) --[[Joey]]
+
+> Seems hard to me to sort apart the pagespec whose matching pages
+> list must be restricted to pages in the master (or current?)
+> language, and the ones that should not. The only solution I can see
+> to this surprising behaviour is: documentation. --[[intrigeri]]
+
+>> Well, a sorting criteria might be that if a PageSpec is used
+>> with a specified locaction, as happens whenever a PageSpec is
+>> used on a page, then it should match only `currentlang()`. If it 
+>> is used without a location, as in the setup file, then no such limit.
+
+>>> Ok. --[[intrigeri]]
+
+>> Note that
+>> `match_currentlang` currently dies if called w/o a location -- if
+>> it instead was always true w/o a location, this would just mean that
+>> all pagespecs should have `and currentlang()` added to them. How to
+>> implement that? All I can think of doing is wrapping
+>> `pagespec_translate`.
+
+>>> Seems doable. --[[intrigeri]]
+
+>> The only case I've found where it does make sense to match other
+>> language pages is on `l10n.ikiwiki.info` when listing pages that
+>> need translation.
+>> 
+>> Otherwise, it can be documented, but that's not really enough;
+>> a user who makes a site using auto-blog.setup and enables po will
+>> get a really screwed up blog that lists translations as separate posts
+>> and needs significant work to fix. I have thought about making
+>> `match_currentlang` a stub in IkiWiki (done in my currentlang branch),
+>> so I can use it in all the PageSpecs in the example blog etc, but I
+>> can't say I love the idea.
+>> --[[Joey]] 

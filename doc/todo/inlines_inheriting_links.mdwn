@@ -1,0 +1,39 @@
+[[!tag wishlist]]
+
+Continuing the ideas in [[bugs/Inline doesn't wikilink to pages]].
+
+I thought of a use case for another feature: making [[ikiwiki/directive/inline]] inherit the link relations of the included pages (optionally, say, with `inheritlinks=yes`). For example, if I want to list `elements/*` that have been linked to in any of `new_stuff/*`, I could try to write a [[ikiwiki/pagespec]] like
+`elements/* and backlink(new_stuff/*)`.
+
+This is not yet possible, as discussed in [[todo/tracking_bugs_with_dependencies]].
+
+It would be possible to work around this limitation of pagespecs if it was possible to create a page `all_new_stuff` with `\[[!inline pages="new_stuff/*" inheritlinks=yes]]`: then the desired pagespec would be expressed as `elements/* and backlink(all_new_stuff)`.
+
+> Or, instead of specifying whether to inherit at the place of the inline, add more relations (`inline`, `backinline`) and relation composition (say, `*`, or haskell-ish `$` in order not confuse with the glob `*`) and explicitly write in the pagespecs that you want to follow the inline relation backwards: `elements/* and backlink$backinline(all_new_stuff)` or, equivalently, if [["classes"|todo/tracking_bugs_with_dependencies]] are implemented in pagespecs: `elements/* and backlink(backinline(all_new_stuff))`. Of course, this suggestion requires the powerful extension to pagespecs, but it gives more flexibility, and the possibility to avoid redundant information: the same pagespec at two places -- the inline and the other matching construction.
+>
+> BTW, adding more relations -- the `inline` relation among them -- would satisfy [[the other feature request|bugs/Inline doesn't wikilink to pages]]. --Ivan Z.
+
+This is not just an ugly workaround. The availability of this feature has some reason: the classes of pages you want to refer to "recursively" (in that kind of complex pagespecs) tend to have some meaning themselves. So, I might indeed want to have a page like `all_new_stuff`, it would be useful for me. And at the same time I would like to write pagespecs like `elements/* and backlink(all_new_stuff)` -- and using the proposed feature in [[todo/tracking_bugs_with_dependencies/]] would be less clean because then I would have to enter the same information at two places: the possibly complex pagespec in the inline. And having redundant information leads to inconsistency.
+
+So in a sense, in some or most cases, it would indeed be cleaner to "store" the definition of a class of pages referred to in complex pagespecs as a separate object. And the most natural representation for this definition of a class of pages (adhering to the principle of wiki that what you mean is entered/stored in its most natural representation, not through some hidden disconnected code) is making a page with an inline/map/or the like, so that at the same time you store the definition and you see what it is (the set of pages is displayed to you).
+
+I would actually use it in my current "project" in ikiwiki: I actually edit a set of materials as a set of subpages `new_stuff/*`, and I also want to have a combined view of all of them (made through inline), and at another page, I want to list what has been linked to in  `new_stuff/*` and what hasn't been linked to.--Ivan Z.
+
+> I see where you're coming from, but let's think about
+> immplementation efficiency for a second. 
+> 
+> In order for inline inheritlinks=yes to work,
+> the inline directive would need to be processed
+> during the scan pass.
+> 
+> When the directive was processed there, it would need
+> to determine which pages get inlined (itself a moderatly
+> expensive operation), and then determine which pages
+> each of them link to. Since the scan pass is unordered,
+> those pages may not have themselves been scanned yet.
+> So to tell what they link to, inline would have to load
+> each of them, and scan them.
+> 
+> So there's the potential for this to slow
+> down a wiki build by about a factor of 2.
+> --[[Joey]] 

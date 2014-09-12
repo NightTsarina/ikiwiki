@@ -1,0 +1,44 @@
+[[!meta title="Revision Control Systems"]]
+
+Ikiwiki supports using several revision control systems for storing page
+histories. 
+
+Ikiwiki started out supporting only [[Subversion|svn]], but the interface
+ikiwiki uses to a revision control system is sufficiently simple and
+generic that it can be adapted to work with many systems by writing a
+[[plugin|plugins/write]]. These days, most people use [[git]].
+
+While all supported revision control systems work well enough for basic
+use, some advanced or special features are not supported in all of them.
+The table below summarises this for each revision control system and
+links to more information about each.
+
+[[!table data="""
+feature             |[[git]]|[[svn]]|[[bzr]]   |[[monotone]]|[[mercurial]]|[[darcs]]|[[tla]]   |[[cvs]]
+[[ikiwiki-makerepo]]|yes    |yes    |yes       |yes         |yes          |yes      |no        |yes
+auto.setup          |yes    |yes    |incomplete|yes         |incomplete   |yes      |incomplete|yes
+`rcs_commit_staged` |yes    |yes    |yes       |yes         |yes          |yes      |no        |yes
+`rcs_rename`        |yes    |yes    |yes       |yes         |yes          |yes      |no        |yes
+`rcs_remove`        |yes    |yes    |yes       |yes         |yes          |yes      |no        |yes
+`rcs_diff`          |yes    |yes    |yes       |yes         |yes          |yes      |yes       |yes
+`rcs_getctime`      |fast   |slow   |slow      |slow        |fast         |slow     |slow      |slow
+`rcs_getmtime`      |fast   |slow   |slow      |slow        |fast         |no       |no        |no
+`rcs_preprevert`    |yes    |no     |no        |no          |no           |no       |no        |no
+`rcs_revert`        |yes    |no     |no        |no          |no           |no       |no        |no
+anonymous push      |yes    |no     |no        |no          |no           |no       |no        |no
+conflict handling   |yes    |yes    |yes       |buggy       |yes          |yes      |yes       |yes
+openid username     |yes    |no     |no        |no          |yes          |yes      |no        |no
+"""]]
+
+Notes:
+
+* Lack of support in [[ikiwiki-makerepo]] or auto.setup can make it harder to
+  set up a wiki using that revision control system.
+* The `rcs_commit_staged` hook is needed to use [[attachments|plugins/attachment]]
+  or [[plugins/comments]].
+* `rcs_getctime` and `rcs_getmtime` may be implemented in a fast way (ie, one log
+  lookup for all files), or very slowly (one lookup per file).
+* Openid username support allows avoiding display of Google's ugly openids.
+
+There is a page with [[details]] about how the different systems work with
+ikiwiki, for the curious.

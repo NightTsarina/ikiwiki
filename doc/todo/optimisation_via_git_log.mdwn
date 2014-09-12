@@ -1,0 +1,27 @@
+Currently each time ikiwiki runs a refresh, it has to traverse the entire
+directory tree, looking at each file, to determine what has changed.
+
+Profiling shows this can take many seconds on large sites, and tends to be
+where around half the time is spent (other half being loadindex/saveindex).
+
+This could be sped up by remembering the HEAD ref that was rendered last,
+and using git log to get a list of files changed since then. Only render
+those files.
+
+Looking at the current implementation, the list of all files in the tree is
+also used when eg, iterating to find pages that need to be changed because
+one of their dependencies has changed. That would need to be modified,
+probably to use info from loadindex instead (ie, values %pagesources), with
+added/removed files added/removed from it.
+
+The actual git log parsing would be easy to add; there is already code to
+parse git-log in raw form.
+
+The main complication would probably be files in the tree that are not
+checked into git would not be rendered. The underlay dirs would still need
+to be scanned as now, as would the transient directory. Since some sites
+may depend on files being put into the tree and not committed, this
+optimisation would probably need to be something that can be optionally
+enabled.
+
+> [[done]] --[[Joey]]

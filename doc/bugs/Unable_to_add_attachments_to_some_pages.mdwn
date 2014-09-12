@@ -1,0 +1,31 @@
+I can add attachment to some pages within an ikiwiki site. ( for example the index page ), but I'm unable to add attachments to other child pages.
+
+When I try I get the error message "Error: bad attachment filename".  I can successfully attach the same file to the index page.
+
+I'm running
+
+ikiwiki version 3.20100815.7 on Debian Squeeze.
+
+Please advise.
+
+
+> I get the following error in apache error.log
+> Died at /usr/share/perl5/IkiWiki/CGI.pm line 466.
+> -- [[aland]]
+
+> Well, what subpages are you trying to add it to? What is your
+> `allowed_attachments` PageSpec set to in your setup file? --[[Joey]]
+
+>> I can reproduce this by creating a new ikiwiki using the auto.setup
+
+>> I create a subpage of index called "projects" and a subpage of projects called "Firewall Replacement 2010-2011"
+>> and when I add attachment to the subpages I get the error.
+
+>> I dont have an `allowed_attachments` section in my setup file
+>> But I've set an `allowed_attachments` like `allowed_attachments => 'maxsize(40000kb) and mimetype(*)',` and I still get the error.
+>> Thanks --[[aland]]
+
+>>> Being the subpage of index is the problem. It's not usual to have
+>>> any other page as a subpage of index; as there's really no reason to do
+>>> that, so some code broke in that special case. [[fixed|done]]
+>>> --[[Joey]]

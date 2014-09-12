@@ -1,0 +1,26 @@
+The `albumimage` directive is supplied by the [[!iki plugins/contrib/album desc=album]] plugin.
+
+Each viewer page produced by the [[album]] directive
+contains an `albumimage` directive, which is replaced by an
+[[ikiwiki/directive/img]], wrapped in some formatting using a
+template (by default it's `albumviewer.tmpl`). That template can also include
+links to the next and previous photos, in addition to those provided by the
+[[!iki plugins/contrib/trail desc=trail]] plugin.
+
+The next/previous links are themselves implemented by evaluating a template,
+either `albumnext.tmpl` or `albumprev.tmpl` by default.
+
+The directive can also have parameters:
+
+* `title`, `date`, `updated`, `author`, `authorurl`, `copyright`, `license`
+  and `description` are short-cuts for the corresponding
+  [[ikiwiki/directive/meta]] directives
+
+* `caption` sets a caption which is displayed near this image in the album
+  and viewer pages
+
+The viewer page can also contain any text and markup before or after the
+`albumimage` directive, which will appear before or after the image in the
+viewer page.
+
+[[!meta robots="noindex, follow"]]

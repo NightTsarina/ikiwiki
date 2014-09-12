@@ -1,0 +1,45 @@
+Lighttpd apparently sets REDIRECT_STATUS=200 for the server.error-handler-404 page. This breaks the [[plugins/404]] plugin which checks this variable for 404 before processing the URI. It also doesn't seem to set REDIRECT_URL.
+
+> For what it's worth, the first half is <http://redmine.lighttpd.net/issues/1828>.
+> One workaround would be to make this script your 404 handler:
+>
+>     #!/bin/sh
+>     REDIRECT_STATUS=404; export REDIRECT_STATUS
+>     REDIRECT_URL="$SERVER_NAME$REQUEST_URI"; export REDIRECT_URL
+>     exec /path/to/your/ikiwiki.cgi "$@"
+>
+> --[[smcv]]
+
+I was able to fix my server to check the REQUEST_URI for ikiwiki.cgi and to continue processing if it was not found, passing $ENV{SEVER_NAME} . $ENV{REQUEST_URI} as the first parameter to cgi_page_from_404. However, my perl is terrible and I just made it work rather than figuring out exactly what to do to get it to work on both lighttpd and apache.
+
+This is with lighttpd 1.4.19 on Debian.
+
+> /cgi-bin/ikiwiki.cgi?do=goto also provides redirection in the same way,
+> if that's any help? You might need to set the lighttpd 404 handler to
+> that, then compose REDIRECT_URL from other variables if necessary.
+>
+> I originally wrote the plugin for Apache; [[weakish]] contributed the
+> lighttpd docs and might know more about how to make it work there.
+> --[[smcv]]
+
+>> As I said, I got it working for me, but somebody who knows perl should probably look at it with the aim of making it work for everyone.
+>> I considered having lighttpd construct a proper url for the 404 redirect itself, but I don't know if it can do something like that or not.
+>> For what it's worth, here's the change I made to the module:
+
+    sub cgi ($) {
+            my $cgi=shift;
+            if ($ENV{REQUEST_URI} !~ /ikiwiki\.cgi/) {
+                    my $page = cgi_page_from_404(
+                            Encode::decode_utf8($ENV{SERVER_NAME} . $ENV{REQUEST_URI}),
+                            $config{url}, $config{usedirs});
+                    IkiWiki::Plugin::goto::cgi_goto($cgi, $page);
+            }
+    
+    #       if (exists $ENV{REDIRECT_STATUS} &&
+    #           $ENV{REDIRECT_STATUS} eq '404') {
+    #               my $page = cgi_page_from_404(
+    #                       Encode::decode_utf8($ENV{REDIRECT_URL}),
+    #                       $config{url}, $config{usedirs});
+    #               IkiWiki::Plugin::goto::cgi_goto($cgi, $page);
+    #       }
+    }

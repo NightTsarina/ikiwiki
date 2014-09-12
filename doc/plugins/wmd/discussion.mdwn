@@ -1,0 +1,22 @@
+I've tried to retrieve the wmd-editor source tarball lately, but the site seems offline.
+
+From what I've read on the Internet, wmd-editor is not (yet?) free software by itself, and its author has gone MIA.
+But it looks like somebody recently took the step to rewrite a wmd-clone under a saner license, see [[pagedown|http://code.google.com/p/pagedown/source/browse/]].
+
+Given all the above, what about upgrading this plugin to use pagedown instead of wmd? It seem a clear win to me... --(unsigned)
+
+> I have moved that conversation to the pagedown plugin todo [[todo/pagedown_plugin/discussion]] page, which now actually has an implementation now, and is free! --[[anarcat]]
+
+Other conversations:
+
+>> I've got pagedown working on my personal site (simon.kisikew.org) but I'm not sure how
+>> I can inject the relevant &lt;div&gt;'s in the right place. They need to go **above**
+>> the editing &lt;textarea&gt; . (Too bad about the licensing, it's rather nice.)
+>> I had to do one minor change to it to have it inject itself into the page properly,
+>> and that was to make this change in `Markdown.Editor.js`:
+>>
+>> `this.input = doc.getElementById("editcontent" + postfix);`
+>>
+>> on line 247.  --[[simonraven]]
+
+>>> Well, I re-figured out that I needed a TMPL_VAR FOO in the template(s). --[[simonraven]]

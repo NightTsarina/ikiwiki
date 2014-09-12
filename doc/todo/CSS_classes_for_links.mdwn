@@ -1,0 +1,138 @@
+Hi Joey,
+
+What do you think about CSS classes for links to display link with icon?
+You probably know that there are wikis with that feature, for example
+Moin Moin.
+
+Here is a piece of `common.css` file grabbed from <http://wiki.openwrt.org>
+site which is powered by Moin Moin wiki:
+
+    a.www:before {content: url(../img/moin-www.png); margin: 0 0.2em;}
+    a.http:before {content: url(../img/moin-www.png); margin: 0 0.2em;}
+    a.https:before {content: url(../img/moin-www.png); margin: 0 0.2em;}
+    a.file:before {content: url(../img/moin-ftp.png); margin: 0 0.2em;}
+    a.ftp:before {content: url(../img/moin-ftp.png); margin: 0 0.2em;}
+    a.nntp:before {content: url(../img/moin-news.png); margin: 0 0.2em;}
+    a.news:before {content: url(../img/moin-news.png); margin: 0 0.2em;}
+    a.telnet:before {content: url(../img/moin-telnet.png); margin: 0 0.2em;}
+    a.irc:before {content: url(../img/moin-telnet.png); margin: 0 0.2em;}
+    a.mailto:before {content: url(../img/moin-email.png); margin: 0 0.2em;}
+    a.attachment:before {content: url(../img/moin-attach.png); margin: 0 0.2em;}
+    a.badinterwiki:before {content: url(../img/moin-inter.png); margin: 0 0.2em;}
+    a.interwiki:before {content: url(../img/moin-inter.png); margin: 0 0.2em;}
+
+You can see that they use a lot of CSS classes for links, but only one CSS class
+for external links is enough for me :) Please look at my example:
+
+    \[[Foo]]                    -> <a href="http://www.mywiki.org/foo.html">Foo</a>
+    \[[Bar|foo/bar]]            -> <a href="http://www.mywiki.org/foo/bar.html">Bar</a>
+    <http://www.gnu.org/>      -> <a class="external" href="http://www.gnu.org/">http://www.gnu.org/</a>
+    [GNU](http://www.gnu.org/) -> <a class="external" href="http://www.gnu.org/">GNU</a>
+    [RMS](mailto:rms@gnu.org)  -> <a href="mailto:rms@gnu.org">RMS</a>
+
+My best regards,
+
+--[[Paweł|ptecza]]
+
+> If you did not already know, you can achieve similar results using CSS3
+> selectors.  Eg: `a[href="http://www.foobar.com/"] { foobar: css }` or
+> `a[title~="Mail"] {text-decoration: none; }`.  See
+> <http://www.w3.org/TR/2001/CR-css3-selectors-20011113/> for a complete list.
+
+>> Hi Charles,
+>>
+>> Thanks for the hint! I don't know CSS3 yet :) What modern and popular
+>> WWW browsers do support it now?
+>>
+>>> Safari supports it. Firefoz&Co support most of it. IE6 did not, but IE7
+>>> supports a fair part of CSS3, ans is said to support selectors.
+>>>
+>>> Example on how to use selectors here: http://www.kryogenix.org/days/2002/08/30/external
+>>>
+>>> I also think this should be in an external plugin, not in ikiwiki.
+>>>
+
+I find CSS3 support still spotty...  Here are some notes on how to do this in IkiWiki with jQuery: <http://iki.u32.net/setup/External_Links> --[[sabr]]
+
+> If you need to achieve this in IkiWiki itself, I imagine you could create a
+> plugin which runs in the `format` phase of rendering and search/replaces
+> specific link patterns.  This should be a fairly simple exercise in regular
+> expressions.
+>
+> --CharlesMauch
+
+>> I've never written plugin for ikiwiki, but I can try if it's simple job :)
+>>
+>> --[[Paweł|ptecza]]
+
+> I wouldn't mind adding a _single_ css class to ikiwiki links, but it
+> would have to be a class added to all internal, not all external, links.
+> Reason is that there are many ways for external links to get into an
+> ikiwiki page, including being entered as raw html. The only time ikiwiki
+> controls a link is when an internal link is added using a WikiLink.
+>
+> (Note that tags get their own special
+> [[rel_attribute|rel_attribute_for_links]] now that CSS can use.)
+> 
+> --[[Joey]]
+
+>> I had a little look at this, last weekend. I added a class definition to
+>> the `htmllink` call in `linkify` in `link.pm`. It works pretty well, but
+>> I'd also need to adjust other `htmllink` calls (map, inline, etc.). I found
+>> other methods (CSS3 selectors, etc.) to be unreliable.
+>> 
+>> Would you potentially accept a patch that added `class="internal"` to
+>> various `htmllink` calls in ikiwiki?
+>> 
+>> How configurable do you think this behaviour should be? I'm considering a
+>> config switch to enable or disable this behaviour, or possibly a
+>> configurable list of class names to append for internal links (defaulting
+>> to an empty list for backwards compatibility)>
+>> 
+>> As an alternative to patching the uses of `htmllink`, what do you think
+>> about patching `htmllink` itself? Are there circumstances where it might be
+>> used to generate a non-internal link? -- [[Jon]]
+
+>>> I think that the minimum configurability to get something that
+>>> can be used by CSS to style the links however the end user wants
+>>> is the best thing to shoot for. Ideally, no configurability. And
+>>> a tip or something documenting how to use the classes in your CSS
+>>> to style links so that eg, external links have a warning icon.
+>>> 
+>>> `htmllink` can never be used to generate an external link. So,
+>>> patching it seems the best approach. --[[Joey]] 
+
+>>>> I had a quick look to this issue. Internal links are generated at
+>>>> 11 places in the Perl code and would need to be patched (this
+>>>> number could be lowered a bit if a htmllink-like function existed
+>>>> for CGI urls; such a function would use `cgiurl`, and be used in
+>>>> most places where `cgiurl` is currently called by plugins).
+>>>> 
+>>>> Also, more than 30 `<a>` links appear in templates, most of those
+>>>> being internal links.
+>>>> 
+>>>> Sure, patching those few dozen places is trivial. On the other
+>>>> hand, I'm wondering how doable it would be to make sure, on the
+>>>> long run, any generated internal link has the right CSS class
+>>>> applied. One would need to write tests running against the code
+>>>> with all plugins enabled, all templates put to work, in order to
+>>>> ensure consistency is maintained. --[[intrigeri]]
+
+-----
+If you're going to be patching htmllink anyway, might I suggest something more flexible, like being able to configure the link format?
+(Yes, PmWiki allows this, that's where I got the idea)
+That is, rather than having "&lt;a href=". blah . blah ...
+one could use a sprintf with a default format which could be configured in the setup file.
+
+For example:
+
+    $format = ($config{createlink_format}
+               ? $config{createlink_format}
+               : '<span class=\"createlink\"><a href="%s" rel="nofollow">?</a>%s</span>');
+    return sprintf($format,
+        cgiurl(do => "create", page => lc($link), from => $lpage),
+        $linktext);
+
+I admit, I've been wanting something like this for a long time, because I dislike the existing createlink format...
+
+--[[KathrynAndersen]]

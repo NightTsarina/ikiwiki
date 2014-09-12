@@ -1,0 +1,157 @@
+[[!meta title="Hosting Ikiwiki with a master git repository on a remote machine"]]
+
+This tutorial explains how to set up a wiki such that:
+
+- the machine running Ikiwiki is not the same as the one hosting the git repository;
+- changes can be done using CGI;
+- changes can be done using git (using ssh protocol).
+
+This configuration may be useful when:
+
+- you do not want (or cannot) connect to the machine hosting your wiki using
+  `git` or `ssh`;
+- you do not want (or cannot) publish web content on the machine hosting you
+  remotely accessible git repository.
+
+I assume the [[rcs]] used is [[rcs/git]], but it might be done for other rcs.
+
+# Similar and related tips and problems
+
+- [[tips/distributed_wikis]] References different way of distributing wikis (including this one).
+- [[http://www.icanttype.org/blog/ikiwiki_git_remote_repo/]] Similar to what I
+  am describing, excepted that you must be able to connect to the machine
+  hosting Ikiwiki using ssh.
+- [[forum/How_to_specify_repository_is_on_a_remote_host__63__]] My solution
+  solves the problem described here, excepted that svn is used there, and in
+  the comments, Joey advice not to do this with svn.
+- [[forum/how_to_setup_ikiwiki_on_a_remote_host]] My solution might answer this
+  problem.
+
+# Overview
+
+By default, when creating a wiki, Ikiwiki creates and uses two repositories: a
+bare repository, and a « slave » repository, used as the source to render the
+wiki. All of these are on the same machine.
+
+Instead of having the bare repository hosted on the same machine, we will host
+it on a remote machine, and tell Ikiwiki to use it instead of its local one. We
+will also ensure that the wiki is rendered whenever a commit is done to the git
+repository.
+
+[[!img separate-web-git-servers.svg size=400x]]
+
+# Conventions
+
+- We are building a wiki called *SITE*.
+- The machine running Ikiwiki and a web server is called the *Ikiwiki machine*.
+- The machine hosting the git repository is called the *git machine*. Users can
+  make git pull and push to this machine.
+
+# Let's go!
+
+## Creating ssh keys on the Ikiwiki machine
+
+- Create a pair of ssh keys, not password-protected (as they will be used by
+  script). Let's call them `id_SITE` and `id_SITE.pub`. These keys will be used
+  by the ikiwiki machine to connect to the git machine.
+
+## Creating and setting up a repository on the git machine
+
+- Create a repository `SITE.git` on the git machine (using `git init --bare`),
+  and ensure that public key `id_SITE.pub` can pull from and push to this
+  repository (using `~/.ssh/config` or by setting the right permissions on
+  gitolite or gitosis).
+
+## Creating the wiki on the ikiwiki machine
+
+- Create the wiki following [[the regular procedure|setup]]. You should have,
+  among others, a directory `SITE.git`, being the master git repository, and a
+  directory `SITE`, clone of `SITE.git`, used as source directory to render the
+  wiki.
+- Ensure that your web server can serve the rendered wiki, and that changes can
+  be done with CGI.
+
+## Configuring the wiki on the wiki machine so that it uses the repository of the git machine
+
+- Configure ssh so that it uses the ssh key `id_SITE` to connect to the git
+  michine: add the following lines to file `~/.ssh/config` on the ikiwiki
+  machine:
+
+        Host server.name.of.the.git.machine
+            User git-machine-user
+            IdentityFile ~/.ssh/id_SITE
+
+- Configure the local copy `SITE` of the wiki (on the ikiwiki machine) to use
+  the remote git repository instead of the local `SITE.git`. To do so, in the
+  file `SITE/.git/config`, replace the lines:
+
+        [remote "origin"]
+               url = /path/to/SITE.git
+               fetch = +refs/heads/*:refs/remotes/origin/*
+
+  by the lines:
+
+        [remote "origin"]
+                url = git-machine-user@server.name.of.the.git.machine:SITE.git
+                fetch = +refs/heads/*:refs/remotes/origin/*
+
+- In this repository (`SITE`), run `git pull` and `git push` to ensure that
+  everything works fine. It *works fine* when you will be able to run `git
+  pull` and `git push` without user interaction.
+
+- Disable the `post-update` hook in ikiwiki: it is used if the git commits are
+  done on this machine, which is no longer the case. To do so, in file
+  `SITE.setup`, comment the line:
+
+        git_wrapper => '/path/to/SITE.git/hooks/post-update',
+
+- Tell Ikiwiki to push to the ikiwiki machine when a commit is done by the web
+  (CGI). To do so, in file `SITE.setup`, add the line:
+
+        git_wrapper_background_command => 'git push',
+
+- Enable plugin [[pingee|http://ikiwiki.info/plugins/pingee/]]. It allows git
+  (on the git machine) to tell ikiwiki to update and rebuild the wiki when
+  commits are done on the git repository, using only an http connection. To do
+  so, add `pingee` to the list of enabled plugins (variable `add_plugins` in
+  file `SITE.setup`).
+
+- Rebuild the wiki (since you chaned the setup file `SITE.setup`).
+
+        ikiwiki --setup SITE.setup --rebuild --verbose
+
+## Configure the git repository (on the git machine) to update the wiki after a push
+
+Add in the `post-receive` hook (file `SITE.git/hooks/post-receive`):
+
+      git log -1 --format=format:%ae HEAD | grep -e '@web$' -e 'USER@HOST' ||  wget "http://WIKI-URL/ikiwiki.cgi?do=ping" -O /dev/stdout
+
+If your wiki is password protected, use:
+
+      git log -1 --format=format:%ae HEAD | grep -e '@web$' -e 'USER@HOST' ||  wget "http://LOGIN:PASSWORD@WIKI-URL/ikiwiki.cgi?do=ping" -O /dev/stdout
+
+The bit before `wget` is here to prevent updating the wiki while it is
+updating, which can lead to a deadlock. Indeed, when the wiki is edited via
+web, or a tag page is automatically added, IkiWiki pushes the changes to the
+Git machine. Then, the hook on this latter machine tries to pull changes from
+the IkiWiki machine, and here is the deadlock. Explanations of the command:
+
+* `git log -1 --format=format:%ae HEAD`: Looks for the user name of the
+  latest commit.
+* `grep -e '@web$' -e 'USER@HOST': Check whether this last commit was pushed
+  from the IkiWiki machine (change `USER@HOST` to the appropriate string).
+* `wget ...`: If the last commit does not come from the IkiWiki machine
+  (which means it comes from another machine), update the wiki.
+
+## Going further
+
+- *Web server on a third machine* It should be possible to use a third machine
+  to host the web server, using [[this documentation|tips/Git_repository_and_web_server_on_different_hosts/]].
+- *Using [[gitolite|https://github.com/sitaramc/gitolite]] to manage
+  repositories on the git machine* Simply replace the manipulations of git on
+  the git machine by the corresponding manipulations using gitolite.
+    * With gitolite, you can use this line in a `post-update` hook:
+
+        `[ x"$GL_USER" = x"`*`gitolite-user`*`" ] || wget ...` where *gitolite-user* is the name of the public key registered through gitolite.
+
+        Thus, you filter out precisely the events that originate from the server-to-be-pinged, no matter what the commit id says. (For example, if you push commits you created on a local CGI ikiwiki, they'd be called '@web' as well).

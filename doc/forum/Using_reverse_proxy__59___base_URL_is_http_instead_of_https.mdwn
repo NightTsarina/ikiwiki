@@ -1,0 +1,55 @@
+Hello.
+
+My setup is as follows: I am running Debian on a VPS. I am using the reverse proxy pound, among other things, to provide SSL support for the webserver thttpd, which is serving the ikiwiki pages and running the ikiwiki CGI. The wiki is only accessible through https.
+
+I recently upgraded from squeeze to wheezy. This broke page editing. It seems that the edit pages now include a base url that points to an http address, instead of the https address specified in the config. I guess this is a result of the changes discussed here:
+
+[[http://ikiwiki.info/todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both/]]
+
+Because of the reverse proxy, I suppose that, as far as the webserver is concerned, it is receiving an http (rather than https) request. I don't think it's at all SSL-aware. So I don't think there's any way the webserver could tell the CGI that it's actually being accessed via https. (Feel free to correct me on this point if you are more knowledgeable about reverse proxies, HTTP and SSL. I see that, according to the Wikipedia page for thttpd, it doesn't pass on the X-Forwarded-For HTTP header to CGI scripts, but I don't see how that would be useful in detecting this anyhow.)
+
+If ikiwiki's new behaviour is intentional, rather than a bug in ikiwiki or an error in my configuration, is there some option I can set or plugin I can enable to make it honour the URLs explicitly stated in my configuration? My current solution is to revert to the old version of ikiwiki from Debian Squeeze.
+
+I see that a number of people have had vaguely similar problems from other bugs/forum posts. This person seems to be someone having the reverse problem, of the base URL being https instead of http:
+
+[[http://ikiwiki.info/forum/CGI_script_and_HTTPS/]]
+
+This person is also using a reverse proxy, and has problems with setting the base, but I think this is a feature request rather than a regression:
+
+[[http://ikiwiki.info/bugs/trouble_with_base_in_search/]]
+
+This one sounds most like my situation:
+
+[[http://ikiwiki.info/forum/Dot_CGI_pointing_to_localhost._What_happened__63__/]]
+
+There is a comment here that hints at a workaround. Am I right in reading this as a suggestion to patch the source? Is that the official recommended solution?
+
+-- Martin.
+
+---
+
+From my .setup (domains changed):
+
+        srcdir => '/home/myusername/wiki',
+        # where to build the wiki
+        destdir => '/var/www/secure.example.com/wiki',
+        # base url to the wiki
+        url => 'https://secure.example.com/wiki',
+        # url to the ikiwiki.cgi
+        cgiurl => 'https://secure.example.com/cgi-bin/wiki/ikiwiki.cgi',
+        # filename of cgi wrapper to generate
+        cgi_wrapper => '/var/www/secure.example.com/cgi-bin/wiki/ikiwiki.cgi',
+        # mode for cgi_wrapper (can safely be made suid)
+        cgi_wrappermode => '06755',
+
+Old base in an edit page:
+
+    <base href="https://secure.example.com/wiki/" />
+
+New base in an edit page, after upgrading ikiwiki package, but before regenerating wrapper:
+
+    <base href="http://localhost/wiki/" />
+
+New base in an edit page, after regenerating wrapper:
+
+    <base href="http://secure.example.com/wiki/" />

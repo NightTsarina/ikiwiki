@@ -1,0 +1,27 @@
+[[!comment format=mdwn
+ username="spalax"
+ ip="82.216.247.172"
+ subject="comment 3"
+ date="2014-05-17T13:49:14Z"
+ content="""
+> I need a plugin of exactly the same kind, but which calls other tools, such as Dia and Inkspace.
+> In addition, embedding into a page means the same image may end up being generated
+> many times. So it's best to generate the image as an attachment of some page, and then
+> all other pages in the wiki can use it. What do you think?
+
+Then the [[plugins/contrib/pandoc]] may be a good start, since *you can configure it for Pandoc to take over processing of all .mkdn files, or only files with a different extension.* Have a look at it to make your plugin process files with a particular extension. Then, it will be possible to have several pages refer to the same file, generated only once (maybe by storing stuff in `%pagestate` or `%wikistate`.
+
+Have a look at [[plugins/write]] to write your plugin.
+
+> Also, if I write a plugin (and test it of course), where do I publish it so people can
+> see and enjoy it? Is [[plugins]] moderated?
+
+What is usually done is:
+
+- you publish your code somewhere (your server, or on github or something like that);
+- you advertise your plugin by creating a subpage of [[plugins/contrib]]. Use the [[templates/plugin]] [[template|templates]] (it generates the frame you can see on the right of [[one of my plugins|plugins/contrib/jscalendar]], for example):
+
+      \[[!template id=plugin name=YourFancyPlugin author=\"[[fr33domlover]]\"]]
+
+-- [[Louis|spalax]]
+"""]]

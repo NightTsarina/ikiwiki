@@ -1,0 +1,35 @@
+[[!template id=plugin name=plusone author="[[BerndZeimetz]]"]]
+[[!toc]]
+[[!tag plugins]] [[!tag patch]] [[!tag wishlist]]
+
+## NAME
+
+IkiWiki::Plugin::plusone - Adding the +1 button to your posts
+
+## SYNOPSIS
+
+    # activate the plugin
+    add_plugins => [qw{goodstuff plusone ....}],
+
+    # set some options:
+    plusone_count => 1,
+    plusone_size => 'standard',
+    plusone_lang => 'en-US',
+
+   
+## DESCRIPTION
+
+This plugin allows to add a google plusone button using the plusone directive
+  [[!plusone ]]
+where ever you want the button to show up.
+
+## plusone directive
+The plusone directive allows to override the automativally generated url by specifying the wanted url as option:
+  [[!plusone url="http://bzed.de/"]]
+
+
+## DOWNLOAD
+
+* single file: [plusone.pm](http://git.recluse.de/?p=users/bzed/ikiwiki.git;a=blob_plain;f=IkiWiki/Plugin/plusone.pm;hb=refs/heads/plusone)
+* browse repository: <http://git.recluse.de/?p=users/bzed/ikiwiki.git;a=shortlog;h=refs/heads/plusone>
+* git repo: `git://git.recluse.de/users/bzed/ikiwiki.git` or <http://git.recluse.de/repos/users/bzed/ikiwiki.git> (Use the plusone branch)

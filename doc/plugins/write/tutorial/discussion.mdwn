@@ -1,0 +1,20 @@
+Thanks for the tutorial!
+
+But I think you have an error in the fib function! If you really start with
+
+    my $last = 0;
+
+and your fib function, you'll get this error, as you've produced a never ending recursion:
+
+    Deep recursion on subroutine "IkiWiki::Plugin::fib::fib" at ./fib.pm line 29.
+
+So the fib function should better look like this, which is its true definition (see [[Wikipedia|http://de.wikipedia.org/wiki/Fibonacci-Folge]], for example):
+
+	sub fib {
+		my $num=shift;
+		return 0 if $num == 0;
+		return 1 if $num == 1;
+		return fib($num - 1) + fib($num - 2);
+	}
+
+Just as a hint for people who run into this error while doing this tutorial.

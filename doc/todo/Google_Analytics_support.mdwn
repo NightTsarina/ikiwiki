@@ -1,0 +1,31 @@
+[[!template id=gitbranch branch=GiuseppeBilotta/google-analytics
+author="[[GiuseppeBilotta]]"]]
+
+I've extended the google plugin to add support for Google Analytics.
+This is done in two steps:
+
+* a `google_sitesearch` config option is introduced, to allow disabling
+  sitesearch even when the `google` plugin is loaded
+* a `google_analytics_account` config option is introduced. When it's
+  defined, its value is assumed to be a Google Analytics account ID
+  and the corresponding JavaScript code is automatically inserted in all
+  documents. The way this is done is shamelessy stolen from the flattr
+  plugin
+
+> Putting this in the google plugin does not seem to be a good approach.
+> That this "functionality" is offered by the same company as google search 
+> is really of no consequence.
+
+Well, my idea was to put all Google-related functionality (in the sense
+of support for any service provided by Google) into the google plugin.
+The alternative would have been to have one separate plugin per feature,
+but that doesn't sound particularly nice to me. I can split it in a
+separate plugin if you believe it's cleaner that way
+
+> Also, can't this be easily accomplished by editing page.tmpl? --[[Joey]]
+
+Yes, and so would flattr. But precisely because this kind of code would require
+editing page.tmpl, doing it the manual way carries the burden of keeping it in
+sync across Ikiwiki updates (I'm sure I don't need to mention the number of
+help requests that essentially boil down to "oops, I was using custom templates
+and hadn't updated them").

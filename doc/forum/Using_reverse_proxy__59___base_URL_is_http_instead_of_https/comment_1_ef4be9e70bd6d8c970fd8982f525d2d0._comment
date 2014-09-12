@@ -1,0 +1,21 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 1"
+ date="2013-12-20T09:54:51Z"
+ content="""
+One way to solve this would be a new `$config{hard_code_urls}`
+option whose semantics are \"you're behind a reverse proxy, hard-code
+`$config{cgiurl}` and `${url}` in output rather than using the
+address from the HTTP request\" (in other words, selectively undo some
+of the automatic self-referential URL detection).
+
+Another possibility would be to avoid using `<base>`, and when producing
+CGI pages, make all links look like `/sandbox/` or
+`/cgi-bin/ikiwiki.cgi?...`; but that can only work if your content and
+CGI are on the same domain, and is likely to be more complex.
+
+The `<base href>` is required to be an absolute URI (including the
+protocol and domain name) so the CGI output can't avoid doing a certain
+amount of hard-coding, unfortunately.
+"""]]

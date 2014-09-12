@@ -1,0 +1,15 @@
+[[!comment format=mdwn
+ username="https://me.yahoo.com/a/2d7oNP9wlop3PaHlGlGS1J2ppVqXf4zQAw--#17b9b"
+ nickname="Matthew"
+ subject="comment 2"
+ date="2011-12-17T09:10:38Z"
+ content="""
+I'm using RPMs to install Xapian packages, xapian-omega and xapian-bindings-perl, and they're all 1.2.5.  I originally tried building and installing Xapian 1.2.7 from source, but found that ikiwiki failed like this:
+
+<pre>
+Use of inherited AUTOLOAD for non-method Search::Xapian::DB_CREATE_OR_OPEN() is deprecated at /home/mexon/system/Linux//lib/perl5/site_perl/5.8.8/IkiWiki/Plugin/search.pm line 220.
+Can't locate auto/Search/Xapian/DB_CREATE_O.al in @INC (@INC contains: /home/mat/.ikiwiki /home/mexon/system/Linux//lib/perl5/site_perl/5.8.8/i386-linux-thread-multi /home/mexon/system/Linux//lib/perl5/site_perl/5.8.8 /home/mexon/system/perl5lib /usr/lib/perl5/site_perl/5.8.8/i386-linux-thread-multi /usr/lib/perl5/site_perl/5.8.8 /usr/lib/perl5/site_perl /usr/lib/perl5/vendor_perl/5.8.8/i386-linux-thread-multi /usr/lib/perl5/vendor_perl/5.8.8 /usr/lib/perl5/vendor_perl /usr/lib/perl5/5.8.8/i386-linux-thread-multi /usr/lib/perl5/5.8.8 .) at /home/mexon/system/Linux//lib/perl5/site_perl/5.8.8/IkiWiki/Plugin/search.pm line 220
+</pre>
+
+Much fruitless googling later I found that there were these 1.2.5 RPMs lying around so I switched to those.  If you know a solution to the DB_CREATE_O problem I could give 1.2.7 another go.
+"""]]

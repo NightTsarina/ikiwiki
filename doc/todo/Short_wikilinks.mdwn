@@ -1,0 +1,104 @@
+Markdown supports nice short links to external sites within body text by
+references defined elsewhere in the source:
+
+        foo [bar][ref]
+
+        [ref]: http://example.invalid/
+
+It would be nice to be able to do this or something like this for wikilinks
+as well, so that you can have long page names without the links cluttering
+the body text. I think the best way to do this would be to move wikilink
+resolving after HTML generation: parse the HTML with a proper HTML parser,
+and replace relative links with links to the proper files (plus something
+extra for missing pages).
+
+> That's difficult to do and have resonable speed as well. Ikiwiki needs to
+> know all about all the links between pages before it can know what pages
+> it needs to build to it can update backlink lists, update links to point
+> to new/moved pages etc. Currently it accomplishes this by a first pass
+> that scans new and changed files, and quickly finds all the wikilinks
+> using a simple regexp. If it had to render the whole page before it was
+> able to scan for hrefs using a html parser, this would make it at least
+> twice as slow, or would require it to cache all the rendered pages in
+> memory to avoid re-rendering. I don't want ikiwiki to be slow or use
+> excessive amounts of memory. YMMV. --[[Joey]]
+
+>> Or you could disk cache the incomplete page containing only the body text,
+>> which should often not need re-rendering, as most alterations consist of
+>> changing the link targets exactly, and we can know pages that exist before
+>> rendering a single page. Then after backlinks have been resolved, it would
+>> suffice to feed this body text from the cache file to the template. However, e.g.
+>> the inline plugin would demand extra rendering after the depended-upon pages
+>> have been rendered, but these pages should usually not be that frequent, or
+>> contain that many other pages in full. (And for 'archive' pages we don't need
+>> to remember that much information from the semi-inlined pages.) It would help
+>> if you could get data structures instead of HTML text from the HTMLizer, and
+>> then simply cache these data structures in some quickly-loadeble form (that
+>> I suppose perl itself has support for). Regexp hacks are so ugly compared
+>> to actually parsing a properly-defined syntax...
+
+A related possibility would be to move a lot of "preprocessing" after HTML
+generation as well (thus avoiding some conflicts with the htmlifier), by
+using special tags for the preprocessor stuff. (The old preprocessor could
+simply replace links and directives with appropriate tags, that the
+htmlifier is supposed to let through as-is. Possibly the htmlifier plugin
+could configure the format.)
+
+> Or using postprocessing, though there are problems with that too and it
+> doesn't solve the link scanning issue.
+
+Other alternatives would be
+
+  * to understand the source format, but this seems too much work with all the supported formats; or
+
+  * something like the shortcut plugin for external links, with additional
+    support for specifying the link text, but the syntax would be much more
+    cumbersome then.
+
+> I agree that a plugin would probably be more cumbersome, but it is very
+> doable. It might look something like this:
+
+	\[[!link bar]]
+
+	\[[!link bar=VeryLongPageName]]
+
+>> This is, however, still missing specifying the link text, and adding that option would seem to me to complicate the plugin syntax a lot, unless support is added for the |-syntax for specifying a particular parameter to every plugin.
+
+>>> Well, the link text in my example above is "bar". It's true that if
+>>> you want to use the same link text for multiple distinct links, or
+>>> different link texts for the same link, this is missing a useful layer of
+>>> indirection; it's optimised for the (probably) more common case. It
+>>> could be done as a degenerate form of the syntax I propose below, BTW.
+>>> --[[Joey]]
+
+>> ... Returning to this, the syntax infact wouldn't be so bad with the |-syntax, given a short name for the plugin:
+
+       [[whatever|ref 1]]
+       \[[!ref 1=page_with_long_name]]
+
+>>> A way to do this that doesn't need hacking at the preprocessor syntax
+>>> follows: --[[Joey]]
+
+	\[[!link bar=1]]
+	\[[!dest 1=page_with_long_name]]
+
+>>>> But this doesn't work so well for links that aren't valid keys. Such
+>>>> as stuff with spaces in it. I'd like to be able to write any kind of
+>>>> links conveniently, not just something that looks like a wikilink.
+
+>>>>> You're right, and to fix that it could be turned around: --[[Joey]]
+
+	\[[!link 1=bar]]
+	\[[!dest 1=page_with_long_name]]
+
+>> It also shouldn't be difficult to support non-wiki links in this same
+>> way, so that you could still link everywhere in an uniform manner, as
+>> the (still preferred by me) HTML processing approach would provide.
+>> Perhaps a plugin call wouldn't even be necessary for the links
+>> themselves: what about aliases for the normal link mechanism? Although
+>> the 'ref' call may infact be cleaner, and adding that |-syntax for
+>> plugins could offer other possibilities for other plugins.
+
+>>> I agree, it should be easy to make it support non-wiki links too.
+>>> We seem to have converged at something we can both live with that's
+>>> reasonable to implement.. --[[Joey]]

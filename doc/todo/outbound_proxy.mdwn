@@ -1,0 +1,57 @@
+[[!template id=gitbranch branch=schmonz/proxy author="[[schmonz]]"]]
+[[!tag patch]]
+
+## Background
+
+Ikiwiki has several plugins that open outbound connections:
+
+* [[plugins/aggregate]]
+* [[plugins/openid]]
+* [[plugins/pinger]]
+
+In some networks it is desired (or necessary) for these connections
+to traverse a proxy. Proxies are usually configured via environment
+variables, so for ikiwiki it is probably not desirable (or necessary)
+to manage proxy configuration via new purpose-specific settings in
+the setup file; `ENV` ought to suffice.
+
+[[!cpan LWP::UserAgent]] by default doesn't care about the usual
+environment variables, but if its constructor is passed a true
+`env_proxy` value, it does. Then environment settings such as these
+influence the agent, as expected:
+
+    ENV:
+      http_proxy: 'http://foo.internal:8080'
+      no_proxy: 'localhost,.bar.internal'
+
+If the proxy and/or destination requires authentication, it may
+also be necessary to prime `cookiejar`.
+
+## Changes
+
+This patch causes ikiwiki's `LWP::UserAgent` instances to:
+
+* honor proxy configuration in the environment
+* consistently make use of cookies configured in the setup file
+
+## Limitations
+
+The patch lets me configure [[plugins/aggregate]] to traverse my
+corporate proxy and to skip the proxy for internal hosts. I haven't
+tested it with the other two plugins, both of which prefer [[!cpan
+LWPx::ParanoidAgent]] if present, which deliberately lacks proxy
+support. There exists [[!cpan LWP::UserAgent::Paranoid]] claiming
+to be more modern, but I haven't looked at it further, so I don't
+know whether its paranoia measures up or whether it supports proxies.
+
+## See also
+
+* [[bugs/http_proxy_for_openid]]
+* [[forum/Setting_http__95__proxy]]
+
+> This looks fine, but you forgot to move the config entry for cookiejar
+> from aggregate to the config setting list in IkiWiki.pm --[[Joey]] 
+
+>> Indeed, fixed. --[[schmonz]]
+
+>>> [[merged|done]] --[[Joey]] 

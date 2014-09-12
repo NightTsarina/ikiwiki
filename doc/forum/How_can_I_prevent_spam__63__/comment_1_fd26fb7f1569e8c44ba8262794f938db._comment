@@ -1,0 +1,19 @@
+[[!comment format=mdwn
+ username="http://joeyh.name/"
+ nickname="joey"
+ subject="comment 1"
+ date="2013-05-17T17:55:46Z"
+ content="""
+Normally ikiwiki requires a valid session cookie of a logged in user to edit pages. It sounds like you may have the opendiscussion or anonok plugins enabled, which allows anyone to edit without logging in. Recommend disabling them.
+
+Since you know the spammer's IP, put it into ikiwiki.setup:
+
+<pre>
+banned_users:
+  - ip(85.25.146.11)
+</pre>
+
+If the user was logging in, you could also put their username in the ban list.
+
+You can also try enabling the blogspam plugin.
+"""]]

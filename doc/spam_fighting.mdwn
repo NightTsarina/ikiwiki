@@ -1,0 +1,35 @@
+ikiwiki.info is occasionally attacked by persistent spammers who keep
+making changes. Anyone can revert spam changes, and several people do.
+
+If you find a spammer, and revert their spam, please post a link to the
+spam commit here. After review, these can be used to ban spammers by login,
+or for the really persistent ones, by IP (or even IP range).
+
+If you're a trusted member of the ikiwiki community and would like access
+to the setup branch in git to be able to update the ban list, get in touch
+with joey with a ssh public key. Once your key is added, you will be able
+to edit the ikiwiki.setup file on the setup branch, and push changes.
+You will also be able to access the recent web server logs to find IP
+addresses from recent web edits, by running:
+
+    ssh b-ikiwiki@ikiwiki.info logdump | grep 'GET .*\?updated HTTP\/' > access.log
+
+## Spam commits
+
+[[!table data="""
+Commit  | Date       | Login     | IP
+854588d | 2013/08/15 | webschen1 | 79.228.6.28
+d8f1faa | 2013/08/16 | webschen1 | 79.228.11.79
+d1dbd8e | 2013/08/19 | webschen1 | 79.228.8.176
+6602052 | 2013/08/21 | webschen1 | 31.17.11.19
+d93a948 | 2013/09/05 | soman81   | 31.17.11.19
+568fdb0 | 2013/09/05 | soman81   | 31.17.11.19
+d759052 | 2013/09/08 | spain1001 | 80.187.106.2
+24a1c62 | 2013/09/15 | spain1001 | 80.187.106.136
+cba01c2 | 2013/09/15 | spain1001 | 80.187.106.136
+702a3e5 | 2014/01/02 | Toni      | 124.105.173.121
+c2924ce | 2014/01/02 | domtheo9110 | 182.253.51.174
+cd81b9f | 2014/01/03 | domtheo9110 | ?
+e3376ce | 2014/08/19 | Nng_L (OpenID) | 58.186.127.104
+104c606 | 2014/08/19 | tlevine (OpenID) | 82.153.13.48
+"""]]

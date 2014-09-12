@@ -1,0 +1,17 @@
+[[!template id=plugin name=todo author="Joël Porquet"]]
+[[!tag type/widget]]
+
+This plugin provides the todo [[ikiwiki/directive]], which enables a page to be marked as a todo page. Additionally a deadline date can be provided.
+
+An example of a page marked as todo could be:
+
+    \[[!todo deadline="3 April 1982"]]
+    # Title of what should be done for April 3, 1982
+    blabla
+
+This plugin also provides ways to display pages marked as todo, and can even sort those pages by deadline dates:
+
+    \[[!inline pages="* and todo() and !todo(done)" archive="yes" sort="todo(deadline)"]]
+
+The full documentation and source code can be found here:
+<https://joel.porquet.org/wiki/hacking/ikiwiki_todo/>

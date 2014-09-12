@@ -1,0 +1,231 @@
+Recently I've wanted to colour some piece of text on my Ikiwiki page.
+It seems that Markdown can do it only using HTML tags, so I used
+`<span class="color">foo bar baz</span>`.
+
+However, in my opinion mixing Markdown syntax and HTML tags is rather ugly,
+so maybe we should create a new color plugin to add more color to Ikiwiki ;)
+I know that another Wikis have similar plugin, for example
+[WikiDot](http://www.wikidot.com/).
+
+I've noticed that htmlscrubber plugin strips `style` attribute, because of
+security, so probably we need to use `class` attribute of HTML. But then
+we have to customize our `local.css` file to add all color we want to use.
+It's not as easy in usage like color name or definition as plugin argument,
+but I don't have a better idea right now.
+
+What do you think about it? --[[Paweł|ptecza]]
+
+> Making a plugin preserve style attributes can be done, it just has to add
+> them after the sanitize step, which strips them. The general method is
+> adding placeholders first, and replacing them with the real html later.
+> 
+> The hard thing to me seems to be finding a syntax that is better than a
+> `<span>`. A preprocessor directive is not really any less ugly than html
+> tags, though at least it could play nicely with nested markdown: --[[Joey]]
+> 
+>	\[[!color red,green """
+>	Xmas-colored markdown here
+>	"""]]
+
+>> I'm glad you like that idea. In my opinion your syntax looks good.
+>> Out of curiosity, why did you used 2 colors in your example? What is HTML
+>> result for it? ;)
+
+>>> I was thinking one would be foreground, the other background. Don't
+>>> know if setting the background makes sense or not.
+
+>> I can try to create that plugin, if you are too busy now. I'm not Perl
+>> hacker, but I wrote a lot of Perl scripts in my life and color plugin
+>> doesn't seem to be very hard task. --[[Paweł|ptecza]]
+
+>> Yes, it's a good intro plugin, have at it! --[[Joey]]
+
+---
+
+This is a RC1 of my `color` plugin. It works for me well, but all your
+comments are very welcome. --[[Paweł|ptecza]]
+
+> Sure, I have a couple.
+
+>> Great! Thank you very much! --[[Paweł|ptecza]]
+
+> The preprocess function is passed named parameters. The hack you have of
+> hardcoding use of `$_[0]` and `$_[2]` can fail at any time.
+
+>> But the problem is that arguments of my plugin don't have a name.
+>> How can I identify them in `params` hash?
+
+>> Similar hardcoded method I've found in `img` plugin :) But only one
+>> argument is not named there (image path).
+
+>>> I think I hadn't realized what you were doing there. The order
+>>> for unnamed parameters can in fact be relied on. 
+>>> 
+>>> --[[Joey]]
+
+>> Maybe I shouldn't use so simple plugin syntax? For following syntax
+>> I wouldn't have that problem:
+
+>>     \[[!color fg=white bg=red text="White text on red background"]]
+
+> `replace_preserved_style` is passed a single parameter, so its prototype
+> should be `($)`, not `(@)`.  Ditt `preserve_style`, it should have
+> `($$)`.
+
+>> OK, it will be fixed.
+
+> The sanitize hook is always passed `$params{content}`, so there should be
+> no reason to check that it exists. Also, it shouldn't be done in a
+> sanitize hook, since html sanitization could run _after_ that santize
+> hook. It should use a format hook.
+
+>> Probably you're right. It was rather paranoid checking ;) Thanks for
+>> the hook hint!
+
+> The preprocess hook needs to call `IkiWiki::preprocess` on the content
+> passed into it if you want to support nesting other preprocessor
+> directives inside the color directive. See `preprocess_toggleable` in the
+> toggle plugin, for example.
+> 
+> I'm not a big fan of the dummy text `COLORS { ... } SROLOC;TEXT { ... TXET }`
+> The method used by toggle of using two real `<div>`s seems slightly
+> better. --[[Joey]]
+
+>> I don't like that too, but I didn't have better idea :) Thank you for
+>> the hint! I'll take a look at `toggle` plugin.
+
+---
+
+And here is RC2 of that plugin. I've changed a plugin syntax, because the old
+seems to be too enigmatic and it was hard to me to handle unnamed parameters
+in not hardcoded way. I hope that my changes are acceptable for you.
+Of course, I'm open for discussion or exchange of ideas :) --[[Paweł|ptecza]]
+
+> One question, why the 2px padding for span.color? --[[Joey]]
+
+>> Sorry for a long silence, but I had Internet free summer holiday :)
+>> I did that, because backgrounded text without any padding looks
+>> strange for me ;) You can remove it if you don't like that padding.
+>> --[[Paweł|ptecza]]
+
+>>> Joey, will you add that plugin to Ikiwiki 2.61? :) --[[Paweł|ptecza]]
+
+>>>> I also had a long net-free summer holiday. :-) The [[patch]] is
+>>>> ready for integration (made a few minor changes). Is this GPL 2?
+>>>> --[[Joey]]
+
+>>>>> No problem. I guessed it, because I've not seen your commits
+>>>>> at [[RecentChanges]] page in last days and I subscribe your
+>>>>> [blog](http://kitenet.net/~joey/blog/entry/vacation/) :D
+>>>>> It's GPL-2+ like your Ikiwiki and the most external plugins.
+>>>>> --[[Paweł|ptecza]]
+
+	--- /dev/null	2008-06-21 02:02:15.000000000 +0200
+	+++ color.pm	2008-07-27 14:58:12.000000000 +0200
+	@@ -0,0 +1,69 @@
+	+#!/usr/bin/perl
+	+# Ikiwiki text colouring plugin
+	+# Paweł‚ Tęcza <ptecza@net.icm.edu.pl>
+	+package IkiWiki::Plugin::color;
+	+
+	+use warnings;
+	+use strict;
+	+use IkiWiki 2.00;
+	+
+	+sub import {
+	+	hook(type => "preprocess", id => "color", call => \&preprocess);
+	+	hook(type => "format",     id => "color", call => \&format);
+	+}
+	+
+	+sub preserve_style ($$$) {
+	+	my $foreground = shift;
+	+	my $background = shift;
+	+	my $text       = shift;
+	+
+	+	$foreground = defined $foreground ? lc($foreground) : '';
+	+	$background = defined $background ? lc($background) : '';
+	+	$text       = '' unless (defined $text);
+	+
+	+	# Validate colors. Only color name or color code are valid.
+	+	$foreground = '' unless ($foreground &&
+	+				($foreground =~ /^[a-z]+$/ || $foreground =~ /^#[0-9a-f]{3,6}$/));
+	+	$background = '' unless ($background &&
+	+				($background =~ /^[a-z]+$/ || $background =~ /^#[0-9a-f]{3,6}$/));
+	+
+	+	my $preserved = '';
+	+	$preserved .= '<span class="color">';
+	+	$preserved .= 'color: '.$foreground if ($foreground);
+	+	$preserved .= '; ' if ($foreground && $background);
+	+	$preserved .= 'background-color: '.$background if ($background);
+	+	$preserved .= '</span>';
+	+	$preserved .= '<span class="colorend">'.$text.'</span>';
+	+	
+	+	return $preserved;
+	+
+	+}
+	+
+	+sub replace_preserved_style ($) {
+	+	my $content = shift;
+	+
+	+	$content =~ s!<span class="color">((color: ([a-z]+|\#[0-9a-f]{3,6})?)?((; )?(background-color: ([a-z]+|\#[0-9a-f]{3,6})?)?)?)</span>!<span class="color" style="$1">!g;
+	+	$content =~ s!<span class="colorend">!!g;
+	+
+	+	return $content;
+	+}
+	+
+	+sub preprocess (@) {
+	+	my %params = @_;
+	+
+	+	# Preprocess the text to expand any preprocessor directives
+	+	# embedded inside it.
+	+	$params{text} = IkiWiki::preprocess($params{page}, $params{destpage},
+	+				IkiWiki::filter($params{page}, $params{destpage}, $params{text}));
+	+
+	+	return preserve_style($params{foreground}, $params{background}, $params{text});
+	+}
+	+
+	+sub format (@) {
+	+	my %params = @_;
+	+
+	+	$params{content} = replace_preserved_style($params{content});
+	+	return $params{content};	
+	+}
+	+
+	+1
+	--- /dev/null	2008-06-21 02:02:15.000000000 +0200
+	+++ color.mdwn	2008-07-27 15:04:42.000000000 +0200
+	@@ -0,0 +1,25 @@
+	+\[[!template id=plugin name=color core=0 author="[[ptecza]]"]]
+	+
+	+This plugin can be used to color a piece of text on a page.
+	+It can be used to set the foreground and/or background color of the text.
+	+
+	+You can use a color name (e.g. `white`) or HTML code (e.g. `#ffffff`)
+	+to define colors. 
+	+
+	+Below are a few examples:
+	+
+	+    \[[!color foreground=white background=#ff0000 text="White text on red background"]]
+	+
+	+In the above example, the foreground color is defined as a word, while the background color is defined as a HTML
+	+color code.
+	+
+	+    \[[!color foreground=white text="White text on default color background"]]
+	+
+	+The background color is missing, so the text is displayed on default background.
+	+
+	+    \[[!color background=#ff0000 text="Default color text on red background"]]
+	+
+	+The foreground is missing, so the text has the default foreground color.
+	--- style.css-orig	2008-07-27 15:12:39.000000000 +0200
+	+++ style.css	2008-07-27 15:15:06.000000000 +0200
+	@@ -333,3 +333,7 @@
+	 	background: #eee; 
+	 	color: black !important;
+	 }
+	+
+	+span.color {
+	+	padding: 2px;
+	+}
+
+[[done]]

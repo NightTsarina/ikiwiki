@@ -1,0 +1,56 @@
+The default searchform.tmpl looks rather bare and unintuitive with just an input field.
+
+The patch below adds a label for the field to improve usability:
+
+    --- templates/searchform.tmpl.orig	Fri Jun 15 15:02:34 2007
+    +++ templates/searchform.tmpl	Fri Jun 15 15:02:41 2007
+    @@ -1,5 +1,6 @@
+     <form method="get" action="<TMPL_VAR SEARCHACTION>" id="searchform">
+     <div>
+    +<label for="phrase">Search:</label>
+     <input type="text" name="phrase" value="" size="16" />
+     <input type="hidden" name="enc" value="UTF-8" />
+     <input type="hidden" name="do" value="hyperestraier" />
+
+> I don't do this by default because putting in the label feels to me make
+> the action bar too wide. YMMV. What I'd really like to do is make the
+> _content_ of the search field say "search". You see that on some other
+> sites, but so far the only way I've seen to do it is by inserting a
+> nasty lump of javascript. --[[Joey]]
+
+>> Please don't do that, it is a bad idea on so many levels :) See e.g. 
+>> <http://universalusability.com/access_by_design/forms/auto.html> for
+>> an explanation why. --[[HenrikBrixAndersen]]
+
+>>> If you really want to do this, this is one way:
+
+    --- searchform.tmpl.orig        Sat Aug 25 11:54:28 2007
+    +++ searchform.tmpl     Sat Aug 25 11:56:19 2007
+    @@ -1,6 +1,6 @@
+     <form method="get" action="<TMPL_VAR SEARCHACTION>" id="searchform">
+     <div>
+    -<input type="text" name="phrase" value="" size="16" />
+    +<input type="text" name="phrase" value="Search" size="16" onfocus="this.value=''" />
+     <input type="hidden" name="enc" value="UTF-8" />
+     <input type="hidden" name="do" value="hyperestraier" />
+     </div>
+
+> That's both nasty javascript and fails if javascript is disabled. :-)
+> What I'd really like is a proper search label that appears above the
+> input box. There is free whitespace there, except for pages with very
+> long titles. Would someone like to figure out the CSS to make that
+> happen?
+> 
+> The tricky thing is that the actual html for the form needs to
+> still come after the page title, not before it. Because the first thing
+> a non-css browser should show is the page title. But the only way I know
+> to get it to appear higher up is to put it first, or to use Evil absolute
+> positioning. (CSS sucks.) --[[Joey]]
+
+> Update: html5 allows just adding `placeholder="Search"` to the input
+> element. already works in eg, chromium. However, ikiwiki does not use
+> html5 yet. --[[Joey]] 
+
+>> [[Done]], placeholder added, in html5 mode only.
+
+[[!tag wishlist bugs/html5_support]]

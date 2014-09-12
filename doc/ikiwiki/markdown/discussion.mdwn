@@ -1,0 +1,48 @@
+There is an ongoing [effort to standardise Markdown][sm]; I think it would be nice to check whether this implementation is compliant with it.
+
+[sm]: http://standardmarkdown.com/
+
+http://standardmarkdown.com/
+
+> IkiWiki's [[plugins/mdwn]] plugin does not contain an implementation
+> of Markdown: it relies on external libraries. It can currently use
+> any of these, most-preferred first:
+>
+> * [[!cpan Text::MultiMarkdown]], only if explicitly requested via
+>   `$config{multimarkdown}`
+> * [[!cpan Text::Markdown::Discount]], if not explicitly disabled
+>   via `$config{nodiscount}`
+> * [[!cpan Text::Markdown]]
+> * [[!cpan Markdown]]
+> * `/usr/bin/markdown`
+>
+> In practice, Discount is the implementation pulled in by the
+> Debian package dependencies, and (I suspect) the most
+> commonly used with IkiWiki.
+>
+> If the selected external library (whatever it happens to be)
+> complies with a particular interpretation of Markdown, then
+> IkiWiki will too. If not, it won't. The only influence
+> IkiWiki has over its level of compliance with a particular
+> interpretation is in how we choose which external library
+> we prefer.
+>
+> As such, if you want IkiWiki to change its interpretation of
+> Markdown, the way to do that is to either change Discount's
+> interpretation of Markdown, or contribute a patch to make
+> `mdwn.pm` prefer a different (and presumably "more compliant")
+> Markdown implementation.
+>
+> IkiWiki has one syntax extension beyond Markdown, which is
+> that text enclosed in double-square-brackets is an IkiWiki
+> [[ikiwiki/wikilink]] or [[ikiwiki/directive]]. This applies
+> to any markup language used with IkiWiki, not just Markdown.
+>
+> (There also doesn't seem to be any consensus that labelling
+> any particular fork of Markdown as "standard" can make it the 
+> truth, or that this particular fork is the Correct™ fork and not
+> just <https://xkcd.com/927/>; but that's between the authors of
+> Markdown implementations and those who want to standardize
+> Markdown, and it isn't IkiWiki's job to police that.)
+>
+> --[[smcv]]

@@ -1,0 +1,35 @@
+[[!template id=plugin name=postal author="[[DavidBremner]]"]]
+[[!tag type/special-purpose]]
+
+The `postal` plugin allows users to send mail to
+a special address to comment on a page. It uses the [[mailbox]]
+plugin to display their comments in the wiki.
+
+This plugin is not in ikiwiki yet, but can be downloaded
+from <http://pivot.cs.unb.ca/git/ikipostal.git>
+
+Details:
+
+  * Adds a mailto: url to each page matching some pagespec
+    (currently every page gets a comment footer)
+
+  * This mailto url goes to an address identifying the page  (something like
+    user-iki-blog~I\_hate\_markdown@host.fqdn.tld).
+    [more details](http://www.cs.unb.ca/~bremner/blog/posts/encoding)         
+   
+  * on the mail receiving end, these messages are either deleted, or ran through
+    a filter to be turned into blog posts.   I have
+[written](http://pivot.cs.unb.ca/git/?p=ikipostal.git;a=blob_plain;f=filters/postal-accept.pl;hb=HEAD)
+  a filter that decodes the address and writes the message into an appropriate 
+mailbox. The changes are then checked into version control; typically a hook then updates the html version of the wiki.
+  * work in progress can be 
+
+   - [cloned](http://pivot.cs.unb.ca/git/ikipostal.git), or 
+   - [browsed](http://pivot.cs.unb.ca/git/?p=ikipostal.git;a=summary)
+  
+ * I would be interested in any ideas people have about security.
+
+The current version of this plugin is now running on my home page. See for example
+[a recent post in my blog](http://www.cs.unb.ca/~bremner/blog/posts/can-i-haz-a-distributed-rss/).  
+Unfortunately although the [[mailbox|todo/mbox]] renderer supports threading, I haven't had 
+a chance to implement comments on comments yet. --[[DavidBremner]]

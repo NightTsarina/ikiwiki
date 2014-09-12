@@ -1,0 +1,20 @@
+[[!template id=plugin name=teximg author="[[PatrickWinnertz]]"]]
+[[!tag type/widget type/slow]]
+
+This plugin provides a [[ikiwiki/directive/teximg]] [[ikiwiki/directive]],
+that renders LaTeX formulas into images.
+
+You will need LaTeX installed for this to work, specifically something
+providing `latex` in the path. You will also need either `dvipng` or a
+combination of `dvips` and `convert` from ImageMagick/GraphicsMagick.
+
+On Debian systems, the relevant package names are `texlive-latex-base`
+and either `dvipng` or `graphicsmagick-imagemagick-compat`.
+
+## configuration
+
+There are several configuration directives that can be used in the setup
+file. `teximg_prefix` can be set to change the LaTeX preamble, and
+`teximg_postfix` to change the LaTeX postfix. The `teximg_dvipng` setting
+can be set to 0 to disable use of `dvipng`, and instead force use of `dvips`
+and `convert`.

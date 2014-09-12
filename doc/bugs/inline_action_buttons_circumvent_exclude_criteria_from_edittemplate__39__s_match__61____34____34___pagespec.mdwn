@@ -1,0 +1,15 @@
+ikiwiki verison: 3.20100815.2
+
+If I instruct editemplate to only match the top level pages in a directory using 
+
+    match="foo/* and !foo/*/* and !foo/*/*/*"
+
+everything works as expected for pages created via links on other wiki pages. So, if I open foo/bar (or any other page on the wiki) and create a link to foo/bar/bug, edittemplate appropriately does not insert any text into the new page. 
+
+However, if I use an inline directive like the following 
+
+    !inline pages="page(foo/bar/*)" rootpage="foo/bar" postform=yes actions=yes
+
+every page created via the action buttons incorrectly pulls in the text from the edittemplate registration. Changing the order of the conditions in the match="" pagespec has no impact. 
+
+> [[fixed|done]] --[[Joey]] 

@@ -1,0 +1,78 @@
+The remove plugin cannot remove [[todo/transient_pages]].
+
+> this turns out to be harder than
+> I'd hoped, because I don't want to introduce a vulnerability in the
+> non-regular-file detection, so I'd rather defer that. --[[smcv]]
+
+This is particularly a problem for tag pages, and autoindex
+created pages. So both plugins default to not creating transient
+pages, until this is fixed.  --[[Joey]] 
+
+> I'll try to work out which of the checks are required for security
+> and which are just nice-to-have, but I'd appreciate any pointers
+> you could give. --[[smcv]]
+
+>> I assume by "non-regular file", you are referring to the check
+>> in remove that the file "Must exist on disk, and be a regular file" ?
+>> --[[Joey]] 
+
+>>> Yes. It's not entirely clear to me why that's there... --s
+
+>>>> Yeah, 2461ce0de6231bfeea4d98c86806cdbb85683297 doesn't really
+>>>> say, and I tend to assume that when I've written paranoid code
+>>>> it's there for a reason. I think that here the concern was that
+>>>> the file might be in some underlay that the user should not be able
+>>>> to affect by web edits. The `-f` check seems rather redundant,
+>>>> surely if it's in `%pagesources` ikiwiki has already verified it's
+>>>> safe. --[[Joey]] 
+
+----
+
+[[!template id=gitbranch branch=smcv/ready/transient-rm author="[[Simon McVittie|smcv]]"]]
+
+Here's a branch. It special-cases the `$transientdir`, but in such a way
+that the special case could easily be extended to other locations where
+deletion should be allowed.
+
+It also changes `IkiWiki::prune()` to optionally stop pruning empty
+parent directories at the point where you'd expect it to (for instance,
+previously it would remove the `$transientdir` itself, if it turns out
+to be empty), and updates callers.
+
+The new `prune` API looks like this:
+
+    IkiWiki::prune("$config{srcdir}/$file", $config{srcdir});
+
+with the second argument optional. I wonder whether it ought to look
+more like `writefile`:
+
+    IkiWiki::prune($config{srcdir}, $file);
+
+although that would be either an incompatible change to internal API
+(forcing all callers to update to 2-argument), or being a bit
+inconsistent between the one-and two-argument forms. Thoughts?
+
+--[[smcv]]
+
+> I've applied the branch as-is, so this bug is [[done]].
+> `prune` is not an exported API so changing it would be ok.. 
+> I think required 2-argument would be better, but have not checked
+> all the call sites to see if the `$file` is available split out
+> as that would need. --[[Joey]] 
+
+[[!template id=gitbranch branch=smcv/ready/prune author="[[Simon McVittie|smcv]]"]]
+
+>> Try this, then? I had to make some changes to `attachment`
+>> to make the split versions available. I suggest reviewing
+>> patch-by-patch.
+
+>>> Branch updated; I'd missed a use of prune in ikiwiki.in itself.
+>>> Unfortunately, this means it does still need to support the
+>>> "undefined top directory" case: there isn't an obvious top
+>>> directory for wrappers. --[[smcv]]
+
+>> I also tried to fix a related bug which I found while testing it:
+>> the special case for renaming held attachments didn't seem to work.
+>> (`smcv/wip/rename-held`.) Unfortunately, it seems that with that
+>> change, the held attachment is committed to the `srcdir` when you
+>> rename it, which doesn't seem to be the intention either? --[[smcv]]

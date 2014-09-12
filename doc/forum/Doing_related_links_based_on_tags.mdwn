@@ -1,0 +1,31 @@
+I've been recently using a template this
+
+    ----
+    Related posts:
+
+    \[[!inline pages="blog/posts/*
+            and !blog/posts/*/*
+            and !Discussion
+            and !tagged(draft)
+            and <TMPL_VAR raw_tagged>"
+            archive="yes"
+            quick="yes"
+            show="5"]]
+
+Which I then call by doing this at the end of my blog posts on my
+ikiwiki install
+
+    \[[!tag software linux]]
+    \[[!template id=related tagged="tagged(software) or tagged(linux)"]]
+
+It somewhat works, I was wondering if anyone else has tried to do
+something like the above to get "related posts" based on tags. The way
+that I have done it isn't very clever as it only links to the last 5
+most recently posted items based on my parameters. Is it possible to
+"randomly" select a bunch of links from a set of user defined
+pagespecs?
+
+I know that the [[backlinks]] plugin exists for this sort of stuff
+(related links), it just lacks some user configuration options.
+
+> I guess what you need is an extension to [[ikiwiki/pagespec/sorting]] to support "random" as a sort method.  Remember though, that the chosen few would only change when the page was regenerated, not on every page view. -- [[Jon]]

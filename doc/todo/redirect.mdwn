@@ -1,0 +1,53 @@
+I suppose this isn't technically a bug, but whetever.
+
+I want symbolic links to be rendered as HTTP redirects. For example,
+if we do this,
+
+    touch foo.mkdwn
+    ln -s foo.mkdwn bar.mkdwn
+    git push baz.branchable.com
+
+then the following command should print 302
+
+    curl -o /dev/null -s -w "%{http_code}" http://baz.thomaslevine.com/bar/
+
+> An interesting idea, but it conflicts somewhat with wanting symlinks to be
+> treated as the referenced file when it's safe to do so, which would be
+> great for [[todo/git-annex support]], and also good to avoid duplication
+> for files in system-wide underlays.
+>
+> Also, I don't think this is possible without help from the web server
+> configuration: for instance, under Apache, I believe the only way to get
+> an HTTP 302 redirect is via Apache-specific `.htaccess` files or
+> system-level Apache configuration.
+>
+> In current ikiwiki, you can get a broadly similar effect by either
+> using \[[!meta redir=foo]] (which does a HTML `<meta>` redirect)
+> or reconfiguring the web server. --[[smcv]]
+
+>> The CGI spec (http://www.ietf.org/rfc/rfc3875) says that a CGI can cause a redirect by returning a Location: header.
+>> So it's possible; desirable (due to your point about conflicting with git-annex support) is a different matter.
+
+>>> One of the major things that separates ikiwiki from other wiki software
+>>> is that ikiwiki is a wiki compiler: ordinary page-views are purely
+>>> static HTML, and the CGI only gets involved when you do something
+>>> that really has to be dynamic (like an edit).
+>>>
+>>> However, there is no server-independent static content that ikiwiki
+>>> could write out to the destdir that would result in that redirect.
+>>>
+>>> If you're OK with requiring the [[plugins/404]] plugin (and a
+>>> web server where it works, which I think still means Apache) then
+>>> it would be possible to write a plugin that detected symlinks,
+>>> stored them in the `%wikistate`, and used them to make the
+>>> [[plugins/404]] plugin (or its own hook similar to the one
+>>> in that plugin) do a 302 redirect instead of a 404.
+>>> Similarly, a plugin that assumed a suitable Apache
+>>> configuration with fairly broad `AllowOverrides`,
+>>> and wrote out `.htaccess` files, would be a feasible thing
+>>> for someone to write.
+>>>
+>>> I don't think this is a bug; I think it's a request for a
+>>> feature that not everyone will want. The solution to those
+>>> is for someone who wants the feature to
+>>> [[write a plugin|plugins/write]]. --[[smcv]]

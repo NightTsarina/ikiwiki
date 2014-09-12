@@ -1,0 +1,85 @@
+First, thanks again for making this plugin.
+
+I don't know if this is a problem for [[plugins/attachment]], but there seems to
+be no way to detect text/plain using File::MimeInfo::Magic::magic().
+There is a heuristic ::default that decides between text/plain and application/octet-stream.  
+
+Would you be receptive to a patch that e.g. called File::MimeInfo::Magic::default()
+if ::magic() returns undef?  --[[DavidBremner]]
+
+> Yes, that looks to be ok. --[[Joey]]
+
+>> OK, here is such a patch. One modification of previous behaviour is that 
+>> that if default returns undef, this is returned. As far as I understand
+>> the code/doc for File::MimeInfo, under is used only as an error return
+>> for ::default
+
+>>> Applied
+
+---
+
+At first I need to thank you for ikiwiki - it is what I was always looking
+for - coming from a whole bunch of wiki engines, this is the most
+intelligent and least bloated one.
+
+My question is about the [[plugins/attachment]] plugin in conjunction with
+[[plugins/filecheck]]: I am using soundmanger2 js-library for having
+attached media files of all sorts played inline a page. 
+
+To achieve this soundmanager2 asks for an id inside a ul-tag surrounding
+the a-tag. I was wondering if the Insert Link button could be provided with
+a more elegant solution than to have this code snippet to be filled in by
+hand every time you use it to insert links for attached media files. And in
+fact there apparently is a way in attachment.pm. 
+
+While I can see that it is not needed for everyone inserting links to
+attached media files to have ul- and li-tags surrounding the link itself as
+well as being supplied with an id fill in, for me it would be the most
+straight forward solution. Pitty is I don't have the time to wrap my head
+around perl to write a patch myself.  Is there any way to have this made an
+option which can be called via templates?
+
+For sure I would like to donate for such a patch as well as I will do it
+for ikiwiki anyway, because it is such a fine application.
+
+If you are not familiar with soundmanager2: It is a very straight forward
+solution to inline mediafiles, using the usual flash as well as html5
+solutions (used by soundcloud.com, freesound.org and the like). Worth a
+look anyway [schillmania.com](http://www.schillmania.com/)
+
+Boris
+
+> The behavior of "Insert Links" is currently hardcoded to support images
+> and has a fallback for other files. What you want is a 
+> [[todo/generic_insert_links]] that can insert a template directive.
+> Then you could make a template that generates the html needed for
+> soundmanager2. I've written down a design at
+> [[todo/generic_insert_links]]; I am currently very busy and not sure
+> when I will get around to writing it, but with it on the todo list
+> I shouldn't forget. --[[Joey]] 
+> 
+> You could make a [[ikiwiki/directive/template]] for soundmanager2
+> now, and manually insert the template directive for now
+> when you want to embed a sound file. Something like this:
+
+	\[[!template id=embed_mp3 file=your.mp3]]
+
+> Then in templates/embed_mp3.mdwn, something vaguely like this:
+
+	<ul id="foo">
+	<a href="<TMPL_VAR FILE>">mp3</a>
+	</ul>
+
+>> Thanks a lot - looking forward to [[todo/generic_insert_links]] - I am using the [[ikiwiki/directive/template]] variant also adding a name vaiable, it looks like this and is working fine:
+
+        <ul class="playlist">
+        <li>
+        <a href="<TMPL_VAR FILE>"><TMPL_VAR NAME></a>
+        </li>
+        </ul>
+
+>> Calling it: 
+
+        \[[!template id=embedmedia.tmpl file=../Tinas_Gonna_Have_A_Baby.mp3 name="Tina's Gonna Have A Baby" ]]
+
+>> BTW your Flattr button doesn't seem to work properly - or it is Flattr itself that doesn't- clicking it won't let ikiwiki show up on my Dashboard.

@@ -1,0 +1,32 @@
+[[!tag wishlist]]
+
+I recently found [Hyphenator](http://code.google.com/p/hyphenator/) which is quite cool ... but it should be possible to implement this functionality within ikiwiki and not rely on javascript and the client.
+
+A Perl implementation of the algorithm exists in [[!cpan TeX::Hyphen]].
+
+> I'd be inclined to say that Javascript run in the client is a better
+> place to do hyphenation: this is the sort of non-essential,
+> progressive-enhancement thing that JS is perfect for. If you did it
+> at the server side, to cope with browser windows of different sizes
+> you'd have to serve HTML sprinkled with soft-hyphen entities at
+> every possible hyphenation point, like
+>
+>     pro&shy;gress&shy;ive en&shy;hance&shy;ment
+>
+> which is nearly twice the byte-count and might stop
+> search engines from indexing your site correctly.
+>
+> A browser that supports Javascript probably also supports
+> soft-hyphen marks, but I doubt all non-JS browsers support them
+> correctly.
+>
+> It might be good to have a plugin to insert a reference to the
+> hyphenation JS into the `<head>`, or a general way to enable
+> this sort of thing without writing a plugin or changing your
+> `page.tmpl`, though. Perhaps we should have a `local.js`
+> alongside `local.css`? :-)
+>
+> --[[smcv]]
+
+>> Thanks, I did not realize that the javascript does something else than add &amp;shy;s - took a closer look at it now.
+>> I doubt however that adding them will increase the byte count more than transmitting the javascript.

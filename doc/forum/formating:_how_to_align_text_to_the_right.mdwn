@@ -1,0 +1,52 @@
+As in title, how to align text to the right?
+
+> Add to your local.css a class that aligns text to the right:
+
+	.alignright { text-align: right; }
+
+> And then you just just use `<span class="alignright">` around
+> other html.
+> 
+> You can refine that, and allow right-aligning markdowned text
+> by using the [[ikiwiki/directive/template]]
+> directive, with a template that contains the html. The 
+> [[templates/note]] template does something similar. --[[Joey]]
+
+>> Thanks!
+
+-----
+<div class="notebox">
+[[!format mdwn """
+This is my text with [a markdown link](#).
+
+Here's a *second* paragraph.
+"""]]
+</div>
+
+> There is more than one way to do it. If [[plugins/format]] is enabled, then this:
+>
+>     <div class="notebox">
+>     \[[!format mdwn """
+>     This is my text with [a markdown link](#).
+>
+>     Here's a *second* paragraph.
+>     """]]
+>     </div>
+>
+> is rendered like the box in this page.
+>
+> (I'm using the `notebox` class used by the `note` template here, but you could
+> use any class.) --[[smcv]]
+
+-----
+> Doing this myself and noted that [[ikiwiki/markdown]] down does not allow the enclosure of block level elements directly; and thus we cannot switch the `span` suggested above for `div` in changing block level elements (not if you wish to include markdown, anyway).  For example, I want to create a paragraph (with markdown text) which is right aligned, and so add the following
+
+>>     <span class="right_align">
+>>     This is my text with [a markdown link](/)
+>>     </span>
+
+> The *correct* thing to do here is create a template (as indicated above) **but** a workaround I found useful was to over-ride the `inline` nature of the `span` element, as follows
+
+>>     .align_right { display: block ; text-align: right ; }
+
+> you may also like to remove the padding and margins since they will be provided by the enclosing block. -- fergus

@@ -1,0 +1,23 @@
+[[!template id=plugin name=transient author="[[Simon_McVittie|smcv]]" core=yes]]
+[[!tag type/special-purpose]]
+
+The `transient` plugin adds an underlay in `.ikiwiki/transient`, which is
+intended for pages that are automatically created and should not be committed
+to the [[RCS]]. It works in the same way as the [[basewiki]] and the underlays
+set up by the [[plugins/underlay]] plugin, so if a page in the transient
+underlay is edited via the web, the edited version is committed to the RCS
+as usual. Unlike other underlays, if a page in the transient underlay is
+superseded by an edited version in the RCS, the old transient version
+is deleted automatically.
+
+This plugin is mostly useful as something that other plugins can depend on:
+
+* [[plugins/aggregate]] writes aggregated posts into the transient underlay
+* [[plugins/autoindex]] can be configured to auto-create missing
+    pages that have a [[ikiwiki/subpage]] or an [[plugins/attachment]], but not
+    commit them, in which case they go in the transient underlay
+* [[plugins/comments]] writes comments pending moderation to the transient underlay
+* [[plugins/recentchanges]] writes new changes into the transient underlay
+* [[plugins/tag]] can be configured to auto-create missing
+    tag pages but not commit them, in which case they go in the transient
+    underlay

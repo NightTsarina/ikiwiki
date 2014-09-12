@@ -1,0 +1,70 @@
+[[!template  id=gitbranch branch=chrysn/more-proxy-utf8-fail author="[[chrysn]]"]]
+[[!template id=gitbranch author="[[chrysn]], [[smcv]]" branch=smcv/ready/more-proxy-utf8-fail
+  browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/more-proxy-utf8-fail]]
+
+the recently introduced fixes for [[crashes in the python proxy even if disabled]]
+caused the typical python2 implicit conversion failures ("'ascii' codec
+can't...") on my debian sid system -- to fix it, i had to revert commit 154c4ea9e.
+
+i did not dig down all the way to the xml / xmlrpc modules, but my impression
+is that some module changed its behavior between stable and sid and now
+generates `unicode` strings instead of `str`.
+
+a [[patch]] to allow both versions by inspecting the types and en-/decoding on
+demand should work both for anarcat's and my case. i did not test the python3
+version, but i'm pretty sure it was already broken after the abovementioned
+patch.
+
+-- [[chrysn]]
+
+> update 2014-06-29: the problem persists, but i found it is not trivial to
+> reproduce. to demonstrate, use this test plugin:
+>
+>     #!/usr/bin/env python
+>     # -*- coding: utf-8 -*-
+>     
+>     from proxy import IkiWikiProcedureProxy
+>     
+>     def preprocess(self, proxy, *args):
+>         return repr(self.rpc('pagetype', 'schön'))
+>     
+>     proxy = IkiWikiProcedureProxy(__name__)
+>     proxy.hook('preprocess', preprocess, id='testdirective')
+>     proxy.run()
+>
+> note that when the 'schön' is stored in a variable, the exception changes --
+> it seems to me that the issue is related to the way exceptions are encoded.
+>
+> the suggested patch still applies and solves the issue. --[[chrysn]]
+
+>> In this patch band:
+>>
+>>     -        xml = _IkiWikiExtPluginXMLRPCHandler._read(in_fd).decode('utf8')
+>>     +        response = _IkiWikiExtPluginXMLRPCHandler._read(in_fd)
+>>     +        if isinstance(response, unicode):
+>>     +            xml = response.encode('utf8')
+>>
+>> I think you mean `response.decode`, not `response.encode`.
+>>
+>> Other than that it looks good to me. I like the use of `repr` in debug
+>> messages. --[[smcv]]
+
+>>> afaict, encode is fine there -- the relevant methods in python2 are
+>>> `unicode.encode` which gives a `str`, and `str.decode` which usually gives
+>>> a `unicode`. (i'd happily ditch python2 and port all plugins to python3,
+>>> where this is all easier, but my [[todo/vCard rendering]] still uses an
+>>> ancient module.) --[[chrysn]]
+
+>>>> You were right about this, `encode` is appropriate to go from `unicode`
+>>>> to `str` under Python 2. However, Python 3 is still broken.
+>>>>
+>>>> My `ready/more-proxy-utf8-fail` branch, based on yours,
+>>>> [[fixes the `rst` test when run under Python 3|bugs/rst_plugin_hangs_when_used_with_Python_3]]
+>>>> and hopefully also fixes this one. Please check that it still
+>>>> fixes your test-case too.
+>>>>
+>>>> Joey, I think this is [[ready for merge|users/smcv/ready]] even if it
+>>>> doesn't fix chrysn's bug - it does fix Python 3 support
+>>>> in general. --[[smcv]]
+
+>>>>> [[merged|done]] --[[smcv]]

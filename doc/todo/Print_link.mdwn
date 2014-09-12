@@ -1,0 +1,73 @@
+I think that Print link to open popup window with printable
+HTML version of page is very useful thing, so I would like
+to have it in my ikiwiki :)
+
+Probably it's better to generate a page on the fly as a CGI
+(just the same like for RecentChanges page) when a user
+really needs it, instead to build static printable version
+for all ikiwiki pages. --[[Paweł|ptecza]]
+
+> I've always considered print links to be a sign of a badly designed web
+> site that looks ugly in a printer because it's ugly anywhere, so I may
+> take some convinving. :-) Ikiwiki pages seem like they'd print out ok
+> as-is to me.
+
+>> ikiwiki home pages are plain and clean, but please note that some
+>> ikiwiki users can have their wiki with banners and navbars and a lot
+>> of graphics.
+
+> (I also often click on print links, just to get a web page that I can
+> read, especially often hoping that it will have the whole article on it,
+> instead of the 99 tiny pagelets nasty websites like to split things into.
+> Have I ever mentioned how much I *hate* the web?)
+
+>> I always print all interested articles for me, because I hate reading
+>> them from a display monitor. It's too painful for my eyes. And I want
+>> to print only article *body* without all wrappers, because I don't
+>> need them.
+
+> One option, if your stylesheet contained something that was unpalatable
+> in printing, would be to define an alternate stylesheet optimised for
+> printing, and somehow switch the browser to use that stylesheet when
+> printing a page (it can be switched from a menu in the UI of some
+> browsers, but I'm not sure what a good way would be to switch the
+> stylesheet on the fly without re-rendering the page..)
+>
+> --[[Joey]]
+
+>> Maybe you could add `print.css` file for printable version? We just have
+>> `local.css` file for a local styling. --[[Paweł|ptecza]]
+
+>>> Sure, very doable, but the UI to switch to it when printing, I don't
+>>> know..
+
+>>>> Is the IU to switch is really necessary? Why don't use only
+>>>> `style.css` and `print.css` files in header of printable version
+>>>> of page? The second file can be equivalent of `local.css` file
+>>>> and it can overwrite default CSS styles.
+
+>>> BTW, I'm sure that the Print link as originally requested could be
+>>> written as a plugin fairly simply. --[[Joey]]
+
+>>>> I'm not a Perl expert, but I can take a look at code of other
+>>>> ikiwiki plugins.
+
+>>>> BTW, I also was thinkig about plugin to CVS support,
+>>>> but unfortunately I don't have too much free time. --[[Paweł|ptecza]]
+
+>> You don't need a stylesheet-switching UI or a printer-friendly
+>> version; just link to a stylesheet with `media="print"`. --[[JoshTriplett]]
+
+>>> Example? --[[Joey]]
+
+>>>> I used `meta` to add a `media="print"` stylesheet to the [[sandbox]].  In print or
+>>>> print preview (on browsers supporting data URIs), you should no longer
+>>>> see the search form. --[[JoshTriplett]]
+
+>>>>> (And I broke it, since it was a security hole ;-). So it looks like
+>>>>> media=print can be 
+>>>>> [used inside a style sheet](http://www.w3.org/TR/REC-CSS2/media.html),
+>>>>> so the thing to do would be to edit style.css to automatically disable parts 
+>>>>> not wanted when printing. That would rock. --[[Joey]]
+
+Yay! I've modified the stylesheet and this is [[done]]. --[[Joey]]

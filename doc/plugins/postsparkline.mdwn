@@ -1,0 +1,14 @@
+[[!template id=plugin name=postsparkline author="[[Joey]]"]]
+[[!tag type/widget]]
+
+This plugin provides the [[ikiwiki/directive/postsparkline]] [[ikiwiki/directive]].
+It uses the [[sparkline]] plugin to create a sparkline of
+statistics about a set of pages, such as posts to a blog.
+
+# adding formulae
+
+Additional formulae can be added without modifying this plugin by writing
+plugins that register functions in the
+`IkiWiki::Plugin::postsparkline::formula` namespace. These functions will
+receive on input a reference to a hash of parameters, and a sorted list of
+pages, and should return a list of data points for the sparkline plugin.

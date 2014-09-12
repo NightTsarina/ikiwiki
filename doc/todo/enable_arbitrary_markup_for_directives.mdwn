@@ -1,0 +1,47 @@
+One of the good things about [PmWiki](http://www.pmwiki.org) is the ability to treat arbitrary markup as directives.
+In ikiwiki, all directives have the same format:
+
+\[[!name arguments]]
+
+But with PmWiki, directives can be added to the engine (with the "Markup" hook) with the usual name and function passing, but also with a regexp which has capturing parentheses, and the results of the match are passed to the given function.
+Would it be possible to alter the "preprocess" hook to have an optional regex argument which acted in a similar fashion?
+
+For example, one could then write a plugin which would treat
+
+Category: Foo, Bar
+
+as a tag, by using a regex such as /^Category:\s*([\w\s,]+)$/; the result "Foo, Bar" could then be further processed by the hook function.
+
+This could also make it easier to support more styles of markup, rather than having to do all the processing in "htmlize" and/or "filter".
+
+-- [[KathrynAndersen]]
+
+[[!taglink wishlist]]
+
+> Arbitrary text transformations can already be done via the filter and
+> sanitize hooks. That's how the smiley and typography plugins do their
+> thing.
+> 
+> AFAICS, the only benefit to having a regexp-based-hook interface is less
+> overhead in passing page content into the hooks. But that overhead is a
+> small amount of the total render time.
+>
+> Also, I notice that smiley does such complicated things in its sanitize
+> hook (ie, it looks at html context around the smilies) that a simple
+> matching regexp would not be sufficient. Furthermore, typography needs to
+> pass the page content into the library it uses, which does not expose
+> regexps to match on. So ikiwiki's more general filtering interface seems
+> to allow both of these to do things that could not be done with the
+> PmWiki interface. --[[Joey]] 
+
+>>You have some good points.  I was aware of using filter, but it didn't occur to me that one could use sanitize to do processing also, probably because "sanitize" brought to mind removing harmful content rather than doing other alterations.
+>>It has also occurred to me, on further thought, that if one wants one's chosen markup to actually be processed during the "preprocess" stage, that one could do so by converting the chosen markup to directive-style markup during the "filter" stage and then processing the directive during the "preprocess" stage as per usual.  Is there a tag for "no longer on the wishlist?". --[[KathrynAndersen]]
+
+>>> Yeah, sanitize is a misleading name for the relatively few things that
+>>> use it this way.
+>>>
+>>> While you could do a filter to preprocess step, it is a bit
+>>> of a long way round, since filter always runs just before 
+>>> preprocess.
+>>> 
+>>> Anyway, guess this is [[done]] --[[Joey]] 

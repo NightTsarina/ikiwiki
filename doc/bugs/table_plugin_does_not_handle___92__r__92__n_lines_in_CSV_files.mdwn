@@ -1,0 +1,5 @@
+The table plugin seems to be unable to read a CSV file that uses \r\n for line delimiters.
+The same file with \r works fine. The error message is "Empty data".
+--liw
+
+I was seeing this as well on an Ubuntu 11.04 system with Ubuntu 11.04, Perl 5.10.1, IkiWiki 3.20110124ubuntu1, and libtext-csv-perl 1.21-1, all installed from APT. However, when I removed libtext-csv-perl from APT and installed it from CPAN, the problem went away. FWIW, what CPAN grabbed was MAKAMAKA/Text-CSV-1.21.tar.gz. --micahrl

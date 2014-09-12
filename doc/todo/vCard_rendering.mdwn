@@ -1,0 +1,100 @@
+Addressbooks are commonly kept on a CardDAV server, where the individual
+contacts are represented as single vCard (`.vcf`) files. Supporting those files
+as a source format could facilitate integration between ikiwiki and address
+books, and allow linking wiki entries to people. With the plugin presented here
+and the [[calypso|http://keithp.com/blogs/calypso/]] server, that is easily
+possible.
+
+The idea was first presented on [[DebConf13|forum/debconf13 ikiwiki bof]] by
+[[chrysn]].
+
+Software involved
+=================
+
+* CardDAV server
+
+  ikiwiki generates its pages from the local file system. Using the 
+  [[calypso|http://keithp.com/blogs/calypso/]] CardDAV/CalDAV server makes that
+  trivial, as it stores its contacts as plain files already (and under git
+  version control!).
+
+  The files can be pulled into ikiwiki in the form of an underlay.
+
+* Rendering VCF files
+
+  A python plugin called `vcf` has been published in chrysn's plugin repository
+  at `git://prometheus.amsuess.com/ikiwiki-plugins`. It supports contact images
+  (as `data:` URLs) as well as all the attributes Evolution generates, creates
+  external hyperlinks for those attributes that can be dereferenced (including
+  telephone numbers), and renders vCard categories into ikiwiki tags.
+
+  Python was chosen as a programming language due to the availability of the
+  [[`vobject`|http://vobject.skyhouseconsulting.com/]] python module and the
+  author's personal preference.
+
+* Linking to contacts
+
+  File names of vCard files are usually not usable
+  (`4FD53349-51280409-28AD50CB.vcf`). To make links like "`I've talked to
+  \[[John Doe]] about this`" possible, the [[todo/alias directive]] has to be
+  implemented in the same repository. (Work in progress.)
+
+Issues / Further development
+============================
+
+* The rendered output is currently a plain definition list, and could need some
+  theming and/or grouping.
+
+  The current implementation does not use templating, and instead generates
+  HTML directly in Python (with the help of the
+  [[MarkupSafe|https://pypi.python.org/pypi/MarkupSafe]] module). Due to the
+  [[limitations of the foreign language API|plugins/write/external]], ikiwiki's
+  regular templating can't be used anyway.
+
+* Addresses are rendered by `python-vcard` builtin address renderer (plus a
+  hack to get unicode out of it), and are not always most beautiful; moreover,
+  this kind of rendering is not themable.
+
+* The `paramlist` words in the vcards are plain dumped out after the respective
+  fields. That's unsuitable for theming, and would need localization.
+
+* In general, the plugin is not internationalized.
+
+* All VCF pages currently receive a 'Contact' tag. That needs configurability
+  and/or localization. In the same vein, prefix configuration for the category
+  taggings would be useful too.
+
+* The alias plugin is not ready yet.
+
+* vCards can not be edited. To be precise: vCards can be edited, but they show
+  vCard sources which are not suitable for user editing. Moreover, the changes
+  would be committed into the wiki main from the underlay, and not travel back.
+
+  Two approaches would make editing feasible, a relatively easy one and a
+  hard-but-wow-if-it-works one:
+
+  * Use a dedicated vCard editing online tool like CardDavMate, which accepts
+    URLs for editing (unlike CardDavMate). Ideally we would even hijack the
+    edit button on vCard pages to take the user to a proper editor.
+
+  * Have a simple edit mask for vCard objects. (It'd be ok if it was incomplete
+    with respect to fields, the vCard format is designed to make that
+    possible). That's related to the
+    [[structured data|forum/an alternative approach to structured data]] issue.
+
+    In such a setup, the vCard list would not go to an underlay, but rather to
+    a git checkout in a subdirectory or a submodule, from which the change
+    could then be pushed back to Calypso. (AFAIK, different git roots are not
+    supported in ikiwiki yet.)
+
+* Would such a renderer be useful for vCalendar too? (vCard and vCalendar only
+  differ in what they can represent, not in how they do it.)
+
+Status
+======
+
+The setup is currently usable, but just barely so. Once the basic issues are
+solved (aliases, parameters for tags, enhanced appearence), I will suggest this
+plugin for inclusion in ikiwiki.
+
+-- [[chrysn]]

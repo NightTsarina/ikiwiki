@@ -1,0 +1,29 @@
+Dear ikiwiki folks,
+
+using Debian Wheezy and ikiwiki 3.20120629 for some reason when accessing the site using HTTP (and not HTTPS), going to Edit, so executing the CGI script, all URLs are prepended with HTTPS, which I do not want.
+
+        <base href="https://www.example.org/" />
+
+Trying to look at the source, I guess it is originating from `IkiWiki/CGI.pm`.
+
+        sub printheader ($) {
+	        my $session=shift;
+	
+	        if (($ENV{HTTPS} && lc $ENV{HTTPS} ne "off") || $config{sslcookie}) {
+		        print $session->header(-charset => 'utf-8',
+			        -cookie => $session->cookie(-httponly => 1, -secure => 1));
+	        }
+	        else {
+		        print $session->header(-charset => 'utf-8',
+			        -cookie => $session->cookie(-httponly => 1));
+	        }
+        }
+
+Does it check if HTTPS is enabled in the environment? During `ikiwiki --setup example.setup` or when the CGI script is run when the site is accessed (for example in an Apache environment)?
+
+Can this somehow be disabled in ikiwiki. Reading the code I guess I could somehow set `HTTPS = off` somewhere in the `VirtualHost` section of the Apache configuration.
+
+
+Thanks,
+
+--[[PaulePanter]]

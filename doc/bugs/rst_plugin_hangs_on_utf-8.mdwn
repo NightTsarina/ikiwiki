@@ -1,0 +1,20 @@
+When rendering an rst page with utf-8 characters in (specifically but not
+solely "£"), ikiwiki seems to hang.
+
+Killing with Control-C gives the following traceback:
+
+    Traceback (most recent call last):
+      File "/usr/lib/ikiwiki/plugins/rst", line 97, in ?
+        handler.handle_request()
+      File "/usr/lib/ikiwiki/plugins/rst", line 74, in handle_request
+        ret = rpc_read(processor)
+      File "/usr/lib/ikiwiki/plugins/rst", line 42, in rpc_read
+        line = sys.stdin.readline()
+    KeyboardInterrupt
+
+rst2html on the same file has no problem rendering the file as expected. The
+markdown plugin also has no problems rendering the same file, so I'm guessing
+it's a problem with the XML-RPC interface.
+
+Sorry for the delay, this is now fixed! --[[Joey]]
+[[!tag done]]

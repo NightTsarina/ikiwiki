@@ -1,0 +1,228 @@
+[[!template id=gitbranch branch=smcv/ready/glob-cache
+  author="[[KathrynAndersen]], [[smcv]]"]]
+[[!tag patch]]
+
+I've been profiling my IkiWiki to try to improve speed (with many pages makes speed even more important) and I've written a patch to improve the speed of match_glob.  This matcher is a good one to improve the speed of, because it gets called so many times.
+
+Here's my patch - please consider it! -- [[KathrynAndersen]]
+
+> It seems to me as though changing `glob2re` to return qr/$re/, and calling
+> `memoize(glob2re)` next to the other memoize calls, would be a less
+> verbose way to do this? --[[smcv]]
+
+>> I think so, yeah. Anyway, do you have any benchmark results handy,
+>> Kathryn?  --[[Joey]] 
+
+>>> See below.
+>>> Also, would it make more sense for glob2re to return qr/^$re$/i rather than qr/$re/?  Everything that uses glob2re seems to use
+	$foo =~ /^$re$/i
+>>> rather than /$re/ so I think that would make sense.
+>>> -- [[KathrynAndersen]]
+
+>>>> Git branch `smcv/ka-glob-cache` has Kathryn's patch. Git
+>>>> branch `smcv/memoize-glob2re` does as I suggested, which
+>>>> is less verbose than Kathryn's patch but also not as
+>>>> fast; I'm not sure why, tbh. --[[smcv]]
+
+>>>>> I think it's because my patch focuses on match_glob while the memoize patch focuses on `glob2re`, and `glob2re` is called in `filecheck`, `meta` and `po` as well as in `match_glob` and `match_user`; thus the memoized `glob2re` is dealing with a bigger set of globs to look up, and thus could be just that little bit slower. -- [[KathrynAndersen]]
+
+>>>>>> What may be going on is that glob2re is already a fairly fast
+>>>>>> function, so the overhead of memoizing it with the very generic
+>>>>>> `_memoizer` (see its source) swamps the memoization gain. Note
+>>>>>> that the few functions memoized with the Memoizer before were much
+>>>>>> more expensive, so that little overhead was acceptable then.
+>>>>>>
+>>>>>> It also may be that Kathryn's patch is slightly faster due to using
+>>>>>> the construct `$foo =~ $regexp` rather than `$foo =~ /$regexp/`
+>>>>>> (probably avoids a copy or something like that internally) --
+>>>>>> this despite checking both `exists` and `defined` on the hash, which
+>>>>>> should be reundant AFAICS.
+>>>>>>
+>>>>>> My guess is that the best of both worlds would be to move
+>>>>>> the byhand memoization to glob2re and have it return a compiled
+>>>>>> `/^/i` regexp that can be used without further modifiction in most
+>>>>>> cases. --[[Joey]] 
+
+>>>>>>> Done, see `smcv/ready/glob-cache` and `smcv/glob-cache-too-far`.
+>>>>>>>
+>>>>>>> Kathryn's patch is a significant improvement; my first patch on top of
+>>>>>>> that is a trivial cleanup that speeds it up a little, and the next two
+>>>>>>> patches (using precompiled regexes) have surprisingly little effect
+>>>>>>> (they don't slow it down either though, so either omit them or merge
+>>>>>>> them, whichever). Detailed benchmark results below.
+>>>>>>>
+>>>>>>> Moving the memoization to `glob2re` actually seems to slow things down
+>>>>>>> again - I suspect the docwiki has few enough mentions of `user()` etc.
+>>>>>>> that caching them is a waste of time, but perhaps it's not the most
+>>>>>>> representative.
+>>>>>>> --[[smcv]]
+
+[[done]] --[[Joey]] 
+
+--------------------------------------------------------------
+
+[[!toggle id="smcv-benchmark" text="current benchmarks"]]
+
+[[!toggleable id="smcv-benchmark" text="""
+master at time of branch:
+
+    time elapsed (wall):   29.6348
+    time running program:  24.9212  (84.09%)
+    time profiling (est.): 4.7136  (15.91%)
+    number of calls:       1360181
+    number of exceptions:  13
+    
+    %Time    Sec.     #calls   sec/call  F  name
+    13.24    3.2986     3408   0.000968     Text::Balanced::_match_tagged
+    10.94    2.7253    79514   0.000034     IkiWiki::PageSpec::match_glob
+     3.19    0.7952    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
+
+`Improve the speed of match_glob`:
+
+    time elapsed (wall):   27.9755
+    time running program:  23.5293  (84.11%)
+    time profiling (est.): 4.4461  (15.89%)
+    number of calls:       1280875
+    number of exceptions:  13
+    
+    %Time    Sec.     #calls   sec/call  F  name
+    14.56    3.4257     3408   0.001005     Text::Balanced::_match_tagged
+     7.82    1.8403    79514   0.000023     IkiWiki::PageSpec::match_glob
+     3.27    0.7698    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
+
+`match_glob: streamline glob cache slightly`:
+
+    time elapsed (wall):   27.5753
+    time running program:  23.1714  (84.03%)
+    time profiling (est.): 4.4039  (15.97%)
+    number of calls:       1280875
+    number of exceptions:  13
+    
+    %Time    Sec.     #calls   sec/call  F  name
+    14.09    3.2637     3408   0.000958     Text::Balanced::_match_tagged
+     7.74    1.7926    79514   0.000023     IkiWiki::PageSpec::match_glob
+     3.30    0.7646    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
+
+`glob2re: return a precompiled, anchored case-insensitiv...`:
+
+    time elapsed (wall):   27.5656
+    time running program:  23.1464  (83.97%)
+    time profiling (est.): 4.4192  (16.03%)
+    number of calls:       1282189
+    number of exceptions:  13
+    
+    %Time    Sec.     #calls   sec/call  F  name
+    14.21    3.2891     3408   0.000965     Text::Balanced::_match_tagged
+     7.72    1.7872    79514   0.000022     IkiWiki::PageSpec::match_glob
+     3.32    0.7678    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
+
+`make use of precompiled regex objects`:
+
+    time elapsed (wall):   27.5357
+    time running program:  23.1289  (84.00%)
+    time profiling (est.): 4.4068  (16.00%)
+    number of calls:       1281981
+    number of exceptions:  13
+    
+    %Time    Sec.     #calls   sec/call  F  name
+    14.17    3.2776     3408   0.000962     Text::Balanced::_match_tagged
+     7.70    1.7814    79514   0.000022     IkiWiki::PageSpec::match_glob
+     3.35    0.7756    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
+
+`move memoization from match_glob to glob2re`:
+
+    time elapsed (wall):   28.7677
+    time running program:  23.9473  (83.24%)
+    time profiling (est.): 4.8205  (16.76%)
+    number of calls:       1360181
+    number of exceptions:  13
+    
+    %Time    Sec.     #calls   sec/call  F  name
+    13.98    3.3469     3408   0.000982     Text::Balanced::_match_tagged
+     8.85    2.1194    79514   0.000027     IkiWiki::PageSpec::match_glob
+     3.24    0.7750    59454   0.000013     <anon>:IkiWiki/Plugin/inline.pm:223
+
+--[[smcv]]
+"""]]
+
+--------------------------------------------------------------
+
+[[!toggle id="ka-benchmarks" text="Kathryn's benchmarks"]]
+
+[[!toggleable id="ka-benchmarks" text="""
+Benchmarks done with Devel::Profile on the same testbed IkiWiki setup.  I'm just showing the start of the profile output, since that's what's relevant.
+
+Before:
+<pre>
+time elapsed (wall):   27.4173
+time running program:  22.5909  (82.40%)
+time profiling (est.): 4.8264  (17.60%)
+number of calls:       1314729
+number of exceptions:  65
+
+%Time    Sec.     #calls   sec/call  F  name
+11.05    2.4969    62333   0.000040     IkiWiki::PageSpec::match_glob
+ 4.10    0.9261      679   0.001364     Text::Balanced::_match_tagged
+ 2.72    0.6139    59812   0.000010     IkiWiki::SuccessReason::merge_influences
+</pre>
+
+After:
+<pre>
+time elapsed (wall):   26.1843
+time running program:  21.5673  (82.37%)
+time profiling (est.): 4.6170  (17.63%)
+number of calls:       1252433
+number of exceptions:  65
+
+%Time    Sec.     #calls   sec/call  F  name
+ 7.66    1.6521    62333   0.000027     IkiWiki::PageSpec::match_glob
+ 4.33    0.9336      679   0.001375     Text::Balanced::_match_tagged
+ 2.81    0.6057    59812   0.000010     IkiWiki::SuccessReason::merge_influences
+</pre>
+
+Note that the seconds per call for match_glob in the "after" case has gone down by about a third.
+
+K.A.
+"""]]
+
+--------------------------------------------------------------
+
+[[!toggle id="ka-patch" text="Kathryn's original patch"]]
+
+[[!toggleable id="ka-patch" text="""
+
+<pre>
+diff --git a/IkiWiki.pm b/IkiWiki.pm
+index 08a3d78..c187b98 100644
+--- a/IkiWiki.pm
++++ b/IkiWiki.pm
+@@ -2482,6 +2482,8 @@ sub derel ($$) {
+ 	return $path;
+ }
+ 
++my %glob_cache;
++
+ sub match_glob ($$;@) {
+ 	my $page=shift;
+ 	my $glob=shift;
+@@ -2489,8 +2491,15 @@ sub match_glob ($$;@) {
+ 	
+ 	$glob=derel($glob, $params{location});
+ 
+-	my $regexp=IkiWiki::glob2re($glob);
+-	if ($page=~/^$regexp$/i) {
++	# Instead of converting the glob to a regex every time,
++	# cache the compiled regex to save time.
++	if (!exists $glob_cache{$glob}
++	    or !defined $glob_cache{$glob})
++	{
++	    my $re=IkiWiki::glob2re($glob);
++	    $glob_cache{$glob} = qr/^$re$/i;
++	}
++	if ($page =~ $glob_cache{$glob}) {
+ 		if (! IkiWiki::isinternal($page) || $params{internal}) {
+ 			return IkiWiki::SuccessReason->new("$glob matches $page");
+ 		}
+</pre>
+"""]]
+--------------------------------------------------------------

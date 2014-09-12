@@ -1,0 +1,318 @@
+On [[todo/auto-create_tag_pages_according_to_a_template]], [[chrysn]]
+suggests:
+
+> Instead of creating a file that gets checked in into the RCS, the
+> source files could be left out and the output files be written as
+> long as there is no physical source file (think of a virtual underlay).
+> Something similar would be required to implement alias directive,
+> which couldn't be easily done by writing to the RCS as the page's
+> contents can change depending on which other pages claim it as an alias.
+
+`add_autofile` could be adapted to do this, or a similar API could be
+added.
+
+This would also be useful for autoindex, as suggested on
+[[plugins/autoindex/discussion]] and [[!debbug 544322]]. I'd also like
+to use it for [[plugins/contrib/album]].
+
+It could also be used for an [[todo/alias_directive]].
+
+--[[smcv]]
+
+> All [[merged|done]] --[[Joey]] 
+
+--------------------------
+
+[[!template id=gitbranch branch=smcv/ready/transient author="[[smcv]]"]]
+[[!tag patch]]
+
+Related branches:
+
+* `ready/tag-test`: an extra regression test for tags
+  > merged --[[Joey]] 
+* either `transient-relative` or `transient-relative-api`: avoid using `Cwd`
+  on initialization
+  > merged the latter --[[Joey]]
+* `ready/transient-aggregate`: use for aggregate
+  > merged --[[Joey]]
+* `ready/transient-autoindex`: optionally use for autoindex,
+  which is [[!debbug 544322]] (includes autoindex-autofile from
+  [[todo/autoindex should use add__95__autofile]])
+  > merged. I do note that this interacts badly with ikiwiki-hosting's
+  > backup/restore/branch handling, since that does not back up the
+  > transientdir by default, and so autoindex will not recreate the
+  > "deleted" pages. I'll probably have to make it back up the transientdir
+  > too. --[[Joey]]
+* `ready/transient-recentchanges`: use for recentchanges
+  > merged --[[Joey]] 
+* `ready/transient-tag`: optionally use for tag (includes tag-test)
+  > merged --[[Joey]]
+
+I think this branch is now enough to be useful. It adds the following:
+
+If the `transient` plugin is loaded, `$srcdir/.ikiwiki/transient` is added
+as an underlay. I'm not sure whether this should be a plugin or core, so
+I erred on the side of more plugins; I think it's "on the edge of the core",
+like goto.
+
+Pages in the transient underlay are automatically
+deleted if a page of the same name is created in the srcdir (or an underlay
+closer to the srcdir in stacking order).
+
+With the additional `ready/transient-tag` branch,
+`tag` enables `transient`, and if `tag_autocreate_commit` is set to 0
+(default 1), autocreated tags are written to the transient underlay.
+There is a regression test.
+
+With the additional `transient-autoindex` branch,
+`autoindex` uses autofiles. It also enables `transient`, and if
+`autoindex_commit` is set to 0 (default 1), autoindexes are written to
+the transient underlay. There is a regression test. However, this branch
+is blocked by working out what the desired behaviour is, on
+[[todo/autoindex_should_use_add__95__autofile]].
+
+> I wonder why this needs to be configurable? I suppose that gets back to
+> whether it makes sense to check these files in or not. The benefits of 
+> checking them in:
+> 
+> * You can edit them from the VCS, don't have to go into the web
+>   interface. Of course, files from the underlays have a similar issue,
+>   but does it make sense to make that wart larger?
+> * You can know you can build the same site with nothing missing
+>   even if you don't there enable autoindex or whatever. (Edge case.)
+
+>> I'm not sure that that's a huge wart; you can always "edit by
+>> overwriting". If you're running a local clone of the wiki on your laptop
+>> or whatever, you have the underlays already, and can copy from there.
+>> Tag and autoindex pages have rather simple source code anyway. --s
+
+> The benefit of using transient pages seems to just be avoiding commit
+> clutter? For files that are never committed, transient pages are a clear
+> win, but I wonder if adding configuration clutter just to avoid some 
+> commit clutter is really worth it.
+
+>> According to the last section of
+>> [[todo/auto-create_tag_pages_according_to_a_template]], [[chrysn]] and
+>> Eric both feel rather strongly that it should be possible to
+>> not commit any tags; in [[plugins/autoindex/discussion]],
+>> lollipopman and [[JoeRayhawk]] both requested the same for autoindex.
+>> I made it configurable because, as you point out,
+>> there are also reasons why it makes sense to check these
+>> automatically-created files in. I'm neutral on this, personally.
+>>
+>> If this is a point of contention, would you accept a branch that
+>> just adds `transient` and uses it for [[plugins/recentchanges]],
+>> which aren't checked in and never have been? I've split the
+>> branch up in the hope that *some* of it can get merged.
+>>
+>>> I will be happy to merge transient-recentchanges when it's ready.
+>>> I see no obstacle to merging transient-tag either, and am not
+>>> really against using it for autoindex or aggregate either
+>>> once they get completed.
+>>> I just wanted to think through why configurability is needed.
+>>> --[[Joey]]
+>>
+>> One potentially relevant point is that configuration clutter only
+>> affects the site admin whereas commit clutter is part of the whole
+>> wiki's history. --[[smcv]]
+
+> Anyway, the configurability
+> appears subtly broken; the default is only 1 if a new setup file is
+> generated. (Correction: It was not even the default then --[[Joey]])
+> With an existing setup file, the 'default' values in
+> `getsetup` don't take effect, so it will default to undef, which
+> is treated the same as 0. --[[Joey]]
+
+>> Fixed in the branches, hopefully. (How disruptive would it be to have
+>> defaults take effect whenever the setup file doesn't set a value, btw?
+>> It seems pretty astonishing to have them work as they do at the moment.) --s
+
+>>> Well, note that default is not actually a documented field in
+>>> getsetup hooks at all! (It is used in IkiWiki.pm's own `getsetup()`, and
+>>> the concept may have leaked out into one or two plugins (comments,
+>>> transient)).
+>>> 
+>>> Running getsetup at plugin load time is something I have considered
+>>> doing. It would simplify some checkconfig hooks that just set hardcoded 
+>>> defaults. Although since dying is part of the getsetup hook's API, it
+>>> could be problimaric.
+>>> --[[Joey]]
+
+autoindex ignores pages in the transient underlay when deciding whether
+to generate an index.
+
+With the additional `ready/transient-recentchanges` branch, new recent
+changes go in the transient underlay; I tested this manually.
+
+Not done yet (in that branch, at least):
+
+* `remove` can't remove transient pages: this turns out to be harder than
+  I'd hoped, because I don't want to introduce a vulnerability in the
+  non-regular-file detection, so I'd rather defer that.
+
+  > Hmm, I'd at least want that to be dealt with before this was used
+  > by default for autoindex or tag. --[[Joey]]
+
+  >> I'll try to work out which of the checks are required for security
+  >> and which are just nice-to-have, but I'd appreciate any pointers
+  >> you could give. Note that my branch wasn't meant to enable either
+  >> by default, and now hopefully doesn't. --[[smcv]]
+
+  >>> Opened a new bug for this, [[bugs/removal_of_transient_pages]]
+  >>> --[[Joey]] 
+
+* Transient tags that don't match any pages aren't deleted: I'm not sure
+  that that's a good idea anyway, though. Similarly, transient autoindexes
+  of directories that become empty aren't deleted.
+
+  > Doesn't seem necessary, or really desirable to do that. --[[Joey]]
+
+  >> Good, that was my inclination too. --s
+
+* In my `untested/transient` branch, new aggregated files go in the
+  transient underlay too (they'll naturally migrate over time). I haven't
+  tested this yet, it's just a proof-of-concept.
+
+  > Now renamed to `ready/transient-aggregate`; it does seem to work fine.
+  > --s
+
+> I can confirm that the behavior of autoindex, at least, is excellent.
+> Haven't tried tag. Joey, can you merge transient and autoindex? --JoeRayhawk
+
+>> Here are some other things I'd like to think about first: --[[Joey]] 
+>>
+>> * There's a FIXME in autoindex.
+>>
+>>     > Right, the extra logic for preventing autoindex pages from being
+>>     > re-created. This is taking a while, so I'm going to leave out the
+>>     > autoindex part for the moment. The FIXME is only relevant
+>>     > because I tried to solve
+>>     > [[todo/autoindex should use add__95__autofile]] first, but
+>>     > strictly speaking, that's an orthogonal change. --s
+
+>> * Suggest making recentchanges unlink the transient page
+>>   first, and only unlink from the old location if it wasn't
+>>   in the transient location. Ok, it only saves 1 syscall :)
+>>
+>>   > Is an unlink() really that expensive? But, OK, fixed in the
+>>   > `ready/transient-recentchanges` branch. --s
+
+>>   >> It's not, but it's easy. :) --[[Joey]]
+
+>> * Similarly it's a bit worrying for performance that it
+>>   needs to pull in and use `Cwd` on every ikiwiki startup now.
+>>   I really don't see the need; `wikistatedir` should
+>>   mostly be absolute, and ikiwiki should not chdir in ways
+>>   that break it anyway.
+>>
+>>   > The reason to make it absolute is that relative underlays
+>>   > are interpreted as relative to the base underlay directory,
+>>   > not the cwd, by `add_underlay`.
+>>   >
+>>   > The updated `ready/transient-only` branch only loads `Cwd` if
+>>   > the path is relative; an extra commit on branch
+>>   > `smcv/transient-relative` goes behind `add_underlay`'s
+>>   > back to allow use of a cwd-relative underlay. Which direction
+>>   > would you prefer?
+>>   >
+>>   > I note in passing that [[plugins/autoindex]] and `IkiWiki::Render`
+>>   > both need to use `Cwd` and `File::Find` on every refresh, so
+>>   > there's only any point in avoiding `Cwd` for runs that don't
+>>   > actually refresh, like simple uses of the CGI. --s
+
+>>   >> Oh, right, I'd forgotten about the horrificness of File::Find
+>>   >> that required a chdir for security. Ugh. Can we just avoid
+>>   >> it for those simple cases then? (demand-calculate wikistatedir)
+>>   >> --[[Joey]] 
+
+>>   >>> The reason that transientdir needs to be absolute is that it's
+>>   >>> added as an underlay.
+>>   >>>
+>>   >>> We could avoid using `Cwd` by taking the extra commit from either
+>>   >>> `smcv/transient-relative` or `smcv/transient-relative-api`;
+>>   >>> your choice. I'd personally go for the latter.
+>>   >>>
+>>   >>> According to git grep, [[plugins/po]] already wants to look at
+>>   >>> the underlaydirs in its checkconfig hook, so I don't think
+>>   >>> delaying calculation of the underlaydir is viable. (I also noticed
+>>   >>> a bug,
+>>   >>> [[bugs/po:_might_not_add_translated_versions_of_all_underlays]].)
+>>   >>>
+>>   >>> `underlaydirs` certainly needs to have been calculated by the
+>>   >>> time `refresh` hooks finish, so `find_src_files` can use it. --s
+
+>> * Unsure about the use of `default_pageext` in the `change`
+>>   hook. Is everything in the transientdir really going
+>>   to use that pageext? Would it be better to look up the
+>>   complete source filename?
+>>
+>>   > I've updated `ready/transient` to do a more thorough GC by
+>>   > using File::Find on the transient directory. This does
+>>   > require `File::Find` and `Cwd`, but only when pages change,
+>>   > and `refresh` loads both of those in that situation anyway.
+>>   >
+>>   > At the moment everything in the transientdir will either
+>>   > have the `default_pageext` or be internal, although I
+>>   > did wonder whether to make [[plugins/contrib/album]]
+>>   > viewer pages optionally be `html`, for better performance
+>>   > when there's a very large number of photos. --s
+
+>>   >> Oh, ugh, more File::Find... Couldn't it just assume that the
+>>   >> transient page has the same extension as its replacement?
+>>   >> --[[Joey]]
+
+>>   >>> Good idea, that'll be true for web edits at least.
+>>   >>> Commit added. --s
+
+--------------------------
+
+## An earlier version
+
+I had a look at implementing this. It turns out to be harder than I thought
+to have purely in-memory pages (several plugins want to be able to access the
+source file as a file), but I did get this proof-of-concept branch
+to write tag and autoindex pages into an underlay.
+
+This loses the ability to delete the auto-created pages (although they don't
+clutter up git this way, at least), and a lot of the code in autoindex is
+probably now redundant, so this is probably not quite ready for merge, but
+I'd welcome opinions.
+
+Usage: set `tag_underlay` and/or `autoindex_underlay` to an absolute path,
+which you must create beforehand. I suggest *srcdir* + `/.ikiwiki/transient`.
+
+Refinements that could be made if this approach seems reasonable:
+
+* make these options boolean, and have the path always be `.ikiwiki/transient`
+* improve the `remove` plugin so it also deletes from this special underlay
+
+>> Perhaps it should be something more generic, so that other plugins could use it (such as "album" mentioned above).
+>> The `.ikiwiki/transient` would suit this, but instead of saying "tag_underlay" or "autoindex_underlay" have "use_transient_underlay" or something like that?
+>> Or to make it more flexible, have just one option "transient_underlay" which is set to an absolute path, and if it is set, then one is using a transient-underlay.
+>> --[[KathrynAndersen]]
+
+>>> What I had in mind was more like `tag_autocreate_transient => 1` or
+>>> `autoindex_transient => 1`; you might conceivably want tags to be
+>>> checked in but autoindices to be transient, and it's fine for each
+>>> plugin to make its own decision. Going from that to one boolean
+>>> (or just always-transient if people don't think that's too
+>>> astonishing) would be trivial, though.
+>>>
+>>> I don't think relocating the transient underlay really makes sense,
+>>> except for prototyping: you only want one, and `.ikiwiki` is as good
+>>> a place as any (ikiwiki already needs to be able to write there).
+>>>
+>>> For [[plugins/contrib/album]] I think I'd just make the photo viewer
+>>> pages always-transient - you can always make a transient page
+>>> permanent by editing it, after all.
+>>>
+>>> Do you think this approach has enough potential that I should
+>>> continue to hack on it? Any thoughts on the implementation? --[[smcv]]
+
+>>>> Ah, now I understand what you're getting at. Yes, it makes sense to put transient pages under `.ikiwiki`.
+>>>> I haven't looked at the code, but I'd be interested in seeing whether it's generic enough to be used by other plugins (such as `album`) without too much fuss.
+>>>> The idea of a transient underlay gives us a desirable feature for free: that if someone edits the transient page, it is made permanent and added to the repository.
+>>>>
+>>>> I think the tricky thing with removing these transient underlay pages is the question of how to prevent whatever auto-generated the pages in the first place from generating them again - or, conversely, how to force whatever auto-generated those pages to regenerate them if you've changed your mind.
+>>>> I think you'd need something similar to `will_render` so that transient pages would be automatically removed if whatever auto-generated them is no longer around.
+>>>> -- [[KathrynAndersen]]

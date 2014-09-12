@@ -1,0 +1,25 @@
+*This page is work in progress and can not be considered to be part of the
+documentation so far.*
+
+This page describes the various forms the name of a page can take.
+
+[[!table data="""
+concept          | example
+-----------------|-----------------------------------------------------------------------------
+title            | '`dir A/page B`' unless a meta title is defined
+link             | '`dir_A/page_B`' or '`dir A/page B`' or '`page_B`' / '`page B`' when inside dirA
+page name        | '`dir_A/page_B`'
+source file      | '`/dir_A/page_B/index.mdwn`' or '`/dir_A/page_B.mdwn`' depending on indexpages
+rendered file    | '`/dir_A/page_B/`' or '`/dir_A/page_B.html`' depending on usedirs
+"""]]
+
+
+functions:
+
+* `pagename`: source file to page name
+* `pagetitle`: page name to title but not considering meta title
+* `titlepage`: title to page name but not considering meta title
+* `linkpage`: link to page name
+* `htmllink`: page name to html link to rendered file
+* `bestlink`: link to page name
+* `htmlpage`: page name to rendered file

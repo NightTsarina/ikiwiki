@@ -1,0 +1,95 @@
+When uploading a PNG file on the wiki, through the webinterface or anonymous git, i get:
+
+    icon.png		prohibited by allowed_attachments (file MIME type is application/octet-stream, not application/vnd.oasis.opendocument.*)
+
+`attachment_allowed_attachments` is set to:
+
+    virusfree() and (mimetype(image/*) or mimetype(text/*) or mimetype(application/x-gzip) or mimetype(application/vnd.oasis.opendocument.*)) and maxsize(2048kb)
+
+Maybe a bug in the [[plugins/filecheck]] plugin?
+
+This is ikiwiki 3.20130904.1~bpo70+1 on Debian wheezy, with some patches applied, namely:
+
+ * [[todo/option_to_send_only_the_diff_in_notifyemail]]
+ * [[bugs/syslog_fails_with_non-ASCII_wikinames]]
+ * [[bugs/notifyemail_fails_with_some_openid_providers]]
+ * [[bugs/crashes_in_the_python_proxy_even_if_disabled]]
+
+Weird... --[[anarcat]]
+
+> Well, the pagespec seems to be matching correctly, given that it thinks the mime type is application/octet-stream.
+> If File::MimeInfo::Magic is installed, ikiwiki uses it. If not, or if it fails to find any mime type, it falls back to using `file -bi`,
+> and if that fails, it falls back to a default of application/octet-stream. --[[Joey]]
+
+> > File::MimeInfo::Magic is installed:
+> > 
+> >     ii  libfile-mimeinfo-perl    0.16-1                 all           Perl module to determine file types
+> > 
+> > it turns out there's (still) a problem with the way we use the module. This test code:
+> > 
+> >     #!/usr/bin/perl -w
+> >     my $file='icon.png';
+> >     use File::MimeInfo::Magic;
+> >     print "mime::magic: " . File::MimeInfo::Magic::magic($file) . "\n";
+> >     print "mime::default: " . File::MimeInfo::Magic::default($file) . "\n";
+> > 
+> > ...returns:
+> > 
+> >     mime::magic: image/png
+> >     mime::default: application/octet-stream
+> > 
+> > `file -ib` returns the right thing (`image/png; charset=binary`).
+> > 
+> > So it *should* work: it seems that the `::default` code kicks in even if the `::magic` one actually works.
+> > 
+> > I have traced down the problem to this block of code:
+> > 
+> >         if (! defined $mimetype || $mimetype !~s /;.*//) {
+> >                 # Fall back to default value.
+> >                 $mimetype=File::MimeInfo::Magic::default($file)
+> > 
+> > If you take a look deeply, this will fire up the default if there's no semicolon in the mimetype, which is expected for `file` calls, but not for `::magic()` calls. So `::magic()` works, but then the `::default` kicks in anyways.
+> >
+> > [[!template  id=gitbranch branch=anarcat/dev/magic-fails author="[[anarcat]]"]]
+> > 
+> > I have a stupid [[patch]] in my git repo which just appends a semicolon to the `::magic()` output, but maybe this should be done in another way...
+> > 
+> > --[[anarcat]]
+
+> > > [[!template  id=gitbranch branch=ready/more-magic author="[[smcv]]" browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/commitdiff/ready/more-magic]]
+> > > If the regex match isn't necessary and it's just about deleting the
+> > > parameters, I think I'd prefer
+> > >
+> > >     if (! defined $mimetype) {
+> > >         ...
+> > >     }
+> > >     $mimetype =~ s/;.*//;
+> > >
+> > > as done in my `ready/more-magic` branch.
+> > >
+> > > I'm a little hesitant to do that without knowing why Joey implemented it
+> > > the way it is, but as far as I can tell it's just an oversight.
+> > >
+> > > Or, if the result of the s/// is checked for a reason, and it's
+> > > about catching a result from file(1) that
+> > > is not, in fact, a MIME type at all (empty string or error message
+> > > or something), maybe something more like this?
+> > >
+> > >     if (! defined $mimetype || $mimetype !~ s{[-\w]+/[-\w]+(?:;.*)?}{})
+> > >
+> > > (or whatever the allowed characters in MIME types are). --[[smcv]]
+
+> > > > I don't mind either way, but i feel this should be fixed for the next release, as I need to reapply this patch at every upgrade now. -- [[anarcat]]
+
+> > > > > This is still a problem in 3.20140831. -- [[anarcat]]
+
+> > > > > > I still don't think appending a semicolon is the right answer:
+> > > > > > at best it's equivalent to what I suggested, and at worst it's
+> > > > > > disabling a check that does have some reason behind it.
+> > > > > > I've turned the version I suggested above into a proper branch.
+> > > > > > Review by someone who can commit to ikiwiki.git would be appreciated.
+> > > > > > --[[smcv]]
+
+> > > > > > > Turns out "someone who can commit" includes me.
+> > > > > > > [[Merged|done]] this version, we can revert or alter it if
+> > > > > > > Joey remembers a reason to require `;` --[[smcv]]

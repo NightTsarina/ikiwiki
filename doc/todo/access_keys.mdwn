@@ -1,0 +1,286 @@
+Access keys (i.e., keyboard shortcuts) can be defined for common
+features.  Something like the following:
+
+* 1 - Homepage
+* 2 - Search box
+* E - Edit
+* R - RecentChanges
+* H - History
+* P - Preferences
+* D - Discussion
+* S - Save the current page (when editing)
+* C - Cancel the current edit
+* V - Preview the current page
+
+Then, for example, in Firefox one could press Alt+Shift+E to edit the
+page.
+
+For links, this is implemented as:
+
+    <a href="recentchanges/" accesskey="r">RecentChanges</a>
+
+and for forms buttons:
+
+    <input type="submit" value="Submit" accesskey="s"/>
+
+--[[JasonBlevins]], March 21, 2008 18:05 EDT
+
+- - - 
+
+There were also a few thoughts about access keys on the
+[[main_discussion_page|index/discussion]]. Now moved to here:
+
+> Would anyone else find this a valuable addition.  In oddmuse and instiki (the only other
+> wiki engines I am currently using, the edit, home, and submit link tags have an
+> accesskey attribute.  I find it nice not to have to resort to the mouse for those
+> actions.  However, it may not be something everyone appreciates.  Any thoughts?
+> --[Mazirian](http://mazirian.com)
+> 
+> > Maybe, although it would need to take the critisism at
+> > <http://www.cs.tut.fi/~jkorpela/forms/accesskey.html> into account.
+> 
+> >> Thank you for that link. Given that the edit link is the first thing you tab to
+> >> in the current layout, I guess it isn't all that necessary. I have had a 
+> >> a user complaint recently that Alt-e in oddmuse was overriding his access
+> >> to the browser menu.
+
+----
+
+The main criticism there it
+seems is that some browsers implement access keys in a way (via the Alt
+key) that allows them to override built-in keyboard shortcuts.  I
+believe this is not a problem any longer in Firefox (which uses the
+Shift+Alt prefix) but I suppose it could still be a problem in other
+browsers.
+
+Another criticism is that most browsers do not display the access keys
+that are defined.  The [article][] cited on the main discussion page
+suggests underlining the relevant mnemonic.  I think it would be
+sufficient to just list them in the basewiki documentation somewhere.
+
+  [article]: http://www.cs.tut.fi/~jkorpela/forms/accesskey.html
+
+It's an unfortunate situation&mdash;I'd like an alternative to the
+rodent but there are quite a few downsides to using access keys.
+Tabbing isn't quite the same as a nice shortcut key.  There's always
+Conkeror...
+
+--[[JasonBlevins]], March 22, 2008 10:35 EDT
+
+----
+
+I've written a plugin to implement access keys, configured using a wiki page similar to [[shortcuts]]. It works for links and most form submit buttons.
+
+As I am new to ikiwiki plugin writing, feedback is greatly appreciated.
+
+[[!toggle  id="accesskeys" text="Toggle: accesskeys.pm"]]
+
+[[!toggleable  id="accesskeys" text="""
+
+	#!/usr/bin/perl
+	
+	package IkiWiki::Plugin::accesskeys;
+	
+	use warnings;
+	use strict;
+	use IkiWiki 3.00;
+	use CGI::FormBuilder;
+	
+	=head1 NAME
+	
+	accesskeys.pm - IkiWiki module to implement access keys (keyboard shortcuts)
+	
+	=head1 VERSION
+	
+	v.5.0 - initial version
+	
+	=head1 DESCRIPTION
+	
+	Access keys are defined on a page called B<accesskeys>, using the C<accesskey> directive.
+	Example:
+	
+	    [[!accesskey command="Save Page" key="s"]]
+	
+	B<command> may contain only alphanumeric characters (and spaces), and must be a complete 
+	match to the target link or submit button's display name. 
+	
+	B<key> may only be a single alphanumeric character. 
+	
+	The access key is applied to the first matching link on a page (including header), or the 
+	first matching submit button in the @buttons array.
+	
+	The wiki must be completely rebuilt every time the B<accesskeys> page changes.
+	
+	=head2 Sample accesskeys page
+	
+	    [[!if test="enabled(accesskeys)"
+	        then="This wiki has accesskeys **enabled**."
+	        else="This wiki has accesskeys **disabled**."]]
+	
+	    This page controls what access keys the wiki uses.
+	
+	    * [[!accesskey command="Save Page" key="s"]]
+	    * [[!accesskey command="Cancel" key="c"]]
+	    * [[!accesskey command="Preview" key="v"]]
+	    * [[!accesskey command="Edit" key="e"]]
+	    * [[!accesskey command="RecentChanges" key="c"]]
+	    * [[!accesskey command="Preferences" key="p"]]
+	    * [[!accesskey command="Discussion" key="d"]]
+	
+	=head1 IMPLEMENTATION
+	
+	This plugin uses the following flow:
+	
+	=over 1
+	
+	=item 1. Override default CGI::FormBuilder::submit function
+	
+	FormBuilder does not support any arbitrary modification of it's submit buttons, so
+	in order to add the necessary attributes you have to intercept the internal function
+	call which generates the formatted html for the submit buttons. Not pretty, but it 
+	works.
+	
+	=item 2. Get list of keys 
+	
+	During the B<checkconfig> stage the B<accesskeys> source file is read (default 
+	F<accesskeys.mdwn>) to generate a list of defined keys.
+	
+	=item 3. Insert keys (links)
+	
+	Keys are inserted into links during the format stage. All defined commands are checked 
+	against the page's links and if there is a match the key is inserted. Only the first 
+	match for each command is processed.
+	
+	=item 4. Insert keys (FormBuilder buttons)
+	
+	FormBuilder pages are intercepted during formatting. Keys are inserted as above. 
+	
+	=back
+	
+	=head1 TODO
+	
+	=over 1
+	
+	=item * non-existant page links ex: ?Discussion
+	
+	=item * Support non-submit array buttons (like those added after the main group for attachments)
+	
+	=item * Support form fields (search box)
+	
+	=back
+	
+	=cut
+	
+	#=head1 HISTORY
+	
+	=head1 AUTHOR
+	
+	Written by Damian Small.
+	
+	=cut
+	
+	my %accesskeys = ();
+	
+	# Initialize original function pointer to FormBuilder::submit
+	my $original_submit_function = \&{'CGI::FormBuilder::submit'};
+	# Override default submit function in FormBuilder
+	{    
+	    no strict 'refs';
+	    no warnings;
+	    *{'CGI::FormBuilder::submit'} = \&submit_override;
+	}
+	
+	sub submit_override {
+	    # Call the original function, and get the results
+	    my $contents = $original_submit_function->(@_);
+	
+	    # Hack the results to add accesskeys
+	    foreach my $buttonName (keys %accesskeys) {
+		$contents =~ s/(<input id="_submit[^>]+ value="$buttonName")( \/>)/$1 title="$buttonName [$accesskeys{$buttonName}]" accesskey="$accesskeys{$buttonName}"$2/;
+	    }
+	
+	    return $contents;
+	}
+	
+	sub import {
+	    hook(type => "getsetup", id => "accesskeys", call => \&getsetup);
+	    hook(type => "checkconfig", id => "accesskeys", call => \&checkconfig);
+	    hook(type => "preprocess", id => "accesskey", call => \&preprocess_accesskey);
+	    hook(type => "format", id => "accesskeys", call => \&format);
+	}
+	
+	sub getsetup () {
+	    return
+		plugin => {
+		    safe => 1,
+		    rebuild => 1,
+		    section => "widget",
+	    },
+	}
+	
+	sub checkconfig () {
+	    if (defined $config{srcdir} && length $config{srcdir}) {
+		# Preprocess the accesskeys page to get all the access keys
+		# defined before other pages are rendered.
+		my $srcfile=srcfile("accesskeys.".$config{default_pageext}, 1);
+		if (! defined $srcfile) {
+		    $srcfile=srcfile("accesskeys.mdwn", 1);
+		}
+		if (! defined $srcfile) {
+		    print STDERR sprintf(gettext("accesskeys plugin will not work without %s"),
+					 "accesskeys.".$config{default_pageext})."\n";
+		}
+		else {
+		    IkiWiki::preprocess("accesskeys", "accesskeys", readfile($srcfile));
+		}
+	    }
+	}
+	
+	sub preprocess_accesskey (@) {
+	    my %params=@_;
+	    
+	    if (! defined $params{command} || ! defined $params{key}) {
+		error gettext("missing command or key parameter");
+	    }
+	    
+	    # check the key
+	    if ($params{key} !~ /^[a-zA-Z0-9]$/) {
+		error gettext("key parameter is not a single character");
+	    }
+	    # check the command
+	    if ($params{command} !~ /^[a-zA-Z0-9 _]+$/) {
+		error gettext("command parameter is not an alphanumeric string");
+	    }
+	    # Add the access key:
+	    $accesskeys{$params{command}} = $params{key};
+	
+	    return sprintf(gettext("[%s] is the access key for command '<i>%s</i>'"), $params{key}, $params{command});
+	}
+	
+	sub format (@) {
+	    my %params = @_;
+	    my $contents = $params{content};
+	 
+	    # If the accesskey page changes, all pages will need to be updated
+	    #debug("Adding dependency: for " . $params{page} . " to AccessKeys");
+	    add_depends($params{page}, "AccessKeys");
+	
+	    # insert access keys
+	    foreach my $command (keys %accesskeys) {
+		$contents =~ s/(<a href=[^>]+)(>$command<\/a>)/$1 accesskey="$accesskeys{$command}"$2/;
+	    }
+	    # may need special handling for non-existant discussion links (and possibly other similar cases?)
+	    #$contents =~ s/(<a href=[^>]+)(>\?<\/a>Discussion)/$1 accesskey="d"$2/;
+	
+	    return $contents;
+	}
+	
+	1
+
+
+[[!toggle id="accesskeys" text="hide accesskeys.pm"]]
+"""]]
+
+--[[DamianSmall]]
+
+[[!tag wishlist]]

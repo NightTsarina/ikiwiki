@@ -1,0 +1,103 @@
+I came across this when working on converting my old blog into an ikiwiki, but I think it could be of more general use.
+
+The background: I have a (currently suspended, waiting to be converted) blog on the [il Cannocchiale](http://www.ilcannocchiale.it) hosting platform. Aside from the usual metatadata (title, author), il Cannocchiale also provides tags and two additional categorization namespaces: a blog-specific user-defind "column" (Rubrica) and a platform-wide "category" (Categoria). The latter is used to group and label a couple of platform-wide lists of latest posts, the former may be used in many different ways (e.g. multi-author blogs could have one column per author or so, or as a form of 'macro-tagging'). Columns are also a little more sophisticated than classical tags because you can assign them a subtitle too.
+
+When I started working on the conversion, my first idea was to convert Rubriche to subdirectories of an ikiwiki blog. However, this left me with a few annoying things: when rebuilding links from the import, I had to (programmatically) dive into each subdirectory to see where each post was; this would also be problematic for future posting, too. It also meant that moving a post from a Rubrica to the other would break all links (unless ikiwiki has a way to fix this automagically). And I wasn't too keen on the fact that the Rubrica would come up in the URL of the post. And finally, of course, I couldn't use this to preserve the Categoria metadata.
+
+Another solution I thought about was to use special deeper tags for the Rubrica and Categoria (like: `\[[!tag "Rubrica/Some name"]]`), but this is horrible, clumsy, and makes special treatment of these tags a PITN (for example you wouldn't want the Rubrica to be displayed together with the other tags, and you would want it displayed somewhere else like next to the title of the post). This solution however looks to me as the proper path, as long as tags could support totally separate namespaces. I have a tentative implementation of this `tagtype` feature at [my git clone of ikiwiki](http://git.oblomov.eu/ikiwiki).
+
+The feature is currently implemented as follows: a `tagtypes` config options takes an array of strings: the tag types to be defined _aside from the usual tags_. Each tag type automatically provides a new directive which sets up tags that different from standard tags by having a different tagbase (the same as the tagtype) and link type (again, the same as the tagtype) (a TODO item for this would to make the directive, tagbase and link type customizable). For example, for my imported blog I would define
+
+    tagtypes => [qw{Categoria Rubrica}]
+
+and then in the blog posts I would have stuff like
+
+    \[[!Categoria "LAVORO/Vita da impiegato"]]
+    \[[!Rubrica "Il mio mondo"]]
+    \[[!meta title="Blah blah"]]
+    \[[!meta author="oblomov"]]
+
+    The body of the article
+
+    \[[!tag a bunch of tags]]
+
+and the tags would appear at the bottom of the post, the Rubrica next to the title, etc. All of this information would end up as categories in the feeds (although I would like to rework that code to make use of namespaces, terms and labels in a different way).
+
+> Note [[plugins/contrib/report/discussion]].  To quote myself from the latter page:
+> *I find tags as they currently exist to be too limiting. I prefer something that can be used for Faceted Tagging http://en.wikipedia.org/wiki/Faceted_classification; that is, things like Author:Fred Nurk, Genre:Historical, Rating:Good, and so on. Of course, that doesn't mean that each tag is limited to only one value, either; just to take the above examples, something might have more than one author, or have multiple genres (such as Historical + Romance).*
+
+> So you aren't the only one who wants to do more with tags, but I don't think that adding a new directive for each tag type is the way to go; I think it would be simpler to just have one directive, and take advantage of the new [[matching different kinds of links]] functionality, and enhance the tag directive.
+> Perhaps something like this:
+
+	     \[[!tag categorica="LAVORO/Vita da impiegato" rubrica="Il mio mondo"]]
+
+> Part of my thinking in this is to also combine tags with [[plugins/contrib/field]], so that the tags for a page could be queried and displayed; that way, one could put them wherever you wanted on the page, using any of [[plugins/contrib/getfield]], [[plugins/contrib/ftemplate]], or [[plugins/contrib/report]].
+> --[[KathrynAndersen]]
+
+>> A very generic metadata framework could cover all possible usages of fields, tags, and related metadata, but keeping its _user interface_ generic would only make it hard to use. Note that this is not an objection to the idea of collapsing the fields and tags functionality (at quick glance, I cannot see a real difference between single-valued custom tagtypes and fields, but see below), but more about the syntax.
+
+>> I had thought about the `\[[!tag type1=value1 type2=value2]]` syntax myself, but ultimately decided against it for a number of reasons, most importantly the fact that (1) it's harder to type, (2) it's harder to spot errors in the tag types (so for example if one misspelled `categoria` as `categorica`, he might not notice it as quickly as seeing the un-parsed `\[[!categorica ]]` directive in the output html) and (3) it encourages collapsing possibly unrelated metadata together (for example, I would never consider putting the categoria information together with the rubrica  one; of course with your syntax it's perfectly possible to keep them separate as well).
+
+>> Point (2) may be considered a downside as well as an upside, depending on perspective, of course. And it would be possible to have a set of predefined tag types to match against, like in my tagtype directive approach but with your syntax.
+
+>>> You seem to have answered your own objections already. -- K.A.
+
+>>Point (3) is of course entirely in the hands of the user, but that's exactly what syntax should be about. There is nothing functionally wrong with e.g. `\[[!meta tag=sometag author=someauthor title=sometitle rubrica=somecolumn]]`, but I honestly find it horrible.
+
+>>> So, really, point 3 comes down to differing aesthetics. -- K.A.
+
+>> A solution could be to allow both syntaxes, getting to have for example `\[[!sometagtype "blah"]]` as a shortcut for `\[[!tag sometagtype="blah"]]` (or, in the more general case, `\[[!somefieldname "blah"]]` as a shortcut for `\[[!meta fieldname="blah"]]`).
+
+>> I would like to point out however that there are some functional differences between categorization metadata vs other metadata that might suggest to keep fields and (my extended) tags separate. For examples, in feeds you'd want all categorization metadata to fall in one place, with some appropriate manipulation (which I still have to implement, by the way), while things like author or title would go to the corresponding feed item properties. Although it all would be possible with appropriate report or template juggling, having such default metadata handled natively looks like a bonus to me.
+
+>>> Whereas I prefer being able to control such things with templates, because it gives more flexibility AND control. - K.A.
+
+>>>> Flexibility and control is good for tuning and power-usage, but sensible defaults are a must for a platform to be usable out of the box without much intervention. Moreover, there's a possible problem with what kind of data must be passed over to templates.
+
+Aside from the name of the plugin (and thus of the main directive), which could be `tag`, `meta`, `field` or whatever (maybe extending `meta` would be the most sensible choice), the features we want are
+
+1. allow multiple values per type/attribute/field/whatever (fields currently only allows one)
+   * Agreed about multiple values; I've been considering whether I should add that to `field`. -- K.A.
+2. allow both hidden and visible references (a la tag vs taglink)
+   * Hidden and visible references; that's fair enough too.  My approach with `ymlfront` and `getfield` is that the YAML code is hidden, and the display is done with `getfield`, but there's no reason not to use additional approaches. -- K.A.
+3. allow each type/attribute/field to be exposed under multiple queries (e.g. tags and categories; this is mostly important for backwards compatibility, not sure if it might have other uses too)
+   * I'm not sure what you mean here. -- K.A.
+     * Typical example is tags: they are accessible both as `tags` and as `categories`, although the way they are presented changes a little -- G.B.
+4. allow arbitrary types/attributes/fields/whatever (even 'undefined' ones)
+   * Are you saying that these must be typed, or are you saying that they can be user-defined? -- K.A.
+     * I am saying that the user should be able to define (e.g. in the config) some set of types/fields/attributes/whatever, following the specification illustrated below, but also be able to use something like `\[[!meta somefield="somevalue"]]` where `somefield` was never defined before. In this case `somefield` will have some default values for the properties described in the spec below. -- G.B.
+
+Each type/attribute/field/whatever (predefined, user-defined, arbitrary) would thus have the following parameters:
+
+* `directive` : the name of the directive that can be used to set the value as a hidden reference; we can discuss whether, for pre- or user-defined types, it being undef means no directive or a default directive matching the attribute name would be defined.
+  * I still want there to be able to be enough flexibility in the concept to enable plugins such as `yamlfront`, which sets the data using YAML format, rather than using directives. -- K.A.
+     * The possibility to use a directive does not preclude other ways of defining the field values. IOW, even if the directive `somefield` is defined, the user would still be able to use the syntax `\[[!meta somefield="somevalue"]]`, or any other syntax (such as YAML). -- G.B.
+* `linkdirective` : the name of the directive that can be used for a visible reference; no such directive would be defined by default
+* `linktype` : link type for (hidden and visible) references
+  * Is this the equivalent to "field name"? -- K.A.
+     * This would be such by default, but it could be set to something different. [[Typed links|matching_different_kinds_of_links]] is a very recent ikiwiki feature. -- G.B.
+* `linkbase` : akin to the tagbase parameter
+  * Is this a field-name -> directory mapping? -- K.A.
+     * yes, with each directory having one page per value. It might not make sense for all fields, of course -- G.B.
+         * (nods) I've been working on something similar with my unreleased `tagger` module. In that, by default, the field-name maps to the closest wiki-page of the same name.  Thus, if one had the field "genre=poetry" on the page fiction/stories/mary/lamb, then that would map to fiction/genre/poetry if fiction/genre existed. --K.A.
+             * that's the idea. In your case you could have the linkbase of genre be fiction/genre, and it would be created if it was missing. -- G.B.
+* `queries` : list of template queries this type/attribute/field/whatever is exposed to
+  * I'm not sure what you mean here. -- K.A.
+     * as mentioned before, some fields may be made accessible through different template queries, in different form. This is the case already for tags, that also come up in the `categories` query (used by Atom and RSS feeds). -- G.B.
+         * Ah, do you mean that the input value is the same, but the output format is different?  Like the difference between TMPL_VAR NAME="FOO" and TMPL_VAR NAME="raw_FOO"; one is htmlized, and the other is not. -- K.A.
+              * Actually this is about the same information appearing in different queries (e.g. NAME="FOO" and NAME="BAR"). Example: say that I defined a "Rubrica" field. I would want both tags and categories to appear in `categories` template query, but only tags would appear in the `tags` query, and only Rubrica values to appear in `rubrica` queries. The issue of different output formats was presented in the next paragraph instead. -- G.B.
+
+Where this approach is limiting is on the kind of data that is passed to (template) queries. The value of the metadata fields might need some massaging (e.g. compare how tags are passed to tags queries vs cateogires queries, or also see what is done with the fields in the current `meta` plugin). I have problems on picturing an easy way to make this possible user-side (i.e. via templates and not in Perl modules). Suggestions welcome.
+
+One possibility could be to have the `queries` configuration allow a hash mapping query names to functions that would transform the data. Lacking that possibility, we might have to leave some predefined fields to have custom Perl-side treatment and leave custom fields to be untransformable.
+
+-----
+
+I've now updated the [[plugins/contrib/field]] plugin to have:
+
+* arrays (multi-valued fields)
+* the "linkbase" option as mentioned above (called field_tags), where the linktype is the field name.
+
+I've also updated [[plugins/contrib/ftemplate]] and [[plugins/contrib/report]] to be able to use multi-valued fields, and [[plugins/contrib/ymlfront]] to correctly return multi-valued fields when they are requested.
+
+--[[KathrynAndersen]]

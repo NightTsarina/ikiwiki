@@ -1,0 +1,272 @@
+Hi,
+I am trying to build a template. The compilation of this template results in a weird exception. I have isolated the cause of the exception to the following point:
+
+If i have this in the template code:
+
+\[[!inline<br/>
+pages="\<TMPL_VAR SEL_PAGES\>"<br/>
+template=extract-entry<br/>
+\]]<br/>
+
+There is no problem at all. I can use the template with the desired result. But if I try to use this (just adding the "show" parameter):
+
+\[[!inline <br/>
+pages="\<TMPL_VAR SEL_PAGES>"<br/>
+template=extract-entry<br/>
+show=\<TMPL_VAR CNTPG><br/>
+\]]<br/>
+
+I get this exception on the Git bash console:
+
+<pre>
+$ git push
+Counting objects: 7, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (4/4), done.
+Writing objects: 100% (4/4), 410 bytes, done.
+Total 4 (delta 3), reused 0 (delta 0)
+remote: From /home/b-odelama-com/source
+remote:    eb1421e..5e1bac5  master     -> origin/master
+remote: Argument "\x{3c}\x{54}..." isn't numeric in numeric lt (<) at /usr/share/perl5/IkiWiki/Plugin/inline.pm line 231.
+remote: Argument "\x{3c}\x{54}..." isn't numeric in numeric lt (<) at /usr/share/perl5/IkiWiki/Plugin/inline.pm line 231.
+To ssh://b-odelama-com@odelama-com.branchable.com/
+   eb1421e..5e1bac5  master -> master
+</pre>
+
+Please, let me know what to do to avoid this kind of error.
+
+> When you add a template page `templates/foo.mdwn` for use
+> the [[ikiwiki/directive/template]] directive, two things happen:
+>
+> 1. `\[[!template id=foo ...]]` becomes available;
+> 2. a wiki page `templates/foo` is built, resulting in a HTML file,
+>    typically `templates/foo/index.html`
+>
+> The warnings you're seeing are the second of these: when ikiwiki
+> tries to process `templates/foo.mdwn` as an ordinary page, without
+> interpreting the `<TMPL_VAR>` directives, `inline` receives invalid
+> input.
+>
+> This is a bit of a design flaw in [[plugins/template]] and
+> [[plugins/edittemplate]], I think - ideally it would be possible to
+> avoid parts of the page being interpreted when the page is being
+> rendered normally rather than being used as a template.
+>
+> There *is* a trick to avoid parts of the page being interpreted when
+> the page is being used as a template, while having them appear
+> when it's rendered as a page:
+>
+>     <TMPL_IF FALSE>
+>     <!-- This part only appears when being used as a page.
+>          It assumes that you never set FALSE to a true value :-) -->
+>     \[[!meta robots="noindex,nofollow"]]
+>     This template is used to describe a thing. Parameters:
+>     * name: the name of the thing
+>     * size: the size of the thing
+>     </TMPL_IF>
+>
+>     The thing is called <TMPL_VAR name> and its size is <TMPL_VAR size>
+>
+> I suppose you could maybe extend that to something like this:
+>
+>     <TMPL_IF FALSE>
+>     <!-- This part only appears when being used as a page.
+>          It assumes that you never set FALSE to a true value :-) -->
+>     \[[!meta robots="noindex,nofollow"]]
+>     This template is used to describe a thing. Parameters:
+>     * name: the name of the thing
+>     * size: the size of the thing
+>     </TMPL_IF>
+>
+>     <TMPL_IF FALSE>
+>     \[[!if test="included() and !included()" then="""
+>     </TMPL_IF>
+>     <!-- This part only appears when being used as a template. It also
+>          assumes that you never set FALSE to a true value, and it
+>          relies on the [[ikiwiki/pagespec]] "included() and !included()"
+>          never being true. -->
+>     The thing is called <TMPL_VAR name> and its size is <TMPL_VAR size>
+>     <TMPL_IF FALSE>
+>     """]]
+>     </TMPL_IF>
+>
+> but that's far harder than it ought to be!
+>
+> Perhaps the right solution would be to change how the template plugin
+> works, so that templates are expected to contain a new `definetemplate`
+> directive:
+>
+>     This template is used to describe a thing. Parameters:
+>     * name: the name of the thing
+>     * size: the size of the thing
+>     
+>     \[[!definetemplate """
+>     The thing is called <TMPL_VAR name> and its size is <TMPL_VAR size>
+>     """]]
+>
+> with templates not containing a `\[[!definetemplate]]` being treated
+> as if the whole text of the page was copied into a `\[[!definetemplate]]`,
+> for backwards compatibility?
+>
+> --[[smcv]]
+
+>> OK, here is a branch implementing what I said. It adds the `definetemplate`
+>> directive to [[plugins/goodstuff]] as its last commit.
+>>
+>> Templates with the current strange semantics will still work, until
+>> IkiWiki breaks compatibility.
+>>
+>> Possible controversies:
+>>
+>> * Should the `definetemplate` plugin be core, or in goodstuff, or neither?
+>>
+>> * Should \[[!definetemplate]] be allowed on any page (with the implementation
+>>   of `template("foo")` looking for a `definetemplate` in `templates/foo`,
+>>   then a `definetemplate` in `foo`, then fall back to the current logic)?
+>>   If not, should \[[!definetemplate]] raise an error when used on a page not
+>>   in `templates/`, since it will have no practical effect there?
+>>
+>> * Is it OK to rely on `definetemplate` being enabled in the basewiki's
+>>   templates?
+>>
+>> * Should the "use definetemplate" wording in the documentation of
+>>   template and edittemplate be stronger? Should those plugins automatically
+>>   load definetemplate?
+>>
+>> --[[smcv]]
+
+>>> this looks like a good idea to me.
+>>>
+>>> * i'd put it in core, and add a transition for the time compatibility gets
+>>>   broken, provided the transitioning system will be used in that. templates
+>>>   can't be expected to just work as markdown+ikiwiki too.
+>>>
+>>>   (it being in core would also solve my qualms about `section => "web"` /
+>>>   `\[[!tag type/web]]`).
+>>>
+>>> * if definetemplate gets deemed core, no "use definetemplate!" notes on the
+>>>   template/edittemplate pages will be required any more.
+>>>
+>>> * first i was sceptical of the approach of re-running scan to make sure the
+>>>   `my %templates` is filled, but it is indeed a practical solution.
+>>>
+>>> * the name "`definetemplate`" gives me the first impression that something
+>>>   is assigned (as in `#define`), but actually it highlights a region in the
+>>>   file. wouldn't "`templatebody`" be a better description of the meaning of
+>>>   the directive?
+>>>
+>>> --[[chrysn]]
+
+>>>> Thanks for your feedback!
+>>>> Looking at its description on this wiki, I agree that `type/web` doesn't
+>>>> fit, and core does seem better. I like your `templatebody` suggestion,
+>>>> too, particularly if templates remain restricted to `/templates`.
+>>>> I'll try to come up with better wording for the documentation to say
+>>>> "use `templatebody`, like this", with a note about backwards
+>>>> compatibility later.
+>>>>
+>>>> Rationale for `my %templates`: yes it does seem a bit odd, but
+>>>> if I used `$pagestate{$tpage}{template}` instead of a `my` variable,
+>>>> I'd sometimes _still_ have to force a `scan`, because
+>>>> [[plugins/template]] has to expand the template at scan time so that
+>>>> it can contain links etc. - so I have to make sure that if the
+>>>> template has changed, it has already been scanned (scanning happens
+>>>> in random order, so that can't be guaranteed). This means there's
+>>>> no benefit in reading it back from the index, so it might as well
+>>>> just be in-memory.
+>>>>
+>>>> I suppose an alternative way to do it would be to remember what was
+>>>> passed to `needsbuild`, and only force a `scan` for templates that
+>>>> were in that list - which potentially reduces CPU time and I/O a
+>>>> little, in exchange for a bigger index. I could do that if Joey
+>>>> wants me to, but I think the current approach is simpler,
+>>>> so I'll stick with the current approach if it isn't vetoed.
+>>>> --[[smcv]]
+
+>>>>> @name: even outside `/templates`, `\[[!templatebody]]` would be
+>>>>> interpreted as "when this page is used as a template, this is what its
+>>>>> contents should be", and be suitable.
+>>>>>
+>>>>> @`%templates`: my surprise wasn't to it not being in `%pagestate`, but
+>>>>> rather that the `scan` function was used for it at all, rather than plain
+>>>>> directive parsing that ignores everything else -- but i agree that it's
+>>>>> the right thing to do in this situation.
+>>>>>
+>>>>> --[[chrysn]]
+
+----
+
+[[!template id=gitbranch author="[[smcv]]" branch=smcv/ready/templatebody
+  browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/templatebody]]
+[[!tag patch users/smcv/ready]]
+Branch and directive renamed to `ready/templatebody` as chrysn suggested.
+It's on-by-default now (or will be if that branch is merged).
+Joey, any chance you could review this?
+
+There is one known buglet: `template_syntax.t` asserts that the entire
+file is a valid HTML::Template, whereas it would ideally be doing the
+same logic as IkiWiki itself. I don't think that's serious. --[[smcv]]
+
+> Looking over this, I notice it adds a hash containing all scanned
+> files. This seems to me to be potentially a scalability problem on
+> rebuild of a site with many pages. Ikiwiki already keeps a lot
+> of info in memory, and this adds to it, for what is a fairly
+> minor reason. It seems to me there should be a way to avoid this. --[[Joey]] 
+
+>> Maybe. Are plugins expected to cope with scanning the same
+>> page more than once? If so, it's just a tradeoff between
+>> "spend more time scanning the template repeatedly" and
+>> "spend more memory on avoiding it", and it would be OK to
+>> omit that, or reduce it to a set of scanned *templates*
+>> (in practice that would mean scanning each template twice
+>> in a rebuild). --s
+>>> [Commit f7303db5](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=f7303db5)
+>>> suggests that scanning the same page more than once is problematic,
+>>> so that solution is probably not going to work.
+>>>
+>>> The best idea I've come up with so far is to track whether
+>>> we're in the scan or render phase. If we're in the scan
+>>> phase, I think we do need to keep track of which pages
+>>> we've scanned, so we don't do them again? (Or perhaps that's
+>>> unnecessary - commit f7303db5 removed a scan call that's in
+>>> the render phase.) If we're in the render phase, we can assume
+>>> that all changed pages have been scanned already, so we can
+>>> drop the contents of `%scanned` and rely on a single boolean
+>>> flag instead.
+>>>
+>>> `%scanned` is likely to be no larger than `%rendered`, which
+>>> we already track, and whose useful lifetime does not overlap
+>>> with `%scanned` now. I was tempted to merge them both and call
+>>> the result `%done_in_this_phase`, but that would lead to really
+>>> confusing situations if a bug led to `render` being called sooner
+>>> than it ought to be.
+>>>
+>>> My ulterior motive here is that I would like to formalize
+>>> the existence of different phases of wiki processing - at the
+>>> moment there are at least two phases, namely "it's too soon to
+>>> match pagespecs reliably" and "everything has been scanned,
+>>> you may use pagespecs now", but those phases don't have names,
+>>> so [[plugins/write]] doesn't describe them.
+>>>
+>>> I'm also considering adding warnings
+>>> if people try to match a pagespec before scanning has finished,
+>>> which can't possibly guarantee the right result, as discussed in
+>>> [[conditional_preprocess_during_scan]]. My `wip-too-soon` branch
+>>> is a start towards that; the docwiki builds successfully, but
+>>> the tests that use IkiWiki internals also need updating to
+>>> set `$phase = PHASE_RENDER` before they start preprocessing. --s
+
+>>>> reviewing those modifications, i think this is a good way to go. along
+>>>> with warning about pagespecs evaluated in scan phase, i think it should be
+>>>> an error to invoke scan in the render phase; that would mean that
+>>>> `readtemplate` needs to check whether it's invoked as a scan or not to
+>>>> decide whether to scan the template page, but would be generally more
+>>>> robust for future plugin writing.
+>>>>
+>>>> **addendum**: if the new phase state is used to create warnings/errors
+>>>> about improper ikiwiki api use of plugins (which is something i'd
+>>>> advocate), that should likewise warn if `add_link` actually adds a link in
+>>>> the render phase.  such a warning would have helped spotting the
+>>>> link-related [[template evaluation oddities]] earlier. --[[chrysn]]
+
+>>>>> [[Merged|done]] --[[smcv]]

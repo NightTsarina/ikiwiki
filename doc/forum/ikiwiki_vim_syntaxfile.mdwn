@@ -1,0 +1,26 @@
+See the new syntax file [[here|tips/vim_syntax_highlighting]]. It fixes both of
+the problems reported below.
+
+----
+
+Hi all,
+
+I'm teaching myself how to write syntax files for vim by fixing several issues
+(and up to certain extent, taking over the maintenance) of the vim syntax
+(highlighting) file for ikiwiki.
+
+I'd like you to document here which problems you have found, so I can hunt them
+and see if I can fix them.
+
+## Problems Found
+
+  * Arguments of directives with a value of length 1 cause the following text to
+  be highlighted incorrectly. Example:
+
+        [[!directive param1="val1" param2="1"]] more text ...
+
+  * A named wikilink in a line, followed by text, and then another wikilink,
+  makes the text in between the links to be incorrectly highlighted. Example:
+
+        \[[a link|alink]] text that appears incorrectly .... \[[link]]
+

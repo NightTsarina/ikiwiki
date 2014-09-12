@@ -1,0 +1,14 @@
+The _git_ module does not appear ever to prune obsolete remote branches in the _srcdir_ repository, leading to spurious errors when fetching.
+
+Pruning remote branches can be done automatically with the --prune option to "git fetch" or in a separate command "git remote prune".
+
+--[[blipvert]]
+
+> I'll need more information than that before I add extra processing
+> work to the current git commands it uses. I don't see any errors here
+> from obsolete remote branches. --[[Joey]] 
+
+Suppose a remote repository contains a branch named "foo", and you fetch from it.  Then, someone renames that branch to "foo/bar".  The next time you fetch from that repository, you will get an error because the obsolete branch "foo" is blocking the branch "foo/bar" from being created (due to the way git stores refs for branches).  Pruning gets around the problem.  It doesn't really add much overhead to the fetch, and in fact it can *save* overhead since obsolete branches do consume resources (any commits they point to cannot be garbage collected).  --[[blipvert]]
+
+> Ok, so git pull --prune can be used to do everything in one command.
+> [[done]] --[[Joey]] 

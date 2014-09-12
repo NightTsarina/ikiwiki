@@ -1,0 +1,18 @@
+[[!template id=plugin name=theme author="[[Joey]]"]]
+[[!tag type/web]]
+
+The theme plugin allows easily applying a theme to your wiki, by
+configuring the `theme` setting in the setup file with the name of a theme
+to use. The themes you can choose from are all subdirectories, typically
+inside `/usr/share/ikiwiki/themes/`. See [[themes]] for an overview
+of the themes included in ikiwiki and the [[theme market]] for third party themes.
+
+You can set the theme via the **theme** option in your config file (after
+enabling the plugin). Refresh the wiki (with `ikiwiki -setup <file>`, `--setup` won't work, they are not interchangable) after changing it to see the changes.
+
+Hints for theme builders
+------------------------
+
+ * Start from an existing [[CSS file|css]], see also the [[css market]] for examples
+ * You can override the [[templates]] files by dropping them in a `templates` subdirectory
+ * Try to stick with modifying the CSS however, maintaining custom templates is harder

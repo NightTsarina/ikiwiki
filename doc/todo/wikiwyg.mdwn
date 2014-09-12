@@ -1,0 +1,71 @@
+[Wikiwyg](http://www.wikiwyg.net/)
+is a WYSIWYG editor written in javascript for wikis. It allows editing in a
+gui or in wikitext and converts edits back to wiki format to be saved to
+the wiki.
+
+It would be awesome to use this in ikiwiki, but to take full advantage of
+it with ikiwiki, it would need to know about MarkDown. Wikiwyg does allow
+defining the text that is stuck on each side of a given html element to
+make it wikified, for example, it can add "# " for a h1, "[[" and "]]" for
+a link, etc. This seems easily doable.
+
+The other thing that would need doing is a `saveChanges` function would
+need to be implemented that saves the text back to ikiwiki. 
+http://svn.wikiwyg.net/code/trunk/wikiwyg/share/Kwiki/lib/Wikiwyg/Kwiki.js
+seems like a good starting point for building a submit form on the fly.
+
+One other problem: Wikiwyg works by parsing html from a div, turning it
+back into the wiki markup, and editing/saving that. That seems to assume
+that there's a way of parsing a page's html and getting back to the underlying
+wiki markup, which is not always the case in ikiwiki. Unless there's some 
+other way to feed it the actual source for a page, this seems like a
+problem. According to the developers, it is possible to do that, and start
+off in WikiText mode.
+
+[[!tag soc]]
+
+[[!tag wishlist]]
+
+[[!tag patch]]
+
+Project IkiWiki::WIKIWYG v1.6 - <http://ikiwiki.xbaud.com/>
+===========================================================
+
+[Wikiwyg][] is a "What you see is what you get" editor for wikis. It will allow you to double click on the text in a wiki and save it without reloading the page. The IkiWiki version will allow you to edit your wiki in Markdown or WYSIWYG. You will also be able to edit a page with the wikiwyg editor by clicking the "Edit" link at the top of the page.
+
+This plugin requires that you have Archive::Tar intalled.
+
+The plugin can be downloaded from <http://ikiwiki.xbaud.com/wikiwyg-1.6.tar.gz>
+
+### Installation Instructions
+
+1. Copy the files from the wikiwyg tarball to the corrosponding folders in your ikiwiki installation
+2. Add "wikiwyg" (no quotes) to the add_plugins section of your ikiwiki.setup
+3. Rebuild your wiki
+4. That's it!
+
+### Current Issues
+
+* Some versions of Mozilla Firefox require you to click Wysiwyg, then another mode, then Wysiwyg again to get Wysiwyg mode working in the Edit link
+* Double lists don't work
+
+### Upcoming Features
+
+* More supported ikiwiki plugins (such as img, smilies, etc.)
+* More wiki languages (such as wiki and otl)
+* Ability to upload directly through wikiwyg (pending the upload plugin)
+* Personalized settings
+
+[Wikiwyg]: http://www.wikiwyg.net/
+
+> As noted in [[discussion]], the url above doesn't work, and I stupidly
+> lost my copy of this before merging it. I hope that this plugin will turn
+> back up. In the meantime, there is a wmd plugin that accomplishes the
+> same basic task of WSYWIG markdown editing. --[[Joey]] 
+
+>> Seems the new place is now at Github: <https://github.com/audreyt/wikiwyg-js>
+>> FYI
+>> --[[users/Olea]]
+
+>>> No, that's the wikiwyg source, not the ikiwiki plugin to use it. The
+>>> latter is what's lost. --[[Joey]]

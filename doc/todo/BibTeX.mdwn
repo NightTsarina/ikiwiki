@@ -1,0 +1,74 @@
+I would *love* to see a plugin that lets you create one or more BibTeX-formatted bibliography pages and add citations to other pages.  The plugin could also render the bibliographies themselves using a chosen BibTeX style and an HTML formatter for LaTeX (such as HeVeA).
+
+--[[JoshTriplett]]
+
+> There is such a plugin at [[plugins/contrib/bibtex|plugins/contrib/bibtex]]. --[[MatthiasIhrke]]
+
+I work on a plugin to htmlize '.bib' files.
+
+A sample result is shown on my webpage : <http://www.adupas.org/research/publications/>.
+
+It features the htmlization of the bibtex with 4 types of entry supported (InProceedings, Article, MastersThesis and PhdThesis). I will add the book entry support soon. It creates for each '.bib' file an html version, and for each entry a specific page with abstract as well as an individual bib file. It lack some features like the possibility to have a pdf or ps version of the article attached.
+
+This plugin uses two templates to render the html version of each file.
+
+I have a problem to create a new page that render like any other page in the wiki. I have used the Ikiwiki's internal **genpage($$)** routine but I suppose that there is another way to do this. My method lack the backlink support for the individual entry files as well as the modification date of these file.
+
+Is it possible to create several wiki page from only one source file?
+
+The source of this plugin could be found on this page : <http://www.adupas.org/software/ikiwiki/> .
+
+Feel free to propose any modifications to enhance this plugin.
+
+--[[AlexandreDupas]]
+
+I have not found any other approach to build several wiki page with only one source file. Does someone have an idea?
+
+I also try to build a wiki-wide preprocessing of the source file to find reference to my bib entry (citation) but apparently there is no wiki-wide preprocessing hook allowing to collect data from each page before building the site. Do I miss something?
+
+--[[AlexandreDupas]]
+
+> The scan hook is run on new page content before building --[[Joey]]
+
+What notation did you have in mind for citations?  A preprocessor
+directive?  Something LaTeX-inspired might be
+
+    \[[!cite key="foo"]]
+
+which would output "(Foo, 2008)".  With the appropriate options, this
+could allow for several variations like "Foo (2008)" and "(Foo, 2008,
+p. 28)".  A `nocite` option could cause the reference to be printed in
+the bibliography but produce no output.
+
+What about the references section?  There are several ways to
+go about it, for example:
+
+1. It could be included at the bottom of the page automatically for
+   pages with references, with a configurable title and heading level
+   (e.g., `<h2>References</h2>`) followed by a list of references.
+
+2. Use another preprocessor directive like
+
+        ## References ##
+
+        \[[!bibliography ]]
+
+   or
+
+        \[[!bibliography title="References" headerlevel="2"]]
+
+   with configurable default values.  Would it be tedious to do this on
+   every page?
+
+3. Use HTML::Template and allow users to add a bibliography section to
+   `page.tmpl` to include the bibliography if references are present and
+   loop over the references to emit a list.  The downside here is having
+   to ask people to modify their templates (unless the plugin is
+   eventually included in the distribution).
+
+Any thoughts on the best way to proceed?
+
+--[[JasonBlevins]], March 23, 2008 21:41 EDT
+
+
+[[!tag soc]] [[!tag wishlist]]

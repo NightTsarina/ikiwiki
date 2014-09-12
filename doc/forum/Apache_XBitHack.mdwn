@@ -1,0 +1,28 @@
+I'd like to be able to use the Apache XBitHack to enable Server Side Includes on my site.  Yes, it is possible to enable SSI by setting the page extension to .shtml, and that is what I am doing at the moment.
+However, the disadvantage of this approach is that the server does not give a LastModified header, which means that the content can't be cached.  However, the way that I am using SSI is such that the main content of the page really is "last modified" when the page was last modified, so I'd like to be able to indicate that.  And using the XBitHack - that is, setting the executable bit on the generated page - would enable me to do that.
+
+I gather from the [[security]] page that having the executable bit set on files is considered a security hole, but how big a hole would it be if I'm the only one editing the site?  Is there a way, a somewhat safe way, of implementing XBitHack for IkiWiki?
+
+-- [[KathrynAndersen]]
+
+> The risk with execute bits on files in the generated site is that someone
+> commits an executable, ikiwiki copies it as-is, and now the web browser
+> can be used to run it. Obviously if you're the only committer, that is 
+> not much of a risk. Or you can lock down apache to not allow running
+> arbitrary files. It's also pretty unlikely that a rendered mdwn file
+> would result in a html page that can be run as an executable. So an
+> option that makes all files rendered from mdwn or other markups 
+> get the x bit set would be pretty safe even with untrusted editors. --[[Joey]] 
+
+>> So how about this: if something has a page-type (i.e. mdwn or whatever authorized page types there are)
+>> then add something at the end of the process (would that be the "changes" hook?)
+>> which sets the x bit on the generated page file.  Would that work?
+
+>> Or is there a way to say "tell me all the generated files that end in .html" and use that as a list to start from?
+
+>> --[[KathrynAndersen]]
+
+>>> Yes, the `change` hook is passed the names of source files that got
+>>> built. Use `pagetype` to check which got htmlized (and filter out ones
+>>> that got copied), and then use `htmlpage` to get the name of the html
+>>> file that was generated, and chmod it. --[[Joey]] 

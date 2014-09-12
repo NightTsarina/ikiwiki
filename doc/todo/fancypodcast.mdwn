@@ -1,0 +1,69 @@
+## Status
+
+[[!template id=gitbranch branch=schmonz/fancypodcast author="[[schmonz]]"]]
+[[!tag patch]]
+
+Nothing new since 2013/07/21 [[merge|done]] to `master`.
+
+## Features
+
+[[!table data="""
+Feature            |iTunes RSS|iTunes Atom|Downcast RSS|Downcast Atom
+Feed image         |          |           |            |
+Feed title         |(./)      |(./)       |(./)        |(./)
+Feed publisher     |          |           |            |
+Feed "category"    |          |           |            |
+Feed date          |(./)      |(./)       |(./)        |(./)
+Feed description   |(./)      |(./)       |(./)        |
+Episode image      |          |           |            |
+Episode title      |(./)      |(./)       |(./)        |(./)
+Episode date       |(./)      |(./)       |(./)        |(./)
+Episode duration   |          |           |            |
+Episode author     |          |           |            |
+Episode description|(./)      |(./)       |(./)        |
+Episode enclosure  |(./)      |(./)       |(./)        |(./)
+"""]]
+
+## Future improvements
+
+### iTunes fancy podcasting
+
+* [iTunes-specific tags](https://www.apple.com/itunes/podcasts/specs.html)
+  appear to be RSS-only
+    * If they work in Atom, teach `inline` to optionally iTunesify RSS/Atom.
+    * Else, add `itunes` as a third kind of feed (RSS plus more stuff).
+* Notable tags for feeds:
+    * `itunes:subtitle`
+    * `itunes:author`
+    * `itunes:summary` (same as `description`)
+    * `itunes:owner` (includes `itunes:name` and `itunes:email`)
+    * `itunes:image href=''`
+    * `itunes:publisher`
+    * `itunes:category text=''` (can contain subcategories)
+    * `itunes:keywords`
+* Notable tags for entries:
+    * `itunes:duration`
+        * [[!cpan Audio::TagLib]] might be fastest, if present and applicable
+        * [ffprobe](http://ffmpeg.org/ffprobe.html) is reasonably fast
+        * [mediainfo](http://mediainfo.sourceforge.net/) is way slower
+        * Cache computed durations as pagestate
+
+### Fancy podcast aggregating
+
+* Write tests comparing a fancy podcast (HTML and feeds) against
+  the same podcast aggregated and republished, then make them pass
+  via changes to `aggregatepost.impl` and [[plugins/aggregate]].
+
+### Other ideas
+
+* Optionally specify the enclosure's:
+    * MIME type, in case `File::MimeInfo` guesses wrong.
+    * Duration, in case `ffprobe` guesses wrong.
+* Optionally specify enclosures outside the wiki:
+    * Some people don't want to store big unchanging files in the VCS.
+    * Other people like [podcasting found media](http://huffduffer.com/about).
+    * We'd have to download the file just to compute some metadata
+      about it, and then somehow not frequently re-download it.
+* Configurably generate additional subscription links (such as
+  iTunes) alongside the RSS/Atom ones in [[plugins/inline]].
+* Support Apple's "enhanced podcasts" (if they're still relevant).

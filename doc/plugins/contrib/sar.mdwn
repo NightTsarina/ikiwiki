@@ -1,0 +1,109 @@
+[[!template id=plugin name=sar author="[[VictorMoral]]"]]
+[[!tag type/chrome type/slow ]]
+
+The `sar` plugin is useful to make global or local search and replace operations
+using common or specific terms.
+
+The characteristics are:
+
+- Support for a global dictionary page (optional but recommended).
+- Is possible to replace the first appearance with a text and the rest with
+other.
+
+The global dictionary page is like this:
+
+    ## Sites and projects
+
+    - [[!sar search="ikiwiki" first="[IkiWiki](http://ikiwiki.info)" next="_IkiWiki_"]]
+    - [[!sar search="debian" first="[Debian](http://debian.org)" next="_Debian_"]]
+    - [[!sar search="perl" first="[Perl](http://perl.org)" next="_Perl_"]]
+    - [[!sar search="linux" replace="GNU/Linux"]]
+   
+    ## Persons
+    - [[!sar search="joey" first="[Joey Hess](http://ikiwiki.info/users/joey]]" next="_Joey_" ]]
+    - [[!sar search="angel" first="[Angel](http://triptico.com)" next="Angel"]]
+
+    ## Technical terms
+
+    - [[!sar search="smtp" first="\[[!wp SMTP]]" next="‘SMTP‘"]]
+    - [[!sar search="pop3" first="\[[!wp POP3]]" next="’POP3’"]]
+
+The search expressions must be surrounded by double dashes in a source ikiwiki
+page, like this:
+
+    Mis programas están escritos en lenguaje --perl--, funcionando con el 
+    sistema --debian--, y mis páginas web funcionan con --ikiwiki-- cuyo autor
+    es --joey--.
+
+    --ikiwiki-- es un buen software.
+
+After a filter operation the content is:
+
+    Mis programas están escritos en lenguaje [Perl](http://perl.org),
+    funcionando con el sistema [Debian](http://debian.org), y mis páginas web
+    funcionan con [IkiWiki](http://ikiwiki.info) cuyo autor es [Joey
+    Hess](http://ikiwiki.info/users/joey).
+
+    _IkiWiki_ es un buen software.
+
+_Note_: I chose this syntax because don't clashes with markdown and it is easy to write. 
+
+A _search and replace_ directive has the following parameters:
+
+- `search`: define the text to search.
+- `first`: define the replace text in the first match.
+- `next`: define the replace text in all matches except the first.
+- `replace`: define the replace text in all matches.
+
+Now the code is used at my site without problems, and the author will
+appreciate any help with his development or his english. 
+
+## Configuration
+
+The plugin need the following global values:
+
+- `sar_mainpage`: define the global dictionary page. The default value is `sar`.
+- `sar_pagespec`: enable the plugin with a selection of pages. The default
+value is `*`, but a recommended value is `link(tag/sar)`.
+
+## Synopsis
+
+In a ikiwiki source page we can write this
+
+    \[[!sar search=debian replace="__Debian__"]]
+
+for define a global replace for the term `--debian--` or
+
+    \[[!sar search=ibm first=’[IBM](http://www.ibm.com)’
+            next="_IBM_"]]
+
+to define a replace for the first match of the string `--ibm--` and a different
+replace for the rest.
+
+## Changelog
+
+### version 0.8
+
+- First functional version with the new sar expressions.
+
+### version 0.7 
+
+- New design for the search expressions.
+
+### version 0.6
+
+- Minor bugfixes in the pages selection.
+- Call to add_depends() for every page filtered
+
+### version 0.5
+
+- This is the first functional version.
+
+## Download 
+
+The module can be downloaded from:
+
+- [My personal site](http://taquiones.net/files/misc)
+- [My personal Debian repository](http://taquiones.net/files/debian)
+
+

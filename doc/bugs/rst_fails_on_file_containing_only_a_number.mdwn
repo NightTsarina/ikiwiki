@@ -1,0 +1,31 @@
+If you create a foo.rst containing only a number, such as "11", rendering
+results in the following error being thrown. (Now that I've fixed the error
+throwing code..):
+
+	exceptions.TypeError:coercing to Unicode: need string or buffer, int found
+
+--[[Joey]]
+
+> Does this patch against proxy.py help?
+
+    index 5136b3c..545e226 100755
+    --- a/plugins/proxy.py
+    +++ b/plugins/proxy.py
+    @@ -88,7 +101,7 @@ class _IkiWikiExtPluginXMLRPCHandler(object):
+
+        @staticmethod
+        def _write(out_fd, data):
+    -        out_fd.write(data)
+    +        out_fd.write(str(data))
+            out_fd.flush()
+
+        @staticmethod
+
+> No, still the same failure. I think it's failing parsing the input data,
+> (which perl probably transmitted as an int due to perl internals)
+> not writing out its response. --[[Joey]]
+
+> On second thought, this was a bug in ikiwiki, it should be transmitting
+> that as a string. Fixed in external.pm --[[Joey]] 
+
+>> [[done]] a while ago, then. I've added a regression test now. --[[smcv]]

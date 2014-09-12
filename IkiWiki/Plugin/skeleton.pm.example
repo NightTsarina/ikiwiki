@@ -1,0 +1,272 @@
+#!/usr/bin/perl
+# Ikiwiki skeleton plugin. Replace "skeleton" with the name of your plugin
+# in the lines below, remove hooks you don't use, and flesh out the code to
+# make it do something.
+package IkiWiki::Plugin::skeleton;
+
+use warnings;
+use strict;
+use IkiWiki 3.00;
+
+sub import {
+	hook(type => "getopt", id => "skeleton",  call => \&getopt);
+	hook(type => "getsetup", id => "skeleton",  call => \&getsetup);
+	hook(type => "checkconfig", id => "skeleton", call => \&checkconfig);
+	hook(type => "refresh", id => "skeleton", call => \&refresh);
+	hook(type => "needsbuild", id => "skeleton", call => \&needsbuild);
+	hook(type => "preprocess", id => "skeleton", call => \&preprocess);
+	hook(type => "filter", id => "skeleton", call => \&filter);
+	hook(type => "linkify", id => "skeleton", call => \&linkify);
+	hook(type => "scan", id => "skeleton", call => \&scan);
+	hook(type => "htmlize", id => "skeleton", call => \&htmlize);
+	hook(type => "sanitize", id => "skeleton", call => \&sanitize);
+	hook(type => "indexhtml", id => "skeleton", call => \&indexhtml);
+	hook(type => "format", id => "skeleton", call => \&format);
+	hook(type => "pagetemplate", id => "skeleton", call => \&pagetemplate);
+	hook(type => "templatefile", id => "skeleton", call => \&templatefile);
+	hook(type => "pageactions", id => "skeleton", call => \&pageactions);
+	hook(type => "delete", id => "skeleton", call => \&delete);
+	hook(type => "rendered", id => "skeleton", call => \&rendered);
+	hook(type => "changes", id => "skeleton", call => \&changes);
+	hook(type => "cgi", id => "skeleton", call => \&cgi);
+	hook(type => "auth", id => "skeleton", call => \&auth);
+	hook(type => "sessioncgi", id => "skeleton", call => \&sessioncgi);
+	hook(type => "canedit", id => "skeleton", call => \&canedit);
+	hook(type => "canremove", id => "skeleton", call => \&canremove);
+	hook(type => "canrename", id => "skeleton", call => \&canrename);
+	hook(type => "checkcontent", id => "skeleton", call => \&checkcontent);
+	hook(type => "editcontent", id => "skeleton", call => \&editcontent);
+	hook(type => "formbuilder_setup", id => "skeleton", call => \&formbuilder_setup);
+	hook(type => "formbuilder", id => "skeleton", call => \&formbuilder);
+	hook(type => "renamepage", id => "skeleton", call => \&renamepage);
+	hook(type => "rename", id => "skeleton", call => \&rename);
+	hook(type => "savestate", id => "skeleton", call => \&savestate);
+	hook(type => "genwrapper", id => "skeleton", call => \&genwrapper);
+	hook(type => "disable", id => "skeleton", call => \&disable);
+}
+
+sub getopt () {
+	debug("skeleton plugin getopt");
+}
+
+sub getsetup () {
+	return
+		plugin => {
+			safe => 1,
+			rebuild => undef,
+		},
+		skeleton => {
+			type => "boolean",
+			example => 0,
+			description => "example option",
+			safe => 0,
+			rebuild => 0,
+		},
+}
+
+sub checkconfig () {
+	debug("skeleton plugin checkconfig");
+}
+
+sub refresh () {
+	debug("skeleton plugin refresh");
+}
+
+sub needsbuild ($) {
+	my $needsbuild=shift;
+
+	debug("skeleton plugin needsbuild");
+
+	return $needsbuild;
+}
+
+sub preprocess (@) {
+	my %params=@_;
+
+	return "skeleton plugin result";
+}
+
+sub filter (@) {
+	my %params=@_;
+	
+	debug("skeleton plugin running as filter");
+
+	return $params{content};
+}
+
+sub linkify (@) {
+	my %params=@_;
+	
+	debug("skeleton plugin running as linkify");
+
+	return $params{content};
+}
+
+sub scan (@) {
+	my %params=@_;
+
+	debug("skeleton plugin running as scan");
+}
+
+sub htmlize (@) {
+	my %params=@_;
+
+	debug("skeleton plugin running as htmlize");
+
+	return $params{content};
+}
+
+sub sanitize (@) {
+	my %params=@_;
+	
+	debug("skeleton plugin running as a sanitizer");
+
+	return $params{content};
+}
+
+sub indexhtml (@) {
+	my %params=@_;
+	
+	debug("skeleton plugin running as indexhtml");
+}
+
+sub format (@) {
+	my %params=@_;
+	
+	debug("skeleton plugin running as a formatter");
+
+	return $params{content};
+}
+
+sub pagetemplate (@) {
+	my %params=@_;
+	my $page=$params{page};
+	my $template=$params{template};
+	
+	debug("skeleton plugin running as a pagetemplate hook");
+}
+
+sub templatefile (@) {
+	my %params=@_;
+	my $page=$params{page};
+	
+	debug("skeleton plugin running as a templatefile hook");
+}
+
+sub pageactions (@) {
+	my %params=@_;
+	my $page=$params{page};
+
+	debug("skeleton plugin running as a pageactions hook");
+	return ();
+}
+
+sub delete (@) {
+	my @files=@_;
+
+	debug("skeleton plugin told that files were deleted: @files");
+}
+
+sub rendered (@) {
+	my @files=@_;
+
+	debug("skeleton plugin told that files were rendered: @files");
+}
+
+sub changes (@) {
+	my @files=@_;
+
+	debug("skeleton plugin told that files were changed: @files");
+}
+
+sub cgi ($) {
+	my $cgi=shift;
+
+	debug("skeleton plugin running in cgi");
+}
+
+sub auth ($$) {
+	my $cgi=shift;
+	my $session=shift;
+
+	debug("skeleton plugin running in auth");
+}
+
+sub sessioncgi ($$) {
+	my $cgi=shift;
+	my $session=shift;
+
+	debug("skeleton plugin running in sessioncgi");
+}
+
+sub canedit ($$$) {
+	my $page=shift;
+	my $cgi=shift;
+	my $session=shift;
+
+	debug("skeleton plugin running in canedit");
+}
+
+sub canremove (@) {
+	my %params=@_;
+
+	debug("skeleton plugin running in canremove");
+}
+
+sub canrename (@) {
+	my %params=@_;
+
+	debug("skeleton plugin running in canrename");
+}
+
+sub checkcontent (@) {
+	my %params=@_;
+
+	debug("skeleton plugin running in checkcontent");
+}
+
+sub editcontent ($$$) {
+	my %params=@_;
+
+	debug("skeleton plugin running in editcontent");
+
+	return $params{content};
+}
+
+sub formbuilder_setup (@) {
+	my %params=@_;
+	
+	debug("skeleton plugin running in formbuilder_setup");
+}
+
+sub formbuilder (@) {
+	my %params=@_;
+	
+	debug("skeleton plugin running in formbuilder");
+}
+
+sub renamepage (@) {
+	my %params=@_;
+	
+	debug("skeleton plugin running in renamepage");
+}
+
+sub rename (@) {
+	my %params=@_;
+	
+	debug("skeleton plugin running in rename");
+}
+
+sub savestate () {
+	debug("skeleton plugin running in savestate");
+}
+
+sub genwrapper () {
+	debug("skeleton plugin running in genwrapper");
+}
+
+sub disable () {
+	debug("skeleton plugin running in disable");
+}
+
+1

@@ -1,0 +1,11 @@
+[[!comment format=mdwn
+ username="http://kerravonsen.dreamwidth.org/"
+ ip="60.241.8.244"
+ subject="Missed It By That Much"
+ date="2010-11-25T02:55:20Z"
+ content="""
+I discovered that I not only needed to change the regexp, but I also needed to delete .ikiwiki/indexdb because `file_pruned` only gets called for files that aren't in the `%pagesources` hash, and since the file in question was already there because it had been put there before the exclude regex was changed, it wasn't even being checked!
+
+[[KathrynAndersen]]
+
+"""]]

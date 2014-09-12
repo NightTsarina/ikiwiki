@@ -1,0 +1,128 @@
+I think that I have logged in using openid! But I think the login page
+could use some adjustemnts.
+
+Perhaps the openid stuff should be seperate, unless I was supposed to login
+as well. Also have I just created an account on this wiki as well?
+
+> The idea is that you fill in one or the other but not both. If it's
+> switched to only openid, it's much clearer, since the
+> username/password/register stuff disappears from the form.
+>
+> If both login methods are enabled, it's limited to using one form for
+> both though...
+>
+> By signing in with openid, you have created an account on the wiki; you
+> can configure it to eg, subscribe your email address to changes to pages.
+> --[[Joey]]
+
+OK, my openid login works too. One question though, is there a setup parameter which controls whether new registrations are permitted at all? For instance, I'm thinking that I'd like to use the wiki format for content, but I don't want it editable by anyone who isn't already set up. Does this work? --[[Tim Lavoie]]
+
+----
+
+# How to ban an IP address?
+
+There is a way to ban ikiwiki users, but how to ban an IP address?
+For example if a bitchy anonymous is bombing our poll. I can use
+only Apache/iptables rules for this? Maybe it's related to
+[[ACL|todo/ACL]] request? --[[Paweł|ptecza]]
+
+> Well, the polls are not something I would worry about much. I do plan to
+> add_IP_range_banning, although I expect to wait until
+> there's a demonstrated need. --[[Joey]]
+
+>> Heh, do you really want a lot of spam of me? ;)
+
+>> It was only an example of banning reason. Recently I've read about
+>> problems of Wikipedia with the vandals from Qatar. They demolished
+>> Qatar Wikipedia pages and the admins of Wikipedia had to ban all
+>> IP addresses of that country (fortunately Qatar has only one ISP).
+>> --[[Paweł|ptecza]]
+
+----
+
+## Error voting
+
+> Error: /srv/web/ikiwiki.info/todo/Configurable_minimum_length_of_log_message_for_web_edits/index.html independently created, not overwriting with version from todo/Configurable_minimum_length_of_log_message_for_web_edits
+
+[[users/jon]]
+
+----
+
+### Logging Out
+
+If I've logged in by OpenID, how do I log out?  I don't see any logout
+button anywhere on IkiWiki.  (is it because I hit "forever" for my OpenID authorization duration?)
+> No, it's because it's on the preferences page!  That's somewhat non-obvious...
+
+>> This is a problem with having a static wiki. If I just put "Logout" as
+>> an action on every page, that will look weird if you're not logged in.
+>> --[[Joey]]
+
+Even if IkiWiki does let me log out, how do I *stay* logged out?  Let's say I'm using a kiosk.  What's to prevent someone else from hitting my OpenID service right after I've walked away?  My OpenID service will just auth the login again, won't it? --[[sabr]]   (behavior seems to vary...  does it depend on the OpenID service?  guess I have some docs to read.)
+
+> If you're at a kiosk, you'll need to log out of your openid provider too.
+> Or use a provider that doesn't use cookies to keep you logged in. (Or
+> don't check the box that makes your provider set a cookie when you log in.)
+> 
+> AFAIK openid doesn't have single signoff capabilities yet. --[[Joey]]
+
+I'm having a problem using my preferred openid. I have
+http://thewordnerd.info configured as a delegate to
+thewordnerd.myopenid.com. It works fine on Lighthouse, Slicehost and
+everywhere else I've used it. Here, though, if I use the delegate I'm sent
+to my openid identity URL on myopenid.com. If I use the identity URL
+directly, I get the verification page.
+
+Is my delegation broken in some way that works for all these other apps but
+which fails here? Or is something broken in Ikiwiki's implementation?
+
+> I guess this is the same issue filed by you at
+> [[bugs/OpenID_delegation_fails_on_my_server]] --[[Joey]]
+
+Yes. I'd only recently set up my server as a delegate under wordpress, so still thought that perhaps the issue was on my end. But I'd since used my delegate successfully elsewhere, so I filed it as a bug against ikiwiki.
+
+----
+###Pretty Painless
+I just tried logging it with OpenID and it Just Worked.  Pretty painless.  If you want to turn off password authentication on ikiwiki.info, I say go for it. --[[blipvert]]
+
+> I doubt I will. The new login interface basically makes password login
+> and openid cooexist nicely. --[[Joey]] 
+
+###LiveJournal openid
+One caveat to the above is that, of course, OpenID is a distributed trust system which means you do have to think about the trust aspect.  A case in point is livejournal.com whose OpenID implementation is badly broken in one important respect:  If a LiveJournal user deletes his or her journal, and a different user registers a journal with the same name (this is actually quite a common occurrence on LiveJournal), they in effect inherit the previous journal owner's identity.  LiveJournal does not even have a mechanism in place for a remote site even to detect that a journal has changed hands.  It is an extremely dodgy situation which they seem to have *no* intention of fixing, and the bottom line is that the "identity" represented by a *username*.livejournal.com token should not be trusted as to its long-term uniqueness.  Just FYI.  --[[blipvert]]
+
+----
+
+Submitting bugs in the OpenID components will be difficult if OpenID must be working first...
+
+------
+
+# Privacy and Decentralization
+
+Maybe I don't understand OpenID well enough, but it looks like there are just few providers, most
+of which are huge companies or belong to such, and I don't trust them to verify me identity
+or to not track all my logins. I'll use OpenID only if I can make my own home server
+be my OpenID provider, and if doing so doesn't interfere with the design and security and
+privacy of OpenID, and doesn't require me to use centrally-signed certificates or pay to some
+company or anything like that.
+
+Is it possible to use OpenID in a way keeping the user in full control and allowing any user to
+have their personal provider without damaging the architecture behind OpenID?
+
+I'm worried, at least until the issue is cleared.
+
+-- [[fr33domlover]]
+
+> You can install an OpenID provider on your own server and use that if you
+> wish. I believe you will need an SSL certificate that `ikiwiki.info` trusts.
+> -- [[Jon]]
+
+----
+
+This poll is now 8 years old. Do we have enough data to make a decision?
+Can we consider adding `open=no` to the poll? -- [[Jon]]
+
+----
+
+I vote against disabling password logins until my OpenID will work on [ikiwiki.info](/)!
+See [[/plugins/openid/troubleshooting]]. -- Chap

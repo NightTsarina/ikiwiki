@@ -1,0 +1,254 @@
+# Danish translation of templates page for ikiwiki.
+# Copyright (C) 2008, 2009, 2011, Jonas Smedegaard <dr@jones.dk>
+# This file is distributed under the same license as the ikiwiki package.
+# Jonas Smedegaard <dr@jones.dk>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki 3.20110430\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
+"PO-Revision-Date: 2011-05-05 22:21+0200\n"
+"Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
+"Language-Team: None\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#. type: Plain text
+msgid ""
+"[[Ikiwiki]] uses many templates for many purposes. By editing its templates, "
+"you can fully customise its appearance, and avoid duplicate content."
+msgstr ""
+"[[Ikiwiki]] anvender mange skabeloner til mange formål. Ved at redigere "
+"disse skabeloner kan du fuldstændigt skræddersy dets udseende, og undgå "
+"gentaget indhold."
+
+#. type: Plain text
+msgid ""
+"Ikiwiki uses the HTML::Template module as its template engine. This supports "
+"things like conditionals and loops in templates and is pretty easy to learn. "
+"All you really need to know to modify templates is this:"
+msgstr ""
+"Ikiwiki anvender HTML::Template modulet som dets skabelonmotor. Her "
+"understøttes ting som betingelser og sløjfer, og er ret nemt at lære. "
+"Alt hvad du reelt behøver at vide for at tilrette skabeloner er dette:"
+
+#. type: Bullet: '* '
+msgid "To insert the value of a template variable, use `<TMPL_VAR variable>`."
+msgstr "Brug `<TMPL_VAR variabel>` til at indsætte værdien af en variabel."
+
+#. type: Bullet: '* '
+msgid ""
+"To make a block of text conditional on a variable being set use `<TMPL_IF "
+"variable>text</TMPL_IF>`."
+msgstr ""
+"Gør en tekstblok betinget af at en variabel er i brug med `<TMPL_IF "
+"variabel>tekst</TMPL_IF>`."
+
+#. type: Bullet: '* '
+msgid ""
+"To use one block of text if a variable is set and a second if it's not, use "
+"`<TMPL_IF variable>text<TMPL_ELSE>other text</TMPL_IF>`"
+msgstr ""
+"Brug een tekstblok hvis en variabel er i brug, og en anden hvis ikke, med "
+"`<TMPL_IF variabel>tekst<TMPL_ELSE>anden tekst</TMPL_IF>`"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!if test=\"enabled(template) or enabled(edittemplate)\" then=\"\"\"\n"
+msgstr ""
+"[[!if test=\"enabled(template) or enabled(edittemplate)\" then=\"\"\"\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "template pages"
+msgstr "skabelonsider"
+
+#. type: Plain text
+msgid ""
+"Template pages are regular wiki pages that are used as templates for other "
+"pages."
+msgstr ""
+"Skabelonsider er normale wikisider som bliver brugt som skabeloner for andre "
+"sider."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!if test=\"enabled(template)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(template)\" then=\"\"\"\n"
+
+#. type: Plain text
+msgid ""
+"The [[!iki ikiwiki/directive/template desc=\"template directive\"]] allows "
+"template pages to be filled out and inserted into other pages in the wiki."
+msgstr ""
+"[[!iki ikiwiki/directive/template desc=\"Direktivet template\"]] tillader "
+"skabelonsider at blive udfyldt og indsat i andre sider i wikien."
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!if test=\"enabled(edittemplate)\" then=\"\"\"\n"
+msgstr "[[!if test=\"enabled(edittemplate)\" then=\"\"\"\n"
+
+#. type: Plain text
+msgid ""
+"The [[!iki ikiwiki/directive/edittemplate desc=\"edittemplate directive\"]] "
+"can be used to make new pages default to containing text from a template "
+"page, which can be filled out as the page is edited."
+msgstr ""
+"[[!iki ikiwiki/directive/edittemplate desc=\"Direktivet edittemplate\"]] "
+"kan bruges til at lade nye sider som udgangspunkt indeholde tekst fra en "
+"skabelonside, som så kan udfyldes når siden redigeres."
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"[[!if test=\"(enabled(template) or enabled(edittemplate))\n"
+"and enabled(inline)\" then=\"\"\"\n"
+msgstr ""
+"[[!if test=\"(enabled(template) or enabled(edittemplate))\n"
+"and enabled(inline)\" then=\"\"\"\n"
+
+#. type: Plain text
+msgid "These template pages are currently available:"
+msgstr "Disse skabelonsider er i øjeblikket tilgængelige:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"[[!inline pages=\"templates/* and !*.tmpl and !templates/*/* and !*/discussion\"\n"
+"feeds=no archive=yes sort=title template=titlepage\n"
+"rootpage=templates postformtext=\"Add a new template page named:\"]]\n"
+msgstr ""
+"[[!inline pages=\"templates/* and !*.tmpl and !templates/*/* and !*/discussion\"\n"
+"feeds=no archive=yes sort=title template=titlepage\n"
+"rootpage=templates postformtext=\"Tilføj en ny skabelonside med navn:\"]]\n"
+
+#. type: Title ##
+#, no-wrap
+msgid "template files"
+msgstr "skabelonfiler"
+
+#. type: Plain text
+msgid ""
+"Template files are unlike template pages in that they have the extension `."
+"tmpl`. Template files are used extensively by Ikiwiki to generate html.  "
+"They can contain html that would not normally be allowed on a wiki page."
+msgstr ""
+"Skabelonfiler er forskellige fra skabelonsider i det at de har endelsen `."
+"tmpl`. Skabelonfiler bruges massivt af Ikiwiki til at danne html.  "
+"De kan indeholde html som normalt ikke ville vlre tilladt på en wikiside."
+
+#. type: Plain text
+msgid ""
+"Template files are located in `/usr/share/ikiwiki/templates` by default; the "
+"`templatedir` setting can be used to make another directory be searched "
+"first. Customised template files can also be placed inside the \"templates/"
+"\" directory in your wiki's source -- files placed there override ones in "
+"the `templatedir`."
+msgstr ""
+"Skabelonfiler er placeret `/usr/share/ikiwiki/templates` som standard; "
+"indstillingen `templatedir` kan anvendes til at søge i en anden mappe "
+"først. Tilrettede skabelonfiler kan også placeres under mappen \"templates/"
+"\" i din wikis kilde -- filer placeret her overskygger dem i `templatedir`."
+
+#. type: Plain text
+msgid "Here is a full list of the template files used:"
+msgstr "Her er en fuld oversigt over anvendte skabelonfiler:"
+
+#. type: Bullet: '* '
+msgid ""
+"`page.tmpl` - Used for displaying all regular wiki pages. This is the key "
+"template to customise to change the look and feel of Ikiwiki.  [[!if test="
+"\"enabled(pagetemplate)\" then=\"\"\""
+msgstr ""
+"`page.tmpl` - Brugt til at vise alle normale wikisider. Det er den centrale "
+"skabelon at tilrette for at ændre Ikiwikis udseende og opførsel.  [[!if test="
+"\"enabled(pagetemplate)\" then=\"\"\""
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"  (The [[!iki ikiwiki/directive/pagetemplate desc=\"pagetemplate directive\"]]\n"
+"  can be used to make a page use a different template than `page.tmpl`.)\"\"\"]]\n"
+"* `rsspage.tmpl` - Used for generating rss feeds for blogs.\n"
+"* `rssitem.tmpl` - Used for generating individual items on rss feeds.\n"
+"* `atompage.tmpl` - Used for generating atom feeds for blogs.\n"
+"* `atomitem.tmpl` - Used for generating individual items on atom feeds.\n"
+"* `inlinepage.tmpl` - Used for displaying a post in a blog.\n"
+"* `archivepage.tmpl` - Used for listing a page in a blog archive page.\n"
+"* `titlepage.tmpl` - Used for listing a page by title in a blog archive page.\n"
+"* `microblog.tmpl` - Used for showing a microblogging post inline.\n"
+"* `blogpost.tmpl` - Used for a form to add a post to a blog (and rss/atom links)\n"
+"* `feedlink.tmpl` - Used to add rss/atom links if `blogpost.tmpl` is not used.\n"
+"* `aggregatepost.tmpl` - Used by the aggregate plugin to create\n"
+"  a page for a post.\n"
+"* `searchform.tmpl`, `googleform.tmpl` - Used by the search plugin \n"
+"  and google plugin to add search forms to wiki pages.\n"
+"* `searchquery.tmpl` - This is a Omega template, used by the\n"
+"  search plugin.\n"
+"* `comment.tmpl` - Used by the comments plugin to display a comment.\n"
+"* `change.tmpl` - Used to create a page describing a change made to the wiki.\n"
+"* `recentchanges.tmpl` - Used for listing a change on the RecentChanges page.\n"
+"* `autoindex.tmpl` - Filled in by the autoindex plugin to make index pages.\n"
+"* `autotag.tmpl` - Filled in by the tag plugin to make tag pages.\n"
+"* `calendarmonth.tmpl`, `calendaryear.tmpl` - Used by ikiwiki-calendar to\n"
+"  make calendar archive pages.\n"
+"* `editpage.tmpl`, `editconflict.tmpl`, `editcreationconflict.tmpl`,\n"
+"  `editfailedsave.tmpl`, `editpagegone.tmpl`, `pocreatepage.tmpl`,\n"
+"  `editcomment.tmpl` `commentmoderation.tmpl`, `renamesummary.tmpl`,\n"
+"  `passwordmail.tmpl`, `openid-selector.tmpl`, `revert.tmpl` - Parts of ikiwiki's user\n"
+"  interface; do not normally need to be customised.\n"
+msgstr ""
+"  ([[!iki ikiwiki/directive/pagetemplate desc=\"Direktivet pagetemplate\"]]\n"
+"  kan bruges til at lade en side bruge en anden skabelon end `page.tmpl`.)"
+"\"\"\"]]\n"
+"* `rsspage.tmpl` - Brugt til at danne rss-fødninger til web-dagbøger "
+"(blogs).\n"
+"* `rssitem.tmpl` - Brugt til at danne individuelle emner i rss-fødninger.\n"
+"* `atompage.tmpl` - Brugt til at danne atom-fødninger til web-dagbøger "
+"(blogs).\n"
+"* `atomitem.tmpl` - Brugt til at danne individuelle emner i atom-fødninger.\n"
+"* `inlinepage.tmpl` - Brugt til at vise et indlæg i en web-dagbog (blog).\n"
+"* `archivepage.tmpl` - Brugt til at opremse en side på en arkivside for en "
+"web-dagbog (blog).\n"
+"* `titlepage.tmpl` - Brugt til at opremse en side efter titel på en arkivside "
+"for en web-dagbog (blog).\n"
+"* `microblog.tmpl` - Brugt til at vise et mikroblog-indlæg indlejret.\n"
+"* `blogpost.tmpl` - Brugt af formular til at tilføje indlæg til en "
+"web-dagbog (blog) (og rss/atom-henvisninger)\n"
+"* `feedlink.tmpl` - Brugt til at tilføje rss/atom-henvisninger hvis "
+"`blogpost.tmpl` ikke bruges.\n"
+"* `aggregatepost.tmpl` - Brugt til af udvidelsen aggregate til at oprette\n"
+"  en side til et indlæg.\n"
+"* `searchform.tmpl`, `googleform.tmpl` - Brugt af udvidelserne search og \n"
+"  google til at tilføje søgeformularer til wikisider.\n"
+"* `searchquery.tmpl` - Dette er en Omega-skabelon, anvendt af udvidelsen\n"
+"  search.\n"
+"* `comment.tmpl` - Brugt af udvidelsen comments til at vise en kommentar.\n"
+"* `change.tmpl` - Brugt til at oprette en side der beskriver en ændring "
+"lavet på wikien.\n"
+"* `recentchanges.tmpl` - Brugt til at opremse en ændring på siden "
+"SenesteRettelser (RecentChanges).\n"
+"* `autoindex.tmpl` - Udfyldt af udvidelsen autoindex til at oprette "
+"indeks-sider.\n"
+"* `autotag.tmpl` - Udfyldt af udvidelsen tag til at oprette mærkat-sider.\n"
+"* `calendarmonth.tmpl`, `calendaryear.tmpl` - Brugt af ikiwiki-calendar til\n"
+"  at oprette arkivsider til kalender.\n"
+"* `editpage.tmpl`, `editconflict.tmpl`, `editcreationconflict.tmpl`,\n"
+"  `editfailedsave.tmpl`, `editpagegone.tmpl`, `pocreatepage.tmpl`,\n"
+"  `editcomment.tmpl` `commentmoderation.tmpl`, `renamesummary.tmpl`,\n"
+"  `passwordmail.tmpl`, `openid-selector.tmpl`, `revert.tmpl` - Dele af "
+"ikiwikis brugerflade;\n"
+"  normalt ikke nødvendige at tilrette.\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"

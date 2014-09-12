@@ -1,0 +1,31 @@
+[[!comment format=mdwn
+ username="https://www.google.com/accounts/o8/id?id=AItOawllEHb4oGNaUrl7vyziQGrxAlQFri_BfaE"
+ nickname="Geert"
+ subject="comment 2"
+ date="2010-09-12T06:45:27Z"
+ content="""
+After a re-installation of ikiwiki (first removed all old files), I get the following feedback:
+
+    Successfully set up gwiki:
+	    url:         http://ubuntu1004/~geertvc/gwiki
+	    srcdir:      ~/gwiki
+	    destdir:     ~/public_html/gwiki
+	    repository:  ~/gwiki.git
+    To modify settings, edit ~/gwiki.setup and then run:
+	    ikiwiki -setup ~/gwiki.setup
+
+
+In the lighttpd config file (/etc/lighttpd/lighttpd.conf), I've now changed the item \"server.document-root\" from the default \"/var/www\" to (in my case) \"/home/geertvc/public_html/gwiki\".  I've taken the destdir location (see above) as document root for lighttpd.
+
+When doing this, I can see the \"index.html\" page of ikiwiki (by typing the following URL in the address box of the browser: \"ubuntu1004/index.html\").  So, that seems to be the right modification, right?  Or isn't it?
+
+Note: when I take the directory \"/home/geertvc/gwiki\" (= the URL given above), then things do not work.  I can't see the content of \"index.html\", I get the error message I mentioned in my initial post (404 - not found).
+
+But when clicking, for instance, the \"Edit\" button, the link brings me to the following location:
+
+    http://ubuntu1004/~geertvc/gwiki/ikiwiki.cgi?page=index&do=edit
+
+However, there's not at all a file called \"ikiwiki.cgi\" at that location.  The location of the file \"ikiwiki.cgi\" is \"/home/geertvc/public_html/gwiki\", so why is the link \"Edit\" leading me to that (wrong?) location?
+
+Apparently, something is still wrong with my settings.  Hope, with the above information, someone can put me on the right track...
+"""]]

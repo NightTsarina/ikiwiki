@@ -1,0 +1,14 @@
+[[!template id=plugin name=getsource author="[[Will_Uther|Will]]"]]
+[[!tag type/web]]
+
+This plugin adds a "Source" link to the top of each page that uses
+the CGI to display the page's source.
+
+Configuration for this plugin in the setup file:
+
+* `getsource_mimetype => "text/plain; charset=utf-8"`
+
+  Sets the MIME type used when page source is requested. The default is
+  usually appropriate, but you could set this to `application/octet-stream`
+  to encourage browsers to download the source to a file rather than showing
+  it in the browser.

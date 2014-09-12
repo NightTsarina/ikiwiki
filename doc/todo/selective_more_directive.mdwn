@@ -1,0 +1,28 @@
+I'm setting up a blog for NaNoWriMo and other story-writing, which means long posts every day. I want to have excerpts on the front page, which link to the full length story posts. I also want a dedicated page for each story which inlines the story in full and in chronological order. I can use the "more" directive to achieve this effect on the front page but then it spoils the story page. My solution was to add a pages= parameter to the more directive to make it more selective.
+
+    --- /usr/share/perl5/IkiWiki/Plugin/more.pm     2010-10-09 00:09:24.000000000 +0000
+    +++ .ikiwiki/IkiWiki/Plugin/more.pm    2010-11-01 20:24:59.000000000 +0000
+    @@ -26,7 +26,10 @@
+     
+            $params{linktext} = $linktext unless defined $params{linktext};
+     
+    -       if ($params{page} ne $params{destpage}) {
+    +       if ($params{page} ne $params{destpage} &&
+    +           (! exists $params{pages} ||
+    +            pagespec_match($params{destpage}, $params{pages},
+    +                  location => $params{page}))) {
+                    return "\n".
+                           htmllink($params{page}, $params{destpage}, $params{page},
+                                    linktext => $params{linktext},
+
+I can now call it as 
+
+    \[[!more pages="index" linktext="Chapter 1" text="""
+    etc
+    """]]
+
+I'm not entirely happy with the design, since I would rather put this information in the inline directive instead of in every story post. Unfortunately I found no way to pass parameters from the inline directive to the inlined page.
+
+-- [[dark]]
+
+> Me neither, but nor do I see a better way, so [[applied|done]]. --[[Joey]] 

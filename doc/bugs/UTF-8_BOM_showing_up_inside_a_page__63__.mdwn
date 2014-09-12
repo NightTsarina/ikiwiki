@@ -1,0 +1,38 @@
+﻿I have a git-backed ikiwiki install, and when I commit and push a file from an x86 host (LANG=en_US.UTF-8) to the Ikiwiki box, which is Debian GNU/Linux on Sparc, I sometimes get unusual characters (ef bb ff) before the first character of the wiki text.  It seems that this is a UTF-8 "byte order mark" that is getting inserted automatically into the .wiki file by my editor: http://vim.wikia.com/wiki/VimTip246#Tip:_.23246_-_Working_with_Unicode 
+
+Example:
+
+        http://monkey.linuxworld.com/lwce-2007/
+
+Is there any way for ikiwiki to spot when .wiki files have this BOM and
+deal with it, or should I make sure to strip it out before committing?
+
+> It would be easy to make ikiwiki strip out the BOM. For example, a simple
+> plugin could be written to s/// them out as a filter.
+>
+> I'm unsure if ikiwiki should do this by default. --[[Joey]]
+
+> Looked at this some more. It seems this would be a browser bug, after
+> all, it's not displaying the BOM properly.
+> To test, I've added a BOM to this file. 
+> 
+> Well, this page looks ok in epiphany and w3m, even with the BOM. Epiphany
+> incorrectly displays it as a space (not zero-width). In w3m in a unicode
+> xterm, it's invisible. What's going on is that <FEFF> is only a BOM at
+> the very beginning of the file. Otherwise, it should be treated as a
+> zero-width, non-breaking space. Ie, invisible. Any browsers that display
+> it otherwise seem to be broken. 
+> 
+> I'm having a hard time with the idea that any program that reads utf-8
+> data from a file and sticks it in the middle on another, output, utf-8
+> file, is broken if it doesn't strip the BOM. It could be argued that
+> programs should do that; it could be argued that perl should strip the
+> BOM from the beginning of a file whenever reading a file in utf8 mode, to
+> avoid all perl programs needing to do this on their own. Or it could be
+> argued that requiring all programs do this is silly, and that the BOM was
+> designed so you didn't need to strip it.
+> 
+> After consideration, I prefer this last argument, so I prefer not to
+> make ikiwiki stip utf8 BOMS. Calling this bug [[done]].
+> 
+> --[[Joey]]

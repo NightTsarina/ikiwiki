@@ -1,0 +1,23 @@
+Stuff the [[plugins/attachment]] plugin is currently missing, that might be
+nice to add:
+
+* Add a progress bar for attachment uploads (needs AJAX stuff..)
+* Maybe optimise the "Insert Links" button with javascript, so, if
+  javascript is available, the link is inserted at the current cursor
+  position in the page edit form, without actually reposting the form.
+  (Falling back to the current reposting of the form if javascript is not
+  available of course.)
+* Allow files to be attached from the add comments form, as well as the edit page.
+* An option to not `rcs_add` new attachments, but just write them to the
+  srcdir. This would allow the admin to review them, and manually
+  add/delete them before they bloat history.
+
+> I'd be inclined to implement that one by writing them to a nominated
+> underlay, I think, rather than having them in the srcdir but not in
+> the VCS. My [[plugins/contrib/album]] plugin could benefit from this
+> functionality, although in that case the photos should probably just
+> stay in the underlay forever (I already use an underlay on my own
+> websites for photos and software releases, which are too big to want
+> them in the VCS permanently.) --[[smcv]]
+
+[[!tag wishlist]]

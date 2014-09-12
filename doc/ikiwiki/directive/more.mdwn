@@ -1,0 +1,21 @@
+The `more` directive is supplied by the [[!iki plugins/more desc=more]] plugin.
+
+This directive provides a way to have a "more" link on a post in a blog, that
+leads to the full version of the page. Use it like this:
+
+	\[[!more linktext="click for more" text="""
+	This is the rest of my post. Not intended for people catching up on
+	their blogs at 30,000 feet. Because I like to make things
+	difficult.
+	"""]]
+
+If the `linktext` parameter is omitted it defaults to just "more".
+
+An optional `pages` parameter can be used to specify a
+[[ikiwiki/PageSpec]], and then the "more" link will only be displayed
+when the page is inlined into a page matching that PageSpec, and otherwise
+the full content shown.
+
+Note that you can accomplish something similar using a [[toggle]] instead.
+
+[[!meta robots="noindex, follow"]]

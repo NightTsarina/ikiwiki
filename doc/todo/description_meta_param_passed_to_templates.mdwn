@@ -1,0 +1,10 @@
+[[!tag wishlist patch]]
+
+I'd like to use the description parameter from [[meta|/ikiwiki/directive/meta]] directives in custom [[inline|/ikiwiki/directive/inline]] templates. I guess this could be useful to others too.
+
+The only change required is on [line 266](http://github.com/joeyh/ikiwiki/blob/master/IkiWiki/Plugin/meta.pm#L266) of `meta.pm`
+
+    - foreach my $field (qw{author authorurl permalink}) {
+    + foreach my $field (qw{author authorurl description permalink}) {
+
+> Good idea, [[done]]. --[[Joey]] 

@@ -1,0 +1,72 @@
+[[!template id=gitbranch branch=wtk/linktoimageonly author="[[wtk]]"]]
+
+how can I create a link to an image which is part of the wiki, without having it inserted in my page?
+
+I tought this:
+
+    \[[look at this|img/lolcat.png]] 
+
+would work, but it doesn't.
+
+Any hints? --[[jerojasro]]
+
+> Well, currently the syntax above will display the image
+> inline with the specified link text used as an alt attribute. Although
+> that does not seem to be documented anywhere.
+> 
+> A few places that use that (found with `git grep '\[\[' | egrep 'png|gif|jpeg|jpg' |grep \|`):
+> 
+> * [[logo]] uses it to provide useful alt texts for the logos. (This
+>   could easily be changed to use [[ikiwiki/directive/img]] though.)
+> * The `change.tmpl` template uses it to display 
+>   the [[diff|wikiicons/diff.png]] with a very useful "diff" alt text.
+>   Using [[ikiwiki/directive/img]] here would mean that the
+>   [[plugins/recentchanges]] plugin would depend upon the img
+>   plugin.
+> 
+> I do like your suggestion, it makes more sense than the current behavior.
+> I'm not sure the transition pain to get from here to there is worth it,
+> though.
+> 
+> More broadly, if I were writing ikiwiki now, I might choose to leave out the
+> auto-inlining of images altogether. In practice, it has added a certian level
+> of complexity to ikiwiki, with numerous plugins needing to specify
+> `noimageinline` to avoid accidentially inlining an image. And there has not
+> been a lot of payoff from having the auto-inlining feature implicitly
+> available most places. And the img directive allows much needed control over
+> display, so it would be better for users to not have to worry about its
+> lesser cousin. But the transition from here to *there* would be another order
+> of pain.
+> 
+> Anyway, the cheap and simple answer to your question is to use html
+> or markdown instead of a [[ikiwiki/wikilink]]. Ie, 
+> `[look at this](img/lolcat.jpg)`. --[[Joey]]
+
+> > thanks a lot, that's a quite straightforward solution. I actually wrote a
+> > broken plugin to do that, and now I can ditch it --[[jerojasro]]
+
+>>> The plugin approach is not a bad idea if you want either the ability
+>>> to:
+>>>
+>>> * Have things that are wikilink-aware (like [[plugins/brokenlinks]]
+>>>   treat your link to the image as a wikilink. 
+>>> * Use standard wikilink path stuff (and not have to worry about 
+>>>   a relative html link breaking if the page it's on is inlined, for
+>>>   example).
+>>>
+>>> I can help you bang that plugin into shape if need be. --[[Joey]] 
+
+>>>> both my plugin and your suggestion yield broken html links when inlining the page (although probably that's what is expected from your suggestion (`[]()`))
+>>>>
+>>>> I thought using the `bestlink` function would take care of that, but alas, it doesn't.
+>>>> Get the "plugin" [here](http://devnull.li/~jerojasro/files/linktoimgonly.pm), see the broken 
+>>>> links generated [here](http://devnull.li/~jerojasro/blog/posts/job_offers/) and the source 
+>>>> file for that page [here](http://git.devnull.li/cgi-bin/gitweb.cgi?p=blog-jerojasro.git;a=blob;f=posts/job_offers.mdwn;hb=HEAD) --[[jerojasro]]
+
+>>>>> Use this --[[Joey]] 
+
+	return htmllink($params{page}, $params{destpage}, $params{"img"},
+	    linktext => $params{text},
+	    noimageinline => 1);
+
+> [[patch]]: I've updated this plugin for the current ikiwiki. --[[wtk]]

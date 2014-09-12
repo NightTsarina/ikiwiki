@@ -1,0 +1,222 @@
+I would love to see more traditional support for comments in ikiwiki.   One
+way would be to structure data on the discussion page in such a way that a
+"comment" plugin could parse it and yet the discussion page would still be
+a valid and usable wiki page.
+
+For example if the discussion page looked like this:
+
+    # Subject of First Comment
+    Posted by [Adam Shand](http://adam.shand.net/) at 10:34PM on 14/04/2007
+
+    Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Morbi consectetuer nunc quis 
+    magna.  Etiam non est eget sapien vulputate varius. Vivamus magna. Sed justo. Donec 
+    pellentesque ultrices urna.
+
+    # Subject of the Second Comment
+    Posted by [Foo Bar](http://foobar.net/) at 11:41PM on 14/04/2007
+
+    Quisque lacinia, lorem eget ornare facilisis, enim eros iaculis felis, id volutpat nibh
+    mauris ut felis. Vestibulum risus nibh, adipiscing volutpat, volutpat et, lacinia ut, 
+    pede. Maecenas dolor. Vivamus feugiat volutpat ligula.
+
+Each header marks the start of a new comment and the line immediately
+following is the comments meta data (author, email/url, datestamp).
+Hopefully you could structure it in such a way that the scope 
+
+This would allow:
+
+ * A comment plugin to render the comments in "traditional blog" format .  
+ * Possibly even support nesting comments by the header level?
+ * A comment plugin to create a form at the bottom of the page for people to add comments in the appropriate format to the discussion page
+ * Still remain usable and readable by people who work via svn.
+ * When there is ACL support you could mark the discussion page as read only so it could only be updated by the comment plugin (if that's what you wanted)
+
+Is this simple enough to be sensible?
+
+-- [[AdamShand]]
+
+> Well, if it's going to look like a blog, why not store the data the same
+> way ikiwiki stores blogs, with a separate page per comment? As already
+> suggested in [[discussion_page_as_blog]] though there are some things to
+> be worked out also discussed there.
+> --[[Joey]]
+
+>> I certainly won't be fussy about how it gets implemented, I was just trying to think of the lightest weight most "wiki" solution.  :-) -- Adam.
+
+>>> As a side note, the feature described above (having a form not to add a page but to expand it in a formated way) would be useful for other things when the content is short (timetracking, sub-todo list items, etc..) --[[hb]]
+
+# [[MarceloMagallon]]'s implementation
+
+I've been looking into this.  I'd like to implement a "blogcomments"
+plugin.  Looking at the code, I think the way to go is to have a
+formbuilder_setup hook that uses a different template instead of the
+standard editpage one.  That template would not display the editcontent
+field.  The problem that I'm running into is that I need to append the new
+content to the old one.
+
+-- [[MarceloMagallon]]
+
+> Anything I can do to help? --[[Joey]]
+
+>> Figured it out.  Can you comment on the code below?  Thanks. -- [[MarceloMagallon]]
+
+So, I have some code, included below.  For some reason that I don't quite get it's not updating the wiki page after a submit.  Maybe it's something silly on my side...
+
+What I ended up doing is write something like this to the page:
+
+    [[!blogcomment from="""Username""" timestamp="""12345""" subject="""Some text""" text="""the text of the comment"""]]
+
+Each comment is processed to something like this:
+
+    <div>
+        <dl>
+            <dt>From</dt><dd>Username</dd>
+            <dt>Date</dt><dd>Date (needs fixing)</dd>
+            <dt>Subject</dt><dd>Subject text</dd>
+        </dl>
+
+        <p>Text of the comment...</p>
+    </div>
+
+.  In this way the comments can be styled using CSS.
+
+-- [[MarceloMagallon]]
+
+## Code
+
+    #!/usr/bin/perl
+    package IkiWiki::Plugin::comments;
+
+    use warnings;
+    use strict;
+    use IkiWiki '1.02';
+
+    sub import {
+        hook(type => "formbuilder_setup", id => "comments",
+            call => \&formbuilder_setup);
+        hook(type => "preprocess", id => "blogcomment",
+            call => \&preprocess);  
+    }
+
+    sub formbuilder_setup (@) {
+        my %params=@_;
+        my $cgi = $params{cgi};
+        my $form = $params{form};   
+        my $session = $params{session};
+
+        my ($page)=$form->field('page');
+        $page=IkiWiki::titlepage(IkiWiki::possibly_foolish_untaint($page));
+
+        # XXX: This needs something to make it blog specific
+        unless ($page =~ m{/discussion$} &&
+                $cgi->param('do') eq 'edit' &&
+                ! exists $form->{title})
+        {
+            return;
+        }
+
+        if (! $form->submitted)
+        {
+            $form->template(IkiWiki::template_file("makeblogcomment.tmpl"));
+            $form->field(name => "blogcomment", type => "textarea", rows => 20,
+                cols => 80);
+            return;
+        }
+
+        my $content="";
+        if (exists $pagesources{$page}) {
+            $content=readfile(srcfile($pagesources{$page}));
+            $content.="\n\n";
+        }
+        my $name=defined $session->param('name') ?
+            $session->param('name') : gettext('Anonymous');
+        my $timestamp=time;
+        my $subject=defined $cgi->param('comments') ?
+            $cgi->param('comments') : '';
+        my $comment=$cgi->param('blogcomment');
+
+        $content.=qq{[[!blogcomment from="""$name""" timestamp="""$timestamp""" subject="""$subject""" text="""$comment"""]]\n\n};
+        $content=~s/\n/\r\n/g;
+        $form->field(name => "editcontent", value => $content, force => 1);
+    }
+
+    sub preprocess (@) {
+        my %params=@_;
+
+        my ($text, $date, $from, $subject, $r);
+
+        $text=IkiWiki::preprocess($params{page}, $params{destpage},
+                IkiWiki::filter($params{page}, $params{text}));
+        $from=exists $params{from} ? $params{from} : gettext("Anonymous");
+        $date=localtime($params{timestamp}) if exists $params{timestamp};
+        $subject=$params{subject} if exists $params{subject};
+
+        $r = qq{<div class="blogcomment"><dl>\n};
+        $r .= '<dt>' . gettext("From") . "</dt><dd>$from</dd>\n" if defined $from;
+        $r .= '<dt>' . gettext("Date") . "</dt><dd>$date</dd>\n" if defined $date;
+        $r .= '<dt>' . gettext("Subject") . "</dt><dd>$subject</dd>\n"
+            if defined $subject;
+        $r .= "</dl>\n" . $text . "</div>\n";
+
+        return $r;
+    }
+    
+    1;
+
+# [[smcv]]'s implementation
+
+I've started a smcvpostcomment plugin (to be renamed to postcomment if people like it, but I'm namespacing it while it's still experimental) which I think more closely resembles what Joey was after. The code is cargo-culted from a mixture of editpage and inline's "make a blog post" support - it has to use a lot of semi-internal IkiWiki:: functions (both of those plugins do too). It doesn't fully work yet, but I'll try to get it into a state where it basically works and can be published in the next week or two.
+
+My approach is:
+
+* Comments are intended to be immutable after posting (so, only editable by direct committers), so they go on internal pages (*._comment); these internal pages are checked in to the RCS (although later I might make this optional)
+
+* ?do=smcvpostcomment (in the CGI script) gives a form that lets logged-in users (later, optionally also anonymous users) create a new comment
+
+* \[[!smcvpostcomment]] just inserts a "Post comment" button into the current page, which goes to ?do=smcvpostcomment - it's intended to be used in conjunction with an \[[!inline]] that will display the comments
+
+* The title (subject line), author and authorurl are set with \[[!meta]] directives, just like the way aggregate does it (which means I'll probably have to disallow the use of those \[[!meta]] directives in the body of the comment, to avoid spoofing - obviously, spoofing can be detected by looking at RecentChanges or gitweb, but the expectation for blog-style comments is that the metadata seen in the comment can be trusted)
+
+* The initial plan is to have comments hard-coded to be in Markdown, with further directives not allowed - I'll relax this when I've worked out what ought to be allowed!
+
+I've also updated Marcelo's code (above) to current ikiwiki, and moved it to a "marceloblogcomment" namespace - it's in the "marcelocomments" branch of my repository (see <http://git.debian.org/?p=users/smcv/ikiwiki.git;a=log;h=refs/heads/marcelocomments>). I had to reconstitute the .tmpl file, which Marcelo didn't post here.
+
+--[[smcv]]
+
+OK, the postcomment branch in my repository contains an implementation. What
+do you think so far? Known issues include:
+
+* The combination of RSS/Atom links and the "post new comment..." button is
+  ugly - I need a way to integrate the "new comment" button into the feed links
+  somehow, like the way inline embeds its own "new blog post..." feature
+  (I don't think the current way really scales, though)
+
+* There are some tweakables (whether to commit comments into the VCS, whether
+  wikilinks are allowed, whether directives are allowed) that are theoretically
+  configurable, but are currently hard-coded
+
+* The wikilink/directive disarming doesn't work unless you have
+  prefixdirectives set (which I just realised)
+
+* \[[!smcvpostcomment]] now displays the comments too, by invoking \[[!inline]]
+  with suitable parameters - but it does so in a very ugly way
+
+* Start-tags in a comment with no corresponding end-tag break page formatting
+  (unless htmltidy is enabled - inline and aggregate have the same problem)
+
+* There is no access control, so anonymous users can always comment, and so
+  can all logged-in users. Perhaps we need to extend canedit() to support
+  different types of edit? Or perhaps I should ignore canedit() and make the
+  access control configurable via a parameter to \[[!smcvpostcomment]]?
+  I'd like to be able to let anonymous (or at least non-admin) users comment
+  on existing pages, but not edit or create pages (but perhaps I'm being too
+  un-wikiish).
+
+--[[smcv]]
+
+I've updated smcvpostcomment and publicised it as [[plugins/contrib/comments]]. --[[smcv]]
+
+> While there is still room for improvement and entirely other approaches,
+> I am calling this done since smcv's comments plugin is ready. --[[Joey]] 
+
+[[done]]

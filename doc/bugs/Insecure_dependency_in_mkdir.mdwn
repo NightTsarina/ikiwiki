@@ -1,0 +1,160 @@
+Joey, please see RecentChanges and note that this is my second bug report,
+because the first was unsuccessfully (bad characters in post title?).
+Could you please tidy it up?
+
+> I've fixed that and the bug that caused the dup.
+
+>> Thanks a lot! :)
+
+I've just upgraded my ikiwiki from version 2.11 to the latest version 2.15.
+I use my own rebuilt ikiwiki package for Ubuntu Gutsy box. Now I can't rebuild
+all my ikiwiki pages, because of the following bug:
+
+    ptecza@anahaim:~/blog$ ikiwiki --setup ikiwiki.setup --getctime --verbose
+    [...]
+    scanning post/2007/12/09/pink-freud-w-cafe-kulturalna.mdwn
+    ikiwiki.setup: Insecure dependency in mkdir while running with -T switch at /usr/share/perl5/IkiWiki.pm line 355.
+    BEGIN failed--compilation aborted at (eval 5) line 151.
+
+I have a write permission to the ikiwiki destination directory:
+
+    ptecza@anahaim:~/blog$ ls -ld /var/www/blog/
+    drwxr-xr-x 2 ptecza ptecza 4096 2007-12-17 10:48 /var/www/blog/
+
+I've read ikiwiki changelog for the previous releases and unfortunately
+I can't see any related entries. Any ideas?
+
+--[[Paweł|ptecza]]
+
+> **Update**: I've came back to ikiwiki 2.11 and... the bug still exists!
+> Probably the reason is that I've removed all content of `/var/www/blog/`
+> before mass rebuilding. --[[Paweł|ptecza]]
+
+> I can't reproduce this bug with a setup file that tells ikiwiki to
+> write to /var/www/blog, which doesn't exist. I get a "Permission denied"
+> since I can't write to /var/www. If I make the permissions allow me to
+> write to /var/www, it happily creates the blog subdirectory. If the blog
+> subdirectory is already there and I can write to it, that of course also
+> works.
+> 
+> I'll need enough information to reproduce the problem before I can fix
+> it. Probably a copy of your setup file, wiki source, and information
+> about how your /var/www is set up. --[[Joey]]
+
+>> Thanks for your efforts, Joey! I sent my `ikiwiki.setup` file to you.
+>> What source do you need? Entire my ikiwiki or only some pages?
+>>
+>> There are settings of `/var/www/` directory on my Ubuntu Gutsy box:
+>>
+>>        ptecza@anahaim:~$ ls -al /var/www/
+>>        total 16
+>>        drwxr-xr-x  4 root   root   4096 2007-11-06 16:25 .
+>>        drwxr-xr-x 14 root   root   4096 2007-11-06 16:13 ..
+>>        drwxr-xr-x  2 root   root   4096 2007-11-06 16:13 apache2-default
+>>        drwxr-xr-x  5 ptecza ptecza 4096 2007-12-17 16:54 blog
+>>
+>> --[[Paweł|ptecza]]
+
+>> I need a set of files that you know I can use to reproduce the bug.
+>> --[[Joey]]
+
+>>> OK, I've just sent you the URL where you can find all files you need :)
+>>>
+>>> Probably I know how to reproduce the bug. You have to erase all files from
+>>> `/var/www/blog` before mass rebuilding. This is my `mass-rebuild.sh` script:
+>>>
+>>>        #!/bin/bash
+>>>        
+>>>        rm -rf /var/www/blog/*
+>>>        ikiwiki --setup ikiwiki.setup --getctime --verbose
+>>>
+>>> I noticed that the bug was "resolved" when I added to my blog new entry
+>>> and commited the changes. Before I created all directories and touched
+>>> empty `*.html` files in `/var/www/blog` directory. Probably it's not
+>>> necessary, because without a new blog revision the bug still existed
+>>> and `ikiwiki` still failed.
+>>>
+>>> --[[Paweł|ptecza]]
+
+>> I'd forgotten about [this perl bug](http://bugs.debian.org/411786).
+>> All I can do is work around it by disabling the taint checking. :-(
+>> (Which I've [[done]].) --[[Joey]]
+
+>>> Ubuntu Gutsy also has Perl 5.8.8-7, so probably it has the bug too.
+>>> --[[Paweł|ptecza]]
+
+>>>> I just got it while building my latest version of git.ikiwiki.info + my stuff.
+>>>> Only thing different in my version in IkiWiki.pm is that I moved a &lt;/a> over
+>>>> a word (for createlink), and disabled the lowercasing of created pages. Running
+>>>> Lenny's Perl. --[[simonraven]]
+
+>>>> Simon, I'm not clear what version of ikiwiki you're using.
+>>>> Since version 2.40, taint checking has been disabled by
+>>>> default due to the underlying perl bug. Unless you
+>>>> build ikiwiki with NOTAINT=0. --[[Joey]] 
+
+>>>> Hi, nope not doing this. Um, sorry, v. 3.13. I've no idea why it suddenly started doing this.
+>>>> It wasn't before. I've been messing around IkiWiki.pm to see if I can set
+>>>> a umask for `mkdir`.
+
+line 775 and down:
++			        umask ($config{umask} || 0022);
+
+>>>> I figured it *might* be the `umask`, but I'll see in a few when / if it gets past that in the build. No; I keep getting garbage during the brokenlinks test
+
+<pre>
+t/basewiki_brokenlinks.....Insecure dependency in mkdir while running with -T switch at IkiWiki.pm line 776.
+
+#   Failed test at t/basewiki_brokenlinks.t line 11.
+
+#   Failed test at t/basewiki_brokenlinks.t line 19.
+
+
+broken links found
+&lt;li>shortcut from &lt;a href="./shortcuts/">shortcuts&lt;/a>&lt;/li>&lt;/ul>
+
+
+
+#   Failed test at t/basewiki_brokenlinks.t line 25.
+Insecure dependency in mkdir while running with -T switch at IkiWiki.pm line 776.
+
+#   Failed test at t/basewiki_brokenlinks.t line 11.
+
+#   Failed test at t/basewiki_brokenlinks.t line 25.
+# Looks like you failed 5 tests of 12.
+dubious
+        Test returned status 5 (wstat 1280, 0x500)
+</pre>
+
+>>>> I get this over and over... I haven't touched that AFAICT, at all. --[[simonraven]]
+
+>>>>> Take a look at your `/usr/bin/ikiwiki`. The first
+>>>>> line should not contain -T. If it does, remove it,
+>>>>> and maybe try to work out or give details about how
+>>>>> you installed ikiwiki and why it got the -T in there,
+>>>>> which certianly doesn't happen by default when ikiwiki
+>>>>> is installed by the Makefile.PL or by any package I know of.
+>>>>> (If there's
+>>>>> no -T, then something *really* weird is going on..)
+>>>>> --[[Joey]] 
+
+>>>>>> nope, no -T in the hashbang line at all. Haven't added any;
+>>>>>> only thing I did there was change `use lib` to `/usr/share/perl5`,
+>>>>>> otherwise I'd get bogus errors about CGI::Cookie_al or some such thing.
+>>>>>>
+>>>>>> How I installed it was in non-public directories in various sites, then
+>>>>>> make it publish stuff to a public dir in the relevant site. Or do you
+>>>>>> mean installed, as in the whole thing? From a .deb I made based on the git tree, with `git-buildpackage`.
+>>>>>>
+>>>>>> This issue is recent, after a `git pull` IIRC. It has never happened before. It's also puzzling me.
+>>>>>>
+>>>>>> You can check it out for yourself by pulling my fork of this, at github or my local repo.
+>>>>>> github will probably be faster for you: git://github.com/kjikaqawej/ikiwiki-simon.git --[[simonraven]]
+
+>>>>>>> I don't know what I'm supposed to see in your github tree.. it
+>>>>>>> looks identical to an old snapshot of ikiwiki's regular git repo?
+>>>>>>> If you want to put up the .deb you're using, I could examine that.
+>>>>>>>
+>>>>>>> I was in fact able to reproduce the insecure dependency in mkdir
+>>>>>>> message -- but only if I run 'perl -T ikiwiki'.
+>>>>>>> --[[Joey]] 

@@ -1,0 +1,51 @@
+## Alt explanation/instructions
+For whatever reason, I found the info on the dot cgi page very confusing.  The instructions on [[http://maketecheasier.com/install-and-configure-apache-in-ubuntu/2011/03/09]] were a lot easier to follow, and ultimately got me over the ubuntu-apache hump.
+
+Following this method the wiki won't be at the same url, it will be at localhost/*wiki_name*
+
+## warning: lighttpd only or both?
+
+Is your warning at the bottom (you don't know how secure it is) only about
+lighttpd or it's about apache2 configuration as well?
+
+> The latter. (Although I don't know why using lighttpd would lead
+> to any additional security exposure anyway.) --[[Joey]] 
+
+I'm asking this because right now I want to setup an httpd solely for the
+public use of ikiwiki on a general purpose computer (there are other things
+there), and so I need to choose the more secure solution. --Ivan Z.
+
+> AFAIU, my main simplest security measure should be running the public
+> ikiwiki's cgi under a special user, but then: how do I push to the repo
+> owned by that other user? I see, probably I should setup the public wiki
+> under the special user (so that it was able to create the cgi-script with
+> the desired permission), and then give my personal user the required
+> permissions to make a git-push by, say, creating a special Unix group for
+> this.
+
+> Shouldn't there be a page here which would document a secure public and
+> multi-user installation of ikiwiki (by "multi-user" I mean writable by a
+> group of local Unix users)? If there isn't such yet, I started writing it
+> with this discussion.--Ivan Z.
+
+> I see, perhaps a simpler setup would not make use of a Unix group, but
+> simply allow pushing to the public wiki (kept under a special user) through
+> git+ssh. --Ivan Z.
+
+>> Yes, it's certianly possible to configure git (and svn, etc) repositories so that
+>> two users can both push to them. There should be plenty of docs out there
+>> about doing that.
+>> 
+>> The easiest way though is probably
+>> to add your ssh key to the special user's `.ssh/authorized_keys`
+>> and push that way. --[[Joey]] 
+
+## apache2 - run from userdir
+Followed instructions but couldn't get it right to run from user dir (running ubuntu jaunty),  
+Finally got it working once I've sym linked as follow (& restarted apache):    
+\# ln -s ../mods-available/userdir.load .  
+\# ln -s ../mods-available/userdir.conf .  
+\# pwd  
+/etc/apache2/mods-enabled  
+
+

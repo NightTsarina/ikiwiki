@@ -1,0 +1,25 @@
+[[!template id=plugin name=graphviz author="[[JoshTriplett]]"]]
+[[!tag type/widget]]
+
+This plugin provides the [[ikiwiki/directive/graph]] [[ikiwiki/directive]].
+This directive allows embedding [graphviz](http://www.graphviz.org/) graphs in a
+page.
+
+Security implications: graphviz does not seem to have any syntax exploitable to
+perform file access or shell commands on the server.  However, the graphviz
+plugin does make denial of service attacks somewhat easier: any user with edit
+privileges can use this plugin to create large files without the need to send
+large amounts of data, allowing them to more quickly fill the disk, run the
+server out of memory, or use up large amounts of bandwidth.  Any user can
+already do these things with just the core of ikiwiki, but the graphviz plugin
+allows for an amplification attack, since users can send less data to use large
+amounts of processing time and disk usage.
+
+[[!if test="enabled(graphviz)" then="""
+Some example graphs:
+
+[[!graph src="a -> b -> c; a -> b;"]]
+[[!graph src="a -- b -- c -- a;" prog="circo" type="graph"]]
+"""]]
+
+This plugin uses the [[!cpan Digest::SHA]] perl module.

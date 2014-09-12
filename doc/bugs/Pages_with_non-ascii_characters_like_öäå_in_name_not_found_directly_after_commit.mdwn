@@ -1,0 +1,145 @@
+At least my setup on kapsi.fi always prints 404 Not Found after adding a page with non-ascii characters in name. But the page exists and is visible after the 404 with url encoding and the blog page is inlined correctly on the feed page.
+
+Apparently ikiwiki.info does not complain with 404. Should the character encoding be set in wiki config?
+
+Happens also after editing the page. Here's an example:
+
+ * page name displayed in 404: http://mcfrisk.kapsi.fi/skiing/posts/Iso-Sy%F6te%20Freeride%202011%20Teaser.html?updated
+ * page name in the blog feed: http://mcfrisk.kapsi.fi/skiing/posts/Iso-Sy%C3%B6te%20Freeride%202011%20Teaser.html
+
+Difference is in the word Iso-Syöte. Pehaps also the browsers is part of
+the game, I use Iceweasel from Debian unstable with default settings.
+
+> I remember seeing this problem twice before, and both times it was caused
+> by a bug in the *web server* configuration. I think at least one case it was
+> due to an apache rewrite rule that did a redirect and mangled the correct
+> encoding.
+> 
+> I recommend you check there. If you cannot find the problem with your web
+> server, I recommend you get a http protocol dump while saving the page,
+> and post it here for analysis. You could use tcpdump, or one of the
+> browser plugins that allows examining the http protocol. --[[Joey]]
+
+Server runs Debian 5.0.8 but I don't have access to the Apache configs. Here's the tcp stream from wireshark without cookie data, page name is testiä.html. I guess page name is in utf-8 but in redirect after post it is given to browser with 8859-1.
+
+	POST /ikiwiki.cgi HTTP/1.1
+	Host: mcfrisk.kapsi.fi
+	User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20110107 Iceweasel/3.5.16 (like Firefox/3.5.16)
+	Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+	Accept-Language: en-us,en;q=0.5
+	Accept-Encoding: gzip,deflate
+	Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+	Keep-Alive: 300
+	Connection: keep-alive
+	Referer: http://mcfrisk.kapsi.fi/ikiwiki.cgi
+	Cookie: XXXX
+	Content-Type: multipart/form-data; boundary=---------------------------138059850619952014921977844406
+	Content-Length: 1456
+
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="_submitted"
+
+	2
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="do"
+
+	edit
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="sid"
+
+	93c956725705aa0bbdff98e57efb28f4
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="from"
+
+
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="rcsinfo"
+
+	5419fbf402e685643ca965d577dff3dafdd0fde9
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="page"
+
+	testi..
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="type"
+
+	mdwn
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="editcontent"
+
+	test
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="editmessage"
+
+
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="_submit"
+
+	Save Page
+	-----------------------------138059850619952014921977844406
+	Content-Disposition: form-data; name="attachment"; filename=""
+	Content-Type: application/octet-stream
+
+
+	-----------------------------138059850619952014921977844406--
+	HTTP/1.1 302 Found
+	Date: Wed, 02 Feb 2011 19:45:49 GMT
+	Server: Apache/2.2
+	Location: /testi%E4.html?updated
+	Content-Length: 0
+	Keep-Alive: timeout=5, max=500
+	Connection: Keep-Alive
+	Content-Type: text/plain
+
+	GET /testi%E4.html?updated HTTP/1.1
+	Host: mcfrisk.kapsi.fi
+	User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20110107 Iceweasel/3.5.16 (like Firefox/3.5.16)
+	Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+	Accept-Language: en-us,en;q=0.5
+	Accept-Encoding: gzip,deflate
+	Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+	Keep-Alive: 300
+	Connection: keep-alive
+	Referer: http://mcfrisk.kapsi.fi/ikiwiki.cgi
+	Cookie: XXXX
+
+	HTTP/1.1 404 Not Found
+	Date: Wed, 02 Feb 2011 19:45:55 GMT
+	Server: Apache/2.2
+	Content-Length: 279
+	Keep-Alive: timeout=5, max=499
+	Connection: Keep-Alive
+	Content-Type: text/html; charset=iso-8859-1
+
+	<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+	<html><head>
+	<title>404 Not Found</title>
+	</head><body>
+	<h1>Not Found</h1>
+	<p>The requested URL /testi..html was not found on this server.</p>
+	<hr>
+	<address>Apache/2.2 Server at mcfrisk.kapsi.fi Port 80</address>
+	</body></html>
+
+Getting the pages has worked every time:
+
+	GET /testi%C3%A4.html HTTP/1.1
+	Host: mcfrisk.kapsi.fi
+	User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1.16) Gecko/20110107 Iceweasel/3.5.16 (like Firefox/3.5.16)
+	Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+	Accept-Language: en-us,en;q=0.5
+	Accept-Encoding: gzip,deflate
+	Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+	Keep-Alive: 300
+	Connection: keep-alive
+	Cookie: XXXX
+	If-Modified-Since: Wed, 02 Feb 2011 19:45:54 GMT
+	If-None-Match: "1b518d-7c0-49b51e5a55c5f"
+	Cache-Control: max-age=0
+
+	HTTP/1.1 304 Not Modified
+	Date: Wed, 02 Feb 2011 20:01:43 GMT
+	Server: Apache/2.2
+	Connection: Keep-Alive
+	Keep-Alive: timeout=5, max=500
+	ETag: "1b518d-7c0-49b51e5a55c5f"

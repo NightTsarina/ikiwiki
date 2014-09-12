@@ -1,0 +1,79 @@
+In the login page, the icons of:
+
+ * livejournal.com
+ * myopenid.com - which is [closing](http://tech.slashdot.org/story/13/09/04/228229/myopenid-to-shut-down-in-february)
+ * verisign.com
+ * yahoo.com
+ * aol.com
+ * claimid.com
+ * flickr.com - which should be the same as yahoo
+ * wordpress.com
+ * google.com
+
+... are all hotlinked. Which means that on every ikiwiki out there, whenever someone logs in, the web browser of that person actually report backs to all those entities, some of which are known to collaborate with the US government in illegal spying of american citizens and, well, the world at large (see [[!wikipedia PRISM]], but also the patriot act and various warrantless wiretapping provisions established since 2001).
+
+In the old days, we used to call those [[!wikipedia web bugs]]. Nowadays, they seem so pervasive that we don't even notice. Nevertheless, I think it would be important to remove those snitches from the ikiwiki home page.
+
+A simple fix would be to ship those icons with ikiwiki and serve them locally, but there may be legal issues with redistributing those icons in the source code... Would it be covered by fair use? The [upstream library](https://code.google.com/p/openid-selector/) doesn't actually exhibit that problem, and ships those icons directly as a [PNG sprite](https://code.google.com/p/openid-selector/source/browse/#svn%2Ftrunk%2Fimages). -- [[anarcat]]
+
+> it's not exactly about OpenID, but the german heise newspaper group has
+> switched away from directly including like/+1 buttons on their websites, and
+> replaced them with locally hosted buttons which have to be clicked once to
+> enable the buttons themselves and a second time to effect anything.
+> [here's the article](http://www.h-online.com/features/Two-clicks-for-more-privacy-1783256.html).
+> they've had [trouble with facebook (german)](http://www.heise.de/newsticker/meldung/Facebook-beschwert-sich-ueber-datenschutzfreundlichen-2-Klick-Button-2-Update-1335658.html)
+> -- <abbr title="too long, didn't translate">tl;dt</abbr>: facebook complained
+> about them using their "like"-button logo for something that's not a like
+> button, they replaced the whole facebook logo there with a plain-text "F" (as
+> you see on the bottom of the page). google's +1 seems not to have been an
+> issue. i assume it will need case-by-case decisions to fully comply with all
+> legal stuff involved. (from a practical point of view, things are not that
+> strict, as `apt-file find facebook.png` and `apt-file find flickr.png`
+> reveal.) --[[chrysn]]
+
+>> The fundamental problem here is that we want to balance these
+>> somewhat incompatible goals:
+>>
+>> * show users a provider icon that they'll recognise at a glance
+>> * don't infringe copyright
+>> * don't distribute non-DFSG-licensed things in the source package
+>> * don't let miscellaneous OpenID providers track our users
+>>
+>> A "quick hack" version of removing these would be to have an option to
+>> disable the friendly JavaScript OpenID selector and go back to a simple
+>> input box. I might implement that option anyway - on websites mainly used
+>> by technologists, the OpenID selector is a bit of a waste of time.
+>>
+>>> Not done yet. -s
+>>>
+>>>> FWIW, I don't think we should implement this. The current selector is 
+>>>> fine: if elite technologists don't want the selector, they can just 
+>>>> turn off javascript. :) -- [[anarcat]]
+>> 
+>> One way to have recognisable icons would be to ship DFSG imitations of
+>> the "real" logos in the underlay. Between gnome-online-accounts and
+>> Empathy, we can probably find most of them (mostly or perhaps all done by
+>> Jakub Steiner).
+>>
+>>> [[!template id=gitbranch branch=smcv/ready/openid author="[[smcv]]"]]
+>>> [[!tag patch]]
+>>> Here's a git branch. I deleted the shut-down ClaimID and MyOpenID providers,
+>>> used icons from GNOME Online Accounts and Wordpress where available, and
+>>> drew my own for the rest.
+>>> [See it in use here](http://blueview.hosted.pseudorandom.co.uk/ikiwiki.cgi?do=prefs)
+>>> -s
+>>>>
+>>>> Awesome work Simon! I owe you a beer. [[merged|done]] --[[Joey]] 
+>>>>
+>>>> Same here, thanks for this!!! -- [[anarcat]]
+>>
+>> If people want the "real" logos, we could have some code to make IkiWiki
+>> download the favicons into transient underlay (which I think is
+>> higher-priority?), or into a higher-priority underlay if necessary,
+>> during the wiki build, so they'll be served from the wiki's own server.
+>>
+>>> Not done yet. I'm not sure whether I'm going to bother, but I'd review
+>>> someone else's implementation. -s
+>>
+>>>> Doesn't seem to be a priority to me either. --[[anarcat]]
+>> --[[smcv]]

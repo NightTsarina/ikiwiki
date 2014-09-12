@@ -1,0 +1,107 @@
+[[!meta author="spalax"]]
+[[!template id=plugin name=poetry author="[[Louis|spalax]]"]]
+
+# Poetry
+
+The poetry plugin provides the [[ikiwiki/directive/poetry]] directive, used to
+render poetry (or songs).
+
+## Why?
+
+### Typography
+
+In regular text, there are two different meaning of a new line: a break between
+two paragraphs, and the line wrap.
+
+When rendering poetry, we need a third one: the carriage return between two
+verse lines. This one should be different from the line wrap carriage return,
+otherwise one will not be able to tell apart these two: is a word displayed at
+the begenning of its line a new verse line, or the previous verse line,
+continuing on a new line because it is too long?
+
+Generally, wrapped text is indented, whereas verse lines are not.
+
+### Markdown
+
+One could use carriage return (two white spaces at the end of a line) between
+verse lines, and paragraph break between stanzas, but:
+
+* adding white spaces at the end of lines is painful;
+* there is no easy way to render chorus (in a different way from verses).
+
+## Usage
+
+The directive takes only one argument `content`, containing the poetry to
+render. Carriage returns are respected.
+
+Chorus are lines with `> ` as a starting character.
+
+Lines starting with `) ` are consored/outdated/crossed out verses.
+
+[[!toggle id=example text="View example"]]
+[[!toggleable id=example text='''
+    \[[!poetry content="""
+    This is a verse
+    Made of several lines
+
+    > And here is the chorus
+    > La la la!
+    > A beautiful chorus
+
+    Another verse
+    A bit longer
+    Than the previous one
+
+    ) This one is deleted
+    ) Because I did not like it
+    """]]
+''']]
+
+
+## CSS
+
+This plugin is useless without some corresponding CSS. An example is given
+below.
+
+[[!toggle id=css text="CSS"]]
+[[!toggleable id=css text="""
+    .poetry {
+      padding-left: 1em;
+      border-left: 0.1em solid lightgray;
+      border-radius: 0.5em;
+    }
+    
+    .poetry .stanza {
+      padding-left: 1em;
+    }
+    
+    .poetry .paren {
+      font-style: italic;
+      font-size: smaller;
+      text-decoration: line-through;
+    }
+    
+    .poetry .paren:hover {
+      text-decoration: initial;
+    }
+    
+    .poetry .chorus {
+      margin-left: 0.1em;
+      padding-left: 2em;
+      border-left: 0.3em solid slategray;
+    }
+    
+    .poetry .line {
+      display: block;
+      text-indent: -1em;
+    }
+"""]]
+
+## Example
+
+This plugin is used to render songs on [this choir's
+website](http://barricades.int.eu.org/repertoire/bread_and_roses/).
+
+## Code
+
+Code and documentation can be found here : [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/Poetry]].

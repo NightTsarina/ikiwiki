@@ -1,0 +1,48 @@
+It would be nice if the [[plugins/toc]] plugin let you specify a header level "ceiling" above which (or above and including which) the headers would not be incorporated into the toc.
+
+Currently, the levels=X parameter lets you tweak how deep it will go for small headers, but I'd like to chop off the h1's (as I use them for my page title) -- [[Jon]]
+
+> This change to toc.pm should do it. --[[KathrynAndersen]]
+
+> > The patch looks vaguely OK to me but it's hard to tell without
+> > context. It'd be much easier to review if you used unified diff
+> > (`diff -u`), which is what `git diff` defaults to - almost all
+> > projects prefer to receive changes as unified diffs (or as
+> > branches in their chosen VCS, which is [[git]] here). --[[smcv]]
+
+> > > Done. -- [[KathrynAndersen]]
+
+> > > > Looks like Joey has now [[merged|done]] this. Thanks! --[[smcv]]
+
+	--- /files/git/other/ikiwiki/IkiWiki/Plugin/toc.pm	2009-11-16 12:44:00.352050178 +1100
+	+++ toc.pm	2009-12-26 06:36:06.686512552 +1100
+	@@ -53,8 +53,8 @@
+	 	my $page="";
+	 	my $index="";
+	 	my %anchors;
+	-	my $curlevel;
+	-	my $startlevel=0;
+	+	my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
+	+	my $curlevel=$startlevel-1;
+	 	my $liststarted=0;
+	 	my $indent=sub { "\t" x $curlevel };
+	 	$p->handler(start => sub {
+	@@ -67,10 +67,16 @@
+	 	
+	 			# Take the first header level seen as the topmost level,
+	 			# even if there are higher levels seen later on.
+	+			# unless we're given startlevel as a parameter
+	 			if (! $startlevel) {
+	 				$startlevel=$level;
+	 				$curlevel=$startlevel-1;
+	 			}
+	+			elsif (defined $params{startlevel}
+	+			       and $level < $params{startlevel})
+	+			{
+	+			    return;
+	+			}
+	 			elsif ($level < $startlevel) {
+	 				$level=$startlevel;
+	 			}
+
+[[!tag patch]]

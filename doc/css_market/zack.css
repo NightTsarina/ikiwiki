@@ -1,0 +1,193 @@
+/* local.css stylesheet to be used with ikiwiki
+ *
+ * Copyright: (C) 2006 Stefano Zacchiroli <zack@debian.org>
+ * License: GNU General Public License version 2 or above.
+ *
+ * TODO
+ * - plone-like actions in the toplevel bar, but remember: resist the
+ *   temptation of making them floating to the right: the breadcrumb trail can
+ *   grow indefinitely
+ * - blog form aligned to the right, keeping the RSS logo to the left
+ * - some rendering for the tags (a la 'xhtml' logo of plone? ...)
+ * - some rendering for backlinks
+ * - some rendering for posting dates
+ */
+
+body {
+  font-family: sans-serif;
+  font-size: medium;
+}
+h1, h2, h3, h4 {
+  font-weight: normal;
+}
+h1 { font-size: 140%; }
+h2 { font-size: 120%; }
+h3 { font-size: 110%; }
+h4 { font-size: 105% }
+
+a { text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.flow {
+  float: right;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.attrib-caption {
+  font-size: xx-small;
+  font-style: italic;
+}
+
+input {
+  border: solid 1px;
+  border-color: #aaa;
+}
+
+.header { font-weight: normal; }
+
+.selflink { text-decoration: underline; }
+
+.pageheader .actions ul,
+#sitemeta {
+  border-top: solid 1px;
+  border-bottom: solid 1px;
+  font-size: small;
+  border-color: #aaa;
+  background: #eee;
+}
+.actions ul {
+  padding: 1px;
+  margin-top: 5px;
+}
+#sitemeta {
+  padding: 0;
+  margin-bottom: 5px;
+}
+#backlinks,
+.tags {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+#pageinfo {
+  border: none;
+}
+
+#searchform div:before {
+  font-size: small;
+  content: "search:";
+}
+#searchform input {
+  border-top: none;
+  border-bottom: none;
+  vertical-align: bottom;
+  margin-right: 7px;
+}
+
+#sidebar {
+  border: solid;
+  border-width: 1px;
+  padding: 0;
+  margin-top: 15px;
+  border: 1px solid;
+  border-color: #aaa;
+  background: #eee;
+  width: 16ex;
+}
+#sidebar ul {
+  margin: 0;
+  padding-left: 1em;
+  list-style-type: none;
+}
+#sidebar ul ul {
+  padding-left: 1.5em;
+  font-size: 90%;
+}
+
+#pageinfo,
+#footer {
+  margin: 0;
+}
+#pageinfo {
+  font-size: small;
+}
+.pagecopyright,
+.pagelicense,
+.pagedate {
+  margin: 0;
+  display: inline;
+}
+#backlinks {
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-size: larger;
+}
+.validation {
+  display: inline;
+  float: right;
+}
+
+.pagecloud {
+  margin-left: 5px;
+}
+
+table.identikit tr th {
+  text-align: right;
+  vertical-align: top;
+}
+table.identikit tr th:after {
+  content: ":";
+}
+table.identikit tr td {
+  text-align: left;
+  vertical-align: top;
+}
+
+.doi_logo , .doi_logo a {
+    background: #3965bd;
+    color: white !important;
+    font-size: 80%;
+    text-decoration: none;
+    font-family: times;
+    font-weight: bold;
+    padding: 0px 1px 0px 2px;
+}
+
+#comments {
+    margin-top: 5ex;
+    border-top: solid 1px;
+    border-color: #aaa;
+    font-size: small;
+}
+
+#comments #feedlink {
+    text-align: right;
+}
+#comments #feedlink:before {
+    content: "comment feeds: ";
+}
+
+.addcomment {
+    padding: 5px;
+    font-style: italic;
+}
+
+.comment {
+    border: none;
+    background-color: #eee;
+    margin: 5px;
+    margin-top: 10px;
+}
+
+.comment-subject {
+    font-style: normal;
+}
+
+.comment-header {
+    border-top: solid 1px;
+    border-color: #aaa;
+    text-align: right;
+    font-style: normal;
+}

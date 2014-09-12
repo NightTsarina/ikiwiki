@@ -1,0 +1,68 @@
+[[!template  id=gitbranch branch=chrismgray/exclusive-hooks author="[[chrismgray]]"]]
+
+Sometimes plugins register a function with `hook`, but they only want
+the function called with the content that they know how to deal with.
+Normally, this means that they call `pagetype` first thing in the
+function, determine if they know how to deal with the content, and
+only do anything if they do.  
+
+> So, I can't find any plugins shipped with ikiwiki that actually do that.
+> Scan hooks are only ever passed the content of actual wiki pages, and
+> so unless a scan hook cares whether a page is written in markdown or
+> something else, it has no reason to care what the pagetype is. (Same for
+> linkify.) --[[Joey]]
+
+>> My [[org-mode|todo/org_mode]] external plugin (which will never
+>> really make sense to include with ikiwiki I think) does this.  I
+>> think that most plugins defining alternate wiki syntaxes would as
+>> well. --[[chrismgray]]
+
+This is a bit wasteful in itself, but for external plugins, it's
+really bad.  For functions like `scan` and `linkify`, where the entire
+page is sent back and forth over `stdout` and `stdin`, it really slows
+things down.  
+
+Thus, I propose that there be a new optional parameter to `hook` that
+tells it that the function should only be called for files whose type
+is the same as the id of the plugin calling `hook`.  I have called
+this parameter `exclusive` in my branch, but this might not be the
+best name.
+
+[[!tag patch]]
+
+> It's an interesting idea, but it might be more useful if it was more
+> generalized, say, by making it a filter, where the parameter is a regexp.
+> 
+> --[[KathrynAndersen]]
+
+>> Would it make more sense as a pagespec?  That might be a bit more hard
+>> to implement, but would certainly fix the naming issue.
+>>
+>> --[[chrismgray]]
+
+>>> Considering where it would be called, a pagespec might be overkill. --[[KathrynAndersen]]
+
+>>>> Pagespecs have some overhead themselves. Probably less than shipping
+>>>> the page content over stdio.
+>>>>
+>>>> Rather than putting filtering in the core of ikiwiki, I can think
+>>>> of two options. One is to make the main plugin a perl plugin, and
+>>>> have it call functions that are provided by another, external plugin.
+>>>> This is assuming you're using the other language because something
+>>>> is easy to do in it, not to avoid writing perl.
+>>>> 
+>>>> Or, the external plugin interface could provide a version of `hook()`
+>>>> that does not pass the content parameter, but saves a copy that
+>>>> the plugin could request with a later rpc call. Assuming that
+>>>> it's really the overhead of serializing the page content, that's
+>>>> the problem, and not just the general overhead of making rpc calls
+>>>> for every page.. --[[Joey]]
+
+>>>>> Since the argument to `hook` is optional, the pagespec is only
+>>>>> interpreted if it is given.  So there is no extra overhead
+>>>>> (beyond an unused `if` branch) in 99% of the cases.  
+>>>>>
+>>>>> Rewriting the external plugin's shim using Perl is a good idea,
+>>>>> and one that I wish I had thought of earlier.  On the other
+>>>>> hand, it doesn't set a great precedent about the usability of
+>>>>> external plugins. --[[chrismgray]]

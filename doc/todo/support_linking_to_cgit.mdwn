@@ -1,0 +1,45 @@
+As described on [Tails issue #5879](https://labs.riseup.net/code/issues/5879),
+cgit wants URLs like:
+
+        https://git-tails.immerda.ch/tails/commit/wiki/src/todo/fix_localized_iceweasel_search_engine.mdwn?id=c682a361418bef7bce040ea2905691d54be192ab
+
+... while ikiwiki generates links like:
+
+        https://git-tails.immerda.ch/tails/commit/wiki/src/todo%2Ffix_localized_iceweasel_search_engine.mdwn?id=c682a361418bef7bce040ea2905691d54be192ab
+
+on the recentchanges page.
+
+Would it make sense to add an option to skip URL-encoding when doing
+the substitution of `\[[file]]` in `diffurl` and `historyurl`?
+
+--[[intrigeri]]
+
+> In `91b477c` I made a similar change to how the cvs backend encodes
+> `diffurl`. Perhaps it applies to all VCS backends? --[[schmonz]]
+
+>> Thanks a lot! I've not looked at it yet, but will try to do so
+>> soonish, as this bug is a real problem for Tails when welcoming potential
+>> new contributors. --[[intrigeri]]
+
+>>> My `fix_diffurl_vs._cgit` branch now implements schmonz' change
+>>> for the Git plugin. Please review and merge if you like
+>>> it. --[[intrigeri]]
+
+>>>> Ping? --[[intrigeri]]
+
+>>>> Normally, my tendency towards pedantic preservation of existing APIs
+>>>> would make me implement a new token \[[file_less_escaped]] or
+>>>> something, analogous to `%s` vs. `%S` in [[shortcuts]]; but
+>>>> gitweb and cgit are both OK with `/` not being escaped, whereas
+>>>> only gitweb allows it to be escaped as `%2F`, so I think your
+>>>> solution is fine. Also, it would need a much better name than
+>>>> \[[file_less_escaped]], and I can't think of one.
+>>>>
+>>>> I don't have commit access to ikiwiki.info, but if I did,
+>>>> [[I'd merge this|/users/smcv/ready]]. --[[smcv]]
+
+>>>>> [[merged|done]] --[[Joey]]
+
+[[wishlist]]
+
+[[!tag patch]]

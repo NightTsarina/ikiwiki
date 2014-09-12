@@ -1,0 +1,50 @@
+[[!meta author="spalax"]]
+[[!template id=plugin name=jscalendar author="[[Louis|spalax]]"]]
+
+# Jscalendar
+
+Jscalendar is a javascript equivalent to the [[calendar|plugins/calendar]] plugin.
+
+## Description
+
+Here are some differences compared to this latter plugin.
+
+* Pros
+  * No need to rebuild the page containing the calendar each time day changes, or
+    a page (indexed by the calendar) is added, changed or deleted. This is
+    particularly useful if you want to have this calendar in the sidebar.
+  * Smooth navigation among months.
+* Cons
+  * Javascript :( .
+
+## Usage
+
+### Examples of directive
+
+    \[[!jscalendar type="month" ]]
+
+    \[[!jscalendar type="month" archivebase="calendar"]]
+
+    \[[!jscalendar type="month" year=2014 month=08 pages="posts/* and !posts/*"]]
+
+    \[[!jscalendar type="month" year=-1 month=08]]
+
+### Setup file
+
+This plugin uses the options used by the [[plugins/calendar]] plugin:
+
+    'archivebase' => "archive",
+    'archive_pagespec' => "posts/* and ! posts/*/*",
+    'week_start_day' => 1,
+    'month_link' => 1,
+
+The `archivebase` and `archive_pagespec` can be overloaded by the very same
+options of the directive.
+
+## Example
+
+You can see this plugin in action on [[our website|http://www.gresille.org]].
+
+Code and documentation can be found here : [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/Jscalendar]]
+
+-- Louis

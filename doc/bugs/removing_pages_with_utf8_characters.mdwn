@@ -1,0 +1,51 @@
+I have a page with the name "umläute". When I try to remove it, ikiwiki says:
+
+Error: ?umlÃ¤ute does not exist 
+
+> I'm curious about the '?' in the "?umlÃ¤ute" message. Suggests that the
+> filename starts with another strange character. Can I get a copy of a
+> git repository or tarball containing this file? --[[Joey]] 
+
+I wrote the following patch, which seems to work on my machine. I'm running on FreeBSD 6.3-RELEASE with ikiwiki-3.20100102.3 and perl-5.8.9_3.
+
+    --- remove.pm.orig      2009-12-14 23:26:20.000000000 +0100
+    +++ remove.pm   2010-01-18 17:49:39.000000000 +0100
+    @@ -193,6 +193,7 @@
+                            # and that the user is allowed to edit(/remove) it.
+                            my @files;
+                            foreach my $page (@pages) {
+    +                               $page = Encode::decode_utf8($page);
+                                    check_canremove($page, $q, $session);
+     
+                                    # This untaint is safe because of the
+
+
+> The problem with this patch is that, in a recent fix to the same
+> plugin, I made `@pages` come from `$form->field("page")`, and
+> that, in turn is already run through `decode_form_utf8` just above the
+> code you patched. So I need to understand why that is apparently not
+> working for you. (It works fine for me, even when deleting a file named 
+> "umläute" --[[Joey]] 
+
+----
+
+> Update, having looked at the file in the src of the wiki that
+> is causing trouble for remove, it is: `uml\303\203\302\244ute.mdwn`  
+> And that is not utf-8 encoded, which, represented the same
+> would be: `uml\303\244ute.mdwn`
+> 
+> I think it's doubly-utf-8 encoded, which perhaps explains why the above
+> patch works around the problem (since the page name gets doubly-decoded
+> with it). The patch doesn't fix related problems when using remove, etc.
+> 
+> Apparently, on apoca's system, perl encodes filenames differently
+> depending on locale settings. On mine, it does not. Ie, this perl
+> program always creates a file named `uml\303\244ute`, no matter
+> whether I run it with LANG="" or LANG="en_US.UTF-8":
+> 
+>	perl -e 'use IkiWiki; writefile("umläute", "./", "baz")'
+> 
+> Remains to be seen if this is due to the older version of perl used
+> there, or perhaps FreeBSD itself. --[[Joey]] 
+> 
+> Update: Perl 5.10 fixed the problem. --[[Joey]] 

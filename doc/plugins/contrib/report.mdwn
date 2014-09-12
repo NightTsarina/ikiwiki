@@ -1,0 +1,26 @@
+[[!template id=plugin name=report author="[[rubykat]]"]]
+[[!tag type/meta type/format]]
+IkiWiki::Plugin::report - Produce templated reports from page field data.
+
+This plugin provides the [[ikiwiki/directive/report]] directive.  This enables
+one to report on the structured data ("field" values) of multiple pages; the
+output is formatted via a template.  This depends on the
+[[plugins/contrib/field]] plugin.
+
+
+## Activate the plugin
+
+    # activate the plugin
+    add_plugins => [qw{goodstuff report ....}],
+
+## PREREQUISITES
+
+    IkiWiki
+    IkiWiki::Plugin::field
+    HTML::Template
+    Encode
+
+## DOWNLOAD
+
+* browse at GitHub: <http://github.com/rubykat/ikiplugins/blob/master/IkiWiki/Plugin/report.pm>
+* git repo at git://github.com/rubykat/ikiplugins.git

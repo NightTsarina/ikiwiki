@@ -1,0 +1,40 @@
+I didn't have Time/Duration.pm installed when I clicked RecentChanges. The
+perl failed. The CGI outputed the Content-type: text/html and the complete
+HTML which included the error in side of the paragraph tags. Maybe a newline
+was sent before that Content-type line. The web browser didn't render the HTML
+but just showed the source.
+
+> I can't reproduce this, I get a properly formatted error page.
+> If you'd like to send me the page, I can try to figure out what
+> happened. --[[Joey]]
+
+>> The page is fine. I can reproduce by just putting a typo or error in a
+>> plugin. I used tcpdump. When I am missing plugin I get a newline 0a
+>> before Content-Type:
+
+    0x0030:  0000 0003 0000 0000 0a43 6f6e 7465 6e74  .........Content
+
+>> And with it working, no newline:
+
+    0x0030:  0000 0003 0000 0000 436f 6e74 656e 742d  ........Content-
+
+>> I am using mini_httpd. I guess I could try another webserver real quick.
+>>
+>> --JeremyReed
+
+Here's what I see, taking the web server out of the picture:
+
+	joey@kodama:~>~/html/ikiwiki.cgi 2>/dev/null |hexdump -C|head -1
+	00000000  43 6f 6e 74 65 6e 74 2d  74 79 70 65 3a 20 74 65 |Content-type: te|
+
+No spurious 0a. With apache:
+
+	0100  75 6e 6b 65 64 0d 0a 43  6f 6e 74 65 6e 74 2d 54   unked..C ontent-T
+
+Here the 0d 0a is a CRLF, and note that it's output by the web server, not
+ikiwiki. It's perfectly valid, while a lone 0a, just a linefeed, is not valid
+HTTP. Conclusion, this was your web server; it's not uncommon for hacky
+little web servers to not use proper CRLF's, and it works _some_ of the time,
+depending on how strict the browser is.
+
+I'm calling this [[bugs/done]] --[[Joey]]

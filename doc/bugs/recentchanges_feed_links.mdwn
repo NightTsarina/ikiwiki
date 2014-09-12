@@ -1,0 +1,107 @@
+(Moved from [[plugins/recentchanges/discussion]])
+
+I've just upgraded to ikiwiki 2.50 with the `recentchanges` plugin enabled, and
+figured out that I have to turn on `rss` in `ikiwiki.setup` in order to get the
+recentchanges feed. Now the feed shows up, but the links in the feed go to the
+change pages, e.g. `recentchanges/change_1700.html`.  I can see a `recentchanges`
+directory created in the working copy, containing files like `change_1700._change`
+but for some reason they are not getting htmlized and carried over. I can see
+in `recentchanges.pm` that it explicitly registers an `htmlize` hook for the
+`_change` type, but something isn't happening. I also see `return if $type=~/^_/;` in
+`render()` in `Render.pm` so I guess the upshot is I'm not sure how this is
+supposed to work; is there a bug here or just something I overlooked that I need
+to turn on? --Chapman Flack
+
+> It's a (minor) bug that recentchanges optimises away generating the
+> change pages, but that the rss/atom feed still links to them. --[[Joey]]
+
+>> Hmm, ok, what's the intended correct behavior? To really generate the
+>> change pages, or to change the links in the feed to point somewhere else that's
+>> not missing? If you can easily point me to the right neighborhood in the code
+>> I might work on a patch for this. It may be a (minor) bug in the grand scheme
+>> of things, but it does seem pretty goofy if you've just clicked an RSS link. :)
+>> --Chap (p.s. should this be moved to bugs?)
+
+>>> The latter -- I think making the permalink point to
+>>> "recentchanges#someid" will probably work. Probably first by addressing the
+>>> todo about [[todo/ability_to_force_particular_UUIDs_on_blog_posts]],
+>>> and then by just using that new ability in the page. --[[Joey]]
+
+>>>> <del title="Prerequisite done now?">Ah. The prerequisite todo looks like more than I'd like to take on.
+>>>> In the meantime, would it be very involved to change whatever bug now
+>>>> optimizes away the change pages, or to simply have all the links in the
+>>>> feed point to the recentchanges page itself, with no fragment id?
+>>>> Either would be a bit nicer than having broken links in the feed. --Chap</del>
+
+>>>> Does the completion of that todo mean it would be straightforward to get
+>>>> recentchanges working now?  Is it just that the recentchanges plugin
+>>>> needs to generate `\[[!meta guid=something]]` into the internal files,
+>>>> and the inline plugin would then generate working links in feeds?  How should
+>>>> the guid be constructed? Something based on the rcs revision number?  I guess
+>>>> I'm still not completely clear on your vision for how it ought to work. --Chap
+
+>>>> My idea is to use `\[[meta guid="http://url/recentchanges#rev"]]`, with the
+>>>> `#rev` anchor also included in the change file, and being the rcs's
+>>>> internal revision id. Then the guid is globally unique, and actually
+>>>> links to the change in the recentchanges page. And, when the change
+>>>> has fallen off the page, the link will still go to the recentchanges page.
+>>>> 
+>>>> First, need to check that guids in rss and atom feeds can have anchors in
+>>>> them, and that the anchor is treated as part of the guid. (If the guid
+>>>> is interpreted as just "http://url/recentchanges", then it's
+>>>> not a very good guid.) If using an anchor for a guid is a problem,
+>>>> it could instead generate a random uuid, and use `\[[meta
+>>>> guid="urn:uuid:<foo>" permalink="http://url/recentchanges"]]`
+
+>>>>> I had a quick look into this after fixing the "prerequisite", but got
+>>>>> bogged down in minor details. Anyway, I'd be happy to help.
+>>>>> I think the guid stuff is actually fairly irrelevant, you just need
+>>>>> `\[[!meta permalink]]` (and in fact you're using guid incorrectly, by
+>>>>> expecting it to be treated as a link).
+>>>>>
+>>>>> My advice would be: first, fix the bug as reported, by
+>>>>> using `\[[!meta permalink="http://blah/blah/blah#change-$rev"]]` (starting
+>>>>> anchor names with a number isn't syntactically valid, if I remember
+>>>>> correctly, so do have a prefix like "change-" or "rev-" or something).
+>>>>>
+>>>>> Then, optionally, force the guid too (although it defaults to the permalink
+>>>>> anyway, so this shouldn't actually be necessary).
+>>>>>
+>>>>> Some more explanation of how guids work: it's actually easier to think
+>>>>> about them in Atom terms than in RSS terms, since Atom has a clearer
+>>>>> conceptual model.
+>>>>>
+>>>>> The `\[[!meta permalink]]` becomes the `<link>`
+>>>>> element in Atom, which contains a link that users can follow; if it's not
+>>>>> explicitly given, ikiwiki uses its idea of the page's URL.
+>>>>>
+>>>>> The `\[[!meta guid]]` becomes the `<id>` element in Atom, which contains an
+>>>>> opaque, not-necessarily-resolvable identifier; if it's
+>>>>> not explicitly given, ikiwiki uses the same URL as the `<link>`.
+>>>>>
+>>>>> In RSS the semantics aren't so clear-cut (which is part of why Atom exists!),
+>>>>> but the way ikiwiki interprets them is:
+>>>>>
+>>>>> * `<link>` is the same as in Atom
+>>>>> * if `\[[!meta guid]]` is explicitly given, put it in `<guid permalink="no">`
+>>>>>   (the assumption in this case is that it's a UUID or something)
+>>>>> * if `\[[!meta guid]]` is not explicitly given, copy the `<link>` into the `<guid>`
+>>>>>
+>>>>> I believe RSS aggregators (are meant to) compare `<guid>`s as opaque
+>>>>> strings, so using an anchor there should be fine. Atom aggregators are certainly
+>>>>> required to compare `<id>`s as opaque strings.
+>>>>>
+>>>>> --[[smcv]]
+
+>>>>>> Here's my attempt at a [[patch]] for anchor-based change permalinks:
+>>>>>> <http://pastie.org/295016>.
+>>>>>> --[[JasonBlevins]], 2008-10-17
+
+[[JasonBlevins]] nailed it, [[done]] --[[Joey]]
+
+> Thanks for applying the patch (and improving it).  There's still one small issue:
+> the old opening div tag still needs to be removed (it's hard to see the removed line
+> with the pastie color scheme).
+> --[[JasonBlevins]], 2008-10-18
+
+>> Thanks, missed that when I had to hand-apply the patch. --[[Joey]]

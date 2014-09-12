@@ -1,0 +1,122 @@
+[[!template id=plugin name=texinfo author="[[tschwinge]]"]]
+
+[[I|tschwinge]] started writing a plugin to render
+[GNU Texinfo](http://www.gnu.org/software/texinfo/)
+inside the ikiwiki environment.
+
+This plugin is not neccessarily meant to enable people to write arbitrary
+wiki pages in the Texinfo format (even though that is possible, of course),
+but rather to ease collaboration on existing Texinfo documents.
+
+The plugin is available at
+<http://git.savannah.gnu.org/cgit/hurd/web.git/plain/.library/IkiWiki/Plugin/texinfo.pm>.
+
+It's very basic at the moment, but will be improved over time.
+
+It also has not really been audited for any security issues.
+
+
+# Issues
+
+## How can I use verbatiminclude?
+
+I only can post a file ...
+
+## N-to-M Mapping of Input and Output Files
+
+Conventional ikiwiki [[*htmlize*ing|plugins/write#index6h3]] plugins
+have a one-to-one mapping of input file and output file:
+`some/where/page.mdwn` is rendered to `some/where/page.html`.
+This can also be achieved for Texinfo files, but is somewhat
+unusual there, when rendering them to HTML.  In general, there
+is a N-to-M mapping:
+
+* N Texinfo input files (a main `.texi` file,
+  several helper files (`fdl.texi`, `version.texi`, ...), and
+  additional text files which are included from the main `.texi`
+  file, e.g. `history.texi`, `libfoo.texi`, `libbar.texi`.  --[[tschwinge]]
+
+> As far as multiple input files, you'd need to use add_depends()
+> to let ikiwiki know that a change to any of those files should cause a
+> rebuild of the "main" file. --[[Joey]]
+
+>> (?) I'll see about a frob to get `makeinfo` provide me with a list of additional files
+>> it used for rendering a given `.texi` file. --[[tschwinge]]
+
+> I guess you'd also have to somehow deal with
+> it wanting to render pages for each of the helper files. Not quite sure
+> what the best way would be to avoid that. --[[Joey]]
+
+>> Might it be an option to simply not render the pages that are already
+>> being used as an `include` file for another `.texi` file?
+>> But how to assemble that list before actually having rendered all `.texi` files?
+>> One possibility might be to already render them at ikiwiki's *scanning* stage and
+>> store the rendered HTML files into temporary directories, and then at ikiwiki's
+>> *rendering* stage simply install the desired ones into the main tree and discard
+>> the others.  --[[tschwinge]]
+
+* M Texinfo output files: the main `.texi` file (which `include`s
+  the other input files) is usually rendered into a (flat) hierarchy
+  of HTML files, one file per node, see the table on
+  <http://www.gnu.org/software/texinfo/manual/texinfo/html_node/#Top>
+  for an example.  --[[tschwinge]]
+
+> Ikiwiki is perfectly happy with a page creating other files (see eg, the
+> img and teximg plugins, as well as the inline plugin's rss generation).
+> The will_render() function supports that.
+> 
+> What hasn't been done though is a page creating more than one other _page_.
+> Perhaps you could call IkiWiki::genpage by hand for each additional page.
+> You might also want to manipulate each data structure that tracks info about
+> pages, adding the additional pages to them, so that they're first class
+> pages that work as pages everywhere in ikiwiki (ie, can be inlined,
+> appear in a site map, be linked to, etc). Not sure how to do that,
+> and perhaps you could get away without doing it actually. --[[Joey]]
+
+>> Currently I use `makeinfo --no-split` and render to stdout, so that I can
+>> easily capture the output and stuff it into the appropriate ikiwiki data structure.
+>> If we want to have multiple output files (which we'll eventually want to have,
+>> to avoid having such large single-file outputs), we won't be able to
+>> do this anymore.
+>> (?) Then we'll need a way to find the main output file, which
+>> will be the one to be copied into what ikiwiki expects to be the main output
+>> of the rendered `.texi` file.
+>> Perhaps (again) parse the `.texi` file for a `@setfilename` statement?
+>> The other generated files will also have to
+>> copied somewhere (preferably into a subdirectory named alike the main file
+>> to avoid name space collisions; but need to take care of links between the files then)
+>> and need to be registed within the ikiwiki system.
+>> --[[tschwinge]]
+
+There needs to be some logic to establish a mapping between the *N* input files
+and the *M* output files.
+(At least for web-editing via CGI this is needed: ikiwiki (currently) needs to be able
+to deduce *one* input file from a given output file)
+Easiest would be either to have *N = 1*
+(plus perhaps some input files that are not meant to be editable, like `gpl.texi`)
+or to have
+*M = N* and have a (?) one-to-one mapping between *input file n* and *output file m*
+(which is not possible in Texinfo's `makeinfo` at the moment).
+--[[tschwinge]]
+
+
+## `makeinfo` Output
+
+`makeinfo --html` is being used for rendering.  It creates stand-alone
+HTML files, while ikiwiki only needs the files' `<body>`s.
+
+(?) One possibility (which is what I'm doing at the moment) is to simply cut away
+everythin until `<body>` is seen and after `</body>` has been seen.  --[[tschwinge]]
+
+
+# Bugs
+
+## Non-functional Texinfo Commands
+
+Those commands are know to not work currently:
+
+* `@printindex`
+* `@shortcontents`
+* `@contents`
+
+This is due to `makeinfo` not providing this functionality if rendering to stdout.

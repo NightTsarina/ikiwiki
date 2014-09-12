@@ -1,0 +1,53 @@
+The `table` directive is supplied by the [[!iki plugins/table desc=table]] plugin.
+
+This directive can build HTML tables from data in CSV (comma-separated values)
+or DSV (delimiter-separated values) format.
+
+## examples
+
+	\[[!table data="""
+	Customer |Amount
+	Fulanito |134,34
+	Menganito|234,56
+	Menganito|234,56
+	"""]]
+    
+	\[[!table class="book_record" format=csv file="data/books/record1"]]
+
+In this second example the `record1` page should be similar to:
+
+	"Title","Perl Best Practices"
+	"Author","Damian Conway"
+	"Publisher","O’Reilly"
+
+To make a cell span multiple columns, follow it with one or more empty
+cells. For example:
+
+	\[[!table data="""
+	left||right|
+	a|b|c|d
+	this cell spans **4** columns|||
+	"""]]
+
+## usage
+
+* `data` - Values for the table.
+* `file` - A file in the wiki containing the data.
+* `format` - The format of the data, either "csv", "dsv", or "auto"
+  (the default).
+* `delimiter` - The character used to separate fields. By default,
+   DSV format uses a pipe (`|`), and CSV uses a comma (`,`).
+* `class` - A CSS class for the table html element.
+* `header` - By default, or if set to "row", the first data line is used
+  as the table header. Set it to "no" to make a table without a header, or
+  "column" to make the first column be the header.
+
+For tab-delimited tables (often obtained by copying and pasting from HTML
+or a spreadsheet), `delimiter` must be set to a literal tab character. These
+are difficult to type in most web browsers - copying and pasting one from
+the table data is likely to be the easiest way.
+
+Note that the contents of table cells can contain arbitrary ikiwiki and
+markdown markup.
+
+[[!meta robots="noindex, follow"]]

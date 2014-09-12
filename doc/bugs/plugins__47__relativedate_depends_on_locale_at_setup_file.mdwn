@@ -1,0 +1,16 @@
+[[plugins/relativedate]] does not works when russian locale defined at setup file (locale => 'ru_RU.UTF-8'). This is happen because javascript for this plugin takes either elements title or content itself. If russian locale is turned on then title generated on russian language and JS can't convert it into Date object. innerHTML is language independent (YYYY-MM-DD HH:mm) always.
+
+If I switch locale to en_US.UTF-8 then this plugin correctly parses text date and print relative date. But when I mouseover on date I see unusual formating of the date (it uses AM/PM format while russians use 24-h notation).
+
+P.S. All pages but RecentChanges show well-formated date. RecentChanges show date formated using locale. Anyway, plugin does not work without en_US locale.
+
+> [[Fixed|done]]. Now it uses C locale for the date put in the title,
+> that is used by relativedate. The mouseover will display the date in your
+> native locale. 
+> 
+> Only exception is that when javascript is disabled... then
+> relativedate can't work, so instead you will see your localized date
+> displayed; but on mouseover you will get shown the C locale date.
+> --[[Joey]] 
+
+>> Thanks. 

@@ -1,0 +1,105 @@
+[[!template id=plugin name=groupfile core=0 author="[[Jogo]]"]]
+
+This plugin add a `group(groupname)` function to [[ikiwiki/PageSpec]], which is true
+only if the actual user is member of the group named `groupname`.
+
+Groups membership are read from a file. The syntax of this file is very close to
+usual `/etc/passwd` Unix file : the group's name, followed by a colon, followed by
+a coma separated list of user's names. For exemple :
+
+    dev:toto,foo
+    i18n:zorba
+
+-----
+
+    #!/usr/bin/perl
+    # GroupFile plugin.
+    # by Joseph Boudou <jogo at matabio dot net>
+    
+    package IkiWiki::Plugin::groupfile;
+    
+    use warnings;
+    use strict;
+    use IkiWiki 3.00;
+    
+    sub import {
+        hook(type => 'getsetup', id => 'groups', call => \&get_setup);
+    }
+    
+    sub get_setup () {
+        return (
+            plugin => {
+                safe    => 0,
+                rebuild => 0,
+            },
+            group_file => {
+                type        => 'string',
+                example     => '/etc/ikiwiki/group',
+                description => 'group file location',
+                safe        => 0,
+                rebuild     => 0,
+            },
+        );
+    }
+    
+    my $users_of = 0;
+    
+    sub get_groups () {
+        if (not $users_of) {
+    
+            if (not defined $config{group_file}) {
+                return 'group_file option not set';
+            }
+    
+            open my $file, '<', $config{group_file}
+                or return 'Unable to open group_file';
+    
+            $users_of = {};
+            READ:
+            while (<$file>) {
+                next READ if (/^\s*$/);
+    
+                if (/^(\w+):([\w,]+)/) {
+                    %{ $users_of->{$1} } = map { $_ => 1 } split /,/, $2;
+                }
+                else {
+                    $users_of = "Error at group_file:$.";
+                    last READ;
+                }
+            }
+    
+            close $file;
+        }
+    
+        return $users_of;
+    }
+    
+    package IkiWiki::PageSpec;
+    
+    sub match_group ($$;@) {
+        shift;
+        my $group  = shift;
+        my %params = @_;
+    
+        if (not exists $params{user}) {
+            return IkiWiki::ErrorReason->new('no user specified');
+        }
+        if (not defined $params{user}) {
+            return IkiWiki::FailReason->new('not logged in');
+        }
+    
+        my $users_of = IkiWiki::Plugin::groupfile::get_groups();
+        if (not ref $users_of) {
+            return IkiWiki::ErrorReason->new($users_of);
+        }
+    
+        if (exists $users_of->{$group}{ $params{user} }) {
+            return IkiWiki::SuccessReason->new("user is member of $group");
+        }
+        else {
+            return IkiWiki::FailReason->new(
+                "user $params{user} isn't member of $group");
+        }
+    }
+    
+    1

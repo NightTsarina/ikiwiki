@@ -1,0 +1,37 @@
+During ikiwiki make phase the rst process hangs:  
+[ps output](http://dpaste.com/21TQQKT)  
+[gdb backtrace 1](http://dpaste.com/0VQBW6D)   
+[gdb backtrace 1](http://dpaste.com/1VHS88Y)  
+  
+working with python 2.7  
+[http://dpaste.com/0985A91](http://dpaste.com/0985A91)  
+not working with python3.3~3.4  
+[http://dpaste.com/0ACNK3W](http://dpaste.com/0ACNK3W)  
+  
+> Retitled this bug report since it seems to be specific to Python 3.
+>
+> The `rst` plugin is probably more commonly used with Python 2.
+> It seems likely that there is some Python-3-specific bug in `proxy.py`,
+> perhaps introduced by [commit 154c4ea
+ "properly encode and decode from/to utf8 when sending rpc to ikiwiki"](
+http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=154c4ea9e65d033756330a7f8c5c0fa285380bf0).
+>
+> I can reproduce this on Debian by installing `python3-docutils`
+> and changing the first line of `plugins/proxy.py`, the first
+> line of `plugins/pythondemo`, the first line of `plugins/rst`
+> and the `system()` call in `t/rst.t` to use `python3` instead
+> of `python`. --[[smcv]]
+
+looks like the problem is in proxy.py  
+ml = _IkiWikiExtPluginXMLRPCHandler._read(in_fd).decode('utf8')  
+
+without decode('utf8') is working
+
+> That call was introduced
+> [[to fix a bug under Python 2|bugs/crashes_in_the_python_proxy_even_if_disabled]]
+> so it cannot just be removed, but I've put a proposed branch on
+> [[this related bug|bugs/pythonproxy-utf8_again]]. [[!tag patch]] --smcv
+
+tested and fixed with patch [http://git.pseudorandom.co.uk/smcv/ikiwiki.git/commitdiff/38bd51bc1bab0cabd97dfe3cb598220a2c02550a](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/commitdiff/38bd51bc1bab0cabd97dfe3cb598220a2c02550a) and patch [http://git.pseudorandom.co.uk/smcv/ikiwiki.git/commitdiff/81506fae8a6d5360f6d830b0e07190e60a7efd1c](http://git.pseudorandom.co.uk/smcv/ikiwiki.git/commitdiff/81506fae8a6d5360f6d830b0e07190e60a7efd1c)
+
+> [[done]], pending release --[[smcv]]

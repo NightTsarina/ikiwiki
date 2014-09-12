@@ -1,0 +1,200 @@
+On some ikiwikis that I run, I get the following error on OpenID logins:
+
+    no_identity_server: Could not determine ID provider from URL.
+
+> Is this fixed now that [[!debbug 738493]] has been fixed? --[[smcv]]
+
+> > No, it isn't. I still get: `no_identity_server: Could not determine ID provider from URL.` from the latest ikiwiki in jessie (3.20140831), with liblwpx-paranoidagent-perl 1.10-3. Debugging tells me it's still related to the `500 Can't verify SSL peers without knowing which Certificate Authorities to trust` error, so probably because `Mozilla::CA` is not packaged ([[!debbug 702124]]). I still had to apply the patch to disable SSL verification at the end of this file. However, setting `$ENV{PERL_LWP_SSL_CA_PATH} = '/etc/ssl/certs';` seems to work now, so the following dumb patch works:
+> > 
+> > ~~~~
+> > --- /usr/bin/ikiwiki.orig       2014-09-08 15:48:35.715868902 -0400
+> > +++ /usr/bin/ikiwiki    2014-09-08 15:50:29.666779878 -0400
+> > @@ -225,4 +225,5 @@
+> >         }
+> >  }
+> > 
+> > +$ENV{PERL_LWP_SSL_CA_PATH} = '/etc/ssl/certs';
+> >  main;
+> > ~~~~
+> > 
+> > may not be the best place to fiddle around with this, but then again it makes sense that it applies to the whole program. it should probably be reported upstream as well. also in my git repo. -- [[anarcat]]
+> >
+> > > This seems Debian-specific. I would be inclined to consider this to be
+> > > a packaging/system-integration (i.e. non-upstream) bug in
+> > > `liblwpx-paranoidagent-perl` rather than an upstream bug in IkiWiki;
+> > > it certainly seems inappropriate to put this Debian-specific path
+> > > in upstream IkiWiki. If it can't be fixed in LWPX::ParanoidAgent for
+> > > whatever reason, applying it via some sort of sed in ikiwiki's
+> > > `debian/rules` might be more reasonable? --[[smcv]]
+> > >
+> > > > by "upstream", i did mean `liblwpx-paranoidagent-perl`. so yeah, maybe this should be punted back into that package's court again. :( --[[anarcat]]
+> > > > 
+> > > > done, by bumping the severity of [[!debbug 744404]] to release-criticial. --[[anarcat]]
+> > > > 
+> > > > > ooh cool, the bug was fixed already with an upload, so this should probably be considered [[done]] at this point, even without the patch below! great! -- [[anarcat]]
+
+[[!template  id=gitbranch branch=anarcat/dev/ssl_ca_path author="[[anarcat]]"]] 
+
+I seem recall having that error before, and fixing it, but it always seems to come back and I forget how to fix it. So I'll just open this bug and document it if i can figure it out... -- [[users/anarcat]]
+
+The Perl module manual says:
+
+>            "no_identity_server"
+>               (CV) Tried to do discovery on a URL that does not seem to have any providers at all.
+
+Yet on the server side, I see no request coming in on the OpenID provider... 
+
+Adding debugging helps in figuring out wtf is going on:
+
+~~~~
+anarcat@marcos:~$ diff -u ~/src/ikiwiki/IkiWiki/Plugin/openid.pm /usr/share/perl5/IkiWiki/Plugin/openid.pm
+--- /home/anarcat/src/ikiwiki/IkiWiki/Plugin/openid.pm  2014-02-03 20:21:09.502878631 -0500
++++ /usr/share/perl5/IkiWiki/Plugin/openid.pm   2014-04-13 11:45:25.413297420 -0400
+@@ -257,6 +256,7 @@
+        return Net::OpenID::Consumer->new(
+                ua => $ua,
+                args => $q,
++               debug => 1,
+                consumer_secret => sub { return shift()+$secret },
+                required_root => auto_upgrade_https($q, $cgiurl),
+        );
+~~~~
+
+In my case, I see:
+
+
+~~~~
+[Sun Apr 13 11:45:35.796531 2014] [cgi:error] [pid 7299] [client 162.223.3.24:39547] AH01215: [DEBUG Net::OpenID::Consumer] Cache MISS for https://id.koumbit.net/anarcat, referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:45:35.842520 2014] [cgi:error] [pid 7299] [client 162.223.3.24:39547] AH01215: [DEBUG Net::OpenID::Consumer] Cache MISS for https://id.koumbit.net/anarcat, referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:45:35.845603 2014] [cgi:error] [pid 7299] [client 162.223.3.24:39547] AH01215: [DEBUG Net::OpenID::Consumer] semantic info (https://id.koumbit.net/anarcat) = , referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:45:35.845672 2014] [cgi:error] [pid 7299] [client 162.223.3.24:39547] AH01215: [DEBUG Net::OpenID::Consumer] fail(no_identity_server) Could not determine ID provider from URL., referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+~~~~
+
+There are three places in the code the original error message happens:
+
+* Net::OpenID::claimed_identity
+* Net::OpenID::verified_identity
+* Net::OpenID::_find_openid_server
+
+We'll look at the last one because it's where the URL data is actually fetched.
+
+[[!format perl """
+sub _find_openid_server {
+    my Net::OpenID::Consumer $self = shift;
+    my $url = shift;
+    my $final_url_ref = shift;
+
+    my $sem_info = $self->_find_semantic_info($url, $final_url_ref) or
+        return;
+
+    return $self->_fail("no_identity_server") unless $sem_info->{"openid.server"};
+    $sem_info->{"openid.server"};
+}
+"""]]
+
+From there we look at `_find_semantic_info()`, which is supposed to hit the OpenID server, but doesn't somehow.... By cranking up debugging, we can see that the consumer fails to verify the HTTPS signature on the host:
+
+~~~~
+[Sun Apr 13 11:58:30.284511 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: [DEBUG Net::OpenID::Consumer] url dump (https://id.koumbit.net/anarcat, SCALAR(0x3275ac0)) = 500 Can't verify SSL peers without knowing which Certificate Authorities to trust, referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:58:30.284551 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: , referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:58:30.284573 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: This problem can be fixed by either setting the PERL_LWP_SSL_CA_FILE, referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:58:30.284593 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: envirionment variable or by installing the Mozilla::CA module., referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+[Sun Apr 13 11:58:30.284597 2014] [cgi:error] [pid 11141] [client 162.223.3.24:39563] AH01215: , referer: http://cats.orangeseeds.org/ikiwiki.cgi?do=signin&action=verify&openid_identifier=https%3A%2F%2Fid.koumbit.net%2Fanarcat
+~~~~
+
+To get this little wonder, I had to change the `_find_semantic_info()` as followed:
+
+[[!format perl """
+sub _find_semantic_info {
+    my Net::OpenID::Consumer $self = shift;
+    my $url = shift;
+    my $final_url_ref = shift;
+
+    my $doc = $self->_get_url_contents($url, $final_url_ref);
+    $self->_debug("url dump ($url, $final_url_ref) = " . $doc) if $self->{debug};
+    my $info = _document_to_semantic_info($doc);
+    $self->_debug("semantic info ($url) = " . join(", ", map { $_.' => '.$info->{$_} } keys %$info)) if $self->{debug};
+
+    return $info;
+}
+"""]]
+
+A minimal test case would be:
+
+~~~~
+perl -e 'use LWPx::ParanoidAgent;
+  print $LWPx::ParanoidAgent::VERSION, " $]: ";
+  print length(LWPx::ParanoidAgent->new->get
+      ("https://id.koumbit.net/anarcat")
+      ->decoded_content), "\n";'
+~~~~
+
+And the results vary according to the version of perl:
+
+* wheezy: 1.07 5.014002: 5720
+* jessie: 1.10 5.018002: 398
+
+Thanks [jwz](http://www.jwz.org/blog/2014/03/apple-broke-lwp-in-a-new-and-exciting-way-on-10-9-2/) for that.. Mozilla::CA *could* have been packaged in Debian, except it overlaps with the `ca-certificates` package, so it was [basically barred entry](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=702124).
+
+I tried the workaround of hardcoding the path to the CA root, using `PERL_LWP_SSL_CA_PATH=/etc/ssl/certs`, but then I hit *another* bug in LWP: [#738493](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=738493).
+
+Note that this bug is similar to [[bugs/ssl_certificates_not_checked_with_openid/]], but backwards: it checks the SSL certs but then fails to verify.
+
+I filed this bug in the Debian BTS as [#702124](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=702124). Downgrading to wheezy's version of LWPx::ParanoidAgent doesn't fix the problem, instead i get this error:
+
+    500 Can't read entity body: Resource temporarily unavailable
+
+... yet the commandline client works fine... I'm out of ideas for this sucker.
+
+Update: i found a way to reproduce the problem even with LWPx::ParanoidAgent 1.07:
+
+~~~~
+$ perl -e 'use LWPx::ParanoidAgent;
+  print $LWPx::ParanoidAgent::VERSION, " $]\n";
+  $ua = new LWPx::ParanoidAgent; for (my $i = 0; $i< 10 ; $i++) { $c = LWPx::ParanoidAgent->new->get
+      ("https://id.koumbit.net/anarcat")
+      ->decoded_content; if (length($c) < 100) { print $c; } else { print length($c),"\n";}}'
+1.07 5.018002
+5720
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+500 Can't read entity body: Ressource temporairement non disponible
+~~~~
+
+Workaround - disable error checking:
+
+~~~~
+--- /home/anarcat/src/ikiwiki/IkiWiki/Plugin/openid.pm  2014-02-03 20:21:09.502878631 -0500
++++ /usr/share/perl5/IkiWiki/Plugin/openid.pm   2014-04-13 16:00:06.875744596 -0400
+@@ -237,7 +237,7 @@
+
+        my $ua;
+        eval q{use LWPx::ParanoidAgent};
+-       if (! $@) {
++       if (! $@ && 0) {
+                $ua=LWPx::ParanoidAgent->new;
+        }
+        else {
+~~~~
+
+> I get the same trouble with OpenID and some locally installed versions of IkiWiki on Debian wheezy (server) as well as on 13.10 Ubuntu (laptop). To be precise I hit the *other* bug in LWP: [#738493](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=738493).
+>
+> My only workaround for now was to fix `PERL_LWP_SSL_VERIFY_HOSTNAME` to 0 directly in `ikiwiki` :-(  -- [[users/bbb]]
+
+~~~~
+--- /usr/bin/ikiwiki.orig       2014-09-08 15:48:35.715868902 -0400
++++ /usr/bin/ikiwiki    2014-09-08 15:48:38.895947911 -0400
+@@ -225,4 +225,5 @@
+        }
+ }
+
++$ENV{PERL_LWP_SSL_VERIFY_HOSTNAME} = 0;
+ main;
+~~~~
+

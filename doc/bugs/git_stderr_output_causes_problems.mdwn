@@ -1,0 +1,45 @@
+I've just been getting ikiwiki running on a hosted server.  The server is wrapping all cgi scripts to 'harden' them.  Unfortunately, that script is sensitive to what a cgi script outputs on stderr.
+
+Ikiwiki's git handling is sending a bunch of output to stderr.  The following patch closes stderr in the child process that ikiwiki forks to run git.  This allows me to use ikiwiki on this hosted server.  (patch inline - check source to get it)
+
+    diff --git a/IkiWiki/Rcs/git.pm b/IkiWiki/Rcs/git.pm
+    index 425536f..5734bb2 100644
+    --- a/IkiWiki/Rcs/git.pm
+    +++ b/IkiWiki/Rcs/git.pm
+    @@ -24,6 +24,7 @@ sub _safe_git (&@) {
+            if (!$pid) {
+                    # In child.
+                    # Git commands want to be in wc.
+    +               open STDERR, '>/dev/null';
+                    chdir $config{srcdir}
+                        or error("Cannot chdir to $config{srcdir}: $!");
+                    exec @cmdline or error("Cannot exec '@cmdline': $!");
+
+> This sounds like rather counter-productive "hardening" (making life harder
+> for real users without any security improvement that I can think of),
+> but if you have to suppress standard error of the CGI,
+> can't you just replace ikiwiki.cgi with this...
+>
+>     #!/bin/sh
+>     exec /some/where/else/ikiwiki.cgi "$@" 2>/dev/null
+>
+> or (if you're constrained to Perl) this?
+>
+>     #!/usr/bin/perl
+>     open STDERR, '>/dev/null';
+>     exec ("/some/where/else/ikiwiki.cgi", @ARGV);
+>
+> (Also indented all the lines of your patch so markdown won't eat it :-) )
+> --[[smcv]]
+
+> Right, I don't like throwing stderr away because stderr is supposed to be
+> logged to error.log for a reason: To allow debugging problems.
+> It's unfortunate that git [abuses atderr](http://bugs.debian.org/447395),
+> outputting non-errors to it. That doesn't mean that git might not also
+> output actual error messages there. --[[Joey]]
+
+>> I'm happy with the wrapper script solution, so this is [[done]].
+>> And this report is now here to point others to that solution.
+
+This is also useful when running ikiwiki behind a nginx proxy, because nginx
+considers this stderr as invalid headers and reports a server error. -- [[nil]]

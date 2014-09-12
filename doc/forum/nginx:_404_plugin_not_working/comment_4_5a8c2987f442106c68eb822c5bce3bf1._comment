@@ -1,0 +1,23 @@
+[[!comment format=mdwn
+ username="http://tychoish.livejournal.com/"
+ ip="74.108.56.136"
+ subject="Alternative"
+ date="2011-06-04T12:57:14Z"
+ content="""
+I just have the following in my nginx config, which isn't as friendly, I think, as a 404 plugin, but it does the job: 
+
+        location / {
+            index  index.html index.htm;
+            if (!-d $request_filename) {
+               rewrite ^/(.*)/$ /ikiwiki.cgi?page=$1&do=create last;
+               rewrite ^(.*)/$ /$1.html last;
+               rewrite ^(.*)/$ /$1.htm last;
+            }
+            if (!-e $request_filename) {
+               rewrite ^/(.*)$ /ikiwiki.cgi?page=$1&do=create last;
+               rewrite ^(.*)$ $1.html last;
+               rewrite ^(.*)$ $1.htm last;
+            }
+        }
+
+"""]]

@@ -1,0 +1,10 @@
+I have a client server setup so I can I edit/preview on my laptop/desktop and push to a server. I therefore have two almost identical setup files that reasonably often I let get out of sync.  I'd like to be able into include the common parts into the two setup files. Currently the following works, but it relies on knowing the implementation of IkiWiki::Setup::Standard
+
+use IkiWiki::Setup::Standard { specific stuff };
+require "/path/to/common_setup";
+
+where common_setup contains a call to IkiWiki::Setup::merge
+
+To see that this is fragile, note that the require must come second, or ikiwiki will try to load a module called IkiWiki::Setup::merge
+
+DavidBremner

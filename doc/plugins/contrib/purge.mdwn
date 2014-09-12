@@ -1,0 +1,38 @@
+[[!template id=plugin name=purge core=0 author="[[users/ssm]]"]]
+
+IkiWiki plugin to send PURGE requests to remote http cache server (like Varnish Cache) when your content changes.
+
+PURGE requests are sent for the changed page, as well as all pages indirectly changed when ikiwiki rebuilds the web pages.
+
+# Download
+
+Download from [Github](https://github.com/ssm/ikiwiki-plugin-purge)
+
+# Configure ikiwiki
+
+    # purge_url (mandatory), the address of your cache server.
+    purge_url: http://example.com/
+
+    # purge_timeout (optional, default 5) timeout in seconds for a purge request.
+
+    # purge_method (optional, default "PURGE") HTTP method to use.
+    
+# Configure your cache server
+
+For Varnish, you'll need to add a handler for the non-standard "PURGE" method, and preferrably an ACL which restricts who can send these requests to empty your cache.
+
+    acl origin_server {
+        "localhost";
+        "192.0.2.0"/24;
+        "2001:db8::"/64;
+    }
+ 
+    sub vcl_recv {
+        if (req.method == "PURGE") {
+            if (!client.ip ~ origin_server) {
+                return(synth(405,"Not allowed."));
+            }
+            return (purge);
+        }
+    }
+

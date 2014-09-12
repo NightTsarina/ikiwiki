@@ -1,0 +1,118 @@
+Here is a patch for the [[plugins/meta]] plugin. It adds the possibility to define the language 
+used for a page, with \[[!meta lang="ja"]]
+
+It doesn't insert the langage information in the xhtml meta elements, but defines a LANG
+variable to use in the templates, for example with
+
+    <html xmlns="http://www.w3.org/1999/xhtml"
+          lang="<TMPL_IF NAME="LANG"><TMPL_VAR LANG><TMPL_ELSE>fr</TMPL_IF>"
+          xml:lang="<TMPL_IF NAME="LANG"><TMPL_VAR LANG><TMPL_ELSE>fr</TMPL_IF>">
+
+This way also allows to define a language for a subset of the final page, with custom
+templates and inclusion. 
+
+This may be useful for sites with a few pages in different languages, but no full i18n.
+
+> Looks good, but the need to modify the template and include a default
+> language in it is a bit problimatic, I think. --[[Joey]]
+
+>> --lang=XX could be a setup option, with a default value, then the template would be 
+
+                <html xmlns="http://www.w3.org/1999/xhtml" lang="<TMPL_VAR LANG>" xml:lang="<TMPL_VAR LANG>">
+
+>>> Yes, that seems reasonable. I guess there's no problem with defaulting
+>>> to en if it can be overridden in the setup. --[[Joey]]
+
+>>>> Yes, english default makes sense. I guess we should use the `$config{lang}`, 
+>>>> defined from the setup file or command-line options to define the default language
+>>>> (`$config{lang}` defaults to `en` which is fine) if the html pages, and override
+>>>> it from the `meta` directive.
+>>>> — [[NicolasLimare]]
+
+>>>>> ikiwiki already has a $config{locale}, which is a full locale (ie,
+>>>>> "en_US.UTF-8". This just needs to be parsed for the lang. --[[Joey]]
+
+>>>>>> My mistake, I meant $config{locale} --[[NicolasLimare]]
+
+> So the patch below could be changed to parse `$config{locale}` for the
+> language, and pass it if no specific lang was set for the page. The only
+> problem with that would be that this is all done inside the meta plugin,
+> so if that plugin were disabled, the lang would be empty. To avoid that,
+> I guess that the template needs to look like:
+
+    <html xmlns="http://www.w3.org/1999/xhtml"
+          <TMPL_IF NAME="LANG">lang="<TMPL_VAR LANG>" xml:lang="<TMPL_VAR LANG>"</TMPL_IF>>
+
+> Now it just needs to be finished up.. --[[Joey]]
+
+<pre>
+--- meta.orig.pm  2007-07-27 00:19:51.000000000 +0200
++++ meta.pm       2007-08-05 22:37:40.000000000 +0200
+@@ -11,6 +11,7 @@
+ my %permalink;
+ my %author;
+ my %authorurl;
++my %lang;
+ 
+ sub import {
+        hook(type => "preprocess", id => "meta", call => \&preprocess, scan => 1);
+@@ -100,6 +101,11 @@
+                $meta{$page}.='<link href="'.encode_entities($value).
+                        "\" rel=\"openid.delegate\" />\n";
+        }
++       elsif ($key eq 'lang') {
++           if ($value =~ /^[A-Za-z]{2}$/) {
++               $lang{$page}=$value;
++           }
++       }
+        else {
+                $meta{$page}.=scrub("<meta name=\"".encode_entities($key).
+                        "\" content=\"".encode_entities($value)."\" />\n");
+@@ -131,6 +137,8 @@
+                if exists $author{$page} && $template->query(name => "author");
+        $template->param(authorurl => $authorurl{$page})
+                if exists $authorurl{$page} && $template->query(name => "authorurl");
++       $template->param(lang => $lang{$page})
++               if exists $lang{$page} && $template->query(name => "lang");
+ 
+ }
+</pre>
+
+> Please resolve lang somewhere reusable rather than within meta plugin: It is certainly usable outside
+> the scope of the meta plugin as well. --[[JonasSmedegaard]]
+
+>> I don't see any problem with having this in meta? meta is on by default, and
+>> other plugins are free to use it or even depend on it (e.g. inline does).
+>>
+>> My only comments on this patch beyond what Joey said are that the page
+>> language could usefully go into `$pagestate{$page}{meta}{lang}` for other
+>> plugins to be able to see it (is that what you meant?), and that
+>> restricting to 2 characters is too restrictive (HTML 4.01 mentions
+>> `en`, `en-US` and `i-navajo` as possible language codes).
+>> This slightly complicates parsing the locale to get the default language:
+>> it'll need `tr/_/-/` after the optional `.encoding` is removed.
+>> --[[smcv]]
+
+>>> Now that po has been merged, this patch should probably also be adapted
+>>> so that the po plugin forces the meta::lang of every page to what po
+>>> thinks it should be. --[[smcv]]
+
+>>>> Agreed, users of the po plugin would greatly benefit from it.
+>>>> Seems doable. --[[intrigeri]]
+
+>>> Perhaps [[the_special_po_pagespecs|ikiwiki/pagespec/po]] should
+>>> also work with meta-assigned languages? --[[smcv]]
+
+>>>> Yes. But then, these special pagespecs should be moved outside of
+>>>> [[plugins/po]], as they could be useful to anyone using the
+>>>> currently discussed patch even when not using the po plugin.
+>>>> 
+>>>> We could add these pagespecs to the core and make them use
+>>>> a simple language-guessing system based on a new hook. Any plugin
+>>>> that implements such a hook could decide whether it should
+>>>> overrides the language guessed by another one, and optionally use
+>>>> the `first`/`last` options (e.g. the po plugin will want to be
+>>>> authoritative on the pages of type po, and will then use
+>>>> `last`). --[[intrigeri]]
+
+[[!tag wishlist patch plugins/meta translation]]

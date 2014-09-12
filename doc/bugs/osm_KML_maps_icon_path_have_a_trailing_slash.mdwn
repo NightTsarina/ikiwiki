@@ -1,0 +1,34 @@
+This is not a problem on Apache webservers because they, oddly enough, ignore trailing slashes on paths (maybe some `PATH_INFO` magic, no idea). But basically, in our wiki, the paths to the icon tags are generated with a trailing slash. An excerpt of our [KML file](http://wiki.reseaulibre.ca/map/pois.kml):
+
+    <Style id="/tag/up">
+    <IconStyle>
+    <Icon>
+    <href>http://wiki.reseaulibre.ca//tag/up/icon.png/</href>
+    </Icon>
+    </IconStyle>
+    </Style>
+
+Notice the trailing `/` after the `icon.png`. This breaks display on nginx - the file that gets served isn't the icon, but the frontpage for some reason. I followed the [[setup instructions|tips/dot cgi]] for Nginx that I just had to write because there weren't any, so maybe I screwed up some part, but it does seem to me that the trailing slash is wrong regardless.
+
+(Also notice how the style tag is being turned over backwards by the HTML sanitizer here, cute. :P)
+
+I wrote a crude hack for this, but this strikes me as a similar problem to the one we found in [[bugs/osm linkto() usage breaks map rendering]]. However, I am at a loss how to fix this cleanly because we cannot `will_render()` the tag icons, as they are already generated out there! Weird. Anyways, here's the stupid [[patch]]:
+
+[[!format diff """
+diff --git a/IkiWiki/Plugin/osm.pm b/IkiWiki/Plugin/osm.pm
+index a7baa5f..c9650d0 100644
+--- a/IkiWiki/Plugin/osm.pm
++++ b/IkiWiki/Plugin/osm.pm
+@@ -192,6 +192,7 @@ sub process_waypoint {
+                }
+        }
+        $icon = urlto($icon, $dest, 1);
++       $icon =~ s!/*$!!; # hack - urlto shouldn't be appending a slash in the first place
+        $tag = '' unless $tag;
+        register_rendered_files($map, $page, $dest);
+        $pagestate{$page}{'osm'}{$map}{'waypoints'}{$name} = {
+"""]]
+
+I'm not writing this to a branch out of sheer shame of my misunderstanding. ;) There also may be a workaround that could be done in Nginx too. --[[anarcat]]
+
+> [[applied|done]], but I'm not happy with this either --[[Joey]]

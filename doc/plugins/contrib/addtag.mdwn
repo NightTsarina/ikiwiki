@@ -1,0 +1,73 @@
+[[!meta author="spalax"]]
+[[!template id=plugin name=addtag author="[[Louis|spalax]]"]]
+[[!tag type/widget]]
+
+# Addtag
+
+This plugin adds links in the edit page to tag pages by clicking on tag links (instead of manually typing the tag directive).
+
+## Template
+
+The editpage template has to be modified to enable this: the following code has
+to be inserted where you want this feature to appear (right after the
+attachment link seems a good place).
+
+[[!toggle id=template text="Template"]]
+[[!toggleable id=template text="""
+    <TMPL_IF NAME="ADDTAG">
+    <a class="toggle" href="#addtag">Tags</a>
+    <TMPL_VAR ADDTAG>
+    <span class="addtag">
+    <div class="toggleable" id="addtag">
+    <em>
+    Enable Javascript to add tags by simply clicking on them.
+    </em>
+    </div>
+    </span>
+    </TMPL_IF>
+"""]]
+
+## CSS
+
+I think that in this case, the tag list looks nicer as columns. To do so, add
+the following code to your CSS.
+
+[[!toggle id=css text="CSS"]]
+[[!toggleable id=css text="""
+    .addtag:after {
+      clear: both;
+      content:".";
+      display:block;
+      height:0;
+      visibility:hidden;
+    }
+    
+    .addtag ul{
+      margin: auto;
+      padding: 0;
+    }
+    
+    .addtag ul li {
+      list-style: none;
+      float: left;
+      margin-left: 1.5em;
+    }
+    
+    .addtag ul ul{
+      margin: 0;
+      padding: 0;
+    }
+    
+    .addtag ul ul li {
+      clear: left;
+      list-style-type: disc;
+    }
+    
+    .addtag ul ul ul li {
+      list-style-type: circle;
+    }
+"""]]
+
+## Code
+
+Code and documentation can be found here : [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/Addtag]].

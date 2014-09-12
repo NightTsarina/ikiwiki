@@ -1,0 +1,16 @@
+    smcv@vasks:~$ git clone git://git.ikiwiki.info/
+    Cloning into git.ikiwiki.info...
+    fatal: read error: Connection reset by peer
+
+I tried this from a UK consumer ISP, my virtual server in the
+UK, and vasks (aka alioth.debian.org) in the Netherlands,
+with the same results. I can't update my clone from `origin`
+either; for the moment I'm using the github mirror instead.
+--[[smcv]]
+
+> Strange.. The git-daemon was not running, but one child was running
+> waiting on an upload-pack, but not accepting new connections. Nothing
+> in the logs about what happened to the parent. The monitor that checks
+> services are running was satisfied with the child.. I've made it
+> restart if the parent pid is no longer running, which should avoid
+> this problem in the future. --[[Joey]] [[done]]

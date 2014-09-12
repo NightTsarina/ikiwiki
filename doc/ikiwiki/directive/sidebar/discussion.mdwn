@@ -1,0 +1,10 @@
+Things can get messy if you have enabled the global sidebar setting and you browse the `ikiwiki/directive/*` pages. You will get the content of `ikiwiki/directive/sidebar` as a sidebar to all the directives page... I have emptied the sidebar.mdwn page on our wiki to work around that, but isn't this a bug? --[[anarcat]]
+
+> Another reason to dislike the global sidebar option and wish it didn't
+> exist, as if I didn't have a dozen already. However, renaming this page
+> does not seem like an appropriate fix; adding cruft to every directive/
+> page to force the sidebar off does not seem like an appropriate fix; 
+> this leaves only special casing the plugin to not treat this page as a
+> sidebar, but that's disgusting. --[[Joey]] 
+
+>> Yep, this all sounds wrong... Maybe we could add a global "sidebar exclusion" pattern? Or reverse, allow customizing what name the global sidebar functionality is looking for? For example, we could look for `globalsidebar.mdwn` page instead of just `sidebar.mdwn`? --[[anarcat]]

@@ -1,0 +1,25 @@
+Someone tried to report a bug using IRC while I was on vacation.
+--[[Joey]] 
+
+<pre>
+julm: [11:58:35] han, it's me the problem; I was generating a post-update hook instead of a pre-receive hook
+julm: [12:03:59] why does the pre-receive hook return: "Status: 302 Found" and a "Location: <url>"? Is it normal?
+julm: [00:08:44] it's Plugin/httpauth.pm which is outputing those Status and Location
+julm: [00:09:12] problem is that it's an anonymous push via git://
+julm: [03:28:53] hacked my way to fix it somehow: http://git.internet.alpes.fr.eu.org/?p=web/ikiwiki.git;a=commitdiff;h=7211df4f7457c3afab53822a97cbd21825c473f4
+</pre>
+
+Analysis: 
+
+* IkiWiki::Receive calls `check_canedit`.
+* httpauth's canedit hook returns an error handler function
+  which redirects the browser through the cgiauthurl.
+  (Similarly, signinedit's hook may call needsignin, which
+  can display a signin form.
+* That doesn't work well when doing a git anon push. :)
+* Also, IkiWiki::Receive calls `check_canattach` and
+  `check_canremove`, which both also call `check_canedit`.
+
+So, all these calls need to avoid running the error handler
+functions returned by canedit hooks, and just return error
+messages. [[done]] --[[Joey]] 

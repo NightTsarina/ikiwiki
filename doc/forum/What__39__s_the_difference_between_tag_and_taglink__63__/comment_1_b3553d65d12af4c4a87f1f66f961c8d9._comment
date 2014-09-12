@@ -1,0 +1,49 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="comment 1"
+ date="2012-08-19T15:05:35Z"
+ content="""
+`\[[!tag]]` does not produce any output in the body of the page, but
+stores an invisible tag (which, in the default templates, gets displayed
+in the footer of the page).
+
+For instance, this
+
+    Here is some text about badgers
+    \[[!tag badger]]
+
+or this
+
+    \[[!tag badger]]
+    Here is some text about badgers
+
+or even this
+
+    Here is some text about \[[!tag badger]]badgers
+
+will all come out like this:
+
+    Edit | RecentChanges | etc.
+    ----
+    Here is some text about badgers
+    ----
+    tags: badger
+
+`\[[!taglink]]` produces a [[ikiwiki/WikiLink]] in the body of the
+page, *and* stores an invisible tag like `\[[!tag]]`.
+
+So this:
+
+    Some text about \[[!tag mushrooms]] and toadstools
+
+renders like this
+
+    Edit | RecentChanges | etc.
+    ----
+    Some text about _mushrooms_ and toadstools
+    ----
+    tags: mushrooms
+
+where `_mushrooms_` represents a hyperlink.
+"""]]

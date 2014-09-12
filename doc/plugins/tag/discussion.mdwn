@@ -1,0 +1,31 @@
+I'd like to modify this plugin such that the tag pages are automatically created and populated with a list of relevant posts. The content of the tag page is simply `"\[[!inline pages="link(tag/$tag)"]]`. The tag plugin will have to determine whether a page for the given tag already exists, and if not use that Markdown fragment to  generate it.
+
+There are clearly many ways to do this, but any opinions on which is the cleanest?
+
+--Ben
+
+It might work to use the 'change' hook, since that's called at the very end
+of `refresh()`. The hook could add the tag pages and re-run `refresh()`,
+taking appropriate care to avoid looping forever.
+
+--[[Joey]]
+
+Thanks. That works fine.
+
+--Ben
+
+@Ben: could you publish the code for that?
+
+--[[David_Riebenbauer]]
+
+AOLMODE=true echo "I too would really like this feature, which would make cgi free life much 
+better" --[[DavidBremner]]
+
+Please make the actual text used a template some way or another. I may want `map` instead of `inline`. --[[madduck]]
+
+
+See [[todo/auto-create tag pages according to a template]]
+
+-- Jeremy Schultz <jeremy.schultz@uleth.ca>
+
+`tag_autocreate` can now enable this. --[[Joey]] 

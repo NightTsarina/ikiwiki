@@ -1,0 +1,40 @@
+ I get this error when enabling the `rst` plugin. I am running IkiWiki
+3.20130904.1ubuntu1 on Ubuntu 14.04 in a non-English UTF-8 locale; the
+pages can also contain characters in UTF-8 encoding.
+
+    uncaught exception: 'ascii' codec can't encode character u'\xa9' in position 13: ordinal not in range(128)
+    Traceback (most recent call last):
+      File "/usr/lib/ikiwiki/plugins/proxy.py", line 309, in run
+        self._in_fd, self._out_fd)
+      File "/usr/lib/ikiwiki/plugins/proxy.py", line 192, in handle_rpc
+        ret = self._dispatcher.dispatch(method, params)
+      File "/usr/lib/ikiwiki/plugins/proxy.py", line 84, in dispatch
+        return self._dispatch(method, params)
+      File "/usr/lib/python2.7/SimpleXMLRPCServer.py", line 420, in _dispatch
+        return func(*params)
+      File "/usr/lib/ikiwiki/plugins/proxy.py", line 253, in hook_proxy
+        "{0} hook `{1}' returned: [{2}]".format(type, name, ret))
+    UnicodeEncodeError: 'ascii' codec can't encode character u'\xa9' in position 13: ordinal not in range(128)
+
+    Traceback (most recent call last):
+      File "/usr/lib/ikiwiki/plugins/rst", line 86, in <module>
+        proxy.run()
+      File "/usr/lib/ikiwiki/plugins/proxy.py", line 317, in run
+        self.error('uncaught exception: {0}\n{1}'.format(e, tb))
+      File "/usr/lib/ikiwiki/plugins/proxy.py", line 298, in error
+        self.rpc('error', msg)
+      File "/usr/lib/ikiwiki/plugins/proxy.py", line 233, in rpc
+        *args, **kwargs)
+      File "/usr/lib/ikiwiki/plugins/proxy.py", line 173, in send_rpc
+        raise GoingDown()
+    proxy.py.GoingDown
+
+A fix is akin to the one for
+<http://ikiwiki.info/bugs/proxy.py_utf8_troubles/>: change
+`...format(type, name, ret)` in `proxy.py` line 253 to `format(type,
+name, repr(ret))` (which should not hurt since it's a message
+for debugging purposes only).
+
+
+> this is [[fixed|done]] in commit [154c4ea9](http://source.ikiwiki.branchable.com/?p=source.git;a=commit;h=154c4ea9e65d033756330a7f8c5c0fa285380bf0)
+>  (november 2013), which is included in 3.20140227. --[[chrysn]]

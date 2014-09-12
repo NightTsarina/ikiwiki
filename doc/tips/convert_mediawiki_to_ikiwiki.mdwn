@@ -1,0 +1,299 @@
+[[!toc levels=2]]
+
+Mediawiki is a dynamically-generated wiki which stores its data in a
+relational database. Pages are marked up using a proprietary markup. It is
+possible to import the contents of a Mediawiki site into an ikiwiki,
+converting some of the Mediawiki conventions into Ikiwiki ones.
+
+The following instructions describe ways of obtaining the current version of
+the wiki. We do not yet cover importing the history of edits.
+
+Another set of instructions and conversion tools (which imports the full history)
+can be found at <http://github.com/mithro/media2iki>
+
+## Step 1: Getting a list of pages
+
+The first bit of information you require is a list of pages in the Mediawiki.
+There are several different ways of obtaining these.
+
+### Parsing the output of `Special:Allpages`
+
+Mediawikis have a special page called `Special:Allpages` which list all the
+pages for a given namespace on the wiki.
+
+If you fetch the output of this page to a local file with something like
+
+    wget -q -O tmpfile 'http://your-mediawiki/wiki/Special:Allpages'
+
+You can extract the list of page names using the following python script. Note
+that this script is sensitive to the specific markup used on the page, so if
+you have tweaked your mediawiki theme a lot from the original, you will need
+to adjust this script too:
+
+    import sys
+    from xml.dom.minidom import parse, parseString
+    
+    dom = parse(sys.argv[1])
+    tables = dom.getElementsByTagName("table")
+    pagetable = tables[-1]
+    anchors = pagetable.getElementsByTagName("a")
+    for a in anchors:
+        print a.firstChild.toxml().\
+            replace('&amp;','&').\
+            replace('&lt;','<').\
+            replace('&gt;','>')
+
+Also, if you have pages with titles that need to be encoded to be represented
+in HTML, you may need to add further processing to the last line.
+
+Note that by default, `Special:Allpages` will only list pages in the main
+namespace. You need to add a `&namespace=XX` argument to get pages in a
+different namespace. (See below for the default list of namespaces)
+
+Note that the page names obtained this way will not include any namespace
+specific prefix: e.g. `Category:` will be stripped off.
+
+### Querying the database
+
+If you have access to the relational database in which your mediawiki data is
+stored, it is possible to derive a list of page names from this. With mediawiki's
+MySQL backend, the page table is, appropriately enough, called `table`:
+
+    SELECT page_namespace, page_title FROM page;
+
+As with the previous method, you will need to do some filtering based on the
+namespace.
+
+### namespaces
+
+The list of default namespaces in mediawiki is available from <http://www.mediawiki.org/wiki/Manual:Namespace#Built-in_namespaces>. Here are reproduced the ones you are most likely to encounter if you are running a small mediawiki install for your own purposes:
+
+[[!table data="""
+Index   | Name         | Example
+0       | Main         | Foo
+1       | Talk         | Talk:Foo
+2       | User         | User:Jon
+3       | User talk    | User_talk:Jon
+6       | File         | File:Barack_Obama_signature.svg
+10      | Template     | Template:Prettytable
+14      | Category     | Category:Pages_needing_review
+"""]]
+
+## Step 2: fetching the page data
+
+Once you have a list of page names, you can fetch the data for each page.
+
+### Method 1: via HTTP and `action=raw`
+
+You need to create two derived strings from the page titles: the
+destination path for the page and the source URL. Assuming `$pagename` 
+contains a pagename obtained above, and `$wiki` contains the URL to your
+mediawiki's `index.php` file:
+
+    src=`echo "$pagename" | tr ' ' _ | sed 's,&,&amp;,g'`
+    dest=`"$pagename" | tr ' ' _ | sed 's,&,__38__,g'`
+    
+    mkdir -p `dirname "$dest"`
+    wget -q "$wiki?title=$src&action=raw" -O "$dest"
+
+You may need to add more conversions here depending on the precise page titles
+used in your wiki.
+
+If you are trying to fetch pages from a different namespace to the default,
+you will need to prefix the page title with the relevant prefix, e.g.
+`Category:` for category pages. You probably don't want to prefix it to the
+output page, but you may want to vary the destination path (i.e. insert an
+extra directory component corresponding to your ikiwiki's `tagbase`).
+
+### Method 2: via HTTP and `Special:Export`
+
+Mediawiki also has a special page `Special:Export` which can be used to obtain
+the source of the page and other metadata such as the last contributor, or the
+full history, etc.
+
+You need to send a `POST` request to the `Special:Export` page. See the source
+of the page fetched via `GET` to determine the correct arguments.
+
+You will then need to write an XML parser to extract the data you need from
+the result.
+
+### Method 3: via the database
+
+It is possible to extract the page data from the database with some
+well-crafted queries.
+
+## Step 3: format conversion
+
+The next step is to convert Mediawiki conventions into Ikiwiki ones.
+
+### categories
+
+Mediawiki uses a special page name prefix to define "Categories", which
+otherwise behave like ikiwiki tags. You can convert every Mediawiki category
+into an ikiwiki tag name using a script such as
+
+    import sys, re
+    pattern =  r'\[\[Category:([^\]]+)\]\]'
+    
+    def manglecat(mo):
+            return '\[[!tag %s]]' % mo.group(1).strip().replace(' ','_')
+            
+    for line in sys.stdin.readlines():
+            res = re.match(pattern, line)
+            if res:
+                    sys.stdout.write(re.sub(pattern, manglecat, line))
+            else: sys.stdout.write(line)
+
+## Step 4: Mediawiki plugin or Converting to Markdown
+
+You can use a plugin to make ikiwiki support Mediawiki syntax, or you can 
+convert pages to a format ikiwiki understands.
+
+### Step 4a: Mediawiki plugin
+
+The [[plugins/contrib/mediawiki]] plugin can be used by ikiwiki to interpret
+most of the Mediawiki syntax.
+
+The following things are not working:
+
+* templates
+* tables
+* spaces and other funky characters ("?") in page names
+
+### Step 4b: Converting pages
+
+#### Converting to Markdown
+
+There is a Python script for converting from the Mediawiki format to Markdown in [[mithro]]'s conversion repository at <http://github.com/mithro/media2iki>. *WARNING:* While the script tries to preserve everything is can, Markdown syntax is not as flexible as Mediawiki so the conversion is lossy!
+
+    # The script needs the mwlib library to work
+    # If you don't have easy_install installed, apt-get install python-setuptools
+    sudo easy_install mwlib
+    
+    # Get the repository
+    git clone git://github.com/mithro/media2iki.git
+    cd media2iki
+    
+    # Do a conversion
+    python mediawiki2markdown.py --no-strict --no-debugger <my mediawiki file> > output.md
+
+
+[[mithro]] doesn't frequent this page, so please report issues on the [github issue tracker](https://github.com/mithro/media2iki/issues).
+
+## Scripts
+
+### media2iki
+
+There is a repository of tools for converting MediaWiki to Git based Markdown wiki formats (such as ikiwiki and github wikis) at <http://github.com/mithro/media2iki>. It also includes a standalone tool for converting from the Mediawiki format to Markdown. [[mithro]] doesn't frequent this page, so please report issues on the [github issue tracker](https://github.com/mithro/media2iki/issues).
+
+### mediawiki2gitikiwiki (ruby)
+
+[[Albert]] wrote a ruby script to convert from mediawiki's database to ikiwiki at <https://github.com/docunext/mediawiki2gitikiwiki>
+
+### levitation (xml to git)
+
+[[scy]] wrote a python script to convert from mediawiki XML dumps to git repositories at <https://github.com/scy/levitation>.
+
+### git-mediawiki
+
+There's now support for mediawiki as a git remote:
+
+<https://github.com/moy/Git-Mediawiki/wiki>
+
+### mediawikigitdump
+[[Anarcat]] wrote a python script to convert from a mediawiki website to ikiwiki at git://src.anarcat.ath.cx/mediawikigitdump.git/. The script doesn't need any special access or privileges and communicates with the documented API (so it's a bit slower, but allows you to mirror sites you are not managing, like parts of Wikipedia). The script can also incrementally import new changes from a running site, through RecentChanges inspection. It also supports mithro's new Mediawiki2markdown converter (which I have a copy here: git://src.anarcat.ath.cx/media2iki.git/).
+
+> Some assembly is required to get Mediawiki2markdown and its mwlib
+> gitmodule available in the right place for it to use.. perhaps you could
+> automate that? --[[Joey]]
+
+> > You mean a debian package? :) media2iki is actually a submodule, so you need to go through extra steps to install it. mwlib being the most annoying part... I have fixed my script so it looks for media2iki directly in the submodule and improved the install instructions in the README file, but I'm not sure I can do much more short of starting to package the whole thing... --[[anarcat]]
+
+>>> You may have forgotten to push that, I don't see those changes.
+>>> Packaging the python library might be a good 1st step.
+>>> --[[Joey]] 
+
+> Also, when I try to run it with -t on www.amateur-radio-wiki.net, it
+> fails on some html in the page named "4_metres". On archiveteam.org,
+> it fails trying to write to a page filename starting with "/", --[[Joey]]
+
+> > can you show me exactly which commandline arguments you're using? also, I have made improvements over the converter too, also available here: git://src/anarcat.ath.cx/media2iki.git/ -- [[anarcat]]
+
+>>> Not using your new converter, just the installation I did earlier
+>>> today:
+>>> --[[Joey]] 
+
+<pre>
+fetching page 4 metres  from http://www.amateur-radio-wiki.net//index.php?action=raw&title=4+metres into 4_metres.mdwn
+Unknown tag TagNode tagname='div' vlist={'style': {u'float': u'left', u'border': u'2px solid #aaa', u'margin-left': u'20px'}}->'div' div
+Traceback (most recent call last):
+  File "./mediawikigitdump.py", line 298, in <module>
+    fetch_allpages(namespace)
+  File "./mediawikigitdump.py", line 82, in fetch_allpages
+    fetch_page(page.getAttribute('title'))
+  File "./mediawikigitdump.py", line 187, in fetch_page
+    c.parse(urllib.urlopen(url).read())
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 285, in parse
+    self.parse_node(ast)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 76, in parse_node
+    f(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 88, in on_article
+    self.parse_children(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 83, in parse_children
+    self.parse_node(child)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 76, in parse_node
+    f(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 413, in on_section
+    self.parse_node(child)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 76, in parse_node
+    f(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 83, in parse_children
+    self.parse_node(child)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 76, in parse_node
+    f(node)
+  File "/home/joey/tmp/mediawikigitdump/mediawiki2markdown.py", line 474, in on_tagnode
+    assert not options.STRICT
+AssertionError
+zsh: exit 1     ./mediawikigitdump.py -v -t http://www.amateur-radio-wiki.net/
+</pre>
+
+<pre>
+joey@wren:~/tmp/mediawikigitdump>./mediawikigitdump.py -v -t http://archiveteam.org            
+fetching page list from namespace 0 ()
+found 222 pages
+fetching page /Sites using MediaWiki (English)  from http://archiveteam.org/index.php?action=raw&title=%2FSites+using+MediaWiki+%28English%29 into /Sites_using_MediaWiki_(English).mdwn
+Traceback (most recent call last):
+  File "./mediawikigitdump.py", line 298, in <module>
+    fetch_allpages(namespace)
+  File "./mediawikigitdump.py", line 82, in fetch_allpages
+    fetch_page(page.getAttribute('title'))
+  File "./mediawikigitdump.py", line 188, in fetch_page
+    f = open(filename, 'w')
+IOError: [Errno 13] Permission denied: u'/Sites_using_MediaWiki_(English).mdwn'
+zsh: exit 1     ./mediawikigitdump.py -v -t http://archiveteam.org
+</pre>
+
+> > > > > I have updated my script to call the parser without strict mode and to trim leading slashes (and /../, for that matter...) -- [[anarcat]]
+
+> > > > > > Getting this error with the new version on any site I try (when using -t only): `TypeError: argument 1 must be string or read-only character buffer, not None` 
+> > > > > > bisecting, commit 55941a3bd89d43d09b0c126c9088eee0076b5ea2 broke it.
+> > > > > > --[[Joey]] 
+
+> > > > > > > I can't reproduce here, can you try with -v or -d to try to trace down the problem? -- [[anarcat]]
+
+<pre>
+fetching page list from namespace 0 ()
+found 473 pages
+fetching page 0 - 9  from http://www.amateur-radio-wiki.net/index.php?action=raw&title=0+-+9 into 0_-_9.mdwn
+Traceback (most recent call last):
+  File "./mediawikigitdump.py", line 304, in <module>
+    main()
+  File "./mediawikigitdump.py", line 301, in main
+    fetch_allpages(options.namespace)
+  File "./mediawikigitdump.py", line 74, in fetch_allpages
+    fetch_page(page.getAttribute('title'))
+  File "./mediawikigitdump.py", line 180, in fetch_page
+    f.write(options.convert(urllib.urlopen(url).read()))
+TypeError: argument 1 must be string or read-only character buffer, not None
+zsh: exit 1     ./mediawikigitdump.py -v -d -t http://www.amateur-radio-wiki.net/
+</pre>

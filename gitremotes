@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+# Parses list of remotes in doc/git.mdwn, configures git to use them
+# all. After running this, use "git remote update --prune" to pull
+# updates from all remotes.
+
+open (IN, "doc/git.mdwn") || die "doc/git.mdwn: $!";
+while (<IN>) {
+	if (/^\*\s+\[?\[?(\w+)(?:\|\w+)?\]?\]?\s+`([^>]+)`/) {
+		# note that the remote name has to be a simple word (\w)
+		# for security/sanity reasons
+		my $remote=$1;
+		my $url=$2;
+
+		# check configured url to deal with it changing
+		my $info=`git remote show -n $remote`;
+		my ($oldurl)=$info=~/URL: (.*)/m;
+		if ($oldurl ne $url) {
+			system("git remote rm $remote 2>/dev/null");
+			system("git", "remote", "add", $remote, $url);
+			system("git", "config", "remote.$remote.tagopt",
+				"--no-tags");
+			system("git", "fetch", $remote);
+		}
+	}
+}
+close IN;

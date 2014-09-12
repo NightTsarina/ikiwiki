@@ -1,0 +1,132 @@
+[[!template id=gitbranch branch=GiuseppeBilotta/inlinestuff author="[[GiuseppeBilotta]]"]]
+
+I rearranged my patchset once again, to clearly identify the origin and
+motivation of each patch, which is explained in the following.
+
+In my ikiwiki-based website I have the following situation:
+
+* `$config{usedirs}` is 1
+* there are a number of subdirectories (A/, B/, C/, etc)
+  with pages under each of them (A/page1, A/page2, B/page3, etc)
+* 'index pages' for each subdirectory: A.mdwn, B.mdwn, C.mdwn;
+  these are rather barebone, only contain an inline directive for their
+  respective subpages and become A/index.html, etc
+* there is also the main index.mdwn, which inlines A.mdwn, B.mdwn, C.mdwn,
+  etc (i.e. the top-level index files are also inlined on the homepage)
+
+With the upstream `inline` plugin, the feeds for A, B, C etc are located
+in `A/index.atom`, `B/index.atom`, etc; their title is the wiki name and
+their main link goes to the wiki homepage rather than to their
+respective subdir (e.g. I would expect `A/index.atom` to have a link to
+`http://website/A` but it actually points to `http://website/`).
+
+This is due to them being generated from the main index page, and is
+fixed by the first patch: ‘inline: base feed urls on included page
+name’. As explained in the commit message for the patch itself, this is
+a ‘forgotten part’ from a previous page vs destpage fix which has
+already been included upstream.
+
+> Applied. --[[Joey]] 
+
+>> Thanks.
+
+The second patch, ‘inline: improve feed title and description
+management’, aligns feed title and description management by introducing
+a `title` option to complement `description`, and by basing the
+description on the page description if the entry is missing. If no
+description is provided by either the directive parameter or the page
+metadata, we use a user-configurable default based on both the page
+title and wiki name rather than hard-coding the wiki name as description.
+
+> Reviewing, this seems ok, but I don't like that 
+> `feed_desc_fmt` is "safe => 0". And I question if that needs
+> to be configurable at all. I say, drop that configurable, and
+> only use the page meta description (or wikiname for index).
+> 
+> Oh, and could you indent your `elsif` the same as I? --[[Joey]] 
+
+>> I hadn't even realized that I was nesting ifs inside else clauses,
+>> sorry. I think you're also right about the safety of the key, after
+>> all it only gets interpolated with known, safe strings.
+
+>>> I did not mean to imply that I thought it safe. --[[Joey]] 
+
+>>>> Sorry for assuming you implied that. I do think it is safe, though
+>>>> (I defaulted to not safe just to err on the safe side).
+
+>> The question is what to do for pages that do not have a description
+>> (and are not the index). With your proposal, the Atom feed subtitle
+>> would turn up empty. We could make it conditional in the default
+>> template, or we could have `$desc` default to `$title` if nothing
+>> else is provided, but at this point I see no reason to _not_ allow
+>> the user to choose a way to build a default description.
+
+>>> RSS requires the `<description>` element be present, it can't
+>>> be conditionalized away. But I see no reason to add the complexity
+>>> of an option to configure a default value for a field that
+>>> few RSS consumers likely even use. That's about 3 levels below useful.
+>>> --[[Joey]]
+
+>>>> The way I see it, there are three possibilities for non-index pages
+>>>> which have no description meta: (1) we leave the
+>>>> description/subtitle in feed blank, per your current proposal here
+>>>> (2) we hard-code some string to put there and (3) we make the
+>>>> string to put there configurable. Honestly, I think option #1 sucks
+>>>> aesthetically and option #2 is conceptually wrong (I'm against
+>>>> hard-coding stuff in general), which leaves option #3: however
+>>>> rarely used it would be, I still think it'd be better than #2 and
+>>>> less unaesthetical than #1.
+
+>>>> I'm also not sure what's ‘complex’ about having such an option:
+>>>> it's definitely not going to get much use, but does it hurt to have
+>>>> it? I could understand not wasting time putting it in, but since
+>>>> the code is written already … (but then again I'm known for being a
+>>>> guy who loves options).
+
+The third patch, ‘inline: allow assigning an id to postform/feedlink’,
+does just that. I don't currently use it, but it can be particularly
+useful in the postform case for example for scriptable management of
+multiple postforms in the same page.
+
+> Applied. --[[Joey]] 
+
+>> Thanks.
+
+In one of my wiki setups I had a terminating '/' in `$config{url}`. You
+mention that it should not be present, but I have not seen this
+requirement described anywhere. Rather than restricting the user input,
+I propose a patch that prevents double slashes from appearing in links
+created by `urlto()` by fixing the routine itself.
+
+> If this is fixed I would rather not put the overhead of fixing it in
+> every call to `urlto`. And I'm not sure this is a comprehensive
+> fix to every problem a trailing slash in the url could cause. --[[Joey]]
+
+>> Maybe something that sanitizes the config value would be better instead?
+>> What is the policy about automatic changing user config?
+
+>>> It's impossible to do for perl-format setup files. --[[Joey]]
+
+>>>> Ok. In that case I think that we should document that it must be
+>>>> slash-less. I'll cook up a patch in that sense.
+
+The inline plugin is also updated (in a separate patch) to use `urlto()`
+rather than hand-coding the feed urls. You might want to keep this
+change even if you discard the urlto patch.
+
+> IIRC, I was missing a proof that this always resulted in identical urls,
+> which is necessary to prevent flooding. I need such a proof before I can
+> apply that. --[[Joey]] 
+
+>> Well, the URL would obviously change if the `$config{url}` ended in
+>> slash and the `urlto` patch (or other equivalent) went into effect.
+
+>> Aside from that, if I read the code correctly, the only other extra
+>> thing that `urlto` does is to `beautify_url_path` the `"/".$to` part,
+>> and the only way this would cause the url to be altered is if the
+>> feed name was "index" (which can easily happen) and
+>> `$config{htmlext}` was set to something like `.rss` or
+>> `.rss.1`.
+
+>> So there is a remote possibility that a different URL would be
+>> produced.

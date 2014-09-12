@@ -1,0 +1,166 @@
+[[!comment format=mdwn
+ username="https://www.google.com/accounts/o8/id?id=AItOawnXybLxkPMYpP3yw4b_I6IdC3cKTD-xEdU"
+ nickname="Matt"
+ subject="comment 3"
+ date="2011-11-30T20:42:55Z"
+ content="""
+I got to grip with things to make a patch to do this. :-)
+
+Here it is in case of use to anyone.
+
+<pre>
+From f0554c5b61e1915086d5cf071f095ff233c2590d Mon Sep 17 00:00:00 2001
+From: Matt Ford <matt@dancingfrog.co.uk>
+Date: Wed, 30 Nov 2011 19:40:10 +0000
+Subject: [PATCH] Patch to allow daily archival generation and link to them in
+ the calendar
+
+---
+ IkiWiki/Plugin/calendar.pm   |   17 ++++++++++++++++-
+ ikiwiki-calendar.in          |   34 +++++++++++++++++++++++++++++++---
+ templates/calendarday.tmpl   |    5 +++++
+ templates/calendarmonth.tmpl |    2 +-
+ templates/calendaryear.tmpl  |    2 +-
+ 5 files changed, 54 insertions(+), 6 deletions(-)
+ create mode 100644 templates/calendarday.tmpl
+
+diff --git a/IkiWiki/Plugin/calendar.pm b/IkiWiki/Plugin/calendar.pm
+index c7d2b7c..9999c03 100644
+--- a/IkiWiki/Plugin/calendar.pm
++++ b/IkiWiki/Plugin/calendar.pm
+@@ -47,6 +47,13 @@ sub getsetup () {
+ 			safe => 1,
+ 			rebuild => 1,
+ 		},
++		archiveday => {
++			type => \"boolean\",
++			example => 1,
++			description => \"enable archiving on a daily basis (otherwise monthly)\",
++			safe => 1,
++			rebuild => 1,
++		},
+ 		archive_pagespec => {
+ 			type => \"pagespec\",
+ 			example => \"page(posts/*) and !*/Discussion\",
+@@ -222,11 +229,19 @@ EOF
+ 				$tag='month-calendar-day-link';
+ 			}
+ 			$calendar.=qq{\t\t<td class=\"$tag $downame{$wday}\">};
+-			$calendar.=htmllink($params{page}, $params{destpage}, 
++			if (exists $pagesources{\"$archivebase/$params{year}/$params{month}/\".sprintf(\"%02d\",$day)}) {
++				$calendar.=htmllink($params{page}, $params{destpage}, 
++						\"$archivebase/$params{year}/$params{month}/\".sprintf(\"%02d\",$day),
++						noimageinline => 1,
++						linktext => \"$day\",
++						title => \"$key\");
++			}else{
++				$calendar.=htmllink($params{page}, $params{destpage}, 
+ 				$linkcache{$key},
+ 				noimageinline => 1,
+ 				linktext => $day,
+ 				title => pagetitle(IkiWiki::basename($linkcache{$key})));
++			}
+ 			$calendar.=qq{</td>\n};
+ 		}
+ 		else {
+diff --git a/ikiwiki-calendar.in b/ikiwiki-calendar.in
+index 037ef7d..af22bc5 100755
+--- a/ikiwiki-calendar.in
++++ b/ikiwiki-calendar.in
+@@ -30,21 +30,44 @@ IkiWiki::checkconfig();
+ my $archivebase = 'archives';
+ $archivebase = $config{archivebase} if defined $config{archivebase};
+ 
++my $archiveday = 0;
++$archiveday = $config{archiveday} if defined $config{archiveday};
++
+ if (! defined $pagespec) {
+ 	$pagespec=$config{archive_pagespec} || \"*\";
+ }
+ 
+-sub writearchive ($$;$) {
++sub is_leap_year {
++	my $year=shift;
++	return ($year % 4 == 0 && (($year % 100 != 0) || $year % 400 == 0));
++}
++
++sub month_days {
++	my $month=shift;
++        my $year=shift;
++	my $days_in_month = (31,28,31,30,31,30,31,31,30,31,30,31)[$month-1];
++	if ($month == 2 && is_leap_year($year)) {
++		$days_in_month++;
++	}
++	return $days_in_month;
++}
++
++sub writearchive ($$;$;$) {
+ 	my $template=template(shift);
+ 	my $year=shift;
+ 	my $month=shift;
++        my $day=shift;
+ 
+-	my $page=defined $month ? \"$year/$month\" : $year;
++	my $page;
++        if (defined $year)  {$page = \"$year\"};
++        if (defined $month) {$page = \"$year/$month\"};
++        if (defined $day)   {$page = \"$year/$month/$day\"};
+ 
+ 	my $pagefile=newpagefile(\"$archivebase/$page\", $config{default_pageext});
+ 	$template->param(pagespec => $pagespec);
+ 	$template->param(year => $year);
+ 	$template->param(month => $month) if defined $month;
++	$template->param(day => $day) if defined $day;
+ 
+ 	if ($force || ! -e \"$config{srcdir}/$pagefile\") {
+ 		writefile($pagefile, $config{srcdir}, $template->output);
+@@ -54,8 +77,13 @@ sub writearchive ($$;$) {
+ 
+ foreach my $y ($startyear..$endyear) {
+ 	writearchive(\"calendaryear.tmpl\", $y);
+-	foreach my $m (qw{01 02 03 04 05 06 07 08 09 10 11 12}) {
++	foreach my $m (map {sprintf(\"%02d\",$_)} (1..12)) {
+ 		writearchive(\"calendarmonth.tmpl\", $y, $m);
++		if ($archiveday ) {
++			foreach my $d (map {sprintf(\"%02d\",$_)} (1..month_days($m,$y))) {
++				writearchive(\"calendarday.tmpl\", $y, $m, $d);
++			}
++		}
+ 	}
+ }
+ 
+diff --git a/templates/calendarday.tmpl b/templates/calendarday.tmpl
+new file mode 100644
+index 0000000..ac963b9
+--- /dev/null
++++ b/templates/calendarday.tmpl
+@@ -0,0 +1,5 @@
++[[!sidebar content=\"\"\"
++[[!calendar type=month month=<TMPL_VAR MONTH> year=<TMPL_VAR YEAR> pages=\"<TMPL_VAR PAGESPEC>\"]]
++\"\"\"]]
++
++[[!inline pages=\"creation_day(<TMPL_VAR DAY>) and creation_month(<TMPL_VAR MONTH>) and creation_year(<TMPL_VAR YEAR>) and <TMPL_VAR PAGESPEC>\" archive=\"yes\" show=0 feeds=no reverse=yes]]
+diff --git a/templates/calendarmonth.tmpl b/templates/calendarmonth.tmpl
+index 23cd954..c998c16 100644
+--- a/templates/calendarmonth.tmpl
++++ b/templates/calendarmonth.tmpl
+@@ -2,4 +2,4 @@
+ [[!calendar type=month month=<TMPL_VAR MONTH> year=<TMPL_VAR YEAR> pages=\"<TMPL_VAR PAGESPEC>\"]]
+ \"\"\"]]
+ 
+-[[!inline pages=\"creation_month(<TMPL_VAR MONTH>) and creation_year(<TMPL_VAR YEAR>) and <TMPL_VAR PAGESPEC>\" show=0 feeds=no reverse=yes]]
++[[!inline pages=\"creation_month(<TMPL_VAR MONTH>) and creation_year(<TMPL_VAR YEAR>) and <TMPL_VAR PAGESPEC>\" archive=\"yes\" show=0 feeds=no reverse=yes]]
+diff --git a/templates/calendaryear.tmpl b/templates/calendaryear.tmpl
+index 714bd6d..b6e33c5 100644
+--- a/templates/calendaryear.tmpl
++++ b/templates/calendaryear.tmpl
+@@ -1 +1 @@
+-[[!calendar type=year year=<TMPL_VAR YEAR> pages=\"<TMPL_VAR PAGESPEC>\"]]
++[[!calendar type=year year=<TMPL_VAR YEAR> pages=\"<TMPL_VAR PAGESPEC>\" archive=\"yes\"]]
+-- 
+1.7.7.3
+
+:
+
+</pre>
+"""]]

@@ -1,0 +1,98 @@
+This is similar to the last post in this forum. I want to know exactly how ikiwiki remembers the times associated with pages, especially when using it for blogging, so I know whether I can trust it or not. From that last thread, I think what ikiwiki does is this:
+
+*   The created time of a file is when that file was first committed into the versioning repository (in my case git)
+
+    > If `--getctime` it used, yes. In normal operation, when new files
+    > are added, ikiwiki sets the creation time to the ctime of the file
+    > on disk, rather than bothering to ask the VCS. --[[Joey]] 
+
+*   The modified time of a file is what that file was last updated in the repository
+
+    > Almost right, the modified time is actually taken from the
+    > modification time of the file in disk. --[[Joey]] 
+
+And with a blog, by default, the posts are ordered by creation time, although an option can order them by modified time.
+
+Okay. So this should mean that the times are safe if, for example, I delete my working copy and then clone another one from the bare git repository, or otherwise mess up the creation times and mtimes stored as file metadata on the filesystem.
+
+Do I have it right?
+
+> Some VCS, like git, set the file mtimes to the current time
+> when making a new checkout, so they will be lost if you do that.
+> The creation times can be retrived using the `--getctime` option.
+> --[[Joey]] 
+>
+> > Thanks for the clarification. I ran some tests of my own to make sure I understand it right, and I'm satisfied
+> > that the order of posts in my blog can be retrieved from the VCS using the `--getctime` option, at least if I
+> > choose to order my posts by creation time rather than modification time. But I now know that I can't rely on
+> > page modification times in ikiwiki as these can be lost permanently.
+> 
+> > > Update: It's now renamed to `--gettime`, and pulls both the creation
+> > > and modification times. Also, per [[todo/auto_getctime_on_fresh_build]],
+> > > this is now done automatically the first time ikiwiki builds a
+> > > srcdir. So, no need to worry about this any more! --[[Joey]] 
+> >
+> > I would suggest that there should at least be a `--getmtime` option like you describe, and perhaps that 
+> > `--getctime` and `--getmtime` be _on by default_. In my opinion the creation times and modification times of 
+> > pages in ikiwiki are part of the user's content and are important to protect, because the user may be relying 
+> > on them, especially if they use blogging or lists of recently modified pages, etc. Right now the modification
+> > times can be lost permanently.
+> >
+> > Is there a typo in the description of `--getctime` in the man page?
+> >
+> > > --getctime
+> > > Pull  **last  changed  time**  for each new page out of the revision
+> > > control system. This rarely used option provides a  way  to  get
+> > > the real creation times of items in weblogs, such as when build‐
+> > > ing a wiki from a new Subversion checkout. It is unoptimised and
+> > > quite  slow. It is best used with --rebuild, to force ikiwiki to
+> > > get the ctime for all pages.
+> >
+> > Surely it is not the _last changed time_ but the _first seen time_ of each page that is pulled out of the VCS?
+> > If the aim is to get the real creation times of items in weblogs, then the last times that the items were
+> > changed in the VCS is not going to help. -- [[seanh]]
+>>> Typo, fixed. --[[Joey]] 
+
+> > > If you want to preserve the date of a page, the best way to do it is to
+> > > use [[ikiwiki/directive/meta]] date="foo". This will survive checkouts,
+> > > VCS migrations, etc. -- [[Jon]]
+> > >
+> > > > That's a good tip Jon. That would also survive renaming a page by renaming its mdwn file, which would 
+> > > > normally lose the times also. (And in that case I think both times are irretrievable, even by 
+> > > > `--getctime`). I might start using a simple script to make blog posts that creates a file for
+> > > > me, puts today's date in the file as a meta, and opens the file in my editor.  -- [[seanh]]
+
+>>>>> I use a script that does that and also sets up templates and tags
+>>>>> for a new item:
+
+    #!/bin/sh
+    set -u
+    set -e
+
+    if [ $# -ne 1 ]; then
+        echo usage: $0 pagename >&2
+        exit 1
+    fi
+
+    pagename="$1"
+
+    if [ -e "$pagename" ]; then
+        echo error: "$pagename" exists >&2
+            exit 1
+    fi
+
+    date=$(date)
+    echo '\[[!template id=draft]]' >> "$pagename"
+    echo "\[[!meta date=\"$date\"]]" >> "$pagename"
+    echo "\[[!tag draft]]" >> "$pagename"
+    git add "$pagename"
+    $EDITOR "$pagename"
+
+>>>>> -- [[Jon]]
+
+> A quick workaround for me to get modification times right is the following
+> little zsh script, which unfortunately only works for git:
+
+>> Elided; no longer needed since --gettime does that, and much faster! --[[Joey]] 
+
+> --[[David_Riebenbauer]]

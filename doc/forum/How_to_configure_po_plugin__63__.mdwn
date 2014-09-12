@@ -1,0 +1,21 @@
+I put 
+
+    # po plugin
+    po_master_language => 'en|English',
+
+    po_slave_languages => [ 'zh|Chinese']
+
+
+in page.setup. And did 
+  
+    $ikiwiki --setup ./page.setup
+
+but get errors:
+
+    Can't use string ("en|English") as a HASH ref while "strict refs" in use at /usr/share/perl5/IkiWiki/Plugin/po.pm line 162.
+
+Line 162 of the file reads
+
+   delete $config{po_slave_languages}{$config{po_master_language}{code}};;
+
+What's wrong? How to fix it?

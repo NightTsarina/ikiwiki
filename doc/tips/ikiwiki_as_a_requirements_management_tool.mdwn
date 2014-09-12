@@ -1,0 +1,95 @@
+[[!template id=note text="**Table of contents** [[!toc ]]"]]
+
+Introduction
+------------
+At work textual requirements and traceability are daily use terms, often used as contracts with clients or among stakeholders, but at the moment the only way we specify requirements is via a word processor, and traceability is managed manually (ouch!) unless we use a commercial UML (Unified Modeling Language) tool that handles office files, an also allows traceability from design, code and test artifacts. But functionality of that tool is less than basic for requirements.
+
+We are considering the use of a specific requirements management tool, but the problem and something that gets me really frustrated is the extremely expensive price of the licenses of the "de facto" commercial tools we should use. One floating license for both tools (requirements management and modeling) can go beyond $20,000. Of course we can purchase cheaper ones, but I'm tired of this licensing nightmare of worrying about how many licenses are being used, praying not to exceed the limit or restarting a dead license server. We pay companies to not trust us. Taking a look at the FLOSS world doesn't seem to add any reasonable alternative.
+
+These are the raw high level features of the tool I'd like to use:
+
+ * Requirements edition
+ * Requirements attributes edition
+ * Traceability: edition, coverage analysis and navigation
+ * External traceability: from requirements in one document/module to requirements in other one (eg: software requirements tracing to system requirements). Note: a set of requirements will be called "module" hereafter in this page.
+ * Requirements identifiers management
+ * Requirements history and diff/blame
+ * Team work
+ * Easy integration with other software lifecycle tools: modeling (eg. BOUML), project management (eg. Trac)
+ * Support for other formats such as HTML, office...
+ * Filtering and searching
+ * Export facilities to create standards compliant documentation.
+
+Initial idea was to develop a simple web solution using XHTML files. These files would be created in a web broser with existing WYSIWIM editors and store all the stuff in Subversion. All requirements would be stored at the same level (no hierarchies among requirements of the same module) and atomically accessible via a simple web browser. No server side programming would be needed to read requirements. Also special XHTML files (let's call it "views") would be necessary to group requirements hierarchically in a requirements document fashion, using xinclude.
+
+When I first played with ikiwiki I was so happy that many of the ideas I worked on were already in use in this marvelous piece of software, specially the decision to use well-known RCS software to manage history instead of reinventing the wheel, opening also one interesting feature: off-line edition. Other similarity was the absence of special processing for read-only navigation.
+
+So, let's now take all the features above and describe how to make them real using ikiwiki and some simple conventions. Some features would need new functionality and improvement, I'd really appreciate additional ideas on how to better get to the point.
+
+Requirements edition
+--------------------
+Suppose that all requirements would reside under a concrete folder. We will call it "reqs", and under "reqs" we add as folders as requirements modules we want to use for a system called "foo" (eg. "foo_sss" for system requirements, "foo_srs" for software requirements...). Index file for each document shall be a page summarizing the module: number of requirements, basic coverage information... Other similar pages under the "views" folder could be used in order to have different sets of requirements including additional stuff: introduction, document identification, etc... The rest of the files - actually requirements - shall be markdown files. So editing a requirement would be as simple as adding a page to the wiki.
+
+To create the summary and views, just [[ikiwiki/directive/inline]] and [[ikiwiki/directive/pagecount]] directives could provide nice pages. The uncomfortable part is having to use many [[pagespecs|ikiwiki/PageSpec]] to create the whole views, but it actually shoud work. One possible workaround would be an external tool to handle this and create directives automatically or graphically.
+
+Requirements attributes
+-----------------------
+There are lots of useful data to associate to a requirement. Eg:
+
+ * If it is traceable or not
+ * Its criticality level
+ * Its priority
+ * If it is funtional or not
+ 
+How to implement this? Using [[ikiwiki/directive/meta]] could be a solution, not tried yet, I'd rather keep requirements content alone. Storing this information in SVN it is easy, although ikiwiki does not provide a way to do it it would imply really little effort. The requirement in itself is the content of the file; attributes are stored as key-value pairs in the file's properties. AFAIK this is a feature available only in SVN, although git has something similar (gitattributes) although path based, but anyway whichever RCS is used, a ".properties" file could be created always when a requirement file is created.
+
+Traceability: edition, coverage analysis and navigation
+--------------------------------------------------------
+This is the most important feature of a requirements engineering tool. How to do this with ikiwiki? There are some ways, from extremely simple ones to more sophisticated:
+
+ * One simple solution: Links. Just link from one requirement to another one to create a traceable directional connection
+ * One harder: file attributes (see section about requirements just above)
+
+For coverage analysis , using [[ikiwiki/directive/pagecount]] is the perfect solution to summarize and show covered and uncovered requirements. We could add several pages per module - probably using template pages-  with ready made coverage analysis reports... Wow!!! [[ikiwiki/directive/linkmap]] directive can show traceability information graphically.
+
+Navigating among requirements needs... Nothing!!! Just follow the links of referring pages that ikiwiki adds by default.
+
+External traceability
+---------------------
+Being just different folders under the wiki, external traceability is as easy as internal.
+
+Requirements identifiers management
+-----------------------------------
+Another useful convention: requirement identifier shall be the name of the requirements file. In ikiwiki page title is the same as requirement Id. No trouble, it works. I personally prefer to keep title as page title and create a short auto-increasing numeric codes with prefixes and/or suffixes as file name (eg. SRS_FOO_0001, SSS_FOO_002), hope to have somethig running soon.
+
+Requirements history and diff/blame
+-----------------------------------
+Out of the box! And really much more useful than average diffing components of requirement management tools. There are plenty online front ends to use and for offline work tools like meld are awesome.
+
+Team work
+---------
+Also no need to do anything, RCS software does it all. Also for experienced users merging and conflict solving can provide much more practical solutions (most requirements management tools work blocking).
+
+Easy integration with other software lifecycle tools
+----------------------------------------------------
+Modeling tools: as a general rule, store model elements in the most atomic parts: classes, enums, actors, use cases... and use again file attributes to store traceability information. Other way is transforming files representing these atomic model parts in independent mdwn files under, for example, a "mdl" folder
+
+Trac integration is so simple... As simple as any PM tool that acceses the same RCS as ikiwiki does. Diffing, blaming, even navigating directly to ikiwiki generated pages. Integration of a ticketing system will give awesome power to all the team.
+
+Support for other formats
+-------------------------
+Out of the box, at least for wiki and mathematical formats, and creating additional ones shouldn't be so difficult.
+
+Filtering and searching
+-----------------------
+Look that box in the top right corner?
+
+Export facilities
+-----------------
+Views with custom styles and html conversion tools would be enough for most purposes.
+
+That's all!
+
+One funny thing: our "de facto future" requirements management tool, after years of research included some years ago a really nice feature: a Discussion tag per each requirement... See this in ikiwiki? Again out of the box!!!
+
+Comments are really welcome!!!

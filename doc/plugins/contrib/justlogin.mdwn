@@ -1,0 +1,52 @@
+This plugin has been abandoned while still in development. Currently it does bring up the login page and the login page does, with proper credentials, log in the user, but the returning page goes to prefs. I have no idea why. I decided to go in another direction so if someone wants to take over then please do so. Otherwise I have no problem if this page needs to be deleted. [[users/justint/]]
+
+Place this code into a page:
+
+&lt;form action="http://portable.local/cgi-bin/ikiwiki.cgi" method="get"&gt;
+
+&lt;input type="hidden" name="do" value="justlogin" /&gt;
+
+&lt;input type="submit" value="Login" /&gt;&lt;/form&gt;
+
+This is the plugin so far:
+#!/usr/bin/perl
+	# Bring up a login page that returns to the calling page
+	package IkiWiki::Plugin::justlogin;
+	
+	use warnings;
+	use strict;
+	use IkiWiki 3.00;
+	
+	sub import {
+	        hook(type => "sessioncgi", id => "justlogin", call => \&sessioncgi);
+	}
+	
+	sub sessioncgi ($$) {
+	        my $q=shift;
+	        my $session=shift;
+	
+	        debug("jl sessioncgi1 running.");
+	
+	        if ($q->param("do") eq "justlogin") {
+	                debug("jl do=justlogin running.");
+	                if (! defined $session->param("name") ) {
+	                        debug("jl param!defined running.");
+	                        $session->param("postsignin" => $ENV{HTTP_REFERER} );
+	                        $session->param("do" => "justgoback" );
+	                        IkiWiki::cgi_signin($q, $session);
+	                        IkiWiki::cgi_savesession($session);
+	                }
+	                exit;
+	        } elsif ($session->param("do") eq "justgoback") {
+	                debug("jl justgoback running.");
+	                my $page=$q->param("postsignin");
+	                $session->clear("postsignin");
+	                $session->clear("do");
+	                IkiWiki::cgi_savesession($session);
+	                IkiWiki::redirect($q, $page);
+	                exit;
+	        }
+	}
+	
+	1
+	

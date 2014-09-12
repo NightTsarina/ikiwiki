@@ -1,0 +1,224 @@
+# Danish translation of basewiki/ikiwiki/pagespec page for ikiwiki.
+# Copyright (C) 2008, 2009, 2011 Jonas Smedegaard <dr@jones.dk>
+# This file is distributed under the same license as the ikiwiki package.
+# Jonas Smedegaard <dr@jones.dk>, 2008.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ikiwiki 3.20110430\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-05-05 20:04+0300\n"
+"PO-Revision-Date: 2011-05-05 22:30+0200\n"
+"Last-Translator: Jonas Smedegaard <dr@jones.dk>\n"
+"Language-Team: None\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Language: Danish\n"
+"X-Poedit-Country: DENMARK\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#. type: Plain text
+#, no-wrap
+msgid "[[!meta robots=\"noindex, follow\"]]\n"
+msgstr "[[!meta robots=\"noindex, follow\"]]\n"
+
+#. type: Plain text
+msgid ""
+"To select a set of pages, such as pages that are locked, pages whose commit "
+"emails you want subscribe to, or pages to combine into a blog, the wiki uses "
+"a PageSpec. This is an expression that matches a set of pages."
+msgstr ""
+"Til at angive et udvalg af sider, eksempelvis låste sider, sider du vil "
+"abonnere på ændringer til, eller sider som skal udgøre en blog, anvender "
+"wikien et PageSpec. dette er et udtryk som passer for et bestemt udvalg af "
+"sider."
+
+#. type: Plain text
+msgid ""
+"The simplest PageSpec is a simple list of pages. For example, this matches "
+"any of the three listed pages:"
+msgstr ""
+"Det simpleste PageSpec er simpelthen en opremsning af sider med \"or\" "
+"imellem (\"or\" betyder \"eller\" på engelsk). Dette passer eksempelvis for "
+"enhver af de tre nævnte sider:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tfoo or bar or baz\n"
+msgstr "\tfoo or bar or baz\n"
+
+#. type: Plain text
+msgid ""
+"More often you will want to match any pages that have a particular thing in "
+"their name. You can do this using a glob pattern. \"`*`\" stands for any "
+"part of a page name, and \"`?`\" for any single letter of a page name. So "
+"this matches all pages about music, and any [[SubPage]]s of the SandBox, but "
+"does not match the SandBox itself:"
+msgstr ""
+"Mere hyppigt har du dog brug for at passe for sider med noget bestemt i "
+"deres navne. Dette kan du udtrykke med et \"glob-mønster\". \"`*`\" står for "
+"enhver del af et sidenavn, og \"`?`\" for ethvert enkeltbogstav i et "
+"sidenavn. Så dette passer for alle sider om musik, og alle [[UnderSider||"
+"SubPage]] til sandkassen, men ikke selve sandkasse-siden:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\t*music* or SandBox/*\n"
+msgstr "\t*musik* or SandBox/*\n"
+
+#. type: Plain text
+msgid ""
+"You can also prefix an item with \"`!`\" to skip pages that match it. So to "
+"match all pages except for Discussion pages and the SandBox:"
+msgstr ""
+"Du kan også angive \"`!`\" foran et emne for at undgå sider som passer for "
+"det. Så for at passe for alle sider undtagen diskussionssider og sandkassen:"
+
+#. type: Bullet: '	* '
+msgid "and !SandBox and !*/Discussion"
+msgstr "and !SandBox and !*/Discussion"
+
+#. type: Plain text
+msgid ""
+"Some more elaborate limits can be added to what matches using these "
+"functions:"
+msgstr "Resultaterne kan begrænses mere nuanceret med disse funktioner:"
+
+#. type: Plain text
+#, no-wrap
+msgid ""
+"* \"`glob(someglob)`\" - matches pages and other files that match the given glob.\n"
+"  Just writing the glob by itself is actually a shorthand for this function.\n"
+"* \"`page(glob)`\" - like `glob()`, but only matches pages, not other files\n"
+"* \"`link(page)`\" - matches only pages that link to a given page (or glob)\n"
+"* \"`tagged(tag)`\" - matches pages that are tagged or link to the given tag (or\n"
+"  tags matched by a glob)\n"
+"* \"`backlink(page)`\" - matches only pages that a given page links to\n"
+"* \"`creation_month(month)`\" - matches only files created on the given month\n"
+"  number\n"
+"* \"`creation_day(mday)`\" - or day of the month\n"
+"* \"`creation_year(year)`\" - or year\n"
+"* \"`created_after(page)`\" - matches only files created after the given page\n"
+"  was created\n"
+"* \"`created_before(page)`\" - matches only files created before the given page\n"
+"  was created\n"
+"* \"`internal(glob)`\" - like `glob()`, but matches even internal-use \n"
+"  pages that globs do not usually match.\n"
+"* \"`title(glob)`\", \"`author(glob)`\", \"`authorurl(glob)`\",\n"
+"  \"`license(glob)`\", \"`copyright(glob)`\", \"`guid(glob)`\" \n"
+"  - match pages that have the given metadata, matching the specified glob.\n"
+"* \"`user(username)`\" - tests whether a modification is being made by a\n"
+"  user with the specified username. If openid is enabled, an openid can also\n"
+"  be put here. Glob patterns can be used in the username. For example, \n"
+"  to match all openid users, use `user(*://*)`\n"
+"* \"`admin()`\" - tests whether a modification is being made by one of the\n"
+"  wiki admins.\n"
+"* \"`ip(address)`\" - tests whether a modification is being made from the\n"
+"  specified IP address.\n"
+"* \"`comment(glob)`\" - matches comments to a page matching the glob.\n"
+"* \"`comment_pending(glob)`\" - matches unmoderated, pending comments.\n"
+"* \"`postcomment(glob)`\" - matches only when comments are being \n"
+"  posted to a page matching the specified glob\n"
+msgstr ""
+"* \"`glob(nogetglob)`\" - passer for sider og andre filer som passer for det givne glob.\n"
+"  Blot at skrive glob'et alene er faktisk en genvej til denne funktion.\n"
+"* \"`page(glob)`\" - som `glob()`, men passer kun for sider, ikke andre filer\n"
+"* \"`link(side)`\" - passer kun for sider som henviser til en given side (eller glob)\n"
+"* \"`tagged(mærkat)`\" - passer for sider som er mærket af med eller som henviser til den givne mærkat (eller\n"
+"  mærkater som passer for et glob)\n"
+"* \"`backlink(side)`\" - passer kun for sider som en given side henviser til\n"
+"* \"`creation_month(måned)`\" - passer kun for sider oprettet det givne månedsnummer\n"
+"* \"`creation_day(månedsdag)`\" - eller dag på måneden\n"
+"* \"`creation_year(år)`\" - eller år\n"
+"* \"`created_after(side)`\" - passer kun for sider oprettet efter den givne side\n"
+"  blev oprettet\n"
+"* \"`created_before(side)`\" - passer kun for sider oprettet før den givne side\n"
+"  blev oprettet\n"
+"* \"`internal(glob)`\" - lissom `glob()`, men passer også for internt anvendte\n"
+"  sider som glob normalt ikke passer for.\n"
+"* \"`title(glob)`\", \"`author(glob)`\", \"`authorurl(glob)`\",\n"
+"  \"`license(glob)`\", \"`copyright(glob)`\", \"`guid(glob)`\" \n"
+"  - passer for sider med de givne metadata, som passer for det angivne glob.\n"
+"* \"`user(brugernavn)`\" - tester hvorvidt en ændring foretages af en\n"
+"  bruger med det angivne brugernavn. Hvis openid er aktiveret, kan en openid også\n"
+"  bruges her. Glob-mønstre kan også bruges i brugernavnet. Brug eksempelvis\n"
+"  `user(*://*)` til at passe for alle openid-brugere\n"
+"* \"`admin()`\" - tester hvorvidt en ændring foretages af en af\n"
+"wiki-administratorerne.\n"
+"* \"`ip(adresse)`\" - tester hvorvidt en ændring foretages fra den\n"
+"  angivne IP-adresse.\n"
+"* \"`comment(glob)`\" - passer for kommentarer til en side som passer for glob'et.\n"
+"* \"`comment_pending(glob)`\" - passer for ikke-modererede, afventende kommentarer.\n"
+"* \"`postcomment(glob)`\" - matches only when comments are being \n"
+"  posted to a page matching the specified glob\n"
+"* \"`postcomment(glob)`\" - passer kun når kommentarer bliver \n"
+"  indsendt til en side som passer for det angivne glob\n"
+
+#. type: Plain text
+msgid ""
+"For example, to match all pages in a blog that link to the page about music "
+"and were written in 2005:"
+msgstr ""
+"For eksempelvis at passe for alle sider i en blog som henviser til en side "
+"om musik og som blev skrevet i 2005:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tblog/* and link(music) and creation_year(2005)\n"
+msgstr "\tblog/* and link(musik) and creation_year(2005)\n"
+
+#. type: Plain text
+msgid ""
+"Note the use of \"and\" in the above example, that means that only pages "
+"that match each of the three expressions match the whole. Use \"and\" when "
+"you want to combine expression like that; \"or\" when it's enough for a page "
+"to match one expression. Note that it doesn't make sense to say \"index and "
+"SandBox\", since no page can match both expressions."
+msgstr ""
+"Bemærk brugen af \"and\" i eksemplet ovenfor (\"and\" betyder \"og\" på "
+"engelsk), som betyder at kun sider der passer for hvert af de tre udtryk "
+"passer for det hele. Brug \"and\" når du vil kombinere udtryk på den måde; "
+"\"or\" når det er nok for en side at den passer for ét udtryk. Bemærk at det "
+"ikke giver mening at sige \"index and SandBox\", da ingen sider kan passe "
+"for begge udtryk."
+
+#. type: Plain text
+msgid ""
+"More complex expressions can also be created, by using parentheses for "
+"grouping. For example, to match pages in a blog that are tagged with either "
+"of two tags, use:"
+msgstr ""
+"Mere komplekse udtryk kan dannes ved at gruppere med paranteser. Eksempelvis "
+"passer dette for sider i en blog som er mærket af med en af to mærkater:"
+
+#. type: Plain text
+#, no-wrap
+msgid "\tblog/* and (tagged(foo) or tagged(bar))\n"
+msgstr "\tblog/* and (tagged(foo) or tagged(bar))\n"
+
+#. type: Plain text
+msgid ""
+"Note that page names in PageSpecs are matched against the absolute filenames "
+"of the pages in the wiki, so a pagespec \"foo\" used on page \"a/b\" will "
+"not match a page named \"a/foo\" or \"a/b/foo\". To match relative to the "
+"directory of the page containing the pagespec, you can use \"./\". For "
+"example, \"./foo\" on page \"a/b\" matches page \"a/foo\"."
+msgstr ""
+"Bemærk at PageSpecs for sidenavne afstemmes som de absolutte filnavne for "
+"siderne i wikien, så et pagespec \"foo\" brugt på siden \"a/b\" vil ikke "
+"passe for siderne navngivet \"a/foo\" eller \"a/b/foo\". For at afstemme "
+"relativt til samme mappe som siden der indeholder pagespec'et kan du bruge "
+"\"./\". Eksempelvis passer \"./foo\" på siden \"a/b\" for siden \"a/foo\"."
+
+#. type: Plain text
+msgid ""
+"To indicate the name of the page the PageSpec is used in, you can use a "
+"single dot. For example, `link(.)` matches all the pages linking to the page "
+"containing the PageSpec."
+msgstr ""
+"Du kan bruge et enkelt punktum som indikation af siden PageSpec'et anvendes "
+"på. Eksempelvis passer `link(.)` for alle sider der henviser til siden som "
+"indeholder PageSpec'et."

@@ -1,0 +1,27 @@
+First, if you just want to embed videos using the html5 `<video>` tag,
+you can do that without switching anything else to html5.
+However, if you want to fully enter the brave new world of html5, read on..
+
+Currently, ikiwiki does not use html5 by default. There is a `html5`
+setting that can be turned on, in your setup file. Rebuild with it set, and
+lots of fancy new semantic tags will be used all over the place.
+
+You may need to adapt your CSS for html5. While all the class and id names
+are the same, some of the `div` elements are changed to other things.
+Ikiwiki's default CSS will work in both modes.
+
+The html5 support is still experimental, and may break in some browsers.
+No care is taken to add backwards compatibility hacks for browsers that
+are not html5 aware (like MSIE). If you want to include the javascript with
+those hacks, you can edit `page.tmpl` to do so. 
+[Dive Into HTML5](http://diveintohtml5.info/) is a good reference for
+current compatability issues and workarounds with html5.  And a remotely-loadable
+JS shiv for enabling HTML5 elements in IE is available through [html5shiv at Google Code](http://code.google.com/p/html5shiv/).
+
+---
+
+Known ikiwiki-specific issues:
+
+* [[plugins/htmltidy]] uses `tidy`, which is not html5 aware, so if you
+  have that enabled, it will mangle it back to html4.
+* [[plugins/toc]] does not understand the html5 outline algorithm.

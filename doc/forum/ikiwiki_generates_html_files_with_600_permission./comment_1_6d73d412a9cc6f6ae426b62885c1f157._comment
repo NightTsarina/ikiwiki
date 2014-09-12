@@ -1,0 +1,19 @@
+[[!comment format=mdwn
+ username="http://smcv.pseudorandom.co.uk/"
+ nickname="smcv"
+ subject="your shell has a restrictive umask"
+ date="2011-11-27T13:24:57Z"
+ content="""
+Your shell login to the server (presumably SSH?) is running under a
+restrictive `umask`, and by default ikiwiki doesn't overrule that.
+For instance, perhaps you're using the `pam_umask` module, or
+perhaps your `.bashrc` sets a restrictive mask. This is generally
+a good thing for privacy from other users of a shared server, but
+counterproductive when you're publishing things!
+
+You can configure ikiwiki to set a less restrictive `umask` with
+the `umask` option in your setup file. 18 is probably a good value
+(18 decimal = 022 octal, and a `umask` of 022 octal corresponds
+to `chmod 0755`, because the `umask` is subtracted from 0777 octal
+to get the default permissions).
+"""]]

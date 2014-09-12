@@ -1,0 +1,36 @@
+Hi,
+
+Can you give me a hint for showing if one user is logged or not. If user is logged, then I want to display the user name, as wikipedia or dokuwiki for example.
+Regards,
+Xan.
+
+> ikiwiki doesn't serve pages, so this can't be done inside ikiwiki.
+> For certain kinds of authentication it might be possible anyway.
+> For instance, if you're using [[plugins/httpauth]] exclusively and
+> your server has PHP, you could put `<?php print("$REMOTE_USER");
+> ?>` in all the relevant ikiwiki [[templates]] and arrange for the
+> generated HTML pages to get run through the PHP interpreter. The trick
+> would work differently with other [[plugins/type/auth]] plugins,
+> if at all. --[[Schmonz]]
+
+>> Thanks a lot, Xan.
+
+>>> Another possible trick would be to use some Javascript to make a
+>>> "who am I?" AJAX request to the CGI (the CGI would receive the
+>>> session cookie, if any, and be able to answer). Obviously, this
+>>> wouldn't work for users who've disabled Javascript, but since it's
+>>> non-essential, that's not so bad. You'd need to
+>>> [[write_a_plugin|plugins/write]] to add a suitable CGI action,
+>>> perhaps ?do=whoami, and insert the Javascript. --[[smcv]]
+
+>>>> It's an idea, but you're trading off a serious speed hit for a very
+>>>> minor thing. --[[Joey]]
+
+>>>> Cool idea. A similar trick (I first saw it
+>>>> [here](http://www.peej.co.uk/articles/http-auth-with-html-forms.html))
+>>>> could be used to provide a [[plugins/passwordauth]]-like login form
+>>>> for [[plugins/httpauth]]. --[[Schmonz]]
+
+>>>>> I always assumed the entire reason someone might want to use the
+>>>>> httpauth plugin is to avoid nasty site-specific login forms..
+>>>>> --[[Joey]] 

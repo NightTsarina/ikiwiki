@@ -1,0 +1,102 @@
+Use case: You want to move away from Wordpress to Ikiwiki as your blogging/website platform, but you want to retain your old posts.
+
+[This](http://git.chris-lamb.co.uk/?p=ikiwiki-wordpress-import.git) is a simple tool that generates [git-fast-import](http://www.kernel.org/pub/software/scm/git/docs/git-fast-import.html)-compatible data from a WordPress export XML file.
+
+WordPress categories are mapped onto Ikiwiki tags. The ability to import comments is planned.
+
+The script uses the [BeautifulSoup][] module.
+
+[BeautifulSoup]: http://www.crummy.com/software/BeautifulSoup/
+
+-----
+
+I include a modified version of this script. This version includes the ability to write \[[!tag foo]] directives, which the original intended, but didn't actually do.
+
+-- [[users/simonraven]]
+
+[[ikiwiki-wordpress-import]]
+
+-----
+
+Perhaps slightly insane, but here's an XSLT style sheet that handles my pages.  It's basic, but sufficient to get started.
+Note that I had to break up the ikiwiki meta strings to post this.
+
+-- JasonRiedy
+
+	<?xml version="1.0" encoding="UTF-8"?>
+	<xsl:stylesheet version="2.0"
+	  xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	  xmlns:wp="http://wordpress.org/export/1.0/">
+	  
+	<xsl:output method="text"/>
+	<xsl:output method="text" name="txt"/>
+	
+	<xsl:variable name='newline'><xsl:text>
+	</xsl:text></xsl:variable>
+	
+	<xsl:template match="channel">
+	  <xsl:apply-templates select="item[wp:post_type = 'post']"/>
+	</xsl:template>
+	
+	<xsl:template match="item">
+	  <xsl:variable name="idnum" select="format-number(wp:post_id,'0000')" />
+	  <xsl:variable name="basename"
+			select="concat('wp-posts/post-',$idnum)" />
+	  <xsl:variable name="filename"
+			select="concat($basename, '.html')" />
+	  <xsl:text>Creating </xsl:text>
+	  <xsl:value-of select="concat($filename, $newline)" />
+	  <xsl:result-document href="{$filename}" format="txt">
+	    <xsl:text>[[</xsl:text><xsl:text>meta title="</xsl:text>
+	    <xsl:value-of select="replace(title, '&quot;', '&amp;ldquo;')"/>
+	    <xsl:text>"]]</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>[[</xsl:text><xsl:text>meta date="</xsl:text>
+	    <xsl:value-of select="pubDate"/>
+	    <xsl:text>"]]</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>[[</xsl:text><xsl:text>meta updated="</xsl:text>
+	    <xsl:value-of select="pubDate"/>
+	    <xsl:text>"]]</xsl:text> <xsl:value-of select="$newline"/>
+	    <xsl:value-of select="$newline"/>
+	    <xsl:value-of select="content:encoded"/>
+	    <xsl:text>
+	
+	</xsl:text>
+	    <xsl:apply-templates select="category[@domain='tag' and not(@nicename)]">
+	      <xsl:sort select="name()"/>
+	    </xsl:apply-templates>
+	  </xsl:result-document>
+	  <xsl:apply-templates select="wp:comment">
+	    <xsl:sort select="date"/>
+	    <xsl:with-param name="basename">$basename</xsl:with-param>
+	  </xsl:apply-templates>
+	</xsl:template>
+	
+	<xsl:template match="wp:comment">
+	  <xsl:param name="basename"/>
+	  <xsl:variable name="cnum" select="format-number(wp:comment_id, '000')" />
+	  <xsl:variable name="filename" select="concat($basename, '/comment_', $cnum, '._comment')"/>
+	  <xsl:variable name="nickname" select="concat(' nickname=&quot;', wp:comment_author, '&quot;')" />
+	  <xsl:variable name="username" select="concat(' username=&quot;', wp:comment_author_url, '&quot;')" />
+	  <xsl:variable name="ip" select="concat(' ip=&quot;', wp:comment_author_IP, '&quot;')" />
+	  <xsl:variable name="date" select="concat(' date=&quot;', wp:comment_date_gmt, '&quot;')" />
+	  <xsl:result-document href="{$filename}" format="txt">
+	    <xsl:text>[[</xsl:text><xsl:text>comment format=html</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:value-of select="$nickname"/>
+	    <xsl:value-of select="$username"/>
+	    <xsl:value-of select="$ip"/>
+	    <xsl:value-of select="$date"/>
+	    <xsl:text>subject=""</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:text>content="""</xsl:text><xsl:value-of select="$newline"/>
+	    <xsl:value-of select="wp:comment_content"/>
+	    <xsl:value-of select="$newline"/>
+	    <xsl:text>"""]]</xsl:text><xsl:value-of select="$newline"/>
+	  </xsl:result-document>
+	</xsl:template>
+	
+	<xsl:template match="category">
+	  <xsl:text>[</xsl:text><xsl:text>[</xsl:text><xsl:text>!tag "</xsl:text><xsl:value-of select="."/><xsl:text>"]]</xsl:text>
+	  <xsl:value-of select="$newline"/>
+	</xsl:template>
+	
+	</xsl:stylesheet>

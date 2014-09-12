@@ -1,0 +1,65 @@
+#!/usr/bin/perl -t
+# Add a user to the system wide wikilist.
+# This script can safely be made suid or put in /etc/sudoers.
+use warnings;
+use strict;
+use English;
+
+my $remove=(@ARGV && $ARGV[0] eq '-r');
+
+my $username=getpwuid($REAL_USER_ID);
+if (! defined $username || ! length $username) {
+	die "unable to determine user name for UID $REAL_USER_ID\n";
+}
+
+my $wikilist="/etc/ikiwiki/wikilist";
+if (! -e $wikilist) {
+	die "$wikilist does not exist\n";
+}
+
+my $changed=0;
+my $seen=0;
+my @lines;
+open (my $list, "<$wikilist") || die "read $wikilist: $!";
+while (<$list>) {
+	chomp;
+	if (/^\s*([^\s]+)\s*$/) {
+		my $user=$1;
+		if ($user eq $username) {
+			if (! $remove) {
+				$seen=1;
+				push @lines, $_;
+			}
+			else {
+				$changed=1;
+			}
+		}
+		else {
+			push @lines, $_;
+		}
+	}
+	else {
+		push @lines, $_;
+	}
+}
+if (! $seen && ! $remove) {
+	push @lines, $username;
+	$changed=1;
+}
+if ($changed) {
+	close $list || die "ikiwiki-update-wikilist: error reading $list: $!\n";
+	open ($list, ">$wikilist") || die "ikiwiki-update-wikilist: cannot write to $wikilist\n";
+	foreach (@lines) {
+		print $list "$_\n";
+	}
+	if ($remove) {
+		print "ikiwiki-update-wikilist: removed user $username from $wikilist\n";
+	}
+	else {
+		print "ikiwiki-update-wikilist: added user $username to $wikilist\n";
+	}
+	close $list || die "ikiwiki-update-wikilist: error writing $wikilist: $!\n";
+}
+else {
+	print "ikiwiki-update-wikilist: no changes need to be made\n";
+}

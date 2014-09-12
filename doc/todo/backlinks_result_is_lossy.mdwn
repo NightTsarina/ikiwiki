@@ -1,0 +1,12 @@
+[[!tag patch patch/core]]
+
+IkiWiki::backlinks returns a form of $backlinks{$page} that has undergone a
+lossy transformation (to get it in the form that page templates want), making
+it more difficult to use in other contexts (like pagestats).
+
+A commit on my `among` branch splits it into IkiWiki::backlink_pages
+(which returns the keys of $backlinks{$page}, and might be suitable for
+exporting) and IkiWiki::backlinks (which calls backlink_pages, then performs
+the same lossy transformation as before on the result).
+
+[[done]] --[[Joey]]

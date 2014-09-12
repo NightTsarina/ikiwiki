@@ -1,0 +1,31 @@
+It would be nice to add nicer math formatting.  I currently use the
+[[plugins/teximg]] plugin, but I wonder if
+[jsMath](http://www.math.union.edu/~dpvc/jsMath/) wouldn't be a better option.
+
+[[Will]]
+
+> I've looked at jsmath (which is nicely packaged in Debian), and 
+> I agree that this is nicer than TeX images. That text-mode browsers
+> get to see LaTeX as a fallback is actually a nice feature (better
+> than nothing, right? :) That browsers w/o javascript will not be able to
+> see the math either is probably ok.
+> 
+> A plugin would probably be a pretty trivial thing to write.
+> It just needs to include the javascript files,
+> and slap a `<div class="math"> avound the user's code`, then 
+> call `jsMath.Process(document);` at the end of the page.
+> 
+> My only concern is security: Has jsMath's parser been written 
+> to be safe when processing untrusted input? Could a user abuse the 
+> parser to cause it to emit/run arbitrary javascript code?
+> I've posted a question about this to its forum:  --[[Joey]] 
+> <https://sourceforge.net/projects/jsmath/forums/forum/592273/topic/3831574> 
+
+I think [mathjax](http://www.mathjax.org/) would be the best option. This is the math rendering engine used in mathoverflow.
+
+> I've updated Jason Blevin's pandoc plugin to permit tighter integration between Ikiwiki and Pandoc. Given the features Pandoc has added over the past 6-12 months, this makes for a very powerful combination, e.g. with code block syntax highlighting and lots of options for how to process and display inline TeX. Both jsMath and MathJaX are supported, along with many other methods. See https://github.com/profjim/pandoc-iki for details. --Profjim
+
+> talking to my semantic-web/scientist colleagues, [math.js](http://mathjs.org)
+> is apparently the current state-of-the-art. -- [[Jon]].
+
+[[!tag wishlist]]

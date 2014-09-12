@@ -1,0 +1,34 @@
+po files are not added to git (error: /path/to/po/file not in repository tree) in my setup.
+
+I have set absolute path for srcdir = '/path/to/repo/doc/'. The root of my git repository is '/path/to/repo/'. When I enable the po plugin, it creates all po files and produces an error when it try to add the file saying that the /path/to/repo/doc/index.fr.po is not in the repository tree.
+
+I have no problem when I use an relative path like srcdir = '.'.
+
+I have an other issue with the po plugin when I set the srcdir to './doc/' (provided that my config file is in /path/to/repo). In this case the po plugin try to add 'doc/doc/index.fr.po' which does not exists (seems like the srcdir path is prepended twice).
+
+> You should never use a relative srcdir path with ikiwiki.
+> 
+> I wonder what version of git you have there, since it works ok with the
+> version I have here. But, the po plugin is definitly doing the wrong
+> thing; it's telling git to add the po file with the full scrdir path
+> rather than relative to its root. Fixed that. [[done]] --[[Joey]] 
+
+>> Yeah, I figured for the relative path
+>> Git version 1.6.3.3 (on both my dev and server machines)
+>>
+>> Here is an example of what I get when I update the po file on my laptop and I push to the master repository:
+
+     From /srv/git/sb
+       5eb4619..ecac4d7  master     -> origin/master
+    scanning doc.fr.po
+    building doc.fr.po
+    building doc.mdwn, which depends on doc.fr
+    building recentchanges.mdwn, which depends on recentchanges/change_ecac4d7311b15a3a3ed03102b9250487315740bc
+    fatal: '/srv/www/sb.l.n/new/doc/doc.fr.po' is outside repository
+    'git add /srv/www/sb.l.n/new/doc/doc.fr.po' failed:  at /usr/share/perl5/IkiWiki/Plugin/git.pm line 161.
+    done
+    To ssh://git.lohrun.net/var/cache/git/songbook.git
+       5eb4619..ecac4d7  master -> master
+  
+>> The root repository used to run ikiwiki is `/srv/www/sb.l.n/new/` 
+>> -- [[AlexandreDupas]]

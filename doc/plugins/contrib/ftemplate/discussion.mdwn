@@ -1,0 +1,33 @@
+I initially thought this wasn't actually necessary - the combination
+of [[plugins/template]] with [[plugins/contrib/field]]'s `pagetemplate`
+hook ought to provide the same functionality. However, `template`
+doesn't run `pagetemplate` hooks; a more general version of this
+plugin would be to have a variant of `template` that runs `pagetemplate`
+hooks (probably easiest to just patch `template` to implement a
+second directive, or have a special parameter `run_hooks="yes"`,
+or something).
+
+> I got the impression that `pagetemplate` hooks are intended to be completely independent of `template` variables; page-template is for the actual `page.tmpl` template, while `template` is for other templates which are used inside the page content.  So I don't understand why one would need a run_hooks option. --[[KathrynAndersen]]
+
+>> `Render`, `inline`, `comments` and `recentchanges` run `pagetemplate`
+>> hooks, as does anything that uses `IkiWiki::misctemplate`. From that
+>> quick survey, it seems as though `template` is the only thing that
+>> uses `HTML::Template` but *doesn't* run `pagetemplate` hooks?
+>>
+>> It just seems strange to me that `field` needs to have its own
+>> variant of `template` (this), its own variant of `inline` (`report`),
+>> and so on - I'd tend to lean more towards having `field`
+>> enhance the existing plugins. I'm not an ikiwiki committer,
+>> mind... Joey, your opinion would be appreciated! --[[smcv]]
+
+>>> I did it that way basically because I needed the functionality ASAP, and I didn't want to step on anyone's toes, so I made them as separate plugins.  If Joey wants to integrate the functionality into IkiWiki proper, I would be very happy, but I don't want to put pressure on him. --[[KathrynAndersen]]
+
+Another missing thing is that `ftemplate` looks in
+the "system" templates directories, not just in the wiki, but that
+seems orthogonal (and might be a good enhancement to `template` anyway).
+--[[smcv]]
+
+> Yes, I added that because I wanted the option of not having to make all my templates work as wiki pages also. --[[KathrynAndersen]]
+
+>> Joey has added support for
+>> [[todo/user-defined_templates_outside_the_wiki]] now. --s

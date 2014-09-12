@@ -1,0 +1,27 @@
+Joey, I have a problem with translating of Discussion link in my backport
+of ikiwiki 1.38.
+
+I've just noticed that it's not translated after page update. In syslog
+I can see **English** ikiwiki messages. It's a strange, but the problem
+doesn't occur if I rebuild all my ikiwiki pages via command line
+(`ikiwki --setup ikiwiki.setup`). In syslog I can see **Polish** messages then.
+
+Unfortunately I don't know another Polish user of ikiwiki, so I can't ask him
+to confirm the problem. Maybe Victor Moral can do it? Probably he uses ikiwiki
+with him Spanish translation.
+
+--[[Paweł|ptecza]]
+
+> Well, do you have your setup file configured to use a polish locale?
+> --[[Joey]]
+
+>> Now I have :) I've just generated pl\_PL.UTF-8 locale via
+>> `dpkg-reconfigure locales` and set locale hash to 'pl_PL.UTF-8'
+>> in my `ikiwiki.setup` file. I also ran `ikiwiki --setup ikiwiki.setup`
+>> and restarted my Apache2 server. Unfortunately, I can still see
+>> "Discussion" link instead of "Dyskusja" link after any page update
+>> via WWW. --[[Paweł|ptecza]]
+
+>>> A setlocale issue. Now [[bugs/done]] --[[Joey]]
+
+>>>> I can confirm. Now it works :) Thanks a lot for the fix! --[[Paweł|ptecza]]

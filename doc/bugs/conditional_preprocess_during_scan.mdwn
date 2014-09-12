@@ -1,0 +1,112 @@
+[[!template id=gitbranch branch=GiuseppeBilotta/scanif author="[[GiuseppeBilotta]]"]]
+
+When a directive that should be run during scan preprocessing is inside
+an if directive, it doesn't get called because the if preprocessing does
+not run during scan.
+
+I've written a simple [[patch]] to fix the issue, currently hosted on the
+scanif branch of my repository. The patch also passes the preview option
+back to the Ikiwiki::preprocess call, making sure that whatever is being
+reprocessed is done so in the same conditions as the original call.
+
+> One problem with this is that it has the same dependency-ordering problems
+> as inline-based or pagespec-based trails with my [[plugins/contrib/trail]]
+> plugin: `if` takes a pagespec, but pagespecs aren't guaranteed to match
+> correctly until everything has been scanned (for instance, `link()` might
+> give the wrong results because a page that added or deleted a link hasn't
+> been scanned yet). If you have a clever idea for how to fix this, I'd love
+> to hear it - being able to specify a [[plugins/contrib/trail]] in terms
+> of a sorted pagespec would be useful. --[[smcv]]
+
+>> I have a solution to the dependency-ordering problem in a different
+>> branch of my repository, with a post_scan hook mechanism which I use to
+>> be able to sort outer inline pages according to the last modification
+>> date of their nested inline pages. The way I implemented it currently,
+>> though, doesn't use the existing hooks mechanism of ikiwiki (because
+>> it's something which I believe to be more efficiently done the way I
+>> implemented it) so I don't know how likely it is to be included
+>> upstream.
+
+>> For what it's worth, I think that my post_scan hook mechanism would work
+>> rather fine with your trail plugin.
+
+>>> We discussed this on IRC, and I think it's actually more complicated
+>>> than that: the branch to sort by newest inlined entry wants a
+>>> "pagespecs now work" hook, whereas for trail I want a "sorting now
+>>> works" hook:
+>>>
+>>> * scan
+>>> * pagespecs now work (post-scan)
+>>>   * Giuseppe's version of inline can decide what each inline
+>>>     contains, and thus decide where they go in `inline(mtime)`
+>>>     order
+>>> * pagespecs and sorting now work (pre-render)
+>>>   * my trail plugin can decide what each trail contains, and
+>>>     also sort them in the right order (which might be
+>>>     `inline(mtime)`, so might be undefined until pagespecs work)
+>>> * render
+>>>
+>>> --[[smcv]]
+
+>> However, the case of the if
+>> directive is considerably more complicated, because the conditional
+>> can introduce a much stronger feedback effect in the pre/post scanning
+>> dependency. In fact, it's probably possible to build a couple of pages
+>> with vicious conditional dependency circles that would break/unbreak
+>> depending on which pass we are in. And I believe this is an intrinsic
+>> limitation of the system, which cannot be solved at all.
+
+>>> One way forward that I can think of for this issue is to
+>>> have a way to tell `\[[!if]]` which answer it should assume for
+>>> scanning purposes, so it would assume that answer when running
+>>> in the scan phase, and really evaluate the pagespec when running
+>>> in the render phase. For instance:
+>>>
+>>>     \[[!if test="enabled(foo)" scan_assume=yes then="""
+>>>     \[[!foo]]
+>>>     """]]
+>>>
+>>> could maybe scan \[[!foo]] unconditionally.
+>>>
+>>> This makes me wonder whether `\[[!if]]` was too general: by having
+>>> the full generality of pagespecs, it reduces its possible uses to
+>>> "those contexts where pagespecs work".
+>>>
+>>> Another possibility might be to have "complex" pagespecs and sort
+>>> orders (those whose correct answer requires scanning to have completed,
+>>> like `link()` and sorting by `meta(title)`) throw an error when used in
+>>> the scan phase, but simple pagespecs like `enabled()` and `glob()`, and
+>>> simple sort orders like `title` and `path`, could continue to work?
+>>> My `wip-too-soon` work-in-progress branch is heading in this direction,
+>>> although it currently makes `pagespec_match` fail completely and does
+>>> not even allow "simple" pagespecs and sort orders.
+>>>
+>>> At the moment, if a pagespec cannot be evaluated, `\[[!if]]` will
+>>> produce neither the `then` clause nor the `else` clause. This could
+>>> get pretty confusing if it is run during the scan phase and produces
+>>> an error, then run during the render phase and succeeds: if you had,
+>>> say,
+>>>
+>>>     \[[!if run_during_scan=1 test="link(foo)" then="""
+>>>     there is a link to foo
+>>>     \[[!tag there_is_a_link_to_foo]]
+>>>     """ else="""
+>>>     there is no link to foo
+>>>     \[[!tag there_is_no_link_to_foo]]
+>>>     """]]
+>>>
+>>> then the resulting page would contain one of the snippets of text,
+>>> but its metadata would contain neither of the tags. Perhaps the plugin
+>>> would have to remember that it failed during the scan phase, so that
+>>> it could warn about the failure during the render phase instead of,
+>>> or in addition to, producing its normal output?
+>>>
+>>> Of the conditional-specific tests, `included()` and `destpage(glob)`
+>>> can never match during scan.
+>>>
+>>> Does anyone actually use `\[[!if]]` in ways that they would want to
+>>> be active during scan, other than an `enabled(foo)` test?
+>>> I'm increasingly tempted to add `\[[!ifenabled foo]]` to solve
+>>> that single case, and call that a solution to this bug...
+>>>
+>>> --[[smcv]]

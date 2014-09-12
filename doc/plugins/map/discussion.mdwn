@@ -1,0 +1,49 @@
+I'm wanting a [[map]] (with indentation levels) showing page _titles_
+instead of page 'names'.  As far as I can see, this is not an option with
+existing plugins - I can get a list of pages using [[inline]] and
+appropriate [[templates]], but that has no indentation and therefore
+doesn't show structure well.
+
+The quick way is to modify the map plugin to have a 'titles' option.  The
+hard way is to modify inline to have an indentation option, in which case
+inline will be a superset of map functionality.  The second option seems a
+little wrong from the point of view of perversely extending what 'inline'
+means, but it seems right from the point of view of combining common
+features.  Maybe adding template support to map is a more useful approach
+than just adding a title option.
+
+Thoughts, anyone?  --[[KarlMW]]
+
+We'd also very much like to have an option to display the title of the page instead of the filename in the map plugin. --Andrew
+
+There's a patch implementing this in [[!debbug 484510]]. It needs a few fixes
+before I merge it. Now applied. --[[Joey]]
+
+----
+
+I noticed that when the pagespec returns no map items, the map plugin does not close off the ul and div tags. Below is a simple patch 
+that seems to work on the examples I tried. I am a beginner so please help me out here. Thanks. --[[harishcm]]
+
+    --- a/map.pm
+    +++ b/map.pm
+    @@ -81,6 +81,13 @@
+            my $openli=0;
+            my $addparent="";
+            my $map = "<div class='map'>\n<ul>\n";
+    +
+    +       # Return properly closed $map if %mapitems is empty
+    +       if (!scalar(keys %mapitems)) {
+    +               $map .= "</ul>\n</div>\n";
+    +               return $map; 
+    +       }
+    +
+            foreach my $item (sort keys %mapitems) {
+                    my @linktext = (length $mapitems{$item} ? (linktext => $mapitems{$item}) : ());
+                    $item=~s/^\Q$common_prefix\E\///
+    
+> This was also reported as [[bugs/map_fails_to_close_ul_element_for_empty_list]];
+> this patch is simpler than the one there, but has the same problem (it emits
+> `<ul></ul>`, which technically isn't valid HTML either). --[[smcv]]
+
+>> Thanks for the tip, I added another patch addressing the issue at
+>> [[bugs/map_fails_to_close_ul_element_for_empty_list]]. --[[harishcm]]

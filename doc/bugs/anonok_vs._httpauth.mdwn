@@ -1,0 +1,118 @@
+I've got a wiki where editing requires [[plugins/httpauth]] (with
+`cgiauthurl` working nicely). I now want to let the general public
+edit Discussion subpages, so I enabled [[plugins/anonok]] and set
+`anonok_pagespec` to `'*/Discussion'`, but HTTP auth is still being
+required for those.
+
+(Actually, what I'll really want to do is probably [[plugins/lockedit]]
+and a whitelist of OpenIDs in `locked_pages`...)
+
+--[[schmonz]]
+
+> The only way I can see to support this combination is for httpauth with
+> cgiauthurl to work more like other actual login types. Which would mean
+> that on editing a page that needs authentication, ikiwiki would redirect
+> them to the Signin page, which would then have a link they could follow
+> to bounce through the cgiauthurl and actually sign in. This would be
+> significantly different than the regular httpauth process, in which the
+> user signs in in passing. --[[Joey]]
+
+>> My primary userbase has grown accustomed to the seamlessness of
+>> httpauth with SPNEGO, so I'd rather not reintroduce a seam into
+>> their web-editing experience in order to let relatively few outsiders
+>> edit relatively few pages. When is the decision made about whether
+>> the current page can be edited by the current user (if any)? What
+>> if there were a way to require particular auth plugins for particular
+>> PageSpecs? --[[schmonz]]
+
+>>> The decision about whether a user can edit a page is made by plugins
+>>> such as signinedit and lockedit, that also use canedit hooks to redirect
+>>> the user to a signin page if necessary.
+>>> 
+>>> A tweak on my earlier suggestion would be to have httpauth notice when the 
+>>> Signin page is being built and immediatly redirect to the cgiauthurl
+>>> before the page can be shown to the user. This would, though, not play
+>>> well with other authentication methods like openid, since the user
+>>> would never see the Signin form. --[[Joey]]
+
+>>>> Would I be able to do what I want with a local plugin that
+>>>> abuses canedit (and auth) to reach in and call the appropriate
+>>>> plugin's auth method -- e.g., if the page matches */Discussion,
+>>>> call `openid:auth()`, else `httpauth:auth()`? --[[schmonz]]
+
+>>>>> That seems it would be
+>>>>> annoying for httpauth users (who were not currently authed),
+>>>>> as they would then see the openid signin form when going to edit a
+>>>>> Discussion page.
+>>>>> --[[Joey]]
+
+>>>>>> I finally see the problem, I think. When you initially
+>>>>>> suggested "a link they could follow to bounce through the
+>>>>>> cgiauthurl", presumably this could _be_ the Edit link for
+>>>>>> non-Discussion pages, so that the typical case of an httpauth
+>>>>>> user editing an editable-only-by-httpauth page doesn't visibly
+>>>>>> change. And then the Edit link for Discussion subpages could do
+>>>>>> as you suggest, adding one click for the httpauth user, who won't
+>>>>>> often need to edit those subpages. --[[schmonz]]
+
+>> On reflection, I've stopped being bothered by the
+>> redirect-to-signin-page approach. (It only needs to happen once per
+>> browser session, anyway.) Can we try that? --[[schmonz]]
+
+Here is an attempt. With this httpauth will only redirect to the
+`cgiauth_url` when a page is edited, and it will defer to other plugins
+like anonok first. I have not tested this. --[[Joey]] 
+
+<pre>
+diff --git a/IkiWiki/Plugin/httpauth.pm b/IkiWiki/Plugin/httpauth.pm
+index 127c321..a18f8ca 100644
+--- a/IkiWiki/Plugin/httpauth.pm
++++ b/IkiWiki/Plugin/httpauth.pm
+@@ -9,6 +9,8 @@ use IkiWiki 3.00;
+ sub import {
+ 	hook(type => "getsetup", id => "httpauth", call => \&getsetup);
+ 	hook(type => "auth", id => "httpauth", call => \&auth);
++	hook(type => "canedit", id => "httpauth", call => \&canedit,
++		last => 1);
+ }
+ 
+ sub getsetup () {
+@@ -33,9 +35,21 @@ sub auth ($$) {
+ 	if (defined $cgi->remote_user()) {
+ 		$session->param("name", $cgi->remote_user());
+ 	}
+-	elsif (defined $config{cgiauthurl}) {
+-		IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$cgi->query_string());
+-		exit;
++}
++
++sub canedit ($$$) {
++	my $page=shift;
++	my $cgi=shift;
++	my $session=shift;
++
++	if (! defined $cgi->remote_user() && defined $config{cgiauthurl}) {
++		return sub {
++			IkiWiki::redirect($cgi, $config{cgiauthurl}.'?'.$cgi->query_string());
++			exit;
++		};
++	}
++	else {
++		return undef;
+ 	}
+ }
+ 
+</pre>
+
+> With `anonok` enabled, this works for anonymous editing of an
+> existing Discussion page. auth is still needed to create one. --[[schmonz]]
+
+>> Refreshed above patch to fix that. --[[Joey]] 
+
+>> Remaining issue: This patch will work with anonok, but not openid or
+>> passwordauth, both of which want to display a login page at the same
+>> time that httpauth is redirecting to the cgiauthurl. As mentioned above,
+>> the only way to deal with that would be to add a link to the signin page
+>> that does the httpauth signin. --[[Joey]] 
+
+>>> That's dealt with in final version. [[done]] --[[Joey]] 

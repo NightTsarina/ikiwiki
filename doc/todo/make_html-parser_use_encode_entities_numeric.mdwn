@@ -1,0 +1,19 @@
+Hi,
+
+Using encode_entities makes this sort of thing happen:
+
+XML Parsing Error: undefined entity
+Location: http://XXX.YYY.ZZZ/
+
+and points to the relevant entity.
+
+I think using encode_entities_numeric would help a lot with this. This is just a naïve assessment, but this would prevent xml-like pages being non-xml.
+
+[[wishlist]]
+
+> I suppose you mean a html generator, and not a html parser.
+> 
+> ikiwiki uses numeric entities where required, but not otherwise.
+> 
+> It seems valid for xhtml to have eg, `&lt;` in it. Do you have a specific
+> example? --[[Joey]] 

@@ -1,0 +1,35 @@
+Hi all!
+I really like ikiwiki and i tested it on my local machine but i have one question that i can't answer reading documentation (my fault of course)...
+I have an account and some space on a free hosting service.
+Now, i want to put my ikiwiki on this remote web space so that i can browse it from wherever i want.
+I have my source dir and my git dir on my local machine.
+How can i upload my ikiwiki on the remote host and manage it via git as i can do when i test it locally?
+Where is specified? Where can i find documentation about it?
+
+Thanks in advance!
+
+Pab
+
+> There are several ways to accomplish this, depending on what you really
+> want to do.
+> 
+> If your goal is to continue generating the site locally, but then
+> transfer it to the remote host for serving, you could use the 
+> [[plugins/rsync]] plugin.
+> 
+> If your goal is to install and run the ikiwiki software on the remote host,
+> then you would follow a similar path to the ones described in these tips:
+> [[tips/nearlyfreespeech]] [[tips/DreamHost]]. Or even [[install]] ikiwiki
+> from a regular package if you have that kind of access. Then you could
+> push changes from your local git to git on the remote host to update the
+> wiki. [[tips/Laptop_wiki_with_git]] explains one way to do that.
+> --[[Joey]] 
+
+Thanks a lot for your answer.
+rsync plugin would be perfect but... how would i manage blog post?
+I mean... is it possible to manage ikiwiki blog too with rsync plugin in the way you told me? --Pab
+
+> If you want to allow people to make comments on your blog, no, the rsync plugin will not help, since it will upload a completely static site where nobody can make comments.  Comments require a full IkiWiki setup with CGI enabled, so that people add content (comments) from the web. --[[KathrynAndersen]]
+
+Ok, i understand, thanks.
+Is there any hosting service that permits to have a full installation of iwkiwiki or i am forced to get a vps or to mantain a personal server for that? --Pab

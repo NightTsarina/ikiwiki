@@ -1,0 +1,8 @@
+[[!comment format=mdwn
+ username="http://joey.kitenet.net/"
+ nickname="joey"
+ subject="comment 1"
+ date="2011-07-19T15:50:41Z"
+ content="""
+This is not done for reasons of speed. `rcs_getctime` is for many VCSs still slow, requiring a new svn or whatever to be forked off (and in the case of svn, possibly make a network connection). In the case where a commit comes in that adds multiple pages, that would be a lot of work. And for the VCSs where it's not slow, it manages to not be slow by optimising for the case where *all* the times for all pages are looked up in one go .. which is still rather a lot to do when only a single new page has been added. So we lose either way, and it's not suitable for being run all the time, unfortunately.
+"""]]

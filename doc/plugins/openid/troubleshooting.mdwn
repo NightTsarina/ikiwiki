@@ -1,0 +1,253 @@
+**TL;DR**
+
+[[!toc levels=3]]
+
+# An odyssey through lots of things that have to be right before OpenID works
+
+Having just (at last) made an ikiwiki installation accept my
+OpenID, I have learned many of the things that may have to be checked
+when getting the [[plugins/openid]] plugin to work. (These are probably
+the reasons why [ikiwiki.info](/) itself won't accept my OpenID!)
+
+Just to describe my OpenID setup a bit (and why it makes a good stress-test
+for the OpenID plugin :).
+
+I'm using my personal home page URL as my OpenID. My page lives at
+a shared-hosting service I have hired. It contains links that delegate
+my OpenID processing to [indieauth.com](https://indieauth.com).
+
+IndieAuth, in turn, uses
+[rel-me authentication](http://microformats.org/wiki/RelMeAuth) to find
+an [OAuth](http://microformats.org/wiki/OAuth) provider that can authenticate
+me. (At present, I am using [github](http://github.com) for that, which
+is an OAuth provider but not an OpenID provider, so the gatewaying provided
+by IndieAuth solves that problem.) As far as ikiwiki is concerned,
+IndieAuth is my OpenID provider; the details beyond that are transparent.
+
+So, what were the various issues I had to sort out before my first successful
+login with the [[plugins/openid]] plugin?
+
+## no_identity_server: Could not determine ID provider from URL.
+
+This is the message [ikiwiki.info](/) shows as soon as I enter my home URL
+as an OpenID. It is also the first one I got on my own ikiwiki installation.
+
+### various possible causes ...
+
+There could be lots of causes. Maybe:
+
+* the offered OpenID is an `https:` URL and there is an issue in checking
+    the certificate, so the page can't be retrieved?
+* the page can be retrieved, but it isn't well-formed HTML and the library
+    can't parse it for the needed OpenID links?
+* ...?
+
+### make a luckier setting of useragent ?!
+
+In my case, it was none of the above. It turns out my shared-hosting provider
+has a rule that refuses requests with `User-Agent: libwww-perl/6.03` (!!).
+This is the sort of problem that's really hard to anticipate or plan around.
+I could fix it (_for this case!_) by changing `useragent:` in `ikiwiki.setup`
+to a different string that my goofy provider lets through.
+
+__Recommendation:__ set `useragent:` in `ikiwiki.setup` to some
+unlikely-to-be-blacklisted value. I can't guess what the best
+unlikely-to-be-blacklisted value is; if there is one, it's probably the
+next one all the rude bots will be using anyway, and some goofy provider
+like mine will blacklist it.
+
+> If your shared hosting provider is going to randomly break functionality,
+> I would suggest "voting with your wallet" and taking your business to
+> one that does not.
+>
+> In principle we could set the default UA (if `$config{useragent}` is
+> unspecified) to `IkiWiki/3.20140915`, or `IkiWiki/3.20140915 libwww-perl/6.03`
+> (which would be the "most correct" option AIUI), or some such.
+> That might work, or might get randomly blacklisted too, depending on the
+> whims of shared hosting providers. If you can't trust your provider to
+> behave helpfully then there isn't much we can do about it.
+>
+> Blocking requests according to UA seems fundamentally flawed, since
+> I'm fairly sure no hosting provider can afford to blacklist UAs that
+> claim to be, for instance, Firefox or Chrome. I wouldn't want
+> to patch IkiWiki to claim to be an interactive browser by default,
+> but malicious script authors will have no such qualms, so I would
+> argue that your provider's strategy is already doomed... --[[smcv]]
+
+>> I agree, and I'll ask them to fix it (and probably refer them to this page).
+>> One reason they still have my business is that their customer service has
+>> been notably good; I always get a response from a human on the first try,
+>> and on the first or second try from a human who understands what I'm saying
+>> and is able to fix it. With a few exceptions over the years. I've dealt with organizations not like that....
+>>
+>> But I included the note here because I'm sure if _they're_ doing it, there's
+>> probably some nonzero number of other hosting providers where it's also
+>> happening, so a person setting up OpenID and being baffled by this failure
+>> needs to know to check for it. Also, while the world of user-agent strings
+>> can't have anything but relatively luckier and unluckier choices, maybe
+>> `libwww/perl` is an especially unlucky one?
+
+## Error: OpenID failure: naive_verify_failed_network: Could not contact ID provider to verify response.
+
+Again, this could have various causes. It was helpful to bump the debug level
+and get some logging, to see:
+
+    500 Can't connect to indieauth.com:443 (Net::SSL from Crypt-SSLeay can't
+    verify hostnames; either install IO::Socket::SSL or turn off verification
+    by setting the PERL_LWP_SSL_VERIFY_HOSTNAME environment variable to 0)
+
+I don't belong to the camp that solves every verification problem by turning
+verification off, so this meant finding out how to get verification to be done.
+It turns out there are two different Perl modules that can be used for SSL:
+
+* `IO::Socket::SSL` (verifies hostnames)
+* `Net::SSL` (_does not_ verify hostnames)
+
+Both were installed on my hosted server. How was Perl deciding which one
+to use?
+
+### set `PERL_NET_HTTPS_SSL_SOCKET_CLASS` appropriately
+
+It turns out
+[there's an environment variable](https://rt.cpan.org/Public/Bug/Display.html?id=71599).
+So just set `PERL_NET_HTTPS_SSL_SOCKET_CLASS` to `IO::Socket::SSL` and the
+right module gets used, right?
+
+[Wrong](https://github.com/csirtgadgets/LWPx-ParanoidAgent/commit/fed6f7d7df8619df0754e8883cfad2ac15703a38#diff-2).
+That change was made to `ParanoidAgent.pm` back in November 2013 because of an
+unrelated [bug](https://github.com/csirtgadgets/LWPx-ParanoidAgent/issues/4)
+in `IO::Socket::SSL`. Essentially, _hmm, something goes wrong in
+`IO::Socket::SSL` when reading certain large documents, so we'll fix it by
+forcing the use of `Net::SSL` instead (the one that never verifies hostnames!),
+no matter what the admin has set `PERL_NET_HTTPS_SSL_SOCKET_CLASS` to!_
+
+### undo change that broke `PERL_NET_HTTPS_SSL_SOCKET_CLASS`
+
+Plenty of [comments](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=738493)
+quickly appeared about how good an idea that wasn't, and it was corrected in
+June 2014 with [one commit](https://github.com/csirtgadgets/LWPx-ParanoidAgent/commit/a92ed8f45834a6167ff62d3e7330bb066b307a35)
+to fix the original reading-long-documents issue in `IO::Socket::SSL` and
+[another commit](https://github.com/csirtgadgets/LWPx-ParanoidAgent/commit/815c691ad5554a219769a90ca5f4001ae22a4019)
+that reverts the forcing of `Net::SSL` no matter how the environment is set.
+
+Unfortunately, there isn't a release in CPAN yet that includes those two
+commits, but they are only a few lines to edit into your own locally-installed
+module.
+
+> To be clear, these are patches to [[!cpan LWPx::ParanoidAgent]].
+> Debian's `liblwpx-paranoidagent-perl (>= 1.10-3)` appears to
+> have those two patches. --[[smcv]]
+
+## Still naive_verify_failed_network, new improved reason
+
+    500 Can't connect to indieauth.com:443 (SSL connect attempt failed
+    with unknown error error:14090086:SSL
+    routines:SSL3_GET_SERVER_CERTIFICATE:certificate verify failed)
+
+Yay, at least it's trying to verify! Now why can't it verify IndieAuth's
+certificate?
+
+[Here's why](https://tools.ietf.org/html/rfc6066#section-3). As it turns out,
+[indieauth.com](https://indieauth.com/) is itself a virtual host on a shared
+server. If you naively try
+
+    openssl s_client -connect indieauth.com:443
+
+you get back a certificate for [indieweb.org](https://indieweb.org/)
+instead, so the hostname won't verify. If you explicitly indicate what server
+name you're connecting to:
+
+    openssl s_client -connect indieauth.com:443 -servername indieauth.com
+
+then, magically, the correct certificate comes back.
+
+### ensure `OpenSSL`, `Net::SSLeay`, `IO::Socket::SSL` new enough for SNI
+
+If your `openssl` doesn't recognize the `-servername` option, it is too old
+to do SNI, and a newer version needs to be built and installed. In fact,
+even though SNI support was reportedly backported into OpenSSL 0.9.8f, it will
+not be used by `IO::Socket::SSL` unless it is
+[1.0 or higher](http://search.cpan.org/~sullr/IO-Socket-SSL-1.998/lib/IO/Socket/SSL.pod#SNI_Support).
+
+Then a recent `Net::SSLeay` perl module needs to be built and linked against it.
+
+> I would tend to be somewhat concerned about the update status and security
+> of a shared hosting platform that is still on an OpenSSL major version from
+> pre-2010 - it might be fine, because it might be RHEL or some similarly
+> change-averse distribution backporting security fixes to ye olde branch,
+> but equally it might be as bad as it seems at first glance.
+> "Let the buyer beware", I think... --[[smcv]]
+
+>> As far as I can tell, this particular provider _is_ on Red Hat (EL 5).
+>> I can't conclusively tell because I'm in what appears to be a CloudLinux container when I'm in,
+>> and certain parts of the environment (like `rpm`) I can't see. But everything
+>> I _can_ see is like several RHEL5 boxen I know and love.
+
+
+### Local OpenSSL installation will need certs to trust
+
+Bear in mind that the OpenSSL distribution doesn't come with a collection
+of trusted issuer certs. If a newer version is built and installed locally
+(say, on a shared server where the system locations can't be written), it will
+need to be given a directory of trusted issuer certs, say by linking to the
+system-provided ones. However, a change to the certificate hash algorithm used
+for the symlinks in that directory was [reportedly](http://www.cilogon.org/openssl1)
+made with OpenSSL 1.0.0. So if the system-provided trusted certificate directory
+was set up for an earlier OpenSSL version, all the certificates in it will be
+fine but the hash symlinks will be wrong. That can be fixed by linking only the
+named certificate files from the system directory into the newly-installed one,
+and then running the new version of `c_rehash` there.
+
+## Still certificate verify failed
+
+Using [SNI](https://tools.ietf.org/html/rfc6066#section-3)-supporting versions
+of `IO::Socket::SSL`, `Net::SSLeay`, and `OpenSSL` doesn't do any good if an
+upper layer hasn't passed down the name of the host being connected to so the
+SSL layer can SNI for it.
+
+### ensure that `LWPx::ParanoidAgent` passes server name to SSL layer for SNI
+
+That was fixed in `LWPx::ParanoidAgent` with
+[this commit](https://github.com/csirtgadgets/LWPx-ParanoidAgent/commit/df6df19ccdeeb717c709cccb011af35d3713f546),
+which needs to be backported by hand if it hasn't made it into a CPAN release
+yet.
+
+> Also in Debian's `liblwpx-paranoidagent-perl (>= 1.10-3)`, for the record.
+> --[[smcv]]
+
+Only that still doesn't end the story, because that hand didn't know what
+[this hand](https://github.com/noxxi/p5-io-socket-ssl/commit/4f83a3cd85458bd2141f0a9f22f787174d51d587#diff-1)
+was doing. What good is passing the name in
+`PeerHost` if the SSL code looks in `PeerAddr` first ... and then, if that
+doesn't match a regex for a hostname, decides you didn't supply one at all,
+without even looking at `PeerHost`?
+
+Happily, is is possible to assign a key that _explicitly_ supplies the
+server name for SNI:
+
+    --- LWPx/Protocol/http_paranoid.pm    2014-09-08 03:33:00.000000000 -0400
+    +++ LWPx/Protocol/http_paranoid.pm    2014-09-08 03:33:27.000000000 -0400
+    @@ -73,6 +73,7 @@
+            close($el);
+             $sock = $self->socket_class->new(PeerAddr => $addr,
+                                              PeerHost => $host,
+    +                                         SSL_hostname => $host,
+                                              PeerPort => $port,
+                                              Proto    => 'tcp',
+                                              Timeout  => $conn_timeout,
+
+... not submitted upstream yet, so needs to be applied by hand.
+
+> I've [reported this to Debian](https://bugs.debian.org/761635)
+> (which is where ikiwiki.info's supporting packages come from).
+> Please report it upstream too, if the Debian maintainer doesn't
+> get there first. --[[smcv]]
+
+# Success!!
+
+And with that, ladies and gents, I got my first successful OpenID login!
+I'm pretty sure that if the same fixes can be applied to
+[ikiwiki.info](/) itself, a wider range of OpenID logins (like mine, for
+example :) will work here too.
+
+-- Chap

@@ -1,0 +1,12 @@
+[[!comment format=mdwn
+ username="http://joey.kitenet.net/"
+ nickname="joey"
+ subject="comment 1"
+ date="2012-03-22T16:56:39Z"
+ content="""
+A branch makes sense if it's used in a way that never ties its history with mainline, so all the spam can eventually be dropped out of git, by deleting the branch. Though this is clearly an expert user level option.
+
+Probably the easiest way to get there would be to keep the branch, checked out, in `.ikiwiki/comments_pending/`. The old code that used that directory is still in ikiwiki for backwards compatability, so it should be easy to get comments written into that location. Then a minimum of vcs-specific code would be needed to set up the branch and commit pending comments to it.
+
+But there's a wrinkle -- if you just cherry pick from that branch, the comments_pending directory will retain all the old spam, growing without bounds. And the web moderation interface will show them all. I suppose you could check out the branch and revert or delete spammy comments too, but this is feeling like a lot of work the user needs to do in order to use git to moderate spammy comments. I have to think most users would prefer, as I do, to occasionally flailing at a web form in this case.
+"""]]

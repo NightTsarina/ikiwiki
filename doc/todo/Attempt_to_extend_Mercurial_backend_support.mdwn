@@ -1,0 +1,258 @@
+Using the Mercurial backend, the lack of `rcs_commit_staged` is noticed
+frequently. I couldn't find any tries to update `mercurial.pm`, so not
+letting lack of Mercurial AND Perl knowledge bring me down, I copy-pasted
+from `git.pm` to mimic its behaviour from a Mercurial perspective. I hope
+it can be a foundation for development by those more proficient in
+ikiwiki's inner workings. I have doubts that I personally will be able to
+revise it more, based on my Perl skills.
+
+I've tested it briefly. `ikiwiki-calendar` and posting of comments now
+works with automatic commits, i.e. the `rcs_commit_staged` function works
+in those cases. Under my current setup, I don't know where else to expect
+it to work. I would be flabberghasted if there wasn't any problems with it,
+though.
+
+> Absolutely, the [[/rcs]] chart shows mercurial is lagging behind
+> nearly everything. 
+> 
+> I don't think this stuff is hard, or unlikely to work, familiarity with
+> the rcs's particular details is the main thing. --[[Joey]] 
+
+Diff follows, for anyone to annotate. First code version is also available at [my hg-repo](http://510x.se/hg/program/ikiwiki/file/e741fcfd800f/Plugin/mercurial.pm). Latest version should be [here](http://46.239.104.5:81/hg/program/ikiwiki/file/tip/Plugin/mercurial.pm) ([raw format](http://46.239.104.5:81/hg/program/ikiwiki/raw-file/tip/Plugin/mercurial.pm)). I'll notify on this page with "*Done*" remarks when I've actually commited changes to my local repository. I don't know if I should replace the code and the comments below when I've changed something. I'll probably do this when the code feels more mature. --[[Daniel Andersson]]
+
+> I've looked over the current version and it looks ok to me. --[[Joey]]
+
+>> I changed the by `mercurial.pm` recorded commit messages and the `rcs_recentchanges` logic to include more information, to emulate the `git.pm` behaviour regarding name presentation on RecentChanges. I don't have anything more to add at the moment, so if the code passes review, I'm done, and I tag this page as "patch". [Final patch version as per this page at my hg repo](http://510x.se/hg/program/ikiwiki/file/bc0e2f838fe3/Plugin/mercurial.pm) ([raw format](http://46.239.104.5:81/hg/program/ikiwiki/raw-file/bc0e2f838fe3/Plugin/mercurial.pm)). I keep the below conversation for reference, but it's mostly outdated. --[[Daniel Andersson]]
+
+[[merged|done]] --[[Joey]] 
+
+[[!tag patch]]
+
+***
+
+	diff -r 20c61288d7bd Plugin/mercurial.pm
+	--- a/Plugin/mercurial.pm	Fri Jul 15 02:55:12 2011 +0200
+	+++ b/Plugin/mercurial.pm	Fri Jul 15 03:29:10 2011 +0200
+	@@ -7,6 +7,8 @@
+	 use Encode;
+	 use open qw{:utf8 :std};
+	 
+	+my $hg_dir=undef;
+	+
+	 sub import {
+		hook(type => "checkconfig", id => "mercurial", call => \&checkconfig);
+		hook(type => "getsetup", id => "mercurial", call => \&getsetup);
+
+A corresponding variable is declared for git. It is unused as of yet for
+Mercurial, but when more advanced merge features become available for
+`mercurial.pm`, I think it will come into play.
+
+> Maybe.. I'd rather avoid unused cruft though. --[[Joey]]
+
+>> OK, will be removed. *Done* --[[Daniel Andersson]]
+
+	@@ -69,6 +71,62 @@
+			},
+	 }
+	 
+	+sub safe_hg (&@) {
+	+	# Start a child process safely without resorting to /bin/sh.
+	+	# Returns command output (in list content) or success state
+	+	# (in scalar context), or runs the specified data handler.
+	+
+	+	my ($error_handler, $data_handler, @cmdline) = @_;
+	+
+	+	my $pid = open my $OUT, "-|";
+	+
+	+	error("Cannot fork: $!") if !defined $pid;
+	+
+	+	if (!$pid) {
+	+		# In child.
+	+		# hg commands want to be in wc.
+	+		if (! defined $hg_dir) {
+	+			chdir $config{srcdir}
+	+			    or error("cannot chdir to $config{srcdir}: $!");
+	+		}
+	+		else {
+	+			chdir $hg_dir
+	+			    or error("cannot chdir to $hg_dir: $!");
+	+		}
+
+> How can this possibly work, since `$hg_dir` is not set? The code
+> that is being replaced seems to use `-R` to make hg use the right
+> directory. If it worked for you without specifying the directory,
+> it's quite likely this is the place the patch fails in some
+> unusual circumstance.. but I think it could easily use `-R` here.
+
+>> It works since `if (! defined $hg_dir)` always hits, and `chdir $config{srcdir}` is well defined. The whole logic is just used in `git.pm` for merge functionality that is not present in `mercurial.pm`, so by the cruft argument above, this should be replaced with just chdir `$config{srcdir}` (which is equivalent to `hg -R` or `hg --cwd` from what I know). Will be removed. *Done* --[[Daniel Andersson]]
+
+	+		exec @cmdline or error("Cannot exec '@cmdline': $!");
+	+	}
+	+	# In parent.
+	+
+	+	# hg output is probably utf-8 encoded, but may contain
+	+	# other encodings or invalidly encoded stuff. So do not rely
+	+	# on the normal utf-8 IO layer, decode it by hand.
+	+	binmode($OUT);
+
+> Is this actually true for hg?
+
+>> I don't know. ["hg stores everything internally as UTF-8, except for pathnames"](https://jira.atlassian.com/browse/FE-3198), but output is dependent on the system's locale. The environment variable `HGENCODING=utf-8` can be set to ensure that Mercurial's own output is always UTF-8, but when viewing a diff containing non-UTF-8 changes, the affected lines are nevertheless output in their original encoding. I personally think that this is the correct way to output it, though, unless there is a possibility that someone is running ikiwiki wih a non-UTF-8 locale.
+
+>>> *Done*. I removed the `encode_utf8()` part and instead set `HGENCODING=utf-8` where the external `hg` command was called. It seems to have taken care of "all" character encoding issues (but it is an almost infinite error pool to draw from, so some problem might pop up). --[[Daniel Andersson]]
+
+	+	my @lines;
+	+	while (<$OUT>) {
+	+		$_=decode_utf8($_, 0);
+	+
+	+		chomp;
+	+
+	+		if (! defined $data_handler) {
+	+			push @lines, $_;
+	+		}
+	+		else {
+	+			last unless $data_handler->($_);
+	+		}
+	+	}
+	+
+	+	close $OUT;
+	+
+	+	$error_handler->("'@cmdline' failed: $!") if $? && $error_handler;
+	+
+	+	return wantarray ? @lines : ($? == 0);
+	+}
+	+# Convenient wrappers.
+	+sub run_or_die ($@) { safe_hg(\&error, undef, @_) }
+	+sub run_or_cry ($@) { safe_hg(sub { warn @_ }, undef, @_) }
+	+sub run_or_non ($@) { safe_hg(undef, undef, @_) }
+	+
+	 sub mercurial_log ($) {
+		my $out = shift;
+		my @infos;
+	@@ -116,10 +174,7 @@
+	 }
+	 
+	 sub rcs_update () {
+	-	my @cmdline = ("hg", "-q", "-R", "$config{srcdir}", "update");
+	-	if (system(@cmdline) != 0) {
+	-		warn "'@cmdline' failed: $!";
+	-	}
+	+	run_or_cry('hg', '-q', 'update');
+	 }
+	 
+	 sub rcs_prepedit ($) {
+
+With the `run_or_{die,cry,non}()` functions defined as in `git.pm`, some old Mercurial functions can be rewritten more compactly.
+
+	@@ -129,6 +184,14 @@
+	 sub rcs_commit (@) {
+		my %params=@_;
+	 
+	+	return rcs_commit_helper(@_);
+	+}
+	+
+	+sub rcs_commit_helper (@) {
+	+	my %params=@_;
+	+
+	+	my %env=%ENV;
+
+> This `%env` stash is unused; `%ENV` is never modified.
+
+>> Yes, the code is missing setting the username at all. The local `hgrc` file is always used. I'll add setting of `$ENV{HGUSER}`. *Done* --[[Daniel Andersson]]
+
+	+
+		my $user="Anonymous";
+		if (defined $params{session}) {
+			if (defined $params{session}->param("name")) {
+
+Here comes the `rcs_commit{,_staged}` part. It is modeled on a `rcs_commit_helper` function, as in `git.pm`.
+
+Some old `mercurial.pm` logic concerning commiter name is kept instead of transplanting the more elaborate logic from `git.pm`. Maybe it is better to "steal" that as well.
+
+> Exactly how to encode the nickname from openid in the commit metadata,
+> and get it back out in `rcs_recentchanges`, would probably vary from git.
+
+>> Yes, right now the long and ugly OpenID strings, e.g. `https://www.google.com/accounts/o8/id?id=AItOawmUIes3yDLfQME0uvZvJKDN0NsdKPx_PTw`, gets recorded as author and are shown as `id [www.google.com/accounts/o8]` in RecentChanges. I see that here on `ikiwiki.info`, my commits, identified by OpenID, are shown as authored by simply `Daniel`. I'll look into it. --[[Daniel Andersson]]
+
+>>> I adapted some logic from `git.pm`. `hg` only has a single commiter name field, whereas `git` has both `GIT_AUTHOR_NAME` and `GIT_AUTHOR_EMAIL`. The behaviour can be emulated by encoding nick and commit medium into commiter name as "`https://www.google.com/accounts/o8/id?id=AItOawmUIes3yDLfQME0uvZvJKDN0NsdKPx_PTw <Daniel@web>`" and parsing this out as necessary when `rcs_recentchanges` is called. *Done* --[[Daniel Andersson]]
+
+	@@ -143,43 +206,45 @@
+			$params{message} = "no message given";
+		}
+	 
+	-	my @cmdline = ("hg", "-q", "-R", $config{srcdir}, "commit", 
+	-	               "-m", IkiWiki::possibly_foolish_untaint($params{message}),
+	-	               "-u", IkiWiki::possibly_foolish_untaint($user));
+	-	if (system(@cmdline) != 0) {
+	-		warn "'@cmdline' failed: $!";
+	+	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
+	+
+	+	my @opts;
+	+	
+	+	if (exists $params{file}) {
+	+		push @opts, '--', $params{file};
+		}
+	-
+	+	# hg commit returns non-zero if nothing really changed.
+	+	# So we should ignore its exit status (hence run_or_non).
+	+	run_or_non('hg', 'commit', '-m', $params{message}, '-q', @opts);
+	+	
+	+	%ENV=%env;
+		return undef; # success
+	 }
+	 
+	 sub rcs_commit_staged (@) {
+		# Commits all staged changes. Changes can be staged using rcs_add,
+		# rcs_remove, and rcs_rename.
+	-	my %params=@_;
+	-	
+	-	error("rcs_commit_staged not implemented for mercurial"); # TODO
+	+	return rcs_commit_helper(@_);
+	 }
+	 
+	 sub rcs_add ($) {
+		my ($file) = @_;
+	 
+	-	my @cmdline = ("hg", "-q", "-R", "$config{srcdir}", "add", "$config{srcdir}/$file");
+	-	if (system(@cmdline) != 0) {
+	-		warn "'@cmdline' failed: $!";
+	-	}
+	+	run_or_cry('hg', 'add', $file);
+	 }
+	 
+	 sub rcs_remove ($) {
+	+	# Remove file from archive.
+	+
+		my ($file) = @_;
+	 
+	-	error("rcs_remove not implemented for mercurial"); # TODO
+	+	run_or_cry('hg', 'remove', '-f', $file);
+	 }
+	 
+	 sub rcs_rename ($$) {
+		my ($src, $dest) = @_;
+	 
+	-	error("rcs_rename not implemented for mercurial"); # TODO
+	+	run_or_cry('hg', 'rename', '-f', $src, $dest);
+	 }
+	 
+	 sub rcs_recentchanges ($) {
+
+> Remainder seems ok to me. Should probably test that the remove plugin 
+> works, since this implements `rcs_remove` too and you didn't mention
+> any tests that would run that code path. --[[Joey]] 
+
+>> I tested `rename`. It fails if the page title includes e.g. åäö. Trying to rename a page from "title without special chars" to "title with åäö" renders in `/var/log/apache2/error.log`:
+
+    [Fri Jul 15 14:58:17 2011] [error] [client 46.239.104.5] transaction abort!, referer: http://46.239.104.5:81/blog/ikiwiki.cgi
+    [Fri Jul 15 14:58:17 2011] [error] [client 46.239.104.5] rollback completed, referer: http://46.239.104.5:81/blog/ikiwiki.cgi
+    [Fri Jul 15 14:58:17 2011] [error] [client 46.239.104.5] abort: decoding near 'itle_with_\xc3\xa5\xc3\xa4\xc3\xb6.mdw': 'ascii' codec can't decode byte 0xc3 in position 66: ordinal not in range(128)!, referer: http://46.239.104.5:81/blog/ikiwiki.cgi
+    [Fri Jul 15 14:58:17 2011] [error] [client 46.239.104.5] 'hg commit -m rename posts/title_without_special_chars.mdwn to posts/title_with_\xc3\xa5\xc3\xa4\xc3\xb6.mdwn -q' failed:  at /usr/share/perl5/IkiWiki/Plugin/mercurial.pm line 123., referer: http://46.239.104.5:81/blog/ikiwiki.cgi
+
+>>> I added setting the environment variable `HGENCODING=utf-8` in `rcs_commit_helper`, which took care of these problems. *Done* --[[Daniel Andersson]]
+
+>> When this has happened, directly following by `rename` and `remove` doesn't work as it should, since the file is not commited. `hg remove -f` doesn't physically remove files that aren't tracked (no `hg` command does). Perhaps a regular `unlink $file` should be called to not clutter the source dir if `hg remove` failed because the file wasn't tracked. --[[Daniel Andersson]]
+
+>> I've also noted that when a post is added or removed, the commit message lacks the page title. It contains the title when the page is renamed though, so it should be an easy fix. I'll look into it. --[[Daniel Andersson]]
+
+>>> This is to do with `{rename,remove,editchanges}.pm`. The last two simply don't give a message to `rcs_commit_staged`. Separate issue. --[[Daniel Andersson]]

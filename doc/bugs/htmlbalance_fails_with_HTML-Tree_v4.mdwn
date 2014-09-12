@@ -1,0 +1,18 @@
+[[!template id=gitbranch branch=smcv/ready/htmlbalance author="[[smcv]]"]]
+[[!tag patch]]
+
+My one-patch htmlbalance branch fixes incompatibility with HTML::Tree 4.0.
+From the git commit:
+
+    The HTML::Tree changelog says:
+    
+        [THINGS THAT MAY BREAK YOUR CODE OR TESTS]
+        ...
+        * Attribute names are now validated in as_XML and invalid names will
+          cause an error.
+    
+    and indeed the regression tests do get an error.
+
+--[[smcv]]
+
+[[done]] --[[Joey]]

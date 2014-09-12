@@ -1,0 +1,228 @@
+[[!toc]]
+
+# pkgsrc
+
+The easiest way of installing an up-to-date ikiwiki on any version of Mac OS X is via
+[pkgsrc](http://www.pkgsrc.org/).
+
+## From source:
+
+7. [Bootstrap pkgsrc](http://www.netbsd.org/docs/pkgsrc/platforms.html#bootstrapping-pkgsrc)
+7. Run `cd .../pkgsrc/www/ikiwiki && make install clean`
+
+## From binary packages:
+
+7. [install binary packages (OSX)](http://www.pkgsrc.org/#index1h1)
+
+{OK} As of 2014/08/24, the [version of ikiwiki in pkgsrc](http://pkgsrc.se/www/ikiwiki) is 3.20140815.
+
+-----
+
+# MacPorts
+
+Another way to install ikiwiki on Mac OS X [Snow] Leopard and Tiger is via MacPorts: <http://www.macports.org/>
+
+This project ports Open Source software into Mac OS X platform.
+It's very easy to install ikiwiki via MacPorts:
+
+1.- Donwnload and install MacPorts port manager from:  <http://www.macports.org/install.php> . 
+    Port manager installs via Mac OS X installer. Prerequisite: XCode.
+    Se above URL for details
+
+2.- Run 
+
+    $ sudo port install ikiwiki
+
+This installs ikiwiki and all of its dependencies
+
+enjoy
+
+Enrique Castilla
+
+[!] As of 2014/08/24, the [version of ikiwiki in MacPorts](http://www.macports.org/ports.php?by=name&substr=Ikiwiki) is 3.20110608.
+
+-----
+
+# Manual install
+
+These are some notes on installing ikiwiki on Mac OS X Snow Leopard. I have a three year old machine with a lot of stuff on it so it took quite a while, YMMV. 
+
+The best part of installing ikiwiki was learning how to use git. I never used source control before but its pretty slick.
+
+
+## installing git:
+
+cd /opt/ikiwiki/install
+
+curl http://kernel.org/pub/software/scm/git/git-(latest version).tar.gz -O
+
+tar xzvf git-(latest version).tar.gz
+
+cd git-(latest version)
+
+./configure --prefix=/usr/local 
+
+make prefix=/usr/local all
+
+sudo make install
+
+
+git config --global user.name "firstname lastname" 
+
+git config --global user.email "email here"
+
+git config --global color.ui "auto" 
+
+
+curl http://www.kernel.org/pub/software/scm/git/git-manpages-1.7.3.1.tar.gz | sudo tar -xzC /usr/local/share/man/
+
+
+## installing ikiwiki:
+I had terrible trouble installing ikiwiki. It turned out I had accidentally installed Perl through ports. Uninstalling that made everything install nicely.
+I got an error on msgfmt. Turns out this is a program in gettext. I installed that and it fixed the error.
+
+cd ..
+
+git clone git://git.ikiwiki.info/
+
+cd git.ikiwiki.info/
+
+perl Makefile.PL  LIB=/Library/Perl/5.10.0
+
+make
+
+sudo make install
+
+when you make ikiwiki it gives you a .git folder with the ikiwiki files. Stay out of this folder. You want to learn how to create a clone and make all your changes in the clone. When you push the changes ikiwiki will update. I moved a file in this folder by accident because I named my working file the same and I couldn't get into the setup page. I had apparently messed up my ikiwiki git repository. I did a pull into my clone, deleted the repository and webserver/ cgi folders and ran a new setup. Then I did a git clone and dragged all my old files into the new clone. Did the git dance and did git push. Then the angels sang.
+
+
+## using git from inside a git folder:
+
+start with git clone, then learn to do the git dance like this.
+
+git pull
+
+make your changes to your clone
+
+git commit -a -m "message here"
+
+git push
+
+
+When you can't get into the setup page or you get strange behavior after a setup update the Utilities > Console app is your friend.
+
+## installing gitweb
+
+cd ../git-1.7.3.1/gitweb
+
+make GITWEB_PROJECTROOT="/opt/ikiwiki/" GITWEB_CSS="/gitweb.css" GITWEB_LOGO="/git-logo.png" GITWEB_FAVICON="/git-favicon.png" GITWEB_JS="/gitweb.js"
+
+cp gitweb.cgi /Library/WebServer/CGI-Executables/
+
+cp /usr/local/share/gitweb/static/git-favicon.png /Library/WebServer/Documents/
+
+cp /usr/local/share/gitweb/static/git-logo.png /Library/WebServer/Documents/
+
+cp /usr/local/share/gitweb/static/gitweb.css /Library/WebServer/Documents/
+
+cp /usr/local/share/gitweb/static/gitweb.js /Library/WebServer/Documents/
+
+
+sudo chmod 2755 /Library/WebServer/CGI-Executables/gitweb.cgi
+
+sudo chmod 2755 /Library/WebServer/Documents/git-favicon.png
+
+sudo chmod 2755 /Library/WebServer/Documents/git-logo.png
+
+sudo chmod 2755 /Library/WebServer/Documents/gitweb.css
+
+sudo chmod 2755 /Library/WebServer/Documents/gitweb.js
+
+
+## installing xapian:
+
+download xapian and omega
+
+I needed pcre: sudo ports install pcre
+
+./configure
+
+make
+
+sudo make install
+
+
+## installing omega:
+
+I had a build error do to libiconv undefined symbols. sudo port deactivate libiconv took care of it. After install I had trouble with ikiwiki so I did a sudo port install libiconv and ikiwiki came back.
+
+./configure
+
+make
+
+sudo make install
+
+
+## installing Search::Xapian from CPAN
+
+for some reason this wouldn't install using CPAN console so I went to CPAN online and downloaded the source.
+
+perl Makefile.PL
+
+make
+
+make test
+
+sudo make install
+
+it installed without issue so I'm baffled why it didn't install from command line.
+
+ 
+ ## setup file
+    _!/usr/bin/perl
+    _ Ikiwiki setup automator.
+    
+    _ This setup file causes ikiwiki to create a wiki, check it into revision
+    _ control, generate a setup file for the new wiki, and set everything up.
+    
+    _ Just run: ikiwiki -setup /etc/ikiwiki/auto.setup
+    
+    _By default, it asks a few questions, and confines itself to the user's home
+    _directory. You can edit it to change what it asks questions about, or to
+    _modify the values to use site-specific settings.
+    require IkiWiki::Setup::Automator;
+    
+    our $wikiname="your wiki";
+    our $wikiname_short="yourwiki";
+    our $rcs="git";
+    our $admin="your name";
+    use Net::Domain q{hostfqdn};
+    our $domain="your.domain";                    
+    
+    IkiWiki::Setup::Automator->import(
+    wikiname => $wikiname,
+    adminuser => [$admin],
+    rcs => $rcs,
+    srcdir => "/opt/ikiwiki/$wikiname_short",
+    destdir => "/Library/WebServer/Documents/$wikiname_short",
+    repository => "/opt/ikiwiki/$wikiname_short.".($rcs eq "monotone" ? "mtn" : $rcs),
+    dumpsetup => "/opt/ikiwiki/$wikiname_short.setup",
+    url => "http://$domain/$wikiname_short",
+    cgiurl => "http://$domain/cgi-bin/$wikiname_short/ikiwiki.cgi",
+    cgi_wrapper => "/Library/WebServer/CGI-Executables/$wikiname_short/ikiwiki.cgi",
+    adminemail => "your\@email.com",
+    add_plugins => [qw{goodstuff websetup}],
+    disable_plugins => [qw{}],
+    libdir => "/opt/ikiwiki/.ikiwiki",
+    rss => 1,
+    atom => 1,
+    syslog => 1,
+    )
+ 
+
+## turning on search plugin:
+
+I turned on the plugin from the setup page in ikiwiki but it gave an error when I went to search. Error "Error: /usr/lib/cgi-bin/omega/omega failed: No such file or directory".
+I did a  "find / -name "omega" -print" and found the omega program in "/usr/local/lib/xapian-omega/bin/omega".
+
+Then I went into the 2wiki.setup file and replaced the bad path, updated and badda-boom badda-bing.

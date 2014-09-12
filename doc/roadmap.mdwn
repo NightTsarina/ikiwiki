@@ -1,0 +1,95 @@
+This is the roadmap for ikiwiki development.
+
+# 1.0
+
+* No severe [[security]] bugs.
+* All the basic [[features]] people would expect in a wiki.
+
+Released 29 April 2006.
+
+The 1.X series is no longer supported.
+
+----
+
+# 2.0
+
+* New improved URLs to pages via `usedirs`.
+* [[plugins/OpenID]] support, enabled by default.
+* Plugin [[interface|plugins/write]] added, with some 60 [[plugins]] available,
+  greatly expanding the capabilities of ikiwiki.
+* [[Tags]], atom feeds, and generally full-fledged blogging support.
+* Fully working [[todo/utf8]].
+* Optimisations, approximately 3.5 times as fast as version 1.0.
+* Improved scalability to large numbers of pages.
+* Improved scalable [[logo]].
+* Support for additional revision control systems besides svn: git,
+  tla, mercurial.
+* Some support for other markup languages than markdown: rst, textile.
+* Unit test suite, with more than 300 tests.
+
+Released 30 April 2007.
+
+The 2.x series is now in maintenance mode. Only security fixes and fixes for
+really bad bugs will be applied going forward.
+
+----
+
+# 3.0
+
+Version 3.0 is an opportunity to make significant transitions.
+Read [[tips/upgrade_to_3.0]] for the steps you will need to
+follow when upgrading your wiki to this version.
+
+The highlights of the changes in version 3.0 include:
+
+* Support for uploading [[attachments|plugins/attachment]].
+* Can [[plugins/rename]] and [[plugins/remove]] pages and files via the web.
+* [[Web_based_setup|plugins/websetup]].
+* Blog-style [[plugins/comments]] as an alternative to Discussion pages.
+* Many other new plugins including [[plugins/htmlbalance]], [[plugins/format]],
+  [[plugins/progress]], [[plugins/color]], [[plugins/autoindex]],
+  [[plugins/cutpaste]], [[plugins/hnb]], [[plugins/creole]], [[plugins/txt]],
+  [[plugins/amazon_s3]], [[plugins/pinger]], [[plugins/pingee]],
+  [[plugins/edittemplate]]
+* The RecentChanges page is compiled statically, not generated from the CGI.
+* Support for additional revision control systems: [[rcs/bzr]],
+  [[rcs/monotone]]
+* Support for [[tips/untrusted_git_push]].
+* A new version (3.00) of the plugin API, exporting additional
+  commonly used functions from `IkiWiki.pm`.
+* Nearly everything in ikiwiki is now a plugin, from WikiLinks to page
+  editing, to RecentChanges.
+* Far too many bug fixes, features, and enhancements to list here.
+
+Released 31 December, 2008.
+
+The 3.x series is expected to undergo continuing development for some time,
+adding improvements and new features, but avoiding changes that break
+backwards compatibility.
+
+----
+
+# compatibility breaking changes
+
+Probably incomplete list:
+
+* Drop old `--getctime` option.
+* Remove compatibility code in `loadindex` to handle old index data layouts.
+* Make pagespecs match relative by default? (see [[discussion]])
+* Flip wikilinks? (see [[todo/link_plugin_perhaps_too_general?]] and [[todo/do_not_make_links_backwards]])
+* Enable tagbase by default (so that tag autocreation will work by default).
+  Note that this is already done for wikis created by `auto-blog.setup`.
+* [[tips/html5]] on by default (some day..)
+* Remove support for old `.ikiwiki/comments_pending` and for
+  pending comments located in the srcdir, rather than transient underlay,
+  from comment plugin. That support makes comment moderation slow as
+  it has to check all the old locations.
+
+In general, we try to use [[ikiwiki-transition]] or forced rebuilds on
+upgrade to deal with changes that break compatability. Some things that
+can't help with.
+
+# future goals
+
+* Conversion support for existing other wikis. See [[convert]].
+* [[TODO]], [[bugs]], ...

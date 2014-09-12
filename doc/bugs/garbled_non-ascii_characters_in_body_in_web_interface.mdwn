@@ -1,0 +1,126 @@
+since my latest jessie upgrade here, charsets are all broken when editing a page. the page i'm trying to edit is [this wishlist](http://anarc.at/wishlist/), and it used to work fine. now, instead of:
+
+`Voici des choses que vous pouvez m'acheter si vous êtes le Père Nowel (yeah right):`
+
+... as we see in the rendered body right now, when i edit the page i see:
+
+`Voici des choses que vous pouvez m'acheter si vous �tes le P�re Nowel (yeah right):`
+
+... a typical double-encoding nightmare. The actual binary data is this for the word "Père" according to `hd`:
+
+~~~~
+anarcat@marcos:ikiwiki$ echo "Père" | hd
+00000000  50 c3 a8 72 65 0a                                 |P..re.|
+00000006
+anarcat@marcos:ikiwiki$ echo "P�re" | hd
+00000000  50 ef bf bd 72 65 0a                              |P...re.|
+00000007
+~~~~
+
+> I don't know what that is, but it isn't the usual double-UTF-8 encoding:
+>
+>     >>> u'è'.encode('utf-8')
+>     '\xc3\xa8'
+>     >>> u'è'.encode('utf-8').decode('latin-1').encode('utf-8')
+>     '\xc3\x83\xc2\xa8'
+>
+> A packet capture of the incorrect HTTP request/response headers and body
+> might be enlightening? --[[smcv]]
+>
+> > Here are the headers according to chromium:
+> > 
+> > ~~~~
+> > GET /ikiwiki.cgi?do=edit&page=wishlist HTTP/1.1
+> > Host: anarc.at
+> > Connection: keep-alive
+> > Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+> > User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36
+> > Referer: http://anarc.at/wishlist/
+> > Accept-Encoding: gzip,deflate,sdch
+> > Accept-Language: fr,en-US;q=0.8,en;q=0.6
+> > Cookie: openid_provider=openid; ikiwiki_session_anarcat=XXXXXXXXXXXXXXXXXXXXXXX
+> > 
+> > HTTP/1.1 200 OK
+> > Date: Mon, 08 Sep 2014 21:22:24 GMT
+> > Server: Apache/2.4.10 (Debian)
+> > Set-Cookie: ikiwiki_session_anarcat=XXXXXXXXXXXXXXXXXXXXXXX; path=/; HttpOnly
+> > Vary: Accept-Encoding
+> > Content-Encoding: gzip
+> > Content-Length: 4093
+> > Keep-Alive: timeout=5, max=100
+> > Connection: Keep-Alive
+> > Content-Type: text/html; charset=utf-8
+> > ~~~~
+> > 
+> > ... which seem fairly normal... getting more data than this is a little inconvenient since the data is gzip-encoded and i'm kind of lazy extracting that from the stream. Chromium does seem to auto-detect it as utf8 according to the menus however... not sure what's going on here. I would focus on the following error however, since it's clearly emanating from the CGI... --[[anarcat]]
+
+Clicking on the Cancel button yields the following warning:
+
+~~~~
+Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215.
+~~~~
+
+> Looks as though you might be able to get a Python-style backtrace for this
+> by setting `$Carp::Verbose = 1`.
+>
+> The error is that we're taking some string (which string? only a backtrace
+> would tell you) that is already flagged as Unicode, and trying to decode
+> it from byte-blob to Unicode again, analogous to this Python:
+>
+>     some_bytes.decode('utf-8').decode('utf-8')
+>
+> --[[smcv]]
+> > 
+> > I couldn't figure out where to set that Carp thing - it doesn't work simply by setting it in /usr/bin/ikiwiki - so i am not sure how to use this. However, with some debugging code in Encode.pm, i was able to find a case of double-encoding - in the left menu, for example, which is the source of the Encode.pm crash.
+> > 
+> > It seems that some unicode semantics changed in Perl 5.20, or more precisely, in Encode.pm 2.53, according to [this](https://code.activestate.com/lists/perl-unicode/3314/). 5.20 does have significant Unicode changes, but I am not sure they are related (see [perldelta](https://metacpan.org/pod/distribution/perl/pod/perldelta.pod)). Doing more archeology, it seems that Encode.pm is indeed where the problem started, all the way back in [commit 8005a82](https://github.com/dankogai/p5-encode/commit/8005a82d8aa83024d72b14e66d9eb97d82029eeb#diff-f3330aa405ffb7e3fec2395c1fc953ac) (august 2013), taken from [pull request #11](https://github.com/dankogai/p5-encode/pull/11) which expressively forbids double-decoding, in effect failing like python does in the above example you gave (Perl used to silently succeed instead, a rather big change if you ask me).
+> > 
+> > So stepping back, it seems that this would be a bug in Ikiwiki. It could be in any of those places:
+> > 
+> > ~~~~
+> > anarcat@marcos:ikiwiki$ grep -r decode_utf8 IkiWiki* | wc -l
+> > 31
+> > ~~~~
+> > 
+> > Now the fun part is to determine which one should be turned off... or should we duplicate the logic that was removed in decode_utf8, or make a safe_decode_utf8 for ourselves? --[[anarcat]]
+
+The apache logs yield:
+
+~~~~
+[Mon Sep 08 16:17:43.995827 2014] [cgi:error] [pid 2609] [client 192.168.0.3:47445] AH01215: Died at /usr/share/perl5/IkiWiki/CGI.pm line 467., referer: http://anarc.at/ikiwiki.cgi?do=edit&page=wishlist
+~~~~
+
+Interestingly enough, I can't reproduce the bug here (at least in this page). Also, editing the page through git works fine.
+
+I had put ikiwiki on hold during the last upgrade, so it was upgraded separately. The bug happens both with 3.20140613 and 3.20140831. The major thing that happened today is the upgrade from perl 5.18 to 5.20. Here's the output of `egrep '[0-9] (remove|purge|install|upgrade)' /var/log/dpkg.log | pastebinit -b paste.debian.net` to give an idea of what was upgraded today:
+
+http://paste.debian.net/plain/119944
+
+This is a major bug which should probably be fixed before jessie, yet i can't seem to find a severity statement in reportbug that would justify blocking the release based on this - unless we consider non-english speakers as "most" users (i don't know the demographics well enough). It certainly makes ikiwiki completely unusable for my users that operate on the web interface in french... --[[anarcat]]
+
+Note that on this one page, i can't even get the textarea to display and i immediately get `Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215`: http://anarc.at/ikiwiki.cgi?do=edit&page=hardware%2Fserver%2Fmarcos.
+
+Also note that this is the same as [[forum/"Error: cannot decode string with wide characters" on Mageia Linux x86-64 Cauldron]], I believe. The backtrace I get here is:
+
+~~~~
+Error: Cannot decode string with wide characters at /usr/lib/x86_64-linux-gnu/perl/5.20/Encode.pm line 215. Encode::decode_utf8("**Menu**\x{d}\x{a}\x{d}\x{a} * [[\x{fffd} propos|index]]\x{d}\x{a} * [[Logiciels|software]]"...)
+called at /usr/share/perl5/IkiWiki/CGI.pm line 117 IkiWiki::decode_form_utf8(CGI::FormBuilder=HASH(0x2ad63b8))
+called at /usr/share/perl5/IkiWiki/Plugin/editpage.pm line 90 IkiWiki::cgi_editpage(CGI=HASH(0xd514f8), CGI::Session=HASH(0x27797e0))
+called at /usr/share/perl5/IkiWiki/CGI.pm line 443 IkiWiki::__ANON__(CODE(0xfaa460))
+called at /usr/share/perl5/IkiWiki.pm line 2101 IkiWiki::run_hooks("sessioncgi", CODE(0x2520138))
+called at /usr/share/perl5/IkiWiki/CGI.pm line 443 IkiWiki::cgi()
+called at /usr/bin/ikiwiki line 192 eval {...}
+called at /usr/bin/ikiwiki line 192 IkiWiki::main()
+called at /usr/bin/ikiwiki line 231
+~~~~
+
+so this would explain the error on cancel, but doesn't explain the weird encoding i get when editing the page... <sigh>...
+
+... and that leads me to this crazy patch which fixes all the above issue, by avoiding double-decoding... go figure that shit out...
+
+[[!template  id=gitbranch branch=anarcat/dev/safe_unicode author="[[anarcat]]"]] 
+
+> [[Looks good to me|users/smcv/ready]] although I'm not sure how valuable
+> the `$] < 5.02 || ` test is - I'd be tempted to just call `is_utf8`. --[[smcv]]
+
+>> [[merged|done]] --[[smcv]]

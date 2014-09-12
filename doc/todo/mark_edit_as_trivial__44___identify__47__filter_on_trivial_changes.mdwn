@@ -1,0 +1,11 @@
+One feature of mediawiki which I quite like is the ability to mark a change as 'minor', or 'trivial'. This can then be used to filter the 'recentchanges' page, to only show substantial edits.
+
+The utility of this depends entirely on whether the editors use it properly.
+
+I currently use an inline on the front page of my personal homepage to show the most recent pages (by creation date) within a subsection of my site (a blog). Blog posts are rarely modified much after they are 'created' (or published - I bodge the creation time via meta when I publish a post. It might sit in draft form indefinitely), so this effectively shows only non-trivial changes.
+
+I would like to have a short list of the most recent modifications to the site on the front page. I therefore want to sort by modified time rather than creation time, but exclude edits that I self-identify as minor. I also only want to take a short number of items, the top 5, and display only their titles (which may be derived from filename, or set via meta again).
+
+I'm still thinking through how this might be achieved in an ikiwiki-suitable fashion, but I think I need a scheme to identify certain edits as trivial. This would have to work via web edits (easier: could add a check box to the edit form) and plain changes in the VCS (harder: scan for keywords in a commit message? in a VCS-agnostic fashion?)
+
+[[!tag wishlist]]

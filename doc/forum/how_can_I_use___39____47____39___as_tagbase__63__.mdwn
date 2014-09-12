@@ -1,0 +1,13 @@
+I'd like tags to be top-level pages, like /some-tag.
+
+I achieve this most of the time by *not* defining `tagbase`.
+
+However, this goes wrong if the name of a tag matches the name of a page further down a tree.
+
+Example:
+
+ * tag scm, corresponding page /scm
+ * a page /log/scm tagged 'scm' does not link to /scm
+ * a page /log/puppet tagged 'scm' links to /log/scm in the Tags: section
+
+Is this possible, or am I pushing tags too far (again)? -- [[Jon]]

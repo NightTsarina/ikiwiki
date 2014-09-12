@@ -1,0 +1,37 @@
+[[!tag patch css]]
+[[!template id=gitbranch branch=sunny256/css-fix author="[[sunny256]]"]]
+
+This trivial patch fixes an error in `styles.css` and is ready to be merged from the `css-fix` branch at `git://github.com/sunny256/ikiwiki.git` :
+
+    From e3b5eab2971109d18332fe44fd396322bb148cfc Mon Sep 17 00:00:00 2001
+    From: =?UTF-8?q?=C3=98yvind=20A.=20Holm?= <sunny@sunbase.org>
+    Date: Tue, 22 Feb 2011 18:14:21 +0100
+    Subject: [PATCH] style.css: Replace obsolete -moz-outline-style property with outline-style
+
+    The "-moz-outline-style" property generates an error at the W3C CSS
+    validator, saying the property doesn't exist. According to
+    <https://developer.mozilla.org/en/CSS/-moz-outline-style>, this property
+    is obsolete and the use of "outline-style" is preferred.
+    ---
+     doc/style.css |    2 +-
+     1 files changed, 1 insertions(+), 1 deletions(-)
+
+    diff --git a/doc/style.css b/doc/style.css
+    index 922b82a..fa413cf 100644
+    --- a/doc/style.css
+    +++ b/doc/style.css
+    @@ -485,7 +485,7 @@ a.openid_large_btn:focus {
+      outline: none;
+     }
+     a.openid_large_btn:focus {
+    -	-moz-outline-style: none;
+    +	outline-style: none;
+     }
+     .openid_selected {
+      border: 4px solid #DDD;
+    -- 
+    1.7.4.1.55.gdca3d
+
+--[[sunny256]] 2011-02-22 20:11+0100
+
+> [[Applied|done]]. --[[Joey]] 

@@ -1,0 +1,47 @@
+# post-commit hangs
+
+I installed ikiwiki v3.14159 in /usr/local from tarball (/usr contains an older version). Having done so, and used ikiwiki-transition to update setup file, the post commit hook is now blocking in flock (as seen by ps). I should also mention that I added the goodstuff, attachment and remove plugins (which was the purpose of upgrading to v3). Any clues as how to debug/fix gratefully received. The wiki is publically viewable at wiki.sgcm.org.uk if that helps.
+
+> It's blocking when you do what? Save a page from the web? Make a commit
+> to the underlaying VCS? Which VCS? These are all different code paths..
+> --[[Joey]] 
+
+>> It's blocking when I run "ikiwiki --setup ikiwiki.setup" (which calls hg update, which calls ikiwiki --post-commit).
+>> Hmm, maybe it's the recursive call to ikiwiki which is the problem.
+>> The underlying VCS is mercurial. --Ali
+
+>>> You're not supposed to run ikiwiki -setup manually in your post commit hook.
+>>> Doing so will certianly lead to a locking problem; it also forces ikiwiki to rebuild
+>>> the entire wiki anytime a single page changes, which is very inefficient!
+>>>
+>>> Instead, you should use the `mercurial_wrapper` setting
+>>> in the setup file, which will make ikiwiki generate a small
+>>> executable expressly designed to be run at post commit time.
+>>> Or, you can use the `--post-commit` option, as documented
+>>> in [[rcs/mecurial]] --[[Joey]] 
+
+>>>> I don't run ikiwiki --setup in the commit hook; I run ikiwiki --post-commit (as mentioned above).
+>>>> I'm trying to run ikiwiki --setup from the command line after modifying the setup file.
+>>>> ikiwiki --setup is calling hg update, which is calling ikiwiki --post-commit. Am I not supposed to do that? --Ali
+
+>>>>> No, I don't think that hg update should call ikiwiki anything. The
+>>>>> [[hgrc_example|rcs/mercurial]] doesn't seem to configure it to do that? --[[Joey]] 
+
+>>>>>> Ok, I'm not sure I understand what's going on, but my problem is solved.
+>>>>>>
+>>>>>> My hgrc used to say:
+>>>>>>
+>>>>>> [hooks]
+>>>>>>
+>>>>>> incoming.update = hg up
+>>>>>>
+>>>>>> update.ikiwiki = ikiwiki --setup /home/ikiwiki/ikiwiki.setup --post-commit
+>>>>>>
+>>>>>> I've now changed it to match the example page and it works. Thanks --Ali.
+
+>>>>>>> [[done]]
+
+> Also, how have you arranged to keep it from seeing the installation in /usr? Perl could well be loading
+> modules from the old installation, and if it's one with a different locking strategy that would explain your problem. --[[Joey]] 
+
+>> Good point. Not knowing perl, I just assumed /usr/local would take precedence. I've now used "dpkg -r ikiwiki" to remove the problem. --Ali

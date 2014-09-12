@@ -1,0 +1,248 @@
+[[rcs/git]] and other distributed version control systems are all about
+making it easy to create and maintain copies and branches of a project. And
+this can be used for all sorts of interesting stuff. Since ikiwiki can use
+git, let's explore some possibilities for distributed wikis.
+
+[[!toc levels=2]]
+
+## Overview
+
+There are several possible level of decentralisation:
+
+ 0. [[default setup|rcs/git]], no decentralisation
+ 1. [[a simple HTML mirror|tips/Git_repository_and_web_server_on_different_hosts/]]
+ 2. [[separate ikiwiki and git servers|tips/Hosting_Ikiwiki_and_master_git_repository_on_different_machines]]
+ 3. separate `srcdir`, still requires a central bare repo - uses [[plugins/pinger]]
+ 4. completely distinct ikiwiki installs, synchronised with [[plugins/contrib/gitpush]]
+
+Here's a graphic overview of those:
+
+### Default setup - one central server
+
+[[!img rcs/git/wiki_edit_flow.svg size=400x]]
+
+In the default setup, all the resources are stored on the central
+servers. Users can still clone and edit the git repo by hand and
+contribute by git, but otherwise all the changes happen on a single
+web interface. This basic setup is best described in [[rcs/git]].
+
+### Separate webserver and git repository
+
+[[!img tips/Git_repository_and_web_server_on_different_hosts/separate-webserver.svg size=400x]]
+
+This is the configuration described in
+[[tips/Git_repository_and_web_server_on_different_hosts]]. The webserver part
+hosts the HTML files, the ikiwiki [[cgi]] but everything else is on
+the git server.
+
+### Separate webserver and git repository, the git srcdir being hosted on the webserver
+
+[[!img Hosting_Ikiwiki_and_master_git_repository_on_different_machines/separate-web-git-servers.svg size=400x]]
+
+This is the configuration described in
+[[tips/Hosting_Ikiwiki_and_master_git_repository_on_different_machines]]. One server hosts the web server (and the [[Ikiwiki cgi|cgi]]) and the git source dir; a second server hosts the git bare repository. This can be used when you have very limited access to the git server.
+
+### Decentralised pinger setup
+
+[[!img ping-setup.svg size=400x]]
+
+In this configuration, the mirrors all have their own `srcdir`, but
+still need to push and pull from the same central bare git repo. The
+[[plugins/pinger]] plugin is used to ping the mirrors from the central
+server on edits.
+
+Step by step setup instructions for this are detailed below.
+
+### Fully decentralised setup
+
+[[!img decentralized_wikis.svg size=400x]]
+
+In this configuration, each wiki is fully independent and pushes its
+changes to other wikis using the [[plugins/contrib/gitpush]] plugin.
+
+## Step by step setup instructions
+
+The first two ways of setting up ikiwiki are better described in [[setup]] or [[tips/Git_repository_and_web_server_on_different_hosts]]. The remainder of this page describes the latter two more complex distributed setups. 
+
+Say you have a friend that has already configured a shiny ikiwiki site, and you want to help by creating a mirror. You still need to figure out how to install ikiwiki and everything, hopefully this section will help you with that.
+
+Note that parts of the following documentation duplicate instructions from [[setup]], [[setup/byhand]], [[rcs/git]] and [[tips/laptop_wiki_with_git]].
+
+### Installing ikiwiki
+
+You need to install the ikiwiki package for the mirror to work. You can use ikiwiki to publish the actual HTML pages elsewhere if you don't plan on letting people edit the wiki, but generally you want the package to be installed on the webserver for editing to work.
+
+    apt-get install ikiwiki
+
+### Setting up the wiki
+
+(!) Optionnally: create a user just for this wiki. Otherwise the wiki will run as your user from here on.
+
+We assume your username is `user` and that you will host the wiki under the hostname `mirror.example.com`. The original wiki is at `wiki.example.com`. We also assume that your friend was nice enough to provide a copy of the `.setup` file in the `setup` branch, which is the case for any wiki hosted on [branchable.com](http://branchable.com).
+
+    cd ~user
+    # setup srcdir, named source
+    git clone git://wiki.example.com/ source
+    # convenience copy of the setup file
+    git clone -b origin/setup source setup
+    cd setup
+    edit ikiwiki.setup # adapt configuration
+
+When editing ikiwiki.setup, make sure you change the following entries:
+
+    cgiurl: http://mirror.example.com/ikiwiki.cgi
+    cgi_wrapper: /var/www/ikiwiki.cgi
+    srcdir: /home/user/source
+    destdir: /var/www/mirror.example.com
+    libdir: /home/user/source/.ikiwiki
+    git_wrapper: /home/user/source/.git/hooks/post-commit
+    git_test_receive_wrapper: /home/user/source/.git/hooks/pre-receive
+    ENV:
+      TMPDIR: /home/user/tmp
+
+This assumes that your /var/www directory is writable by your user.
+
+### Basic HTML rendering
+
+You should already be able to make a plain HTML rendering of the wiki:
+
+    ikiwiki --setup ikiwiki.setup
+
+### Webserver configuration
+
+You will also need a webserver to serve the content in the `destdir`
+defined above. We assume you will configure a virtual host named `mirror.example.com`. Here are some examples on how to do those, see [[!iki setup]] and [[!iki tips/dot_cgi]] for complete documentation.
+
+Note that this will also configure CGI so that people can edit the wiki. Note that this configuration may involve timeouts if the main site is down, as ikiwiki will attempt to push to the central git repository at every change.
+
+#### Apache configuration
+
+    <VirtualHost *:80>
+        ServerName mirror.example.com:80
+        DocumentRoot /var/www/mirror.example.com
+        <Directory /var/www/mirror.example.com>
+            Options Indexes MultiViews ExecCGI
+            AllowOverride None
+            Order allow,deny
+            allow from all
+        </Directory>
+        ScriptAlias /ikiwiki.cgi /var/www/ikiwiki.cgi
+        ErrorDocument 404 "/ikiwiki.cgi"
+    </VirtualHost>
+
+#### Nginx configuration
+
+    server {
+        root /var/www/mirror.example.com/;
+        index index.html index.htm;
+        server_name mirror.example.com;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+        location /ikiwiki.cgi {
+            fastcgi_pass  unix:/tmp/fcgi.socket;
+            fastcgi_index ikiwiki.cgi;
+            fastcgi_param SCRIPT_FILENAME   /var/www/ikiwiki.cgi;
+            fastcgi_param  DOCUMENT_ROOT      /var/www/mirror.example.com;
+            include /etc/nginx/fastcgi_params;
+        }
+    }
+
+Start this process as your own user (or the user that has write access
+to `srcdir`, `destdir`, etc):
+
+    spawn-fcgi -s /tmp/fcgi.socket -n -- /usr/sbin/fcgiwrap
+
+Make this writable:
+
+    chmod a+w /tmp/fcgi.socket
+
+### Enable the pinger functionality
+
+At this point, you need to enable the pinger functionality to make sure that changes on the central server propagate to your mirror.
+
+This assumes a central wiki that exposes its git
+repository and has the [[plugins/pinger]] plugin enabled. Enable the
+[[plugins/pingee]] plugin in your configuration, and edit the origin wiki,
+adding a ping directive for your mirror:
+
+	\[[!ping from="http://thewiki.com/"
+	to="http://mymirror.com/ikiwiki.cgi?do=ping"]]
+
+The "from" parameter needs to be the url to the origin wiki. The "to" parameter
+is the url to ping on your mirror. This can be done basically in any page.
+
+Now whenever the main wiki is edited, it will ping your mirror, which will
+pull the changes from "origin" using git, and update itself. It could, in
+turn ping another mirror, etc.
+
+And if someone edits a page on your mirror, it will "git push origin",
+committing the changes back to the origin git repository, and updating the
+origin mirror. Assuming you can push to that git repository. If you can't,
+and you want a mirror, and not a branch, you should disable web edits on
+your mirror. (You could also point the cgiurl for your mirror at the origin
+wiki if you do not want to incur that overhead or do not want to, or can't, run a CGI.)
+
+### Fully decentralized configuration
+
+In the above configuration, the master git repository is still on the main site. If that site goes down, there will be delays when editing the wiki mirror. It could also simply fail because it will not be able to push the changes to the master git repo. An alternative is to setup a local bare repository that is synced with the master.
+
+At the setup step, you need to create *two* git repositories on the mirror:
+
+    cd ~user
+    # setup base repository, named source.git
+    git clone --bare git://wiki.example.com/ source.git
+    # setup srcdir, named source
+    git clone source.git
+    # convenience copy of the setup file
+    git clone -b origin/setup source.git setup
+    cd setup
+    edit ikiwiki.setup # adapt configuration
+
+The following entries will be different from the above setup file:
+
+    git_wrapper: /home/user/source.git/hooks/post-commit
+    git_test_receive_wrapper: /home/user/source.git/hooks/pre-receive
+
+To do this, the mirror needs to push back to the master, using the [[plugins/contrib/gitpush]] plugin:
+
+    git_push_to:
+    - git://wiki.example.com/
+
+This will ensure that commits done on the mirror will propagate back to the master.
+
+## Other ideas
+
+See also:
+
+ * [[setup]]
+ * [[setup/byhand]]
+ * [[rcs/git]]
+ * [[tips/laptop_wiki_with_git]]
+ * [ikiwiki creation notes](http://piny.be/jrayhawk/notes/ikiwiki_creation/)
+
+### Announcing the mirror
+
+Once your mirror works, you can also add it to the list of mirrors. You can ask the mirror where you take it from (and why not, all mirrors) to add it to their setup file. As an example, here's the configuration for the first mirror:
+
+    mirrorlist:
+      example: https://wiki.example.com/
+
+The [[plugins/mirrorlist]] plugin of course needs to be enabled for this to work.
+
+### branching a wiki
+
+It follows that setting up a branch of a wiki is just like the fully decentralised mirror above, except
+we don't want it to push changes back to the origin. The easy way to
+accomplish this is to clone the origin git repository using a readonly
+protocol (ie, "git://"). Then you can't push to it.
+
+If a page on your branch is modified and other modifications are made to
+the same page in the origin, a conflict might occur when that change is
+pulled in. How well will this be dealt with and how to resolve it? I think
+that the conflict markers will just appear on the page as it's rendered in
+the wiki, and if you could even resolve the conflict using the web
+interface. Not 100% sure as I've not gotten into this situation yet.
+
+--[[Joey]]

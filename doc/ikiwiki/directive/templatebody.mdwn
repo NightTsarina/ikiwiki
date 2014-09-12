@@ -1,0 +1,28 @@
+The `templatebody` directive is supplied by the
+[[!iki plugins/templatebody desc=templatebody]] plugin.
+
+This directive allows wiki pages to be used as templates
+for the [[template]] or [[edittemplate]] directive, without having
+[[!cpan HTML::Template]] markup interpreted as wiki markup when that
+page is built.
+
+This directive does not produce any output in the wiki page that
+defines the template; the rest of that page can be used to to document
+how to use the template.
+
+The first, un-named parameter is the content of the template.
+Because templates often contain [[directives|ikiwiki/directive]], it's
+convenient to use the "here-document" syntax for it:
+
+	\[[!templatebody <<ENDBODY
+	[[!meta title="<TMPL_VAR name>"]]
+	[[!tag person]]
+	<dl>
+	<dt>Name:</dt><dd><TMPL_VAR name></dd>
+	<dt>Age:</dt><dd><TMPL_VAR age></dd>
+	</dl>
+
+	<TMPL_VAR description>
+	ENDBODY]]
+
+[[!meta robots="noindex, follow"]]

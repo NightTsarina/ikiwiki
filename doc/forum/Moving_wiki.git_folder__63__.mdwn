@@ -1,0 +1,17 @@
+Hi folks, I created a simple wiki to keep notes and references for projects, it's worked quite nice so far.  I decided to use git as it's what I use daily to manage code, and it's available on all my machines.
+
+Anyway, I wanted to move all the wiki source stuff into a subfolder so that it stops cluttering up my ~ directory.  However, there seems to be a problem with moving wiki.git (I moved wiki, wiki.git and wiki.setup) and I'm not sure where to tell ikiwiki that the git directory has been moved.  I changed 
+
+    srcdir => '/home/pixel/.notebook/wiki',
+    git_wrapper => '/home/pixel/.notebook/wiki.git/hooks/post-update',
+
+and that seems to be fine.  However when I go to run ikiwiki --setup things go wrong:
+
+    pixel@tosh: [~ (ruby-1.9.2-p0)] ➔ ikiwiki -setup .notebook/wiki.setup 
+    successfully generated /home/pixel/public_html/wiki/ikiwiki.cgi
+    successfully generated /home/pixel/.notebook/wiki.git/hooks/post-update
+    fatal: '/home/pixel/wiki.git' does not appear to be a git repository
+    fatal: The remote end hung up unexpectedly
+    'git pull origin' failed:  at /usr/share/perl5/IkiWiki/Plugin/git.pm line 193.
+
+I've gone through wiki.setup and nothing has jumped out as the place to set this, have I missed something?

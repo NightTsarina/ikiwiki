@@ -1,0 +1,37 @@
+this script can be used to convert your existing Movable Type blog/database to a ikiwiki blog.
+
+First, go to your MT Admin panel and purge all spam comments/trackbacks. Then use this script: <http://anti.teamidiot.de/static/nei/*/Code/MovableType/mtdump_to_iki.pl>
+
+If you wrote your posts with markdown already you're pretty much ikiwiki compatible :-)
+
+    DATABASE_NAME=your_mt_database
+    DATABASE_USER=your_mysql_user
+
+    mkdir -p conv/posts
+
+    mysqldump $DATABASE_NAME -v -nt --compatible=ansi,postgresql \\
+      --complete-insert=TRUE --extended-insert=FALSE --compact   \\
+      --default-character-set=UTF8 -u $DATABASE_USER             \\
+    | perl mtdump_to_iki.pl
+
+the script will spit out one file for every post into the conv/posts directory. you can manually clean them up or however you like. next, you must set the output directory where your ikiwiki resides:
+
+    export OUT=$HOME/my_ikiwiki_blog
+
+make sure there is a 'posts' subdirectory inside (default if you start with the blog-setup script)
+
+now you can import one or all posts and comments by running the post file through zsh:
+
+    zsh ./1__my_first_post.mdwn
+
+or to do it all:
+
+    zsh
+    for import (<->__*.*) { zsh $import }
+
+the files will be created in your $OUT directory and committed onto git. now the **important** last step: run
+
+    ikiwiki --gettime --setup your.setup
+
+only with the gettime flag will ikiwiki reread the file dates as recorded in the git. Enjoy!
+

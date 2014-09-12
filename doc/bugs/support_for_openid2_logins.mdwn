@@ -1,0 +1,24 @@
+I have several complaints that users cannot contribute to my ikiwiki instances since they only have OpenID logins that support OpenID2. E.g. Yahoo!'s OpenID only supports 2.0+ 
+
+This is not the fault of ikiwiki, though the problem lies within the [perl openid consumer](http://packages.qa.debian.org/libn/libnet-openid-consumer-perl.html) in Debian which is a 1.x implementation AFAIK.
+
+I've contacted JanRain who have pointed me to:
+
+* [OpenID4Perl](http://code.sxip.com/openid4perl/)
+* Some [work](http://code.sixapart.com/svn/openid/trunk/perl/) by David Recordon
+
+However both Perl OpenID 2.x implementations have not been released and are incomplete implementations. :(
+
+> Both of the projects referenced above have since been released.
+> Net::OpenID::Consumer 0.x in Debian is indeed only an OpenID 1
+> implementation. However, Net::OpenID::Consumer 1.x claims to be
+> an OpenID 2 implementation (it's the second of the projects
+> above). I've filed a bug in Debian asking for the package to be
+> updated. --[[smcv]]
+
+> Net::OpenID::Consumer 1.x is now in Debian unstable --[[dom]]
+
+> I've tested with yahoo, and it works with the updated module. Sweet and
+> [[done]] --[[Joey]] 
+
+## A quick fix for the impatient running stable is simply `sudo apt-get install libnet-openid-consumer-perl -t unstable`

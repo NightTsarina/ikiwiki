@@ -1,0 +1,53 @@
+Disabling some of action URLs is not possible now without creating own
+version of `templates/page.tmpl` file. For example, how to disable
+displaying `EDITURL`, `RECENTCHANGESURL` or `PREFSURL` without
+touching original `page.tmpl` template?
+
+Now I can only enable/disable `HISTORYURL` and `DISCUSSIONLINK`.
+It's not hard for me, but I think that the way to do it can be
+confusing for another Ikiwiki users. For example, if I don't
+want `HISTORYURL`, then I need to comment `historyurl` hash
+in setup file. But if I want to disable discussions, then I need
+to set `discussion=0` there. So, you can see that we don't have
+one common method here.
+
+Maybe Ikiwiki setup file should has more hashes for action URLs,
+for example `edit=[01]`, `recentchanges=[01]`, `prefs=[01]`
+and `history=[01]`?
+
+If you are curious why I need that features, I can clarify it.
+I'm building "parallel" version of my site. It means that I want
+to have one editable version for internal users and second only
+readable version (+ search feature) for external users. I build
+both versions on secure, internal machine from the same pages,
+of course, and separated setup files and different templates.
+The readable version of the site will be rsynced to clustered WWW
+front-ends immediately via `post-commit` hook file or periodically
+by Cron. I haven't decided how to do it yet. --[[Paweł|ptecza]]
+
+> You disable display of recentchanges by disabling that plugin.
+
+>> Thanks for the hint! I didn't think about it :)
+
+> You disable edit and preferences by not enabling a cgiurl at all.
+
+>> Yes, I've just discovered it. Unfortunately I need cgiurl,
+>> because I would like to use searching feature also for read-only
+>> pages.
+
+> Maybe page editing will become a plugin some day, or be made
+> configurable -- there are a few things like searching and websetup
+> (and possibly the poll plugin, aggregate webtrigger, and pingee)
+> that it may make sense to enable a cgi for even if you don't want to
+> allow page editing. --[[Joey]]
+
+>> I'm glad you agree that it may make sense :) --[[Paweł|ptecza]]
+
+>> We're in a similar situation with http://web.monkeysphere.info 
+>> - wanting cgiurl so that our recentchanges page displays links, 
+>> but not wanting to enable editing of pages (since we're also 
+>> rsync'ing the html pages to mirrors) --[[Jamie]]
+
+editpage plugin implemented, [[done]] --[[Joey]]
+
+>> Joey, you're great! Thank you very, very, very much! :D --[[Paweł|ptecza]]

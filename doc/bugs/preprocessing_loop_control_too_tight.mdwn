@@ -1,0 +1,23 @@
+the preprocessing hook makes sure that no infinite loops occur by restricting the depth of nested directives to 3.
+
+this is insufficient in some situations in which sidebars are conditionally assembled from templates.
+
+given there are no limits on the number of directives per page and the number of edits a user can do in a particular time frame, i assume that raising that limit slightly won't make the DoS attacks that can be done against ikiwiki too much worse.
+
+i'd like to suggest 8 as a new value for recursion depth limit. most people can wrap their minds around a depth 3 nested directive setup, but when you reach a depth of 8, it's likely to be easier to write a dedicated plugin.
+
+<code><pre>
+diff --git a/IkiWiki.pm b/IkiWiki.pm
+index 75c9579..ad0f8b0 100644
+--- a/IkiWiki.pm
++++ b/IkiWiki.pm
+@@ -1487 +1487 @@ sub preprocess ($$$;$$) {
+-                       if ($preprocessing{$page}++ > 3) {
++                       if ($preprocessing{$page}++ > 8) {
+</pre></code>
+
+[[!tag patch]]
+
+> [[Seems reasonable|users/smcv/ready]] --smcv
+
+>> [[done]] --[[Joey]]

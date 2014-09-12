@@ -1,0 +1,56 @@
+[[!tag patch done]]
+
+[[plugins/map]] (and I) could benefit from a bonus parameter:
+
+	else="Display this if no page matches the PageSpec"
+
+This was quite simple, so I implemented this (branch "map" in my
+ikiwiki repo, see my user page for the up-to-date URL). Not patched the
+documentation yet, I'm waiting for feedback first, but I'll do it for sure. -- [[intrigeri]]
+
+> Can't a [[plugins/conditional]] be for this?
+> --[[Joey]]
+
+>> Hmmm, what do you mean? Adding a syntax such as the one below?
+>> Or something else?
+
+        \[[!if test="map(" then="..." else="..."]]
+
+>> What would you write in the `then` clause?
+>> I'm not opposed at all to rewrite my two-liner, but I don't understand.
+>> --[[intrigeri]]
+
+	\[[!if  test="foo/*" then="""
+	[[!map pages="foo/*"]]
+	""" else="no pages"]]
+
+--[[Joey]]
+
+>>> I'm not convinced: the syntax you're proposing implies to duplicate
+>>> the pagespec (once in the test clause, and once in the map query), which I find
+>>> not only inelegant, which I can live with, but also tiring and unpractical:
+>>> my `else` suggestion
+>>> finds its roots in map queries with rather long pagespecs. On the other
+>>> hand, if I'm the only one using map in such a way, I can live with this
+>>> heavy duplicated syntax without bloating the map plugin with features
+>>> no-one but me needs. On the other other hand, the patch is a 3-liner.
+>>> I'm not fixed yet, I'll think about it. --[[intrigeri]]
+
+>>>> Write a [[plugins/template]] which accepts a pagespec and an
+>>>> "else" clause, and then you won't have to duplicate the
+>>>> pagespec. --[[JoshTriplett]]
+
+>>>> Yeah, the patch is obviously very simple. My problem with it really is
+>>>> that there would seem to be several other places in ikiwiki where
+>>>> someone might want to be able to handle an "else" case where a
+>>>> pagespec expands to nothing. And adding else cases for all of them
+>>>> could be a bit much. --[[Joey]]
+
+>>>>> Agreed, and tagging as done. For the record, here is the [[plugins/template]] I use:
+
+        \[[!if test="<TMPL_VAR raw_pages>"
+        then="""<TMPL_VAR intro>
+        [[!map pages="<TMPL_VAR raw_pages>"]]"""
+        else="<TMPL_VAR else>"]]
+
+>>>>> --[[intrigeri]]

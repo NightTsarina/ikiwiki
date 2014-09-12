@@ -1,0 +1,19 @@
+The text of comments (and other internal pages) does not get indexed by the
+search plugin.
+
+Search indexes content passed to the postscan hook.
+Comments are inlined, but inline's speed hack avoids adding inlined
+content to the page until the format hook.
+
+And hmm, that's somewhat desirable, because we don't want searches
+to find content that is inlined onto another page.
+
+That suggests that the fix could be to call the postscan hook
+for internal pages. 
+
+However, the search postscan hook tells xapian the page url,
+and uses `urlto($page)` to do it. And that won't work for
+an internal page. Guess it could be modified to tell xapian the
+permalink. --[[Joey]] 
+
+> [[done]] --[[Joey]] 

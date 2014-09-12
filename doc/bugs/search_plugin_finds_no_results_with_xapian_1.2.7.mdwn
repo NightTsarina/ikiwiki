@@ -1,0 +1,14 @@
+I'm using the most recent release of ikiwiki (3.20110905), the Perl shipped with SuSE 11.4 (v5.12.3), and built and installed xapian 1.2.7 from source, as it seems the current stable version that's encouraged for use by xapian.
+
+After enabling the search plugin and pointing ikiwiki to the omega program, rerunning ikiwiki --setup, and attempting a search, all searches return 0 results.  No errors are reported by omindex or ikiwiki while producing the indexes in .ikiwiki/xapian/*, and the files appear to contain the indexed data.  I don't think it's a problem in indexing.
+
+When running omega by hand in the .ikiwiki/xapian directory, providing queries on the command-line, runs correctly but again provides no results.
+
+I found that Debian stable is currently shipping 1.2.3, and on a hunch, I built that version, and searching now works fine.  This looks like the usage of xapian's query template has changed somewhere between 1.2.3 and 1.2.7.  Someone more familiar with xapian's query template language should be able to figure out what needs to be changed more specifically.
+
+> Debian has 1.2.7 now, and I have it installed and searching is working
+> fine with it. --[[Joey]]
+
+> I have this same issue. I tried xapian version 1.2.5. 1.2.8, 1.2.13. I will try and see if installing 1.2.3 fixes this issue. --[[Ramsey]]
+
+> 1.2.3 didn't fix the issue either --[[Ramsey]]
