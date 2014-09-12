@@ -319,10 +319,9 @@ sub prerender {
 		}
 
 		if (defined $pagestate{$trail}{trail}{sort}) {
-			# re-sort
-			@$members = pagespec_match_list($trail, 'internal(*)',
-				list => $members,
-				sort => $pagestate{$trail}{trail}{sort});
+			@$members = IkiWiki::sort_pages(
+				$pagestate{$trail}{trail}{sort},
+				$members);
 		}
 
 		if (IkiWiki::yesno $pagestate{$trail}{trail}{reverse}) {

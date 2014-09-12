@@ -2460,6 +2460,19 @@ sub pagespec_match ($$;@) {
 	return $sub->($page, @params);
 }
 
+# e.g. @pages = sort_pages("title", \@pages, reverse => "yes")
+#
+# Not exported yet, but could be in future if it is generally useful.
+# Note that this signature is not the same as IkiWiki::SortSpec::sort_pages,
+# which is "more internal".
+sub sort_pages ($$;@) {
+	my $sort = shift;
+	my $list = shift;
+	my %params = @_;
+	$sort = sortspec_translate($sort, $params{reverse});
+	return IkiWiki::SortSpec::sort_pages($sort, @$list);
+}
+
 sub pagespec_match_list ($$;@) {
 	my $page=shift;
 	my $pagespec=shift;
