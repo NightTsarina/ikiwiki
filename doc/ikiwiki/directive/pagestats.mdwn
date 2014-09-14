@@ -28,11 +28,14 @@ Or to display a cloud of tags related to Linux, you could use:
 
 	\[[!pagestats pages="tags/* and !tags/linux" among="tagged(linux)"]]
 
-The optional `show` parameter limits display to the specified number of
+The optional `limit` parameter limits display to the specified number of
 pages. For instance, to show a table of the top ten pages with the most
 links:
 
-	\[[!pagestats style="table" show="10"]]
+	\[[!pagestats style="table" limit="10"]]
+
+In older versions of IkiWiki this parameter was called `show`;
+that name still works, if its value is numeric.
 
 The optional `class` parameter can be used to control the class
 of the generated tag cloud `div` or page stats `table`.

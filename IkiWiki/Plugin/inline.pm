@@ -180,11 +180,22 @@ sub preprocess_inline (@) {
 	my $feeds=exists $params{feeds} ? yesno($params{feeds}) : !$quick && ! $raw;
 	my $emptyfeeds=exists $params{emptyfeeds} ? yesno($params{emptyfeeds}) : 1;
 	my $feedonly=yesno($params{feedonly});
-	if (! exists $params{show} && ! $archive) {
-		$params{show}=10;
+
+	# Backwards compatibility
+	if (defined $params{show} && $params{show} =~ m/^\d+$/) {
+		$params{limit} = $params{show};
+		delete $params{show};
 	}
-	if (! exists $params{feedshow} && exists $params{show}) {
-		$params{feedshow}=$params{show};
+	if (defined $params{feedshow} && $params{feedshow} =~ m/^\d+$/) {
+		$params{feedlimit} = $params{feedshow};
+		delete $params{feedshow};
+	}
+
+	if (! exists $params{limit} && ! $archive) {
+		$params{limit}=10;
+	}
+	if (! exists $params{feedlimit} && exists $params{limit}) {
+		$params{feedlimit}=$params{limit};
 	}
 	my $title;
 	if (exists $params{title}) {
@@ -232,11 +243,11 @@ sub preprocess_inline (@) {
 	}
 	else {
 		my $num=0;
-		if ($params{show}) {
-			$num=$params{show};
+		if ($params{limit}) {
+			$num=$params{limit};
 		}
-		if ($params{feedshow} && $num < $params{feedshow} && $num > 0) {
-			$num=$params{feedshow};
+		if ($params{feedlimit} && $num < $params{feedlimit} && $num > 0) {
+			$num=$params{feedlimit};
 		}
 		if ($params{skip} && $num) {
 			$num+=$params{skip};
@@ -257,17 +268,17 @@ sub preprocess_inline (@) {
 	
 	my @feedlist;
 	if ($feeds) {
-		if (exists $params{feedshow} &&
-		    $params{feedshow} && @list > $params{feedshow}) {
-			@feedlist=@list[0..$params{feedshow} - 1];
+		if (exists $params{feedlimit} &&
+		    $params{feedlimit} && @list > $params{feedlimit}) {
+			@feedlist=@list[0..$params{feedlimit} - 1];
 		}
 		else {
 			@feedlist=@list;
 		}
 	}
 	
-	if ($params{show} && @list > $params{show}) {
-		@list=@list[0..$params{show} - 1];
+	if ($params{limit} && @list > $params{limit}) {
+		@list=@list[0..$params{limit} - 1];
 	}
 
 	if ($feeds && exists $params{feedpages}) {

@@ -20,9 +20,10 @@ sub write_old_file {
 write_old_file("protagonists.mdwn",
 	'[[!inline pages="protagonists/*" rootpage="protagonists/new"]]');
 write_old_file("friends.mdwn",
-	'[[!inline pages="friends/*" postform=yes sort=title show=2]]');
+	'[[!inline pages="friends/*" postform=yes sort=title limit=2]]');
 write_old_file("antagonists.mdwn",
 	'[[!inline pages="antagonists/*"]]');
+# using old spelling of "limit" ("show") to verify backwards compat
 write_old_file("enemies.mdwn",
 	'[[!inline pages="enemies/*" postform=no rootpage=enemies sort=title reverse=yes show=2]]');
 foreach my $page (qw(protagonists/shepard protagonists/link
@@ -53,7 +54,7 @@ like($blob, qr{<input type="hidden" name="from" value="friends"},
 like($blob, qr[this page is {friends/garrus}.*this page is {friends/liara}]s,
 	'first two pages in desired sort order are present');
 unlike($blob, qr{friends/(?:midna|telma)},
-	'pages excluded by show should not be present');
+	'pages excluded by limit should not be present');
 
 $blob = readfile("t/tmp/out/antagonists.html");
 unlike($blob, qr{Add a new post}, 'default is no postform');
