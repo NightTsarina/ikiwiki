@@ -52,3 +52,14 @@ As I am not sure that remembering `PERL5LIB` is a good idea, I think that a pret
 > in having it in the storable too?
 >
 > --[[smcv]]
+
+Happy to make the escaping change, thanks for the sharp eye.
+
+My thinking on `delete` is once it's handled, it's handled. The C code
+is going to put this straight into the real environment and then do
+a simple `exec` ... is there any way this hasn't been handled?
+
+It just takes up space twice in the generated wrapper otherwise.
+Admittedly it's not much space, but seems to be even less point ... ?
+
+-- Chap
