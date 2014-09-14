@@ -31,3 +31,24 @@ As I am not sure that remembering `PERL5LIB` is a good idea, I think that a pret
 [This change](https://github.com/jcflack/ikiwiki/commit/bc4721da0441a30822225c51b250be4cc5f8af24) moves the `%config{ENV}` handling earlier in the wrapper, so anything specified there is placed back in the actual environment before Perl gets control. Problem solved!
 
 -- Chap
+
+> Thanks, this looks like a nicer solution than the above. Some review:
+>
+>     + $val =~ s/([\\"])/\\$1/g;
+>
+> This is *probably* OK, because the configuration is unlikely to include
+> non-ASCII, but I'd prefer something that covers all possibilities,
+> like this:
+>
+>     my $tmp = $val;
+>     utf8::encode($tmp) if utf8::is_utf8($tmp);
+>     $tmp =~ s/([^A-Za-z0-9])/sprintf "\\x%02x", $1/ge;
+>
+> and then passing $tmp to addenv.
+>
+>     + delete $config{ENV};
+>
+> I don't think this is particularly necessary: there doesn't seem any harm
+> in having it in the storable too?
+>
+> --[[smcv]]
