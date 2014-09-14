@@ -20,16 +20,17 @@ sub write_old_file {
 write_old_file("protagonists.mdwn",
 	'[[!inline pages="protagonists/*" rootpage="protagonists/new"]]');
 write_old_file("friends.mdwn",
-	'[[!inline pages="friends/*" postform=yes]]');
+	'[[!inline pages="friends/*" postform=yes sort=title show=2]]');
 write_old_file("antagonists.mdwn",
 	'[[!inline pages="antagonists/*"]]');
 write_old_file("enemies.mdwn",
-	'[[!inline pages="enemies/*" postform=no rootpage=enemies]]');
+	'[[!inline pages="enemies/*" postform=no rootpage=enemies sort=title reverse=yes show=2]]');
 foreach my $page (qw(protagonists/shepard protagonists/link
 		antagonists/saren antagonists/ganondorf
-		friends/liara friends/midna
-		enemies/benezia enemies/zant)) {
-	write_old_file("$page.mdwn", "this page is *$page*");
+		friends/garrus friends/liara friends/midna friends/telma
+		enemies/benezia enemies/geth enemies/rachni
+		enemies/zant)) {
+	write_old_file("$page.mdwn", "this page is {$page}");
 }
 
 ok(! system("make -s ikiwiki.out"));
@@ -49,11 +50,19 @@ $blob = readfile("t/tmp/out/friends.html");
 like($blob, qr{Add a new post}, 'postform=yes forces postform');
 like($blob, qr{<input type="hidden" name="from" value="friends"},
 	'implicit rootpage is /friends');
+like($blob, qr[this page is {friends/garrus}.*this page is {friends/liara}]s,
+	'first two pages in desired sort order are present');
+unlike($blob, qr{friends/(?:midna|telma)},
+	'pages excluded by show should not be present');
 
 $blob = readfile("t/tmp/out/antagonists.html");
 unlike($blob, qr{Add a new post}, 'default is no postform');
 
 $blob = readfile("t/tmp/out/enemies.html");
 unlike($blob, qr{Add a new post}, 'postform=no forces no postform');
+like($blob, qr[this page is {enemies/zant}.*this page is {enemies/rachni}]s,
+	'first two pages in reversed sort order are present');
+unlike($blob, qr{enemies/(?:benezia|geth)},
+	'pages excluded by show should not be present');
 
 done_testing;
