@@ -8,7 +8,7 @@ BEGIN {
 	}
 }
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -19,4 +19,8 @@ $config{add_plugins}=[qw(rst)];
 IkiWiki::loadplugins();
 IkiWiki::checkconfig();
 
-ok(IkiWiki::htmlize("foo", "foo", "rst", "foo\n") =~ m{\s*<p>foo</p>\s*});
+like(IkiWiki::htmlize("foo", "foo", "rst", "foo\n"), qr{\s*<p>foo</p>\s*});
+# regression test for [[bugs/rst fails on file containing only a number]]
+my $html = IkiWiki::htmlize("foo", "foo", "rst", "11");
+$html =~ s/<[^>]*>//g;
+like($html, qr{\s*11\s*});
