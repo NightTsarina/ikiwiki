@@ -34,14 +34,14 @@ sub getsetup () {
 sub linktext ($%) {
 	# Return the text of the link to a tag, depending on option linktext.
 	my ($page, %params) = @_;
-  if (exists $params{disp} && 
-      exists $pagestate{$page} &&
-      exists $pagestate{$page}{meta}{$params{disp}}) {
-    return $pagestate{$page}{meta}{$params{disp}};
-  }
-  else {
-    return undef;
-  }
+	if (exists $params{disp} &&
+		exists $pagestate{$page} &&
+		exists $pagestate{$page}{meta}{$params{disp}}) {
+		return $pagestate{$page}{meta}{$params{disp}};
+	}
+	else {
+		return undef;
+	}
 }
 
 sub preprocess (@) {
