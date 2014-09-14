@@ -26,3 +26,8 @@ This brutal patch implement your solution as a temporary fix.
 As I am not sure that remembering `PERL5LIB` is a good idea, I think that a prettier solution will be to add a config variable (let's say `cgi_wrapper_perllib`) which, if fixed, contains the `PERL5LIB` value to include in the wrapper, or another (let's say `cgi_wrapper_remember_libdir`), which, if fixed, remember the current `PERL5LIB`.
 
 -- Bruno
+
+**Update:** I had not seen this bug earlier, but I ran into the same issue and made a more general solution. You can already add stuff to `%config{ENV}` in the setup file, but it was being processed too late for `PERL5LIB` to do any good.
+[This change](https://github.com/jcflack/ikiwiki/commit/bc4721da0441a30822225c51b250be4cc5f8af24) moves the `%config{ENV}` handling earlier in the wrapper, so anything specified there is placed back in the actual environment before Perl gets control. Problem solved!
+
+-- Chap
