@@ -1,0 +1,25 @@
+The new regression test from [[plugins/img]] fails when I try to build
+ikiwiki in sbuild for a release (with commits from my `img-test` branch
+also included, in an attempt to fix this):
+
+    Use of uninitialized value in numeric eq (==) at IkiWiki/Plugin/img.pm line 93.
+    Use of uninitialized value in numeric lt (<) at IkiWiki/Plugin/img.pm line 110.
+    Use of uninitialized value in numeric eq (==) at IkiWiki/Plugin/img.pm line 93.
+    Use of uninitialized value in numeric lt (<) at IkiWiki/Plugin/img.pm line 110.
+    
+    #   Failed test at t/img.t line 78.
+    #          got: 'no image'
+    #     expected: '12x12'
+    
+    #   Failed test at t/img.t line 79.
+    #          got: 'no image'
+    #     expected: '16x2'
+    # Looks like you failed 2 tests of 18.
+    t/img.t ...................... 
+    Dubious, test returned 2 (wstat 512, 0x200)
+    Failed 2/18 subtests 
+
+I haven't been able to diagnose what else is wrong there yet.
+
+If anyone needs to release ikiwiki in a hurry, please delete that test
+and we can put it back later. --[[smcv]]
