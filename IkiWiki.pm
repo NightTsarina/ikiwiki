@@ -2638,6 +2638,9 @@ sub influences {
 # { bar => DEPEND_LINKS } is an influence on that result, because changing
 # bar's links could change the outcome; so its influences are not the same
 # as when testing whether link(foo) matches baz.
+#
+# Static influences are one of the things that make pagespec_match_list
+# more efficient than repeated calls to pagespec_match.
 
 sub influences_static {
 	return ! $_[0][1]->{""};
