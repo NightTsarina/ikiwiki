@@ -74,6 +74,19 @@ like mine will blacklist it.
 > but malicious script authors will have no such qualms, so I would
 > argue that your provider's strategy is already doomed... --[[smcv]]
 
+>> I agree, and I'll ask them to fix it (and probably refer them to this page).
+>> One reason they still have my business is that their customer service has
+>> been notably good; I always get a response from a human on the first try,
+>> and on the first or second try from a human who understands what I'm saying
+>> and is able to fix it. I've dealt with organizations not like that....
+>>
+>> But I included the note here because I'm sure if _they're_ doing it, there's
+>> probably some nonzero number of other hosting providers where it's also
+>> happening, so a person setting up OpenID and being baffled by this failure
+>> needs to know to check for it. Also, while the world of user-agent strings
+>> can't have anything but relatively luckier and unluckier choices, maybe
+>> `libwww/perl` is an especially unlucky one?
+
 ## Error: OpenID failure: naive_verify_failed_network: Could not contact ID provider to verify response.
 
 Again, this could have various causes. It was helpful to bump the debug level
@@ -164,6 +177,12 @@ Then a recent `Net::SSLeay` perl module needs to be built and linked against it.
 > change-averse distribution backporting security fixes to ye olde branch,
 > but equally it might be as bad as it seems at first glance.
 > "Let the buyer beware", I think... --[[smcv]]
+
+>> As far as I can tell, this particular provider _is_ on Red Hat (EL 5).
+>> I can't conclusively tell because I'm in what appears to be a CloudLinux container when I'm in,
+>> and certain parts of the environment (like `rpm`) I can't see. But everything
+>> I _can_ see is like several RHEL5 boxen I know and love.
+
 
 ### Local OpenSSL installation will need certs to trust
 
