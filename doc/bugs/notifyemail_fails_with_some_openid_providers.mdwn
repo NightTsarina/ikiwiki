@@ -95,3 +95,11 @@ Any other ideas? --[[anarcat]]
 >>>> this doesn't seem to be a very big security issue that would merit implementing a new verification mechanism, especially since we don't verify email addresses on accounts right now. what we could do however is allow password authentication on openid accounts, and allow those users to actually change settings like their email addresses. however, I don't think this should be blocking that functionality right now. --[[anarcat]]
 >>>>
 >>>> besides, the patch I am proposing doesn't make the vulnerability worse at all, it exists right now without the patch. my patch only allows users that **don't** have an email set (likely because their openid provider is more discreet) to set one... --[[anarcat]]
+
+>>>>> Maybe this is too much paint for one bikeshed, but I guess the email-verification idea seems worthwhile to me
+>>>>> and not terribly hard to implement (though I'm not stepping forward at the moment) ... store it with a flag
+>>>>> saying whether it's verified, send a magic cookie to it, let the user supply the cookie to toggle the flag.
+>>>>> I could also see leaving the email field hidden for OpenID login, but perhaps detecting the first use of a new
+>>>>> OpenID (it's not in the userdb, right?) and suggesting a stop on the preferences page, where if the provider
+>>>>> did supply an e-mail address, it could be already filled in as default (maybe still unverified if we don't want
+>>>>> to assume the provider did that). -- Chap
