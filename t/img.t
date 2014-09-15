@@ -18,18 +18,30 @@ use Test::More;
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("Image::Magick"); }
 
+my $magick = new Image::Magick;
+my $SVGS_WORK = defined $magick->QueryFormat("svg");
+
 ok(! system("rm -rf t/tmp; mkdir -p t/tmp/in"));
 
 ok(! system("cp t/img/redsquare.png t/tmp/in/redsquare.png"));
-writefile("emptysquare.svg", "t/tmp/in", '<svg width="30" height="30"/>');
+
+if ($SVGS_WORK) {
+	writefile("emptysquare.svg", "t/tmp/in", '<svg width="30" height="30"/>');
+}
+
 # using different image sizes for different pages, so the pagenumber selection can be tested easily
 ok(! system("cp t/img/twopages.pdf t/tmp/in/twopages.pdf"));
+
+my $maybe_svg_img = "";
+if ($SVGS_WORK) {
+	$maybe_svg_img = "[[!img emptysquare.svg size=10x]]";
+}
 
 writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
 [[!img redsquare.png]]
 [[!img redsquare.png size=10x]]
 [[!img redsquare.png size=30x50]] expecting 30x30
-[[!img emptysquare.svg size=10x]]
+$maybe_svg_img
 [[!img twopages.pdf size=12x]]
 [[!img twopages.pdf size=16x pagenumber=1]]
 EOF
@@ -57,8 +69,12 @@ my $outhtml = readfile("$outpath.html");
 is(size("$outpath/10x-redsquare.png"), "10x10");
 ok(! -e "$outpath/30x-redsquare.png");
 ok($outhtml =~ /width="30" height="30".*expecting 30x30/);
-# if this fails, you need libmagickcore-6.q16-2-extra installed
-is(size("$outpath/10x-emptysquare.png"), "10x10");
+
+if ($SVGS_WORK) {
+	# if this fails, you need libmagickcore-6.q16-2-extra installed
+	is(size("$outpath/10x-emptysquare.png"), "10x10");
+}
+
 is(size("$outpath/12x-twopages.png"), "12x12");
 is(size("$outpath/16x-p1-twopages.png"), "16x2");
 
