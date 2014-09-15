@@ -89,3 +89,9 @@ Any other ideas? --[[anarcat]]
 >>> willing to send notifications to a verified address?
 >>>
 >>> --[[smcv]]
+>>>
+>>>> hmm... true, that is a problem, especially for hostile wikis. but then any hostile site could send you such garbage - they would be spammers then. otherwise, you could ask the site manager to disable that account...
+>>>>
+>>>> this doesn't seem to be a very big security issue that would merit implementing a new verification mechanism, especially since we don't verify email addresses on accounts right now. what we could do however is allow password authentication on openid accounts, and allow those users to actually change settings like their email addresses. however, I don't think this should be blocking that functionality right now. --[[anarcat]]
+>>>>
+>>>> besides, the patch I am proposing doesn't make the vulnerability worse at all, it exists right now without the patch. my patch only allows users that **don't** have an email set (likely because their openid provider is more discreet) to set one... --[[anarcat]]
