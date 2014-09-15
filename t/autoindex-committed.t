@@ -3,7 +3,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
-use Test::More tests => 50;
+use Test::More tests => 43;
 
 BEGIN { use_ok("IkiWiki"); }
 BEGIN { use_ok("IkiWiki::Render"); }
@@ -26,7 +26,7 @@ $config{userdir} = "users";
 $config{tagbase} = "tags";
 $config{default_pageext} = "mdwn";
 $config{wiki_file_prune_regexps} = [qr/^\./];
-$config{autoindex_commit} = 0;
+$config{autoindex_commit} = 1;
 
 is(checkconfig(), 1);
 
@@ -54,15 +54,15 @@ $pagemtime{"has_internal/internal"} = 123456789;
 $pagectime{"has_internal/internal"} = 123456789;
 writefile("has_internal/internal._aggregated", "t/tmp/in", "this page is internal");
 
-# a directory containing only a page in an underlay is now indexed
-# (see [[transient autocreated tagbase is not transient autoindexed]])
+# a directory containing only a page in an underlay shouldn't be indexed
+# (arguably; see [[transient autocreated tagbase is not transient autoindexed]])
 $pagesources{"has_underlay/underlay"} = "has_underlay/underlay.mdwn";
 $pagemtime{"has_underlay/underlay"} = 123456789;
 $pagectime{"has_underlay/underlay"} = 123456789;
 writefile("has_underlay/underlay.mdwn", "t/tmp/underlay", "this page is in an underlay");
 
-# a directory containing only a transient page is now indexed
-# (see [[transient autocreated tagbase is not transient autoindexed]])
+# a directory containing only a transient page shouldn't be indexed
+# (arguably; see [[transient autocreated tagbase is not transient autoindexed]])
 $pagesources{"has_transient/transient"} = "has_transient/transient.mdwn";
 $pagemtime{"has_transient/transient"} = 123456789;
 $pagectime{"has_transient/transient"} = 123456789;
@@ -117,36 +117,24 @@ ok(! exists $wikistate{autoindex}{autofile}{"has_internal.mdwn"});
 ok(! exists $autofiles{"has_internal.mdwn"});
 ok(! -f "t/tmp/in/has_internal.mdwn");
 
-# a directory containing only a page in an underlay is now indexed
-# (see [[transient autocreated tagbase is not transient autoindexed]])
+# a directory containing only a page in an underlay shouldn't be indexed
+# (arguably; see [[transient autocreated tagbase is not transient autoindexed]])
 ok(! exists $wikistate{autoindex}{autofile}{"has_underlay.mdwn"});
-is($autofiles{"has_underlay.mdwn"}{plugin}, "autoindex");
-%pages = ();
-@del = ();
-IkiWiki::gen_autofile("has_underlay.mdwn", \%pages, \@del);
-is_deeply(\%pages, {"t/tmp/in/has_underlay" => 1});
-is_deeply(\@del, []);
+ok(! exists $autofiles{"has_underlay.mdwn"});
 ok(! -f "t/tmp/in/has_underlay.mdwn");
-ok(-s "t/tmp/in/.ikiwiki/transient/has_underlay.mdwn");
 
-# a directory containing only a transient page is now indexed
-# (see [[transient autocreated tagbase is not transient autoindexed]])
+# a directory containing only a transient page shouldn't be indexed
+# (arguably; see [[transient autocreated tagbase is not transient autoindexed]])
 ok(! exists $wikistate{autoindex}{autofile}{"has_transient.mdwn"});
-is($autofiles{"has_transient.mdwn"}{plugin}, "autoindex");
-%pages = ();
-@del = ();
-IkiWiki::gen_autofile("has_transient.mdwn", \%pages, \@del);
-is_deeply(\%pages, {"t/tmp/in/has_transient" => 1});
-is_deeply(\@del, []);
+ok(! exists $autofiles{"has_transient.mdwn"});
 ok(! -f "t/tmp/in/has_transient.mdwn");
-ok(-s "t/tmp/in/.ikiwiki/transient/has_transient.mdwn");
 
 # this page was re-created, but that no longer gets a special case
 # (see [[todo/autoindex_should_use_add__95__autofile]]) so it's the same as
 # deleted
 is($wikistate{autoindex}{autofile}{"reinstated.mdwn"}, 1);
 ok(! exists $autofiles{"reinstated.mdwn"});
-ok(! -f "t/tmp/in/.ikiwiki/transient/reinstated.mdwn");
+ok(! -f "t/tmp/in/reinstated.mdwn");
 
 # needs creating (deferred; part of the autofile mechanism now)
 ok(! exists $wikistate{autoindex}{autofile}{"tags.mdwn"});
@@ -156,8 +144,7 @@ is($autofiles{"tags.mdwn"}{plugin}, "autoindex");
 IkiWiki::gen_autofile("tags.mdwn", \%pages, \@del);
 is_deeply(\%pages, {"t/tmp/in/tags" => 1});
 is_deeply(\@del, []);
-ok(! -s "t/tmp/in/tags.mdwn");
-ok(-s "t/tmp/in/.ikiwiki/transient/tags.mdwn");
+ok(-s "t/tmp/in/tags.mdwn");
 
 # needs creating because of an attachment
 ok(! exists $wikistate{autoindex}{autofile}{"attached.mdwn"});
@@ -167,6 +154,6 @@ is($autofiles{"attached.mdwn"}{plugin}, "autoindex");
 IkiWiki::gen_autofile("attached.mdwn", \%pages, \@del);
 is_deeply(\%pages, {"t/tmp/in/attached" => 1});
 is_deeply(\@del, []);
-ok(-s "t/tmp/in/.ikiwiki/transient/attached.mdwn");
+ok(-s "t/tmp/in/attached.mdwn");
 
 1;

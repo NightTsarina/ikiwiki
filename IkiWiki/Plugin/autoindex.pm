@@ -71,7 +71,6 @@ sub refresh () {
 
 	my (%pages, %dirs);
 	foreach my $dir ($config{srcdir}, @{$config{underlaydirs}}, $config{underlaydir}) {
-		next if $dir eq $IkiWiki::Plugin::transient::transientdir;
 		chdir($dir) || next;
 
 		find({
@@ -90,7 +89,7 @@ sub refresh () {
 					if (! -d _) {
 						$pages{pagename($f)}=1;
 					}
-					elsif ($dir eq $config{srcdir}) {
+					elsif ($dir eq $config{srcdir} || ! $config{autoindex_commit}) {
 						$dirs{$f}=1;
 					}
 				}
