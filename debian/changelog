@@ -18,6 +18,10 @@ ikiwiki (3.20140912) UNRELEASED; urgency=medium
   * Fix aspect ratio when scaling small images, and add support for
     converting SVG and PDF graphics to PNG.
     Thanks, chrysn
+  * In the CGI wrapper, incorporate $config{ENV} into the environment
+    before executing Perl code, so that PERL5LIB can point to a
+    non-system-wide installation of IkiWiki.
+    Thanks, Lafayette Chamber Singers Webmaster
 
  -- Simon McVittie <smcv@debian.org>  Fri, 12 Sep 2014 21:23:58 +0100
 
