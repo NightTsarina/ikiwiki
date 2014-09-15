@@ -52,12 +52,25 @@ sub gen_wrapper () {
 		       HTTP_COOKIE REMOTE_USER HTTPS REDIRECT_STATUS
 		       HTTP_HOST SERVER_PORT HTTPS HTTP_ACCEPT
 		       REDIRECT_URL} if $config{cgi};
+	my $envsize=$#envsave;
 	my $envsave="";
 	foreach my $var (@envsave) {
 		$envsave.=<<"EOF";
 	if ((s=getenv("$var")))
 		addenv("$var", s);
 EOF
+	}
+	if (ref $config{ENV} eq 'HASH') {
+		foreach my $key (keys %{$config{ENV}}) {
+			my $val=$config{ENV}{$key};
+			utf8::encode($val) if utf8::is_utf8($val);
+			$val =~ s/([^A-Za-z0-9])/sprintf '""\\x%02x""', ord($1)/ge;
+			$envsize += 1;
+			$envsave.=<<"EOF";
+	addenv("$key", "$val");
+EOF
+		}
+		delete $config{ENV};
 	}
 	
 	my @wrapper_hooks;
@@ -171,7 +184,7 @@ EOF
 #include <sys/file.h>
 
 extern char **environ;
-char *newenviron[$#envsave+7];
+char *newenviron[$envsize+7];
 int i=0;
 
 void addenv(char *var, char *val) {
