@@ -14,8 +14,10 @@ easy to learn. All you really need to know to modify templates is this:
 [[!if test="enabled(template) or enabled(edittemplate)" then="""
 ## template pages
 
-Template pages are regular wiki pages that are used as templates for other
-pages.
+Template pages are regular wiki pages containing a
+[[!iki ikiwiki/directive/templatebody desc="templatebody directive"]],
+used as templates for other pages. The parts of the template
+page outside the directive can be used to document it.
 """]]
 
 [[!if test="enabled(template)" then="""
@@ -37,6 +39,9 @@ These template pages are currently available:
 feeds=no archive=yes sort=title template=titlepage
 rootpage=templates postformtext="Add a new template page named:"]]
 """]]
+
+If the template does not contain a `templatebody` directive, the entire
+source of the page is used for the template. This is deprecated.
 
 ## template files
 

@@ -6,7 +6,7 @@ use warnings;
 use strict;
 use IkiWiki;
 
-my (%backlinks, %rendered);
+my (%backlinks, %rendered, %scanned);
 our %brokenlinks;
 my $links_calculated=0;
 
@@ -154,6 +154,8 @@ sub genpage ($$) {
 
 sub scan ($) {
 	my $file=shift;
+	return if $phase > PHASE_SCAN || $scanned{$file};
+	$scanned{$file}=1;
 
 	debug(sprintf(gettext("scanning %s"), $file));
 
@@ -825,6 +827,8 @@ sub gen_autofile ($$$) {
 }
 
 sub refresh () {
+	$phase = PHASE_SCAN;
+
 	srcdir_check();
 	run_hooks(refresh => sub { shift->() });
 	my ($files, $pages, $new, $internal_new, $del, $internal_del, $changed, $internal_changed);
@@ -876,7 +880,13 @@ sub refresh () {
 	}
 
 	calculate_links();
-	
+
+	# At this point it becomes OK to start matching pagespecs.
+	$phase = PHASE_RENDER;
+	# Save some memory: we no longer need to keep track of which pages
+	# we've scanned
+	%scanned = ();
+
 	remove_del(@$del, @$internal_del);
 
 	foreach my $file (@$changed) {
@@ -939,6 +949,10 @@ sub commandline_render () {
 	lockwiki();
 	loadindex();
 	unlockwiki();
+
+	# This function behaves as though it's in the render phase;
+	# all other files are assumed to have been scanned last time.
+	$phase = PHASE_RENDER;
 
 	my $srcfile=possibly_foolish_untaint($config{render});
 	my $file=$srcfile;

@@ -211,6 +211,29 @@ them to `%links`. Present in IkiWiki 2.40 and later.
 The function is passed named parameters "page" and "content". Its return
 value is ignored.
 
+### <a name="readtemplate">readtemplate</a>
+
+	hook(type => "readtemplate", id => "foo", call => \&readtemplate);
+
+Runs on the raw source of a page or `*.tmpl` file that is being
+used as a template, before it is parsed by [[!cpan HTML::Template]].
+For instance, the [[plugins/templatebody]] plugin uses this to return
+the content of the [[ikiwiki/directive/templatebody]] directive (if there
+is one) instead of the page's full content.
+
+The function is passed named parameters:
+
+* `id`: the name under which the template was looked up,
+  such as `page.tmpl` or `note`
+* `page`: the name of the template as a page or attachment in the wiki,
+  such as `templates/note`, or `undef` if it's outside the wiki (e.g. in
+  `/usr/share/ikiwiki/templates`)
+* `content`: the content of the corresponding file
+* `untrusted`: true if the template was loaded from the wiki or an underlay,
+  false if it was loaded from a trusted location
+
+It should return the replacement content.
+
 ### <a name="filter">filter</a>
 
 	hook(type => "filter", id => "foo", call => \&filter);

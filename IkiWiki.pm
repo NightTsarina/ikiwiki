@@ -14,7 +14,7 @@ use vars qw{%config %links %oldlinks %pagemtime %pagectime %pagecase
 	%pagestate %wikistate %renderedfiles %oldrenderedfiles
 	%pagesources %delpagesources %destsources %depends %depends_simple
 	@mass_depends %hooks %forcerebuild %loaded_plugins %typedlinks
-	%oldtypedlinks %autofiles @underlayfiles $lastrev};
+	%oldtypedlinks %autofiles @underlayfiles $lastrev $phase};
 
 use Exporter q{import};
 our @EXPORT = qw(hook debug error htmlpage template template_depends
@@ -33,6 +33,11 @@ our $installdir='/usr'; # INSTALLDIR_AUTOREPLACE done by Makefile, DNE
 our $DEPEND_CONTENT=1;
 our $DEPEND_PRESENCE=2;
 our $DEPEND_LINKS=4;
+
+# Phases of processing.
+sub PHASE_SCAN () { 0 }
+sub PHASE_RENDER () { 1 }
+$phase = PHASE_SCAN;
 
 # Optimisation.
 use Memoize;
@@ -152,7 +157,8 @@ sub getsetup () {
 		type => "internal",
 		default => [qw{mdwn link inline meta htmlscrubber passwordauth
 				openid signinedit lockedit conditional
-				recentchanges parentlinks editpage}],
+				recentchanges parentlinks editpage
+				templatebody}],
 		description => "plugins to enable by default",
 		safe => 0,
 		rebuild => 1,
@@ -2022,11 +2028,19 @@ sub template_depends ($$;@) {
 	if (defined $page && defined $tpage) {
 		add_depends($page, $tpage);
 	}
-	
+
 	my @opts=(
 		filter => sub {
 			my $text_ref = shift;
 			${$text_ref} = decode_utf8(${$text_ref});
+			run_hooks(readtemplate => sub {
+				${$text_ref} = shift->(
+					id => $name,
+					page => $tpage,
+					content => ${$text_ref},
+					untrusted => $untrusted,
+				);
+			});
 		},
 		loop_context_vars => 1,
 		die_on_bad_params => 0,
