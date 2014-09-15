@@ -2578,20 +2578,47 @@ our @ISA = 'IkiWiki::SuccessReason';
 
 package IkiWiki::SuccessReason;
 
+# A blessed array-ref:
+#
+# [0]: human-readable reason for success (or, in FailReason subclass, failure)
+# [1]{""}:
+#      - if absent or false, the influences of this evaluation are "static",
+#        see the influences_static method
+#      - if true, they are dynamic (not static)
+# [1]{any other key}:
+#      the dependency types of influences, as returned by the influences method
+
 use overload (
+	# in string context, it's the human-readable reason
 	'""'	=> sub { $_[0][0] },
+	# in boolean context, SuccessReason is 1 and FailReason is 0
 	'0+'	=> sub { 1 },
+	# negating a result gives the opposite result with the same influences
 	'!'	=> sub { bless $_[0], 'IkiWiki::FailReason'},
+	# A & B = (A ? B : A) with the influences of both
 	'&'	=> sub { $_[1]->merge_influences($_[0], 1); $_[1] },
+	# A | B = (A ? A : B) with the influences of both
 	'|'	=> sub { $_[0]->merge_influences($_[1]); $_[0] },
 	fallback => 1,
 );
+
+# SuccessReason->new("human-readable reason", page => deptype, ...)
 
 sub new {
 	my $class = shift;
 	my $value = shift;
 	return bless [$value, {@_}], $class;
 }
+
+# influences(): return a reference to a copy of the hash
+# { page => dependency type } describing the pages that indirectly influenced
+# this result, but would not cause a dependency through ikiwiki's core
+# dependency logic.
+#
+# See [[todo/dependency_types]] for extensive discussion of what this means.
+#
+# influences(page => deptype, ...): remove all influences, replace them
+# with the arguments, and return a reference to a copy of the new influences.
 
 sub influences {
 	my $this=shift;
@@ -2601,15 +2628,43 @@ sub influences {
 	return \%i;
 }
 
+# True if this result has the same influences whichever page it matches,
+# For instance, whether bar matches backlink(foo) is influenced only by
+# the set of links in foo, so its only influence is { foo => DEPEND_LINKS },
+# which does not mention bar anywhere.
+#
+# False if this result would have different influences when matching
+# different pages. For instance, when testing whether link(foo) matches bar,
+# { bar => DEPEND_LINKS } is an influence on that result, because changing
+# bar's links could change the outcome; so its influences are not the same
+# as when testing whether link(foo) matches baz.
+
 sub influences_static {
 	return ! $_[0][1]->{""};
 }
+
+# Change the influences of $this to be the influences of "$this & $other"
+# or "$this | $other".
+#
+# If both $this and $other are either successful or have influences,
+# or this is an "or" operation, the result has all the influences from
+# either of the arguments. It has dynamic influences if either argument
+# has dynamic influences.
+#
+# If this is an "and" operation, and at least one argument is a
+# FailReason with no influences, the result has no influences, and they
+# are not dynamic. For instance, link(foo) matching bar is influenced
+# by bar, but enabled(ddate) has no influences. Suppose ddate is disabled;
+# then (link(foo) and enabled(ddate)) not matching bar is not influenced by
+# bar, because it would be false however often you edit bar.
 
 sub merge_influences {
 	my $this=shift;
 	my $other=shift;
 	my $anded=shift;
 
+	# This "if" is odd because it needs to avoid negating $this
+	# or $other, which would alter the objects in-place. Be careful.
 	if (! $anded || (($this || %{$this->[1]}) &&
 	                 ($other || %{$other->[1]}))) {
 		foreach my $influence (keys %{$other->[1]}) {
@@ -2621,6 +2676,8 @@ sub merge_influences {
 		$this->[1]={};
 	}
 }
+
+# Change $this so it is not considered to be influenced by $torm.
 
 sub remove_influence {
 	my $this=shift;
