@@ -1,11 +1,9 @@
-[[!templatebody <<ENDBODY
 <div class="infobox">
 Available in a [[!taglink /git]] repository [[!taglink branch|/branches]].<br />
 Branch: <TMPL_IF browse><a href="<TMPL_VAR browse>"></TMPL_IF><TMPL_VAR branch><TMPL_IF browse></a></TMPL_IF><br />
 <TMPL_IF author>Author: <TMPL_VAR author><br /></TMPL_IF>
 </div>
-ENDBODY]]
-
+<TMPL_UNLESS branch>
 This template is used to create an infobox for a git branch. It uses
 these parameters:
 
@@ -15,3 +13,4 @@ these parameters:
   (e.g. github/master)</li>
 <li>author - the author of the branch</li>
 </ul>
+</TMPL_UNLESS>
