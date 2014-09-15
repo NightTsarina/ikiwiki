@@ -63,7 +63,8 @@ EOF
 	if (ref $config{ENV} eq 'HASH') {
 		foreach my $key (keys %{$config{ENV}}) {
 			my $val=$config{ENV}{$key};
-			$val =~ s/([\\"])/\\$1/g;
+			utf8::encode($val) if utf8::is_utf8($val);
+			$val =~ s/([^A-Za-z0-9])/sprintf '""\\x%02x""', ord($1)/ge;
 			$envsize += 1;
 			$envsave.=<<"EOF";
 	addenv("$key", "$val");
