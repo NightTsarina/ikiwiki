@@ -56,6 +56,24 @@ unlikely-to-be-blacklisted value is; if there is one, it's probably the
 next one all the rude bots will be using anyway, and some goofy provider
 like mine will blacklist it.
 
+> If your shared hosting provider is going to randomly break functionality,
+> I would suggest "voting with your wallet" and taking your business to
+> one that does not.
+>
+> In principle we could set the default UA (if `$config{useragent}` is
+> unspecified) to `IkiWiki/3.20140915`, or `IkiWiki/3.20140915 libwww-perl/6.03`
+> (which would be the "most correct" option AIUI), or some such.
+> That might work, or might get randomly blacklisted too, depending on the
+> whims of shared hosting providers. If you can't trust your provider to
+> behave helpfully then there isn't much we can do about it.
+>
+> Blocking requests according to UA seems fundamentally flawed, since
+> I'm fairly sure no hosting provider can afford to blacklist UAs that
+> claim to be, for instance, Firefox or Chrome. I wouldn't want
+> to patch IkiWiki to claim to be an interactive browser by default,
+> but malicious script authors will have no such qualms, so I would
+> argue that your provider's strategy is already doomed... --[[smcv]]
+
 ## Error: OpenID failure: naive_verify_failed_network: Could not contact ID provider to verify response.
 
 Again, this could have various causes. It was helpful to bump the debug level
@@ -103,6 +121,10 @@ Unfortunately, there isn't a release in CPAN yet that includes those two
 commits, but they are only a few lines to edit into your own locally-installed
 module.
 
+> To be clear, these are patches to [[!cpan LWPx::ParanoidAgent]].
+> Debian's `liblwpx-paranoidagent-perl (>= 1.10-3)` appears to
+> have those two patches. --[[smcv]]
+
 ## Still naive_verify_failed_network, new improved reason
 
     500 Can't connect to indieauth.com:443 (SSL connect attempt failed
@@ -136,6 +158,13 @@ not be used by `IO::Socket::SSL` unless it is
 
 Then a recent `Net::SSLeay` perl module needs to be built and linked against it.
 
+> I would tend to be somewhat concerned about the update status and security
+> of a shared hosting platform that is still on an OpenSSL major version from
+> pre-2010 - it might be fine, because it might be RHEL or some similarly
+> change-averse distribution backporting security fixes to ye olde branch,
+> but equally it might be as bad as it seems at first glance.
+> "Let the buyer beware", I think... --[[smcv]]
+
 ### Local OpenSSL installation will need certs to trust
 
 Bear in mind that the OpenSSL distribution doesn't come with a collection
@@ -164,6 +193,9 @@ That was fixed in `LWPx::ParanoidAgent` with
 which needs to be backported by hand if it hasn't made it into a CPAN release
 yet.
 
+> Also in Debian's `liblwpx-paranoidagent-perl (>= 1.10-3)`, for the record.
+> --[[smcv]]
+
 Only that still doesn't end the story, because that hand didn't know what
 [this hand](https://github.com/noxxi/p5-io-socket-ssl/commit/4f83a3cd85458bd2141f0a9f22f787174d51d587#diff-1)
 was doing. What good is passing the name in
@@ -186,6 +218,11 @@ server name for SNI:
                                               Timeout  => $conn_timeout,
 
 ... not submitted upstream yet, so needs to be applied by hand.
+
+> I've [reported this to Debian](https://bugs.debian.org/761635)
+> (which is where ikiwiki.info's supporting packages come from).
+> Please report it upstream too, if the Debian maintainer doesn't
+> get there first. --[[smcv]]
 
 # Success!!
 
