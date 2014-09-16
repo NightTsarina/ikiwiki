@@ -3,71 +3,12 @@
 
 When using the GeoJSON output of the OSM plugin (osm_format: GeoJSON), the name and description in the popups are missing, this patch fixes the issue.
 
-> "Pass the layers given in the OSM directive through"
->
-> It would be good if the commit added documentation for the new feature,
-> probably in `doc/ikiwiki/directive/osm.mdwn`.
->
->     +	my @layers = [ 'OSM' ];
->
-> You mean `$layers`. `[]` is a scalar value (a reference to an array);
-> `@something` is an array.
->
->     +		@layers = [ split(/,/, $params{layers}) ];
->
-> Is comma-separated the best fit here? Would whitespace, or whitespace and/or
-> commas, work better?
->
-> It's difficult to compare without knowing what the values would look like.
-> What would be valid values? The documentation for `$config{osm_layers}`
-> says "in a syntax acceptable for OpenLayers.Layer.OSM.url parameter" so
-> perhaps:
->
->     # expected by current branch
->     \[[!osm layers="OSM,WTF,OMG"]]
->     \[[!osm layers="http://example.com/${z}/${x}/${y}.png,http://example.org/tiles/${z}/${x}/${y}.png"]]
->     # current branch would misbehave with this syntax but it could be
->     made to work
->     \[[!osm layers="OSM, WTF, OMG"]]
->     \[[!osm layers="""http://example.com/${z}/${x}/${y}.png,
->       http://example.org/tiles/${z}/${x}/${y}.png"""]]
->     # I would personally suggest whitespace as separator (split(' ', ...))
->     \[[!osm layers="OSM WTF OMG"]]
->     \[[!osm layers="""http://example.com/${z}/${x}/${y}.png
->       http://example.org/tiles/${z}/${x}/${y}.png"""]]
->
-> If you specify more than one layer, is it like "get tiles from OpenCycleMap
-> server A or B or C as a round-robin", or "draw OpenCycleMap and then overlay
-> county boundaries and then overlay locations of good pubs", or what?
->
->     +		layers => @layers,
->
-> If @layers didn't have exactly one item, this would mess up argument-parsing;
-> but it has exactly one item (a reference to an array), so it works.
-> Again, if you replace @layers with $layers throughout, that would be better.
->
->     -        $options{'layers'} = $config{osm_layers};
->
-> Shouldn't the default if no `$params{layers}` are given be this, rather
-> than a hard-coded `['OSM']`?
->
-> `getsetup()` says `osm_layers` is `safe => 0`, which approximately means
-> "don't put this in the web UI, changing it could lead to a security flaw
-> or an unusable website". Is that wrong? If it is indeed unsafe, then
-> I would expect changing the same thing via \[[!osm]] parameters to be
-> unsafe too.
->
-> I notice that `example => { 'OSM', 'GoogleSatellite' }` is wrong:
-> it should (probably) be `example => [ 'OSM', 'GoogleSatellite' ]`
-> (a list of two example values, not a map with key 'OSM' corresponding
-> to value 'GoogleSatellite'. That might be why you're having trouble
-> with this.
->
 > "Fix the title and description of map popups"
 >
 >    +			# Rename desc to description (this matches the kml output)
 >
 > Is there a spec for this anywhere, or a parser with which it needs to be
 > compatible?
->
 > --[[smcv]] [[!tag reviewed]]
+
+>> This is especially confusing because this is actually about JSON, not KML. Disregarding that, here's the [geojson homepage](http://geojson.org/) which has a link to the spec. The spec doesn't seem to specify `description`, `desc` or `name` anywhere. --[[anarcat]]
