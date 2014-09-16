@@ -18,6 +18,9 @@ ikiwiki (3.20140912) UNRELEASED; urgency=medium
   * Fix aspect ratio when scaling small images, and add support for
     converting SVG and PDF graphics to PNG.
     Thanks, chrysn
+    - suggest ghostscript (required for PDF-to-PNG thumbnailing)
+      and libmagickcore-extra (required for SVG-to-PNG thumbnailing)
+    - build-depend on ghostscript so the test for scalable images can be run
   * In the CGI wrapper, incorporate $config{ENV} into the environment
     before executing Perl code, so that PERL5LIB can point to a
     non-system-wide installation of IkiWiki.
