@@ -37,7 +37,7 @@ EOF
 
 ok(! system("make -s ikiwiki.out"));
 
-my $command = "perl -I. ./ikiwiki.out -set usedirs=0 -plugin img t/tmp/in t/tmp/out -verbose";
+my $command = "perl -I. ./ikiwiki.out -set usedirs=0 -templatedir=templates -plugin img t/tmp/in t/tmp/out -verbose";
 
 ok(! system($command));
 
