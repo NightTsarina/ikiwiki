@@ -1,0 +1,33 @@
+ikiwiki 3.20140916 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Don't double-decode CGI submissions with Encode.pm &gt;= 2.53,
+     fixing "Error: Cannot decode string with wide characters".
+     Thanks, [[Antoine Beaupré|anarcat]]
+   * Avoid making trails depend on everything in the wiki by giving them
+     a better way to sort the pages
+   * Don't let users post comments that won't be displayed
+   * Fix encoding of Unicode strings in Python plugins.
+     Thanks, [[chrysn]]
+   * Improve performance and correctness of the \[[!if]] directive
+   * Let \[[!inline rootpage=foo postform=no]] disable the posting form
+   * Switch default \[[!man]] shortcut to manpages.debian.org. Closes: #[700322](http://bugs.debian.org/700322)
+   * Add UUID and TIME variables to edittemplate. Closes: #[752827](http://bugs.debian.org/752827)
+     Thanks, Jonathon Anderson
+   * Display pages in linkmaps as their pagetitle (no underscore escapes).
+     Thanks, [[chrysn]]
+   * Fix aspect ratio when scaling small images, and add support for
+     converting SVG and PDF graphics to PNG.
+     Thanks, [[chrysn]]
+     - suggest ghostscript (required for PDF-to-PNG thumbnailing)
+       and libmagickcore-extra (required for SVG-to-PNG thumbnailing)
+     - build-depend on ghostscript so the test for scalable images can be run
+   * In the CGI wrapper, incorporate $config{ENV} into the environment
+     before executing Perl code, so that PERL5LIB can point to a
+     non-system-wide installation of IkiWiki.
+     Thanks, Lafayette Chamber Singers Webmaster
+   * filecheck: accept MIME types not containing ';'
+   * autoindex: index files in underlays if the resulting pages aren't
+     going to be committed. Closes: #[611068](http://bugs.debian.org/611068)
+   * Add \[[!templatebody]] directive so template pages don't have to be
+     simultaneously a valid template and valid HTML
+   * Add [[smcv]] to Uploaders and release to Debian"""]]
