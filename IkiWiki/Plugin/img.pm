@@ -78,7 +78,11 @@ sub preprocess (@) {
 	my $imgdatalink;
 	my $r = $im->Read("$srcfile\[$pagenumber]");
 	error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
-	
+
+	if (! defined $im->Get("width") || ! defined $im->Get("height")) {
+		error sprintf(gettext("failed to get dimensions of %s"), $file);
+	}
+
 	my ($dwidth, $dheight);
 
 	if ($params{size} eq 'full') {
