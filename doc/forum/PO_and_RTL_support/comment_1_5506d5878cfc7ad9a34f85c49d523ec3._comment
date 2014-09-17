@@ -1,0 +1,44 @@
+[[!comment format=mdwn
+ username="smcv"
+ ip="81.100.115.242"
+ subject="next steps"
+ date="2014-09-17T08:09:50Z"
+ content="""
+HTML5 says:
+
+> Authors are strongly encouraged to use the dir attribute to indicate text direction rather than using CSS, since that way their documents will continue to render correctly even in the absence of CSS (e.g. as interpreted by search engines).
+
+Could you test whether your tip works with `<div dir=\"rtl\">` or something,
+please? If it does, please change the tip, if not, we'll have to look at
+whether the [[plugins/htmlscrubber]] is getting in the way.
+
+After that, I think the next step towards good RTL support would be to
+put together some test-cases for things that are meant to work, in the
+form of:
+
+* self-contained source code and setup file for a very simple wiki
+* the pages in that wiki making it clear what their intended text
+  direction is (e.g. \"this paragraph should be right to left\")
+
+As far as I know, none of the IkiWiki committers can read any RTL
+languages, so if you use Arabic or Hebrew or whatever in those
+test-cases, we'll need a screenshot/image of what it's meant to look 
+like. Using Latin text marked as RTL (so it should come out backwards
+if everything is working correctly) might be easier.
+
+The obvious cases that I can think of are:
+
+* the wiki is \"mostly\" in a RTL language
+* the master language is LTR but the [[plugins/po]] plugin
+  provides a translation into a RTL language
+
+and possibly
+
+* the master language is RTL but the [[plugins/po]] plugin
+  provides a translation into a LTR language
+
+It might be necessary to add support for a per-wiki, per-page or
+(for po) per-translation-language direction override that would set
+the `<html dir>` attribute, but we should find test-cases first, then we
+can work out solutions.
+"""]]
