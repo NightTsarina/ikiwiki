@@ -11,3 +11,24 @@ You'll find it in this repository, in the 'sortbylastcomment' branch:
 > Reviewed, tested: looks good to me. We need it for the [Tails forum](https://tails.boum.org/forum/). --[[intrigeri]]
 
 >> Hi, is there a chance of seeing this plugin getting included in a release at any point soon? --sajolida
+
+>>> (Reviewing, better late than never...)
+>>>
+>>> It seems really non-obvious to me that the mtime of a page is
+>>> updated as a side-effect of sorting. I think it might also happen too
+>>> late for it to have the desired effect: mtimes should be updated before
+>>> the build phase starts, but sorting happens during the build phase.
+>>>
+>>> If we had a solution for [[!debbug 479371]] - copying
+>>> the mtime from child pages to a parent page - then it would
+>>> be enough to configure the forum threads to inherit the mtime
+>>> of their comments, and then sorting by mtime would do what
+>>> you wanted. The remaining problem would be to have a page pick up the
+>>> most recent mtime from a somewhat configurable set of pages. If the page
+>>> selection is done by pagespec, then by the time those can be matched
+>>> deterministically, it's also too late to be getting the desired
+>>> effect from changing mtimes... so perhaps this is a non-starter.
+>>>
+>>> Alternatively, perhaps just doing the sorting, and updating some
+>>> displayable last-update counter that is not the mtime, would be OK?
+>>> --[[smcv]]
