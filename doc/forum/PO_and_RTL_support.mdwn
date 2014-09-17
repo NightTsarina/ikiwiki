@@ -1,0 +1,33 @@
+A while ago I added RTL text support to my wiki:
+
+<http://ikiwiki.info/tips/Right-to-left___40__RTL__41___page_text>
+
+But this support does not work with PO files. When I write a page in
+English, I need the Hebrew/Arabic translation to have additional text
+(in my case, using the template directive) which causes the direction of the
+text to be RTL.
+
+I saw a recent patch which claims to solve the problem by exposing the
+language code and direction to the templates (which would help a lot), but
+when I go to the original website from which it came, it looks like the Arabic
+text is still aligned LTR just like English:
+
+<http://addons.nvda-project.org/index.ar.html>
+
+Another issue is that I use Debian stable, and I'm not sure it's safe to
+use some unstable ikiwiki (currently I use the version from backports) -
+advice welcome :-)
+
+It's still important to have the ability to change direction inside the page,
+but the default direction specified either in CSS on in the page.tmpl file
+should be dynamic. I didn't check how the PO plugin works, but it may be
+necessary to update there, because if all it does is copy the HTML page and
+switch strings with translations, it must be modified to also edit the
+LTR/RTL directives so that different translations of the same page can have
+different directions.
+
+I hope I'll have some time to look into it myself, I'm just a bit behind now
+with non-recent ikiwiki version (maybe it's time for me to try sid or from
+source).
+
+--[[fr33domlover]]
