@@ -25,12 +25,25 @@ Here's [[smcv]]'s review from [[todo/osm_plugin_GeoJSON_popup_patch]], annotated
 
 >> Or `@layers = ( 'OSM' );`. --[[anarcat]]
 
+>>> Yeah, and then `layers => [@layers]` or `layers => \@layers`
+>>> to turn it into a reference when building `%options`. --s
+
 >     +		@layers = [ split(/,/, $params{layers}) ];
 >
 > Is comma-separated the best fit here? Would whitespace, or whitespace and/or
 > commas, work better?
 
->> Why don't we simply keep it an array as it already is? I fail to see the reason behind that change. This is the config I use right now on http://reseaulibre.ca/:
+>> Why don't we simply keep it an array as it already is? I fail to see the reason behind that change.
+>>
+>>> This seems to be at least partially a feature request for \[[!osm]]:
+>>> "allow individual \[[!osm]] maps to override `$config{osm_layers}`.
+>>> Items in `%config` can be a reference to an array, so that's fine.
+>>> However, parameters to a [[ikiwiki/directive]] cannot be an array,
+>>> so for the directive, we need a syntax for taking a scalar parameter
+>>> and splitting it into an array - comma-separated, whitespace-separated,
+>>> whatever. --s
+>>
+>> This is the config I use right now on http://reseaulibre.ca/:
 >> 
 >> ~~~~
 >> osm_layers:
@@ -107,3 +120,13 @@ Here's [[smcv]]'s review from [[todo/osm_plugin_GeoJSON_popup_patch]], annotated
 >> That is an accurate statement.
 >>
 >> This is old code, so my memory may be cold, but i think that the "layers" parameters used to be a hash, not an array, until two years ago (commit 636e04a). The javascript code certainly expects an array right now. --[[anarcat]]
+
+>>> OK, then I think this might be a mixture of a bug and a feature request:
+>>>
+>>> * bug: the configuration suggested by the example (or the default when
+>>>   unconfigured, or something) produces "TypeError: mapProjection is null"
+>>>
+>>> * feature request: per-\[[!osm]] configuration to complement the
+>>>   per-wiki configuration
+>>>
+>>> --s
