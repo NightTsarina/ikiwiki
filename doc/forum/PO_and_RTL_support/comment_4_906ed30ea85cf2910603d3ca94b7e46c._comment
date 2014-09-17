@@ -1,0 +1,49 @@
+[[!comment format=mdwn
+ username="fr33domlover"
+ ip="46.117.109.179"
+ subject="comment 4"
+ date="2014-09-17T11:22:57Z"
+ content="""
+> Could you test whether your tip works with \<div dir=\"rtl\"> or something, please?
+
+Sure, I will check that soon. I think it does, I just tried here in ikiwiki. Just curious, why is
+div preferred? IIRC I use \"class\" there after looking at some existing templates. But
+I'm not an expert, especially not in CSS. Would that be used as an HTML4 parallel of the dir attribute?
+
+As to that website with the patch, the problem is that the text is aligned to the left. When
+I type Hebrew in an LTR page, it already shows more or less correctly - English words are
+shown in correct letter order thanks to the bidi algorithm. The issue seems to be aligning
+to the right - that is what my tip does. Maybe the direction setting in the CSS also has other
+effects - I just know it works :-)
+
+I'll happily help with the tests. I also have a test page on my wiki which uses many ikiwiki
+features, to demonstrate how they all look in RTL. Test case ideas:
+
+- Page in RTL (e.g. Arabic) with an LTR paragraph (e.g. English)
+- Page in RTL with LTR paragraph in the same language (e.g. fancy way to write a poem)
+- Page in LTR (e.g. English) with an RTL paragraph (e.g. Hebrew)
+- Page in LTR with RTL paragraph in the same language (poem again)
+- Translated page - master language is LTR, slave is RTL
+- Translated page - master language is RTL, slave is LTR
+- Master LTR page has RTL paragraph, all slaves have it RTL too regardless of their global direction
+- Master RTL page has LTR paragraph, all slaves have it LTR too regardless of their global direction
+
+An example for the last 2 tests is an English master page about linguistics which has a paragraph in some
+RTL language that is being studied, and all slave pages must keep that paragraph intact - both the
+text itself and its RTL direction. But the rest of the page can be translated and correctly made RTL when
+translated to RTL languages.
+
+This gives me another idea - most of the time what you actually mean is to reverse the direction: RTL
+becomes LTR and vice versa. When writing some fancy poem, that's what you probably want. But in the
+previous example, the direction should not be reversed - so there should maybe be two kinds of direction
+modifiers:
+
+1. Dynamic (the default) - You write e.g. a master page in LTR and some RTL paragraphs. an RTL translation
+   automatically reverses directions, RTL <=> LTR.
+2. Fixed - this is like my tip, e.g. An RTL paragraph in an LTR page has a fixed direction set, which is kept even in
+    translations for RTL languages - the page in general is reversed, but that paragraph is not.
+
+Another very useful thing (at least to me) would be an option to have different wiki pages/section with
+different master languages. I have sections in English and sections in Hebrew, which makes the PO
+plugin a problem to use, unless I keep one of these sections untranslated.
+"""]]
