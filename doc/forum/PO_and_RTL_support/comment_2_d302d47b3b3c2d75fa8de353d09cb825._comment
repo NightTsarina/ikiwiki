@@ -1,0 +1,31 @@
+[[!comment format=mdwn
+ username="smcv"
+ ip="81.100.115.242"
+ subject="comment 2"
+ date="2014-09-17T08:19:38Z"
+ content="""
+If I'm interpreting that Arabic website correctly, it *is* RTL, but
+left-justified (which is a somewhat confusing CSS glitch, but hopefully
+not a barrier to understanding by people who can read Arabic). English
+words embedded in the Arabic are LTR, but my understanding of the bidi
+algorithm is that that's meant to happen.
+
+For instance, in the English version, the last paragraph before the inline says:
+
+> Please feel free to subscribe to the rss or atom feeds to be informed on when new addons or a new version of an addon is made available. The following community supported addons are available:
+
+and in the Arabic version, the last paragraph looks like this in my browser
+(where `*****` represents Arabic that I don't know how to read):
+
+    : ***** (... lots more ....) ***** atom feeds * rss **** ****
+
+So that looks right for RTL: the colon is at the end (left), and the
+mentions of rss feeds and atom feeds are at the beginning (right).
+When I \"view source\", it's the other way round.
+
+Also, the page source says:
+
+    <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"ar\" xml:lang=\"ar\" dir=\"rtl\">
+
+which looks right?
+"""]]
