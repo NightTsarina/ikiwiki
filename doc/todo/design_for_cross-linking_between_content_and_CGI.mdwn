@@ -1,0 +1,104 @@
+We're accumulating a significant number of bugs related to cross-linking
+between the content and the CGI not being as relative as we would like.
+This is an attempt to design a solution for them all in a unified way,
+rather than solving one bug at the cost of exacerbating another.
+--[[smcv]]
+
+# Terminology
+
+* Absolute: starts with a scheme, like
+  `http://example.com/ikiwiki.cgi`, `https://www.example.org/`
+
+* Protocol-relative: starts with `//` like `//example.com/ikiwiki.cgi`
+
+* Host-relative: starts with `/` like `/ikiwiki.cgi`
+
+* Relative: starts with neither `/` nor a scheme, like `../ikiwiki.cgi`
+
+# What we need
+
+* Static content must be able to link to other static content
+
+* Static content must be able to link to the CGI
+
+* CGI-generated content must be able to link to arbitrary
+  static content (it is sufficient for it to be able to link
+  to the "root" of the `destdir`)
+
+* CGI-generated content must be able to link to the CGI
+
+# Constraints
+
+* URIs in RSS feeds must be absolute, because feed readers do not have
+  any consistent semantics for the base of relative links
+
+* If we have a `<base href>` then the HTML spec says it must be
+  absolute
+  ([[bugs/trouble_with_base_in_search]],
+  [[bugs/preview_base_url_should_be_absolute]])
+
+* It is currently possible for the static content and the CGI
+  to be on different domains, e.g. `www.example.com`
+  vs. `cgi.example.com`; this should be preserved
+
+* It is currently possible to serve static content "mostly over
+  HTTP" (i.e. advertise a http URI to readers, and use a http
+  URI in RSS feeds etc.) but use HTTPS for the CGI
+
+* If the static content is served over HTTPS, it must refer
+  to other static content and the CGI via HTTPS (to avoid
+  mixed content, which is a vulnerability); this may be
+  either absolute, protocol-relative, host-relative or relative
+
+* If the CGI is served over HTTPS, it must refer to static
+  content and the CGI via HTTPS; again, this may be either
+  either absolute, protocol-relative, host-relative or relative
+  ([[todo/Protocol_relative_urls_for_stylesheet_linking]])
+
+* Because reverse proxies and `w3mmode` exist, it must be
+  possible to configure ikiwiki to not believe the `HTTPS`, etc.,
+  CGI variables, and force a particular scheme or host
+  ([[bugs/W3MMode_still_uses_http:__47____47__localhost__63__]],
+  [[forum/Using_reverse_proxy__59___base_URL_is_http_instead_of_https]],
+  [[forum/Dot_CGI_pointing_to_localhost._What_happened__63__]])
+
+# "Would be nice"
+
+* In general, the more relative the better
+
+* [[schmonz]] wants to direct all CGI pageviews to https
+  even if the visitor comes from http (but this can be done
+  at the webserver level by making http://example.com/ikiwiki.cgi
+  a redirect to https://example.com/ikiwiki.cgi, so is not
+  necessarily mandatory)
+
+* [[smcv]] has some sites that have non-CA-cartel-approved
+  certificates, with a limited number of editors who can be taught
+  to add SSL policy exceptions and log in via https;
+  anonymous/read-only actions like `do=goto` should
+  not go via HTTPS, since random readers would get scary SSL
+  warnings
+  ([[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]],
+  [[forum/CGI_script_and_HTTPS]])
+
+* It would be nice if the CGI did not need to use a `<base>` so that
+  we could use host-relative URI references (`/sandbox/`) or scheme-relative
+  URI references (`//static.example.com/sandbox/`)
+  (see [[bugs/trouble_with_base_in_search]])
+
+As a consequence of the "no mixed content" constraint, I think we can
+make some assumptions:
+
+* if the `cgiurl` is http but the CGI discovers at runtime that it has
+  been reached via https, we can assume that the https equivalent,
+  or a host- or protocol-relative URI reference to itself, would work;
+
+* if the `url` is http but the CGI discovers at runtime that it has been
+  reached via https, we can assume that the https equivalent of the `url`
+  would work
+
+In other words, best-practice would be to list your `url` and `cgiurl`
+in the setup file as http if you intend that they will most commonly
+be accessed via http (e.g. the "my cert is not CA-cartel approved"
+use-case), or as https if you intend to force accesses into
+being via https (the "my wiki is secret" use-case).
