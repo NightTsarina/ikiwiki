@@ -4,3 +4,30 @@
 Currently, the documented icon parameter to the waypoint directive is not used. This patch fixes that, and fixes some related problems in the KML output. 
 
 > That patch looks pretty awesome, thanks for your work on it. I don't have time to test it now, but if it works, I am all for its inclusion. --[[anarcat]]
+
+>     +    my $tag = $params{'tag'};
+>
+> Please check indentation: you're mixing spaces and hard tabs, apparently
+> with the assumption that a tab is worth 4 spaces.
+>
+>     -	my $icon = $config{'osm_default_icon'} || "ikiwiki/images/osm.png"; # sanitized: we trust $config
+>     +	my $icon = $params{'icon'}; # sanitized: we trust $config
+>
+> So there's a comment there that explains why the value of `$icon` can
+> be trusted, but it is no longer true, because it no longer comes from
+> `$config`. This does not fill me with confidence. Maybe it's OK to use
+> a wiki-editor-supplied icon, maybe not. If it is OK, please justify why,
+> and in any case, please do not leave old comments if they are no longer
+> true.
+>
+> In this case I suspect editors may be able to specify an icon whose URL is
+> `javascript:alert("cross-site scripting!")` (or something more malicious)
+> and have it written into the KML as-is. The osm plugin has had cross-site
+> scripting vulnerabilities before, I don't want to add another.
+>
+>     +            	externalGraphic: "${icon}"
+>
+> I don't think Perl variable interpolation is going to work in Javascript?
+> I suspect this should have been inserting something into the GeoJSON instead?
+>
+> --[[smcv]]
