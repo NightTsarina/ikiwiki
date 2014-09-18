@@ -9,13 +9,8 @@ but there's a line in `inline.pm` that does:
 And the extra newlines break the table.  Can they be safely removed?
 
 > If you want an HTML table, I would suggest using an HTML table, which
-> should pass through Markdown without being interpreted further:
->
->     <table><tr>
->     \[[!inline pages="link(/category/env)" feeds=no archive=yes sort=title template=tagtd]]
->     </tr></table>
->
-> where tagtd.tmpl is of the form `<td>your markup here</td>`; or even just
+> should pass through Markdown without being interpreted further. To
+> avoid getting the `<div>` inside the `<table>` you can use:
 >
 >     \[[!inline pages="link(/category/env)" feeds=no archive=yes sort=title template=tagtable]]
 >
