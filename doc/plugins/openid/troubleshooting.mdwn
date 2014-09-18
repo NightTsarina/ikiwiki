@@ -1,6 +1,6 @@
 **TL;DR**
 
-[[!toc levels=3]]
+[[!toc levels=4]]
 
 # An odyssey through lots of things that have to be right before OpenID works
 
@@ -91,6 +91,26 @@ like mine will blacklist it.
 >>> so now [ikiwiki.info](/) accepts my OpenID. I'm still not sure it wouldn't be
 >>> worthwhile to change the useragent default.... -- Chap
 
+#### culprit was an Atomicorp ModSecurity rule
+
+Further followup: my provider is using [ModSecurity](https://www.modsecurity.org/)
+with a ruleset commercially supplied by [Atomicorp](https://www.atomicorp.com/products/modsecurity.html),
+which seems to be where this rule came from. They've turned the rule off for _my account_.
+I followed up on my ticket with them, suggesting they at least think about turning it off
+more systemwide (without waiting for other customers to have bizarre problems that are
+hard to troubleshoot), or opening a conversation with Atomicorp about whether such a rule
+is really a good idea. Of course, while they were very responsive about turning it off
+_for me_, it's much iffier whether they'll take my advice any farther than that.
+
+So, this may crop up for anybody with a provider that uses Atomicorp ModSecurity rules.
+
+The ruleset produces a log message saying "turn this rule off if you use libwww-perl", which
+just goes to show whoever wrote that message wasn't thinking about what breaks what. It would
+have to be "turn this rule off if any of _your_ customers might ever need to use or depend on
+an app or service _hosted anywhere else_ that _could_ have been implemented using libwww-perl,
+over which you and your customer have no knowledge or control."
+
+Sigh. -- Chap
 
 ## Error: OpenID failure: naive_verify_failed_network: Could not contact ID provider to verify response.
 
