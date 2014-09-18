@@ -32,8 +32,10 @@ rather than solving one bug at the cost of exacerbating another.
 * URIs in RSS feeds must be absolute, because feed readers do not have
   any consistent semantics for the base of relative links
 
-* If we have a `<base href>` then the HTML spec says it must be
-  absolute
+* If we have a `<base href>` then HTML 4.01 says it must be
+  absolute, although HTML 5 does relax this by defining semantics
+  for a relative `<base href>` - it is interpreted relative to the
+  "fallback base URL" which is the URL of the page being viewed
   ([[bugs/trouble_with_base_in_search]],
   [[bugs/preview_base_url_should_be_absolute]])
 
@@ -61,6 +63,11 @@ rather than solving one bug at the cost of exacerbating another.
   ([[bugs/W3MMode_still_uses_http:__47____47__localhost__63__]],
   [[forum/Using_reverse_proxy__59___base_URL_is_http_instead_of_https]],
   [[forum/Dot_CGI_pointing_to_localhost._What_happened__63__]])
+
+* For relative links in page-previews to work correctly without
+  having to have global state or thread state through every use of
+  `htmllink` etc., `cgitemplate` needs to make links in the page body
+  work as if we were on the page being previewed.
 
 # "Would be nice"
 
