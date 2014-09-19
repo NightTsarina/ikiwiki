@@ -1,1 +1,6 @@
 Does this support ikiwiki-specific idioms like `\[[links]]` or `\[[!macros]]`? I looked at [the readme](https://github.com/sciunto/ikiwiki-pandoc) and it's not quite clear there... --[[anarcat]]
+
+> I don't think it needs to? [[wikilinks|ikiwiki/wikilink]] and
+> [[directives|ikiwiki/directive]] (what you called "macros") are handled
+> by the linkify and preprocess hooks, whereas [[plugins/mdwn]] and
+> this plugin are done afterwards, in the htmlize hook. --[[smcv]]
