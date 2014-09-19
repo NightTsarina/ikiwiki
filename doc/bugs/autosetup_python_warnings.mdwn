@@ -1,0 +1,52 @@
+## What I did
+
+A friend reported this, and I'm seeing it too. With 3.20140916, on
+a system with Python 2.7 and 3.4 (and little else) installed, I
+tried to run the auto.setup:
+
+    :; ikiwiki --setup /etc/pkg/ikiwiki/auto.setup
+    What will the wiki be named? Import Errors
+    What revision control system to use? git
+    Which user (wiki account or openid) will be admin? schmonz
+    
+    
+    Setting up Import Errors ...
+    Importing /Users/schmonz/ImportErrors into git
+    Initialized empty shared Git repository in /Users/schmonz/ImportErrors.git/
+    Initialized empty Git repository in /Users/schmonz/ImportErrors/.git/
+    [master (root-commit) 20b1128] initial commit
+     1 file changed, 1 insertion(+)
+     create mode 100644 .gitignore
+    Counting objects: 3, done.
+    Writing objects: 100% (3/3), 230 bytes | 0 bytes/s, done.
+    Total 3 (delta 0), reused 0 (delta 0)
+    To /Users/schmonz/ImportErrors.git
+     * [new branch]      master -> master
+    Directory /Users/schmonz/ImportErrors is now a clone of git repository /Users/schmonz/ImportErrors.git
+    Traceback (most recent call last):
+      File "/usr/pkg/lib/ikiwiki/plugins/rst", line 45, in <module>
+        from proxy import IkiWikiProcedureProxy
+      File "/usr/pkg/lib/ikiwiki/plugins/proxy.py", line 41, in <module>
+        import xml.parsers.expat
+      File "/usr/pkg/lib/python3.4/xml/parsers/expat.py", line 4, in <module>
+        from pyexpat import *
+    ImportError: No module named 'pyexpat'
+    
+    
+    Creating wiki admin schmonz ...
+    Choose a password:
+    [...]
+
+## What I expected
+
+I expected to get a basic site.
+
+## What happened instead
+
+I got a basic site with some Python error messages.
+
+## Likely fix
+
+Looks like `proxy.py` needs the trick from [[!debbug 637604]] so
+that it can defer a few imports (at least `xml.parsers.expat` and
+the XML-RPC libs) until the methods using them are called. --[[schmonz]]
