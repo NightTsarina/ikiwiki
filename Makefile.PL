@@ -60,7 +60,7 @@ docwiki:
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -refresh
 
 sysconfdir:
-	$(PERL) -pi -e "s|/etc/ikiwiki|$(SYSCONFDIR)|g" $(sysconfdir_scripts)
+	$(PERL) -pi -e "s|\"/etc/ikiwiki|\"$(SYSCONFDIR)|g" $(sysconfdir_scripts)
 	
 extra_clean:
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -clean
