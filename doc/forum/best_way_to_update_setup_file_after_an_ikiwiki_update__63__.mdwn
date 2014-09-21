@@ -1,0 +1,41 @@
+Ok, I'm trying to get into a good routine where I keep ikiwiki updated for my site.
+The plan is to keep a local (partial) git clone, and rebuild from tagged release commits.
+
+I started out with 3.20140831, more or less like this:
+
+    $ git clone ...
+    $ git checkout 3.20140831
+    $ perl Makefile.PL PREFIX=$HOME/blah
+    $ make
+    $ make install
+    $ cd ~/my-wiki-admin-stuff
+    $ ~/blah/bin/ikiwiki --dumpsetup=my.wiki.setup
+    $ vi my.wiki.setup
+    $ ~/blah/bin/ikiwiki --setup my.wiki.setup
+
+So far so good. Fast-forward (heh) to 3.20140916:
+
+    $ git fetch ...
+    $ git merge --ff-only FETCH_HEAD
+    $ git checkout 3.20140916
+    $ perl Makefile.PL ... ; make ; make install
+    $ cd ~/my-wiki-admin-stuff ; ~/blah/bin/ikiwiki --setup my.wiki.setup
+
+This happened to work, but in general if the new ikiwiki version had new
+setup options I needed to know about, I wouldn't necessarily find out, and
+I could be running the new version with something important taking an
+inappropriate default because I didn't add it to the setup file.
+
+What I'm looking for is some sort of
+
+    ikiwiki --read-my-current-setup-file-and-write-one-with-the-same-config-but-with-new-options-shown-and-commented
+
+command.
+
+Will `ikiwiki --changesetup setupfile` do what I'm looking for?
+
+I'm hoping for something simple that takes care of the way the setup sections are conditional
+(so `--dumpsetup` doesn't even show you `git` options unless it knows `rcs=git`, so ideally it
+would look in the current setup to learn what to dump).
+
+How are other folks handling this routinely?
