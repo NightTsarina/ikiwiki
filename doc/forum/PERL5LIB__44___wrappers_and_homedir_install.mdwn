@@ -17,7 +17,13 @@ Or at least I get CGI errors and running ikiwiki.cgi manually fails too:
 Server has an older ikiwiki installed but I'd like to use a newer version from git, and I don't have root access.
 
 > You can't set `PERL5LIB` in `ENV` in a setup file, because ikiwiki is already
-> running before it reads that, and so it has little effect. Your error
+> running before it reads that, and so it has little effect.
+>> That's [fixed now](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=9d928bd69496648cd7a2d4542a2d533992c01757;hp=f574bc2ed470b60f576a2906998bc7c129f2f983)
+>> for anything invoked through the generated wrappers: they put all the setup `ENV`
+>> values into the real environment before starting Perl. (When running `ikiwiki` at the
+>> command line, `PERL5LIB` just has to be in the environment, as it would normally be.)
+>
+> Your error
 > messages do look like a new bin/ikiwiki is using an old version of
 > `IkiWiki.pm`.
 > 
