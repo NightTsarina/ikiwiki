@@ -1,0 +1,23 @@
+[[!comment format=mdwn
+ username="smcv"
+ ip="81.100.115.242"
+ subject="comment 10"
+ date="2014-09-21T12:49:54Z"
+ content="""
+> Yes, [a RTL meta tag] would help. But I'd need the PO plugin to
+> respect this lang tag. Is this already possible?
+
+Do you need the po plugin at all? The po plugin is specifically for
+sites that are written in a master language (usually English) and
+then translated into a bunch of other languages - the same general
+approach as <https://www.debian.org/> (that site does not use IkiWiki
+but the idea is the same).
+
+If you're selecting languages in some other way -
+e.g. all your content is in Arabic except that the `/programming/`
+subtree is in English, or something like that - then the po
+plugin is not designed for what you're doing, and adding support
+for a new meta tag to the meta plugin would be a better way to
+get the language code into the header. It could use the same
+hook I'd review a patch.
+"""]]
