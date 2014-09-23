@@ -1,0 +1,17 @@
+In [[plugins/write|plugins/write]] I am told that
+
+> The `%destsources` hash records the name of the source file used to
+> create each destination file. The key is the output filename (ie,
+> "foo/index.html"), and the value is the source filename that it was built
+> from (eg, "foo.mdwn").
+
+but that's not what I see happening. I see a hash that maps the output
+filename (eg., "foo/index.html") to a source _page_ name (eg., "foo").
+
+I need an additional visit to `%pagesources` to get from "foo"
+to "foo.mdwn".
+
+It seems to be consistent and happily working that way, so maybe the
+description in [[plugins/write]] is the only mistake. Have I missed something?
+
+-- [[jcflack]]
