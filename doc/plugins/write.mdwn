@@ -742,17 +742,24 @@ The `%pagesources` has can be used to look up the source filename
 of a page. So the key is the page name, and the value is the source
 filename. Do not modify this hash.
 
+Attachments also appear in this hash, with the same key and value.
+
 	$pagesources{"foo"} = "foo.mdwn";
+	$pagesources{"logo/ikiwiki.png"} = "logo/ikiwiki.png";
+
 
 ### `%destsources`
 
 The `%destsources` hash records the name of the source file used to
 create each destination file. The key is the output filename (ie,
-"foo/index.html"), and the value is the source filename that it was built
-from (eg, "foo.mdwn"). Note that a single source file may create multiple
+"foo/index.html"), and the value is the name of the page that it was built
+from (eg, "foo"). Note that a single source file may create multiple
 destination files. Do not modify this hash directly; call `will_render()`.
-	
-	$destsources{"foo/index.html"} = "foo.mdwn";
+
+Attachments also appear in this hash, with the same key and value.
+
+	$destsources{"foo/index.html"} = "foo";
+	$destsources{"logo/ikiwiki.png"} = "logo/ikiwiki.png";
 
 ## Library functions
 
