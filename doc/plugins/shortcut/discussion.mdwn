@@ -16,3 +16,34 @@ thus copying it at some point and losing continuity with upstream enhancements -
 what about handling a `shortcuts-local.mdwn` or `shortcuts/local.mdwn` (if such
 a file exists in the wiki), and additionally process that one.  Possibily a
 conditional `\[[!inline]]` could be used.  --[[tschwinge]]
+
+----
+
+The page says
+
+> Additionally, %W is replaced with the text encoded just right for Wikipedia
+
+with the implication that this is odd. However, it appears the escapes
+actually mean:
+
+=%s=
+    If every character in the string is in the Latin-1 range, encode each
+    character as a http %xx escape: ö -> %F6. If not,
+    mangle the string: ☃ (U+2603 SNOWMAN) -> %2603 which
+    actually means "&03".
+=%S=
+    Leave the string as-is.
+=%W=
+    Encode the string as UTF-8, then encode each byte of the UTF-8
+    individually as a http %xx escape: ö -> %C3%B6, ☃ (U+2603 SNOWMAN) ->
+    %E2%98%83.
+
+http %xx encoding is defined in terms of input bytes, not input characters,
+so you can't encode arbitrary Unicode into URLs without knowing which
+encoding the destination server is going to use. UTF-8 is what's
+recommended by the [[!wikipedia Internationalized resource identifier]]
+specification, so I suspect %W is right more often than it's wrong...
+
+I wonder whether %s should mean what %W does now, with a new format
+character - maybe %L for Latin-1? - for the version that only works
+for strings that can be encoded losslessly in Latin-1? --[[smcv]]
