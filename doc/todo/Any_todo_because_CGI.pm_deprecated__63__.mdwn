@@ -16,6 +16,12 @@ Or is it just a matter of 'hold course until [[rewrite ikiwiki in haskell]]'?
 > like most webapps, because it produces static HTML for as much of
 > its content as possible anyway. --[[smcv]]
 
+>> One reason for such a change (although a rewrite in haskell is a little drastic, and overlaps with "gitit") would be to allow ikiwiki to run as a shared thread under FastCGI or mod_perl, instead of forking all the time for every new user. The discussion for this is in [[todo/fastcgi_or_modperl_installation_instructions]] and [[todo/multi-thread_ikiwiki]].
+>>
+>> Also right now, there are serious lock contention issues in ikiwiki: any `?do=` action in the CGI is under a global lock right now (`lockwiki()`), for example, which makes scaling ikiwiki to multiple editing users a significant problem. I have seen such contention as a user on this wiki but mostly on the git-annex wiki.
+>>
+>> I, for one, would be happy to see some improvements in this area... --[[anarcat]]
+
 >> I'm on a thin pipe, but IIRC CGI.pm is simply no longer going to be bundled with Perl core, and is not deprecated in any other way. Just old, and now an explicit dependency. I may be wrong. --[[schmonz]]
 
 >>> Yeah, that's what perldelta says. Also, in Debian, the future is already
