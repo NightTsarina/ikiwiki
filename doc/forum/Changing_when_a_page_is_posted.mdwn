@@ -1,0 +1,9 @@
+I try to merge my existing blog with my wiki. I just started the process and ran into a problem:
+
+I created a blog in my ikiwiki install and wanted to import my blogposts, that are just a bunch of (octopress) text files. Of course, ikiwiki can read them, etc. Here's my problem: When adding an old post to git, the imported blog article in my wiki is shown to be posted today. This is not the desired behaviour, since I have published this article a while before. The only way to change this I found was to fiddle around with the commit where I added the post. A way to this is described in [this stackoverflow answer](http://stackoverflow.com/a/454750).
+
+This works. Well, almost.
+
+For some weird reason the "posted" time is off one hour. Let's say, I published an article Fri Mar 2 01:30:00 2012. I corrected the commit as outlined by the link I provided. Ikiwiki will show that the article got posted at Fri Mar 2 00:30:00 2012. The only reason I can think of, that could produce this error, is DST. Has anyone an idea how to correct this error? Did I do something wrong or did I overlook something?
+
+Any help is appreciated!
