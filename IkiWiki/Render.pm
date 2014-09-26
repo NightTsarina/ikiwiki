@@ -473,7 +473,8 @@ sub find_new_files ($) {
 			}
 			$pagecase{lc $page}=$page;
 			if (! exists $pagectime{$page}) {
-				$pagectime{$page}=(srcfile_stat($file))[10];
+				my $ctime=(srcfile_stat($file, 1))[10];
+				$pagectime{$page}=$ctime if defined $ctime;
 			}
 		}
 	}
@@ -533,10 +534,11 @@ sub find_changed ($) {
 	my @internal_changed;
 	foreach my $file (@$files) {
 		my $page=pagename($file);
-		my ($srcfile, @stat)=srcfile_stat($file);
-		if (! exists $pagemtime{$page} ||
-		    $stat[9] > $pagemtime{$page} ||
-	    	    $forcerebuild{$page}) {
+		my ($srcfile, @stat)=srcfile_stat($file, 1);
+		if (defined $srcfile && 
+		    (! exists $pagemtime{$page} ||
+		     $stat[9] > $pagemtime{$page} ||
+	    	     $forcerebuild{$page})) {
 			$pagemtime{$page}=$stat[9];
 
 			if (isinternal($page)) {
