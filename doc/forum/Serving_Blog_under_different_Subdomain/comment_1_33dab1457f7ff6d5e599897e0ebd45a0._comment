@@ -1,0 +1,28 @@
+[[!comment format=mdwn
+ username="spalax"
+ ip="82.233.196.200"
+ subject="Several .setup files"
+ date="2014-09-27T06:18:29Z"
+ content="""
+I am not sure to have understood your question, but I assume the following:
+
+- your source wiki contains some subdirectory `blog`;
+- you want the whole wiki to be served as [[wiki.example.com]]
+- you want the `blog` subdirectory serves as [[blog.example.com]]
+
+If so, what you can do is having two different setup files.
+
+- the first one would contain (using the old setup file format, but you can adapt it for the new one):
+
+      srcdir => \"/path/to/your/source/wiki/\",
+      url => \"http://wiki.example.com\",
+
+- and the second one would contain:
+
+      srcdir => \"/path/to/your/source/wiki/blog\",
+      url => \"http://blog.example.com\",
+
+I hope I answered your question.
+
+-- [[Louis|spalax]]
+"""]]
