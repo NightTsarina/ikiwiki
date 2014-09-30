@@ -1,0 +1,19 @@
+If I'm reading the docs right, I count three different ways
+of associating some local styling information with a portion
+of a site:
+
+* [[plugins/localstyle]] uses the [[ikiwiki/subpage/LinkingRules]] to find the 'nearest' stylesheet
+* [[plugins/edittemplate]] uses a directive with a [[ikiwiki/PageSpec]] to indicate which
+    pages should get which templates
+* [[plugins/pagetemplate]] doesn't do a thing for you unless you shoehorn a
+    `pagetemplate` directive into every affected page.
+
+That last is the one that seems least useful. The [[ikiwiki/PageSpec]] approach seems
+most flexible.
+
+Would it be a bad thing to allow `pagetemplate` to work the way `edittmplate` does?
+Maybe just extend the existing directive? If it has a `pages` parameter, it specifies
+the template for the supplied [[ikiwiki/PageSpec]], otherwise it just affects the enclosing page
+as it does now?
+
+--Chap
