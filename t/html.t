@@ -7,8 +7,8 @@ my @pages;
 
 BEGIN {
 	@pages=qw(index features news plugins/map security);
-	if (! -x "/usr/bin/validate") {
-		plan skip_all => "/usr/bin/validate html validator not present";
+	if (system("command -v validate >/dev/null") != 0) {
+		plan skip_all => "html validator not present";
 	}
 	else {
 		plan(tests => int @pages + 2);
