@@ -1,3 +1,29 @@
+I have just opened [rubykat/ikiplugins issue #4](https://github.com/rubykat/ikiplugins/issues/4)
+regarding the fact that ymlfront doesn't seem to delete any old pagestate when fields have been
+removed in an edit. The fields are stuck there with their old values until a full rebuild. Seems
+to me ymlfront should just clear out all of the `{ymlfront}` pagestate before parsing the new
+stuff - including in the case where the new page has no ymlfront section at all.
+
+I discovered another slightly-different-but-related issue where simply _changing_ a field value
+in the YAML section doesn't always cause the generated HTML to be updated. Oddly, ikiwiki will
+_say_ it's building the page, but when you look at the HTML output, it's the old content.
+
+Could this involve some clever optimization where ikiwiki looks at the content (that's left over
+after ymlfront stripped out the YAML) and sees it hasn't changed? Does ymlfront need to do
+something more to indicate there is a change? Does the _template_ need to somehow be declared
+to depend on more stuff?
+
+As I said, the log does have a line for 'building' the page, so whatever optimization is happening
+must come later than the determination of what pages to 'build'.
+
+I'm mentioning it here because I'm not sure whether this or the issue on github will be seen
+first - there's a pretty old one open there. This seems to be quite
+potentially useful stuff that never quite got finished - is [[KathrynAndersen]] still
+interested? -- [[jcflack]]
+
+----
+Previous discussion re: delimiters
+
 Now that I have implemented a \[[!ymlfront ...]] directive, I would like to remove support for the old "---" delimited format, because
 
 * it is fragile (easily breakable)
