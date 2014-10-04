@@ -1,0 +1,24 @@
+[[!comment format=mdwn
+ username="spalax"
+ ip="82.233.196.200"
+ subject="Plugin compile"
+ date="2014-10-04T10:37:16Z"
+ content="""
+Hello,
+I enventually wrote a plugin that might fit your need: [[plugins/contrib/compile]].
+
+In setup file, you specify which command is to be applied to files. For instance, to convent `odt` files to `pdf`, you can use:
+
+    compile_filetypes = '
+        \"odt\": {
+          \"build\": \"libreoffice --headless --convert-to pdf %{srcname}s\",
+          \"destname\": \"%{basename}s.pdf\"
+        }
+      }'
+
+Then, in your wiki pages, you can use `\[[!compile files=\"foo.odt\"]]`. This will convert file to pdf, and render as a link to the `pdf` file. If option `inline` is set, you can also simply use a wikilink `\[[foo.odt]]`, which will have the same effect.
+
+Regards,    
+-- [[Louis|spalax]]
+
+"""]]
