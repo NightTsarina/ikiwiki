@@ -1,0 +1,208 @@
+[[!meta author="spalax"]]
+[[!template id=plugin name=compile author="[[Louis|spalax]]"]]
+
+# Compile
+
+The compile plugin provides the `compile` directive, used to on-the-fly compile
+and publish documents.
+
+For instance, if you want to publish files together with their sources (like
+`.tex` and `.pdf` files), you can have the `.tex` file in your source wiki
+directory, and command `\[[!compile files="foo.tex"]]` (or wikilink
+`\[[foo.tex]]`, if the right option is set) will compile file and render as a
+link to the `.pdf` file.
+
+[[!toc startlevel=2]]
+
+## Warning
+
+Some important security notice.
+
+- This plugins allows user to execute arbitrary commands when compiling the
+  wiki.  Use at your own risk. If you use Ikiwiki as a static web site compiler
+  (and not a wiki), and you are the only one to compile the wiki, there is no
+  risk.
+
+- Source files are published, wheter option `source` is true or not. If
+  `source` is false, source may not be *advertised*, but it is still available
+  somewhere on your website (most likely by replacing in the compiled file URL
+  the extension of the compiled file by the extension of the source file). So,
+  do not use this plugin if you do not want to publish your source files
+    (sorry: I designed this plugin to publish free stuff).
+
+## Rationale
+
+I want to publish some latex files, both source (`.tex`) and compiled (`.pdf`)
+version, but I do not want to maintain two versions of the same file.
+
+Using this plugin, I only have to maintain the `.tex` files, and thoses files
+are compiled on the fly, so that the `pdf` is published.
+
+## String formatting
+
+Strings (destination name, template name and build command) accept python-like
+syntax ``%{name}s``, which is replaced by the value of variable ``name``. The
+following variables are abailable.
+
+- `srcname`: Source name.
+- `srcextension`: Extension of the source name.
+- `filetype`: File type (extension of the source name, otherwise specified by directive).
+- `dirname`: Directory of the source file.
+- `wikiname`: Name of source file, relative to source wiki directory.
+- `srcfullname`: Name of source file, relative to file system root.
+- `basename`: Source name, without directory nor extension.
+- `destname`: Destination name (without directory).
+- `destextension`: Extension of the destination name.
+- `targetname`: Destination name, relative to the destination directory.
+- `destfullname`: Destination name, relative to file system root.
+
+## Directive
+
+### Usage
+
+Basic usage of this plugin is:
+
+    \[[!compile files="foo.ext"]]
+
+It renders file `foo.ext` according to rules defined in the setup file, and
+publish the compiled version.
+
+### Arguments
+
+All the arguments (but `source` and `filetype`) are string which are processed
+using python-like string formatting, and described in the setup options section.
+
+- `files`: List of files used in compilation, as space separated string. For
+  instance, to compile some tex file including a png image, you will have:
+  `files="foo.tex image.png"`. It is not possible to have filenames containing
+  spaces (unless you provide me a patch to recognize escaped spaces).
+- `filetype`: By default, the source file extension is used to determine build
+  command and other configuration. If the same extension refer to different
+  type of files, you can enforce the filetype using this argument. For
+  instance, if some your LaTeX files have to be compiled with `pdflatex`, while
+  the other require `latex`, your `compile_filetypes` can contains two keys
+  `tex` and `texdvi`. By default, LaTeX files will be compiled using
+  configuration associated to `tex`, unless directive has argument
+  `filetype=texdvi`, in which case the latter configuration is used.
+- `destname`: Name of the compiled file name.
+- `build`: Build command.
+- `source`: Boolean to choose whether to publish source file or not. The only
+  effect is the template choice: source is always published (but not always
+  advertised).
+- `template`: Name of the template to use (if set, the `source` option is
+  irrelevant).
+
+### Extensions
+
+Note: This directive does not work if source file name does not have an
+extension (i.e. does not contain a dot). This should not be too hard to
+implement, but I do not need it. Patches welcome.
+
+## Configuration
+
+Here are the setup options (most of them can be overloaded on a per-extension
+basis by setup option `compile_filetypes`, or by directive arguments):
+
+- `compile_source` (boolean): should sources be published with compiled file
+  (this only affect template choice; see warning)? Default is true.
+- `compile_template_source` (string): name of the template to use for compiled
+  files when option `source` is true. Default is `compile_source.tmpl`.
+- `compile_template_nosource` (string): name of the template to use for
+  compiled files when option `source` is false. Default is
+  `compile_nosource.tmpl`.
+- `compile_filetypes` (string): Per extension configuration (see paragraph
+  below).
+- `compile_tmpdir` (string): Path of a directory to use to compile files:
+  source file (and dependency) are copied to this directory before being
+  compiled (to avoid messing the ikiwiki directory with compiled version or
+  auxiliary files). Default is `SOURCE_WIKI/.ikwiki/tmp/compile`.
+- `compile_bindir` (string): Directory containing binaries to use to compile
+  files. Default is undefined.
+- `compile_depends` (string): List of files all compiled files will depend on
+  (see *Compilation* section below).
+- `compile_build` (string): Command to use to compile files. Default
+  is undefined.
+- `compile_inline` (boolean): If true, wikilinks pointing to files with an
+  extension specified in `compile_filetypes` are treated as a directive
+  \[[!compile files="LINK"]]. For instance, if this is set globally (or just
+  for tex), a wikilink \[[foo.tex]] will compile file `foo.tex`, and publish
+  the compiled `foo.pdf` file.
+
+### The `compile_filetypes` option
+
+This variable is a json string, representing a dictionary. Keys are source file
+extensions, values are dictionary of options applying only to files with this
+extension.
+
+Keys of these new directory are `source`, `template_nosource`,
+`template_source`, `build`, `depends`, `inline`, and overrides generic options
+defined above. They are themselves overriden by directive arguments (excepted
+`inline`).
+
+Example:
+
+    compile_filetypes => '{
+      "tex": {
+        "build": "pdflatex %{basename}s",
+        "destname": "%{basename}s.pdf",
+        "depends": ["logo.png"],
+        "inline": "1"
+      },
+      "texdvi": {
+        "build": "latex %{basename}s",
+        "destname": "%{basename}s.pdf",
+        "depends": ["logo.eps"]
+      }
+    }'
+
+## Compilation
+
+### Dependencies
+
+Before compilation, the source file and all dependencies are copied to the
+temporary directory defined by option `compile_tmpdir`. For instance, if all
+you LaTeX files are compiled using a custom class `foo.sty`, and a particular
+file `bar.tex` uses the `logo.png` file, your setup option will contain
+`foo.sty` as `depends`, and `compile` directive will be called using
+`\[[!compile files="bar.tex logo.png"]]`. Then, before compilation, files
+`foo.sty`, `bar.tex` and `logo.png` will be copied in the same temporary
+directory.
+
+Note that path are *flattened* when copied: before performing compilation of
+directive `\[[!compile files="sub1/foo sub2/bar"]]`, files `foo` and `bar` will
+be copied in the same directory: this temporary directory will contain failes
+`foo` and `bar`, but not `sub1/foo` and `sub2/bar`.
+
+### Build command
+
+The build command used is (if defined, by priority order):
+
+- defined by argument `build` of directive;
+- setup command ``compile_filetypes{TYPE}{build}``;
+- setup command ``compile_build`` (if you have a generic build command);
+- command ``$config{compile_bindir}/${extension}s %{srcname}s`` (if setup variable ``compile_bindir``is defined, is a directory, and contains an executable file matching the extension, it will be used);
+- command ``make -f $config{compile_bindir}/make.${extension}s %{destname}s`` (if setup variable ``compile_bindir`` is defined, is a directory, and contains a readable makefile ``make.EXTENSION``, it will be used).
+
+## Template
+
+The way links are rendered is defined in a template, which is (by order of
+priority, some of them depends on whether ``source`` is true):
+
+- argument `template` of directive;
+- setup variable ``compile_filetypes{TYPE}{template_source}`` or ``compile_filetypes{TYPE}{template_nosource}``;
+- setup variable ``compile_source`` or ``compile_nosource``;
+- `compile_source.mdwn` or `compile_nosource.mdwn`.
+
+It is passed the following variables:
+
+- `DESTURL`: URL to the compiled file.
+- `DESTNAME`: Name of the compiled file.
+- `SRCURL`: URL to the source file.
+- `SRCNAME`: Name of the source file (without directory).
+- `ORIGNAME`: Name of the source file (with directory).
+
+Note that templates can be used to display images (instead of a link to them).
+For instance, if you have a `.tiff` file you want to convert to png before
+displaying it on your website, you can use as a template:
+
+    <img src="<TMPL_VAR DESTURL>">
