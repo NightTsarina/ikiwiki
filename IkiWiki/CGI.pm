@@ -58,7 +58,10 @@ sub cgitemplate ($$$;@) {
 	
 	my $template=template("page.tmpl");
 
-	my $topurl = defined $cgi ? $cgi->url : $config{url};
+	my $topurl = $config{url};
+	if (defined $cgi && ! $config{w3mmode}) {
+		$topurl = $cgi->url;
+	}
 
 	my $page="";
 	if (exists $params{page}) {

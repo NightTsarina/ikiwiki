@@ -521,11 +521,8 @@ run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 %bits = parse_cgi_content($content);
 like($bits{tophref}, qr{^(?:\Q$pwd\E/t/tmp/out|\.)/$});
 like($bits{cgihref}, qr{^(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi$});
-TODO: {
-local $TODO = "should be file:///";
 like($bits{basehref}, qr{^(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out/$});
 like($bits{stylehref}, qr{^(?:(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out|\.)/style.css$});
-}
 
 #######################################################################
 # site 6: we're behind a reverse-proxy
