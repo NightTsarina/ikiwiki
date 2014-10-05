@@ -67,6 +67,8 @@ The `role` attribute is not allowed by the XHTML 1.0 Strict DTD, so we
 should only emit it in HTML5 mode (and we should probably
 [[todo/generate_HTML5_by_default]]).
 
+Specific roles:
+
 [[!format diff """
 -<div class="banner">
 +<div class="banner" role="banner">
@@ -85,5 +87,9 @@ I don't think the sidebar is *necessarily* navigation, although it's a
 reasonable guess. I would hope that the fact that it's an `<aside>`
 in HTML5 mode is enough to give accessibility tools a clue already?
 Would declaring this to be a `note` be sufficient?
+
+I've applied your suggested roles for #main, #comments and #footer,
+but only in HTML5 mode for the reason given above. I have not applied
+a role to the sidebar just yet.
 
 --[[smcv]]
