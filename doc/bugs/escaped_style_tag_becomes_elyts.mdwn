@@ -1,0 +1,28 @@
+When IkiWiki uses discount to implement [[plugins/mdwn]] rendering,
+there is a workaround for <https://rt.cpan.org/Ticket/Display.html?id=74016>:
+
+<pre><code>$t=~s/&lt;style/&lt;elyts/ig;
+my $r=Text::Markdown::Discount::markdown($t);
+$r=~s/&lt;elyts/&lt;style/ig;
+</code></pre>
+
+However, this workaround also applies to indented text or text in backticks:
+if you write <code>there is a bug involving the `&lt;style&gt;` tag</code>,
+or use indentation like
+
+<pre><code>you can use this markup:
+
+    &lt;style type="text/css"&gt;...&lt;/style&gt;
+</code></pre>
+
+then that gets turned into `&lt;elyts` in the HTML too. This makes it quite
+difficult to talk about HTML on an IkiWiki instance (I had to use raw HTML in
+this bug report's source to avoid the bug).
+
+I think the side-effect of the workaround is more damaging than the actual bug
+being worked around: I've never wanted to write inline style tags in the body of
+a Markdown page (which isn't even valid HTML) but I have certainly wanted to
+discuss style markup several times. The first couple of times I saw this happen,
+I thought it was some sort of misguided anti-cross-site-scripting filter...
+
+--[[smcv]]
