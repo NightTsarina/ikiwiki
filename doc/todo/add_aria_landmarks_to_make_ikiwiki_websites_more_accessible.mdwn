@@ -1,5 +1,7 @@
 Here is a patch for page.tmpl to add these landmarks.
 
+--[Patrick](https://www.google.com/accounts/o8/id?id=AItOawlnBLXDQbzD3OCcqZshcmExPNwlgD0tJ7A)
+
 > This can't be applied as a patch as-is because it's based on Tails'
 > modified `page.tmpl`, but I get the general idea. A reviewer will need
 > to check the ARIA meanings of those roles to confirm that they
@@ -53,3 +55,35 @@ index 5efad1a..cb76590 100644
  <TMPL_IF HTML5><nav id="pageinfo"><TMPL_ELSE><div id="pageinfo"></TMPL_IF>
  
 """]]
+
+----
+
+Here is a review. Please "sign" any responses so we can keep track of
+who is talking to who :-)
+
+General points:
+
+The `role` attribute is not allowed by the XHTML 1.0 Strict DTD, so we
+should only emit it in HTML5 mode (and we should probably
+[[todo/generate_HTML5_by_default]]).
+
+[[!format diff """
+-<div class="banner">
++<div class="banner" role="banner">
+"""]]
+
+There is no such class in IkiWiki's page.tmpl, so this part can't be applied.
+After this is applied to the main IkiWiki, you'll need to talk to the
+maintainers of the Tails wiki about changing that in their fork of the template.
+
+[[!format diff """
+-<TMPL_IF HTML5><aside class="sidebar"><TMPL_ELSE><div class="sidebar"></TMPL_IF>
++<TMPL_IF HTML5><aside class="sidebar" role="navigation"><TMPL_ELSE><div class="sidebar" role="navigation"></TMPL_IF>
+"""]]
+
+I don't think the sidebar is *necessarily* navigation, although it's a
+reasonable guess. I would hope that the fact that it's an `<aside>`
+in HTML5 mode is enough to give accessibility tools a clue already?
+Would declaring this to be a `note` be sufficient?
+
+--[[smcv]]
