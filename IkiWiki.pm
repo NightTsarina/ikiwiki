@@ -613,11 +613,18 @@ sub checkconfig () {
 
 			$local_cgiurl = $cgiurl->path;
 
-			if ($cgiurl->scheme ne $baseurl->scheme or
-				$cgiurl->authority ne $baseurl->authority) {
+			if ($cgiurl->scheme ne $baseurl->scheme) {
 				# too far apart, fall back to absolute URLs
 				$local_url = "$config{url}/";
 				$local_cgiurl = $config{cgiurl};
+			}
+			elsif ($cgiurl->authority ne $baseurl->authority) {
+				# slightly too far apart, fall back to
+				# protocol-relative URLs
+				$local_url = "$config{url}/";
+				$local_url =~ s{^https?://}{//};
+				$local_cgiurl = $config{cgiurl};
+				$local_cgiurl =~ s{^https?://}{//};
 			}
 		}
 

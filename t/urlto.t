@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
-use Test::More tests => 26;
+use Test::More tests => 31;
 
 BEGIN { use_ok("IkiWiki"); }
 
@@ -41,11 +41,20 @@ is(IkiWiki::urlto('', 'penguin/herring'), "../../");
 is(IkiWiki::cgiurl(cgiurl => 'https://foo/ikiwiki'), "https://foo/ikiwiki");
 is(IkiWiki::cgiurl(do => 'badger', cgiurl => 'https://foo/ikiwiki'), "https://foo/ikiwiki?do=badger");
 
-# with url and cgiurl on different sites, "local" degrades to absolute
+# with url and cgiurl on different sites, "local" degrades to protocol-relative
 $IkiWiki::config{url} = "http://example.co.uk/~smcv";
 $IkiWiki::config{cgiurl} = "http://dynamic.example.co.uk/~smcv/ikiwiki.cgi";
 is(IkiWiki::checkconfig(), 1);
-is(IkiWiki::cgiurl(), "http://dynamic.example.co.uk/~smcv/ikiwiki.cgi");
+is(IkiWiki::cgiurl(), "//dynamic.example.co.uk/~smcv/ikiwiki.cgi");
+is(IkiWiki::baseurl(undef), "//example.co.uk/~smcv/");
+is(IkiWiki::urlto('stoats', undef), "//example.co.uk/~smcv/stoats/");
+is(IkiWiki::urlto('', undef), "//example.co.uk/~smcv/");
+
+# with url and cgiurl on different schemes, "local" degrades to absolute
+$IkiWiki::config{url} = "http://example.co.uk/~smcv";
+$IkiWiki::config{cgiurl} = "https://dynamic.example.co.uk/~smcv/ikiwiki.cgi";
+is(IkiWiki::checkconfig(), 1);
+is(IkiWiki::cgiurl(), "https://dynamic.example.co.uk/~smcv/ikiwiki.cgi");
 is(IkiWiki::baseurl(undef), "http://example.co.uk/~smcv/");
 is(IkiWiki::urlto('stoats', undef), "http://example.co.uk/~smcv/stoats/");
 is(IkiWiki::urlto('', undef), "http://example.co.uk/~smcv/");

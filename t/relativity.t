@@ -227,13 +227,10 @@ run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 	$ENV{HTTPS} = 'on';
 });
 %bits = parse_cgi_content($content);
-TODO: {
-local $TODO = "avoid mixed content";
 like($bits{basehref}, qr{^https://static.example.com/$});
 like($bits{stylehref}, qr{^(?:(?:https:)?//static.example.com)?/style.css$});
 like($bits{tophref}, qr{^(?:https:)?//static.example.com/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//cgi.example.com)?/ikiwiki.cgi$});
-}
 
 # when accessed via a different hostname, links to the CGI (only) should
 # stay on that host?

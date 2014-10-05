@@ -26,6 +26,14 @@ but this breaks all sorts of things, like the 404 plugin and wiki rebuilds will 
 > protocol-relative URLs in this situation, but it isn't clear to me how
 > widely-supported those are.
 >
+>> HTML5 says protocol-relative URLs work, and they seem to be widely
+>> supported in practice, so I've changed the rule to: if the url and cgiurl
+>> share a scheme (protocol) but differ only by hostname, use `//foo/bar`
+>> protocol-relative URLs. This partially addresses this todo.
+>> I'm still thinking about what the right thing is for more complicated
+>> situations: see [[todo/design for cross-linking between content and CGI]].
+>> --[[smcv]]
+>
 > If you set both the `$config{url}` and `$config{cgiurl}` to https, but make
 > the resulting HTML available over HTTP as well as HTTPS, that should work
 > fine - accesses will be over http until the user either explicitly
