@@ -407,12 +407,9 @@ run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 	$ENV{HTTPS} = 'on';
 });
 %bits = parse_cgi_content($content);
-TODO: {
-local $TODO = "avoid mixed content";
 is($bits{basehref}, "https://example.com/wiki/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
-}
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # when not accessed via HTTPS, ???
@@ -439,11 +436,13 @@ run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 	$ENV{HTTPS} = 'on';
 });
 %bits = parse_cgi_content($content);
+# because the static and dynamic stuff is on the same server, we assume that
+# both are also on the staging server
+like($bits{basehref}, qr{^https://staging.example.net/wiki/$});
+like($bits{stylehref}, qr{^(?:(?:https:)?//staging.example.net)?/wiki/style.css$});
+like($bits{tophref}, qr{^(?:(?:(?:https:)?//staging.example.net)?/wiki|\.)/$});
 TODO: {
-local $TODO = "avoid mixed content";
-like($bits{basehref}, qr{^https://example.com/wiki/$});
-like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
-like($bits{tophref}, qr{^(?:(?:(?:https:)?//example.com)?/wiki|\.)/$});
+local $TODO = "this should really point back to itself but currently points to example.com";
 like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
 }
 
@@ -458,11 +457,8 @@ run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
 	$ENV{HTTPS} = 'on';
 });
 %bits = parse_cgi_content($content);
-TODO: {
-local $TODO = "avoid mixed content";
 is($bits{basehref}, "https://example.com/wiki/a/b/c/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
-}
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 

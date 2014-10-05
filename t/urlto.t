@@ -50,11 +50,13 @@ is(IkiWiki::baseurl(undef), "//example.co.uk/~smcv/");
 is(IkiWiki::urlto('stoats', undef), "//example.co.uk/~smcv/stoats/");
 is(IkiWiki::urlto('', undef), "//example.co.uk/~smcv/");
 
-# with url and cgiurl on different schemes, "local" degrades to absolute
+# with url and cgiurl on different schemes, "local" degrades to absolute for
+# CGI but protocol-relative for static content, to avoid the CGI having
+# mixed content
 $IkiWiki::config{url} = "http://example.co.uk/~smcv";
 $IkiWiki::config{cgiurl} = "https://dynamic.example.co.uk/~smcv/ikiwiki.cgi";
 is(IkiWiki::checkconfig(), 1);
 is(IkiWiki::cgiurl(), "https://dynamic.example.co.uk/~smcv/ikiwiki.cgi");
-is(IkiWiki::baseurl(undef), "http://example.co.uk/~smcv/");
-is(IkiWiki::urlto('stoats', undef), "http://example.co.uk/~smcv/stoats/");
-is(IkiWiki::urlto('', undef), "http://example.co.uk/~smcv/");
+is(IkiWiki::baseurl(undef), "//example.co.uk/~smcv/");
+is(IkiWiki::urlto('stoats', undef), "//example.co.uk/~smcv/stoats/");
+is(IkiWiki::urlto('', undef), "//example.co.uk/~smcv/");

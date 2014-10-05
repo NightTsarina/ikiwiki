@@ -613,7 +613,26 @@ sub checkconfig () {
 
 			$local_cgiurl = $cgiurl->path;
 
-			if ($cgiurl->scheme ne $baseurl->scheme) {
+			if ($cgiurl->scheme eq 'https' &&
+				$baseurl->scheme eq 'http') {
+				# We assume that the same content is available
+				# over both http and https, because if it
+				# wasn't, accessing the static content
+				# from the CGI would be mixed-content,
+				# which would be a security flaw.
+
+				if ($cgiurl->authority ne $baseurl->authority) {
+					# use protocol-relative URL for
+					# static content
+					$local_url = "$config{url}/";
+					$local_url =~ s{^http://}{//};
+				}
+				# else use host-relative URL for static content
+
+				# either way, CGI needs to be absolute
+				$local_cgiurl = $config{cgiurl};
+			}
+			elsif ($cgiurl->scheme ne $baseurl->scheme) {
 				# too far apart, fall back to absolute URLs
 				$local_url = "$config{url}/";
 				$local_cgiurl = $config{cgiurl};
@@ -626,6 +645,7 @@ sub checkconfig () {
 				$local_cgiurl = $config{cgiurl};
 				$local_cgiurl =~ s{^https?://}{//};
 			}
+			# else keep host-relative URLs
 		}
 
 		$local_url =~ s{//$}{/};
