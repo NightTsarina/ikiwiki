@@ -109,3 +109,10 @@ in the setup file as http if you intend that they will most commonly
 be accessed via http (e.g. the "my cert is not CA-cartel approved"
 use-case), or as https if you intend to force accesses into
 being via https (the "my wiki is secret" use-case).
+
+# Regression test
+
+I've added a regression test in `t/relativity.t`. We might want to
+consider dropping some of it or skipping it unless a special environment
+variable is set once this is all working, since it's a bit slow.
+--[[smcv]]
