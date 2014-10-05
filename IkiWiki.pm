@@ -108,6 +108,14 @@ sub getsetup () {
 		safe => 1,
 		rebuild => 1,
 	},
+	reverse_proxy => {
+		type => "boolean",
+		default => 0,
+		description => "do not adjust cgiurl if CGI is accessed via different URL",
+		advanced => 0,
+		safe => 1,
+		rebuild => 0, # only affects CGI requests
+	},
 	cgi_wrapper => {
 		type => "string",
 		default => '',

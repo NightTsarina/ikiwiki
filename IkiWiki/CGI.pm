@@ -59,7 +59,7 @@ sub cgitemplate ($$$;@) {
 	my $template=template("page.tmpl");
 
 	my $topurl = $config{url};
-	if (defined $cgi && ! $config{w3mmode}) {
+	if (defined $cgi && ! $config{w3mmode} && ! $config{reverse_proxy}) {
 		$topurl = $cgi->url;
 	}
 
@@ -93,7 +93,13 @@ sub cgitemplate ($$$;@) {
 sub redirect ($$) {
 	my $q=shift;
 	eval q{use URI};
-	my $url=URI->new(urlabs(shift, $q->url));
+
+	my $topurl;
+	if (defined $q && ! $config{w3mmode} && ! $config{reverse_proxy}) {
+		$topurl = $q->url;
+	}
+
+	my $url=URI->new(urlabs(shift, $topurl));
 	if (! $config{w3mmode}) {
 		print $q->redirect($url);
 	}

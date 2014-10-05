@@ -571,11 +571,8 @@ run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 %bits = parse_cgi_content($content);
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
-TODO: {
-local $TODO = "reverse-proxy support needed";
 is($bits{basehref}, "https://example.com/wiki/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
-}
 
 # previewing a page
 $in = 'do=edit&page=a/b/c&Preview';
@@ -589,10 +586,7 @@ run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
 %bits = parse_cgi_content($content);
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
-TODO: {
-local $TODO = "reverse-proxy support needed";
 is($bits{basehref}, "https://example.com/wiki/a/b/c/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
-}
 
 done_testing;
