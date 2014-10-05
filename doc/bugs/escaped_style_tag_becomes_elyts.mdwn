@@ -15,8 +15,10 @@ or use indentation like
     &lt;style type="text/css"&gt;...&lt;/style&gt;
 </code></pre>
 
-then that gets turned into `&lt;elyts` in the HTML too. This makes it quite
-difficult to talk about HTML on an IkiWiki instance (I had to use raw HTML in
+then that gets turned into `<elyts` in the source before passing through
+`markdown`, comes out as `&lt;elyts` in the output HTML, and is rendered
+as `<elyts` by the browser. This makes it quite difficult to talk about
+HTML stylesheet markup on an IkiWiki instance (I had to use raw HTML in
 this bug report's source to avoid the bug).
 
 I think the side-effect of the workaround is more damaging than the actual bug
