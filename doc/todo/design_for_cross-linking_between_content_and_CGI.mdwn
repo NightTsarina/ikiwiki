@@ -119,18 +119,6 @@ variable is set once this is all working, since it's a bit slow.
 
 # Remaining bugs
 
-## Definitely a bug
-
-* Configure url: "http://example.com/wiki/",
-  cgiurl: "https://example.com/cgi-bin/ikiwiki.cgi" and access the
-  CGI via https://example.com (the "NetBSD wiki" use-case).
-  The static content should be loaded from https://example.com
-  to avoid mixed-content, but it is loaded from http://example.com.
-
-* Put IkiWiki behind a reverse-proxy so the web server tells the CGI
-  that it is being accessed via http://localhost or http://127.0.0.1
-  or something. Links should not point to http://localhost.
-
 ## Arguable
 
 * Configure the url and cgiurl to both be https, then access the
