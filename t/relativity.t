@@ -243,12 +243,12 @@ run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
 	$ENV{SERVER_PORT} = '80';
 	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
 	$ENV{HTTP_HOST} = 'staging.example.net';
-	$ENV{HTTPS} = 'on';
 	$ENV{CONTENT_LENGTH} = length $in;
 });
-like($bits{basehref}, qr{^http://static.example.com/$});
-like($bits{stylehref}, qr{^(?:(?:http:)?//static.example.com)?/style.css$});
-like($bits{tophref}, qr{^(?:http:)?//static.example.com/$});
+%bits = parse_cgi_content($content);
+like($bits{basehref}, qr{^http://static.example.com/a/b/c/$});
+like($bits{stylehref}, qr{^(?:(?:http:)?//static.example.com|\.\./\.\./\.\.)/style.css$});
+like($bits{tophref}, qr{^(?:(?:http:)?//static.example.com|\.\./\.\./\.\.)/$});
 TODO: {
 local $TODO = "use self-referential CGI URL?";
 like($bits{cgihref}, qr{^(?:(?:http:)?//staging.example.net)?/ikiwiki.cgi$});
