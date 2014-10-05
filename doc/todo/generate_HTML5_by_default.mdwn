@@ -1,0 +1,33 @@
+The `html5` option was added in 2010 and marked as "not experimental" in 2011
+but is not the default.
+
+According to <http://caniuse.com/#feat=html5semantic>, current versions of
+all recent versions of all major browsers - even IE - support the HTML5
+semantic elements (`<section>` etc.), except for `<main>` which IkiWiki
+doesn't use anyway. With that being the case, I'm not sure whether we gain
+anything from not generating HTML5 (or "HTML" as it's now labelled) all the time.
+
+In particular, non-HTML5 mode uses `<!DOCTYPE html PUBLIC
+"-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">`
+which doesn't allow newer markup like the `role` attribute, so we can't close
+[[todo/add_aria_landmarks_to_make_ikiwiki_websites_more_accessible]] while
+remaining XHTML 1.0 Strict. The recommended pseudo-doctype for HTML5, and for
+HTML with ARIA markup, is `<!DOCTYPE html>`.
+
+(I do think we should continue to use `<xml-compatible-tags />` and output
+well-formed XML so people who want to do XSLT tricks with IkiWiki's output
+can do so, though.)
+
+In practice, real browsers have never actually implemented a strict XHTML mode:
+they've always parsed `text/html` as "tag soup", because they need a tag-soup
+parser anyway, and nobody wants to maintain two parsers.
+
+Options include:
+
+* set html5 to 1 by default but retain the dual-mode templates
+* remove the option and always behave as if it had been 1, simplifying
+  the templates
+
+Thoughts?
+
+--[[smcv]]
