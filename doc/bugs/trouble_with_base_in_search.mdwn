@@ -58,3 +58,14 @@ And I'm sure someone else could come up with something better and more general.
 
 >> I suppose what I would like would be to not need to use a `<base href>` in searching at all.
 >> --[[KathrynAndersen]]
+
+>>> `<base href>` is *not* required to be absolute in HTML5, so when
+>>> `html5: 1` is used, I've changed it to be host-relative in most cases.
+>>> I think that at least partially addresses this bug report,
+>>> particularly if we [[todo/generate HTML5 by default]] like I've suggested.
+>>>
+>>> The `<base>` is there so we can avoid having to compute how to
+>>> get to (the virtual directory containing) the root of the wiki from
+>>> `ikiwiki.cgi`, which might well be somewhere odd like `/cgi-bin/`.
+>>> I think there are probably other things that it fixes or simplifies.
+>>> --[[smcv]]

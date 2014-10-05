@@ -77,6 +77,7 @@ url: "http://example.com/wiki/"
 cgiurl: "http://example.com/cgi-bin/ikiwiki.cgi"
 cgi_wrapper: t/tmp/ikiwiki.cgi
 cgi_wrappermode: 0754
+html5: 0
 # make it easier to test previewing
 add_plugins:
 - anonok
@@ -162,6 +163,106 @@ like($bits{stylehref}, qr{^(?:(?:http:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 like($bits{cgihref}, qr{^(?:(?:http:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
+# in html5, the <base> is allowed to be relative, and we take full
+# advantage of that
+writefile("test.setup", "t/tmp", <<EOF
+# IkiWiki::Setup::Yaml - YAML formatted setup file
+wikiname: this is the name of my wiki
+srcdir: t/tmp/in
+destdir: t/tmp/out
+templatedir: templates
+url: "http://example.com/wiki/"
+cgiurl: "http://example.com/cgi-bin/ikiwiki.cgi"
+cgi_wrapper: t/tmp/ikiwiki.cgi
+cgi_wrappermode: 0754
+html5: 1
+# make it easier to test previewing
+add_plugins:
+- anonok
+anonok_pagespec: "*"
+ENV: { 'PERL5LIB': '$PERL5LIB' }
+EOF
+);
+
+ok(unlink("t/tmp/ikiwiki.cgi") || $!{ENOENT});
+ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+
+# CGI wrapper should be exactly the requested mode
+(undef, undef, $mode, undef, undef,
+	undef, undef, undef, undef, undef,
+	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
+is($mode & 07777, 0754);
+
+ok(-e "t/tmp/out/a/b/c/index.html");
+$content = readfile("t/tmp/out/a/b/c/index.html");
+# no <base> on static HTML
+unlike($content, qr{<base\W});
+# url and cgiurl are on the same host so the cgiurl is host-relative
+like($content, qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
+# cross-links between static pages are relative
+like($content, qr{<li>A: <a href="../../">a</a></li>});
+like($content, qr{<li>B: <a href="../">b</a></li>});
+like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+
+run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'GET';
+	$ENV{SERVER_PORT} = '80';
+	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
+	$ENV{QUERY_STRING} = 'do=prefs';
+	$ENV{HTTP_HOST} = 'example.com';
+});
+%bits = parse_cgi_content($content);
+is($bits{basehref}, "/wiki/");
+is($bits{stylehref}, "/wiki/style.css");
+is($bits{tophref}, "/wiki/");
+is($bits{cgihref}, "/cgi-bin/ikiwiki.cgi");
+
+# when accessed via HTTPS, links are secure - this is easy because under
+# html5 they're independent of the URL at which the CGI was accessed
+run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'GET';
+	$ENV{SERVER_PORT} = '443';
+	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
+	$ENV{QUERY_STRING} = 'do=prefs';
+	$ENV{HTTP_HOST} = 'example.com';
+	$ENV{HTTPS} = 'on';
+});
+%bits = parse_cgi_content($content);
+is($bits{basehref}, "/wiki/");
+is($bits{stylehref}, "/wiki/style.css");
+is($bits{tophref}, "/wiki/");
+is($bits{cgihref}, "/cgi-bin/ikiwiki.cgi");
+
+# when accessed via a different hostname, links stay on that host -
+# this is really easy in html5 because we can use relative URLs
+run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'GET';
+	$ENV{SERVER_PORT} = '80';
+	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
+	$ENV{QUERY_STRING} = 'do=prefs';
+	$ENV{HTTP_HOST} = 'staging.example.net';
+});
+%bits = parse_cgi_content($content);
+is($bits{basehref}, "/wiki/");
+is($bits{stylehref}, "/wiki/style.css");
+is($bits{tophref}, "/wiki/");
+is($bits{cgihref}, "/cgi-bin/ikiwiki.cgi");
+
+# previewing a page
+$in = 'do=edit&page=a/b/c&Preview';
+run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'POST';
+	$ENV{SERVER_PORT} = '80';
+	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
+	$ENV{HTTP_HOST} = 'example.com';
+	$ENV{CONTENT_LENGTH} = length $in;
+});
+%bits = parse_cgi_content($content);
+is($bits{basehref}, "/wiki/a/b/c/");
+is($bits{stylehref}, "/wiki/style.css");
+like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
+is($bits{cgihref}, "/cgi-bin/ikiwiki.cgi");
+
 #######################################################################
 # site 2: static content and CGI are on different servers
 
@@ -175,6 +276,7 @@ url: "http://static.example.com/"
 cgiurl: "http://cgi.example.com/ikiwiki.cgi"
 cgi_wrapper: t/tmp/ikiwiki.cgi
 cgi_wrappermode: 0754
+html5: 0
 # make it easier to test previewing
 add_plugins:
 - anonok
@@ -246,9 +348,99 @@ run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
 like($bits{basehref}, qr{^http://static.example.com/a/b/c/$});
 like($bits{stylehref}, qr{^(?:(?:http:)?//static.example.com|\.\./\.\./\.\.)/style.css$});
 like($bits{tophref}, qr{^(?:(?:http:)?//static.example.com|\.\./\.\./\.\.)/$});
+like($bits{cgihref}, qr{^(?:(?:http:)?//(?:staging\.example\.net|cgi\.example\.com))?/ikiwiki.cgi$});
 TODO: {
 local $TODO = "use self-referential CGI URL?";
 like($bits{cgihref}, qr{^(?:(?:http:)?//staging.example.net)?/ikiwiki.cgi$});
+}
+
+writefile("test.setup", "t/tmp", <<EOF
+# IkiWiki::Setup::Yaml - YAML formatted setup file
+wikiname: this is the name of my wiki
+srcdir: t/tmp/in
+destdir: t/tmp/out
+templatedir: templates
+url: "http://static.example.com/"
+cgiurl: "http://cgi.example.com/ikiwiki.cgi"
+cgi_wrapper: t/tmp/ikiwiki.cgi
+cgi_wrappermode: 0754
+html5: 1
+# make it easier to test previewing
+add_plugins:
+- anonok
+anonok_pagespec: "*"
+ENV: { 'PERL5LIB': '$PERL5LIB' }
+EOF
+);
+
+ok(unlink("t/tmp/ikiwiki.cgi"));
+ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+
+# CGI wrapper should be exactly the requested mode
+(undef, undef, $mode, undef, undef,
+	undef, undef, undef, undef, undef,
+	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
+is($mode & 07777, 0754);
+
+ok(-e "t/tmp/out/a/b/c/index.html");
+$content = readfile("t/tmp/out/a/b/c/index.html");
+# no <base> on static HTML
+unlike($content, qr{<base\W});
+# url and cgiurl are not on the same host so the cgiurl has to be
+# protocol-relative or absolute
+like($content, qr{<a[^>]+href="(?:http:)?//cgi.example.com/ikiwiki.cgi\?do=prefs"});
+# cross-links between static pages are still relative
+like($content, qr{<li>A: <a href="../../">a</a></li>});
+like($content, qr{<li>B: <a href="../">b</a></li>});
+like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+
+run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'GET';
+	$ENV{SERVER_PORT} = '80';
+	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
+	$ENV{QUERY_STRING} = 'do=prefs';
+	$ENV{HTTP_HOST} = 'cgi.example.com';
+});
+%bits = parse_cgi_content($content);
+is($bits{basehref}, "//static.example.com/");
+is($bits{stylehref}, "//static.example.com/style.css");
+is($bits{tophref}, "//static.example.com/");
+is($bits{cgihref}, "//cgi.example.com/ikiwiki.cgi");
+
+# when accessed via HTTPS, links are secure - in fact they're exactly the
+# same as when accessed via HTTP
+run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'GET';
+	$ENV{SERVER_PORT} = '443';
+	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
+	$ENV{QUERY_STRING} = 'do=prefs';
+	$ENV{HTTP_HOST} = 'cgi.example.com';
+	$ENV{HTTPS} = 'on';
+});
+%bits = parse_cgi_content($content);
+is($bits{basehref}, "//static.example.com/");
+is($bits{stylehref}, "//static.example.com/style.css");
+is($bits{tophref}, "//static.example.com/");
+is($bits{cgihref}, "//cgi.example.com/ikiwiki.cgi");
+
+# when accessed via a different hostname, links to the CGI (only) should
+# stay on that host?
+$in = 'do=edit&page=a/b/c&Preview';
+run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'POST';
+	$ENV{SERVER_PORT} = '80';
+	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
+	$ENV{HTTP_HOST} = 'staging.example.net';
+	$ENV{CONTENT_LENGTH} = length $in;
+});
+%bits = parse_cgi_content($content);
+is($bits{basehref}, "//static.example.com/a/b/c/");
+is($bits{stylehref}, "//static.example.com/style.css");
+is($bits{tophref}, "../../../");
+like($bits{cgihref}, qr{//(?:staging\.example\.net|cgi\.example\.com)/ikiwiki\.cgi});
+TODO: {
+local $TODO = "use self-referential CGI URL maybe?";
+is($bits{cgihref}, "//staging.example.net/ikiwiki.cgi");
 }
 
 #######################################################################
@@ -264,6 +456,7 @@ url: "https://example.com/wiki/"
 cgiurl: "https://example.com/cgi-bin/ikiwiki.cgi"
 cgi_wrapper: t/tmp/ikiwiki.cgi
 cgi_wrappermode: 0754
+html5: 0
 # make it easier to test previewing
 add_plugins:
 - anonok
@@ -356,6 +549,8 @@ like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
+# not testing html5: 0 here because that ends up identical to site 1
+
 #######################################################################
 # site 4 (NetBSD wiki): CGI is secure, static content doesn't have to be
 
@@ -369,6 +564,7 @@ url: "http://example.com/wiki/"
 cgiurl: "https://example.com/cgi-bin/ikiwiki.cgi"
 cgi_wrapper: t/tmp/ikiwiki.cgi
 cgi_wrappermode: 0754
+html5: 0
 # make it easier to test previewing
 add_plugins:
 - anonok
@@ -441,6 +637,7 @@ run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 like($bits{basehref}, qr{^https://staging.example.net/wiki/$});
 like($bits{stylehref}, qr{^(?:(?:https:)?//staging.example.net)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:(?:(?:https:)?//staging.example.net)?/wiki|\.)/$});
+like($bits{cgihref}, qr{^(?:(?:https:)?//(?:staging\.example\.net|example\.com))?/cgi-bin/ikiwiki.cgi$});
 TODO: {
 local $TODO = "this should really point back to itself but currently points to example.com";
 like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
@@ -462,6 +659,111 @@ like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
+writefile("test.setup", "t/tmp", <<EOF
+# IkiWiki::Setup::Yaml - YAML formatted setup file
+wikiname: this is the name of my wiki
+srcdir: t/tmp/in
+destdir: t/tmp/out
+templatedir: templates
+url: "http://example.com/wiki/"
+cgiurl: "https://example.com/cgi-bin/ikiwiki.cgi"
+cgi_wrapper: t/tmp/ikiwiki.cgi
+cgi_wrappermode: 0754
+html5: 1
+# make it easier to test previewing
+add_plugins:
+- anonok
+anonok_pagespec: "*"
+ENV: { 'PERL5LIB': '$PERL5LIB' }
+EOF
+);
+
+ok(unlink("t/tmp/ikiwiki.cgi"));
+ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+
+# CGI wrapper should be exactly the requested mode
+(undef, undef, $mode, undef, undef,
+	undef, undef, undef, undef, undef,
+	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
+is($mode & 07777, 0754);
+
+ok(-e "t/tmp/out/a/b/c/index.html");
+$content = readfile("t/tmp/out/a/b/c/index.html");
+# no <base> on static HTML
+unlike($content, qr{<base\W});
+# url and cgiurl are on the same host but different schemes
+like($content, qr{<a[^>]+href="https://example.com/cgi-bin/ikiwiki.cgi\?do=prefs"});
+# cross-links between static pages are relative
+like($content, qr{<li>A: <a href="../../">a</a></li>});
+like($content, qr{<li>B: <a href="../">b</a></li>});
+like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+
+# when accessed via HTTPS, links are secure (to avoid mixed-content)
+run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'GET';
+	$ENV{SERVER_PORT} = '443';
+	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
+	$ENV{QUERY_STRING} = 'do=prefs';
+	$ENV{HTTP_HOST} = 'example.com';
+	$ENV{HTTPS} = 'on';
+});
+%bits = parse_cgi_content($content);
+is($bits{basehref}, "/wiki/");
+is($bits{stylehref}, "/wiki/style.css");
+is($bits{tophref}, "/wiki/");
+like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
+
+# when not accessed via HTTPS, ???
+run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'GET';
+	$ENV{SERVER_PORT} = '80';
+	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
+	$ENV{QUERY_STRING} = 'do=prefs';
+	$ENV{HTTP_HOST} = 'example.com';
+});
+%bits = parse_cgi_content($content);
+like($bits{basehref}, qr{^(?:https?://example.com)?/wiki/$});
+like($bits{stylehref}, qr{^(?:(?:https?:)?//example.com)?/wiki/style.css$});
+like($bits{tophref}, qr{^(?:(?:https?://example.com)?/wiki|\.)/$});
+like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
+
+# when accessed via a different hostname, links stay on that host
+run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'GET';
+	$ENV{SERVER_PORT} = '443';
+	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
+	$ENV{QUERY_STRING} = 'do=prefs';
+	$ENV{HTTP_HOST} = 'staging.example.net';
+	$ENV{HTTPS} = 'on';
+});
+%bits = parse_cgi_content($content);
+# because the static and dynamic stuff is on the same server, we assume that
+# both are also on the staging server
+is($bits{basehref}, "/wiki/");
+is($bits{stylehref}, "/wiki/style.css");
+like($bits{tophref}, qr{^(?:/wiki|\.)/$});
+like($bits{cgihref}, qr{^(?:(?:https:)?//(?:example\.com|staging\.example\.net))?/cgi-bin/ikiwiki.cgi$});
+TODO: {
+local $TODO = "this should really point back to itself but currently points to example.com";
+like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
+}
+
+# previewing a page
+$in = 'do=edit&page=a/b/c&Preview';
+run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'POST';
+	$ENV{SERVER_PORT} = '443';
+	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
+	$ENV{HTTP_HOST} = 'example.com';
+	$ENV{CONTENT_LENGTH} = length $in;
+	$ENV{HTTPS} = 'on';
+});
+%bits = parse_cgi_content($content);
+is($bits{basehref}, "/wiki/a/b/c/");
+is($bits{stylehref}, "/wiki/style.css");
+like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
+like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
+
 # Deliberately not testing https static content with http cgiurl,
 # because that makes remarkably little sense.
 
@@ -478,6 +780,57 @@ cgiurl: ikiwiki.cgi
 w3mmode: 1
 cgi_wrapper: t/tmp/ikiwiki.cgi
 cgi_wrappermode: 0754
+html5: 0
+add_plugins:
+- anonok
+anonok_pagespec: "*"
+ENV: { 'PERL5LIB': '$PERL5LIB' }
+EOF
+);
+
+ok(unlink("t/tmp/ikiwiki.cgi"));
+ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+
+# CGI wrapper should be exactly the requested mode
+(undef, undef, $mode, undef, undef,
+	undef, undef, undef, undef, undef,
+	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
+is($mode & 07777, 0754);
+
+ok(-e "t/tmp/out/a/b/c/index.html");
+$content = readfile("t/tmp/out/a/b/c/index.html");
+# no <base> on static HTML
+unlike($content, qr{<base\W});
+# FIXME: does /$LIB/ikiwiki-w3m.cgi work under w3m?
+like($content, qr{<a[^>]+href="(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi\?do=prefs"});
+# cross-links between static pages are still relative
+like($content, qr{<li>A: <a href="../../">a</a></li>});
+like($content, qr{<li>B: <a href="../">b</a></li>});
+like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+
+run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
+	$ENV{REQUEST_METHOD} = 'GET';
+	$ENV{PATH_INFO} = '/ikiwiki.cgi';
+	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki-w3m.cgi';
+	$ENV{QUERY_STRING} = 'do=prefs';
+});
+%bits = parse_cgi_content($content);
+like($bits{tophref}, qr{^(?:\Q$pwd\E/t/tmp/out|\.)/$});
+like($bits{cgihref}, qr{^(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi$});
+like($bits{basehref}, qr{^(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out/$});
+like($bits{stylehref}, qr{^(?:(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out|\.)/style.css$});
+
+writefile("test.setup", "t/tmp", <<EOF
+# IkiWiki::Setup::Yaml - YAML formatted setup file
+wikiname: this is the name of my wiki
+srcdir: t/tmp/in
+destdir: t/tmp/out
+templatedir: templates
+cgiurl: ikiwiki.cgi
+w3mmode: 1
+cgi_wrapper: t/tmp/ikiwiki.cgi
+cgi_wrappermode: 0754
+html5: 1
 add_plugins:
 - anonok
 anonok_pagespec: "*"
@@ -530,6 +883,7 @@ url: "https://example.com/wiki/"
 cgiurl: "https://example.com/cgi-bin/ikiwiki.cgi"
 cgi_wrapper: t/tmp/ikiwiki.cgi
 cgi_wrappermode: 0754
+html5: 0
 # make it easier to test previewing
 add_plugins:
 - anonok
@@ -588,5 +942,8 @@ like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 is($bits{basehref}, "https://example.com/wiki/a/b/c/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
+
+# not testing html5: 1 because it would be the same as site 1 -
+# the reverse_proxy config option is unnecessary under html5
 
 done_testing;
