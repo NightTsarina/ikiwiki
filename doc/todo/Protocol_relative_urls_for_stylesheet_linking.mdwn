@@ -20,6 +20,13 @@ but this breaks all sorts of things, like the 404 plugin and wiki rebuilds will 
 > CGI-generated pages should generate those links. This was the implementation of
 > [[todo/want_to_avoid_ikiwiki_using_http_or_https_in_urls_to_allow_serving_both]].
 >
+>> This wasn't actually the case if the schemes are different; but now
+>> IkiWiki will generate protocol-relative URLs if the CGI is https,
+>> the url is http and the hostname is the same (i.e. it assumes that the https
+>> equivalent of the url will also work). This is to prevent mixed-content
+>> issues, and partially addresses this todo item.
+>> --[[smcv]]
+>
 > If your`$config{url}` and `$config{cgiurl}` have different hostnames (e.g.
 > `url => "http://wiki.example.com", cgiurl => "http://cgi.example.com/ikiwiki.cgi"`)
 > then you might still have this problem. In principle, IkiWiki could generate
