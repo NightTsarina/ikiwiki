@@ -18,6 +18,7 @@ BEGIN {
 	use_ok("IkiWiki");
 }
 
+my $PERL5LIB = 'blib/lib:blib/arch';
 my $pwd = getcwd();
 
 # Black-box (ish) test for relative linking between CGI and static content
@@ -80,6 +81,7 @@ cgi_wrappermode: 0754
 add_plugins:
 - anonok
 anonok_pagespec: "*"
+ENV: { 'PERL5LIB': '$PERL5LIB' }
 EOF
 );
 
@@ -177,6 +179,7 @@ cgi_wrappermode: 0754
 add_plugins:
 - anonok
 anonok_pagespec: "*"
+ENV: { 'PERL5LIB': '$PERL5LIB' }
 EOF
 );
 
@@ -268,6 +271,7 @@ cgi_wrappermode: 0754
 add_plugins:
 - anonok
 anonok_pagespec: "*"
+ENV: { 'PERL5LIB': '$PERL5LIB' }
 EOF
 );
 
@@ -372,6 +376,7 @@ cgi_wrappermode: 0754
 add_plugins:
 - anonok
 anonok_pagespec: "*"
+ENV: { 'PERL5LIB': '$PERL5LIB' }
 EOF
 );
 
@@ -483,6 +488,7 @@ cgi_wrappermode: 0754
 add_plugins:
 - anonok
 anonok_pagespec: "*"
+ENV: { 'PERL5LIB': '$PERL5LIB' }
 EOF
 );
 
@@ -539,6 +545,7 @@ add_plugins:
 - anonok
 anonok_pagespec: "*"
 reverse_proxy: 1
+ENV: { 'PERL5LIB': '$PERL5LIB' }
 EOF
 );
 
