@@ -2,21 +2,17 @@
 use warnings;
 use strict;
 
-use Cwd qw(getcwd);
-use Errno qw(ENOENT);
-
-BEGIN {
-	if (!eval q{
+use Test::More;
+plan(skip_all => "IPC::Run not available")
+	unless eval q{
 		use IPC::Run qw(run);
 		1;
-	}) {
-		eval q{use Test::More skip_all => "IPC::Run not available"};
-	}
-	else {
-		eval q{use Test::More};
-	}
-	use_ok("IkiWiki");
-}
+	};
+
+use IkiWiki;
+
+use Cwd qw(getcwd);
+use Errno qw(ENOENT);
 
 my $PERL5LIB = 'blib/lib:blib/arch';
 my $pwd = getcwd();
