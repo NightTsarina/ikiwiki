@@ -87,6 +87,11 @@ EOF
 	);
 }
 
+sub thoroughly_rebuild {
+	ok(unlink("t/tmp/ikiwiki.cgi") || $!{ENOENT});
+	ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+}
+
 #######################################################################
 # site 1: a perfectly ordinary ikiwiki
 
@@ -95,9 +100,7 @@ write_setup_file(
 	url	=> "http://example.com/wiki/",
 	cgiurl	=> "http://example.com/cgi-bin/ikiwiki.cgi",
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi") || $!{ENOENT});
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 my (undef, undef, $mode, undef, undef,
@@ -180,9 +183,7 @@ write_setup_file(
 	url	=> "http://example.com/wiki/",
 	cgiurl	=> "http://example.com/cgi-bin/ikiwiki.cgi",
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi") || $!{ENOENT});
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 (undef, undef, $mode, undef, undef,
@@ -268,9 +269,7 @@ write_setup_file(
 	url	=> "http://static.example.com/",
 	cgiurl	=> "http://cgi.example.com/ikiwiki.cgi",
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi"));
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 (undef, undef, $mode, undef, undef,
@@ -343,9 +342,7 @@ write_setup_file(
 	url	=> "http://static.example.com/",
 	cgiurl	=> "http://cgi.example.com/ikiwiki.cgi",
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi"));
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 (undef, undef, $mode, undef, undef,
@@ -422,9 +419,7 @@ write_setup_file(
 	url	=> "https://example.com/wiki/",
 	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi"));
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 (undef, undef, $mode, undef, undef,
@@ -517,9 +512,7 @@ write_setup_file(
 	url	=> "http://example.com/wiki/",
 	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi"));
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 (undef, undef, $mode, undef, undef,
@@ -609,9 +602,7 @@ write_setup_file(
 	url	=> "http://example.com/wiki/",
 	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi"));
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 (undef, undef, $mode, undef, undef,
@@ -708,9 +699,7 @@ write_setup_file(
 	cgiurl	=> "ikiwiki.cgi",
 	w3mmode	=> 1,
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi"));
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 (undef, undef, $mode, undef, undef,
@@ -747,9 +736,7 @@ write_setup_file(
 	cgiurl	=> "ikiwiki.cgi",
 	w3mmode	=> 1,
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi"));
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 (undef, undef, $mode, undef, undef,
@@ -789,9 +776,7 @@ write_setup_file(
 	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 	reverse_proxy => 1,
 );
-
-ok(unlink("t/tmp/ikiwiki.cgi"));
-ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+thoroughly_rebuild();
 
 # CGI wrapper should be exactly the requested mode
 (undef, undef, $mode, undef, undef,
