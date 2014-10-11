@@ -99,6 +99,19 @@ sub check_cgi_mode_bits {
 	is($mode & 07777, 0754);
 }
 
+sub check_generated_content {
+	my $cgiurl_regex = shift;
+	ok(-e "t/tmp/out/a/b/c/index.html");
+	$content = readfile("t/tmp/out/a/b/c/index.html");
+	# no <base> on static HTML
+	unlike($content, qr{<base\W});
+	like($content, $cgiurl_regex);
+	# cross-links between static pages are relative
+	like($content, qr{<li>A: <a href="../../">a</a></li>});
+	like($content, qr{<li>B: <a href="../">b</a></li>});
+	like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+}
+
 #######################################################################
 # site 1: a perfectly ordinary ikiwiki
 
@@ -109,17 +122,8 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # url and cgiurl are on the same host so the cgiurl is host-relative
-like($content, qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 	$ENV{REQUEST_METHOD} = 'GET';
@@ -187,17 +191,8 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # url and cgiurl are on the same host so the cgiurl is host-relative
-like($content, qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 	$ENV{REQUEST_METHOD} = 'GET';
@@ -268,18 +263,9 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # url and cgiurl are not on the same host so the cgiurl has to be
 # protocol-relative or absolute
-like($content, qr{<a[^>]+href="(?:http:)?//cgi.example.com/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are still relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="(?:http:)?//cgi.example.com/ikiwiki.cgi\?do=prefs"});
 
 run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 	$ENV{REQUEST_METHOD} = 'GET';
@@ -336,18 +322,9 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # url and cgiurl are not on the same host so the cgiurl has to be
 # protocol-relative or absolute
-like($content, qr{<a[^>]+href="(?:http:)?//cgi.example.com/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are still relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="(?:http:)?//cgi.example.com/ikiwiki.cgi\?do=prefs"});
 
 run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 	$ENV{REQUEST_METHOD} = 'GET';
@@ -408,17 +385,8 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # url and cgiurl are on the same host so the cgiurl is host-relative
-like($content, qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 # when accessed via HTTPS, links are secure
 run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
@@ -496,17 +464,8 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # url and cgiurl are on the same host but different schemes
-like($content, qr{<a[^>]+href="https://example.com/cgi-bin/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="https://example.com/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 # when accessed via HTTPS, links are secure (to avoid mixed-content)
 run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
@@ -581,17 +540,8 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # url and cgiurl are on the same host but different schemes
-like($content, qr{<a[^>]+href="https://example.com/cgi-bin/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="https://example.com/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 # when accessed via HTTPS, links are secure (to avoid mixed-content)
 run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
@@ -673,17 +623,8 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # FIXME: does /$LIB/ikiwiki-w3m.cgi work under w3m?
-like($content, qr{<a[^>]+href="(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are still relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi\?do=prefs"});
 
 run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 	$ENV{REQUEST_METHOD} = 'GET';
@@ -705,17 +646,8 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # FIXME: does /$LIB/ikiwiki-w3m.cgi work under w3m?
-like($content, qr{<a[^>]+href="(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are still relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi\?do=prefs"});
 
 run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
 	$ENV{REQUEST_METHOD} = 'GET';
@@ -740,17 +672,8 @@ write_setup_file(
 );
 thoroughly_rebuild();
 check_cgi_mode_bits();
-
-ok(-e "t/tmp/out/a/b/c/index.html");
-$content = readfile("t/tmp/out/a/b/c/index.html");
-# no <base> on static HTML
-unlike($content, qr{<base\W});
 # url and cgiurl are on the same host so the cgiurl is host-relative
-like($content, qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
-# cross-links between static pages are relative
-like($content, qr{<li>A: <a href="../../">a</a></li>});
-like($content, qr{<li>B: <a href="../">b</a></li>});
-like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 # because we are behind a reverse-proxy we must assume that
 # we're being accessed by the configured cgiurl
