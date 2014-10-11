@@ -543,7 +543,7 @@ sub getsetup () {
 	},
 	useragent => {
 		type => "string",
-		default => undef,
+		default => "ikiwiki/$version",
 		example => "Wget/1.13.4 (linux-gnu)",
 		description => "set custom user agent string for outbound HTTP requests e.g. when fetching aggregated RSS feeds",
 		safe => 0,
