@@ -92,6 +92,13 @@ sub thoroughly_rebuild {
 	ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
 }
 
+sub check_cgi_mode_bits {
+	my (undef, undef, $mode, undef, undef,
+		undef, undef, undef, undef, undef,
+		undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
+	is($mode & 07777, 0754);
+}
+
 #######################################################################
 # site 1: a perfectly ordinary ikiwiki
 
@@ -101,12 +108,7 @@ write_setup_file(
 	cgiurl	=> "http://example.com/cgi-bin/ikiwiki.cgi",
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-my (undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
@@ -184,12 +186,7 @@ write_setup_file(
 	cgiurl	=> "http://example.com/cgi-bin/ikiwiki.cgi",
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-(undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
@@ -270,12 +267,7 @@ write_setup_file(
 	cgiurl	=> "http://cgi.example.com/ikiwiki.cgi",
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-(undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
@@ -343,12 +335,7 @@ write_setup_file(
 	cgiurl	=> "http://cgi.example.com/ikiwiki.cgi",
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-(undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
@@ -420,12 +407,7 @@ write_setup_file(
 	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-(undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
@@ -513,12 +495,7 @@ write_setup_file(
 	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-(undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
@@ -603,12 +580,7 @@ write_setup_file(
 	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-(undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
@@ -700,12 +672,7 @@ write_setup_file(
 	w3mmode	=> 1,
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-(undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
@@ -737,12 +704,7 @@ write_setup_file(
 	w3mmode	=> 1,
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-(undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
@@ -777,12 +739,7 @@ write_setup_file(
 	reverse_proxy => 1,
 );
 thoroughly_rebuild();
-
-# CGI wrapper should be exactly the requested mode
-(undef, undef, $mode, undef, undef,
-	undef, undef, undef, undef, undef,
-	undef, undef, undef) = stat("t/tmp/ikiwiki.cgi");
-is($mode & 07777, 0754);
+check_cgi_mode_bits();
 
 ok(-e "t/tmp/out/a/b/c/index.html");
 $content = readfile("t/tmp/out/a/b/c/index.html");
