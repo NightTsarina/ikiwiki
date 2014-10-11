@@ -27,7 +27,7 @@ sub cgi_goto ($;$) {
 	my $page = shift;
 
 	if (!defined $page) {
-		$page = IkiWiki::decode_utf8($q->param("page"));
+		$page = IkiWiki::decode_utf8(scalar $q->param("page"));
 
 		if (!defined $page) {
 			error("missing page parameter");

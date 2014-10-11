@@ -237,7 +237,7 @@ sub postrename ($$$;$$) {
 		# on it.
 		$oldcgi->param("editcontent",
 			renamepage_hook($dest, $src, $dest,
-				 $oldcgi->param("editcontent")));
+				scalar $oldcgi->param("editcontent")));
 
 		# Get a new edit token; old was likely invalidated.
 		$oldcgi->param("rcsinfo",
@@ -297,7 +297,7 @@ sub sessioncgi ($$) {
 
 	if ($q->param("do") eq 'rename') {
         	my $session=shift;
-		my ($form, $buttons)=rename_form($q, $session, Encode::decode_utf8($q->param("page")));
+		my ($form, $buttons)=rename_form($q, $session, Encode::decode_utf8(scalar $q->param("page")));
 		IkiWiki::decode_form_utf8($form);
 		my $src=$form->field("page");
 
@@ -332,7 +332,7 @@ sub sessioncgi ($$) {
 				IkiWiki::Plugin::attachment::is_held_attachment($src);
 			if ($held) {
 				rename($held, IkiWiki::Plugin::attachment::attachment_holding_location($dest));
-				postrename($q, $session, $src, $dest, $q->param("attachment"))
+				postrename($q, $session, $src, $dest, scalar $q->param("attachment"))
 					unless defined $srcfile;
 			}
 			
@@ -438,7 +438,7 @@ sub sessioncgi ($$) {
 				$renamesummary.=$template->output;
 			}
 
-			postrename($q, $session, $src, $dest, $q->param("attachment"));
+			postrename($q, $session, $src, $dest, scalar $q->param("attachment"));
 		}
 		else {
 			IkiWiki::showform($form, $buttons, $session, $q);

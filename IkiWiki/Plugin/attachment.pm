@@ -132,7 +132,7 @@ sub formbuilder (@) {
 
 	return if ! defined $form->field("do") || ($form->field("do") ne "edit" && $form->field("do") ne "create") ;
 
-	my $filename=Encode::decode_utf8($q->param('attachment'));
+	my $filename=Encode::decode_utf8(scalar $q->param('attachment'));
 	if (defined $filename && length $filename) {
 		attachment_store($filename, $form, $q, $params{session});
 	}
@@ -142,7 +142,7 @@ sub formbuilder (@) {
 	}
 
 	if ($form->submitted eq "Insert Links") {
-		my $page=quotemeta(Encode::decode_utf8($q->param("page")));
+		my $page=quotemeta(Encode::decode_utf8(scalar $q->param("page")));
 		my $add="";
 		foreach my $f ($q->param("attachment_select")) {
 			$f=Encode::decode_utf8($f);

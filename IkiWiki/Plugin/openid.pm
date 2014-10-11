@@ -223,7 +223,7 @@ sub auth ($$) {
 	}
 	elsif (defined $q->param('openid_identifier')) {
 		# myopenid.com affiliate support
-		validate($q, $session, $q->param('openid_identifier'));
+		validate($q, $session, scalar $q->param('openid_identifier'));
 	}
 }
 

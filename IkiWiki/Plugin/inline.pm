@@ -119,7 +119,7 @@ sub sessioncgi ($$) {
 	my $session=shift;
 
 	if ($q->param('do') eq 'blog') {
-		my $page=titlepage(decode_utf8($q->param('title')));
+		my $page=titlepage(decode_utf8(scalar $q->param('title')));
 		$page=~s/(\/)/"__".ord($1)."__"/eg; # don't create subdirs
 		# if the page already exists, munge it to be unique
 		my $from=$q->param('from');
