@@ -305,7 +305,7 @@ sub sessioncgi ($$) {
 			postrename($q, $session, $src);
 		}
 		elsif ($form->submitted eq 'Rename' && $form->validate) {
-			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+			IkiWiki::checksessionexpiry($q, $session);
 
 			# These untaints are safe because of the checks
 			# performed in check_canrename later.

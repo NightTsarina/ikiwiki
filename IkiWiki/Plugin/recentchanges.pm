@@ -102,7 +102,7 @@ sub sessioncgi ($$) {
 	IkiWiki::decode_form_utf8($form);
 
 	if ($form->submitted eq 'Revert' && $form->validate) {
-		IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+		IkiWiki::checksessionexpiry($q, $session);
 		my $message=sprintf(gettext("This reverts commit %s"), $rev);
 		if (defined $form->field('revertmessage') &&
 		    length $form->field('revertmessage')) {

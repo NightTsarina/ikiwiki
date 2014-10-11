@@ -219,7 +219,7 @@ sub sessioncgi ($$) {
 			postremove($session);
 		}
 		elsif ($form->submitted eq 'Remove' && $form->validate) {
-			IkiWiki::checksessionexpiry($q, $session, $q->param('sid'));
+			IkiWiki::checksessionexpiry($q, $session);
 
 			my @pages=$form->field("page");
 			
