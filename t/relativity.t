@@ -14,7 +14,6 @@ use IkiWiki;
 use Cwd qw(getcwd);
 use Errno qw(ENOENT);
 
-my $PERL5LIB = 'blib/lib:blib/arch';
 my $pwd = getcwd();
 
 # Black-box (ish) test for relative linking between CGI and static content
@@ -60,26 +59,41 @@ write_old_file("a/b/c.mdwn",
 write_old_file("a/d.mdwn", "D");
 write_old_file("a/d/e.mdwn", "E");
 
-#######################################################################
-# site 1: a perfectly ordinary ikiwiki
+sub write_setup_file {
+	my (%args) = @_;
+	my $urlline = defined $args{url} ? "url: $args{url}" : "";
+	my $w3mmodeline = defined $args{w3mmode} ? "w3mmode: $args{w3mmode}" : "";
+	my $reverseproxyline = defined $args{reverse_proxy} ? "reverse_proxy: $args{reverse_proxy}" : "";
 
-writefile("test.setup", "t/tmp", <<EOF
+	writefile("test.setup", "t/tmp", <<EOF
 # IkiWiki::Setup::Yaml - YAML formatted setup file
 wikiname: this is the name of my wiki
 srcdir: t/tmp/in
 destdir: t/tmp/out
 templatedir: templates
-url: "http://example.com/wiki/"
-cgiurl: "http://example.com/cgi-bin/ikiwiki.cgi"
+$urlline
+cgiurl: $args{cgiurl}
+$w3mmodeline
 cgi_wrapper: t/tmp/ikiwiki.cgi
 cgi_wrappermode: 0754
-html5: 0
+html5: $args{html5}
 # make it easier to test previewing
 add_plugins:
 - anonok
 anonok_pagespec: "*"
-ENV: { 'PERL5LIB': '$PERL5LIB' }
+$reverseproxyline
+ENV: { 'PERL5LIB': 'blib/lib:blib/arch' }
 EOF
+	);
+}
+
+#######################################################################
+# site 1: a perfectly ordinary ikiwiki
+
+write_setup_file(
+	html5	=> 0,
+	url	=> "http://example.com/wiki/",
+	cgiurl	=> "http://example.com/cgi-bin/ikiwiki.cgi",
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi") || $!{ENOENT});
@@ -161,23 +175,10 @@ like($bits{cgihref}, qr{^(?:(?:http:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # in html5, the <base> is allowed to be relative, and we take full
 # advantage of that
-writefile("test.setup", "t/tmp", <<EOF
-# IkiWiki::Setup::Yaml - YAML formatted setup file
-wikiname: this is the name of my wiki
-srcdir: t/tmp/in
-destdir: t/tmp/out
-templatedir: templates
-url: "http://example.com/wiki/"
-cgiurl: "http://example.com/cgi-bin/ikiwiki.cgi"
-cgi_wrapper: t/tmp/ikiwiki.cgi
-cgi_wrappermode: 0754
-html5: 1
-# make it easier to test previewing
-add_plugins:
-- anonok
-anonok_pagespec: "*"
-ENV: { 'PERL5LIB': '$PERL5LIB' }
-EOF
+write_setup_file(
+	html5	=> 1,
+	url	=> "http://example.com/wiki/",
+	cgiurl	=> "http://example.com/cgi-bin/ikiwiki.cgi",
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi") || $!{ENOENT});
@@ -262,23 +263,10 @@ is($bits{cgihref}, "/cgi-bin/ikiwiki.cgi");
 #######################################################################
 # site 2: static content and CGI are on different servers
 
-writefile("test.setup", "t/tmp", <<EOF
-# IkiWiki::Setup::Yaml - YAML formatted setup file
-wikiname: this is the name of my wiki
-srcdir: t/tmp/in
-destdir: t/tmp/out
-templatedir: templates
-url: "http://static.example.com/"
-cgiurl: "http://cgi.example.com/ikiwiki.cgi"
-cgi_wrapper: t/tmp/ikiwiki.cgi
-cgi_wrappermode: 0754
-html5: 0
-# make it easier to test previewing
-add_plugins:
-- anonok
-anonok_pagespec: "*"
-ENV: { 'PERL5LIB': '$PERL5LIB' }
-EOF
+write_setup_file(
+	html5	=> 0,
+	url	=> "http://static.example.com/",
+	cgiurl	=> "http://cgi.example.com/ikiwiki.cgi",
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi"));
@@ -350,23 +338,10 @@ local $TODO = "use self-referential CGI URL?";
 like($bits{cgihref}, qr{^(?:(?:http:)?//staging.example.net)?/ikiwiki.cgi$});
 }
 
-writefile("test.setup", "t/tmp", <<EOF
-# IkiWiki::Setup::Yaml - YAML formatted setup file
-wikiname: this is the name of my wiki
-srcdir: t/tmp/in
-destdir: t/tmp/out
-templatedir: templates
-url: "http://static.example.com/"
-cgiurl: "http://cgi.example.com/ikiwiki.cgi"
-cgi_wrapper: t/tmp/ikiwiki.cgi
-cgi_wrappermode: 0754
-html5: 1
-# make it easier to test previewing
-add_plugins:
-- anonok
-anonok_pagespec: "*"
-ENV: { 'PERL5LIB': '$PERL5LIB' }
-EOF
+write_setup_file(
+	html5	=> 1,
+	url	=> "http://static.example.com/",
+	cgiurl	=> "http://cgi.example.com/ikiwiki.cgi",
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi"));
@@ -442,23 +417,10 @@ is($bits{cgihref}, "//staging.example.net/ikiwiki.cgi");
 #######################################################################
 # site 3: we specifically want everything to be secure
 
-writefile("test.setup", "t/tmp", <<EOF
-# IkiWiki::Setup::Yaml - YAML formatted setup file
-wikiname: this is the name of my wiki
-srcdir: t/tmp/in
-destdir: t/tmp/out
-templatedir: templates
-url: "https://example.com/wiki/"
-cgiurl: "https://example.com/cgi-bin/ikiwiki.cgi"
-cgi_wrapper: t/tmp/ikiwiki.cgi
-cgi_wrappermode: 0754
-html5: 0
-# make it easier to test previewing
-add_plugins:
-- anonok
-anonok_pagespec: "*"
-ENV: { 'PERL5LIB': '$PERL5LIB' }
-EOF
+write_setup_file(
+	html5	=> 0,
+	url	=> "https://example.com/wiki/",
+	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi"));
@@ -550,23 +512,10 @@ like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 #######################################################################
 # site 4 (NetBSD wiki): CGI is secure, static content doesn't have to be
 
-writefile("test.setup", "t/tmp", <<EOF
-# IkiWiki::Setup::Yaml - YAML formatted setup file
-wikiname: this is the name of my wiki
-srcdir: t/tmp/in
-destdir: t/tmp/out
-templatedir: templates
-url: "http://example.com/wiki/"
-cgiurl: "https://example.com/cgi-bin/ikiwiki.cgi"
-cgi_wrapper: t/tmp/ikiwiki.cgi
-cgi_wrappermode: 0754
-html5: 0
-# make it easier to test previewing
-add_plugins:
-- anonok
-anonok_pagespec: "*"
-ENV: { 'PERL5LIB': '$PERL5LIB' }
-EOF
+write_setup_file(
+	html5	=> 0,
+	url	=> "http://example.com/wiki/",
+	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi"));
@@ -655,23 +604,10 @@ like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
-writefile("test.setup", "t/tmp", <<EOF
-# IkiWiki::Setup::Yaml - YAML formatted setup file
-wikiname: this is the name of my wiki
-srcdir: t/tmp/in
-destdir: t/tmp/out
-templatedir: templates
-url: "http://example.com/wiki/"
-cgiurl: "https://example.com/cgi-bin/ikiwiki.cgi"
-cgi_wrapper: t/tmp/ikiwiki.cgi
-cgi_wrappermode: 0754
-html5: 1
-# make it easier to test previewing
-add_plugins:
-- anonok
-anonok_pagespec: "*"
-ENV: { 'PERL5LIB': '$PERL5LIB' }
-EOF
+write_setup_file(
+	html5	=> 1,
+	url	=> "http://example.com/wiki/",
+	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi"));
@@ -766,22 +702,11 @@ like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 #######################################################################
 # site 5: w3mmode, as documented in [[w3mmode]]
 
-writefile("test.setup", "t/tmp", <<EOF
-# IkiWiki::Setup::Yaml - YAML formatted setup file
-wikiname: this is the name of my wiki
-srcdir: t/tmp/in
-destdir: t/tmp/out
-templatedir: templates
-cgiurl: ikiwiki.cgi
-w3mmode: 1
-cgi_wrapper: t/tmp/ikiwiki.cgi
-cgi_wrappermode: 0754
-html5: 0
-add_plugins:
-- anonok
-anonok_pagespec: "*"
-ENV: { 'PERL5LIB': '$PERL5LIB' }
-EOF
+write_setup_file(
+	html5	=> 0, 
+	url	=> undef,
+	cgiurl	=> "ikiwiki.cgi",
+	w3mmode	=> 1,
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi"));
@@ -816,22 +741,11 @@ like($bits{cgihref}, qr{^(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi$});
 like($bits{basehref}, qr{^(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out/$});
 like($bits{stylehref}, qr{^(?:(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out|\.)/style.css$});
 
-writefile("test.setup", "t/tmp", <<EOF
-# IkiWiki::Setup::Yaml - YAML formatted setup file
-wikiname: this is the name of my wiki
-srcdir: t/tmp/in
-destdir: t/tmp/out
-templatedir: templates
-cgiurl: ikiwiki.cgi
-w3mmode: 1
-cgi_wrapper: t/tmp/ikiwiki.cgi
-cgi_wrappermode: 0754
-html5: 1
-add_plugins:
-- anonok
-anonok_pagespec: "*"
-ENV: { 'PERL5LIB': '$PERL5LIB' }
-EOF
+write_setup_file(
+	html5	=> 1,
+	url	=> undef,
+	cgiurl	=> "ikiwiki.cgi",
+	w3mmode	=> 1,
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi"));
@@ -869,24 +783,11 @@ like($bits{stylehref}, qr{^(?:(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out|\.)/style.css$
 #######################################################################
 # site 6: we're behind a reverse-proxy
 
-writefile("test.setup", "t/tmp", <<EOF
-# IkiWiki::Setup::Yaml - YAML formatted setup file
-wikiname: this is the name of my wiki
-srcdir: t/tmp/in
-destdir: t/tmp/out
-templatedir: templates
-url: "https://example.com/wiki/"
-cgiurl: "https://example.com/cgi-bin/ikiwiki.cgi"
-cgi_wrapper: t/tmp/ikiwiki.cgi
-cgi_wrappermode: 0754
-html5: 0
-# make it easier to test previewing
-add_plugins:
-- anonok
-anonok_pagespec: "*"
-reverse_proxy: 1
-ENV: { 'PERL5LIB': '$PERL5LIB' }
-EOF
+write_setup_file(
+	html5	=> 0,
+	url	=> "https://example.com/wiki/",
+	cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
+	reverse_proxy => 1,
 );
 
 ok(unlink("t/tmp/ikiwiki.cgi"));
