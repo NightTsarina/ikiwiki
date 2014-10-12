@@ -27,6 +27,7 @@ extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:NYTProf"; fi)
 outprogs=ikiwiki.out ikiwiki-transition.out ikiwiki-calendar.out
 scripts=ikiwiki-update-wikilist ikiwiki-makerepo
 sysconfdir_scripts=ikiwiki-mass-rebuild ikiwiki-update-wikilist
+shebang_scripts=$(shell $(FIND) . -type f \( -name '*.in' -o -name '*.cgi' -o -name '*.pm' -o -name '*.pm.example' -o -name '*.t' -o -name '*.setup' -o -name 'ikiwiki-mass-rebuild' -o -name 'ikiwiki-update-wikilist' -o -name 'gitremotes' -o -name 'mdwn2man' -o -name 'pm_filter' -o -name 'po2wiki' -o -name 'externaldemo' \))
 
 PROBABLE_INST_LIB=$(shell \\
 	if [ "$(INSTALLDIRS)" = "perl" ]; then \\
@@ -45,7 +46,7 @@ PROBABLE_INST_LIB=$(shell \\
 ikiwiki.setup:
 	HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -dumpsetup ikiwiki.setup
 
-extra_build: $(outprogs) ikiwiki.setup docwiki sysconfdir
+extra_build: perl_shebangs $(outprogs) ikiwiki.setup docwiki sysconfdir
 	./mdwn2man ikiwiki 1 doc/usage.mdwn > ikiwiki.man
 	./mdwn2man ikiwiki-mass-rebuild 8 doc/ikiwiki-mass-rebuild.mdwn > ikiwiki-mass-rebuild.man
 	./mdwn2man ikiwiki-makerepo 1 doc/ikiwiki-makerepo.mdwn > ikiwiki-makerepo.man
@@ -59,10 +60,28 @@ extra_build: $(outprogs) ikiwiki.setup docwiki sysconfdir
 docwiki:
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -refresh
 
+perl_shebangs:
+ifneq "$(PERL)" "/usr/bin/perl"
+	for file in $(shebang_scripts); do \
+		$(SED) -e "1s|^#!/usr/bin/perl|#!$(PERL)|" < $$file > "$$file.new"; \
+		[ -x $$file ] && chmod +x "$$file.new"; \
+		mv -f "$$file.new" $$file; \
+	done
+endif
+
+perl_shebangs_clean:
+ifneq "$(PERL)" "/usr/bin/perl"
+	for file in $(shebang_scripts); do \
+		$(SED) -e "1s|^#!$(PERL)|#!/usr/bin/perl|" < $$file > "$$file.new"; \
+		[ -x $$file ] && chmod +x "$$file.new"; \
+		mv -f "$$file.new" $$file; \
+	done
+endif
+
 sysconfdir:
 	$(PERL) -pi -e "s|\"/etc/ikiwiki|\"$(SYSCONFDIR)|g" $(sysconfdir_scripts)
 	
-extra_clean:
+extra_clean: perl_shebangs_clean
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -clean
 	rm -f *.man $(outprogs) ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
