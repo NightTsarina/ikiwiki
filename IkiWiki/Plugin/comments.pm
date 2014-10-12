@@ -468,12 +468,15 @@ sub editcomment ($$) {
 		$username =~ s/"/&quot;/g;
 		$content .= " username=\"$username\"\n";
 	}
+
 	if (defined $session->param('nickname')) {
 		my $nickname = $session->param('nickname');
 		$nickname =~ s/"/&quot;/g;
 		$content .= " nickname=\"$nickname\"\n";
 	}
-	elsif (defined $session->remote_addr()) {
+
+	if (!(defined $session->param('name') || defined $session->param('nickname')) &&
+		defined $session->remote_addr()) {
 		$content .= " ip=\"".$session->remote_addr()."\"\n";
 	}
 
