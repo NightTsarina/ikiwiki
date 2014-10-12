@@ -18,10 +18,10 @@ my $pwd = getcwd();
 
 # Black-box (ish) test for relative linking between CGI and static content
 
-my $blob;
-my ($content, $in, %bits);
+my %bits;
 
 sub parse_cgi_content {
+	my $content = shift;
 	my %bits;
 	if ($content =~ qr{<base href="([^"]+)" */>}) {
 		$bits{basehref} = $1;
@@ -102,7 +102,7 @@ sub check_cgi_mode_bits {
 sub check_generated_content {
 	my $cgiurl_regex = shift;
 	ok(-e "t/tmp/out/a/b/c/index.html");
-	$content = readfile("t/tmp/out/a/b/c/index.html");
+	my $content = readfile("t/tmp/out/a/b/c/index.html");
 	# no <base> on static HTML
 	unlike($content, qr{<base\W});
 	like($content, $cgiurl_regex);
@@ -110,6 +110,42 @@ sub check_generated_content {
 	like($content, qr{<li>A: <a href="../../">a</a></li>});
 	like($content, qr{<li>B: <a href="../">b</a></li>});
 	like($content, qr{<li>E: <a href="../../d/e/">e</a></li>});
+}
+
+sub run_cgi {
+	my (%args) = @_;
+	my ($in, $out);
+	my $is_preview = delete $args{is_preview};
+	my $is_https = delete $args{is_https};
+	my %defaults = (
+		SCRIPT_NAME	=> '/cgi-bin/ikiwiki.cgi',
+		HTTP_HOST	=> 'example.com',
+	);
+	if (defined $is_preview) {
+		$defaults{REQUEST_METHOD} = 'POST';
+		$in = 'do=edit&page=a/b/c&Preview';
+		$defaults{CONTENT_LENGTH} = length $in;
+	} else {
+		$defaults{REQUEST_METHOD} = 'GET';
+		$defaults{QUERY_STRING} = 'do=prefs';
+	}
+	if (defined $is_https) {
+		$defaults{SERVER_PORT} = '443';
+		$defaults{HTTPS} = 'on';
+	} else {
+		$defaults{SERVER_PORT} = '80';
+	}
+	my %envvars = (
+		%defaults,
+		%args,
+	);
+	run(["./t/tmp/ikiwiki.cgi"], \$in, \$out, init => sub {
+		map {
+			$ENV{$_} = $envvars{$_}
+		} keys(%envvars);
+	});
+
+	return $out;
 }
 
 #######################################################################
@@ -124,59 +160,28 @@ thoroughly_rebuild();
 check_cgi_mode_bits();
 # url and cgiurl are on the same host so the cgiurl is host-relative
 check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
-
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi());
 is($bits{basehref}, "http://example.com/wiki/");
 like($bits{stylehref}, qr{^(?:(?:http:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 like($bits{cgihref}, qr{^(?:(?:http:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # when accessed via HTTPS, links are secure
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1));
 is($bits{basehref}, "https://example.com/wiki/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # when accessed via a different hostname, links stay on that host
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'staging.example.net';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(HTTP_HOST => 'staging.example.net'));
 is($bits{basehref}, "http://staging.example.net/wiki/");
 like($bits{stylehref}, qr{^(?:(?:http:)?//staging.example.net)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 like($bits{cgihref}, qr{^(?:(?:http:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
 
 # previewing a page
-$in = 'do=edit&page=a/b/c&Preview';
-run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'POST';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{CONTENT_LENGTH} = length $in;
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_preview => 1));
 is($bits{basehref}, "http://example.com/wiki/a/b/c/");
 like($bits{stylehref}, qr{^(?:(?:http:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
@@ -194,14 +199,7 @@ check_cgi_mode_bits();
 # url and cgiurl are on the same host so the cgiurl is host-relative
 check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi());
 is($bits{basehref}, "/wiki/");
 is($bits{stylehref}, "/wiki/style.css");
 is($bits{tophref}, "/wiki/");
@@ -209,15 +207,7 @@ is($bits{cgihref}, "/cgi-bin/ikiwiki.cgi");
 
 # when accessed via HTTPS, links are secure - this is easy because under
 # html5 they're independent of the URL at which the CGI was accessed
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1));
 is($bits{basehref}, "/wiki/");
 is($bits{stylehref}, "/wiki/style.css");
 is($bits{tophref}, "/wiki/");
@@ -225,29 +215,14 @@ is($bits{cgihref}, "/cgi-bin/ikiwiki.cgi");
 
 # when accessed via a different hostname, links stay on that host -
 # this is really easy in html5 because we can use relative URLs
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'staging.example.net';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(HTTP_HOST => 'staging.example.net'));
 is($bits{basehref}, "/wiki/");
 is($bits{stylehref}, "/wiki/style.css");
 is($bits{tophref}, "/wiki/");
 is($bits{cgihref}, "/cgi-bin/ikiwiki.cgi");
 
 # previewing a page
-$in = 'do=edit&page=a/b/c&Preview';
-run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'POST';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{CONTENT_LENGTH} = length $in;
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_preview => 1));
 is($bits{basehref}, "/wiki/a/b/c/");
 is($bits{stylehref}, "/wiki/style.css");
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
@@ -267,29 +242,14 @@ check_cgi_mode_bits();
 # protocol-relative or absolute
 check_generated_content(qr{<a[^>]+href="(?:http:)?//cgi.example.com/ikiwiki.cgi\?do=prefs"});
 
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'cgi.example.com';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'cgi.example.com'));
 like($bits{basehref}, qr{^http://static.example.com/$});
 like($bits{stylehref}, qr{^(?:(?:http:)?//static.example.com)?/style.css$});
 like($bits{tophref}, qr{^(?:http:)?//static.example.com/$});
 like($bits{cgihref}, qr{^(?:(?:http:)?//cgi.example.com)?/ikiwiki.cgi$});
 
 # when accessed via HTTPS, links are secure
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'cgi.example.com';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1, SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'cgi.example.com'));
 like($bits{basehref}, qr{^https://static.example.com/$});
 like($bits{stylehref}, qr{^(?:(?:https:)?//static.example.com)?/style.css$});
 like($bits{tophref}, qr{^(?:https:)?//static.example.com/$});
@@ -297,15 +257,7 @@ like($bits{cgihref}, qr{^(?:(?:https:)?//cgi.example.com)?/ikiwiki.cgi$});
 
 # when accessed via a different hostname, links to the CGI (only) should
 # stay on that host?
-$in = 'do=edit&page=a/b/c&Preview';
-run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'POST';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
-	$ENV{HTTP_HOST} = 'staging.example.net';
-	$ENV{CONTENT_LENGTH} = length $in;
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_preview => 1, SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'staging.example.net'));
 like($bits{basehref}, qr{^http://static.example.com/a/b/c/$});
 like($bits{stylehref}, qr{^(?:(?:http:)?//static.example.com|\.\./\.\./\.\.)/style.css$});
 like($bits{tophref}, qr{^(?:(?:http:)?//static.example.com|\.\./\.\./\.\.)/$});
@@ -326,14 +278,7 @@ check_cgi_mode_bits();
 # protocol-relative or absolute
 check_generated_content(qr{<a[^>]+href="(?:http:)?//cgi.example.com/ikiwiki.cgi\?do=prefs"});
 
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'cgi.example.com';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'cgi.example.com'));
 is($bits{basehref}, "//static.example.com/");
 is($bits{stylehref}, "//static.example.com/style.css");
 is($bits{tophref}, "//static.example.com/");
@@ -341,15 +286,7 @@ is($bits{cgihref}, "//cgi.example.com/ikiwiki.cgi");
 
 # when accessed via HTTPS, links are secure - in fact they're exactly the
 # same as when accessed via HTTP
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'cgi.example.com';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1, SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'cgi.example.com'));
 is($bits{basehref}, "//static.example.com/");
 is($bits{stylehref}, "//static.example.com/style.css");
 is($bits{tophref}, "//static.example.com/");
@@ -357,15 +294,7 @@ is($bits{cgihref}, "//cgi.example.com/ikiwiki.cgi");
 
 # when accessed via a different hostname, links to the CGI (only) should
 # stay on that host?
-$in = 'do=edit&page=a/b/c&Preview';
-run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'POST';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/ikiwiki.cgi';
-	$ENV{HTTP_HOST} = 'staging.example.net';
-	$ENV{CONTENT_LENGTH} = length $in;
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_preview => 1, SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'staging.example.net'));
 is($bits{basehref}, "//static.example.com/a/b/c/");
 is($bits{stylehref}, "//static.example.com/style.css");
 is($bits{tophref}, "../../../");
@@ -389,15 +318,7 @@ check_cgi_mode_bits();
 check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 # when accessed via HTTPS, links are secure
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1));
 is($bits{basehref}, "https://example.com/wiki/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
@@ -405,14 +326,7 @@ like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # when not accessed via HTTPS, links should still be secure
 # (but if this happens, that's a sign of web server misconfiguration)
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi());
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 TODO: {
 local $TODO = "treat https in configured url, cgiurl as required?";
@@ -422,31 +336,14 @@ like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # when accessed via a different hostname, links stay on that host
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'staging.example.net';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1, HTTP_HOST => 'staging.example.net'));
 is($bits{basehref}, "https://staging.example.net/wiki/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//staging.example.net)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
 
 # previewing a page
-$in = 'do=edit&page=a/b/c&Preview';
-run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'POST';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{CONTENT_LENGTH} = length $in;
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_preview => 1, is_https => 1));
 is($bits{basehref}, "https://example.com/wiki/a/b/c/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
@@ -468,44 +365,21 @@ check_cgi_mode_bits();
 check_generated_content(qr{<a[^>]+href="https://example.com/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 # when accessed via HTTPS, links are secure (to avoid mixed-content)
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1));
 is($bits{basehref}, "https://example.com/wiki/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # when not accessed via HTTPS, ???
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi());
 like($bits{basehref}, qr{^https?://example.com/wiki/$});
 like($bits{stylehref}, qr{^(?:(?:https?:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:(?:https?://example.com)?/wiki|\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # when accessed via a different hostname, links stay on that host
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'staging.example.net';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1, HTTP_HOST => 'staging.example.net'));
 # because the static and dynamic stuff is on the same server, we assume that
 # both are also on the staging server
 like($bits{basehref}, qr{^https://staging.example.net/wiki/$});
@@ -518,16 +392,7 @@ like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.c
 }
 
 # previewing a page
-$in = 'do=edit&page=a/b/c&Preview';
-run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'POST';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{CONTENT_LENGTH} = length $in;
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_preview => 1, is_https => 1));
 is($bits{basehref}, "https://example.com/wiki/a/b/c/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
@@ -544,44 +409,21 @@ check_cgi_mode_bits();
 check_generated_content(qr{<a[^>]+href="https://example.com/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 # when accessed via HTTPS, links are secure (to avoid mixed-content)
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1));
 is($bits{basehref}, "/wiki/");
 is($bits{stylehref}, "/wiki/style.css");
 is($bits{tophref}, "/wiki/");
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # when not accessed via HTTPS, ???
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'example.com';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi());
 like($bits{basehref}, qr{^(?:https?://example.com)?/wiki/$});
 like($bits{stylehref}, qr{^(?:(?:https?:)?//example.com)?/wiki/style.css$});
 like($bits{tophref}, qr{^(?:(?:https?://example.com)?/wiki|\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 # when accessed via a different hostname, links stay on that host
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'staging.example.net';
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_https => 1, HTTP_HOST => 'staging.example.net'));
 # because the static and dynamic stuff is on the same server, we assume that
 # both are also on the staging server
 is($bits{basehref}, "/wiki/");
@@ -594,16 +436,7 @@ like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.c
 }
 
 # previewing a page
-$in = 'do=edit&page=a/b/c&Preview';
-run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'POST';
-	$ENV{SERVER_PORT} = '443';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{HTTP_HOST} = 'example.com';
-	$ENV{CONTENT_LENGTH} = length $in;
-	$ENV{HTTPS} = 'on';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_preview => 1, is_https => 1));
 is($bits{basehref}, "/wiki/a/b/c/");
 is($bits{stylehref}, "/wiki/style.css");
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
@@ -626,13 +459,7 @@ check_cgi_mode_bits();
 # FIXME: does /$LIB/ikiwiki-w3m.cgi work under w3m?
 check_generated_content(qr{<a[^>]+href="(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi\?do=prefs"});
 
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{PATH_INFO} = '/ikiwiki.cgi';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki-w3m.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(PATH_INFO => '/ikiwiki.cgi', SCRIPT_NAME => '/cgi-bin/ikiwiki-w3m.cgi'));
 like($bits{tophref}, qr{^(?:\Q$pwd\E/t/tmp/out|\.)/$});
 like($bits{cgihref}, qr{^(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi$});
 like($bits{basehref}, qr{^(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out/$});
@@ -649,13 +476,7 @@ check_cgi_mode_bits();
 # FIXME: does /$LIB/ikiwiki-w3m.cgi work under w3m?
 check_generated_content(qr{<a[^>]+href="(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi\?do=prefs"});
 
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{PATH_INFO} = '/ikiwiki.cgi';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki-w3m.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(PATH_INFO => '/ikiwiki.cgi', SCRIPT_NAME => '/cgi-bin/ikiwiki-w3m.cgi'));
 like($bits{tophref}, qr{^(?:\Q$pwd\E/t/tmp/out|\.)/$});
 like($bits{cgihref}, qr{^(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi$});
 like($bits{basehref}, qr{^(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out/$});
@@ -677,29 +498,14 @@ check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
 
 # because we are behind a reverse-proxy we must assume that
 # we're being accessed by the configured cgiurl
-run(["./t/tmp/ikiwiki.cgi"], \undef, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'GET';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{QUERY_STRING} = 'do=prefs';
-	$ENV{HTTP_HOST} = 'localhost';
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(HTTP_HOST => 'localhost'));
 like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 is($bits{basehref}, "https://example.com/wiki/");
 like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 
 # previewing a page
-$in = 'do=edit&page=a/b/c&Preview';
-run(["./t/tmp/ikiwiki.cgi"], \$in, \$content, init => sub {
-	$ENV{REQUEST_METHOD} = 'POST';
-	$ENV{SERVER_PORT} = '80';
-	$ENV{SCRIPT_NAME} = '/cgi-bin/ikiwiki.cgi';
-	$ENV{HTTP_HOST} = 'localhost';
-	$ENV{CONTENT_LENGTH} = length $in;
-});
-%bits = parse_cgi_content($content);
+%bits = parse_cgi_content(run_cgi(is_preview => 1, HTTP_HOST => 'localhost'));
 like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 is($bits{basehref}, "https://example.com/wiki/a/b/c/");
