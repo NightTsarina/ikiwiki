@@ -50,3 +50,51 @@ I got a basic site with some Python error messages.
 Looks like `proxy.py` needs the trick from [[!debbug 637604]] so
 that it can defer a few imports (at least `xml.parsers.expat` and
 the XML-RPC libs) until the methods using them are called. --[[schmonz]]
+
+-----
+
+It's more complicated than I thought. Findings and questions:
+
+### Failing to load an external plugin should be an error
+
+When a typical Perl plugin fails to load (say, by failing to compile),
+`IkiWiki::loadplugin()` throws an exception. For XML-RPC plugins
+written in any language, ikiwiki assumes loading succeeded.
+
+Let's take [[!iki plugins/rst]] as an example. It's written in
+Python and uses `proxy.py` to handle XML-RPC communication with
+ikiwiki. Let's say that `proxy.py` compiles, but `rst` itself
+doesn't. We'd like ikiwiki to know the module isn't loaded, and
+we'd like an error message about it (not just the Python errors).
+
+Now let's say `rst` would be fine by itself, but `proxy.py` doesn't
+compile because some of the Python modules it needs are missing
+from the system. (This can't currently happen on Debian, where
+`libpython2.7` includes `pyexpat.so`, but pkgsrc's `python27`
+doesn't; it's in a separate `py-expat` package.) As before, we'd
+like ikiwiki to know `rst` didn't load, but that's trickier when
+the problem lies with the communication mechanism itself.
+
+For the tricky case, what to do? Some ideas:
+
+- Figure out where in `auto.setup` we're enabling `rst` by default,
+  and stop doing that
+- In pkgsrc's `ikiwiki` package, add a dependency on Python and
+  `py-expat` just in case someone wants to enable `rst` or other
+  Python plugins
+
+For the simple case, I've tried the following:
+
+[[!template id=gitbranch branch=schmonz/external-plugin-loading author="[[schmonz]]"]]
+
+- In `IkiWiki::Plugin::external::import()`, capture stderr
+- Before falling off the end of `IkiWiki::Plugin::external::rpc_call()`,
+  if the command had been 'import' and stderr is non-empty, throw
+  an exception
+- In `IkiWiki::loadplugin()`, try/catch/throw just like we do with
+  regular non-external plugins
+
+With these changes, we have a test that fails when an external
+plugin can't be loaded (and passes, less trivially, when it can).
+Huzzah! (I haven't tested yet whether I've otherwise completely
+broken the interface for external plugins. Not-huzzah!) --[[schmonz]]
