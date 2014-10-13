@@ -53,7 +53,8 @@ the XML-RPC libs) until the methods using them are called. --[[schmonz]]
 
 -----
 
-It's more complicated than I thought. Findings and questions:
+It's more complicated than I thought. Findings and questions so
+far:
 
 ### Failing to load an external plugin should be an error
 
@@ -64,7 +65,7 @@ written in any language, ikiwiki assumes loading succeeded.
 Let's take [[!iki plugins/rst]] as an example. It's written in
 Python and uses `proxy.py` to handle XML-RPC communication with
 ikiwiki. Let's say that `proxy.py` compiles, but `rst` itself
-doesn't. We'd like ikiwiki to know the module isn't loaded, and
+doesn't. We'd like ikiwiki to know the plugin isn't loaded, and
 we'd like an error message about it (not just the Python errors).
 
 Now let's say `rst` would be fine by itself, but `proxy.py` doesn't
