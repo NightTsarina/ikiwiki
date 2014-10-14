@@ -1,9 +1,0 @@
-Hello,
-
-I've setup authentication on my ikiwiki website using httpauth plugin. I've also disabled anonok, openid and passwordauth so that httpauth is the unique authentication method.
-I've configured the `cgiauthurl` to https://example.com/auth/ikiwiki.cgi in order to make the authentication more secured (password is never sent in clear). My `url` points to http://example.com/ and my `cgiurl` points to http://example.com/ikiwiki.cgi .
-
-When I try to edit a page accessed by http, everything works fine: there is a redirection to https://example.com/auth/ikiwiki.cgi (defined in `cgiauthurl`) and my browser launches an HTTP Basic Authentication login form.
-But when I try to edit a page accessed by https there is no redirection to the `cgiauthurl` url. Instead, I can edit (and save) the page without authentication. I've tried this with a fresh new browser session where I have never been asked for authentication before. It seems that editing pages directly from https://example.com/ikiwiki.cgi?page=page&do=edit works without authentication...
-
-I think that the Ikiwiki CGI do not redirect to `cgiauthurl` when it is accessed by HTTPS.
