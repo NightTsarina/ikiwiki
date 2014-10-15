@@ -144,7 +144,7 @@ sub formbuilder (@) {
 	if ($form->submitted eq "Insert Links") {
 		my $page=quotemeta(Encode::decode_utf8(scalar $q->param("page")));
 		my $add="";
-		foreach my $f ($q->param("attachment_select")) {
+		foreach my $f (@{$q->param_fetch("attachment_select")}) {
 			$f=Encode::decode_utf8($f);
 			$f=~s/^$page\///;
 			if (IkiWiki::isinlinableimage($f) &&

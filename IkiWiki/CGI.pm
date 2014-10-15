@@ -122,7 +122,8 @@ sub decode_cgi_utf8 ($) {
 	if ($] < 5.01) {
 		my $cgi = shift;
 		foreach my $f ($cgi->param) {
-			$cgi->param($f, map { decode_utf8 $_ } $cgi->param($f));
+			$cgi->param($f, map { decode_utf8 $_ }
+				@{$cgi->param_fetch($f)});
 		}
 	}
 }
