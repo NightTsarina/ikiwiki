@@ -1,0 +1,14 @@
+[[!comment format=mdwn
+ username="openmedi"
+ ip="91.65.196.164"
+ subject="comment 4"
+ date="2014-10-15T18:49:16Z"
+ content="""
+I asked the homebrew people on freenode. Here's what I got: 
+
+My Question: (Hopefully) quick question: There has been an interest in having a brew formula for the static wiki generator ikiwiki (see http://ikiwiki.info/forum/Can_someone_add_Ikiwiki_in_Homebrew__63__/) in 2011 a pull request for that (https://github.com/Homebrew/homebrew/pull/5358) was closed due to too many perl dependencies. It was suggestet, that one uses homebrew-alt instead. Since homebrew-alt doesn’t seem to exist (anymore), I was curious what one can do to move this request forward.
+
+Answer: You can always host a formula yourself without having it accepted into homebrew core, using the tap mechanism. We have some formulas for packages written in Python where we explicitly fetch and install the dependencies into the parent formula's prefix; check out ansible.rb for an example. If you can do something like that for ikiwiki's dependencies, that would probably go through.
+
+I'll look into it, but have to admit, that I have very little time right now (and am also not sure, if I am able to produce a working brew formula…). But maybe somebody else now has enough info to get startet.
+"""]]
