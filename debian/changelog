@@ -1,12 +1,34 @@
-ikiwiki (3.20140917) UNRELEASED; urgency=medium
-
-  [ Simon McVittie ]
-  * Build-depend on libmagickcore-6.q16-2-extra | libmagickcore-extra
-    so we can thumbnail SVGs in the docwiki
+ikiwiki (3.20141016) UNRELEASED; urgency=medium
 
   [ Joey Hess ]
   * Fix crash that can occur when only_committed_changes is set and a
     file is deleted from the underlay.
+
+  [ Simon McVittie ]
+  * debian: build-depend on libmagickcore-6.q16-2-extra | libmagickcore-extra
+    so we can thumbnail SVGs in the docwiki
+  * debian: explicitly depend and build-depend on libcgi-pm-perl
+  * core: avoid dangerous use of CGI->param in list context, which led
+    to a security flaw in Bugzilla; as far as we can tell, ikiwiki
+    is not vulnerable to a similar attack, but it's best to be safe
+  * core: new reverse_proxy option prevents ikiwiki from trying to detect
+    how to make self-referential URLs by using the CGI environment variables,
+    for instance when it's deployed behind a HTTP reverse proxy
+  * core: the default User-Agent is now "ikiwiki/$version" to work around
+    ModSecurity rules assuming that only malware uses libwww-perl
+  * core: use protocol-relative URLs (e.g. //www.example.com/wiki) so that
+    https stays on https and http stays on http, particularly if the
+    html5 option is enabled
+  * core: avoid mixed content when a https cgiurl links to http static pages
+    on the same server (the static pages are assumed to be accessible via
+    https too)
+  * core: force the correct top URL in w3mmode
+  * google plugin: Use search form
+  * docwiki: replace Paypal and Flattr buttons with text links
+  * comments: don't record the IP address in the wiki if the user is
+    logged in via passwordauth or httpauth
+  * templates: add ARIA roles to some page elements, if html5 is enabled.
+    Thanks, Patrick
 
  -- Simon McVittie <smcv@debian.org>  Tue, 16 Sep 2014 11:21:16 +0100
 
