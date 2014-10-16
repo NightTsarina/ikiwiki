@@ -1,0 +1,23 @@
+[[!comment format=mdwn
+ username="https://www.google.com/accounts/o8/id?id=AItOawk8U772S3jDrZJCO0WA5WaDLjJv5mMl6Yw"
+ nickname="Nadine"
+ subject="It was an Apache problem..."
+ date="2014-10-16T14:57:26Z"
+ content="""
+Hello,
+
+thank you for your comments. The problem comes from the Apache configuration. I use a git-http-backend on this server and I affect the content of the REMOTE_USER environment variable like this:
+
+    SetEnv REMOTE_USER=$REDIRECT_REMOVE_USER
+
+Ikiwiki CGI seems to use this variable to determine which is the current user. Even if the variable content is NULL, ikiwiki.cgi use it.
+
+I just changed this to:
+
+    SetEnvIf Request_URI \"^/git/\" REMOTE_USER=$REDIRECT_REMOVE_USER
+
+and everything runs Ok now...
+
+Sorry for bothering Ikiwikiboard with an HTTP server problem.
+
+"""]]
