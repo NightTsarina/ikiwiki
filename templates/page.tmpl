@@ -1,9 +1,5 @@
-<TMPL_IF HTML5><!DOCTYPE html>
+<!DOCTYPE html>
 <html>
-<TMPL_ELSE><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
- "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-</TMPL_IF>
 <head>
 <TMPL_IF DYNAMIC>
 <TMPL_IF FORCEBASEURL><base href="<TMPL_VAR FORCEBASEURL>" /><TMPL_ELSE>
@@ -134,7 +130,7 @@
 
 <div id="pagebody">
 
-<TMPL_IF HTML5><section id="content" role="main"><TMPL_ELSE><div id="content"></TMPL_IF>
+<TMPL_IF HTML5><section<TMPL_ELSE><div</TMPL_IF> id="content" role="main">
 <TMPL_VAR CONTENT>
 <TMPL_IF HTML5></section><TMPL_ELSE></div></TMPL_IF>
 
@@ -146,7 +142,7 @@
 
 <TMPL_UNLESS DYNAMIC>
 <TMPL_IF COMMENTS>
-<TMPL_IF HTML5><section id="comments" role="complementary"><TMPL_ELSE><div id="comments"></TMPL_IF>
+<TMPL_IF HTML5><section<TMPL_ELSE><div</TMPL_IF> id="comments" role="complementary">
 <TMPL_VAR COMMENTS>
 <TMPL_IF ADDCOMMENTURL>
 <div class="addcomment">
@@ -161,7 +157,7 @@
 
 </div>
 
-<TMPL_IF HTML5><footer id="footer" class="pagefooter" role="contentinfo"><TMPL_ELSE><div id="footer" class="pagefooter"></TMPL_IF>
+<TMPL_IF HTML5><footer<TMPL_ELSE><div</TMPL_IF> id="footer" class="pagefooter" role="contentinfo">
 <TMPL_UNLESS DYNAMIC>
 <TMPL_IF HTML5><nav id="pageinfo"><TMPL_ELSE><div id="pageinfo"></TMPL_IF>
 

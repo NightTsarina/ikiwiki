@@ -53,7 +53,7 @@ sub pagetemplate (@) {
 
 sub mirrorlist ($) {
 	my $page=shift;
-	return ($config{html5} ? '<nav id="mirrorlist">' : '<div>').
+	return ($config{html5} ? '<nav' : '<div').' id="mirrorlist">'.
 		(keys %{$config{mirrorlist}} > 1 ? gettext("Mirrors") : gettext("Mirror")).
 		": ".
 		join(", ",
