@@ -1,0 +1,14 @@
+I've submitted a couple of patches in [this pull request](https://github.com/jmtd/ikiwiki/pull/1).
+The first passes along whatever parameters are being supplied to the pagespec evaluation
+(without which, specs like `user(alice)` don't work).
+
+The second changes the "example" returned by `getsetup` to be an actual map, since I saw
+that `--dumpsetup` can make use of that to produce a syntactically correct map example
+in the YAML config file. An earlier commit comment suggested that once was a problem,
+but it doesn't seem to be one now.
+
+Only later did I notice this [[earlier discussion|todo/pagespec_aliases]] suggesting
+that the problem with a map might have been in websetup - which I'm not using, so I don't
+know if it would still be a problem there.
+
+[[jcflack]]
