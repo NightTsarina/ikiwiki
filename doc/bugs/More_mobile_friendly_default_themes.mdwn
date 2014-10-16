@@ -4,12 +4,31 @@ indicates the viewport on mobile needs to be configured, e.g. `<meta name=viewpo
 
 http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=templates/page.tmpl;
 
+> This seems a lot like
+> [an "unbreak my application" option](http://ometer.com/free-software-ui.html)
+> but OK... presumably the motivation for this being opt-in is that "most"
+> websites have some sort of hard-coded fixed-width layout suitable for
+> a proportion of desktop browsers, rather than being responsive to window
+> size like they should have been all along. --[[smcv]]
 
 Further more:
 
-
 * fonts need to be tweaked
+
+  > Suggestions?
+  >
+  > (Note that Joey has generally rejected stylistic changes to the default
+  > anti-theme; enhancing the other themes would be OK though.)
+  > --[[smcv]]
+
 * XHTML should be dropped !
 
+  > Already in the to-do list: [[todo/generate HTML5 by default]]. --[[smcv]]
 
 I'm practicing this on http://dabase.com/ with <http://source.dabase.branchable.com/?p=source.git;a=blob;f=templates/page.tmpl;>
+
+> [[!format diff """
+-<TMPL_IF FORCEBASEURL><base href="<TMPL_VAR FORCEBASEURL>" /><TMPL_ELSE>
+-<TMPL_IF BASEURL><base href="<TMPL_VAR BASEURL>" /></TMPL_IF>
+"""]]
+> You probably don't want to delete those. It breaks the CGI. --[[smcv]]
