@@ -2,10 +2,11 @@ The `html5` option was added in 2010 and marked as "not experimental" in 2011
 but is not the default.
 
 According to <http://caniuse.com/#feat=html5semantic>, current versions of
-all recent versions of all major browsers - even IE - support the HTML5
+all recent versions of all major browsers - even IE (9+) - support the HTML5
 semantic elements (`<section>` etc.), except for `<main>` which IkiWiki
-doesn't use anyway. With that being the case, I'm not sure whether we gain
-anything from not generating HTML5 (or "HTML" as it's now labelled) all the time.
+doesn't use anyway. However, IE 8 is not a current version, but has ~ 4%
+market share and doesn't support `<section>` and friends; so there's still
+a compatibility concern there.
 
 In particular, non-HTML5 mode uses `<!DOCTYPE html PUBLIC
 "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">`
@@ -22,21 +23,39 @@ In practice, real browsers have never actually implemented a strict XHTML mode:
 they've always parsed `text/html` as "tag soup", because they need a tag-soup
 parser anyway, and nobody wants to maintain two parsers.
 
+Kai also wants a HTML5 doctype for [[bugs/more mobile friendly default themes]].
+
 Options include:
 
-* set html5 to 1 by default but retain the dual-mode templates
-* remove the option and always behave as if it had been 1, simplifying
-  the templates
+* set html5 to 1 by default but retain the dual-mode templates,
+  breaking IE 8 by default
 
-Thoughts?
+* remove the option and always behave as if it had been 1, simplifying
+  the templates and breaking IE 8 unconditionally
+
+* either of the above and include
+  [html5shiv](https://code.google.com/p/html5shiv/) to de-break IE 8
+
+* change the doctype to `<!DOCTYPE html>`
+  unconditionally, stop trying to limit ourselves to XHTML 1.0 Strict
+  (use HTML5 features that degrade gracefully, like
+  [[ARIA roles|todo/add aria landmarks to make ikiwiki websites more accessible]]),
+  but avoid using the new elements like `<section>` that require specific
+  browser support unless `html5` is set to 1. That would get rid of the
+  backwards-compatibility concerns while keeping the ability to use
+  post-2000 markup; we can use `html5` to mean "be more enthusiastic about
+  HTML5 features even if they might fail on older browsers".
+
+Using the HTML5 doctype does mean we lose the ability to validate the output
+against a DTD (as `wdg-html-validator` does), but DTDs have very little to
+do with practical browser compatibility in any case.
+
+[[!template id=gitbranch branch=smcv/ready/html5
+author="[[Simon McVittie|smcv]]"
+browse=http://git.pseudorandom.co.uk/smcv/ikiwiki.git/shortlog/refs/heads/ready/html5]]
+[[!tag patch users/smcv/ready]]
+
+At the moment my preferred option is the last, for which see my `ready/html5`
+branch. I'll apply this at some point if there are no objections.
 
 --[[smcv]]
-
-> Another possibility would be to change the doctype to `<!DOCTYPE html>`
-> unconditionally, stop trying to limit ourselves to XHTML 1.0 Strict
-> (use HTML5 features that degrade gracefully, like
-> [[ARIA roles|todo/add aria landmarks to make ikiwiki websites more accessible]]),
-> but avoid using the new elements like `<section>` that require specific
-> browser support unless `html5` is set to 1. That would get rid of the
-> backwards-compatibility concerns while keeping the ability to use
-> post-2000 markup. --[[smcv]]
