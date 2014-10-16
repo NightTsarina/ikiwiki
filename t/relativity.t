@@ -157,28 +157,28 @@ sub test_site1_perfectly_ordinary_ikiwiki {
 	# url and cgiurl are on the same host so the cgiurl is host-relative
 	check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
 	my %bits = parse_cgi_content(run_cgi());
-	is($bits{basehref}, "http://example.com/wiki/");
+	like($bits{basehref}, qr{^(?:(?:http:)?//example\.com)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:http:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:http:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 	# when accessed via HTTPS, links are secure
 	%bits = parse_cgi_content(run_cgi(is_https => 1));
-	is($bits{basehref}, "https://example.com/wiki/");
+	like($bits{basehref}, qr{^(?:(?:https:)?//example\.com)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
 	# when accessed via a different hostname, links stay on that host
 	%bits = parse_cgi_content(run_cgi(HTTP_HOST => 'staging.example.net'));
-	is($bits{basehref}, "http://staging.example.net/wiki/");
+	like($bits{basehref}, qr{^(?:(?:http:)?//staging\.example\.net)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:http:)?//staging.example.net)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:http:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
 
 	# previewing a page
 	%bits = parse_cgi_content(run_cgi(is_preview => 1));
-	is($bits{basehref}, "http://example.com/wiki/a/b/c/");
+	like($bits{basehref}, qr{^(?:(?:http:)?//example\.com)?/wiki/a/b/c/$});
 	like($bits{stylehref}, qr{^(?:(?:http:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:http:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
@@ -238,14 +238,14 @@ sub test_site2_static_content_and_cgi_on_different_servers {
 	check_generated_content(qr{<a[^>]+href="(?:http:)?//cgi.example.com/ikiwiki.cgi\?do=prefs"});
 
 	my %bits = parse_cgi_content(run_cgi(SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'cgi.example.com'));
-	like($bits{basehref}, qr{^http://static.example.com/$});
+	like($bits{basehref}, qr{^(?:(?:http:)?//static.example.com)?/$});
 	like($bits{stylehref}, qr{^(?:(?:http:)?//static.example.com)?/style.css$});
 	like($bits{tophref}, qr{^(?:http:)?//static.example.com/$});
 	like($bits{cgihref}, qr{^(?:(?:http:)?//cgi.example.com)?/ikiwiki.cgi$});
 
 	# when accessed via HTTPS, links are secure
 	%bits = parse_cgi_content(run_cgi(is_https => 1, SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'cgi.example.com'));
-	like($bits{basehref}, qr{^https://static.example.com/$});
+	like($bits{basehref}, qr{^(?:https:)?//static\.example\.com/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//static.example.com)?/style.css$});
 	like($bits{tophref}, qr{^(?:https:)?//static.example.com/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//cgi.example.com)?/ikiwiki.cgi$});
@@ -253,7 +253,7 @@ sub test_site2_static_content_and_cgi_on_different_servers {
 	# when accessed via a different hostname, links to the CGI (only) should
 	# stay on that host?
 	%bits = parse_cgi_content(run_cgi(is_preview => 1, SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'staging.example.net'));
-	like($bits{basehref}, qr{^http://static.example.com/a/b/c/$});
+	like($bits{basehref}, qr{^(?:http:)?//static\.example\.com/a/b/c/$});
 	like($bits{stylehref}, qr{^(?:(?:http:)?//static.example.com|\.\./\.\./\.\.)/style.css$});
 	like($bits{tophref}, qr{^(?:(?:http:)?//static.example.com|\.\./\.\./\.\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:http:)?//(?:staging\.example\.net|cgi\.example\.com))?/ikiwiki.cgi$});
@@ -313,7 +313,7 @@ sub test_site3_we_specifically_want_everything_to_be_secure {
 
 	# when accessed via HTTPS, links are secure
 	my %bits = parse_cgi_content(run_cgi(is_https => 1));
-	is($bits{basehref}, "https://example.com/wiki/");
+	like($bits{basehref}, qr{^(?:(?:https:)?//example\.com)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
@@ -331,14 +331,14 @@ sub test_site3_we_specifically_want_everything_to_be_secure {
 
 	# when accessed via a different hostname, links stay on that host
 	%bits = parse_cgi_content(run_cgi(is_https => 1, HTTP_HOST => 'staging.example.net'));
-	is($bits{basehref}, "https://staging.example.net/wiki/");
+	like($bits{basehref}, qr{^(?:(?:https:)?//staging\.example\.net)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//staging.example.net)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
 
 	# previewing a page
 	%bits = parse_cgi_content(run_cgi(is_preview => 1, is_https => 1));
-	is($bits{basehref}, "https://example.com/wiki/a/b/c/");
+	like($bits{basehref}, qr{^(?:(?:https:)?//example\.com)?/wiki/a/b/c/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
@@ -360,14 +360,15 @@ sub test_site4_cgi_is_secure_static_content_doesnt_have_to_be {
 
 	# when accessed via HTTPS, links are secure (to avoid mixed-content)
 	my %bits = parse_cgi_content(run_cgi(is_https => 1));
-	is($bits{basehref}, "https://example.com/wiki/");
+	like($bits{basehref}, qr{^(?:(?:https:)?//example\.com)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 
-	# when not accessed via HTTPS, ???
+	# FIXME: when not accessed via HTTPS, should the static content be
+	# forced to https anyway? For now we accept either
 	%bits = parse_cgi_content(run_cgi());
-	like($bits{basehref}, qr{^https?://example.com/wiki/$});
+	like($bits{basehref}, qr{^(?:(?:https?)?://example\.com)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:https?:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:(?:https?://example.com)?/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
@@ -376,7 +377,7 @@ sub test_site4_cgi_is_secure_static_content_doesnt_have_to_be {
 	%bits = parse_cgi_content(run_cgi(is_https => 1, HTTP_HOST => 'staging.example.net'));
 	# because the static and dynamic stuff is on the same server, we assume that
 	# both are also on the staging server
-	like($bits{basehref}, qr{^https://staging.example.net/wiki/$});
+	like($bits{basehref}, qr{^(?:(?:https:)?//staging\.example\.net)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//staging.example.net)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:(?:(?:https:)?//staging.example.net)?/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//(?:staging\.example\.net|example\.com))?/cgi-bin/ikiwiki.cgi$});
@@ -387,7 +388,7 @@ sub test_site4_cgi_is_secure_static_content_doesnt_have_to_be {
 
 	# previewing a page
 	%bits = parse_cgi_content(run_cgi(is_preview => 1, is_https => 1));
-	is($bits{basehref}, "https://example.com/wiki/a/b/c/");
+	like($bits{basehref}, qr{^(?:(?:https:)?//example\.com)?/wiki/a/b/c/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
@@ -423,10 +424,9 @@ sub test_site4_cgi_is_secure_static_content_doesnt_have_to_be {
 	is($bits{basehref}, "/wiki/");
 	is($bits{stylehref}, "/wiki/style.css");
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
-	like($bits{cgihref}, qr{^(?:(?:https:)?//(?:example\.com|staging\.example\.net))?/cgi-bin/ikiwiki.cgi$});
 	TODO: {
 	local $TODO = "this should really point back to itself but currently points to example.com";
-	like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
+	like($bits{cgihref}, qr{^(?:(?:https:)?//staging\.example\.net)?/cgi-bin/ikiwiki.cgi$});
 	}
 
 	# previewing a page
@@ -495,14 +495,14 @@ sub test_site6_behind_reverse_proxy {
 	my %bits = parse_cgi_content(run_cgi(HTTP_HOST => 'localhost'));
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
-	is($bits{basehref}, "https://example.com/wiki/");
+	like($bits{basehref}, qr{^(?:(?:https:)?//example\.com)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 
 	# previewing a page
 	%bits = parse_cgi_content(run_cgi(is_preview => 1, HTTP_HOST => 'localhost'));
 	like($bits{tophref}, qr{^(?:/wiki|\.\./\.\./\.\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
-	is($bits{basehref}, "https://example.com/wiki/a/b/c/");
+	like($bits{basehref}, qr{^(?:(?:https)?://example\.com)?/wiki/a/b/c/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 
 	# not testing html5: 1 because it would be the same as site 1 -
