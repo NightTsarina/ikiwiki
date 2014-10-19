@@ -67,6 +67,12 @@ a private zone needs only a `.htaccess` file with `Deny from All` or
 `Require all denied` (or other equivalent directive for the `http` server
 in use), and a `403` error handler of `{$cgiurl}?do=view`.
 
+The plugin emits response headers intended to discourage non-private caches
+from retaining the retrieved content. (They are already supposed to avoid
+caching any response to a request with an `Authorization` header, but this
+plugin can be used with any ikiwiki-supported auth method, not all of which
+require that header.)
+
 A plugin like [[plugins/contrib/pagespec_alias]] can be very useful for
 defining a group of authorized users:
 
@@ -91,7 +97,15 @@ A plugin implementing a [FastCGI](http://www.fastcgi.com/)
 [Authorizer](http://www.fastcgi.com/drupal/node/6?q=node/22#S6.3) could provide
 the same benefits as [[plugins/contrib/signinview]] (any ikiwiki-supported auth
 method, simple zone definition with [[ikiwiki/PageSpec]]s) with less overhead
-per access.
+per access. It would also be simpler than [[plugins/contrib/signinview]] by
+leaving it as the `http` server's responsibility to generate the proper headers
+and serve the content.
+
+Caching proxies are already supposed to avoid caching any response to a request
+that included an `Authorization` header. For some ikiwiki-supported auth methods,
+that header might not be needed in the request, and care may be needed to configure
+the server to emit other necessary response headers to discourage caching of
+content from a private zone.
 
 ## Obstacles
 
