@@ -46,10 +46,11 @@ using any authentication method `ikiwiki` supports.
 
 ### View control in the `http` server
 
-* We already can more or less do this for example with [[httpauth|/plugins/httpauth/]], *.htaccess* files and a proper *httpauth_pagespec*
-yet at the cost of maintaining two different user/pass logbase (native ikiwiki signin)
-* Clunky if ikiwiki is using an authentication method not natively supported
-    in the `http` server (e.g., OpenID).
+We already can more or less do this for example with [[httpauth|/plugins/httpauth/]], `.htaccess` files and a proper `httpauth_pagespec`.
+
+_Drawbacks:_ might be fiddly to configure and require maintaining two different user/pass logbases (native ikiwiki
+signin), or impractical if ikiwiki is using an authentication method not natively supported
+in the `http` server (e.g., OpenID).
 
 ### View control in ikiwiki CGI
 
