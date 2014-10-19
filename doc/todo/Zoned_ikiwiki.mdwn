@@ -1,3 +1,9 @@
+[[!toc levels=3]]
+
+# Zoned ikiwiki
+
+## The idea
+
 The idea behind this would be to have one ikiwiki behave as a dynamic private wiki in a specified area
 and a more static publiczone wiki. Actually private wiki page can be addressed via a *pagespec*. 
 
@@ -7,18 +13,31 @@ What is ready /can be done:
 yet at the cost of maintaining two different user/pass logbase (native ikiwiki signin)
 * Furthermore we can [[lockedit|plugins/lockedit/]] some pagespecs, ie in the public zone.
 
+## Obstacles
+
+A number of ikiwiki features aren't (yet) designed with zoning in mind,
+and it will take some effort both to identify them all, and to think out how they
+could be addressed. This section invites brainstorming of both kinds.
+This might eventually merit a separate page [[Zoned ikiwiki obstacles]]
+but I'll begin it here.
+
+Note that not all of these issues will be problems for all **zoned ikiwiki use cases**.
+
+### Backlinks
+
 What is problematic is when you link a public page in a private page : 
 a backlink will be generated from the public page to the private page.
 
-As I noticed in [[per_page_ACLs]] in the end users through backlink 
+As noted in [[per_page_ACLs]] in the end users through backlink 
 navigation will frequently hit HTTP/401 deterring browsing as well as for the admin at false-positive logwatching.
 
 One can radically [[disable backlinks feature|todo/allow_disabling_backlinks]] but then no more neat backlink navigation that
 is really good to have in both area.
 
-I think of just preventing this backlink leak in that case would be sufficient via i.e a *privatebacklinks* config and
-a below patch.
+Another way of just preventing this backlink leak in that case would be sufficient via i.e a *privatebacklinks* config and
+a patch like this one [[!toggle id="backlinkpatch" text="(show)"]].
 
+[[!toggleable id="backlinkpatch" text="""
 Comments are welcome.
 
 [[mathdesc]]
@@ -58,7 +77,75 @@ diff --git a/IkiWiki/Render.pm b/IkiWiki/Render.pm
  }
 
 </pre>
+"""]]
+
+In use cases where the main concern about backlinks is only the bad user experience when links are
+shown that lead to access denial when clicked, a workable
+solution could be to make the backlinks `div` invisible in `local.css`.
+
+### recentchanges page
+
+An accessible `recentchanges` page can include links to changes to pages
+that should not be accessible. Even if the links cannot be followed, the
+existence of the pages and their edit history are leaked. If rcs integration
+is configured, those links on the `recentchanges` page can leak complete contents
+through the **rcs browser**.
+
+It can be helpful to generate separate `recentchanges` pages for different zones.
+The [[plugins/recentchanges]] plugin already allows this--a `recentchanges` page
+can be created anywhere, just by using the `recentchanges` directive
+with the right [[ikiwiki/PageSpec]] for the zone it should cover--except that it cannot yet
+be configured to generate a different `recentchanges` link destination into pages
+in different zones. So, it would be helpful if its configuration could allow multiple
+`recentchangespage` values, paired with `PageSpec`s for the pages on which they
+should be used.
+
+### rcs browser
+
+If the repository browser is accessible, potentially all content can be exposed.
+Even if links to the repository browser are not generated into public wiki pages,
+if a user can obtain or guess the repository browser URL and construct arbitrary
+requests, information can be revealed.
+
+Solutions could involve authnz features of the revision control systems themselves
+and their associated repository browsers; for example, `svn` supposedly has such
+features, and recent versions of `viewvc` supposedly honor them. But such features
+may not be available for every rcs, and where they are available, they'll have to
+be configured separately and differently from ikiwiki itself. They might not support
+the same auth methods (e.g. OpenID) being used by the wiki itself.
+
+Another approach would be for ikiwiki's own rcs plugin to generate a CGI wrapper
+that invokes the repository browser CGI (which itself would _not_ be made
+executable via `http` request). The `historyurl` and `diffurl` would then refer
+to this wrapper. (In fact, they would not have to be specified in the config file,
+as the plugin would know where it generated them. Instead, what would need to be
+specified would be the filesystem path for the rcs browser being wrapped). The
+wrapper could dissect the request parameters, identify the pages being accessed,
+and subject them to the same accessibility tests used for the wiki. The rcs browser
+itself needs to be configured to use the wrapper URL in all its generated links,
+
+This might not be very hard to do with `gitweb` as it is already implemented in Perl.
+The wrapper could probably import it and use its already-supplied routines to parse
+the request into the affected file names, and probably complete the whole request
+without a second `exec`. Other rcs backends might or might not be as easy.
+
+### Information leaks allowed by edit access
 
 > Have you considered all the ways that anyone with edit access to the
 > public wiki could expose information from the public wiki? For example,
-> you could inline all the private pages into a public page. --[[Joey]] 
+> you could inline all the private pages into a public page. --[[Joey]]
+
+Many ikiwiki features could give information exposure opportunities to someone
+with edit access. The list here is surely incomplete, and would take a purposeful
+review of the code and plugins (including third-party plugins) to complete.
+
+* Directives that can inline information from other pages
+    * [[ikiwiki/directive/inline]] *the most obvious one*
+    * [[ikiwiki/directive/map]]
+    * [[ikiwiki/directive/brokenlinks]] ?
+    * [[ikiwiki/directive/orphans]] ?
+    * [[ikiwiki/directive/linkmap]] ?
+    * _others_?
+* Not to forget `contrib` plugins
+    * [[plugins/contrib/report]] ?
+    * _others_?
