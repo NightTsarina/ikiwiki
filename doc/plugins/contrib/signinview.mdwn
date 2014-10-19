@@ -1,0 +1,144 @@
+[[!template id=plugin name=signinview core=0 author="[[jcflack]]"]]
+[[!tag type/special-purpose]]
+
+This plugin is one implementation approach to a [[todo/zoned ikiwiki]]. It is named
+like [[plugins/signinedit]], which requires users to sign in before editing pages.
+Similarly, this plugin requires users to sign in before _viewing_ certain pages.
+Unlike [[plugins/signinedit]], which _only_ checks that any user is signed in,
+this plugin is also similar to [[plugins/lockedit]] in that it checks the user's
+identity and a [[ikiwiki/PageSpec]] to determine _which_ pages may be viewed.
+It works with any auth methods ikiwiki supports, not only those the `http` server
+also understands.
+
+## How to configure
+
+This plugin adds a new function, `do=view`, to ikiwiki's CGI wrapper. It is intended
+to be called by the `http` server as an `ErrorDocument` for the `403` (forbidden) error response.
+
+In order to be usable even in shared-hosting situations without full access to
+the `http` server configuration files, this plugin requires nothing more than
+`.htaccess` files, as long as the server is configured to honor `ErrorDocument` and
+`Deny` or `Require` directives in them.
+
+To divide the wiki into a public zone and one or more private zone(s), simply place
+`Require all denied` (Apache 2.4), `Deny from All` (Apache 2.2), or the equivalent
+directive for the server and version in use, on the topmost directory of any private
+zone, either in an `.htaccess` file, or in the server configuration file if possible.
+Any location outside of these will continue to be served as normal public static
+ikiwiki content.
+
+Then, if the `{$cgiurl}` is, for example, `/cgi-bin/ikiwiki.cgi`, add the directive
+
+    ErrorDocument 403 /cgi-bin/ikiwiki.cgi?do=view
+
+at the private locations or any ancestor up to the documentroot itself, again either
+in a `.htaccess` file or in the server configuration file.
+
+That's it for the server configuration. The server will now punt every request for
+private content to the ikiwiki wrapper. Everything else about the authorization
+decision--what auth method to use, whether there is just one private zone or different
+zones for different users--is handled by ikiwiki using a [[ikiwiki/PageSpec]].
+
+### viewable_pages config option
+
+This option in `ikiwiki.setup` is a [[ikiwiki/PageSpec]] defining which pages can be viewed.
+Because one predicate that can be used in a [[ikiwiki/PageSpec]] is `user`, this is enough
+to define interesting access rules. For example:
+
+    viewable_pages: >
+      ((user(astolfo) or user(basilio)) and team1/*)
+      or
+      ((user(clotaldo) or user(estrella)) and team2/*)
+
+Note that this defines the conditions to _allow_ viewing, which is opposite the
+sense of the [[plugins/lockedit]] plugin, where you define the conditions
+to _deny_ editing.
+
+If there are more than a few users in a group, or the specification for accessible
+pages is more complex, the [[plugins/contrib/pagespec_alias]] plugin
+can be useful to factor things out. Note it currently must [[be patched|plugins/contrib/pagespec_alias/discussion]]
+for this to work:
+
+    pagespec_aliases:
+      team1: >
+        user(astolfo)
+        or user(basilio)
+      team2: >
+        user(clotaldo)
+        or user(estrella)
+      team1stuff: team1/* or common/*
+      team2stuff: team2/* or common/*
+    viewable_pages: >
+      (team1() and team1stuff())
+      or (team2() and team2stuff())
+
+### mime_types config option
+
+Normally, when serving the static pages of an ordinary public site,
+the `http` server itself is responsible for identifying the `Content-Type`
+of each file. However, for any page that is served by this plugin instead
+of directly, the CGI specification makes it [plugin's job](http://tools.ietf.org/html/rfc3875#section-6.3.1),
+not the server's, to identify the `Content-Type`.
+
+In the current version, this plugin does that in a dead-simple way. For any page that ikiwiki htmlized
+(that is, for which the `pagetype` [[plugin API function|plugins/write]] returns a value),
+the type `text/html` is assigned. For anything else, a simple collection of content types and `PageSpec`s
+must be configured in the `ikiwiki.setup` file:
+
+    mime_types:
+      image/png: '*.png'
+      application/pdf: '*.pdf'
+      text/css: '*.css'
+
+Anything without a matching rule gets served as `application/octet-stream`, which is
+probably not what you want, but a clear sign of what rule needs to be added.
+
+## Other considerations
+
+### Leakage of non-content files
+
+Any CGI code that does what this plugin does, and can serve requested files under the
+document root, needs to be careful not to allow viewing of certain sensitive files
+that may also be found there, such as `.htaccess`, `.htpasswd`, etc. Instead of trying
+to think of all the possible files that should not be served, this plugin takes an
+absolutely strict approach: every requested file is looked up in the `%destsources` hash,
+containing all the files ikiwiki has generated or placed in the web root.
+Any file that _ikiwiki didn't put there_, this plugin _won't touch_. Otherwise, its page
+name is now known, and must satisfy the `viewable_pages` `PageSpec`.
+
+This policy is also what allows this plugin to work back through `%pagesources` to
+the original source name, needed for the content-type rules described above.
+
+### Cache control
+
+The purpose of a non-public zone can be defeated if there are caching proxies or
+other non-private caches that might retain the content this plugin returns.
+
+Caching of the response is automatically forbidden by the HTTP specification
+[if there was an `Authorization` header in the request](http://tools.ietf.org/html/rfc7234#section-3.2).
+However, this plugin works with any auth method ikiwiki supports, not all of which require
+that header, so this plugin always emits response headers to explicitly forbid caching.
+
+Note that nothing precludes an evil caching agent that ignores the rules.
+
+### Other ways to handle `Content-Type`
+
+While it is simple enough to supply a `mime_types` map in `ikiwiki.setup`, it also
+duplicates logic that has already been done to death in other places. Another approach
+would be to use `File::MimeInfo::Magic`, which is already present if the `filecheck`
+plugin is in use.
+
+In a wiki _compiler_, it would be natural to do that content-type determination
+at compile time and save it in page state, so this plugin would simply output
+the stored type. On the other hand, saving the type for every (non-htmlized?) page
+would enlarge the state `Storable` that has to be loaded, and so might not be
+faster than typing the file on the fly.
+
+## Obtaining and installing
+
+The `signinview` plugin is [not in github yet](https://github.com/jcflack/ikiwiki/tree/plug-signinview)
+(horroars! vaporware!). What _is_ in github at the moment is a preliminary patch I have proposed,
+giving plugins some control over the environment variables that a generated wrapper will preserve.
+
+Depending on the ultimate fate of that patch, I will adjust/rebase and then push the `signinview`
+branch itself.
