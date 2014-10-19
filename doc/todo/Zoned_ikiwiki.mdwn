@@ -38,11 +38,59 @@ without solutions to most or all of the **obstacles** identified here.
 
 ## Implementation techniques
 
-What is ready /can be done:
+### Edit control by user and pagespec: lockedit
+
+This works today, using the [[plugins/lockedit]] plugin. Because the `user` predicate
+can be part of a [[ikiwiki/PageSpec]], this is all we need to flexibly control edit access
+using any authentication method `ikiwiki` supports.
+
+### View control in the `http` server
 
 * We already can more or less do this for example with [[httpauth|/plugins/httpauth/]], *.htaccess* files and a proper *httpauth_pagespec*
 yet at the cost of maintaining two different user/pass logbase (native ikiwiki signin)
-* Furthermore we can [[lockedit|plugins/lockedit/]] some pagespecs, ie in the public zone.
+* Clunky if ikiwiki is using an authentication method not natively supported
+    in the `http` server (e.g., OpenID).
+
+### View control in ikiwiki CGI
+
+By requiring access to private zones to go through an ikiwiki CGI wrapper,
+any ikiwiki-supported authentication method can be used, and the accessible
+pages can be specified using the `user` predicate with [[ikiwiki/PageSpec]]s,
+just as with the [[plugins/lockedit]] plugin.
+
+The [[plugins/contrib/signinview]] plugin implements this idea, using very
+simple configuration that is possible even in shared-hosting environments
+without complete access to the `http` server configuration, as long as
+`.htaccess` files or their equivalent can be created. The top directory of
+a private zone needs only a `.htaccess` file with `Deny from All` or
+`Require all denied` (or other equivalent directive for the `http` server
+in use), and a `403` error handler of `{$cgiurl}?do=view`.
+
+A plugin like [[plugins/contrib/pagespec_alias]] can be very useful for
+defining a group of authorized users:
+
+    us: user(alice) or user(bob) or user(clotaldo)
+
+so that zone access can be a simple [[ikiwiki/PageSpec]]:
+
+    us() and ours/*
+
+*Drawbacks:* The private zones no longer reap all the benefits of a static
+wiki generator, as a (fairly heavy) ikiwiki CGI wrapper must be started for
+each access. (On the other hand, all it needs to do after confirming authorization
+is basically `cat` the statically-generated page with appropriate response headers,
+keeping the code simple and easy to audit.)
+
+This can be adequate for a case where the static, public zone could receive a lot
+of traffic, with the private zone(s) accessed only by a known small group of people.
+
+### View control with a FastCGI Authorizer
+
+A plugin implementing a [FastCGI](http://www.fastcgi.com/)
+[Authorizer](http://www.fastcgi.com/drupal/node/6?q=node/22#S6.3) could provide
+the same benefits as [[plugins/contrib/signinview]] (any ikiwiki-supported auth
+method, simple zone definition with [[ikiwiki/PageSpec]]s) with less overhead
+per access.
 
 ## Obstacles
 
