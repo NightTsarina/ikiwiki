@@ -5,7 +5,38 @@
 ## The idea
 
 The idea behind this would be to have one ikiwiki behave as a dynamic private wiki in a specified area
-and a more static publiczone wiki. Actually private wiki page can be addressed via a *pagespec*. 
+and a more static publiczone wiki.
+
+## Use cases
+
+This can be more or less difficult depending on the use case.
+
+### Purely static public zone with a single, controlled-access inward zone
+
+For this case, only a known set of people are authorized to see the inward zone
+or edit anything. Everybody else sees only the public zone. This use case is mostly
+easy to handle now, as long as access to things like the `recentchanges` page and
+repository browser are not granted for the public zone. In particular, the features
+that allow information exposure via edit access are not of concern in this case.
+
+### Static public zone, more than one controlled inward zone
+
+In this case, the known, controlled set of people with special access are divided
+into groups with access to different (or overlapping) zones. The public still sees only a static zone.
+
+Here, some of the harder issues, like information disclosure via edit access, do apply,
+but only to members of the known, controlled groups. How much of a problem that is
+depends on _how sensitive_ the information is that each group might reveal from another
+zone. The rcs logs will show when a page has been edited to contain an [[ikiwiki/directive/inline]]
+directive or other trick to reveal information, so if it is enough to treat the trusted users' conduct
+as a management issue ("don't do that, please") then the risks can be acceptable in this case.
+
+### Public zone allows contribution/editing by external users
+
+This case is the most difficult to cover at present, and probably shouldn't be attempted
+without solutions to most or all of the **obstacles** identified here. 
+
+## Implementation techniques
 
 What is ready /can be done:
 
