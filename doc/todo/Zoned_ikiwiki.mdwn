@@ -107,6 +107,12 @@ that header might not be needed in the request, and care may be needed to config
 the server to emit other necessary response headers to discourage caching of
 content from a private zone.
 
+*Drawbacks:* Not yet implemented, someone would have to do it.
+It's not clear [[what code changes fastcgi|todo/fastcgi or modperl installation instructions]]
+would require in ikiwiki. An Authorizer seems like a good place to start because of its
+limited, simple functionality--but as it could make use of any ikiwiki-supported auth method,
+evaluate `PageSpec`s, and the like, it could still run a non-trivial amount of the code.
+
 ## Obstacles
 
 A number of ikiwiki features aren't (yet) designed with zoning in mind,
