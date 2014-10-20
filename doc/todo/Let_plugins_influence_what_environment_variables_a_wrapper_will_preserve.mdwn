@@ -1,0 +1,12 @@
+I created this patch in advance of writing the [[plugins/contrib/signinview]] plugin. This patch does nothing `signinview`-specific, but simply refactors wrapper generation a bit so that plugins have some influence over what environment variables a wrapper will preserve.
+
+For example, Wrapper.pm previously hardcoded not only (some of) the RFC 3875 variables needed for a CGI wrapper (and hardcoded its own test for _whether it was generating_ a CGI wrapper), but also the Apache ErrorDocument-specific variables needed by the [[plugins/404]] plugin. Given that `signinview`, as a `403` handler, would have similar requirements to `404`, and it seemed possible other wrappers for other purposes could rely on other environment variables too, it seemed to make sense to move the preserved-variable list out of Wrapper.pm hardcoding, and closer to the plugins or other code relying on the variables.
+
+More comments and the code changes for review are [here](https://github.com/joeyh/ikiwiki/pull/14).
+
+----
+I was asked by [[Joey]] to create a page here for purposes of review. I'm still trying to figure out the preferred workflow for this project ... I'm assuming the link above is ok for looking over the comments and code changes, since they're already pushed to my git fork and (to me, anyway) reviewing changes in a decent repository browser is so much nicer than a `diff -u` pasted into a page between `<pre>` tags.
+
+That seemed to be ok for reviewing [[bugs/CGI wrapper doesn't store PERL5LIB environment variable]], so I hope it's ok for this one too.
+
+-- [[jcflack]]
