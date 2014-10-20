@@ -28,7 +28,7 @@ As I am not sure that remembering `PERL5LIB` is a good idea, I think that a pret
 -- Bruno
 
 **Update:** I had not seen this bug earlier, but I ran into the same issue and made a more general solution. You can already add stuff to `%config{ENV}` in the setup file, but it was being processed too late for `PERL5LIB` to do any good.
-[This change](https://github.com/jcflack/ikiwiki/compare/early-env) moves the `%config{ENV}` handling earlier in the wrapper, so anything specified there is placed back in the actual environment before Perl gets control. Problem solved!
+[This change](http://source.ikiwiki.branchable.com/?p=source.git;a=log;h=29e80b4eedadc2afd3f9f36d215076c82982971b;hp=6057107d71e9944bd6fd7093060e4297e617733e) moves the `%config{ENV}` handling earlier in the wrapper, so anything specified there is placed back in the actual environment before Perl gets control. Problem solved!
 
 -- Chap
 
