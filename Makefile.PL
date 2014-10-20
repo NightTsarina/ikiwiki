@@ -24,7 +24,7 @@ MANDIR?=$(PREFIX)/share/man
 
 tflag=$(shell if [ -n "$$NOTAINT" ] && [ "$$NOTAINT" != 1 ]; then printf -- "-T"; fi)
 extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:NYTProf"; fi)
-outprogs=ikiwiki.out ikiwiki-transition.out ikiwiki-calendar.out
+outprogs=ikiwiki.out ikiwiki-transition.out ikiwiki-calendar.out ikiwiki-comment.out
 scripts=ikiwiki-update-wikilist ikiwiki-makerepo
 sysconfdir_scripts=ikiwiki-mass-rebuild ikiwiki-update-wikilist
 shebang_scripts=$(shell $(FIND) . -type f \( -name '*.in' -o -name '*.cgi' -o -name '*.pm' -o -name '*.pm.example' -o -name '*.t' -o -name '*.setup' -o -name 'ikiwiki-mass-rebuild' -o -name 'ikiwiki-update-wikilist' -o -name 'gitremotes' -o -name 'mdwn2man' -o -name 'pm_filter' -o -name 'po2wiki' -o -name 'externaldemo' \))
@@ -53,6 +53,7 @@ extra_build: perl_shebangs $(outprogs) ikiwiki.setup docwiki sysconfdir
 	./mdwn2man ikiwiki-transition 1 doc/ikiwiki-transition.mdwn > ikiwiki-transition.man
 	./mdwn2man ikiwiki-update-wikilist 1 doc/ikiwiki-update-wikilist.mdwn > ikiwiki-update-wikilist.man
 	./mdwn2man ikiwiki-calendar 1 doc/ikiwiki-calendar.mdwn > ikiwiki-calendar.man
+	./mdwn2man ikiwiki-comment 1 doc/ikiwiki-comment.mdwn > ikiwiki-comment.man
 	$(MAKE) -C po
 	$(PERL) -pi.bkp -e "s/Version:.*/Version: $(VER)/" ikiwiki.spec
 	rm -f ikiwiki.spec.bkp
@@ -156,6 +157,7 @@ extra_install: underlay_install
 	install -m 644 ikiwiki-transition.man $(DESTDIR)$(MANDIR)/man1/ikiwiki-transition.1
 	install -m 644 ikiwiki-update-wikilist.man $(DESTDIR)$(MANDIR)/man1/ikiwiki-update-wikilist.1
 	install -m 644 ikiwiki-calendar.man $(DESTDIR)$(MANDIR)/man1/ikiwiki-calendar.1
+	install -m 644 ikiwiki-comment.man $(DESTDIR)$(MANDIR)/man1/ikiwiki-comment.1
 	
 	install -d $(DESTDIR)$(MANDIR)/man8
 	install -m 644 ikiwiki-mass-rebuild.man $(DESTDIR)$(MANDIR)/man8/ikiwiki-mass-rebuild.8

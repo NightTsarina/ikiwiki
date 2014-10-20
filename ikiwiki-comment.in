@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+use lib '.'; # For use in nonstandard directory, munged by Makefile.
+use IkiWiki;
+use IkiWiki::Plugin::comments;
+
+sub usage () {
+	die gettext("usage: ikiwiki-comment pagefile"), "\n";
+}
+
+my $pagefile=shift || usage ();
+
+my $dir=IkiWiki::dirname($pagefile);
+$dir="." unless length $dir;
+my $page=IkiWiki::basename($pagefile);
+$page=~s/\.[^.]+$//;
+
+IkiWiki::Plugin::comments::checkconfig();
+my $comment_num=1 + IkiWiki::Plugin::comments::num_comments($page, $dir);
+
+my $username = getpwuid($<);
+if (! defined $username) { $username="" }
+
+my $comment="[[!comment format=mdwn\n";
+$comment.=" username=\"$username\"\n";
+$comment.=" subject=\"\"\"comment $comment_num\"\"\"\n";
+$comment.=" " . IkiWiki::Plugin::comments::commentdate() . "\n";
+$comment.=" content=\"\"\"\n\n\"\"\"]]\n";
+
+# This will yield a hash of the comment before it's edited,
+# but that's ok; the date provides sufficient entropy to avoid collisions,
+# and the hash of a comment does not need to match its actual content.
+# Doing it this way avoids needing to move the file to a final
+# location after it's edited.
+my $location=IkiWiki::Plugin::comments::unique_comment_location($page, $comment, $dir)."._comment";
+
+IkiWiki::writefile($location, $dir, $comment);
+
+my @editor="vi";
+if (-x "/usr/bin/editor") {
+	@editor="/usr/bin/editor";
+}
+if (exists $ENV{EDITOR}) {
+	@editor=split(' ', $ENV{EDITOR});
+}
+if (exists $ENV{VISUAL}) {
+@editor=split(' ', $ENV{VISUAL});
+}
+exec(@editor, "$dir/$location");

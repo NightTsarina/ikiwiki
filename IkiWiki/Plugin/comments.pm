@@ -507,8 +507,7 @@ sub editcomment ($$) {
 		$subject = "comment ".(num_comments($page, $config{srcdir}) + 1);
 	}
 	$content .= " subject=\"$subject\"\n";
-
-	$content .= " date=\"" . strftime_utf8('%Y-%m-%dT%H:%M:%SZ', gmtime) . "\"\n";
+	$content .= " " . commentdate() . "\n";
 
 	my $editcontent = $form->field('editcontent');
 	$editcontent="" if ! defined $editcontent;
@@ -634,6 +633,10 @@ sub editcomment ($$) {
 	}
 
 	exit;
+}
+
+sub commentdate () {
+	"date=\"" . strftime_utf8('%Y-%m-%dT%H:%M:%SZ', gmtime) . "\"";
 }
 
 sub getavatar ($) {
@@ -1012,7 +1015,7 @@ sub num_comments ($$) {
 	return int @comments;
 }
 
-sub unique_comment_location ($$$$) {
+sub unique_comment_location ($$$;$) {
 	my $page=shift;
 	eval q{use Digest::MD5 'md5_hex'};
 	error($@) if $@;
