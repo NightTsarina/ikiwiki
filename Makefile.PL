@@ -27,7 +27,7 @@ extramodules=$(shell if [ "$$PROFILE" = 1 ]; then printf -- "-d:NYTProf"; fi)
 outprogs=ikiwiki.out ikiwiki-transition.out ikiwiki-calendar.out ikiwiki-comment.out
 scripts=ikiwiki-update-wikilist ikiwiki-makerepo
 sysconfdir_scripts=ikiwiki-mass-rebuild ikiwiki-update-wikilist
-shebang_scripts=$(shell $(FIND) . -type f \( -name '*.in' -o -name '*.cgi' -o -name '*.pm' -o -name '*.pm.example' -o -name '*.t' -o -name '*.setup' -o -name 'ikiwiki-mass-rebuild' -o -name 'ikiwiki-update-wikilist' -o -name 'gitremotes' -o -name 'mdwn2man' -o -name 'pm_filter' -o -name 'po2wiki' -o -name 'externaldemo' \))
+shebang_scripts=$(shell $(FIND) . -type f \( -name '*.in' -o -name '*.cgi' -o -name '*.pm' -o -name '*.pm.example' -o -name '*.t' -o -name '*.setup' -o -name 'ikiwiki-comment' -o -name 'ikiwiki-mass-rebuild' -o -name 'ikiwiki-update-wikilist' -o -name 'gitremotes' -o -name 'mdwn2man' -o -name 'pm_filter' -o -name 'po2wiki' -o -name 'externaldemo' \))
 
 PROBABLE_INST_LIB=$(shell \\
 	if [ "$(INSTALLDIRS)" = "perl" ]; then \\
