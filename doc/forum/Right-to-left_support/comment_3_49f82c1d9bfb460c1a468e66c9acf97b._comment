@@ -1,0 +1,33 @@
+[[!comment format=mdwn
+ username="smcv"
+ ip="81.100.115.242"
+ subject="comment 3"
+ date="2014-10-23T07:57:39Z"
+ content="""
+> The Arabic pages on your wiki seem to have the Arabic in LTR, instead of the intended RTL
+
+As I said on the other forum thread, it does look to me as though it is RTL;
+the display bug is that it's left-justified (text-align: left) because the
+blueview stylesheet explicitly (and unnecessarily?) left-aligns text.
+
+You can test RTL/LTR in English by putting a distinctive directionless punctuation
+character at the beginning and end of a paragraph like this:
+
+    <p dir=\"ltr\">• This renders with a bullet on the left and an ellipsis on the right…</p>
+    <p dir=\"rtl\">• This renders with a bullet on the right and an ellipsis on the left…</p>
+
+The actual text still goes left-to-right because Latin characters are known
+to be left-to-right by the Unicode bidi algorithm, but the punctuation moves
+around, and in ikiwiki themes other than blueview and goldtype, the alignment
+changes too:
+
+<p dir=\"ltr\">• This renders with a bullet on the left and an ellipsis on the right…</p>
+<p dir=\"rtl\">• This renders with a bullet on the right and an ellipsis on the left…</p>
+
+More test-cases:
+
+* <http://actiontabs.hosted.pseudorandom.co.uk/rtl/>
+* <http://blueview.hosted.pseudorandom.co.uk/rtl/>
+* <http://goldtype.hosted.pseudorandom.co.uk/rtl/>
+* <http://unthemed.hosted.pseudorandom.co.uk/rtl/>
+"""]]
