@@ -1,0 +1,25 @@
+I have here a site that uses the po plugin, and recently had this change
+committed to its setup:
+
+<pre>
+ po_slave_languages:
+ - de|Deutsch
+ - fr|Français
+-- ja|日本語
+-- tr|Türkçe
+</pre>
+
+The change was made by the web UI, so it must have involved a site rebuild
+at the time, as that configuration item has `rebuild => 1`.
+
+Some days after that config change, a push caused ikiwiki refresh to fail:
+
+    remote: /home/b-udm/public_html/Discussion/index.ja.html independently created, not overwriting with version from Discussion.ja
+
+Rebuilding the wiki cleared that up, but it seems that po plugin config
+changes can lead to follow-on problems of this sort.
+
+The site still has a `source/index.ja.po`. And it has
+`public_html/index.ja.html`, as well as `public_html/index.ja/index.html`.
+
+--[[Joey]]
