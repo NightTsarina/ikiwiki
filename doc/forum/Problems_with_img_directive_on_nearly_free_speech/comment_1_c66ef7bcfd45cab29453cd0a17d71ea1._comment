@@ -1,0 +1,13 @@
+[[!comment format=mdwn
+ username="openmedi"
+ ip="91.65.196.164"
+ subject="comment 1"
+ date="2014-10-22T22:01:41Z"
+ content="""
+Okay. I figured it out with help from the nearlyfreespeech forum. It had nothing to do with ikiwiki. Nonetheless here's the solution, for posterity: You can check, if PerlMagick is installed by running ```perl -MImage::Magick -e \"print $Image::Magick::VERSION\"```.  If it isn't, you will get an error that looks like this:
+
+>```Can't locate Image/Magick.pm in @INC (@INC contains: /usr/local/lib/perl5/5.16/BSDPAN /usr/local/lib/perl5/site_perl/5.16/mach /usr/local/lib/perl5/site_perl/5.16 /usr/local/lib/perl5/5.16/mach /usr/local/lib/perl5/5.16 .). 
+BEGIN failed--compilation aborted. ```
+
+If that's the case, you might have to upgrade/switch to a new \"realm\". As of the time of this writing PerlMagick is installed in the realms \"indigo\" and \"white\". How this is done, is described in the members only FAQ of nfs.
+"""]]
