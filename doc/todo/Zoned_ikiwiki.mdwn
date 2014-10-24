@@ -123,6 +123,21 @@ but I'll begin it here.
 
 Note that not all of these issues will be problems for all **zoned ikiwiki use cases**.
 
+### Leakage of page existence by `do=goto`
+
+An unauthorized client can use a `do=goto` request to find out whether a
+page exists (will be forbidden to view it) or not (will be forbidden to create it).
+
+My first idea was to fix this all within [[plugins/contrib/signinview]] by hooking
+`cgi` first and checking for `goto` and an unauthorized page. But checking authorization
+requires session info, not loaded at `cgi` hook time. Next idea was to somehow skip the rest of
+the chain of `cgi` hooks, preventing `goto` from handling the request, and handling
+it again in `sessioncgi`. But 'skip the rest of this chain' doesn't seem to be something
+a hook can return.
+
+Hmm, maybe change the `do` parameter to something other than `goto` before the `goto` hook
+can see it, _then_ handle it later in `sessioncgi`?
+
 ### Backlinks
 
 What is problematic is when you link a public page in a private page : 
