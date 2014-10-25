@@ -14,3 +14,39 @@ script specified in setup file - then e.g. you can choose which commands are all
 What do you think?
 
 -- [[fr33domlover]]
+
+> The problem you mention is known, and is not a problem for me, since I am the
+only user of the wiki. However, if we need a *secure* version of this
+command...
+>
+> Imagine we have a setup option `compile_unsecure`.
+>
+> The directive takes the following arguments 
+>
+> - filetype: No problem.
+> - build: Forbidden.
+> - source: No problem.
+> - template: No problem.
+> - destname and files: The problem is that right now, the command is run using a shell
+>   call. Thus, a user can easily use this argument to inject malicious
+>   commands (something like \[[!compile files=";rm -fr *"]] (well, this
+>   actually would not work, but you get the idea)). I do want to keep the
+>   ability to use shell commands, for the flexibility it provides, but I imagine
+>   we can:
+>   - interpret the `build` command depending on its type:
+>     - if it is a string, it is interpreted as a shell command;
+>     - if it is a list of strings, the first one is the command to execute,
+>       the following ones are the arguments. If I am not wrong, this should
+>       prevent command injection.
+>     - if it is a list of lists of strings, it is a list of commands to
+>       execute (execution being stopped on the first error; usefull for stuff
+>       like `latex foo.tex && dvipdf foo.dvi`).
+>   - the `compile_unsecure` would:
+>     - forbid commands to be strings (thus, forbidding shell commands, and preventing command injections);
+>     - forbid compilation using Makefile or executable prevent in the wiki (to prevent users from modifying those files, and executing arbitrary commands);
+>     - forbid directive argument `build`.
+>
+>
+> Any thoughts?
+>
+> -- [[Louis|spalax]]
