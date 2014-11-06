@@ -104,7 +104,6 @@ sub formbuilder_setup (@) {
 			size => 1, force => 1,
 			fieldset => "login",
 			comment => $session->param("name"));
-		$form->field(name => "email", type => "hidden");
 	}
 }
 
