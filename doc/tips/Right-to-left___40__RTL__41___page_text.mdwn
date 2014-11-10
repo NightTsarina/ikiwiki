@@ -10,7 +10,7 @@ footer. Only what is rendered from the mdwn file is affected.
 
 Create a new template page *templates/rtl.mdwn* with the following content:
 
-    <div class="rtl">
+    <div dir="rtl">
     <TMPL_VAR text>
     </div>
     <TMPL_UNLESS text>
@@ -21,18 +21,7 @@ Create a new template page *templates/rtl.mdwn* with the following content:
     </ul>
     </TMPL_UNLESS>
 
-# 2 Add an RTL class to the CSS
-
-In your *local.css* add the following:
-
-[[!format css """
-/* rtl template */
-.rtl {
-    direction: rtl;
-}
-"""]]
-
-# 3 Use the Template
+# 2 Use the Template
 
 To make a page or part of it RTL, use the [[ikiwiki/directive/template]] directive:
 
