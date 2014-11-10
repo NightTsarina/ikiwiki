@@ -1,0 +1,21 @@
+For a while I've been wondering how to use a communication channel which can be
+accessed both by e-mail and web interface, while using ikiwiki's git repo. There
+are solutions like Drupal which can combine mailing lists and a forum, but then
+you lose the ikiwiki integration.
+
+So I had an idea:
+
+What if an ikiwiki server subscribes to a mailing list, and automatically posts
+under a "forum" page (like the [[/forum]] here) every time it gets a new e-mail?
+And when someone posts a new entry using git or the web UI, it can send an
+e-mail to the mailing list! (perhaps mark it somehow to avoid an infinite loop)
+
+Does something like this make sense? It can work not only with e-mail but also
+with other forum tools (e.g. Syndie). Are there any critical synchronization
+issues I'm missing? If not, I'd like to suggest this as a feature and add this
+to my todo list :-)
+
+Currently I have mail and forum separate, and I'd like to integrate them. If I
+get positive feedback, I'll start working on it at some point (soon, I hope).
+
+-- [[fr33domlover]]
