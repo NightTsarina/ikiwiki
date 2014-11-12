@@ -1,0 +1,43 @@
+While working on the [Tails website](https://tails.boum.org/), I didn't
+managed to resize the text input on top of the search results.
+
+This is problematic with our layout and it might be the same for others.
+For example, reducing a bit the width of the browser on [this
+page](https://tails.boum.org/ikiwiki.cgi?P=testing) makes the search
+results jump at the bottom of the page since the text input is wider
+(size=65 by default) than the body of the page when side by side with
+the sidebar.
+
+Having CSS selectors to style the elements of this form would solve our
+problem.
+
+Here is a patch:
+
+    From c4c6c9bf3b296c2db10d6fb9e6421d82f341b1cf Mon Sep 17 00:00:00 2001
+    From: sajolida <sajolida@pimienta.org>
+    Date: Sun, 9 Nov 2014 16:48:33 +0100
+    Subject: [PATCH] Add classes to form in search results
+    
+    This is needed to style it, for example to reduce the width of the text
+    input and prevent layout issues.
+    ---
+     templates/searchquery.tmpl | 4 ++--
+     1 file changed, 2 insertions(+), 2 deletions(-)
+    
+    diff --git a/templates/searchquery.tmpl b/templates/searchquery.tmpl
+    index 15bc78e..6277266 100644
+    --- a/templates/searchquery.tmpl
+    +++ b/templates/searchquery.tmpl
+    @@ -33,8 +33,8 @@ $def{NEXT,$if{$ne{$last,$msize},<INPUT TYPE=submit NAME="&gt;" VALUE="Next">}}
+     
+     <FORM NAME=P METHOD=GET
+     ACTION="$html{$env{CGIURL}}" TARGET="_top">
+    -<div style="text-align:center">
+    -<INPUT NAME=P VALUE="$html{$query}" SIZE=65>
+    +<div class="searchquery" style="text-align:center">
+    +<INPUT class="searchbox" NAME=P VALUE="$html{$query}" SIZE=65>
+     <INPUT TYPE=SUBMIT VALUE="Search">
+     $env{HELPLINK}
+     <hr>
+    --
+    2.1.1
