@@ -481,7 +481,6 @@ sub format_year (@) {
 		my $mtime = $IkiWiki::pagectime{$p};
 		my @date  = localtime($mtime);
 		my $month = $date[4] + 1;
-		my $year  = $date[5] + 1900;
 
 		$post_months[$month]++;
 	}
@@ -628,9 +627,6 @@ sub preprocess (@) {
 	}
 	
 	$params{month} = sprintf("%02d", $params{month});
-	if (not exists $changed{$params{year}}) {
-		$changed{$params{year}} = ();
-	}
 	$changed{$params{year}}{$params{month}} = 1;
 	
 	if ($params{type} eq 'month' && $params{year} == $thisyear
