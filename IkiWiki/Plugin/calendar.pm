@@ -171,8 +171,6 @@ sub gencalendaryear {
 	my $year = shift;
 	my %params = @_;
 
-	return unless $config{calendar_autocreate};
-
 	# Building year page
 	my $page = calendarlink($year);
 	my $pagefile = newpagefile($page, $config{default_pageext});
@@ -712,6 +710,8 @@ sub needsbuild (@) {
 sub scan (@) {
 	my %params=@_;
 	my $page=$params{page};
+
+	return unless $config{calendar_autocreate};
 
 	# Check if year pages have to be generated
 	if (pagespec_match($page, $config{archive_pagespec})) {
