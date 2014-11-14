@@ -108,20 +108,20 @@ sub month_days {
 
 sub build_affected {
 	my %affected;
-  my ($ayear, $amonth, $valid);
+	my ($ayear, $amonth, $valid);
 
-  foreach my $year (keys %changed) {
-    ($ayear, $valid) = nextyear($year, $config{archivebase});
-    $affected{calendarlink($ayear)} = sprintf(gettext("building calendar for %s, its previous or next year has changed"), $ayear) if ($valid);
-    ($ayear, $valid) = previousyear($year, $config{archivebase});
-    $affected{calendarlink($ayear)} = sprintf(gettext("building calendar for %s, its previous or next year has changed"), $ayear) if ($valid);
-    foreach my $month (keys $changed{$year}) {
-      ($ayear, $amonth, $valid) = nextmonth($year, $month, $config{archivebase});
-      $affected{calendarlink($ayear, sprintf("%02d", $amonth))} = sprintf(gettext("building calendar for %s/%s, its previous or next month has changed"), $amonth, $ayear) if ($valid);
-      ($ayear, $amonth, $valid) = previousmonth($year, $month, $config{archivebase});
-      $affected{calendarlink($ayear, sprintf("%02d", $amonth))} = sprintf(gettext("building calendar for %s/%s, its previous or next month has changed"), $amonth, $ayear) if ($valid);
-    }
-  }
+	foreach my $year (keys %changed) {
+		($ayear, $valid) = nextyear($year, $config{archivebase});
+		$affected{calendarlink($ayear)} = sprintf(gettext("building calendar for %s, its previous or next year has changed"), $ayear) if ($valid);
+		($ayear, $valid) = previousyear($year, $config{archivebase});
+		$affected{calendarlink($ayear)} = sprintf(gettext("building calendar for %s, its previous or next year has changed"), $ayear) if ($valid);
+		foreach my $month (keys $changed{$year}) {
+			($ayear, $amonth, $valid) = nextmonth($year, $month, $config{archivebase});
+			$affected{calendarlink($ayear, sprintf("%02d", $amonth))} = sprintf(gettext("building calendar for %s/%s, its previous or next month has changed"), $amonth, $ayear) if ($valid);
+			($ayear, $amonth, $valid) = previousmonth($year, $month, $config{archivebase});
+			$affected{calendarlink($ayear, sprintf("%02d", $amonth))} = sprintf(gettext("building calendar for %s/%s, its previous or next month has changed"), $amonth, $ayear) if ($valid);
+		}
+	}
 
 	return %affected;
 }
@@ -219,9 +219,9 @@ sub gencalendaryear {
 }
 
 sub previousmonth($$$) {
-  my $year = shift;
-  my $month = shift;
-  my $archivebase = shift;
+	my $year = shift;
+	my $month = shift;
+	my $archivebase = shift;
 
 	my $pmonth = $month;
 	my $pyear  = $year;
@@ -230,16 +230,16 @@ sub previousmonth($$$) {
 		if ($pmonth == 0) {
 			$pyear -= 1;
 			$pmonth = 12;
-      return ($pyear, $pmonth, 0) unless $pyear >= $wikistate{calendar}{minyear};
+			return ($pyear, $pmonth, 0) unless $pyear >= $wikistate{calendar}{minyear};
 		}
 	}
-  return ($pyear, $pmonth, 1);
+	return ($pyear, $pmonth, 1);
 }
 
 sub nextmonth($$$) {
-  my $year = shift;
-  my $month = shift;
-  my $archivebase = shift;
+	my $year = shift;
+	my $month = shift;
+	my $archivebase = shift;
 
 	my $nmonth = $month;
 	my $nyear  = $year;
@@ -248,34 +248,34 @@ sub nextmonth($$$) {
 		if ($nmonth == 13) {
 			$nyear += 1;
 			$nmonth = 1;
-      return ($nyear, $nmonth, 0) unless $nyear <= $wikistate{calendar}{maxyear};
+			return ($nyear, $nmonth, 0) unless $nyear <= $wikistate{calendar}{maxyear};
 		}
 	}
-  return ($nyear, $nmonth, 1);
+	return ($nyear, $nmonth, 1);
 }
 
 sub previousyear($$) {
-  my $year = shift;
-  my $archivebase = shift;
+	my $year = shift;
+	my $archivebase = shift;
 
-  my $pyear = $year - 1;
-  while (not exists $pagesources{"$archivebase/$pyear"}) {
-    $pyear -= 1;
-    return ($pyear, 0) unless ($pyear >= $wikistate{calendar}{minyear});
-  }
-  return ($pyear, 1);
+	my $pyear = $year - 1;
+	while (not exists $pagesources{"$archivebase/$pyear"}) {
+		$pyear -= 1;
+		return ($pyear, 0) unless ($pyear >= $wikistate{calendar}{minyear});
+	}
+	return ($pyear, 1);
 }
 
 sub nextyear($$) {
-  my $year = shift;
-  my $archivebase = shift;
+	my $year = shift;
+	my $archivebase = shift;
 
-  my $nyear = $year + 1;
-  while (not exists $pagesources{"$archivebase/$nyear"}) {
-    $nyear += 1;
-    return ($nyear, 0) unless ($nyear <= $wikistate{calendar}{maxyear});
-  }
-  return ($nyear, 1);
+	my $nyear = $year + 1;
+	while (not exists $pagesources{"$archivebase/$nyear"}) {
+		$nyear += 1;
+		return ($nyear, 0) unless ($nyear <= $wikistate{calendar}{maxyear});
+	}
+	return ($nyear, 1);
 }
 
 sub format_month (@) {
@@ -303,9 +303,9 @@ sub format_month (@) {
 	my $archivebase = 'archives';
 	$archivebase = $config{archivebase} if defined $config{archivebase};
 	$archivebase = $params{archivebase} if defined $params{archivebase};
-  
-  my ($pyear, $pmonth, $pvalid) = previousmonth($params{year}, $params{month}, $archivebase);
-  my ($nyear, $nmonth, $nvalid) = nextmonth($params{year}, $params{month}, $archivebase);
+	
+	my ($pyear, $pmonth, $pvalid) = previousmonth($params{year}, $params{month}, $archivebase);
+	my ($nyear, $nmonth, $nvalid) = nextmonth($params{year}, $params{month}, $archivebase);
 
 	# Add padding.
 	$pmonth=sprintf("%02d", $pmonth);
@@ -492,8 +492,8 @@ sub format_year (@) {
 	$archivebase = $config{archivebase} if defined $config{archivebase};
 	$archivebase = $params{archivebase} if defined $params{archivebase};
 	
-  my ($pyear, $pvalid) = previousyear($params{year}, $archivebase);
-  my ($nyear, $nvalid) = nextyear($params{year}, $archivebase);
+	my ($pyear, $pvalid) = previousyear($params{year}, $archivebase);
+	my ($nyear, $nvalid) = nextyear($params{year}, $archivebase);
 
 	my $thisyear = $now[5]+1900;
 	my $future_month = 0;
@@ -628,10 +628,10 @@ sub preprocess (@) {
 	}
 	
 	$params{month} = sprintf("%02d", $params{month});
-  if (not exists $changed{$params{year}}) {
-    $changed{$params{year}} = ();
-  }
-  $changed{$params{year}}{$params{month}} = 1;
+	if (not exists $changed{$params{year}}) {
+		$changed{$params{year}} = ();
+	}
+	$changed{$params{year}}{$params{month}} = 1;
 	
 	if ($params{type} eq 'month' && $params{year} == $thisyear
 	    && $params{month} == $thismonth) {
