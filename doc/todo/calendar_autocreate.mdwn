@@ -191,11 +191,15 @@ sub gencalendaryear {
 >
 > I think that should be `ikiwiki --setup ~/ikiwiki.setup --refresh`
 >
+> > [[Corrected|https://github.com/paternal/ikiwiki/commit/213dad76d47bab9db8e44d6e20c8371960375e77]]
+>
 > The indentation of some of the new code in `IkiWiki/Plugin/calendar.pm`
 > is weird. Please use one hard tab (U+0009) per indent step: you seem
 > to have used a mixture of one hard tab per indent or two spaces
 > per indent, which looks bizarre for anyone whose tab size is not
 > 2 spaces.
+>
+> > [[Corrected|https://github.com/paternal/ikiwiki/commit/1d97160dae775c31e166d9886472dacdd773d571]]
 >
 >     +	return unless $config{calendar_autocreate};
 >
@@ -203,9 +207,13 @@ sub gencalendaryear {
 > Shouldn't `gencalendarmonth` do it too? Alternatively, do the check
 > in `scan`, which calls `gencalendarmonth` directly.
 >
+> > Once again, [[you are right|https://github.com/paternal/ikiwiki/commit/473bcbe7a42a4168cab82ed12185817248de045f]]
+>
 >     +		my $year  = $date[5] + 1900;
 >
 > You calculate this, but you don't seem to do anything with it?
+>
+> > [[Corrected|https://github.com/paternal/ikiwiki/commit/d0b34951240317642543351ec62f98d3d8df8c0f]]
 >
 >     +  if (not exists $changed{$params{year}}) {
 >     +    $changed{$params{year}} = ();
@@ -222,4 +230,9 @@ sub gencalendaryear {
 > in order to put the pair `$params{month} => 1` in it (the term to look
 > up if you're curious is "autovivification").
 >
+> > [[Corrected|https://github.com/paternal/ikiwiki/commit/d0b34951240317642543351ec62f98d3d8df8c0f]]
+>
 > --[[smcv]]
+>
+> > Thank you for your review.
+> > --[[Louis|spalax]]
