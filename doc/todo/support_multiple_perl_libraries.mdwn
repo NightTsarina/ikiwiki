@@ -8,4 +8,15 @@ I think the change is a one-liner, but I put this here for discussion before att
 
 [[DavidBremner]]
 
+> I would like this feature too, for the very same reasons.
+>
+> To preserve backward compatibility, I tried to implement it in the following way: if `libdir` is a string, it is (as it is right now), a directory in which plugins can be searched; if `libdir` is an array of strings, it is a list of libdirs. The ideal place to put it in would be in subroutine [checkconfig](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=IkiWiki.pm;hb=56f8223f9594ae687099dada0c138d669a6f931f#l569). However, plugins are loaded (and option `libdir` is used) in subroutine [loadplugins](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=IkiWiki.pm;hb=56f8223f9594ae687099dada0c138d669a6f931f#l713), which is called [just before `checkconfig`](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=ikiwiki.in;hb=729991564ec7e1116fc023c51e73b47af8b6fce7#l143).
+>
+> A solution would be to check `libdir` (and turn it into a list if necessary) somewhere in subroutine [getconfig](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=ikiwiki.in;hb=729991564ec7e1116fc023c51e73b47af8b6fce7#l26), but I do not know where to put it not to make it look like a bad hack…
+>
+> Any idea about the best place to preprocess `libdir`? Or any better idea to implement this?
+>
+> [[Louis|spalax]]
+
+
 [[!taglink wishlist]]
