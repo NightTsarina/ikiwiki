@@ -548,3 +548,34 @@ a.openid_large_btn:focus {
 .trailsep {
 	display: none;
 }
+
+/* mobile/small-screen-friendly layout */
+@media (max-width: 600px) {
+	.sidebar {
+		width: auto;
+		float: none;
+		margin-top: 0;
+	}
+
+	/* if the mobile browser is new enough, use flex layout to shuffle
+	 * the sidebar to the end */
+	.page {
+		display: -webkit-box;
+		display: -ms-flexbox;
+		display: -webkit-flex;
+		display: flex;
+		flex-direction: column;
+	}
+	#pageheader {
+		-webkit-box-ordinal-group: -1;
+		-ms-flex-order: -1;
+		-webkit-order: -1;
+		order: -1;
+	}
+	.sidebar, #footer {
+		-webkit-box-ordinal-group: 1;
+		-ms-flex-order: 1;
+		-webkit-order: 1;
+		order: 1;
+	}
+}
