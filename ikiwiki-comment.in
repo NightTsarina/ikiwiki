@@ -14,7 +14,9 @@ my $pagefile=shift || usage ();
 my $dir=IkiWiki::dirname($pagefile);
 $dir="." unless length $dir;
 my $page=IkiWiki::basename($pagefile);
-$page=~s/\.[^.]+$//;
+if (! -d $pagefile) {
+	$page=~s/\.[^.]+$//;
+}
 
 IkiWiki::Plugin::comments::checkconfig();
 my $comment_num=1 + IkiWiki::Plugin::comments::num_comments($page, $dir);
