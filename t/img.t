@@ -26,7 +26,8 @@ ok(! system("rm -rf t/tmp; mkdir -p t/tmp/in"));
 ok(! system("cp t/img/redsquare.png t/tmp/in/redsquare.png"));
 
 if ($SVGS_WORK) {
-	writefile("emptysquare.svg", "t/tmp/in", '<svg width="30" height="30"/>');
+	writefile("emptysquare.svg", "t/tmp/in",
+		'<svg width="30" height="30"><rect x="0" y="0" width="30" height="30" fill="blue"/></svg>');
 }
 
 # using different image sizes for different pages, so the pagenumber selection can be tested easily
