@@ -27,8 +27,8 @@ to display or list pages created in the given time frame.
 
 ## Generating archive pages
 
-If [[option|plugins/calendar]] `calendar_autocreate` is not set, the
-[[ikiwiki-calendar]] command can be used to automatically generate the archive
+If [[!iki plugins/calendar desc=option]] `calendar_autocreate` is not set, the
+[[!iki ikiwiki-calendar]] command can be used to automatically generate the archive
 pages. It also refreshes the wiki, updating the calendars to highlight the
 current day. This command is typically run at midnight from cron.
 
@@ -37,8 +37,9 @@ An example crontab:
     0 0 * * * ikiwiki-calendar ~/ikiwiki.setup "posts/* and !*/Discussion"
 
 
-With [[setup option|plugins/calendar]] `calendar_autocreate`, all this work is
-done by `ikiwiki` itself. Thus, the crontab command can be replaced by:
+With [[!iki plugins/calendar desc="setup option"]] `calendar_autocreate`,
+all this work is done by `ikiwiki` itself. Thus, the crontab command can be
+replaced by:
 
     0 0 * * * ikiwiki --setup ~/ikiwiki.setup --refresh
 
@@ -53,7 +54,7 @@ done by `ikiwiki` itself. Thus, the crontab command can be replaced by:
   for the whole wiki by setting `archivebase` in ikiwiki's setup file.
   Calendars link to pages under here, with names like "2010/04" and
   "2010". These pages can be automatically created using the
-  `calendar_autocreate` [[setup option|plugins/calendar]].
+  `calendar_autocreate` [[!iki plugins/calendar desc="setup option"]].
 * `year` - The year for which the calendar is requested. Defaults to the
   current year. Can also use -1 to refer to last year, and so on.
 * `month` - The numeric month for which the calendar is requested, in the
