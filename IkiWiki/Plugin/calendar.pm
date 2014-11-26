@@ -221,6 +221,10 @@ sub previousmonth($$$) {
 	my $month = shift;
 	my $archivebase = shift;
 
+	if (not exists $wikistate{calendar}{minyear}) {
+		$wikistate{calendar}{minyear} = $year;
+	}
+
 	my $pmonth = $month;
 	my $pyear  = $year;
 	while ((not exists $pagesources{"$archivebase/$pyear/" . sprintf("%02d", $pmonth)}) or ($pmonth == $month and $pyear == $year)) {
@@ -238,6 +242,10 @@ sub nextmonth($$$) {
 	my $year = shift;
 	my $month = shift;
 	my $archivebase = shift;
+
+	if (not exists $wikistate{calendar}{maxyear}) {
+		$wikistate{calendar}{maxyear} = $year;
+	}
 
 	my $nmonth = $month;
 	my $nyear  = $year;
