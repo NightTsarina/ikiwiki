@@ -134,6 +134,7 @@ sub genpage ($$) {
 		ctime => displaytime($pagectime{$page}, undef, 1),
 		baseurl => baseurl($page),
 		html5 => $config{html5},
+		responsive_layout => $config{responsive_layout},
 	);
 
 	run_hooks(pagetemplate => sub {

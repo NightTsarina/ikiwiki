@@ -549,6 +549,13 @@ sub getsetup () {
 		safe => 0,
 		rebuild => 0,
 	},
+	responsive_layout => {
+		type => "boolean",
+		default => 1,
+		description => "theme has a responsive layout? (mobile-optimized)",
+		safe => 1,
+		rebuild => 1,
+	},
 }
 
 sub defaultconfig () {
