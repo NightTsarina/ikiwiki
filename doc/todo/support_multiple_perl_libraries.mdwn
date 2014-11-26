@@ -18,5 +18,23 @@ I think the change is a one-liner, but I put this here for discussion before att
 >
 > [[Louis|spalax]]
 
+>> Modifying `getconfig` is not a valid solution, because IkiWiki.pm is also imported by
+>> [[ikiwiki-transition]], [[ikiwiki-calendar]], the regression tests, etc.
+>>
+>> The way I would personally do it is to have a new non-exported function `getlibdirs`
+>> or something, have it do something like this:
+>>
+>>     if (! ref $config{libdir}) {
+>>             if (length $config{libdir}) {
+>>                     $config{libdir} = [$config{libdir}];
+>>             } else {
+>>                     $config{libdir} = [];
+>>             }
+>>     }
+>>     return @{$config{libdir}};
+>>
+>> and replace all uses of $config{libdir} with it.
+>>
+>> --[[smcv]]
 
 [[!taglink wishlist]]
