@@ -67,9 +67,6 @@ sub cgitemplate ($$$;@) {
 	if (exists $params{page}) {
 		$page=delete $params{page};
 		$params{forcebaseurl}=urlto($page);
-		if (! $config{html5}) {
-			$params{forcebaseurl}=urlabs($params{forcebaseurl}, $topurl);
-		}
 	}
 	run_hooks(pagetemplate => sub {
 		shift->(
@@ -81,9 +78,6 @@ sub cgitemplate ($$$;@) {
 	templateactions($template, "");
 
 	my $baseurl = baseurl();
-	if (! $config{html5}) {
-		$baseurl = urlabs($baseurl, $topurl),
-	}
 
 	$template->param(
 		dynamic => 1,
