@@ -12,3 +12,53 @@ I was asked by [[Joey]] to create a page here for purposes of review. I'm still 
 That seemed to be ok for reviewing [[bugs/CGI wrapper doesn't store PERL5LIB environment variable]], so I hope it's ok for this one too. If another way would be preferable, please let me know.
 
 -- [[jcflack]]
+
+> This is less about what plugins need, and more about what is safe.
+> If an environment variable is unsafe (in the sense of "can make a
+> setuid executable change its behaviour in dangerous ways") then we
+> must not pass it through, however desirable it might be.
+>
+> Because the only safe thing we can do is a whitelist, the list
+> is secondarily about what plugins need: if nothing needs a variable,
+> we don't pass it through.
+>
+> However, if a particular variable is safe, then it's always safe;
+> so if any plugin needs something, we might as well just put it in
+> the big list of things to keep. (In other words, any change to this
+> list is already security-sensitive.)
+>
+> As such, and because importing CGI into Setup pulls in a bunch
+> of extra code that is normally only imported when we are actually
+> running as a CGI, it might make more sense to have the "master list"
+> stay in Wrapper.
+>
+> What variables would `signinview` need? Can we just add them to
+> the list and skip the complexity of per-plugin configurability?
+>
+> Sorting the list makes sense to me, and so does adding the RFC 3875 set.
+>
+> [[!format txt """
+This change does seem to have exposed a thing where various plugins that
+call checksessionexpiry() (in CGI.pm) have been supplying one more argument
+than its prototype allows ... for years ...
+"""]]
+>
+> I fixed that in ikiwiki 3.20141016. Please don't add the extra ignored
+> parameter to the prototype.
+>
+> [[!format diff """
++ if ( $config{needenvkeys} ) {
+"""]]
+>
+> If this is needed at all, you should include this in the master list of
+> setup keys in IkiWiki.pm so it's documentable. Please mention setuid
+> in the description: "environment variables that are safe to pass through
+> a setuid wrapper" or something.
+>
+> I think it's `safe => 0, advanced => 1`.
+>
+> `preserve_env` or `env_keep` (or without the underscore, as you prefer)
+> might be better names for it (terminology stolen from `debuild` and `sudo`
+> respectively).
+>
+> --[[smcv]]
