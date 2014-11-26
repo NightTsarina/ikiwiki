@@ -193,7 +193,7 @@ sub gencalendaryear {
 		}
 
 		# Filling potential gaps in years (e.g. calendar goes from 2010 to 2014,
-		# and we just added year 2005. We have to had years 2006 to 2009).
+		# and we just added year 2005. We have to add years 2006 to 2009).
 		return if $params{norecurse};
 		if ($wikistate{calendar}{minyear} > $year) {
 			foreach my $other ($year + 1 .. $wikistate{calendar}{minyear} - 1) {
