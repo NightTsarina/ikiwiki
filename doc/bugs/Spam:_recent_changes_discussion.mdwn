@@ -5,3 +5,22 @@ see <http://www.dk0tu.de/recentchanges/discussion/>
 The content is changing frequently without being checked into the git repository. Any ideas?
 
 --[[bastla]]
+
+> Please check your web server logs for any error messages from the CGI.
+> It seems likely that the spammer is editing that page but the changes
+> are somehow not getting committed or pushed.
+>
+> I can't tell you much without knowing details of your setup.
+> For instance, are you using the suggested git repository setup
+> shown in the diagram on the [[rcs/git]] page, or something
+> different? Can you publish a (possibly censored) setup file somewhere?
+>
+> It would probably also be worthwhile to compare the git history of
+> `srcdir/.git` with the git history of the bare repository, if you
+> have one.
+>
+> To recover, you could undo the spam in the `srcdir` (as the user ID
+> that owns the wiki), commit that, and merge with the bare repository
+> if necessary.
+>
+> --[[smcv]]
