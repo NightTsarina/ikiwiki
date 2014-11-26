@@ -5,7 +5,28 @@ This plugin provides a [[ikiwiki/directive/calendar]] [[ikiwiki/directive]].
 The directive displays a calendar, similar to the typical calendars shown on
 some blogs. 
 
-The [[ikiwiki-calendar]] command is used to keep the calendar up-to-date.
+The [[ikiwiki-calendar]] command is used to force generating year and month
+pages from templates (overriding the existing ones).
+
+## Setup options
+
+* `archivebase` - Default value for [[ikiwiki/directive/calendar]] directive
+  option of the same name.
+* `archive_pagespec` - [[ikiwiki/PageSpec]] of pages to include in the
+  archives, if option `calendar_autocreate` is on. It defaults to `*`.
+* `calendar_autocreate` - Control whether new archive pages are created as
+  needed. It defaults to being done only if option `archivebase` is set.
+* `calendar_fill_gaps` - If set (and `calendar_autocreate` is set as well),
+  build calendar pages of emty years and months (but does not build pages older
+  than the older page, and younger than the younger page of the pagespec). If
+  not, thoses empty calendar pages will be skipped. *Please note:*
+  * The archive pages will not be automatically updated if this option changes.
+    It is up to the user to delete relevant pages, and rebuild the wiki.
+  * When `calendar_fill_gaps` is set, and post is deleted, making the
+    corresponding year/month empty, the corresponding page is left, and shows
+    an empty calendar. This is on purpose, not to break any external link
+    pointing to this particular page. If you do not like it, delete the
+    relevant pages, and rebuild the wiki.
 
 ## CSS
 
