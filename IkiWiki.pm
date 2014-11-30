@@ -5,6 +5,7 @@ package IkiWiki;
 use warnings;
 use strict;
 use Encode;
+use Fcntl q{:flock};
 use URI::Escape q{uri_escape_utf8};
 use POSIX ();
 use Storable;
@@ -1813,8 +1814,11 @@ sub lockwiki () {
 	}
 	open($wikilock, '>', "$config{wikistatedir}/lockfile") ||
 		error ("cannot write to $config{wikistatedir}/lockfile: $!");
-	if (! flock($wikilock, 2)) { # LOCK_EX
-		error("failed to get lock");
+	if (! flock($wikilock, LOCK_EX | LOCK_NB)) {
+        	debug("failed to get lock; waiting...");
+		if (! flock($wikilock, LOCK_EX)) {
+			error("failed to get lock");
+		}
 	}
 	return 1;
 }
