@@ -16,6 +16,13 @@ ikiwiki (3.20141017) UNRELEASED; urgency=medium
   * core: generate HTML5 by default, but keep avoiding new elements
     like <section> that require specific browser support unless html5 is
     set to 1.
+  * Tell mobile browsers to draw our pages in a device-sized viewport,
+    not an 800-1000px viewport designed to emulate a desktop/laptop browser.
+  * Add new responsive_layout option which can be set to 0 if your custom
+    CSS only works in a large viewport.
+  * style.css, actiontabs, blueview, goldtype, monochrome: adjust layout
+    below 600px ("responsive layout") so that horizontal scrolling is not
+    needed on smartphone browsers or other small viewports.
 
  -- Joey Hess <joeyh@debian.org>  Mon, 20 Oct 2014 12:04:49 -0400
 
