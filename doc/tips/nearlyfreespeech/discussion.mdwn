@@ -20,3 +20,20 @@ Thanks for your incredible work!
 > it ikiwiki. --[[Joey]]
 
 Thanks a lot Joey. :-)
+
+Hi
+
+I installed version 3.20141016 as described, and it works mostly. However to get [[!iki plugins/sparkline]] to work properly I had to add
+
+[[!format php """
+set_include_path(get_include_path() . PATH_SEPARATOR . '/home/private/src/sparkline-php-0.2/lib');
+require_once('/home/private/src/sparkline-php-0.2/lib/Sparkline_$style.php');
+"""]]
+
+to `sparkline.pm` around line 38. This is mostly likely because
+
+1. I didn't install sparkline into php's default path.
+1. I don't really know php.
+1. I don't have the time (right now) to sort out the proper way to do this.
+
+I also haven't sorted out how to make [[!iki plugins/openid]] or [[!iki ikiwiki/directive/format]] fully functional. I haven't researched either fully. -- james
