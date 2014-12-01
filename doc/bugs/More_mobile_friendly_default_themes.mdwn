@@ -11,6 +11,10 @@ http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=templates/page.tmpl;
 > a proportion of desktop browsers, rather than being responsive to window
 > size like they should have been all along. --[[smcv]]
 
+>> Fixed in master. It is currently on by default, but people with
+>> customized CSS that doesn't scale nicely can put
+>> `responsive_layout => 0` in the config to turn it off. --[[smcv]]
+
 Further more:
 
 * fonts need to be tweaked
@@ -21,9 +25,29 @@ Further more:
   > anti-theme; enhancing the other themes would be OK though.)
   > --[[smcv]]
 
+  >> With git master, the layout and font sizes seem appropriate on my
+  >> Galaxy Nexus (360 CSS pixels wide), and on simulated devices
+  >> 320 device pixels wide (e.g. the first couple of iPhone models)
+  >> in Chromium's developer tools. [[done]]
+  >>
+  >> Test sites:
+  >>
+  >> * <http://actiontabs.hosted.pseudorandom.co.uk/>
+  >> * <http://blueview.hosted.pseudorandom.co.uk/>
+  >> * <http://goldtype.hosted.pseudorandom.co.uk/>
+  >> * <http://monochrome.hosted.pseudorandom.co.uk/>
+  >> * <http://unthemed.hosted.pseudorandom.co.uk/>
+  >>
+  >> If stylistic changes are needed, please open another issue with a
+  >> suggested patch.
+  >> --[[smcv]]
+
 * XHTML should be dropped !
 
   > Already in the to-do list: [[todo/generate HTML5 by default]]. --[[smcv]]
+
+  >> Next version will always generate HTML5, unless someone overrules me.
+  >> --[[smcv]]
 
 I'm practicing this on http://dabase.com/ with <http://source.dabase.branchable.com/?p=source.git;a=blob;f=templates/page.tmpl;>
 
