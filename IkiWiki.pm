@@ -552,14 +552,17 @@ sub getsetup () {
 }
 
 sub getlibdirs () {
+	my $libdirs;
 	if (! ref $config{libdir}) {
 		if (length $config{libdir}) {
-			return [$config{libdir}];
+			$libdirs = [$config{libdir}];
 		} else {
-			return [];
+			$libdirs = [];
 		}
+	} else {
+		$libdirs = $config{libdir};
 	}
-	return $config{libdir};
+	return @{$libdirs};
 }
 
 sub defaultconfig () {
@@ -704,14 +707,14 @@ sub checkconfig () {
 sub listplugins () {
 	my %ret;
 
-	foreach my $dir (@INC, @{getlibdirs()}) {
+	foreach my $dir (@INC, getlibdirs()) {
 		next unless defined $dir && length $dir;
 		foreach my $file (glob("$dir/IkiWiki/Plugin/*.pm")) {
 			my ($plugin)=$file=~/.*\/(.*)\.pm$/;
 			$ret{$plugin}=1;
 		}
 	}
-	foreach my $dir (@{getlibdirs()}, "$installdir/lib/ikiwiki") {
+	foreach my $dir (getlibdirs(), "$installdir/lib/ikiwiki") {
 		next unless defined $dir && length $dir;
 		foreach my $file (glob("$dir/plugins/*")) {
 			$ret{basename($file)}=1 if -x $file;
@@ -723,7 +726,7 @@ sub listplugins () {
 
 sub loadplugins () {
 	if (defined $config{libdir} && length $config{libdir}) {
-		foreach my $dir (@{getlibdirs()}) {
+		foreach my $dir (getlibdirs()) {
 			unshift @INC, possibly_foolish_untaint($dir);
 		}
 	}
@@ -758,7 +761,7 @@ sub loadplugin ($;$) {
 
 	return if ! $force && grep { $_ eq $plugin} @{$config{disable_plugins}};
 
-	foreach my $possiblytainteddir (@{getlibdirs()}, "$installdir/lib/ikiwiki") {
+	foreach my $possiblytainteddir (getlibdirs(), "$installdir/lib/ikiwiki") {
 		my $dir = defined $possiblytainteddir ? possibly_foolish_untaint($possiblytainteddir) : undef;
 		if (defined $dir && -x "$dir/plugins/$plugin") {
 			eval { require IkiWiki::Plugin::external };
