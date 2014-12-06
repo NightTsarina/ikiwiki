@@ -8,9 +8,11 @@ inside the perl search path. For example, if your perl looks in
 `/usr/local/lib/site_perl` for modules, you can locally install ikiwiki
 plugins to `/usr/local/lib/site_perl/IkiWiki/Plugin`
 
-You can use the `libdir` configuration option to add a directory to the
+You can use the `libdir` configuration option to add directories to the
 search path. For example, if you set `libdir` to `/home/you/.ikiwiki/`,
-then ikiwiki will look for plugins in `/home/you/.ikiwiki/IkiWiki/Plugin`.
+then ikiwiki will look for plugins in `/home/you/.ikiwiki/IkiWiki/Plugin`. This
+configuration option can be either a string (for backward compatibility) or a
+list of strings (to add several directories to the search path).
 
 Ikiwiki also supports plugins that are external programs. These are
 typically written in some other language than perl. Ikiwiki searches for
