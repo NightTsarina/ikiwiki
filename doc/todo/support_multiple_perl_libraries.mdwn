@@ -43,5 +43,10 @@ I think the change is a one-liner, but I put this here for discussion before att
 >>> efficient in Python) feel free to improve my [[!taglink patch]].
 >>> [[!template  id=gitbranch branch=spalax/paternal/libdirs browse="https://github.com/paternal/ikiwiki/tree/paternal/libdirs" author="[[Louis|spalax]]"]]
 
+>>>> While reviewing and applying your patch I decided the new
+>>>> "sometimes a list, sometimes not" behaviour of `libdir` was
+>>>> too confusing in documentation, so I made it work like underlaydir(s)
+>>>> instead: ikiwiki will now search each item of `$config{libdirs}`, then
+>>>> `$config{libdir}`. [[done]] --[[smcv]]
 
 [[!taglink wishlist]]
