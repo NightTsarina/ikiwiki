@@ -362,7 +362,7 @@ sub getsetup () {
 		type => "string",
 		default => "",
 		example => "$ENV{HOME}/.ikiwiki/",
-		description => "extra library and plugin directory",
+		description => "extra library and plugin directorys. Can be either a string (for backward compatibility) or a list of strings.",
 		advanced => 1,
 		safe => 0, # directory
 		rebuild => 0,
@@ -559,6 +559,20 @@ sub getsetup () {
 	},
 }
 
+sub getlibdirs () {
+	my $libdirs;
+	if (! ref $config{libdir}) {
+		if (length $config{libdir}) {
+			$libdirs = [$config{libdir}];
+		} else {
+			$libdirs = [];
+		}
+	} else {
+		$libdirs = $config{libdir};
+	}
+	return @{$libdirs};
+}
+
 sub defaultconfig () {
 	my %s=getsetup();
 	my @ret;
@@ -701,14 +715,14 @@ sub checkconfig () {
 sub listplugins () {
 	my %ret;
 
-	foreach my $dir (@INC, $config{libdir}) {
+	foreach my $dir (@INC, getlibdirs()) {
 		next unless defined $dir && length $dir;
 		foreach my $file (glob("$dir/IkiWiki/Plugin/*.pm")) {
 			my ($plugin)=$file=~/.*\/(.*)\.pm$/;
 			$ret{$plugin}=1;
 		}
 	}
-	foreach my $dir ($config{libdir}, "$installdir/lib/ikiwiki") {
+	foreach my $dir (getlibdirs(), "$installdir/lib/ikiwiki") {
 		next unless defined $dir && length $dir;
 		foreach my $file (glob("$dir/plugins/*")) {
 			$ret{basename($file)}=1 if -x $file;
@@ -720,7 +734,9 @@ sub listplugins () {
 
 sub loadplugins () {
 	if (defined $config{libdir} && length $config{libdir}) {
-		unshift @INC, possibly_foolish_untaint($config{libdir});
+		foreach my $dir (getlibdirs()) {
+			unshift @INC, possibly_foolish_untaint($dir);
+		}
 	}
 
 	foreach my $plugin (@{$config{default_plugins}}, @{$config{add_plugins}}) {
@@ -753,8 +769,8 @@ sub loadplugin ($;$) {
 
 	return if ! $force && grep { $_ eq $plugin} @{$config{disable_plugins}};
 
-	foreach my $dir (defined $config{libdir} ? possibly_foolish_untaint($config{libdir}) : undef,
-	                 "$installdir/lib/ikiwiki") {
+	foreach my $possiblytainteddir (getlibdirs(), "$installdir/lib/ikiwiki") {
+		my $dir = defined $possiblytainteddir ? possibly_foolish_untaint($possiblytainteddir) : undef;
 		if (defined $dir && -x "$dir/plugins/$plugin") {
 			eval { require IkiWiki::Plugin::external };
 			if ($@) {
