@@ -358,11 +358,20 @@ sub getsetup () {
 		safe => 0, # paranoia
 		rebuild => 0,
 	},
+	libdirs => {
+		type => "string",
+		default => [],
+		example => ["$ENV{HOME}/.local/share/ikiwiki"],
+		description => "extra library and plugin directories",
+		advanced => 1,
+		safe => 0, # directory
+		rebuild => 0,
+	},
 	libdir => {
 		type => "string",
 		default => "",
 		example => "$ENV{HOME}/.ikiwiki/",
-		description => "extra library and plugin directorys. Can be either a string (for backward compatibility) or a list of strings.",
+		description => "extra library and plugin directory (searched after libdirs)",
 		advanced => 1,
 		safe => 0, # directory
 		rebuild => 0,
@@ -560,17 +569,11 @@ sub getsetup () {
 }
 
 sub getlibdirs () {
-	my $libdirs;
-	if (! ref $config{libdir}) {
-		if (length $config{libdir}) {
-			$libdirs = [$config{libdir}];
-		} else {
-			$libdirs = [];
-		}
-	} else {
-		$libdirs = $config{libdir};
+	my @libdirs = @{$config{libdirs}};
+	if (length $config{libdir}) {
+		push @libdirs, $config{libdir};
 	}
-	return @{$libdirs};
+	return @libdirs;
 }
 
 sub defaultconfig () {
@@ -733,10 +736,8 @@ sub listplugins () {
 }
 
 sub loadplugins () {
-	if (defined $config{libdir} && length $config{libdir}) {
-		foreach my $dir (getlibdirs()) {
-			unshift @INC, possibly_foolish_untaint($dir);
-		}
+	foreach my $dir (getlibdirs()) {
+		unshift @INC, possibly_foolish_untaint($dir);
 	}
 
 	foreach my $plugin (@{$config{default_plugins}}, @{$config{add_plugins}}) {
@@ -770,7 +771,7 @@ sub loadplugin ($;$) {
 	return if ! $force && grep { $_ eq $plugin} @{$config{disable_plugins}};
 
 	foreach my $possiblytainteddir (getlibdirs(), "$installdir/lib/ikiwiki") {
-		my $dir = defined $possiblytainteddir ? possibly_foolish_untaint($possiblytainteddir) : undef;
+		my $dir = possibly_foolish_untaint($possiblytainteddir);
 		if (defined $dir && -x "$dir/plugins/$plugin") {
 			eval { require IkiWiki::Plugin::external };
 			if ($@) {
