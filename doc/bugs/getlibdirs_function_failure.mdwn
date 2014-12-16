@@ -1,0 +1,13 @@
+Up-to-date version today (commit 287231f7d29374264c2cd23818d5cb9d607d33e9). Now "make test" fails with the following error:
+
+        Error:  Can't use an undefined value as an ARRAY reference at /home/kat/files/repos/ikiwiki_master/blib/lib/IkiWiki.pm line 570.
+
+Looked up line 570, it's the first line of the "getlibdirs" function.
+
+        my @libdirs = @{$config{libdirs}};
+
+This error is triggered when $config{libdirs} is undefined; it didn't happen in the previous version because more checking was done before the value was dereferenced.
+
+A simple patch would be to alter that line to this:
+
+        my @libdirs = $config{libdirs} ? @{$config{libdirs}} : ();
