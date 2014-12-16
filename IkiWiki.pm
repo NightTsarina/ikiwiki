@@ -569,7 +569,10 @@ sub getsetup () {
 }
 
 sub getlibdirs () {
-	my @libdirs = @{$config{libdirs}};
+	my @libdirs;
+	if ($config{libdirs}) {
+		@libdirs = @{$config{libdirs}};
+	}
 	if (length $config{libdir}) {
 		push @libdirs, $config{libdir};
 	}
