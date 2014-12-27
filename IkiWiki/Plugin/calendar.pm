@@ -115,7 +115,7 @@ sub build_affected {
 		$affected{calendarlink($ayear)} = sprintf(gettext("building calendar for %s, its previous or next year has changed"), $ayear) if ($valid);
 		($ayear, $valid) = previousyear($year, $config{archivebase});
 		$affected{calendarlink($ayear)} = sprintf(gettext("building calendar for %s, its previous or next year has changed"), $ayear) if ($valid);
-		foreach my $month (keys $changed{$year}) {
+		foreach my $month (keys %{$changed{$year}}) {
 			($ayear, $amonth, $valid) = nextmonth($year, $month, $config{archivebase});
 			$affected{calendarlink($ayear, sprintf("%02d", $amonth))} = sprintf(gettext("building calendar for %s/%s, its previous or next month has changed"), $amonth, $ayear) if ($valid);
 			($ayear, $amonth, $valid) = previousmonth($year, $month, $config{archivebase});
