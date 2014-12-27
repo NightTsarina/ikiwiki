@@ -16,6 +16,12 @@ index 5b0eb74..94adb0f 100755
                 'XML::Simple'           => "0",
 """]]
 
+> This change certainly looks plausible, but I maintain a package
+> of ikiwiki in a build system that sets `DESTDIR`, and I've not
+> noticed any problems there. Would you be willing to do one more
+> build in your environment without this change, so that we can
+> understand the problem it's trying to fix? --[[schmonz]]
+
 Also, the `po/Makefile` presumes the use of `make`, explicitly.  If you use another build tool it fails (ironically I was actually using `gmake` in non-gnu environment so it wasn't aliased to `make`).  Switch from the explicit call to the generic recall variable `$(MAKE)`.
 
 [[!format diff """
@@ -33,6 +39,11 @@ index 5ec4a15..4d1d33e 100644
  ../Makefile: ../Makefile.PL
         cd .. && ./Makefile.PL
 """]]
+
+> This change looks more obviously correct, and I understand exactly
+> I haven't encountered the problem you have (my build system ensures
+> that `make` gets me `gmake` for ikiwiki). Cherry-picked, with amended
+> commit message. --[[schmonz]]
 
 Note following comments by [[Joey]] via github
 
