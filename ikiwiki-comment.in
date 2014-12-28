@@ -4,49 +4,120 @@ use strict;
 use lib '.'; # For use in nonstandard directory, munged by Makefile.
 use IkiWiki;
 use IkiWiki::Plugin::comments;
+use Getopt::Long;
 
-sub usage () {
-	die gettext("usage: ikiwiki-comment pagefile"), "\n";
+sub usage {
+	die gettext("usage: ikiwiki-comment pagefile [options]") . "\n";
 }
 
-my $pagefile=shift || usage ();
+sub main {
+	my $pagefile=shift || usage();
+	my $interactive = -t STDIN;
+	my $content;
+	my ($format, $username, $subject, $date, $url, $email, $ip);
+	GetOptions(
+		'format:s'	=> \$format,
+		'username:s'	=> \$username,
+		'subject:s'	=> \$subject,
+		'date:s'	=> \$date,
+		'url:s'		=> \$url,
+		'email:s'	=> \$email,
+		'ip:s'		=> \$ip,
+	) || usage();
 
-my $dir=IkiWiki::dirname($pagefile);
-$dir="." unless length $dir;
-my $page=IkiWiki::basename($pagefile);
-if (! -d $pagefile) {
-	$page=~s/\.[^.]+$//;
+	my $dir=get_dir($pagefile);
+	my $page=get_page($pagefile);
+
+	IkiWiki::Plugin::comments::checkconfig();
+
+	if ($interactive) {
+		$format		||= 'mdwn';
+		$username	||= get_username();
+		$subject	||= get_subject($page, $dir);
+		$date		||= IkiWiki::Plugin::comments::commentdate();
+		$url		||= undef;
+		$email		||= undef;
+		$ip		||= undef;
+	} else {
+		$format		||= undef;
+		die "must supply username" unless defined $username;
+		$subject	||= get_subject($page, $dir);
+		die "must supply date" unless defined $date;
+		$url		||= undef;
+		$email		||= undef;
+		$ip		||= undef;
+		chomp($content = join('', <STDIN>));
+	}
+
+	my $comment=get_comment($format, $username, $subject, $date, $url, $email, $ip, $content);
+
+	# For interactive use, this will yield a hash of the comment before
+	# it's edited, but that's ok; the date provides sufficient entropy
+	# to avoid collisions, and the hash of a comment does not need to
+	# match its actual content.
+	# Doing it this way avoids needing to move the file to a final
+	# location after it's edited.
+	my $location=IkiWiki::Plugin::comments::unique_comment_location($page, $comment, $dir)."._comment";
+
+	IkiWiki::writefile($location, $dir, $comment);
+	exec_editor("$dir/$location") if $interactive;
 }
 
-IkiWiki::Plugin::comments::checkconfig();
-my $comment_num=1 + IkiWiki::Plugin::comments::num_comments($page, $dir);
-
-my $username = getpwuid($<);
-if (! defined $username) { $username="" }
-
-my $comment="[[!comment format=mdwn\n";
-$comment.=" username=\"$username\"\n";
-$comment.=" subject=\"\"\"comment $comment_num\"\"\"\n";
-$comment.=" " . IkiWiki::Plugin::comments::commentdate() . "\n";
-$comment.=" content=\"\"\"\n\n\"\"\"]]\n";
-
-# This will yield a hash of the comment before it's edited,
-# but that's ok; the date provides sufficient entropy to avoid collisions,
-# and the hash of a comment does not need to match its actual content.
-# Doing it this way avoids needing to move the file to a final
-# location after it's edited.
-my $location=IkiWiki::Plugin::comments::unique_comment_location($page, $comment, $dir)."._comment";
-
-IkiWiki::writefile($location, $dir, $comment);
-
-my @editor="vi";
-if (-x "/usr/bin/editor") {
-	@editor="/usr/bin/editor";
+sub get_dir {
+	my ($file) = @_;
+	my $dir=IkiWiki::dirname($file);
+	$dir="." unless length $dir;
+	return $dir;
 }
-if (exists $ENV{EDITOR}) {
-	@editor=split(' ', $ENV{EDITOR});
+
+sub get_page {
+	my ($file) = @_;
+	my $page=IkiWiki::basename($file);
+	$page=~s/\.[^.]+$// unless -d $file;
+	return $page;
 }
-if (exists $ENV{VISUAL}) {
-@editor=split(' ', $ENV{VISUAL});
+
+sub get_username {
+	my $username = getpwuid($<);
+	$username="" unless defined $username;
+	return $username;
 }
-exec(@editor, "$dir/$location");
+
+sub get_subject {
+	my ($page, $dir) = @_;
+	my $comment_num=1+IkiWiki::Plugin::comments::num_comments($page, $dir);
+	return "comment $comment_num";
+}
+
+sub get_comment {
+	my ($format, $username, $subject, $date, $url, $email, $ip, $content) = @_;
+	$format = defined $format ? $format = " format=$format" : q{};
+	$content = '' unless defined $content;
+	my $comment="[[!comment$format\n";
+	$comment.=" username=\"$username\"\n";
+	$comment.=" subject=\"\"\"$subject\"\"\"\n";
+	$comment.=" date=\"$date\"\n";
+	$comment.=" url=\"$url\"\n" if defined $url;
+	$comment.=" email=\"$email\"\n" if defined $email;
+	$comment.=" ip=\"$ip\"\n" if defined $ip;
+	$comment.=" content=\"\"\"\n$content\n\"\"\"]]\n";
+	return $comment;
+}
+
+sub exec_editor {
+	my ($file) = @_;
+
+	my @editor="vi";
+	if (-x "/usr/bin/editor") {
+		@editor="/usr/bin/editor";
+	}
+	if (exists $ENV{EDITOR}) {
+		@editor=split(' ', $ENV{EDITOR});
+	}
+	if (exists $ENV{VISUAL}) {
+	@editor=split(' ', $ENV{VISUAL});
+	}
+	exec(@editor, $file);
+}
+
+main(@ARGV);

@@ -206,10 +206,12 @@ sub preprocess {
 			$commentopenid = $commentuser;
 		}
 		else {
-			$commentauthorurl = IkiWiki::cgiurl(
-				do => 'goto',
-				page => IkiWiki::userpage($commentuser)
-			);
+			if (length $config{cgiurl}) {
+				$commentauthorurl = IkiWiki::cgiurl(
+					do => 'goto',
+					page => IkiWiki::userpage($commentuser)
+				);
+			}
 
 			$commentauthor = $commentuser;
 		}
@@ -507,7 +509,7 @@ sub editcomment ($$) {
 		$subject = "comment ".(num_comments($page, $config{srcdir}) + 1);
 	}
 	$content .= " subject=\"$subject\"\n";
-	$content .= " " . commentdate() . "\n";
+	$content .= " date=\"" . commentdate() . "\"\n";
 
 	my $editcontent = $form->field('editcontent');
 	$editcontent="" if ! defined $editcontent;
@@ -636,7 +638,7 @@ sub editcomment ($$) {
 }
 
 sub commentdate () {
-	"date=\"" . strftime_utf8('%Y-%m-%dT%H:%M:%SZ', gmtime) . "\"";
+	strftime_utf8('%Y-%m-%dT%H:%M:%SZ', gmtime);
 }
 
 sub getavatar ($) {

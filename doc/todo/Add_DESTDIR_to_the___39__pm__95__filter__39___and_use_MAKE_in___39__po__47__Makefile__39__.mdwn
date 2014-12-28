@@ -1,0 +1,76 @@
+The `PM_FILTER` doesn't include the `DESTDIR` variable.  This means that, if you use it with your build, it's incoherent to the rest of the build; i.e. the `INSTALLDIR_AUTOREPLACE` doesn't include it.  Honestly I can't recall what the final effect of that was but the following [[patch]] fixed it.
+
+[[!format diff """
+diff --git a/Makefile.PL b/Makefile.PL
+index 5b0eb74..94adb0f 100755
+--- a/Makefile.PL
++++ b/Makefile.PL
+@@ -194,7 +194,7 @@ coverage:
+ WriteMakefile(
+        NAME            => 'IkiWiki',
+        PREFIX          => "/usr/local",
+-       PM_FILTER       => './pm_filter $(PREFIX) $(VER) $(PROBABLE_INST_LIB)',
++       PM_FILTER       => './pm_filter $(DESTDIR)$(PREFIX) $(VER) $(PROBABLE_INST_LIB)',
+        MAN1PODS        => {},
+        PREREQ_PM       => {
+                'XML::Simple'           => "0",
+"""]]
+
+> This change certainly looks plausible, but I maintain a package
+> of ikiwiki in a build system that sets `DESTDIR`, and I've not
+> noticed any problems there. Would you be willing to do one more
+> build in your environment without this change, so that we can
+> understand the problem it's trying to fix? --[[schmonz]]
+
+Also, the `po/Makefile` presumes the use of `make`, explicitly.  If you use another build tool it fails (ironically I was actually using `gmake` in non-gnu environment so it wasn't aliased to `make`).  Switch from the explicit call to the generic recall variable `$(MAKE)`.
+
+[[!format diff """
+diff --git a/po/Makefile b/po/Makefile
+index 5ec4a15..4d1d33e 100644
+--- a/po/Makefile
++++ b/po/Makefile
+@@ -84,7 +84,7 @@ underlays: ../ikiwiki.out underlays_copy_stamp
+        ../ikiwiki.out -libdir .. -setup underlay.setup -refresh
+ 
+ ../ikiwiki.out: ../Makefile
+-       make -C .. ikiwiki.out
++       $(MAKE) -C .. ikiwiki.out
+ 
+ ../Makefile: ../Makefile.PL
+        cd .. && ./Makefile.PL
+"""]]
+
+> This change looks more obviously correct, and I understand exactly
+> I haven't encountered the problem you have (my build system ensures
+> that `make` gets me `gmake` for ikiwiki). Cherry-picked, with amended
+> commit message. --[[schmonz]]
+
+Note following comments by [[Joey]] via github
+
+> These are not mergeable in their current state.
+>
+> *Pull 'DESTDIR' update to 'Makefile.PL' from mixed-master.*
+>
+> This doesn't explain
+>
+> * what the problem was
+> * how the change fixed it
+> * why the change is correct
+
+>> No, I suppose not; I won't explain.  Hopefully the above clarifies.  -- [[ttw]]
+
+> *Re-merge from 'joeyh' to new, clean head.*
+>
+> I have no idea what the above commit is doing, but it somehow makes changes to 432 files?!
+
+>> Yeah, sort of.  I'm not very good with computers ... specifically, with `git` and stuff.  The diff between my `master` and your `master` is only two files so hopefully it *is* actually doing what's intended (that is, those changes are from your repository into my own -- I "rebased" my own in an attempt to simplify things).  Anyway. -- [[ttw]]
+
+> *Pull the 'po/Makefile' change from the mixed-master.*
+>
+> This one is adding a $(MAKE) where there was a make. Which is fine, but the commit message is again, horrible. What is the mixed-master? Describe the change you are making, not your internal process for making it.
+
+>> Note to others, `graft` from `hg` doesn't pull original commit messages the way you wish it did (or I did something wrong ... more likely). -- [[ttw]]
+
+> Also, please don't use github pull requests for ikiwiki. Post todo items on ikiwiki.info with a link to your git repository and branches to be merged.
+
+>> NP.  [[http://github.com/ttw/ikiwiki]]; `master` branch. -- [[ttw]]
