@@ -4,32 +4,54 @@ use strict;
 use lib '.'; # For use in nonstandard directory, munged by Makefile.
 use IkiWiki;
 use IkiWiki::Plugin::comments;
+use Getopt::Long;
 
-sub usage () {
-	die gettext("usage: ikiwiki-comment pagefile"), "\n";
+sub usage {
+	die gettext("usage: ikiwiki-comment pagefile [options]") . "\n";
 }
 
 sub main {
-	my $pagefile=shift || usage ();
+	my $pagefile=shift || usage();
+	my $interactive = -t STDIN;
+	my $content;
+	my ($format, $username, $subject, $date);
+	GetOptions(
+		'format:s'	=> \$format,
+		'username:s'	=> \$username,
+		'subject:s'	=> \$subject,
+		'date:s'	=> \$date,
+	) || usage();
+
 	my $dir=get_dir($pagefile);
 	my $page=get_page($pagefile);
 
 	IkiWiki::Plugin::comments::checkconfig();
-	my $comment_num=1+IkiWiki::Plugin::comments::num_comments($page, $dir);
 
-	chomp(my $content = join('', <STDIN>)) unless -t STDIN;
+	if ($interactive) {
+		$format		||= 'mdwn';
+		$username	||= get_username();
+		$subject	||= get_subject($page, $dir);
+		$date		||= get_date();
+	} else {
+		$format		||= undef;
+		die "must supply username" unless defined $username;
+		$subject	||= get_subject($page, $dir);
+		die "must supply date" unless defined $date;
+		chomp($content = join('', <STDIN>));
+	}
 
-	my $comment=get_comment(get_username(), $comment_num, $content);
+	my $comment=get_comment($format, $username, $subject, $date, $content);
 
-	# This will yield a hash of the comment before it's edited,
-	# but that's ok; the date provides sufficient entropy to avoid collisions,
-	# and the hash of a comment does not need to match its actual content.
+	# For interactive use, this will yield a hash of the comment before
+	# it's edited, but that's ok; the date provides sufficient entropy
+	# to avoid collisions, and the hash of a comment does not need to
+	# match its actual content.
 	# Doing it this way avoids needing to move the file to a final
 	# location after it's edited.
 	my $location=IkiWiki::Plugin::comments::unique_comment_location($page, $comment, $dir)."._comment";
 
 	IkiWiki::writefile($location, $dir, $comment);
-	exec_editor("$dir/$location") if -t STDIN;
+	exec_editor("$dir/$location") if $interactive;
 }
 
 sub get_dir {
@@ -52,13 +74,27 @@ sub get_username {
 	return $username;
 }
 
+sub get_subject {
+	my ($page, $dir) = @_;
+	my $comment_num=1+IkiWiki::Plugin::comments::num_comments($page, $dir);
+	return "comment $comment_num";
+}
+
+sub get_date {
+	my $date = IkiWiki::Plugin::comments::commentdate();
+	$date =~ s|^date=\\"||;
+	$date =~ s|\\"$||;
+	return $date;
+}
+
 sub get_comment {
-	my ($username, $comment_num, $content) = @_;
+	my ($format, $username, $subject, $date, $content) = @_;
+	$format = defined $format ? $format = " format=$format" : q{};
 	$content = '' unless defined $content;
-	my $comment="[[!comment format=mdwn\n";
+	my $comment="[[!comment$format\n";
 	$comment.=" username=\"$username\"\n";
-	$comment.=" subject=\"\"\"comment $comment_num\"\"\"\n";
-	$comment.=" " . IkiWiki::Plugin::comments::commentdate() . "\n";
+	$comment.=" subject=\"\"\"$subject\"\"\"\n";
+	$comment.=" date=\"$date\"\n";
 	$comment.=" content=\"\"\"\n$content\n\"\"\"]]\n";
 	return $comment;
 }
