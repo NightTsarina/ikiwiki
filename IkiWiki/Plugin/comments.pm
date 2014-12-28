@@ -206,10 +206,12 @@ sub preprocess {
 			$commentopenid = $commentuser;
 		}
 		else {
-			$commentauthorurl = IkiWiki::cgiurl(
-				do => 'goto',
-				page => IkiWiki::userpage($commentuser)
-			);
+			if (length $config{cgiurl}) {
+				$commentauthorurl = IkiWiki::cgiurl(
+					do => 'goto',
+					page => IkiWiki::userpage($commentuser)
+				);
+			}
 
 			$commentauthor = $commentuser;
 		}
