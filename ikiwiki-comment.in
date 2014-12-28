@@ -14,12 +14,15 @@ sub main {
 	my $pagefile=shift || usage();
 	my $interactive = -t STDIN;
 	my $content;
-	my ($format, $username, $subject, $date);
+	my ($format, $username, $subject, $date, $url, $email, $ip);
 	GetOptions(
 		'format:s'	=> \$format,
 		'username:s'	=> \$username,
 		'subject:s'	=> \$subject,
 		'date:s'	=> \$date,
+		'url:s'		=> \$url,
+		'email:s'	=> \$email,
+		'ip:s'		=> \$ip,
 	) || usage();
 
 	my $dir=get_dir($pagefile);
@@ -32,15 +35,21 @@ sub main {
 		$username	||= get_username();
 		$subject	||= get_subject($page, $dir);
 		$date		||= IkiWiki::Plugin::comments::commentdate();
+		$url		||= undef;
+		$email		||= undef;
+		$ip		||= undef;
 	} else {
 		$format		||= undef;
 		die "must supply username" unless defined $username;
 		$subject	||= get_subject($page, $dir);
 		die "must supply date" unless defined $date;
+		$url		||= undef;
+		$email		||= undef;
+		$ip		||= undef;
 		chomp($content = join('', <STDIN>));
 	}
 
-	my $comment=get_comment($format, $username, $subject, $date, $content);
+	my $comment=get_comment($format, $username, $subject, $date, $url, $email, $ip, $content);
 
 	# For interactive use, this will yield a hash of the comment before
 	# it's edited, but that's ok; the date provides sufficient entropy
@@ -81,13 +90,16 @@ sub get_subject {
 }
 
 sub get_comment {
-	my ($format, $username, $subject, $date, $content) = @_;
+	my ($format, $username, $subject, $date, $url, $email, $ip, $content) = @_;
 	$format = defined $format ? $format = " format=$format" : q{};
 	$content = '' unless defined $content;
 	my $comment="[[!comment$format\n";
 	$comment.=" username=\"$username\"\n";
 	$comment.=" subject=\"\"\"$subject\"\"\"\n";
 	$comment.=" date=\"$date\"\n";
+	$comment.=" url=\"$url\"\n" if defined $url;
+	$comment.=" email=\"$email\"\n" if defined $email;
+	$comment.=" ip=\"$ip\"\n" if defined $ip;
 	$comment.=" content=\"\"\"\n$content\n\"\"\"]]\n";
 	return $comment;
 }
