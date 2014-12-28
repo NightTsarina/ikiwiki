@@ -31,7 +31,7 @@ sub main {
 		$format		||= 'mdwn';
 		$username	||= get_username();
 		$subject	||= get_subject($page, $dir);
-		$date		||= get_date();
+		$date		||= IkiWiki::Plugin::comments::commentdate();
 	} else {
 		$format		||= undef;
 		die "must supply username" unless defined $username;
@@ -78,13 +78,6 @@ sub get_subject {
 	my ($page, $dir) = @_;
 	my $comment_num=1+IkiWiki::Plugin::comments::num_comments($page, $dir);
 	return "comment $comment_num";
-}
-
-sub get_date {
-	my $date = IkiWiki::Plugin::comments::commentdate();
-	$date =~ s|^date=\\"||;
-	$date =~ s|\\"$||;
-	return $date;
 }
 
 sub get_comment {
