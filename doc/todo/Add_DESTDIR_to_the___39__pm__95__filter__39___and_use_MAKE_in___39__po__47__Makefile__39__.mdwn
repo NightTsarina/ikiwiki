@@ -21,6 +21,14 @@ index 5b0eb74..94adb0f 100755
 > noticed any problems there. Would you be willing to do one more
 > build in your environment without this change, so that we can
 > understand the problem it's trying to fix? --[[schmonz]]
+>> Thinking about this more and perhaps this is incorrect?  Or more accurately, I may have been using `DESTDIR` incorrectly.  I'm unsure.  I don't currently have access to the correct build environment but my best recollection is that I was using the `DESTDIR` to set base install directory for multiple working copies.  Of course, the `DESTDIR` is normally a staging install for the root directory (i.e. not normally visible during runtime).  I'm not 100% on the use of `DESTDIR` but perhaps you are?  Otherwise, leave this, and I'll adjust that build environment to rework the `PREFIX` variable instead.  -- [[ttw]]
+
+>>> Maybe one of these explanations from
+>>> [GNU](https://www.gnu.org/prep/standards/html_node/DESTDIR.html) or
+>>> [pkgsrc](https://www.netbsd.org/docs/pkgsrc/fixes.html#destdir-support)
+>>> clarifies `DESTDIR` for you. If you can narrow down a specific,
+>>> reproducible problem that setting `DESTDIR` helps solve, please do
+>>> report it here. Until then, marking this [[done]]. --[[schmonz]]
 
 Also, the `po/Makefile` presumes the use of `make`, explicitly.  If you use another build tool it fails (ironically I was actually using `gmake` in non-gnu environment so it wasn't aliased to `make`).  Switch from the explicit call to the generic recall variable `$(MAKE)`.
 
