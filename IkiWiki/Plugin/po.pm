@@ -993,10 +993,9 @@ sub refreshpofiles ($@) {
 		}
 
 		if (-e $pofile) {
-			system("msgmerge", "--previous", "-q", "-U", "--backup=none", $pofile, $potfile) == 0
-				or error("po(refreshpofiles) ".
-					 sprintf(gettext("failed to update %s"),
-						 $pofile));
+			if (! (system("msgmerge", "--previous", "-q", "-U", "--backup=none", $pofile, $potfile) == 0)) {
+				print STDERR ("po(refreshpofiles) ". sprintf(gettext("failed to update %s"), $pofile));
+			}
 		}
 		else {
 			File::Copy::syscopy($potfile,$pofile)
