@@ -6,7 +6,8 @@ use strict;
 use IkiWiki 3.00;
 use Encode;
 
-my $defaulturl='http://test.blogspam.net:8888/';
+my $defaulturl='http://test.blogspam.net:9999/';
+my $client;
 
 sub import {
 	hook(type => "getsetup", id => "blogspam",  call => \&getsetup);
@@ -33,14 +34,14 @@ sub getsetup () {
 			type => "string",
 			example => "blacklist=1.2.3.4,blacklist=8.7.6.5,max-links=10",
 			description => "options to send to blogspam server",
-			link => "http://blogspam.net/api/testComment.html#options",
+			link => "http://blogspam.net/api/2.0/testComment.html#options",
 			safe => 1,
 			rebuild => 0,
 		},
 		blogspam_server => {
 			type => "string",
 			default => $defaulturl,
-			description => "blogspam server XML-RPC url",
+			description => "blogspam server JSON url",
 			safe => 1,
 			rebuild => 0,
 		},
@@ -51,11 +52,23 @@ sub checkconfig () {
 	# if the module is missing when a spam is posted would not
 	# let the admin know about the problem.
 	eval q{
-		use RPC::XML;
-		use RPC::XML::Client;
-		$RPC::XML::ENCODING = 'utf-8';
+		use JSON;
+		use HTTP::Request;
 	};
 	error $@ if $@;
+
+	eval q{use LWPx::ParanoidAgent};
+	if (!$@) {
+		$client=LWPx::ParanoidAgent->new(agent => $config{useragent});
+	}
+	else {
+		eval q{use LWP};
+		if ($@) {
+			error $@;
+			return;
+		}
+		$client=useragent();
+	}
 }
 
 sub checkcontent (@) {
@@ -76,8 +89,6 @@ sub checkcontent (@) {
 
 	my $url=$defaulturl;
 	$url = $config{blogspam_server} if exists $config{blogspam_server};
-
-	my $client = RPC::XML::Client->new($url);
 
 	my @options = split(",", $config{blogspam_options})
 		if exists $config{blogspam_options};
@@ -107,19 +118,28 @@ sub checkcontent (@) {
 		site => encode_utf8($config{url}),
 		version => "ikiwiki ".$IkiWiki::version,
 	);
-	my $res = $client->send_request('testComment', \%req);
+	eval q{use JSON; use HTTP::Request}; # errors handled in checkconfig()
+	my $res = $client->request(
+		HTTP::Request->new(
+			'POST',
+			$url,
+			[ 'Content-Type' => 'application/json' ],
+			to_json(\%req),
+		),
+	);
 
-	if (! ref $res || ! defined $res->value) {
+	if (! ref $res || ! $res->is_success()) {
 		debug("failed to get response from blogspam server ($url)");
 		return undef;
 	}
-	elsif ($res->value =~ /^SPAM:(.*)/) {
+	my $details = from_json($res->content);
+	if ($details->{result} eq 'SPAM') {
 		eval q{use Data::Dumper};
-		debug("blogspam server reports ".$res->value.": ".Dumper(\%req));
-		return gettext("Sorry, but that looks like spam to <a href=\"http://blogspam.net/\">blogspam</a>: ").$1;
+		debug("blogspam server reports $details->{reason}: ".Dumper(\%req));
+		return gettext("Sorry, but that looks like spam to <a href=\"http://blogspam.net/\">blogspam</a>: ").$details->{reason};
 	}
-	elsif ($res->value ne 'OK') {
-		debug("blogspam server failure: ".$res->value);
+	elsif ($details->{result} ne 'OK') {
+		debug("blogspam server failure: ".$res->content);
 		return undef;
 	}
 	else {
