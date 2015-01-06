@@ -25,6 +25,9 @@ subtest 'Text::Textile apparently double-escapes HTML entities in hrefs' => sub 
 	chomp(my $txtl_html = IkiWiki::Plugin::textile::htmlize(
 		content => qq{"$text":$href},
 	));
-	isnt($txtl_html, $good);
-	is($txtl_html, q{<p><a href="https://en.wikipedia.org/wiki/G&amp;ouml;del,_Escher,_Bach">G&ouml;del, Escher, Bach</a></p>});
+	TODO: {
+	local $TODO = "Text::Textile double-escapes the href";
+	is($txtl_html, $good);
+	isnt($txtl_html, q{<p><a href="https://en.wikipedia.org/wiki/G&amp;ouml;del,_Escher,_Bach">G&ouml;del, Escher, Bach</a></p>});
+	}
 };
