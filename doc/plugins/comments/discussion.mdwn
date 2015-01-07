@@ -230,3 +230,24 @@ Any suggestions or hints how to implement this?
 
 > I've implemented this. See [[todo/Restrict_formats_allowed_for_comments]].
 > --[[wentasah]]
+
+## URLs in anonymous-style comments committed directly via VCS
+
+[[!template id=gitbranch branch=schmonz/comments-anonymous-url-vcs author="[[schmonz]]"]]
+
+I recently imported my site from Textpattern into ikiwiki (using
+an `ikiwiki-import` program that may someday make its way into
+ikiwiki proper). Textpattern's comments behave much like ikiwiki's
+anonymous comments, so piping each imported comment through
+`ikiwiki-comment` and regenerating the site with `comments_allowauthor=1`
+preserved almost all the information.
+
+What's missing: if a comment directive has a `url` param, I'd expect
+the rendered page to href the author's name to that URL. This works
+as I expect for new comments added via the CGI, but not for imported
+comments added via the VCS directly.
+
+My branch has a fix that doesn't break `t/comments.t`, doesn't
+appear to break anonymous or signed-in comments via the CGI in any
+way I've tried, and lets me render my (incredibly valuable ;-)
+imported blog comments with full fidelity. OK to commit?
