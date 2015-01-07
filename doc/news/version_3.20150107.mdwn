@@ -1,0 +1,43 @@
+ikiwiki 3.20150107 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+  [ [[Joey Hess|joeyh]] ]
+
+  * Added ikiwiki-comment program.
+  * Add missing build-depends on `libcgi-formbuilder-perl`, needed for
+    `t/relativity.t`
+  * openid: Stop suppressing the email field on the Preferences page.
+  * Set Debian package maintainer to Simon McVittie as I'm retiring from
+    Debian.
+
+  [ [[Simon McVittie|smcv]] ]
+
+  * calendar: add `calendar_autocreate` option, with which `ikiwiki --refresh`
+    can mostly supersede the `ikiwiki-calendar` command.
+    Thanks, Louis Paternault
+  * search: add more classes as a hook for CSS. Thanks, sajolida
+  * core: generate HTML5 by default, but keep avoiding new elements
+    like `<section>` that require specific browser support unless `html5` is
+    set to 1.
+  * Tell mobile browsers to draw our pages in a device-sized viewport,
+    not an 800-1000px viewport designed to emulate a desktop/laptop browser.
+  * Add new `responsive_layout` option which can be set to 0 if your custom
+    CSS only works in a large viewport.
+  * style.css, actiontabs, blueview, goldtype, monochrome: adjust layout
+    below 600px ("responsive layout") so that horizontal scrolling is not
+    needed on smartphone browsers or other small viewports.
+  * core: new `libdirs` option alongside `libdir`. Thanks, Louis Paternault
+
+  [ [[Amitai Schlair|schmonz]] ]
+
+  * core: log a debug message before waiting for the lock.
+    Thanks, Mark Jason Dominus
+  * build: in po/Makefile, use the same `$(MAKE)` as the rest of the build.
+    Thanks, ttw
+  * blogspam: use the 2.0 JSON API (the 1.0 XML-RPC API has been EOL'd).
+    Closes: [[!debbug 774441]]
+
+  [ [[Joey Hess|joey]] ]
+
+  * po: If msgmerge falls over on a problem po file, print a warning
+    message, but don't let this problem crash ikiwiki entirely.
+"""]]
