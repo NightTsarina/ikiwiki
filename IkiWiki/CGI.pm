@@ -124,9 +124,7 @@ sub decode_cgi_utf8 ($) {
 
 sub safe_decode_utf8 ($) {
     my $octets = shift;
-    # call decode_utf8 on >= 5.20 only if it's not already decoded,
-    # otherwise it balks, on < 5.20, always call it
-    if ($] < 5.02 || !Encode::is_utf8($octets)) {
+    if (!Encode::is_utf8($octets)) {
         return decode_utf8($octets);
     }
     else {
