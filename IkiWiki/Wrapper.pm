@@ -189,16 +189,23 @@ int i=0;
 
 void addenv(char *var, char *val) {
 	char *s=malloc(strlen(var)+1+strlen(val)+1);
-	if (!s)
+	if (!s) {
 		perror("malloc");
-	sprintf(s, "%s=%s", var, val);
-	newenviron[i++]=s;
+		exit(1);
+	}
+	else {
+		sprintf(s, "%s=%s", var, val);
+		newenviron[i++]=s;
+	}
 }
 
 void set_cgilock_fd (int lockfd) {
 	char *fd_s=malloc(8);
 	sprintf(fd_s, "%i", lockfd);
-	setenv("IKIWIKI_CGILOCK_FD", fd_s, 1);
+	if (setenv("IKIWIKI_CGILOCK_FD", fd_s, 1) != 0) {
+		perror("setenv");
+		exit(1);
+	}
 }
 
 int main (int argc, char **argv) {
