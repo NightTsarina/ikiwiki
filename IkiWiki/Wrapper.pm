@@ -200,7 +200,7 @@ void addenv(char *var, char *val) {
 }
 
 void set_cgilock_fd (int lockfd) {
-	char *fd_s=malloc(8);
+	char fd_s[12];
 	sprintf(fd_s, "%i", lockfd);
 	if (setenv("IKIWIKI_CGILOCK_FD", fd_s, 1) != 0) {
 		perror("setenv");
