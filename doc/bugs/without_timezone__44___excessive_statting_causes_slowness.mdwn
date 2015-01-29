@@ -1,0 +1,9 @@
+If the TZ environment variable is unset *and* the 'timezone' entry in setup is unset, then libc defaults to /etc/localtime which is all well and good, but it causes it to stat() that file for every strftime or similar.  This results in somewhere in the region of 300k calls to stat(/etc/localtime) for my 600 page ikiwiki and introduces appreciable slowness into builds.
+
+If either of TZ or timezone is set, then instead it is believed and /etc/localtime is not repeatedly stat()d, even if TZ or timezone is set to ":/etc/localtime".
+
+A conversation with smcv on IRC suggested:
+
+> `it just needs "elsif (-e /etc/localtime) { $ENV{TZ} = ':/etc/localtime'; } else { $ENV{TZ} = 'GMT'; } or some such`
+
+relating to the processing of `$ENV{TZ}` and `$config{timezone}` in `Ikiwiki.pm`
