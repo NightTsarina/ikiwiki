@@ -1,0 +1,58 @@
+I found the handling of options and terms regarding both actions highly confusing from the very beginning some weeks ago. so i created a bash function used as *iki $wikiname* that called *ikiwiki* with the needed parameters and the complete pathname of the apropriate configuration file. Only now that shell is gone and the function lost. So I had to find that command again (remember, I didn't used it for weeks).
+
+    ikiwiki --setup $setupfile
+
+Didn't work as expected, rebuilt the whole wiki.
+
+    ikiwiki -setup -refresh $setupfile
+
+Output was:
+
+    cannot read -refresh: No such file or directory
+    usage: ikiwiki [options] source dest
+           ikiwiki --setup configfile
+
+So it was clear: *first* refresh, *then* setup -- and so
+
+    ikiwiki -refresh -setup $setupfile
+
+finally did what I wanted.
+
+## situation
+
+1.) The manpage says:
+
+       --refresh
+              Refresh the wiki, updating any changed pages. This is the
+              default behavior so you don't normally need to specify it.
+       --setup setupfile
+              The default action when --setup is specified is to automatically
+              generate wrappers for a wiki based on data in a setup file, and
+              rebuild the wiki.  If you only want to build any changed pages,
+              you can use --refresh with --setup.
+
+Only, both *ikiwiki* and *ikiwiki $setupfile* spit out an error. So it seems i **MUST** use *--refresh* to do a refresh. but I also have to use *--setup $setupfile* because ikiwiki **NEEDS** a config file, but only one of those two options take one.
+
+2.) after building the wiki with the list of directories the install script says:
+
+    To modify settings, edit ~/ikiwiki/$wikiname.setup and then run:
+            ikiwiki -setup ~/ikiwiki/$wikiname.setup
+
+2.a) It is the only place where *-setup* is used. the error output and the manpage use *--setup*  
+2.b) It should also say how to rebuild the wiki by creating *only* the new and changed pages.
+
+3.) The file with the basic settings for the installation procedure is referred to as "setup" file. And so are the files with the settings for a particular wiki. Only the manpage uses the term "configuration" more than just a few times. 
+
+And maybe it would be possible to update a wiki if the program is called with only a config file as parameter. the mass-rebuild aproach doesn't work for me, a wiki in a user directory is not part of system stucture and so i don't use my root account for anything besides basic installation.
+
+## conclusion
+
+1.) The text for *--refresh* should be updated.  
+2.) Short and long options should be clearly distinguishable (and also if 1 or 2 hyphens may be used). So the line *--refresh* in the man page could e.g. read *-r --refresh*  
+3.) I'd suggest using "setup" for the file(s) shipped with the software thatare used to create (then so to be called) configuration files with the settings for particular wiki instances.
+
+I also adapted the install script so it doen's clutter my home directory. As for now it still creates *~/.ikiwiki* (useless for me, maybe there could be a setup option not to do it?) but all the rest goes into the same directory (setup file, and the config file and the directory for each instance).
+
+*P.S.: HOWTO sign?*
+
+--[[EdePopede]]
