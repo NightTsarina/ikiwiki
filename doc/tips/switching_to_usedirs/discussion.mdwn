@@ -22,3 +22,17 @@ It seems to me that the only advantage is slightly tidier URLs, but with the dis
 
 The cleaner urls seem worth it to me. The `urlto()` function makes it easy
 for ikiwiki code to deal with the path changes. --[[Joey]]
+
+--------
+
+when migrating to usedirs, the following apache config sniplet might be useful (use inside the Directory section that manages your wiki):
+
+    RewriteEngine on
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^(.+)\.html$ /my_base_path/$1/ [R]
+
+that sniplet causes redirects from any non-existing .html file to the respective usedirs directory. (when serving from the host root url, drop the my_base_path part, otherwise adapt it to your needs).
+
+i recommend using this or a similar mechanism to keep your old urls reachable.
+
+--[[chrysn]]
