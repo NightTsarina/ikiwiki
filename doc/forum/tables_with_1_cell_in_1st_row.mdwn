@@ -1,0 +1,120 @@
+Just found a bug while building a table with 1st column made of the lines output by <tt>ls -1</tt>. That means, in the beginning there's only 1 cell in each row, and if adding additional columns in other rows, the delimiter ('|') is taken as-is. No difference if the table has a header line or not, or if that one cell is following a '|'.
+
+Examples:
+
+
+### 2 cells each
+
+table with header
+
+[[!table data="""
+1 | 2
+one | two
+a |b
+"""]]
+
+table without header
+
+[[!table header="no" data="""
+1 | 2
+one | two
+a |b
+"""]]
+
+### 2 cells, 3 later
+
+
+table with header
+
+[[!table data="""
+1 | 2
+one | two
+a |b | c
+"""]]
+
+table without header
+
+[[!table header="no" data="""
+1 | 2
+one | two
+a |b | c
+"""]]
+
+### 1 cell, 3 later
+
+
+table with header
+
+[[!table data="""
+1
+one | two
+a |b | c
+"""]]
+
+table without header
+
+[[!table header="no" data="""
+1
+one | two
+a |b | c
+"""]]
+
+### 1 cell (ended by delimiter), 3 later
+
+
+table with header
+
+[[!table data="""
+1|
+one | two
+a |b | c
+"""]]
+
+table without header
+
+[[!table header="no" data="""
+1|
+one | two
+a |b | c
+"""]]
+
+### 1 cell (line starts with delimiter), 3 later
+
+
+table with header
+
+[[!table data="""
+|1
+one | two
+a |b | c
+"""]]
+
+table without header
+
+[[!table header="no" data="""
+|1
+one | two
+a |b | c
+"""]]
+
+### 1 cell (line starts with SPC + delimiter), 3 later
+
+
+table with header
+
+[[!table data="""
+ |1
+one | two
+a |b | c
+"""]]
+
+table without header
+
+[[!table header="no" data="""
+ |1
+one | two
+a |b | c
+"""]]
+
+
+  -- EdePopede (poor man's signature)
