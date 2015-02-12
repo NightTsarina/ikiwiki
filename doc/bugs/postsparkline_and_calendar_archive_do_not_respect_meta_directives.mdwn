@@ -1,0 +1,19 @@
+On my [blog](http://anarc.at/blog), i have setup a simple calendar and sparkline on the sidebar, similar to [joey's](http://joeyh.name/blog/). Unfortunately, in my case it looks like all posts were done in february, date at which i [converted from drupal](http://anarc.at/blog/2015-02-06-migrating-drupal-ikiwiki/).
+
+This is how i did the directives:
+
+<pre>
+\[[!calendar pages="blog/* and !blog/*/* and !*/Discussion"]]
+
+\[[!calendar pages="blog/* and !blog/*/* and !*/Discussion" month=-1]]
+
+Temps passé entre les articles: 
+\[[!postsparkline pages="blog/* and !blog/*/* and !link(foo) and
+!link(unfinished)" max=50
+formula=interval style=bar barwidth=2 barspacing=1 height=13]]  
+Articles par mois:
+\[[!postsparkline pages="blog/* and !blog/*/* and !link(foo) and
+!link(unfinished)" max=23 formula=permonth style=bar barwidth=2 barspacing=1 height=13]]  
+</pre>
+
+Is it possible the `meta(date)` directives are being ignored by those plugins? --[[anarcat]]
