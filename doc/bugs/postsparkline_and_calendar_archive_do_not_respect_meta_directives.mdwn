@@ -17,3 +17,16 @@ Articles par mois:
 </pre>
 
 Is it possible the `meta(date)` directives are being ignored by those plugins? --[[anarcat]]
+
+> For background, each page has two dates: creation date (`ctime`, `meta(date)`)
+> and last modification date (`mtime`, `meta(updated)`). postsparkline
+> defaults to showing the ctime but can be configured to use the mtime
+> instead; calendar always uses ctime. So what you're doing *should* work
+> like you expect.
+>
+> The plugins don't get to choose whether they ignore meta(date);
+> the effect of a meta(date) directive in `$page` is to set `$pagectime{$page}`
+> during scanning (overriding whatever was found in the filesystem), and
+> that data structure is what the plugins read from. So the first thing to
+> investigate is whether the ctime
+> [[in your .ikiwiki/indexdb|tips/inside_dot_ikiwiki]] is correct. --[[smcv]]
