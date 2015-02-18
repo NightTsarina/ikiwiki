@@ -1,0 +1,28 @@
+In my wiki I have a template page under `/templates` that looks like this:
+
+    \[[!inline                                                                       
+          pages="<TMPL_VAR PAGE>/* and !<TMPL_VAR PAGE>/*/*"                    
+          show=0                                                                
+          template=titlepage                                                    
+          feeds=no                                                              
+          sort=title]]                                                          
+                                                                                    
+    \[[!trailitems                                                                   
+              pages="<TMPL_VAR PAGE>/* and !<TMPL_VAR PAGE>/*/*"                
+              sort=title]]
+
+I tested this page with many variations and by trial and error reached a conclusion that
+when using `trailitems` with a path that contains TMPL_VAR, or using the inline directive
+with `trail=yes` and a `pages` that contains TMPL_VAR, the trail plugin (or something else?)
+seems to not resolve the TMPL_VAR and ikiwiki fails to compile the wiki, and I get this:
+
+    syntax error in pagespec "<TMPL_VAR PAGE>/* and !<TMPL_VAR PAGE>/*/*"
+
+on the command line.
+
+Until I get feedback here I'll try to look at the source and see if I figure it out.
+My ikiwiki version: 3.20130904
+
+Huge thanks in advance!
+
+--[[fr33domlover]]
