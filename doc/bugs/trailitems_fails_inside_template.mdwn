@@ -26,3 +26,28 @@ My ikiwiki version: 3.20130904
 Huge thanks in advance!
 
 --[[fr33domlover]]
+
+> These templates have traditionally had a problem: they need to be
+> simultaneously a valid page in their own right, and a valid page after
+> template substitutions.
+>
+> In newer ikiwiki versions, the [[ikiwiki/directive/templatebody]]
+> directive [[solves this|done]] ... but your ikiwiki is nearly a year
+> and a half old, so you don't have recent bugfixes.
+>
+> You might be able to get somewhere by abusing the two intersecting
+> markup languages, something like this:
+>
+>     <TMPL_IF FALSE>
+>     \[[!if test="included() and !included()" then="""
+>     </TMPL_IF>
+>     ... real content here: inline, trailitems etc. ...
+>     ... just don't use a triple quote mark ...
+>     <TMPL_IF FALSE>
+>     """]]
+>     </TMPL_IF>
+>
+> Alternatively, if you have direct commit access and don't need
+> to be able to perform web-based edits on your template, I think
+> renaming your template from `foo.mdwn` to `foo.tmpl` would bypass
+> this while still working as a template. --[[smcv]]
