@@ -1,0 +1,25 @@
+[[!comment format=mdwn
+ username="smcv"
+ subject="comment 1"
+ date="2015-02-18T23:55:19Z"
+ content="""
+I think I can see why this wouldn't work: ikiwiki calculates the set of
+potential \"autofiles\" (automatically-created pages, normally in the transient
+underlay), once, then creates them. It does not check after it has created
+them to see whether it should create any more for some reason. I'm not sure
+whether it should or not.
+
+One possible workaround would be for your tag-extraction code to call
+`IkiWiki::Plugin::tag::gentag` itself, at the same time it calls
+`add_autofile` for its own automatically-created page.
+
+Having metadata like tags in transient pages seems a somewhat precarious
+situation anyway: your wiki is structurally different, depending whether the
+transient pages have turned up or not. That doesn't seem ideal?
+
+Whenever I've looked into making album extract metadata from photos, my idea
+had been that it would generate \"real pages\" that get committed to git, so that
+the metadata gets copied out of the opaque binary with no useful diff, that is not
+necessarily even in the VCS (I use an underlay for photos), and into an editable
+text format in git with useful diffs and history.
+"""]]
