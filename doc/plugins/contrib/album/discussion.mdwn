@@ -628,8 +628,14 @@ I've changed the behavior of the "slideshow" to show the next image when clickin
 
 My wishlist for the plugin would include:
 
-- Reading exif info from the imagefile
-- ~~Keeping the full resolution image files out of version control~~ Solved this by simply creating a underlay for the images. Works out of the box for my non cgi workflow.
+[[!template id=gitbranch branch=kjs/album6-imgmeta author="[[Kalle Söderman|kjs]]"]] 
+
+- ~~Reading exif info from the imagefile~~
+    - I have now implemented this (in some fashion) and the patch is available in my album6-imgmeta branch. --kjs
+
+- ~~Keeping the full resolution image files out of version control~~ Solved
+this by simply creating a underlay for the images. Works out of the box for my
+non cgi workflow.
 - Being able to create new albums by tag or by manually picking images from other albums. Could be a simple comma separated list of viewer names, or even full urls, in the album directive.
 - A counter showing **current image/total number of images in album**. This would mean that you know how many images you have left to click through before you have seen all images in an album. This gives you enought info to decide weather to click through or go back/leave.
 
