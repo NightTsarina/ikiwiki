@@ -1,0 +1,18 @@
+The following could would be expected to produce a 3-month output similar to <code>gcal .</code>
+
+[[!format txt """
+[[!calendar type="month" month="-1"]]
+[[!calendar type="month" ]]
+[[!calendar type="month" month="+1"]]
+"""]]
+
+**Behaviour:** The 3rd entry doesn't show the *next* month, but the *1st* month of the year (aka January).
+
+**Problem:** Since there are no negative month numbers (unless someone starts with march because of Feb 29), *–1* is interpreted correctly.
+Explicitely positive numbers aren't recognized as being relative. Possibly it is the numerical interpretation of the value, there is no difference between *n* and *+n*.
+
+**Solution:** treat the value as string, check for a leading *+*, set a *relativeMonth* flag (which then also should happen on negative values, if it does not happen yet). If then it is set for the month in question, first calculate *month_year* and then go on as usual.
+
+**Idea:** since i mentioned gcal earlier, how about some of the shorthanded sytax as "." for this, ".-" for previous, ".+" for next month together with its neighbours?
+
+-- [[EdePopede]]
