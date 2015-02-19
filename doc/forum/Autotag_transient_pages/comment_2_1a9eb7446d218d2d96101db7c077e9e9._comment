@@ -1,0 +1,18 @@
+[[!comment format=mdwn
+ username="https://www.google.com/accounts/o8/id?id=AItOawkickHAzX_uVJMd_vFJjae6SLs2G38URPU"
+ nickname="Kalle"
+ subject="Precarious situation"
+ date="2015-02-19T11:13:58Z"
+ content="""
+Thanks for the gentag tip will try it out.
+
+About transients being precarious. In my workflow I like the metadata to be regenerated if the image changes. Generally I don't want my local image library to diverge from the published one and I'd like to avoid duplicating efford changing the metadata in two places. The simplest way of doing this is to upload images with changed metadata again or use cli exif tools with the server mounted as sshfs copying only metadata across to the image files. Editing mdwns to match the exif data is much more complicated and time consuming.
+
+The brilliant thing with the transient would be that I could check in the files I don't want auto updated, cases where the web should diverge from my local files, whilst the transients would just get replaced. A magic solution to a potentially complex problem.
+
+Unfortunately there is a catch with the album lugin as it fails to update the album if I change or add images to the underlay. It may build the files but it then doesn't recognize the files it has created requiring a rebuild. By touching the file with the album directive before changing any images and committing / pushing the directive file the problem is mitigated. Forgetting this have however caused a lot of rebuilds :)
+
+--[[kjs]]
+
+
+"""]]
