@@ -1,0 +1,47 @@
+Cross posting on Stackoverflow http://stackoverflow.com/questions/28709936/perl-error-related-to-encode-pm
+
+I have the following software:
+
+Ubuntu Linux 14.04 LTS
+
+    $ uname -a
+    Linux XXX 3.13.0-45-generic #74-Ubuntu SMP Tue Jan 13 19:36:28 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
+
+
+Perl 5.18:
+
+    $ perl -version
+
+    This is perl 5, version 18, subversion 2 (v5.18.2) built for x86_64-linux-gnu-thread-multi
+    (with 41 registered patches, see perl -V for more detail)
+
+and Encode.pm 2.49:
+
+    $ head -n 10 /usr/lib/perl/5.18/Encode.pm
+    #
+    # $Id: Encode.pm,v 2.49 2013/03/05 03:13:47 dankogai Exp dankogai $
+
+
+When I use [ikiwiki](https://packages.debian.org/experimental/ikiwiki), which is a package using Encode.pm, I got the following error:
+
+    $ ikiwiki --setup ~/wiki.setup
+    Cannot decode string with wide characters at /usr/lib/perl/5.18/Encode.pm line 176.
+
+Lines 166 - 180 of Encode.pm reads:
+
+    sub decode($$;$) {
+        my ( $name, $octets, $check ) = @_;
+        return undef unless defined $octets;
+        $octets .= '';
+        $check ||= 0;
+        my $enc = find_encoding($name);
+        unless ( defined $enc ) {
+            require Carp;
+            Carp::croak("Unknown encoding '$name'");
+        }
+        my $string = $enc->decode( $octets, $check );
+        $_[1] = $octets if $check and !ref $check and !( $check & LEAVE_SRC() );
+        return $string;
+    }
+
+Does any kind soul have idea how to fix this issue?
