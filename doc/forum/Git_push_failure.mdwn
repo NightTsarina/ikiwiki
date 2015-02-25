@@ -1,0 +1,21 @@
+I set up a local Ikiwiki following the instruction on [manually installing](https://ikiwiki.info/setup/byhand/).  However, when I Git push, I see the following
+
+```
+$ git push
+Counting objects: 22, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (22/22), done.
+Writing objects: 100% (22/22), 2.71 KiB | 0 bytes/s, done.
+Total 22 (delta 14), reused 0 (delta 0)
+remote: Died at /usr/share/perl5/IkiWiki/CGI.pm line 491.
+remote: Content-type: text/html
+remote: 
+remote: <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+<skip>
+```
+
+where the content at the bottom of the console printout is actually the content of my `rootdir/index.mdwn`.  And the destination, i.e. the deployed web documents is not automatically updated reflecting the commits I pushed to Git repo.  Any idea?
+
+I'm using ikiwiki version 3.20150107 on Ubuntu Linux 14.0.4 LTS.
+
+
