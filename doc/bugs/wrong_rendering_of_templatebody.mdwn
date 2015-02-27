@@ -1,0 +1,22 @@
+I recently moved from Trisquel's version of ikiwiki (from 2013, the same one of
+Debian wheezy backports) to the version 5.20141016 which I built from git, by
+pulling the tag. One of the new things I have now is the templatebody
+directive.
+
+I started using it in my templates, and I suddenly notice strange behavior: one
+of my templates renders as the *rest* of the template page when used, instead of
+the body part. In other words, it renders exactly the part it should hide (the
+description) and ignores the body itself (which is inside \[[!templatebody]]).
+
+When I manually re-generate the wiki, it suddenly renders right. As soon as the
+page gets rebuilt automatically after some git push, it renders the wrong way.
+
+[[This|http://www.rel4tion.org/languages/haskell/]] is the page, and
+[[this|http://www.rel4tion.org/templates/wikitag/]] is a template it uses. Right
+now the template is rendered on that page exactly like the template page itself.
+Both display the description text, and the \[[!templatebody]] content isn't
+displayed at all.
+
+If I debug it myself and find something relevant, I'll update here.
+
+-- [[fr33domlover]]
