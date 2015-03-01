@@ -3,6 +3,16 @@ Debian wheezy backports) to the version 5.20141016 which I built from git, by
 pulling the tag. One of the new things I have now is the templatebody
 directive.
 
+> Not directly relevant to this bug, but if you want the latest ikiwiki release
+> for a Debian derivative, you can fetch it from Debian unstable (normally)
+> or Debian experimental (during the Debian release freeze, e.g. now) -
+> the correct way is to get the (signed) source package with `dget`
+> or similar, check the GPG signature (which should be from me or Joey), and
+> rebuild it for your distribution. Just getting the binary `.deb` from Debian
+> is a little more risky, depending how far your distribution has diverged from
+> Debian, but in the case of ikiwiki it should usually work fine in practice.
+> --[[smcv]]
+
 I started using it in my templates, and I suddenly notice strange behavior: one
 of my templates renders as the *rest* of the template page when used, instead of
 the body part. In other words, it renders exactly the part it should hide (the
@@ -10,6 +20,20 @@ description) and ignores the body itself (which is inside \[[!templatebody]]).
 
 When I manually re-generate the wiki, it suddenly renders right. As soon as the
 page gets rebuilt automatically after some git push, it renders the wrong way.
+
+> Where did you install the newer ikiwiki? `/usr/local`? Somewhere else?
+>
+> It sounds to me as though manual re-generation is using ikiwiki ≥ 3.20140916
+> with the `templatebody` directive enabled, but the git hook is using
+> ikiwiki < 3.20140916 and/or has the `templatebody` disabled. This might
+> result from having a different `PERL5LIB` environment variable in
+> the two situations, for instance.
+>
+> It might help to debug this if you edit your older and newer ikiwiki's
+> `IkiWiki.pm`, `IkiWiki/Render.pm` and/or `IkiWiki/Plugin/templatebody.pm`
+> so they do `print STDERR "loaded (old/new) (whatever).pm"` at some fairly
+> early stage - I would suggest `getsetup()`, `refresh()` and `import()`
+> respectively. --[[smcv]]
 
 [[This|http://www.rel4tion.org/languages/haskell/]] is the page, and
 [[this|http://www.rel4tion.org/templates/wikitag/]] is a template it uses. Right
