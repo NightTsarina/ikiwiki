@@ -5,11 +5,12 @@
  date="2015-02-25T05:43:26Z"
  content="""
 I fixed it by adding
-```
+
+~~~
 sub decode($$;$) {
     my ( $name, $octets, $check ) = @_;
     return undef unless defined $octets;
     return $octets if Encode::is_utf8($octets);  # add this check
 	$octets .= '';
-```
+~~~
 """]]
