@@ -6,7 +6,7 @@ ikiwiki - a wiki compiler
 
 ikiwiki [options] source destination
 
-ikiwiki --setup setupfile
+ikiwiki --setup setupfile [options]
 
 # DESCRIPTION
 
@@ -14,8 +14,9 @@ ikiwiki --setup setupfile
 `source` in the [[ikiwiki/Markdown]] language (or others), and writes it out to
 `destination`.
 
-Note that most options can be shortened to single letters, and boolean
-flags such as --verbose can be negated with --no-verbose.
+Note that most options can be shortened to single letters, boolean
+flags such as --verbose can be negated with --no-verbose, and
+options such as --verbose can also be spelled like -verbose.
 
 # MODE OPTIONS
 
@@ -23,7 +24,9 @@ These options control the mode that ikiwiki operates in.
 
 * --refresh
 
-  Refresh the wiki, updating any changed pages.
+  Refresh the wiki, updating any changed pages. This is the default
+  behavior if no other mode action is specified (but note that --setup is
+  a mode action, and has different default behavior).
 
 * --rebuild
 
@@ -31,8 +34,8 @@ These options control the mode that ikiwiki operates in.
 
 * --setup setupfile
 
-  The default action when --setup is specified is to automatically generate
-  wrappers for a wiki based on data in a setup file, and rebuild the wiki.
+  Load options from the given setup file. If no other mode action is specified,
+  generate wrappers and rebuild the wiki, as if --rebuild --wrappers were used.
   If you only want to build any changed pages, you can use --refresh with
   --setup.
 
@@ -360,10 +363,20 @@ also be configured using a setup file.
 
 * ikiwiki --setup my.setup --refresh --wrappers
 
-  Refresh the wiki, including regnerating all wrapper programs,
+  Refresh the wiki, including regenerating all wrapper programs,
   but do not rebuild all pages. Useful if you have changed something
   in the setup file that does not need a full wiki rebuild to update
-  all pages, but that you want to immediatly take effect.
+  all pages, but that you want to immediately take effect.
+
+* ikiwiki --rebuild srcdir destdir
+
+  Use srcdir as source and build HTML in destdir, without using a
+  setup file.
+
+* ikiwiki srcdir destdir
+
+  Use srcdir as source to update changed pages' HTML in destdir,
+  without using a setup file.
 
 # ENVIRONMENT
 
