@@ -1,0 +1,56 @@
+[[!comment format=mdwn
+ username="smcv"
+ subject="comment 2"
+ date="2015-03-01T15:13:08Z"
+ content="""
+>     ikiwiki --setup $setupfile
+> 
+> Didn't work as expected, rebuilt the whole wiki.
+
+The default action is to rebuild if `--setup` is used, or refresh otherwise.
+
+>     ikiwiki -setup -refresh $setupfile
+> 
+> Output was:
+> 
+>     cannot read -refresh: No such file or directory
+
+Well, no, you told ikiwiki to use a setup file named `-refresh`. That's not
+going to work, unless you happen to have such a file. The man page does say
+
+>        --setup setupfile
+
+implying that an argument is expected and required. Either of these would be OK,
+for instance:
+
+    ikiwiki -refresh -setup setupfile
+    ikiwiki --setup setupfile --refresh
+
+> 2.a) It is the only place where *-setup* is used. the error output and the manpage use *--setup*  
+
+Perl's command-line parser accepts either.
+
+> 3.) The file with the basic settings for the installation procedure is referred to as \"setup\" file. And so are the files with the settings for a particular wiki.
+
+That's because the one used for the auto-installation (which is not mandatory: you can
+write the entire setup file yourself if you prefer, like ikiwiki-hosting does) is a
+special case of the one used for a configured wiki./
+
+> And maybe it would be possible to update a wiki if the program is called with only a config file as parameter.
+
+ikiwiki needs either:
+
+* two non-option arguments, a srcdir *and* a destdir (and probably lots of other options
+  in practice); or
+
+* a setup file (which can specify most things supported by the command line) and
+  no non-option arguments
+
+Both ways are meant to work; the srcdir/destdir syntax is for very simple 
+cases (e.g. building static documentation) and the setup file is for
+more complicated cases (entire websites).
+
+Treating two non-option arguments as srcdir/destdir, but a single
+non-option argument as a setup file, seems more confusing to me
+than the current situation.
+"""]]
