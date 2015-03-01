@@ -8,6 +8,8 @@ ikiwiki (3.20150108) UNRELEASED; urgency=medium
     bundle an old enough Encode.pm for that not to be a problem: the
     system might have a newer Encode.pm installed separately, like Fedora 20.
     (Closes: #776181; thanks, Anders Kaseorg)
+  * If neither timezone nor TZ is set, set both to :/etc/localtime if
+    we're on a GNU system and that file exists, or GMT otherwise
 
  -- Joey Hess <id@joeyh.name>  Sat, 24 Jan 2015 23:59:20 -0400
 

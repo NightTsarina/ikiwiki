@@ -619,8 +619,19 @@ sub checkconfig () {
 	if (defined $config{timezone} && length $config{timezone}) {
 		$ENV{TZ}=$config{timezone};
 	}
-	else {
+	elsif (defined $ENV{TZ} && length $ENV{TZ}) {
 		$config{timezone}=$ENV{TZ};
+	}
+	else {
+		eval q{use Config qw()};
+		error($@) if $@;
+
+		if ($Config::Config{d_gnulibc} && -e '/etc/localtime') {
+			$config{timezone}=$ENV{TZ}=':/etc/localtime';
+		}
+		else {
+			$config{timezone}=$ENV{TZ}='GMT';
+		}
 	}
 
 	if ($config{w3mmode}) {
