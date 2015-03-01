@@ -1,6 +1,13 @@
 ikiwiki (3.20150108) UNRELEASED; urgency=medium
 
+  [ Joey Hess ]
   * Fix NULL ptr deref on ENOMEM in wrapper. (Thanks, igli)
+
+  [ Simon McVittie ]
+  * Really don't double-decode CGI submissions, even on Perl versions that
+    bundle an old enough Encode.pm for that not to be a problem: the
+    system might have a newer Encode.pm installed separately, like Fedora 20.
+    (Closes: #776181; thanks, Anders Kaseorg)
 
  -- Joey Hess <id@joeyh.name>  Sat, 24 Jan 2015 23:59:20 -0400
 
