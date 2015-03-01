@@ -1,0 +1,16 @@
+[[!comment format=mdwn
+ username="smcv"
+ subject="looks like Debian#776181"
+ date="2015-03-01T12:55:20Z"
+ content="""
+This looks like [Debian bug #776181](https://bugs.debian.org/776181), although I'm
+surprised you're seeing it on such an old version of Encode. What version of IkiWiki
+is this?
+
+Please try reverting the change you made to Encode.pm, and making the change to IkiWiki
+shown on that bug report instead. (If you don't know how to read diffs, the short version
+is: delete the lines prefixed with \"-\", add the lines prefixed with \"+\".)
+
+I've made the same change in ikiwiki git master, so this should be fixed in the
+next release (>= 3.20150301).
+"""]]
