@@ -6,6 +6,8 @@ use IkiWiki;
 
 my $blob;
 
+my $add_new_post = gettext("Add a new post titled:");
+
 ok(! system("rm -rf t/tmp"));
 ok(! system("mkdir t/tmp"));
 
@@ -42,12 +44,12 @@ ok(! system($command));
 ok(! system("$command --refresh"));
 
 $blob = readfile("t/tmp/out/protagonists.html");
-like($blob, qr{Add a new post}, 'rootpage=yes gives postform');
+like($blob, qr{\Q$add_new_post\E}, 'rootpage=yes gives postform');
 like($blob, qr{<input type="hidden" name="from" value="protagonists/new"},
 	'explicit rootpage is /protagonists/new');
 
 $blob = readfile("t/tmp/out/friends.html");
-like($blob, qr{Add a new post}, 'postform=yes forces postform');
+like($blob, qr{\Q$add_new_post\E}, 'postform=yes forces postform');
 like($blob, qr{<input type="hidden" name="from" value="friends"},
 	'implicit rootpage is /friends');
 like($blob, qr[this page is {friends/garrus}.*this page is {friends/liara}]s,
@@ -56,10 +58,10 @@ unlike($blob, qr{friends/(?:midna|telma)},
 	'pages excluded by show should not be present');
 
 $blob = readfile("t/tmp/out/antagonists.html");
-unlike($blob, qr{Add a new post}, 'default is no postform');
+unlike($blob, qr{\Q$add_new_post\E}, 'default is no postform');
 
 $blob = readfile("t/tmp/out/enemies.html");
-unlike($blob, qr{Add a new post}, 'postform=no forces no postform');
+unlike($blob, qr{\Q$add_new_post\E}, 'postform=no forces no postform');
 like($blob, qr[this page is {enemies/zant}.*this page is {enemies/rachni}]s,
 	'first two pages in reversed sort order are present');
 unlike($blob, qr{enemies/(?:benezia|geth)},
