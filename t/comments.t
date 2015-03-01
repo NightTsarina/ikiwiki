@@ -40,7 +40,7 @@ ok(utime(333333333, 333333333, "t/tmp/in/post/comment_1._comment"));
 
 # Build the wiki
 ok(! system("make -s ikiwiki.out"));
-ok(! system("perl -I. ./ikiwiki.out -verbose -plugin comments -url=http://example.com -cgiurl=http://example.com/ikiwiki.cgi -rss -atom -underlaydir=underlays/basewiki -set underlaydirbase=underlays -set comments_pagespec='*' -templatedir=templates t/tmp/in t/tmp/out"));
+ok(! system("perl -I. ./ikiwiki.out --verbose --plugin comments --url=http://example.com --cgiurl=http://example.com/ikiwiki.cgi --rss --atom --underlaydir=underlays/basewiki --set underlaydirbase=underlays --set comments_pagespec='*' --templatedir=templates t/tmp/in t/tmp/out"));
 
 # Check that the comments are in the right order
 

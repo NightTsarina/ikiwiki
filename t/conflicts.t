@@ -12,7 +12,7 @@ ok(! system("make -s ikiwiki.out"));
 # runs ikiwiki to build test site
 sub runiki {
 	my $testdesc=shift;
-	ok((! system("perl -I. ./ikiwiki.out -plugin txt -plugin rawhtml -underlaydir=underlays/basewiki -set underlaydirbase=underlays -templatedir=templates $srcdir $destdir @_")),
+	ok((! system("perl -I. ./ikiwiki.out --plugin txt --plugin rawhtml --underlaydir=underlays/basewiki --set underlaydirbase=underlays --templatedir=templates $srcdir $destdir @_")),
 		$testdesc);
 }
 sub refreshiki {

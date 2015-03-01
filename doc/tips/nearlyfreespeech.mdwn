@@ -78,7 +78,7 @@ Here is an example of how I set up a wiki:
 	mkdir ~/wiki
 	cd ~/wiki
 	cp -r ~/ikiwiki/doc/examples/blog/* .
-	ikiwiki -dumpsetup ikiwiki.setup
+	ikiwiki --dumpsetup ikiwiki.setup
 	nano ikiwiki.setup
 	# Set destdir to /home/htdocs
 	# Set srcdir to /home/private/wiki
@@ -89,7 +89,7 @@ Here is an example of how I set up a wiki:
 	# Set the git_wrapper path to /home/private/wiki.git/hooks/post-update
 	# Configure the rest to your liking and save the file.
 	ikiwiki-makerepo git . ../wiki.git
-	ikiwiki -setup ikiwiki.setup
+	ikiwiki --setup ikiwiki.setup
 
 ## Clean up
 

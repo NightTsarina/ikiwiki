@@ -20,7 +20,7 @@ sub processline {
 		return;
 	}
 	print "Processing $setup as user ".username()." ...\n";
-	my $ret=system("ikiwiki", "-setup", $setup, @ARGV);
+	my $ret=system("ikiwiki", "--setup", $setup, @ARGV);
 	if ($ret != 0) {
 		print STDERR "warning: processing $setup failed with code $ret\n";
 	}

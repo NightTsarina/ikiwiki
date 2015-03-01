@@ -23,10 +23,10 @@ sub podcast {
 	my $podcast_style = shift;
 
 	my $baseurl = 'http://example.com';
-	my @command = (qw(./ikiwiki.out -plugin inline -rss -atom));
+	my @command = (qw(./ikiwiki.out --plugin inline --rss --atom));
 	push @command, qw(-underlaydir=underlays/basewiki);
-	push @command, qw(-set underlaydirbase=underlays -templatedir=templates);
-	push @command, "-url=$baseurl", qw(t/tinypodcast), "$tmp/out";
+	push @command, qw(-set underlaydirbase=underlays --templatedir=templates);
+	push @command, "--url=$baseurl", qw(t/tinypodcast), "$tmp/out";
 
 	ok(! system("mkdir $tmp"),
 		q{setup});
@@ -115,7 +115,7 @@ sub podcast {
 sub single_page_html {
 	my @command = (qw(./ikiwiki.out));
 	push @command, qw(-underlaydir=underlays/basewiki);
-	push @command, qw(-set underlaydirbase=underlays -templatedir=templates);
+	push @command, qw(-set underlaydirbase=underlays --templatedir=templates);
 	push @command, qw(t/tinypodcast), "$tmp/out";
 
 	ok(! system("mkdir $tmp"),
@@ -130,7 +130,7 @@ sub single_page_html {
 		q{html enclosure});
 	my ($href) = _extract_html_links($html, 'piano');
 	is($href, '/piano.mp3',
-		q{html enclosure sans -url is site-absolute});
+		q{html enclosure sans --url is site-absolute});
 
 	$html = "$tmp/out/attempted_multiple_enclosures/index.html";
 	like(_extract_html_content($html, 'content'), qr/has content and/m,
@@ -139,28 +139,28 @@ sub single_page_html {
 		q{html enclosure});
 	($href) = _extract_html_links($html, 'walter');
 	is($href, '/walter.ogg',
-		q{html enclosure sans -url is site-absolute});
+		q{html enclosure sans --url is site-absolute});
 
 	my $baseurl = 'http://example.com';
-	ok(! system(@command, "-url=$baseurl", q{--rebuild}));
+	ok(! system(@command, "--url=$baseurl", q{--rebuild}));
 
 	$html = "$tmp/out/pianopost/index.html";
 	($href) = _extract_html_links($html, 'piano');
 	is($href, "$baseurl/piano.mp3",
-		q{html enclosure with -url is fully absolute});
+		q{html enclosure with --url is fully absolute});
 
 	$html = "$tmp/out/attempted_multiple_enclosures/index.html";
 	($href) = _extract_html_links($html, 'walter');
 	is($href, "$baseurl/walter.ogg",
-		q{html enclosure with -url is fully absolute});
+		q{html enclosure with --url is fully absolute});
 
 	ok(! system("rm -rf $tmp $statedir"), q{teardown});
 }
 
 sub inlined_pages_html {
-	my @command = (qw(./ikiwiki.out -plugin inline));
+	my @command = (qw(./ikiwiki.out --plugin inline));
 	push @command, qw(-underlaydir=underlays/basewiki);
-	push @command, qw(-set underlaydirbase=underlays -templatedir=templates);
+	push @command, qw(-set underlaydirbase=underlays --templatedir=templates);
 	push @command, qw(t/tinypodcast), "$tmp/out";
 
 	ok(! system("mkdir $tmp"),
@@ -179,10 +179,10 @@ sub inlined_pages_html {
 		q{html enclosure});
 	my ($href) = _extract_html_links($html, 'piano.mp3');
 	is($href, '/piano.mp3',
-		q{html enclosure from pianopost sans -url});
+		q{html enclosure from pianopost sans --url});
 	($href) = _extract_html_links($html, 'walter.ogg');
 	is($href, '/walter.ogg',
-		q{html enclosure from attempted_multiple_enclosures sans -url});
+		q{html enclosure from attempted_multiple_enclosures sans --url});
 
 	ok(! system("rm -rf $tmp $statedir"), q{teardown});
 }

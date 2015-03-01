@@ -206,7 +206,7 @@ sub import (@) {
 			prettydir($config{$key})."\n";
 	}
 	print "To modify settings, edit ".prettydir($config{dumpsetup})." and then run:\n";
-	print "	ikiwiki -setup ".prettydir($config{dumpsetup})."\n";
+	print "	ikiwiki --setup ".prettydir($config{dumpsetup})."\n";
 	exit 0;
 }
 

@@ -44,7 +44,7 @@ PROBABLE_INST_LIB=$(shell \\
 	chmod +x $@
 
 ikiwiki.setup:
-	HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -dumpsetup ikiwiki.setup
+	HOME=/home/me $(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in --dumpsetup ikiwiki.setup
 
 extra_build: perl_shebangs $(outprogs) ikiwiki.setup docwiki sysconfdir
 	./mdwn2man ikiwiki 1 doc/usage.mdwn > ikiwiki.man
@@ -59,7 +59,7 @@ extra_build: perl_shebangs $(outprogs) ikiwiki.setup docwiki sysconfdir
 	rm -f ikiwiki.spec.bkp
 	
 docwiki:
-	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -refresh
+	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in --setup docwiki.setup --refresh
 
 perl_shebangs:
 ifneq "$(PERL)" "/usr/bin/perl"
@@ -83,7 +83,7 @@ sysconfdir:
 	$(PERL) -pi -e "s|\"/etc/ikiwiki|\"$(SYSCONFDIR)|g" $(sysconfdir_scripts)
 	
 extra_clean: perl_shebangs_clean
-	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in -setup docwiki.setup -clean
+	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in --setup docwiki.setup --clean
 	rm -f *.man $(outprogs) ikiwiki.setup plugins/*.pyc
 	$(MAKE) -C po clean
 

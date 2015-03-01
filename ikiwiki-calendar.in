@@ -62,5 +62,5 @@ foreach my $y ($startyear..$endyear) {
 IkiWiki::rcs_commit_staged(message => gettext("calendar update"))
 	if $config{rcs};
 
-exec("ikiwiki", "-setup", $setup, "-refresh");
-die "failed to run ikiwiki -setup $setup -refresh\n";
+exec("ikiwiki", "--setup", $setup, "--refresh");
+die "failed to run ikiwiki --setup $setup --refresh\n";

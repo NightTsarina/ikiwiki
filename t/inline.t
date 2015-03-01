@@ -35,11 +35,11 @@ foreach my $page (qw(protagonists/shepard protagonists/link
 
 ok(! system("make -s ikiwiki.out"));
 
-my $command = "perl -I. ./ikiwiki.out -set usedirs=0 -plugin inline -url=http://example.com -cgiurl=http://example.com/ikiwiki.cgi -rss -atom -underlaydir=underlays/basewiki -set underlaydirbase=underlays -templatedir=templates t/tmp/in t/tmp/out -verbose";
+my $command = "perl -I. ./ikiwiki.out --set usedirs=0 --plugin inline --url=http://example.com --cgiurl=http://example.com/ikiwiki.cgi --rss --atom --underlaydir=underlays/basewiki --set underlaydirbase=underlays --templatedir=templates t/tmp/in t/tmp/out --verbose";
 
 ok(! system($command));
 
-ok(! system("$command -refresh"));
+ok(! system("$command --refresh"));
 
 $blob = readfile("t/tmp/out/protagonists.html");
 like($blob, qr{Add a new post}, 'rootpage=yes gives postform');

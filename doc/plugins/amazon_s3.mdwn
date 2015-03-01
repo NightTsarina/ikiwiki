@@ -48,11 +48,11 @@ The `hardlink` config file setting is not compatible with this plugin.
 
 ## data transfer notes
 
-If you run 'ikiwiki -setup my.setup' to force a rebuild of your wiki, the
+If you run 'ikiwiki --setup my.setup' to force a rebuild of your wiki, the
 entire thing will be re-uploaded to Amazon S3. This will take time, and
 cost you money, so it should be avoided as much as possible.
 
-If you run 'ikiwiki -setup my.setup -refresh', ikiwiki will only upload the
+If you run 'ikiwiki --setup my.setup --refresh', ikiwiki will only upload the
 modified pages that it refreshes. Faster and cheaper. Still, if you have
 very large pages (for example, a page that inlines hundreds of other pages
 .. or is just very large), the complete page contents will be re-uploaded
@@ -64,5 +64,5 @@ it will be re-uploaded, rather than copied.
 
 ## deleting a bucket
 
-You can use "ikiwiki -setup my.setup --delete-bucket" to delete anything
+You can use "ikiwiki --setup my.setup --delete-bucket" to delete anything
 that's in the configured bucket, and remove the bucket.

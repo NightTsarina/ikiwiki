@@ -41,7 +41,7 @@ is standard, but a few special settings are needed:
   and configure it so that each page links to the corresponding page on the
   server.
 
-Now just run `ikiwiki -setup wiki.setup -getctime` and you should be
+Now just run `ikiwiki --setup wiki.setup --getctime` and you should be
 good to go. (You only need the slow `-getctime` option the first time you
 run setup.) If you have taken your `wiki.setup` file from an existing
 wiki, you may need to change certain parameters to adapt to the paths
@@ -71,7 +71,7 @@ You can also direct people to the main server for web edition there.
 Use standard git commands to handle pulling from and pushing to the server.
 
 Note that if changes are pulled from the server, you will need to manually
-update the wiki, with a command such as `ikiwiki -setup wiki.setup -refresh`.
+update the wiki, with a command such as `ikiwiki --setup wiki.setup --refresh`.
 If you'd like it to automatically update when changes are merged in, you
 can simply make a symlink `post-merge` hook pointing at the `post-update`
 hook ikiwiki created.

@@ -131,11 +131,11 @@ EOF
 
 ok(! system("make -s ikiwiki.out"));
 
-my $command = "perl -I. ./ikiwiki.out -set usedirs=0 -plugin trail -plugin inline -url=http://example.com -cgiurl=http://example.com/ikiwiki.cgi -rss -atom -underlaydir=underlays/basewiki -set underlaydirbase=underlays -templatedir=templates t/tmp/in t/tmp/out -verbose";
+my $command = "perl -I. ./ikiwiki.out --set usedirs=0 --plugin trail --plugin inline --url=http://example.com --cgiurl=http://example.com/ikiwiki.cgi --rss --atom --underlaydir=underlays/basewiki --set underlaydirbase=underlays --templatedir=templates t/tmp/in t/tmp/out --verbose";
 
 ok(! system($command));
 
-ok(! system("$command -refresh"));
+ok(! system("$command --refresh"));
 
 $blob = readfile("t/tmp/out/meme.html");
 ok($blob =~ /<a href="(\.\/)?badger.html">badger<\/a>/m);
@@ -232,7 +232,7 @@ writefile("limited/c.mdwn", "t/tmp/in", '[[!meta title="New C page"]]c');
 
 writefile("untrail.mdwn", "t/tmp/in", "no longer a trail");
 
-ok(! system("$command -refresh"));
+ok(! system("$command --refresh"));
 
 check_trail("add/a.html", "n=add/b p=");
 check_trail("add/b.html", "n=add/c p=add/a");

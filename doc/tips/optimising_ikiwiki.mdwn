@@ -17,19 +17,19 @@ it's slow, and get the problem fixed!)
 
 Are you building your wiki by running a command like this?
 
-	ikiwiki -setup my.setup
+	ikiwiki --setup my.setup
 
 If so, you're always telling ikiwiki to rebuild the entire site, from
 scratch. But, ikiwiki is smart, it can incrementally update a site,
 building only things affected by the changes you make. You just have to let
 it do so:
 
-	ikiwiki -setup my.setup -refresh
+	ikiwiki --setup my.setup --refresh
 
 Ikiwiki automatically uses an incremental refresh like this when handing
 a web edit, or when run from a [[rcs]] post-commit hook. (If you've
 configured the hook in the usual way.) Most people who have run into this
-problem got in the habit of running `ikiwiki -setup my.setup` by hand
+problem got in the habit of running `ikiwiki --setup my.setup` by hand
 when their wiki was small, and found it got slower as they added pages.
 
 ## use the latest version
@@ -174,7 +174,7 @@ Finally, let's think about how huge number of pages can affect ikiwiki.
   command. Obviously, more files will make it take longer.
 
   You can avoid this scanning overhead, if you're using git, by setting
-  `only_committed_changes`. This makes ikiwiki -refresh query git for
+  `only_committed_changes`. This makes ikiwiki --refresh query git for
   changed files since the last time, which tends to be a lot faster.
   However, it only works if all files in your wiki are committed to git
   (or stored in the [[/plugins/transient]] underlay).

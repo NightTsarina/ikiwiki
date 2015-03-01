@@ -460,12 +460,12 @@ sub showform ($$) {
 
 			my @command;
 			if ($form->submitted eq 'Rebuild Wiki') {
-				@command=("ikiwiki", "-setup", $config{setupfile},
-                                        "-rebuild", "-v");
+				@command=("ikiwiki", "--setup", $config{setupfile},
+                                        "--rebuild", "-v");
 			}
 			else {
-				@command=("ikiwiki", "-setup", $config{setupfile},
-					"-refresh", "-wrappers", "-v");
+				@command=("ikiwiki", "--setup", $config{setupfile},
+					"--refresh", "--wrappers", "-v");
 			}
 
 			close STDERR;
