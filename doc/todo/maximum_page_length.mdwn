@@ -1,0 +1,14 @@
+It would be useful if ikiwiki could reject adding file with names
+longer than some limit, like 255 bytes. I've had some git-annex users
+complain that some files ended up longer than that, which won't work on
+some OS's and filesystems.
+
+255 might be a good default value, even.
+
+This would apply to pages created following broken wikilinks and using
+blogpost forms, as well as to uploaded attachments, and perhaps aggregated
+pages. In the wikilink case, I guess ikiwiki would need to reject it as
+too long; in the other cases it could simply pick a shorter version of
+the proposed filename.
+
+--[[Joey]] 
