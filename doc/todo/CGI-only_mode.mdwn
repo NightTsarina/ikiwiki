@@ -1,0 +1,18 @@
+[[!tag wishlist]]I would quite like to be able to run ikiwiki in a "CGI-only" mode, where
+every wikilink was routed via the cgi, and such "normal" page visits were rendered on the
+fly by the CGI, a bit like edit-preview mode.
+
+The reason I'd like this is I would like to have a number of parallel ikiwiki instances
+running alongside my prime one, based on the same source repository; but with different
+setup parameters (such as possibly different overlay or template directories, etc.).
+
+I would still need to have multiple copies of the source repository (= separate `.ikiwiki`
+directories, seperate locks); but I could use `git-relink` or shallow clones or various
+other methods to limit the disk-space impact of that; what I want to avoid is multiple
+*destination* directories, especially for what might be relatively throw-away experiments.
+
+I imagine if this was possible, it would be hella-slow, but it would still be useful I
+think (and might even help to highlight some of the pain points for future optimisation
+efforts).
+
+ — [[Jon]]
