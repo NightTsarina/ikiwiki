@@ -35,3 +35,12 @@ configure `httpauth_pagespec` in the setup file. This makes Edit
 links on pages that match the [[ikiwiki/PageSpec]] automatically use
 the `cgiauthurl`, and prevents matching pages from being edited by
 users authentication via other methods.
+
+## Using httpauth with nginx
+
+You have to pass the $remote_user variable to the CGI:
+
+    location /ikiwiki.cgi {
+        fastcgi_param REMOTE_USER $remote_user;
+        ....
+    }
