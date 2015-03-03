@@ -1,0 +1,28 @@
+[[!comment format=mdwn
+ username="https://www.google.com/accounts/o8/id?id=AItOawlTS8BlL-OtDvQwLk1ohkRAmfCb_U5yOvQ"
+ nickname="Roland"
+ subject="Working configuration for nginx"
+ date="2015-03-03T11:23:51Z"
+ content="""
+This works fine for me with nginx:
+
+    location /wiki {
+        error_page 404 @ikiwiki404;
+    }
+
+    # Another definition for ikiwiki.cgi, only reachable by error_page 404.
+    location @ikiwiki404 {
+        fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+        fastcgi_index ikiwiki.cgi;
+        fastcgi_param SCRIPT_FILENAME   /srv/www/htdocs/wiki/ikiwiki.cgi;
+        fastcgi_param DOCUMENT_ROOT      /srv/www/htdocs/wiki;
+
+        # For 404 plugin
+        fastcgi_param QUERY_STRING \"\";
+        fastcgi_param REQUEST_METHOD \"get\";
+        fastcgi_param REDIRECT_STATUS 404;
+        fastcgi_param REDIRECT_URL $uri;
+
+        include /etc/nginx/fastcgi_params;
+    }
+"""]]
