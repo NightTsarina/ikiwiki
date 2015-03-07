@@ -1,1 +1,24 @@
 How to allow .markdown and .md (at the same time) as valid extensions for source files? The default is .mdwn.
+
+> Add `md` to your `add_plugins`, set `libdir` if not already set,
+> put the following in `${libdir}/IkiWiki/Plugin/md.pm`, and rebuild:
+
+    #!/usr/bin/perl
+    package IkiWiki::Plugin::md;
+    
+    use warnings;
+    use strict;
+    use IkiWiki 3.00;
+    
+    my @ADDITIONAL_EXTENSIONS = qw(md markdown);
+    
+    sub import {
+        IkiWiki::loadplugin('mdwn');
+        foreach my $ext (@ADDITIONAL_EXTENSIONS) {
+            hook(type => "htmlize", id => $ext, call => \&IkiWiki::Plugin::mdwn::htmlize, longname => "Markdown (.$ext)");
+        }
+    }
+    
+    1
+
+> --[[schmonz]]
