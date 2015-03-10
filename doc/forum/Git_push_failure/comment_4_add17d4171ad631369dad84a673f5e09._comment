@@ -1,0 +1,10 @@
+[[!comment format=mdwn
+ username="smcv"
+ subject="comment 4"
+ date="2015-03-10T08:56:46Z"
+ content="""
+It looks as though either your git hook is running ikiwiki with '--cgi', or you have
+`cgi: true` (or equivalent Perl) in the setup file, or you generated the git hook using
+`ikiwiki ... --cgi --wrappers` or similar. This is not correct: `cgi: true` does not
+mean \"enable CGI\", it means \"always run in CGI mode\", which is not what is desired.
+"""]]
