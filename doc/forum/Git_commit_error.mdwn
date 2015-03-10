@@ -1,0 +1,17 @@
+Every time when Git push from the source dir, it failes at "Died at /usr/share/perl5/IkiWiki/CGI.pm line 491." which is completely cryptic to me.  Then it start to issue the content of `index.md` where each line starts with `remote: `
+
+
+    source$ git push
+    Counting objects: 33, done.
+    Delta compression using up to 4 threads.
+    Compressing objects: 100% (32/32), done.
+    Writing objects: 100% (33/33), 11.62 KiB | 0 bytes/s, done.
+    Total 33 (delta 15), reused 0 (delta 0)
+    remote: Died at /usr/share/perl5/IkiWiki/CGI.pm line 491.
+    remote: Content-type: text/html
+    remote: 
+    remote: <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    remote:  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    remote: <html xmlns="http://www.w3.org/1999/xhtml">
+
+Any ideas?
