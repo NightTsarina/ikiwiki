@@ -727,7 +727,7 @@ Now when inlining a bunch of pages, no matter what inline template I use all lin
 going to the master language, the slave being ignored on all levels I tried. 
 
 Trying to use currentlang() inside the inline directive to force the current setting in ikiwiki.setup - I get **no pages or links** to pages at all.   
-\[[!inline pages=\"man/* and currentlang() and !*/sidebar and !*/b and !*.*\" template=\"titlepage\" archive=\"yes\" quick=\"yes\" show=\"0\" sort=\"mtime\" reverse=\"no\"]]
+\[[!inline pages=\"man/* and currentlang() and !*/sidebar and !*/b and !*.*\" template=\"inlinepage\" archive=\"yes\" quick=\"yes\" show=\"0\" sort=\"mtime\" reverse=\"no\"]]
 
 Turning meta title on slave translation pages on and off - **no change**.   
 Turning usedirs on and off - **no change**.   
@@ -737,3 +737,5 @@ Trying the use of tags on the slave language pages - **tagged() doesn't match an
 I tried everything I could think of being the cause.
 Could this be related to the templates used by inline not being localized?   
 Any hints wether I am currently running into some dead end with ikiwiki regarding template l10n here would be greatly appreciated.
+
+Besides: When using the map instead of the inline directive all is working like it should, pitty is that for the kind of deployment I am heading for I need also pages to be included.
