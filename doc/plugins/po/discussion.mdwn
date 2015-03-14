@@ -722,7 +722,7 @@ that po might be replacing the only link on a page, in error?
 
 ----
 # Failing to have currentlang respected when using inline
-I am trying to wrap my head around l10n. Set up a test site, l10n is working fine. 
+I am trying to wrap my head around l10n with ikiwiki. Set up a test site, l10n is working fine. 
 Now when inlining a bunch of pages, no matter what inline template I use all links are
 going to the master language, the slave being ignored on all levels I tried. 
 
@@ -730,6 +730,7 @@ Trying to use currentlang() inside the inline directive - I get no pages or link
     \[[!inline pages=\"man/* and currentlang() and !*/sidebar and !*/b and !*.*\" template=\"titlepage\" archive=\"yes\" quick=\"yes\" show=\"0\" sort=\"mtime\" reverse=\"no\"]]
 
 Turning meta title on slave translation pages on and off - no change.
+Turning usedirs on and off - no change.
 
 Can this be related to the templates used by inline not being localized?   
 Any hints wether I am currently running into some dead end with ikiwiki regarding template l10n here would be greatly appreciated.
