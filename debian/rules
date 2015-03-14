@@ -13,7 +13,3 @@ override_dh_compress:
 override_dh_auto_clean:
 	# distclean moans about MANIFEST, this is quieter
 	if [ -e Makefile ]; then $(MAKE) realclean; fi
-
-# Not intended for use by anyone except the author.
-announcedir:
-	@echo ${HOME}/src/ikiwiki/doc/news
