@@ -719,3 +719,16 @@ that po might be replacing the only link on a page, in error?
 
 >>> Commit 3c2bffe21b91684 in my po branch does this. --[[intrigeri]]
 >>>> Cherry-picked --[[Joey]] 
+
+----
+# Failing to have currentlang being respected when using inline
+I am trying to wrap my head around l10n. Set up a test site, l10n is working fine. 
+Now when inlining a bunch of pages, no matter what inline template I use all links are
+going to the master language, the slave being ignored on all levels I tried. 
+
+Trying to use currentlang() inside the inline directive - I get no pages or links to pages at all.
+Turning meta title on slave translation pages on and of, no change.
+
+Can this be related to the templetes used by inline not being localized?
+
+Any hints wether I am currently running into some dead end with ikiwiki here would be greatly appreciated.
