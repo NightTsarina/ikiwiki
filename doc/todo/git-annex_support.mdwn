@@ -96,4 +96,8 @@ See the [[discussion]] for a followup on that. --[[anarcat]]
 Alternative implementation
 ==========================
 
-An alternative implementation, which remains to be detailed but is mentionned in [[forum/ikiwiki_and_big_files]], is to use the [[underlay]] feature combined with the `hardlink` option to deploy the git-annex'd files. Then git-annex is separate from the base ikiwiki git repo. --[[anarcat]]
+An alternative implementation, which remains to be detailed but is mentionned in [[forum/ikiwiki_and_big_files]], is to use the [[underlay]] feature combined with the `hardlink` option to deploy the git-annex'd files. Then git-annex is separate from the base ikiwiki git repo. See also [[tips/Ikiwiki_with_git-annex__44___the_album_and_the_underlay_plugins]] for an example.
+
+Also note that ikiwiki-hosting has a [patch waiting](https://ikiwiki-hosting.branchable.com/todo/git-annex_support) to allow pushes to work with git-annex. This could potentially be expanded to sync content to the final checkout properly, avoiding some of the problems above (esp. wrt to non-annex bare repos).
+
+Combined with the [[underlay]] feature, this could work very nicely indeed... --[[anarcat]]
