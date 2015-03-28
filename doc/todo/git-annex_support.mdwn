@@ -101,3 +101,37 @@ An alternative implementation, which remains to be detailed but is mentionned in
 Also note that ikiwiki-hosting has a [patch waiting](https://ikiwiki-hosting.branchable.com/todo/git-annex_support) to allow pushes to work with git-annex. This could potentially be expanded to sync content to the final checkout properly, avoiding some of the problems above (esp. wrt to non-annex bare repos).
 
 Combined with the [[underlay]] feature, this could work very nicely indeed... --[[anarcat]]
+
+Here's an attempt:
+
+<pre>
+cd /home/user
+git clone source.git source.annex
+cd source.annex
+git annex direct
+cd ../source.git
+git annex group . transfer
+git remote add annex ../source.annex
+git annex sync annex
+</pre>
+
+Make sure the `hardlink` setting is enabled, and add the annex as an underlay, in `ikiwiki.setup`:
+
+<pre>
+hardlink: 1
+add_underlays:
+- /home/w-anarcat/source.annex
+</pre>
+
+Then moving files to the underlay is as simple as running this command in the bare repo:
+
+<pre>
+#!/bin/sh
+
+echo "moving big files to annex repository..."
+git annex move --to annex
+</pre>
+
+I have added this as a hook in `$HOME/source.git/hooks/post-receive` (don't forget to `chmod +x`).
+
+The problem with the above is that the underlay wouldn't work: for some reason it wouldn't copy those files in place properly. Maybe it's freaking out because it's a full copy of the repo... My solution was to make the source repository itself a direct repo, and then add it as a remote to the bare repo. --[[anarcat]]
