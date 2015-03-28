@@ -135,3 +135,80 @@ git annex move --to annex
 I have added this as a hook in `$HOME/source.git/hooks/post-receive` (don't forget to `chmod +x`).
 
 The problem with the above is that the underlay wouldn't work: for some reason it wouldn't copy those files in place properly. Maybe it's freaking out because it's a full copy of the repo... My solution was to make the source repository itself a direct repo, and then add it as a remote to the bare repo. --[[anarcat]]
+
+Back from the top
+=================
+
+Obviously, the final approach of making the `source` repository direct mode will fail because ikiwiki will try to commit files there from the web interface which will fail (at best) and (at worst) add big files into git-annex (or vice-versa, not sure what's worse actually).
+
+Also, I don't know how others here made the underlay work, but it didn't work for me. I think it's because in the "source" repository, there are (dead) symlinks for the annexed files. This overrides the underlay, because of [[security]] - although I am unclear as to why this is discarded so early. So in order to make the original idea above work properly (ie. having a separate git-annex repo in direct mode) work, we must coerce ikiwiki into tolerating symlinks in the srcdir a little more:
+
+<pre>
+diff --git a/IkiWiki.pm b/IkiWiki.pm
+index 1043ef4..949273c 100644
+--- a/IkiWiki.pm
++++ b/IkiWiki.pm
+@@ -916,11 +916,10 @@ sub srcfile_stat {
+        my $file=shift;
+        my $nothrow=shift;
+
+-       return "$config{srcdir}/$file", stat(_) if -e "$config{srcdir}/$file";
+-       foreach my $dir (@{$config{underlaydirs}}, $config{underlaydir}) {
+-               return "$dir/$file", stat(_) if -e "$dir/$file";
++       foreach my $dir ($config{srcdir}, @{$config{underlaydirs}}, $config{underlaydir}) {
++               return "$dir/$file", stat(_) if (-e "$dir/$file" && ! -l "$dir/$file");
+        }
+-       error("internal error: $file cannot be found in $config{srcdir} or underlay") unless $nothrow;
++       error("internal error: $file cannot be found in $config{srcdir} or underlays @{$config{underlaydirs}} $config{underlaydir}") unless $nothrow;
+        return;
+ }
+
+diff --git a/IkiWiki/Render.pm b/IkiWiki/Render.pm
+index 9d6f636..e0b4cf8 100644
+--- a/IkiWiki/Render.pm
++++ b/IkiWiki/Render.pm
+@@ -337,7 +337,7 @@ sub find_src_files (;$$$) {
+
+                if ($underlay) {
+                        # avoid underlaydir override attacks; see security.mdwn
+-                       if (! -l "$abssrcdir/$f" && ! -e _) {
++                       if (1 || ! -l "$abssrcdir/$f" && ! -e _) {
+                                if (! $pages{$page}) {
+                                        push @files, $f;
+                                        push @IkiWiki::underlayfiles, $f;
+</pre>
+
+Now obviously this patch is incomplete: I am not sure we actually avoid the attack, ie. i am not sure the check in `srcdir()` is sufficient to remove completely the check in `find_src_files()`. It does work, however: the files get picked up from the underlay and properly hardlinked into the target `public_html` directory! So with the above patch, then the following hook in `source.git/hooks/post-receive`:
+
+<pre>
+#!/bin/sh
+
+OLD_GIT_DIR="$GIT_DIR"
+unset GIT_DIR
+echo "moving big files to annex repository..."
+git annex copy --to annex
+git annex sync annex
+</pre>
+
+(I am not sure anymore why GIT_DIR is necessary, but I remember it destroyed all files in my repo because git-annex synced against the `setup` branch in the parent directory. fun times.)
+
+Then the `annex` repo is just a direct clone of the source.git:
+
+<pre>
+cd /home/user
+git clone --shared source.git annex
+cd annex
+git annex direct
+cd ../source.git
+git remote add annex ../annex
+</pre>
+
+And we need the following config:
+
+<pre>
+hardlink: 1
+add_underlays:
+- /home/w-anarcat/annex
+</pre>
+
+... and the `ikiwiki-hosting` patch mentionned earlier to allow git-annex-shell to run at all. Also, the `--shared` option will [make git-annex use hardlinks itself between the two repos](https://git-annex.branchable.com/todo/wishlist:_use_hardlinks_for_local_clones/), so the files will be available for download as well. --[[anarcat]]
