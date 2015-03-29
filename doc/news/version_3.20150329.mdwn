@@ -1,0 +1,23 @@
+ikiwiki 3.20150329 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+  [ [[Joey Hess|joey]] ]
+  * Fix NULL ptr deref on ENOMEM in wrapper. (Thanks, igli)
+
+  [ [[Simon McVittie|smcv]] ]
+  * Really don't double-decode CGI submissions, even on Perl versions that
+    bundle an old enough Encode.pm for that not to be a problem: the
+    system might have a newer Encode.pm installed separately, like Fedora 20.
+    (Closes: [[!debbug 776181]]; thanks, Anders Kaseorg)
+  * If neither timezone nor TZ is set, set both to :/etc/localtime if
+    we're on a GNU system and that file exists, or GMT otherwise
+  * t/inline.t: accept translations of "Add a new post titled:"
+    (Closes: [[!debbug 779365]])
+  * Consistently document command-line options as e.g. --refresh, not -refresh
+
+  [ [[Amitai Schlair|schmonz]] ]
+  * In VCS-committed anonymous comments, link to url.
+
+  [ [[Joey Hess|joey]] ]
+  * Fix XSS in openid selector. Thanks, Raghav Bisht.
+    (Closes: [[!debbug 781483]])
+"""]]
