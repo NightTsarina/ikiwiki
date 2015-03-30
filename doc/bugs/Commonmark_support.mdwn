@@ -1,3 +1,20 @@
 I suffer from the occasional markdown glitches using branchable.
 
 I've found that switching my own non-ikiwiki projects to https://github.com/jgm/CommonMark has helped sort them out for the most part.
+
+> ikiwiki does not implement Markdown on its own: it uses one of several
+> third-party libraries, with the current recommendation being
+> Discount. Out-of-process implementations like
+> [[plugins/contrib/pandoc]] are not suitable to be the default for
+> performance reasons.
+>
+> There seems to be a Perl binding for libcmark at
+> <https://github.com/nwellnhof/perl-commonmark>, but unfortunately
+> its README points out that the libcmark API is not stable,
+> which means libcmark and perl-commonmark would have to be upgraded
+> in lockstep: this makes them awkward to deal with in Linux
+> distributions. As a result I'm not going to look into this myself
+> until there is a stable API for Commonmark available in Debian.
+>
+> However, if you want to add optional Commonmark support to the
+> [[plugins/mdwn]] plugin, I'd review a patch. --[[smcv]]
