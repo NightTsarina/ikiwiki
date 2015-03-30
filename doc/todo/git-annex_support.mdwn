@@ -178,7 +178,20 @@ index 9d6f636..e0b4cf8 100644
                                         push @IkiWiki::underlayfiles, $f;
 </pre>
 
-Now obviously this patch is incomplete: I am not sure we actually avoid the attack, ie. i am not sure the check in `srcdir()` is sufficient to remove completely the check in `find_src_files()`. It does work, however: the files get picked up from the underlay and properly hardlinked into the target `public_html` directory! So with the above patch, then the following hook in `source.git/hooks/post-receive`:
+<del>Now obviously this patch is incomplete: I am not sure we actually avoid the attack, ie. i am not sure the check in `srcdir()` is sufficient to remove completely the check in `find_src_files()`.</del>
+
+After reviewing the code further, it seems that `find_src_files` in three places in ikiwiki:
+
+<pre>
+../IkiWiki/Render.pm:421:	find_src_files(1, \@files, \%pages);
+../IkiWiki/Render.pm:846:		($files, $pages)=find_src_files();
+../po/po2wiki:18:my ($files, $pages)=IkiWiki::find_src_files();
+</pre>
+
+The first occurence is in `IkiWiki::Render::process_changed_files`, where it is used mostly for populating `@IkiWiki::underlayfiles`, the only side effect of 
+`find_src_files`. The second occurence is in `IkiWiki::Render::refresh`. There things are a little more complicated (to say the least) and a lot of stuff happens. To put it in broad terms, first it does a `IkiWiki::Render::scan` and then a `IkiWiki::Render::render`. The last two call `srcfile()` appropriately (where i put an extra symlink check), except for  `will_render()` in `scan`, which I can't figure out right now and that seems to have a lot of global side effects. It still looks fairly safe at first glance. The `rcs_get_current_rev`, `refresh`, `scan` and `rendered` hooks are also called in there, but I assume those to be safe, since they are called with sanitized values already.
+
+The patch does work: the files get picked up from the underlay and properly hardlinked into the target `public_html` directory! So with the above patch, then the following hook in `source.git/hooks/post-receive`:
 
 <pre>
 #!/bin/sh
