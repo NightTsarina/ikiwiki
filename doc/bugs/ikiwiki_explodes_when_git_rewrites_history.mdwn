@@ -1,0 +1,17 @@
+Now I know it's "bad" to rewrite history in git, but sometimes, and especially with public sites such as a wiki, if confidential information gets transmitted in the wiki, it can be pretty important to remove it, and the only way to do this on a public git repo is by rewriting history.
+
+(This happened as part of my implementation of [[todo/git-annex support]] to be honest, but i think it applies to other situations as well.)
+
+The problem is that ikiwiki keeps track of the last commit it saw in `$srcdir/.ikiwiki/indexdb`. Then it uses this to infer which files changed. If history changed, this will fail with a fairly dramatic:
+
+<pre>
+Error: 'git log --pretty=raw --raw --abbrev=40 --always -c --no-renames --reverse -r f9330f40527ba1f7df6656490cacb9d5ae9e2cd6..HEAD -- .' failed:
+</pre>
+
+Notice how the error message from git isn't present. It's in the `error.log`:
+
+<pre>
+[Mon Mar 30 20:20:04.393466 2015] [cgi:error] [pid 21463] [client 2001:1928:1:9::1:54315] AH01215: fatal: Invalid revision range f9330f40527ba1f7df6656490cacb9d5ae9e2cd6, referer: http://anarc.at/ikiwiki.cgi?do=edit&page=services%2Fwiki
+</pre>
+
+The workaround I have found was to remove the `indexdb` file, because that's [[apparently legit|tips/inside_dot_ikiwiki/]]. But it would be nice to have (1) a proper error message (it had to dig around the error.log to understand what's going on), (2) to have a proper fallback if the `git log` fails and (3) to recover with the newer commit ID when we fallback. --[[anarcat]]
