@@ -35,6 +35,23 @@ page gets rebuilt automatically after some git push, it renders the wrong way.
 > early stage - I would suggest `getsetup()`, `refresh()` and `import()`
 > respectively. --[[smcv]]
 
+>> Yes, I installed in `/usr/local`, but I also removed the deb package. So I
+>> only have 1 ikiwiki version now.
+>>
+>> I also noticed the following behavior. I created a set of pages, each of them
+>> containing several occurences of a certain template. Then I created another
+>> page, which inlines all of them. All good. Then, I edited that main page to do
+>> different sorting (using inline directive's sort option). After comitting the change,
+>> suddenly all the inlined pages have the templates inside them contain the
+>> template info instead of template body. How is that even related to the minor
+>> change I did - change the sorting? :-P
+>>
+>> I'll look at the templatebody.pm file and try debug prints. I hope I can see them in
+>> the git push output, because rendering the wiki from command line doesn't have this
+>> problem.
+>>
+>> Thanks for the pointers.
+
 [[This|http://www.rel4tion.org/languages/haskell/]] is the page, and
 [[this|http://www.rel4tion.org/templates/wikitag/]] is a template it uses. Right
 now the template is rendered on that page exactly like the template page itself.
