@@ -10,3 +10,13 @@ The javascript errors I saw are:
 	osm.js (line 30, col 1)
 
 --[[Joey]]
+
+> I guess OpenLayers made a backwards-incompatible change... At [reseaulibre](http://wiki.reseaulibre.ca/) it seems we have survived this because we have a local copy of the OpenLayers source code:
+> 
+>         osm_openlayers_url: http://wiki.reseaulibre.ca/OpenLayers-2.12/OpenLayers.js
+>
+> Try specifying a versionned URL for the source:
+>
+>         osm_openlayers_url: http://openlayers.org/api/2.12/OpenLayers.js
+> 
+> ... and see if that fixes the problem. Then we can start looking at the [release notes](https://github.com/openlayers/openlayers/blob/master/notes/2.13.md) to figure out what change they did that broke us and upgrade. Or pin the version on our side. Or simply [[switch to something else|todo/replace_openlayers_with_leaflet]]. --[[anarcat]]
