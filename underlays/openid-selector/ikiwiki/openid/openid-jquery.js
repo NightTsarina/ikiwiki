@@ -6,11 +6,6 @@ This code is licenced under the New BSD License.
 */
 
 var providers_large = {
-    google: {
-        name: 'Google',
-        icon: 'ikiwiki/openid/goa-account-google.png',
-        url: 'https://www.google.com/accounts/o8/id'
-    },
     verisign: {
         name: 'Verisign',
         icon: 'ikiwiki/openid/verisign.png',
