@@ -6,7 +6,7 @@ $(document).ready(function() {
 		'openid_identifier',
 		{
 			<TMPL_IF LOGIN_SELECTOR_OPENID>'openid': 1,</TMPL_IF>
-			<TMPL_IF LOGIN_SELECTOR_EMAIL>'email': 1,</TMPL_IF>
+			<TMPL_IF LOGIN_SELECTOR_EMAILAUTH>'email': 1,</TMPL_IF>
 		},
 		'<TMPL_IF OTHERFORM>otherform</TMPL_IF>',
 		'<TMPL_VAR OTHERFORM_LABEL>'
@@ -27,22 +27,22 @@ $(document).ready(function() {
 		</div>
 
 		<div id="login_input_area">
-		<div>
-		<h3>OpenId login:</h3>
 		<TMPL_IF LOGIN_SELECTOR_OPENID>
-			<label for="openid_identifier" class="block">Enter your OpenID:</label>
-			<input id="openid_identifier" name="openid_identifier" type="text" value="<TMPL_VAR ESCAPE=HTML OPENID_URL>"/>
-			<input id="openid_submit" type="submit" value="Login"/>
+			<div>
+				<h3>OpenId login:</h3>
+				<label for="openid_identifier" class="block">Enter your OpenID:</label>
+				<input id="openid_identifier" name="openid_identifier" type="text" value="<TMPL_VAR ESCAPE=HTML OPENID_URL>"/>
+				<input id="openid_submit" type="submit" value="Login"/>
+			</div>
 		</TMPL_IF>
-		</div>
-		<div>
-		<h3>Email login:</h3>
-		<TMPL_IF LOGIN_SELECTOR_EMAIL>
-			<label for="email_address" class="block">Enter your email address:</label>
-			<input id="email_address" name="Email_entry" type="text" value="<TMPL_VAR ESCAPE=HTML EMAIL_ADDRESS>"/>
-			<input id="email_submit" type="submit" value="Login"/>
+		<TMPL_IF LOGIN_SELECTOR_EMAILAUTH>
+			<div>
+				<h3>Email login:</h3>
+				<label for="email_address" class="block">Enter your email address:</label>
+				<input id="email_address" name="Email_entry" type="text" value="<TMPL_VAR ESCAPE=HTML EMAIL_ADDRESS>"/>
+				<input id="email_submit" type="submit" value="Login"/>
+			</div>
 		</TMPL_IF>
-		</div>
 		</div>
 
 		<TMPL_IF LOGIN_ERROR>

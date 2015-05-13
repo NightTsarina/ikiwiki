@@ -458,6 +458,9 @@ object's "name" parameter to the authenticated user's name. Note that
 if the name is set to the name of a user who is not registered,
 a basic registration of the user will be automatically performed.
 
+Auth plugins can use the loginselector helper plugin to let the user
+select which authentication method to use.
+
 ### <a name="sessioncgi">sessioncgi</a>
 
 	hook(type => "sessioncgi", id => "foo", call => \&sessioncgi);
