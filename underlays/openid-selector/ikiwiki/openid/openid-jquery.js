@@ -5,21 +5,23 @@ http://code.google.com/p/openid-selector/
 This code is licenced under the New BSD License.
 */
 
-var selections_large = {
+var selections_email_large = {
     email: {
         name: 'Email',
 	icon: 'wikiicons/email.png',
         label: 'Enter your email address:',
         url: null
-    },
+    }
+};
+var selections_openid_large = {
     openid: {
         name: 'OpenID',
 	icon: 'wikiicons/openidlogin-bg.gif',
         label: 'Enter your OpenID:',
         url: null
-    },
+    }
 };
-var selections_small = {
+var selections_openid_small = {
     verisign: {
         name: 'Verisign',
         icon: 'ikiwiki/openid/verisign.png',
@@ -50,7 +52,7 @@ var selections_small = {
         url: 'http://openid.aol.com/{username}'
     }
 };
-var selections = $.extend({}, selections_large, selections_small);
+var selections = $.extend({}, selections_email_large, selections_openid_large, selections_openid_small);
 
 var selector = {
 
@@ -66,7 +68,7 @@ var selector = {
 	selection_id: null,
 	othersignin_id: null,
 	
-    init: function(input_id, othersignin_id, othersignin_label) {
+    init: function(input_id, login_methods, othersignin_id, othersignin_label) {
         
         var selector_btns = $('#login_btns');
         
@@ -76,9 +78,17 @@ var selector = {
         $('#login_input_area').empty();
         
         // add box for each selection
-        for (id in selections_large) {
-           	selector_btns.append(this.getBoxHTML(selections_large[id], 'large'));
-        }
+	if (login_methods['openid']) {
+	        for (id in selections_openid_large) {
+			selector_btns.append(this.getBoxHTML(selections_openid_large[id], 'large'));
+		}
+	}
+	if (login_methods['email']) {
+		for (id in selections_email_large) {
+			selector_btns.prepend(this.getBoxHTML(selections_email_large[id], 'large'));
+		}
+	}
+
 	if (othersignin_label != "") {
 		this.othersignin_label=othersignin_label;
 	}
@@ -98,11 +108,11 @@ var selector = {
 		$('#'+this.othersignin_id).hide();
 	}
 
-        if (selections_small) {
+        if (login_methods['openid'] && selections_openid_small) {
         	selector_btns.append('<br/>');
         	
-	        for (id in selections_small) {
-	           	selector_btns.append(this.getBoxHTML(selections_small[id], 'small'));
+	        for (id in selections_openid_small) {
+	           	selector_btns.append(this.getBoxHTML(selections_openid_small[id], 'small'));
 	        }
         }
         
@@ -179,7 +189,7 @@ var selector = {
 	else {
     		selector.setOpenIdUrl("");
 	}
-    	if(selector.ajaxHandler) {
+    	if (selector.ajaxHandler) {
     		selector.ajaxHandler(selector.selection_id, document.getElementById(selector.input_id).value);
     		return false;
     	}
@@ -227,7 +237,7 @@ var selector = {
 		var input_area = $('#login_input_area');
 		
 		var html = '';
-		var id = 'entry';
+		var id = selection['name']+'_entry';
 		var value = '';
 		var label = selection['label'];
 		var style = '';
@@ -240,7 +250,6 @@ var selector = {
 		if (label) {
 			html = '<label for="'+ id +'" class="block">' + label + '</label>';
 		}
-		html += '<input name="selection" type="hidden" value="' + selection['name'] + '" />'
 		html += '<input id="'+id+'" type="text" style="'+style+'" name="'+id+'" value="'+value+'" />' + 
 					'<input id="selector_submit" type="submit" value="Login"/>';
 		

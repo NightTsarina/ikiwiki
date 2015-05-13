@@ -89,6 +89,8 @@ sub openid_selector {
 		(defined $openid_url ? (openid_url => $openid_url) : ()),
 		($real_cgi_signin ? (otherform => $real_cgi_signin->($q, $session, 1)) : ()),
 		otherform_label => $otherform_label,
+		login_selector_openid => 1,
+		login_selector_email => 1,
 	);
 
 	IkiWiki::printheader($session);
