@@ -80,15 +80,6 @@ var openid = {
         for (id in providers_large) {
            	openid_btns.append(this.getBoxHTML(providers_large[id], 'large'));
         }
-
-        if (providers_small) {
-        	openid_btns.append('<br/>');
-        	
-	        for (id in providers_small) {
-	        
-	           	openid_btns.append(this.getBoxHTML(providers_small[id], 'small'));
-	        }
-        }
 	if (localsignin_label != "") {
 		this.localsignin_label=localsignin_label;
 	}
@@ -100,13 +91,22 @@ var openid = {
            	openid_btns.append(
         		'<a href="javascript: openid.signin(\'localsignin\');"' +
         		' style="background: #FFF" ' +
-        		'class="localsignin openid_small_btn">' +
+        		'class="localsignin openid_large_btn">' +
 			'<img alt="" width="16" height="16" src="favicon.ico" />' +
 			' ' + this.localsignin_label +
 			'</a>'
 		);
 		$('#'+this.localsignin_id).hide();
 	}
+
+        if (providers_small) {
+        	openid_btns.append('<br/>');
+        	
+	        for (id in providers_small) {
+	        
+	           	openid_btns.append(this.getBoxHTML(providers_small[id], 'small'));
+	        }
+        }
         
         $('#openid_form').submit(this.submit);
         
