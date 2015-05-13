@@ -31,13 +31,14 @@ A few points to make this more secure:
 Still, this could be attacked:
 
 * If an attacker can access a user's inbox, they can generate a new login
-  link, and log in as them.
+  link, and log in as them. They are probably busy draining their bank
+  account by this method and not logging into some wiki though.
 * If TLS is not used for the email transport, a MITM can snoop login links
-  and use them.
+  and use them. Again probably more lucrative ways to exploit such a MITM.
 * If https is not used for the login link, a MITM can intercept and proxy
   web traffic and either steal a copy of the cookie, or use the login
   link themselves without letting the user log in. This attack seems no
-  worse then using password authentication w/o https, and the solution is
+  worse than using password authentication w/o https, and the solution is
   of course https.
 * If an attacker wants to DOS a wiki, they can try to get its domain, IP,
   whatever blacklisted as a spam source.
