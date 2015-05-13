@@ -1,11 +1,25 @@
 /*
-Simple OpenID Plugin
+Based on the Simple OpenID Plugin
 http://code.google.com/p/openid-selector/
 
 This code is licenced under the New BSD License.
 */
 
-var providers_large = {
+var selections_large = {
+    email: {
+        name: 'Email',
+	icon: 'wikiicons/email.png',
+        label: 'Enter your email address:',
+        url: null
+    },
+    openid: {
+        name: 'OpenID',
+	icon: 'wikiicons/openidlogin-bg.gif',
+        label: 'Enter your OpenID:',
+        url: null
+    },
+};
+var selections_small = {
     verisign: {
         name: 'Verisign',
         icon: 'ikiwiki/openid/verisign.png',
@@ -13,154 +27,160 @@ var providers_large = {
         url: 'http://{username}.pip.verisignlabs.com/'
     },
     yahoo: {
-        name: 'Yahoo',      
+        name: 'Yahoo',
         icon: 'ikiwiki/openid/goa-account-yahoo.png',
         url: 'http://me.yahoo.com/'
-    },    
-    openid: {
-        name: 'OpenID',     
-	icon: 'wikiicons/openidlogin-bg.gif',
-        label: 'Enter your OpenID:',
-        url: null
+    },
+    flickr: {
+       name: 'Flickr',        
+       icon: 'ikiwiki/openid/goa-account-flickr.png',
+       label: 'Enter your Flickr username:',
+       url: 'http://flickr.com/photos/{username}/'
+    },
+    wordpress: {
+        name: 'Wordpress',
+       icon: 'ikiwiki/openid/wordpress.png',
+        label: 'Enter your Wordpress.com username:',
+        url: 'http://{username}.wordpress.com/'
+    },
+    aol: {
+        name: 'AOL',     
+        icon: 'ikiwiki/openid/aol.png',
+        label: 'Enter your AOL username:',
+        url: 'http://openid.aol.com/{username}'
     }
 };
-var providers_small = {
-};
-var providers = $.extend({}, providers_large, providers_small);
+var selections = $.extend({}, selections_large, selections_small);
 
-var openid = {
+var selector = {
 
-	demo: false,
 	ajaxHandler: null,
 	cookie_expires: 6*30,	// 6 months.
-	cookie_name: 'openid_provider',
+	cookie_name: 'openid_selection', // historical name
 	cookie_path: '/',
 	
 	img_path: 'images/',
 	
 	input_id: null,
-	provider_url: null,
-	provider_id: null,
-	localsignin_id: null,
+	selection_url: null,
+	selection_id: null,
+	othersignin_id: null,
 	
-    init: function(input_id, localsignin_id, localsignin_label) {
+    init: function(input_id, othersignin_id, othersignin_label) {
         
-        var openid_btns = $('#openid_btns');
+        var selector_btns = $('#login_btns');
         
         this.input_id = input_id;
         
-        $('#openid_choice').show();
-        $('#openid_input_area').empty();
+        $('#login_choice').show();
+        $('#login_input_area').empty();
         
-        // add box for each provider
-        for (id in providers_large) {
-           	openid_btns.append(this.getBoxHTML(providers_large[id], 'large'));
+        // add box for each selection
+        for (id in selections_large) {
+           	selector_btns.append(this.getBoxHTML(selections_large[id], 'large'));
         }
-	if (localsignin_label != "") {
-		this.localsignin_label=localsignin_label;
+	if (othersignin_label != "") {
+		this.othersignin_label=othersignin_label;
 	}
 	else {
-		this.localsignin_label="other";
+		this.othersignin_label="other";
 	}
-	if (localsignin_id != "") {
-		this.localsignin_id=localsignin_id;
-           	openid_btns.append(
-        		'<a href="javascript: openid.signin(\'localsignin\');"' +
+	if (othersignin_id != "") {
+		this.othersignin_id=othersignin_id;
+           	selector_btns.prepend(
+        		'<a href="javascript: selector.signin(\'othersignin\');"' +
         		' style="background: #FFF" ' +
-        		'class="localsignin openid_large_btn">' +
+        		'class="othersignin login_large_btn">' +
 			'<img alt="" width="16" height="16" src="favicon.ico" />' +
-			' ' + this.localsignin_label +
+			' ' + this.othersignin_label +
 			'</a>'
 		);
-		$('#'+this.localsignin_id).hide();
+		$('#'+this.othersignin_id).hide();
 	}
 
-        if (providers_small) {
-        	openid_btns.append('<br/>');
+        if (selections_small) {
+        	selector_btns.append('<br/>');
         	
-	        for (id in providers_small) {
-	        
-	           	openid_btns.append(this.getBoxHTML(providers_small[id], 'small'));
+	        for (id in selections_small) {
+	           	selector_btns.append(this.getBoxHTML(selections_small[id], 'small'));
 	        }
         }
         
-        $('#openid_form').submit(this.submit);
+        $('#login_selector_form').submit(this.submit);
         
         var box_id = this.readCookie();
         if (box_id) {
         	this.signin(box_id, true);
         }
     },
-    getBoxHTML: function(provider, box_size) {
+    getBoxHTML: function(selection, box_size) {
 	var label="";
 	var title=""
 	if (box_size == 'large') {
-		label=' ' + provider["name"];
+		label=' ' + selection["name"];
 	}
 	else {
-		title=' title="'+provider["name"]+'"';
+		title=' title="'+selection["name"]+'"';
 	}
-        var box_id = provider["name"].toLowerCase();
-        return '<a' + title +' href="javascript: openid.signin(\''+ box_id +'\');"' +
+        var box_id = selection["name"].toLowerCase();
+        return '<a' + title +' href="javascript: selector.signin(\''+ box_id +'\');"' +
         		' style="background: #FFF" ' + 
-        		'class="' + box_id + ' openid_' + box_size + '_btn">' +
-			'<img alt="" width="16" height="16" src="' + provider["icon"] + '" />' +
+        		'class="' + box_id + ' login_' + box_size + '_btn">' +
+			'<img alt="" width="16" height="16" src="' + selection["icon"] + '" />' +
 			label +
 			'</a>';
     
     },
-    /* Provider image click */
+    /* selection image click */
     signin: function(box_id, onload) {
 
-	if (box_id == 'localsignin') {
+	if (box_id == 'othersignin') {
 	    	this.highlight(box_id);
-		$('#openid_input_area').empty();
-		$('#'+this.localsignin_id).show();
+		$('#login_input_area').empty();
+		$('#'+this.othersignin_id).show();
 		this.setCookie(box_id);
 		return;
 	}
 	else {
-		if (this.localsignin_id) {
-			$('#'+this.localsignin_id).hide();
+		if (this.othersignin_id) {
+			$('#'+this.othersignin_id).hide();
 		}
 	}
 
-    	var provider = providers[box_id];
-  		if (! provider) {
+    	var selection = selections[box_id];
+  		if (! selection) {
   			return;
   		}
 		
 		this.highlight(box_id);
 		
-		this.provider_id = box_id;
-		this.provider_url = provider['url'];
+		this.selection_id = box_id;
+		this.selection_url = selection['url'];
 		
 		// prompt user for input?
-		if (provider['label']) {
+		if (selection['label']) {
 			this.setCookie(box_id);
-			this.useInputBox(provider);
+			this.useInputBox(selection);
 		} else {
 			this.setCookie('');
-			$('#openid_input_area').empty();
+			$('#login_input_area').empty();
 			if (! onload) {
-				$('#openid_form').submit();
+				$('#login_selector_form').submit();
 			}
 		}
     },
     /* Sign-in button click */
     submit: function() {
-        
-    	var url = openid.provider_url; 
+    	var url = selector.selection_url; 
     	if (url) {
-    		url = url.replace('{username}', $('#openid_username').val());
-    		openid.setOpenIdUrl(url);
+    		url = url.replace('{username}', $('#entry').val());
+    		selector.setOpenIdUrl(url);
     	}
-    	if(openid.ajaxHandler) {
-    		openid.ajaxHandler(openid.provider_id, document.getElementById(openid.input_id).value);
-    		return false;
-    	}
-    	if(openid.demo) {
-    		alert("In client demo mode. Normally would have submitted OpenID:\r\n" + document.getElementById(openid.input_id).value);
+	else {
+    		selector.setOpenIdUrl("");
+	}
+    	if(selector.ajaxHandler) {
+    		selector.ajaxHandler(selector.selection_id, document.getElementById(selector.input_id).value);
     		return false;
     	}
     	return true;
@@ -171,18 +191,18 @@ var openid = {
 	if (hidden.length > 0) {
 		hidden.value = url;
     	} else {
-		$('#openid_form').append('<input style="display:none" id="' + this.input_id + '" name="' + this.input_id + '" value="'+url+'"/>');
+		$('#login_selector_form').append('<input style="display:none" id="' + this.input_id + '" name="' + this.input_id + '" value="'+url+'"/>');
     	}
     },
     highlight: function (box_id) {
     	
     	// remove previous highlight.
-    	var highlight = $('#openid_highlight');
+    	var highlight = $('#login_highlight');
     	if (highlight) {
-    		highlight.replaceWith($('#openid_highlight a')[0]);
+    		highlight.replaceWith($('#login_highlight a')[0]);
     	}
     	// add new highlight.
-    	$('.'+box_id).wrap('<div id="openid_highlight"></div>');
+    	$('.'+box_id).wrap('<div id="login_highlight"></div>');
     },
     setCookie: function (value) {
     
@@ -202,17 +222,17 @@ var openid = {
 		}
 		return null;
     },
-    useInputBox: function (provider) {
+    useInputBox: function (selection) {
    	
-		var input_area = $('#openid_input_area');
+		var input_area = $('#login_input_area');
 		
 		var html = '';
-		var id = 'openid_username';
+		var id = 'entry';
 		var value = '';
-		var label = provider['label'];
+		var label = selection['label'];
 		var style = '';
 		
-		if (provider['name'] == 'OpenID') {
+		if (selection['name'] == 'OpenID') {
 			id = this.input_id;
 			value = '';
 			style = 'background:#FFF url(wikiicons/openidlogin-bg.gif) no-repeat scroll 0 50%; padding-left:18px;';
@@ -220,16 +240,14 @@ var openid = {
 		if (label) {
 			html = '<label for="'+ id +'" class="block">' + label + '</label>';
 		}
+		html += '<input name="selection" type="hidden" value="' + selection['name'] + '" />'
 		html += '<input id="'+id+'" type="text" style="'+style+'" name="'+id+'" value="'+value+'" />' + 
-					'<input id="openid_submit" type="submit" value="Login"/>';
+					'<input id="selector_submit" type="submit" value="Login"/>';
 		
 		input_area.empty();
 		input_area.append(html);
 
 		$('#'+id).focus();
-    },
-    setDemoMode: function (demoMode) {
-    	this.demo = demoMode;
     },
     setAjaxHandler: function (ajaxFunction) {
     	this.ajaxHandler = ajaxFunction;

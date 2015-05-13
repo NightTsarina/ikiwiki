@@ -2,42 +2,42 @@
 <script type="text/javascript" src="ikiwiki/openid/openid-jquery.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-	openid.init('openid_identifier','<TMPL_IF NONOPENIDFORM>nonopenidform</TMPL_IF>', '<TMPL_VAR NONOPENIDFORM_LABEL>');
+	selector.init('openid_identifier','<TMPL_IF OTHERFORM>otherform</TMPL_IF>', '<TMPL_VAR OTHERFORM_LABEL>');
 });
 </script>
 
 <noscript>
-<h2>OpenID:</h2>
+<h2>Login:</h2>
 </noscript>
 
-<form action="<TMPL_VAR CGIURL>" method="get" id="openid_form">
-	<fieldset>
+<form action="<TMPL_VAR CGIURL>" method="get" id="login_selector_form">
+	<div>
 		<script>
 		$('fieldset').append("<legend>Select login method</legend>");
 		</script>
 		
 		<input type="hidden" name="do" value="signin" />
 		<input type="hidden" name="action" value="verify" />
-		<div id="openid_choice">
-			<div id="openid_btns"></div>
+		<div id="login_choice">
+			<div id="login_btns"></div>
 		</div>
-		<div id="openid_input_area">
+		<div id="login_input_area">
 			<label for="openid_identifier" class="block">Enter your OpenID:</label>
 			<input id="openid_identifier" name="openid_identifier" type="text" value="<TMPL_VAR ESCAPE=HTML OPENID_URL>"/>
 			<input id="openid_submit" type="submit" value="Login"/>
 		</div>
-		<TMPL_IF OPENID_ERROR>
-		<div class="error"><TMPL_VAR OPENID_ERROR></div>
+		<TMPL_IF LOGIN_ERROR>
+		<div class="error"><TMPL_VAR LOGIN_ERROR></div>
 		</TMPL_IF>
-	</fieldset>
+	</div>
 </form>
 
-<div id="nonopenidform">
-<TMPL_IF NONOPENIDFORM>
+<div id="otherform">
+<TMPL_IF OTHERFORM>
 <br />
 <noscript>
-<h2><TMPL_VAR NONOPENIDFORM_LABEL>:</h2>
+<h2><TMPL_VAR OTHERFORM_LABEL>:</h2>
 </noscript>
 </TMPL_IF>
-<TMPL_VAR NONOPENIDFORM>
+<TMPL_VAR OTHERFORM>
 </div>

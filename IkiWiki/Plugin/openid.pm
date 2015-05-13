@@ -25,15 +25,18 @@ sub checkconfig () {
 		# a reference to the normal signin form.
 		require IkiWiki::CGI;
 		my $real_cgi_signin;
-		my $nonopenidform_label=gettext("Other");
+		my $otherform_label=gettext("Other");
 		if (keys %{$IkiWiki::hooks{auth}} > 1) {
 			$real_cgi_signin=\&IkiWiki::cgi_signin;
-			if (keys %{$IkiWiki::hooks{auth}} == 2 && exists $IkiWiki::hooks{auth}->{passwordauth}) {
-				$nonopenidform_label=gettext("Password");
+			my %h=%{$IkiWiki::hooks{auth}};
+			delete $h{openid};
+			delete $h{emailauth};
+			if (keys %h == 1 && exists $h{passwordauth}) {
+				$otherform_label=gettext("Password");
 			}
 		}
 		inject(name => "IkiWiki::cgi_signin", call => sub ($$) {
-			openid_selector($real_cgi_signin, $nonopenidform_label, @_);
+			openid_selector($real_cgi_signin, $otherform_label, @_);
 		});
 	}
 }
@@ -61,12 +64,12 @@ sub getsetup () {
 
 sub openid_selector {
 	my $real_cgi_signin=shift;
-	my $nonopenidform_label=shift;
+	my $otherform_label=shift;
         my $q=shift;
         my $session=shift;
 
+	my $template=IkiWiki::template("openid-selector.tmpl");
 	my $openid_url=$q->param('openid_identifier');
-	my $openid_error;
 
 	if (! load_openid_module()) {
 		if ($real_cgi_signin) {
@@ -75,19 +78,17 @@ sub openid_selector {
 		}
 		error(sprintf(gettext("failed to load openid module: "), @_));
 	}
-	elsif (defined $q->param("action") && $q->param("action") eq "verify") {
+	elsif (defined $q->param("action") && $q->param("action") eq "verify" && defined $openid_url && length $openid_url) {
 		validate($q, $session, $openid_url, sub {
-			$openid_error=shift;
+			$template->param(login_error => shift())
 		});
 	}
 
-	my $template=IkiWiki::template("openid-selector.tmpl");
 	$template->param(
 		cgiurl => IkiWiki::cgiurl(),
-		(defined $openid_error ? (openid_error => $openid_error) : ()),
 		(defined $openid_url ? (openid_url => $openid_url) : ()),
-		($real_cgi_signin ? (nonopenidform => $real_cgi_signin->($q, $session, 1)) : ()),
-		nonopenidform_label => $nonopenidform_label,
+		($real_cgi_signin ? (otherform => $real_cgi_signin->($q, $session, 1)) : ()),
+		otherform_label => $otherform_label,
 	);
 
 	IkiWiki::printheader($session);
