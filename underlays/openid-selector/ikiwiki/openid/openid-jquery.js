@@ -25,30 +25,6 @@ var providers_large = {
     }
 };
 var providers_small = {
-    livejournal: {
-        name: 'LiveJournal',
-        icon: 'ikiwiki/openid/livejournal.png',
-        label: 'Enter your Livejournal username:',
-        url: 'http://{username}.livejournal.com/'
-    },
-    flickr: {
-	name: 'Flickr',        
-	icon: 'ikiwiki/openid/goa-account-flickr.png',
-	label: 'Enter your Flickr username:',
-	url: 'http://flickr.com/photos/{username}/'
-    },
-    wordpress: {
-        name: 'Wordpress',
-	icon: 'ikiwiki/openid/wordpress.png',
-        label: 'Enter your Wordpress.com username:',
-        url: 'http://{username}.wordpress.com/'
-    },
-    aol: {
-        name: 'AOL',     
-        icon: 'ikiwiki/openid/aol.png',
-        label: 'Enter your AOL username:',
-        url: 'http://openid.aol.com/{username}'
-    }
 };
 var providers = $.extend({}, providers_large, providers_small);
 
