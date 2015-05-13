@@ -72,4 +72,30 @@ Implementation notes:
 * Adapting the passwordauth reset code is probably the simplest way to
   implement emailauth. That uses a CGI::Session id as the entropy.
 
+----
+
+So this all seems doable. What I'm unsure about is this: Is emailauth going
+to be sufficiently easier than passwordauth that it will let users
+contribute to wikis who otherwise wouldn't?
+
+Using passwordauth, the user can register by just picking a password, and
+username, and entering email. That's 2 more things that need to be entered,
+but then there is no need to wait for an email link to arrive. Which can
+take a while, or be an unreliable, opaque process for users.
+
+OTOH, maybe some users don't want to have to make up a username and
+password, or pchycologically don't want to register. emailauth would then
+let them contiribute.
+
+I also have a motivation for ikiwiki-hosting/branchable. That needs the
+user to be able to log into the site, create their own wiki, and then log
+into their own wiki. Currently, openid is the only way to do that;
+emailauth would be another way.
+
+Another motivation from ikiwiki-hosting/branchable is that with google
+openid going away, many sites can have only google openids as adminusers, and
+that has to be manually dealt with. But if emailauth is added, those
+adminusers can be converted, perhaps automatically, to use the email
+addresses on record.
+
 Thoughts anyone? --[[Joey]]
