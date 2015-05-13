@@ -8,7 +8,6 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "getsetup", id => "emailauth", "call" => \&getsetup);
-	hook(type => "auth", id => "emailauth", call => \&auth);
 	IkiWiki::loadplugin("loginselector");
 	IkiWiki::Plugin::loginselector::register_login_plugin(
 		"emailauth",
@@ -53,12 +52,6 @@ sub email_auth ($$$) {
 	}
 
 	error "EMAIL AUTH";
-}
-
-sub auth ($$) {
-	# While this hook is not currently used, it needs to exist
-	# so ikiwiki knows that the wiki supports logins, and will
-	# enable the Preferences page.
 }
 
 1

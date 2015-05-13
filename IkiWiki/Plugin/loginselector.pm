@@ -77,6 +77,7 @@ sub import {
 	add_underlay("jquery");
 	hook(type => "getsetup", id => "loginselector",  call => \&getsetup);
 	hook(type => "checkconfig", id => "loginselector", call => \&checkconfig);
+	hook(type => "auth", id => "loginselector", call => \&authstub);
 }
 
 sub checkconfig () {
@@ -91,13 +92,14 @@ sub checkconfig () {
 		my $otherform_label=gettext("Other");
 		if (keys %{$IkiWiki::hooks{auth}} > 1) {
 			$real_cgi_signin=\&IkiWiki::cgi_signin;
+			# Special case to avoid labeling password auth as
+			# "Other" when it's the only auth plugin not
+			# integrated with the loginselector.
 			my %h=%{$IkiWiki::hooks{auth}};
 			foreach my $p (keys %login_plugins) {
 				delete $h{$p};
 			}
-			# Special case to avoid labeling password auth as
-			# "Other" when it's the only auth plugin not
-			# integrated with the loginselector.
+			delete $h{loginselector};
 			if (keys %h == 1 && exists $h{passwordauth}) {
 				$otherform_label=gettext("Password");
 			}
@@ -116,6 +118,12 @@ sub getsetup () {
 			safe => 0,
 			rebuild => 0,
 		},
+}
+
+sub authstub ($$) {
+	# While this hook is not currently used, it needs to exist
+	# so ikiwiki knows that the wiki supports logins, and will
+	# enable the Preferences page.
 }
 
 1
