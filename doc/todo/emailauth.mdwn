@@ -1,0 +1,67 @@
+With many users no longer having an openid account, and Persona seeming to
+be dying on the vine, and no other replacements looking very likely (except
+for Oauth type stuff perhaps), it would be good to have a new easy way to
+log into ikiwiki, that doesn't need pre-registration.
+
+I've read about email being used this way, and seen it once or twice. While I
+can't remember any links right now, the basic idea is:
+
+1. user enters email address into form
+2. response page says "a login link has been emailed to you"
+3. user opens email and clicks login link
+4. user is logged in
+
+A few points to make this more secure:
+
+* Only 1 login link should be active at a time; old ones won't work to log in.
+* A login link is only valid for a single login. Once it's used, it cannot
+  be used to log in again.
+* A login link is only valid for a certain period of time. 24 hours seems
+  like more than enough, and 12 hours would probably be plenty too.
+  This timeout means a user doesn't need to worry about their email
+  archives being used to log in.
+
+Still, this could be attacked:
+
+* If an attacker can access a user's inbox, they can generate a new login
+  link, and log in as them.
+* If TLS is not used for the email transport, a MITM can snoop login links
+  and use them.
+* If https is not used for the login link, a MITM can intercept and proxy
+  web traffic and either steal a copy of the cookie, or use the login
+  link themselves without letting the user log in. This attack seems no
+  worse then using password authentication w/o https, and the solution is
+  of course https.
+* If an attacker wants to DOS a wiki, they can try to get its domain, IP,
+  whatever blacklisted as a spam source.
+
+These attacks don't seem worth not doing it; many of the same attacks can
+be performed against openid, or passwordauth. Eg, reset password and
+intercept email.
+
+Implementation notes:
+
+* Use the email address as the username.
+* Sanitize the email for display in recentchanges etc.
+* The login link should be as short an url as possible, while containing
+  sufficient entropy. Some email clients will let the user click on it,
+  but some users will need to cut and paste.
+* The `adminemail` config setting has a bit of overlap with an `adminuser`
+  set to an email address. Probably worth keeping them separae though;
+  the `adminemail` is an email address to display, and we may not want to
+  let anyone who can read the adminemail's mailbox to log into the wiki.
+* Will want to make passwordauth reject registrations that contain `@`.
+  Otherwise, someone could use passwordauth to register as a username that
+  looks like an email address, which would be confusing to possibly a
+  security hole. Probably best to keep passwordauth and emailauth accounts
+  entirely distinct.
+* Currently, subscription to comments w/o registering is handled by
+  passwordauth, by creating a passwordless account (making up a username,
+  not using the email address as the username thankfully). That account can be
+  upgraded to a passworded account if the user follows a link in comment
+  mails to login. So there is considerable overhead between that and
+  emailauth.
+* Adapting the passwordauth reset code is probably the simplest way to
+  implement emailauth. That uses a CGI::Session id as the entropy.
+
+Thoughts anyone? --[[Joey]]
