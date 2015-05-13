@@ -3,13 +3,20 @@ be dying on the vine, and no other replacements looking very likely (except
 for Oauth type stuff perhaps), it would be good to have a new easy way to
 log into ikiwiki, that doesn't need pre-registration.
 
-I've read about email being used this way, and seen it once or twice. While I
-can't remember any links right now, the basic idea is:
+Importantly, I want something that is not going to go
+the way of openid in the future. I think that email is here to stay; at
+least anyone who wants an email address is going to be able to get one in
+the forseeable future. (Google and large providers are making it harder to
+run small email systems, but it's still very possible, and there are at
+worst many large providers.)
+
+I've read about email being used for login auth, and seen it once or twice.
+While I can't remember any links right now, the basic idea is:
 
 1. user enters email address into form
 2. response page says "a login link has been emailed to you"
 3. user opens email and clicks login link
-4. user is logged in
+4. user is logged in until the cookie expires or is cleared
 
 A few points to make this more secure:
 
