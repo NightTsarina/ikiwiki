@@ -2,7 +2,7 @@
 <script type="text/javascript" src="ikiwiki/openid/openid-jquery.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-	openid.init('openid_identifier','<TMPL_IF NONOPENIDFORM>nonopenidform</TMPL_IF>');
+	openid.init('openid_identifier','<TMPL_IF NONOPENIDFORM>nonopenidform</TMPL_IF>', '<TMPL_VAR NONOPENIDFORM_LABEL>');
 });
 </script>
 
@@ -13,7 +13,7 @@ $(document).ready(function() {
 <form action="<TMPL_VAR CGIURL>" method="get" id="openid_form">
 	<fieldset>
 		<script>
-		$('fieldset').append("<legend>Select your account provider</legend>");
+		$('fieldset').append("<legend>Select login method</legend>");
 		</script>
 		
 		<input type="hidden" name="do" value="signin" />
@@ -36,7 +36,7 @@ $(document).ready(function() {
 <TMPL_IF NONOPENIDFORM>
 <br />
 <noscript>
-<h2>Other:</h2>
+<h2><TMPL_VAR NONOPENIDFORM_LABEL>:</h2>
 </noscript>
 </TMPL_IF>
 <TMPL_VAR NONOPENIDFORM>

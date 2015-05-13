@@ -67,7 +67,7 @@ var openid = {
 	provider_id: null,
 	localsignin_id: null,
 	
-    init: function(input_id, localsignin_id) {
+    init: function(input_id, localsignin_id, localsignin_label) {
         
         var openid_btns = $('#openid_btns');
         
@@ -89,6 +89,12 @@ var openid = {
 	           	openid_btns.append(this.getBoxHTML(providers_small[id], 'small'));
 	        }
         }
+	if (localsignin_label != "") {
+		this.localsignin_label=localsignin_label;
+	}
+	else {
+		this.localsignin_label="other";
+	}
 	if (localsignin_id != "") {
 		this.localsignin_id=localsignin_id;
            	openid_btns.append(
@@ -96,7 +102,7 @@ var openid = {
         		' style="background: #FFF" ' +
         		'class="localsignin openid_small_btn">' +
 			'<img alt="" width="16" height="16" src="favicon.ico" />' +
-			' other' +
+			' ' + this.localsignin_label +
 			'</a>'
 		);
 		$('#'+this.localsignin_id).hide();

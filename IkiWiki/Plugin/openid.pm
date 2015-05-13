@@ -25,11 +25,15 @@ sub checkconfig () {
 		# a reference to the normal signin form.
 		require IkiWiki::CGI;
 		my $real_cgi_signin;
+		my $nonopenidform_label=gettext("Other");
 		if (keys %{$IkiWiki::hooks{auth}} > 1) {
 			$real_cgi_signin=\&IkiWiki::cgi_signin;
+			if (keys %{$IkiWiki::hooks{auth}} == 2 && exists $IkiWiki::hooks{auth}->{passwordauth}) {
+				$nonopenidform_label=gettext("Password");
+			}
 		}
 		inject(name => "IkiWiki::cgi_signin", call => sub ($$) {
-			openid_selector($real_cgi_signin, @_);
+			openid_selector($real_cgi_signin, $nonopenidform_label, @_);
 		});
 	}
 }
@@ -57,6 +61,7 @@ sub getsetup () {
 
 sub openid_selector {
 	my $real_cgi_signin=shift;
+	my $nonopenidform_label=shift;
         my $q=shift;
         my $session=shift;
 
@@ -82,6 +87,7 @@ sub openid_selector {
 		(defined $openid_error ? (openid_error => $openid_error) : ()),
 		(defined $openid_url ? (openid_url => $openid_url) : ()),
 		($real_cgi_signin ? (nonopenidform => $real_cgi_signin->($q, $session, 1)) : ()),
+		nonopenidform_label => $nonopenidform_label,
 	);
 
 	IkiWiki::printheader($session);
