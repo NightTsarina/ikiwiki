@@ -24,30 +24,30 @@ var selections_openid_large = {
 var selections_openid_small = {
     verisign: {
         name: 'Verisign',
-        icon: 'ikiwiki/openid/verisign.png',
+        icon: 'ikiwiki/login-selector/verisign.png',
         label: 'Enter your Verisign username:',
         url: 'http://{username}.pip.verisignlabs.com/'
     },
     yahoo: {
         name: 'Yahoo',
-        icon: 'ikiwiki/openid/goa-account-yahoo.png',
+        icon: 'ikiwiki/login-selector/goa-account-yahoo.png',
         url: 'http://me.yahoo.com/'
     },
     flickr: {
        name: 'Flickr',        
-       icon: 'ikiwiki/openid/goa-account-flickr.png',
+       icon: 'ikiwiki/login-selector/goa-account-flickr.png',
        label: 'Enter your Flickr username:',
        url: 'http://flickr.com/photos/{username}/'
     },
     wordpress: {
         name: 'Wordpress',
-       icon: 'ikiwiki/openid/wordpress.png',
+       icon: 'ikiwiki/login-selector/wordpress.png',
         label: 'Enter your Wordpress.com username:',
         url: 'http://{username}.wordpress.com/'
     },
     aol: {
         name: 'AOL',     
-        icon: 'ikiwiki/openid/aol.png',
+        icon: 'ikiwiki/login-selector/aol.png',
         label: 'Enter your AOL username:',
         url: 'http://openid.aol.com/{username}'
     }

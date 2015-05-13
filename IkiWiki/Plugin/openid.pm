@@ -7,7 +7,7 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
-	add_underlay("openid-selector");
+	add_underlay("login-selector");
 	add_underlay("jquery");
 	hook(type => "checkconfig", id => "openid", call => \&checkconfig);
 	hook(type => "getsetup", id => "openid", call => \&getsetup);
@@ -68,7 +68,7 @@ sub openid_selector {
         my $q=shift;
         my $session=shift;
 
-	my $template=IkiWiki::template("openid-selector.tmpl");
+	my $template=IkiWiki::template("login-selector.tmpl");
 	my $openid_url=$q->param('openid_identifier');
 
 	if (! load_openid_module()) {
