@@ -35,6 +35,13 @@ Here is a sketch of a different account model that would address that:
     users with / in their names, which would make their user-page into a
     subpage?
 
+    > I have fixed passwordauth to not let urls be registered. It seems this
+    > was not quite a security hole; it didn't let registering a username that
+    > already existed, so if an openid was an admin, as long as the user logged
+    > in using that openid, someone else couldn't come along and passwordauth
+    > collide with it. (Might be exploitable if you could guess an openid that
+    > was going to be added as an admin later though.) --[[Joey]]
+
 * If passwordauth is enabled, accounts may have a password. Users can
   authenticate to an account that has a password by entering that password.
   The username is always the account name (because there's little reason
@@ -95,12 +102,6 @@ Thoughts?
 > 
 > Also, when you talk about "separating authentication from authorization", i immediately thought of [[todo/ACL/]] and [[todo/Zoned_ikiwiki/]], so i thought i could mention those... having stability in the usernames would help in the design of those... --[[anarcat]]
 
-> I'm not against this, but I don't anticipate having resources to do any
-> work on it either. --[[Joey]]
-
-> I have fixed passwordauth to not let urls be registered. It seems this
-> was not quite a security hole; it didn't let registering a name that
-> already existed, so if an openid was an admin, as long as the user logged
-> in using that openid, someone else couldn't come along and passwordauth
-> collide with it. (Might be exploitable if you could guess an openid that
-> was going to be added as an admin though.) --[[Joey]]
+> I'm not opposed to this, but I don't anticipate having resources to do any
+> work on it either. (I do hope to obscure email addresses from git
+> commits.) --[[Joey]]
