@@ -7,35 +7,17 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
-	add_underlay("openid-selector");
-	add_underlay("jquery");
-	hook(type => "checkconfig", id => "openid", call => \&checkconfig);
 	hook(type => "getsetup", id => "openid", call => \&getsetup);
 	hook(type => "auth", id => "openid", call => \&auth);
 	hook(type => "formbuilder_setup", id => "openid",
 		call => \&formbuilder_setup, last => 1);
-}
-
-sub checkconfig () {
-	if ($config{cgi}) {
-		# Intercept normal signin form, so the openid selector
-		# can be displayed.
-		# 
-		# When other auth hooks are registered, give the selector
-		# a reference to the normal signin form.
-		require IkiWiki::CGI;
-		my $real_cgi_signin;
-		my $nonopenidform_label=gettext("Other");
-		if (keys %{$IkiWiki::hooks{auth}} > 1) {
-			$real_cgi_signin=\&IkiWiki::cgi_signin;
-			if (keys %{$IkiWiki::hooks{auth}} == 2 && exists $IkiWiki::hooks{auth}->{passwordauth}) {
-				$nonopenidform_label=gettext("Password");
-			}
-		}
-		inject(name => "IkiWiki::cgi_signin", call => sub ($$) {
-			openid_selector($real_cgi_signin, $nonopenidform_label, @_);
-		});
-	}
+	IkiWiki::loadplugin("loginselector");
+	IkiWiki::Plugin::loginselector::register_login_plugin(
+		"openid",
+		\&openid_setup,
+		\&openid_check_input,
+		\&openid_auth,
+	);
 }
 
 sub getsetup () {
@@ -59,40 +41,34 @@ sub getsetup () {
 		},
 }
 
-sub openid_selector {
-	my $real_cgi_signin=shift;
-	my $nonopenidform_label=shift;
-        my $q=shift;
-        my $session=shift;
+sub openid_setup ($$) {
+	my $q=shift;
+	my $template=shift;
 
-	my $openid_url=$q->param('openid_identifier');
-	my $openid_error;
-
-	if (! load_openid_module()) {
-		if ($real_cgi_signin) {
-			$real_cgi_signin->($q, $session);
-			exit;
+	if (load_openid_module()) {
+		my $openid_url=$q->param('openid_identifier');
+		if (defined $openid_url) {
+			$template->param(openid_url => $openid_url);
 		}
-		error(sprintf(gettext("failed to load openid module: "), @_));
+		return 1;
 	}
-	elsif (defined $q->param("action") && $q->param("action") eq "verify") {
-		validate($q, $session, $openid_url, sub {
-			$openid_error=shift;
-		});
+	else {
+		return 0;
 	}
+}
 
-	my $template=IkiWiki::template("openid-selector.tmpl");
-	$template->param(
-		cgiurl => IkiWiki::cgiurl(),
-		(defined $openid_error ? (openid_error => $openid_error) : ()),
-		(defined $openid_url ? (openid_url => $openid_url) : ()),
-		($real_cgi_signin ? (nonopenidform => $real_cgi_signin->($q, $session, 1)) : ()),
-		nonopenidform_label => $nonopenidform_label,
-	);
+sub openid_check_input ($) {
+	my $q=shift;
+	my $openid_url=$q->param('openid_identifier');
+	defined $q->param("action") && $q->param("action") eq "verify" && defined $openid_url && length $openid_url;
+}
 
-	IkiWiki::printheader($session);
-	print IkiWiki::cgitemplate($q, "signin", $template->output);
-	exit;
+sub openid_auth ($$$$) {
+	my $q=shift;
+	my $session=shift;
+	my $errordisplayer=shift;
+	my $openid_url=$q->param('openid_identifier');
+	validate($q, $session, $openid_url, $errordisplayer);
 }
 
 sub formbuilder_setup (@) {

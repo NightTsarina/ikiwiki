@@ -277,7 +277,7 @@ sub formbuilder_setup (@) {
 	}
 	elsif ($form->title eq "preferences") {
 		my $user=$session->param("name");
-		if (! IkiWiki::openiduser($user)) {
+		if (! IkiWiki::openiduser($user) && ! IkiWiki::emailuser($user)) {
 			$form->field(name => "name", disabled => 1, 
 				value => $user, force => 1,
 				fieldset => "login");

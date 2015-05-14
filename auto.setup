@@ -18,7 +18,7 @@ our $wikiname_short=IkiWiki::Setup::Automator::sanitize_wikiname($wikiname);
 our $rcs=IkiWiki::Setup::Automator::ask(
 	gettext("What revision control system to use?"), "git");
 our $admin=IkiWiki::Setup::Automator::ask(
-	gettext("Which user (wiki account or openid) will be admin?"), $ENV{USER});
+	gettext("Which user (wiki account, openid, or email) will be admin?"), $ENV{USER});
 use Net::Domain q{hostfqdn};
 our $domain=hostfqdn() || IkiWiki::Setup::Automator::ask(
 	gettext("What is the domain name of the web server?"), "");

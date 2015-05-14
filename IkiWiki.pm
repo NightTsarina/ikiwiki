@@ -165,7 +165,7 @@ sub getsetup () {
 	default_plugins => {
 		type => "internal",
 		default => [qw{mdwn link inline meta htmlscrubber passwordauth
-				openid signinedit lockedit conditional
+				openid emailauth signinedit lockedit conditional
 				recentchanges parentlinks editpage
 				templatebody}],
 		description => "plugins to enable by default",
@@ -1460,6 +1460,14 @@ sub openiduser ($) {
 		eval q{use CGI 'escapeHTML'};
 		error($@) if $@;
 		return escapeHTML($display);
+	}
+	return;
+}
+
+sub emailuser ($) {
+	my $user=shift;
+	if (defined $user && $user =~ m/(.+)@/) {
+		return $1;
 	}
 	return;
 }

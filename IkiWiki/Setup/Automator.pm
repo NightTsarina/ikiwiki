@@ -154,31 +154,33 @@ sub import (@) {
 	foreach my $admin (@{$config{adminuser}}) {
 		next if defined IkiWiki::openiduser($admin);
 		
-		# Prompt for password w/o echo.
-		my ($password, $password2);
-		system('stty -echo 2>/dev/null');
-		local $|=1;
-		print "\n\nCreating wiki admin $admin ...\n";
-		for (;;) {
-			print "Choose a password: ";
-			chomp($password=<STDIN>);
-			print "\n";
-			print "Confirm password: ";
-			chomp($password2=<STDIN>);
+		if (! defined IkiWiki::emailuser($admin)) {
+			# Prompt for password w/o echo.
+			my ($password, $password2);
+			system('stty -echo 2>/dev/null');
+			local $|=1;
+			print "\n\nCreating wiki admin $admin ...\n";
+			for (;;) {
+				print "Choose a password: ";
+				chomp($password=<STDIN>);
+				print "\n";
+				print "Confirm password: ";
+				chomp($password2=<STDIN>);
+	
+				last if $password2 eq $password;
+	
+				print "Password mismatch.\n\n";
+			}
+			print "\n\n\n";
+			system('stty sane 2>/dev/null');
 
-			last if $password2 eq $password;
-
-			print "Password mismatch.\n\n";
-		}
-		print "\n\n\n";
-		system('stty sane 2>/dev/null');
-
-		if (IkiWiki::userinfo_setall($admin, { regdate => time }) &&
-		    IkiWiki::Plugin::passwordauth::setpassword($admin, $password)) {
-			IkiWiki::userinfo_set($admin, "email", $config{adminemail}) if defined $config{adminemail};
-		}
-		else {
-			error("problem setting up $admin user");
+			if (IkiWiki::userinfo_setall($admin, { regdate => time }) &&
+			    IkiWiki::Plugin::passwordauth::setpassword($admin, $password)) {
+				IkiWiki::userinfo_set($admin, "email", $config{adminemail}) if defined $config{adminemail};
+			}
+			else {
+				error("problem setting up $admin user");
+			}
 		}
 	}
 	
