@@ -94,3 +94,13 @@ Thoughts?
 > I always find it a little ackward that i have two different accounts on this wiki: one for OpenID, and the other (regular account) for email notifications (because of [[bugs/notifyemail_fails_with_some_openid_providers/]]). It seems to me those accounts should just be merged as one, ie. I was expecting to be able to choose a username when i registered with openid.
 > 
 > Also, when you talk about "separating authentication from authorization", i immediately thought of [[todo/ACL/]] and [[todo/Zoned_ikiwiki/]], so i thought i could mention those... having stability in the usernames would help in the design of those... --[[anarcat]]
+
+> I'm not against this, but I don't anticipate having resources to do any
+> work on it either. --[[Joey]]
+
+> I have fixed passwordauth to not let urls be registered. It seems this
+> was not quite a security hole; it didn't let registering a name that
+> already existed, so if an openid was an admin, as long as the user logged
+> in using that openid, someone else couldn't come along and passwordauth
+> collide with it. (Might be exploitable if you could guess an openid that
+> was going to be added as an admin though.) --[[Joey]]

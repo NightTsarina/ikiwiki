@@ -251,6 +251,12 @@ sub formbuilder_setup (@) {
 						my $name=shift;
 						length $name &&
 						$name=~/$config{wiki_file_regexp}/ &&
+						# don't allow registering
+						# accounts that look like
+						# openids, or email
+						# addresses, even if the
+						# file regexp allows it
+						$name!~/[\/:\@]/ &&
 						! IkiWiki::userinfo_get($name, "regdate");
 					},
 				);
