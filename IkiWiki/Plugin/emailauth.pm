@@ -64,7 +64,7 @@ sub email_auth ($$$$) {
 		});
 	}
 
-	my $token=gentoken($email);
+	my $token=gentoken($email, $session);
 	my $template=template("emailauth.tmpl");
 	$template->param(
 		wikiname => $config{wikiname},
@@ -96,19 +96,10 @@ sub cgi ($$) {
 	my $email=$cgi->param('e');
 	my $v=$cgi->param('v');
 	if (defined $email && defined $v && length $email && length $v) {
-		# Need to lock the wiki before getting a session.
-		IkiWiki::lockwiki();
-		IkiWiki::loadindex();
-		my $session=IkiWiki::cgi_getsession();
-
 		my $token=gettoken($email);
 		if ($token eq $v) {
-			print STDERR "SUCCESS $email!!\n";
 			cleartoken($email);
-			$session->param(name => $email);
-			my $nickname=$email;
-			$nickname=~s/@.*//;
-			$session->param(nickname => Encode::decode_utf8($nickname));
+			my $session=getsession($email);
 			IkiWiki::cgi_postsignin($cgi, $session);
 		}
 		elsif (length $token ne length $cgi->param('v')) {
@@ -123,16 +114,22 @@ sub cgi ($$) {
 # Generates the token that will be used in the authurl to log the user in.
 # This needs to be hard to guess, and relatively short. Generating a cgi
 # session id will make it as hard to guess as any cgi session.
-sub gentoken ($) {
+#
+# Store token in userinfo; this allows the user to log in
+# using a different browser session, if it takes a while for the
+# email to get to them.
+#
+# The postsignin value from the session is also stored in the userinfo
+# to allow resuming in a different browser session.
+sub gentoken ($$) {
 	my $email=shift;
+	my $session=shift;
 	eval q{use CGI::Session};
 	error($@) if $@;
 	my $token = CGI::Session->new->id;
-	# Store token in userinfo; this allows the user to log in
-	# using a different browser session, if it takes a while for the
-	# email to get to them.
 	IkiWiki::userinfo_set($email, "emailauthexpire", time+(60*60*24));
 	IkiWiki::userinfo_set($email, "emailauth", $token);
+	IkiWiki::userinfo_set($email, "emailauthpostsignin", defined $session->param("postsignin") ? $session->param("postsignin") : "");
 	return $token;
 }
 
@@ -145,6 +142,30 @@ sub gettoken ($) {
 		loginfailure();
 	}
 	return $val;
+}
+
+# Generate a session to use after successful login.
+sub getsession ($) {
+	my $email=shift;
+
+	IkiWiki::lockwiki();
+	IkiWiki::loadindex();
+	my $session=IkiWiki::cgi_getsession();
+
+	my $postsignin=IkiWiki::userinfo_get($email, "emailauthpostsignin");
+	IkiWiki::userinfo_set($email, "emailauthpostsignin", "");
+	if (defined $postsignin && length $postsignin) {
+		$session->param(postsignin => $postsignin);
+	}
+
+	$session->param(name => $email);
+	my $nickname=$email;
+	$nickname=~s/@.*//;
+	$session->param(nickname => Encode::decode_utf8($nickname));
+
+	IkiWiki::cgi_savesession($session);
+
+	return $session;
 }
 
 sub cleartoken ($) {
