@@ -198,7 +198,6 @@ sub preprocess {
 		$commentuser = $params{username};
 
 		my $oiduser = eval { IkiWiki::openiduser($commentuser) };
-
 		if (defined $oiduser) {
 			# looks like an OpenID
 			$commentauthorurl = $commentuser;
@@ -206,6 +205,11 @@ sub preprocess {
 			$commentopenid = $commentuser;
 		}
 		else {
+			my $emailuser = IkiWiki::emailuser($commentuser);
+			if (defined $emailuser) {
+				$commentuser=$emailuser;
+			}
+
 			if (length $config{cgiurl}) {
 				$commentauthorurl = IkiWiki::cgiurl(
 					do => 'goto',
