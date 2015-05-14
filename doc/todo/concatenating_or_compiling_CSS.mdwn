@@ -157,3 +157,25 @@ this without that feature initially.
 >>>
 >>> As you pointed out, CSS inclusion is more painful than it should be, and
 >>> your proposal seems to answer that. Go ahead! --[[Louis|spalax]]
+
+> Concatenating the theme css as is done now results in files that are
+> unecessarily large with a doubling of a lot of selectors etc. It only makes
+> sense for changes that should be local.css anyway. Catted css is inefficient
+> both while downloading and while rendering. I've disabled the catting in the
+> makefile to avoid this on my personal site. In my view it would be better for
+> theme developers to work from the basewiki style, if lazy just add their
+> changes to the end of it, or if speed is of secondary importance @import it. 
+> 
+> The advanced melding of stylesheets discussed sounds quite complicated with
+> likely useability problems when the site don't quite look as expected. Hunting
+> down the problematic css will be difficult.
+> 
+> Are there parsers that remove double defined selectors according to cascading
+> rules as is done in browser? This would at least produce cleaner css but the
+> useability problems would remain.
+> 
+> When using complete themes and hunting that last bit of speed a config option
+> to turn off local.css would probably be a good idea? Plugin css is difficult.
+> A choice between a plugin complete theme or a local.css (or @import from it)
+> would be a simple solution that lets you choose how you prioritize speed
+> vs convenience. --[[kjs]]
