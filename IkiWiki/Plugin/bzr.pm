@@ -133,10 +133,10 @@ sub bzr_author ($) {
 	my $ipaddr=$session->remote_addr();
 
 	if (defined $user) {
-		return IkiWiki::possibly_foolish_untaint($user);
+		return IkiWiki::possibly_foolish_untaint(IkiWiki::cloak($user));
 	}
 	elsif (defined $ipaddr) {
-		return "Anonymous from ".IkiWiki::possibly_foolish_untaint($ipaddr);
+		return "Anonymous from ".IkiWiki::possibly_foolish_untaint(IkiWiki::cloak($ipaddr));
 	}
 	else {
 		return "Anonymous";

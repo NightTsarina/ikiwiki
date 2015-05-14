@@ -1430,6 +1430,7 @@ sub userpage ($) {
 	return length $config{userdir} ? "$config{userdir}/$user" : $user;
 }
 
+# Username to display for openid accounts.
 sub openiduser ($) {
 	my $user=shift;
 
@@ -1464,6 +1465,7 @@ sub openiduser ($) {
 	return;
 }
 
+# Username to display for emailauth accounts. 
 sub emailuser ($) {
 	my $user=shift;
 	if (defined $user && $user =~ m/(.+)@/) {
@@ -1473,6 +1475,22 @@ sub emailuser ($) {
 		return $nick;
 	}
 	return;
+}
+
+# Some user information should not be exposed in commit metadata, etc.
+# This generates a cloaked form of such information.
+sub cloak ($) {
+	my $user=shift;
+	# cloak email address using http://xmlns.com/foaf/spec/#term_mbox_sha1sum
+	if ($user=~m/(.+)@/) {
+		my $nick=$1;
+		eval q{use Digest::SHA};
+		return $user if $@;
+		return $nick.'@'.Digest::SHA::sha1_hex("mailto:$user");
+	}
+	else {
+		return $user;
+	}
 }
 
 sub htmlize ($$$$) {

@@ -108,12 +108,12 @@ sub rcs_commit (@) {
 	if (defined $params{session}) {
 		if (defined $params{session}->param("name")) {
 			$message="web commit by ".
-				$params{session}->param("name").
+				IkiWiki::cloak($params{session}->param("name")).
 				(length $message ? ": $message" : "");
 		}
 		elsif (defined $params{session}->remote_addr()) {
 			$message="web commit from ".
-				$params{session}->remote_addr().
+				IkiWiki::cloak($params{session}->remote_addr()).
 				(length $message ? ": $message" : "");
 		}
 	}

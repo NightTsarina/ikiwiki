@@ -147,10 +147,10 @@ sub commitauthor (@) {
 	my $author="anon\@web";
 	if (defined $params{session}) {
 		if (defined $params{session}->param("name")) {
-			return $params{session}->param("name").'@web';
+			return IkiWiki::cloak($params{session}->param("name")).'@web';
 		}
 		elsif (defined $params{session}->remote_addr()) {
-			return $params{session}->remote_addr().'@web';
+			return IkiWiki::cloak($params{session}->remote_addr()).'@web';
 		}
 	}
 	return 'anon@web';

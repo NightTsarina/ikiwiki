@@ -466,7 +466,7 @@ sub editcomment ($$) {
 	my $content = "[[!comment format=$type\n";
 
 	if (defined $session->param('name')) {
-		my $username = $session->param('name');
+		my $username = IkiWiki::cloak($session->param('name'));
 		$username =~ s/"/&quot;/g;
 		$content .= " username=\"$username\"\n";
 	}
@@ -479,7 +479,7 @@ sub editcomment ($$) {
 
 	if (!(defined $session->param('name') || defined $session->param('nickname')) &&
 		defined $session->remote_addr()) {
-		$content .= " ip=\"".$session->remote_addr()."\"\n";
+		$content .= " ip=\"".IkiWiki::cloak($session->remote_addr())."\"\n";
 	}
 
 	if ($config{comments_allowauthor}) {

@@ -310,10 +310,10 @@ sub commitauthor (@) {
 
 	if (defined $params{session}) {
 		if (defined $params{session}->param("name")) {
-			return "Web user: " . $params{session}->param("name");
+			return "Web user: " . IkiWiki::cloak($params{session}->param("name"));
 		}
 		elsif (defined $params{session}->remote_addr()) {
-			return "Web IP: " . $params{session}->remote_addr();
+			return "Web IP: " . IkiWiki::cloak($params{session}->remote_addr());
 		}
 	}
 	return "Web: Anonymous";

@@ -147,12 +147,12 @@ sub commitmessage (@) {
 	if (defined $params{session}) {
 		if (defined $params{session}->param("name")) {
 			return "web commit by ".
-				$params{session}->param("name").
+				IkiWiki::cloak($params{session}->param("name")).
 				(length $params{message} ? ": $params{message}" : "");
 		}
 		elsif (defined $params{session}->remote_addr()) {
 			return "web commit from ".
-				$params{session}->remote_addr().
+				IkiWiki::cloak($params{session}->remote_addr()).
 				(length $params{message} ? ": $params{message}" : "");
 		}
 	}

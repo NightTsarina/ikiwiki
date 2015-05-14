@@ -183,10 +183,10 @@ sub rcs_commit_helper (@) {
 	my $user="Anonymous";
 	if (defined $params{session}) {
 		if (defined $params{session}->param("name")) {
-			$user = $params{session}->param("name");
+			$user = IkiWiki::cloak($params{session}->param("name"));
 		}
 		elsif (defined $params{session}->remote_addr()) {
-			$user = $params{session}->remote_addr();
+			$user = IkiWiki::cloak($params{session}->remote_addr());
 		}
 
 		my $nickname=$user;

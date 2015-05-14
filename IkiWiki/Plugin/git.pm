@@ -579,7 +579,7 @@ sub rcs_commit_helper (@) {
 			$u=$params{session}->remote_addr();
 		}
 		if (defined $u) {
-			$u=encode_utf8($u);
+			$u=encode_utf8(IkiWiki::cloak($u));
 			$ENV{GIT_AUTHOR_NAME}=$u;
 		}
 		if (defined $params{session}->param("nickname")) {

@@ -11,8 +11,10 @@ some other form of authentication, such as [[passwordauth]] or [[openid]].
 Users who have logged in using emailauth will have their email address used as
 their username. In places where the username is displayed, like the
 RecentChanges page, the domain will be omitted, to avoid exposing the
-user's email address. Note though that the email address will be visible
-when looking at eg, commits in the git repository.
+user's email address. In places where the full username needs to be put,
+like commits of changes, the email address is cloaked using
+<a href="http://xmlns.com/foaf/spec/#term_mbox_sha1sum">the
+foaf:mbox_sha1sum spec</a>.
 
 This plugin needs the [[!cpan Mail::SendMail]] perl module installed,
 and able to send outgoing email.
