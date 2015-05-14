@@ -63,7 +63,7 @@ sub openid_check_input ($) {
 	defined $q->param("action") && $q->param("action") eq "verify" && defined $openid_url && length $openid_url;
 }
 
-sub openid_auth ($$$) {
+sub openid_auth ($$$$) {
 	my $q=shift;
 	my $session=shift;
 	my $errordisplayer=shift;

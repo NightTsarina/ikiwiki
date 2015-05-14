@@ -21,12 +21,13 @@ sub register_login_plugin ($$$$) {
 	# This sub is passed a cgi object, and should return true
 	# if it looks like the user is logging in using the plugin.
 	my $plugin_check_input=shift;
-	# This sub is passed a cgi object, a session object, and an error
-	# display callback, and should handle the actual authentication.
-	# It can either exit w/o returning, if it is able to handle
-	# auth, or it can pass an error message to the error display
-	# callback to make the openid selector form be re-disiplayed with
-	# an error message on it.
+	# This sub is passed a cgi object, a session object, an error
+	# display callback, and an info display callback, and should
+	# handle the actual authentication. It can either exit w/o
+	# returning, if it is able to handle auth, or it can pass an
+	# error message to the error display callback to make the
+	# openid selector form be re-disiplayed with an error message
+	# on it.
 	my $plugin_auth=shift;
 	$login_plugins{$plugin_name}={
 		setup => $plugin_setup,
@@ -56,6 +57,8 @@ sub login_selector {
 		if ($login_plugins{$plugin}->{check_input}->($q)) {
 			$login_plugins{$plugin}->{auth}->($q, $session, sub {
 				$template->param(login_error => shift());
+			}, sub {
+				$template->param(login_info => shift());
 			});
 			last;
 		}
