@@ -62,7 +62,7 @@ Implementation notes:
   Otherwise, someone could use passwordauth to register as a username that
   looks like an email address, which would be confusing to possibly a
   security hole. Probably best to keep passwordauth and emailauth accounts
-  entirely distinct.
+  entirely distinct. Update: passwordauth never allowed `@` in usernames.
 * Currently, subscription to comments w/o registering is handled by
   passwordauth, by creating a passwordless account (making up a username,
   not using the email address as the username thankfully). That account can be
