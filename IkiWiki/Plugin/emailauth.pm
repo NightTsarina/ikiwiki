@@ -8,7 +8,8 @@ use IkiWiki 3.00;
 
 sub import {
 	hook(type => "getsetup", id => "emailauth", "call" => \&getsetup);
-	hook(type => "cgi", id => "cgi", "call" => \&cgi);
+	hook(type => "cgi", id => "emailauth", "call" => \&cgi);
+	hook(type => "formbuilder_setup", id => "emailauth", "call" => \&formbuilder_setup);
 	IkiWiki::loadplugin("loginselector");
 	IkiWiki::Plugin::loginselector::register_login_plugin(
 		"emailauth",
@@ -108,6 +109,17 @@ sub cgi ($$) {
 		else {
 			loginfailure();
 		}
+	}
+}
+
+sub formbuilder_setup (@) {
+	my %params=@_;
+	my $form=$params{form};
+	my $session=$params{session};
+
+	if ($form->title eq "preferences" &&
+	    IkiWiki::emailuser($session->param("name"))) {
+		$form->field(name => "email", disabled => 1);
 	}
 }
 
