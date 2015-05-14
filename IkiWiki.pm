@@ -1467,7 +1467,10 @@ sub openiduser ($) {
 sub emailuser ($) {
 	my $user=shift;
 	if (defined $user && $user =~ m/(.+)@/) {
-		return $1;
+		my $nick=$1;
+		# remove any characters from not allowed in wiki files
+		$nick=~s/[^$config{wiki_file_chars}]/_/g;
+		return $nick;
 	}
 	return;
 }
