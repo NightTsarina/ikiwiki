@@ -1,0 +1,92 @@
+[[plugins/openid]] and the new [[plugins/emailauth]] both assume that
+the user's authentication identity (how they log in) is suitable as
+an authorization identity (who they are when they have logged in). In
+particular, the OpenID or email address goes into the git history.
+
+Relatedly, I'm not sure I'd be comfortable with enabling [[plugins/emailauth]]
+on my own sites while it writes users' email addresses into the git history:
+non-technical people (and many technical people for that matter) get
+possessive about who can know their email address. The usual expectation for
+email addresses on websites seems to be that they will be used by the site
+owner (and maybe their outsourced service providers), but not available
+to random third parties. The principle of least astonishment would suggest
+that we should do the same here.
+
+(The expectation of privacy for direct git commits is rather different:
+I think we can expect direct git committers to know that they
+should either set a plausible non-email-address in their git identity,
+like I used to use my OpenID, or have good spam filtering.)
+
+If we present email-based users in the "web UI" using only the local-part
+of their address, we also have a potentially confusing situation where
+`chris@example.com` and `chris@other.example.net` both contribute to a wiki:
+if I'm reading the code right, they'd both be presented as `chris`, with no
+way to change that other than using a different email address?
+
+Here is a sketch of a different account model that would address that:
+
+* An account has a username, e.g. `smcv`. It normally matches some regexp that
+  includes neither @ nor / (to rule out collisions with email addresses
+  and OpenIDs).
+
+  * We currently allow qr{-[:alnum:]+/.:_} by default, so passwordauth
+    accounts can in principle collide with OpenIDs. That would probably be
+    worth fixing (for new account creation) anyway - I don't think we want
+    users with / in their names, which would make their user-page into a
+    subpage?
+
+* If passwordauth is enabled, accounts may have a password. Users can
+  authenticate to an account that has a password by entering that password.
+  The username is always the account name (because there's little reason
+  to do anything else).
+
+* If httpauth is enabled, anyone who can authenticate to the web server
+  automatically gets access to the account of the same name in the wiki.
+  (Or we could consider having a configurable map
+  { web-server-level username => wiki account } but the default would be
+  an identity mapping.)
+
+* If OpenID is enabled, accounts may have an OpenID.
+  The owner of that OpenID can log in, and gets logged-in to that account.
+  Either reusing the same OpenID for multiple accounts is not allowed, or
+  if the same OpenID is attached to more than one account the user can choose
+  (as an extra step). Optionally, more than one OpenID could be allowed.
+
+* If emailauth is enabled, accounts may have an email address.
+  Users can authenticate to an account that has an email
+  address (and is not a grandfathered OpenID) by using the token challenge.
+  (passwordauth accounts could already do a password-reset, so this is not
+  any less secure.)
+
+* Creating an account from an email address (maybe also OpenID?) has a new
+  step: choosing a username, with some text about "this name will appear
+  in recentchanges and in the wiki's history". The default would be the
+  local-part (user) from the email address.
+
+* Grandfathered OpenID support: every existing account that looks like an
+  OpenID has that OpenID associated with it, and it cannot be changed or
+  removed. The displayed form is openiduser().
+
+* Grandfathered emailauth support, if required (but it might not be required
+  if we implement this model before the next ikiwiki release): every existing
+  account that looks like an email address has that email address associated
+  with it, and it cannot be changed or removed. The displayed form is
+  emailuser() but we should maybe change that to output something more
+  like `smcv@…`.
+
+* Hypothetically, an account could also have a https client certificate
+  for a new client-certificate plugin, or a Google account for a new OAuth2
+  plugin, or whatever, and all of the above applies equally.
+
+* Unlike the current OpenID support, if the user's authentication provider
+  goes away (or if Google stops doing OAuth2 and moves on to the next big
+  thing), they can associate a different authentication identity with
+  their existing wiki account, and continue.
+
+This is basically the same model that Mozilla Persona encourages,
+except using emailauth ourselves instead of outsourcing (the equivalent
+of) that step to Mozilla.
+
+Thoughts?
+
+--[[smcv]]
