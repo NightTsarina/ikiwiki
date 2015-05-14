@@ -112,3 +112,23 @@ Thoughts anyone? --[[Joey]]
 >>
 >> Of course, spammers can troll git repos for emails anyway, so maybe
 >> this is fine. --[[Joey]]
+
+>>> I'm not so sure this is OK: user expectations for "a random wiki/blog"
+>>> are not the same as for direct git contributions. Common practice for
+>>> websites is for email addresses to be only available to the site owner
+>>> and/or outsourced services - if ikiwiki doesn't work like this,
+>>> I think wiki contributors/blog commenters are going to blame ikiwiki,
+>>> not themselves.
+>>>
+>>> One way to avoid this would be to
+>>> [[separate authentication from authorization]], so our account names
+>>> would be smcv and joey even on a purely emailauth wiki, with the
+>>> fact that we authenticate via email being an implementation detail.
+>>>
+>>> Another way to do it would be to hash the email address,
+>>> so the commit appears to come from
+>>> `smcv <smcv@dc84925053b18a910f4b95fb7ce1bf802eb7d80e>` instead of
+>>> from `smcv <smcv@debian.org>` - if the hash is of `mailto:whatever`
+>>> (like my example one) then it's compatible with
+>>> [FOAF](http://xmlns.com/foaf/spec/#term_mbox_sha1sum).
+>>> --[[smcv]]
