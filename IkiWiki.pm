@@ -1217,7 +1217,7 @@ sub cgiurl (@) {
 	}
 
 	return $cgiurl."?".
-		join("&amp;", map $_."=".uri_escape_utf8($params{$_}), keys %params);
+		join("&amp;", map $_."=".uri_escape_utf8($params{$_}), sort(keys %params));
 }
 
 sub cgiurl_abs (@) {
