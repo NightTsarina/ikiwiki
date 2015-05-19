@@ -83,7 +83,7 @@ sub email_auth ($$$$) {
 		From => "$config{wikiname} admin <".
 			(defined $config{adminemail} ? $config{adminemail} : "")
 			.">",
-		Subject => "$config{wikiname} login",
+		Subject => "$config{wikiname} ( ".$config{url}." ) login",
 		Message => $template->output,
 	) or error(gettext("Failed to send mail"));
 
