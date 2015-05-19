@@ -1471,7 +1471,9 @@ sub emailuser ($) {
 	if (defined $user && $user =~ m/(.+)@/) {
 		my $nick=$1;
 		# remove any characters from not allowed in wiki files
-		$nick=~s/[^$config{wiki_file_chars}]/_/g;
+		# support use w/o %config set
+		my $chars = defined $config{wiki_file_chars} ? $config{wiki_file_chars} : "-[:alnum:]+/.:_";
+		$nick=~s/[^$chars]/_/g;
 		return $nick;
 	}
 	return;
