@@ -78,12 +78,14 @@ sub email_auth ($$$$) {
 	
 	eval q{use Mail::Sendmail};
 	error($@) if $@;
+	my $shorturl=$config{url};
+	$shorturl=~s/^https?:\/\///i;
 	sendmail(
 		To => $email,
 		From => "$config{wikiname} admin <".
 			(defined $config{adminemail} ? $config{adminemail} : "")
 			.">",
-		Subject => "$config{wikiname} login | ".$config{url},
+		Subject => "$config{wikiname} login | $shorturl",
 		Message => $template->output,
 	) or error(gettext("Failed to send mail"));
 
