@@ -22,3 +22,11 @@ As a side note, the accompanying proxy.py might better be placed into some direc
 >> external plugins means it's automatically in their `sys.path` without
 >> needing special configuration. --[[smcv]]
 >> (a mostly-inactive member of Debian's Python modules packaging team)
+
+>>> I mostly agree, but a problem arises when the external plugin we are using is not located in the same directory as the `proxy.py` file, but in a directory somewhere in a `libdir` or `libdirs` directory. Right now (for a soon-to-be published plugin I am working on) the solutions I am thinking about are:
+>>> 
+>>> - Call ikiwiki using ``PYTHONPATH="$PYTHONPATH:/usr/lib/ikiwiki/plugins ikiwiki ...``, but it is a pain to write this each time I want to use this (and any solution like creating a custom script do not seem very nice);
+>>> - Make my plugin add `/usr/lib/ikiwiki/plugins` to its python path, but I do not know how portable this is for a non Debian distribution.
+>>>
+>>> Any better idea (and sorry for digging up an old post).
+>>> -- [[Louis|spalax]]
