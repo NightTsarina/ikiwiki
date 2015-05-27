@@ -11,6 +11,7 @@ sub import {
 	hook(type => "auth", id => "openid", call => \&auth);
 	hook(type => "formbuilder_setup", id => "openid",
 		call => \&formbuilder_setup, last => 1);
+	IkiWiki::loadplugin("emailauth");
 	IkiWiki::loadplugin("loginselector");
 	IkiWiki::Plugin::loginselector::register_login_plugin(
 		"openid",

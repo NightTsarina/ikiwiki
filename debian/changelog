@@ -1,5 +1,6 @@
 ikiwiki (3.20150330) UNRELEASED; urgency=medium
 
+  [ Joey Hess ]
   * New emailauth plugin lets users log in, without any registration,
     by simply clicking on a link in an email.
   * Re-remove google from openid selector; their openid provider is
@@ -12,6 +13,11 @@ ikiwiki (3.20150330) UNRELEASED; urgency=medium
   * passwordauth: Don't allow registering accounts that look like openids.
   * Make cgiurl output deterministic, not hash order. Closes: #785738
     Thanks, Daniel Kahn Gillmor
+
+  [ Simon McVittie ]
+  * Do not enable emailauth by default, to avoid surprises on httpauth-only
+    sites. Enable it by default in openid instead, since it is essentially
+    a replacement for OpenIDs.
 
  -- Joey Hess <id@joeyh.name>  Tue, 28 Apr 2015 12:24:08 -0400
 

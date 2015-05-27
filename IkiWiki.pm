@@ -165,7 +165,7 @@ sub getsetup () {
 	default_plugins => {
 		type => "internal",
 		default => [qw{mdwn link inline meta htmlscrubber passwordauth
-				openid emailauth signinedit lockedit conditional
+				openid signinedit lockedit conditional
 				recentchanges parentlinks editpage
 				templatebody}],
 		description => "plugins to enable by default",
