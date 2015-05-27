@@ -8,7 +8,7 @@ This code is licenced under the New BSD License.
 var selections_email_large = {
     email: {
         name: 'Email',
-	icon: 'wikiicons/email.png',
+	icon: 'wikiicons/emaillogin.png',
         label: 'Enter your email address:',
         url: null
     }
