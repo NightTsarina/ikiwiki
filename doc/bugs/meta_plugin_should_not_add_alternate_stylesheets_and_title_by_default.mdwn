@@ -1,0 +1,36 @@
+The meta plugin, when used to add a stylesheet to a page, adds the
+following attributes by default:
+
+  - `rel="alternate stylesheet"`
+  - `title="mystylesheet"`
+
+The intent of this feature, according to the documentation is to "add a
+stylesheet to a page".
+
+  - By setting the `rel="alternate stylesheet"`, the additional
+    stylesheet is treated as an "alternate stylesheet" as described in
+<http://www.w3.org/Style/Examples/007/alternatives.en.html> and is not
+activated by default in the browser. The user is responsible for
+activating them somehow.
+  - The `title` attribute is used to *group* several alternate style
+    sheets into a single one. This attribute is otherwise "purely
+advisory" as defined in
+<http://www.w3.org/TR/html5/document-metadata.html#attr-link-title>.
+
+The current default behavior of the plugin implies having the additional
+stylesheet not activated (if you don't set `rel="stylesheet"`) or only
+one of them activated (if you add two stylesheets and not set the same
+title for both). This was hard to understand for two of us while working
+on <https://labs.riseup.net/code/issues/9314> and until we went and read
+those W3C documents.
+
+I think that to match better the description of that feature, and to be
+easier to comprehend in its default setting, the meta plugin should by
+default:
+
+  - Set `rel="alternate stylesheet"`.
+  - Not set any `title`.
+
+If we agree on this proposal, I'm willing to provide a patch.
+
+This applies to all versions since c8b4ba3 and until today.
