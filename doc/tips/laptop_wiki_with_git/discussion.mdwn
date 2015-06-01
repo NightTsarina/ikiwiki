@@ -23,3 +23,7 @@ Managing two setup files (one for the server and one for the laptop) is however 
 One solution is to allow multiple use of `--setup` on the command line : the first is the main setup file (the one from the server, e.g. `main.setup`) and the second is the specificities of the laptop clone (e.g `laptop.setup`). In such a situation ikiwiki is called with `ikiwiki --setup main.setup` on the server and `ikiwiki --setup main.setup --setup laptop.setup` on the laptop (merging both configuration data in order).
 
 This solution seems to work, but are there any bad side effects which I miss doing that (I thought that in IkiWiki code only one setupfile is keeped) ? --[[bbb]]
+
+Unfortunatley that does not fully work, as soon as `cgi_wrapper` is defined in setup file since each time ikiwiki reads a setup file it adds (not replace) a wrapper in `$config{wrappers}`.
+
+I am still trying to find an idea to share config data through server and laptop. --[[bbb]]
