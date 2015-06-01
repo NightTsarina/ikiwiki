@@ -1,0 +1,98 @@
+[[!toc]]
+
+---
+
+# NAME
+
+IkiWiki::Plugin::opengraph - Adds Open Graph tags on the html head
+
+---
+
+# DESCRIPTION
+
+This plugin implements the Open Graph tags in the head of the hmtl for all pages, provided you configure it properly and add it to the current template.
+For more information on what is Open Graph, visit [[!wikipedia Open_Graph]].
+To test your site against the Open Graph rules, use the tool available on <https://developers.facebook.com/tools/debug/og/object/>.
+
+
+> **WARNING: Open Graph is modern spyware. You should use this if and only if you don't mind making the readers of your wiki/blog being tracked by evil corporations without their consent. By using this plugin you are being mean to the people who are reading your content. You have been warned.**
+
+---
+
+# INSTALLATION
+
+Put [opengraph.pm](https://notabug.org/hiatobr/ikiwiki-plugin-opengraph/raw/master/opengraph.pm) in *${HOME}/.ikiwiki/IkiWiki/Plugin/* or elsewhere in
+your *@INC* path. Or read [[/plugins/install]].
+
+---
+
+# CONFIGURATION
+
+Add to the configuration in your [[blog.setup|/setup#index5h2]] file.
+
+    ## Open Graph plugin
+    # For more information, see
+    # <https://en.wikipedia.org/wiki/Open_Graph#Open_Graph_protocol>.
+    # Default values for <http://ikiwiki.info>
+    # obtained from <https://developers.facebook.com/tools/debug/og/object/>
+    # meta property="og:title"
+    opengraph_title: "ikiwiki"
+    # meta property="og:type"
+    opengraph_type: "website"
+    # meta property="og:url"
+    opengraph_url: "http://ikiwiki.info/"
+    # meta property="og:image"
+    opengraph_image: "http://ikiwiki.info/logo/ikiwiki.png"
+    # meta property="og:description"
+    opengraph_description: "Ikiwiki is a wiki compiler."
+
+Add *opengraph* to the list of plugins:
+
+    add_plugins => [qw{goodstuff opengraph}]
+
+---
+
+# TEMPLATES
+
+You will need to add the following code to [[page.tmpl|/templates]] on the current
+[[template|/templates]]. It **must** be in the <head> section of the <html>. I recommend
+puting it after the <title> tag.
+
+    <TMPL_IF OPENGRAPH>
+    <TMPL_VAR OPENGRAPH_TAGS>
+    </TMPL_IF>
+
+---
+
+# BUGS AND LIMITATIONS
+
+...that's not a bug. It's an issue. Issues shall be reported [here](https://notabug.org/hiatobr/ikiwiki-plugin-opengraph/issues)
+
+---
+
+# LICENSE AND COPYRIGHT
+
+Copyleft (.) 2015 Hacklab Independência
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+---
+
+# SEE ALSO
+
+[[index]]
+
+[[!wikipedia Open_Graph]]
+
+[[plugins/contrib/opengraph]]
