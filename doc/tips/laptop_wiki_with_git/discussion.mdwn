@@ -13,3 +13,13 @@ Or, was this last remark about rebuilding after pulling meant to apply to rebuil
 
 I have followed this idea too, however after pushing to the server running gitk in the scrdir shows that the remotes/origin/master branch is newer than the master. Is this normal? Have I reset the master branch to remotes/origin/master then every time when someone pushed something (and run ikiwiki -setup afterwards?)
 [[Micheal]]
+
+-----
+
+I like the idea of having some common configuration (let's say of plugins) in the server as well as on the laptop clone. In the ideal situations only some dir should be different (src, dest, lib, etc.) in the two setup files.
+
+Managing two setup files (one for the server and one for the laptop) is however a pain since each time a change is made on the server (through websetup for instance) one has to manually integrated it (after being made aware of it) on the laptop setup file and vice-versa
+
+One solution is to allow multiple use of `--setup` on the command line : the first is the main setup file (the one from the server, e.g. `main.setup`) and the second is the specificities of the laptop clone (e.g `laptop.setup`). In such a situation ikiwiki is called with `ikiwiki --setup main.setup` on the server and `ikiwiki --setup main.setup --setup laptop.setup` on the laptop (merging both configuration data in order).
+
+This solution seems to work, but are there any bad side effects which I miss doing that (I thought that in IkiWiki code only one setupfile is keeped) ? --[[bbb]]
