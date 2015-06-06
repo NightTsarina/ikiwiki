@@ -1,0 +1,12 @@
+`IkiWiki::Plugin::img` appends `[$pagenumber]` to the filename to deal with multipage documents such as PDFs.
+However, `Image::Magick` doesn't seem to like page selection for filenames containing a colon.  This is also the case for imagemagick binaries:
+
+    $ identify 'screenshot_2015-06-06_18:37:53.png'
+    screenshot_2015-06-06_18:37:53.png PNG 453x122 453x122+0+0 8-bit sRGB 11.2KB 0.000u 0:00.000
+    $ identify 'screenshot_2015-06-06_18:37:53.png[0]'
+    identify: no decode delegate for this image format `37' @ error/constitute.c/ReadImage/501.
+    $ mv 'screenshot_2015-06-06_18:37:53.png' 'screenshot_2015-06-06_18-37-53.png'
+    $ identify 'screenshot_2015-06-06_18-37-53.png[0]'
+    screenshot_2015-06-06_18-37-53.png[0]=>screenshot_2015-06-06_18-37-53.png PNG 453x122 453x122+0+0 8-bit sRGB 11.2KB 0.000u 0:00.000
+
+This might be an imagemagick bug, but it's also possible that colons are interpreted somehow.  Anyway, to render such images properly in ikiwiki I had to remove the colons.  An easy fix is to remove ‘:’ from `wiki_file_chars`, but this can break existing installations.  A better solution would be to make `IkiWiki::Plugin::img` croak on such image filenames (which anyway are currently not rendered, but `Image::Magick`'s error message is quite cryptic).
