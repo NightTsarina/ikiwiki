@@ -133,8 +133,10 @@ sub formbuilder (@) {
 	return if ! defined $form->field("do") || ($form->field("do") ne "edit" && $form->field("do") ne "create") ;
 
 	my $filename=Encode::decode_utf8(scalar $q->param('attachment'));
+	my $handle=$q->upload('attachment');
+
 	if (defined $filename && length $filename) {
-		attachment_store($filename, $form, $q, $params{session});
+		attachment_store($filename, $handle, $form, $q, $params{session});
 	}
 
 	if ($form->submitted eq "Save Page") {
@@ -190,13 +192,20 @@ sub is_held_attachment {
 # Stores the attachment in a holding area, not yet in the wiki proper.
 sub attachment_store {
 	my $filename=shift;
+	my $handle=shift;
 	my $form=shift;
 	my $q=shift;
 	my $session=shift;
-	
-	# This is an (apparently undocumented) way to get the name
-	# of the temp file that CGI writes the upload to.
-	my $tempfile=$q->tmpFileName($filename);
+
+	my $tempfile;
+	if (defined $handle) {
+		# This is what works in CGI.pm 4.09+: $q->tmpFileName($q->upload('attachment'))
+		$tempfile=$q->tmpFileName($handle);
+	}
+	if (! defined $tempfile || ! length $tempfile) {
+		# This is what is *documented* in CGI.pm 4.09: $q->tmpFileName($q->param('attachment'))
+		$tempfile=$q->tmpFileName($filename);
+	}
 	if (! defined $tempfile || ! length $tempfile) {
 		# perl 5.8 needs an alternative, awful method
 		if ($q =~ /HASH/ && exists $q->{'.tmpfiles'}) {
@@ -205,9 +214,9 @@ sub attachment_store {
 				last if defined $tempfile && length $tempfile;
 			}
 		}
-		if (! defined $tempfile || ! length $tempfile) {
-			error("CGI::tmpFileName failed to return the uploaded file name");
-		}
+	}
+	if (! defined $tempfile || ! length $tempfile) {
+		error("CGI::tmpFileName failed to return the uploaded file name");
 	}
 
 	$filename=IkiWiki::basename($filename);
