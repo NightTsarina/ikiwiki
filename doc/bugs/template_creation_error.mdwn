@@ -234,6 +234,13 @@ same logic as IkiWiki itself. I don't think that's serious. --[[smcv]]
 >>> drop the contents of `%scanned` and rely on a single boolean
 >>> flag instead.
 >>>
+>>>> This is not actually good enough for the templatebody
+>>>> directive, which does in fact need to scan certain pages
+>>>> during the render phase, namely when a page that is rendered
+>>>> due to dependencies uses a template that no other page being
+>>>> rendered in this pass was using. I've reverted this optimization,
+>>>> to fix [[wrong rendering of templatebody]]. --[[smcv]]
+>>>
 >>> `%scanned` is likely to be no larger than `%rendered`, which
 >>> we already track, and whose useful lifetime does not overlap
 >>> with `%scanned` now. I was tempted to merge them both and call
