@@ -18,6 +18,13 @@ of my templates renders as the *rest* of the template page when used, instead of
 the body part. In other words, it renders exactly the part it should hide (the
 description) and ignores the body itself (which is inside \[[!templatebody]]).
 
+> With a hint from [[kjs]] on [[templates/discussion]], I was able to reproduce
+> this bug. It seems to have been caused by an optimization: please try applying
+> [commit 5fd863b5](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=5fd863b5b05449669ec56c6798d836e3302386e2)
+> to your Render.pm. I'll try to work out a way to have the optimization
+> without the correctness impact, but for now, reverting the optimization,
+> which I have [[done]], seems like the way forward. --[[smcv]]
+
 When I manually re-generate the wiki, it suddenly renders right. As soon as the
 page gets rebuilt automatically after some git push, it renders the wrong way.
 
