@@ -59,6 +59,5 @@ album and img plugins. --[[kjs]]
 >> Thanks, that was the hint I needed to be able to reproduce this bug. It seems
 >> to have been caused by an optimization: please try applying
 >> [commit 5fd863b5](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=5fd863b5b05449669ec56c6798d836e3302386e2)
->> to your Render.pm. I'll try to work out a way to have the optimization
->> without the correctness impact, but for now, reverting the optimization
->> seems like the way forward. --s
+>> to your Render.pm. A follow-up commit partially restores the optimization,
+>> only for rebuilds. --[[smcv]]

@@ -21,9 +21,9 @@ description) and ignores the body itself (which is inside \[[!templatebody]]).
 > With a hint from [[kjs]] on [[templates/discussion]], I was able to reproduce
 > this bug. It seems to have been caused by an optimization: please try applying
 > [commit 5fd863b5](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=5fd863b5b05449669ec56c6798d836e3302386e2)
-> to your Render.pm. I'll try to work out a way to have the optimization
-> without the correctness impact, but for now, reverting the optimization,
-> which I have [[done]], seems like the way forward. --[[smcv]]
+> to your Render.pm. A follow-up commit partially brings back the optimization
+> (only for rebuilds). So I think this is [[done]]? (remove that link if
+> not) --[[smcv]]
 
 When I manually re-generate the wiki, it suddenly renders right. As soon as the
 page gets rebuilt automatically after some git push, it renders the wrong way.
