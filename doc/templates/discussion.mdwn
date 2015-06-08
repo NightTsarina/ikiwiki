@@ -11,6 +11,8 @@ note and popups are templates? But they're not in the templates directory, and i
 > > I intend do (mis)use links for a horizontal navigation. Or may I be better off altering page.tmpl?
 > > --z3ttacht
 
+----
+
 Is there a list of the TMPL_VAR-Variables that are defined by ikiwiki?
 
 What I'm trying to achieve is to print the URL of every page on the page itself and therefore I would need the corresponding value in the Template.
@@ -21,11 +23,26 @@ Am I missing something?  --[[jwalzer]]
 > the moment), a [[plugin|plugins/write]] to add one would be about 10
 > lines of perl - you'd just need to define a `pagetemplate` hook. --[[smcv]]
 
+----
+
 Is there a list of all the available variables somewhere, or do I just grep the source for TMPL_VAR?  And is there a way to refer to a variable inside of a wiki page or does it have to be done from a template?  Thanks. -- [[AdamShand]]
 
 I pulled a list of variables and posted it, its in the history for [[templates]] under my name. [[justint]]
 
-I am trying to override `page.tmpl` by providing `templates/page.tmpl` in my `srcdir`- this works, but now `templates/page.tmpl` is created in my `destdir` as well! Is this expected? Is there a way to avoid this? --chenz
+----
+
+I am trying to override `page.tmpl` by providing `templates/page.tmpl` in my `srcdir`- this works, but now `templates/page.tmpl` is created in my `destdir` as well! Is this expected? --chenz
+
+> Yes. Every file found in the wiki is treated as either a page (passed through the whole
+> rendering pipeline to HTML) or an attachment (copied as-is). --[[smcv]]
+
+Is there a way to avoid this? --chenz
+
+> With the page in your wiki's git repository: not currently.
+> You can define a `templatedir` in your setup file and put your overridden page.tmpl
+> there instead. --s
+
+----
 
 I'm seeing some curious behaviour with `$srcdir/templates/` templates not being found when
 pushing from a remote computer. Touching the relevant file on the server and
@@ -34,6 +51,14 @@ pushing from a remote computer. Touching the relevant file on the server and
 might be causing this? I'm running a custom branch of ikiwiki master from a
 couple of weeks ago so could be my own doing but my changes are mainly to the
 album and img plugins. --[[kjs]]
+
 > Seems like the issue is rather that the templates aren't found/triggered
 > when the page render is set off by dependencies rather than direct editing
 > of the page. Not the remove local issue mentioned above. --[[kjs]]
+
+>> Thanks, that was the hint I needed to be able to reproduce this bug. It seems
+>> to have been caused by an optimization: please try applying
+>> [commit 5fd863b5](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=5fd863b5b05449669ec56c6798d836e3302386e2)
+>> to your Render.pm. I'll try to work out a way to have the optimization
+>> without the correctness impact, but for now, reverting the optimization
+>> seems like the way forward. --s
