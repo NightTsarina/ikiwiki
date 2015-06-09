@@ -111,7 +111,7 @@ sub genpage ($$) {
 	}
 	templateactions($template, $page);
 
-	my @backlinks=sort { $a->{page} cmp $b->{page} } backlinks($page);
+	my @backlinks=sort { $a->{page} cmp $b->{page} || $a->{url} cmp $b->{url} } backlinks($page);
 	my ($backlinks, $more_backlinks);
 	if (@backlinks <= $config{numbacklinks} || ! $config{numbacklinks}) {
 		$backlinks=\@backlinks;
