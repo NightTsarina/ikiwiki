@@ -566,6 +566,14 @@ sub getsetup () {
 		safe => 1,
 		rebuild => 1,
 	},
+	deterministic => {
+		type => "boolean",
+		default => 0,
+		description => "try harder to produce deterministic output",
+		safe => 1,
+		rebuild => 1,
+		advanced => 1,
+	},
 }
 
 sub getlibdirs () {
