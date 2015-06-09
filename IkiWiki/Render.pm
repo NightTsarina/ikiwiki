@@ -474,7 +474,11 @@ sub find_new_files ($) {
 			}
 			$pagecase{lc $page}=$page;
 			if (! exists $pagectime{$page}) {
-				my $ctime=(srcfile_stat($file, 1))[10];
+				my @stat=srcfile_stat($file, 1);
+				# For the creation time of the page, take the
+				# inode change time (not creation time!) or
+				# the modification time, whichever is older.
+				my $ctime=($stat[10] < $stat[9] ? $stat[10] : $stat[9]);
 				$pagectime{$page}=$ctime if defined $ctime;
 			}
 		}
