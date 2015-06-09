@@ -39,7 +39,7 @@ sub preprocess (@) {
 			htmllink($page, $params{destpage}, $link, noimageinline => 1),
 			join(", ", map {
 				htmllink($params{page}, $params{destpage}, $_, 	noimageinline => 1)
-			} @pages)
+			} sort @pages)
 		);
 	}
 	
