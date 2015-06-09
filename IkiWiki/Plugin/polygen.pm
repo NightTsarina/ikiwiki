@@ -28,6 +28,7 @@ sub preprocess (@) {
 	my %params=@_;
 	my $grammar = ($params{grammar} or 'polygen');
 	my $symbol = ($params{symbol} or undef);
+	my $options = ($config{deterministic} ? '-seed 42' : '');
 
 	# Sanitize parameters
 	$grammar =~ IkiWiki::basename($grammar);
@@ -51,10 +52,10 @@ sub preprocess (@) {
 	
 	my $res;
 	if (defined $symbol) {
-		$res = `polygen -S $symbol $grmfile 2>/dev/null`;
+		$res = `polygen -S $symbol $options $grmfile 2>/dev/null`;
 	}
 	else {
-		$res = `polygen $grmfile 2>/dev/null`;
+		$res = `polygen $options $grmfile 2>/dev/null`;
 	}
 
 	if ($?) {
