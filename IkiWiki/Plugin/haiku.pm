@@ -25,7 +25,13 @@ sub preprocess (@) {
 
 	my $haiku;
 	eval q{use Coy};
-	if ($@ || ! Coy->can("Coy::with_haiku")) {
+	if ($config{deterministic}) {
+		$haiku = "Coy changes often.
+			  For deterministic builds
+			  try this substitute.
+			 ",
+	}
+	elsif ($@ || ! Coy->can("Coy::with_haiku")) {
 		my @canned=(
 			"The lack of a Coy:
 			 No darting, subtle haiku.
