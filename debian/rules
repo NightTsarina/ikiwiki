@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 %:
-	dh $@
+	LC_ALL=C.UTF-8 TZ=UTC dh $@
 
 override_dh_auto_configure:
 	# keeps it out of /usr/local
