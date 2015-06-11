@@ -1,0 +1,46 @@
+News for ikiwiki 3.20150610:
+
+   The new [[plugins/emailauth]] plugin allows users to authenticate using an email
+   address, without otherwise creating an account.
+   The [[plugins/openid]] plugin now enables emailauth by default. Please include
+   emailauth in the `disable_plugins` setting if this is not desired.
+   Conversely, if emailauth is required on a wiki that does not enable
+   openid, you can list it in the `enable_plugins` setting.
+
+ikiwiki 3.20150610 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+ * [ [[Joey Hess|joey]] ]
+   * New [[plugins/emailauth]] plugin lets users log in, without any registration,
+     by simply clicking on a link in an email.
+   * Re-remove google from [[plugins/openid]] selector; their openid provider is
+     gone for good.
+   * Make the openid selector display "Password" instead of "Other"
+     when appropriate, so users are more likely to click on it when
+     they don't have an openid.
+   * Converted openid-selector into a more generic loginselector helper
+     plugin.
+   * passwordauth: Don't allow registering accounts that look like openids.
+   * Make cgiurl output deterministic, not hash order. Closes: #[785738](https://bugs.debian.org/785738)
+     Thanks, Daniel Kahn Gillmor
+ * [ [[Simon McVittie|smcv]] ]
+   * Do not enable emailauth by default, to avoid surprises on httpauth-only
+     sites. Enable it by default in openid instead, since it is essentially
+     a replacement for OpenIDs.
+   * Make the attachment plugin work with CGI.pm 4.x (Closes: #[786586](https://bugs.debian.org/786586);
+     workaround for #[786587](https://bugs.debian.org/786587) in libcgi-pm-perl)
+   * Add a public-domain email icon from tango-icon-theme
+   * Populate pagectime from either mtime or inode change time,
+     whichever is older, again for more reproducible builds
+   * debian: build the docwiki with LC\_ALL=C.UTF-8 and TZ=UTC
+   * debian/copyright: consolidate permissive licenses
+   * debian/copyright: turn comments on provenance into Comment
+   * [[plugins/brokenlinks]]: sort the pages that link to the missing page, for
+     better reproducibility
+   * Add \[[!meta date]] to news items and tips, since the git checkout
+     and build process can leave the checkout date in the tarball
+     release, leading to unstable sorting
+   * Sort backlinks deterministically, by falling back to sorting by href
+     if the link text is identical
+   * Add a `$config{deterministic}` option and use it for the docwiki
+   * [[plugins/haiku]]: if deterministic build is requested, return a hard-coded haiku
+   * [[plugins/polygen]]: if deterministic build is requested, use a well-known random seed"""]]
