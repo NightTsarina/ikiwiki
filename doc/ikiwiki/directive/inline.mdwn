@@ -94,7 +94,9 @@ Here are some less often needed parameters:
   markup around it, as if it were a literal part of the source of the 
   inlining page.
 * `sort` - Controls how inlined pages are [[sorted|pagespec/sorting]].
-  The default is to sort the newest created pages first.
+  The default is to sort the newest created pages first, and if pages
+  were created in the same commit, sort them by the name of the page
+  (equivalent to `sort="age title"`).
 * `reverse` - If set to "yes", causes the sort order to be reversed.
 * `feedshow` - Specify the maximum number of matching pages to include in
   the rss/atom feeds. The default is the same as the `show` value above.

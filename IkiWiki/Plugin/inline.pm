@@ -160,16 +160,17 @@ sub preprocess_inline (@) {
 		# Running in scan mode: only do the essentials
 
 		if (yesno($params{trail}) && IkiWiki::Plugin::trail->can("preprocess_trailitems")) {
-			# default to sorting age, the same as inline itself,
-			# but let the params override that
-			IkiWiki::Plugin::trail::preprocess_trailitems(sort => 'age', %params);
+			# default to sorting by age with fallback to title,
+			# the same as inline itself, but let the params
+			# override that
+			IkiWiki::Plugin::trail::preprocess_trailitems(sort => 'age title', %params);
 		}
 
 		return;
 	}
 
 	if (yesno($params{trail}) && IkiWiki::Plugin::trail->can("preprocess_trailitems")) {
-		scalar IkiWiki::Plugin::trail::preprocess_trailitems(sort => 'age', %params);
+		scalar IkiWiki::Plugin::trail::preprocess_trailitems(sort => 'age title', %params);
 	}
 
 	my $raw=yesno($params{raw});
@@ -245,7 +246,7 @@ sub preprocess_inline (@) {
 		@list = pagespec_match_list($params{page}, $params{pages},
 			deptype => deptype($quick ? "presence" : "content"),
 			filter => sub { $_[0] eq $params{page} },
-			sort => exists $params{sort} ? $params{sort} : "age",
+			sort => exists $params{sort} ? $params{sort} : "age title",
 			reverse => yesno($params{reverse}),
 			($num ? (num => $num) : ()),
 		);
