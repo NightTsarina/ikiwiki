@@ -76,7 +76,7 @@ sub preprocess (@) {
 	my $im = Image::Magick->new();
 	my $imglink;
 	my $imgdatalink;
-	my $r = $im->Read("$srcfile\[$pagenumber]");
+	my $r = $im->Read(":$srcfile\[$pagenumber]");
 	error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 
 	if (! defined $im->Get("width") || ! defined $im->Get("height")) {

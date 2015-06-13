@@ -9,4 +9,28 @@ However, `Image::Magick` doesn't seem to like page selection for filenames conta
     $ identify 'screenshot_2015-06-06_18-37-53.png[0]'
     screenshot_2015-06-06_18-37-53.png[0]=>screenshot_2015-06-06_18-37-53.png PNG 453x122 453x122+0+0 8-bit sRGB 11.2KB 0.000u 0:00.000
 
-This might be an imagemagick bug, but it's also possible that colons are interpreted somehow.  Anyway, to render such images properly in ikiwiki I had to remove the colons.  An easy fix is to remove ‘:’ from `wiki_file_chars`, but this can break existing installations.  A better solution would be to make `IkiWiki::Plugin::img` croak on such image filenames (which anyway are currently not rendered, but `Image::Magick`'s error message is quite cryptic).
+This might be an imagemagick bug, but it's also possible that colons
+are interpreted somehow.
+
+> Yes they are: ImageMagick has syntax to force the file to be
+> interpreted as a particular format, like gif:foobar.img to
+> read foobar.img as a GIF, or to use unusual I/O patterns, like
+> fd:5. --[[smcv]]
+
+Anyway, to render such images properly in ikiwiki I had to remove
+the colons.  An easy fix is to remove ‘:’ from `wiki_file_chars`,
+but this can break existing installations.
+
+> I think we should remove `:` from the default `wiki_file_chars`
+> either as soon as we have a way to handle backwards compatibility,
+> or in ikiwiki 4; but you're right that it's a compat problem,
+> so we can't just do that as a solution. --s
+
+A better solution would be to make `IkiWiki::Plugin::img` croak on
+such image filenames (which anyway are currently not rendered, but
+`Image::Magick`'s error message is quite cryptic).
+
+> Better still would be to fix the bug by escaping the filename
+> so ImageMagick treats it as just a filename. It seems the way
+> to do that is to call `Read(":hello:world.png")` instead of
+> `Read("hello:world.png")`, which I have now [[done]]. --s

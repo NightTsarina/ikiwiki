@@ -24,6 +24,11 @@ my $SVGS_WORK = defined $magick->QueryFormat("svg");
 ok(! system("rm -rf t/tmp; mkdir -p t/tmp/in"));
 
 ok(! system("cp t/img/redsquare.png t/tmp/in/redsquare.png"));
+# colons in filenames are a corner case for img
+ok(! system("cp t/img/redsquare.png t/tmp/in/hello:world.png"));
+ok(! system("cp t/img/redsquare.png t/tmp/in/a:b:c.png"));
+ok(! system("cp t/img/redsquare.png t/tmp/in/a:b:c:d.png"));
+ok(! system("cp t/img/redsquare.png t/tmp/in/a:b:c:d:e:f:g:h:i:j.png"));
 
 if ($SVGS_WORK) {
 	writefile("emptysquare.svg", "t/tmp/in",
@@ -42,6 +47,9 @@ writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
 [[!img redsquare.png]]
 [[!img redsquare.png size=10x]]
 [[!img redsquare.png size=30x50]] expecting 30x30
+[[!img hello:world.png size=x8]] expecting 8x8
+[[!img a:b:c.png size=x4]]
+[[!img a:b:c:d:e:f:g:h:i:j.png size=x6]]
 $maybe_svg_img
 [[!img twopages.pdf size=12x]]
 [[!img twopages.pdf size=16x pagenumber=1]]
@@ -57,7 +65,7 @@ ok(! system($command));
 sub size($) {
 	my $filename = shift;
 	my $im = Image::Magick->new();
-	my $r = $im->Read($filename);
+	my $r = $im->Read(":$filename");
 	return "no image" if $r;
 	my $w = $im->Get("width");
 	my $h = $im->Get("height");
@@ -78,6 +86,10 @@ if ($SVGS_WORK) {
 
 is(size("$outpath/12x-twopages.png"), "12x12");
 is(size("$outpath/16x-p1-twopages.png"), "16x2");
+ok($outhtml =~ /width="8" height="8".*expecting 8x8/);
+is(size("$outpath/x8-hello:world.png"), "8x8");
+is(size("$outpath/x4-a:b:c.png"), "4x4");
+is(size("$outpath/x6-a:b:c:d:e:f:g:h:i:j.png"), "6x6");
 
 # now let's remove them again
 
@@ -90,6 +102,9 @@ if (1) { # for easier testing
 	ok(! -e "$outpath/10x-simple-svg.png");
 	ok(! -e "$outpath/10x-simple-pdf.png");
 	ok(! -e "$outpath/10x-p1-simple-pdf.png");
+	ok(! -e "$outpath/x8-hello:world.png");
+	ok(! -e "$outpath/x4-a:b:c.png");
+	ok(! -e "$outpath/x6-a:b:c:d:e:f:g:h:i:j.png");
 
 	# cleanup
 	ok(! system("rm -rf t/tmp"));
