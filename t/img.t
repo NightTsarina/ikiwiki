@@ -55,6 +55,7 @@ $maybe_svg_img
 [[!img twopages.pdf size=16x pagenumber=1]]
 EOF
 );
+ok(utime(333333333, 333333333, "t/tmp/in/imgconversions.mdwn"));
 
 ok(! system("make -s ikiwiki.out"));
 
