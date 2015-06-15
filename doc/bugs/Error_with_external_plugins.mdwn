@@ -1,0 +1,35 @@
+Hello,
+I stumbled upon this bug when writing a Python plugin. I think this is a ikiwiki bug, since I do not think my plugin does anything wrong.
+
+# Example
+
+I set up an example wiki, containing the setup file and the plugin, [[on github|https://github.com/paternal/ikiwiki-rpcbug]].
+
+1. Clone the repository
+
+        git clone https://github.com/paternal/ikiwiki-rpcbug.git
+
+2. Change to the right directory
+
+        cd ikiwiki-rpcbug
+
+2. Add the right ikiwiki directory to PYTHONPATH
+
+        export PYTHONPATH="$PYTHONPATH:$(dirname $(dpkg -L ikiwiki | grep proxy))"
+
+3. Build the wiki
+
+        ikiwiki --setup wiki.setup --rebuild
+
+4. The problem is in page [[http://localhost/~USERNAME/ikiwiki_bug_rpc/foo/]] (for instance, [[http://localhost/~USERNAME/ikiwiki_bug_rpc]] is fine.
+
+# Problem
+
+Page `foo` contains the directive ``[[!rpcbug]]`` (`rpcbug` being the name of the plugin). Calling [[``proxy.rpc("srcfile", "bar")``|https://github.com/paternal/ikiwiki-rpcbug/blob/master/plugins/rpcbug#L15]] in the preprocess function seems to mess up the RPC communication between ikiwiki and the plugin, and the result is that the generate `foo/index.html` page is a text file containing the return value of the `preprocess` call.
+
+What I do not understand is that disabling the `format` function (by commenting [[line 46 of the plugin|https://github.com/paternal/ikiwiki-rpcbug/blob/master/plugins/rpcbug#L46]]) solves the problem. Half of an explaination is that I think that when the the ``proxy.rpc`` function is called, the RPC communication is messed up in such a way that the `format` function is not called, and the return value of `preprocess` is considered to be the whole html code of the resulting page.
+
+I hope someone will understand the problem better than I do, because I have no idea about how to solve this.
+
+Regards,    
+-- Louis
