@@ -146,8 +146,8 @@ sub gen_image ($$$$) {
 	my $tex = $config{teximg_prefix};
 	$tex .= '\['.$code.'\]';
 	$tex .= $config{teximg_postfix};
-	$tex =~ s!\\documentclass{article}!\\documentclass[${height}pt]{article}!g;
-	$tex =~ s!\\documentclass{scrartcl}!\\documentclass[${height}pt]{scrartcl}!g;
+	$tex =~ s!\\documentclass\{article}!\\documentclass[${height}pt]{article}!g;
+	$tex =~ s!\\documentclass\{scrartcl}!\\documentclass[${height}pt]{scrartcl}!g;
 
 	my $tmp = eval { create_tmp_dir($digest) };
 	if (! $@ &&
