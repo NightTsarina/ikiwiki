@@ -29,7 +29,9 @@ Page `foo` contains the directive ``[[!rpcbug]]`` (`rpcbug` being the name of th
 
 What I do not understand is that disabling the `format` function (by commenting [[line 46 of the plugin|https://github.com/paternal/ikiwiki-rpcbug/blob/master/plugins/rpcbug#L46]]) solves the problem. Half of an explaination is that I think that when the the ``proxy.rpc`` function is called, the RPC communication is messed up in such a way that the `format` function is not called, and the return value of `preprocess` is considered to be the whole html code of the resulting page.
 
+> I understood that: as the first rpc call messes up the communication, more rpc calls are messed up, but if there is only one rpc call, not that much is broken. -- [[Louis|spalax]]
+
 I hope someone will understand the problem better than I do, because I have no idea about how to solve this.
 
 Regards,    
--- Louis
+-- [[Louis|spalax]]
