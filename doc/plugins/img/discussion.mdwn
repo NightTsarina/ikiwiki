@@ -23,5 +23,10 @@ Is it possible to give an external image URL, must the image be local? One use c
 
 > Eventually wrote my own plugin: [[plugins/contrib/rimg]]. --[[Louis|spalax]]
 
->> What's wrong with using a wikilink, \[[https://img.shields.io/github/stars/joeyh/ikiwiki.svg]]?
->> --[[smcv]]
+>> All the markup formats supported by ikiwiki can do raw HTML (possibly
+>> filtered), so you can use `<img>` for basic remote images; or you can
+>> use your chosen markup format's image syntax, like
+>> !\[some stars](https://img.shields.io/github/stars/joeyh/ikiwiki.svg)
+>> for Markdown. I don't think ikiwiki directives should duplicate markup
+>> formats' features unless it makes a significant difference to functionality
+>> or usability. --[[smcv]]
