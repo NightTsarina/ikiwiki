@@ -1,0 +1,37 @@
+[[!comment format=mdwn
+ username="https://launchpad.net/~beaufils"
+ nickname="beaufils"
+ subject="*Bug* is still there and I have the same need"
+ date="2015-06-22T10:16:59Z"
+ content="""
+I am not sure if that is a bug or a feature, but it is annoying and definitively related to this post: 
+
+    $ echo A >src/get
+    $ echo A >src/noget
+    
+    $ ikiwiki src out
+    $ cat out/noget 
+    A
+    
+    $ ikiwiki src out --exclude noget
+    $ cat out/noget 
+    A
+    
+    $ ikiwiki src out --exclude noget --rebuild
+    $ cat out/noget 
+    A
+    
+    $ rm out/noget 
+    rm : remove file «out/noget» ? y
+    
+    $ ikiwiki src out --exclude noget 
+    $ cat out/noget
+    cat: cannot access out/noget: No such file or director
+
+I am really confused with the exclude feature.
+
+Is there a way to make ikiwiki consider that a file in the `srcdir` should not be present in the `destdir` and thus removed if present?
+
+-- [[bbb]]
+
+"""]]
