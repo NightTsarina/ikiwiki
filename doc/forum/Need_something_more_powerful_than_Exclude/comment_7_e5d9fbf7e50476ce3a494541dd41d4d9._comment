@@ -1,0 +1,47 @@
+[[!comment format=mdwn
+ username="https://launchpad.net/~beaufils"
+ nickname="beaufils"
+ subject="Does the exclude feature work at all?"
+ date="2015-06-22T10:49:53Z"
+ content="""
+I am not sure if that is a bug or a feature, but it is annoying, definitively related to this post:
+
+    $ ikiwiki --version
+    ikiwiki version 3.20141016.2
+
+    $ mkdir src ; echo A >src/get ; echo A >src/noget
+
+    $ ikiwiki src out                          
+    $ cat out/noget 
+    A
+
+    # Let's ask ikiwiki to forget noget
+    $ ikiwiki src out --exclude noget          
+    $ cat out/noget 
+    A
+
+    # No? Maybe with --rebuild?
+    $ ikiwiki src out --exclude noget --rebuild
+    $ cat out/noget 
+    A
+
+    # So let's remove it manually and try again
+    $ rm out/noget 
+
+    $ ikiwiki src out --exclude noget          
+    $ cat out/noget
+    cat: out/noget: No such file or directory
+
+    # Hum are we sure it worked?
+    $ ikiwiki src out --exclude noget --rebuild
+    $ cat out/noget
+    A
+
+    # Nope :-(
+
+I am really confused with the exclude feature and the way ikiwiki lookup files. Finally I tend to think this is a bug.
+
+Is there a way to make ikiwiki consider that a file in the `srcdir` should not be present in the `destdir` and thus removed if present?
+
+--[[bbb]]
+"""]]
