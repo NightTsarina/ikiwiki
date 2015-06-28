@@ -35,3 +35,30 @@ I hope someone will understand the problem better than I do, because I have no i
 
 Regards,    
 -- [[Louis|spalax]]
+
+> I wrote a plugin to monitor what is exchanged between the plugin and Ikiwiki. I ran this with [this version](https://github.com/paternal/ikiwiki-rpcbug/tree/b4ba34a8edd1b97989965af69eddac050bc0a8ba) of my minimal bug example.
+> 
+> * The bug happens in function [preprocess](https://github.com/paternal/ikiwiki-rpcbug/blob/b4ba34a8edd1b97989965af69eddac050bc0a8ba/plugins/rpcbug#L12-17) (in call to [srcfile](https://github.com/paternal/ikiwiki-rpcbug/blob/b4ba34a8edd1b97989965af69eddac050bc0a8ba/plugins/rpcbug#L15), to be more precise).
+> * The directive causing the bug is called on page [foo](https://github.com/paternal/ikiwiki-rpcbug/blob/b4ba34a8edd1b97989965af69eddac050bc0a8ba/foo.mdwn).
+> * Communication between Ikiwiki and the plugin is [[here|tee]].
+> * The resulting HTML (for page `foo`) looks like:
+> 
+> > \[[!rpcbug Erreur: internal error: foo cannot be found in /home/louis/projets/ikiwiki/rpcbug or underlay]]
+> >
+> >
+> > Calling srcfile(foo): page    
+> > Calling srcfile(README.md): /home/louis/projets/ikiwiki/rpcbug/README.md
+> 
+> My analysis:
+> 
+> * The call to `srcfile(foo)` fails (because Ikiwiki thinks that page `foo` does not exist).
+> * Ikiwiki thinks that processing of the directive is finished, whereas the plugin still waits for the answer of Ikiwiki.
+> * Ikiwiki asks the plugin to render a new directive, but the plugin interprets the request as the return value for its previous request. Thus, the plugin thinks that `srcfile(foo)` is `page` (this `page` being a misinterpretation of the Ikiwiki request).
+> 
+> So, I think that this might be an error in the
+> [`rpc_call`](https://github.com/joeyh/ikiwiki/blob/9476e2ac7ad2f53643fa2fca6ba35fcc55ab058e/IkiWiki/Plugin/external.pm#L46-147)
+> function of the `external` plugin: when the called method fails, it should
+> return something (or raise an exception, if this is possible in RPC) to notify
+> the plugin that something went wrong.
+> 
+> -- [[Louis|spalax]]
