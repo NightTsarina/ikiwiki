@@ -7,3 +7,15 @@ ikiwiki version 3.20141016.2
 gives this:
 
 Died at `/usr/share/perl5/IkiWiki/CGI.pm line 497`.
+
+> I think this is probably [[!debbug 786587]], which ikiwiki has worked around since 3.20150610
+> ([[!debbug 786586]]). If so, then it is [[already fixed|done]], but not in the version
+> you have. You could report an Ubuntu bug asking for
+> [ikiwiki commit 7a52c87](http://source.ikiwiki.branchable.com/?p=source.git;a=commit;h=7a52c87a8c745577a50d6c9d134f62f9c5b26b0a)
+> or
+> [CGI.pm commit e4500cf](https://github.com/leejo/CGI.pm/commit/e4500cfb2de27660398c09bc860d1d9e499cb372)
+> to be backported, although in practice bugs in universe packages are unlikely to get fixed
+> in an Ubuntu stable release.
+>
+> To work around this, you might be able to `apt-get remove libcgi-pm-perl` and use the
+> older version of CGI.pm that is shipped with Perl. --[[smcv]]
