@@ -36,11 +36,11 @@ I hope someone will understand the problem better than I do, because I have no i
 Regards,    
 -- [[Louis|spalax]]
 
-> I wrote a plugin to monitor what is exchanged between the plugin and Ikiwiki. I ran this with [this version](https://github.com/paternal/ikiwiki-rpcbug/tree/b4ba34a8edd1b97989965af69eddac050bc0a8ba) of my minimal bug example.
+> I used the debug feature provided with `proxy.py` and rebuilt the wiki. I ran this with [this version](https://github.com/paternal/ikiwiki-rpcbug/tree/b4ba34a8edd1b97989965af69eddac050bc0a8ba) of my minimal bug example.
 > 
 > * The bug happens in function [preprocess](https://github.com/paternal/ikiwiki-rpcbug/blob/b4ba34a8edd1b97989965af69eddac050bc0a8ba/plugins/rpcbug#L12-17) (in call to [srcfile](https://github.com/paternal/ikiwiki-rpcbug/blob/b4ba34a8edd1b97989965af69eddac050bc0a8ba/plugins/rpcbug#L15), to be more precise).
 > * The directive causing the bug is called on page [foo](https://github.com/paternal/ikiwiki-rpcbug/blob/b4ba34a8edd1b97989965af69eddac050bc0a8ba/foo.mdwn).
-> * Communication between Ikiwiki and the plugin is [[here|tee]].
+> * Communication between Ikiwiki and the plugin is [[here|debug]].
 > * The resulting HTML (for page `foo`) looks like:
 > 
 > > \[[!rpcbug Erreur: internal error: foo cannot be found in /home/louis/projets/ikiwiki/rpcbug or underlay]]
