@@ -1,0 +1,32 @@
+links:
+
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=775310
+http://ikiwiki.info/forum/Your_local_changes_to_the_following_files_would_be_overwritten_by_merge:/
+
+phil is kindly running ikiwiki on hands.com as http://rhombus-tech.net
+we continuously run into "merge" issues which need recovering on a
+near monthly basis.
+
+i have a local checkout of the repository: i often need to upload images via
+that, doing the usual "git pull", followed by "git commit -a", followed by
+"git push", adding an HTML page that is edited by vim as well as the images.
+
+i also often need to "recover" the wiki - for example by renaming pages that
+users have erroneously added, deleting pages that they should not have made,
+moving pages from locations that they should not have added or that i decide
+should be restructured.
+
+these are the operations where everything usually gets completely fscked.
+
+the really weird thing is that when i know that things are out-of-sync,
+a "git pull" gives a *completely different* head branch from the one shown
+through the RecentChanges log!
+
+phil has often had to recover an entire set of files that are completely out
+of sync, that never enter the "git pull" stream onto my laptop, and are not
+visible on the wiki itself either.
+
+this is all incredibly strange and mysterious, but it basically means that
+ikiwiki is not particularly robust and reliable for everyday use.  i'd very
+much like it to be!
+
