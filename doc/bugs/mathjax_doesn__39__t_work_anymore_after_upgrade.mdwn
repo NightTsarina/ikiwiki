@@ -7,3 +7,19 @@ Any idea what may be wrong here and how to fix it?
 > Maybe you can also save the html of an old page, change something in it to make it rebuilt, and diff the resulting html with the old one, to see what changed.
 >
 > -- [[Louis|spalax]]
+
+I installed mathjax as described here http://stackoverflow.com/a/8444409/406686. 
+
+The rebuild of an old site containing math is missing the following lines:
+
+<script src="/mathjax/MathJax.js?config=TeX-AMS_HTML-full" type="text/javascript"></script>
+</head>
+<body>
+<noscript>
+<div style="color:#CC0000; text-align:center">
+<b>Warning: <a href="http://www.mathjax.org/">MathJax</a>
+requires JavaScript to process the mathematics on this page.<br>
+If your browser supports JavaScript, be sure it is enabled.</b>
+</div>
+<hr>
+</noscript>
