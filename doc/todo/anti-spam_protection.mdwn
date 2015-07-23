@@ -28,3 +28,9 @@ There is a [[plugins/blogspam]] plugin that uses the blogspam.org service
 to check for common spam signatures. --[[Joey]] 
 
 [[done]]
+
+----
+
+I am sorry to say that neither those solutions are sufficient for a site that allows anonymous comments. blogspam lets thousands of commits through here, as i described in [[todo/commandline_comment_moderation]]. Now, maybe I didn't configure blogspam correctly, I am not sure. I just enabled the plugin and set `blogspam_pagespec: postcomment(blog/*) or */discussion`. I have also imported the blocklist from this wiki's ikiwiki.setup, generated from [[spam_fighting]]. I have had to add around 10 IPs to that list already.
+
+It seems to me a list of blocked URLs or blocked IPs as mentionned above would be an interesting solution. blogspam is great, but the API doesn't seem to support reporting IPs or bad content back, which seems to be a major problem in working around false negatives. I'm tempted to just remove the `done` tag above, because this is clearly not fixed for me here... --[[anarcat]]
