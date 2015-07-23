@@ -2,4 +2,43 @@ So I have enabled the [[moderatedcomments]] plugin on my wiki. and good thing th
 
 It's pretty hard to figure out the ham and the spam in there. One thing I was hoping was to use the power of the commandline to filter through all that stuff. Now, it seems there's only a "ikiwiki-comment" tool now, and nothing to examine the moderated comments.
 
-It seems to me it would be great to have some tool to filter through that... --[[anarcat]]
+It seems to me it would be great to have some tool to filter through that...
+
+
+So it turns out it was over 3000 comments. The vast majority of those (every one but 42 comments) were from the IP `46.161.41.34` which i recommend null-routing everywhere. I used the following shell magic to figure that out:
+
+<pre>
+# locate the transient directory
+cd $source/.ikiwiki/transient
+# count the number of comments
+find . -name '*._comment_pending' | wc
+# number of comments per IP
+find . -name '*._comment_pending' | xargs grep -h ip= | sort | uniq -c | sort -n
+# generate a banlist for insertion in `banusers`, assuming all the pending comments are spam
+find . -name '*._comment_pending' | xargs grep -h ip= | sort -u| sed 's/ ip="//;s/"//;s/^/- ip(/;s/$/)/'
+# remove comments from a bad guy
+find . -name '*._comment_pending' | xargs grep -l 'ip="46.161.41.34"'| xargs rm
+# flush all pending comments
+find . -name '*._comment_pending' -delete
+</pre>
+
+The remaining 42 comments I reviewed throught the web interface, then flushed using the above command. My final addition to the banlist is:
+
+<pre>
+- ip(159.224.160.225)
+- ip(176.10.104.227)
+- ip(176.10.104.234)
+- ip(188.143.233.211)
+- ip(193.201.227.41)
+- ip(195.154.181.152)
+- ip(213.238.175.29)
+- ip(31.184.238.11)
+- ip(37.57.231.112)
+- ip(37.57.231.204)
+- ip(46.161.41.34)
+- ip(46.161.41.199)
+- ip(95.130.13.111)
+- ip(95.181.178.142)
+</pre>
+
+ --[[anarcat]]
