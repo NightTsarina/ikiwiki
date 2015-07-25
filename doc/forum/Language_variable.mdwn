@@ -1,0 +1,78 @@
+(I don't know whether this is about a bug or about a feature request, so apologies if this post is in the wrong place.)
+
+# Rationale:
+
+It seems to me that the way ikiwiki handles language information at
+the moment isn't optimal.
+
+For instance, if I want to apply different CSS properties depending on
+the language, I can't. (This matters for some typographic rules that
+differ depending on the language.)
+
+Also, without proper language declarations, the browser cannot hyphen
+words correctly, resulting in poor line breaking/wrapping.
+
+
+# The problem:
+
+## How it's done now:
+
+Right now, correct me if I'm wrong, but I need to write
+
+    [[!meta language="en"]]
+
+somewhere inside a post in order to tell ikiwiki which language the
+post is written in. This will result in the post's HTML as:
+
+    <meta name="language" content="en" />
+
+
+This isn't sufficient.
+
+## What isn't done
+
+### 1. the blog's lang
+
+There's no way to tell ikiwiki the overall, or main language of the
+blog at the moment (again, that's as far as I can see from reading
+documentations, forums, etc.)
+
+This setting would be nice, in order to add have something like
+
+    <html lang="en">
+
+on all pages.
+
+
+### 2. the post's lang
+
+Then, if a specific post has the meta language property explicitly
+defined, it should override the language declaration set as default.
+
+### 3. template variable
+
+Right now, there's no
+
+    <TMPL_VAR LANGUAGE>
+
+from what I can tell by testing. As a result, I cannot give specific
+css properties or the like.
+
+
+# Fast way to resolve this
+
+The easiest way to resolve this is to create a TMPL_VAR LANGUAGE so
+that at least people who care can use this variable and improve their templates.
+
+
+----
+
+This really is the most needed feature for me as a writer in both
+English and French that I miss the most with ikiwiki. I have looked
+around in the source code on <https://github.com/joeyh/ikiwiki> but I
+couldn't figure out where this is happening...
+
+
+I hope you also care :-)
+
+Thanks,
