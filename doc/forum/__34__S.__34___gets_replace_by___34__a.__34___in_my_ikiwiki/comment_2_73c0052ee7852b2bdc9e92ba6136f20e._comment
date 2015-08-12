@@ -1,0 +1,37 @@
+[[!comment format=mdwn
+ username="smcv"
+ subject="Markdown is weird like that"
+ date="2015-08-12T15:51:38Z"
+ content="""
+Is it right at the beginning of a line, such that Markdown interprets it as a numbered list item for an HTML `<ol>`?
+
+~~~
+a. One
+b. Two
+c. Three
+
+a. One
+a. Two
+a. Three
+
+S. One
+X. Two
+Z. Three
+~~~
+
+are all interpreted as
+
+a. One
+b. Two
+c. Three
+
+If this is what's going on, you can use:
+
+`p\. 49`
+
+to get:
+
+p\. 49
+
+or adjust your spacing so it isn't the first thing on a line.
+"""]]
