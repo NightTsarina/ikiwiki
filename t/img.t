@@ -14,9 +14,10 @@ package IkiWiki;
 use warnings;
 use strict;
 use Test::More;
+plan(skip_all => "Image::Magick not available")
+	unless eval q{use Image::Magick};
 
-BEGIN { use_ok("IkiWiki"); }
-BEGIN { use_ok("Image::Magick"); }
+use IkiWiki;
 
 my $magick = new Image::Magick;
 my $SVGS_WORK = defined $magick->QueryFormat("svg");
