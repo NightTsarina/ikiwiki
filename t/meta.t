@@ -125,12 +125,11 @@ write_build_read_compare(
 #	qr{<link href="http://wonka\.link\.example" />},
 #);
 
-# XXX buggy? is this my bug? maybe twitter:foo would just work if this worked
-#write_build_read_compare(
-#	'name',
-#	q{[[!meta name="thingy" value1="hi" value2="hello"]]},
-#	qr{<meta name="thingy" value1="hi" value2="hello" />},
-#);
+write_build_read_compare(
+	'name',
+	q{[[!meta name="thingy" value1="hi" value2="hello"]]},
+	qr{<meta name="thingy" value[0-9]{1}=".+?" value[0-9]{1}=".+?" />},
+);
 
 write_build_read_compare(
 	'keywords',
@@ -149,11 +148,11 @@ write_build_read_compare(
 #	'[[!meta twitter:card="player"]]',
 #	qr{<meta name="twitter:card" content="player" />},
 #);
-#
-#write_build_read_compare(
-#	'twittercard2',
-#	'[[!meta name="twitter:card" content="player"]]',
-#	qr{<meta name="twitter:card" content="player" />},
-#);
+
+write_build_read_compare(
+	'twittercard2',
+	'[[!meta name="twitter:card" content="player"]]',
+	qr{<meta name="twitter:card" content="player" />},
+);
 
 done_testing();

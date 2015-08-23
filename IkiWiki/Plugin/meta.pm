@@ -294,6 +294,7 @@ sub preprocess (@) {
 	elsif ($key eq 'name') {
 		push @{$metaheaders{$page}}, scrub('<meta name="'.
 			encode_entities($value).
+			'" '.
 			join(' ', map { "$_=\"$params{$_}\"" } keys %params).
 			' />', $page, $destpage);
 	}
