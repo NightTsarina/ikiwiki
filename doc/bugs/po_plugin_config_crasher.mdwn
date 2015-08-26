@@ -1,0 +1,11 @@
+Saw a site using the po plugin crash with:
+
+	syntax error in pagespec "\"page(./tips/*)"
+
+I suspect the relevant configuration is this:
+
+	po_translatable_pages: /index or /hugo or /hugo/keys or /about or /archive or /tips
+	  or /talks or /imprint or /copyright or /blog or /posts  or /law or /quotes or /quotes/*
+
+Config problems in ikiwiki.setup should really not cause the whole site
+build to crash; this can make it hard to recover. --[[Joey]]
