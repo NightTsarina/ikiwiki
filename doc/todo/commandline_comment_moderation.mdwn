@@ -8,18 +8,32 @@ It seems to me it would be great to have some tool to filter through that...
 So it turns out it was over 3000 comments. The vast majority of those (every one but 42 comments) were from the IP `46.161.41.34` which i recommend null-routing everywhere. I used the following shell magic to figure that out:
 
 <pre>
-# locate the transient directory
-cd $source/.ikiwiki/transient
+#!/bin/sh
+
+set -e
+
+cd .ikiwiki/transient || {
+    echo could not find comments, make sure you are in a ikiwiki source directory.
+    exit 1
+    }
 # count the number of comments
-find . -name '*._comment_pending' | wc
+echo found $(find . -name '*._comment_pending' | wc -l) pending comments
 # number of comments per IP
+echo IP distribution:
 find . -name '*._comment_pending' | xargs grep -h ip= | sort | uniq -c | sort -n
-# generate a banlist for insertion in `banusers`, assuming all the pending comments are spam
+# generate a banlist for insertion in `banusers`, assuming all the
+# pending comments are spam
+echo banlist would look like:
 find . -name '*._comment_pending' | xargs grep -h ip= | sort -u| sed 's/ ip="//;s/"//;s/^/- ip(/;s/$/)/'
-# remove comments from a bad guy
-find . -name '*._comment_pending' | xargs grep -l 'ip="46.161.41.34"'| xargs rm
-# flush all pending comments
-find . -name '*._comment_pending' -delete
+
+echo to remove comments from a specific IP, use one of those:
+find . -name '*._comment_pending' | xargs grep -h ip= | sort -u \
+    | sed 's/ ip="//;s/"//;' \
+    | while read ip; do
+          echo "find . -name '*._comment_pending' | xargs grep -l 'ip=\"$ip\"'| xargs rm"
+      done
+echo to flush all pending comments, use:
+echo "find . -name '*._comment_pending' -delete"
 </pre>
 
 The remaining 42 comments I reviewed throught the web interface, then flushed using the above command. My final addition to the banlist is:
@@ -42,3 +56,5 @@ The remaining 42 comments I reviewed throught the web interface, then flushed us
 </pre>
 
  --[[anarcat]]
+
+Update: i made a script, above. And the banlist is much larger now so the above list is pretty much out of date now... --[[anarcat]]
