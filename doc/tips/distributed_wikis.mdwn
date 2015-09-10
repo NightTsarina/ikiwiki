@@ -15,7 +15,7 @@ There are several possible level of decentralisation:
  1. [[a simple HTML mirror|tips/Git_repository_and_web_server_on_different_hosts/]]
  2. [[separate ikiwiki and git servers|tips/Hosting_Ikiwiki_and_master_git_repository_on_different_machines]]
  3. separate `srcdir`, still requires a central bare repo - uses [[plugins/pinger]]
- 4. completely distinct ikiwiki installs, synchronised with [[plugins/contrib/gitpush]]
+ 4. completely distinct ikiwiki installs
 
 Here's a graphic overview of those:
 
@@ -60,7 +60,7 @@ Step by step setup instructions for this are detailed below.
 [[!img decentralized_wikis.svg size=400x]]
 
 In this configuration, each wiki is fully independent and pushes its
-changes to other wikis using the [[plugins/contrib/gitpush]] plugin.
+changes to other wikis using git.
 
 ## Step by step setup instructions
 
@@ -207,12 +207,11 @@ The following entries will be different from the above setup file:
     git_wrapper: /home/user/source.git/hooks/post-commit
     git_test_receive_wrapper: /home/user/source.git/hooks/pre-receive
 
-To do this, the mirror needs to push back to the master, using the [[plugins/contrib/gitpush]] plugin:
+To make the mirror push back to the master, use, for example:
 
-    git_push_to:
-    - git://wiki.example.com/
+    git_wrapper_background_command: git push git://wiki.example.com/
 
-This will ensure that commits done on the mirror will propagate back to the master.
+This will help ensure that commits done on the mirror will propagate back to the master.
 
 ## Other ideas
 
