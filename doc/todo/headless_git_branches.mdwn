@@ -77,6 +77,55 @@ at git show-ref to deduce whether to throw an error or not.
 > Ah, but then git-log would still complain "bad revision 'HEAD'"
 > --[[Joey]] 
 
+    jrayhawk@piny:/srv/git/jrayhawk.git$ time perl -e 'for( $i = 1; $i < 10000; $i++) { system("git", "show-ref", "--quiet", "--verify", "--", "refs/heads/master"); }'
+    
+    real  0m10.988s
+    user  0m0.120s
+    sys   0m1.210s
+
+> FWIW, "an extra millisecond per edit" vs "full git coverage" is no
+> contest for me; I use that patch on seven different systems, including
+> freedesktop.org, because I've spent more time explaining to users either
+> why Ikiwiki won't work on their empty repositories or why their
+> repositories need useless initial commits (a la Branchable) that make
+> pushing not work and why denyNonFastForwards=0 and git push -f are
+> necessary than all the milliseconds that could've been saved in the
+> world.
+> 
+> But, since we're having fun rearranging deck chairs on the RMS Perl
+> (toot toot)...
+> 
+> There's some discrepency here I wasn't expecting:
+
+    jrayhawk@piny:/srv/git/jrayhawk.git$ time dash -c 'i=0; while [ $i -lt 10000 ]; do i=$((i+1)); git show-ref --quiet --verify -- refs/heads/master; done'
+    
+    real  0m9.986s
+    user  0m0.170s
+    sys   0m0.940s
+
+> While looking around in the straces, I notice Perl, unlike {b,d}ash
+> appears to do PATH lookup on every invocation of git, adding up to
+> around 110 microseconds apiece on a post-2.6.38 16-thread QPI system:
+
+    29699      0.000112 execve("/home/jrayhawk/bin/git", ["git", "show-ref", "--quiet", "--verify", "--", "refs/heads/master"], [/* 17 vars */]) = -1 ENOENT (No such file or directory)
+    29699      0.000116 execve("/usr/local/bin/git", ["git", "show-ref", "--quiet", "--verify", "--", "refs/heads/master"], [/* 17 vars */]) = -1 ENOENT (No such file or directory)
+    29699      0.000084 execve("/usr/bin/git", ["git", "show-ref", "--quiet", "--verify", "--", "refs/heads/master"], [/* 17 vars */]) = 0
+
+> You can probably save a reasonable number of context switches and
+> RCU-heavy (or, previously, lock-heavy) dentry lookups by doing a Perl
+> equivalent of `which git` and using the result. It might even add up to
+> a whole millisecond in some circumstances!
+> 
+> No idea where the rest of that time is going. Probably cache misses
+> on the giant Perl runtime or something.
+> 
+> ...
+> 
+> Now I feel dirty for having spent more time talking about optimization
+> than that optimization is likely to save. This must be what being an
+> engineer feels like.
+> --jrayhawk
+
 <pre>
 @@ -474,7 +478,10 @@ sub rcs_update () {
  	# Update working directory.
@@ -98,6 +147,19 @@ called on every refresh. Probably could be dealt with similarly as above.
 Also, is there any point in breaking the pull up into a
 fetch followed by a merge? --[[Joey]] 
 
+> The same benchmarking applies, at least.
+>
+> Re: fetch/merge: We can't test for the nonexistence of the origin branch
+> without fetching it, and we can't merge it if it is, indeed,
+> nonexistant.
+>
+> Unless you're implying that it would be better to just spam stderr with
+> unnecessary scary messages and/or ignore/suppress them and lose the
+> ability to respond appropriately to every other error condition. As
+> maintainer, you deal with a disproportionate amount of the resulting
+> support fallout, so I'm perfectly satisfied letting you make that call.
+> --jrayhawk
+
 <pre>
 @@ -559,7 +566,7 @@ sub rcs_commit_helper (@) {
  	# So we should ignore its exit status (hence run_or_non).
@@ -111,3 +173,6 @@ fetch followed by a merge? --[[Joey]]
 </pre>
 
 This seems fine to apply. --[[Joey]]
+
+> Hooray!
+> --jrayhawk
