@@ -26,6 +26,12 @@ sub getsetup () {
 			rebuild => 0,
 			section => "auth",
 		},
+		emailauth_sender => {
+			type => "string",
+			description => "email address to send emailauth mails as (default: adminemail)",
+			safe => 1,
+			rebuild => 0,
+		},
 }
 
 sub email_setup ($$) {
@@ -80,10 +86,12 @@ sub email_auth ($$$$) {
 	error($@) if $@;
 	my $shorturl=$config{url};
 	$shorturl=~s/^https?:\/\///i;
+	my $emailauth_sender=$config{emailauth_sender};
+	$emailauth_sender=$config{adminemail} unless defined $emailauth_sender;
 	sendmail(
 		To => $email,
 		From => "$config{wikiname} admin <".
-			(defined $config{adminemail} ? $config{adminemail} : "")
+			(defined $emailauth_sender ? $emailauth_sender : "")
 			.">",
 		Subject => "$config{wikiname} login | $shorturl",
 		Message => $template->output,
