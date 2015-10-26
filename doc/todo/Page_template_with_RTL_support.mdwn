@@ -6,5 +6,25 @@ I've modified page.tmpl to take into account rtl languages. Basically I've modif
 
 if the PO plugin is enabled.
 
+I can't seem to attach a patch - sending it to Joey.
+Copy pasting markup here seems to be quite problematic.
+Trying anyway:
+
+<pre>
+    diff --git a/templates/page.tmpl b/templates/page.tmpl
+    index 9e8b330..7f1c0cb 100644
+    --- a/templates/page.tmpl
+    +++ b/templates/page.tmpl
+    @@ -1,5 +1,9 @@
+     <!DOCTYPE html>
+    +<TMPL_IF HTML_LANG_CODE>
+    +<html lang="<TMPL_VAR HTML_LANG_CODE>" dir="<TMPL_VAR HTML_LANG_DIR>" xmlns="http://www.w3.org/1999/xhtml">
+    +<TMPL_ELSE>
+     <html xmlns="http://www.w3.org/1999/xhtml">
+    +</TMPL_IF>
+     <head>
+     <TMPL_IF DYNAMIC>
+     <TMPL_IF FORCEBASEURL><base href="<TMPL_VAR FORCEBASEURL>" /><TMPL_ELSE>
+</pre>
 Cheers
 u.
