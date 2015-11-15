@@ -1,0 +1,15 @@
+[[!comment format=mdwn
+ username="http://christian.amsuess.com/chrysn"
+ subject="&quot;please tell me&quot; when this happens, severity"
+ date="2015-11-15T13:45:29Z"
+ content="""
+i think that this is an issue to be considered, as it breaks ikiwiki installations that previously worked. the scenario this happened in for me was this:
+
+ages ago, i set up a dedicated user for ikiwiki on a server, and created wikis there with cgi and commit access for power users. things worked nicely, commits from web users showed up with author \"username <username@web>\" and committer \"gitusername <gitusername@hostname.(none)>\"; not exactly pretty, but it worked.
+
+when upgrading git, the wiki kept working for directly pushing users, but when web users did a change, it was written in the source directory, but not committed (with the error message showing up in the log, but no error message to the users). only when they looked in the recent changes, they noted their modifications missing, and power users would never see their changes.
+
+i suggest that ikiwiki provide a default value for committer (eg. \"ikiwiki <username@hostname>\") to circumvent this issue.
+
+(i didn't pinpoint the exact git version this changed in, but it's between 1.7 and 1.9).
+"""]]
