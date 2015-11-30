@@ -15,7 +15,7 @@ use warnings;
 use strict;
 use Test::More;
 plan(skip_all => "Image::Magick not available")
-	unless eval q{use Image::Magick};
+	unless eval q{use Image::Magick; 1};
 
 use IkiWiki;
 
