@@ -4,6 +4,8 @@ use strict;
 use Test::More; my $total_tests = 72;
 use IkiWiki;
 
+my $installed = $ENV{INSTALLED_TESTS};
+
 my $default_test_methods = '^test_*';
 my @required_programs = qw(
 	cvs
@@ -606,12 +608,14 @@ sub _generate_and_configure_post_commit_hook {
 	$config{wrapper} = $config{cvs_wrapper};
 
 	require IkiWiki::Wrapper;
-	{
-		no warnings 'once';
+	if ($installed) {
 		$IkiWiki::program_to_wrap = 'ikiwiki.out';
-		# XXX substitute its interpreter to Makefile's $(PERL)
-		# XXX best solution: do this to all scripts during build
 	}
+	else {
+		$IkiWiki::program_to_wrap = `which ikiwiki`;
+	}
+	# XXX substitute its interpreter to Makefile's $(PERL)
+	# XXX best solution: do this to all scripts during build
 	IkiWiki::gen_wrapper();
 
 	my $cvs = "cvs -d $config{cvsrepo}";

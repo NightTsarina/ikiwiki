@@ -5,6 +5,8 @@ use Cwd qw();
 use File::Find;
 use Test::More;
 
+plan(skip_all => 'running installed') if $ENV{INSTALLED_TESTS};
+
 plan(skip_all => "XML::Parser not available")
 	unless eval q{use XML::Parser (); 1;};
 

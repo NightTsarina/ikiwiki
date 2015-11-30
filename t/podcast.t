@@ -9,12 +9,27 @@ BEGIN {
 			"XML::Feed and/or HTML::Parser or File::MimeInfo not available"};
 	}
 	else {
-		eval q{use Test::More tests => 136};
+		eval q{use Test::More tests => 137};
 	}
 }
 
 use Cwd;
 use File::Basename;
+
+my $installed = $ENV{INSTALLED_TESTS};
+
+my @base_command;
+if ($installed) {
+	ok(1, "running installed");
+	@base_command = qw(ikiwiki);
+}
+else {
+	ok(! system("make -s ikiwiki.out"));
+	@base_command = qw(perl -I. ./ikiwiki.out
+		--underlaydir=underlays/basewiki
+		--set underlaydirbase=underlays
+		--templatedir=templates);
+}
 
 my $tmp = 't/tmp';
 my $statedir = 't/tinypodcast/.ikiwiki';
@@ -23,9 +38,7 @@ sub podcast {
 	my $podcast_style = shift;
 
 	my $baseurl = 'http://example.com';
-	my @command = (qw(./ikiwiki.out --plugin inline --rss --atom));
-	push @command, qw(-underlaydir=underlays/basewiki);
-	push @command, qw(-set underlaydirbase=underlays --templatedir=templates);
+	my @command = (@base_command, qw(--plugin inline --rss --atom));
 	push @command, "--url=$baseurl", qw(t/tinypodcast), "$tmp/out";
 
 	ok(! system("mkdir $tmp"),
@@ -113,9 +126,7 @@ sub podcast {
 }
 
 sub single_page_html {
-	my @command = (qw(./ikiwiki.out));
-	push @command, qw(-underlaydir=underlays/basewiki);
-	push @command, qw(-set underlaydirbase=underlays --templatedir=templates);
+	my @command = @base_command;
 	push @command, qw(t/tinypodcast), "$tmp/out";
 
 	ok(! system("mkdir $tmp"),
@@ -158,9 +169,7 @@ sub single_page_html {
 }
 
 sub inlined_pages_html {
-	my @command = (qw(./ikiwiki.out --plugin inline));
-	push @command, qw(-underlaydir=underlays/basewiki);
-	push @command, qw(-set underlaydirbase=underlays --templatedir=templates);
+	my @command = (@base_command, qw(--plugin inline));
 	push @command, qw(t/tinypodcast), "$tmp/out";
 
 	ok(! system("mkdir $tmp"),

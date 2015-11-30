@@ -16,6 +16,20 @@ use Errno qw(ENOENT);
 
 # Black-box (ish) test for relative linking between CGI and static content
 
+my $installed = $ENV{INSTALLED_TESTS};
+
+my @command;
+if ($installed) {
+	@command = qw(ikiwiki);
+}
+else {
+	ok(! system("make -s ikiwiki.out"));
+	@command = qw(perl -I. ./ikiwiki.out
+		--underlaydir=underlays/basewiki
+		--set underlaydirbase=underlays
+		--templatedir=templates);
+}
+
 sub parse_cgi_content {
 	my $content = shift;
 	my %bits;
@@ -53,7 +67,6 @@ sub write_setup_file {
 wikiname: this is the name of my wiki
 srcdir: t/tmp/in
 destdir: t/tmp/out
-templatedir: templates
 $urlline
 cgiurl: $args{cgiurl}
 $w3mmodeline
@@ -71,7 +84,7 @@ EOF
 
 sub thoroughly_rebuild {
 	ok(unlink("t/tmp/ikiwiki.cgi") || $!{ENOENT});
-	ok(! system("./ikiwiki.out --setup t/tmp/test.setup --rebuild --wrappers"));
+	ok(! system(@command, qw(--setup t/tmp/test.setup --rebuild --wrappers)));
 }
 
 sub check_cgi_mode_bits {
@@ -131,7 +144,6 @@ sub run_cgi {
 }
 
 sub test_startup {
-	ok(! system("make -s ikiwiki.out"));
 	ok(! system("rm -rf t/tmp"));
 	ok(! system("mkdir t/tmp"));
 

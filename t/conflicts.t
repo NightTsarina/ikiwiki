@@ -4,15 +4,30 @@ use warnings;
 use strict;
 use Test::More tests => 106;
 
+my $installed = $ENV{INSTALLED_TESTS};
+
+my @command;
+if ($installed) {
+	ok(1, "running installed");
+	@command = qw(ikiwiki);
+}
+else {
+	ok(! system("make -s ikiwiki.out"));
+	@command = qw(perl -I. ./ikiwiki.out
+		--underlaydir=underlays/basewiki
+		--set underlaydirbase=underlays
+		--templatedir=templates);
+}
+
 # setup
 my $srcdir="t/tmp/src";
 my $destdir="t/tmp/dest";
-ok(! system("make -s ikiwiki.out"));
 
 # runs ikiwiki to build test site
 sub runiki {
 	my $testdesc=shift;
-	ok((! system("perl -I. ./ikiwiki.out --plugin txt --plugin rawhtml --underlaydir=underlays/basewiki --set underlaydirbase=underlays --templatedir=templates $srcdir $destdir @_")),
+	ok((! system(@command, qw(--plugin txt --plugin rawhtml),
+				$srcdir, $destdir, @_)),
 		$testdesc);
 }
 sub refreshiki {

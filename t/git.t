@@ -27,8 +27,16 @@ $config{diffurl} = '/nonexistent/cgit/plain/[[file]]';
 IkiWiki::loadplugins();
 IkiWiki::checkconfig();
 
+my $makerepo;
+if ($ENV{INSTALLED_TESTS}) {
+	$makerepo = "ikiwiki-makerepo";
+}
+else {
+	$makerepo = "./ikiwiki-makerepo";
+}
+
 ok (mkdir($config{srcdir}));
-is (system("./ikiwiki-makerepo git $config{srcdir} $dir/repo"), 0);
+is (system("$makerepo git $config{srcdir} $dir/repo"), 0);
 
 my @changes;
 @changes = IkiWiki::rcs_recentchanges(3);

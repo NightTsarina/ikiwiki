@@ -19,6 +19,22 @@ plan(skip_all => "Image::Magick not available")
 
 use IkiWiki;
 
+my $installed = $ENV{INSTALLED_TESTS};
+
+my @command;
+if ($installed) {
+	@command = qw(ikiwiki);
+}
+else {
+	ok(! system("make -s ikiwiki.out"));
+	@command = qw(perl -I. ./ikiwiki.out
+		--underlaydir=underlays/basewiki
+		--set underlaydirbase=underlays
+		--templatedir=templates);
+}
+
+push @command, qw(--set usedirs=0 --plugin img t/tmp/in t/tmp/out --verbose);
+
 my $magick = new Image::Magick;
 my $SVGS_WORK = defined $magick->QueryFormat("svg");
 
@@ -58,11 +74,7 @@ EOF
 );
 ok(utime(333333333, 333333333, "t/tmp/in/imgconversions.mdwn"));
 
-ok(! system("make -s ikiwiki.out"));
-
-my $command = "perl -I. ./ikiwiki.out --set usedirs=0 --templatedir=templates --plugin img t/tmp/in t/tmp/out --verbose";
-
-ok(! system($command));
+ok(! system(@command));
 
 sub size($) {
 	my $filename = shift;
@@ -98,7 +110,7 @@ is(size("$outpath/x6-a:b:c:d:e:f:g:h:i:j.png"), "6x6");
 if (1) { # for easier testing
 	writefile("imgconversions.mdwn", "t/tmp/in", "nothing to see here");
 
-	ok(! system("$command --refresh"));
+	ok(! system(@command, "--refresh"));
 
 	ok(! -e "$outpath/10x-simple.png");
 	ok(! -e "$outpath/10x-simple-svg.png");

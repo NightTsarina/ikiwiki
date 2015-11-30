@@ -3,6 +3,8 @@ use warnings;
 use strict;
 use Test::More;
 
+plan(skip_all => 'running installed') if $ENV{INSTALLED_TESTS};
+
 my @progs="ikiwiki.in";
 my @libs="IkiWiki.pm";
 # monotone, external, amazon_s3, po, and cvs

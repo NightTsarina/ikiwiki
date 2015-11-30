@@ -3,6 +3,8 @@ use warnings;
 use strict;
 use Test::More;
 
+plan(skip_all => 'running installed') if $ENV{INSTALLED_TESTS};
+
 my @templates=(glob("templates/*.tmpl"), glob("doc/templates/*.mdwn"));
 plan(tests => 2*@templates);
 

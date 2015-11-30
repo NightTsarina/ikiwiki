@@ -8,10 +8,21 @@ my $tmp = 't/tmp';
 my $srcdir = "$tmp/in";
 my $destdir = "$tmp/out";
 
-my @command = (qw(./ikiwiki.out --plugin meta --disable-plugin htmlscrubber));
-push @command, qw(-underlaydir=underlays/basewiki);
-push @command, qw(-set underlaydirbase=underlays);
-push @command, qw(--templatedir=templates);
+my $installed = $ENV{INSTALLED_TESTS};
+
+my @command;
+if ($installed) {
+	@command = qw(ikiwiki);
+}
+else {
+	ok(! system("make -s ikiwiki.out"));
+	@command = qw(perl -I. ./ikiwiki.out
+		--underlaydir=underlays/basewiki
+		--set underlaydirbase=underlays
+		--templatedir=templates);
+}
+
+push @command, qw(--plugin meta --disable-plugin htmlscrubber);
 push @command, $srcdir, $destdir;
 
 sub write_build_read_compare {

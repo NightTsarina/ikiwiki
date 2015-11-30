@@ -4,6 +4,24 @@ use strict;
 use Test::More;
 use IkiWiki;
 
+my $installed = $ENV{INSTALLED_TESTS};
+
+my @command;
+if ($installed) {
+	@command = qw(ikiwiki);
+}
+else {
+	ok(! system("make -s ikiwiki.out"));
+	@command = qw(perl -I. ./ikiwiki.out
+		--underlaydir=underlays/basewiki
+		--set underlaydirbase=underlays
+		--templatedir=templates);
+}
+
+push @command, qw(--set usedirs=0 --plugin inline
+	--url=http://example.com --cgiurl=http://example.com/ikiwiki.cgi
+	--rss --atom t/tmp/in t/tmp/out --verbose);
+
 my $blob;
 
 my $add_new_post = gettext("Add a new post titled:");
@@ -35,13 +53,8 @@ foreach my $page (qw(protagonists/shepard protagonists/link
 	write_old_file("$page.mdwn", "this page is {$page}");
 }
 
-ok(! system("make -s ikiwiki.out"));
-
-my $command = "perl -I. ./ikiwiki.out --set usedirs=0 --plugin inline --url=http://example.com --cgiurl=http://example.com/ikiwiki.cgi --rss --atom --underlaydir=underlays/basewiki --set underlaydirbase=underlays --templatedir=templates t/tmp/in t/tmp/out --verbose";
-
-ok(! system($command));
-
-ok(! system("$command --refresh"));
+ok(! system(@command));
+ok(! system(@command, "--refresh"));
 
 $blob = readfile("t/tmp/out/protagonists.html");
 like($blob, qr{\Q$add_new_post\E}, 'rootpage=yes gives postform');
