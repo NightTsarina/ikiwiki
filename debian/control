@@ -1,18 +1,31 @@
 Source: ikiwiki
 Section: web
 Priority: optional
-Build-Depends: perl, debhelper (>= 9)
-Build-Depends-Indep: dpkg-dev (>= 1.9.0), libxml-simple-perl,
-  libtext-markdown-discount-perl,
-  libtimedate-perl, libhtml-template-perl,
-  libhtml-scrubber-perl,
-  libhtml-parser-perl, liburi-perl (>= 1.36), perlmagick, po4a (>= 0.34),
-  libfile-chdir-perl, libyaml-libyaml-perl, librpc-xml-perl,
-  libcgi-pm-perl, libcgi-session-perl, ghostscript,
-  libmagickcore-6.q16-2-extra | libmagickcore-extra,
-  libcgi-formbuilder-perl
+Build-Depends:
+ debhelper (>= 9),
+ perl,
+Build-Depends-Indep:
+ dpkg-dev (>= 1.9.0),
+ ghostscript,
+ libcgi-formbuilder-perl,
+ libcgi-pm-perl,
+ libcgi-session-perl,
+ libfile-chdir-perl,
+ libhtml-parser-perl,
+ libhtml-scrubber-perl,
+ libhtml-template-perl,
+ libmagickcore-6.q16-2-extra | libmagickcore-extra,
+ librpc-xml-perl,
+ libtext-markdown-discount-perl,
+ libtimedate-perl,
+ liburi-perl (>= 1.36),
+ libxml-simple-perl,
+ libyaml-libyaml-perl,
+ perlmagick,
+ po4a (>= 0.34),
 Maintainer: Simon McVittie <smcv@debian.org>
-Uploaders: Josh Triplett <josh@freedesktop.org>
+Uploaders:
+ Josh Triplett <josh@freedesktop.org>,
 Standards-Version: 3.9.5
 Homepage: http://ikiwiki.info/
 Vcs-Git: git://git.ikiwiki.info/
@@ -20,33 +33,73 @@ Testsuite: autopkgtest-pkg-perl
 
 Package: ikiwiki
 Architecture: all
-Depends: ${misc:Depends}, ${perl:Depends},
-  libtext-markdown-discount-perl,
-  libhtml-scrubber-perl, libhtml-template-perl,
-  libhtml-parser-perl, liburi-perl (>= 1.36), libyaml-libyaml-perl, libjson-perl
-Recommends: gcc | c-compiler, 
-  libc6-dev | libc-dev,
-  git (>= 1:1.7) | git-core (>= 1:1.5.0) | subversion | tla | bzr (>= 0.91) | mercurial | monotone (>= 0.38) | darcs,
-  libxml-simple-perl, libnet-openid-consumer-perl, libcrypt-ssleay-perl,
-  liblwpx-paranoidagent-perl, libtimedate-perl, libcgi-pm-perl,
-  libcgi-formbuilder-perl (>= 3.05), libcgi-session-perl (>= 4.14-1),
-  libmail-sendmail-perl, libauthen-passphrase-perl, libterm-readline-gnu-perl,
-  libgravatar-url-perl, librpc-xml-perl,
-Suggests: viewvc | gitweb | viewcvs, libsearch-xapian-perl,
-  xapian-omega (>= 1.0.5), libtext-wikiformat-perl,
-  python, python-docutils, polygen, tidy, libhtml-tree-perl,
-  libxml-feed-perl, libmailtools-perl, perlmagick,
-  libfile-mimeinfo-perl, file,
-  liblocale-gettext-perl (>= 1.05-1), libtext-typography-perl,
-  libtext-csv-perl, graphviz, libnet-amazon-s3-perl,
-  libsparkline-php, texlive, dvipng, libtext-wikicreole-perl,
-  libsort-naturally-perl, libtext-textile-perl, libhighlight-perl,
-  po4a (>= 0.35-1), gettext, libnet-inet6glue-perl,
-  libtext-multimarkdown-perl, libxml-writer-perl,
-  ghostscript, libmagickcore-extra
-Conflicts: ikiwiki-plugin-table
-Replaces: ikiwiki-plugin-table
-Provides: ikiwiki-plugin-table
+Depends:
+ libhtml-parser-perl,
+ libhtml-scrubber-perl,
+ libhtml-template-perl,
+ libjson-perl,
+ libtext-markdown-discount-perl,
+ liburi-perl (>= 1.36),
+ libyaml-libyaml-perl,
+ ${misc:Depends},
+ ${perl:Depends},
+Recommends:
+ gcc | c-compiler,
+ git (>= 1:1.7) | git-core (>= 1:1.5.0) | subversion | tla | bzr (>= 0.91) | mercurial | monotone (>= 0.38) | darcs,
+ libauthen-passphrase-perl,
+ libc6-dev | libc-dev,
+ libcgi-formbuilder-perl (>= 3.05),
+ libcgi-pm-perl,
+ libcgi-session-perl (>= 4.14-1),
+ libcrypt-ssleay-perl,
+ libgravatar-url-perl,
+ liblwpx-paranoidagent-perl,
+ libmail-sendmail-perl,
+ libnet-openid-consumer-perl,
+ librpc-xml-perl,
+ libterm-readline-gnu-perl,
+ libtimedate-perl,
+ libxml-simple-perl,
+Suggests:
+ dvipng,
+ file,
+ gettext,
+ ghostscript,
+ graphviz,
+ libfile-mimeinfo-perl,
+ libhighlight-perl,
+ libhtml-tree-perl,
+ liblocale-gettext-perl (>= 1.05-1),
+ libmagickcore-extra,
+ libmailtools-perl,
+ libnet-amazon-s3-perl,
+ libnet-inet6glue-perl,
+ libsearch-xapian-perl,
+ libsort-naturally-perl,
+ libsparkline-php,
+ libtext-csv-perl,
+ libtext-multimarkdown-perl,
+ libtext-textile-perl,
+ libtext-typography-perl,
+ libtext-wikicreole-perl,
+ libtext-wikiformat-perl,
+ libxml-feed-perl,
+ libxml-writer-perl,
+ perlmagick,
+ po4a (>= 0.35-1),
+ polygen,
+ python,
+ python-docutils,
+ texlive,
+ tidy,
+ viewvc | gitweb | viewcvs,
+ xapian-omega (>= 1.0.5),
+Conflicts:
+ ikiwiki-plugin-table,
+Replaces:
+ ikiwiki-plugin-table,
+Provides:
+ ikiwiki-plugin-table,
 Description: a wiki compiler
  Ikiwiki converts a directory full of wiki pages into HTML pages suitable
  for publishing on a website. Unlike many wikis, ikiwiki does not have its
