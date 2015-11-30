@@ -15,3 +15,15 @@ Peter Simons wrote:
 	Failed 2/19 subtests 
  
 > Do you have any idea how to fix this issue?
+
+>> As far as I can tell, this indicates that your ImageMagick doesn't
+>> support PDF (in Debian and its derivatives this requires `libmagickcore-extra`).
+>> Please run tests on a system with a fully-featured ImageMagick (in Debian we put
+>> `libmagickcore-extra` in the `Build-Depends-Indep` for this), or if you are testing
+>> at install time on arbitrary end-user systems, please tell me what this says on a
+>> system where the test fails:
+>>
+>>     perl -MData::Dumper -MImage::Magick -e 'print Dumper([(new Image::Magick)->QueryFormat("pdf")])'
+>>
+>> If the result is `$VAR1 = [ undef ]`, then we can easily make the test skip that bit if PDFs don't work.
+>> --[[smcv]]
