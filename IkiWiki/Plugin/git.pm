@@ -220,10 +220,7 @@ sub run_or_die ($@) { safe_git(\&error, undef, @_) }
 sub run_or_cry ($@) { safe_git(sub { warn @_ }, undef, @_) }
 sub run_or_non ($@) { safe_git(undef, undef, @_) }
 
-my $ensured_committer;
 sub ensure_committer {
-	return if $ensured_committer;
-
 	my $name = join('', run_or_non("git", "config", "user.name"));
 	my $email = join('', run_or_non("git", "config", "user.email"));
 
@@ -234,8 +231,6 @@ sub ensure_committer {
 	if (! length $email) {
 		run_or_die("git", "config", "user.email", "ikiwiki.info");
 	}
-
-	$ensured_committer = 1;
 }
 
 sub merge_past ($$$) {
