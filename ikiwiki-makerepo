@@ -85,6 +85,12 @@ git)
 
 	cd "$srcdir"
 	git init
+	if [ -z "$(git config user.name)" ]; then
+		git config user.name IkiWiki
+	fi
+	if [ -z "$(git config user.email)" ]; then
+		git config user.email ikiwiki.info
+	fi
 	echo /.ikiwiki > .gitignore
 	git add .
 	git commit -m "initial commit"

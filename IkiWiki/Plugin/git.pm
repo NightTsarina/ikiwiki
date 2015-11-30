@@ -220,6 +220,23 @@ sub run_or_die ($@) { safe_git(\&error, undef, @_) }
 sub run_or_cry ($@) { safe_git(sub { warn @_ }, undef, @_) }
 sub run_or_non ($@) { safe_git(undef, undef, @_) }
 
+my $ensured_committer;
+sub ensure_committer {
+	return if $ensured_committer;
+
+	my $name = join('', run_or_non("git", "config", "user.name"));
+	my $email = join('', run_or_non("git", "config", "user.email"));
+
+	if (! length $name) {
+		run_or_die("git", "config", "user.name", "IkiWiki");
+	}
+
+	if (! length $email) {
+		run_or_die("git", "config", "user.email", "ikiwiki.info");
+	}
+
+	$ensured_committer = 1;
+}
 
 sub merge_past ($$$) {
 	# Unlike with Subversion, Git cannot make a 'svn merge -rN:M file'.
@@ -257,6 +274,8 @@ sub merge_past ($$$) {
 
 	my @undo;      # undo stack for cleanup in case of an error
 	my $conflict;  # file content with conflict markers
+
+	ensure_committer();
 
 	eval {
 		# Hide local changes from Git by renaming the modified file.
@@ -526,6 +545,8 @@ sub rcs_get_current_rev () {
 sub rcs_update () {
 	# Update working directory.
 
+	ensure_committer();
+
 	if (length $config{gitorigin_branch}) {
 		run_or_cry('git', 'pull', '--prune', $config{gitorigin_branch});
 	}
@@ -568,6 +589,8 @@ sub rcs_commit_helper (@) {
 	my %params=@_;
 	
 	my %env=%ENV;
+
+	ensure_committer();
 
 	if (defined $params{session}) {
 		# Set the commit author and email based on web session info.
@@ -631,6 +654,8 @@ sub rcs_add ($) {
 
 	my ($file) = @_;
 
+	ensure_committer();
+
 	run_or_cry('git', 'add', $file);
 }
 
@@ -639,11 +664,15 @@ sub rcs_remove ($) {
 
 	my ($file) = @_;
 
+	ensure_committer();
+
 	run_or_cry('git', 'rm', '-f', $file);
 }
 
 sub rcs_rename ($$) {
 	my ($src, $dest) = @_;
+
+	ensure_committer();
 
 	run_or_cry('git', 'mv', '-f', $src, $dest);
 }
@@ -943,6 +972,8 @@ sub rcs_revert ($) {
 	# Try to revert the given rev; returns undef on _success_.
 	my $rev = shift;
 	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
+
+	ensure_committer();
 
 	if (run_or_non('git', 'revert', '--no-commit', $sha1)) {
 		return undef;

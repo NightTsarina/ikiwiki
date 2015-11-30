@@ -21,6 +21,9 @@ ikiwiki (3.20150615) UNRELEASED; urgency=medium
     non-git VCSs
   * debian/copyright: update for the rename of openid-selector to
     login-selector
+  * git: if no committer identity is known, set it to
+    "IkiWiki <ikiwiki.info>" in .git/config. This resolves commit errors
+    in versions of git that require a non-trivial committer identity.
 
  -- Simon McVittie <smcv@debian.org>  Mon, 15 Jun 2015 18:13:23 +0100
 
