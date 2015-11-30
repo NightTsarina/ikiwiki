@@ -221,15 +221,18 @@ sub run_or_cry ($@) { safe_git(sub { warn @_ }, undef, @_) }
 sub run_or_non ($@) { safe_git(undef, undef, @_) }
 
 sub ensure_committer {
-	my $name = join('', run_or_non("git", "config", "user.name"));
-	my $email = join('', run_or_non("git", "config", "user.email"));
-
-	if (! length $name) {
-		run_or_die("git", "config", "user.name", "IkiWiki");
+	if (! length $ENV{GIT_AUTHOR_NAME} || ! length $ENV{GIT_COMMITTER_NAME}) {
+		my $name = join('', run_or_non("git", "config", "user.name"));
+		if (! length $name) {
+			run_or_die("git", "config", "user.name", "IkiWiki");
+		}
 	}
 
-	if (! length $email) {
-		run_or_die("git", "config", "user.email", "ikiwiki.info");
+	if (! length $ENV{GIT_AUTHOR_EMAIL} || ! length $ENV{GIT_COMMITTER_EMAIL}) {
+		my $email = join('', run_or_non("git", "config", "user.email"));
+		if (! length $email) {
+			run_or_die("git", "config", "user.email", "ikiwiki.info");
+		}
 	}
 }
 
@@ -585,8 +588,6 @@ sub rcs_commit_helper (@) {
 	
 	my %env=%ENV;
 
-	ensure_committer();
-
 	if (defined $params{session}) {
 		# Set the commit author and email based on web session info.
 		my $u;
@@ -609,6 +610,8 @@ sub rcs_commit_helper (@) {
 			$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
 		}
 	}
+
+	ensure_committer();
 
 	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
 	my @opts;
