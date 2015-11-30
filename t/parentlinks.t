@@ -4,7 +4,7 @@
 
 use warnings;
 use strict;
-use Test::More 'no_plan';
+use Test::More;
 
 my %expected;
 
@@ -79,3 +79,5 @@ sub test_loop($$) {
 
 # Main
 test_loop('parentlinks', $expected{'parentlinks'});
+
+done_testing();
