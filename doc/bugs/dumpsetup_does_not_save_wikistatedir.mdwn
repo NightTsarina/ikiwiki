@@ -3,3 +3,10 @@ Calling ikiwiki with a bunch of options, including the `--dumpsetup somefile.set
 Strange since same [[kind of bugs|bugs/dumpsetup_does_not_save_destdir]] have been fixed for `destdir`.
 
 --[[bbb]]
+
+> Options flagged as `internal` are not saved, and are not meant to be useful to save.
+> `wikistatedir` is one of those. Why do you want `wikistatedir` to be in the dumped setup?
+>
+> `wikistatedir` is always `$config{srcdir}/.ikiwiki` unless you are doing something
+> incredibly strange.
+> --[[smcv]]
