@@ -5,7 +5,7 @@ The most common use of inlining is generating blogs and RSS or Atom feeds.
 
 Example:
 
-	\[[!inline pages="blog/* and !*/Discussion" show="10" rootpage="blog"]]
+	\[[!inline pages="blog/* and !*/Discussion" limit="10" rootpage="blog"]]
 
 Any pages that match the specified [[PageSpec]] (in the example, any
 [[SubPage]] of "blog") will be part of the blog, and the newest 10
@@ -46,9 +46,11 @@ There are many parameters you can use with the `inline`
 directive. These are the commonly used ones:
 
 * `pages` - A [[PageSpec]] of the pages to inline.
-* `show` - Specify the maximum number of matching pages to inline.
+* `limit` - Specify the maximum number of matching pages to inline.
   Default is 10, unless archiving, when the default is to show all.
   Set to 0 to show all matching pages.
+  In older versions of IkiWiki this parameter was called `show`, which
+  also still works.
 * `archive` - If set to "yes", only list page titles and some metadata, not
   full contents.
 * `title` - Sets the title of the rss feed if one is generated.
@@ -98,8 +100,10 @@ Here are some less often needed parameters:
   were created in the same commit, sort them by the name of the page
   (equivalent to `sort="age title"`).
 * `reverse` - If set to "yes", causes the sort order to be reversed.
-* `feedshow` - Specify the maximum number of matching pages to include in
-  the rss/atom feeds. The default is the same as the `show` value above.
+* `feedlimit` - Specify the maximum number of matching pages to include in
+  the rss/atom feeds. The default is the same as the `limit` value above.
+  In older versions of IkiWiki this parameter was called `feedshow`, which
+  also still works.
 * `feedonly` - Only generate the feed, do not display the pages inline on
   the page.
 * `quick` - Build archives in quick mode, without reading page contents for
@@ -126,7 +130,7 @@ Here are some less often needed parameters:
 * `trail` - If set to "yes" and the [[!iki plugins/trail desc=trail]] plugin
   is enabled, turn the inlined pages into a trail with next/previous links,
   by passing the same options to [[ikiwiki/directive/trailitems]]. The `skip`
-  and `show` options are ignored by the trail, so the next/previous links
+  and `limit` options are ignored by the trail, so the next/previous links
   traverse through all matching pages.
 
 [[!meta robots="noindex, follow"]]

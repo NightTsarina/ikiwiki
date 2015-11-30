@@ -35,7 +35,13 @@ sub preprocess (@) {
 	my %params=@_;
 	$params{pages}="*" unless defined $params{pages};
 	my $style = ($params{style} or 'cloud');
-	
+
+	# Backwards compatibility
+	if (defined $params{show} && $params{show} =~ m/^\d+$/) {
+		$params{limit} = $params{show};
+		delete $params{show};
+	}
+
 	my %counts;
 	my $max = 0;
 	foreach my $page (pagespec_match_list($params{page}, $params{pages},
@@ -64,11 +70,11 @@ sub preprocess (@) {
 		$max = $counts{$page} if $counts{$page} > $max;
 	}
 
-	if (exists $params{show}) {
+	if (exists $params{limit}) {
 		my $i=0;
 		my %show;
 		foreach my $key (sort { $counts{$b} <=> $counts{$a} } keys %counts) {
-			last if ++$i > $params{show};
+			last if ++$i > $params{limit};
 			$show{$key}=$counts{$key};
 		}
 		%counts=%show;
