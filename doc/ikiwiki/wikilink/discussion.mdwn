@@ -18,6 +18,8 @@ BTW, ikiwiki doesn't displays the #foo anchor in the example
 > It would be much easier though if it was translated to the heading's name,
 > so on could to `\[[page#name]]`. --Timoses
 
+>> That's [[plugins/headinganchors]]. --smcv
+
 > No such syntax exists in markdown.  ikiwiki could certainly have a
 > [[preprocessor_directive|directive]] for it, though.
 > --[[JoshTriplett]]
@@ -90,11 +92,27 @@ Is it possible to refer to a page, say \[[foobar]], such that the link text is t
 
 > Not yet. :-) Any suggestion for a syntax for it? Maybe something like \[[|foobar]] ? --[[Joey]]
 
-> I am thinking that it would be useful to parse parts of one wiki page into another. Here something like `\[[page=anchor]]` would be really nice to simply parse the content of that section, as opposed to `\[[page#anchor]]` which only creates a link to that section. -- [[Timoses]]
-
 I like your suggestion because it's short and conscise. However, it would be nice to be able to refer to more or less arbitrary meta tags in links, not just "title". To do that, the link needs two parameters: the page name and the tag name, i.e. \[[pagename!metatag]]. Any sufficiently weird separater can be used instead of '!', of course. I like \[[pagename->metatag]], too, because it reminds me of accessing a data member of a structure (which is what referencing a meta tag is, really). --Peter
 
 > I dislike \[[pagename->metatag]] because other wikis use that as their normal link/label syntax.
 > I'm not sure that it is a good idea to refer to arbitrary meta tags in links in the first place - what other meta tags would you really be interested in?  Description?  Author?  It makes sense to me to refer to the title, because that is a "label" for a page.
 > As for syntax, I do like the \[[|foobar]] idea, or perhaps something like what <a href="http://www.pmwiki.org">PmWiki</a> does - they have their links the other way around, so they go \[[page|label]] and for link-text-as-title, they have \[[page|+]].  So for IkiWiki, that would be \[[+|page]] I guess.
 > --[[KathrynAndersen]]
+
+----
+
+I am thinking that it would be useful to parse parts of one wiki page into another. Here something like `\[[page=anchor]]` would be really nice to simply parse the content of that section, as opposed to `\[[page#anchor]]` which only creates a link to that section. -- [[Timoses]]
+
+> When you say "parse parts" do you mean taking a section of a wiki page and including its text
+> in a different wiki page? So for instance you might want `/installation` to include the
+> `Downloading binaries` section of `/download`, but not the rest of that page?
+>
+> That's really a separate feature request (inlining isn't linking), and is also rather difficult
+> to do in IkiWiki's processing model: at the time that [[wikilinks|ikiwiki/wikilink]] and
+> [[directives|ikiwiki/directive]] are processed, the page content is still Markdown or
+> whatever other format is relevant, not HTML. That makes sections difficult to identify.
+>
+> I would suggest making the desired section a separate page (for example you might
+> call it `/download/binaries`), and including that whole page everywhere it should
+> appear (for example in both `/download` and `/installation`) using
+> `\[[!inline pages="download/binaries" raw=yes]]`. --[[smcv]]
