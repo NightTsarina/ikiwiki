@@ -1,0 +1,26 @@
+[[!comment format=mdwn
+ username="smcv"
+ subject="Protocol-relative URLs are not always an option; change your url and cgiurl settings"
+ date="2015-12-13T22:20:13Z"
+ content="""
+IkiWiki already uses relative (`../foo/`), hostname-relative (`/foo`) or
+protocol-relative (`//example.com/foo/`) URLs wherever it can. However, not
+everything is allowed to be relative: in particular, more or less
+everything in RSS has to be absolute, either because the specification says so,
+or because in practice RSS consumers usually get relative URLs wrong.
+When we generated XHTML 1.0, `<base href=... />` had to be absolute too,
+but now that we always generate HTML 5 it's relative, so RSS is one of the
+few places the full `url` and `cgiurl` are used.
+
+If you have a certificate that's trusted by \"normal\" browsers (like LetsEncrypt),
+then there's no disadvantage in changing your `url` and `cgiurl` to
+both be `https://...`, and rebuilding your wiki. At this point I would only
+recommend using plain `http://` if you either have no certificate, or a
+self-signed or otherwise not-universally-trusted certificate for a non-public
+website.
+
+Because IkiWiki mostly outputs relative URLs, accesses via `http` will stay
+on `http`, unless you also reconfigure your web server (not specific to
+IkiWiki, for instance if you use Apache see
+[RedirectSSL on the Apache wiki](https://wiki.apache.org/httpd/RedirectSSL).
+"""]]
