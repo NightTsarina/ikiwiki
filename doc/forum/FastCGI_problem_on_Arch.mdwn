@@ -1,0 +1,13 @@
+Hello. 
+
+Sorry to disturb here, but I'm struggling running ikiwiki under Arch on a RaspberryPi.  
+I have a default user: alarm that both runs the nginx server and which created the ikiwiki site.  
+Everything sits in the home folder.  
+
+I've followed the instructions [here](http://ikiwiki.info/tips/dot_cgi/#index3h2) regarding the configuration of FastCGI, but there is a slight mistake in it I think.
+Nowadays, the ikiwiki.cgi sits in the subfolder that is the same as the wiki name under public_html/ and not directly under public_html/. But it does not really matter. I corrected that in my script.
+ 
+But somehow, even if I play around with the fastcgi parameters, I either get a 403, or the server is trying to send me the ikiwiki.cgi file to download, but does not run it.
+
+I've changed the permissions on the socket, I even tried to run the server as root, nothing changes. Still same errors. If anyone can help, I'd appreciate.
+  
