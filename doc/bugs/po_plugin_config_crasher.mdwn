@@ -9,3 +9,20 @@ I suspect the relevant configuration is this:
 
 Config problems in ikiwiki.setup should really not cause the whole site
 build to crash; this can make it hard to recover. --[[Joey]]
+
+---
+I try to setup a small site with the auto-blog.setup and played a bit with it:
+If I activate the po plugin and set po_translateable_pages to something meaningful (like the example: '* and !*/Discussion'),
+then I'll get the same error
+
+    syntax error in pagespec "\"page(./posts/*)"
+
+but only after a second run of the ikiwiki --setup site.setup
+
+My try to get a clue: deleting any po and pot files and run the rebuild again - works fine  
+run the rebuild a second time - error as above
+
+tune any of the pagespec variables in the setup and at the inline directives of the blog or sidebar dosn't change anything
+except leaving the po_translateable_pages empty, than the rebuild works and doesn't create any po files (as expected).
+
+Is this helpful or have I done anything stupid ? -- Michael
