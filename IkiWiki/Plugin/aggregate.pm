@@ -571,7 +571,9 @@ sub aggregate (@) {
 			# XML::Feed doesn't work around XML::Atom's bizarre
 			# API, so we will. Real unicode strings? Yes please.
 			# See [[bugs/Aggregated_Atom_feeds_are_double-encoded]]
+			no warnings 'once';
 			local $XML::Atom::ForceUnicode = 1;
+			use warnings;
 
 			my $c=$entry->content;
 			# atom feeds may have no content, only a summary

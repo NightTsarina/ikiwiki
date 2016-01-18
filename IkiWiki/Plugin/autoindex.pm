@@ -46,6 +46,7 @@ sub genindex ($) {
 
 			my $dir = $config{srcdir};
 			if (! $config{autoindex_commit}) {
+				no warnings 'once';
 				$dir = $IkiWiki::Plugin::transient::transientdir;
 			}
 
@@ -80,6 +81,7 @@ sub refresh () {
 				$file=~s/^\.\/?//;
 				return unless length $file;
 				if (IkiWiki::file_pruned($file)) {
+					no warnings 'once';
 					$File::Find::prune=1;
 				}
 				elsif (! -l $_) {

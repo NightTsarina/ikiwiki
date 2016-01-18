@@ -35,7 +35,9 @@ sub dumpline ($$$$) {
 	
 	eval q{use YAML::XS};
 	die $@ if $@;
+	no warnings 'once';
 	$YAML::XS::QuoteNumericStrings=0;
+	use warnings;
 
 	my $dump=decode_utf8(Dump({$key => $value}));
 	$dump=~s/^---\n//; # yaml header, we don't want

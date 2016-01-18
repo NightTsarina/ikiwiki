@@ -33,6 +33,7 @@ sub dumpline ($$$$) {
 	
 	eval q{use Data::Dumper};
 	error($@) if $@;
+	no warnings 'once';
 	local $Data::Dumper::Terse=1;
 	local $Data::Dumper::Indent=1;
 	local $Data::Dumper::Pad="\t";
@@ -40,6 +41,7 @@ sub dumpline ($$$$) {
 	local $Data::Dumper::Quotekeys=0;
 	# only the perl version preserves utf-8 in output
 	local $Data::Dumper::Useperl=1;
+	use warnings;
 	
 	my $dumpedvalue;
 	if (($type eq 'boolean' || $type eq 'integer') && $value=~/^[0-9]+$/) {

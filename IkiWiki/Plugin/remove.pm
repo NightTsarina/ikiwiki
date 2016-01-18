@@ -23,6 +23,7 @@ sub getsetup () {
 }
 
 sub allowed_dirs {
+	no warnings 'once';
 	return grep { defined $_ } (
 		$config{srcdir},
 		$IkiWiki::Plugin::transient::transientdir,

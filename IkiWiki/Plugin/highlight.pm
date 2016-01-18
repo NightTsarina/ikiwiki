@@ -201,7 +201,9 @@ sub highlight ($$) {
 
 	my $gen;
 	if (! exists $highlighters{$langfile}) {
+		no warnings 'once';
 		$gen = highlight::CodeGenerator::getInstance($highlight::XHTML);
+		use warnings;
 		$gen->setFragmentCode(1); # generate html fragment
 		$gen->setHTMLEnclosePreTag(1); # include stylish <pre>
 		if ($data_dir){

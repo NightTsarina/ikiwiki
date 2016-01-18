@@ -141,7 +141,9 @@ sub autocreate {
 	$template->param(month => $month) if defined $month;
 	$template->param(pagespec => $config{archive_pagespec});
 
+	no warnings 'once';
 	my $dir = $IkiWiki::Plugin::transient::transientdir;
+	use warnings;
 
 	writefile($pagefile, $dir, $template->output);
 }

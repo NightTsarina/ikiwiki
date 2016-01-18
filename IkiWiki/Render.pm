@@ -326,6 +326,7 @@ sub find_src_files (;$$$) {
 		$page = pagename($file);
 		if (! exists $pagesources{$page} &&
 		    file_pruned($file)) {
+			no warnings 'once';
 			$File::Find::prune=1;
 			return;
 		}

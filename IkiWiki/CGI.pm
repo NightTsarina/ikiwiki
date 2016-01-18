@@ -416,7 +416,9 @@ sub cgi (;$$) {
 
 	eval q{use CGI};
 	error($@) if $@;
+	no warnings "once";
 	$CGI::DISABLE_UPLOADS=$config{cgi_disable_uploads};
+	use warnings;
 
 	if (! $q) {
 		binmode(STDIN);

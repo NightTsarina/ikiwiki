@@ -120,6 +120,7 @@ sub gentag ($) {
 
 			my $dir = $config{srcdir};
 			if (! $config{tag_autocreate_commit}) {
+				no warnings 'once';
 				$dir = $IkiWiki::Plugin::transient::transientdir;
 			}
 
