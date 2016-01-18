@@ -51,7 +51,7 @@ ok(! system("cp t/img/redsquare.png t/tmp/in/a:b:c:d.png"));
 ok(! system("cp t/img/redsquare.png t/tmp/in/a:b:c:d:e:f:g:h:i:j.png"));
 
 if ($SVGS_WORK) {
-	writefile("emptysquare.svg", "t/tmp/in",
+	writefile("bluesquare.svg", "t/tmp/in",
 		'<svg width="30" height="30"><rect x="0" y="0" width="30" height="30" fill="blue"/></svg>');
 }
 
@@ -60,7 +60,7 @@ ok(! system("cp t/img/twopages.pdf t/tmp/in/twopages.pdf"));
 
 my $maybe_svg_img = "";
 if ($SVGS_WORK) {
-	$maybe_svg_img = "[[!img emptysquare.svg size=10x]]";
+	$maybe_svg_img = "[[!img bluesquare.svg size=10x]]";
 }
 
 my $maybe_pdf_img = "";
@@ -129,10 +129,10 @@ if (1) { # for easier testing
 
 	ok(! system(@command, "--refresh"));
 
-	ok(! -e "$outpath/10x-simple.png");
-	ok(! -e "$outpath/10x-simple-svg.png");
-	ok(! -e "$outpath/10x-simple-pdf.png");
-	ok(! -e "$outpath/10x-p1-simple-pdf.png");
+	ok(! -e "$outpath/10x-redsquare.png");
+	ok(! -e "$outpath/10x-bluesquare.png");
+	ok(! -e "$outpath/12x-twopages.png");
+	ok(! -e "$outpath/16x-p1-twopages.png");
 	ok(! -e "$outpath/x8-hello:world.png");
 	ok(! -e "$outpath/x4-a:b:c.png");
 	ok(! -e "$outpath/x6-a:b:c:d:e:f:g:h:i:j.png");
