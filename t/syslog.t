@@ -12,7 +12,7 @@ $IkiWiki::config{syslog} = 1;
 $IkiWiki::config{wikiname} = 'ASCII';
 is(debug('test'), '', 'plain ASCII syslog');
 $IkiWiki::config{wikiname} = 'not ⒶSCII';
-is(debug('test'), '', 'UTF8 syslog');
+is(debug('𝗧ĕṡҭ'), '', 'UTF8 syslog');
 my $orig = $IkiWiki::config{wikiname};
 is(debug('test'), '', 'check for idempotency');
 is($IkiWiki::config{wikiname}, $orig, 'unchanged config');
