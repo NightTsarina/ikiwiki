@@ -843,12 +843,9 @@ sub log_message ($$) {
 			$log_open=1;
 		}
 		eval {
-			# keep a copy to avoid editing the original config repeatedly
-			my $wikiname = $config{wikiname};
-			utf8::encode($wikiname);
-			my $message = join(" ", @_);
+			my $message = "[$config{wikiname}] ".join(" ", @_);
 			utf8::encode($message);
-			Sys::Syslog::syslog($type, "[$wikiname] %s", $message);
+			Sys::Syslog::syslog($type, "%s", $message);
 		};
                 if ($@) {
                     print STDERR "failed to syslog: $@" unless $log_failed;

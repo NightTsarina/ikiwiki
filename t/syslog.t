@@ -11,7 +11,7 @@ $IkiWiki::config{syslog} = 1;
 
 $IkiWiki::config{wikiname} = 'ASCII';
 is(debug('test'), '', 'plain ASCII syslog');
-$IkiWiki::config{wikiname} = 'not ⒶSCII';
+$IkiWiki::config{wikiname} = 'not ⒶSCII and has %s in it';
 is(debug('𝗧ĕṡҭ'), '', 'UTF8 syslog');
 my $orig = $IkiWiki::config{wikiname};
 is(debug('test'), '', 'check for idempotency');
