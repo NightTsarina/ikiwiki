@@ -5,3 +5,17 @@ the link to "comments" should be a full URL and there's a "self" tag missing.
 coming from [this bug report](https://www.drupal.org/node/1843576)
 
 -- [[anarcat]]
+
+> [[Fixed|done]]. Now people are going to complain that the RSS feed
+> hard-codes `http:` or `https:` instead, but we can't win there,
+> because RSS.
+>
+> If you just want to serve a feed with less bureaucracy, I suggest
+> using Atom feeds - they have sane semantics for relative URL references,
+> and a specification that actually specifies, instead of
+> [a family of vague, mutually incompatible specifications](https://web.archive.org/web/20110726001954/http://diveintomark.org/archives/2004/02/04/incompatible-rss).
+> In particular,
+> [my Atom feed validates](https://validator.w3.org/feed/check.cgi?url=http%3A%2F%2Fsmcv.pseudorandom.co.uk%2Findex.atom)
+> (rel="comments" seems to be missing from the IANA registry,
+> but that isn't a validity error).
+> --[[smcv]]
