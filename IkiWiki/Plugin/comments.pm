@@ -919,16 +919,18 @@ sub pagetemplate (@) {
 	}
 
 	if ($shown) {
+		my $absolute = $template->param('wants_absolute_urls');
+
 		if ($template->query(name => 'commentsurl')) {
 			$template->param(commentsurl =>
-				urlto($page).'#comments');
+				urlto($page, undef, $absolute).'#comments');
 		}
 
 		if ($template->query(name => 'atomcommentsurl') && $config{usedirs}) {
 			# This will 404 until there are some comments, but I
 			# think that's probably OK...
 			$template->param(atomcommentsurl =>
-				urlto($page).'comments.atom');
+				urlto($page, undef, $absolute).'comments.atom');
 		}
 
 		if ($template->query(name => 'commentslink')) {

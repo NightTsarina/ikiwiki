@@ -725,6 +725,7 @@ sub genfeed ($$$$$@) {
 
 	my $template=template_depends($feedtype."page.tmpl", $page, blind_cache => 1);
 	$template->param(
+		wants_absolute_urls => 1,
 		title => $feedtitle,
 		wikiname => $config{wikiname},
 		pageurl => $url,
