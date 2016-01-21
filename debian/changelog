@@ -1,10 +1,10 @@
 ikiwiki (3.20150615) UNRELEASED; urgency=medium
 
   [ Amitai Schlair ]
-  * meta test: Add tests for many behaviors of the directive.
-  * img test: Bail gracefully when ImageMagick is not present.
   * meta: Fix [[!meta name=foo]] by closing the open quote.
   * Avoid unescaped "{" in regular expressions
+  * meta test: Add tests for many behaviors of the directive.
+  * img test: Bail gracefully when ImageMagick is not present.
 
   [ Joey Hess ]
   * emailauth: Added emailauth_sender config.
@@ -14,15 +14,6 @@ ikiwiki (3.20150615) UNRELEASED; urgency=medium
     basewiki license.
 
   [ Simon McVittie ]
-  * Run autopkgtest tests using autodep8 and the pkg-perl team's
-    infrastructure
-  * t/img.t: do not spuriously skip
-  * tests: consistently use done_testing instead of no_plan
-  * Wrap and sort control files (wrap-and-sort -abst)
-  * Add enough build-dependencies to run all tests, except for
-    non-git VCSs
-  * debian/copyright: update for the rename of openid-selector to
-    login-selector
   * git: if no committer identity is known, set it to
     "IkiWiki <ikiwiki.info>" in .git/config. This resolves commit errors
     in versions of git that require a non-trivial committer identity.
@@ -31,11 +22,20 @@ ikiwiki (3.20150615) UNRELEASED; urgency=medium
   * pagestats: add "show" option to show meta fields. Thanks, Louis
   * Change dependencies from transitional package perlmagick
     to libimage-magick-perl (Closes: #789221)
+  * debian/copyright: update for the rename of openid-selector to
+    login-selector
   * d/control: remove leading article from Description
     (lintian: description-synopsis-starts-with-article)
   * d/control: Standards-Version: 3.9.6, no changes required
+  * Wrap and sort control files (wrap-and-sort -abst)
   * Silence "used only once: possible typo" warnings for variables
     that are part of modules' APIs
+  * Run autopkgtest tests using autodep8 and the pkg-perl team's
+    infrastructure
+  * Add enough build-dependencies to run all tests, except for
+    non-git VCSs
+  * tests: consistently use done_testing instead of no_plan
+  * t/img.t: do not spuriously skip
   * img test: skip testing PDFs if unsupported
   * img test: use the right filenames when testing that deletion occurs
 
