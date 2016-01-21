@@ -46,6 +46,9 @@ write_old_file("antagonists.mdwn",
 # using old spelling of "limit" ("show") to verify backwards compat
 write_old_file("enemies.mdwn",
 	'[[!inline pages="enemies/*" postform=no rootpage=enemies sort=title reverse=yes show=2]]');
+# to test correct processing of ../
+write_old_file("blah/blah/enemies.mdwn",
+	'[[!inline pages="enemies/*" postform=no rootpage=enemies sort=title reverse=yes show=2]]');
 foreach my $page (qw(protagonists/shepard protagonists/link
 		antagonists/saren antagonists/ganondorf
 		friends/garrus friends/liara friends/midna friends/telma
@@ -53,6 +56,9 @@ foreach my $page (qw(protagonists/shepard protagonists/link
 		enemies/zant)) {
 	write_old_file("$page.mdwn", "this page is {$page}");
 }
+# test cross-linking between pages as rendered in RSS
+write_old_file("enemies/zant.mdwn", "this page is {enemies/zant}\n\n".
+	"Zant hates [[friends/Midna]].");
 
 ok(! system(@command));
 ok(! system(@command, "--refresh"));
@@ -80,5 +86,19 @@ like($blob, qr[this page is \{enemies/zant}.*this page is \{enemies/rachni}]s,
 	'first two pages in reversed sort order are present');
 unlike($blob, qr{enemies/(?:benezia|geth)},
 	'pages excluded by show should not be present');
+
+$blob = readfile("t/tmp/out/enemies.rss");
+like($blob, qr[this page is \{enemies/zant}.*this page is \{enemies/rachni}]s,
+	'first two pages in reversed sort order are present');
+like($blob,
+	qr[Zant hates &lt;a href=(?:['"]|&quot;)http://example\.com/friends/midna.html(?:['"]|&quot;)&gt;Midna&lt;/a&gt;]s,
+	'link is correctly relative');
+
+$blob = readfile("t/tmp/out/blah/blah/enemies.rss");
+like($blob, qr[this page is \{enemies/zant}.*this page is \{enemies/rachni}]s,
+	'first two pages in reversed sort order are present');
+like($blob,
+	qr[Zant hates &lt;a href=(?:['"]|&quot;)http://example\.com/friends/midna.html(?:['"]|&quot;)&gt;Midna&lt;/a&gt;]s,
+	'link is correctly relative');
 
 done_testing;

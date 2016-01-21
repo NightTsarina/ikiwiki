@@ -613,7 +613,7 @@ sub absolute_urls ($$) {
 					$v=$baseurl.$v; # anchor
 				}
 				elsif ($dv=~/^(?!\w+:)[^\/]/) {
-					$v=$url.$v; # relative url
+					$v=URI->new_abs($v, $url)->canonical; # relative url
 				}
 				elsif ($dv=~/^\//) {
 					if (! defined $urltop) {
