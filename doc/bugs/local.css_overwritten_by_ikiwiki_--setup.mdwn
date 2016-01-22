@@ -1,0 +1,19 @@
+Steps to reproduce:
+
+ * Running ikiwiki 3.20130904.1ubuntu1 on Ubuntu 14.04 LTS
+ * Modify `~/public_html/MYWIKI/local.css`
+ * Run `ikiwiki --setup MYWIKI.setup` (or update via websetup interface)
+
+What should happen:
+
+ * Setup is updated/site is rebuilt
+ * local.css is retained and used
+
+What happens instead:
+
+ * Setup is updated (works)
+ * local.css reverts to blank version
+
+Workaround:
+
+ * Create mylocal.css, and manually copy it over local.css every time
