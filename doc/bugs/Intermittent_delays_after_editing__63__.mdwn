@@ -1,0 +1,47 @@
+Steps to reproduce:
+
+ * Running ikiwiki version 3.20130904.1ubuntu1 on Ubuntu 14.04 LTS
+ * ikiwiki accessed via `https://DOMAIN/wiki/ikiwiki.cgi` using fcgiwrap and Nginx
+ * Start ikiwiki site
+ * Edit an existing page
+
+What should happen:
+
+ * Change is immediately available
+
+What happens instead:
+
+ * Change is sometimes not immediately available
+ * After (approx) 1-2 minutes, change is available
+
+Other notes:
+
+ * Similarly for creating new pages
+ * Not consistent (the next edit may be visible immediately)
+ * If changes are visible from one browser, may not be visible from another browser on a different machine, logged in as the same user (admin)
+ * Seems to be happening less / not at all after running the site for approx 30-60 minutes
+ * fcgiwrap is invoked with Supervisor (aka supervisord)
+ * Related Nginx location blocks:
+
+```
+# non-wiki files at DOMAIN/...
+location / {
+    try_files $uri $uri/ /index.html =404;
+}
+
+# wiki files at DOMAIN/wiki
+location /wiki {
+    alias /home/USERNAME/public_html/WIKINAME;
+}
+
+# wiki script at DOMAIN/wiki/ikiwiki.cgi
+location /wiki/ikiwiki.cgi {
+    fastcgi_pass  unix:/tmp/fcgi.socket;
+    fastcgi_index ikiwiki.cgi;
+    fastcgi_param SCRIPT_FILENAME    /home/USERNAME/public_html/WIKINAME/ikiwiki.cgi;
+    fastcgi_param DOCUMENT_ROOT    /home/USERNAME/public_html/WIKINAME;
+    include /etc/nginx/fastcgi_params;
+}
+```
+
+Please let me know if this is expected/known, and/or if there's anything helpful I can add to the report.
