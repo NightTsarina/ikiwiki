@@ -1,0 +1,23 @@
+Steps to reproduce:
+
+ * Running ikiwiki version 3.20130904.1ubuntu1 on Ubuntu 14.04 LTS
+ * Also installed `perlmagick` and `libxml-writer-perl`
+ * Enable attachment plugin
+ * Set attachment rule to `mimetype(image/*)`
+ * Attempt to attach an image (e.g. downloaded version of https://commons.wikimedia.org/wiki/Category:Lolcats#/media/File:You_gotz_a_lolcat.jpg )
+
+What should happen:
+
+ * Attachment is uploaded
+
+What happens instead:
+
+ * Error message: `prohibited by allowed_attachments (file MIME type is application/octet-stream, not image/*)`
+
+Workaround:
+
+ * Change attachment rule to `mimetype(image/*) or application/octet-stream`
+
+Other notes:
+
+ * Downloading and uploading from a Windows machine via Firefox
