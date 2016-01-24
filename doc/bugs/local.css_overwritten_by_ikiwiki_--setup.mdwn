@@ -17,3 +17,12 @@ What happens instead:
 Workaround:
 
  * Create mylocal.css, and manually copy it over local.css every time
+
+---
+
+> This is [[working as intended|done]]. IkiWiki is a wiki compiler: everything
+> in its `$destdir`, in your case `~/public_html/MYWIKI`, is intended to be
+> under its control. Please create `local.css` in the `$srcdir`
+> (probably `~/MYWIKI`) and commit it to the VCS, or enable the
+> [[plugins/attachment]] plugin and "attach" it to the top-level `index` page.
+> IkiWiki will copy it into the `$destdir` whenever it changes. --[[smcv]]
