@@ -13,3 +13,9 @@ Any ideas how to handle this situation?
 
 > Well, you can adjust the inline's pagespec to exclude it, or even tag it
 > with a tag that the pagespec is adjusted to exclude. --[[Joey]]
+
+>> I did it by making a new tag called "redir", tagging the redir page with it and then modifying the *pages* attribute of my inline to exclude pages with that tag. However, there is the same problem with the archives, probably the [[plugins/calendar]] if you use that and likely some other cases that I haven't thought about. In all these places you need to explicitly exclude redir pages. I think that ideally redir pages should have some special treatment that excludes them by default in most situations, because they are not real pages in a sense. They can have a body but if the browser is working properly it will never be shown.
+>>
+>> How about adding a new PageSpec called redir(glob) and excluding such pages from the post(glob) PageSpec? I think this behaviour makes more sense and thus should be the default, but if a user wants the old behaviour that's still available as "page(glob) or redir(glob)".
+>>
+>> Good URL redirections are important because they allow you to move things around without breaking incoming links from external sites and people's browsing history (which you can't fix, unlike internal links). --[[anton]], 2016-01-31
