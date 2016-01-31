@@ -1,0 +1,83 @@
+[[!comment format=mdwn
+ username="https://launchpad.net/~eliasson"
+ nickname="eliasson"
+ subject="comment 2"
+ date="2016-01-31T20:07:52Z"
+ content="""
+Using Apache 2.4.10 (Debian 8's package) I solved it the following way:
+
+1. In the Apache site configuration, set `ErrorDocument 404` to the ikiwiki.cgi URL path.
+2. Apply the following patch to the plugins search and 404. The easiest and probably cleanest way is to copy the plugins to your `$libdir/IkiWiki/Plugins` and edit them there. It works with xapian omega search but wouldn't work with google, since the *P* CGI parameter is not set (instead, omega uses the `QUERY_STRING` environment variable). Perhaps one day I'll make this a proper patch and submit as a pull request.
+
+[Apache 2.4.13 adds support](https://httpd.apache.org/docs/2.4/mod/core.html#errordocument) for dynamic strings in `ErrorDocument`s, so you could do something similar to the solution for Nginx above. Until that is packaged in your stable Linux distro of choice, this hack can be used.
+
+<pre>
+<code>
+diff --git a/IkiWiki/Plugin/404.pm b/IkiWiki/Plugin/404.pm
+index 42cfa9e..a12fd40 100644
+--- a/IkiWiki/Plugin/404.pm
++++ b/IkiWiki/Plugin/404.pm
+@@ -74,7 +74,9 @@ sub cgi ($) {
+ 		my $page = cgi_page_from_404(
+ 			Encode::decode_utf8($ENV{REDIRECT_URL}),
+ 			$config{url}, $config{usedirs});
+-		IkiWiki::Plugin::goto::cgi_goto($cgi, $page);
++
++		$ENV{QUERY_STRING}=\"P=$page\";
++		IkiWiki::Plugin::search::search($cgi);
+ 	}
+ }
+ 
+diff --git a/IkiWiki/Plugin/search.pm b/IkiWiki/Plugin/search.pm
+index 24b16fe..24d7b3c 100644
+--- a/IkiWiki/Plugin/search.pm
++++ b/IkiWiki/Plugin/search.pm
+@@ -183,24 +183,31 @@ sub delete (@) {
+ 	}
+ }
+ 
++sub search($) {
++	my $cgi=shift;
++
++	if ($config{google_search}) {
++		print $cgi->redirect(\"https://www.google.com/search?sitesearch=$config{url}&q=\".$cgi->param('P'));
++		exit 0;
++	}
++	else {
++		# only works for GET requests
++		chdir(\"$config{wikistatedir}/xapian\") || error(\"chdir: $!\");
++		$ENV{OMEGA_CONFIG_FILE}=\"./omega.conf\";
++		$ENV{CGIURL}=IkiWiki::cgiurl();
++		IkiWiki::loadindex();
++		$ENV{HELPLINK}=htmllink(\"\", \"\", \"ikiwiki/searching\",
++					noimageinline => 1, linktext => \"Help\");
++
++		exec($config{omega_cgi}) || error(\"$config{omega_cgi} failed: $!\");
++	}
++}
++
+ sub cgi ($) {
+ 	my $cgi=shift;
+ 
+ 	if (defined $cgi->param('P')) {
+-		if ($config{google_search}) {
+-			print $cgi->redirect(\"https://www.google.com/search?sitesearch=$config{url}&q=\".$cgi->param('P'));
+-			exit 0;
+-		}
+-		else {
+-			# only works for GET requests
+-			chdir(\"$config{wikistatedir}/xapian\") || error(\"chdir: $!\");
+-			$ENV{OMEGA_CONFIG_FILE}=\"./omega.conf\";
+-			$ENV{CGIURL}=IkiWiki::cgiurl();
+-			IkiWiki::loadindex();
+-			$ENV{HELPLINK}=htmllink(\"\", \"\", \"ikiwiki/searching\",
+-				noimageinline => 1, linktext => \"Help\");
+-			exec($config{omega_cgi}) || error(\"$config{omega_cgi} failed: $!\");
+-		}
++		search($cgi);
+ 	}
+ }
+ 
+</code>
+</pre>
+"""]]
