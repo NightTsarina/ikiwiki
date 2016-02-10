@@ -26,4 +26,12 @@ supported. For example:
 	print "hello, world\n";
 	"""]]
 
+`format` can also be used to format entire source files and display them on a page. Simply put an [[inline]] directive with the `raw` attribute set inside a `format`. This can be useful if you want to both serve the file raw, as well as show it syntax highlighted on a page. An example:
+
+	\[[!format python """
+	[[!inline pages="program.py" raw="yes"]]
+	"""]]
+
+	\[[View raw file|program.py]]
+
 [[!meta robots="noindex, follow"]]
