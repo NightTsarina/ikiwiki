@@ -609,10 +609,10 @@ sub _generate_and_configure_post_commit_hook {
 
 	require IkiWiki::Wrapper;
 	if ($installed) {
-		$IkiWiki::program_to_wrap = 'ikiwiki.out';
+		$IkiWiki::program_to_wrap = `which ikiwiki`;
 	}
 	else {
-		$IkiWiki::program_to_wrap = `which ikiwiki`;
+		$IkiWiki::program_to_wrap = './ikiwiki.out';
 	}
 	# XXX substitute its interpreter to Makefile's $(PERL)
 	# XXX best solution: do this to all scripts during build
