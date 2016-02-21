@@ -34,7 +34,7 @@ sub getsetup () {
 			rebuild => 0,
 		},
 		google_search => {
-			type => "booblean",
+			type => "boolean",
 			example => 1,
 			description => "use google site search rather than internal xapian index?",
 			safe => 1,
