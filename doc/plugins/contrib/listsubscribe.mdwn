@@ -1,0 +1,25 @@
+[[!template id=plugin name=listsubscribe author="[[schmonz]]"]]
+[[!template id=gitbranch branch=schmonz/listsubscribe author="[[schmonz]]"]]
+[[!tag type/web]]
+
+This plugin provides the `listsubscribe` directive, which inserts a web
+form for your readers to subscribe to a mailing list. The directive
+takes a required `listname` parameter, which must refer to one of the
+lists named in the wiki setup file.
+
+## Example
+
+In `ikiwiki.setup`:
+
+    add_plugins:
+    - listsubscribe
+    
+    listsubscribe:
+      'my supercool mailing list': supercool-subscribe@neato.great
+
+(Where `supercool-subscribe@neato.great` is the subscription address
+provided by your mailing list manager.)
+
+In any wiki page:
+
+    [[!listsubscribe listname="my supercool mailing list"]]
