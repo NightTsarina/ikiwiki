@@ -115,7 +115,7 @@ sub exec_editor {
 		@editor=split(' ', $ENV{EDITOR});
 	}
 	if (exists $ENV{VISUAL}) {
-	@editor=split(' ', $ENV{VISUAL});
+		@editor=split(' ', $ENV{VISUAL});
 	}
 	exec(@editor, $file);
 }
