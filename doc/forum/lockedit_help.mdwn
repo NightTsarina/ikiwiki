@@ -1,0 +1,22 @@
+I'm having some trouble getting the lockedit plugin to work as I'd expect.
+
+We have a small in-house wiki that should be public-viewable, but only editable by a few users.
+I've added these users to the `adminuser` keyword in my `.setup` file:
+
+    adminuser:
+      - user1
+      - user2
+      - user3
+
+`lockedit` is enabled:
+
+    add_plugins:
+      - lockedit
+
+And the `locked_pages` is set to '*':
+
+    locked_pages: '*'
+
+However, I can still edit all pages using any user.  To test I simply created a new user
+by attempting to edit a page while not logged in.  After creating the user I could edit the
+page.
