@@ -94,7 +94,6 @@ sub checkconfig () {
 		my $real_cgi_signin;
 		my $otherform_label=gettext("Other");
 		if (keys %{$IkiWiki::hooks{auth}} > 1) {
-			$real_cgi_signin=\&IkiWiki::cgi_signin;
 			# Special case to avoid labeling password auth as
 			# "Other" when it's the only auth plugin not
 			# integrated with the loginselector.
@@ -105,6 +104,9 @@ sub checkconfig () {
 			delete $h{loginselector};
 			if (keys %h == 1 && exists $h{passwordauth}) {
 				$otherform_label=gettext("Password");
+			}
+			if (keys %h > 0) {
+				$real_cgi_signin=\&IkiWiki::cgi_signin;
 			}
 		}
 		inject(name => "IkiWiki::cgi_signin", call => sub ($$) {
