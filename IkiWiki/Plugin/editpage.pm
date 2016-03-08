@@ -305,7 +305,8 @@ sub cgi_editpage ($$) {
 			my @page_types;
 			if (exists $hooks{htmlize}) {
 				foreach my $key (grep { !/^_/ } keys %{$hooks{htmlize}}) {
-					push @page_types, [$key, $hooks{htmlize}{$key}{longname} || $key];
+					push @page_types, [$key, $hooks{htmlize}{$key}{longname} || $key]
+						unless $hooks{htmlize}{$key}{nocreate};
 				}
 			}
 			@page_types=sort @page_types;

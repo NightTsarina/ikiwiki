@@ -9,6 +9,7 @@ use IkiWiki 3.00;
 sub import {
 	hook(type => "getsetup", id => "mdwn", call => \&getsetup);
 	hook(type => "htmlize", id => "mdwn", call => \&htmlize, longname => "Markdown");
+	hook(type => "htmlize", id => "md", call => \&htmlize, longname => "Markdown (popular file extension)", nocreate => 1);
 }
 
 sub getsetup () {

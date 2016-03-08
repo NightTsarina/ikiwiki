@@ -141,7 +141,8 @@ sub rename_form ($$$) {
 		my @page_types;
 		if (exists $IkiWiki::hooks{htmlize}) {
 			foreach my $key (grep { !/^_/ } keys %{$IkiWiki::hooks{htmlize}}) {
-				push @page_types, [$key, $IkiWiki::hooks{htmlize}{$key}{longname} || $key];
+				push @page_types, [$key, $IkiWiki::hooks{htmlize}{$key}{longname} || $key]
+					unless $IkiWiki::hooks{htmlize}{$key}{nocreate};
 			}
 		}
 		@page_types=sort @page_types;
