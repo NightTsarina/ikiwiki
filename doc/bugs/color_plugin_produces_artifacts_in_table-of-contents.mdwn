@@ -1,0 +1,77 @@
+# Bug Descriptipn 
+
+If color and toc plugins are enabled and you use colored headers, those headers are never colored but sometimes are prefixed with text artifacts like "color: red".
+
+Example: The header 
+
+    # [[!color  foreground=red text="Testing"]]
+
+would sometimes be seen in the toc as
+
+    color: redTesting
+
+Reason for this behaviour is: 
+
+1. the color plugin uses a special syntax to preserve the color through sanitize and that syntax has a plain text component. 
+1. the toc plugin removes everything except plain text from headers in the toc
+1. if the toc plugin is executed before the color plugin in the format hook it sees the special syntax and clobbers the toc, otherwise it just removes the color markup
+
+# Solutions
+
+There are a few possible solutions to this depending on how it should work:
+
+1. The easiest thing would be to just add a "last" parameter to the toc plugin format hook (or "first" to the color plugin). Result: No color in tocs at all
+1. Adding four lines to toc.pm (and possibly removing ~4 now superfluous lines) would make it preserve ALL markup in headers, color as well as html markup or markdown (*emphasize* for example). Execution order of the plugins would not matter at all
+1. A bit more code would be necessary to just specifically preserve the color, but nothing else
+
+I would propose implementing the second option because visual markers in headers are useful to convey additional information very fast and this information should be preserved in the toc. Example: Bug or task/project tracker with color conveying status of the bug or task.
+
+It seems you can stuff anything into ordered lists (according to w3.orgs doku), so apart from stylistic reasons I don't see any problems with markup in the toc. 
+
+# Patch
+
+This is the proposed patch to the second solution. I did not yet test it with the latest version of ikiwiki, but I did check that both plugins are identical in my test versions and the latest. I will update my wikis in use to the latest version and test it further, anyway. 
+
+The part that could probably be removed in toc is the handler call "$p->handler(text => sub {" in line 110. It collects all text in the header as HTML::Parser "dtext", which means entities are decoded in the text. Since that step is probably already done in ikiwiki or doesn't need to be done (otherwise ikiwiki with toc.pm disabled would not work correctly) I'm pretty sure the "dtext" is not necessary. And in that case the patch below would just collect that text in the default handler. Not tested at all, I want to hear a second opinion first. 
+
+(Should I upload this patch as a branch to ikiwiki.info? Not sure about how patch submission works here)
+
+     diff --git a/IkiWiki/Plugin/toc.pm b/IkiWiki/Plugin/toc.pm
+    index ac07b9a..b75a184 100644
+    --- a/IkiWiki/Plugin/toc.pm
+    +++ b/IkiWiki/Plugin/toc.pm
+    @@ -57,6 +57,7 @@ sub format (@) {
+	    my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
+	    my $curlevel=$startlevel-1;
+	    my $liststarted=0;
+    +	my $headercollect=0;
+	    my $indent=sub { "\t" x $curlevel };
+	    $p->handler(start => sub {
+		    my $tagname=shift;
+    @@ -107,6 +108,7 @@ sub format (@) {
+			    $index.=&$indent."<li class=\"L$curlevel\">".
+				    "<a href=\"#$anchor\">";
+
+    +			$headercollect=1;
+			    $p->handler(text => sub {
+				    $page.=join("", @_);
+				    $index.=join("", @_);
+    @@ -114,6 +116,7 @@ sub format (@) {
+			    $p->handler(end => sub {
+				    my $tagname=shift;
+				    if ($tagname =~ /^h(\d+)$/i) {
+    +				        $headercollect=0;
+					    $p->handler(text => undef);
+					    $p->handler(end => undef);
+					    $index.="</a>\n";
+    @@ -123,6 +126,7 @@ sub format (@) {
+		    }
+		    else {
+			    $page.=$text;
+    +			$index.=$text if ($headercollect);
+		    }
+	    }, "tagname, text");
+	    $p->handler(default => sub { $page.=join("", @_) }, "text");
+    -- 
+    1.7.10.4
+
