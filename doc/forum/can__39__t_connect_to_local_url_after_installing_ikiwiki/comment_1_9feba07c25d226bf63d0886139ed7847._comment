@@ -1,0 +1,51 @@
+[[!comment format=mdwn
+ username="smcv"
+ subject="You'll need a web server, and don't run ikiwiki as root"
+ date="2016-03-11T20:39:35Z"
+ content="""
+> sudo ikiwiki --setup /opt/local/etc/ikiwiki/auto.setup
+
+This is probably not the cause of your problem, but please don't do this. ikiwiki
+should always be run as an ordinary user, never as root. If it runs as root, any
+bugs in ikiwiki could have very bad consequences.
+
+(I'm tempted to make it just exit with an error message if run as root, actually.)
+
+> ```
+>     url:         http://kund-Mac-2.local/~root/RelatiicuPublicul
+>     srcdir:      ~/RelatiicuPublicul
+>     destdir:     ~/public_html/RelatiicuPublicul
+>     repository:  ~/RelatiicuPublicul.git
+> ```
+
+ikiwiki does not include a web server (http server), so you cannot edit via a
+browser without providing one.
+
+`auto.setup` tries to guess at some reasonable defaults that will work on a
+reasonable number of Unix machines: it assumes that `~/public_html` is
+mapped to `http://${hostname}/~${username}/` by your web server. This is
+the default configuration on many Linux and *BSD systems; I don't know
+whether that's true on OS X or not.
+
+It also assumes that an executable named `ikiwiki.cgi` in `public_html`
+will be run as a CGI script. Again, this is often true, but not always.
+
+Perhaps we should have some wording like
+
+```
+If you have a web server running, your site might be available at:
+
+     url:         http://kund-Mac-2.local/~root/RelatiicuPublicul
+     srcdir:      ~/RelatiicuPublicul
+     destdir:     ~/public_html/RelatiicuPublicul
+     repository:  ~/RelatiicuPublicul.git
+```
+
+as a hint that ikiwiki has done what it can, and the rest is up to you?
+
+> Unescaped left brace in regex is deprecated
+
+I think we fixed this in the latest version of ikiwiki, so you might not
+be running the current version (that won't affect this particular
+issue, but there are other improvements).
+"""]]
