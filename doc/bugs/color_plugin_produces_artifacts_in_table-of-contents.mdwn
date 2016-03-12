@@ -34,7 +34,7 @@ This is the proposed patch to the second solution. I did not yet test it with th
 
 The part that could probably be removed in toc is the handler call "$p->handler(text => sub {" in line 110. It collects all text in the header as HTML::Parser "dtext", which means entities are decoded in the text. Since that step is probably already done in ikiwiki or doesn't need to be done (otherwise ikiwiki with toc.pm disabled would not work correctly) I'm pretty sure the "dtext" is not necessary. And in that case the patch below would just collect that text in the default handler. Not tested at all, I want to hear a second opinion first. 
 
-**EDIT** After testing the handler call is still necessary, but the "dtext" could be changed to "text". Also I needed to add 3 more lines, the patch below is up to date. It works with all markup and markdown I could think of. The only case not handled optimal is if the header is just a link and nothing else, then there is no text left for the local link, the toc links directly to a different page. Is that acceptable or not?
+**EDIT** Ok, the handler call is still necessary, but the "dtext" could be changed to "text". Also I needed to add 3 more lines, the patch below is up to date. It works with all markup and markdown I could think of. The only case not handled optimal is if the header is just a link and nothing else, then there is no text left for the local link, the toc links directly to a different page. Is that acceptable or not?
 
 (Should I upload this patch as a branch to ikiwiki.info? Not sure about how patch submission works here)
 
