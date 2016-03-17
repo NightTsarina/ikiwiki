@@ -654,7 +654,7 @@ sub rcs_add ($) {
 
 	ensure_committer();
 
-	run_or_cry('git', 'add', $file);
+	run_or_cry('git', 'add', '--', $file);
 }
 
 sub rcs_remove ($) {
@@ -664,7 +664,7 @@ sub rcs_remove ($) {
 
 	ensure_committer();
 
-	run_or_cry('git', 'rm', '-f', $file);
+	run_or_cry('git', 'rm', '-f', '--', $file);
 }
 
 sub rcs_rename ($$) {
@@ -672,7 +672,7 @@ sub rcs_rename ($$) {
 
 	ensure_committer();
 
-	run_or_cry('git', 'mv', '-f', $src, $dest);
+	run_or_cry('git', 'mv', '-f', '--', $src, $dest);
 }
 
 sub rcs_recentchanges ($) {
