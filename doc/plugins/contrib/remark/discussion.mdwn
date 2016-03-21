@@ -10,10 +10,32 @@ not elegantly). Clicking through to the slides works right, of course.
 Should [[inline]] (and more generally [[ikiwiki/PageSpec]]) understand
 that web slides are not exactly regular pages? And/or should this plugin
 detect when slides are being inlined and allow ikiwiki to process the
-Markdown as a sort of "preview"?
+Markdown as a sort of "preview"? --[[schmonz]]
+
+> If you want web slides to not be a normal page, that's what internal
+> pages are for. An internal page has an extension (file type) starting
+> with `_`, and has the following properties:
+>
+> * `foo._ext` does not automatically render `foo[/index].html`
+> * `glob(foo)` (for which unadorned globs are syntactic sugar) does not
+>   match it, you have to use `internal(foo)`
+> * [[plugins/editpage]] won't edit it
+>
+> I'd be very tempted to use `foo._remark` and set it up so all such pages
+> are copied to `foo.html` unchanged. You'd probably have to add a new hook
+> that is run instead of most or all of `render()`, and also make those
+> pages exempt from `derender_internal()`?
+>
+> When a remark page is inlined (via `internal()` if it's internal)
+> I think it might be nice to pass it through (the htmlize function of)
+> ikiwiki's normal [[plugins/mdwn]] instead. --[[smcv]]
 
 ## Concern: safety of web-editing <a id="editing"></a>
 
 Even though `remarkpage.tmpl` has no action links, is it still possible
 for someone to trick their way into web-editing a slide deck? And if
-they do, is that dangerous?
+they do, is that dangerous? --[[schmonz]]
+
+> Yes, it's likely both possible and dangerous. If you've already
+> deployed this plugin, make sure it's covered by [[plugins/lockedit]].
+> --[[smcv]]
