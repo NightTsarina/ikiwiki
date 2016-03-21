@@ -1,0 +1,44 @@
+## Code review
+
+### Main things 
+
+[[!format diff """
++<form method="get" action="<TMPL_VAR LISTSUBSCRIBEACTION>" id="listsubscribeform">
+"""]]
+
+This should have `ESCAPE=HTML` (see [[!cpan HTML::Template]]). The other TMPL_VARs probably
+should too.
+
+The method should be `post`, and the CGI should ideally not respond to `GET`s (because sending
+email isn't idempotent).
+
+### Minor things
+
+It would be good to have the documentation specify exactly what "API" it expects from the
+mailing list: in this case it seems to be an address to which you can send a blank message
+with the desired subscription address in the `From:` header. I believe that works for most
+but not all mailing list managers (hopefully the ones where you're meant to mail the posting
+address with "subscribe" in the body have died out by now).
+
+[[!format diff """
++<h4>Join <TMPL_VAR LISTSUBSCRIBELISTNAME></h4>
+"""]]
+
+Might be better to have a separate parameter for the human-readable name?
+
+[[!format diff """
++       my $list_subscribe_form = template('listsubscribeform.tmpl');
+"""]]
+
+I wonder whether this would benefit from an optional `template` parameter, with this as default? 
+
+```
+listsubscribe:
+  'my supercool mailing list': supercool-subscribe@neato.great
+```
+
+This won't be available to [[plugins/websetup]], which doesn't understand hashes/dicts/maps.
+If it was a list of flat strings with a syntactic structure, like the language list for `po`,
+then it would be. Sorry, I can't think of a particularly good syntax...
+
+--[[smcv]]
