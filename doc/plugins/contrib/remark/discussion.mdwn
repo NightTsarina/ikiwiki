@@ -1,0 +1,19 @@
+## Problem: `inline` <a id="inline"></a>
+
+Web slides are sort of a regular web page, but not exactly: no action
+links, and almost none of the other accoutrements of `page.tmpl`. The
+branch's current behavior is that Remark slides are naively inlined like
+any other page, which -- because the Markdown is deliberately not being
+rendered by ikiwiki -- results in the slide source being displayed (and
+not elegantly). Clicking through to the slides works right, of course.
+
+Should [[inline]] (and more generally [[ikiwiki/PageSpec]]) understand
+that web slides are not exactly regular pages? And/or should this plugin
+detect when slides are being inlined and allow ikiwiki to process the
+Markdown as a sort of "preview"?
+
+## Concern: safety of web-editing <a id="editing"></a>
+
+Even though `remarkpage.tmpl` has no action links, is it still possible
+for someone to trick their way into web-editing a slide deck? And if
+they do, is that dangerous?
