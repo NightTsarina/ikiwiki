@@ -38,4 +38,22 @@ they do, is that dangerous? --[[schmonz]]
 
 > Yes, it's likely both possible and dangerous. If you've already
 > deployed this plugin, make sure it's covered by [[plugins/lockedit]].
-> --[[smcv]]
+>
+> Every *page* that is not *internal* can be edited. Look at
+> [[plugins/editpage]] for the (only) logic that is applied when deciding
+> whether to accept an edit: whether there is an action link is irrelevant.
+>
+> Here *page* is a jargon term for something matching `page()`, i.e. its
+> extension is the same as the name of a `htmlize` hook, while *internal*
+> means a *page* whose extension additionally starts with `_`.
+>
+> I think there's a cross-site scripting vulnerability here. If there is
+> some Markdown source that is seen as OK by
+> [[plugins/htmlscrubber]] and [[plugins/htmlbalance]], but induces
+> remark.js to produce HTML that is then evaluated in the security context
+> of your wiki and executes attacker-supplied JavaScript in visitors' browsers,
+> then an attacker able to edit the remark source could act with the
+> privileges of your wiki and anything else that shares its origin
+> (domain name). In particular, the attacker could steal login cookies.
+> The simplest proof-of-concept would be something like
+> `[click here](javascript:alert("XSS! " + document.cookie))`. --[[smcv]]
