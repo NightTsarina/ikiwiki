@@ -21,10 +21,11 @@ not elegantly). Clicking through to the slides works right, of course.
 
 See [[Discussion#inline]].
 
-## Concern: safety of web-editing
+## Problem: safety of web-editing
 
-Even though `remarkpage.tmpl` has no action links, is it still possible
-for someone to trick their way into web-editing a slide deck? And if
-they do, is that dangerous?
+This plugin is not currently safe for wikis where `.remark` pages can be
+edited by untrusted users; the [[plugins/htmlscrubber]] is unlikely to be
+able to prevent cross-site scripting in this plugin. Make sure only trusted
+(administrative) users can create or edit `.remark` pages.
 
 See [[Discussion#editing]].
