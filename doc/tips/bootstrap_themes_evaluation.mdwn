@@ -12,3 +12,27 @@ In order to figure out exactly which ones fares the best, i made test wikis for 
 Hopefully this will help others figure out what the heck is going on here... Personnally, I think I prefer the JAK linux one, but i don't like the idea of depending on a theme-specific plugin...  -- [[anarcat]]
 
 Update: I ended up forking the Jak theme also... My experience has been documented in [this blog post](http://anarc.at/blog/2015-09-09-bootstrap/?updated). --[[anarcat]]
+
+---
+
+Congratulations on your setup and here is my *mea culpa* on this:
+
+Originally I've started making the [hiatobr](http://bootstrap-hiatobr.wiki.orangeseeds.org)'s fork to address the following issues with the other attempts to make a bootstrap theme:
+
+* The sidebar wasn't working;
+* The themes were poorly written and did not found a way to incorporate the bootstrap proposal to the ikiwiki's template model;
+* I wanted diversity and the original idea was to provide a handful of templates like the [bootstrap examples](http://getbootstrap.com/getting-started/#examples).
+
+Turns out:
+
+* I've fixed the sidebar, don't remember how but you may find out in the [history](https://notabug.org/hiatobr/ikiwiki-bootstrap-theme-2/commits/d3769844c536a0d97955157f4c55e719af1dd3d0);
+* I've added an [[opengraph plugin|plugins/contrib/opengraph/]] in the template so your facebook friends can share your blog posts;
+* We have translated stuff to Brazilian Portuguese totally ignoring the i18n conventions so that kind of broke the template;
+* The "proper way" to use the template is not documented;
+* We did not provide other templates as planned because of the [end of Hacklab Independência](https://we.riseup.net/hiatobr/fim-do-hacklab-independ-ncia);
+
+The webdev collective has just met again and the plan to make multiple ikiwiki blog bootstrap templates will continue, but since I've failed once, this shall wait for results.
+
+As for the [[theme_market]] page, since the modifications didn't provide much innovation, mine included, I've [edited the page](http://source.ikiwiki.branchable.com/?p=source.git;a=commit;h=b18ae270ac7b93fe51f83bd7dc885d068165e407), see if it seems cleaner now.
+
+--[[desci]]
