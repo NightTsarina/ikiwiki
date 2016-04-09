@@ -18,3 +18,40 @@ links to the actual theme. -- [[anarcat]]
 > theme yet. I recently made `<TMPL_IF THEME_$NAME>` be available,
 > so the page.tmpl could use that to do different things if the boostrap
 > theme was enabled. --[[Joey]]
+
+---
+
+I have a question.
+
+Where should I put a custom theme other than `/usr/share/ikiwiki/themes/`?
+
+I put `.pm` plugins on `~/.ikiwiki/Ikiwiki/Plugin` and it works well.
+
+How would I go about not tampering with the root filesystem to install a theme?
+
+--[[desci]]
+
+Also, I have another question:
+
+I have a complex theme I'm working on, and it doesn't even have a `style.css`, because it is about editing `.tmpl` files and relying on the bootstrap files, so I want to know if the theme plugin will understand this structure:
+
+```
+└── my-theme/
+    ├── bootstrap/
+    │   └── bootstrap.min.css
+    ├── js/
+    │   ├── bootstrap.js
+    │   └── bootstrap.min.js
+    ├── fonts/
+    │   ├── glyphicons-halflings-regular.eot
+    │   ├── glyphicons-halflings-regular.svg
+    │   ├── glyphicons-halflings-regular.ttf
+    │   ├── glyphicons-halflings-regular.woff
+    │   └── glyphicons-halflings-regular.woff2
+    ├── index.mdwn
+    └── templates/
+        ├── page.tmpl
+        └── whatever.tmpl
+```
+
+--[[desci]]
