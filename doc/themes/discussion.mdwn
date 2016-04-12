@@ -21,6 +21,20 @@ links to the actual theme. -- [[anarcat]]
 
 >> Would you reconsider? I've made [[this bootstrap theme|/forum/bootstrap_theme]] that works within the theme plugin without changing the `templatedir` configuration option. It seems that the `page.tmpl` I have in the subfolder `templates` takes precedence. Not sure what you meant by "two versions of page.tmpl", though. -- [[desci]]
 
+>>> The reason we don't want individual themes shipped with ikiwiki
+>>> to have to include their own `page.tmpl` is that when we add new
+>>> features (such as new plugins) to the ikiwiki core, if those features
+>>> require a `page.tmpl` change, we don't want to have to add them to
+>>> multiple variations of `page.tmpl`. This would either lead to
+>>> increased maintenance work (repeating ourselves), or theme-dependent
+>>> feature availability like what happens in Wordpress (for instance
+>>> imagine if `osm` only worked with Bootstrap and `sidebar` only worked
+>>> with Actiontabs - you wouldn't be able to have both).
+>>>
+>>> If you maintain your own local theme, you're welcome to maintain a
+>>> version of `page.tmpl` containing only the features you personally
+>>> need, but the `page.tmpl` in ikiwiki should be comprehensive. --[[smcv]]
+
 ---
 
 I have a question.
