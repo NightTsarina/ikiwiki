@@ -1,0 +1,56 @@
+[[!meta author="anarcat"]]
+[[!template id=plugin name=admonition author="[[anarcat]]"]]
+[[!tag type/chrome]]
+
+# Admonitions
+
+This plugin adds directives that allow users to outline certain
+sections of text using a custom style sheet and bright icons.
+
+5 directives are available:
+
+* [[ikiwiki/directives/tip]]
+* [[ikiwiki/directives/note]]
+* [[ikiwiki/directives/important]]
+* [[ikiwiki/directives/caution]]
+* [[ikiwiki/directives/warning]]
+
+Or, in Ikiwiki markup:
+
+    \[[!tip "Lorem ipsum dolor sit amet, consectetuer adipiscing elit."]]
+    \[[!note "Vivamus id enim."]]
+    \[[!important "In id erat non orci commodo lobortis."]]
+    \[[!caution "In id erat non orci commodo lobortis."]]
+    \[[!warning "Phasellus neque orci, porta a, aliquet quis, semper a, massa."]]
+
+Those directives simply create a `<div>` elements in the right
+style. So the above can also be simply written as:
+
+    <div class="tip">Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</div>
+    <div class="note">Vivamus id enim.</div>
+    <div class="important">In id erat non orci commodo lobortis.</div>
+    <div class="caution">In id erat non orci commodo lobortis.</div>
+    <div class="warning">Phasellus neque orci, porta a, aliquet quis, semper a, massa.</div>
+
+# Rationale
+
+The idea behind the directives is to make the the CSS elements easier
+to discover through the builtin documentation. Obviously, more
+admonitions can be created simply by adding similar icons and CSS
+elements. Of course, you will not get the above directives expanded
+automatically unless you patch the admonition plugin, unfortunately.
+
+# Code
+
+[[!template id=gitbranch branch=anarcat/admonitions author="[[anarcat]]"]]
+
+The [[!taglink patch]] is available from
+[anarcat's "admonition" branch][] and is designed to be merged in
+Ikiwiki directly:
+
+    git clone -b admonitions git://src.anarc.at/ikiwiki.git
+
+[anarcat's "admonition" branch]: http://src.anarc.at/ikiwiki.git/shortlog/refs/heads/admonitions
+
+See also [[todo/admonitions]] for the discussion leading to the
+creation of this plugin.
