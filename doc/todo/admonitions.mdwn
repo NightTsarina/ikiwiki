@@ -1,0 +1,25 @@
+In the [MoinMoin wiki][], there is this neat little hack called
+[Admonitions][] that basically create a `<div>` block with a specific
+style out of a certain section of the text.
+
+I couldn't find a way to do this easily in Ikiwiki. On the one hand,
+there is no easy way to create div blocks with arbitrary styles (which
+is basically what MoinMoin admonitions are). On the other hand, there
+are no neat little logos in stylesheets like there are in Moinmoin
+either.
+
+It would be great to see this implemented in Ikiwiki. Now, I know I
+can make a `<div>` myself, but I am not sure we should encourage users
+to inject arbitrary HTML in ikiwiki pages. And even then, we should
+add adminition CSS classes to make that easier to use.
+
+Ideally, Ikiwiki would support Pandoc or Github-style fenced blocks
+and could abuse those to allow arbitrary styles (and markup!) to kick
+in. The [[ikiwiki/directive/format]] directive could also be used, I
+guess, but I dislike how it requires all those brackets and quotes and
+bangs and all...
+
+-- [[anarcat]]
+
+[MoinMoin wiki]: https://moinmo.in/
+[Admonitions]: https://moinmo.in/HelpOnAdmonitions
