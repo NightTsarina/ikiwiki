@@ -23,3 +23,37 @@ bangs and all...
 
 [MoinMoin wiki]: https://moinmo.in/
 [Admonitions]: https://moinmo.in/HelpOnAdmonitions
+
+> ikiwiki's general design is that it supports exactly three forms
+> of markup:
+>
+> * whatever the `htmlize` plugin does
+> * as a special ikiwiki-specific extension, \[[wikilinks]]
+> * as another special ikiwiki-specific extension, \[[!directives]]
+>
+> All markup interpretation beyond wikilinks and directives is
+> the `htmlize` plugin's responsibility. The `mdwn` plugin
+> interprets Markdown, the `rst` plugin interprets
+> reStructuredText and so on.
+>
+> It sounds as though you're asking for a `htmlize` plugin which
+> interprets an extended dialect of Markdown:
+>
+> * standard Markdown (inasmuch as such a thing exists) as usual
+> * mapping certain syntax (what?) to "admonitions"
+>
+> ikiwiki deliberately doesn't implement Markdown parsing, it just
+> calls out to one of several Perl implementations of Markdown.
+>
+> Alternatively, you could have a small plugin that translates
+>
+>     [[!warning "Do what I say, not as I do."]]
+>
+> into an appropriate `<div>`. That's the "lightest" form of
+> markup that is built into ikiwiki itself.
+>
+> Alternatively^2, some different hook (I think [[plugins/typography]]
+> might use the right one?) could interpret an ad-hoc syntax and
+> turn it into a `<div>` either before or after `htmlize` processing.
+> However, that would be adding an extra layer of syntax for your
+> users to keep track of. --[[smcv]]
