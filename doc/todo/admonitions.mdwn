@@ -66,3 +66,24 @@ bangs and all...
 > There's a "note" template bundled with ikiwiki already.
 >
 > --[[smcv]]
+
+>> I think you mean the `htmlize` hook, as I cannot find any `htmlize`
+>> plugin.. That said, yeah, i understand the limitations of Ikiwiki
+>> here. I guess that the [[ikiwiki/directive/template]] directive is a
+>> good workaround, but it's not really shorter to write:
+>>
+>>     \[[!template id=warning text="Do as I say, not as I do."]]
+>>
+>> than to write:
+>>
+>> [[!format txt """<div class="warning">Do as I say, not as I do.</div>"""]]
+>>
+>> ... in fact, it's actually longer. So short of allowing arbitrary
+>> classes *and* fenced blocks, I don't think this can go much
+>> further.
+>>
+>> We *could*, however, import the admonition styles from MoinMoin
+>> directly. It would involve importing 5 icons from MoinMoin and
+>> creating associated styles. Is that something you would be open to?
+>>
+>> --[[anarcat]]
