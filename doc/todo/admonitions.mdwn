@@ -1,0 +1,125 @@
+In the [MoinMoin wiki][], there is this neat little hack called
+[Admonitions][] that basically create a `<div>` block with a specific
+style out of a certain section of the text.
+
+I couldn't find a way to do this easily in Ikiwiki. On the one hand,
+there is no easy way to create div blocks with arbitrary styles (which
+is basically what MoinMoin admonitions are). On the other hand, there
+are no neat little logos in stylesheets like there are in Moinmoin
+either.
+
+It would be great to see this implemented in Ikiwiki. Now, I know I
+can make a `<div>` myself, but I am not sure we should encourage users
+to inject arbitrary HTML in ikiwiki pages. And even then, we should
+add adminition CSS classes to make that easier to use.
+
+Ideally, Ikiwiki would support Pandoc or Github-style fenced blocks
+and could abuse those to allow arbitrary styles (and markup!) to kick
+in. The [[ikiwiki/directive/format]] directive could also be used, I
+guess, but I dislike how it requires all those brackets and quotes and
+bangs and all...
+
+-- [[anarcat]]
+
+[MoinMoin wiki]: https://moinmo.in/
+[Admonitions]: https://moinmo.in/HelpOnAdmonitions
+
+> ikiwiki's general design is that it supports exactly three forms
+> of markup:
+>
+> * whatever the `htmlize` plugin does
+> * as a special ikiwiki-specific extension, \[[wikilinks]]
+> * as another special ikiwiki-specific extension, \[[!directives]]
+>
+> All markup interpretation beyond wikilinks and directives is
+> the `htmlize` plugin's responsibility. The `mdwn` plugin
+> interprets Markdown, the `rst` plugin interprets
+> reStructuredText and so on.
+>
+> It sounds as though you're asking for a `htmlize` plugin which
+> interprets an extended dialect of Markdown:
+>
+> * standard Markdown (inasmuch as such a thing exists) as usual
+> * mapping certain syntax (what?) to "admonitions"
+>
+> ikiwiki deliberately doesn't implement Markdown parsing, it just
+> calls out to one of several Perl implementations of Markdown.
+>
+> Alternatively, you could have a small plugin that translates
+>
+>     [[!warning "Do what I say, not as I do."]]
+>
+> into an appropriate `<div>`. That's the "lightest" form of
+> markup that is built into ikiwiki itself.
+>
+> Alternatively^2, some different hook (I think [[plugins/typography]]
+> might use the right one?) could interpret an ad-hoc syntax and
+> turn it into a `<div>` either before or after `htmlize` processing.
+> However, that would be adding an extra layer of syntax for your
+> users to keep track of.
+>
+> [[templates|ikiwiki/directive/template]] are another way this could
+> work:
+>
+>     \[[!template id=warning text="Do as I say, not as I do."]]
+>
+> There's a "note" template bundled with ikiwiki already.
+>
+> --[[smcv]]
+
+>> I think you mean the `htmlize` hook, as I cannot find any `htmlize`
+>> plugin.. That said, yeah, i understand the limitations of Ikiwiki
+>> here. I guess that the [[ikiwiki/directive/template]] directive is a
+>> good workaround, but it's not really shorter to write:
+>>
+>>     \[[!template id=warning text="Do as I say, not as I do."]]
+>>
+>> than to write:
+>>
+>> [[!format txt """<div class="warning">Do as I say, not as I do.</div>"""]]
+>>
+>> ... in fact, it's actually longer. So short of allowing arbitrary
+>> classes *and* fenced blocks, I don't think this can go much
+>> further.
+>>
+>> We *could*, however, import the admonition styles from MoinMoin
+>> directly. It would involve importing 5 icons from MoinMoin and
+>> creating associated styles. Is that something you would be open to?
+>>
+>> --[[anarcat]]
+
+>> Looking more at the MoinMoin images, the source (and license!) for
+>> them is not quite clear, so they don't make such great targets for
+>> inclusion. They are, nevertheless, included in Debian so presumably
+>> they are DFSG-friendly? The copyright file marks them as "UNKNOWN"
+>> which is worrisome... I have found the following results about them:
+>>
+>> * [admon-warning.png][] seems to be [public domain according to this sketchy site][]
+>> * [admon-note.png][] seems to have a [source in XFCE][], as part of
+>>   the notes plugin
+>> * [admon-tip.png][] is used in the Debian release notes, so is
+>presumably fine as well [source there](https://www.debian.org/releases/testing/amd64/release-notes/images/note.png)
+>> * [admon-important.png][], same, [important.png](https://www.debian.org/releases/testing/amd64/release-notes/images/important.png)
+>> * [admon-caution.png][] can be found in Mediawiki as well, which is
+>> a good source of icons. According to Debian, some are public domain,
+>> some are LGPL (!?). In MediaWiki itself, the source of that file is
+>> lost in the mists of time.
+>>
+>> Even though there is some confusion about the source of those
+>> images, I think, in good faith, that they can be generally be
+>> considered reusable. --[[anarcat]]
+
+[public domain according to this sketchy site]: http://all-free-download.com/free-vector/download/tango_process_stop_115912.html
+[source in XFCE]: http://git.xfce.org/panel-plugins/xfce4-notes-plugin/tree/data/icons/scalable/xfce4-notes-plugin.svg
+[admon-warning.png]: https://moinmo.in/moin_static19/modernized/img/admon-warning.png
+[admon-note.png]: https://moinmo.in/moin_static19/modernized/img/admon-note.png
+[admon-tip.png]: https://moinmo.in/moin_static19/modernized/img/admon-tip.png
+[admon-important.png]: https://moinmo.in/moin_static19/modernized/img/admon-important.png
+[admon-caution.png]: https://moinmo.in/moin_static19/modernized/img/admon-caution.png
+
+Update: I have made a [[plugins/contrib/admonition]] plugin for this
+purpose, as a patch. Hopefully it will be mergeable here? Here's a
+screenshot of what the help page would look like, to give you an idea
+of the results:
+
+<img src="http://paste.anarc.at/snaps/snap-2016.04.15-18.07.39.png" />

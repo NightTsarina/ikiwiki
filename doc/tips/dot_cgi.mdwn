@@ -82,6 +82,32 @@ made into a startup script in `init.d`. You may also need to make this file writ
 
     chmod a+w /tmp/fcgi.socket
 
+If you have [systemd](https://en.wikipedia.org/wiki/Systemd), you may use a service file like so:
+
+Edit/create a service file (in Debian it would be: `sudo vim /lib/systemd/system/ikiwiki.service`
+
+Content of `ikiwiki.service`:
+
+    [Unit]
+    Description=Ikiwiki fcgi socket wrap
+    After=network.target
+    
+    [Service]
+    Type=simple
+    User=www-data
+    Group=www-data
+    ExecStart=/usr/bin/spawn-fcgi -s /tmp/fcgi.socket -n -- /usr/sbin/fcgiwrap
+    
+    [Install]
+    WantedBy=multi-user.target
+
+Then run:
+
+    # This enables the service at startup
+    sudo systemctl enable ikiwiki.service
+    # This attempts to start the service
+    sudo systemctl start ikiwiki.service
+
 Then you need an nginx config plugged in that wrapper. Here's an
 example virtual host configuration:
 

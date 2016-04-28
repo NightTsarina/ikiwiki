@@ -1,0 +1,44 @@
+Multimarkdown footnotes are pretty useful. If they are enabled in a
+wiki, they don't look so good with the default stylesheet, however, as
+the references are in the same size and positioning as everything
+else.
+
+This particular wiki does not use multimarkdown, so there's no easy
+way to demonstrate this here, you'll have to trust me on this. :)
+
+The following stylesheet should be added to `style.css`:
+
+    a.footnote { vertical-align: super; font-size: xx-small; }
+    div.footnotes { font-size: small; }
+
+This is a typical style that user-agents apply to the `<sup>` tag. For
+example, chromium has this builtin style for `<sup>`:
+
+    vertical-align: super;
+    font-size: smaller;
+
+Bootstrap uses this instead:
+
+    sup {
+        top: -.5em;
+    }
+    
+    sub, sup {
+        position: relative;
+        font-size: 75%;
+        line-height: 0;
+        vertical-align: baseline;
+    }
+
+I settled on `xx-small` because it's the only size that doesn't affect
+line-height here. However, Bootstrap's way may be better.
+
+At any rate, the correct way to fix this is to *avoid* custom styling
+and use the `<sup>` tag for the footnote reference, as it has
+*meaning* which is important to have proper semantic output (e.g. for
+screen readers), as detailed in [this Stack Overflow discussion][].
+
+[this Stack Overflow discussion]: http://stackoverflow.com/questions/501671/superscript-in-css-only
+
+Note that I also make the bottom `<div>` small as well so that it has
+less weight than the rest of the text. -- [[anarcat]]

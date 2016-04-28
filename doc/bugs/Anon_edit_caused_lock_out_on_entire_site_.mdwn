@@ -1,0 +1,59 @@
+Probably caused by something misconfigured about the [[plugins/comments]] plugin.
+
+---
+
+## Config
+
+My setup file:
+
+    # comments plugin
+    # PageSpec of pages where comments are allowed
+    comments_pagespec: forum/* or blog/posts/* or tarefa/*
+    # PageSpec of pages where posting new comments is not allowed
+    comments_closed_pagespec: ''
+    # Base name for comments, e.g. "comment_" for pages like "sandbox/comment_12"
+    comments_pagename: comment_
+    # Interpret directives in comments?
+    #comments_allowdirectives: 0
+    # Allow anonymous commenters to set an author name?
+    comments_allowauthor: 1
+    # commit comments to the VCS
+    comments_commit: 1
+    # Restrict formats for comments to (no restriction if empty)
+    comments_allowformats: mdwn txt
+
+The `moderatedcomments` plugins is **not** enabled
+
+The `anonok` plugin is **not** enabled
+
+---
+
+## Steps
+
+I've tried to place a comment clicking in the obvious [Add a comment](https://dev.iikb.xyz/ikiwiki.cgi?do=comment&page=forum%2FTema_bootstrap) in a [forum post](https://dev.iikb.xyz/forum/Tema_bootstrap/).
+
+I've not signed in because the *sign in* page didn't come up, instead a simple `(You might want to Signin first?)` showed up, which I've haven't read and commented away.
+
+---
+
+## Results
+
+As a consequence of that, the user '' - that's a null character, have somehow logged in and it seems that there is no way to [log it out](https://dev.iikb.xyz/ikiwiki.cgi?do=prefs).
+
+None of this phantom user edits are being commited - this [blog post](https://dev.iikb.xyz/blog/posts/Bug_severo_neste_site/) was made with that user logged in via web.
+
+It seems I can't log out from nowhere. I've rebuild the wiki from the command line and restarted the nginx server, the phantom user remains logged in and open to anyone willing to edit away the wiki.
+
+---
+
+## Conclusion
+
+If I wanted to do a totally anonnymous wiki, this would be the best setup ever.
+
+For [this particular installation](https://dev.iikb.xyz), that's not the case.
+
+---
+
+## Question
+
+Is there a session file or something to logout this phantom user?

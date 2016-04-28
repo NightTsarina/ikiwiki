@@ -18,3 +18,67 @@ links to the actual theme. -- [[anarcat]]
 > theme yet. I recently made `<TMPL_IF THEME_$NAME>` be available,
 > so the page.tmpl could use that to do different things if the boostrap
 > theme was enabled. --[[Joey]]
+
+>> Would you reconsider? I've made [[this bootstrap theme|/forum/bootstrap_theme]] that works within the theme plugin without changing the `templatedir` configuration option. It seems that the `page.tmpl` I have in the subfolder `templates` takes precedence. Not sure what you meant by "two versions of page.tmpl", though. -- [[desci]]
+
+>>> The reason we don't want individual themes shipped with ikiwiki
+>>> to have to include their own `page.tmpl` is that when we add new
+>>> features (such as new plugins) to the ikiwiki core, if those features
+>>> require a `page.tmpl` change, we don't want to have to add them to
+>>> multiple variations of `page.tmpl`. This would either lead to
+>>> increased maintenance work (repeating ourselves), or theme-dependent
+>>> feature availability like what happens in Wordpress (for instance
+>>> imagine if `osm` only worked with Bootstrap and `sidebar` only worked
+>>> with Actiontabs - you wouldn't be able to have both).
+>>>
+>>> If you maintain your own local theme, you're welcome to maintain a
+>>> version of `page.tmpl` containing only the features you personally
+>>> need, but the `page.tmpl` in ikiwiki should be comprehensive. --[[smcv]]
+
+>>>> I've tried to make the least changes possible in [this page.tmpl file](https://notabug.org/iikb/ikiwiki-theme-bootstrap/raw/master/templates/page.tmpl), but I couldn't overcome the suckness of bootstrap itself.
+>>>> I am aware of alternatives to bootstrap, but it seems that every one of them would require some changes in the `page.tmpl` to work as expected.
+>>>> I think it is realistic to have a bootstrap (or other superb, fantastic css frame*lazy*work) without a `page.tmpl`,
+>>>> but I also think there should be other way around the chaos of each and every [[available theme|theme_market]] having it's own installing proccess.
+>>>> Other argument I have is: could we have a theme-contrib, like the [[plugins]] have? This would require the mantainer to implement the new features in their themes.
+
+---
+
+I have a question.
+
+Where should I put a custom theme other than `/usr/share/ikiwiki/themes/`?
+
+I put `.pm` plugins on `~/.ikiwiki/Ikiwiki/Plugin` and it works well.
+
+How would I go about not tampering with the root filesystem to install a theme?
+
+Also, I have another question:
+
+I have a complex theme I'm working on, and it doesn't even have a `style.css`, because it is about editing `.tmpl` files and relying on the bootstrap files, so I want to know if the theme plugin will understand this structure:
+
+```
+/usr/share/ikiwiki/themes/
+└── my-theme/
+    ├── basewiki/
+    │   ├── bootstrap/
+    │   │   ├── css/
+    │   │   │   └── bootstrap.min.css
+    │   │   ├── js/
+    │   │   │   ├── bootstrap.js
+    │   │   │   └── bootstrap.min.js
+    │   │   └── fonts/
+    │   │       ├── glyphicons-halflings-regular.eot
+    │   │       ├── glyphicons-halflings-regular.svg
+    │   │       ├── glyphicons-halflings-regular.ttf
+    │   │       ├── glyphicons-halflings-regular.woff
+    │   │       └── glyphicons-halflings-regular.woff2
+    │   └── index.mdwn
+    └── templates/
+        ├── page.tmpl
+        └── whatever.tmpl
+```
+
+**Edit:** no, it doesn't. When i change theme in the config to `my-theme`, the engine only uses the `templates` subfolder under `theme/my-theme`, and not `basewiki`. So the workaround is doing like [IkiStrap](https://github.com/gsliepen/ikistrap) proposed, suggesting the user to alter the `underlaydir` and `templatedir` configs instead of choosing a theme via the old fashioned `theme` config.
+
+This feels more like an overhaul than a theme for me, could we clarify what is a theme, a template, an overhaul, a change to the look and feel, a change to the frontend, a change to the design, etc.?
+
+-- [[desci]]

@@ -1,0 +1,40 @@
+I can't seem to login to ikiwiki sites reliably anymore.
+
+I am not sure what is going on. It affects this wiki and the git-annex
+wiki. I am editing this through the anonymous git push interface.
+
+OpenID is failing on me. That is, sometimes it works, sometimes it
+doesn't. For example, while writing this, I clicked the "Preferences"
+link and I seemed to have been logged in automatically without
+problem, even though I previously *tried* to login and failed with an
+error similar to [[bugs/Error:_OpenID_failure:_time_bad_sig:]], which
+of course I cannot reproduce anymore on ikiwiki.info now:
+
+    Error: OpenID failure: time_bad_sig: Return_to signature is not
+    valid.
+
+I *can* still reproduce this on the git-annex wiki, however, which is
+odd. This *could* be because the OpenID host is screwing up, as I am
+not directly responsible for that box anymore... but then why would it
+work on one wiki and not the other?
+
+But worse, I cannot login with my regular non-OpenID user, which I
+started using more regularly now. When I type the wrong password, the
+login form gives me "Invalid entry" next to the password field. But
+then if I do a password recall and reset my password, I get a
+different error:
+
+    Error: login failed, perhaps you need to turn on cookies?
+
+That happens reliably on git-annex.branchable.com. ikiwiki.info seems
+to be more stable: i can eventually login. i can login to my personal
+wiki with OpenID fine. I can also login to branchable.com itself with
+openid without issues.
+
+So I guess the problem is mostly with git-annex.branchable.com? Not
+sure how to debug this further.
+
+Thanks. --[[anarcat]]
+
+Update: now I can't login to the ikiwiki.info site anymore, getting
+the same errors as on the git-annex site.

@@ -91,6 +91,7 @@ using python-like string formatting, and described in the setup options section.
   advertised).
 - `template`: Name of the template to use (if set, the `source` option is
   irrelevant).
+- `var_*`: Any argument with a name starting with ``var_`` is transmitted to the template. For instance, if directive has argument ``var_foo=bar``, then the template will have a variable named ``foo``, and ``<TMPL_VAR FOO>`` will be replaced by ``bar``.
 
 ### Extensions
 
