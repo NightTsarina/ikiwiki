@@ -38,3 +38,23 @@ Thanks. --[[anarcat]]
 
 Update: now I can't login to the ikiwiki.info site anymore, getting
 the same errors as on the git-annex site.
+
+> This seems to be a concacentation of multiple unrelated problems with
+> different stuff, which is not a good bug report technique. Then to add to
+> the fun, you filed the same bug on branchable too. Sigh!
+> 
+> The `time_bad_sig` problem with the perl openid library is a problem I am
+> aware of but it's not clear if the problem is clock skew, or a protocol
+> problem. At least one user to report it seemed to get it due to a http
+> proxy. I'm pretty sure it could also happen if multiple openid logins
+> were attempted at the same time (the `consumer_secret` which is stored
+> server-side is used). The problem is not specific to ikiwiki.
+> 
+> Ikiwiki says "login failed, perhaps you need to turn on cookies?" when
+> the user successfully logged in, but their cookie does not indicate why
+> they were logging in to begin with, so ikiwiki does not know what action
+> to continue to. One way to get this when cookies are enabled is to
+> re-post a login form after already using it, by eg using the back button
+> to go back to a previous login form and try to reuse it.
+> 
+> --[[Joey]]
