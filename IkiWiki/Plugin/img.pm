@@ -21,6 +21,28 @@ sub getsetup () {
 			rebuild => undef,
 			section => "widget",
 		},
+		img_allowed_formats => {
+			type => "string",
+			default => [qw(jpeg png gif)],
+			description => "Image formats to process (jpeg, png, gif, pdf, svg or 'everything' to accept all)",
+			# ImageMagick has had arbitrary code execution flaws,
+			# and the whole delegates mechanism is scary from
+			# that perspective
+			safe => 0,
+			rebuild => 0,
+		},
+}
+
+sub allowed {
+	my $format = shift;
+	my $allowed = $config{img_allowed_formats};
+	$allowed = ['jpeg', 'png'] unless defined $allowed && @$allowed;
+
+	foreach my $a (@$allowed) {
+		return 1 if $a eq $format || $a eq 'everything';
+	}
+
+	return 0;
 }
 
 sub preprocess (@) {
@@ -96,6 +118,8 @@ sub preprocess (@) {
 		# allow ImageMagick to auto-detect (potentially dangerous)
 		$format = '';
 	}
+
+	error sprintf(gettext("%s image processing disabled in img_allowed_formats configuration"), $format ? $format : "\"$extension\"") unless allowed($format ? $format : "everything");
 
 	my $issvg = $base=~s/\.svg$/.png/i;
 	my $ispdf = $base=~s/\.pdf$/.png/i;

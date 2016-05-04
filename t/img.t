@@ -44,19 +44,26 @@ my $PDFS_WORK = defined $magick->Get("width");
 ok(! system("rm -rf t/tmp; mkdir -p t/tmp/in"));
 
 ok(! system("cp t/img/redsquare.png t/tmp/in/redsquare.png"));
+ok(! system("cp t/img/redsquare.jpg t/tmp/in/redsquare.jpg"));
+ok(! system("cp t/img/redsquare.jpg t/tmp/in/redsquare.jpeg"));
 # colons in filenames are a corner case for img
 ok(! system("cp t/img/redsquare.png t/tmp/in/hello:world.png"));
 ok(! system("cp t/img/redsquare.png t/tmp/in/a:b:c.png"));
 ok(! system("cp t/img/redsquare.png t/tmp/in/a:b:c:d.png"));
 ok(! system("cp t/img/redsquare.png t/tmp/in/a:b:c:d:e:f:g:h:i:j.png"));
 
-if ($SVGS_WORK) {
-	writefile("bluesquare.svg", "t/tmp/in",
-		'<svg width="30" height="30"><rect x="0" y="0" width="30" height="30" fill="blue"/></svg>');
-}
+writefile("bluesquare.svg", "t/tmp/in",
+	'<svg width="30" height="30"><rect x="0" y="0" width="30" height="30" fill="blue"/></svg>');
+ok(! system("cp t/tmp/in/bluesquare.svg t/tmp/in/really-svg.png"));
+ok(! system("cp t/tmp/in/bluesquare.svg t/tmp/in/really-svg.bmp"));
+ok(! system("cp t/tmp/in/bluesquare.svg t/tmp/in/really-svg.pdf"));
 
 # using different image sizes for different pages, so the pagenumber selection can be tested easily
 ok(! system("cp t/img/twopages.pdf t/tmp/in/twopages.pdf"));
+ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.jpeg"));
+ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.jpg"));
+ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.png"));
+ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.svg"));
 
 my $maybe_svg_img = "";
 if ($SVGS_WORK) {
@@ -73,6 +80,8 @@ EOF
 
 writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
 [[!img redsquare.png]]
+[[!img redsquare.jpg size=11x]]
+[[!img redsquare.jpeg size=12x]]
 [[!img redsquare.png size=10x]]
 [[!img redsquare.png size=30x50]] expecting 30x30
 [[!img hello:world.png size=x8]] expecting 8x8
@@ -80,11 +89,20 @@ writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
 [[!img a:b:c:d:e:f:g:h:i:j.png size=x6]]
 $maybe_svg_img
 $maybe_pdf_img
+
+# bad ideas
+[[!img really-svg.png size=666x]]
+[[!img really-svg.bmp size=666x]]
+[[!img really-svg.pdf size=666x]]
+[[!img really-pdf.jpeg size=666x]]
+[[!img really-pdf.jpg size=666x]]
+[[!img really-pdf.png size=666x]]
+[[!img really-pdf.svg size=666x]]
 EOF
 );
 ok(utime(333333333, 333333333, "t/tmp/in/imgconversions.mdwn"));
 
-ok(! system(@command));
+ok(! system(@command, '--set-yaml', 'img_allowed_formats=[jpeg, png, svg, pdf]'));
 
 sub size($) {
 	my $filename = shift;
@@ -121,6 +139,24 @@ ok($outhtml =~ /width="8" height="8".*expecting 8x8/);
 is(size("$outpath/x8-hello:world.png"), "8x8");
 is(size("$outpath/x4-a:b:c.png"), "4x4");
 is(size("$outpath/x6-a:b:c:d:e:f:g:h:i:j.png"), "6x6");
+
+is(size("$outpath/11x-redsquare.jpg"), "11x11");
+is(size("$outpath/12x-redsquare.jpeg"), "12x12");
+like($outhtml, qr{src="(\./)?imgconversions/11x-redsquare\.jpg" width="11" height="11"});
+like($outhtml, qr{src="(\./)?imgconversions/12x-redsquare\.jpeg" width="12" height="12"});
+
+# We do not misinterpret images
+ok(! -e "$outpath/666x-really-svg.png");
+ok(! -e "$outpath/666x-really-svg.bmp");
+ok(! -e "$outpath/666x-really-pdf.jpeg");
+ok(! -e "$outpath/666x-really-pdf.jpg");
+ok(! -e "$outpath/666x-really-pdf.png");
+
+# disable support for uncommon formats and try again
+ok(! system(@command, "--rebuild"));
+ok(! -e "$outpath/10x-bluesquare.png");
+ok(! -e "$outpath/12x-twopages.png");
+ok(! -e "$outpath/16x-p1-twopages.png");
 
 # now let's remove them again
 
