@@ -37,8 +37,23 @@ At any rate, the correct way to fix this is to *avoid* custom styling
 and use the `<sup>` tag for the footnote reference, as it has
 *meaning* which is important to have proper semantic output (e.g. for
 screen readers), as detailed in [this Stack Overflow discussion][].
+--[[anarcat]]
 
 [this Stack Overflow discussion]: http://stackoverflow.com/questions/501671/superscript-in-css-only
+
+> ikiwiki code does not interpret Markdown or translate it into HTML.
+> If I'm interpreting what you say correctly, you seem to be implying
+> that you think [[!cpan Text::MultiMarkdown]] is producing incorrect
+> HTML for footnotes (is an `<a>` with a `class`, should be a `<sup>`).
+> If so, please report that as a MultiMarkdown bug, not an ikiwiki bug,
+> or alternatively don't use MultiMarkdown.
+>
+> What remains after eliminating the MultiMarkdown bug seems to be:
+> ikiwiki's default stylesheet does not contain the necessary styling
+> to work around the non-semantic markup produced by the non-default
+> Text::MultiMarkdown Markdown implementation. Is that an accurate
+> summary?
+> --[[smcv]]
 
 Note that I also make the bottom `<div>` small as well so that it has
 less weight than the rest of the text. -- [[anarcat]]
