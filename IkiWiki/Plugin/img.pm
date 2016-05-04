@@ -64,6 +64,39 @@ sub preprocess (@) {
 
 	my $dir = $params{page};
 	my $base = IkiWiki::basename($file);
+	my $extension;
+	my $format;
+
+	if ($base =~ m/\.([a-z0-9]+)$/) {
+		$extension = $1;
+	}
+	else {
+		error gettext("Unable to detect image type from extension");
+	}
+
+	# Never interpret well-known file extensions as any other format,
+	# in case the wiki configuration unwisely allows attaching
+	# arbitrary files named *.jpg, etc.
+	if ($extension =~ m/^(jpeg|jpg)$/is) {
+		$format = 'jpeg';
+	}
+	elsif ($extension =~ m/^(png)$/is) {
+		$format = 'png';
+	}
+	elsif ($extension =~ m/^(gif)$/is) {
+		$format = 'gif';
+	}
+	elsif ($extension =~ m/^(svg)$/is) {
+		$format = 'svg';
+	}
+	elsif ($extension =~ m/^(pdf)$/is) {
+		$format = 'pdf';
+	}
+	else {
+		# allow ImageMagick to auto-detect (potentially dangerous)
+		$format = '';
+	}
+
 	my $issvg = $base=~s/\.svg$/.png/i;
 	my $ispdf = $base=~s/\.pdf$/.png/i;
 	my $pagenumber = exists($params{pagenumber}) ? int($params{pagenumber}) : 0;
@@ -76,7 +109,7 @@ sub preprocess (@) {
 	my $im = Image::Magick->new();
 	my $imglink;
 	my $imgdatalink;
-	my $r = $im->Read(":$srcfile\[$pagenumber]");
+	my $r = $im->Read("$format:$srcfile\[$pagenumber]");
 	error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 
 	if (! defined $im->Get("width") || ! defined $im->Get("height")) {
