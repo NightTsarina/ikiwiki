@@ -76,6 +76,21 @@ screen readers), as detailed in [this Stack Overflow discussion][].
 >> are enabled in their configuration, but I understand that makes the
 >> configuration more complicated and error-prone.
 >>
+>>> Discount enables enough features by default that adding footnotes doesn't
+>>> seem bad to me. I'm also tempted by something like
+>>>
+>>> ```
+>>> mdwn_enable: [footnotes]
+>>> mdwn_disable: [alphalist, superscript]
+>>> ```
+>>>
+>>> where the default for anything that was neither specifically enabled
+>>> nor specifically disabled would be to enable everything that we don't
+>>> think is a poor fit for the processing model (pandoc-style document
+>>> headers) or likely to trigger by mistake (typographic quotes and
+>>> [[maybe alpha lists|forum/"S."_gets_replace_by_"a."_in_my_ikiwiki]]).
+>>> --[[smcv]]
+>>
 >> For example, to enable footnotes, one needs to call Discount like this:
 >> 
 >>       Text::Markdown::Discount::markdown($text, Text::Markdown::Discount::MKD_EXTRA_FOOTNOTE())
@@ -90,6 +105,18 @@ screen readers), as detailed in [this Stack Overflow discussion][].
 >>
 >> In the meantime, wouldn't it be better to have some styling here to
 >> workaround the problem in MMD?
+>>
+>>> Honestly, I'd rather have ikiwiki's level of support for the non-preferred
+>>> Markdown implementation be: if you are stuck on a platform with no C compiler
+>>> or Perl headers, you can use the pure-Perl Markdown flavours, and they
+>>> will sort of mostly work (but might not look great).
+>>>
+>>> I'm a little concerned that styling these rather generically-named classes
+>>> might interfere with the implementations of footnotes in other Markdown
+>>> implementations, or indeed non-Markdown - I wouldn't want to style
+>>> `a.footnote` if the HTML produced by some other htmlize hook was
+>>> `<sup><a class="footnote" ...>[1]</a></sup>` for instance.
+>>> But they're probably harmless.
 
 Note that I also make the bottom `<div>` small as well so that it has
 less weight than the rest of the text. -- [[anarcat]]
