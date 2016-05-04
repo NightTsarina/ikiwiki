@@ -62,5 +62,34 @@ screen readers), as detailed in [this Stack Overflow discussion][].
 > summary?
 > --[[smcv]]
 
+>> That is an accurate summary.
+>>
+>> I didn't realize that Discount didn't actually support footnotes in
+>> Ikiwiki by default. I guess I enabled Multimarkdown exactly for that
+>> kind of stuff that was missing...  It seems to me it would be
+>> reasonable to enable footnotes in Ikiwiki. There's already a lot of
+>> stuff that Discount does that is way more exotic (e.g. tables) and
+>> non-standard (e.g. `abbr:`).
+>>
+>> Ideally, users would get to configure which
+>> [Discount flags](http://www.pell.portland.or.us/~orc/Code/markdown/#flags)
+>> are enabled in their configuration, but I understand that makes the
+>> configuration more complicated and error-prone.
+>>
+>> For example, to enable footnotes, one needs to call Discount like this:
+>> 
+>>       Text::Markdown::Discount::markdown($text, Text::Markdown::Discount::MKD_EXTRA_FOOTNOTE())
+>>
+>> That being said, Discount generates proper semantic markup when
+>> footnotes, so this bug doesn't apply to the default Discount mode,
+>> if we ignore the fact that it doesn't support footnotes at all.
+>> Should I open a todo about this and the above?
+>>
+>> Also, it seems this *is* a bug with multimarkdown - I have
+>> [reported the issue there](https://github.com/bobtfish/text-multimarkdown/issues/30).
+>>
+>> In the meantime, wouldn't it be better to have some styling here to
+>> workaround the problem in MMD?
+
 Note that I also make the bottom `<div>` small as well so that it has
 less weight than the rest of the text. -- [[anarcat]]
