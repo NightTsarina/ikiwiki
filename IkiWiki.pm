@@ -1647,6 +1647,8 @@ sub preprocess ($$$;$$) {
 				if ($@) {
 					my $error=$@;
 					chomp $error;
+					eval q{use HTML::Entities};
+					$error = encode_entities($error);
 				 	$ret="[[!$command <span class=\"error\">".
 						gettext("Error").": $error"."</span>]]";
 				}

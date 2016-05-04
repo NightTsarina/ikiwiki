@@ -488,6 +488,9 @@ sub cgi (;$$) {
 sub cgierror ($) {
 	my $message=shift;
 
+	eval q{use HTML::Entities};
+	$message = encode_entities($message);
+
 	print "Content-type: text/html\n\n";
 	print cgitemplate(undef, gettext("Error"),
 		"<p class=\"error\">".gettext("Error").": $message</p>");
