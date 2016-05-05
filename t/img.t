@@ -146,10 +146,15 @@ like($outhtml, qr{src="(\./)?imgconversions/11x-redsquare\.jpg" width="11" heigh
 like($outhtml, qr{src="(\./)?imgconversions/12x-redsquare\.jpeg" width="12" height="12"});
 
 # We do not misinterpret images
+my $quot = qr/(?:"|&quot;)/;
+like($outhtml, qr/${quot}really-svg\.png${quot} does not seem to be a valid png file/);
 ok(! -e "$outpath/666x-really-svg.png");
 ok(! -e "$outpath/666x-really-svg.bmp");
+like($outhtml, qr/${quot}really-pdf\.jpeg${quot} does not seem to be a valid jpeg file/);
 ok(! -e "$outpath/666x-really-pdf.jpeg");
+like($outhtml, qr/${quot}really-pdf\.jpg${quot} does not seem to be a valid jpeg file/);
 ok(! -e "$outpath/666x-really-pdf.jpg");
+like($outhtml, qr/${quot}really-pdf\.png${quot} does not seem to be a valid png file/);
 ok(! -e "$outpath/666x-really-pdf.png");
 
 # disable support for uncommon formats and try again

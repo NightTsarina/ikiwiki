@@ -99,20 +99,29 @@ sub preprocess (@) {
 	# Never interpret well-known file extensions as any other format,
 	# in case the wiki configuration unwisely allows attaching
 	# arbitrary files named *.jpg, etc.
+	my $magic;
+	my $offset = 0;
+	open(my $in, '<', $srcfile) or error sprintf(gettext("failed to read %s: %s"), $file, $!);
+	binmode($in);
+
 	if ($extension =~ m/^(jpeg|jpg)$/is) {
 		$format = 'jpeg';
+		$magic = "\377\330\377";
 	}
 	elsif ($extension =~ m/^(png)$/is) {
 		$format = 'png';
+		$magic = "\211PNG\r\n\032\n";
 	}
 	elsif ($extension =~ m/^(gif)$/is) {
 		$format = 'gif';
+		$magic = "GIF8";
 	}
 	elsif ($extension =~ m/^(svg)$/is) {
 		$format = 'svg';
 	}
 	elsif ($extension =~ m/^(pdf)$/is) {
 		$format = 'pdf';
+		$magic = "%PDF-";
 	}
 	else {
 		# allow ImageMagick to auto-detect (potentially dangerous)
@@ -120,6 +129,25 @@ sub preprocess (@) {
 	}
 
 	error sprintf(gettext("%s image processing disabled in img_allowed_formats configuration"), $format ? $format : "\"$extension\"") unless allowed($format ? $format : "everything");
+
+	# Try harder to protect ImageMagick from itself
+	if ($format eq 'svg') {
+		my $content;
+		read($in, $content, 5) or error sprintf(gettext("failed to read %s: %s"), $file, $!);
+		# This is an over-simplification, but ?xml is the check that
+		# ImageMagick uses. We also accept <svg for the simplest
+		# possible SVGs.
+		if ($content !~ m/^(.\?xml|<svg)/is) {
+			error sprintf(gettext("\"%s\" does not seem to be a valid %s file"), $file, $format);
+		}
+	}
+	elsif ($magic) {
+		my $content;
+		read($in, $content, length $magic) or error sprintf(gettext("failed to read %s: %s"), $file, $!);
+		if ($magic ne $content) {
+			error sprintf(gettext("\"%s\" does not seem to be a valid %s file"), $file, $format);
+		}
+	}
 
 	my $issvg = $base=~s/\.svg$/.png/i;
 	my $ispdf = $base=~s/\.pdf$/.png/i;
