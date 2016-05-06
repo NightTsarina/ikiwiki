@@ -178,7 +178,8 @@ the same standards as the rest of ikiwiki, but with that said, here are
 some security notes for them.
 
 * The [[plugins/img]] plugin assumes that imagemagick/perlmagick are secure
-  from malformed image attacks. Imagemagick has had security holes in the
+  from malformed image attacks for at least the formats listed in
+  `img_allowed_formats`. Imagemagick has had security holes in the
   past. To be able to exploit such a hole, a user would need to be able to
   upload images to the wiki.
 
@@ -506,3 +507,22 @@ The hole was reported on March 24th, a fix was developed on March 27th,
 and the fixed version 3.20150329 was released on the 29th. A fix was backported
 to Debian jessie as version 3.20141016.2 and to Debian wheezy as version
 3.20120629.2. An upgrade is recommended for sites using CGI and openid.
+
+## XSS via error messages
+
+CGI error messages did not escape HTML meta-characters, potentially
+allowing an attacker to carry out cross-site scripting by directing a
+user to a URL that would result in a crafted ikiwiki error message. This
+was discovered on 4 May by the ikiwiki developers, and the fixed version
+3.20160506 was released on 6 May. An upgrade is recommended for sites using
+the CGI.
+
+## ImageMagick CVE-2016–3714 ("ImageTragick")
+
+ikiwiki 3.20160506 attempts to mitigate [[!cve CVE-2016-3714]] and any
+future ImageMagick vulnerabilities that resemble it, by restricting the
+image formats that the [[ikiwiki/directive/img]] directive is willing to
+resize. An upgrade is recommended for sites where an untrusted user is
+able to attach images. Upgrading ImageMagick to a version where
+CVE-2016-3714 has been fixed is also recommended, but at the time of
+writing no such version is available.

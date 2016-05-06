@@ -41,4 +41,27 @@ the page, unless overridden. Useful when including many images on a page.
 	\[[!img photo2.jpg]]
 	\[[!img photo3.jpg size=200x600]]
 
+## format support
+
+By default, the `img` directive only supports a few common web formats:
+
+* PNG (`.png`)
+* JPEG (`.jpg` or `.jpeg`)
+* GIF (`.gif`)
+* SVG (`.svg`)
+
+These additional formats can be enabled with the `img_allowed_formats`
+[[!iki setup]] option, but are disabled by default for better
+[[!iki security]]:
+
+* PDF (`.pdf`)
+* `everything` (accepts any file supported by ImageMagick: make sure
+  that only completely trusted users can
+  [[upload attachments|ikiwiki/pagespec/attachment]])
+
+For example, a wiki where only `admin()` users can upload attachments might
+use:
+
+    img_allowed_formats: [png, jpeg, gif, svg, pdf]
+
 [[!meta robots="noindex, follow"]]

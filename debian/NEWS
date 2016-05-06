@@ -1,3 +1,27 @@
+ikiwiki (3.20160506) UNRELEASED; urgency=medium
+
+  To mitigate CVE-2016-3714 and similar ImageMagick security vulnerabilities,
+  the [[!img]] directive is now restricted to these common web formats by
+  default:
+
+  * JPEG (.jpg, .jpeg)
+  * PNG (.png)
+  * GIF (.gif)
+  * SVG (.svg)
+
+  (In particular, by default resizing PDF files is no longer allowed.)
+
+  Additionally, resized SVG files are displayed in the browser as SVG
+  instead of being converted to PNG.
+
+  If all users who can attach images are fully trusted, this restriction
+  can be removed with the new img_allowed_formats setup option.
+  See <https://ikiwiki.info/ikiwiki/directive/img/>
+  or <file:///usr/share/doc/ikiwiki/html/ikiwiki/directive/img.html> for
+  more details.
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 06 May 2016 07:07:29 +0100
+
 ikiwiki (3.20150610) unstable; urgency=low
 
   The new "emailauth" plugin allows users to authenticate using an email
