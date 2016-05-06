@@ -183,7 +183,7 @@ sub preprocess_inline (@) {
 	my $feedonly=yesno($params{feedonly});
 
 	# Backwards compatibility
-	if (defined $params{show} && $params{show} =~ m/^\d+$/) {
+	if (defined $params{show} && $params{show} =~ m/^-?\d+$/) {
 		$params{limit} = $params{show};
 		delete $params{show};
 	}
