@@ -1,0 +1,45 @@
+News for ikiwiki 3.20160506:
+
+   To mitigate [[!cve CVE-2016-3714]] and similar ImageMagick security vulnerabilities,
+   the `[[!img]]` directive is now restricted to these common web formats by
+   default:
+   * JPEG (`.jpg`, `.jpeg`)
+   * PNG (`.png`)
+   * GIF (`.gif`)
+   * SVG (`.svg`)
+   (In particular, by default resizing PDF files is no longer allowed.)
+   Additionally, resized SVG files are displayed in the browser as SVG
+   instead of being converted to PNG.
+   If all users who can attach images are fully trusted, this restriction
+   can be removed with the new img\_allowed\_formats setup option.
+   See [[ikiwiki/directive/img]] for more details.
+
+ikiwiki 3.20160506 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+ * [ [[Simon McVittie|smcv]] ]
+   * HTML-escape error messages, in one case avoiding potential cross-site
+     scripting (OVE-20160505-0012)
+   * Mitigate ImageMagick vulnerabilities such as CVE-2016-3714:
+     - img: force common Web formats to be interpreted according to extension,
+       so that "allowed\_attachments: '*.jpg'" does what one might expect
+     - img: restrict to JPEG, PNG and GIF images by default, again mitigating
+       CVE-2016-3714 and similar vulnerabilities
+     - img: check that the magic number matches what we would expect from
+       the extension before giving common formats to ImageMagick
+   * d/control: use https for Homepage
+   * d/control: add Vcs-Browser
+ * [ [[Joey Hess|joey]] ]
+   * img: Add back support for SVG images, bypassing ImageMagick and
+     simply passing the SVG through to the browser, which is supported by all
+     commonly used browsers these days.
+     SVG scaling by img directives has subtly changed; where before
+     size=wxh would preserve aspect ratio, this cannot be done when passing
+     them through and so specifying both a width and height can change
+     the SVG's aspect ratio.
+   * loginselector: When only openid and emailauth are enabled, but
+     passwordauth is not, avoid showing a "Other" box which opens an
+     empty form.
+ * [ [[Amitai Schlair|schmonz]] ]
+   * mdwn: Process .md like .mdwn, but disallow web creation.
+ * [ Florian Wagner ]
+   * git: Correctly handle filenames starting with a dash in add/rm/mv."""]]
