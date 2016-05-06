@@ -1,15 +1,19 @@
 News for ikiwiki 3.20160506:
 
    To mitigate [[!cve CVE-2016-3714]] and similar ImageMagick security vulnerabilities,
-   the `[[!img]]` directive is now restricted to these common web formats by
+   the `\[[!img]]` directive is now restricted to these common web formats by
    default:
+
    * JPEG (`.jpg`, `.jpeg`)
    * PNG (`.png`)
    * GIF (`.gif`)
    * SVG (`.svg`)
+
    (In particular, by default resizing PDF files is no longer allowed.)
+
    Additionally, resized SVG files are displayed in the browser as SVG
    instead of being converted to PNG.
+
    If all users who can attach images are fully trusted, this restriction
    can be removed with the new img\_allowed\_formats setup option.
    See [[ikiwiki/directive/img]] for more details.
