@@ -16,6 +16,13 @@ ikiwiki (3.20160122) UNRELEASED; urgency=medium
   * d/control: add Vcs-Browser
 
   [ Joey Hess ]
+  * img: Add back support for SVG images, bypassing ImageMagick and
+    simply passing the SVG through to the browser, which is supported by all
+    commonly used browsers these days.
+    SVG scaling by img directives has subtly changed; where before
+    size=wxh would preserve aspect ratio, this cannot be done when passing
+    them through and so specifying both a width and height can change
+    the SVG's aspect ratio.
   * loginselector: When only openid and emailauth are enabled, but
     passwordauth is not, avoid showing a "Other" box which opens an
     empty form.
