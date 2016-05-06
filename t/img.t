@@ -36,7 +36,6 @@ else {
 push @command, qw(--set usedirs=0 --plugin img t/tmp/in t/tmp/out --verbose);
 
 my $magick = new Image::Magick;
-my $SVGS_WORK = defined $magick->QueryFormat("svg");
 
 $magick->Read("t/img/twopages.pdf");
 my $PDFS_WORK = defined $magick->Get("width");
@@ -65,11 +64,6 @@ ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.jpg"));
 ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.png"));
 ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.svg"));
 
-my $maybe_svg_img = "";
-if ($SVGS_WORK) {
-	$maybe_svg_img = "[[!img bluesquare.svg size=10x]]";
-}
-
 my $maybe_pdf_img = "";
 if ($PDFS_WORK) {
 	$maybe_pdf_img = <<EOF;
@@ -87,7 +81,9 @@ writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
 [[!img hello:world.png size=x8]] expecting 8x8
 [[!img a:b:c.png size=x4]]
 [[!img a:b:c:d:e:f:g:h:i:j.png size=x6]]
-$maybe_svg_img
+[[!img bluesquare.svg size=42x]] expecting 42x
+[[!img bluesquare.svg size=x43]] expecting x43
+[[!img bluesquare.svg size=42x43]] expecting 42x43 because aspect rario not preserved
 $maybe_pdf_img
 
 # bad ideas
@@ -120,13 +116,9 @@ my $outhtml = readfile("$outpath.html");
 is(size("$outpath/10x-redsquare.png"), "10x10");
 ok(! -e "$outpath/30x-redsquare.png");
 ok($outhtml =~ /width="30" height="30".*expecting 30x30/);
-
-SKIP: {
-	skip "SVG support not installed (try libmagickcore-extra)", 1
-		unless $SVGS_WORK;
-	# if this fails, you need libmagickcore-6.q16-2-extra installed
-	is(size("$outpath/10x-bluesquare.png"), "10x10");
-}
+ok($outhtml =~ /width="42".*expecting 42x/);
+ok($outhtml =~ /height="43".*expecting x43/);
+ok($outhtml =~ /width="42" height="43".*expecting 42x43/);
 
 SKIP: {
 	skip "PDF support not installed (try ghostscript)", 2
