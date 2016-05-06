@@ -39,7 +39,7 @@ sub allowed {
 	$allowed = ['jpeg', 'png', 'gif', 'svg'] unless defined $allowed && @$allowed;
 
 	foreach my $a (@$allowed) {
-		return 1 if $a eq $format || $a eq 'everything';
+		return 1 if lc($a) eq $format || lc($a) eq 'everything';
 	}
 
 	return 0;

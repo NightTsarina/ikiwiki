@@ -98,7 +98,7 @@ EOF
 );
 ok(utime(333333333, 333333333, "t/tmp/in/imgconversions.mdwn"));
 
-ok(! system(@command, '--set-yaml', 'img_allowed_formats=[jpeg, png, svg, pdf]'));
+ok(! system(@command, '--set-yaml', 'img_allowed_formats=[JPEG, PNG, svg, pdf]'));
 
 sub size($) {
 	my $filename = shift;
