@@ -83,7 +83,7 @@ writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
 [[!img a:b:c:d:e:f:g:h:i:j.png size=x6]]
 [[!img bluesquare.svg size=42x]] expecting 42x
 [[!img bluesquare.svg size=x43]] expecting x43
-[[!img bluesquare.svg size=42x43]] expecting 42x43 because aspect rario not preserved
+[[!img bluesquare.svg size=42x43]] expecting 42x43 because aspect ratio not preserved
 $maybe_pdf_img
 
 # bad ideas
