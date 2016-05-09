@@ -1,3 +1,23 @@
+ikiwiki (3.20160509) unstable; urgency=high
+
+  [ Amitai Schlair ]
+  * img: ignore the case of the extension when detecting image format,
+    fixing the regression that *.JPG etc. would not be displayed
+    since 3.20160506
+
+  [ Simon McVittie ]
+  * img: parse img_allowed_formats case-insensitively, as was done in
+    3.20141016.3
+  * inline: restore backwards compat for show=-1 syntax, which
+    worked before 3.20160121
+  * Remove a spurious changelog entry from 3.20160506 (the relevant
+    change was already in 3.20150614)
+  * Add CVE-2016-4561 reference to 3.20160506 changelog
+  * Set high urgency to get the CVE-2016-4561 fix and CVE-2016-3714
+    mitigation into testing
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 09 May 2016 21:57:09 +0100
+
 ikiwiki (3.20160506) unstable; urgency=medium
 
   [ Simon McVittie ]
