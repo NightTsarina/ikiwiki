@@ -45,6 +45,7 @@ ok(! system("rm -rf t/tmp; mkdir -p t/tmp/in"));
 ok(! system("cp t/img/redsquare.png t/tmp/in/redsquare.png"));
 ok(! system("cp t/img/redsquare.jpg t/tmp/in/redsquare.jpg"));
 ok(! system("cp t/img/redsquare.jpg t/tmp/in/redsquare.jpeg"));
+ok(! system("cp t/img/redsquare.jpg t/tmp/in/SHOUTY.JPG"));
 # colons in filenames are a corner case for img
 ok(! system("cp t/img/redsquare.png t/tmp/in/hello:world.png"));
 ok(! system("cp t/img/redsquare.png t/tmp/in/a:b:c.png"));
@@ -59,7 +60,7 @@ ok(! system("cp t/tmp/in/bluesquare.svg t/tmp/in/really-svg.pdf"));
 
 # using different image sizes for different pages, so the pagenumber selection can be tested easily
 ok(! system("cp t/img/twopages.pdf t/tmp/in/twopages.pdf"));
-ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.jpeg"));
+ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.JPEG"));
 ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.jpg"));
 ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.png"));
 ok(! system("cp t/img/twopages.pdf t/tmp/in/really-pdf.svg"));
@@ -76,6 +77,7 @@ writefile("imgconversions.mdwn", "t/tmp/in", <<EOF
 [[!img redsquare.png]]
 [[!img redsquare.jpg size=11x]]
 [[!img redsquare.jpeg size=12x]]
+[[!img SHOUTY.JPG size=13x]]
 [[!img redsquare.png size=10x]]
 [[!img redsquare.png size=30x50]] expecting 30x30
 [[!img hello:world.png size=x8]] expecting 8x8
@@ -90,7 +92,7 @@ $maybe_pdf_img
 [[!img really-svg.png size=666x]]
 [[!img really-svg.bmp size=666x]]
 [[!img really-svg.pdf size=666x]]
-[[!img really-pdf.jpeg size=666x]]
+[[!img really-pdf.JPEG size=666x]]
 [[!img really-pdf.jpg size=666x]]
 [[!img really-pdf.png size=666x]]
 [[!img really-pdf.svg size=666x]]
@@ -134,16 +136,19 @@ is(size("$outpath/x6-a:b:c:d:e:f:g:h:i:j.png"), "6x6");
 
 is(size("$outpath/11x-redsquare.jpg"), "11x11");
 is(size("$outpath/12x-redsquare.jpeg"), "12x12");
+is(size("$outpath/13x-SHOUTY.JPG"), "13x13");
 like($outhtml, qr{src="(\./)?imgconversions/11x-redsquare\.jpg" width="11" height="11"});
 like($outhtml, qr{src="(\./)?imgconversions/12x-redsquare\.jpeg" width="12" height="12"});
+like($outhtml, qr{src="(\./)?imgconversions/13x-SHOUTY\.JPG" width="13" height="13"});
 
 # We do not misinterpret images
 my $quot = qr/(?:"|&quot;)/;
 like($outhtml, qr/${quot}really-svg\.png${quot} does not seem to be a valid png file/);
 ok(! -e "$outpath/666x-really-svg.png");
 ok(! -e "$outpath/666x-really-svg.bmp");
-like($outhtml, qr/${quot}really-pdf\.jpeg${quot} does not seem to be a valid jpeg file/);
+like($outhtml, qr/${quot}really-pdf\.JPEG${quot} does not seem to be a valid jpeg file/);
 ok(! -e "$outpath/666x-really-pdf.jpeg");
+ok(! -e "$outpath/666x-really-pdf.JPEG");
 like($outhtml, qr/${quot}really-pdf\.jpg${quot} does not seem to be a valid jpeg file/);
 ok(! -e "$outpath/666x-really-pdf.jpg");
 like($outhtml, qr/${quot}really-pdf\.png${quot} does not seem to be a valid png file/);
@@ -165,6 +170,7 @@ if (1) { # for easier testing
 	ok(! -e "$outpath/10x-redsquare.png");
 	ok(! -e "$outpath/10x-bluesquare.png");
 	ok(! -e "$outpath/12x-twopages.png");
+	ok(! -e "$outpath/13x-SHOUTY.JPG");
 	ok(! -e "$outpath/16x-p1-twopages.png");
 	ok(! -e "$outpath/x8-hello:world.png");
 	ok(! -e "$outpath/x4-a:b:c.png");
