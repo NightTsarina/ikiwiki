@@ -52,7 +52,6 @@ sub gen_wrapper () {
 		       HTTP_COOKIE REMOTE_USER HTTPS REDIRECT_STATUS
 		       HTTP_HOST SERVER_PORT HTTPS HTTP_ACCEPT
 		       REDIRECT_URL} if $config{cgi};
-	my $envsize=$#envsave;
 	my $envsave="";
 	foreach my $var (@envsave) {
 		$envsave.=<<"EOF";
@@ -65,7 +64,6 @@ EOF
 			my $val=$config{ENV}{$key};
 			utf8::encode($val) if utf8::is_utf8($val);
 			$val =~ s/([^A-Za-z0-9])/sprintf '""\\x%02x""', ord($1)/ge;
-			$envsize += 1;
 			$envsave.=<<"EOF";
 	addenv("$key", "$val");
 EOF
@@ -184,18 +182,33 @@ EOF
 #include <sys/file.h>
 
 extern char **environ;
-char *newenviron[$envsize+7];
-int i=0;
+int newenvironlen=0;
+/* Array of length newenvironlen+1 (+1 for NULL) */
+char **newenviron=NULL;
 
 void addenv(char *var, char *val) {
-	char *s=malloc(strlen(var)+1+strlen(val)+1);
+	char *s;
+
+	if (newenviron) {
+		newenviron=realloc(newenviron, (newenvironlen+2) * sizeof(char *));
+	}
+	else {
+		newenviron=calloc(newenvironlen+2, sizeof(char *));
+	}
+
+	if (!newenviron) {
+		perror("realloc");
+		exit(1);
+	}
+
+	s=malloc(strlen(var)+1+strlen(val)+1);
 	if (!s) {
 		perror("malloc");
 		exit(1);
 	}
 	else {
 		sprintf(s, "%s=%s", var, val);
-		newenviron[i++]=s;
+		newenviron[newenvironlen++]=s;
 	}
 }
 
@@ -215,9 +228,9 @@ int main (int argc, char **argv) {
 $check_commit_hook
 @wrapper_hooks
 $envsave
-	newenviron[i++]="HOME=$ENV{HOME}";
-	newenviron[i++]="PATH=$ENV{PATH}";
-	newenviron[i++]="WRAPPED_OPTIONS=$configstring";
+	addenv("HOME", "$ENV{HOME}");
+	addenv("PATH", "$ENV{PATH}");
+	addenv("WRAPPED_OPTIONS", "$configstring");
 
 #ifdef __TINYC__
 	/* old tcc versions do not support modifying environ directly */
@@ -225,10 +238,10 @@ $envsave
 		perror("clearenv");
 		exit(1);
 	}
-	for (; i>0; i--)
-		putenv(newenviron[i-1]);
+	for (; newenvironlen>0; newenvironlen--)
+		putenv(newenviron[newenvironlen-1]);
 #else
-	newenviron[i]=NULL;
+	newenviron[newenvironlen]=NULL;
 	environ=newenviron;
 #endif
 

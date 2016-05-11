@@ -46,8 +46,8 @@ EOF
 			while (read(0, &buf, 256) != 0) {}
 			exit(0);
 		}
-		asprintf(&s, "CALLER_UID=%i", u);
-		newenviron[i++]=s;
+		asprintf(&s, "%i", u);
+		addenv("CALLER_UID", s);
 	}
 EOF
 	return $ret;

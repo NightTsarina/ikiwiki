@@ -708,5 +708,5 @@ sub stripext {
 }
 
 sub _wrapper_paths {
-	return qq{newenviron[i++]="PERL5LIB=$ENV{PERL5LIB}";};
+	return qq{addenv("PERL5LIB", "$ENV{PERL5LIB}");};
 }
