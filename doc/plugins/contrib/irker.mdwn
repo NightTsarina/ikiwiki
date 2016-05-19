@@ -108,14 +108,14 @@ sub genwrapper() {
             symlink($config{'irker_hook'}, $repo . '/hooks/post-receive') || error('failed to symlink: $!');
         }
         my $channels = join(",", @{$config{'irker_channels'}});
-        exec { 'git' } ('config', '-C', $repo, 'config', 'irker.channels', $channels);
-        exec { 'git' } ('config', '-C', $repo, 'config', 'irker.channels', $config{'wikiname'});
+        system { 'git' } ('config', '-C', $repo, 'config', 'irker.channels', $channels);
+        system { 'git' } ('config', '-C', $repo, 'config', 'irker.channels', $config{'wikiname'});
         if ($config{'irker_template'}) {
             exec { 'git' } ('config', '-C', $repo, 'config', 'irker.channels', $config{'irker_template'});
         }
     }
     else {
-        exec { 'git' } ('config', '-C', $repo, 'config', '--remove-section', 'irker');
+        system { 'git' } ('config', '-C', $repo, 'config', '--remove-section', 'irker');
         if (-l $repo . '/hooks/post-receive' && 
             readlink($repo . '/hooks/post-receive') =~ m/irkerhook/) {
             unlink($repo . '/hooks/post-receive');
