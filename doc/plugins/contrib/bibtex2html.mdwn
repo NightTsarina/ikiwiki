@@ -4,8 +4,6 @@ Trivial plugin to implement [[todo/BibTeX]] support simply using [bibtex2html](h
 
 It is hopefully secure enough, but I have still marked it as unsafe because I am worried about parameter expansion in bibtex calls from bibtex2html that wouldn't escape those characters properly. The pipeline is called safely, but certain `-flags` could be maliciously added to the filenames somehow.
 
-The plugin is generic enough that I wonder if there's a level of abstraction that exists here that I have missed. If not it would be interesting to add. Update: that tool is the [[compile]] plugin, darn it. I guess the next step here is to review that plugin and figure out how to do exactly this with just the `compile` configuration. Yet this works for me now so I'm unlikely to do that in the short term.
-
 [[!format perl """
 #!/usr/bin/perl
 package IkiWiki::Plugin::bibtex2html;
@@ -57,5 +55,7 @@ sub bibtex2html {
 
 1;
 """]]
+
+The plugin is generic enough that I wonder if there's a level of abstraction that exists here that I have missed. If not it would be interesting to add. Update: that tool is the [[compile]] plugin, darn it. I guess the next step here is to review that plugin and figure out how to do exactly this with just the `compile` configuration. Yet this works for me now so I'm unlikely to do that in the short term.
 
 Obviously, this should be implemented through Text::Bibtex as forking is expensive. Yet I haven't found a way to do what this plugin does with the existing [[bibtex]] module. [[bibtex]] could of course be extended and then render this plugin obsolete, but I have found it simpler to just reuse an existing working rendered than rewrite my own in Perl. --[[anarcat]]
