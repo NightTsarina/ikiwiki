@@ -97,3 +97,38 @@ Right now, it is not possible for the [[plugins/contrib/compile]] plugin to rend
 >>> A clever admin can certainly find out about such a command and
 >>> having a way for that admin to easily hook that into ikiwiki would
 >>> be a powerful tool, with all that implies.  --[[anarcat]]
+
+>>>> Concerning the ability to run arbitrary commands, a [[discussion was
+>>>> started|https://ikiwiki.info/plugins/contrib/compile/discussion/]] by someone
+>>>> who wanted a secure version of this plugin. The idea I had (which has some
+>>>> similarities with what is being discussed here) was to provide a
+>>>> `compile_secure` boolean option to restrict what the user can do (if
+>>>> false, users can run arbitrary commands; if true, users can only run a set of
+>>>> predefined commands). However, since [[fr33domlover]], who started the
+>>>> discussion, did not answer, nothing was implemented.
+>>>>
+>>>> Concerning arbitrary commands, I do not know Perl, but I think it can run
+>>>> commands using something similar to [exec](http://linux.die.net/man/3/exec),
+>>>> which prevents (?) shell injections. This adds the burden of manipulating
+>>>> arrays instead of strings, but security should be improved.
+>>>>
+>>>> If we want to merge this plugin and compile, I think a better idea than the one
+>>>> I proposed at the beginning of the discussion would be to provide two different
+>>>> directives: a `\[[!compile "foo.bar"]]` would compile the file and render it as a
+>>>> link to the compiled file (what the compile plugin does right now), while
+>>>> `\[[!render "foo.bar"]]` would compile the file,
+>>>> and render its content in the current page (whath the bibtex2html plugin
+>>>> does). In fact, providing this
+>>>> `\[[!render ...]]` directive (without the security considerations) seems
+>>>> easy enough to implement, and I might implement it some day (soon, if it
+>>>> solves [[anarcat]] problem and closes the discussion).
+>>>>
+>>>> While I am really happy to see that my plugin sparks some interest, I fear I
+>>>> won't be able to implement what is discussed here, apart from the quick
+>>>> feature I mentionned in the previous paragraph (I have a baby at home, I am
+>>>> moving to another city in a few weeks, and the only code I ever wrote in Perl
+>>>> was to contribute to IkiWiki). However, you have my blessing for making
+>>>> whatever you want with my code: contribute, write a version 2 of it, write a
+>>>> new plugin that makes it obsolete, copy the good ideas and dump the rest, etc.
+>>>>
+>>>> --[[Louis|spalax]]
