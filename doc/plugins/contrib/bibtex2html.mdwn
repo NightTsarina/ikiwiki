@@ -1,4 +1,5 @@
 [[!template id=plugin name=bibtex2html author="[[anarcat]]"]]
+[[!tag type/format]]
 
 Trivial plugin to implement [[todo/BibTeX]] support simply using [bibtex2html](https://www.lri.fr/~filliatr/bibtex2html/). It only takes a `bib` file as an argument and dumps whatever bibtex2html returns for it, so it shows *all* the entries, something that is not really possible with the existing [[bibtex]] plugin, as that one requires you to explicitly state every citation you want to show.
 
@@ -55,6 +56,8 @@ sub bibtex2html {
 
 1;
 """]]
+
+This could be extended to process `.bib` files directly as source files instead of injecting them in the HTML like this.
 
 The plugin is generic enough that it could be abstracted to do more than just `bibtex2html`, in a manner similar to the [[compile]] plugin. Unfortunately, the [[compile]] plugin gives too much power to the user providing input to the wiki, which can modify even the commands being run in the directives. There is therefore some room here to make generic preprocessor or even htmlize plugin that would take a hash of `extension` -> `command` configuration to turn (say) `.bib` or `.tex` files into HTML or PDF or whatever you fancy.
 
