@@ -1,0 +1,57 @@
+[[!template id=plugin name=bibtex2html author="[[anarcat]]"]]
+
+Trivial plugin to implement [[todo/BibTeX]] support simply using [bibtex2html](https://www.lri.fr/~filliatr/bibtex2html/). It is hopefully secure enough, but I have still marked it as unsafe because I am worried about parameter expansion in bibtex calls from bibtex2html that wouldn't escape those characters properly. The pipeline is called safely, but certain `-flags` could be maliciously added to the filenames somehow.
+
+The plugin is generic enough that I wonder if there's a level of abstraction that exists here that I have missed. If not it would be interesting to add.
+
+[[!format perl """
+#!/usr/bin/perl
+package IkiWiki::Plugin::bibtex2html;
+use warnings;
+use strict;
+use IkiWiki 3.00;
+use open qw{:utf8 :std};
+
+sub import {
+	hook(type => "getsetup", id => "bibtex2html",  call => \&getsetup);
+	hook(type => "preprocess", id => "bibtex2html", call => \&bibtex2html);
+}
+
+sub getsetup () {
+	return
+		plugin => {
+			safe => 0,
+			rebuild => undef,
+                        section => "core",
+		},
+}
+
+sub bibtex2html {
+    my %params=@_;
+
+    # check the files exist
+    my $file=shift;
+    if (! defined $file) {
+        error sprintf(gettext('file parameter is required'));
+    }
+    my $near = bestlink($params{page}, $file);
+    if (! $near) {
+        error sprintf(gettext('cannot find bestlink for "%s"'), $file);
+    }
+    if (! exists $pagesources{$near}) {
+        error sprintf(gettext('cannot find file "%s"'), $near);
+    }
+    add_depends($params{page}, $near);
+    $near = srcfile($near);
+    my @bibtex_cmd = (qw[bibtex2html -charset utf-8 -noheader -nofooter -nobibsource -nodoc -q -o -], $near);
+    
+    open(PIPE, "-|", @bibtex_cmd)
+        || error "can't open pipe to @bibtex_cmd: $!";
+    my $html = join("", <PIPE>);
+    close PIPE;
+    debug "ran @bibtex_cmd: $html";
+    return "<div class=\"bibtex2html\">$html<!-- The above was generated with @bibtex_cmd--></div>";
+}
+
+1;
+"""]]
