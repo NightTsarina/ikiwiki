@@ -1,0 +1,9 @@
+# [[plugins/contrib/bibtex2html]] and [[plugins/contrib/compile]] plugins
+
+*Answer to [[anarcat]] mentionning [[plugins/contrib/compile]] in the [[plugins/contrib/bibtex2html]] documentation.*
+
+I do not think that the [[plugins/contrib/compile]] plugin can replace the [[plugins/contrib/bibtex2html]] plugin right now: the [[plugins/contrib/compile]] plugin compiles a document, and renders *an HTML link to* the compiled document, whereas (if I am not wrong), the [[plugins/contrib/bibtex2html]] plugin compiles a document, and renders *the content of* the compiled document (which happens to be some HTML code).
+
+Right now, it is not possible for the [[plugins/contrib/compile]] plugin to render the *content* of the compiled document. This could be done by providing a `DESTCONTENT` template variable, containing the content of the compiled document. This should not be hard to implement.
+
+-- [[Louis|spalax]] (author of [[plugins/contrib/compile]])
