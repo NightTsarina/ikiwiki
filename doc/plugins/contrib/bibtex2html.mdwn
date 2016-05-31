@@ -56,6 +56,6 @@ sub bibtex2html {
 1;
 """]]
 
-The plugin is generic enough that I wonder if there's a level of abstraction that exists here that I have missed. If not it would be interesting to add. Update: that tool is the [[compile]] plugin, darn it. I guess the next step here is to review that plugin and figure out how to do exactly this with just the `compile` configuration. Yet this works for me now so I'm unlikely to do that in the short term.
+The plugin is generic enough that it could be abstracted to do more than just `bibtex2html`, in a manner similar to the [[compile]] plugin. Unfortunately, the [[compile]] plugin gives too much power to the user providing input to the wiki, which can modify even the commands being run in the directives. There is therefore some room here to make generic preprocessor or even htmlize plugin that would take a hash of `extension` -> `command` configuration to turn (say) `.bib` or `.tex` files into HTML or PDF or whatever you fancy.
 
-Obviously, this should be implemented through Text::Bibtex as forking is expensive. Yet I haven't found a way to do what this plugin does with the existing [[bibtex]] module. [[bibtex]] could of course be extended and then render this plugin obsolete, but I have found it simpler to just reuse an existing working rendered than rewrite my own in Perl. --[[anarcat]]
+Obviously, this very plugin should have been implemented with Text::Bibtex because forking to `bibtex2html` is expensive. Yet I haven't found a way to do what this plugin does with the existing [[bibtex]] module. [[bibtex]] could of course be extended and then render this plugin obsolete, but I have found it simpler to just reuse an existing working rendered than rewrite my own in Perl. --[[anarcat]]
