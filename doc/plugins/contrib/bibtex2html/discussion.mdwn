@@ -35,3 +35,65 @@ Right now, it is not possible for the [[plugins/contrib/compile]] plugin to rend
 >> individual vulnerabilities there involved ImageMagick and GraphicsMagick
 >> running arbitrary shell pipelines from delegates.xml that turned out not
 >> to be hardened against invocation by a hostile user. --[[smcv]]
+
+>>> The `exec` plugin would definitely not be marked as "safe": it
+>>> allows wiki administrators to execute arbitrary code as the wiki
+>>> user.
+>>>
+>>> That said, I believe it is possible to craft a configuration that
+>>> *would* be safe to use for *users* in general. Of course, we can't
+>>> exclude foot-shooting here: if an admin misconfigures the plugin,
+>>> they can introduce new attack vectors. But default and sample
+>>> configurations should be secure.
+>>>
+>>> It is with that model in mind that I wrote the bibtex2html plugin: it doesn't
+>>> use the shell to execute bibtex2html:
+>>>
+>>> [[!format perl """my @bibtex_cmd = (qw[bibtex2html -noheader -nofooter -nobibsource -nodoc -q -o -], $near); open(PIPE, "-|", @bibtex_cmd) || error "can't open pipe to @bibtex_cmd: $!";"""]]
+>>>
+>>> I specifically tried to address that case, to make sure users
+>>> can't execute arbitrary code even if the plugin is enabled.
+>>>
+>>> Still: it is tricky! The above pipeline could *still* be
+>>> vulnerable to certain attacks if bibtex2html does some dangerous
+>>> stuff on its own. For example, it could call other executables
+>>> with the shell without checking arguments, and then the filename
+>>> would be expanded into hostile shell commands. Even worse and
+>>> trickier, the filename could be something like `-oclobberfile` and
+>>> one file would be destroyed!
+>>>
+>>> bibtex2html is probably vulnerable to such an attack right now. We
+>>> should check attachments for weird filenames and restrict what is
+>>> allowed to upload and pass to the plugin.
+>>>
+>>> In case you haven't reviewed the [[compile]] plugin in detail,
+>>> what struck me as an interesting model is the way it allows admin
+>>> to configure extensions to pipeline mappings. What I had in mind
+>>> was something like this:
+>>>
+>>>     exec_pipelines:
+>>>     - bib: 'bibtex2html -o- %s'
+>>>     - svg: 'inkscape -o- %s'
+>>>     - tex:
+>>>       - 'pdflatex %s'
+>>>       - 'bibtex %s'
+>>>       - 'pdflatex %s'
+>>>       - 'pdflatex %s'
+>>>
+>>> (forgive my YAML cluelessness, the idea above is to define a hash
+>>> of extension -> (command) mapping.) The command would be broken up
+>>> on spaces into an array and the `%s` element would be replaced by
+>>> the source file, which would be forbidden to use shell
+>>> metacharacters, including prefixed dashes. I believe such a plugin
+>>> could be crafted to be secure with proper configuration
+>>>
+>>> Of course, it's better if there's a native plugin for
+>>> everything. For bibtex, we need to use Text::Bibtex, for
+>>> example. But that basically means rewriting bibtex2html in Perl,
+>>> which not something any user can do easily. And it's an even worse
+>>> problems for documents like Word spreadsheets or Latex
+>>> documents. Only the native commands can do the right thing.
+>>>
+>>> A clever admin can certainly find out about such a command and
+>>> having a way for that admin to easily hook that into ikiwiki would
+>>> be a powerful tool, with all that implies.  --[[anarcat]]
