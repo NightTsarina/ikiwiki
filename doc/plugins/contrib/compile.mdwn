@@ -21,7 +21,9 @@ Some important security notice.
 - This plugins allows user to execute arbitrary commands when compiling the
   wiki.  Use at your own risk. If you use Ikiwiki as a static web site compiler
   (and not a wiki), and you are the only one to compile the wiki, there is no
-  risk.
+  risk. If you *do* allow untrusted users to edit or comment on the wiki, they
+  can use the `compile` directives to execute completely arbitrary code, regardless
+  of configuration safeguards you may put.
 
 - Source files are published, wheter option `source` is true or not. If
   `source` is false, source may not be *advertised*, but it is still available
@@ -29,6 +31,18 @@ Some important security notice.
   the extension of the compiled file by the extension of the source file). So,
   do not use this plugin if you do not want to publish your source files
     (sorry: I designed this plugin to publish free stuff).
+
+The plugin could be modified to only allow commands to be modified from the
+configuration and it would be safer to use. However, it would still be vulnerable
+to command injection attacks because it uses `qx()` command expansion, which
+runs commands through `/bin/sh -c`. A thorough security review would be in order
+before this should be considered secure running on untrusted input.
+
+A simpler implementation, that only runs a predefined set of commands, may be
+simpler to implement than auditing this whole plugin. For example, the
+[[bibtex2html]] module performs a similar task than the compile module, but
+hardcodes the command used and doesn't call it with `/bin/sh -c`. It could be
+expanded to cover more commands.
 
 ## Rationale
 
