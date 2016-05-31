@@ -350,7 +350,7 @@ sub find_src_files (;$$$) {
 		else {
 			push @files, $f;
 			if ($pages{$page}) {
-				debug(sprintf(gettext("%s has multiple possible source pages"), $page));
+				debug(sprintf(gettext("%s has multiple possible source files; one will be chosen at random"), $page));
 			}
 			$pages{$page}=1;
 		}
@@ -399,7 +399,7 @@ sub process_changed_files ($$) {
 		}
 		push @files, $f;
 		if ($pages{$page}) {
-			debug(sprintf(gettext("%s has multiple possible source pages"), $page));
+			debug(sprintf(gettext("%s has multiple possible source files; one will be chosen at random"), $page));
 		}
 		$pages{$page}=1;
 	}
