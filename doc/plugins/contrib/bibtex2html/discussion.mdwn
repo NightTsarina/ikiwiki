@@ -112,6 +112,10 @@ Right now, it is not possible for the [[plugins/contrib/compile]] plugin to rend
 >>>> which prevents (?) shell injections. This adds the burden of manipulating
 >>>> arrays instead of strings, but security should be improved.
 >>>>
+>>>> But none of those ideas solve the problems you mentionned, being that
+>>>> external commands can do nasty things (the `-oclobberfile` option of
+>>>> `bibtex2html`) or contain bugs (like ImageMagick).
+>>>>
 >>>> If we want to merge this plugin and compile, I think a better idea than the one
 >>>> I proposed at the beginning of the discussion would be to provide two different
 >>>> directives: a `\[[!compile "foo.bar"]]` would compile the file and render it as a
