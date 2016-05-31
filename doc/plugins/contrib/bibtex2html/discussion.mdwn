@@ -9,3 +9,29 @@ Right now, it is not possible for the [[plugins/contrib/compile]] plugin to rend
 -- [[Louis|spalax]] (author of [[plugins/contrib/compile]])
 
 > Interesting! I am thinking of writing a simpler plugin (maybe called "exec") that would be a merge of the two approaches. There would be an `htmlize` hook to render arbitrary page extensions (based on the configuration) into anything with predefined pipelines. Then a `preprocess` hook would allo directives to inject links to documents or simply inline them like bibtex2html does. The plugin could be secure insofar as the pipelines configured are secure as well. Should that be merged in compile or be a separate plugin? --[[anarcat]]
+
+>> This "arbitrary executable" stuff scares me, and I'm not going to merge anything
+>> like that without a relatively paranoid review. As a result, it could take a while.
+>>
+>> At some point when I have more time and energy I should try to write down what
+>> ikiwiki's security model is. The short version is that the plugins shipped
+>> with ikiwiki should never let wiki editors execute arbitrary code, even if they
+>> have direct VCS access or can alter "safe"-flagged setup options. The ability to
+>> alter non-"safe" setup options is equivalent to access to the uid running the
+>> wiki, and so is the ability to alter the plugins that the wiki uses.
+>>
+>> Defining pipelines or compilation commands in the setup file does not
+>> *directly* contradict that, because the setup option would not be flagged
+>> as safe, but it does provide an easy way to cause a huge
+>> increase in attack surface, particularly when shell scripts are known to
+>> be a difficult thing to write securely. If people want arbitrary compilation,
+>> Perl or XML-RPC (e.g. Python) plugins are probably safer (even if they call
+>> external commands with `IPC::Run` or `subprocess`!), and they would mean that
+>> the authors of the arbitrary-compilation code can't have any illusions about
+>> "oh, this isn't all that security-sensitive, I'm just writing an
+>> ad-hoc command".
+>>
+>> I hope that ImageTragick is still fresh in everyone's minds - many of the
+>> individual vulnerabilities there involved ImageMagick and GraphicsMagick
+>> running arbitrary shell pipelines from delegates.xml that turned out not
+>> to be hardened against invocation by a hostile user. --[[smcv]]
