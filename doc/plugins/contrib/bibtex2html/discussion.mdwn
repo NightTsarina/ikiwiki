@@ -7,3 +7,5 @@ I do not think that the [[plugins/contrib/compile]] plugin can replace the [[plu
 Right now, it is not possible for the [[plugins/contrib/compile]] plugin to render the *content* of the compiled document. This could be done by providing a `DESTCONTENT` template variable, containing the content of the compiled document. This should not be hard to implement.
 
 -- [[Louis|spalax]] (author of [[plugins/contrib/compile]])
+
+> Interesting! I am thinking of writing a simpler plugin (maybe called "exec") that would be a merge of the two approaches. There would be an `htmlize` hook to render arbitrary page extensions (based on the configuration) into anything with predefined pipelines. Then a `preprocess` hook would allo directives to inject links to documents or simply inline them like bibtex2html does. The plugin could be secure insofar as the pipelines configured are secure as well. Should that be merged in compile or be a separate plugin? --[[anarcat]]
