@@ -35,3 +35,14 @@ certain setups.
 
 See [[plugins/openid/troubleshooting]] for a number of issues that may
 need to be addressed when setting up ikiwiki to accept OpenID logins reliably.
+
+## delegation
+
+This plugin does not take care of doing the "server" part of the
+OpenID protocol, only the "client" part. In other words, it allows
+users to login to your site through OpenID, but is not in itself an
+OpenID provider.
+
+It is possible, however, to use your Ikiwiki site as a delegation
+point to another OpenID provider. For this, use the
+[[ikiwiki/directive/meta/]] directive with the `openid` parameter.
