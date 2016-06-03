@@ -7,3 +7,132 @@ I do not think that the [[plugins/contrib/compile]] plugin can replace the [[plu
 Right now, it is not possible for the [[plugins/contrib/compile]] plugin to render the *content* of the compiled document. This could be done by providing a `DESTCONTENT` template variable, containing the content of the compiled document. This should not be hard to implement.
 
 -- [[Louis|spalax]] (author of [[plugins/contrib/compile]])
+
+> Interesting! I am thinking of writing a simpler plugin (maybe called "exec") that would be a merge of the two approaches. There would be an `htmlize` hook to render arbitrary page extensions (based on the configuration) into anything with predefined pipelines. Then a `preprocess` hook would allo directives to inject links to documents or simply inline them like bibtex2html does. The plugin could be secure insofar as the pipelines configured are secure as well. Should that be merged in compile or be a separate plugin? --[[anarcat]]
+
+>> This "arbitrary executable" stuff scares me, and I'm not going to merge anything
+>> like that without a relatively paranoid review. As a result, it could take a while.
+>>
+>> At some point when I have more time and energy I should try to write down what
+>> ikiwiki's security model is. The short version is that the plugins shipped
+>> with ikiwiki should never let wiki editors execute arbitrary code, even if they
+>> have direct VCS access or can alter "safe"-flagged setup options. The ability to
+>> alter non-"safe" setup options is equivalent to access to the uid running the
+>> wiki, and so is the ability to alter the plugins that the wiki uses.
+>>
+>> Defining pipelines or compilation commands in the setup file does not
+>> *directly* contradict that, because the setup option would not be flagged
+>> as safe, but it does provide an easy way to cause a huge
+>> increase in attack surface, particularly when shell scripts are known to
+>> be a difficult thing to write securely. If people want arbitrary compilation,
+>> Perl or XML-RPC (e.g. Python) plugins are probably safer (even if they call
+>> external commands with `IPC::Run` or `subprocess`!), and they would mean that
+>> the authors of the arbitrary-compilation code can't have any illusions about
+>> "oh, this isn't all that security-sensitive, I'm just writing an
+>> ad-hoc command".
+>>
+>> I hope that ImageTragick is still fresh in everyone's minds - many of the
+>> individual vulnerabilities there involved ImageMagick and GraphicsMagick
+>> running arbitrary shell pipelines from delegates.xml that turned out not
+>> to be hardened against invocation by a hostile user. --[[smcv]]
+
+>>> The `exec` plugin would definitely not be marked as "safe": it
+>>> allows wiki administrators to execute arbitrary code as the wiki
+>>> user.
+>>>
+>>> That said, I believe it is possible to craft a configuration that
+>>> *would* be safe to use for *users* in general. Of course, we can't
+>>> exclude foot-shooting here: if an admin misconfigures the plugin,
+>>> they can introduce new attack vectors. But default and sample
+>>> configurations should be secure.
+>>>
+>>> It is with that model in mind that I wrote the bibtex2html plugin: it doesn't
+>>> use the shell to execute bibtex2html:
+>>>
+>>> [[!format perl """my @bibtex_cmd = (qw[bibtex2html -noheader -nofooter -nobibsource -nodoc -q -o -], $near); open(PIPE, "-|", @bibtex_cmd) || error "can't open pipe to @bibtex_cmd: $!";"""]]
+>>>
+>>> I specifically tried to address that case, to make sure users
+>>> can't execute arbitrary code even if the plugin is enabled.
+>>>
+>>> Still: it is tricky! The above pipeline could *still* be
+>>> vulnerable to certain attacks if bibtex2html does some dangerous
+>>> stuff on its own. For example, it could call other executables
+>>> with the shell without checking arguments, and then the filename
+>>> would be expanded into hostile shell commands. Even worse and
+>>> trickier, the filename could be something like `-oclobberfile` and
+>>> one file would be destroyed!
+>>>
+>>> bibtex2html is probably vulnerable to such an attack right now. We
+>>> should check attachments for weird filenames and restrict what is
+>>> allowed to upload and pass to the plugin.
+>>>
+>>> In case you haven't reviewed the [[compile]] plugin in detail,
+>>> what struck me as an interesting model is the way it allows admin
+>>> to configure extensions to pipeline mappings. What I had in mind
+>>> was something like this:
+>>>
+>>>     exec_pipelines:
+>>>     - bib: 'bibtex2html -o- %s'
+>>>     - svg: 'inkscape -o- %s'
+>>>     - tex:
+>>>       - 'pdflatex %s'
+>>>       - 'bibtex %s'
+>>>       - 'pdflatex %s'
+>>>       - 'pdflatex %s'
+>>>
+>>> (forgive my YAML cluelessness, the idea above is to define a hash
+>>> of extension -> (command) mapping.) The command would be broken up
+>>> on spaces into an array and the `%s` element would be replaced by
+>>> the source file, which would be forbidden to use shell
+>>> metacharacters, including prefixed dashes. I believe such a plugin
+>>> could be crafted to be secure with proper configuration
+>>>
+>>> Of course, it's better if there's a native plugin for
+>>> everything. For bibtex, we need to use Text::Bibtex, for
+>>> example. But that basically means rewriting bibtex2html in Perl,
+>>> which not something any user can do easily. And it's an even worse
+>>> problems for documents like Word spreadsheets or Latex
+>>> documents. Only the native commands can do the right thing.
+>>>
+>>> A clever admin can certainly find out about such a command and
+>>> having a way for that admin to easily hook that into ikiwiki would
+>>> be a powerful tool, with all that implies.  --[[anarcat]]
+
+>>>> Concerning the ability to run arbitrary commands, a [[discussion was
+>>>> started|https://ikiwiki.info/plugins/contrib/compile/discussion/]] by someone
+>>>> who wanted a secure version of this plugin. The idea I had (which has some
+>>>> similarities with what is being discussed here) was to provide a
+>>>> `compile_secure` boolean option to restrict what the user can do (if
+>>>> false, users can run arbitrary commands; if true, users can only run a set of
+>>>> predefined commands). However, since [[fr33domlover]], who started the
+>>>> discussion, did not answer, nothing was implemented.
+>>>>
+>>>> Concerning arbitrary commands, I do not know Perl, but I think it can run
+>>>> commands using something similar to [exec](http://linux.die.net/man/3/exec),
+>>>> which prevents (?) shell injections. This adds the burden of manipulating
+>>>> arrays instead of strings, but security should be improved.
+>>>>
+>>>> But none of those ideas solve the problems you mentionned, being that
+>>>> external commands can do nasty things (the `-oclobberfile` option of
+>>>> `bibtex2html`) or contain bugs (like ImageMagick).
+>>>>
+>>>> If we want to merge this plugin and compile, I think a better idea than the one
+>>>> I proposed at the beginning of the discussion would be to provide two different
+>>>> directives: a `\[[!compile "foo.bar"]]` would compile the file and render it as a
+>>>> link to the compiled file (what the compile plugin does right now), while
+>>>> `\[[!render "foo.bar"]]` would compile the file,
+>>>> and render its content in the current page (whath the bibtex2html plugin
+>>>> does). In fact, providing this
+>>>> `\[[!render ...]]` directive (without the security considerations) seems
+>>>> easy enough to implement, and I might implement it some day (soon, if it
+>>>> solves [[anarcat]] problem and closes the discussion).
+>>>>
+>>>> While I am really happy to see that my plugin sparks some interest, I fear I
+>>>> won't be able to implement what is discussed here, apart from the quick
+>>>> feature I mentionned in the previous paragraph (I have a baby at home, I am
+>>>> moving to another city in a few weeks, and the only code I ever wrote in Perl
+>>>> was to contribute to IkiWiki). However, you have my blessing for making
+>>>> whatever you want with my code: contribute, write a version 2 of it, write a
+>>>> new plugin that makes it obsolete, copy the good ideas and dump the rest, etc.
+>>>>
+>>>> --[[Louis|spalax]]
