@@ -1,0 +1,15 @@
+[[!comment format=mdwn
+ username="http://schmonz.livejournal.com/"
+ subject="what didn't work with pkgsrc?"
+ date="2016-06-06T12:17:22Z"
+ content="""
+I use the `img` plugin on my site. ikiwiki, perl, and imagemagick are all installed from pkgsrc on my laptop (OS X 10.11.5) and server (NetBSD 7.0.1). As the pkgsrc package maintainer for ikiwiki, if something's broken for you, I'd like to fix it.
+
+`cd www/ikiwiki && make install` automatically brings in Perl as one of many runtime dependencies. (Usually it's the most recent stable perl, though at the moment it's still 5.22.2. I'm a little surprised we're not already on 5.24.0.)
+
+If you define `PKG_OPTIONS.ikiwiki+=imagemagick` in `/etc/mk.conf`, then installing ikiwiki will also automatically bring in ImageMagick and its Perl bindings.
+
+If you don't define that option, you can install them yourself with `cd graphics/p5-PerlMagick && make install`.
+
+What have you tried? What happened when you tried?
+"""]]
