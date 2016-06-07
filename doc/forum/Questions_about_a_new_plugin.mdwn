@@ -1,0 +1,41 @@
+Hello,
+I have a plugin in mind, but before starting to write some code, I come to you to see if something similar already exists, or if there is an easier way to do it.
+
+# What I want
+
+I want to be able to have several versions of the same page. For instance (this is not my usecase, but it matches exactly), let's say I am developping a software, with several versions published, and I want:
+
+* the latest documentation to be available at ``http://example.com/doc``;
+* the documentation for previous (or current version, with permanent URL) available at ``http://example.com/doc/v2_0``.
+
+What I am thinking about is:
+
+* my wiki has the documentation written in pages `doc/v1_0.mdwn`, `doc/v2_0.mdwn`, and so on;
+* the `doc.mdwn` page contains nothing but code to copy metadata from the latest `doc/*mdwn` page, that is: [[plugins/meta]] information, [[plugins/tag]], and [[plugins/contrib/ymlfront]].
+
+# What I have in mind
+
+What I have in mind is a plugin providing a directive ``pageversion`` such that the `doc.mdwn` page contains only:
+
+    [[!pageversion pages="doc/* and !doc/*/*"]]
+
+This would grab the latest documentation page, copy its content, and copy meta information, tags and fields.
+
+# How to do it
+
+I see two ways to do it, but both have big drawbacks.
+
+* I could, in the ``preprocess`` function of the plugin, copy the *interesting* part of the ``%pagestate`` global variable. In pseudo-code, something like:
+
+      $pagestate{doc}{meta} = $pagestate{doc/v2_0}{meta};
+      $pagestate{doc}{fields} = $pagestate{doc/v2_0}{fields};
+      $pagestate{doc}{tags} = $pagestate{doc/v2_0}{tags}; # This one definitely would not work, but it is pseudo-code
+
+  I fear that some necessary side effects would not occur. For instance, setting date using the [[plugins/meta]] plugin [sets the page creation time at a deeper level](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=IkiWiki/Plugin/meta.pm;h=ea099f955ac1c486cdd2baf6636e330a8eae569c;hb=HEAD#l154). Copying ``%pagestate`` would bypass this.
+
+* I could, in the ``preprocess`` function, call the ``preprocess`` function for those three plugins. But this would mean guessing what the original directive arguments were, which can be tricky.
+
+# My questions
+
+* Does something similar already exist?
+* Do you have any better idea about how to do it?
