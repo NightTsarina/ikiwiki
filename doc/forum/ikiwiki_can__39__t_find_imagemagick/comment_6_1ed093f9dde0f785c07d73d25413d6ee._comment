@@ -1,0 +1,17 @@
+[[!comment format=mdwn
+ username="openmedi"
+ subject="comment 6"
+ date="2016-06-07T11:19:47Z"
+ content="""
+Hm. Maybe the problem is more that I don't understand what needs to happen to make imagemagick available for ikiwiki. I though it would be enough to install imagemagick and have my prefered perl in the path, but that seems not to be the case? I'm, also not sure what \"`cd www/ikiwiki && make install` automatically brings in Perl\" means. Aren't we installing ikiwiki etc. through pkgsrc with `sudo pkgin -y install ikiwiki`? Am I mistaken that you suggesting building ikiwiki myself? Sorry, if I'm getting things wrong.
+
+What I though would need to happen:
+
+1. [update to the latest branch of joyent pkgsrc](http://pkgsrc.joyent.com/install-on-osx/)
+1. sudo pkgin -y update
+1. sudo pkgin -y full-upgrade
+1. sudo pkgin -y install p5-PerlMagick (this installs all the dependencies, including a useable perl, I thought)
+1. sudo pkgin -y install ikiwiki
+
+This is wrong/not enough?
+"""]]
