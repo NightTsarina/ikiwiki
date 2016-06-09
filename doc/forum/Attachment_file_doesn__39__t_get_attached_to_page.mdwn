@@ -1,0 +1,51 @@
+I am trying to use the attachment plugin, but it isn't working the way I expect.
+
+I attempted to add a PDF as an attachment `dns_example.pdf` to a example_page (https://notes.example.org/wiki/MiscNotes/dns_docs_page).  The upload appears to happen, I can click the insert links button and links will be inserted into the page.  When I click the save-page button, the attachment does not appear to be attached.  No errors are displayed.
+
+On the web server the attachment is at `$srcdir/.ikiwiki/attachments/MiscNotes/dns_docs_page/dns_example.pdf`, but doesn't get copied over to the `$destdir` folder at all.  I would expect that it should have been moved to `$srcdir/MiscNotes/dns_docs_page/dns_example.pdf` and added to the git repo, and then copied over to `$destdir`.  Am I missing some setting in my configuration or something?
+
+Is this expected?  Is my file being rejected for some reason?  It is about 100k, which is under the value required by the `allowed_attachments`.  Is there some error logs somewhere that I look at to see more information about why this is failing?
+
+Chris
+
+
+    # wiki.setup
+    ...
+    # where the source of the wiki is located
+    srcdir: /srv/www/notes.example.org/wiki/wiki.wc
+    # where to build the wiki
+    destdir: /srv/www/notes.example.org/wiki/www
+    # base url to the wiki
+    url: https://notes.example.org/wiki
+    # url to the ikiwiki.cgi
+    cgiurl: https://notes.example.org/wikicgi/ikiwiki.cgi
+    # filename of cgi wrapper to generate
+    cgi_wrapper: /srv/www/notes.example.org/wiki/cgi/ikiwiki.cgi
+    # mode for cgi_wrapper (can safely be made suid)
+    cgi_wrappermode: 06755
+    # rcs backend to use
+    rcs: git
+    # plugins to add to the default configuration
+    add_plugins:
+    - httpauth
+    - pagestats
+    - attachment
+    - 404
+    - table
+    - tag
+    - map
+    - search
+    - repolist
+    - brokenlinks
+    - orphans
+    - autoindex
+    - meta
+    - img
+    - txt
+    - template
+    - theme
+    ...
+    # attachment plugin
+    # enhanced PageSpec specifying what attachments are allowed
+    allowed_attachments: maxsize(15mb)
+
