@@ -1,0 +1,59 @@
+[[!comment format=mdwn
+ username="smcv"
+ subject="I'm not so sure that copying metadata is desirable"
+ date="2016-06-09T15:09:30Z"
+ content="""
+I'm not so sure that copying metadata around is the right solution to the
+use case that you outlined. If you do that, then `/doc/v2.0/` and `/doc/` will
+be indistinguishable anywhere that pages are listed by their metadata - it's as
+though you'd copied the text content of `doc/v2.0.mdwn` into `doc.mdwn`. For
+example, if it's tagged `readme`, then a list of pages matching `tagged(readme)`
+will have two apparently identical entries, one of which is `/doc/` and the other
+is `/doc/v2.0/`.
+
+Why not do this instead?
+
+```
+# doc/v2.0.mdwn
+[[!tag readme]]
+[[!meta title=\"Foobar documentation, version 2.0\"]]
+
+[[!if test=\"doc/* and created_after(.)\" all=\"no\"
+  then=\"\"\"[[!template id=\"note\" text=\"[Newer versions are available|doc]\"]]\"\"\"]]
+
+Here is new documentation about Foobar.
+
+# doc/v1.0.mdwn
+[[!tag readme]]
+[[!meta title=\"Foobar documentation, version 1.0\"]]
+
+[[!if test=\"doc/* and created_after(.)\" all=\"no\"
+  then=\"\"\"[[!template id=\"note\" text=\"[Newer versions are available|doc]\"]]\"\"\"]]
+
+Here is documentation about Foobar.
+
+# doc.mdwn
+[[!meta title=\"Foobar documentation\"]]
+[[!inline pages=\"doc/*\" limit=\"1\" sort=\"age\" feeds=\"no\" actions=\"no\" raw=\"yes\"]]
+
+Older versions:
+
+[[!inline pages=\"doc/*\" skip=\"1\" archive=\"yes\"]]
+```
+
+... or even (with a bit of new code)
+
+```
+# doc.mdwn
+[[!meta redir_first_match=\"doc/*\" sort=\"age\"]]
+```
+
+In real life you'd probably want to use a special `[[!template]]` for the link
+to the latest version, so that it's easier to make them all consistent, but
+for those examples I'm just using the standard [[templates/note]] and some markup.
+
+> this is not my usecase, but it matches exactly
+
+Why not ask us about your real use-case, in case it turns out that it *doesn't*
+match exactly after putting more thought into it? :-)
+"""]]
