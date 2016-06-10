@@ -1,0 +1,33 @@
+[[!comment format=mdwn
+ username="spalax"
+ subject="More information"
+ date="2016-06-10T18:58:08Z"
+ content="""
+>    [[!if test=\"doc/* and created_after(.)\" all=\"no\"
+>      then=\"\"\"[[!template id=\"note\" text=\"[Newer versions are available|doc]\"]]\"\"\"]]
+
+I like that!
+
+> Why not ask us about your real use-case, in case it turns out that it doesn't match exactly after putting more thought into it? :-)
+
+Good point: I explained what I wanted; I did not explain why.
+
+
+The reason I want the metadata, fields and tags to be copied from the last subpage to the main page is to inline them.
+
+On my professional website (I am a math teacher), I have [a page list](http://paternault.fr/pedago) where I list some activities I do in class. For instance, [I describe here](http://paternault.fr/pedago/sismologie/20150110) how I got my students to learn statistics by debunking a psychic's claim. However, I greatly improved this the following year, and published a [new version of the same article](http://paternault.fr/pedago/sismologie/20150819/).
+
+So far I have three pages: ``.../sismologie/20150110`` and ``.../sismologie/20150819`` (the *actual* articles), and ``.../sismologie/`` (which should reflect the latest article). I want:
+
+- both articles to be available;
+- only the latest one to be visible on the [page list](http://paternault.fr/pedago) (not to highlight outdated articles).
+
+The [page list](http://paternault.fr/pedago) is generated using [the report directive](https://framagit.org/lpaternault/www/blob/bbe26353eda6a6c95c207fb635134765e70ac637/www/pedago.mdwn#L51-55) (from the [[report plugin|plugins/contrib/report]]). It references the relative latest page (``.../sismologie`` and not ``.../sismologie/20150819``), and needs to access the meta information, fields and tags.
+
+Right now, what I do is [copying \"by hand\"](https://framagit.org/lpaternault/www/blob/bbe26353eda6a6c95c207fb635134765e70ac637/www/pedago/sismologie.mdwn#L1-9) the [meta information of the latest article](https://framagit.org/lpaternault/www/blob/bbe26353eda6a6c95c207fb635134765e70ac637/www/pedago/sismologie/20150819.mdwn#L1-4), which can be error prone, and is tedious to keep up to date. I am thinking about the page version plugin I described earlier not to repeat myself.
+
+Sorry for the long post… I hope it is clear enough…
+
+[[Louis|spalax]]
+
+"""]]
