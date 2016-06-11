@@ -1,0 +1,33 @@
+[[!comment format=mdwn
+ username="smcv"
+ subject="comment 3"
+ date="2016-06-11T12:14:21Z"
+ content="""
+> It references the relative latest page (.../sismologie and not .../sismologie/20150819), and needs to access the meta information, fields and tags.
+
+I think this might be the right place to \"cut the knot\": instead of indirecting
+through the \"latest\" page, why not something like this? (this is pseudocode
+describing a hypothetical plugin, not something you can do right now):
+
+    # index.mdwn
+    [[!report pages=\"newest(sismologie/*)\" ...]]
+
+Or you could keep the indirection but make it explicit, without introducing
+copying:
+
+    # sismologie.mdwn
+    [[!inline pages=\"./*\" trail=\"yes\" sort=\"age\"]]
+
+    # index.mdwn - assume ... is a glob that matches sismologie but not its subpages
+    [[!report pages=\"first-trail-member(...)\"]]
+
+(`first-trail-member` doesn't exist, but it could.)
+
+Or maybe a distinct data structure:
+
+    # sismologie.mdwn
+    [[!versions pages=\"./*\"]]
+
+    # index.mdwn - assume ... is a glob that matches sismologie but not its subpages
+    [[!report pages=\"version-of(...)\"]]
+"""]]
