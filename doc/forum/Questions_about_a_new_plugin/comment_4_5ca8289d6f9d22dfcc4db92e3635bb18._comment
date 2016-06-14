@@ -1,0 +1,35 @@
+[[!comment format=mdwn
+ username="spalax"
+ subject="More thought about the `pageversion` plugin"
+ date="2016-06-14T15:36:32Z"
+ content="""
+I like your idea of a pagespec:
+
+    # index.mdwn - assume ... is a glob that matches sismologie but not its subpages
+    [[!report pages=\"first-trail-member(...)\"]]
+
+What I have in mind now, assuming that my website have the following structure:
+
+    $ tree
+    ├── blog.mdwn
+    └── blog
+        ├── bar.mdwn
+        ├── bar
+        │   ├── 20151108.mdwn
+        │   └── 20160413.mdwn
+        ├── foo.mdwn
+        └── foo
+            ├── 20160103.mdwn
+            └── 20160605.mdwn
+
+I can have a plugin that implements:
+
+- a directive ``[[!versionof parent]]`` in every *actual* article (`bar/20151108.mdwn`, `bar/20160413`, `foo/20160103`, `foo/20160605`) which does two things:
+  - it registers the pages as being a version of its parent page;
+  - it displays a text ``Other versions of this article: ...``.
+- a pagespec function ``latestversion``, so that the ``blog.mdwn`` page can list the last version of each article using something like ``[[!report pages=\"*/* and latestversion()]]``;
+- a directive ``[[!redir_to_latest_version]]`` (or a nicer, shorter name) in *'meta'* articles (`foo.mdwn`, `bar.mdwn`), which redirects the page to the latest version of the article (so that ``http://example.com/blog/foo`` redirects to ``http://example.com/blog/foo/20160605`` (the latest version of ``foo``)).
+
+Anyway, thank you very much: it may not be the definitive form yet, but it is already much more clean than it was at the beginning.
+
+"""]]
