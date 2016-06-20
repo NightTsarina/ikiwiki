@@ -1,0 +1,44 @@
+[[!comment format=mdwn
+ username="https://me.yahoo.com/zoredache#d4929"
+ nickname="Zoredache"
+ subject="comment 2"
+ date="2016-06-20T19:38:40Z"
+ content="""
+> If there are any error or warning messages, they'd be in your web server's error log
+
+No obvious errors in the log.  When I attempt to attach something, all I see is some stuff from git, that I seem to see with every modification.
+
+    [Mon Jun 20 12:32:29.322642 2016] [cgi:error] [pid 35431] [client 10.2.4.243:51566] AH01215: To /srv/www/notes.example.org/wiki/wiki.git, referer: https://notes.example.org/wikicgi/ikiwiki.cgi
+    [Mon Jun 20 12:32:29.322688 2016] [cgi:error] [pid 35431] [client 10.2.4.243:51566] AH01215:    3afefec..a6ad76c  master -> master, referer: https://notes.example.org/wikicgi/ikiwiki.cgi
+
+> What version of ikiwiki are you using?, Which OS distribution?
+
+I am seeing the same results on a couple systems of various configs.  The newest version is running on a Debian Jessie system with the backports ikiwiki.
+
+    # apt-cache policy ikiwiki
+    ikiwiki:
+      Installed: 3.20160509~bpo8+1
+      Candidate: 3.20160509~bpo8+1
+      Package pin: 3.20160509~bpo8+1
+      Version table:
+     *** 3.20160509~bpo8+1 600
+            100 http://httpredir.debian.org/debian/ jessie-backports/main amd64 Packages
+            100 /var/lib/dpkg/status
+
+> What version of CGI.pm?
+
+    # head -2 /usr/share/perl/5.20.2/CGI.pm 
+    package CGI;
+    require 5.008001;
+    # dpkg -S /usr/share/perl/5.20.2/CGI.pm
+    perl-modules: /usr/share/perl/5.20.2/CGI.pm
+    # apt-cache policy perl-modules
+    perl-modules:
+      Installed: 5.20.2-3+deb8u5
+      Candidate: 5.20.2-3+deb8u5
+      Version table:
+     *** 5.20.2-3+deb8u5 0
+            500 http://httpredir.debian.org/debian/ jessie/main amd64 Packages
+            100 /var/lib/dpkg/status
+
+"""]]
