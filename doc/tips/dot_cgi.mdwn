@@ -45,6 +45,8 @@ configuration changes should work anywhere.
 
 	ErrorDocument 404 /cgi-bin/ikiwiki.cgi
 
+* On Fedora (and RHEL, CentOS, and derivatives) you may need to change CGI mode from `06755` to `755` as suid/sgid bit is prohibited by `suexec`. ([Bug 1341568](https://bugzilla.redhat.com/show_bug.cgi?id=1341658))
+
 ## lighttpd
 
 Here is how to enable cgi on [lighttpd](http://www.lighttpd.net/) and
