@@ -13,3 +13,8 @@ The page says *"Note that this file should **not** be put in your wiki's directo
 One possible thing is security: Is it just a precaution or would anyone with "write" access to wiki be able to replace the file?
 
  --[[Martian]]
+
+> Anyone with the ability to delete/replace attachments via the web UI, or the ability
+> to commit directly to the VCS, would be able to replace it. That breaks ikiwiki's
+> security model, because replacing the setup file is sufficient to achieve
+> arbitrary code execution as the user running the CGI and VCS hooks. --[[smcv]]
