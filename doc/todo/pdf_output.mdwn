@@ -2,7 +2,7 @@ Some time ago there was a [[question|http://ikiwiki.info/forum/how_to_get_nice_p
 
 Note that for example dokuwiki has a [[nice plugin|http://danjer.doudouke.org/tech/dokutexit]] which converts the wiki page to latex and then to pdf and you can customize the latex-preamble.
 
-> I've actually written one, it's just not publicly released.  You can check it out from the "experimental" branch of my <a href="https://github.com/rubykat/ikiplugins">ikiplugins githup repo</a>.  It's called "html2pdf" and it depends on the static version of <a href="http://code.google.com/p/wkhtmltopdf/">wkhtmltopdf</a> rather than requiring a whole LaTeX setup. It's only been used on Ubuntu, so I can't say what problems there might be on other setups, but it works for me.  It's not properly documented; I'd appreciate some help with that.
+> I've actually written one, it's just not publicly released.  You can check it out from the "experimental" branch of my <a href="https://github.com/rubykat/ikiplugins">ikiplugins githup repo</a>.  It's called "html2pdf" and it depends on the static version of <a href="http://wkhtmltopdf.org">wkhtmltopdf</a> rather than requiring a whole LaTeX setup. It's only been used on Ubuntu, so I can't say what problems there might be on other setups, but it works for me.  It's not properly documented; I'd appreciate some help with that.
 > -- [[KathrynAndersen]]
 
 >> Thanks, I downloaded the git-repro and did `sudo cp html2pdf.pm /usr/share/perl5/IkiWiki/Plugin/` then I added html2pdf to the addplugins line in my setup-file (`mywiki.setup`) as well a new line `html2pdf_pages=>"/*",`. Then I did `sudo ikiwiki --setup mywiki.setup`. However there is no button or something like that which let's me create the pdf's
