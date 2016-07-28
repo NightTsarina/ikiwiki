@@ -1,9 +1,12 @@
-ikiwiki (3.20160510) UNRELEASED; urgency=medium
+ikiwiki (3.20160728) unstable; urgency=medium
 
+  * Explicitly remove current working directory from Perl's library
+    search path, mitigating CVE-2016-1238 (see #588017)
   * wrappers: allocate new environment dynamically, so we won't overrun
     the array if third-party plugins add multiple environment variables.
+  * Standards-Version: 3.9.8 (no changes required)
 
- -- Simon McVittie <smcv@debian.org>  Wed, 11 May 2016 09:15:51 +0100
+ -- Simon McVittie <smcv@debian.org>  Thu, 28 Jul 2016 10:41:56 +0100
 
 ikiwiki (3.20160509) unstable; urgency=high
 
