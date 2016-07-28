@@ -12,7 +12,7 @@ if (/INSTALLDIR_AUTOREPLACE/) {
 elsif (/VERSION_AUTOREPLACE/) {
 	$_=qq{our \$version="$ver";};
 }
-elsif (/^use lib/) {
+elsif (/^(?:use FindBin; *)?use lib/) {
 	# The idea here is to figure out if the libdir the Makefile.PL
 	# was configured to use is in perl's normal search path.
 	# If not, hard code it into ikiwiki.

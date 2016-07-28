@@ -25,10 +25,10 @@ if ($installed) {
 }
 else {
 	ok(! system("make -s ikiwiki.out"));
-	@base_command = qw(perl -I. ./ikiwiki.out
+	@base_command = ("perl", "-I".getcwd, qw(./ikiwiki.out
 		--underlaydir=underlays/basewiki
 		--set underlaydirbase=underlays
-		--templatedir=templates);
+		--templatedir=templates));
 }
 
 my $tmp = 't/tmp';

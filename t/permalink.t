@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use Cwd qw(getcwd);
 use Test::More;
 
 my $installed = $ENV{INSTALLED_TESTS};
@@ -11,10 +12,10 @@ if ($installed) {
 }
 else {
 	ok(! system("make -s ikiwiki.out"));
-	@command = qw(perl -I. ./ikiwiki.out
+	@command = ("perl", "-I".getcwd, qw(./ikiwiki.out
 		--underlaydir=underlays/basewiki
 		--set underlaydirbase=underlays
-		--templatedir=templates);
+		--templatedir=templates));
 }
 
 ok(! system("rm -rf t/tmp"));

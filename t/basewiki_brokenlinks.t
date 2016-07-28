@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use warnings;
 use strict;
+use Cwd qw(getcwd);
 use Test::More;
 
 my $installed = $ENV{INSTALLED_TESTS};
@@ -14,10 +15,10 @@ if ($installed) {
 else {
 	ok(! system("make -s ikiwiki.out"));
 	ok(! system("make underlay_install DESTDIR=`pwd`/t/tmp/install PREFIX=/usr >/dev/null"));
-	@command = qw(env LC_ALL=C perl -I. ./ikiwiki.out
+	@command = (qw(env LC_ALL=C perl), "-I".getcwd, qw(./ikiwiki.out
 		--underlaydir=t/tmp/install/usr/share/ikiwiki/basewiki
 		--set underlaydirbase=t/tmp/install/usr/share/ikiwiki
-		--templatedir=templates);
+		--templatedir=templates));
 }
 
 foreach my $plugin ("", "listdirectives") {

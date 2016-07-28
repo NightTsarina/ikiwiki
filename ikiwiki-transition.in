@@ -1,7 +1,8 @@
 #!/usr/bin/perl
+no lib '.';
 use warnings;
 use strict;
-use lib '.'; # For use in nonstandard directory, munged by Makefile.
+use FindBin; use lib $FindBin::Bin; # For use in nonstandard directory, munged by Makefile.
 use IkiWiki;
 use HTML::Entities;
 

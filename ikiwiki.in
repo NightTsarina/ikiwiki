@@ -1,9 +1,10 @@
 #!/usr/bin/perl
 package IkiWiki;
 
+no lib '.';
 use warnings;
 use strict;
-use lib '.'; # For use in nonstandard directory, munged by Makefile.
+use FindBin; use lib $FindBin::Bin; # For use in nonstandard directory, munged by Makefile.
 use IkiWiki 3.00;
 
 sub usage () {

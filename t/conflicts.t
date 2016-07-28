@@ -2,6 +2,7 @@
 # Tests for bugs relating to conflicting files in the srcdir
 use warnings;
 use strict;
+use Cwd qw(getcwd);
 use Test::More tests => 106;
 
 my $installed = $ENV{INSTALLED_TESTS};
@@ -13,10 +14,10 @@ if ($installed) {
 }
 else {
 	ok(! system("make -s ikiwiki.out"));
-	@command = qw(perl -I. ./ikiwiki.out
+	@command = ("perl", "-I".getcwd, qw(./ikiwiki.out
 		--underlaydir=underlays/basewiki
 		--set underlaydirbase=underlays
-		--templatedir=templates);
+		--templatedir=templates));
 }
 
 # setup

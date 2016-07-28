@@ -13,6 +13,7 @@ package IkiWiki;
 
 use warnings;
 use strict;
+use Cwd qw(getcwd);
 use Test::More;
 plan(skip_all => "Image::Magick not available")
 	unless eval q{use Image::Magick; 1};
@@ -27,10 +28,10 @@ if ($installed) {
 }
 else {
 	ok(! system("make -s ikiwiki.out"));
-	@command = qw(perl -I. ./ikiwiki.out
+	@command = ("perl", "-I".getcwd, qw(./ikiwiki.out
 		--underlaydir=underlays/basewiki
 		--set underlaydirbase=underlays
-		--templatedir=templates);
+		--templatedir=templates));
 }
 
 push @command, qw(--set usedirs=0 --plugin img t/tmp/in t/tmp/out --verbose);

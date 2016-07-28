@@ -22,10 +22,11 @@ if ($installed) {
 }
 else {
 	ok(! system("make -s ikiwiki.out"));
-	@command = qw(env PERL5LIB=t/tmp:blib/lib:blib/arch perl -I. ./ikiwiki.out
+	@command = (qw(env PERL5LIB=t/tmp:blib/lib:blib/arch perl),
+		"-I".getcwd, qw(./ikiwiki.out
 		--underlaydir=underlays/basewiki
 		--set underlaydirbase=underlays
-		--templatedir=templates);
+		--templatedir=templates));
 }
 
 writefile("test.setup", "t/tmp", <<EOF
