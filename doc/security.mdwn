@@ -531,3 +531,13 @@ resize. An upgrade is recommended for sites where an untrusted user is
 able to attach images. Upgrading ImageMagick to a version where
 CVE-2016-3714 has been fixed is also recommended, but at the time of
 writing no such version is available.
+
+## Perl CVE-2016-1238 (current working directory in search path)
+
+ikiwiki 3.20160728 attempts to mitigate [[!cve CVE-2016-1238]] by
+removing `'.'` from the Perl library search path. An attacker with write
+access to ikiwiki's current working directory could potentially use this
+vulnerability to execute arbitrary Perl code. An upgrade is recommended
+for sites where an untrusted user is able to attach files with arbitrary
+names and/or run a setuid ikiwiki wrapper with a working directory of
+their choice.
