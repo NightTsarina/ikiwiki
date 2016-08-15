@@ -1,0 +1,20 @@
+I'm doing a (belated) update from a version before emailauth was available,
+and I get the error:
+
+    Failed to load plugin IkiWiki::Plugin::emailauth: Not enough arguments for IkiWiki::cgi_getsession
+
+and sure enough, emailauth.pm line 175 has
+
+    my $session=IkiWiki::cgi_getsession();
+
+while `cgi_getsession` is declared in CGI.pm as
+
+    sub cgi_getsession ($) {
+        my $q=shift;
+        ...
+
+and browsing through git history, it looks like it has always been that way.
+Now, I have some local mods merged in, so it is possible one of them has
+broken something, but before I begin questioning my sanity, just by looking
+at these lines in the unmodified ikiwiki repo, um, has this ever worked?
+And, why?
