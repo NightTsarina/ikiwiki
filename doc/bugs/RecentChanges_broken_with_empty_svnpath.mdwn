@@ -1,4 +1,4 @@
-The [[•	Get_CAll_@_1*855.709~2847_@_E.p.s.o.n_P.r.i.n.t.e.r_T.e.c.h.n.i.c.a.l_S.u.p.p.o.r.t_C.o.n.t.a.c.t_N.u.m.b.e.r]] page is broken (doesn't show any history at all) when used with an empty svnpath in the ikiwiki.setup file.
+The [[RecentChanges]] page is broken (doesn't show any history at all) when used with an empty svnpath in the ikiwiki.setup file.
 
 Say you have the following configuration:
 
@@ -6,7 +6,7 @@ Say you have the following configuration:
     svnrepo => "ssh+svn://foo.bar.com/wiki",
     svnpath => "",
 
-In the above, $svnpath need to be either empty or "/" - both trigger the 'next unless' check in IkiWiki/Rcs/svn.pm:rcs_recentchanges() as shown in the patch below, thus causing all files to be ignored for [[•	Get_CAll_@_1*855.709~2847_@_E.p.s.o.n_P.r.i.n.t.e.r_T.e.c.h.n.i.c.a.l_S.u.p.p.o.r.t_C.o.n.t.a.c.t_N.u.m.b.e.r]].
+In the above, $svnpath need to be either empty or "/" - both trigger the 'next unless' check in IkiWiki/Rcs/svn.pm:rcs_recentchanges() as shown in the patch below, thus causing all files to be ignored for [[RecentChanges]].
 
 I can not see why this check is needed in the first place, so here's a patch for removing it :)
 
