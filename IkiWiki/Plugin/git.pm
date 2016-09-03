@@ -469,7 +469,7 @@ sub git_commit_info ($;$) {
 
 	my @raw_lines = run_or_die('git', 'log', @opts,
 		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
-		'-r', $sha1, '--', '.');
+		'-r', $sha1, '--no-renames', '--', '.');
 
 	my @ci;
 	while (my $parsed = parse_diff_tree(\@raw_lines)) {
