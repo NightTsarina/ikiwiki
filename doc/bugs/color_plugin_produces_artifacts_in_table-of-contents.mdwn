@@ -34,44 +34,45 @@ This is the proposed patch to the second solution. Tested with the latest versio
 
 
 
-diff --git a/IkiWiki/Plugin/toc.pm b/IkiWiki/Plugin/toc.pm
-index ac07b9a..5c2b056 100644
---- a/IkiWiki/Plugin/toc.pm
-+++ b/IkiWiki/Plugin/toc.pm
-@@ -57,6 +57,7 @@ sub format (@) {
-        my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
-        my $curlevel=$startlevel-1;
-        my $liststarted=0;
-+       my $headercollect=0;
-        my $indent=sub { "\t" x $curlevel };
-        $p->handler(start => sub {
-                my $tagname=shift;
-@@ -107,6 +108,7 @@ sub format (@) {
-                        $index.=&$indent."<li class=\"L$curlevel\">".
-                                "<a href=\"#$anchor\">";
-                        
-+                       $headercollect=1;
-                        $p->handler(text => sub {
-                                $page.=join("", @_);
-                                $index.=join("", @_);
-@@ -117,12 +119,17 @@ sub format (@) {
-                                        $p->handler(text => undef);
-                                        $p->handler(end => undef);
-                                        $index.="</a>\n";
-+                                       $headercollect=0;
-+                               }
-+                               else {
-+                                   $index.=join("",@_);
-                                }
-                                $page.=join("", @_);
-                        }, "tagname, text");
-                }
-                else {
-                        $page.=$text;
-+                       $index.=$text if ($headercollect);
-                }
-        }, "tagname, text");
-        $p->handler(default => sub { $page.=join("", @_) }, "text");
+    diff --git a/IkiWiki/Plugin/toc.pm b/IkiWiki/Plugin/toc.pm
+    index ac07b9a..5c2b056 100644
+    --- a/IkiWiki/Plugin/toc.pm
+    +++ b/IkiWiki/Plugin/toc.pm
+    @@ -57,6 +57,7 @@ sub format (@) {
+	    my $startlevel=($params{startlevel} ? $params{startlevel} : 0);
+	    my $curlevel=$startlevel-1;
+	    my $liststarted=0;
+    +	my $headercollect=0;
+	    my $indent=sub { "\t" x $curlevel };
+	    $p->handler(start => sub {
+		    my $tagname=shift;
+    @@ -107,6 +108,7 @@ sub format (@) {
+			    $index.=&$indent."<li class=\"L$curlevel\">".
+				    "<a href=\"#$anchor\">";
+
+    +			$headercollect=1;
+			    $p->handler(text => sub {
+				    $page.=join("", @_);
+				    $index.=join("", @_);
+    @@ -117,12 +119,17 @@ sub format (@) {
+					    $p->handler(text => undef);
+					    $p->handler(end => undef);
+					    $index.="</a>\n";
+    +					$headercollect=0;
+    +				}
+    +				else {
+    +				    $index.=join("",@_);
+				    }
+				    $page.=join("", @_);
+			    }, "tagname, text");
+		    }
+		    else {
+			    $page.=$text;
+    +			$index.=$text if ($headercollect);
+		    }
+	    }, "tagname, text");
+	    $p->handler(default => sub { $page.=join("", @_) }, "text");
+
 
 
 [[!tag  patch]]
