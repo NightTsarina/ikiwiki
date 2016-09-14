@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 package IkiWiki::Plugin::cvs;
 
-# Copyright (c) 2009 Amitai Schlair
+# Copyright (c) 2009 Amitai Schleier
 # All rights reserved.
 #
 # This code is derived from software contributed to ikiwiki
-# by Amitai Schlair.
+# by Amitai Schleier.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
