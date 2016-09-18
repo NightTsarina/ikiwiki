@@ -1,0 +1,32 @@
+Ikiwiki version: ikiwiki version 3.20160905~bpo8+1 running on Debian Jessie. 
+
+I have a page with directives something like the following: 
+
+    \[[!edittemplate match="worklog/" template="templates/worklog.tmpl" silent="yes"]]
+    \[[!inline pages="worklog/*" rootpage=worklog postformtext="Record worklog entry for {{$title}}" archive="no" show="0"]]
+
+The template `worklog.tmpl` looks something like this: 
+    
+    Time: <TMPL_VAR TIME>
+    Title: <TMPL_VAR TITLE> 
+    MTIME: <TMPL_VAR MTIME>
+
+The form to create a worklog renders, and I can click the button. I get the right template. But the rendered template looks something like
+
+    Time: 2016-09-18T04:57:54Z
+    Title:  
+    MTIME: 
+
+In other words: `<TMPL_VAR TIME>` works, and no other `TMPL_VAR` directives do (that I have been able to find). They all seem to be blank. I have been doing some source diving and it looks as if they ought to exist, but nothing is ever rendered. 
+
+My long-term goal is to make some custom template variables, but at this point I cannot even get the builtins working, other than `time`. 
+
+I am using a bunch of other plugins like `getfield` and `field`, but I do not know if any of them are the culprit. Here is the list from my `ikiwiki.setup` file: 
+
+          add_plugins => [qw{goodstuff prettydate templatebody
+          template edittemplate httpauth date
+          attachment inline field getfield ymlfront
+          listdirectives sqlite_search sidebar}],
+
+
+What am I doing wrong? 
