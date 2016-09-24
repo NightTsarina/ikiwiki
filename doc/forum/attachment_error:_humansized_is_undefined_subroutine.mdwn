@@ -1,0 +1,16 @@
+I've just setup another instance of ikiwiki on another server, and whilst I thought I did exactly the same as before (where it all worked fine) this time I'm getting a slightly strange behaviour that I can't quite figure out completely:
+
+Essentially, when I try and edit *some* pages I get this error:
+
+
+```Error: Undefined subroutine &IkiWiki::Plugin::filecheck::humansize called at /usr/share/perl5/IkiWiki/Plugin/attachment.pm line 329.```
+
+
+1. Everything is fine with attachments disabled
+2. I'm not sure why some pages work and some don't, I'm struggled to find the connections between them. This is a brand new site built from auto-blog.
+
+I have ```libfile-mimeinfo-perl``` installed. The sites attachments do work, I get the "Failed" message which I had on the previous server but fixed but uninstalling ```libcgi-pm-perl```, but that didn't fix it this time. It makes me think I'm missing some perl package but I don't know what that is.
+
+Where should I be looking?
+
+Thanks.
