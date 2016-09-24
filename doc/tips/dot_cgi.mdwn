@@ -139,7 +139,7 @@ Also, note that the `/tmp/fcgi.socket` file needs to be writable by the webserve
 
 2016-09-23 [[alexjj]]: On Debian Jessie creating the fcgi ikiwiki.service is not necessary. Install fcgiwrap, it'll auto start the fcgiwrap systemd service and then add the parameters in the virtual host:
 
-    location / {
+        location / {
                 try_files $uri $uri/ =404;
         }
         
