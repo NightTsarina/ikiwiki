@@ -137,14 +137,21 @@ example virtual host configuration:
 
 Also, note that the `/tmp/fcgi.socket` file needs to be writable by the webserver. I am also unsure as to the security of this setup, as I am using this only on my dev server. Needless to say that [[real fastcgi support|todo/fastcgi_or_modperl_installation_instructions]] would be great. ;) --[[anarcat]]
 
-2016-09-20 [[alexjj]]: On Debian Jessie creating the fcgi ikiwiki.service is not necessary. Install fcgiwrap and spawn-fcgi, it'll auto run the fcgiwrap systemd service and then add the parameters in the virtual host:
+2016-09-23 [[alexjj]]: On Debian Jessie creating the fcgi ikiwiki.service is not necessary. Install fcgiwrap, it'll auto start the fcgiwrap systemd service and then add the parameters in the virtual host:
 
-    location ~ /ikiwiki.cgi {
-               fastcgi_pass unix:/var/run/fcgiwrap.socket;
-               include fastcgi_params;
-               fastcgi_index ikiwiki.cgi;
-               fastcgi_param SCRIPT_FILENAME /home/USER/public_html/wiki/ikiwiki.cgi;
-    }
+    location / {
+                try_files $uri $uri/ =404;
+        }
+        
+        # Max size of file upload
+        client_max_body_size 10m;
+
+        location ~ .cgi {
+                #gzip off is recommended in /usr/share/doc/fcgiwrap/README.Debian
+                gzip off;
+                fastcgi_pass unix:/var/run/fcgiwrap.socket;
+                include /etc/nginx/fastcgi_params;
+        }
 
 ## boa
 
