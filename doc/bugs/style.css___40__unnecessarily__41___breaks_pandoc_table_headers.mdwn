@@ -1,0 +1,46 @@
+This may, strictly speaking, be a bug in the [[plugins/contrib/pandoc]] plugin, but I think it would be better to fix it in ikiwiki because of its kind (and maybe because I believe/hope pandoc will become the markdown dialect standard). For all I know it might not only affect pandoc tables. 
+
+When creating a simple table in pandoc-flavoured markdown,
+
+    1    2
+    ---  ---
+    3    4
+
+pandoc converts this to the html code
+
+	<table>
+	<thead>
+	<tr class="header">
+	<th align="left">1</th>
+	<th align="left">2</th>
+	</tr>
+	</thead>
+	<tbody>
+	<tr class="odd">
+	<td align="left">3</td>
+	<td align="left">4</td>
+	</tr>
+	</tbody>
+	</table>
+
+`<tr class="header">` causes it to be affected by `style.css`'s
+
+	.header {
+		margin: 0;
+		font-size: 140%;
+		font-weight: bold;
+		line-height: 1em;
+		display: block;
+	}
+
+(more specifically by `display: block;`), which results in all header cells to cramp together in the first column.
+
+The fix is easy: In `style.css` change `.header {` to `.header tr:not(.header) {`.
+
+Alternatively, add the following code.
+
+	tr.header {
+		display: table-row;
+		}
+
+I've added that last code snippet to my `custom.css` file. I admit `.header tr:not(.header)` is not especially elegant, but then again, I have almost no knowledge of CSS. There might be better solutions. (I don't even know why `display: block;` breaks the tables or why changing it to `display: table-header;` doesn't fix it but `display: table-row;` does :D )
