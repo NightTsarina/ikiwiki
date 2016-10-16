@@ -1,0 +1,42 @@
+Hey everyone, I have a local "laptop" wiki which uses git as it's version control system. I would like my wiki to be mirrored by my hoster (nearlyfreespeech) so I can browse and edit it on the go as well as have an offsite backup of it if my laptop should ever die. In the last three hours I figured out that:
+
+1. I need to install ikiwiki on my nearlyfreespeech site
+2. I need to create a remote for my local repository on my nfs site.
+3. I need to setup ikiwiki on nfs
+4. I need to mirror/sync continously my local laptop repo with the main repo on my server (probably through the remote)
+
+So far I figured out parts of this plan. My status quo is the following:
+
+- laptop:
+    - srcdir: ~/wiki
+    - destdir: ~/sites/wiki (this shouldn't matter since it points to my local webserver setup)
+    - repository: ~/wiki.git
+- nfs:
+    - srcdir: /home/private/wiki
+    - destdir: /home/public
+    - repository: /home/private/2wiki.git
+    - remote repository: /home/private/wiki.git (configured as a remote named "nfswiki" on my laptop)
+
+On my laptop I can now go into ~/wiki, edit some files and afterwards can invoke ikiwiki --setup ~/wiki.setup which will generate a local version of my site for me. If I want to update my server copy, I can go into ~/wiki do git add ., git commit -m "Update", git push nfswiki master (which I hope is the correct way of doing things???). Afterwards I should have a (bare) repo on my nfs server with the same contents as my local (bare) repo, since I setup my remote with my local (bare) repo, which gets updated whenever I update my working copy (= srcdir).
+
+On my server I have installed ikiwiki more or less as described [here](https://ikiwiki.info/tips/nearlyfreespeech/). I setup this wiki by using the auto.setup method. It works. I basically have an empty wiki waiting to be filled.
+
+But how do I now create the plumbing necessary to let me…
+
+- connect the remote of my laptop repo to the nfs repo?
+- connect the nfs repo to the laptop repo through my remote?
+- edit either wiki (local/nfs) and the changes get synced to both wikis?
+
+Here my sparse understanding (which is still a generous way to put it) of git is simply not enough.
+
+Pages I have checked out:
+
+- [nearlyfreespeech](https://ikiwiki.info/tips/nearlyfreespeech/)
+- [distributed wikis](https://ikiwiki.info/tips/distributed_wikis/)
+- [laptop wiki with git](https://ikiwiki.info/tips/laptop_wiki_with_git/)
+- [byhand](https://ikiwiki.info/setup/byhand/)
+- [setup](https://ikiwiki.info/setup/)
+
+I'm very very thankful for any suggestions, since I have myself commited to solve any problems (and at least kinda understand what is involved here) to make this work at least to a degree that I can replicate the results in similar situations.
+
+Thanks for reading and for any tips that you can offer towards making me understand this admittedly complicated and involved question.
