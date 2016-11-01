@@ -29,3 +29,35 @@ except when the bootstrap theme is enabled.
 >> [See for yourself](https://notabug.org/iikb/ikiwiki-theme-bootstrap/commit/7f30630b6255336a34b14f70f2a674e15cd797a0) - don't mind the red parts.
 >> This is tedious and boring, it's easier to tamper with template files
 >> than to rewrite bootstrap by copying and pasting it. --[[desci]]
+
+> Is there any progress here? Someone wanting to build a Bootstrap 4
+> should look at working with this branch or a custom theme?
+>
+> For the record, there is a Debian package for
+> [font-awesome][]. [mkdocs-bootstrap][] uses
+> that. [sphinx-bootstrap-theme][] is another bootstrap-based theme
+> packaged in Debian. Both ship embeded copies of Bootstrap 3, so
+> there are prior offenses to just shipping the code within the
+> package.
+>
+> It would be preferable to package bootstrap 4 seperately of
+> course... I made a [RFP for packaging B4](http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=842828).
+>
+> I was somehow under the impression that Boostrap 4 was lighter, but
+> looking at the actual code on the alpha site makes me think that it
+> is actually larger, which reduces the incentives for me to do the
+> upgrade... Along with jquery, it's a 100KB overhead on first load,
+> something that shouldn't be neglected. The [alpha site][] is around
+> 1MB and 25 requests! My site can currently squeeze all of jquery and
+> boostrap in 80KB (including the glyphs font) and it's only that
+> stupid Mozilla Fira font that makes it blow up to 300KB... So I am
+> not sure I would switch to B4 - maybe doing a B3 merge would be best
+> for now, especially since Bootstrap 3 is already packaged in Debian?
+> -- [[anarcat]]
+
+[alpha site]: https://v4-alpha.getbootstrap.com
+[bug #704330]: https://bugs.debian.org/704330
+[orphaned]: https://tracker.debian.org/pkg/twitter-bootstrap
+[sphinx-bootstrap-theme]: https://tracker.debian.org/pkg/sphinx-bootstrap-theme
+[mkdocs-bootstrap]: https://tracker.debian.org/pkg/mkdocs-bootstrap
+[font-awesome]: https://tracker.debian.org/pkg/fonts-font-awesome
