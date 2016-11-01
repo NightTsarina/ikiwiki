@@ -134,3 +134,7 @@ Thoughts anyone? --[[Joey]]
 >>> --[[smcv]]a
 
 >>> Email addresses are now cloaked in commits, using foaf:mbox_sha1sum. --[[Joey]]
+
+Note that the implementation of this lives in [[plugins/emailauth]].
+
+Also, I have found a similar system called [Portier](https://portier.github.io) that enables email-based auth but enhances it with [[plugins/openid]] connect... Maybe ikiwiki's authentication system could follow the standards set by Portier? OpenID connect discovery is particularly interesting, as it could mean that using your GMail address to login to ikiwiki would mean that you go straight to the more secure OpenID / Oauth authentication instead of relying on the slow "send email and click link" system... --[[anarcat]]
