@@ -86,7 +86,7 @@ sub preprocess (@) {
 	if (exists $params{limit}) {
 		my $i=0;
 		my %show;
-		foreach my $key (sort { $counts{$b} <=> $counts{$a} } keys %counts) {
+		foreach my $key (sort { $counts{$b} <=> $counts{$a} || $a cmp $b } keys %counts) {
 			last if ++$i > $params{limit};
 			$show{$key}=$counts{$key};
 		}
@@ -100,7 +100,7 @@ sub preprocess (@) {
 				htmllink($params{page}, $params{destpage}, $_, noimageinline => 1, linktext => linktext($_, %params)).
 				"</td><td>".$counts{$_}."</td></tr>"
 			}
-			sort { $counts{$b} <=> $counts{$a} } keys %counts).
+			sort { $counts{$b} <=> $counts{$a} || $a cmp $b } keys %counts).
 			"\n</table>\n" ;
 	}
 	else {
