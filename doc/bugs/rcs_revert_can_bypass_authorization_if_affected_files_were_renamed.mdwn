@@ -1,0 +1,14 @@
+1. We have a `$srcdir/writable/page.mdwn` source file in Git.
+2. ikiwiki is configured to allow edits via the CGI in `writable/*`,
+   but nowhere else.
+2. Modify `$srcdir/writable/page.mdwn`, commit ⇒ commit `$id`.
+3. `git mv $srcdir/writable/page.mdwn $srcdir/read-only/page.mdwn`
+
+⇒ The web interface allows reverting commit `$id` (presumably because
+it changes files only in `$srcdir/writable`). This operation
+effectively modifies `$srcdir/read-only/page.mdwn`, which feels wrong.
+My guess is that `check_canchange` does not take into account that Git
+will automatically detect that the file affected by the to-be-reverted
+commit has moved, and modify the file in its new location
+when reverting.
+
