@@ -58,11 +58,6 @@ sub cgitemplate ($$$;@) {
 	
 	my $template=template("page.tmpl");
 
-	my $topurl = $config{url};
-	if (defined $cgi && ! $config{w3mmode} && ! $config{reverse_proxy}) {
-		$topurl = $cgi->url;
-	}
-
 	my $page="";
 	if (exists $params{page}) {
 		$page=delete $params{page};
