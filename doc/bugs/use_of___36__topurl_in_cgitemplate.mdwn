@@ -7,3 +7,22 @@ In commits by Simon McVittie on Oct 5, 2014, the following was added to `cgitemp
 
 I am trying to determine what was intended by this change.  The variable `$topurl` is not used again in this function, so this is essentially dead code.
 --[[blipvert]]
+
+> If you look at `git log -p IkiWiki/CGI.pm` you'll see that *at the time*, `$topurl`
+> was used further down the function. Later in the branch, [commit 33f6026
+"In html5 mode, generate a host- or protocol-relative <base> for the
+CGI"](http://source.ikiwiki.branchable.com/?p=source.git;a=commit;h=33f60260b233d0310ce6dd4304304a516595b906)
+> made this conditional on `! $config{html5}`.
+>
+> Somewhat later,
+> [commit 490a1ec
+"Always produce HTML5 doctype and new attributes, but not new
+elements"](http://source.ikiwiki.branchable.com/?p=source.git;a=commit;h=490a1eca7bed841848765b495a73fbc56e4808f4)
+> repurposed `$config{html5}` from "use HTML5" to "use new HTML5 elements" -
+> which meant that [commit a052771
+"Now that we're always using HTML5, <base href> can be
+relative"](http://source.ikiwiki.branchable.com/?p=source.git;a=commit;h=a05277128732beb351aa696c49d337086414ffb6)
+> could remove the only code that used `$topurl`.
+>
+> You are correct to say that computing `$topurl` is now dead code, and I
+> have removed it. [[done]] --[[smcv]]
