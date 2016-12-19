@@ -44,3 +44,19 @@ Alternatively, add the following code.
 		}
 
 I've added that last code snippet to my `custom.css` file. I admit `.header tr:not(.header)` is not especially elegant, but then again, I have almost no knowledge of CSS. There might be better solutions. (I don't even know why `display: block;` breaks the tables or why changing it to `display: table-header;` doesn't fix it but `display: table-row;` does :D )
+
+> This is essentially a conflict between ikiwiki's expectations for the
+> definitions of CSS classes, and pandoc's expectations. The ikiwiki
+> templates use `class="header"` to mean essentially the same thing
+> as a HTML5 `<header>`, while Pandoc assumes a different meaning.
+>
+> I think `div.header, header.header {` is probably a cleaner fix,
+> and I have [[done]] that.
+>
+> FYI, `display: block` breaks the tables because it makes the `<tr>` not
+> be treated as a table row by the browser's layout engine.
+> `table-header` is not a valid
+> [value for the CSS `display` attribute](https://developer.mozilla.org/en-US/docs/Web/CSS/display)
+> so that won't work.
+>
+> --[[smcv]]
