@@ -546,3 +546,20 @@ vulnerability to execute arbitrary Perl code. An upgrade is recommended
 for sites where an untrusted user is able to attach files with arbitrary
 names and/or run a setuid ikiwiki wrapper with a working directory of
 their choice.
+
+## Editing restriction bypass for git revert
+
+intrigeri discovered that a web or git user could revert a change to a
+page they are not allowed to edit, if the change being reverted was made
+before the page was moved from a location where that user had permission
+to edit it. For example, if a file is moved from `drafts/policy.mdwn`
+(editable by less-trusted users) to `policy.mdwn` (only editable
+by more-trusted users), a less-trusted user could revert a change
+that was made to `drafts/policy.mdwn` prior to that move, and it would
+result in `policy.mdwn` being altered.
+
+This affects sites with the `git` VCS and the `recentchanges` plugin,
+which are both used in most ikiwiki installations.
+
+This bug was reported on 2016-12-17. The fixed version 3.20161219
+was released on 2016-12-19.
