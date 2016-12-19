@@ -561,8 +561,12 @@ result in `policy.mdwn` being altered.
 This affects sites with the `git` VCS and the `recentchanges` plugin,
 which are both used in most ikiwiki installations.
 
-This bug was reported on 2016-12-17. The fixed version 3.20161219
-was released on 2016-12-19. ([[!cve CVE-2016-10026]])
+This bug was reported on 2016-12-17. A partially fixed version
+3.20161219 was released on 2016-12-19, but the solution used in that
+version was not effective with git versions older than 2.8.0.
+
+([[!cve CVE-2016-10026]] represents the original vulnerability.
+OVE-20161226-0002 represents the incomplete fix in 3.20161219.)
 
 ## Commit metadata forgery via CGI::FormBuilder context-dependent APIs
 

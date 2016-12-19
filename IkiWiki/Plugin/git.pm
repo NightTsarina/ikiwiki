@@ -425,6 +425,16 @@ sub parse_diff_tree ($) {
 	}
 	shift @{ $dt_ref } if $dt_ref->[0] =~ /^$/;
 
+	$ci{details} = [parse_changed_files($dt_ref)];
+
+	return \%ci;
+}
+
+sub parse_changed_files {
+	my $dt_ref = shift;
+
+	my @files;
+
 	# Modified files.
 	while (my $line = shift @{ $dt_ref }) {
 		if ($line =~ m{^
@@ -442,7 +452,7 @@ sub parse_diff_tree ($) {
 			my $status = shift(@tmp);
 
 			if (length $file) {
-				push @{ $ci{'details'} }, {
+				push @files, {
 					'file'      => decode_git_file($file),
 					'sha1_from' => $sha1_from[0],
 					'sha1_to'   => $sha1_to,
@@ -456,7 +466,7 @@ sub parse_diff_tree ($) {
 		last;
 	}
 
-	return \%ci;
+	return @files;
 }
 
 sub git_commit_info ($;$) {
@@ -955,10 +965,14 @@ sub rcs_preprevert ($) {
 	my $rev=shift;
 	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
 
+	my @undo;      # undo stack for cleanup in case of an error
+
+	ensure_committer();
+
 	# Examine changes from root of git repo, not from any subdir,
 	# in order to see all changes.
 	my ($subdir, $rootdir) = git_find_root();
-	in_git_dir($rootdir, sub {
+	return in_git_dir($rootdir, sub {
 		my @commits=git_commit_info($sha1, 1);
 	
 		if (! @commits) {
@@ -971,7 +985,68 @@ sub rcs_preprevert ($) {
 			error gettext("you are not allowed to revert a merge");
 		}
 
+		# Due to the presence of rename-detection, we cannot actually
+		# see what will happen in a revert without trying it.
+		# But we can guess, which is enough to rule out most changes
+		# that we won't allow reverting.
 		git_parse_changes(1, @commits);
+
+		my $failure;
+		my @ret;
+		# If it looks OK, do it for real, on a branch.
+		eval {
+			IkiWiki::disable_commit_hook();
+			push @undo, sub {
+				IkiWiki::enable_commit_hook();
+			};
+			my $branch = "ikiwiki_revert_${sha1}"; # supposed to be unique
+
+			push @undo, sub {
+				run_or_cry('git', 'branch', '-D', $branch) if $failure;
+			};
+			if (run_or_non('git', 'rev-parse', '--quiet', '--verify', $branch)) {
+				run_or_non('git', 'branch', '-D', $branch);
+			}
+			run_or_die('git', 'branch', $branch, $config{gitmaster_branch});
+
+			push @undo, sub {
+				if (!run_or_cry('git', 'checkout', '--quiet', $config{gitmaster_branch})) {
+					run_or_cry('git', 'checkout','-f', '--quiet', $config{gitmaster_branch});
+				}
+			};
+			run_or_die('git', 'checkout', '--quiet', $branch);
+
+			run_or_die('git', 'revert', '--no-commit', $sha1);
+			run_or_non('git', 'commit', '-m', "revert $sha1", '-a');
+
+			# Re-switch to master.
+			run_or_die('git', 'checkout', '--quiet', $config{gitmaster_branch});
+
+			my @raw_lines;
+			@raw_lines = run_or_die('git', 'diff', '--pretty=raw',
+				'--raw', '--abbrev=40', '--always', '--no-renames',
+				"ikiwiki_revert_${sha1}..");
+
+			my $ci = {
+				details => [parse_changed_files(\@raw_lines)],
+			};
+
+			@ret = git_parse_changes(0, $ci);
+		};
+		$failure = $@;
+
+		# Process undo stack (in reverse order).  By policy cleanup
+		# actions should normally print a warning on failure.
+		while (my $handle = pop @undo) {
+			$handle->();
+		}
+
+		if ($failure) {
+			my $message = sprintf(gettext("Failed to revert commit %s"), $sha1);
+			error("$message\n$failure\n");
+		}
+
+		return @ret;
 	});
 }
 
@@ -982,11 +1057,11 @@ sub rcs_revert ($) {
 
 	ensure_committer();
 
-	if (run_or_non('git', 'revert', '--no-commit', $sha1)) {
+	if (run_or_non('git', 'merge', '--ff-only', "ikiwiki_revert_$sha1")) {
 		return undef;
 	}
 	else {
-		run_or_die('git', 'reset', '--hard');
+		run_or_non('git', 'branch', '-D', "ikiwiki_revert_$sha1");
 		return sprintf(gettext("Failed to revert commit %s"), $sha1);
 	}
 }
