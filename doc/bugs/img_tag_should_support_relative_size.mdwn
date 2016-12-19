@@ -1,1 +1,29 @@
 The size parameter should accept relative values, like "100%". When including large images, I would like it to be scaled relative to the available space.
+
+> 100% of what?
+>
+> The purpose of `[[!img]]` is to scale large images, for example photos, down
+> to a more web-suitable size. When ikiwiki rebuilds the website, it cannot
+> know how large visitors' web browser windows are going to be, so it cannot
+> scale the image relative to the size of a visitor's web browser window.
+>
+> The closest thing it could do would be to not scale the image at all
+> (potentially a very large download if it's a high-resolution photo),
+> and use CSS or `<img sizes=...>` to ask the visitor's web browser to scale
+> the image relative to something the web browser knows, such as the viewport
+> size.
+>
+> With HTML5 `<img sizes="..." srcset="...">`, it would be possible to extend
+> `[[!img]]` to produce more than one resized image and let the visitor's
+> browser choose which one to download, but I'm not sure what a good syntax
+> for that would look like...
+>
+> "The available space" is not something we can use, because current HTML
+> standards do not offer that. In HTML5 it is possible to base sizes on the
+> viewport (window) size, but the available space (excluding sidebars etc.)
+> is not something the browser can know in advance, because it needs to know
+> how large images are before it carries out layout calculations, and it
+> needs to carry out layout calculations before it can know the available
+> space.
+>
+> --[[smcv]]
