@@ -1,7 +1,17 @@
 ikiwiki (3.20160906) UNRELEASED; urgency=medium
 
+  [ Joey Hess ]
   * inline: Prevent creating a file named ".mdwn" when the
     postform is submitted with an empty title.
+
+  [ Simon McVittie ]
+  * Security: tell `git revert` not to follow renames. If it does, then
+    renaming a file can result in a revert writing outside the wiki srcdir
+    or altering a file that the reverting user should not be able to alter,
+    an authorization bypass. Thanks, intrigeri
+  * cgitemplate: remove some dead code. Thanks, blipvert
+  * Restrict CSS matches against header class to not break
+    Pandoc tables with header rows. Thanks, karsk
 
  -- Joey Hess <id@joeyh.name>  Wed, 21 Sep 2016 13:48:32 -0400
 
