@@ -1,3 +1,9 @@
+ikiwiki (3.20161220) UNRELEASED; urgency=medium
+
+  * Add CVE references for CVE-2016-10026
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 21 Dec 2016 13:03:07 +0000
+
 ikiwiki (3.20161219) unstable; urgency=medium
 
   [ Joey Hess ]
@@ -8,7 +14,7 @@ ikiwiki (3.20161219) unstable; urgency=medium
   * Security: tell `git revert` not to follow renames. If it does, then
     renaming a file can result in a revert writing outside the wiki srcdir
     or altering a file that the reverting user should not be able to alter,
-    an authorization bypass. Thanks, intrigeri
+    an authorization bypass. Thanks, intrigeri. (CVE-2016-10026)
   * cgitemplate: remove some dead code. Thanks, blipvert
   * Restrict CSS matches against header class to not break
     Pandoc tables with header rows. Thanks, karsk
