@@ -567,7 +567,10 @@ sub rcs_commit (@) {
 	# Check to see if the page has been changed by someone else since
 	# rcs_prepedit was called.
 	my $cur    = git_sha1_file($params{file});
-	my ($prev) = $params{token} =~ /^($sha1_pattern)$/; # untaint
+	my $prev;
+	if (defined $params{token}) {
+		($prev) = $params{token} =~ /^($sha1_pattern)$/; # untaint
+	}
 
 	if (defined $cur && defined $prev && $cur ne $prev) {
 		my $conflict = merge_past($prev, $params{file}, $dummy_commit_msg);
