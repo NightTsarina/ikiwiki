@@ -548,7 +548,7 @@ sub formbuilder_setup (@) {
 		# their buttons, which is why this hook must be run last.
 		# The canrename/canremove hooks already ensure this is forbidden
 		# at the backend level, so this is only UI sugar.
-		if (istranslation($form->field("page"))) {
+		if (istranslation(scalar $form->field("page"))) {
 			map {
 				for (my $i = 0; $i < @{$params{buttons}}; $i++) {
 					if (@{$params{buttons}}[$i] eq $_) {

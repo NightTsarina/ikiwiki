@@ -557,11 +557,12 @@ sub editcomment ($$) {
 		}
 		
 		$postcomment=1;
-		my $ok=IkiWiki::check_content(content => $form->field('editcontent'),
-			subject => $form->field('subject'),
+		my $ok=IkiWiki::check_content(
+			content => scalar $form->field('editcontent'),
+			subject => scalar $form->field('subject'),
 			$config{comments_allowauthor} ? (
-				author => $form->field('author'),
-				url => $form->field('url'),
+				author => scalar $form->field('author'),
+				url => scalar $form->field('url'),
 			) : (),
 			page => $location,
 			cgi => $cgi,
@@ -601,7 +602,7 @@ sub editcomment ($$) {
 				length $form->field('subject')) {
 				$message = sprintf(
 					gettext("Added a comment: %s"),
-					$form->field('subject'));
+					scalar $form->field('subject'));
 			}
 
 			IkiWiki::rcs_add($file);

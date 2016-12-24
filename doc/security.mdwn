@@ -563,3 +563,25 @@ which are both used in most ikiwiki installations.
 
 This bug was reported on 2016-12-17. The fixed version 3.20161219
 was released on 2016-12-19. ([[!cve CVE-2016-10026]])
+
+## Commit metadata forgery via CGI::FormBuilder context-dependent APIs
+
+When CGI::FormBuilder->field("foo") is called in list context (and
+in particular in the arguments to a subroutine that takes named
+arguments), it can return zero or more values for foo from the CGI
+request, rather than the expected single value. This breaks the usual
+Perl parsing convention for named arguments, similar to CVE-2014-1572
+in Bugzilla (which was caused by a similar API design issue in CGI.pm).
+
+In ikiwiki, this appears to have been exploitable in two places, both
+of them relatively minor:
+
+* in the comments plugin, an attacker who was able to post a comment
+  could give it a user-specified author and author-URL even if the wiki
+  configuration did not allow for that, by crafting multiple values
+  for other fields
+* in the editpage plugin, an attacker who was able to edit a page
+  could potentially forge commit authorship (attribute their edit to
+  someone else) by crafting multiple values for the rcsinfo field
+
+(OVE-20161226-0001)

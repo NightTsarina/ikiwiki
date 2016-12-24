@@ -165,7 +165,7 @@ sub formbuilder (@) {
 	
 	# Generate the attachment list only after having added any new
 	# attachments.
-	$form->tmpl_param("attachment_list" => [attachment_list($form->field('page'))]);
+	$form->tmpl_param("attachment_list" => [attachment_list(scalar $form->field('page'))]);
 }
 
 sub attachment_holding_location {

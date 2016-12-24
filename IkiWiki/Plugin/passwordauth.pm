@@ -231,7 +231,7 @@ sub formbuilder_setup (@) {
 				$form->field(
 					name => "password",
 					validate => sub {
-						checkpassword($form->field("name"), shift);
+						checkpassword(scalar $form->field("name"), shift);
 					},
 				);
 			}
@@ -395,7 +395,7 @@ sub formbuilder (@) {
 		if ($form->submitted eq "Save Preferences" && $form->validate) {
 			my $user_name=$form->field('name');
 			if (defined $form->field("password") && length $form->field("password")) {
-				setpassword($user_name, $form->field('password'));
+				setpassword($user_name, scalar $form->field('password'));
 			}
 		}
 	}

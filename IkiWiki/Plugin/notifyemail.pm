@@ -34,7 +34,7 @@ sub formbuilder (@) {
 	}
 	elsif ($form->submitted eq "Save Preferences" && $form->validate &&
 	       defined $form->field("subscriptions")) {
-		setsubscriptions($username, $form->field('subscriptions'));
+		setsubscriptions($username, scalar $form->field('subscriptions'));
 	}
 }
 

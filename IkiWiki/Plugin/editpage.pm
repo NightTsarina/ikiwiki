@@ -431,7 +431,7 @@ sub cgi_editpage ($$) {
 			$conflict=rcs_commit(
 				file => $file,
 				message => $message,
-				token => $form->field("rcsinfo"),
+				token => scalar $form->field("rcsinfo"),
 				session => $session,
 			);
 			enable_commit_hook();

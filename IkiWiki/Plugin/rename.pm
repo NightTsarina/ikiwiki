@@ -259,7 +259,7 @@ sub formbuilder (@) {
 		my $session=$params{session};
 
 		if ($form->submitted eq "Rename" && $form->field("do") eq "edit") {
-			rename_start($q, $session, 0, $form->field("page"));
+			rename_start($q, $session, 0, scalar $form->field("page"));
 		}
 		elsif ($form->submitted eq "Rename Attachment") {
 			my @selected=map { Encode::decode_utf8($_) } $q->param("attachment_select");
@@ -312,7 +312,7 @@ sub sessioncgi ($$) {
 			# performed in check_canrename later.
 			my $srcfile=IkiWiki::possibly_foolish_untaint($pagesources{$src})
 				if exists $pagesources{$src};
-			my $dest=IkiWiki::possibly_foolish_untaint(titlepage($form->field("new_name")));
+			my $dest=IkiWiki::possibly_foolish_untaint(titlepage(scalar $form->field("new_name")));
 			my $destfile=$dest;
 			if (! $q->param("attachment")) {
 				my $type=$q->param('type');
