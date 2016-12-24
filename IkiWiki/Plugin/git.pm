@@ -600,17 +600,23 @@ sub rcs_commit_helper (@) {
 		elsif (defined $params{session}->remote_addr()) {
 			$u=$params{session}->remote_addr();
 		}
-		if (defined $u) {
+		if (length $u) {
 			$u=encode_utf8(IkiWiki::cloak($u));
 			$ENV{GIT_AUTHOR_NAME}=$u;
+		}
+		else {
+			$u = 'anonymous';
 		}
 		if (defined $params{session}->param("nickname")) {
 			$u=encode_utf8($params{session}->param("nickname"));
 			$u=~s/\s+/_/g;
 			$u=~s/[^-_0-9[:alnum:]]+//g;
 		}
-		if (defined $u) {
+		if (length $u) {
 			$ENV{GIT_AUTHOR_EMAIL}="$u\@web";
+		}
+		else {
+			$ENV{GIT_AUTHOR_EMAIL}='anonymous@web';
 		}
 	}
 
