@@ -1,0 +1,31 @@
+#!/usr/bin/perl
+
+use Cwd qw(getcwd abs_path);
+my $pwd;
+my $src;
+
+BEGIN {
+	$pwd = getcwd;
+	$src = abs_path("$pwd/../../..");
+}
+
+use IkiWiki::Setup::Standard {
+	wikiname => "ikiwiki_manual_test_git_revert",
+	srcdir => "$pwd/git/doc",
+	destdir => "$pwd/html",
+	templatedir => "$src/templates",
+	underlaydirbase => "$src/underlays",
+	underlaydir => "$src/underlays/basewiki",
+	verbose => 1,
+	syslog => 0,
+	usedirs => 0,
+	w3mmode => 1,
+	url => "file://$pwd/html",
+	cgiurl => 'file:///$LIB/ikiwiki-w3m.cgi/ikiwiki_manual_test_git_revert.cgi',
+	add_plugins => [qw{recentchanges anonok lockedit}],
+	locked_pages => '!writable/*',
+	anonok_pagespec => 'writable/*',
+	disable_plugins => [qw{passwordauth emailauth openid}],
+	rcs => 'git',
+	gitorigin_branch => '',
+}
