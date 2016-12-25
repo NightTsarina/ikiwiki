@@ -1,0 +1,13 @@
+Hello,
+I am writing a plugin that uses the timezone. Ikiwiki.pm [defines the default timezone](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=IkiWiki.pm;h=fa71f479107a2388fde2fe00a67bfa2daa4fb3a9;hb=HEAD#l638) to ``:/etc/localtime``. The problem is that I do not know how to parse this.
+
+In my code, I have lines like ``$now = DateTime->now(time_zone => $config{timezone});`` or ``$thistime = DateTime->from_epoch(epoch=>$thistime, time_zone=>$config{timezone});``. They work well when timezone is something like ``Europe/Paris``, but with the default ``:/etc/localtime``, I get the error message ``The timezone ':/etc/localtime' is an invalid name.``
+
+Is there a way to automatically recognize both ``Europe/Paris`` and ``:/etc/localtime``? Or should I add something like the following in my code?
+
+    if ($config{timezone} eq ":/etc/localtime") {
+        $config{timezone} = DateTime::TimeZone->new(name=>'local')->name();
+    }
+
+Regards,  
+[[Louis|spalax]]
