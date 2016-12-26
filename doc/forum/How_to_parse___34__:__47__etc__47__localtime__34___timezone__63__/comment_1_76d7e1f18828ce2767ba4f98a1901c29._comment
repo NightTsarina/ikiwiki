@@ -1,0 +1,22 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="comment 1"
+ date="2016-12-26T19:26:25Z"
+ content="""
+`:/etc/localtime` is a glibc'ism, added to solve
+[[bugs/without_timezone,_excessive_statting_causes_slowness]]. It means
+\"read the contents or symlink destination of `/etc/localtime` and use that as
+the active time zone\".
+
+I would not recommend parsing that string, although you could.
+
+ikiwiki sets the `TZ` environment variable to either `$config{timezone}`
+or that default value during startup; so can't your plugin just use
+local time unconditionally, via `time_zone => 'local'`, without ever
+caring about which specific time zone that means?
+
+(For example, the standard `IkiWiki::formattime` uses `localtime($time)` which
+is basically a non-OO version of
+`DateTime->from_epoch(epoch => $time, time_zone => 'local')`.)
+"""]]
