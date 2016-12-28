@@ -153,13 +153,13 @@ sub genwrapper {
 	}
 }
 
-my $git_dir=undef;
-my $prefix=undef;
+my @git_dir_stack;
+my $prefix;
 
 sub in_git_dir ($$) {
-	$git_dir=shift;
+	unshift @git_dir_stack, shift;
 	my @ret=shift->();
-	$git_dir=undef;
+	shift @git_dir_stack;
 	$prefix=undef;
 	return @ret;
 }
@@ -178,13 +178,13 @@ sub safe_git (&@) {
 	if (!$pid) {
 		# In child.
 		# Git commands want to be in wc.
-		if (! defined $git_dir) {
+		if (! @git_dir_stack) {
 			chdir $config{srcdir}
 			    or error("cannot chdir to $config{srcdir}: $!");
 		}
 		else {
-			chdir $git_dir
-			    or error("cannot chdir to $git_dir: $!");
+			chdir $git_dir_stack[0]
+			    or error("cannot chdir to $git_dir_stack[0]: $!");
 		}
 		exec @cmdline or error("Cannot exec '@cmdline': $!");
 	}
@@ -919,7 +919,7 @@ sub git_parse_changes {
 				die $@ if $@;
 				my $fh;
 				($fh, $path)=File::Temp::tempfile(undef, UNLINK => 1);
-				my $cmd = "cd $git_dir && ".
+				my $cmd = "cd $git_dir_stack[0] && ".
 				          "git show $detail->{sha1_to} > '$path'";
 				if (system($cmd) != 0) {
 					error("failed writing temp file '$path'.");
