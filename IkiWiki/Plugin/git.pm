@@ -5,6 +5,7 @@ use warnings;
 use strict;
 use IkiWiki;
 use Encode;
+use File::Path qw{remove_tree};
 use URI::Escape q{uri_escape_utf8};
 use open qw{:utf8 :std};
 
@@ -162,6 +163,40 @@ sub in_git_dir ($$) {
 	shift @git_dir_stack;
 	$prefix=undef;
 	return @ret;
+}
+
+# Loosely based on git-new-workdir from git contrib.
+sub create_temp_working_dir ($$) {
+	my $rootdir = shift;
+	my $branch = shift;
+	my $working = "$rootdir/.git/ikiwiki-temp-working";
+	remove_tree($working);
+
+	foreach my $dir ("", ".git") {
+		if (!mkdir("$working/$dir")) {
+			error("Unable to create $working/$dir: $!");
+		}
+	}
+
+	# Hooks are deliberately not included: we will commit to the temporary
+	# branch that is used in the temporary working tree, and we don't want
+	# to run the post-commit hook there.
+	#
+	# logs/refs is not included because we don't use the reflog.
+	# remotes, rr-cache, svn are similarly excluded.
+	foreach my $link ("config", "refs", "objects", "info", "packed-refs") {
+		if (!symlink("../../$link", "$working/.git/$link")) {
+			error("Unable to create symlink $working/.git/$link: $!");
+		}
+	}
+
+	open (my $out, '>', "$working/.git/HEAD") or
+		error("failed to write $working.git/HEAD: $!");
+	print $out "ref: refs/heads/$branch\n" or
+		error("failed to write $working.git/HEAD: $!");
+	close $out or
+		error("failed to write $working.git/HEAD: $!");
+	return $working;
 }
 
 sub safe_git (&@) {
@@ -993,7 +1028,6 @@ sub rcs_preprevert ($) {
 
 		my $failure;
 		my @ret;
-		# If it looks OK, do it for real, on a branch.
 		eval {
 			IkiWiki::disable_commit_hook();
 			push @undo, sub {
@@ -1009,23 +1043,22 @@ sub rcs_preprevert ($) {
 			}
 			run_or_die('git', 'branch', $branch, $config{gitmaster_branch});
 
+			my $working = create_temp_working_dir($rootdir, $branch);
+
 			push @undo, sub {
-				if (!run_or_cry('git', 'checkout', '--quiet', $config{gitmaster_branch})) {
-					run_or_cry('git', 'checkout','-f', '--quiet', $config{gitmaster_branch});
-				}
+				remove_tree($working);
 			};
-			run_or_die('git', 'checkout', '--quiet', $branch);
 
-			run_or_die('git', 'revert', '--no-commit', $sha1);
-			run_or_non('git', 'commit', '-m', "revert $sha1", '-a');
-
-			# Re-switch to master.
-			run_or_die('git', 'checkout', '--quiet', $config{gitmaster_branch});
+			in_git_dir($working, sub {
+				run_or_die('git', 'checkout', '--quiet', '--force', $branch);
+				run_or_die('git', 'revert', '--no-commit', $sha1);
+				run_or_die('git', 'commit', '-m', "revert $sha1", '-a');
+			});
 
 			my @raw_lines;
 			@raw_lines = run_or_die('git', 'diff', '--pretty=raw',
 				'--raw', '--abbrev=40', '--always', '--no-renames',
-				"ikiwiki_revert_${sha1}..");
+				"..${branch}");
 
 			my $ci = {
 				details => [parse_changed_files(\@raw_lines)],
