@@ -62,7 +62,7 @@ sub write_setup_file {
 		cgiurl => 'http://example.com/cgi-bin/ikiwiki.cgi',
 		cgi_wrapper => getcwd.'/t/tmp/ikiwiki.cgi',
 		cgi_wrappermode => '0751',
-		add_plugins => [qw(anonok lockedit recentchanges)],
+		add_plugins => [qw(anonok attachment lockedit recentchanges)],
 		disable_plugins => [qw(emailauth openid passwordauth)],
 		anonok_pagespec => 'writable/*',
 		locked_pages => '!writable/*',
@@ -158,6 +158,7 @@ sub test {
 	write_old_file('doc/writable/one.mdwn', 't/tmp/in', 'This is the first test page');
 	write_old_file('doc/writable/two.mdwn', 't/tmp/in', 'This is the second test page');
 	write_old_file('doc/writable/three.mdwn', 't/tmp/in', 'This is the third test page');
+	write_old_file('doc/writable/three.bin', 't/tmp/in', 'An attachment');
 
 	unless ($installed) {
 		ok(! system(qw(cp -pRL doc/wikiicons t/tmp/in/doc/)));
@@ -214,11 +215,16 @@ sub test {
 	# Another edit
 	writefile('doc/writable/three.mdwn', 't/tmp/in',
 		'Also new content for the third page');
+	unlink('t/tmp/in/doc/writable/three.bin');
+	writefile('doc/writable/three.bin', 't/tmp/in',
+		'Changed attachment');
 	run_git(['add', '.']);
 	run_git(['commit', '-m', 'Git commit']);
 	ok(-e 't/tmp/out/writable/three/index.html');
 	$content = readfile('t/tmp/out/writable/three/index.html');
 	like($content, qr{Also new content for the third page});
+	$content = readfile('t/tmp/out/writable/three.bin');
+	like($content, qr{Changed attachment});
 	my $third_revertable_sha1 = run_git(['rev-list', '--max-count=1', 'HEAD']);
 	isnt($orig_sha1, $third_revertable_sha1);
 	isnt($second_revertable_sha1, $third_revertable_sha1);
@@ -293,6 +299,8 @@ sub test {
 	ok(-e 't/tmp/out/writable/three/index.html');
 	$content = readfile('t/tmp/out/writable/three/index.html');
 	like($content, qr{This is the third test page});
+	$content = readfile('t/tmp/out/writable/three.bin');
+	like($content, qr{An attachment});
 }
 
 test();
