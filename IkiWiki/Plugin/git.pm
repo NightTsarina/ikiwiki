@@ -199,12 +199,12 @@ sub create_temp_working_dir ($$) {
 	return $working;
 }
 
-sub safe_git (&@) {
+sub safe_git {
 	# Start a child process safely without resorting to /bin/sh.
 	# Returns command output (in list content) or success state
 	# (in scalar context), or runs the specified data handler.
 
-	my ($error_handler, $data_handler, @cmdline) = @_;
+	my %params = @_;
 
 	my $pid = open my $OUT, "-|";
 
@@ -221,7 +221,7 @@ sub safe_git (&@) {
 			chdir $git_dir_stack[0]
 			    or error("cannot chdir to $git_dir_stack[0]: $!");
 		}
-		exec @cmdline or error("Cannot exec '@cmdline': $!");
+		exec @{$params{cmdline}} or error("Cannot exec '@{$params{cmdline}}': $!");
 	}
 	# In parent.
 
@@ -236,24 +236,24 @@ sub safe_git (&@) {
 
 		chomp;
 
-		if (! defined $data_handler) {
+		if (! defined $params{data_handler}) {
 			push @lines, $_;
 		}
 		else {
-			last unless $data_handler->($_);
+			last unless $params{data_handler}->($_);
 		}
 	}
 
 	close $OUT;
 
-	$error_handler->("'@cmdline' failed: $!") if $? && $error_handler;
+	$params{error_handler}->("'@{$params{cmdline}}' failed: $!") if $? && $params{error_handler};
 
 	return wantarray ? @lines : ($? == 0);
 }
 # Convenient wrappers.
-sub run_or_die ($@) { safe_git(\&error, undef, @_) }
-sub run_or_cry ($@) { safe_git(sub { warn @_ }, undef, @_) }
-sub run_or_non ($@) { safe_git(undef, undef, @_) }
+sub run_or_die ($@) { safe_git(error_handler => \&error, cmdline => \@_) }
+sub run_or_cry ($@) { safe_git(error_handler => sub { warn @_ }, cmdline => \@_) }
+sub run_or_non ($@) { safe_git(cmdline => \@_) }
 
 sub ensure_committer {
 	if (! length $ENV{GIT_AUTHOR_NAME} || ! length $ENV{GIT_COMMITTER_NAME}) {
@@ -824,7 +824,11 @@ sub rcs_diff ($;$) {
 			if (@lines || $line=~/^diff --git/);
 		return 1;
 	};
-	safe_git(undef, $addlines, "git", "show", $sha1);
+	safe_git(
+		error_handler => undef,
+		data_handler => $addlines,
+		cmdline => ["git", "show", $sha1],
+	);
 	if (wantarray) {
 		return @lines;
 	}
