@@ -221,6 +221,11 @@ sub safe_git {
 			chdir $git_dir_stack[0]
 			    or error("cannot chdir to $git_dir_stack[0]: $!");
 		}
+
+		if ($params{stdout}) {
+			open(STDOUT, '>&', $params{stdout}) or error("Cannot reopen stdout: $!");
+		}
+
 		exec @{$params{cmdline}} or error("Cannot exec '@{$params{cmdline}}': $!");
 	}
 	# In parent.
@@ -958,11 +963,11 @@ sub git_parse_changes {
 				die $@ if $@;
 				my $fh;
 				($fh, $path)=File::Temp::tempfile(undef, UNLINK => 1);
-				my $cmd = "cd $git_dir_stack[0] && ".
-				          "git show $detail->{sha1_to} > '$path'";
-				if (system($cmd) != 0) {
-					error("failed writing temp file '$path'.");
-				}
+				safe_git(
+					error_handler => sub { error("failed writing temp file '$path': ".shift."."); },
+					stdout => $fh,
+					cmdline => ['git', 'show', $detail->{sha1_to}],
+				);
 			}
 
 			push @rets, {
