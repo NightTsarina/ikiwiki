@@ -1099,7 +1099,7 @@ sub rcs_revert ($) {
 
 	ensure_committer();
 
-	if (run_or_non('git', 'merge', '--ff-only', "ikiwiki_revert_$sha1")) {
+	if (run_or_non('git', 'cherry-pick', '--no-commit', "ikiwiki_revert_$sha1")) {
 		return undef;
 	}
 	else {
