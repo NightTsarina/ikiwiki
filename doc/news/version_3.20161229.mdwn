@@ -1,0 +1,23 @@
+ikiwiki 3.20161229 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * Security: force CGI::FormBuilder-&gt;field to scalar context where
+     necessary, avoiding unintended function argument injection
+     analogous to [[!cve CVE-2014-1572]]. In ikiwiki this could be used to
+     forge commit metadata, but thankfully nothing more serious.
+     ([[!cve CVE-2016-9646]])
+   * Security: try revert operations in a temporary working tree before
+     approving them. Previously, automatic rename detection could result in
+     a revert writing outside the wiki srcdir or altering a file that the
+     reverting user should not be able to alter, an authorization bypass.
+     ([[!cve CVE-2016-10026]] represents the original vulnerability.)
+     The incomplete fix released in 3.20161219 was not effective for git
+     versions prior to 2.8.0rc0.
+     ([[!cve CVE-2016-9645]] represents that incomplete solution.)
+   * Add CVE references for CVE-2016-10026
+   * Add automated test for using the CGI with git, including
+     CVE-2016-10026
+     - Build-depend on libipc-run-perl for better build-time test coverage
+   * Add missing ikiwiki.setup for the manual test for CVE-2016-10026
+   * git: don't issue a warning if the rcsinfo CGI parameter is undefined
+   * git: do not fail to commit changes with a recent git version
+     and an anonymous committer"""]]
