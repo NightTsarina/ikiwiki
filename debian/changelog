@@ -4,14 +4,15 @@ ikiwiki (3.20161220) UNRELEASED; urgency=medium
     necessary, avoiding unintended function argument injection
     analogous to CVE-2014-1572. In ikiwiki this could be used to
     forge commit metadata, but thankfully nothing more serious.
-    (OVE-20161226-0001)
-  * Security: try revert operations before approving them. Previously,
-    automatic rename detection could result in a revert writing outside
-    the wiki srcdir or altering a file that the reverting user should not be
-    able to alter, an authorization bypass. The incomplete fix released in
-    3.20161219 was not effective for git versions prior to 2.8.0rc0.
-    (CVE-2016-10026 represents the original vulnerability)
-    (OVE-20161226-0002 represents the incomplete fix released in 3.20161219)
+    (CVE-2016-9646)
+  * Security: try revert operations in a temporary working tree before
+    approving them. Previously, automatic rename detection could result in
+    a revert writing outside the wiki srcdir or altering a file that the
+    reverting user should not be able to alter, an authorization bypass.
+    (CVE-2016-10026 represents the original vulnerability.)
+    The incomplete fix released in 3.20161219 was not effective for git
+    versions prior to 2.8.0rc0.
+    (CVE-2016-9645 represents that incomplete solution.)
   * Add CVE references for CVE-2016-10026
   * Add automated test for using the CGI with git, including
     CVE-2016-10026
