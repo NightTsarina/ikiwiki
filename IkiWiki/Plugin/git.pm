@@ -1038,10 +1038,6 @@ sub rcs_preprevert ($) {
 		my $failure;
 		my @ret;
 		eval {
-			IkiWiki::disable_commit_hook();
-			push @undo, sub {
-				IkiWiki::enable_commit_hook();
-			};
 			my $branch = "ikiwiki_revert_${sha1}"; # supposed to be unique
 
 			push @undo, sub {
