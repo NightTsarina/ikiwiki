@@ -160,7 +160,7 @@ EOF
 	if (defined $config{wrapper_background_command} &&
 	    length $config{wrapper_background_command}) {
 	    	my $background_command=delete $config{wrapper_background_command};
-		$set_background_command=~s/"/\\"/g;
+		$background_command=~s/"/\\"/g;
 		$set_background_command='#define BACKGROUND_COMMAND "'.$background_command.'"';
 	}
 
