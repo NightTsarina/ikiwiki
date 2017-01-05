@@ -213,7 +213,11 @@ sub safe_git {
 	if (!$pid) {
 		# In child.
 		# Git commands want to be in wc.
-		if (! @git_dir_stack) {
+		if (exists $params{chdir}) {
+			chdir $params{chdir}
+			    or error("cannot chdir to $params{chdir}: $!");
+		}
+		elsif (! @git_dir_stack) {
 			chdir $config{srcdir}
 			    or error("cannot chdir to $config{srcdir}: $!");
 		}
@@ -259,6 +263,18 @@ sub safe_git {
 sub run_or_die ($@) { safe_git(error_handler => \&error, cmdline => \@_) }
 sub run_or_cry ($@) { safe_git(error_handler => sub { warn @_ }, cmdline => \@_) }
 sub run_or_non ($@) { safe_git(cmdline => \@_) }
+sub run_or_die_in ($$@) {
+	my $dir = shift;
+	safe_git(chdir => $dir, error_handler => \&error, cmdline => \@_);
+}
+sub run_or_cry_in ($$@) {
+	my $dir = shift;
+	safe_git(chdir => $dir, error_handler => sub { warn @_ }, cmdline => \@_);
+}
+sub run_or_non_in ($$@) {
+	my $dir = shift;
+	safe_git(chdir => $dir, cmdline => \@_);
+}
 
 sub ensure_committer {
 	if (! length $ENV{GIT_AUTHOR_NAME} || ! length $ENV{GIT_COMMITTER_NAME}) {
@@ -1041,12 +1057,12 @@ sub rcs_preprevert ($) {
 			my $branch = "ikiwiki_revert_${sha1}"; # supposed to be unique
 
 			push @undo, sub {
-				run_or_cry('git', 'branch', '-D', $branch) if $failure;
+				run_or_cry_in($rootdir, 'git', 'branch', '-D', $branch) if $failure;
 			};
-			if (run_or_non('git', 'rev-parse', '--quiet', '--verify', $branch)) {
-				run_or_non('git', 'branch', '-D', $branch);
+			if (run_or_non_in($rootdir, 'git', 'rev-parse', '--quiet', '--verify', $branch)) {
+				run_or_non_in($rootdir, 'git', 'branch', '-D', $branch);
 			}
-			run_or_die('git', 'branch', $branch, $config{gitmaster_branch});
+			run_or_die_in($rootdir, 'git', 'branch', $branch, $config{gitmaster_branch});
 
 			my $working = create_temp_working_dir($rootdir, $branch);
 
@@ -1054,14 +1070,12 @@ sub rcs_preprevert ($) {
 				remove_tree($working);
 			};
 
-			in_git_dir($working, sub {
-				run_or_die('git', 'checkout', '--quiet', '--force', $branch);
-				run_or_die('git', 'revert', '--no-commit', $sha1);
-				run_or_die('git', 'commit', '-m', "revert $sha1", '-a');
-			});
+			run_or_die_in($working, 'git', 'checkout', '--quiet', '--force', $branch);
+			run_or_die_in($working, 'git', 'revert', '--no-commit', $sha1);
+			run_or_die_in($working, 'git', 'commit', '-m', "revert $sha1", '-a');
 
 			my @raw_lines;
-			@raw_lines = run_or_die('git', 'diff', '--pretty=raw',
+			@raw_lines = run_or_die_in($rootdir, 'git', 'diff', '--pretty=raw',
 				'--raw', '--abbrev=40', '--always', '--no-renames',
 				"..${branch}");
 
