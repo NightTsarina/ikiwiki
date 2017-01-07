@@ -142,7 +142,12 @@ sub run_git {
 	my ($in, $out);
 	ok(run(['git', @$args], \$in, \$out, init => sub {
 		chdir 't/tmp/in' or die $!;
-		$ENV{EMAIL} = 'nobody@ikiwiki-tests.invalid';
+		my $name = 'The IkiWiki Tests';
+		my $email = 'nobody@ikiwiki-tests.invalid';
+		if ($args->[0] eq 'commit') {
+			$ENV{GIT_AUTHOR_NAME} = $ENV{GIT_COMMITTER_NAME} = $name;
+			$ENV{GIT_AUTHOR_EMAIL} = $ENV{GIT_COMMITTER_EMAIL} = $email;
+		}
 	}), "$desc at $filename:$line");
 	return $out;
 }
