@@ -154,17 +154,6 @@ sub genwrapper {
 	}
 }
 
-my $git_dir=undef;
-my $prefix=undef;
-
-sub in_git_dir ($$) {
-	$git_dir=shift;
-	my @ret=shift->();
-	$git_dir=undef;
-	$prefix=undef;
-	return @ret;
-}
-
 # Loosely based on git-new-workdir from git contrib.
 sub create_temp_working_dir ($$) {
 	my $rootdir = shift;
@@ -208,22 +197,15 @@ sub safe_git {
 
 	my $pid = open my $OUT, "-|";
 
+	error("Working directory not specified") unless defined $params{chdir};
 	error("Cannot fork: $!") if !defined $pid;
 
 	if (!$pid) {
 		# In child.
 		# Git commands want to be in wc.
-		if (exists $params{chdir}) {
+		if ($params{chdir} ne '.') {
 			chdir $params{chdir}
 			    or error("cannot chdir to $params{chdir}: $!");
-		}
-		elsif (! defined $git_dir) {
-			chdir $config{srcdir}
-			    or error("cannot chdir to $config{srcdir}: $!");
-		}
-		else {
-			chdir $git_dir
-			    or error("cannot chdir to $git_dir: $!");
 		}
 
 		if ($params{stdout}) {
@@ -260,9 +242,6 @@ sub safe_git {
 	return wantarray ? @lines : ($? == 0);
 }
 # Convenient wrappers.
-sub run_or_die ($@) { safe_git(error_handler => \&error, cmdline => \@_) }
-sub run_or_cry ($@) { safe_git(error_handler => sub { warn @_ }, cmdline => \@_) }
-sub run_or_non ($@) { safe_git(cmdline => \@_) }
 sub run_or_die_in ($$@) {
 	my $dir = shift;
 	safe_git(chdir => $dir, error_handler => \&error, cmdline => \@_);
@@ -276,18 +255,20 @@ sub run_or_non_in ($$@) {
 	safe_git(chdir => $dir, cmdline => \@_);
 }
 
-sub ensure_committer {
+sub ensure_committer ($) {
+	my $dir = shift;
+
 	if (! length $ENV{GIT_AUTHOR_NAME} || ! length $ENV{GIT_COMMITTER_NAME}) {
-		my $name = join('', run_or_non("git", "config", "user.name"));
+		my $name = join('', run_or_non_in($dir, "git", "config", "user.name"));
 		if (! length $name) {
-			run_or_die("git", "config", "user.name", "IkiWiki");
+			run_or_die_in($dir, "git", "config", "user.name", "IkiWiki");
 		}
 	}
 
 	if (! length $ENV{GIT_AUTHOR_EMAIL} || ! length $ENV{GIT_COMMITTER_EMAIL}) {
-		my $email = join('', run_or_non("git", "config", "user.email"));
+		my $email = join('', run_or_non_in($dir, "git", "config", "user.email"));
 		if (! length $email) {
-			run_or_die("git", "config", "user.email", "ikiwiki.info");
+			run_or_die_in($dir, "git", "config", "user.email", "ikiwiki.info");
 		}
 	}
 }
@@ -329,7 +310,7 @@ sub merge_past ($$$) {
 	my @undo;      # undo stack for cleanup in case of an error
 	my $conflict;  # file content with conflict markers
 
-	ensure_committer();
+	ensure_committer($config{srcdir});
 
 	eval {
 		# Hide local changes from Git by renaming the modified file.
@@ -349,30 +330,30 @@ sub merge_past ($$$) {
 		my $branch = "throw_away_${sha1}"; # supposed to be unique
 
 		# Create a throw-away branch and rewind backward.
-		push @undo, sub { run_or_cry('git', 'branch', '-D', $branch) };
-		run_or_die('git', 'branch', $branch, $sha1);
+		push @undo, sub { run_or_cry_in($config{srcdir}, 'git', 'branch', '-D', $branch) };
+		run_or_die_in($config{srcdir}, 'git', 'branch', $branch, $sha1);
 
 		# Switch to throw-away branch for the merge operation.
 		push @undo, sub {
-			if (!run_or_cry('git', 'checkout', $config{gitmaster_branch})) {
-				run_or_cry('git', 'checkout','-f',$config{gitmaster_branch});
+			if (!run_or_cry_in($config{srcdir}, 'git', 'checkout', $config{gitmaster_branch})) {
+				run_or_cry_in($config{srcdir}, 'git', 'checkout','-f',$config{gitmaster_branch});
 			}
 		};
-		run_or_die('git', 'checkout', $branch);
+		run_or_die_in($config{srcdir}, 'git', 'checkout', $branch);
 
 		# Put the modified file in _this_ branch.
 		rename($hidden, $target)
 		    or error("rename '$hidden' to '$target' failed: $!");
 
 		# _Silently_ commit all modifications in the current branch.
-		run_or_non('git', 'commit', '-m', $message, '-a');
+		run_or_non_in($config{srcdir}, 'git', 'commit', '-m', $message, '-a');
 		# ... and re-switch to master.
-		run_or_die('git', 'checkout', $config{gitmaster_branch});
+		run_or_die_in($config{srcdir}, 'git', 'checkout', $config{gitmaster_branch});
 
 		# Attempt to merge without complaining.
-		if (!run_or_non('git', 'pull', '--no-commit', '.', $branch)) {
+		if (!run_or_non_in($config{srcdir}, 'git', 'pull', '--no-commit', '.', $branch)) {
 			$conflict = readfile($target);
-			run_or_die('git', 'reset', '--hard');
+			run_or_die_in($config{srcdir}, 'git', 'reset', '--hard');
 		}
 	};
 	my $failure = $@;
@@ -388,7 +369,11 @@ sub merge_past ($$$) {
 	return $conflict;
 }
 
-sub decode_git_file ($) {
+{
+my %prefix_cache;
+
+sub decode_git_file ($$) {
+	my $dir=shift;
 	my $file=shift;
 
 	# git does not output utf-8 filenames, but instead
@@ -399,20 +384,22 @@ sub decode_git_file ($) {
 	}
 
 	# strip prefix if in a subdir
-	if (! defined $prefix) {
-		($prefix) = run_or_die('git', 'rev-parse', '--show-prefix');
-		if (! defined $prefix) {
-			$prefix="";
+	if (! defined $prefix_cache{$dir}) {
+		($prefix_cache{$dir}) = run_or_die_in($dir, 'git', 'rev-parse', '--show-prefix');
+		if (! defined $prefix_cache{$dir}) {
+			$prefix_cache{$dir}="";
 		}
 	}
-	$file =~ s/^\Q$prefix\E//;
+	$file =~ s/^\Q$prefix_cache{$dir}\E//;
 
 	return decode("utf8", $file);
 }
+}
 
-sub parse_diff_tree ($) {
+sub parse_diff_tree ($$) {
 	# Parse the raw diff tree chunk and return the info hash.
 	# See git-diff-tree(1) for the syntax.
+	my $dir = shift;
 	my $dt_ref = shift;
 
 	# End of stream?
@@ -481,12 +468,13 @@ sub parse_diff_tree ($) {
 	}
 	shift @{ $dt_ref } if $dt_ref->[0] =~ /^$/;
 
-	$ci{details} = [parse_changed_files($dt_ref)];
+	$ci{details} = [parse_changed_files($dir, $dt_ref)];
 
 	return \%ci;
 }
 
-sub parse_changed_files {
+sub parse_changed_files ($$) {
+	my $dir = shift;
 	my $dt_ref = shift;
 
 	my @files;
@@ -509,7 +497,7 @@ sub parse_changed_files {
 
 			if (length $file) {
 				push @files, {
-					'file'      => decode_git_file($file),
+					'file'      => decode_git_file($dir, $file),
 					'sha1_from' => $sha1_from[0],
 					'sha1_to'   => $sha1_to,
 					'mode_from' => $mode_from[0],
@@ -525,20 +513,20 @@ sub parse_changed_files {
 	return @files;
 }
 
-sub git_commit_info ($;$) {
+sub git_commit_info ($$;$) {
 	# Return an array of commit info hashes of num commits
 	# starting from the given sha1sum.
-	my ($sha1, $num) = @_;
+	my ($dir, $sha1, $num) = @_;
 
 	my @opts;
 	push @opts, "--max-count=$num" if defined $num;
 
-	my @raw_lines = run_or_die('git', 'log', @opts,
+	my @raw_lines = run_or_die_in($dir, 'git', 'log', @opts,
 		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
 		'-r', $sha1, '--no-renames', '--', '.');
 
 	my @ci;
-	while (my $parsed = parse_diff_tree(\@raw_lines)) {
+	while (my $parsed = parse_diff_tree($dir, \@raw_lines)) {
 		push @ci, $parsed;
 	}
 
@@ -555,7 +543,7 @@ sub rcs_find_changes ($) {
 	# merge commit where some files were not really added.
 	# This is why the code below verifies that the files really
 	# exist.
-	my @raw_lines = run_or_die('git', 'log',
+	my @raw_lines = run_or_die_in($config{srcdir}, 'git', 'log',
 		'--pretty=raw', '--raw', '--abbrev=40', '--always', '-c',
 		'--no-renames', , '--reverse',
 		'-r', "$oldrev..HEAD", '--', '.');
@@ -565,7 +553,7 @@ sub rcs_find_changes ($) {
 	my %deleted;
 	my $nullsha = 0 x 40;
 	my $newrev=$oldrev;
-	while (my $ci = parse_diff_tree(\@raw_lines)) {
+	while (my $ci = parse_diff_tree($config{srcdir}, \@raw_lines)) {
 		$newrev=$ci->{sha1};
 		foreach my $i (@{$ci->{details}}) {
 			my $file=$i->{file};
@@ -587,14 +575,16 @@ sub rcs_find_changes ($) {
 	return (\%changed, \%deleted, $newrev);
 }
 
-sub git_sha1_file ($) {
+sub git_sha1_file ($$) {
+	my $dir=shift;
 	my $file=shift;
-	git_sha1("--", $file);
+	return git_sha1($dir, "--", $file);
 }
 
-sub git_sha1 (@) {
+sub git_sha1 ($@) {
+	my $dir = shift;
 	# Ignore error since a non-existing file might be given.
-	my ($sha1) = run_or_non('git', 'rev-list', '--max-count=1', 'HEAD',
+	my ($sha1) = run_or_non_in($dir, 'git', 'rev-list', '--max-count=1', 'HEAD',
 		'--', @_);
 	if (defined $sha1) {
 		($sha1) = $sha1 =~ m/($sha1_pattern)/; # sha1 is untainted now
@@ -603,16 +593,15 @@ sub git_sha1 (@) {
 }
 
 sub rcs_get_current_rev () {
-	git_sha1();
+	return git_sha1($config{srcdir});
 }
 
 sub rcs_update () {
 	# Update working directory.
-
-	ensure_committer();
+	ensure_committer($config{srcdir});
 
 	if (length $config{gitorigin_branch}) {
-		run_or_cry('git', 'pull', '--prune', $config{gitorigin_branch});
+		run_or_cry_in($config{srcdir}, 'git', 'pull', '--prune', $config{gitorigin_branch});
 	}
 }
 
@@ -621,7 +610,7 @@ sub rcs_prepedit ($) {
 	# This will be later used in rcs_commit if a merge is required.
 	my ($file) = @_;
 
-	return git_sha1_file($file);
+	return git_sha1_file($config{srcdir}, $file);
 }
 
 sub rcs_commit (@) {
@@ -632,7 +621,7 @@ sub rcs_commit (@) {
 
 	# Check to see if the page has been changed by someone else since
 	# rcs_prepedit was called.
-	my $cur    = git_sha1_file($params{file});
+	my $cur = git_sha1_file($config{srcdir}, $params{file});
 	my $prev;
 	if (defined $params{token}) {
 		($prev) = $params{token} =~ /^($sha1_pattern)$/; # untaint
@@ -686,7 +675,7 @@ sub rcs_commit_helper (@) {
 		}
 	}
 
-	ensure_committer();
+	ensure_committer($config{srcdir});
 
 	$params{message} = IkiWiki::possibly_foolish_untaint($params{message});
 	my @opts;
@@ -711,10 +700,10 @@ sub rcs_commit_helper (@) {
 		push @opts, '--', $params{file};
 	}
 	# git commit returns non-zero if nothing really changed.
-	# So we should ignore its exit status (hence run_or_non).
-	if (run_or_non('git', 'commit', '-m', $params{message}, '-q', @opts)) {
+	# So we should ignore its exit status (hence run_or_non_in).
+	if (run_or_non_in($config{srcdir}, 'git', 'commit', '-m', $params{message}, '-q', @opts)) {
 		if (length $config{gitorigin_branch}) {
-			run_or_cry('git', 'push', $config{gitorigin_branch}, $config{gitmaster_branch});
+			run_or_cry_in($config{srcdir}, 'git', 'push', $config{gitorigin_branch}, $config{gitmaster_branch});
 		}
 	}
 	
@@ -727,9 +716,8 @@ sub rcs_add ($) {
 
 	my ($file) = @_;
 
-	ensure_committer();
-
-	run_or_cry('git', 'add', '--', $file);
+	ensure_committer($config{srcdir});
+	run_or_cry_in($config{srcdir}, 'git', 'add', '--', $file);
 }
 
 sub rcs_remove ($) {
@@ -737,17 +725,15 @@ sub rcs_remove ($) {
 
 	my ($file) = @_;
 
-	ensure_committer();
-
-	run_or_cry('git', 'rm', '-f', '--', $file);
+	ensure_committer($config{srcdir});
+	run_or_cry_in($config{srcdir}, 'git', 'rm', '-f', '--', $file);
 }
 
 sub rcs_rename ($$) {
 	my ($src, $dest) = @_;
 
-	ensure_committer();
-
-	run_or_cry('git', 'mv', '-f', '--', $src, $dest);
+	ensure_committer($config{srcdir});
+	run_or_cry_in($config{srcdir}, 'git', 'mv', '-f', '--', $src, $dest);
 }
 
 sub rcs_recentchanges ($) {
@@ -759,7 +745,7 @@ sub rcs_recentchanges ($) {
 	error($@) if $@;
 
 	my @rets;
-	foreach my $ci (git_commit_info('HEAD', $num || 1)) {
+	foreach my $ci (git_commit_info($config{srcdir}, 'HEAD', $num || 1)) {
 		# Skip redundant commits.
 		next if ($ci->{'comment'} && @{$ci->{'comment'}}[0] eq $dummy_commit_msg);
 
@@ -846,6 +832,7 @@ sub rcs_diff ($;$) {
 		return 1;
 	};
 	safe_git(
+		chdir => $config{srcdir},
 		error_handler => undef,
 		data_handler => $addlines,
 		cmdline => ["git", "show", $sha1],
@@ -867,7 +854,7 @@ sub findtimes ($$) {
 
 	if (! keys %time_cache) {
 		my $date;
-		foreach my $line (run_or_die('git', 'log',
+		foreach my $line (run_or_die_in($config{srcdir}, 'git', 'log',
 				'--pretty=format:%at',
 				'--name-only', '--relative')) {
 			if (! defined $date && $line =~ /^(\d+)$/) {
@@ -877,7 +864,7 @@ sub findtimes ($$) {
 				$date=undef;
 			}
 			else {
-				my $f=decode_git_file($line);
+				my $f=decode_git_file($config{srcdir}, $line);
 
 				if (! $time_cache{$f}) {
 					$time_cache{$f}[0]=$date; # mtime
@@ -929,7 +916,8 @@ sub git_find_root {
 
 }
 
-sub git_parse_changes {
+sub git_parse_changes ($$@) {
+	my $dir = shift;
 	my $reverted = shift;
 	my @changes = @_;
 
@@ -980,6 +968,7 @@ sub git_parse_changes {
 				my $fh;
 				($fh, $path)=File::Temp::tempfile(undef, UNLINK => 1);
 				safe_git(
+					chdir => $dir,
 					error_handler => sub { error("failed writing temp file '$path': ".shift."."); },
 					stdout => $fh,
 					cmdline => ['git', 'show', $detail->{sha1_to}],
@@ -1013,9 +1002,7 @@ sub rcs_receive () {
 		# (Also, if a subdir is involved, we don't want to chdir to
 		# it and only see changes in it.)
 		# The pre-receive hook already puts us in the right place.
-		in_git_dir(".", sub {
-			push @rets, git_parse_changes(0, git_commit_info($oldrev."..".$newrev));
-		});
+		push @rets, git_parse_changes('.', 0, git_commit_info('.', $oldrev."..".$newrev));
 	}
 
 	return reverse @rets;
@@ -1027,14 +1014,15 @@ sub rcs_preprevert ($) {
 
 	my @undo;      # undo stack for cleanup in case of an error
 
-	ensure_committer();
-
 	# Examine changes from root of git repo, not from any subdir,
 	# in order to see all changes.
 	my ($subdir, $rootdir) = git_find_root();
-	return in_git_dir($rootdir, sub {
-		my @commits=git_commit_info($sha1, 1);
-	
+	ensure_committer($rootdir);
+
+	# preserve indentation of previous in_git_dir code for now
+	do {
+		my @commits=git_commit_info($rootdir, $sha1, 1);
+
 		if (! @commits) {
 			error "unknown commit"; # just in case
 		}
@@ -1049,7 +1037,7 @@ sub rcs_preprevert ($) {
 		# see what will happen in a revert without trying it.
 		# But we can guess, which is enough to rule out most changes
 		# that we won't allow reverting.
-		git_parse_changes(1, @commits);
+		git_parse_changes($rootdir, 1, @commits);
 
 		my $failure;
 		my @ret;
@@ -1080,10 +1068,10 @@ sub rcs_preprevert ($) {
 				"..${branch}");
 
 			my $ci = {
-				details => [parse_changed_files(\@raw_lines)],
+				details => [parse_changed_files($rootdir, \@raw_lines)],
 			};
 
-			@ret = git_parse_changes(0, $ci);
+			@ret = git_parse_changes($rootdir, 0, $ci);
 		};
 		$failure = $@;
 
@@ -1097,9 +1085,8 @@ sub rcs_preprevert ($) {
 			my $message = sprintf(gettext("Failed to revert commit %s"), $sha1);
 			error("$message\n$failure\n");
 		}
-
 		return @ret;
-	});
+	};
 }
 
 sub rcs_revert ($) {
@@ -1107,13 +1094,13 @@ sub rcs_revert ($) {
 	my $rev = shift;
 	my ($sha1) = $rev =~ /^($sha1_pattern)$/; # untaint
 
-	ensure_committer();
+	ensure_committer($config{srcdir});
 
-	if (run_or_non('git', 'cherry-pick', '--no-commit', "ikiwiki_revert_$sha1")) {
+	if (run_or_non_in($config{srcdir}, 'git', 'cherry-pick', '--no-commit', "ikiwiki_revert_$sha1")) {
 		return undef;
 	}
 	else {
-		run_or_non('git', 'branch', '-D', "ikiwiki_revert_$sha1");
+		run_or_non_in($config{srcdir}, 'git', 'branch', '-D', "ikiwiki_revert_$sha1");
 		return sprintf(gettext("Failed to revert commit %s"), $sha1);
 	}
 }
