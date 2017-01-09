@@ -154,13 +154,13 @@ sub genwrapper {
 	}
 }
 
-my @git_dir_stack;
-my $prefix;
+my $git_dir=undef;
+my $prefix=undef;
 
 sub in_git_dir ($$) {
-	unshift @git_dir_stack, shift;
+	$git_dir=shift;
 	my @ret=shift->();
-	shift @git_dir_stack;
+	$git_dir=undef;
 	$prefix=undef;
 	return @ret;
 }
@@ -217,13 +217,13 @@ sub safe_git {
 			chdir $params{chdir}
 			    or error("cannot chdir to $params{chdir}: $!");
 		}
-		elsif (! @git_dir_stack) {
+		elsif (! defined $git_dir) {
 			chdir $config{srcdir}
 			    or error("cannot chdir to $config{srcdir}: $!");
 		}
 		else {
-			chdir $git_dir_stack[0]
-			    or error("cannot chdir to $git_dir_stack[0]: $!");
+			chdir $git_dir
+			    or error("cannot chdir to $git_dir: $!");
 		}
 
 		if ($params{stdout}) {
