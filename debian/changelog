@@ -1,3 +1,33 @@
+ikiwiki (3.20170109) UNRELEASED; urgency=medium
+
+  [ Amitai Schleier ]
+  * wrappers: Correctly escape quotes in git_wrapper_background_command
+
+  [ Simon McVittie ]
+  * git: use an explicit function parameter for the directory to work
+    in. Previously, we used global state that was not restored correctly
+    on catching exceptions, causing an unintended log message
+    "cannot chdir to .../ikiwiki-temp-working: No such file or directory"
+    with versions >= 3.20161229 when an attempt to revert a change fails
+    or is disallowed
+  * git: don't run "git rev-list ... -- -- ..." which would select the
+    wrong commits if a file named literally "--" is present in the
+    repository
+  * check_canchange: log "bad file name whatever", not literal string
+    "bad file name %s"
+  * t/git-cgi.t: fix a race condition that made the test fail
+    intermittently
+  * t/git-cgi.t: be more careful to provide a syntactically valid
+    author/committer name and email, hopefully fixing this test on
+    ci.debian.net
+  * templates, comments, passwordauth: use rel=nofollow microformat
+    for dynamic URLs
+  * templates: use rel=nofollow microformat for comment authors
+  * news: use Debian security tracker instead of MITRE for security
+    references. Thanks, anarcat
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 09 Jan 2017 14:33:19 +0000
+
 ikiwiki (3.20161229.1) unstable; urgency=medium
 
   * git: Attribute reverts to the user doing the revert, not the wiki
