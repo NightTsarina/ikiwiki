@@ -305,7 +305,7 @@ sub formbuilder_setup (@) {
 						noimageinline => 1));
 			}
 			else {
-				$form->text("<a href=\"".
+				$form->text("<a rel=\"nofollow\" href=\"".
 					IkiWiki::cgiurl(do => "edit", page => $userpage).
 					"\">".gettext("Create your user page")."</a>");
 			}

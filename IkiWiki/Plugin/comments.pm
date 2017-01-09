@@ -126,7 +126,7 @@ sub htmlize {
 sub htmlize_pending {
 	my %params = @_;
 	return sprintf(gettext("this comment needs %s"),
-		'<a href="'.
+		'<a rel="nofollow" href="'.
 		IkiWiki::cgiurl(do => "commentmoderation").'">'.
 		gettext("moderation").'</a>');
 }
@@ -286,7 +286,7 @@ sub preprocess_moderation {
 		unless defined $params{desc};
 
 	if (length $config{cgiurl}) {
-		return '<a href="'.
+		return '<a rel="nofollow" href="'.
 			IkiWiki::cgiurl(do => 'commentmoderation').
 			'">'.$params{desc}.'</a>';
 	}
@@ -946,7 +946,7 @@ sub pagetemplate (@) {
 				);
 			}
 			elsif (commentsopen($page)) {
-				$link = "<a href=\"".addcommenturl($page)."\">".
+				$link = "<a rel=\"nofollow\" href=\"".addcommenturl($page)."\">".
 					#translators: Here "Comment" is a verb;
 					#translators: the user clicks on it to
 					#translators: post a comment.
