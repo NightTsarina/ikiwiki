@@ -1826,7 +1826,7 @@ sub check_canchange (@) {
 		$file=possibly_foolish_untaint($file);
 		if (! defined $file || ! length $file ||
 		    file_pruned($file)) {
-			error(gettext("bad file name %s"), $file);
+			error(sprintf(gettext("bad file name %s"), $file));
 		}
 
 		my $type=pagetype($file);
