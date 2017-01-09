@@ -368,9 +368,9 @@ allow the security hole to be exploited.
 
 The htmlscrubber did not block javascript in uris. This was fixed by adding
 a whitelist of valid uri types, which does not include javascript. 
-([[!cve CVE-2008-0809]]) Some urls specifyable by the meta plugin could also
+([[!debcve CVE-2008-0809]]) Some urls specifyable by the meta plugin could also
 theoretically have been used to inject javascript; this was also blocked
-([[!cve CVE-2008-0808]]).
+([[!debcve CVE-2008-0808]]).
 
 This hole was discovered on 10 February 2008 and fixed the same day
 with the release of ikiwiki 2.31.1. (And a few subsequent versions..)
@@ -383,7 +383,7 @@ parties.
 Cross Site Request Forging could be used to constuct a link that would
 change a logged-in user's password or other preferences if they clicked on
 the link. It could also be used to construct a link that would cause a wiki
-page to be modified by a logged-in user. ([[!cve CVE-2008-0165]])
+page to be modified by a logged-in user. ([[!debcve CVE-2008-0165]])
 
 These holes were discovered on 10 April 2008 and fixed the same day with
 the release of ikiwiki 2.42. A fix was also backported to Debian etch, as
@@ -410,7 +410,7 @@ passwords in cleartext over the net to log in, either.
 This hole allowed ikiwiki to accept logins using empty passwords, to openid
 accounts that didn't use a password. It was introduced in version 1.34, and
 fixed in version 2.48. The [bug](http://bugs.debian.org/483770) was
-discovered on 30 May 2008 and fixed the same day. ([[!cve CVE-2008-0169]])
+discovered on 30 May 2008 and fixed the same day. ([[!debcve CVE-2008-0169]])
 
 I recommend upgrading to 2.48 immediatly if your wiki allows both password
 and openid logins.
@@ -433,7 +433,7 @@ bypassed and used to read arbitrary files. This was fixed by
 enabling TeX configuration options that disallow unsafe TeX commands.
 The fix was released on 30 Aug 2009 in version 3.1415926, and was
 backported to stable in version 2.53.4. If you use the teximg plugin,
-I recommend upgrading. ([[!cve CVE-2009-2944]])
+I recommend upgrading. ([[!debcve CVE-2009-2944]])
 
 ## javascript insertion via svg uris
 
@@ -458,7 +458,7 @@ Additionally, it was discovered that comments' html was never scrubbed during
 preview or moderation of comments with such a configuration.
 
 These problems were discovered on 12 November 2010 and fixed the same
-hour with the release of ikiwiki 3.20101112. ([[!cve CVE-2010-1673]])
+hour with the release of ikiwiki 3.20101112. ([[!debcve CVE-2010-1673]])
 
 ## javascript insertion via insufficient checking in comments
 
@@ -468,7 +468,7 @@ used for an XSS attack.
 This hole was discovered on 22 Jan 2011 and fixed the same day with
 the release of ikiwiki 3.20110122. A fix was backported to Debian squeeze,
 as version 3.20100815.5. An upgrade is recommended for sites
-with the comments plugin enabled. ([[!cve CVE-2011-0428]])
+with the comments plugin enabled. ([[!debcve CVE-2011-0428]])
 
 ## possible javascript insertion via insufficient htmlscrubbing of alternate stylesheets
 
@@ -480,13 +480,13 @@ This hole was discovered on 28 Mar 2011 and fixed the same hour with
 the release of ikiwiki 3.20110328. A fix was backported to Debian squeeze,
 as version 3.20100815.6. An upgrade is recommended for sites that have
 untrusted committers, or have the attachments plugin enabled.
-([[!cve CVE-2011-1401]])
+([[!debcve CVE-2011-1401]])
 
 ## tty hijacking via ikiwiki-mass-rebuild
 
 Ludwig Nussel discovered a way for users to hijack root's tty when
 ikiwiki-mass-rebuild was run. Additionally, there was some potential
-for information disclosure via symlinks. ([[!cve CVE-2011-1408]])
+for information disclosure via symlinks. ([[!debcve CVE-2011-1408]])
 
 This hole was discovered on 8 June 2011 and fixed the same day with
 the release of ikiwiki 3.20110608. Note that the fix is dependant on
@@ -498,7 +498,7 @@ installed suid (not the default), and whose admins run `ikiwiki-mass-rebuild`.
 ## javascript insertion via meta tags
 
 Raúl Benencia discovered an additional XSS exposure in the meta plugin.
-([[!cve CVE-2012-0220]])
+([[!debcve CVE-2012-0220]])
 
 This hole was discovered on 16 May 2012 and fixed the same day with
 the release of ikiwiki 3.20120516. A fix was backported to Debian squeeze,
@@ -506,7 +506,7 @@ as version 3.20100815.9. An upgrade is recommended for all sites.
 
 ## XSS via openid selector
 
-Raghav Bisht discovered this XSS in the openid selector. ([[!cve CVE-2015-2793]])
+Raghav Bisht discovered this XSS in the openid selector. ([[!debcve CVE-2015-2793]])
 
 The hole was reported on March 24th, a fix was developed on March 27th,
 and the fixed version 3.20150329 was released on the 29th. A fix was backported
@@ -524,12 +524,12 @@ was discovered on 4 May by the ikiwiki developers, and the fixed version
 in progress.
 
 An upgrade is recommended for sites using
-the CGI. ([[!cve CVE-2016-4561]], OVE-20160505-0012)
+the CGI. ([[!debcve CVE-2016-4561]], OVE-20160505-0012)
 
 ## ImageMagick CVE-2016–3714 ("ImageTragick")
 
 ikiwiki 3.20160506 and 3.20141016.3 attempt to mitigate
-[[!cve CVE-2016-3714]], and any
+[[!debcve CVE-2016-3714]], and any
 future ImageMagick vulnerabilities that resemble it, by restricting the
 image formats that the [[ikiwiki/directive/img]] directive is willing to
 resize. An upgrade is recommended for sites where an untrusted user is
@@ -539,7 +539,7 @@ writing no such version is available.
 
 ## Perl CVE-2016-1238 (current working directory in search path)
 
-ikiwiki 3.20160728 attempts to mitigate [[!cve CVE-2016-1238]] by
+ikiwiki 3.20160728 attempts to mitigate [[!debcve CVE-2016-1238]] by
 removing `'.'` from the Perl library search path. An attacker with write
 access to ikiwiki's current working directory could potentially use this
 vulnerability to execute arbitrary Perl code. An upgrade is recommended
@@ -567,8 +567,8 @@ version was not effective with git versions older than 2.8.0.
 A more complete fix was released on 2016-12-29 in version 3.20161229.
 A backport to Debian 8 'jessie' is in progress.
 
-([[!cve CVE-2016-10026]] represents the original vulnerability.
-[[!cve CVE-2016-9645]]/OVE-20161226-0002 represents the vulnerability
+([[!debcve CVE-2016-10026]] represents the original vulnerability.
+[[!debcve CVE-2016-9645]]/OVE-20161226-0002 represents the vulnerability
 in 3.20161219 caused by the incomplete fix.)
 
 ## <span id="cve-2016-9646">Commit metadata forgery via CGI::FormBuilder context-dependent APIs</span>
@@ -594,4 +594,4 @@ of them relatively minor:
 This was fixed in ikiwiki 3.20161229. A backport to Debian 8
 'jessie' is in progress.
 
-([[!cve CVE-2016-9646]]/OVE-20161226-0001)
+([[!debcve CVE-2016-9646]]/OVE-20161226-0001)
