@@ -578,7 +578,7 @@ sub rcs_find_changes ($) {
 sub git_sha1_file ($$) {
 	my $dir=shift;
 	my $file=shift;
-	return git_sha1($dir, "--", $file);
+	return git_sha1($dir, $file);
 }
 
 sub git_sha1 ($@) {
