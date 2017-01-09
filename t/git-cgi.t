@@ -178,6 +178,10 @@ sub test {
 	like($content, qr{This is the first test page});
 	my $orig_sha1 = run_git(['rev-list', '--max-count=1', 'HEAD']);
 
+	# We have to wait 1 second here so that new writes are guaranteed
+	# to have a strictly larger mtime.
+	sleep 1;
+
 	# Test the git hook, which accepts git commits
 	writefile('doc/writable/one.mdwn', 't/tmp/in',
 		'This is new content for the first test page');
