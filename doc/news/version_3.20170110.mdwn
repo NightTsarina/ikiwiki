@@ -1,0 +1,41 @@
+ikiwiki 3.20170110 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+ * [ Amitai Schleier ]
+   * wrappers: Correctly escape quotes in git\_wrapper\_background\_command
+ * [ Simon McVittie ]
+   * git: use an explicit function parameter for the directory to work
+     in. Previously, we used global state that was not restored correctly
+     on catching exceptions, causing an unintended log message
+     "cannot chdir to .../ikiwiki-temp-working: No such file or directory"
+     with versions &gt;= 3.20161229 when an attempt to revert a change fails
+     or is disallowed
+   * git: don't run "git rev-list ... -- -- ..." which would select the
+     wrong commits if a file named literally "--" is present in the
+     repository
+   * check\_canchange: log "bad file name whatever", not literal string
+     "bad file name %s"
+   * t/git-cgi.t: fix a race condition that made the test fail
+     intermittently
+   * t/git-cgi.t: be more careful to provide a syntactically valid
+     author/committer name and email, hopefully fixing this test on
+     ci.debian.net
+   * templates, comments, passwordauth: use rel=nofollow microformat
+     for dynamic URLs
+   * templates: use rel=nofollow microformat for comment authors
+   * news: use Debian security tracker instead of MITRE for security
+     references. Thanks, anarcat
+   * Set package format to 3.0 (native)
+   * d/copyright: re-order to put more specific stanzas later, to get the
+     intended interpretation
+   * d/source/lintian-overrides: override obsolete-url-in-packaging for
+     OpenID Selector, which does not seem to have any more current URL
+     (and in any case our version is a fork)
+   * docwiki.setup: exclude TourBusStop from offline documentation.
+     It does not make much sense there.
+   * d/ikiwiki.lintian-overrides: override script-not-executable warnings
+   * d/ikiwiki.lintian-overrides: silence false positive spelling warning
+     for Moin Moin
+   * d/ikiwiki.doc-base: register the documentation with doc-base
+   * d/control: set libmagickcore-6.q16-3-extra as preferred
+     build-dependency, with virtual package libmagickcore-extra as an
+     alternative, to help autopkgtest to do the right thing"""]]
