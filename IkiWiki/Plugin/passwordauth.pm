@@ -333,10 +333,12 @@ sub formbuilder (@) {
 			}
 			elsif ($form->submitted eq 'Create Account') {
 				my $email = $form->field('email');
+				my $password = $form->field('password');
+
 				if (IkiWiki::userinfo_setall($user_name, {
 					'email' => $email,
 					'regdate' => time})) {
-					setpassword($user_name, $form->field('password'));
+					setpassword($user_name, $password);
 					$form->field(name => "confirm_password", type => "hidden");
 					$form->field(name => "email", type => "hidden");
 					$form->text(gettext("Account creation successful. Now you can Login."));
@@ -395,8 +397,9 @@ sub formbuilder (@) {
 	elsif ($form->title eq "preferences") {
 		if ($form->submitted eq "Save Preferences" && $form->validate) {
 			my $user_name=$form->field('name');
-			if (defined $form->field("password") && length $form->field("password")) {
-				setpassword($user_name, scalar $form->field('password'));
+			my $password=$form->field('password');
+			if (defined $password && length $password) {
+				setpassword($user_name, $password);
 			}
 		}
 	}

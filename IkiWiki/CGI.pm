@@ -294,8 +294,9 @@ sub cgi_prefs ($$) {
 		return;
 	}
 	elsif ($form->submitted eq 'Save Preferences' && $form->validate) {
-		if (defined $form->field('email')) {
-			userinfo_set($user_name, 'email', $form->field('email')) ||
+		my $email = $form->field('email');
+		if (defined $email) {
+			userinfo_set($user_name, 'email', $email) ||
 				error("failed to set email");
 		}
 

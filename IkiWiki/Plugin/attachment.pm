@@ -158,8 +158,9 @@ sub formbuilder (@) {
 			}
 			$add.="\n";
 		}
+		my $content = $form->field('editcontent');
 		$form->field(name => 'editcontent',
-			value => $form->field('editcontent')."\n\n".$add,
+			value => $content."\n\n".$add,
 			force => 1) if length $add;
 	}
 	
@@ -222,12 +223,12 @@ sub attachment_store {
 	$filename=IkiWiki::basename($filename);
 	$filename=~s/.*\\+(.+)/$1/; # hello, windows
 	$filename=IkiWiki::possibly_foolish_untaint(linkpage($filename));
-	my $dest=attachment_holding_location($form->field('page'));
+	my $dest=attachment_holding_location(scalar $form->field('page'));
 	
 	# Check that the user is allowed to edit the attachment.
 	my $final_filename=
 		linkpage(IkiWiki::possibly_foolish_untaint(
-			attachment_location($form->field('page')))).
+			attachment_location(scalar $form->field('page')))).
 		$filename;
 	eval {
 		if (IkiWiki::file_pruned($final_filename)) {
@@ -281,12 +282,12 @@ sub attachments_save {
 
 	# Move attachments out of holding directory.
 	my @attachments;
-	my $dir=attachment_holding_location($form->field('page'));
+	my $dir=attachment_holding_location(scalar $form->field('page'));
 	foreach my $filename (glob("$dir/*")) {
 		$filename=Encode::decode_utf8($filename);
 		next unless -f $filename;
 		my $destdir=linkpage(IkiWiki::possibly_foolish_untaint(
-			attachment_location($form->field('page'))));
+			attachment_location(scalar $form->field('page'))));
 		my $absdestdir=$config{srcdir}."/".$destdir;
 		my $destfile=IkiWiki::basename($filename);
 		my $dest=$absdestdir.$destfile;
