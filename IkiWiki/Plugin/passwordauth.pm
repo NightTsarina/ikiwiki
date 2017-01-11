@@ -325,12 +325,13 @@ sub formbuilder (@) {
 
 	if ($form->title eq "signin" || $form->title eq "register") {
 		if (($form->submitted && $form->validate) || $do_register) {
+			my $user_name = $form->field('name');
+
 			if ($form->submitted eq 'Login') {
-				$session->param("name", $form->field("name"));
+				$session->param("name", $user_name);
 				IkiWiki::cgi_postsignin($cgi, $session);
 			}
 			elsif ($form->submitted eq 'Create Account') {
-				my $user_name=$form->field('name');
 				if (IkiWiki::userinfo_setall($user_name, {
 				    	'email' => $form->field('email'),
 					'regdate' => time})) {
@@ -344,7 +345,6 @@ sub formbuilder (@) {
 				}
 			}
 			elsif ($form->submitted eq 'Reset Password') {
-				my $user_name=$form->field("name");
 				my $email=IkiWiki::userinfo_get($user_name, "email");
 				if (! length $email) {
 					error(gettext("No email address, so cannot email password reset instructions."));
