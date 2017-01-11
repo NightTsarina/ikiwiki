@@ -332,8 +332,9 @@ sub formbuilder (@) {
 				IkiWiki::cgi_postsignin($cgi, $session);
 			}
 			elsif ($form->submitted eq 'Create Account') {
+				my $email = $form->field('email');
 				if (IkiWiki::userinfo_setall($user_name, {
-				    	'email' => $form->field('email'),
+					'email' => $email,
 					'regdate' => time})) {
 					setpassword($user_name, $form->field('password'));
 					$form->field(name => "confirm_password", type => "hidden");
