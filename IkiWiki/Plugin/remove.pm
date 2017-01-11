@@ -196,7 +196,9 @@ sub formbuilder (@) {
 		my $session=$params{session};
 
 		if ($form->submitted eq "Remove" && $form->field("do") eq "edit") {
-			removal_confirm($q, $session, 0, $form->field("page"));
+			# deliberately taking multiple values of page
+			my @pages = $form->field("page");
+			removal_confirm($q, $session, 0, @pages);
 		}
 		elsif ($form->submitted eq "Remove Attachments") {
 			my @selected=map { Encode::decode_utf8($_) } $q->param("attachment_select");
@@ -216,14 +218,15 @@ sub sessioncgi ($$) {
 		my ($form, $buttons)=confirmation_form($q, $session);
 		IkiWiki::decode_form_utf8($form);
 
+		# deliberately taking multiple values of page
+		my @pages = $form->field("page");
+
 		if ($form->submitted eq 'Cancel') {
 			postremove($session);
 		}
 		elsif ($form->submitted eq 'Remove' && $form->validate) {
 			IkiWiki::checksessionexpiry($q, $session);
 
-			my @pages=$form->field("page");
-			
 			# Validate removal by checking that the page exists,
 			# and that the user is allowed to edit(/remove) it.
 			my @files;
@@ -288,7 +291,7 @@ sub sessioncgi ($$) {
 			}
 		}
 		else {
-			removal_confirm($q, $session, 0, $form->field("page"));
+			removal_confirm($q, $session, 0, @pages);
 		}
 
 		exit 0;
