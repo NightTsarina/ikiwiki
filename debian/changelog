@@ -1,3 +1,16 @@
+ikiwiki (3.20170111) UNRELEASED; urgency=medium
+
+  * passwordauth: prevent authentication bypass via multiple name
+    parameters (CVE-2017-0356, OVE-20170111-0001)
+  * passwordauth: avoid userinfo forgery via repeated email parameter
+    (also in the scope of CVE-2017-0356)
+  * CGI, attachment, passwordauth: harden against repeated parameters
+    (not believed to have been a vulnerability)
+  * remove: make it clearer that repeated page parameter is OK here
+  * t/passwordauth.t: new automated test for passwordauth
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 11 Jan 2017 18:12:05 +0000
+
 ikiwiki (3.20170110) unstable; urgency=medium
 
   [ Amitai Schleier ]

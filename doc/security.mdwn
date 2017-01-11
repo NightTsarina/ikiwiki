@@ -591,7 +591,23 @@ of them relatively minor:
   could potentially forge commit authorship (attribute their edit to
   someone else) by crafting multiple values for the rcsinfo field
 
-This was fixed in ikiwiki 3.20161229. A backport to Debian 8
-'jessie' is in progress.
+This was fixed in ikiwiki 3.20161229, with fixes backported to Debian 8
+in version 3.20141016.4.
 
 ([[!debcve CVE-2016-9646]]/OVE-20161226-0001)
+
+## <span id="cve-2017-0356">Authentication bypass via repeated parameters</span>
+
+The ikiwiki maintainers discovered further flaws similar 2016-9646
+in the passwordauth plugin's use of CGI::FormBuilder, with a more
+serious impact:
+
+* An attacker who can log in to a site with a password can log in
+  as a different and potentially more privileged user.
+* An attacker who can create a new account can set arbitrary fields
+  in the user database for that account.
+
+This was fixed in ikiwiki 3.20170111, with fixes backported to Debian 8
+in version 3.20141016.4.
+
+([[!debcve CVE-2017-0356]]/OVE-20170111-0001)
