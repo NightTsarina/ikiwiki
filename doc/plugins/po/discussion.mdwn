@@ -743,3 +743,7 @@ Besides: When using the map instead of the inline directive, regarding l10n all 
 # Does not show up in the setup
 
 Hello, I am not sure whether it's the right way to add a comment here, but I downloaded po4a from Debian repository and built it. Typing 'use Locale::Po4a::Po;' into a 'perl' session doesn't interrupt it -- I believe it is installed already. Yet in websetup there is no 'use po?' section. I am at a loss what to do. I am using nearlyfreespeech for hosting. --[[users/svetlana]]
+
+> It should be in a section headed "format plugin: po". If that doesn't appear, try
+> `perl -MIkiWiki::Plugin::po -e ''` (or equivalently, `use IkiWiki::Plugin::po;` in
+> an interactive Perl session) and see whether there are useful error messages. --[[smcv]]
