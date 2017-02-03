@@ -52,9 +52,9 @@ because the system has most modules installed already.
 So, you might want to skip this step and come back to it later if ikiwiki
 doesn't work.
 
-	PERL5LIB=`pwd`/ikiwiki:`pwd`/ikiwiki/cpan:`pwd`/lib/perl5 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->install("Bundle::IkiWiki")'
+	PERL5LIB=$HOME/ikiwiki:$HOME/ikiwiki/cpan:$HOME/lib/perl5 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->install("Bundle::IkiWiki")'
 	
-	PERL5LIB=`pwd`/ikiwiki:`pwd`/ikiwiki/cpan:`pwd`/lib/perl5 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->force(install => "Bundle::IkiWiki::Extras")'
+	PERL5LIB=$HOME/ikiwiki:$HOME/ikiwiki/cpan:$HOME/lib/perl5 PERL_MM_USE_DEFAULT=1 perl -MCPAN -e 'CPAN::Shell->force(install => "Bundle::IkiWiki::Extras")'
 
 This will take a while. As long as the first command succeeds, ikiwiki will be
 usable. The second command adds extra modules that some plugins use, so it's
