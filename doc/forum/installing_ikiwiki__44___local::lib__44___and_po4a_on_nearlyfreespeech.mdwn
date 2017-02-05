@@ -1,0 +1,47 @@
+I am trying to follow <https://ikiwiki.info/tips/nearlyfreespeech/>. It installs IkiWiki into ~/lib/perl5. 
+
+
+I have this in ~/.profile:
+
+    [svetlana /home/private]$ cat ~/.profile
+    PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/home/private//bin
+    #eval `perl -I ~/perl5/lib/perl5 -Mlocal::lib`
+    echo $PERL5LIB
+    eval `perl -I ~/lib/perl5:~/perl5/lib/perl5 -Mlocal::lib`
+    echo $PERL5LIB
+    export MANPATH=$HOME/perl5/man:$MANPATH
+    #export PERL5LIB=$HOME/ikiwiki:$HOME/ikiwiki/cpan:$HOME/lib/perl5:$HOME/perl5/lib/perl5
+    [svetlana /home/private]$
+
+The wiki works. How it sets the environment so that things 'see' it in ~/lib/perl5, I have no idea.
+
+I installed cpanm. Turns out it installs itself to ~/perl5/lib/perl5.
+
+I installed local::lib. Turns out it sets PERL5LIB to ~/perl5/lib/perl5.
+
+I didn't see po4a in cpan and was too lazy to add it there, though it's probably two clicks away.
+
+I downloaded po4a from debian package page as a tarball and build it. Turns out it installs itself into ~/perl5/lib/perl5.
+
+I added 'po' to the list of plugins in wiki config, and refreshed it.
+
+
+Webserver says 
+
+AH01215: Failed to load plugin IkiWiki::Plugin::po: Can't locate Locale/Po4a/Chooser.pm in @INC (you may need to install the Locale::Po4a::Chooser module) (@INC contains: /home/private//lib/perl5/amd64-freebsd-thread-multi /home/private//lib/perl5 /usr/local/lib/perl5/site_perl/mach/5.22 /usr/local/lib/perl5/site_perl /usr/local/lib/perl5/5.22/mach /usr/local/lib/perl5/5.22) at /home/private//lib/perl5/IkiWiki/Plugin/po.pm line 19.: /fs6d/svetlana/public/ikiwiki.cgi
+
+Everything gives error 500.
+
+Removing 'po' from 'add_plugins' section and refreshing the wiki gets rid of the problem. But I would really like po plugin to work.
+
+I tried building po4a again. Now it complains about missing dependencies, SGMLS and Unicode::GCString. cpanm doesn't find SGMLS, and there is some error installing Unicode::GCString from cpanm. At this point, I don't care what that error is.
+
+I just know I'm doing something wrong and need someone to tell me what.
+
+In the first place I'd prefer everything went to the location local::lib likes.
+
+There is no reason to keep everything in ~/perl5/lib/perl5, while keeping IkiWiki in ~/lib/perl5.
+
+I'd like to fix that first.
+
+Please advise. Thank you very much.
