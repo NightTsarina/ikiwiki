@@ -749,3 +749,13 @@ Hello, I am not sure whether it's the right way to add a comment here, but I dow
 > an interactive Perl session) and see whether there are useful error messages. --[[smcv]]
 
 > > I had to set ikiwiki's INSTALL_BASE to ~/perl5, and install local::lib, to get the wiki to see Locale::Po4a::Po. What was helpful is `ikiwiki --setup wiki/ikiwiki.setup --wrappers` as it outputs the useful error message straight away if it can't find something in @INC. It is finally working now. --[[users/svetlana]]
+
+# Confuses a map
+
+The `\[[!map  pages="*"]]` directive works in confused ways when po plugin is enabled. It lists items like this:
+
+- [foo](foo/index.en.html)
+  - [index.ru](foo/index.ru)
+  - [index.ja](foo/index.ja)
+
+I'm not sure what to do with it, I would like to be able to list pages only in one language. --[[users/svetlana]] 10:10AM February 8, 2017
