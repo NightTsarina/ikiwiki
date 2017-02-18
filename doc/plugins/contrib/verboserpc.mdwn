@@ -1,0 +1,83 @@
+[[!meta author="spalax"]]
+[[!template id=plugin name=verboserpc author="[[Louis|spalax]]"]]
+
+Debugging [external plugins](//ikiwiki.info/plugins/write/external/) is a pain, as soon as RPC is involved… This kind-of plugin tries to make it a little bit less painful.
+
+It acts as a proxy between Ikiwiki and the plugin (which, for the record, is an executable program communicating with Ikiwiki using [XML RPC](http://www.xmlrpc.com/) on standard input/output), and logs everithing on standard error.
+
+[[!toc]]
+
+# Example
+
+A sample output of a wiki compilation is shown below.
+
+    $ ikiwiki --setup wiki.setup --refresh --verbose
+    -> <?xml version="1.0" encoding="utf-8"?><methodCall><methodName>import</methodName><params></params></methodCall>
+    <- <?xml version='1.0'?>
+    <- <methodCall>
+    <- <methodName>hook</methodName>
+    <- <params>
+    <- <param>
+    <- <value><string>call</string></value>
+    <- </param>
+    <- <param>
+    <- <value><string>getsetup</string></value>
+    <- </param>
+    <- <param>
+    <- <value><string>type</string></value>
+    <- </param>
+    <- <param>
+    <- <value><string>getsetup</string></value>
+    <- </param>
+    <- <param>
+    <- <value><string>id</string></value>
+    <- </param>
+    <- <param>
+    <- <value><string>foo</string></value>
+    <- </param>
+    <- <param>
+    <- <value><string>last</string></value>
+    <- </param>
+    <- <param>
+    <- <value><boolean>0</boolean></value>
+    <- </param>
+    <- </params>
+    <- </methodCall>
+    -> <?xml version="1.0" encoding="utf-8"?><methodResponse><params><param><value><string>1</string></value></param></params></methodResponse>
+    <- <?xml version='1.0'?>
+    <- <methodResponse>
+    <- <params>
+    <- <param>
+    <- <value><struct>
+    <- <member>
+    <- <name>null</name>
+    <- <value><string></string></value>
+    <- </member>
+    <- </struct></value>
+    <- </param>
+    <- </params>
+    <- </methodResponse>
+    rebuilding wiki..
+    scanning index.mdwn
+    building index.mdwn
+    done
+
+# Enabling the plugin
+
+Let us say you want to debug a plugin `foo`, located somewhere in your [`libdir`](https://ikiwiki.info/plugins/install/).
+
+1. Do not not enable plugin `foo` in the ikiwiki setup file.
+2. Create a symbolic link named `foo.verboserpc` in one of your `libdir`, linking to the `verboserpc` plugin.
+3. In your setup file, enable plugin `foo.verboserpc`.
+
+That's it. When called, the `verboserpc` plugin will be called as `foo.verboserpc`, and will run program `foo`, while transmitting (to Ikiwiki and `foo`) and logging (to standard error) any input/output.
+
+# Does it work?
+
+Well… External plugins are still a pain to debug, even with this tool. If your plugin is written using python, and you are using the [`proxy`](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=plugins/proxy.py;h=b61eb466c8d47ef839fc24e5d0ba54be3a9b23fa;hb=HEAD), it might be useless, since this proxy already have an option to log RPC calls (by giving `debug_fn=sys.stderr.write` as an option to the constructor of [`IkiWikiProcedureProxy`](http://source.ikiwiki.branchable.com/?p=source.git;a=blob;f=plugins/proxy.py;h=b61eb466c8d47ef839fc24e5d0ba54be3a9b23fa;hb=HEAD#l217)).
+
+I am not sure that this plugin is the solution to the problem of debugging external plugins. I am still publishing it here, hoping that someone might improve it into something useful…
+
+# Download and install
+
+Code and documentation can be found here : [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/VerboseRPC]].
