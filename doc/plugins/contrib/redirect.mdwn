@@ -1,0 +1,35 @@
+[[!meta author="spalax"]]
+[[!template id=plugin name=redirect author="[[Louis|spalax]]"]]
+
+This plugin provides a [[ikiwiki/directive/redirect]] [[ikiwiki/directive]].
+
+Using this, you can cause a page to redirect to another page (something similar to the ``redir`` option of the [[meta|http://ikiwiki.info/ikiwiki/directive/meta]] plugin.
+
+[[!toc]]
+
+# Directive
+
+It accepts options ``pages``, ``skip``, ``sort``, ``reverse``, which have the same meaning as they have in the [[inline|http://ikiwiki.info/ikiwiki/directive/inline/]] directive. It builds a list of pages using those arguments, and redirect the page to the first page of this list.
+
+It also renders a text *If you are not redirected automatically, follow \[[this link]].* This text can be customized by changing the template `redirect.tmpl`, which accepts a single variable ``TARGETPAGE``.
+
+# Example
+
+To have a page ``latest.html`` redirect to your latest blog post, have the following line into ``latest.mdwn``:
+
+    \[[!redirect pages="blog/* and !blog/*"]]
+
+# Setup
+
+This directive accepts no setup options.
+
+# Differences with the ``meta`` plugin
+
+* This directive is better than the ``redir`` option of the [[meta|http://ikiwiki.info/ikiwiki/directive/meta/]] plugin because it can redirect to (the first page of) a pagespec, meaning things like *"redirect to my latest blog post"*.
+* The ``redir`` option of the [[meta|http://ikiwiki.info/ikiwiki/directive/meta]] plugin is better than this directive because:
+  * it can redirect to an anchor ``\[[!meta redir="foo#bar"]]``;
+  * it can redirect to an external page ``\[[!meta redir="http://example.com"]]``.
+
+# Download and install
+
+Code and documentation can be found here : [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/Redirect]].
