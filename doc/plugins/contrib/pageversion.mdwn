@@ -1,0 +1,89 @@
+[[!meta author="spalax"]]
+[[!template id=plugin name=pageversion author="[[Louis|spalax]]"]]
+
+This plugin makes it possible to manage different versions of the same page, allowing to:
+
+- make older/newer versions available;
+- highlight the latest version.
+
+[[!toc]]
+
+# Rationale
+
+On my personal website/blog, I publish articles which I sometimes update. Sometimes, I add a few lines of text with a ``Updated on DATE.`` message; other times, I rewrite the whole article. In this latter case, I want:
+
+- the main version of the article to be the latest one;
+- oldest versions still to be available;
+- the main list of my articles to list only the latest version of each article.
+
+# Example
+
+For instance, on my personal website, article [one](//paternault.fr/pedago/sismologie/20150110/) has been updated to [two](//paternault.fr/pedago/sismologie/20150819/).
+
+- They both contain the directive `\[[!versionof parent]]`, marking them as a version of the [main article](//paternault.fr/pedago/sismologie) (which happens to be their parent page).
+- On the [old article](//paternault.fr/pedago/sismologie/20150819/), links to the other articles (only one here) are available.
+- On the [page listing my articles](//paternault.fr/pedago), only the latest article appears.
+- The [main page](//paternault.fr/pedago/sismologie) lists all versions of this article, and redirects to the latest one.
+
+# List of directives and pagespecs
+
+Pages are marked as versions as other pages using tags (subtags of `_pageversion/*`). Directive ``\[[!versionof]]`` simply add the appropriate tag to the current page (thus, one can ignore this directive, but it makes things easier).
+
+Pages can be marked as versions of another page (e.g. ``foo/version1`` and ``foo/version2`` are versions of page ``foo``), or versions of an arbitrary abstract page (called *label* later). There is no conflict between them (that is, pages marked as a version of page ``foo`` and as a version of label ``foo`` are not a version of the same page).
+
+## Directive `versionof`
+
+Marks current page as a version of another page. Its main forms are:
+
+- `\[[!versionof name=foo]]` Mark current page as a version of page ``foo`` (page ``foo`` is searched using the same [[linking rules|ikiwiki/SubPage/LinkingRules]] as a [[ikiwiki/WikiLink]]).
+- `\[[!versionof label=bar]]` Mark current page as a version of some abstract object labelled ``bar``.
+
+It may be convenient to refer to some particular page. Thus, those alternative forms are also available:
+
+- `\[[!versionof name]]` Mark current page as a version of itself.
+- `\[[!versionof parent]]` Mark current page as a version of its parent page.
+
+## Template `otherversions`
+
+To add a list to the other versions of a page (both older and newer), a template is provided. It is called with:
+
+    \[[!template id=otherversions version=VERSION template=INLINETEMPLATE]]
+
+Where:
+
+- *(Required)* Pages that are a version of `VERSION` are listed (for instance ``\[[!template id=otherversions version=name=foo]]``).
+- *(Optional)* Template `INLINETEMPLATE` is used (instead of the default `otherversionpage` template) in the [[ikiwiki/directive/inline]] directive listing the other pages.
+
+## Pagespec `versionof`
+
+A pagespec can match pages marked as a version of something using the pagespec `versionof`. It accepts the same arguments as the arguments as the ``versionof`` directive, that is:
+
+- `versionof(name=foo)`: Match pages which are a version of page ``foo``.
+- `versionof(name)`: Match pages which are a version of the current page.
+- `versionof(parent)`: Match pages which are a version of the parent page.
+- `versionof(label=bar)`: Match pages which are a version of some abstract object labelled ``bar``.
+
+Moreover, it takes one additional argument:
+
+- `versionof(any)`: Match pages which are a version of anything.
+
+## Pagespec `latestversion`
+
+An additional pagespec `latestversion` is provided. It accepts the same arguments as the `versionof` pagespec (that is:
+`latestversion(name=foo)`,
+`latestversion(name)`,
+`latestversion(parent)`,
+`latestversion(label=bar)`,
+`latestversion(any)`) but only the most recent page is matched.
+
+## Pagespec `latest_tagged`
+
+As a side effect, this plugin also provides the `latest_tagged(TAG)` pagespec. It matches one single page: the most recent page tagged with the given tag.
+
+## Directive `redirect`
+
+Directive ``\[[!redirect]]`` (from the [[redirect]] plugin) can be used together with this package. For instance, a page containing the directive ``\[[!redirect pages="versionof(page)"]]`` will redirect to the most recent page marked as a version of the current page.
+
+# Download and Install
+
+Code and documentation can be found here : [[https://atelier.gresille.org/projects/gresille-ikiwiki/wiki/PageVersion]].
