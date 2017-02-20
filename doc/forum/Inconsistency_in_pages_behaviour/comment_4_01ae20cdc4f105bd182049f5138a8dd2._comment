@@ -1,0 +1,42 @@
+[[!comment format=mdwn
+ username="svetlana@192500fb6a2e2ef8e78d1a08cca64b1bca9833b9"
+ nickname="svetlana"
+ avatar="http://cdn.libravatar.org/avatar/5821f2dec97d186ce3b455b806d33035"
+ subject="comment 4"
+ date="2017-02-20T23:42:13Z"
+ content="""
+Fixed the .po marking pages as translatable -- 
+
+1. un-ticked \"use page/index.mdwn source files\"
+
+2. ran this script, committed, and pushed:
+
+```
+    
+    # Bash -- from http://mywiki.wooledge.org/BashFAQ/030
+    # Also requires GNU or BSD find(1)
+    # Recursively change all *.foo files to *.bar
+    
+    find . -type f -name 'index.mdwn' -print0 | while IFS= read -r -d '' f; do
+        mv -- \"$f\" \"${f%/index.mdwn}.mdwn\"
+    done
+ 
+    find . -type f -name 'index.ru.po' -print0 | while IFS= read -r -d '' f; do
+        mv -- \"$f\" \"${f%/index.ru.po}.ru.po\"
+    done
+    
+    find . -type f -name 'index.pot' -print0 | while IFS= read -r -d '' f; do
+        mv -- \"$f\" \"${f%/index.pot}.pot\"
+    done
+    
+    
+    mv ..mdwn index.mdwn
+    mv ..pot index.pot
+    mv ..ru.po index.ru.po
+```
+
+
+
+
+The problem with backlinks still stays so far.
+"""]]
