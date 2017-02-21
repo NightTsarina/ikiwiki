@@ -1,0 +1,40 @@
+[[!comment format=mdwn
+ username="svetlana@192500fb6a2e2ef8e78d1a08cca64b1bca9833b9"
+ nickname="svetlana"
+ avatar="http://cdn.libravatar.org/avatar/5821f2dec97d186ce3b455b806d33035"
+ subject="comment 5"
+ date="2017-02-21T03:47:34Z"
+ content="""
+Turns out always listing backlinks (if they exist) is intended behaviour. I followed \"[[todo/allow disabling backlinks]]\" todo page by editing ~/git.ikiwiki.info/IkiWiki/Render.pm 
+
+    diff --git a/IkiWiki/Render.pm b/IkiWiki/Render.pm
+    index e8ed627..6142846 100644
+    --- a/IkiWiki/Render.pm
+    +++ b/IkiWiki/Render.pm
+    @@ -1,4 +1,4 @@
+    -#!/usr/bin/perl
+    +#!/usr/local/bin/perl
+    
+     package IkiWiki;
+    
+    @@ -111,7 +111,8 @@ sub genpage ($$) {
+            }
+            templateactions($template, $page);
+    
+    -       my @backlinks=sort { $a->{page} cmp $b->{page} || $a->{url} cmp $b->{url} } backlinks($page);
+    +       my @backlinks=sort { $a->{page} cmp $b->{page} || $a->{url} cmp $b->{url} } backlinks($page)
+    +           unless defined $config{nobacklinks} && $config{nobacklinks} == 0;
+            my ($backlinks, $more_backlinks);
+            if (@backlinks <= $config{numbacklinks} || ! $config{numbacklinks}) {
+                    $backlinks=\@backlinks;
+    
+
+
+Here is line in config:
+
+    nobacklinks: 1
+
+
+
+and then \"perl Makefile.PL ;$MAKE;$MAKE install\" . But then running 'ikiwiki --rebuild --setup ~/wiki/ikiwiki.setup' makes no difference. Why ...
+"""]]
