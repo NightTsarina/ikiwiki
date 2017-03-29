@@ -30,11 +30,13 @@ The `anonok` plugin is **not** enabled
 > Which version of ikiwiki are you running? Are you using any third-party
 > plugins or patches? --[[smcv]]
 
+>> Pasted [[here|addplugins]]
+
 ---
 
 ## Steps
 
-I've tried to place a comment clicking in the obvious [Add a comment](https://dev.iikb.xyz/ikiwiki.cgi?do=comment&page=forum%2FTema_bootstrap) in a [forum post](https://dev.iikb.xyz/forum/Tema_bootstrap/).
+I've tried to place a comment clicking in the obvious [Add a comment](https://dev.iikb.org/ikiwiki.cgi?do=comment&page=forum%2FTema_bootstrap) in a [forum post](https://dev.iikb.org/forum/Tema_bootstrap/).
 
 I've not signed in because the *sign in* page didn't come up, instead a simple `(You might want to Signin first?)` showed up, which I've haven't read and commented away.
 
@@ -42,9 +44,9 @@ I've not signed in because the *sign in* page didn't come up, instead a simple `
 
 ## Results
 
-As a consequence of that, the user '' - that's a null character, have somehow logged in and it seems that there is no way to [log it out](https://dev.iikb.xyz/ikiwiki.cgi?do=prefs).
+As a consequence of that, the user '' - that's a null character, have somehow logged in and it seems that there is no way to [log it out](https://dev.iikb.org/ikiwiki.cgi?do=prefs).
 
-None of this phantom user edits are being commited - this [blog post](https://dev.iikb.xyz/blog/posts/Bug_severo_neste_site/) was made with that user logged in via web.
+None of this phantom user edits are being commited - this [blog post](https://dev.iikb.org/blog/posts/Bug_severo_neste_site/) was made with that user logged in via web.
 
 It seems I can't log out from nowhere. I've rebuild the wiki from the command line and restarted the nginx server, the phantom user remains logged in and open to anyone willing to edit away the wiki.
 
@@ -54,7 +56,7 @@ It seems I can't log out from nowhere. I've rebuild the wiki from the command li
 
 If I wanted to do a totally anonnymous wiki, this would be the best setup ever.
 
-For [this particular installation](https://dev.iikb.xyz), that's not the case.
+For [this particular installation](https://dev.iikb.org), that's not the case.
 
 ---
 
@@ -70,3 +72,5 @@ Is there a session file or something to logout this phantom user?
 > `.setup` file. I would also be interested to see a tarball of the entire
 > wiki source directory, if it isn't excessively large. If you'd be willing to
 > share them, please contact <mailto:smcv@debian.org>. --[[smcv]]
+
+>> I think I've sent right away when you asked, anyway I still have the tarball hanging around. The last *iikb* domains will expire next month though, the wiki will only be accessible by mirror <https://notabug.org/iikb/dev.iikb.org>.
