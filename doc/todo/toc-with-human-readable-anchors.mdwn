@@ -4,4 +4,48 @@ In #ikiwiki today, another user and I were in agreement that an option for human
 
 > +1 - i would love to see that happen too. Here's a patch I wrote a while back for similar functionality in moinmoin: https://svn.koumbit.net/koumbit/trunk/patches/moinmoin/nice_headings.patch -- [[anarcat]]
 
-[[!tag wishlist]]
+----
+
+I started looking into this again after getting annoyed at the
+unreadable anchors, and here's what I came up with.
+
+[[!template  id=gitbranch branch=anarcat/toc-recycle-id author="[[anarcat]]"]]
+
+The first step is to fix [[plugins/toc]] to use headings: we can
+figure out how to generate those later, but it would be nice if the
+toc directive would just reuse existing headings instead of relying on
+its own. I do this by simply checking if there's a `id` field (which
+is, by standard, unique) and reuse that when building the table of
+contents. This requires parsing HTML element attributes, but that
+shouldn't impact performance too much, hopefully. The old IDs are
+still generated for backwards compatibility. This is done in
+my [toc-recycle-id branch][] (see [921a264][]).
+
+[921a264]: https://gitlab.com/anarcat/ikiwiki/commit/27d5d9d126b6b675ad273ebd63095df0c921a264
+[toc-recycle-id branch]: https://gitlab.com/anarcat/ikiwiki/commits/toc-id-recycle
+
+The second step is to generate those headings. There are two ways of
+doing this:
+
+ 1. enable multimarkdown. by default, the [[plugins/mdwn]] plugin will
+    add `id` anchors when using [Text::Multimarkdown][] which is
+    simply a matter of adding `multimarkdown: 1` in the setup file
+
+ 2. enable the [[plugins/headinganchors]] plugin. if multimarkdown is
+    disabled, this can also provide usable identifiers.
+
+An issue I had with the latter plugin was that it did not work if
+multimarkdown was enabled, as it doesn't match headings if they
+already have a `id` attribute. It also doesn't deal very well with
+non-ASCII characters: they get basically garbled into their numeric
+representation. I have therefore written a derivative of the
+headinganchor plugin called [[plugins/contrib/i18nheadinganchors]] to
+work around those issues.
+
+It would be great to see the `toc` part of this patchset merged, at
+least. It could also be a configurable option, but that seems overkill
+considering that backwards compatibility is kept... --[[anarcat]]
+
+[Text::Multimarkdown]: http://search.cpan.org/search?mode=dist&query=Text%3A%3AMarkdown
+
+[[!tag wishlist patch]]
