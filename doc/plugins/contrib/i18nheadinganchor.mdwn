@@ -1,0 +1,19 @@
+[[!template  id=gitbranch branch=anarcat/i18n-headinghanchors author="[[anarcat]]"]]
+
+This plugin is similar to [[plugins/headinganchors]] except:
+
+ 1. it overrides other attributes previously set on heading elements
+    (to override the multimarkdown-generated headings for example)
+
+ 2. deals with non-ASCII charsets better: for example, 北亰 becomes
+    "bei-jing" instead of "z-.E4.BA.B0" and "liberté" becomes
+    "liberte" instead of "libert.C3.A9"
+
+This is a separate plugin because this is a backwards-incompatible
+change, but I would be more than happy to make a patch to merge this
+in the main plugin if necessary.
+
+Also note that *all* heading attributes are overriden with the ID
+tag. If this is not desirable, we'd need to fire up a full
+HTML::Parser or do some more regex magic to preserve the attributes
+other than `id=` which we want to keep. -- [[anarcat]]
