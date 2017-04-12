@@ -59,13 +59,16 @@ sub format (@) {
 	my $liststarted=0;
 	my $indent=sub { "\t" x $curlevel };
 	$p->handler(start => sub {
-		my $tagname=shift;
-		my $text=shift;
+		my ($tagname, $text, $attr) = @_;
 		if ($tagname =~ /^h(\d+)$/i) {
 			my $level=$1;
 			my $anchor="index".++$anchors{$level}."h$level";
 			$page.="$text<a name=\"$anchor\"></a>";
-	
+			# if the heading already has a unique ID, use that instead in TOC
+			if ($attr->{id}) {
+				$anchor = $attr->{id};
+			}
+
 			# Unless we're given startlevel as a parameter,
 			# take the first header level seen as the topmost level,
 			# even if there are higher levels seen later on.
@@ -124,7 +127,7 @@ sub format (@) {
 		else {
 			$page.=$text;
 		}
-	}, "tagname, text");
+	}, "tagname, text, attr");
 	$p->handler(default => sub { $page.=join("", @_) }, "text");
 	$p->parse($content);
 	$p->eof;
