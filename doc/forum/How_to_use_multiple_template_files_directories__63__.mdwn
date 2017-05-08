@@ -1,0 +1,7 @@
+For an ikiwiki source directory, I already have multiple paths for storing template files:
+
+1. /opt/pkg/share/ikiwiki/templates/*.tmpl which came to be as a result of installing ikiwiki via pkgsrc on macOS;
+2. /Users/XXX/config/ikiwiki/templatedir/, a manually created directory for storing *.tmpl files potentially modified by myself but intended to use for all my ikiwiki sites;
+3. /Ysers/XXX/mywiki-srcdir/templates/*.tmpl, which according to https://ikiwiki.info/usage/ is another option to store template files. I intend to store template files potentially modified and only suitable for the particular instance 'mywiki-srcdir'.
+
+I want all three paths to be usable for compiling mywiki-scrdir but want 3 be the default, which should fall back to 2 if a file is missing, which in turn should fall back to 1, if a file is missing. 
