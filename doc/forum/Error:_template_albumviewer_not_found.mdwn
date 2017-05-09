@@ -1,0 +1,25 @@
+I'm having some trouble to have the album plug-in working.
+
+With ikiwiki version 3.20170111 installed via pkgsrc on macOS 10.12.4, I installed the album plugin for Ikiwiki following the instruction in the section 'Manual installation' at https://ikiwiki.info/plugins/contrib/album/.  The problem is that after 'ikiwiki --rebuild --verbose --setup mysite.setup --gettime', the page with
+
+```
+# Images
+[[!sidebar content=""]]
+[[!album 
+  sort="age"
+  size="full"
+  thumbnailsize="96x96"
+  viewertemplate="albumviewer"
+  prevtemplate="albumprev"
+  nexttemplate="albumnext"]]
+```
+
+builds correctly into an page with a list of images, but if I click any individual thumbnail to get to a page that's supposed to contain just that one image, I see the following exposed code 
+
+```
+[[!albumimage Error: template albumviewer not found]]
+```
+
+I verified that I do have albumviewer.tmpl in sourcedir/templates/.
+
+Any idea why and how to fix it?
