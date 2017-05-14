@@ -1,0 +1,16 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="You can do almost this with an underlay"
+ date="2017-05-14T11:27:53Z"
+ content="""
+The exact situation that you have described is not currently possible, because
+`templatedir` can only have one value. But you can have a very similar practical result
+like this:
+
+* Create `/Users/XXX/config/ikiwiki/underlay/` or something (the name is unimportant,
+  you can use anything)
+* Put your templates in `/Users/XXX/config/ikiwiki/underlay/templates/`
+* Include `/Users/XXX/config/ikiwiki/underlay` in the `underlaydirs` configuration
+  option (the syntax is the same as `add_plugins`)
+"""]]
