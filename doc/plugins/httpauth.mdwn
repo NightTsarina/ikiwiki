@@ -41,6 +41,6 @@ users authentication via other methods.
 You have to pass the $remote_user variable to the CGI:
 
     location /ikiwiki.cgi {
-        fastcgi_param REMOTE_USER $remote_user;
+        fastcgi_param REMOTE_USER $remote_user if_not_empty;
         ....
     }
