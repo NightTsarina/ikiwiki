@@ -107,5 +107,14 @@ Is there a session file or something to logout this phantom user?
 
 >> I think I've sent right away when you asked, anyway I still have the tarball hanging around. The last *iikb* domains will expire next month though, the wiki will only be accessible by mirror <https://notabug.org/iikb/dev.iikb.org>.
 
->>> I see you have a lot of uncommitted changes. This is probably because
->>> whatever is causing the anonymous accesses to succeed is 
+>>> I see from the tarball that you have a lot of uncommitted changes. This is
+>>> probably because whatever is causing the anonymous accesses to succeed is
+>>> breaking other code paths by giving them an empty username: in particular
+>>> it seems reasonably likely that the `git` plugin will refuse to commit
+>>> changes in that situation.
+>>>
+>>> I would expect that you should be getting error messages on the ikiwiki
+>>> CGI script's `stderr` in this situation. In Apache they would normally
+>>> end up in `error.log`; I don't know how nginx does logging, but it is
+>>> probably something similar. Please check that log for relevant-looking
+>>> error messages. --[[smcv]]
