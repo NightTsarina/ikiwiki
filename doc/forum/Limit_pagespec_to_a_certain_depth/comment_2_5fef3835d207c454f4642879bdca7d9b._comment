@@ -1,0 +1,28 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="you can't use and/or/! inside the page() parameter, move them outside"
+ date="2017-05-14T10:49:53Z"
+ content="""
+`page(x)` interprets _x_ as a glob (a wildcard pattern like the ones in Unix and DOS,
+with `*` and `?` as special characters), not as a full pagespec. I think you want:
+
+    page(*) and !*/*
+
+which is shorthand for
+
+    page(*) and !glob(*/*)
+
+The only difference between `page` and `glob` is that `glob` accepts both
+(HTML) pages and attachments, while `page` only accepts pages. For instance on
+ikiwiki installations that use the standard basewiki,
+
+    [[!map pages=\"glob(*)\"]]
+
+matches both [sandbox](/sandbox/) (a page) and [style.css](/style.css) (an
+attachment at the top level), while
+
+    [[!map pages=\"page(*)\"]]
+
+matches [sandbox](/sandbox/) but not [style.css](/style.css).
+"""]]
