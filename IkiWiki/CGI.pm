@@ -490,7 +490,8 @@ sub cgierror ($) {
 	print "Content-type: text/html\n\n";
 	print cgitemplate(undef, gettext("Error"),
 		"<p class=\"error\">".gettext("Error").": $message</p>");
-	die $@;
+
+	die $message;
 }
 
 1
