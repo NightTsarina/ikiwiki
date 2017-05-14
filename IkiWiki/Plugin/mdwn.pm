@@ -82,10 +82,15 @@ sub htmlize (@) {
 					# Workaround for discount's eliding
 					# of <style> blocks.
 					# https://rt.cpan.org/Ticket/Display.html?id=74016
-					$t=~s/<style/<elyts/ig;
-					my $r=Text::Markdown::Discount::markdown($t, $flags);
-					$r=~s/<elyts/<style/ig;
-					return $r;
+					if (Text::Markdown::Discount->can("MKD_NOSTYLE")) {
+						$flags |= Text::Markdown::Discount::MKD_NOSTYLE();
+					}
+					else {
+						# This is correct for the libmarkdown.so.2 ABI
+						$flags |= 0x00400000;
+					}
+
+					return Text::Markdown::Discount::markdown($t, $flags);
 				}
 			}
 		}
