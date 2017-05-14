@@ -1,0 +1,21 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="comment 1"
+ date="2017-05-14T11:00:47Z"
+ content="""
+The album plugin is not exactly polished - it still hasn't been merged into mainstream
+ikiwiki despite being written by someone who is now an ikiwiki co-maintainer (me),
+because I'm not actively using or developing it at the moment.
+
+I think you might need to use `viewertemplate=albumviewer.tmpl` instead of just
+`viewertemplate=albumviewer` - or miss out that parameter altogether, because
+`albumviewer.tmpl` is the default anyway. If you use `albumviewer` without the
+extension, I think ikiwiki will be looking for an ordinary page (`albumviewer.mdwn` or
+something) that contains a [[templatebody directive|ikiwiki/directive/templatebody]],
+rather than a `.tmpl` file.
+
+If I'm right about that, the `prevtemplate` and `nexttemplate` parameters are
+also going to have the same issue - but you probably haven't noticed that
+because the [[plugins/trail]] links let you navigate anyway.
+"""]]
