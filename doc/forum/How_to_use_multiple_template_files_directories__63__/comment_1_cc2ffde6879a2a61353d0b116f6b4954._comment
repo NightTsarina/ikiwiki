@@ -1,0 +1,29 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="Use an underlay instead"
+ date="2017-05-14T11:37:13Z"
+ content="""
+The exact setup you asked for is not currently possible because `templatedir`
+only takes one value, but you can get the same practical result with an underlay:
+
+* Create `/Users/XXX/config/ikiwiki/common-files/` or something (the exact name
+  is not significant, use whatever you want)
+* Put your templates in `/Users/XXX/config/ikiwiki/common-files/templates/*.tmpl`
+  (it has to be a `templates/` subdirectory)
+* Add the [[plugins/underlay]] plugin to the `add_plugins` config option
+* Add `/Users/XXX/config/ikiwiki/common-files` to the `add_underlays` config
+  option (same syntax as `add_plugins`)
+
+This is priority 2 from your list: it's \"less important\" than the `templates/`
+subdirectory of the `srcdir`, but \"more important\" than the templates shipped
+with ikiwiki.
+
+If you create non-template pages or attachments in that underlay, they will
+also be considered \"less important\" than pages or attachments of the same
+name in the `srcdir`, but \"more important\" than ikiwiki's `basewiki` underlay.
+I use an underlay like this to make
+[smcv.pseudorandom.co.uk](https://smcv.pseudorandom.co.uk/)
+and [www.pseudorandom.co.uk](https://www.pseudorandom.co.uk/)
+share a stylesheet.
+"""]]
