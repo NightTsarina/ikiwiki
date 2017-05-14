@@ -31,6 +31,14 @@ doing this:
     add `id` anchors when using [Text::Multimarkdown][] which is
     simply a matter of adding `multimarkdown: 1` in the setup file
 
+    > I don't think multimarkdown is a good solution. It served a useful
+    > purpose when we were defaulting to [[!cpan Text::Markdown]] or to
+    > `markdown.pl`, but now that we're using Discount by default,
+    > Multimarkdown is mostly a trap for the unwary - it's a less predictable
+    > and (in general) less featureful parser than Discount. Ideally we'd
+    > always be using CommonMark or Discount these days, but as
+    > far as I know there's still no API-stable CommonMark library. --[[smcv]]
+
  2. enable the [[plugins/headinganchors]] plugin. if multimarkdown is
     disabled, this can also provide usable identifiers.
 
