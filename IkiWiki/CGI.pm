@@ -146,7 +146,7 @@ sub needsignin ($$) {
 	my $q=shift;
 	my $session=shift;
 
-	if (! defined $session->param("name") ||
+	if (! length $session->param("name") ||
 	    ! userinfo_get($session->param("name"), "regdate")) {
 		$session->param(postsignin => $q->query_string);
 		cgi_signin($q, $session);
@@ -391,7 +391,7 @@ sub checksessionexpiry ($$) {
 
 	if (defined $session->param("name")) {
 		my $sid=$q->param('sid');
-		if (! defined $sid || $sid ne $session->id) {
+		if (! defined $sid || $sid ne $session->id || ! length $session->param("name")) {
 			error(gettext("Your login session has expired."));
 		}
 	}
@@ -444,11 +444,11 @@ sub cgi (;$$) {
 	}
 	
 	# Auth hooks can sign a user in.
-	if ($do ne 'signin' && ! defined $session->param("name")) {
+	if ($do ne 'signin' && ! length $session->param("name")) {
 		run_hooks(auth => sub {
 			shift->($q, $session)
 		});
-		if (defined $session->param("name")) {
+		if (length $session->param("name")) {
 			# Make sure whatever user was authed is in the
 			# userinfo db.
 			if (! userinfo_get($session->param("name"), "regdate")) {
