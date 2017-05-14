@@ -64,14 +64,26 @@ sub htmlize (@) {
 			if (! $@) {
 				$markdown_sub=sub {
 					my $t=shift;
+
 					# Workaround for discount binding bug
 					# https://rt.cpan.org/Ticket/Display.html?id=73657
 					return "" if $t=~/^\s*$/;
+
+					my $flags=0;
+
+					# Disable Pandoc-style % Title, % Author, % Date
+					# Use the meta plugin instead
+					$flags |= Text::Markdown::Discount::MKD_NOHEADER();
+
+					# Disable Unicodification of quote marks, em dashes...
+					# Use the typography plugin instead
+					$flags |= Text::Markdown::Discount::MKD_NOPANTS();
+
 					# Workaround for discount's eliding
 					# of <style> blocks.
 					# https://rt.cpan.org/Ticket/Display.html?id=74016
 					$t=~s/<style/<elyts/ig;
-					my $r=Text::Markdown::Discount::markdown($t);
+					my $r=Text::Markdown::Discount::markdown($t, $flags);
 					$r=~s/<elyts/<style/ig;
 					return $r;
 				}
