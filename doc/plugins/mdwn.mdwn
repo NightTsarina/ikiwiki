@@ -12,6 +12,9 @@ this plugin. In order of preference:
 
 * [Discount](http://www.pell.portland.or.us/~orc/Code/discount/),
   via the [[!cpan Text::Markdown::Discount]] perl module.
+  This implementation is considered to be the default and is strongly
+  recommended, but it is not mandatory because it requires an external
+  C library.
 * The [[!cpan Text::Markdown]] perl module.
 * The [original version of markdown](http://daringfireball.net/projects/markdown/).
 
@@ -20,4 +23,6 @@ and other new features from the markdown variant called
 [multimarkdown](http://fletcherpenney.net/MultiMarkdown/). Multimarkdown is
 not enabled by default, but can be turned on via the `multimarkdown` option
 in the setup file. Note that multimarkdown's metadata and wikilinks
-features are disabled when it's used with ikiwiki.
+features are disabled when it's used with ikiwiki. Also note that if the
+`multimarkdown` option is enabled, it takes priority over Discount, which
+might cause formatting that is understood by Discount to be ignored.
