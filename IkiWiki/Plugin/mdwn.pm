@@ -7,6 +7,7 @@ use strict;
 use IkiWiki 3.00;
 
 sub import {
+	hook(type => "checkconfig", id => "mdwn", call => \&checkconfig);
 	hook(type => "getsetup", id => "mdwn", call => \&getsetup);
 	hook(type => "htmlize", id => "mdwn", call => \&htmlize, longname => "Markdown");
 	hook(type => "htmlize", id => "md", call => \&htmlize, longname => "Markdown (popular file extension)", nocreate => 1);
@@ -33,6 +34,17 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
+		mdwn_footnotes => {
+			type => "boolean",
+			example => 1,
+			description => "enable footnotes in Markdown (where supported)?",
+			safe => 1,
+			rebuild => 1,
+		},
+}
+
+sub checkconfig () {
+	$config{mdwn_footnotes} = 1 unless defined $config{mdwn_footnotes};
 }
 
 my $markdown_sub;
@@ -54,7 +66,13 @@ sub htmlize (@) {
 			}
 			else {
 				$markdown_sub=sub {
-					Text::MultiMarkdown::markdown(shift, {use_metadata => 0});
+					my %flags=( use_metadata => 0 );
+
+					if ($config{mdwn_footnotes}) {
+						$flags{disable_footnotes}=1;
+					}
+
+					Text::MultiMarkdown::markdown(shift, \%flags);
 				}
 			}
 		}
@@ -78,6 +96,10 @@ sub htmlize (@) {
 					# Disable Unicodification of quote marks, em dashes...
 					# Use the typography plugin instead
 					$flags |= Text::Markdown::Discount::MKD_NOPANTS();
+
+					if ($config{mdwn_footnotes}) {
+						$flags |= Text::Markdown::Discount::MKD_EXTRA_FOOTNOTE();
+					}
 
 					# Workaround for discount's eliding
 					# of <style> blocks.
