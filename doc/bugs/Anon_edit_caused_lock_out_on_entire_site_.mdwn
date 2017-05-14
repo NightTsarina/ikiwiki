@@ -32,6 +32,9 @@ The `anonok` plugin is **not** enabled
 
 >> Pasted [[here|addplugins]]
 
+>>> I asked three questions and you gave one answer. Please answer the
+>>> other two questions. --[[smcv]]
+
 ---
 
 ## Steps
@@ -49,6 +52,35 @@ As a consequence of that, the user '' - that's a null character, have somehow lo
 None of this phantom user edits are being commited - this [blog post](https://dev.iikb.org/blog/posts/Bug_severo_neste_site/) was made with that user logged in via web.
 
 It seems I can't log out from nowhere. I've rebuild the wiki from the command line and restarted the nginx server, the phantom user remains logged in and open to anyone willing to edit away the wiki.
+
+> I wonder whether this might be caused by the combination of the `httpauth` plugin
+> with the nginx web server. `httpauth` is known to work correctly with Apache,
+> but you might be the first to use it with nginx.
+>
+> Specifically, I wonder whether `$cgi->remote_user()` might be returning the
+> empty string. Looking at the code, we expect it to be either a non-empty
+> username, or `undef`.
+>
+> Please try installing this CGI script on your nginx server, making it
+> executable and accessing its URL without carrying out any special HTTP
+> authentication (you can delete the script immediately afterwards if
+> you want). If my theory is right, you will see a line `REMOTE_USER=` in
+> the output. Post the output somewhere, or mail it to `smcv` at
+> `debian.org` if you don't want to make it public.
+>
+> ```
+> #!/bin/sh
+> printf 'Content-type: text/plain\r\n\r\n'
+> env | LC_ALL=C sort
+> ```
+>
+> If you do not intend to use
+> [HTTP basic authentication](https://en.wikipedia.org/wiki/Basic_access_authentication),
+> please do not enable the `httpauth` plugin. That plugin is intended to be used
+> in conjunction with a web server configured to require HTTP basic authentication
+> with one of a limited set of authorized usernames.
+>
+> --[[smcv]]
 
 ---
 
@@ -74,3 +106,6 @@ Is there a session file or something to logout this phantom user?
 > share them, please contact <mailto:smcv@debian.org>. --[[smcv]]
 
 >> I think I've sent right away when you asked, anyway I still have the tarball hanging around. The last *iikb* domains will expire next month though, the wiki will only be accessible by mirror <https://notabug.org/iikb/dev.iikb.org>.
+
+>>> I see you have a lot of uncommitted changes. This is probably because
+>>> whatever is causing the anonymous accesses to succeed is 
