@@ -291,6 +291,10 @@ sub test {
 	$content = readfile('t/tmp/in/two.mdwn');
 	like($content, qr{Here is new content for the second page});
 
+	# We have to wait 1 second here so that new writes are guaranteed
+	# to have a strictly larger mtime.
+	sleep 1;
+
 	# This one can legitimately be reverted
 	$content = run_cgi(method => 'post',
 		params => {
