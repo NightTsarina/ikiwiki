@@ -1,0 +1,24 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="comment 2"
+ date="2017-05-14T12:01:08Z"
+ content="""
+The AsciiDoc plugin is not part of ikiwiki, and none of the ikiwiki maintainers
+develop or use it. You might get better results by contacting its authors,
+or by reading its source code or the source code of the third-party libraries
+or tools that it uses.
+
+[Searching for the error
+message](https://codesearch.debian.net/search?q=ifeval+invalid+safe+document)
+is probably a good starting point for understanding what is happening here.
+
+I suspect that what is happening might be that the plugin puts asciidoc into
+some sort of \"safe mode\" so that wiki editors cannot cause arbitrary code
+execution, but you are making use of asciidoc features that can execute
+arbitrary code, which the asciidoc implementation forbids.
+
+In general, ikiwiki plugins are expected to arrange for filtering or
+configuration to be carried out so that the ability to edit the wiki does
+not give an attacker the ability to execute arbitrary code on the server.
+"""]]
