@@ -66,7 +66,7 @@ sub auth ($$) {
 	my $cgi=shift;
 	my $session=shift;
 
-	if (defined $cgi->remote_user()) {
+	if (length $cgi->remote_user()) {
 		$session->param("name", $cgi->remote_user());
 	}
 }
@@ -80,7 +80,7 @@ sub formbuilder_setup (@) {
 	my $buttons=$params{buttons};
 
 	if ($form->title eq "signin" &&
-	    ! defined $cgi->remote_user() && defined $config{cgiauthurl}) {
+	    ! length $cgi->remote_user() && defined $config{cgiauthurl}) {
 		my $button_text="Login with HTTP auth";
 		push @$buttons, $button_text;
 
@@ -97,7 +97,7 @@ sub canedit ($$$) {
 	my $cgi=shift;
 	my $session=shift;
 
-	if (! defined $cgi->remote_user() &&
+	if (! length $cgi->remote_user() &&
 	    (! defined $session->param("name") ||
              ! IkiWiki::userinfo_get($session->param("name"), "regdate")) &&
 	    defined $config{httpauth_pagespec} &&
