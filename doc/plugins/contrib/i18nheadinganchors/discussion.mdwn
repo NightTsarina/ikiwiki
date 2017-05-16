@@ -1,0 +1,92 @@
+I would not be comfortable with merging this into headinganchors and enabling it by
+default for two reasons:
+
+* it adds a new dependency on [[!cpan Text::Unidecode]]
+* Text::Unidecode specifically documents its transliteration as not being stable
+  across versions
+
+There are several "slugify" libraries available other than Text::Unidecode.
+It isn't clear to me which one is the best. Pandoc also documents
+[an algorithm for generating slugs](http://pandoc.org/MANUAL.html#extension-auto_identifiers),
+and it would be nice if our fallback implementation (with i18n disabled) was compatible
+with Pandoc's, at least for English text.
+
+However! In HTML5, IDs are allowed to contain anything except _space characters_
+(space, newline, tab, CR, FF), so we could consider just passing non-ASCII
+through the algorithm untouched. This [example link to a Russian
+anchor name](#пример) (the output of putting "example" into English-to-Russian
+Google Translate) hopefully works? (Use a small browser window to make it
+clearer where it goes)
+
+So perhaps we could try this Unicode-aware version of what Pandoc documents:
+
+* Remove footnote links if any (this might have to be heuristic, or we could
+  skip this step for a first implementation)
+* Take only the plain text, no markup (passing the heading through HTML::Parser
+  and collecting only the text nodes would be the fully-correct version of this,
+  or we could fake it with regexes and be at least mostly correct)
+* Strip punctuation, using some Unicode-aware definition of what is punctuation:
+  perhaps `s/[^-\w_. ]//gu;` (delete anything that is not a (Unicode-aware) word
+  character, hyphen-minus, underscore, dot or space)
+* Replace spaces with hyphen-minus
+* Force to lower-case with `lc`
+* Strip leading digits and punctuation
+* If the string is empty, use `section`
+* If we already generated a matching identifier, append `-1`, `-2`, etc. until we find
+  an unused identifier
+
+(Or to provide better uniqueness, we could parse the document looking for any existing
+ID, then generate IDs avoiding collisions with any of them.)
+
+This would give us, for example, `## Visiting 北京` → `id="visiting-北京"`
+(where Text::Unidecode would instead transliterate, resulting in `id="visiting-bei-jing"`).
+
+To use these IDs in fragments, I would be inclined to rely on browsers
+supporting [IRIs](https://tools.ietf.org/html/rfc3987): `<a href="#visiting-北京">`.
+
+--[[smcv]]
+
+----
+
+<pre>Some long scrollable text
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+<span id="#пример">Example fragment ID in Russian should point here</span>
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.
+.</pre>
