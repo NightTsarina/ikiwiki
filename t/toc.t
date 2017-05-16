@@ -10,6 +10,15 @@ BEGIN { use_ok("IkiWiki::Render"); }
 %config=IkiWiki::defaultconfig();
 $config{srcdir}=$config{destdir}="/dev/null";
 $config{add_plugins}=[qw(toc)];
+
+my $installed = $ENV{INSTALLED_TESTS};
+
+unless ($installed) {
+	$config{templatedir} = "templates";
+	$config{underlaydir} = "underlays/basewiki";
+	$config{underlaydirbase} = "underlays";
+}
+
 IkiWiki::loadplugins();
 IkiWiki::checkconfig();
 

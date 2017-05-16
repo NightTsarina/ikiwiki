@@ -10,6 +10,14 @@ BEGIN { use_ok("IkiWiki::Render"); }
 %config=IkiWiki::defaultconfig();
 $config{srcdir}=$config{destdir}="/dev/null";
 
+my $installed = $ENV{INSTALLED_TESTS};
+
+unless ($installed) {
+	$config{templatedir} = "templates";
+	$config{underlaydir} = "underlays/basewiki";
+	$config{underlaydirbase} = "underlays";
+}
+
 sub render {
 	my $content = shift;
 	$IkiWiki::pagesources{foo} = "foo.mdwn";
