@@ -38,12 +38,11 @@ sub preserve_style ($$$) {
 				($background =~ /^[a-z]+$/ || $background =~ /^#[0-9a-f]{3,6}$/));
 
 	my $preserved = '';
-	$preserved .= '<span class="color">';
+	$preserved .= '<span class="color"><span value="';
 	$preserved .= 'color: '.$foreground if ($foreground);
 	$preserved .= '; ' if ($foreground && $background);
 	$preserved .= 'background-color: '.$background if ($background);
-	$preserved .= '</span>';
-	$preserved .= '<span class="colorend">'.$text.'</span>';
+	$preserved .= '"></span>'.$text.'</span>';
 	
 	return $preserved;
 
@@ -52,8 +51,7 @@ sub preserve_style ($$$) {
 sub replace_preserved_style ($) {
 	my $content = shift;
 
-	$content =~ s!<span class="color">((color: ([a-z]+|\#[0-9a-f]{3,6})?)?((; )?(background-color: ([a-z]+|\#[0-9a-f]{3,6})?)?)?)</span>!<span class="color" style="$1">!g;
-	$content =~ s!<span class="colorend">!!g;
+	$content =~ s!<span class="color">\s*<span value="((color: ([a-z]+|\#[0-9a-f]{3,6})?)?((; )?(background-color: ([a-z]+|\#[0-9a-f]{3,6})?)?)?)">\s*</span>!<span class="color" style="$1">!g;
 
 	return $content;
 }

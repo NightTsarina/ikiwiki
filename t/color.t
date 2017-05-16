@@ -25,10 +25,10 @@ sub render {
 
 foreach my $scrub (0, 1) {
 	if ($scrub) {
-		$config{add_plugins}=[qw(color htmlscrubber)];
+		$config{add_plugins}=[qw(color htmlscrubber toc)];
 	}
 	else {
-		$config{add_plugins}=[qw(color)];
+		$config{add_plugins}=[qw(color toc)];
 	}
 
 	IkiWiki::loadplugins();
@@ -44,6 +44,9 @@ foreach my $scrub (0, 1) {
 		qr{(?s)<span class="color" style="">Hi</span>});
 	like(render('[[!color foreground="x; pwned: exploit" text="Hi"]]'),
 		qr{(?s)<span class="color" style="">Hi</span>});
+
+	like(render("[[!toc ]]\n\n## [[!color foreground=red text=Important]]"),
+		qr{<a href="\#index1h2">Important</a>});
 }
 
 done_testing();
