@@ -7,6 +7,8 @@ It uses the [[ikiwiki/markdown]] minimal markup language.
 This is the standard markup language used by ikiwiki, although some others
 are also available in other plugins.
 
+## Implementations
+
 There are several implementations of markdown support that can be used by
 this plugin. In order of preference:
 
@@ -27,3 +29,21 @@ in the setup file. Note that multimarkdown's metadata and wikilinks
 features are disabled when it's used with ikiwiki. Also note that if the
 `multimarkdown` option is enabled, it takes priority over Discount, which
 might cause formatting that is understood by Discount to be ignored.
+
+
+## Advanced options
+
+* `nodiscount`: If set to 1, Text::Markdown::Discount will not be used
+  even if it is available. The default is to use Discount if available,
+  and this is recommended.
+* `multimarkdown`: If set to 1, Text::MultiMarkdown will be used in
+  preference to Text::Markdown::Discount. The default is to not use
+  MultiMarkdown, and this is recommended.
+* `mdwn_footnotes`: If set to 1, implementations that support it will
+  recognise the PHP Markdown Extra syntax for footnotes. The default
+  is 1.
+* `mdwn_alpha_lists`: If set to 1, Text::Markdown::Discount will
+  accept letters as well as numbers in ordered list markers. The
+  default is 0, to avoid unintended parsing of lines that happen
+  to begin with a letter and a dot, such as "C. S. Lewis was an
+  author" or "M. Descartes was a philosopher".

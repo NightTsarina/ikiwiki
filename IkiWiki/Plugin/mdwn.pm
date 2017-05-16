@@ -41,10 +41,19 @@ sub getsetup () {
 			safe => 1,
 			rebuild => 1,
 		},
+		mdwn_alpha_lists => {
+			type => "boolean",
+			example => 0,
+			description => "interpret line like 'A. First item' as ordered list when using Discount?",
+			advanced => 1,
+			safe => 1,
+			rebuild => 1,
+		},
 }
 
 sub checkconfig () {
 	$config{mdwn_footnotes} = 1 unless defined $config{mdwn_footnotes};
+	$config{mdwn_alpha_lists} = 0 unless defined $config{mdwn_alpha_lists};
 }
 
 my $markdown_sub;
@@ -99,6 +108,10 @@ sub htmlize (@) {
 
 					if ($config{mdwn_footnotes}) {
 						$flags |= Text::Markdown::Discount::MKD_EXTRA_FOOTNOTE();
+					}
+
+					unless ($config{mdwn_alpha_lists}) {
+						$flags |= Text::Markdown::Discount::MKD_NOALPHALIST();
 					}
 
 					# Workaround for discount's eliding
