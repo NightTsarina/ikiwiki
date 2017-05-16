@@ -1,5 +1,5 @@
 I would not be comfortable with merging this into headinganchors and enabling it by
-default for two reasons:
+default for two main reasons:
 
 * it adds a new dependency on [[!cpan Text::Unidecode]]
 * Text::Unidecode specifically documents its transliteration as not being stable
@@ -36,13 +36,36 @@ So perhaps we could try this Unicode-aware version of what Pandoc documents:
   an unused identifier
 
 (Or to provide better uniqueness, we could parse the document looking for any existing
-ID, then generate IDs avoiding collisions with any of them.)
+ID, then append `-1`, `-2` to each generated ID until there is no collision.)
 
 This would give us, for example, `## Visiting 北京` → `id="visiting-北京"`
-(where Text::Unidecode would instead transliterate, resulting in `id="visiting-bei-jing"`).
+(whereas Text::Unidecode would instead transliterate, resulting in
+`id="visiting-bei-jing"`).
 
 To use these IDs in fragments, I would be inclined to rely on browsers
 supporting [IRIs](https://tools.ietf.org/html/rfc3987): `<a href="#visiting-北京">`.
+
+--[[smcv]]
+
+
+----
+
+Documentation says:
+
+> _Also note that all heading attributes are overriden with the ID tag. If this
+> is not desirable, we'd need to fire up a full HTML::Parser or do some more
+> regex magic to preserve the attributes other than id= which we want to keep._
+
+I think this is a bug, particularly if you are using Pandoc's
+[header attributes](http://pandoc.org/MANUAL.html#extension-header_attributes)
+or similar.
+
+I think we should try to use an existing ID before generating our own, with the
+generation step as a fallback, just like Pandoc does. If a htmlize layer like
+Text::MultiMarkdown or Pandoc is generating worse IDs than this plugin, the
+the right solution to that is to send a bug report / feature request to
+make its IDs as good as this plugin's, or turn off ID generation in the
+htmlize layer, or stop using Text::MultiMarkdown.
 
 --[[smcv]]
 
