@@ -1,0 +1,15 @@
+The new way to confirm ownership of a domain on Flattr is to add a `meta` tag to the page head. For example:
+
+     <meta name="flattr:id" content="4j6y0v">
+
+However, the [[ikiwiki/directive/meta]] directive doesn't allow setting of names with colons.
+
+If I do this:
+
+    \[[!meta flattr:id="4j6y0v"]]
+
+it gets rendered as:
+
+    <meta name="flattr:id=&quot;4j6y0v&quot;" content="" />
+
+I tried [a number of possibilities](https://feeding.cloud.geek.nz/recentchanges/) and they all failed to produce the correct output.
