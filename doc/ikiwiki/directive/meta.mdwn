@@ -13,7 +13,7 @@ per `meta` directive, use more directives if you want to specify more fields.
 The field values are treated as HTML entity-escaped text, so you can include
 a quote in the text by writing `&quot;` and so on.
 
-Supported fields:
+## Supported fields
 
 * title
 
@@ -204,9 +204,20 @@ Supported fields:
 
   	\[[!meta foaf=foaf.rdf]]
 
+* name
+
+  Adds a HTML `<meta>` header with this `name` attribute. Its other attributes are
+  taken from the other parameters, so for example
+  `\[[!meta name="foo" content="bar" x-non-standard-attribute="baz"]]`
+  becomes `<meta name="foo" content="bar" x-non-standard-attribute="baz">`. This
+  won't be allowed if the [[!iki plugins/htmlscrubber desc=htmlscrubber]] plugin is enabled,
+  since it can be used to insert unsafe content.
+
+## Other fields
+
 If the field is not one of the above predefined fields, the metadata will be
-written to the generated html page as a &lt;meta&gt; header. However, this
-won't be allowed if the [[!iki plugins/htmlscrubber desc=htmlscrubber]] plugin is enabled,
-since it can be used to insert unsafe content.
+written to the generated html page as a &lt;meta&gt; header. For example,
+`\[[!meta foo="bar"]]` becomes `<meta name="foo" content="bar">`. As with `name`, this
+won't be allowed if the [[!iki plugins/htmlscrubber desc=htmlscrubber]] plugin is enabled.
 
 [[!meta robots="noindex, follow"]]
