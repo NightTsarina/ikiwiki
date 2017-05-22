@@ -1,0 +1,40 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="I suggest asking macOS/brew people"
+ date="2017-05-22T11:02:44Z"
+ content="""
+The multimarkdown option is not necessarily a good idea. The default
+and recommended Markdown implementation in ikiwiki is Discount, which already
+supports many of the same extensions as multimarkdown (in released versions of ikiwiki,
+footnotes are a notable omission, but those will be enabled by default in the
+next release).
+
+If you want to use multimarkdown anyway, please check what the search path is
+for the version of Perl that you are using to run ikiwiki. In particular, the
+most reliable setup is likely to be one where you get Perl, Text::MultiMarkdown
+and IkiWiki from the same vendor (for example Homebrew or pkgsrc) without
+mixing those vendors.
+
+If you obtained one of those packages (for example ikiwiki) by building it
+yourself from source code, its author is unlikely to be able to help you
+unless they happen to be a macOS user themselves, which most of the ikiwiki
+contributors are not. If you are doing this, you should make sure you
+understand how Perl finds libraries (for example this is described in
+the perlrun man page). It might be necessary to add
+
+```
+ENV:
+  PERL5LIB: /some/path:/some/other/path
+```
+
+(YAML syntax) or
+
+```
+  ENV => {
+    PERL5LIB => \"/some/path:/some/other/path\",
+  },
+```
+
+(Perl syntax) to your [[setup file|setup]].
+"""]]
