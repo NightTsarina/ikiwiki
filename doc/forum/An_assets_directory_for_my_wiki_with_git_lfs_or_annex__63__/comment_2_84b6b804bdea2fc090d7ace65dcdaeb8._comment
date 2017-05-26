@@ -1,0 +1,19 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="Please do not patch out the symlink check"
+ date="2017-05-26T06:20:22Z"
+ content="""
+The check for symbolic links avoids a security vulnerability. Please do not patch
+it out. We will not support versions of ikiwiki that have been modified in this way.
+
+(In particular, if your wiki has more than one committer, then the other committers
+can use symbolic links to leak the contents of any file that is readable by
+the wiki.)
+
+If you want to store a separate assets directory, I would recommend using an
+underlay directory. You can use git-annex for this if it is placed in direct mode.
+
+I do want to support git-annex and some limited/safe subset of symlinks in
+ikiwiki, but not until we can do that without introducing a security flaw.
+"""]]
