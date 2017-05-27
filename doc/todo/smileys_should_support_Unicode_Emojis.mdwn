@@ -1,0 +1,128 @@
+Why are there graphic-based smileys at all, when Unicode supports most of them directly?
+
+What Unicode doesn't support can be handled by FontAwesome or a little CSS. 
+
+Keeping font-based solutions to emojis allows them to scale naturally with the fonts. An emoji in the title becomes a different size than an emoji in paragraph, or an emoji in a subscript.
+
+Here's a smileys.mdwn file that doesn't use any graphics at all:
+
+<pre>
+This page is used to control what smileys are supported by the wiki.
+Just write the text of a smiley to display it.
+
+* \\:)	[🙂]
+* \\:smile:	[🙂]
+* \\:-)	[🙂]
+* \\:D	[😃] 
+* \\:-D	[😃] 
+* \\:grin:	[😃] 
+* \\B)	[😎]
+* \\B-)	[😎]
+* \\:))	[😛]
+* \\:-))	[😛]
+* \\;)	[😉]
+* \\;-)	[😉]
+* \\:\	[😕]
+* \\:-\	[😕]
+* \\:/	[😕]
+* \\:-/	[😕]
+* \\:|	[😐]
+* \\:-|	[😐]
+* \\>:>	[😈]
+* \\X-(	[😡]
+* \\&lt;:(	[😧]
+* \\:(	[🙁]
+* \\:-(	[🙁]
+* \\:-?	[😝]
+* \\:-P	[😝]
+* \\:o	[😱]
+* \\|)	[😪]
+* \\|-)	[😪]
+* \\{OK}	[👍]
+* \\:+1:    [👍]
+* \\:-1:    [👎]
+* \\(/)	[🚫]
+* \\{X}	[🛑]
+* \\{i}	[ℹ️]
+* \\(./)	[✔︎]
+* \\(!)	[💡]
+* \\[!]	[✋]
+* \\/!\	[⚠️]
+* \\(?)	[❓]
+* \\(!?)	[⁉️]
+* \\{x}	[☒]
+* \\{*}	[☑︎]
+* \\{o}	[☐]
+* \\{1}	[<span class="priority-1">𝟙</span>]
+* \\{2}	[<span class="priority-2">𝟚</span>]
+* \\{3}	[<span class="priority-3">𝟛<span>]
+
+For example: {x} B) {x} {3} :grin: :-1: 
+
+----
+
+To change the supported smileys, just edit the lists on this page.
+Note that the format is important; each list item should start with the
+text that is turned into the smiley, escaped so that users can see what
+produces it, followed by a [[ikiwiki/WikiLink]] to the image to display.
+
+/!\ Bear in mind that the link to the image needs to be written in a way that
+will work if it's copied to other pages on the wiki. So be sure to include the
+smileys directory in the path to the file.
+</pre>
+
+Here's the patch to smiley.pm:
+
+<pre>
+--- smiley.pm.orig	2017-05-26 18:00:01.000000000 -0400
++++ smiley.pm	2017-05-26 22:01:18.000000000 -0400
+@@ -33,17 +33,17 @@
+ 		return;
+ 	}
+ 	my $list=readfile($srcfile);
+-	while ($list =~ m/^\s*\*\s+\\\\([^\s]+)\s+\[\[([^]]+)\]\]/mg) {
++	while ($list =~ m/^\s*\*\s+\\\\([^\s]+)\s+\[([^\]]+)\]/mg) {
+ 		my $smiley=$1;
+-		my $file=$2;
++		my $value=$2;
+
+-		$smileys{$smiley}=$file;
++		$smileys{$smiley}=$value;
+
+ 		# Add a version with < and > escaped, since they probably
+ 		# will be (by markdown) by the time the sanitize hook runs.
+ 		$smiley=~s/</&lt;/g;
+ 		$smiley=~s/>/&gt;/g;
+-		$smileys{$smiley}=$file;
++		$smileys{$smiley}=$value;
+ 	}
+
+ 	if (! %smileys) {
+@@ -94,10 +94,18 @@
+ 		}
+ 		else {
+ 			# Replace the smiley with its expanded value.
+-			my $link=htmllink($params{page}, $params{destpage},
+-				         $smileys{$smiley}, linktext => $smiley);
+-			substr($_, $spos, length($smiley))=$link;
+-			pos=$epos+length($link);
++			my $value = $smileys{$smiley};
++			my $replacement = "";
++			if ($value =~ /\[([^\]]*)/) {
++				$value=$1;
++				$replacement=htmllink($params{page}, $params{destpage},
++							$value, linktext => $smiley);
++			}
++			else {
++				$replacement=$value;
++			}
++			substr($_, $spos, length($smiley))=$replacement;
++			pos=$epos+length($replacement);
+ 		}
+ 	}
+
+</pre>
+
+As you can see, it keeps the [] characters around the smiley. This can be useful if it renders to nothing in the browser -- particularly in the CSS-based solutions. 
+
+It keeps the same data structure, but images get a "[" prefix to them as a marker. Since I minimized the changes to the regex, the trailing "]" is still dropped.
