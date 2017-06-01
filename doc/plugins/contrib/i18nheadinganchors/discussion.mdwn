@@ -18,6 +18,9 @@ anchor name](#пример) (the output of putting "example" into English-to-Rus
 Google Translate) hopefully works? (Use a small browser window to make it
 clearer where it goes)
 
+> Can we assume Ikiwiki generates HTML5 all the time? I thought that was still a 
+> setting off by default... --[[anarcat]]
+
 So perhaps we could try this Unicode-aware version of what Pandoc documents:
 
 * Remove footnote links if any (this might have to be heuristic, or we could
@@ -47,6 +50,10 @@ supporting [IRIs](https://tools.ietf.org/html/rfc3987): `<a href="#visiting-北�
 
 --[[smcv]]
 
+> I guess this makes sense. I just wonder how well this is actually supported in all
+> browsers.. I looked around and suspect this will work in more recent browsers, but,
+> as an example, https://caniuse.com/ doesn't have that feature listed in their 
+> tables. :) -- [[anarcat]]
 
 ----
 
@@ -60,6 +67,9 @@ I think this is a bug, particularly if you are using Pandoc's
 [header attributes](http://pandoc.org/MANUAL.html#extension-header_attributes)
 or similar.
 
+> It's not a bug, it's a limitation. :) But sure, it's a thing. It's an issue in
+> headinganchors as well of course. -- [[anarcat]]
+
 I think we should try to use an existing ID before generating our own, with the
 generation step as a fallback, just like Pandoc does. If a htmlize layer like
 Text::MultiMarkdown or Pandoc is generating worse IDs than this plugin, the
@@ -68,6 +78,11 @@ make its IDs as good as this plugin's, or turn off ID generation in the
 htmlize layer, or stop using Text::MultiMarkdown.
 
 --[[smcv]]
+
+> Agreed. However, the situation I was in was that multimarkdown *and* the 
+> headinganchors plugins had issues I had to fix. So it was better and easier
+> for me to just override whatever attributes were there for testing and 
+> fixing this in the short term... -- [[anarcat]]
 
 ----
 
@@ -113,3 +128,5 @@ htmlize layer, or stop using Text::MultiMarkdown.
 .
 .
 .</pre>
+
+> This works for me on ` Mozilla/5.0 (X11; Linux x86_64; rv:50.0) Gecko/20100101 Firefox/50.0` on Debian stretch, FWIW. --[[anarcat]]
