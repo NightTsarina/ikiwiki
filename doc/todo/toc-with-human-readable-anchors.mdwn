@@ -24,6 +24,8 @@ my [toc-recycle-id branch][] (see [921a264][]).
 [921a264]: https://gitlab.com/anarcat/ikiwiki/commit/27d5d9d126b6b675ad273ebd63095df0c921a264
 [toc-recycle-id branch]: https://gitlab.com/anarcat/ikiwiki/commits/toc-id-recycle
 
+> [[Merged|done]] --[[smcv]]
+
 The second step is to generate those headings. There are two ways of
 doing this:
 
@@ -40,7 +42,16 @@ doing this:
     > far as I know there's still no API-stable CommonMark library. --[[smcv]]
 
     > > Sure - but then does discount introduce those identifiers in headings?
+    > >
+    > > > Only if you ask for a table of contents, which ikiwiki doesn't.
+    > > > If you want it to have a flag to produce the IDs even without enabling
+    > > > its built-in ToC support, that would be a feature request for discount,
+    > > > not ikiwiki. Until/unless it does, there's always headinganchors. --s
+    > >
     > > And what about the patch to recycle those identifiers? --[[anarcat]]
+    > > >
+    > > > I already merged it, and added a regression test. Sorry, I forgot
+    > > > to close this todo at the time. --s
 
  2. enable the [[plugins/headinganchors]] plugin. if multimarkdown is
     disabled, this can also provide usable identifiers.
