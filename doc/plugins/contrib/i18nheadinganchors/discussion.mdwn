@@ -84,6 +84,10 @@ or similar.
 > It's not a bug, it's a limitation. :) But sure, it's a thing. It's an issue in
 > headinganchors as well of course. -- [[anarcat]]
 
+>> No, current/historical headinganchors has a different bug: it ignores headings
+>> that have any attributes, and does not generate anchors for them. That gives it
+>> degraded functionality, but no information loss. I think that's less bad. --s
+
 I think we should try to use an existing ID before generating our own, with the
 generation step as a fallback, just like Pandoc does. If a htmlize layer like
 Text::MultiMarkdown or Pandoc is generating worse IDs than this plugin, the
