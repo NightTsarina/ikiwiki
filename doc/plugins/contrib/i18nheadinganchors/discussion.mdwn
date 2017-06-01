@@ -21,6 +21,13 @@ clearer where it goes)
 > Can we assume Ikiwiki generates HTML5 all the time? I thought that was still a 
 > setting off by default... --[[anarcat]]
 
+>> ikiwiki always generates HTML5, since 3.20150107. The `html5` option has
+>> been repurposed to control whether we generate new-in-HTML5 semantic
+>> markup like `<section>` and `<nav>` (`html5` enabled), or HTML4 equivalents
+>> like `<div>` with a class (`html5` disabled). The default is still off,
+>> although I should probably either toggle it to on or remove the option
+>> altogether in the next release. --s
+
 So perhaps we could try this Unicode-aware version of what Pandoc documents:
 
 * Remove footnote links if any (this might have to be heuristic, or we could
@@ -54,6 +61,13 @@ supporting [IRIs](https://tools.ietf.org/html/rfc3987): `<a href="#visiting-åŒ—ä
 > browsers.. I looked around and suspect this will work in more recent browsers, but,
 > as an example, https://caniuse.com/ doesn't have that feature listed in their 
 > tables. :) -- [[anarcat]]
+
+>> That might well indicate that all major browsers have always supported it so
+>> there is no need to check. I don't see any particular reason why a browser vendor
+>> would not want to accept arbitrary non-whitespace as a valid anchor.
+>>
+>> In practice, minor or old browsers are probably insecure anyway, so I don't care
+>> too much about supporting them perfectly... --s
 
 ----
 
