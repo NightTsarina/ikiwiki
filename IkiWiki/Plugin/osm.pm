@@ -14,7 +14,7 @@ sub import {
 	hook(type => "format", id => "osm", call => \&format);
 	hook(type => "preprocess", id => "osm", call => \&preprocess);
 	hook(type => "preprocess", id => "waypoint", call => \&process_waypoint);
-	hook(type => "savestate", id => "waypoint", call => \&savestate);
+	hook(type => "changes", id => "waypoint", call => \&changes);
 	hook(type => "cgi", id => "osm", call => \&cgi);
 }
 
@@ -280,7 +280,7 @@ sub scrub_lonlat($$$) {
 	return ($lon, $lat);
 }
 
-sub savestate {
+sub changes {
 	my %waypoints = ();
 	my %linestrings = ();
 

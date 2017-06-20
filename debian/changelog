@@ -15,6 +15,10 @@ ikiwiki (3.20170112) UNRELEASED; urgency=medium
     default when using the default Discount implementation. A new
     mdwn_alpha_list option can be used to restore the old
     interpretation.
+  * osm: Convert savestate hook into a changes hook. savestate is not
+    the right place to write wiki content, and in particular this
+    breaks websetup if osm's dependencies are not installed, even
+    if the osm plugin is not actually enabled. (Closes: #719913)
 
  -- Simon McVittie <smcv@debian.org>  Sun, 14 May 2017 15:34:52 +0100
 
