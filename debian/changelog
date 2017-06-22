@@ -19,6 +19,12 @@ ikiwiki (3.20170112) UNRELEASED; urgency=medium
     the right place to write wiki content, and in particular this
     breaks websetup if osm's dependencies are not installed, even
     if the osm plugin is not actually enabled. (Closes: #719913)
+  * toc: if the heading is of the form <h1 id="...">, use that for
+    the link in the table of contents (but continue to generate
+    <a name="index42"></a> in case someone was relying on it)
+  * color: Do not leak markup into contexts that take only the plain
+    text, such as toc
+  * meta: Document [[!meta name="foo" content="bar"]]
 
  -- Simon McVittie <smcv@debian.org>  Sun, 14 May 2017 15:34:52 +0100
 
