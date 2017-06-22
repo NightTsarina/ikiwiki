@@ -1,0 +1,46 @@
+we've recently updated Imagemagick in NixOS from version 6.9.7-6 to
+6.9.8-4, and this change causes the Ikiwiki test suite to fail in
+t/img.t, like so:
+
+	#   Failed test at t/img.t line 119.
+	#          got: 'no image'
+	#     expected: '10x10'
+
+	#   Failed test at t/img.t line 129.
+	#          got: 'no image'
+	#     expected: '12x12'
+
+	#   Failed test at t/img.t line 130.
+	#          got: 'no image'
+	#     expected: '16x2'
+
+	#   Failed test at t/img.t line 134.
+	#          got: 'no image'
+	#     expected: '8x8'
+
+	#   Failed test at t/img.t line 135.
+	#          got: 'no image'
+	#     expected: '4x4'
+
+	#   Failed test at t/img.t line 136.
+	#          got: 'no image'
+	#     expected: '6x6'
+
+	#   Failed test at t/img.t line 138.
+	#          got: 'no image'
+	#     expected: '11x11'
+
+	#   Failed test at t/img.t line 139.
+	#          got: 'no image'
+	#     expected: '12x12'
+
+	#   Failed test at t/img.t line 140.
+	#          got: 'no image'
+	#     expected: '13x13'
+	# Looks like you failed 9 tests of 62.
+	t/img.t ........................
+	Dubious, test returned 9 (wstat 2304, 0x900)
+	Failed 9/62 subtests
+
+Is this is a known problem and is there maybe a fix for this issue?
+
