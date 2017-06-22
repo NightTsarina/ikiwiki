@@ -217,7 +217,12 @@ a quote in the text by writing `&quot;` and so on.
 
 If the field is not one of the above predefined fields, the metadata will be
 written to the generated html page as a &lt;meta&gt; header. For example,
-`\[[!meta foo="bar"]]` becomes `<meta name="foo" content="bar">`. As with `name`, this
-won't be allowed if the [[!iki plugins/htmlscrubber desc=htmlscrubber]] plugin is enabled.
+`\[[!meta foo="bar"]]` becomes `<meta name="foo" content="bar">`. As
+with `name`, this won't be allowed if the [[!iki plugins/htmlscrubber
+desc=htmlscrubber]] plugin is enabled.
+
+This syntax cannot be used for meta headers with unusual names, in
+particular names containing `:` such as `flattr:id` and `twitter:card`.
+Please use `\[[!meta name="..." content="..."]]` for those headers.
 
 [[!meta robots="noindex, follow"]]
