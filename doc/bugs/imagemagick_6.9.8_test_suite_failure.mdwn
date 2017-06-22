@@ -44,3 +44,12 @@ t/img.t, like so:
 
 Is this is a known problem and is there maybe a fix for this issue?
 
+> This was not a known bug before your report. It looks as though every
+> time we use `Image::Magick->Read(":foo.png")`, which is (or was)
+> ImageMagick's syntax for opening a file of unknown type without
+> interpreting a prefix containing `:` as a special directive instead
+> of part of the filename, it fails.
+>
+> Please try re-running the test with better diagnostics using
+> [commit 4ace7dbb7](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=4ace7dbb7)
+> and report what it says. --[[smcv]]
