@@ -107,7 +107,7 @@ sub size($) {
 	my $filename = shift;
 	my $im = Image::Magick->new();
 	my $r = $im->Read(":$filename");
-	return "no image" if $r;
+	return "no image: $r" if $r;
 	my $w = $im->Get("width");
 	my $h = $im->Get("height");
 	return "${w}x${h}";
