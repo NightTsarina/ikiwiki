@@ -1,0 +1,20 @@
+[[!comment format=mdwn
+ username="openmedi"
+ avatar="http://cdn.libravatar.org/avatar/563ffaff3b492c579bd8f094472e4506"
+ subject="comment 3"
+ date="2017-06-25T16:12:18Z"
+ content="""
+Thanks for you comments, I'll try to document my journey to get this to work. Right now the situation is this:
+
+I have a kinda big wiki which also includes a directory assets under which all pictures and anything else is found. this worked well in the past, however it makes for a pretty bloated git repository. I'm not completely sure how, but these are some tasks I have to accomplish:
+
+- Understand what actually is an underlay directory: As far as I can tell this is simply a directory which is 1. not in the git repo 2. added to the wiki before compilation.
+- Remove the assets directory from my ikiwki-git-repo on my local computer and on my server: In theory removing it locally should cause to be removed from the server as well, if we mean \"remove\" here in the sense of delete. However this still leaves us with a) a bloated git repo because it retains the repos history b) we need to put the assets directory somewhere safe locally before removing it from git
+- Retain the current directory structure so links won't be broken: This probably means we have to put the assets directory into the gitignore of the ikiwiki-git-repo, since we don't want to move the repo somewhere else.
+- Init git lfs or git annex in the assets directory, etc.: I need to start tracking my files in the assets directory with the help of one of these tools in order to ensure easy movement between my local wiki and my server wiki. I need to find out which of these tools is better suited for the job. RIght now it feels like that git annex is overkill for the simple job of having a slim git repo for the actual wiki and having one for the assets. Droping, decentralized backups, etc. etc. are not something I need, since my local wiki as well as my server wiki depends on the asset data being present. For the actual setup of this it might be easier to init it on the server first, make a local backup, clone the server repo into the correct directory locally at see of there are files missing.
+- Setting up the underlayer dir: Here I have to do it two times, one local one on the server since the absolute paths to the assets directories will be different.
+- Regenerate the local wiki and the server wiki: I'm not sure yet if regenerating the local wiki, then pushing to the server repo is the actual way to do this
+- Clean up bulky git repo: After confirming all of this works as intended, I will have to slim down my repo by removing the big files from my repo's history: the bfg-repo-cleaner looks like a promising solution for this problem.
+
+If I have imagined this correctly then I should be able to have an independently run assets directory which works basically the same as before, but the difference will be, that it doesn't bloat my repo's history anymore.
+"""]]
