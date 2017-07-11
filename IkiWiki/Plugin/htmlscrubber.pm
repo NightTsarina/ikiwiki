@@ -102,9 +102,9 @@ sub scrubber {
 				selected shape size span start summary
 				tabindex target title type valign
 				value vspace width
-
 				autofocus autoplay preload loopstart
 				loopend end playcount controls pubdate
+				loop muted
 				placeholder min max step low high optimum
 				form required autocomplete novalidate pattern
 				list formenctype formmethod formnovalidate
