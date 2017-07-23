@@ -1,0 +1,45 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="comment 4"
+ date="2017-07-23T18:02:29Z"
+ content="""
+> Understand what actually is an underlay directory: As far as I can tell this is simply a directory which is 1. not in the git repo 2. added to the wiki before compilation.
+
+Yes. Almost every ikiwiki site is configured to use the basewiki underlay,
+`/usr/share/ikiwiki/basewiki` or similar, which contains things like
+the default `style.css` and `ikiwiki/formatting.mdwn`. You can add more
+underlays, and they behave a bit like a
+[union mount](https://en.wikipedia.org/wiki/Union_mount): every (non-excluded)
+page or attachment found in the `srcdir` or in any underlay is used, unless
+it is masked by a page or attachment of the same name in a \"higher-level\"
+underlay. The `srcdir` is the highest level, the `basewiki` is the lowest,
+and the other underlays are stacked in between. So you'd have something like
+this:
+
+* `srcdir`
+    * `index.mdwn` is rendered as `/index.html`
+    * `photos.mdwn` is rendered as `/photos/index.html`
+* your assets directory
+    * `photos/1234.jpg` is copied to `/photos/1234.jpg`
+* ... other underlays like `javascript` ...
+* `basewiki`
+    * `style.css` is copied to `style.css`
+    * `index.mdwn` is ignored because it is masked by the one in the `srcdir`
+
+> Remove the assets directory from my ikiwki-git-repo on my local computer and on my server: In theory removing it locally should cause to be removed from the server as well, if we mean \"remove\" here in the sense of delete. However this still leaves us with a) a bloated git repo because it retains the repos history b) we need to put the assets directory somewhere safe locally before removing it from git
+
+Yes, you'd need to rebase your git history with `git filter-branch` or similar, or
+discard the history completely and re-import.
+
+> Retain the current directory structure so links won't be broken: This probably means we have to put the assets directory into the gitignore of the ikiwiki-git-repo, since we don't want to move the repo somewhere else.
+
+No, the underlay would normally be *next to* the `srcdir` rather than *inside* it,
+so there would be no need to `.gitignore` it.
+
+> Init git lfs or git annex in the assets directory, etc.: I need to start tracking my files in the assets directory with the help of one of these tools in order to ensure easy movement between my local wiki and my server wiki
+
+ikiwiki does not currently have any automation for this. You can use git-annex
+(currently only in direct mode because of the symlink check) but ikiwiki will
+not help you to sync between the local copy and the server copy.
+"""]]
