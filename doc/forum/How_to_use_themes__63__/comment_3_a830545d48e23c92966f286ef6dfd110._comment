@@ -1,0 +1,20 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="comment 3"
+ date="2017-07-23T17:52:11Z"
+ content="""
+azzamsa: It looks as though your `gitorigin_branch` and `gitmaster_branch` settings
+might be incorrect. Set `gitorigin_branch` to be an empty string (`''`) for now.
+When you have committed the wiki content at least once, push it to the `origin`
+repository with
+
+    git push origin master
+
+then change `gitorigin_branch` back to `origin`.
+
+It might be useful to look at how `ikiwiki-makeremote` does this. In particular,
+its first commit is done during setup, contains a `.gitignore` that ignores
+the `.ikiwiki` directory, and is pushed to `origin` before running `ikiwiki`
+for the first time.
+"""]]
