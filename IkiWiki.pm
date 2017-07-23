@@ -1293,14 +1293,20 @@ sub formattime ($;$) {
 
 my $strftime_encoding;
 sub strftime_utf8 {
-	# strftime doesn't know about encodings, so make sure
+	# strftime didn't know about encodings in older Perl, so make sure
 	# its output is properly treated as utf8.
 	# Note that this does not handle utf-8 in the format string.
+	my $result = POSIX::strftime(@_);
+
+	if (Encode::is_utf8($result)) {
+		return $result;
+	}
+
 	($strftime_encoding) = POSIX::setlocale(&POSIX::LC_TIME) =~ m#\.([^@]+)#
 		unless defined $strftime_encoding;
 	$strftime_encoding
-		? Encode::decode($strftime_encoding, POSIX::strftime(@_))
-		: POSIX::strftime(@_);
+		? Encode::decode($strftime_encoding, $result)
+		: $result;
 }
 
 sub date_3339 ($) {
