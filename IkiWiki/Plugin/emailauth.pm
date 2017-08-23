@@ -148,7 +148,7 @@ sub gentoken ($$) {
 	my $session=shift;
 	eval q{use CGI::Session};
 	error($@) if $@;
-	my $token = CGI::Session->new->id;
+	my $token = CGI::Session->new("driver:DB_File", undef, {FileName => "/dev/null"})->id;
 	IkiWiki::userinfo_set($email, "emailauthexpire", time+(60*60*24));
 	IkiWiki::userinfo_set($email, "emailauth", $token);
 	IkiWiki::userinfo_set($email, "emailauthpostsignin", defined $session->param("postsignin") ? $session->param("postsignin") : "");

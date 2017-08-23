@@ -113,7 +113,7 @@ sub gentoken ($$;$) {
 
 	eval q{use CGI::Session};
 	error($@) if $@;
-	my $token = CGI::Session->new->id;
+	my $token = CGI::Session->new("driver:DB_File", undef, {FileName => "/dev/null"})->id;
 	if (! $reversable) {
 		setpassword($user, $token, $tokenfield);
 	}
