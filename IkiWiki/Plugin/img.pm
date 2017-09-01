@@ -174,6 +174,12 @@ sub preprocess (@) {
 		my $r = $im->Read("$format:$srcfile\[$pagenumber]");
 		error sprintf(gettext("failed to read %s: %s"), $file, $r) if $r;
 
+		if ($config{deterministic}) {
+			$im->Set('date:create' => 0);
+			$im->Set('date:modify' => 0);
+			$im->Set('option'      => 'png:exclude-chunk=time');
+		}
+
 		if (! defined $im->Get("width") || ! defined $im->Get("height")) {
 			error sprintf(gettext("failed to get dimensions of %s"), $file);
 		}
