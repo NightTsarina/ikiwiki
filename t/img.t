@@ -155,6 +155,19 @@ ok(! -e "$outpath/666x-really-pdf.jpg");
 like($outhtml, qr/${quot}really-pdf\.png${quot} does not seem to be a valid png file/);
 ok(! -e "$outpath/666x-really-pdf.png");
 
+# resize is deterministic when deterministic=1
+ok(utime(333333333, 333333333, "t/tmp/in/redsquare.png"));
+ok(! system("rm $outpath/10x-redsquare.png"));
+ok(! system(@command, '--set-yaml', 'img_allowed_formats=[JPEG, PNG, svg, pdf]', '--set', 'deterministic=1', "--rebuild"));
+ok(! system("cp $outpath/10x-redsquare.png $outpath/10x-redsquare.png.orig"));
+ok(utime(444444444, 444444444, "t/tmp/in/redsquare.png"));
+ok(! system("rm $outpath/10x-redsquare.png"));
+ok(! system(@command, '--set-yaml', 'img_allowed_formats=[JPEG, PNG, svg, pdf]', '--set', 'deterministic=1', "--rebuild"));
+ok(
+	! system("cmp $outpath/10x-redsquare.png $outpath/10x-redsquare.png.orig"),
+	"resize is deterministic when configured with deterministic=1"
+);
+
 # disable support for uncommon formats and try again
 ok(! system(@command, "--rebuild"));
 ok(! -e "$outpath/10x-bluesquare.png");
