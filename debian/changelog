@@ -4,14 +4,15 @@ ikiwiki (3.20170623) UNRELEASED; urgency=medium
   * htmlscrubber: Add support for the video tag's loop and muted
     attributes. Those were not in the original html5 spec, but have been
     added in the whatwg html living standard and have wide browser support.
+  * emailauth, passwordauth: Avoid leaving cgisess_* files in the
+    system temp directory.
 
   [ Simon McVittie ]
   * core: Don't decode the result of strftime if it is already tagged as
     UTF-8, as it might be since Perl >= 5.21.1. (Closes: #869240)
 
-  [ Joey Hess ]
-  * emailauth, passwordauth: Avoid leaving cgisess_* files in the
-    system temp directory.
+  [ Amitai Schleier ]
+  * Fix the build with po4a 0.52
 
  -- Joey Hess <id@joeyh.name>  Tue, 11 Jul 2017 15:48:39 -0400
 
