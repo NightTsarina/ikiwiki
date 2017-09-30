@@ -26,6 +26,8 @@ sub genwrapper () {
 	my $ret=<<"EOF";
 	{
 		int u=getuid();
+		/* 3 characters per byte is certainly enough */
+		char uid_string[sizeof(u) * 3 + 1];
 EOF
 	$ret.="\t\tif ( ".
 		join("&&", map {
@@ -46,8 +48,8 @@ EOF
 			while (read(0, &buf, 256) != 0) {}
 			exit(0);
 		}
-		asprintf(&s, "%i", u);
-		addenv("CALLER_UID", s);
+		snprintf(uid_string, sizeof(uid_string), "%i", u);
+		addenv("CALLER_UID", uid_string);
 	}
 EOF
 	return $ret;
