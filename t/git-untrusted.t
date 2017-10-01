@@ -184,7 +184,7 @@ sub test {
 	isnt($h->full_result(0), 0);
 	is($out, '');
 	like($err, qr{remote: <.*>staff only</.*> is locked and cannot be edited});
-	my $sha1 = run_git(['rev-list', '--max-count=1', 'HEAD'], chdir => "$tmp/repo.git");
+	$sha1 = run_git(['rev-list', '--max-count=1', 'HEAD'], chdir => "$tmp/repo.git");
 	is($sha1, $allowed_sha1, 'proposed commit was not pushed');
 	$sha1 = run_git(['rev-list', '--max-count=1', 'HEAD']);
 	is($sha1, $allowed_sha1, 'proposed commit was not pushed');
