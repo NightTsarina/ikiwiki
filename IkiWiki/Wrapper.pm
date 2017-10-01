@@ -52,6 +52,8 @@ sub gen_wrapper () {
 		       HTTP_COOKIE REMOTE_USER HTTPS REDIRECT_STATUS
 		       HTTP_HOST SERVER_PORT HTTPS HTTP_ACCEPT
 		       REDIRECT_URL} if $config{cgi};
+	push @envsave, qw{GIT_OBJECT_DIRECTORY GIT_QUARANTINE_PATH
+	               GIT_ALTERNATE_OBJECT_DIRECTORIES} if $config{test_receive};
 	my $envsave="";
 	foreach my $var (@envsave) {
 		$envsave.=<<"EOF";
