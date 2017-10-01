@@ -10,11 +10,18 @@ ikiwiki (3.20170623) UNRELEASED; urgency=medium
   [ Simon McVittie ]
   * core: Don't decode the result of strftime if it is already tagged as
     UTF-8, as it might be since Perl >= 5.21.1. (Closes: #869240)
-  * Strip metadata from resized images when the deterministic config
+  * img: Strip metadata from resized images when the deterministic config
     option is set. Thanks, intrigeri
+  * receive: Avoid asprintf() in IkiWiki::Receive, to avoid implicit
+    declaration, potential misbehaviour on 64-bit platforms, and lack
+    of portability to non-GNU platforms
+  * t: Add a regression test for untrusted git push
+  * receive: Fix untrusted git push with git (>= 2.11) by passing through
+    the necessary environment variables to make the quarantine area work
 
   [ Amitai Schleier ]
-  * Fix the build with po4a 0.52
+  * l10n: Fix the build with po4a 0.52, by ensuring that msgstr ends
+    with a newline if and only if msgid does
 
  -- Joey Hess <id@joeyh.name>  Tue, 11 Jul 2017 15:48:39 -0400
 
