@@ -1,0 +1,23 @@
+ikiwiki 3.20171001 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+ * [ [[Joey Hess|joey]] ]
+   * htmlscrubber: Add support for the video tag's `loop` and `muted`
+     attributes. Those were not in the original html5 spec, but have been
+     added in the whatwg html living standard and have wide browser support.
+   * emailauth, passwordauth: Avoid leaving `cgisess_*` files in the
+     system temp directory.
+ * [ [[Simon McVittie|smcv]] ]
+   * core: Don't decode the result of `strftime` if it is already tagged as
+     UTF-8, as it might be since Perl &gt;= 5.21.1. (Closes: #[869240](http://bugs.debian.org/869240))
+   * img: Strip metadata from resized images when the deterministic config
+     option is set. Thanks, [[intrigeri]]
+   * receive: Avoid `asprintf()` in `IkiWiki::Receive`, to avoid implicit
+     declaration, potential misbehaviour on 64-bit platforms, and lack
+     of portability to non-GNU platforms
+   * t: Add a regression test for untrusted git push
+   * receive: Fix untrusted git push with git (&gt;= 2.11) by passing through
+     the necessary environment variables to make the quarantine area work
+   * debian: Declare compliance with Debian Policy 4.1.1
+ * [ [[Amitai Schleier|schmonz]] ]
+   * l10n: Fix the build with po4a 0.52, by ensuring that `msgstr` ends
+     with a newline if and only if `msgid` does"""]]
