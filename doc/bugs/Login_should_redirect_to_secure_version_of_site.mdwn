@@ -1,0 +1,9 @@
+Steps to reproduce:
+
+1. visit an ikiwki site like <http://ikiwiki.info/> or <http://git-annex.branchable.com/>
+2. trigger the login page by accessing preferences or trying to edit something
+3. login page is served without encryption
+
+Firefox gives all kinds of warnings for unencrypted login pages.
+
+The fix is for the login page to redirect to the https version of the wiki before showing the login form.
