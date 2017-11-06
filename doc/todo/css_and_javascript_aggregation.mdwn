@@ -1,0 +1,22 @@
+One of the goals of using a static site generator like ikiwiki, for me, is not only future-proofing and portability, but also performance. By having a small set of HTML pages with a minimal theme, we can deliver raw content much faster than a traditional CMS. This does not, however, keep us from doing optimizations that those same CMS must do in order to deliver good page performance.
+
+Take, for example, this [performance report of the main ikiwiki site](https://gtmetrix.com/reports/ikiwiki.info/rwUIfK6d). For a very minimal site, it is still making 8 requests and taking ~700ms to load. That's quite fast, but it could probably be cut down to 400ms if CSS and JS were aggregated. If you look at [my homepage](https://gtmetrix.com/reports/anarc.at/uAkMmZaT) the results are worse, because I have larger JS and CSS files: the impact is therefore much bigger and we're looking at 2000ms load times. (Obviously, part of the problem here is the slowness of the uplink here, but one could argue the same problem would occur for downstream users that have a slower connexion.)
+
+One of the recommendations "YSlow" is giving is "Make fewer HTTP requests":
+
+ * This page has 5 external Javascript scripts. Try combining them into one.
+ * This page has 4 external stylesheets. Try combining them into one.
+
+I'd love to do that. Since latency here is high, it would drastically cut down on the load time of the page. But I can't: Ikiwiki decides how those resources get included...
+
+Another recommendation of the test is to "Inline small JavaScript", saying that `toggle.js`  have a "small response bodies". "Inlining the response in HTML can reduce blocking of page rendering." And indeed, toggle.js is pretty small... It could easily be included in the page instead of added as a link.
+
+Finally, another problem that occurs in my case, but somehow not on ikiwiki.info, is that the Javascript show up completely on top of the page. I looked at how the plugins include the javascript code, and it looks like the `<body>` regex simply doesn't match, something I'll need to look into. But it would be better if those would be appended to the document instead of prefix'd, as a fallback. I'll file that as a separate patch.
+
+In general, I feel it would be useful for plugins to have a hook to register CSS files, and make ikiwiki aggregate those! It would allow for deduplication between resources (e.g. ikiwiki.js gets inclued twice now, even on ikiwiki.info) and (optionally) aggregation in a single file.
+
+Since this is core functionality, it can hardly be done without touching the core. I think this would need a new hook and could be kept opt-in, to keep smaller sites simple... But I would like to know if this is a possibility that was considered before hacking at this problem further.
+
+Alternatively, I guess it *could* be possible to have a format plugin that would *parse* the HTML page, extract CSS and JS resources and replace them with an aggregated copy, but that seems like a really crude hack.
+
+Thanks! --[[anarcat]]
