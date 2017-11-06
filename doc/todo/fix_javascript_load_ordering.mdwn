@@ -1,0 +1,20 @@
+[[!tag patch]]
+[[!template  id=gitbranch branch=anarcat/reverse-js-includes author="[[users/anarcat]]"]]
+
+As mentioned in [[todo/css_and_javascript_aggregation]] the current
+ordering of Javascript files in [[plugins/toggle]],
+[[plugins/relativedate]] and [[plugins/recentchangesdiff]] is
+incorrect: Javascript files get loaded before the main content and may
+even be loaded before the `<html>` tag for templates that indent the
+`<body>` tag with whitespace.
+
+According to the [best practices](https://developers.google.com/speed/docs/insights/mobile#PutStylesBeforeScripts) Javascript resources should be
+presented to browsers after CSS, and "after the fold" (ATF) according
+to the best practices. This allows the browser to download Javascript
+files in parallel.
+
+I have pushed a [simple patch](https://gitlab.com/anarcat/ikiwiki/commit/5caf6e1f87530dda74ec23eb1fa7120309607cc8) which fixes this issue by including
+Javascript on the *closing* `</body>` tag instead of the *opening* tag.
+
+It also improves the regex to tolerate spaces before the `</body>` tag,
+as some templates have (proper) indentation for the tag.
