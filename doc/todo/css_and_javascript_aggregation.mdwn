@@ -11,12 +11,12 @@ I'd love to do that. Since latency here is high, it would drastically cut down o
 
 Another recommendation of the test is to "Inline small JavaScript", saying that `toggle.js`  have a "small response bodies". "Inlining the response in HTML can reduce blocking of page rendering." And indeed, toggle.js is pretty small... It could easily be included in the page instead of added as a link.
 
-Finally, another problem that occurs in my case, but somehow not on ikiwiki.info, is that the Javascript show up completely on top of the page. I looked at how the plugins include the javascript code, and it looks like the `<body>` regex simply doesn't match, something I'll need to look into. But it would be better if those would be appended to the document instead of prefix'd, as a fallback. I'll file that as a separate patch.
+Finally, another problem that occurs in my case, but somehow not on ikiwiki.info, is that the Javascript show up completely on top of the page. I looked at how the plugins include the javascript code, and it looks like the `<body>` regex simply doesn't match, something I'll need to look into. But it would be better if those would be appended to the document instead of prefix'd, as a fallback. I filed that as a [[separate patch|todo/fix_javascript_load_ordering]].
 
 In general, I feel it would be useful for plugins to have a hook to register CSS files, and make ikiwiki aggregate those! It would allow for deduplication between resources (e.g. ikiwiki.js gets inclued twice now, even on ikiwiki.info) and (optionally) aggregation in a single file.
 
-Since this is core functionality, it can hardly be done without touching the core. I think this would need a new hook and could be kept opt-in, to keep smaller sites simple... But I would like to know if this is a possibility that was considered before hacking at this problem further.
+Since this is core functionality, it can hardly be done without touching the core. I think this would need a new hook and could be kept opt-in, to keep smaller sites simple... But I would like to know if this is a possibility that was considered before hacking at this problem further. I'd be happy to give it a shot, but I am worried about other patches I have sitting in the queue and don't want to waste too much energy to pile another one on top. :)
 
-Alternatively, I guess it *could* be possible to have a format plugin that would *parse* the HTML page, extract CSS and JS resources and replace them with an aggregated copy, but that seems like a really crude hack.
+Alternatively, I guess it *could* be possible to have a format plugin that would *parse* the HTML page, extract CSS and JS resources and replace them with an aggregated copy, but that seems like a really crude hack. Furthermore, there are many different ways Javascript is included into the page right now, and it is not done consistently. For example, [[plugins/osm]] includes it near the end of the page while [[plugins/toggle]] includes it on top, with different regexes that do not match the same way and break differently. Refactoring this would help in making the code more maintainable...
 
 Thanks! --[[anarcat]]
