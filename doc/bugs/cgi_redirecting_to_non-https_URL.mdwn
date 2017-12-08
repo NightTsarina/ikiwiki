@@ -25,3 +25,8 @@ Response Headers
 
 The CGI is served by lighttpd, but the whole site is front-ended by nginx, which reverse-proxies to lighttpd.
 
+----
+
+I think this might be to do with nginx not rewriting POST URLs when reverse-proxying, but I'm not sure why
+they would be generated in an HTTP form in any case, except perhaps by lighttpd's CGI handler since the back
+end is HTTP. -- [[Users/Jon]]
