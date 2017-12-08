@@ -1,0 +1,24 @@
+I have a private ikiwiki (3.20170111) which is running on a host that serves HTTP and HTTPS, but ikiwiki is configured for (and only served on) HTTPS:
+
+    url: https://<redacted>/phd/
+    cgiurl: https://<redacted>/phd/cgi
+
+However, form submissions from ikiwiki are going to a HTTP URL and thus not being served. Example headers from submitting a comment:
+
+```
+Request URL:https://<redacted>/phd/cgi
+Request Method:POST
+Status Code:302 Found
+Remote Address:<redacted>:443
+Referrer Policy:no-referrer-when-downgrade
+
+Response Headers
+HTTP/1.1 302 Found
+Server: nginx/1.10.3
+Date: Fri, 08 Dec 2017 11:53:35 GMT
+Content-Length: 0
+Connection: keep-alive
+Status: 302 Found
+Location: http://<redacted>/phd/blog/38th_Dec/?updated#comment-bd0549eb2464b5ca0544f68e6c32221e
+```
+
