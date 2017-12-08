@@ -29,4 +29,5 @@ The CGI is served by lighttpd, but the whole site is front-ended by nginx, which
 
 I think this might be to do with nginx not rewriting POST URLs when reverse-proxying, but I'm not sure why
 they would be generated in an HTTP form in any case, except perhaps by lighttpd's CGI handler since the back
-end is HTTP. -- [[Users/Jon]]
+end is HTTP. A workaround is for nginx to redirect any HTTP URI to the HTTPS equivalent. I initially disabled
+that so as to have the path for letsencrypt negotiation not redirected.-- [[Users/Jon]]
