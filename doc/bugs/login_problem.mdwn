@@ -1,0 +1,31 @@
+For around 2 weeks, I've been getting an increasing quantity of nonspecific
+reports from users of login problems on ikiwiki sites, mostly joeyh.name
+and git-annex.branchable.com. A few users are still logging in
+successfully, but it seems to be hitting many users; post volume has gone
+down more than holidays would explain. --[[Joey]] 
+
+It doesn't seem limited to any login method; email and password have both
+been said not to work. (Openid too, but could be openid provider problem
+there.)
+
+After a few tries
+I seem to have reproduced the problem with email login; I ended up at a
+"Error: login failed, perhaps you need to turn on cookies?" 
+page but my browser had an ikiwiki session cookie. And,
+looking in the session database file, the cookie id was in there. Then I
+went to "/do=prefs" in the same browser, and I was actually already 
+logged in. 
+
+That points at a problem with the "postsignin" redirect;
+if the session does not get a postsignin url set, it can error out that way
+despite being logged in.
+
+Reproducing again, I posted the login form, and before clicking on the
+login link, looked at the session.db -- it contained an entry for my session,
+but without a postsignin url.
+
+	$ strings sessions.db
+	$D = {'_SESSION_ID' => 'xxx','_SESSION_REMOTE_ADDR' => 'yyy','_SESSION_ATIME' => 1515106022,'_SESSION_CTIME' => 1515105990};;$D
+
+The postsignin url is certianly getting set at other times though,
+and why would this have only recently started to affect lots of users?
