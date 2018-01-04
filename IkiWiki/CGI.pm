@@ -217,7 +217,7 @@ sub cgi_postsignin ($$) {
 			error(gettext("probable misconfiguration: sslcookie is set, but you are attempting to login via http, not https"));
 		}
 		else {
-			error(gettext("login failed, perhaps you need to turn on cookies?"));
+			error(gettext("Login succeeded, but I don't remember why you were logging in, so you'll have to navigate back to whatever you were doing. (This should not normally happen. Perhaps you need to enable cookies?)"));
 		}
 	}
 }
