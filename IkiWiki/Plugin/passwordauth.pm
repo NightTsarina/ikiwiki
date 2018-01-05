@@ -358,7 +358,7 @@ sub formbuilder (@) {
 				my $template=template("passwordmail.tmpl");
 				$template->param(
 					user_name => $user_name,
-					passwordurl => IkiWiki::cgiurl_abs(
+					passwordurl => IkiWiki::cgiurl_abs_samescheme(
 						'do' => "reset",
 						'name' => $user_name,
 						'token' => $token,

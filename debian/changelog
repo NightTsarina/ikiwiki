@@ -1,5 +1,9 @@
 ikiwiki (3.20171002) UNRELEASED; urgency=medium
 
+  * emailauth: Fix cookie problem when user is on https and the cgiurl
+    uses http, by making the emailed login link use https.
+  * passwordauth: Use https for emailed password reset link when user
+    is on https.
   * Updated German basewiki and directives translation from
     Sebastian Kuhnert.
 

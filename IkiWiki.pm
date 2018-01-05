@@ -1232,6 +1232,19 @@ sub cgiurl_abs (@) {
 	URI->new_abs(cgiurl(@_), $config{cgiurl});
 }
 
+# Same as cgiurl_abs, but when the user connected using https,
+# will be a https url even if the cgiurl is normally a http url.
+#
+# This should be used for anything involving emailing a login link,
+# because a https session cookie will not be sent over http.
+sub cgiurl_abs_samescheme (@) {
+	my $u=cgiurl_abs(@_);
+	if (($ENV{HTTPS} && lc $ENV{HTTPS} ne "off")) {
+		$u=~s/^http:/https:/i;
+	}
+	return $u
+}
+
 sub baseurl (;$) {
 	my $page=shift;
 

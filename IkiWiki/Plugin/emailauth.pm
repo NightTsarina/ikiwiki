@@ -76,7 +76,7 @@ sub email_auth ($$$$) {
 	$template->param(
 		wikiname => $config{wikiname},
 		# Intentionally using short field names to keep link short.
-		authurl => IkiWiki::cgiurl_abs(
+		authurl => IkiWiki::cgiurl_abs_samescheme(
 			'e' => $email,
 			'v' => $token,
 		),

@@ -18,10 +18,21 @@ firefox-esr, or chromium. --[[Joey]]
 > Ok, to reproduce the problem: Log into joeyh.name using https. The email
 > login link is a http link. The session cookie was set https-only.
 > --[[Joey]]
-
+> 
+> The reason the edit form is able to be displayed is that emailauth
+> sets up a session, in getsession(), and that $session is used for the
+> remainder of that cgi call. But, a cookie for that session is not stored
+> in the browser in this case. Ikiwiki *does* send a session cookie, but
+> the browser seems to not let an existing https-only session cookie be
+> replaced by a new session cookie that can be used with http. (If the
+> emailed link, generated on https is opened in a different browser, this
+> problem doesn't happen.) There may have been a browser behavior change
+> here?
+> 
 > So what to do about this? Sites with the problem have `redirect_to_https: 0`
-> and the cgiurl is http not https. So when emailauth generates the url,
-> it's a http url, even if the user got to that point using https.
+> and the cgiurl is http not https. So when emailauth generates the url
+> with `cgiurl_abs`, it's a http url, even if the user got to that point
+> using https.
 > 
 > I suppose that emailauth could look at `$ENV{HTTPS}` same as
 > printheader() does, to detect this case, and rewrite the cgiurl as a
@@ -31,3 +42,12 @@ firefox-esr, or chromium. --[[Joey]]
 > 
 > Of course, the easy workaround, increasingly a good idea anyway, is to
 > enable `redirect_to_https`.. --[[Joey]]
+
+> One of the users also reported a problem with password reset, and
+> indeed, passwordauth is another caller of `cgiurl_abs`. (The only other
+> caller, notifyemail, is probably fine.) The emailed password reset link
+> also should be https if the user was using https. So, let's add a
+> `cgiurl_abs_samescheme` that both can use. --[[Joey]]
+
+[[fixed|done]].. At least I hope that was the thing actually preventing most
+of the people from logging in. --[[Joey]]
