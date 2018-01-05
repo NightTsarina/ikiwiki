@@ -66,12 +66,6 @@ write_build_read_compare(
 );
 
 write_build_read_compare(
-	'enclosure',
-	q{[[!meta enclosure="ikiwiki/login-selector/wordpress.png"]]},
-	qr{<meta name="enclosure" content="/ikiwiki/login-selector/wordpress.png" />},
-);
-
-write_build_read_compare(
 	'author',
 	q{[[!meta author="Noodly J. Appendage"]]},
 	qr{<meta name="author" content="Noodly J. Appendage" />},
