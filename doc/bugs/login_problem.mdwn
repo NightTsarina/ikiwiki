@@ -18,3 +18,16 @@ firefox-esr, or chromium. --[[Joey]]
 > Ok, to reproduce the problem: Log into joeyh.name using https. The email
 > login link is a http link. The session cookie was set https-only.
 > --[[Joey]]
+
+> So what to do about this? Sites with the problem have `redirect_to_https: 0`
+> and the cgiurl is http not https. So when emailauth generates the url,
+> it's a http url, even if the user got to that point using https.
+> 
+> I suppose that emailauth could look at `$ENV{HTTPS}` same as
+> printheader() does, to detect this case, and rewrite the cgiurl as a
+> https url. Or, printheader() could just not set "-secure" on the cookie,
+> but that does degrade security as MITM can then steal the cookie you're
+> using on a https site.
+> 
+> Of course, the easy workaround, increasingly a good idea anyway, is to
+> enable `redirect_to_https`.. --[[Joey]]
