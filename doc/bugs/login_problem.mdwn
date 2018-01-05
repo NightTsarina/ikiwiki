@@ -8,8 +8,13 @@ It doesn't seem limited to any login method; email and password have both
 been said not to work. (Openid too, but could be openid provider problem
 there.)
 
-I have not managed to reproduce the problem myself. --[[Joey]]
+I have not managed to reproduce the problem myself, using firefox,
+firefox-esr, or chromium. --[[Joey]]
 
 > Otto Kekäläinen described to me a problem where email login to post a
 > comment seemed to work; it displayed the comment edit form; but posting
-> the form went back to the login page. Cookie problem? --[[Joey]]
+> the form went back to the login page. Cookie problem?
+> 
+> Ok, to reproduce the problem: Log into joeyh.name using https. The email
+> login link is a http link. The session cookie was set https-only.
+> --[[Joey]]
