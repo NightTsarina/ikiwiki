@@ -1,0 +1,17 @@
+Python 2 is officially unsupported after 2020, which is before the expected end-of-life
+date of the next round of long-term-stable distributions like Debian 10 and Ubuntu 18.04,
+so those distributions are encouraging all software that can migrate to Python 3 to do so.
+
+The down side of this is that it would make it harder to use the `rst` plugin on
+very old OS releases, or on OSs where Python 3 is available but doesn't have a `python3`
+symbolic link (if such OSs exist - [PEP 394](https://www.python.org/dev/peps/pep-0394/)
+says they shouldn't), or in shared hosting environments where Python 2 is installed but
+Python 3 isn't. (Mitigation: switching it to `python` or `python2` is a 1-line change.)
+
+For today's upload to Debian, I switched the `#!` line in the [[plugins/rst]] plugin
+to `#!/usr/bin/python3`. In upstream ikiwiki it would probably be more appropriate
+to use `#!/usr/bin/env python3`, and it would certainly be more appropriate to do it
+by changing the source rather than by using `sed` after installation. I didn't apply that
+change upstream immediately to give other maintainers a chance to comment. Thoughts?
+
+--[[smcv]]
