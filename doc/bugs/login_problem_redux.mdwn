@@ -1,0 +1,12 @@
+Following up on [[login_problem]], there's still some problems mixing https
+and http logins on sites that allow both and don't redirect http to https.
+
+If the user logs in on https first, their cookie is https-only. If they
+then open the http site and do something that needs them logged in, it will
+try to log them in again. But, the https-only cookie is apparently not
+replaced by the http login cookie. The login will "succeed", but the cookie
+is inaccessible over https and so they'll not be really logged in.
+
+I think that the only fix for this is make the login page redirect from
+http to https, and for it to return to the https version of the page that
+prompted the login. --[[Joey]]
