@@ -112,11 +112,16 @@ sub run_cgi {
 	my ($in, $out);
 	my $is_preview = delete $args{is_preview};
 	my $is_https = delete $args{is_https};
+	my $goto = delete $args{goto};
 	my %defaults = (
 		SCRIPT_NAME	=> '/cgi-bin/ikiwiki.cgi',
 		HTTP_HOST	=> 'example.com',
 	);
-	if (defined $is_preview) {
+	if (defined $goto) {
+		$defaults{REQUEST_METHOD} = 'GET';
+		$defaults{QUERY_STRING} = 'do=goto&page=a/b/c';
+	}
+	elsif (defined $is_preview) {
 		$defaults{REQUEST_METHOD} = 'POST';
 		$in = 'do=edit&page=a/b/c&Preview';
 		$defaults{CONTENT_LENGTH} = length $in;
@@ -143,6 +148,15 @@ sub run_cgi {
 	return $out;
 }
 
+sub check_goto {
+	my $expected = shift;
+	my $redirect = run_cgi(goto => 1, @_);
+	ok($redirect =~ m/^Status:\s*302\s+/m);
+	ok($redirect =~ m/^Location:\s*(\S*)\r?\n/m);
+	my $location = $1;
+	like($location, $expected);
+}
+
 sub test_startup {
 	ok(! system("rm -rf t/tmp"));
 	ok(! system("mkdir t/tmp"));
@@ -158,6 +172,7 @@ sub test_startup {
 }
 
 sub test_site1_perfectly_ordinary_ikiwiki {
+	diag("test_site1_perfectly_ordinary_ikiwiki");
 	write_setup_file(
 		url	=> "http://example.com/wiki/",
 		cgiurl	=> "http://example.com/cgi-bin/ikiwiki.cgi",
@@ -166,6 +181,7 @@ sub test_site1_perfectly_ordinary_ikiwiki {
 	check_cgi_mode_bits();
 	# url and cgiurl are on the same host so the cgiurl is host-relative
 	check_generated_content(qr{<a[^>]+href="/cgi-bin/ikiwiki.cgi\?do=prefs"});
+	check_goto(qr{^http://example\.com/wiki/a/b/c/$});
 	my %bits = parse_cgi_content(run_cgi());
 	like($bits{basehref}, qr{^(?:(?:http:)?//example\.com)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:http:)?//example.com)?/wiki/style.css$});
@@ -178,6 +194,7 @@ sub test_site1_perfectly_ordinary_ikiwiki {
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
+	check_goto(qr{^https://example\.com/wiki/a/b/c/$}, is_https => 1);
 
 	# when accessed via a different hostname, links stay on that host
 	%bits = parse_cgi_content(run_cgi(HTTP_HOST => 'staging.example.net'));
@@ -185,6 +202,10 @@ sub test_site1_perfectly_ordinary_ikiwiki {
 	like($bits{stylehref}, qr{^(?:(?:http:)?//staging.example.net)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:http:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
+	TODO: {
+	local $TODO = "hostname should be copied to redirects' Location";
+	check_goto(qr{^https://staging\.example\.net/wiki/a/b/c/$}, is_https => 1);
+	}
 
 	# previewing a page
 	%bits = parse_cgi_content(run_cgi(is_preview => 1));
@@ -195,6 +216,7 @@ sub test_site1_perfectly_ordinary_ikiwiki {
 }
 
 sub test_site2_static_content_and_cgi_on_different_servers {
+	diag("test_site2_static_content_and_cgi_on_different_servers");
 	write_setup_file(
 		url	=> "http://static.example.com/",
 		cgiurl	=> "http://cgi.example.com/ikiwiki.cgi",
@@ -204,6 +226,7 @@ sub test_site2_static_content_and_cgi_on_different_servers {
 	# url and cgiurl are not on the same host so the cgiurl has to be
 	# protocol-relative or absolute
 	check_generated_content(qr{<a[^>]+href="(?:http:)?//cgi.example.com/ikiwiki.cgi\?do=prefs"});
+	check_goto(qr{^http://static\.example\.com/a/b/c/$});
 
 	my %bits = parse_cgi_content(run_cgi(SCRIPT_NAME => '/ikiwiki.cgi', HTTP_HOST => 'cgi.example.com'));
 	like($bits{basehref}, qr{^(?:(?:http:)?//static.example.com)?/$});
@@ -217,6 +240,8 @@ sub test_site2_static_content_and_cgi_on_different_servers {
 	like($bits{stylehref}, qr{^(?:(?:https:)?//static.example.com)?/style.css$});
 	like($bits{tophref}, qr{^(?:https:)?//static.example.com/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//cgi.example.com)?/ikiwiki.cgi$});
+	check_goto(qr{^https://static\.example\.com/a/b/c/$}, is_https => 1,
+		HTTP_HOST => 'cgi.example.com', SCRIPT_NAME => '/ikiwiki.cgi');
 
 	# when accessed via a different hostname, links to the CGI (only) should
 	# stay on that host?
@@ -229,9 +254,12 @@ sub test_site2_static_content_and_cgi_on_different_servers {
 	local $TODO = "use self-referential CGI URL?";
 	like($bits{cgihref}, qr{^(?:(?:http:)?//staging.example.net)?/ikiwiki.cgi$});
 	}
+	check_goto(qr{^https://static\.example\.com/a/b/c/$}, is_https => 1,
+		HTTP_HOST => 'staging.example.net', SCRIPT_NAME => '/ikiwiki.cgi');
 }
 
 sub test_site3_we_specifically_want_everything_to_be_secure {
+	diag("test_site3_we_specifically_want_everything_to_be_secure");
 	write_setup_file(
 		url	=> "https://example.com/wiki/",
 		cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
@@ -247,6 +275,7 @@ sub test_site3_we_specifically_want_everything_to_be_secure {
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
+	check_goto(qr{^https://example\.com/wiki/a/b/c/$}, is_https => 1);
 
 	# when not accessed via HTTPS, links should still be secure
 	# (but if this happens, that's a sign of web server misconfiguration)
@@ -258,6 +287,7 @@ sub test_site3_we_specifically_want_everything_to_be_secure {
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 	}
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
+	check_goto(qr{^https://example\.com/wiki/a/b/c/$}, is_https => 0);
 
 	# when accessed via a different hostname, links stay on that host
 	%bits = parse_cgi_content(run_cgi(is_https => 1, HTTP_HOST => 'staging.example.net'));
@@ -265,6 +295,8 @@ sub test_site3_we_specifically_want_everything_to_be_secure {
 	like($bits{stylehref}, qr{^(?:(?:https:)?//staging.example.net)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
+	check_goto(qr{^https://staging\.example\.net/wiki/a/b/c/$}, is_https => 1,
+		HTTP_HOST => 'staging.example.net');
 
 	# previewing a page
 	%bits = parse_cgi_content(run_cgi(is_preview => 1, is_https => 1));
@@ -275,6 +307,7 @@ sub test_site3_we_specifically_want_everything_to_be_secure {
 }
 
 sub test_site4_cgi_is_secure_static_content_doesnt_have_to_be {
+	diag("test_site4_cgi_is_secure_static_content_doesnt_have_to_be");
 	# (NetBSD wiki)
 	write_setup_file(
 		url	=> "http://example.com/wiki/",
@@ -291,6 +324,7 @@ sub test_site4_cgi_is_secure_static_content_doesnt_have_to_be {
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
+	check_goto(qr{^https://example\.com/wiki/a/b/c/$}, is_https => 1);
 
 	# FIXME: when not accessed via HTTPS, should the static content be
 	# forced to https anyway? For now we accept either
@@ -299,6 +333,7 @@ sub test_site4_cgi_is_secure_static_content_doesnt_have_to_be {
 	like($bits{stylehref}, qr{^(?:(?:https?:)?//example.com)?/wiki/style.css$});
 	like($bits{tophref}, qr{^(?:(?:https?://example.com)?/wiki|\.)/$});
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
+	check_goto(qr{^https://example\.com/wiki/a/b/c/$}, is_https => 0);
 
 	# when accessed via a different hostname, links stay on that host
 	%bits = parse_cgi_content(run_cgi(is_https => 1, HTTP_HOST => 'staging.example.net'));
@@ -312,6 +347,8 @@ sub test_site4_cgi_is_secure_static_content_doesnt_have_to_be {
 	local $TODO = "this should really point back to itself but currently points to example.com";
 	like($bits{cgihref}, qr{^(?:(?:https:)?//staging.example.net)?/cgi-bin/ikiwiki.cgi$});
 	}
+	check_goto(qr{^https://staging\.example\.net/wiki/a/b/c/$}, is_https => 1,
+		HTTP_HOST => 'staging.example.net');
 
 	# previewing a page
 	%bits = parse_cgi_content(run_cgi(is_preview => 1, is_https => 1));
@@ -322,6 +359,7 @@ sub test_site4_cgi_is_secure_static_content_doesnt_have_to_be {
 }
 
 sub test_site5_w3mmode {
+	diag("test_site5_w3mmode");
 	# as documented in [[w3mmode]]
 	write_setup_file(
 		url	=> undef,
@@ -339,9 +377,15 @@ sub test_site5_w3mmode {
 	like($bits{cgihref}, qr{^(?:file://)?/\$LIB/ikiwiki-w3m.cgi/ikiwiki.cgi$});
 	like($bits{basehref}, qr{^(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out/$});
 	like($bits{stylehref}, qr{^(?:(?:(?:file:)?//)?\Q$pwd\E/t/tmp/out|\.)/style.css$});
+
+	my $redirect = run_cgi(goto => 1, PATH_INFO => '/ikiwiki.cgi',
+		SCRIPT_NAME => '/cgi-bin/ikiwiki-w3m.cgi');
+	like($redirect, qr{^Content-type: text/plain\r?\n}m);
+	like($redirect, qr{^W3m-control: GOTO \Q$pwd\E/t/tmp/out/a/b/c/\r?\n}m);
 }
 
 sub test_site6_behind_reverse_proxy {
+	diag("test_site6_behind_reverse_proxy");
 	write_setup_file(
 		url	=> "https://example.com/wiki/",
 		cgiurl	=> "https://example.com/cgi-bin/ikiwiki.cgi",
@@ -359,6 +403,10 @@ sub test_site6_behind_reverse_proxy {
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 	like($bits{basehref}, qr{^(?:(?:https:)?//example\.com)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
+	TODO: {
+	local $TODO = "https://ikiwiki.info/bugs/cgi_redirecting_to_non-https_URL/";
+	check_goto(qr{^https://example\.com/wiki/a/b/c/$}, HTTP_HOST => 'localhost');
+	}
 
 	# previewing a page
 	%bits = parse_cgi_content(run_cgi(is_preview => 1, HTTP_HOST => 'localhost'));
