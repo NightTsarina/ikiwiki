@@ -23,6 +23,10 @@ Response Headers
     Status: 302 Found
     Location: http://redacted/phd/blog/38th_Dec/?updated#comment-bd0549eb2464b5ca0544f68e6c32221e
 
+> Your form submission was in fact done successfully. The failing redirection to http is
+> when ikiwiki follows up the successful edit by redirecting you from the form submission
+> URL to the updated page, which is done by `IkiWiki::redirect`. --[[smcv]]
+
 The CGI is served by lighttpd, but the whole site is front-ended by nginx, which reverse-proxies to lighttpd.
 
 ----
@@ -38,7 +42,11 @@ that so as to have the path for letsencrypt negotiation not redirected.-- [[User
 > Is the connection between nginx and lighttpd http or https?
 >
 > I think this is maybe a bug in `IkiWiki::redirect` when used in conjunction with
-> `reverse_proxy: 1`. I'm in the process of adding a test case in `t/relativity.t`.
+> `reverse_proxy: 1`. I've added a failing test case marked as TODO to `t/relativity.t`,
+> although I haven't been able to fix the bug yet. The bug I found is that when marked
+> as behind a reverse proxy, `IkiWiki::redirect` sends `Location: /foo/bar/`, which
+> your backend web server might be misinterpreting. It should send
+> `Location: https://redacted/foo/bar/` instead.
 >
 > Assuming nginx has a reasonable level of configuration, you can redirect http to https
 > for the entire server except `/.well-known/acme-challenge/` as a good way to bootstrap
