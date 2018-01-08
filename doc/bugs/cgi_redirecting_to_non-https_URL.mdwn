@@ -31,3 +31,15 @@ I think this might be to do with nginx not rewriting POST URLs when reverse-prox
 they would be generated in an HTTP form in any case, except perhaps by lighttpd's CGI handler since the back
 end is HTTP. A workaround is for nginx to redirect any HTTP URI to the HTTPS equivalent. I initially disabled
 that so as to have the path for letsencrypt negotiation not redirected.-- [[Users/Jon]]
+
+> Do you have the `reverse_proxy` option set to 1? (It affects how ikiwiki generates
+> self-referential URLs).
+>
+> Is the connection between nginx and lighttpd http or https?
+>
+> I think this is maybe a bug in `IkiWiki::redirect` when used in conjunction with
+> `reverse_proxy: 1`. I'm in the process of adding a 
+>
+> Assuming nginx has a reasonable level of configuration, you can redirect http to https
+> for the entire server except `/.well-known/acme-challenge/` as a good way to bootstrap
+> ACME negotiation. --[[smcv]]
