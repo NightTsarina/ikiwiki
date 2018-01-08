@@ -1,12 +1,71 @@
 Following up on [[login_problem]], there's still some problems mixing https
 and http logins on sites that allow both and don't redirect http to https.
 
+> I think the only good solution to this is to configure web servers to
+> redirect http to https, which is outside the scope of the ikiwiki
+> software (but would be a useful configuration change on sites like
+> ikiwiki.info). Redirecting from CGI code is problematic because
+> reverse-proxies are a thing; see below. --[[smcv]]
+
 If the user logs in on https first, their cookie is https-only. If they
 then open the http site and do something that needs them logged in, it will
 try to log them in again. But, the https-only cookie is apparently not
 replaced by the http login cookie. The login will "succeed", but the cookie
 is inaccessible over https and so they'll not be really logged in.
 
+> Mitigation: If you have a browser-trusted certificate (which lots of
+> people do now, because Let's Encrypt exists), setting the `cgiurl` to
+> `https://...` will result in the CGI (which is the only part that
+> needs cookies) being accessed via https whenever the user follows
+> links from static content.
+> (`test_site4_cgi_is_secure_static_content_doesnt_have_to_be` in
+> `t/relativity.t`.)
+>
+> In the past I've wondered whether to add a distinction between
+> authenticating and unauthenticating CGI URLs, so that on sites that
+> don't particularly care about eavesdropping, anonymous/read-only actions
+> like `?do=goto` can go via `http`, but write actions and actions that
+> are usually authenticated like `?do=edit` go via `https`. However, in
+> 2018 with Let's Encrypt widely available, it seems reasonable to just
+> use `https` for all CGI accesses.
+> --[[smcv]]
+
 I think that the only fix for this is make the login page redirect from
 http to https, and for it to return to the https version of the page that
 prompted the login. --[[Joey]]
+
+> Redirecting the login page from http to https inside ikiwiki.cgi is
+> problematic, because ikiwiki can't reliably know whether it was already
+> accessed via https. If there is a reverse-proxy in use but the site admin
+> has not set the `reverse_proxy` option (which is not *always* necessary
+> even behind reverse proxies AIUI, and I suspect some reverse-proxied sites
+> haven't set it correctly), then ikiwiki.cgi would infinitely redirect back
+> to itself.
+>
+> For example, suppose your frontend web server is example.com and your
+> ikiwiki backend is 127.0.0.1:8080.
+>
+> * frontend web server sees an access to http://example.com/ikiwiki.cgi
+> * frontend web server reverse-proxies it to http://127.0.0.1:8080/ikiwiki.cgi
+> * backend web server invokes ikiwiki.cgi with `HTTPS` environment variable
+>   undefined
+> * ikiwiki.cgi thinks "I'm being accessed via plain http" (this time correctly,
+>   as it happens)
+> * ikiwiki.cgi sends a redirect to https://example.com/ikiwiki.cgi
+> * {1} web browser follows redirect
+> * frontend web server sees an access to https://example.com/ikiwiki.cgi
+> * frontend web server reverse-proxies it to http://127.0.0.1:8080/ikiwiki.cgi
+> * backend web server invokes ikiwiki.cgi with `HTTPS` environment variable
+>   undefined
+> * ikiwiki.cgi thinks "I'm being accessed via plain http" (this time incorrectly!)
+> * ikiwiki.cgi sends a redirect to https://example.com/ikiwiki.cgi
+> * goto {1}
+>
+> I think this redirection is better achieved via web server configuration, like
+> the Apache configuration set up by `redirect_to_https: 1` in
+> [ikiwiki-hosting](https://ikiwiki-hosting.branchable.com/).
+>
+> If you change ikiwiki's behaviour in this area, please add test-cases to
+> `t/relativity.t` to cover the cases that changed.
+>
+> --[[smcv]]
