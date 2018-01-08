@@ -7,3 +7,26 @@ Steps to reproduce:
 Firefox gives all kinds of warnings for unencrypted login pages.
 
 The fix is for the login page to redirect to the https version of the wiki before showing the login form.
+
+> This is web server configuration for those sites, so not really a bug in the
+> ikiwiki software. If you run an ikiwiki instance and you have a browser-trusted certificate,
+> I would recommend:
+>
+> * setting the `url` and `cgiurl` options to `https://...`
+> * configuring your web server (frontend web server if you are using a reverse-proxy)
+>   to redirect from `http://...` to `https://...` automatically, possibly excluding
+>   `/.well-known/acme-challenge/` to make it easier to bootstrap Let's Encrypt certificates
+>
+> In [ikiwiki-hosting](https://ikiwiki-hosting.branchable.com/) the latter can be achieved
+> by setting the `redirect_to_https` option to `1`.
+>
+> When not using ikiwiki-hosting, the ikiwiki software does not control the web server
+> configuration, so it can't do this for you. The CGI script could redirect from http
+> to https if it knew you had a browser-trusted certificate, but it can't know that
+> unless you tell it (by setting `url` and `cgiurl`), and there's the potential for
+> infinite redirect loops in misconfigured reverse-proxy setups if it did that
+> (see [[bugs/login problem redux]]), so I think this is better solved at the web
+> server level.
+>
+> The operator of ikiwiki.info and branchable.com can change the web server
+> configuration for those sites, but other ikiwiki developers can't. --[[smcv]]
