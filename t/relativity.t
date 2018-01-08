@@ -403,10 +403,7 @@ sub test_site6_behind_reverse_proxy {
 	like($bits{cgihref}, qr{^(?:(?:https:)?//example.com)?/cgi-bin/ikiwiki.cgi$});
 	like($bits{basehref}, qr{^(?:(?:https:)?//example\.com)?/wiki/$});
 	like($bits{stylehref}, qr{^(?:(?:https:)?//example.com)?/wiki/style.css$});
-	TODO: {
-	local $TODO = "https://ikiwiki.info/bugs/cgi_redirecting_to_non-https_URL/";
 	check_goto(qr{^https://example\.com/wiki/a/b/c/$}, HTTP_HOST => 'localhost');
-	}
 
 	# previewing a page
 	%bits = parse_cgi_content(run_cgi(is_preview => 1, HTTP_HOST => 'localhost'));

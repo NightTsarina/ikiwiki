@@ -91,7 +91,7 @@ sub redirect ($$) {
 	my $q=shift;
 	eval q{use URI};
 
-	my $topurl;
+	my $topurl = $config{cgiurl};
 	if (defined $q && ! $config{w3mmode} && ! $config{reverse_proxy}) {
 		$topurl = $q->url;
 	}

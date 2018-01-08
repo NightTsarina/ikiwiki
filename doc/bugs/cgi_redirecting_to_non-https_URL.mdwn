@@ -42,11 +42,11 @@ that so as to have the path for letsencrypt negotiation not redirected.-- [[User
 > Is the connection between nginx and lighttpd http or https?
 >
 > I think this is maybe a bug in `IkiWiki::redirect` when used in conjunction with
-> `reverse_proxy: 1`. I've added a failing test case marked as TODO to `t/relativity.t`,
-> although I haven't been able to fix the bug yet. The bug I found is that when marked
-> as behind a reverse proxy, `IkiWiki::redirect` sends `Location: /foo/bar/`, which
-> your backend web server might be misinterpreting. It should send
-> `Location: https://redacted/foo/bar/` instead.
+> `reverse_proxy: 1`: when marked as behind a reverse proxy,
+> `IkiWiki::redirect` sent `Location: /phd/foo/bar/`, which your backend web
+> server might be misinterpreting. ikiwiki git master now sends
+> `Location: https://redacted/phd/foo/bar/` instead: does that resolve this
+> for you?
 >
 > Assuming nginx has a reasonable level of configuration, you can redirect http to https
 > for the entire server except `/.well-known/acme-challenge/` as a good way to bootstrap
