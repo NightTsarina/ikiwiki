@@ -61,7 +61,7 @@ extra_build: perl_shebangs $(outprogs) ikiwiki.setup docwiki sysconfdir
 docwiki:
 	$(PERL) -Iblib/lib $(extramodules) $(tflag) ikiwiki.in --setup docwiki.setup --refresh
 
-perl_shebangs:
+perl_shebangs: pm_to_blib
 ifneq "$(PERL)" "/usr/bin/perl"
 	set -e; \
 	for file in $(shebang_scripts); do \
