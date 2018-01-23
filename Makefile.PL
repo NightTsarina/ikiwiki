@@ -99,8 +99,9 @@ underlay_install:
 	for dir in `cd underlays && $(FIND) . -follow -type d`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
 		for file in `$(FIND) underlays/$$dir -follow -maxdepth 1 -type f ! -name jquery.js ! -name jquery-ui.css ! -name jquery-ui.js ! -name jquery.tmpl.js`; do \
-			cp -pRL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir 2>/dev/null || \
-			install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
+			if ! cp -pRL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir 2>/dev/null; then \
+				install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
+			fi; \
 		done; \
 	done
 
@@ -109,8 +110,9 @@ underlay_install:
 	set -e; \
 	for file in doc/ikiwiki/directive/*; do \
 		if [ -f "$$file" ]; then \
-			cp -pRL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive 2>/dev/null || \
-			install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive; \
+			if ! cp -pRL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive 2>/dev/null; then \
+				install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive; \
+			fi; \
 		fi \
 	done
 
@@ -125,8 +127,9 @@ underlay_install:
 			elif echo "$$file" | grep -q base.css; then \
 				:; \
 			elif [ -f "$$file" ]; then \
-				cp -pRL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file 2>/dev/null || \
-				install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file; \
+				if ! cp -pRL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file 2>/dev/null; then \
+					install -m 644 $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/$$file; \
+				fi; \
 			fi \
 		done; \
 	done
@@ -139,8 +142,9 @@ extra_install: underlay_install
 	done
 	set -e; \
 	for file in `cd doc/examples; $(FIND) . -type f ! -regex '.*discussion.*'`; do \
-		cp -pRL doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file 2>/dev/null || \
-		install -m 644 doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file; \
+		if ! cp -pRL doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file 2>/dev/null; then \
+			install -m 644 doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file; \
+		fi; \
 	done
 
 	set -e; \
