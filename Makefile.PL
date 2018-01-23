@@ -63,6 +63,7 @@ docwiki:
 
 perl_shebangs:
 ifneq "$(PERL)" "/usr/bin/perl"
+	set -e; \
 	for file in $(shebang_scripts); do \
 		$(PERL) -pe "s|^#!/usr/bin/perl\b|#!$(PERL)| if 1" < $$file > "$$file.new"; \
 		[ -x $$file ] && chmod +x "$$file.new"; \
@@ -72,6 +73,7 @@ endif
 
 perl_shebangs_clean:
 ifneq "$(PERL)" "/usr/bin/perl"
+	set -e; \
 	for file in $(shebang_scripts); do \
 		$(PERL) -pe "s|^#!$(PERL)\b|#!/usr/bin/perl| if 1" < $$file > "$$file.new"; \
 		[ -x $$file ] && chmod +x "$$file.new"; \
@@ -93,6 +95,7 @@ myclean: clean
 
 underlay_install:
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki
+	set -e; \
 	for dir in `cd underlays && $(FIND) . -follow -type d`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
 		for file in `$(FIND) underlays/$$dir -follow -maxdepth 1 -type f ! -name jquery.js ! -name jquery-ui.css ! -name jquery-ui.js ! -name jquery.tmpl.js`; do \
@@ -103,6 +106,7 @@ underlay_install:
 
 	# The directive docs become their own special underlay.
 	install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive
+	set -e; \
 	for file in doc/ikiwiki/directive/*; do \
 		if [ -f "$$file" ]; then \
 			cp -pRL $$file $(DESTDIR)$(PREFIX)/share/ikiwiki/directives/ikiwiki/directive 2>/dev/null || \
@@ -112,11 +116,12 @@ underlay_install:
 
 	# Themes have their base.css (if present) and then
 	# style.css appended to the normal one.
+	set -e; \
 	for theme in themes/*; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme; \
 		for file in $$theme/*; do \
 			if echo "$$file" | grep -q style.css; then \
-				(cat doc/style.css; cat $$theme/base.css 2>/dev/null; cat $$file) > $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme/style.css; \
+				(cat doc/style.css; cat $$theme/base.css 2>/dev/null || :; cat $$file) > $(DESTDIR)$(PREFIX)/share/ikiwiki/$$theme/style.css; \
 			elif echo "$$file" | grep -q base.css; then \
 				:; \
 			elif [ -f "$$file" ]; then \
@@ -128,14 +133,17 @@ underlay_install:
 
 extra_install: underlay_install
 	# Install example sites.
+	set -e; \
 	for dir in `cd doc/examples; $(FIND) . -type d ! -regex '.*discussion.*'`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$dir; \
 	done
+	set -e; \
 	for file in `cd doc/examples; $(FIND) . -type f ! -regex '.*discussion.*'`; do \
 		cp -pRL doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file 2>/dev/null || \
 		install -m 644 doc/examples/$$file $(DESTDIR)$(PREFIX)/share/ikiwiki/examples/$$file; \
 	done
 
+	set -e; \
 	for dir in `$(FIND) templates -follow -type d`; do \
 		install -d $(DESTDIR)$(PREFIX)/share/ikiwiki/$$dir; \
 		for file in `$(FIND) $$dir -follow -maxdepth 1 -type f`; do \
@@ -144,9 +152,11 @@ extra_install: underlay_install
 	done
 	
 	install -d $(DESTDIR)$(PREFIX)/lib/ikiwiki/plugins
+	set -e; \
 	for file in `$(FIND) plugins -maxdepth 1 -type f ! -path plugins/.\* ! -name \*demo\* -name \*.py`; do \
 		install -m 644 $$file $(DESTDIR)$(PREFIX)/lib/ikiwiki/plugins; \
 	done
+	set -e; \
 	for file in `$(FIND) plugins -maxdepth 1 -type f ! -path plugins/.\* ! -name \*demo\* ! -name \*.py ! -name \*.pyc`; do \
 		install -m 755 $$file $(DESTDIR)$(PREFIX)/lib/ikiwiki/plugins; \
 	done
@@ -169,6 +179,7 @@ extra_install: underlay_install
 	install ikiwiki-w3m.cgi $(DESTDIR)$(W3M_CGI_BIN)
 
 	install -d $(DESTDIR)$(PREFIX)/bin
+	set -e; \
 	for prog in $(outprogs) $(scripts); do \
 		install $$prog $(DESTDIR)$(PREFIX)/bin/$$(echo $$prog | $(SED) 's/\.out//'); \
 	done
