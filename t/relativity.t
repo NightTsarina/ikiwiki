@@ -381,7 +381,7 @@ sub test_site5_w3mmode {
 	my $redirect = run_cgi(goto => 1, PATH_INFO => '/ikiwiki.cgi',
 		SCRIPT_NAME => '/cgi-bin/ikiwiki-w3m.cgi');
 	like($redirect, qr{^Content-type: text/plain\r?\n}m);
-	like($redirect, qr{^W3m-control: GOTO \Q$pwd\E/t/tmp/out/a/b/c/\r?\n}m);
+	like($redirect, qr{^W3m-control: GOTO (?:file://)?\Q$pwd\E/t/tmp/out/a/b/c/\r?\n}m);
 }
 
 sub test_site6_behind_reverse_proxy {
