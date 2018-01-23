@@ -125,6 +125,31 @@ sub htmlize (@) {
 						$flags |= 0x00400000;
 					}
 
+					# Enable fenced code blocks in libmarkdown >= 2.2.0
+					# https://bugs.debian.org/888055
+					if (Text::Markdown::Discount->can("MKD_FENCEDCODE")) {
+						$flags |= Text::Markdown::Discount::MKD_FENCEDCODE();
+					}
+					else {
+						$flags |= 0x02000000;
+					}
+
+					# PHP Markdown Extra-style term\n: definition -> <dl>
+					if (Text::Markdown::Discount->can("MKD_DLEXTRA")) {
+						$flags |= Text::Markdown::Discount::MKD_DLEXTRA();
+					}
+					else {
+						$flags |= 0x01000000;
+					}
+
+					# Allow dashes and underscores in tag names
+					if (Text::Markdown::Discount->can("MKD_GITHUBTAGS")) {
+						$flags |= Text::Markdown::Discount::MKD_GITHUBTAGS();
+					}
+					else {
+						$flags |= 0x08000000;
+					}
+
 					return Text::Markdown::Discount::markdown($t, $flags);
 				}
 			}
