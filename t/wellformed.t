@@ -12,7 +12,7 @@ plan(skip_all => "XML::Parser not available")
 
 use IkiWiki;
 
-ok(system("make >/dev/null") == 0);
+ok(system("make docwiki >/dev/null") == 0);
 
 chdir("html") || die "chdir: $!";
 
