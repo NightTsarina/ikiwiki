@@ -1,0 +1,11 @@
+# Bug with attachments in parent directory
+
+1. Create page '/foo', attach file baz2.png (it will be 'foo/baz2.png')
+1. Create '/foo/bar' page with '[[baz2.png]]' contents, this works and shows the image
+1. Rename /foo/bar to /iliketrains/bar
+
+Expected result, updated link inside of the page from 'baz2.png' to a relative or absolute path that works.
+
+Actual result, the link inside of the page is not updated. It stays a broken link.
+
+--[[svetlana]]
