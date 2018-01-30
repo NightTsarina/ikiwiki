@@ -17,11 +17,10 @@ sub import {
 	hook(type => "getsetup", id => OSM, call => \&getsetup);
 	hook(type => "needsbuild", id => OSM, call => \&needsbuild);
 	hook(type => "preprocess", id => "osm", call => \&preprocess_osm);
-	hook(type => "preprocess", id => "waypoint",
+	hook(type => "preprocess", id => "waypoint", scan => 1,
 		call => \&preprocess_waypoint);
 	hook(type => "format", id => OSM, call => \&format);
 	hook(type => "changes", id => OSM, call => \&changes);
-	hook(type => "cgi", id => OSM, call => \&cgi);
 }
 
 sub getsetup () {
@@ -96,73 +95,59 @@ sub preprocess_osm {
 	my $page = $params{page};
 	my $dest = $params{destpage};
 
-	my $map = scrub($params{'map'} || 'map', $page, $dest);
-	my $divname = scrub($params{'divname'}, $page, $dest);
+	my $map = $params{'map'} || 'map';
+	my $divname = $params{'divname'};
 	my $height = scrub($params{'height'} || '300px', $page, $dest);
 	my $width = scrub($params{'width'} || '500px', $page, $dest);
 	my $float = (defined($params{'right'}) && 'right') || (defined($params{'left'}) && 'left');
 
 	my $showlines = defined($params{'showlines'});
 	my $nolinkpages = defined($params{'nolinkpages'});
-	my $highlight = scrub($params{'highlight'} || '', $page, $dest);
+	my $highlight = $params{'highlight'} || '';
 
 	my $loc = $params{loc};
 	my $lat = $params{lat};
 	my $lon = $params{lon};
 	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'} // 15;
 
-	if (defined($lon) || defined($lat) || defined($loc)) {
-		($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
-	}
-	if (! $divname) {
-		$divname = $map;
-		my $num = 1;
-		while (exists $pagestate{$page}{OSM}{$map}{'displays'}{$divname}) {
-			$divname = "${map}_${num}";
-			$num++;
-		}
-	}
-
 	error("Invalid map name: $map") if ($map !~ /^[\w-]+$/);
-	error("Duplicate div name: $divname") if (
+	error("Duplicate div name: $divname") if ($divname and
 		exists $pagestate{$page}{OSM}{$map}{'displays'}{$divname});
-	error("Invalid div name: $divname") if ($divname !~ /^[\w-]+$/);
+	error("Invalid div name: $divname") if ($divname and
+		$divname !~ /^[\w-]+$/);
 	error("Invalid zoom: $zoom") if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
-	register_rendered_files($map, $page, $dest);
-	$pagestate{$page}{OSM}{$map}{'displays'}{$divname} = 1;
-
-	my %common_opts = (
-		showlines => $showlines || 0,
-		nolinkpages => $nolinkpages || 0,
-		highlight => $highlight,
-		zoom => $zoom,
-	);
-	if (defined $lat and defined $lon) {
-		$common_opts{lat} = $lat;
-		$common_opts{lon} = $lon;
+	if (defined($lon) || defined($lat) || defined($loc)) {
+		($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 	}
+	$divname = $map unless($divname);
+	my $num = 1;
+	while (exists $pagestate{$page}{OSM}{$map}{'displays'}{$divname}) {
+		$divname = "${map}_${num}";
+		$num++;
+	}
+	$pagestate{$page}{OSM}{$map}{'displays'}{$divname} = 1;
 
 	my %map_opts = (
 		fullscreen => 0,
 		height => $height,
 		width => $width,
 		float => $float,
-		%common_opts,
-		href => IkiWiki::cgiurl(
-			do => OSM,
-			map => $map,
-			%common_opts,
-		),
+		showlines => $showlines || 0,
+		nolinkpages => $nolinkpages || 0,
+		highlight => $highlight,
+		zoom => $zoom,
 	);
-	my $ret = qq(<div id="mapdiv-$divname" style="height: $height"></div>\n);
-	unless ($pagestate{$page}{OSM}{$map}{'json_embedded'}) {
-		$ret .= load_geojson_js($map, $page);
-		$pagestate{$page}{OSM}{$map}{'json_embedded'} = 1;
+	if (defined $lat and defined $lon) {
+		$map_opts{lat} = $lat;
+		$map_opts{lon} = $lon;
 	}
-        $ret .= display_map_js($map, $divname, %map_opts);
-        return $ret;
+
+	my $ret = qq(<div id="mapdiv-$divname" style="height: $height"></div>\n);
+	$ret .= load_geojson_js($map, $dest);
+	$ret .= display_map_js($map, $divname, %map_opts);
+	return $ret;
 }
 
 sub preprocess_waypoint {
@@ -171,8 +156,8 @@ sub preprocess_waypoint {
 	my $dest = $params{'destpage'};
 	my $p = IkiWiki::basename($page);
 
-	my $map = scrub($params{'map'} || 'map', $page, $dest);
-	my $id = scrub($params{'id'}, $page, $dest);
+	my $map = $params{'map'} || 'map';
+	my $id = $params{'id'};
 	my $name = scrub($params{'name'} || pagetitle($p), $page, $dest);
 	my $desc = scrub($params{'desc'} || '', $page, $dest);
 
@@ -192,24 +177,24 @@ sub preprocess_waypoint {
 	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'} // 15;
 	($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 
-	if (! $id) {
-		$id = $name;
-		my $num = 1;
-		while (exists $pagestate{$page}{OSM}{$map}{'waypoints'}{$id}) {
-			$id = "${name}_${num}";
-			$num++;
-		}
-	}
-
-	error("Duplicate waypoint id: $id") if (
-		exists $pagestate{$page}{OSM}{$map}{'waypoints'}{$id});
 	error("Invalid map name: $map") if ($map !~ /^[\w-]+$/);
+	error("Duplicate waypoint id: $id") if (
+		$id && exists $pagestate{$page}{OSM}{$map}{'waypoints'}{$id});
 	error("Must specify lat and lon (or loc)") unless (
 		defined $lat && defined $lon);
 	error("Invalid zoom: $zoom") if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
+	$id = $page unless($id);
+	my $num = 1;
+	while (exists $pagestate{$page}{OSM}{$map}{'waypoints'}{$id}) {
+		$id = "${page}_${num}";
+		$num++;
+	}
+
 	register_rendered_files($map, $page, $dest);
+	return unless defined wantarray;  # Scan mode.
+
 	$waypoint_changed = 1;
 	$pagestate{$page}{OSM}{$map}{'waypoints'}{$id} = {
 		id => $id,
@@ -396,38 +381,6 @@ sub format (@) {
 	return $js . $before;
 }
 
-sub cgi($) {
-	my $cgi = shift;
-	return unless defined $cgi->param('do') &&
-		$cgi->param("do") eq OSM;
-
-	IkiWiki::loadindex();
-	IkiWiki::decode_cgi_utf8($cgi);
-
-	my $map = $cgi->param('map');
-	error("Invalid map name: $map") if ($map !~ /^[\w-]+$/);
-
-	print "Content-Type: text/html\r\n";
-	print "\r\n";
-	print "<html>\n<head>\n";
-	print map_setup_js();
-	print load_geojson_js($map, "/index");
-        print "</head>\n<body>\n";
-	print "<div id=\"mapdiv-$map\"></div>\n";
-	print display_map_js($map, $map,
-		fullscreen => 1,
-		lat => $cgi->param('lat'),
-		lon => $cgi->param('lon'),
-		zoom => $cgi->param('zoom'),
-		showlines => $cgi->param('showlines'),
-		nolinkpages => $cgi->param('nolinkpages'),
-		highlight => $cgi->param('highlight'),
-	);
-	print "</body>\n</html>\n";
-
-	exit 0;
-}
-
 sub map_setup_js(;$) {
 	my $page = shift;
 
@@ -436,16 +389,20 @@ sub map_setup_js(;$) {
 	my $osmurl = urlto("ikiwiki/" . OSM . "/display_map.js", $page);
 
 	my $code = qq(<link rel="stylesheet" href="$cssurl" crossorigin=""/>\n);
-        $code .= qq(<script src="$olurl" type="text/javascript" crossorigin="" charset="utf-8"></script>\n);
-        $code .= qq(<script src="$osmurl" type="text/javascript" charset="utf-8"></script>\n);
+	$code .= qq(<script src="$olurl" type="text/javascript" crossorigin="" charset="utf-8"></script>\n);
+	$code .= qq(<script src="$osmurl" type="text/javascript" charset="utf-8"></script>\n);
 	return $code;
 }
 
+our %json_embedded;
 sub load_geojson_js($$) {
 	my $map = shift;
-	my $page = shift;
+	my $dest = shift;
 
-	my $jsonurl = urlto("/ikiwiki/" . OSM . "/${map}.js", $page);
+	return '' if ($json_embedded{$dest});
+	$json_embedded{$dest} = 1;
+
+	my $jsonurl = urlto("/ikiwiki/" . OSM . "/${map}.js", $dest);
 	my $ret = qq(<script src="$jsonurl" type="text/javascript");
 	$ret .= qq( charset="utf-8"></script>\n);
 	return $ret;
@@ -456,10 +413,10 @@ sub display_map_js($$;@) {
 	my $divname = shift;
 	my %options = @_;
 
-        $options{'tilesrc'} = $config{osm_tile_source} || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        $options{'attribution'} = $config{osm_attribution} || '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors';
+	$options{'tilesrc'} = $config{osm_tile_source} || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+	$options{'attribution'} = $config{osm_attribution} || '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors';
 
-        my $ret = qq(<script type="text/javascript">\n);
+	my $ret = qq(<script type="text/javascript">\n);
 	$ret .= qq{display_map('mapdiv-$divname', geojson_$map, };
 	$ret .= to_json(\%options);
 	$ret .= qq{);\n</script>\n};

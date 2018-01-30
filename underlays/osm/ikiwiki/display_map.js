@@ -3,7 +3,6 @@ function display_map(divname, geojson, options) {
 	div = document.getElementById(divname);
 
 	if (options.fullscreen) {
-		permalink = 'permalink';
 		div.style.top = 0;
 		div.style.left = 0;
 		div.style.position = 'absolute';
@@ -13,7 +12,6 @@ function display_map(divname, geojson, options) {
 		div.style.height = options.height;
 		div.style.width = options.width;
 		div.style.float = options.float;
-		permalink = {base: options.href, title: "View larger map"};
 	}
 
 	var map = L.map(divname);
