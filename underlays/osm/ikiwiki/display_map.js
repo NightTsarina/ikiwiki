@@ -14,13 +14,13 @@ function display_map(divname, geojson, options) {
 		div.style.float = options.float;
 	}
 
-	var map = L.map(divname);
+	var map = L.map(div);
 	L.tileLayer(options.tilesrc, {
-		//maxZoom: 18,
 		attribution: options.attribution,
 	}).addTo(map);
 
 	var min_lat = 90, min_lon = 180, max_lat = -90, max_lon = -180;
+	var bounds = L.latLngBounds();
 	L.geoJSON(geojson, {
 		filter: function(feature, layer) {
 			return feature.type != 'LineString' || options.showlines;
@@ -44,6 +44,7 @@ function display_map(divname, geojson, options) {
 				var lon = feature.geometry.coordinates[0];
 				var lat = feature.geometry.coordinates[1];
 				if (lat && lon) {
+					bounds.extend(L.latLng(lat, lon));
 					if (lat < min_lat)
 						min_lat = lat;
 					if (lon < min_lon)
@@ -55,7 +56,7 @@ function display_map(divname, geojson, options) {
 				}
 			} else {
 				layer.options.interactive = false;
-                        }
+			}
 			if (!feature.properties) {
 				return;
 			}
@@ -74,9 +75,11 @@ function display_map(divname, geojson, options) {
 			layer.bindPopup(content);
 		}
 	}).addTo(map);
-	if (!options.lat || options.lon) {
-		options.lat = (max_lat + min_lat) / 2.0;
-		options.lon = (max_lon + min_lon) / 2.0;
+	if (!options.lat || !options.lon) {
+		map.fitBounds(bounds, {
+			padding: [20, 20],
+		});
+	} else {
+		map.setView([options.lat, options.lon], options.zoom || 13);
 	}
-	map.setView([options.lat, options.lon], options.zoom || 13);
 }

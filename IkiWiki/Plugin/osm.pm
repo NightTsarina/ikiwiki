@@ -77,18 +77,22 @@ sub register_rendered_files {
 	}
 }
 
+# Idea taken from meta.pm plugin.
+# Make sure cached state is cleaned before rebuilding (and after deleting)
+# pages.
 sub needsbuild {
 	my $needsbuild = shift;
+	my $deleted = shift;
+	my %touched = map { $_ => 1 } (@$needsbuild, @$deleted);
 	foreach my $page (keys %pagestate) {
 		next unless (exists $pagestate{$page}{OSM} and
 			exists $pagesources{$page});
-		if (grep { $_ eq $pagesources{$page} } @$needsbuild) {
+		if (exists $touched{$pagesources{$page}}) {
 			delete $pagestate{$page}{OSM};
 		}
 	}
 	return $needsbuild;
 }
-
 
 sub preprocess_osm {
 	my %params=@_;
@@ -109,6 +113,7 @@ sub preprocess_osm {
 	my $lat = $params{lat};
 	my $lon = $params{lon};
 	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'} // 15;
+	($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 
 	error("Invalid map name: $map") if ($map !~ /^[\w-]+$/);
 	error("Duplicate div name: $divname") if ($divname and
@@ -118,9 +123,6 @@ sub preprocess_osm {
 	error("Invalid zoom: $zoom") if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
-	if (defined($lon) || defined($lat) || defined($loc)) {
-		($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
-	}
 	$divname = $map unless($divname);
 	my $num = 1;
 	while (exists $pagestate{$page}{OSM}{$map}{'displays'}{$divname}) {
@@ -144,7 +146,8 @@ sub preprocess_osm {
 		$map_opts{lon} = $lon;
 	}
 
-	my $ret = qq(<div id="mapdiv-$divname" style="height: $height"></div>\n);
+	my $ret = qq(<div id="mapdiv-$divname" style="height: $height");
+	$ret .= qq(class="osm"></div>\n);
 	$ret .= load_geojson_js($map, $dest);
 	$ret .= display_map_js($map, $divname, %map_opts);
 	return $ret;
@@ -195,16 +198,21 @@ sub preprocess_waypoint {
 	register_rendered_files($map, $page, $dest);
 	return unless defined wantarray;  # Scan mode.
 
-	$waypoint_changed = 1;
-	$pagestate{$page}{OSM}{$map}{'waypoints'}{$id} = {
-		id => $id,
-		name => $name,
-		desc => $desc,
-		lat => $lat,
-		lon => $lon,
-		# How to link back to the page from the map, must be absolute.
-		href => urlto($page),
-	};
+	if ($page eq $dest) {
+		# Do not create waypoints from inlined or preview pages.
+		debug("osm: Found waypoint $id");
+		$waypoint_changed = 1;
+		$pagestate{$page}{OSM}{$map}{'waypoints'}{$id} = {
+			id => $id,
+			name => $name,
+			desc => $desc,
+			lat => $lat,
+			lon => $lon,
+			# How to link back to the page from the map, must be
+			# absolute.
+			href => urlto($page),
+		};
+	}
 	my $output = '';
 	if ($embed) {
 		$output .= preprocess_osm(
@@ -259,6 +267,9 @@ sub scrub_lonlat($$$) {
 		else {
 			error("Bad lon");
 		}
+	}
+	if (!defined($lon) || !defined($lat)) {
+		return (undef, undef);
 	}
 	if ($lat < -90 || $lat > 90 || $lon < -180 || $lon > 180) {
 		error("Location out of range");
@@ -345,6 +356,7 @@ sub writejson($;$) {
 			);
 			push @{$geojson{'features'}}, \%json;
 		}
+		debug("osm: building $map.js");
 		writefile("$map.js", "$config{destdir}/ikiwiki/" . OSM,
 			"var geojson_$map = " . to_json(\%geojson));
 	}
