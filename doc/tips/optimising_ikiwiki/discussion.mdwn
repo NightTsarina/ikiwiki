@@ -1,0 +1,17 @@
+# Profile data incomplete
+
+Following the steps "Install Devel::NYTProf. PERL5OPT=-d:NYTProf. export PER5OPT. Now run ikiwiki as usual, and it will generate a nytprof.out file. Run nytprofhtml to generate html files.", get the following error message:
+
+    [svetlana /home/private/wiki]$ PERL5OPT=-d:NYTProf
+    [svetlana /home/private/wiki]$ export PER5OPT
+    [svetlana /home/private/wiki]$ ikiwiki --setup ikiwiki.setup 
+    skipping bad filename free/To-dos.mdwn~
+    [svetlana /home/private/wiki]$ nytprofhtml
+    Reading nytprof.out
+    Profile data incomplete, inflate error -5 ((null)) at end of input file, perhaps the process didn't exit cleanly or the
+     file has been truncated  (refer to TROUBLESHOOTING in the documentation)
+    [svetlana /home/private/wiki]$ 
+
+Typing "export NYTPROF=sigexit=int,hup,pipe,bus,segv,term" and repeating ikiwiki and nytprofhtml commands has no effect.
+
+What do I do now? Where is the TROUBLESHOOTING file located? --[[users/svetlana]]
