@@ -1,0 +1,17 @@
+[[!templatebody <<ENDBODY
+
+<table border="1">
+<tr><th colspan="4"><TMPL_VAR nimi></th></tr>
+
+<TMPL_IF status>
+<tr><td>Status:</td><td colspan="3"></td></td>
+</TMPL_IF>
+<TMPL_IF erityistä>
+<tr><td>Erityistä:</td><td colspan="3"></td></td>
+</TMPL_IF>
+
+<tr><td>Sidosryhmät / asiakkaat</td><td>Aiheet</td><td>Vastuuhenkilöt</td><td>Jäsenet</td></tr>
+<tr><td></td><td><TMPL_VAR aiheet></td><td><TMPL_VAR vastuuhenkilöt></td><td><TMPL_VAR jäsenet></td></tr>
+</table>
+
+ENDBODY]]
