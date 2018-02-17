@@ -380,10 +380,8 @@ sub format (@) {
 	my %params = @_;
 	my $page = $params{page};
 
-	return $params{content} unless (exists $pagestate{$page}{OSM});
 	return $params{content} unless (
-		grep { exists $_->{'displays'} }
-		values %{$pagestate{$page}{OSM}});
+	    $params{content} =~ /<div id="mapdiv-/);
 
 	my $js = map_setup_js($page);
 	my ($before, $after) = split(m(</head>), $params{content}, 2);
