@@ -1,0 +1,20 @@
+*Note : In this post, I only consider Ikiwiki as a static site compiler, not a wiki engine.*
+
+I have been using Ikiwiki for some years, writing [[several packages|spalax]], making some small contributions, and I somehow have the feeling that IkiWiki is getting old (maybe it has some technological debt). Among the things I am missing is:
+
+* it is written in Perl, and I don't know Perl;
+* I think it could benefit from using OOP (object oriented programming);
+* the template system is very very limited (compared to some modern template engines, like [Jinja2](http://jinja.pocoo.org/) or [Django](https://docs.djangoproject.com/en/2.0/topics/templates/)).
+
+So I looked at other static site generators (only in Python, because it is the only programming language I master). My thought was: since Ikiwiki is old (as [Joeyh said](https://joeyh.name/blog/entry/twenty_years_of_free_software_--_part_1_ikiwiki/): *it was a static site generator before we knew what those were. It wasn't the first, but it broke plenty of new ground*), modern static site generators should be as good as Ikiwiki, with some design mistakes fixed, right? I was wrong.
+
+Here are a few things that Ikiwiki does well, that other tools miss (and I might be biaised, but do no think that my opinion about it is an aversion to change: I do think Ikiwiki does it better).
+
+* The other tools I tried use separate pages from images from data (each one is in its own tree directory structure). There are workarounds, but [they might have caveats](https://github.com/getnikola/nikola/issues/2266#issuecomment-365922299). This might be linked to the next point:
+* [[Wikilinks|ikiwiki/wikilink]] are great! I did not like them at first (I feared that if a page `foo` was linked to `bar`, this link might be broken later if another page `bar` was created, with a higher precedence than the original one). But I ended up liking it.
+* The way other tools can be extended seems not clean: I do not want to write complex stuff or have to use regexp to match my new directive (or wathever it is called). Ikiwiki [[directive|ikiwiki/directive]] are great: writing a new directive is both very simple and very effective.
+* Ikiwiki documentation is great (for other tools I tried, it is acceptable for using the static site, but poor for extending it).
+
+Well, this post was meant to congratulate [[joey]] and every ikiwiki contributors: its design is great (I already used "great" a few times, sorry for my poor vocabulary). What next? I can hope that every single user and contributor of ikiwiki decide to rewrite it in Python3 (to keep the great ideas, integrate some more modern tools, and avoid a fork), or, to be more realistic, I could go back in time to convince/bribe/coerce Joey to write it in Python (which would not solve everything, but would make it easier for me to contribute). A more serious path would be to have a look at [staticsite](https://github.com/spanezz/staticsite/) which is written by Enrico Zini, who seems to want the same thing I want: a "more modern" ikiwiki.
+
+-- Louis
