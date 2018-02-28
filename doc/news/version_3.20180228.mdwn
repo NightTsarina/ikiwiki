@@ -1,0 +1,20 @@
+ikiwiki 3.20180228 released with [[!toggle text="these changes"]]
+[[!toggleable text="""
+   * core: Don't send relative redirect URLs when behind a reverse proxy
+   * core: Escape backticks etc. in directive error messages as HTML
+     entities so that the error message is not subsequently parsed as
+     Markdown
+   * mdwn: Enable fenced code blocks, PHP Markdown Extra-style definition
+     lists and GitHub-style extensions to HTML tag syntax when used with
+     Discount &gt;= 2.2.0 (Closes: #[888055](http://bugs.debian.org/888055))
+   * img: Fix auto-detection of image format (if enabled, which is
+     strongly discouraged) with ImageMagick &gt;= 6.9.8-3
+   * rst: Use Python 3 instead of Python 2
+   * build: `set -e` before each `for` loop, so that errors are reliably
+     trapped
+   * build: Use if/then instead of `||` so that the `-e` flag works
+   * build: Ensure that pm\_to\_blib finishes before rewriting shebang lines
+   * t: Make the img test pass with ImageMagick &gt;= 6.9.8-3
+     (Closes: #[891647](http://bugs.debian.org/891647))
+   * debian: Remove unused Lintian overrides for duplicate word false positives
+   * debian: Declare compliance with Debian Policy 4.1.3"""]]
