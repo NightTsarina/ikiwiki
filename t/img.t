@@ -43,6 +43,7 @@ my $PDFS_WORK = defined $magick->Get("width");
 
 ok(! system("rm -rf t/tmp; mkdir -p t/tmp/in"));
 
+ok(! system("cp t/img/redsquare.bmp t/tmp/in/redsquare.bmp"));
 ok(! system("cp t/img/redsquare.png t/tmp/in/redsquare.png"));
 ok(! system("cp t/img/redsquare.jpg t/tmp/in/redsquare.jpg"));
 ok(! system("cp t/img/redsquare.jpg t/tmp/in/redsquare.jpeg"));
@@ -97,6 +98,7 @@ $maybe_pdf_img
 [[!img really-pdf.jpg size=666x]]
 [[!img really-pdf.png size=666x]]
 [[!img really-pdf.svg size=666x]]
+[[!img redsquare.bmp size=16x]] expecting 16x16 if bmp enabled
 EOF
 );
 ok(utime(333333333, 333333333, "t/tmp/in/imgconversions.mdwn"));
@@ -168,6 +170,10 @@ ok(! -e "$outpath/666x-really-pdf.jpg");
 like($outhtml, qr/${quot}really-pdf\.png${quot} does not seem to be a valid png file/);
 ok(! -e "$outpath/666x-really-pdf.png");
 
+# We do not auto-detect file content unless specifically asked to do so
+ok(! -e "$outpath/16x-redsquare.bmp");
+like($outhtml, qr{${quot}?bmp${quot}? image processing disabled in img_allowed_formats configuration});
+
 # resize is deterministic when deterministic=1
 ok(utime(333333333, 333333333, "t/tmp/in/redsquare.png"));
 ok(! system("rm $outpath/10x-redsquare.png"));
@@ -186,6 +192,55 @@ ok(! system(@command, "--rebuild"));
 ok(! -e "$outpath/10x-bluesquare.png");
 ok(! -e "$outpath/12x-twopages.png");
 ok(! -e "$outpath/16x-p1-twopages.png");
+ok(! -e "$outpath/16x-redsquare.bmp");
+like($outhtml, qr{${quot}?bmp${quot}? image processing disabled in img_allowed_formats configuration});
+
+# enable support for everything (this is a terrible idea if you have
+# untrusted users)
+ok(! system(@command, '--set-yaml', 'img_allowed_formats=[everything]', '--rebuild'));
+
+$outhtml = readfile("$outpath.html");
+is(size("$outpath/16x-redsquare.bmp"), "16x16");
+like($outhtml, qr{src="(\./)?imgconversions/16x-redsquare\.bmp" width="16" height="16"});
+unlike($outhtml, qr{${quot}bmp${quot} image processing disabled in img_allowed_formats configuration});
+
+is(size("$outpath/10x-redsquare.png"), "10x10");
+ok(! -e "$outpath/30x-redsquare.png");
+ok($outhtml =~ /width="30" height="30".*expecting 30x30/);
+ok($outhtml =~ /width="42".*expecting 42x/);
+ok($outhtml =~ /height="43".*expecting x43/);
+ok($outhtml =~ /width="42" height="43".*expecting 42x43/);
+
+SKIP: {
+	skip "PDF support not installed (try ghostscript)", 2
+		unless $PDFS_WORK;
+	is(size("$outpath/12x-twopages.png"), "12x12");
+	is(size("$outpath/16x-p1-twopages.png"), "16x2");
+}
+
+ok($outhtml =~ /width="8" height="8".*expecting 8x8/);
+is(size("$outpath/x8-hello:world.png"), "8x8");
+is(size("$outpath/x4-a:b:c.png"), "4x4");
+is(size("$outpath/x6-a:b:c:d:e:f:g:h:i:j.png"), "6x6");
+
+is(size("$outpath/11x-redsquare.jpg"), "11x11");
+is(size("$outpath/12x-redsquare.jpeg"), "12x12");
+is(size("$outpath/13x-SHOUTY.JPG"), "13x13");
+like($outhtml, qr{src="(\./)?imgconversions/11x-redsquare\.jpg" width="11" height="11"});
+like($outhtml, qr{src="(\./)?imgconversions/12x-redsquare\.jpeg" width="12" height="12"});
+like($outhtml, qr{src="(\./)?imgconversions/13x-SHOUTY\.JPG" width="13" height="13"});
+
+# We still do not misinterpret images
+like($outhtml, qr/${quot}really-svg\.png${quot} does not seem to be a valid png file/);
+ok(! -e "$outpath/666x-really-svg.png");
+ok(! -e "$outpath/666x-really-svg.bmp");
+like($outhtml, qr/${quot}really-pdf\.JPEG${quot} does not seem to be a valid jpeg file/);
+ok(! -e "$outpath/666x-really-pdf.jpeg");
+ok(! -e "$outpath/666x-really-pdf.JPEG");
+like($outhtml, qr/${quot}really-pdf\.jpg${quot} does not seem to be a valid jpeg file/);
+ok(! -e "$outpath/666x-really-pdf.jpg");
+like($outhtml, qr/${quot}really-pdf\.png${quot} does not seem to be a valid png file/);
+ok(! -e "$outpath/666x-really-pdf.png");
 
 # now let's remove them again
 
