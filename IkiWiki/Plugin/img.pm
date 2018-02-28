@@ -125,7 +125,14 @@ sub preprocess (@) {
 	}
 	else {
 		# allow ImageMagick to auto-detect (potentially dangerous)
-		$format = '';
+		my $im = Image::Magick->new();
+		my $r = $im->Ping(file => $in);
+		if ($r) {
+			$format = lc $r;
+		}
+		else {
+			error sprintf(gettext("failed to determine format of %s"), $file);
+		}
 	}
 
 	error sprintf(gettext("%s image processing disabled in img_allowed_formats configuration"), $format ? $format : "\"$extension\"") unless allowed($format ? $format : "everything");
