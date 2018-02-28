@@ -63,4 +63,9 @@ Is this is a known problem and is there maybe a fix for this issue?
 >> 
 >> So it seems, that an empty coder prefix is not accepted anymore. To me it seems that [this commit](https://github.com/ImageMagick/ImageMagick/commit/4bc9b6b) changed the behavior. Unfortunately, the commit message doens't tell us about the reasons behind. The commit is included from version 6.9.8-3 on.
 
-
+>>> This should now be [[fixed|done]] in git and in the next release.
+>>> The test failure does not indicate a loss of functionality, unless
+>>> you are using uncommon image formats enabled with
+>>> `img_allowed_formats: [everything]`, which is a potential security
+>>> vulnerability because it exposes the attack surface of all
+>>> ImageMagick decoder modules. --[[smcv]]
