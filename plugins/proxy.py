@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # proxy.py — helper for Python-based external (xml-rpc) ikiwiki plugins
