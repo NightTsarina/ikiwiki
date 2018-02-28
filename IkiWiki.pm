@@ -1668,6 +1668,10 @@ sub preprocess ($$$;$$) {
 					chomp $error;
 					eval q{use HTML::Entities};
 					$error = encode_entities($error);
+					# Also encode most ASCII punctuation
+					# as entities so that error messages
+					# are not interpreted as Markdown etc.
+					$error = encode_entities($error, '[](){}!#$%*?@^`|~'."\\");
 				 	$ret="[[!$command <span class=\"error\">".
 						gettext("Error").": $error"."</span>]]";
 				}
