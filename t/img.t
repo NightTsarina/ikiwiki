@@ -105,8 +105,21 @@ ok(! system(@command, '--set-yaml', 'img_allowed_formats=[JPEG, PNG, svg, pdf]')
 
 sub size($) {
 	my $filename = shift;
+	my $decoder;
+	if ($filename =~ m/\.png$/i) {
+		$decoder = 'png';
+	}
+	elsif ($filename =~ m/\.jpe?g$/i) {
+		$decoder = 'jpeg';
+	}
+	elsif ($filename =~ m/\.bmp$/i) {
+		$decoder = 'bmp';
+	}
+	else {
+		die "Unexpected extension in '$filename'";
+	}
 	my $im = Image::Magick->new();
-	my $r = $im->Read(":$filename");
+	my $r = $im->Read("$decoder:$filename");
 	return "no image: $r" if $r;
 	my $w = $im->Get("width");
 	my $h = $im->Get("height");
