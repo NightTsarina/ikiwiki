@@ -1,0 +1,13 @@
+Now that the rst plugin uses Python3, the test should test docutils existence also with Python3:
+
+    --- rst.t.orig	2018-02-28 10:41:06.000000000 +0000
+    +++ rst.t	2018-03-03 17:17:23.862702468 +0000
+    @@ -3,7 +3,7 @@
+     use strict;
+     
+     BEGIN {
+    -	if (system("python -c 'import docutils.core'") != 0) {
+    +	if (system("python3 -c 'import docutils.core'") != 0) {
+     		eval 'use Test::More skip_all => "docutils not available"';
+     	}
+     }
