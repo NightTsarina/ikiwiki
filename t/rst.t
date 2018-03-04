@@ -3,7 +3,7 @@ use warnings;
 use strict;
 
 BEGIN {
-	if (system("python -c 'import docutils.core'") != 0) {
+	if (system("python3 -c 'import docutils.core'") != 0) {
 		eval 'use Test::More skip_all => "docutils not available"';
 	}
 }
