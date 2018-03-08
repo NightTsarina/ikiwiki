@@ -22,3 +22,15 @@ Some guesses:
 
 - Sufficiently old versions of the Discount library may break when passed unrecognized flags, in which case ikiwiki might want to version-check before passing flags
 - The version of the Discount library bundled with upstream Text::Markdown::Discount may be extremely old, in which case pkgsrc might want to make it depend instead on an external Discount package
+
+> This appears to be because `MKD_GITHUBTAGS` and `MKD_LATEX` both have numeric values that
+> were previously used for the internal flag `IS_LABEL`, which strips HTML (its value has
+> changed a couple of times).
+>
+> Having thought about this a bit, I realise I can probe for the values of these flags by
+> processing HTML that should have different results with the flag set or unset, which
+> would be safer than just blindly using them.
+>
+> Orthogonally, pkgsrc should probably use an up-to-date version of Discount, and
+> [we already know that Text::Markdown::Discount needs updating](https://rt.cpan.org/Public/Bug/Display.html?id=124188).
+> --[[smcv]]
