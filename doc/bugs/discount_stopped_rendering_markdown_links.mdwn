@@ -1,0 +1,24 @@
+# What I did
+
+Upgraded from 3.20180105 to 3.20180228 (from pkgsrc).
+No change to installed Text::Markdown::Discount (0.11nb4 from pkgsrc, using upstream's bundled Discount library).
+
+# What I expected to happen
+
+Markdown-style links to continue being rendered as before.
+
+# What actually happened
+
+Markdown-style links stopped being links.
+Instead, they render the part in square brackets as ordinary text.
+
+# Proximate cause
+
+In [f46e429](http://source.ikiwiki.branchable.com/?p=source.git;a=commitdiff;h=f46e429d96ead32943cb2670d7686df8c77de361), if I comment out the `MKD_GITHUBTAGS` if block, the problem goes away.
+
+# Further causes and possible solutions
+
+Some guesses:
+
+- Sufficiently old versions of the Discount library may break when passed unrecognized flags, in which case ikiwiki might want to version-check before passing flags
+- The version of the Discount library bundled with upstream Text::Markdown::Discount may be extremely old, in which case pkgsrc might want to make it depend instead on an external Discount package
