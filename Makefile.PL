@@ -203,6 +203,9 @@ coverage:
 	cover -delete
 	$(MAKE) test PERL5OPT=-MDevel::Cover PERL5LIB=. TEST_FILES="$(filter-out t/git.t t/mercurial.t,$(wildcard t/*.t))"
 	cover
+
+git-dist:
+	git archive --format=tar --prefix=IkiWiki-$(VER)/ HEAD | xz -c > IkiWiki-$(VER).tar.xz
 }
 }
 
