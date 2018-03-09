@@ -6,10 +6,39 @@
 # -rw-r--r-- root/root         0 2018-01-06 23:20 ./usr/share/perl5/IkiWiki/Plugin/wikitext.pm
 use warnings;
 use strict;
+use Cwd qw(getcwd);
+use File::Find qw(find);
 use Test::More;
 
 my @libs="IkiWiki.pm";
-push @libs, map { chomp; $_ } `find IkiWiki -type f -name \\*.pm`;
+
+if ($ENV{INSTALLED_TESTS}) {
+	foreach my $libdir (@INC) {
+		my $wanted = sub {
+			return unless /\.pm$/;
+			my $name = $File::Find::name;
+			if ($name =~ s{^\Q$libdir/\E}{}) {
+				push @libs, $name;
+			}
+		};
+
+		if (-e "$libdir/IkiWiki.pm" && -d "$libdir/IkiWiki") {
+			find($wanted, "$libdir/IkiWiki");
+			last;
+		}
+	}
+}
+else {
+	my $cwd = getcwd;
+	my $wanted = sub {
+		return unless /\.pm$/;
+		my $name = $File::Find::name;
+		if ($name =~ s{^\Q$cwd/\E}{}) {
+			push @libs, $name;
+		}
+	};
+	find($wanted, "$cwd/IkiWiki");
+}
 
 plan(tests => scalar @libs);
 
