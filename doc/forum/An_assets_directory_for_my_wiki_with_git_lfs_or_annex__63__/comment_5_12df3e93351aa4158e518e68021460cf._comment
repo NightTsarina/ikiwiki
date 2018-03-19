@@ -1,0 +1,19 @@
+[[!comment format=mdwn
+ username="anarcat"
+ avatar="http://cdn.libravatar.org/avatar/825d3c30cb96a053b5335e51b8d0bd49"
+ subject="tried and tried and failed"
+ date="2018-03-19T15:53:01Z"
+ content="""
+I've tried again and again to make that work in [[todo/git-annex_support]]. I'm not sure what's going on anymore, because I've been looking at this for 5 years, wrote a patch 3 years ago, and gave up 2 years ago, so my memory is failing me a little. :)
+
+The takeaway, for me, is that the recommended approach of using the underlay does *not* work without assistance. There are two main issues:
+
+ * the \"source\" directory still have those broken symlinks, and those shadow the underlay. I wrote a patch to work around that issue, to make sure that security checks properly fallback to the underlay when there's a broken symlink.  that's still awaiting review
+ * we need a better workflow to move files between the client, the source directory and the underlay. It's unclear to me how we're supposed to handle this, and the UI is especially nasty with the hook I used because it gets called every time there's a push, which can happen multiple times if automatic tag creation is enabled.
+
+It would be really nice to have a better setup for this. I wonder if it wouldn't be easier to do that with Git LFS, because it's a *little* better at bundling the files along. But it generally assumes there's a magic central location where we can find files from, which is not the model I'm looking for here.
+
+Anyways, just a \"me too\", I guess, but it would be awesome to have the greatest ikiwiki minds lean over this problem and fix it. It's kind of weird to not have ikiwiki support here considering the history of the project, but I understand that Joey has mostly moved away from active ikiwiki maintenance at this point, so it's understandable. :)
+
+Cheers! -- [[anarcat]]
+"""]]
