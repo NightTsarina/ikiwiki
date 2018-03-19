@@ -1,0 +1,46 @@
+I'm having a hard time figuring out how the creation time, modification time, internal `ctime` and `mtime` fields (in `indexdb`) play along with the [[plugins/meta]] directive.
+
+In some articles I write, I hardcode the creation and modification time, because they are imported from LWN.net, as such:
+
+    \[[!meta title="The cost of hosting in the cloud"]]
+    \[[!meta date="2018-02-281T12:00:00-0500"]]
+    \[[!meta updated="2018-03-12T14:22:45-0500"]]
+
+But strangely, [that article](https://anarc.at/blog/2018-03-12-cost-of-hosting/) does *not* show up as "created" on "february 28th": it shows up as "Created 6 days and 20 hours ago", ie. "march 12th" (`2018-03-12T18:29:12Z`). That is strange, because that's the *modification* date (`meta updated`), not the *creation* date. Similarly, the "edited" date is `2018-03-19T14:47:45Z` (40 minutes ago), which is more or less accurate: the page *was* modified some time ago, but shouldn't the `meta` tag override that? Note that the `edited` date matches the file's `mtime` field in the source directory:
+
+    w-anarcat@marcos:~$ LANG=C stat source/blog/2018-03-12-cost-of-hosting.mdwn 
+      File: source/blog/2018-03-12-cost-of-hosting.mdwn
+      Size: 14022           Blocks: 32         IO Block: 4096   regular file
+    Device: fd05h/64773d    Inode: 7905532     Links: 1
+    Access: (0644/-rw-r--r--)  Uid: ( 1026/w-anarcat)   Gid: ( 1026/w-anarcat)
+    Access: 2018-03-19 11:19:21.237074935 -0400
+    Modify: 2018-03-19 10:47:45.000000000 -0400
+    Change: 2018-03-19 11:19:20.509065456 -0400
+     Birth: -
+
+This wouldn't be so much of a problem if that stuff was consistent: but it's not really. What's supposed to be the [following article](https://anarc.at/blog/2018-03-19-sigal/) actually shows up *before* in the [blog index](https://anarc.at/blog/) which is rather annoying. It's also [backwards in the RSS feed](https://anarc.at/blog/index.rss), which will possibly break some feed readers who will miss the new article.
+
+That newer article shows up as `Created 12 days and 15 hours ago` (`2018-03-07T00:00:00Z`) and also "edited 40 minutes ago" (`2018-03-19T14:51:29Z`). It has the following meta:
+
+   \[[!meta title="Easy photo galleries with Sigal"]]
+   \[[!meta date="2018-03-07T00:00:00+0000"]]
+   \[[!meta updated="2018-03-19T10:26:12-0400"]]
+
+So *there* the `date` meta tag *works*: the creation date is correct, but obviously, it means it comes *before* the other article, because *that* one doesn't get loaded correctly.
+
+By now, clever folks will have noticed the problem: it's with the first timestamp:
+
+    \[[!meta date="2018-02-281T12:00:00-0500"]]
+
+There's an extra one in there! Obviously, february 281 is not a valid date... What happened is that I sometimes modify those dates by hand, and I sometimes mess it up. I actually messed it up twice there, the original timestamps were:
+
+    \[[!meta date="2018-02-281T12:00:00-0500"]]
+    \[[!meta updated="2018-14-22T14:22:45-0500"]]
+
+The error, in the second one, is that I put the time instead of the date (!). I must have been very distracted, but still it's kind of hard to edit those timestamps correctly. I think the fundamental problem here is that Ikiwiki doesn't say anything when those timestamps can't be parsed properly. It seems to me there should be an error somewhere, if not directly in the page, at least in the rendering logs or somewhere, if the date cannot be parsed correctly.
+
+So, long story short: shouldn't invalid dates in meta tags yield an error of some sort instead of being silently ignored? I spent half an hour figuring this one out, going as far as regenerating the whole wiki to try and see if it was a caching issue in indexdb...
+
+Thanks!
+
+-- [[anarcat]]
