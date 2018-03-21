@@ -75,8 +75,12 @@ a quote in the text by writing `&quot;` and so on.
 
 * date
 
-  Specifies the creation date of the page. The date can be entered in
-  nearly any format, since it's parsed by [[!cpan TimeDate]].
+  Specifies the creation date of the page. This creates a 
+  `<meta name="date" content="...">` header in the HTML output, but also
+  modifies the internal `ctime` in the [[internal index|tips/inside_dot_ikiwiki/]].
+  The date can be entered in nearly any format, since it's parsed by
+  [[!cpan TimeDate]] but invalid dates yield an error in 3.20180321
+  or later.
 
 * stylesheet
 
@@ -193,7 +197,8 @@ a quote in the text by writing `&quot;` and so on.
   modification time, like Planet: for instance, when editing an old blog post
   to add tags, you could set `updated` to be one second later than the original
   value. The date/time can be given in any format that
-  [[!cpan TimeDate]] can understand, just like the `date` field.
+  [[!cpan TimeDate]] can understand, just like the `date` field and maps to the
+  `<meta name="updated" content="...">` HTML header and internal `mtime` field.
 
 * foaf
 
