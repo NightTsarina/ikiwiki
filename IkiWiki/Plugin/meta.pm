@@ -155,14 +155,24 @@ sub preprocess (@) {
 		eval q{use Date::Parse};
 		if (! $@) {
 			my $time = str2time($value);
-			$IkiWiki::pagectime{$page}=$time if defined $time;
+			if (defined $time) {
+				$IkiWiki::pagectime{$page}=$time;
+			}
+			else {
+				error(sprintf(gettext('cannot parse date/time: %s'), $value));
+			}
 		}
 	}
 	elsif ($key eq 'updated') {
 		eval q{use Date::Parse};
 		if (! $@) {
 			my $time = str2time($value);
-			$pagestate{$page}{meta}{updated}=$time if defined $time;
+			if (defined $time) {
+				$pagestate{$page}{meta}{updated}=$time;
+			}
+			else {
+				error(sprintf(gettext('cannot parse date/time: %s'), $value));
+			}
 		}
 	}
 
