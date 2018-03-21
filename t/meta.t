@@ -161,4 +161,16 @@ write_build_read_compare(
 	qr{<meta name="twitter:card" content="player" />},
 );
 
+write_build_read_compare(
+	'malformed_ISO-8601',
+	'[[!meta date="2018-02-281T12:00:00-0500"]]',
+	qr{Error: cannot parse date/time: 2018-02-281T12:00:00-0500},
+);
+
+write_build_read_compare(
+	'nonsense_month',
+	'[[!meta date="2018-14-22T14:22:45-0500"]]',
+	qr{Error: cannot parse date/time: 2018-14-22T14:22:45-0500},
+);
+
 done_testing();
