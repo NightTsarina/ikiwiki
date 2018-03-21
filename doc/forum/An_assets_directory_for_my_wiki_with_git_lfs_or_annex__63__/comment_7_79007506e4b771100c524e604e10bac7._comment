@@ -1,0 +1,24 @@
+[[!comment format=mdwn
+ username="anarcat"
+ avatar="http://cdn.libravatar.org/avatar/825d3c30cb96a053b5335e51b8d0bd49"
+ subject="some clarifications"
+ date="2018-03-21T13:41:18Z"
+ content="""
+> Oh, you're using git-annex for the srcdir? The approach I'd vaguely had in mind was to have an ordinary git repository with the Markdown/smaller assets/etc. as the srcdir, and a parallel (no common commits) git-annex with larger assets (photos) as an underlay.
+
+Yeah well, here I am using ikiwiki-hosting which sets up a standard set of repositories to push to. Here I push to `ssh://user@host/` and everything is magic after. So adding another repo would be quite clunky.
+
+> In an ideal world, symlinks in the srcdir would be treated as the content that they point to, if and only if the symlink is somehow \"safe\", with symlinks to non-pruned files in the srcdir and symlinks to non-pruned files in .git/annex/objects/ specifically being considered \"safe\". This is not yet that ideal world, because my to-do list for ikiwiki is a lot longer than the time I can justify spending on it.
+
+I understand I agree with that general design.
+
+> I think this mechanism would need to be in terms of \"for page/attachment X (a symlink), read file Y (the target of the symlink) instead of X\" determined during scanning, rather than removing the -l check from readfile(), because that -l check is a good safety-catch against implementation mistakes that could lead to private file disclosure.
+
+I do not believe I'm removing the -l check from readfile() in the latest patch. It *is* removed from `find_src_files`, but only as a strong armed measure: some more clever checks should be implemented there to check the targets... 
+
+> Sorry, I am not going to review patches that relax the symlink security check unless I can concentrate on them enough to be confident that I'm not introducing security vulnerabilities. I realise this means that review has taken too long, but delays (even long ones) seem better than CVEs.
+
+Agreed. :) I don't mind the delay so much anymore, TBH... As I said, I've mostly given up and I assume something will either pop up by magic in the future or this will never happen. It's not like *I* have the time to \"concentrate on them enough to be confident that I'm not introducing security vulnerabilities\" as you so clearly put it: I probably don't have your grasp on the ikiwiki source so it makes my job even harder, but I should be able to figure out a better patch than `1 || -l` at this point. :p
+
+Anyways, I just wanted to provide a slight clarification on the workflow here...
+"""]]
