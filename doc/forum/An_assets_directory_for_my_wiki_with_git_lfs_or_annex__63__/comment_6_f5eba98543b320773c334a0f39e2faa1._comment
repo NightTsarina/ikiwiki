@@ -1,0 +1,36 @@
+[[!comment format=mdwn
+ username="smcv"
+ avatar="http://cdn.libravatar.org/avatar/0ee943fe632ff995f6f0f25b7167d03b"
+ subject="comment 6"
+ date="2018-03-21T09:30:41Z"
+ content="""
+> the \"source\" directory still have those broken symlinks, and those shadow the underlay
+
+Oh, you're using git-annex for the srcdir? The approach I'd vaguely had in mind was to
+have an ordinary git repository with the Markdown/smaller assets/etc. as the srcdir,
+and a parallel (no common commits) git-annex with larger assets (photos) as an underlay.
+
+I feel as though broken symlinks in the srcdir probably *should* shadow the underlay,
+because otherwise there's nothing we can use as a \"white-out\" to suppress files from
+the underlay. (But perhaps the canonical white-out should be a symlink to /dev/null,
+as used in systemd.)
+
+In an ideal world, symlinks in the srcdir would be treated as the content that they
+point to, if and only if the symlink is somehow \"safe\", with symlinks to non-pruned
+files in the srcdir and symlinks to non-pruned files in .git/annex/objects/
+specifically being considered \"safe\". This is not yet that ideal world, because my
+to-do list for ikiwiki is a lot longer than the time I can justify spending on it.
+
+I think this mechanism would need to be in terms of \"for page/attachment X (a
+symlink), read file Y (the target of the symlink) instead of X\" determined
+during scanning, rather than removing the `-l` check from `readfile()`, because
+that `-l` check is a good safety-catch against implementation mistakes that
+could lead to private file disclosure.
+
+> I wrote a patch to work around that issue, to make sure that security checks properly fallback to the underlay when there's a broken symlink
+
+Sorry, I am not going to review patches that relax the symlink security check unless I can
+concentrate on them enough to be confident that I'm not introducing security vulnerabilities.
+I realise this means that review has taken too long, but delays (even long ones) seem better
+than CVEs.
+"""]]
