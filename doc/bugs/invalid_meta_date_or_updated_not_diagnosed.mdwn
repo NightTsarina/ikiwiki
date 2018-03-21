@@ -44,3 +44,28 @@ So, long story short: shouldn't invalid dates in meta tags yield an error of som
 Thanks!
 
 -- [[anarcat]]
+
+> If you're reporting a bug, it would be helpful to lead with the actual bug and save
+> the account of how you tried to debug it for later (or omit it).
+> I've moved this from a forum post into a bug report.
+>
+> The meta plugin uses Date::Parse::str2time from the TimeDate Perl library, so it has
+> whatever error handling that has. However, historically any error has essentially
+> been ignored, which I think is a bug.
+>
+> `\[[!meta date]]` and `\[[!meta updated]]` have two purposes:
+>
+> * they create `<meta name="date" content="xxx">` and `<meta name="updated" content="xxx">`
+> * they change the ctime/mtime used by ikiwiki for sorting, etc.
+>
+> I think the historical assumption was that even if the date can't be parsed for the
+> second purpose, you still want the first purpose. However, you're right that this is
+> really fragile, and the first purpose seems fairly niche anyway.
+> In ikiwiki git master (to be released as 3.20180321 or later) I've made `\[[!meta]]`
+> produce an error message if you don't have `Date::Parse` or if the date/time is
+> malformed.
+> 
+> In the unlikely event that someone really wants `<meta name="date" content="xxx">`
+> without parsing the date, they can still use `\[[!meta name="date" content="xxx"]]`.
+>
+> [[!tag done]] --[[smcv]]
