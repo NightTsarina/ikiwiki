@@ -1,0 +1,23 @@
+As best as I can recall, running ikiwiki-mass-rebuild as root has never worked for me on NetBSD or Mac OS X. On both platforms, it gives me a shell as each user in the system wikilist. This is due to non-portable arguments to su(1).
+
+The following patch works much better on the aforementioned platforms, as well as CentOS 6:
+
+```
+diff --git ikiwiki-mass-rebuild ikiwiki-mass-rebuild
+index ce4e084e8..2ff33b493 100755
+--- ikiwiki-mass-rebuild
++++ ikiwiki-mass-rebuild
+@@ -32,7 +32,7 @@ sub processuser {
+ 	my $user=shift;
+ 	return if $user=~/^-/ || $users{$user};
+ 	$users{$user}=1;
+-	my $ret=system("su", $user, "-s", "/bin/sh", "-c", "--", "$0 --nonglobal @ARGV");
++	my $ret=system("su", "-m", $user, "-c", "/bin/sh -c -- '$0 --nonglobal @ARGV'");
+ 	if ($ret != 0) {
+ 		print STDERR "warning: processing for $user failed with code $ret\n";
+ 	}
+```
+
+The `-m` may be overzealous. I have some sites running as users with `/sbin/nologin` for a shell, and this allows running a command as those users, though without some typical environment variables. This is probably wrong. Maybe I should be doing something else to limit shell access for those users, and the su arg should instead be `-`.
+
+--[[schmonz]]
