@@ -85,14 +85,14 @@ write_build_read_compare(
 
 write_build_read_compare(
 	'date',
-	q{[[!meta date="12345"]]},
-	qr{<meta name="date" content="12345" />},
+	q{[[!meta date="2000-01-23"]]},
+	qr{<meta name="date" content="2000-01-23" />},
 );
 
 write_build_read_compare(
 	'updated',
-	q{[[!meta updated="12345"]]},
-	qr{<meta name="updated" content="12345" />},
+	q{[[!meta updated="2018-03-21"]]},
+	qr{<meta name="updated" content="2018-03-21" />},
 );
 
 #write_build_read_compare(
