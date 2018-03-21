@@ -162,6 +162,9 @@ sub preprocess (@) {
 				error(sprintf(gettext('cannot parse date/time: %s'), $value));
 			}
 		}
+		else {
+			error $@;
+		}
 	}
 	elsif ($key eq 'updated') {
 		eval q{use Date::Parse};
@@ -173,6 +176,9 @@ sub preprocess (@) {
 			else {
 				error(sprintf(gettext('cannot parse date/time: %s'), $value));
 			}
+		}
+		else {
+			error $@;
 		}
 	}
 
