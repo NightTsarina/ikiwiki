@@ -25,3 +25,106 @@ The `-m` may be overzealous. I have some sites running as users with `/sbin/nolo
 > pkgsrc's ikiwiki package (rev 3.20180311nb1), and will report back. In
 > the meanwhile, would this change cause any obvious regressions on
 > Debian? --[[schmonz]]
+
+>> su(1) does several things for us, not all of them completely obvious:
+>>
+>> * raise or drop privileges
+>> * avoid inheriting the controlling tty
+>> * alter the environment
+>> * run a PAM stack which can do more or less anything
+>> * execute the given command
+>>
+>> Because it's a privileged program, and POSIX/SUS don't specify the
+>> behaviour of privileged operations, its behaviour is determined
+>> by tradition rather than standards.
+>>
+>> Dropping privileges (in this case) is uncontroversial: clearly we want
+>> to do that.
+>>
+>> Not inheriting the controlling tty is necessary to prevent tty hijacking
+>> when dropping privileges (CVE-2011-1408, [[!debbug 628843]]). See
+>> ikiwiki-mass-rebuild's git history. It might also be possible to do this
+>> with `POSIX::setsid`, but I don't know whether that fully protects us
+>> on all platforms, and I would hope that every platform's `su` does the
+>> right things for that platform.
+>>
+>> Altering the environment is less clear. I'm taking the su(1) from Debian
+>> as a reference because that's what Joey would have developed against,
+>> and it has several modes for how much it does to the environment:
+>>
+>> * with `-m` (or equivalently `-p` or `--preserve-environment`):
+>>   reset only `PATH` and `IFS`; inherit everything else. I'm fairly
+>>   sure we don't want this, because we don't want ikiwiki to run with
+>>   root's `HOME`.
+>> * without `-m` or `-`: reset `HOME`, `SHELL`, `USER`, `LOGNAME`,
+>>   `PATH` and `IFS`; inherit everything else.
+>> * with `-` (or equivalently `-l` or `--login`) but not `-m`:
+>>   reset `HOME`, etc.; inherit `TERM`, `COLORTERM`, `DISPLAY` and
+>>   `XAUTHORITY`; clear everything else.
+>>
+>> Before Joey switched ikiwiki-mass-rebuild from dropping privileges
+>> itself to using `su` to fix CVE-2011-1408, it would reset `HOME`,
+>> inherit `PATH` (!) and clear everything else. Using plain `su`
+>> without `-` and without clearing the environment is increasingly
+>> discredited, because it isn't 1980 any more and a lot of programs
+>> respect environment variables whose correct values are user-specific,
+>> such as `XDG_RUNTIME_DIR` and `DBUS_SESSION_BUS_ADDRESS`. So I think
+>> using `su -` would be reasonable and perhaps preferable.
+>>
+>> Running the PAM stack is essentially unavoidable when we're
+>> altering privileges like this, and it's what PAM is there for,
+>> so we should do it. I think some `su` implementations (although not
+>> the one in Debian) run different PAM stacks for `su` and `su -`.
+>>
+>> Finally, running the command. `su` has two design flaws in this area:
+>>
+>> * The command is a string to be parsed by the shell, not an argument
+>>   vector; on Linux, this design flaw can be avoided by using
+>>   `runuser -u USER ... -- COMMAND [ARGUMENT...]` from util-linux instead
+>>   (essentially a non-setuid fork of util-linux su with more reasonable
+>>   command-line handling), and on many Unix systems it can be avoided by
+>>   using `sudo -u USER ... -- COMMAND [ARGUMENT...]`, but presumably neither
+>>   is available as standard on all OSs because that would be far too
+>>   helpful. runuser is also (still) vulnerable to `TIOCSTI` tty hijacking,
+>>   because its developers think that ioctl has no legitimate uses and
+>>   should be disabled or made a privileged operation in the Linux kernel,
+>>   but the Linux kernel maintainers have rejected that solution and
+>>   neither seems to be willing to back down.
+>>
+>>   We might be able to bypass this with this trick:
+>>
+>>       system('su', ..., '--', '-c', 'exec "$0" "$@"', $0, @ARGV);
+>>
+>>   using the fact that arguments to a Bourne/POSIX shell after `-c`
+>>   are set as `$0`, `$1`, ... in the shell. But the second design flaw
+>>   makes this unreliable.
+>>
+>> * `-c` is specified to run the given command with the user's
+>>   login shell from `/etc/passwd` (which might be `nologin` or `csh`
+>>   or anything else), not a standardized Bourne/POSIX shell, so you
+>>   can't predict what (if anything) the given command will actually
+>>   do, or even how to quote correctly. On Linux, giving `-s /bin/sh`
+>>   works around this design flaw, but apparently that's not portable
+>>   or we wouldn't be having this discussion.
+>>
+>> In principle ikiwiki-mass-rebuild was already wrong here, becase it
+>> receives arbitrary arguments and passes them to ikiwiki, but will do
+>> the wrong thing if they contain shell metacharacters (this is not a
+>> security vulnerability, because it's the unprivileged shell that will
+>> do the wrong thing; it's just wrong). Your proposed change makes it
+>> differently wrong, which I suppose is not *necessarily* worse, but
+>> I'd prefer it to be actually correct.
+>>
+>> It seems that by using `-m` you're relying on root having a
+>> Bourne-compatible (POSIX) login shell, so that when `SHELL` is
+>> inherited from root's environment, it will parse the argument of `-c`
+>> according to `/bin/sh` rules. This is less reliable than Linux
+>> `su -s /bin/sh` and has more side-effects, but the man page collection
+>> on unix.com suggests that this meaning for `-s` is Linux-specific
+>> and has not been copied by any other OSs, which is depressing because
+>> that option seems to be the only way to achieve what we want.
+>>
+>> In conclusion, non-interactive `su` is a disaster area, but we use
+>> it because traditional Unix terminal handling is also a disaster
+>> area, and I don't see a good solution.
+>> --[[smcv]]
