@@ -51,7 +51,7 @@ One setup that will work is to put all committers in a group (say,
 "ikiwiki"), and use permissions to allow that group to commit to the bare git
 repository. Make both the post-update hook and ikiwiki.cgi be setgid
 to the group, as well as suid to the user who admins the wiki. The
-`wrappergroup` [[setup_file_option|usage]] can be used to make the wrappers
+`wrappergroup` [[setup_file_option|Pagina]] can be used to make the wrappers
 be setgid to the right group. Then the srcdir, including its git
 repository, should only be writable by the wiki's admin, and *not* by the
 group. Take care that ikiwiki uses a umask that does not cause files in
