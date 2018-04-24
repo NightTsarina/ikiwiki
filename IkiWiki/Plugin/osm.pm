@@ -233,7 +233,7 @@ sub get_tag_icon($) {
 	my $tag = shift;
 	# look for an icon attached to the tag
 	my $attached = $tag . '/' . $config{'osm_tag_default_icon'};
-	if (srcfile($attached)) {
+	if (srcfile($attached, 1)) {
 		return $attached;
 	}
 	else {
