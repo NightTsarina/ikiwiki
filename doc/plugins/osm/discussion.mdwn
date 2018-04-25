@@ -23,3 +23,43 @@ For usability it would be great if it was possible to display the active waypoin
 *PS. The osm plugin is amazing!*
 
 > Thanks! --[[anarcat]]
+
+-----
+
+## Updated plugin needs review and merge
+
+[[!template id=gitbranch branch=tincho-osm author="[[tincho]]"]]
+
+[[schmonz]] here. I recently tried to use this plugin, had some trouble, and discovered on IRC that [[tincho]] has a largely [rewritten version](https://blog.tincho.org/posts/OSM_in_IkiWiki/) that looks good [on his site](https://blog.tincho.org/Mingle/), but hadn't gotten around to submitting for merge. So we remote-paired on it today, improved a few things, and wrote down what we noticed:
+
+### Features removed
+
+- Google Maps API
+- Multiple layers
+- Customized waypoint icons
+- Full-screen map (via the CGI)
+- Whatever "editable" did (maybe something interactive?)
+- OpenLayers -> Leaflet (if anyone was somehow depending on OpenLayers)
+
+### Features added
+
+- Maps actually work again
+- Maps work when embedded in HTTPS sites
+- Multiple maps and multiple waypoints in a page probably work better now
+- Maps _do_ appear in inlines
+- Pagestate hash gets cleaned up better after edit/preview/delete
+
+### Wishlist
+
+- Optionally do something (render a static image?) for RSS
+- When drawing lines between waypoints that are linked, optionally draw an arrow
+- Performance/ikiwiki-idiomaticness: generate one GeoJSON file per waypoint, then rely on getting changed waypoints from the `changes()` hook
+- Treat optional waypoint description as Markdown (or whatever input format you're using)
+- Simplify scrubbing (maybe avoid needing HTML::Scrubber)
+
+### Questions for reviewers
+
+- Given this is backward-incompatible, dhould we call it something other than "osm"?
+- What needs scrubbing? Have we covered all the bases? Too many bases?
+- Should we vendor Leaflet into an underlay, instead of needing a URL to load it from a CDN? [[schmonz]] somewhat prefers this, so we avoid needing external resources by default, avoid breaking when the Leaflet CDN is down, etc.
+- Should we write some tests before merging? `osm.pm` hadn't had any, FWIW
