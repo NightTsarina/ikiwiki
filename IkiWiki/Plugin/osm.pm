@@ -122,12 +122,14 @@ sub preprocess_osm {
 	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'};
 	($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 
-	error("Invalid map name: $map") if ($map !~ JS_IDENTIFIER_RE);
-	error("Duplicate div name: $divname") if ($divname and
+	error(sprintf(gettext("Invalid map name: %s"), $map)) if (
+		$map !~ JS_IDENTIFIER_RE);
+	error(sprintf(gettext("Duplicate div name: %s"), $divname)) if (
+		$divname and
 		exists $pagestate{$page}{OSM}{$map}{'displays'}{$divname});
-	error("Invalid div name: $divname") if ($divname and
-		$divname !~ /^[\w-]+$/);
-	error("Invalid zoom: $zoom") if (
+	error(sprintf(gettext("Invalid div name: %s"), $divname)) if (
+		$divname and $divname !~ /^[\w-]+$/);
+	error(sprintf(gettext("Invalid zoom: %s"), $zoom)) if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
 	# Make sure the divname is unique for this map in this page.
@@ -186,12 +188,13 @@ sub preprocess_waypoint {
 	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'};
 	($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 
-	error("Invalid map name: $map") if ($map !~ JS_IDENTIFIER_RE);
-	error("Duplicate waypoint id: $id") if (
+	error(sprintf(gettext("Invalid map name: %s"), $map)) if (
+		$map !~ JS_IDENTIFIER_RE);
+	error(sprintf(gettext("Duplicate waypoint id: %s"), $id)) if (
 		$id && exists $pagestate{$page}{OSM}{$map}{'waypoints'}{$id});
-	error("Must specify lat and lon (or loc)") unless (
+	error(gettext("Must specify lat and lon (or loc)")) unless (
 		defined $lat && defined $lon);
-	error("Invalid zoom: $zoom") if (
+	error(sprintf(gettext("Invalid zoom: %s"), $zoom)) if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
 	$id = generate_unique_key($pagestate{$page}{OSM}{$map}{'waypoints'},
@@ -205,7 +208,7 @@ sub preprocess_waypoint {
 
 	if ($page eq $dest) {
 		# Do not create waypoints from inlined or preview pages.
-		debug("osm: Found waypoint $id");
+		debug(sprintf(gettext("osm: found waypoint %s"), $id));
 		$waypoint_changed = 1;
 		$pagestate{$page}{OSM}{$map}{'waypoints'}{$id} = {
 			id => $id,
@@ -262,7 +265,8 @@ sub scrub_lonlat($$$) {
 			$lon = $2;
 		}
 		else {
-			error("Bad loc");
+			error(sprintf(gettext(
+				"Bad value for loc parameter: %s"), $loc));
 		}
 	}
 	if (defined($lat)) {
@@ -273,7 +277,8 @@ sub scrub_lonlat($$$) {
 			}
 		}
 		else {
-			error("Bad lat");
+			error(sprintf(gettext(
+				"Bad value for lat parameter: %s"), $lat));
 		}
 	}
 	if (defined($lon)) {
@@ -284,14 +289,16 @@ sub scrub_lonlat($$$) {
 			}
 		}
 		else {
-			error("Bad lon");
+			error(sprintf(gettext(
+				"Bad value for lon parameter: %s"), $lon));
 		}
 	}
 	if (!defined($lon) || !defined($lat)) {
 		return (undef, undef);
 	}
 	if ($lat < -90 || $lat > 90 || $lon < -180 || $lon > 180) {
-		error("Location out of range");
+		error(sprintf(gettext("Location out of range: (%s, %s)"),
+			$lat, $lon));
 	}
 	return ($lon + 0.0, $lat + 0.0);
 }
@@ -375,7 +382,8 @@ sub writejson($;$) {
 			);
 			push @{$geojson{'features'}}, \%json;
 		}
-		debug("osm: building " . OUTPUT_PATH . "/$map.js");
+		debug(sprintf(gettext("osm: building %s"),
+                        OUTPUT_PATH .  "/$map.js"));
 		writefile("$map.js", "$config{destdir}/" . OUTPUT_PATH,
 			"var geojson_$map = " . to_json(\%geojson));
 	}
