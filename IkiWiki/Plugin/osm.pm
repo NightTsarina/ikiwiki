@@ -1,19 +1,26 @@
 #!/usr/bin/perl
+# Copyright 2018 Martín Ferrari
 # Copyright 2011 Blars Blarson
 # Released under GPL version 2
 
 package IkiWiki::Plugin::osm;
+
 use utf8;
 use strict;
 use warnings;
+
 use IkiWiki 3.0;
 use JSON;
 
 use constant OSM => "osm";
-use constant JS_IDENTIFIER_RE => qr/^[a-zA-Z_][0-9a-zA-Z_]*$/o;
 use constant OUTPUT_PATH => "/ikiwiki/" . OSM;
-
-our $waypoint_changed = 0;
+use constant JS_IDENTIFIER_RE => qr/^[a-zA-Z_][0-9a-zA-Z_]*$/o;
+use constant DMS_RE => qr/
+	(\d+(?:\.\d*)?)[\s°]?           # Degrees
+	(?:\s*(\d+(?:\.\d*)?)[\s`´']?   # Minutes
+	  (?:\s*(\d+(?:\.\d*)?)[\s"]?)? # Seconds
+	)?
+	/xo;
 
 sub import {
 	add_underlay(OSM);
@@ -161,6 +168,8 @@ sub preprocess_osm {
 	return $ret;
 }
 
+our $waypoint_changed = 0;
+
 sub preprocess_waypoint {
 	my %params = @_;
 	my $page = $params{'page'};
@@ -259,10 +268,19 @@ sub generate_unique_key($$) {
 
 sub scrub_lonlat($$$) {
 	my ($loc, $lon, $lat) = @_;
+	my $lat_re = qr/([+-]?)/ . DMS_RE . qr/\s*([ns]?)/i;
+	my $lon_re = qr/([+-]?)/ . DMS_RE . qr/\s*([ew]?)/i;
 	if ($loc) {
-		if ($loc =~ /^\s*(\-?\d+(?:\.\d*°?|(?:°?|\s)\s*\d+(?:\.\d*\'?|(?:\'|\s)\s*\d+(?:\.\d*)?\"?|\'?)°?)[NS]?)\s*\,?\;?\s*(\-?\d+(?:\.\d*°?|(?:°?|\s)\s*\d+(?:\.\d*\'?|(?:\'|\s)\s*\d+(?:\.\d*)?\"?|\'?)°?)[EW]?)\s*$/) {
+		if ($loc =~ /
+			^\s*
+			($lat_re)
+			\s*[,;\s]\s*
+			($lon_re)
+			\s*$
+			/x
+		) {
 			$lat = $1;
-			$lon = $2;
+			$lon = $7;
 		}
 		else {
 			error(sprintf(gettext(
@@ -270,9 +288,9 @@ sub scrub_lonlat($$$) {
 		}
 	}
 	if (defined($lat)) {
-		if ($lat =~ /^(\-?)(\d+)(?:(\.\d*)°?|(?:°|\s)\s*(\d+)(?:(\.\d*)\'?|(?:\'|\s)\s*(\d+(?:\.\d*)?\"?)|\'?)|°?)\s*([NS])?\s*$/) {
-			$lat = $2 + ($3//0) + ((($4//0) + (($5//0) + (($6//0)/60.)))/60.);
-			if (($1 eq '-') || (($7//'') eq 'S')) {
+		if ($lat =~ /^\s*$lat_re\s*$/) {
+			$lat = $2 + ($3 // 0) / 60 + ($4 // 0) / 3600;
+			if ($1 eq '-' or uc($5 // '') eq 'S') {
 				$lat = - $lat;
 			}
 		}
@@ -282,9 +300,9 @@ sub scrub_lonlat($$$) {
 		}
 	}
 	if (defined($lon)) {
-		if ($lon =~ /^(\-?)(\d+)(?:(\.\d*)°?|(?:°|\s)\s*(\d+)(?:(\.\d*)\'?|(?:\'|\s)\s*(\d+(?:\.\d*)?\"?)|\'?)|°?)\s*([EW])?$/) {
-			$lon = $2 + ($3//0) + ((($4//0) + (($5//0) + (($6//0)/60.)))/60.);
-			if (($1 eq '-') || (($7//'') eq 'W')) {
+		if ($lon =~ /^\s*$lon_re\s*$/) {
+			$lon = $2 + ($3 // 0) / 60 + ($4 // 0) / 3600;
+			if ($1 eq '-' or uc($5 // '') eq 'W') {
 				$lon = - $lon;
 			}
 		}
@@ -433,6 +451,7 @@ sub map_setup_js(;$) {
 }
 
 our %json_embedded;
+
 sub load_geojson_js($$) {
 	my $map = shift;
 	my $dest = shift;
