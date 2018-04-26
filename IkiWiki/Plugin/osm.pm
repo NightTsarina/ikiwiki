@@ -10,6 +10,9 @@ use IkiWiki 3.0;
 use JSON;
 
 use constant OSM => "osm";
+use constant JS_IDENTIFIER_RE => qr/^[a-zA-Z_][0-9a-zA-Z_]*$/o;
+use constant OUTPUT_PATH => "/ikiwiki/" . OSM;
+
 our $waypoint_changed = 0;
 
 sub import {
@@ -68,16 +71,6 @@ sub getsetup () {
 		};
 }
 
-sub register_rendered_files {
-	my $map = shift;
-	my $page = shift;
-	my $dest = shift;
-
-	if ($page eq $dest) {
-		will_render($page, "/ikiwiki/" . OSM . "/${map}.js");
-	}
-}
-
 sub checkconfig {
 	$config{osm_default_zoom} = 15
 		unless (defined $config{osm_default_zoom});
@@ -129,7 +122,7 @@ sub preprocess_osm {
 	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'};
 	($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 
-	error("Invalid map name: $map") if ($map !~ /^[\w-]+$/);
+	error("Invalid map name: $map") if ($map !~ JS_IDENTIFIER_RE);
 	error("Duplicate div name: $divname") if ($divname and
 		exists $pagestate{$page}{OSM}{$map}{'displays'}{$divname});
 	error("Invalid div name: $divname") if ($divname and
@@ -137,12 +130,12 @@ sub preprocess_osm {
 	error("Invalid zoom: $zoom") if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
-	$divname = $map unless($divname);
-	my $num = 1;
-	while (exists $pagestate{$page}{OSM}{$map}{'displays'}{$divname}) {
-		$divname = "${map}_${num}";
-		$num++;
-	}
+	# Make sure the divname is unique for this map in this page.
+	$divname = generate_unique_key(
+		$pagestate{$page}{OSM}{$map}{'displays'}, $map
+	) unless($divname);
+	# Register this page is generating a map named $map in a <div> called
+	# $divname.
 	$pagestate{$page}{OSM}{$map}{'displays'}{$divname} = 1;
 
 	my %map_opts = (
@@ -193,7 +186,7 @@ sub preprocess_waypoint {
 	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'};
 	($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 
-	error("Invalid map name: $map") if ($map !~ /^[\w-]+$/);
+	error("Invalid map name: $map") if ($map !~ JS_IDENTIFIER_RE);
 	error("Duplicate waypoint id: $id") if (
 		$id && exists $pagestate{$page}{OSM}{$map}{'waypoints'}{$id});
 	error("Must specify lat and lon (or loc)") unless (
@@ -201,14 +194,13 @@ sub preprocess_waypoint {
 	error("Invalid zoom: $zoom") if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
-	$id = $page unless($id);
-	my $num = 1;
-	while (exists $pagestate{$page}{OSM}{$map}{'waypoints'}{$id}) {
-		$id = "${page}_${num}";
-		$num++;
-	}
+	$id = generate_unique_key($pagestate{$page}{OSM}{$map}{'waypoints'},
+		$page) unless($id);
 
-	register_rendered_files($map, $page, $dest);
+	# Register json file that will be rendered.
+	if ($page eq $dest) {
+		will_render($page, OUTPUT_PATH . "/${map}.js");
+	}
 	return unless defined wantarray;  # Scan mode.
 
 	if ($page eq $dest) {
@@ -246,6 +238,20 @@ sub preprocess_waypoint {
 		);
 	}
 	return $output;
+}
+
+# Given a HASH ref and an initial key, iterate until key is unique in that
+# HASH.
+sub generate_unique_key($$) {
+	my ($hashref, $initial_key) = @_;
+
+	my $num = 1;
+	my $id = $initial_key;
+	while (exists $hashref->{$id}) {
+		$id = "${initial_key}_${num}";
+		$num++;
+	}
+	return $id;
 }
 
 sub scrub_lonlat($$$) {
@@ -370,7 +376,7 @@ sub writejson($;$) {
 			push @{$geojson{'features'}}, \%json;
 		}
 		debug("osm: building $map.js");
-		writefile("$map.js", "$config{destdir}/ikiwiki/" . OSM,
+		writefile("$map.js", "$config{destdir}/" . OUTPUT_PATH,
 			"var geojson_$map = " . to_json(\%geojson));
 	}
 }
@@ -409,7 +415,7 @@ sub map_setup_js(;$) {
 
 	my $cssurl = $config{osm_leafletcss_url};
 	my $olurl = $config{osm_leafletjs_url};
-	my $osmurl = urlto("ikiwiki/" . OSM . "/display_map.js", $page);
+	my $osmurl = urlto(OUTPUT_PATH . "/display_map.js", $page);
 
 	my $code = qq(<link rel="stylesheet" href="$cssurl" crossorigin=""/>\n);
 	$code .= qq(<script src="$olurl" type="text/javascript" crossorigin="" charset="utf-8"></script>\n);
@@ -425,7 +431,7 @@ sub load_geojson_js($$) {
 	return '' if ($json_embedded{$dest});
 	$json_embedded{$dest} = 1;
 
-	my $jsonurl = urlto("/ikiwiki/" . OSM . "/${map}.js", $dest);
+	my $jsonurl = urlto(OUTPUT_PATH . "/${map}.js", $dest);
 	my $ret = qq(<script src="$jsonurl" type="text/javascript");
 	$ret .= qq( charset="utf-8"></script>\n);
 	return $ret;
