@@ -428,8 +428,8 @@ sub load_geojson_js($$) {
 	my $map = shift;
 	my $dest = shift;
 
-	return '' if ($json_embedded{$dest});
-	$json_embedded{$dest} = 1;
+	return '' if ($json_embedded{$dest}{$map});
+	$json_embedded{$dest}{$map} = 1;
 
 	my $jsonurl = urlto(OUTPUT_PATH . "/${map}.js", $dest);
 	my $ret = qq(<script src="$jsonurl" type="text/javascript");
