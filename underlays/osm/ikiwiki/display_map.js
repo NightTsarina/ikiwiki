@@ -2,24 +2,15 @@
 function display_map(divname, geojson, options) {
 	div = document.getElementById(divname);
 
-	if (options.fullscreen) {
-		div.style.top = 0;
-		div.style.left = 0;
-		div.style.position = 'absolute';
-		div.style.width = '100%';
-		div.style.height = '100%';
-	} else {
-		div.style.height = options.height;
-		div.style.width = options.width;
-		div.style.float = options.float;
-	}
+	div.style.height = options.height;
+	div.style.width = options.width;
+	div.style.float = options.float;
 
 	var map = L.map(div);
 	L.tileLayer(options.tilesrc, {
 		attribution: options.attribution,
 	}).addTo(map);
 
-	var min_lat = 90, min_lon = 180, max_lat = -90, max_lon = -180;
 	var bounds = L.latLngBounds();
 	L.geoJSON(geojson, {
 		filter: function(feature, layer) {
@@ -45,14 +36,6 @@ function display_map(divname, geojson, options) {
 				var lat = feature.geometry.coordinates[1];
 				if (lat && lon) {
 					bounds.extend(L.latLng(lat, lon));
-					if (lat < min_lat)
-						min_lat = lat;
-					if (lon < min_lon)
-						min_lon = lon;
-					if (lat > max_lat)
-						max_lat = lat;
-					if (lon > max_lon)
-						max_lon = lon;
 				}
 			} else {
 				layer.options.interactive = false;

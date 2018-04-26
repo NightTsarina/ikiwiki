@@ -146,7 +146,6 @@ sub preprocess_osm {
 	$pagestate{$page}{OSM}{$map}{'displays'}{$divname} = 1;
 
 	my %map_opts = (
-		fullscreen => 0,
 		height => $height,
 		width => $width,
 		float => $float,
