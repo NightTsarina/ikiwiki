@@ -80,6 +80,6 @@ function display_map(divname, geojson, options) {
 			padding: [20, 20],
 		});
 	} else {
-		map.setView([options.lat, options.lon], options.zoom || 13);
+		map.setView([options.lat, options.lon], options.zoom);
 	}
 }

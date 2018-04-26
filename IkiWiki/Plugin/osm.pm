@@ -15,6 +15,7 @@ our $waypoint_changed = 0;
 sub import {
 	add_underlay(OSM);
 	hook(type => "getsetup", id => OSM, call => \&getsetup);
+	hook(type => "checkconfig", id => OSM, call => \&checkconfig);
 	hook(type => "needsbuild", id => OSM, call => \&needsbuild);
 	hook(type => "preprocess", id => "osm", call => \&preprocess_osm);
 	hook(type => "preprocess", id => "waypoint", scan => 1,
@@ -77,6 +78,19 @@ sub register_rendered_files {
 	}
 }
 
+sub checkconfig {
+	$config{osm_default_zoom} = 15
+		unless (defined $config{osm_default_zoom});
+	$config{osm_leafletjs_url} = "https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+		unless (defined $config{osm_leafletjs_url});
+	$config{osm_leafletcss_url} = "https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+		unless (defined $config{osm_leafletcss_url});
+	$config{osm_tile_source} = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+		unless (defined $config{osm_tile_source});
+	$config{osm_attribution} = q(&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors)
+		unless (defined $config{osm_attribution});
+}
+
 # Idea taken from meta.pm plugin.
 # Make sure cached state is cleaned before rebuilding (and after deleting)
 # pages.
@@ -112,7 +126,7 @@ sub preprocess_osm {
 	my $loc = $params{loc};
 	my $lat = $params{lat};
 	my $lon = $params{lon};
-	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'} // 15;
+	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'};
 	($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 
 	error("Invalid map name: $map") if ($map !~ /^[\w-]+$/);
@@ -177,7 +191,7 @@ sub preprocess_waypoint {
 	my $loc = $params{'loc'};
 	my $lat = $params{'lat'};
 	my $lon = $params{'lon'};
-	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'} // 15;
+	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'};
 	($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 
 	error("Invalid map name: $map") if ($map !~ /^[\w-]+$/);
@@ -394,8 +408,8 @@ sub format (@) {
 sub map_setup_js(;$) {
 	my $page = shift;
 
-	my $cssurl = $config{osm_leafletcss_url} || "https://unpkg.com/leaflet@1.3.1/dist/leaflet.css";
-	my $olurl = $config{osm_leafletjs_url} || "https://unpkg.com/leaflet@1.3.1/dist/leaflet.js";
+	my $cssurl = $config{osm_leafletcss_url};
+	my $olurl = $config{osm_leafletjs_url};
 	my $osmurl = urlto("ikiwiki/" . OSM . "/display_map.js", $page);
 
 	my $code = qq(<link rel="stylesheet" href="$cssurl" crossorigin=""/>\n);
@@ -423,8 +437,8 @@ sub display_map_js($$;@) {
 	my $divname = shift;
 	my %options = @_;
 
-	$options{'tilesrc'} = $config{osm_tile_source} || 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-	$options{'attribution'} = $config{osm_attribution} || '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors';
+	$options{'tilesrc'} = $config{osm_tile_source};
+	$options{'attribution'} = $config{osm_attribution};
 
 	my $ret = qq(<script type="text/javascript">\n);
 	$ret .= qq{display_map('mapdiv-$divname', geojson_$map, };
