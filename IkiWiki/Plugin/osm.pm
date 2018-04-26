@@ -375,7 +375,7 @@ sub writejson($;$) {
 			);
 			push @{$geojson{'features'}}, \%json;
 		}
-		debug("osm: building $map.js");
+		debug("osm: building " . OUTPUT_PATH . "/$map.js");
 		writefile("$map.js", "$config{destdir}/" . OUTPUT_PATH,
 			"var geojson_$map = " . to_json(\%geojson));
 	}
@@ -415,11 +415,12 @@ sub map_setup_js(;$) {
 
 	my $cssurl = $config{osm_leafletcss_url};
 	my $olurl = $config{osm_leafletjs_url};
-	my $osmurl = urlto(OUTPUT_PATH . "/display_map.js", $page);
+	my $displaymap_link = bestlink($page, OUTPUT_PATH . "/display_map.js");
+	my $displaymap_url = urlto($displaymap_link, $page);
 
 	my $code = qq(<link rel="stylesheet" href="$cssurl" crossorigin=""/>\n);
 	$code .= qq(<script src="$olurl" type="text/javascript" crossorigin="" charset="utf-8"></script>\n);
-	$code .= qq(<script src="$osmurl" type="text/javascript" charset="utf-8"></script>\n);
+	$code .= qq(<script src="$displaymap_url" type="text/javascript" charset="utf-8"></script>\n);
 	return $code;
 }
 
