@@ -1,0 +1,28 @@
+Interleaving logs from ikiwiki and the kernel:
+
+	[Wed May 02 15:50:32.307921 2018] [cgi:error] [pid 4914:tid 3031423808] [client 74.113.40.30:12004] AH01215: To /home/b-waldeneffect-org/source.git: /var/www/b-waldeneffect-org/ikiwiki.cgi, referer: http://www.waldeneffect.org/ikiwiki.cgi?do=blog&from=pending&subpage=1&title=Pros+and+cons+of+the+community+garden
+	[Wed May 02 15:50:32.308000 2018] [cgi:error] [pid 4914:tid 3031423808] [client 74.113.40.30:12004] AH01215:    0c67dc578..893cc6e9b  master -> master: /var/www/b-waldeneffect-org/ikiwiki.cgi, referer: http://www.waldeneffect.org/ikiwiki.cgi?do=blog&from=pending&subpage=1&title=Pros+and+cons+of+the+community+garden
+	May 02 15:50:50 pell kernel: ikiwiki[5054]: segfault at bf7d3ffc ip b6ec9e63 sp bf7d4000 error 6 in libmarkdown.so.2.2.2[b6ec7000+11000]
+	[Wed May 02 15:50:50.222077 2018] [cgi:error] [pid 4914:tid 3031423808] [client 74.113.40.30:12004] End of script output before headers: ikiwiki.cgi, referer: http://www.waldeneffect.org/ikiwiki.cgi?do=blog&from=pending&subpage=1&title=Pros+and+cons+of+the+community+garden
+	[Wed May 02 16:15:48.013597 2018] [cgi:error] [pid 10708:tid 2838391616] [client 74.113.40.30:11989] AH01215:    893cc6e9b..c4f23b861  master -> master: /var/www/b-waldeneffect-org/ikiwiki.cgi, referer: http://www.waldeneffect.org/ikiwiki.cgi?do=blog&from=pending&subpage=1&title=Advantages+and+disadvantages+of+a+community+garden
+	[Wed May 02 16:15:57.921670 2018] [cgi:error] [pid 10708:tid 2838391616] [client 74.113.40.30:11989] AH01215: /home/b-waldeneffect-org/public_html/pending/Pros_and_cons_of_the_community_garden/index.html independently created, not overwriting with version from pending/Pros_and_cons_of_the_community_garden: /var/www/b-waldeneffect-org/ikiwiki.cgi, referer: http://www.waldeneffect.org/ikiwiki.cgi?do=blog&from=pending&subpage=1&title=Advantages+and+disadvantages+of+a+community+garden
+
+So, apparently an img directive led to libmarkdown segfaulting, crashing
+ikiwiki after it had rendered a html file but before it made note that it
+had done so. 
+
+The user saw an "Internal server error" and hit reload, which
+failed due to the "independently created, not overwriting" check. The site
+was then wedged not accepting edits until manually fixed.
+
+After deleting the html file, `ikiwiki --refresh` successfully built
+things, without libmarkdown segfaulting this time. I don't know if this was
+a transient libmarkdown bug or a memory glitch. 
+
+Either way, seems that ikiwiki could better handle recovery from this kind
+of scenario. The "independently created" check has a security benefit...
+Perhaps ikiwiki could keep a log file of destdir files it's recently
+created but has yet to record in the index, and then the check can be
+skipped for those files.
+
+--[[Joey]] 
