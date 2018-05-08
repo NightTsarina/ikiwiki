@@ -6,19 +6,8 @@ Websites using ikiwiki:
 * <http://img.kalleswork.net>
 * <http://stockholm.kalleswork.net>
 
-
-[[!template id=gitbranch branch=kjs/kalleswork.net author="[[Kalle Söderman|kjs]]"]]
-
-Mostly using ikiwiki with the [[/plugins/contrib/album/]] and [[plugins/osm]]
-plugins. My git repo with tweaks including the simplebw theme and various
-changes to the [[plugins/contrib/album]] plugin and templates can be found in
-my kalleswork.net branch
-
-Note that the kalleswork.net branch is all my changes piled into one branch
-that I compile to run my sites. 
-
-**I can't code (clone my repo above if you don't believe me!) so noone should
-run my code without checking it first.** I can't stress this enough.
+Mostly using ikiwiki with tweaked versions of the [[/plugins/contrib/album/]] and [[plugins/osm]]
+plugins. 
 
 The main changes I've done are the following
 
@@ -36,7 +25,20 @@ link to the album. Useful for visual index of albums.
 * Extract GPS data and populate a [[plugins/osm]] waypoint if available.
 * Add span around osm icon to allow for styling.
 
-For my public websites above have been using the tweaked img plugin for many months now. It works well except when deleting images, this seems to require a removal of the indexdb and a rebuild... not very convenient.
+For my public websites above have been using the tweaked img plugin for many years now. It works well except when deleting images, this seems to require a removal of the indexdb and a rebuild... not very convenient. My websites have about 3500 images each and takes almost 15min to rebuild but this is not really an issue for my usage.
 
-A simple test wiki with downloadable setup and data can be found at:
-<http://src.kalleswork.net/masterbranch/>
+
+*I can't code (clone my repo above if you don't believe me!) so noone should
+run my code without checking it first.* I can't stress this enough.
+
+### Git branches/repos
+
+[[!table  data="""
+Description | branch/repository
+Repo with only my tweaked files to be installed as third party plugins via `libdir`. See [[install]] for info howto install. | [[!template id=gitbranch branch=kjs/ikiplugs author="kjs"]]
+Branch where all my changes are kept in the ikiwiki tree the ikiwiki running kalleswork.net: | [[!template id=gitbranch branch=kjs/kalleswork author="kjs"]]
+Branch with only the changes to the [[plugins/img]] plugin: | [[!template id=gitbranch branch=kjs/kjsimg author="kjs"]]
+Branch with only the changes to the [[plugins/contrib/album]] plugin: | [[!template id=gitbranch branch=kjs/kjsalbum author="kjs"]]
+Branch with only my simplebw [[themes]] designed for the above plugins: | [[!template id=gitbranch branch=kjs/kjs-simplebw-theme author="kjs"]]
+Branch with only minor tweaks to standard ikiwiki templates: | [[!template id=gitbranch branch=kjs/kjsadjust author="kjs"]]
+"""]]
