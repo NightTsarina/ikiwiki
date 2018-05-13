@@ -95,7 +95,7 @@ sub email_auth ($$$$) {
 			.">",
 		Subject => "$config{wikiname} login | $shorturl",
 		Message => $template->output,
-	) or error(gettext("Failed to send mail"));
+	) or error(sprintf(gettext("Failed to send mail: %s"), $Mail::Sendmail::error));
 
 	$infodisplayer->(gettext("You have been sent an email, with a link you can open to complete the login process."));
 }
