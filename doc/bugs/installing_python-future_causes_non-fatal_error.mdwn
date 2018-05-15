@@ -1,0 +1,18 @@
+On Trisquel 8.0, if you have the `python-future` package installed, this causes the wrong module to get loaded by python2.7.
+
+In `/usr/lib/ikiwiki/plugins/proxy.py`:
+
+
+    try:  # Python 3
+        import xmlrpc.server as _xmlrpc_server
+    except ImportError:  # Python 2
+        import SimpleXMLRPCServer as _xmlrpc_server
+
+`xmlrpc.server` gets loaded even though we are using python2.7. This causes the following non-fatal error when pushing to the git repo:
+
+    remote: Traceback (most recent call last):
+    remote:   File "/usr/lib/ikiwiki/plugins/rst", line 45, in <module>
+    remote:     from proxy import IkiWikiProcedureProxy
+    remote:   File "/usr/lib/ikiwiki/plugins/proxy.py", line 72, in <module>
+    remote:     class _IkiWikiExtPluginXMLRPCDispatcher(_xmlrpc_server.SimpleXMLRPCDispatcher):
+    remote: AttributeError: 'module' object has no attribute 'SimpleXMLRPCDispatcher'
