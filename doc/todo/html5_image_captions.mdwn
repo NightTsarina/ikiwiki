@@ -1,0 +1,78 @@
+Currently, the [[ikiwiki/directive/img]] directive creates a `<img>`
+tag for images (which is fine) but also creates a traditional
+`<table>` structure around it to show the caption when the `caption`
+parameter is passed. This is less fine.
+
+HTML5 introduced the `<figure>` element, and particularly the
+[figcaption](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figcaption) element, which is particularly relevant here. It is
+not filtered by the html scrubber (or so it seems), so it's currently
+possible to use it in Markdown documents already, like so:
+
+    <figure>
+    <img src="example.jpg" />
+    <figcaption>Foo</figcaption>
+    </figure>
+
+This is standard and works well, except there are bits of style
+missing, because Ikiwiki's stylesheet assumes its peculiar table image
+layout. `doc/style.css`, for example, has this:
+
+    .img caption {
+            font-size: 80%;
+            caption-side: bottom;
+            text-align: center;
+    }
+
+... which is a good start to format tables, but is ineffective for
+`figcaption`. In my tests, I have used this to good effect:
+
+    .img caption, figcaption {
+        text-align: center;
+        /* assuming that relative size is more responsive than arbitrary percentages */
+        font-size: smaller;
+        caption-side: bottom;
+    }
+
+The `figcaption` stylesheet reuses the `<table>` semantics so the
+above just works, as far as I can tell.
+
+The final step would be to unmangle the `<img>` directive output. It
+should output the above `<figure>` snippet if HTML5 is enabled in the
+wiki.
+
+Otherwise we might also want to get rid of the `<table>` stuff
+anyways, as most examples out there use a `<div>` in HTML4. Here is an
+[example from the W3C](https://www.w3.org/Style/Examples/007/figures.en.html#Illustrati) or [bootstrap](https://getbootstrap.com/docs/3.3/components/#thumbnails-custom-content). The former suggests
+something like this:
+
+    <div class="figure">
+      <p><img src="example.jpg" />
+      <p>Foo
+    </div>
+
+The CSS, in that case, would be simply:
+
+    div.figure {
+      text-align: center;
+      font-size: smaller;
+    }
+
+The double-`<p>` is what allows pushing the caption upwards with CSS
+in their later example, with this CSS:
+
+    div.figure {
+      display: table;
+    }
+    div.figure p + p {
+      display: table-caption;
+      caption-side: top;
+    }
+
+The `<div>` mechanism seems much simpler than the current table-based
+markup. I'd be happy to provide patches to do the above if there's
+interest. Considering that most of my images are hosted outside of
+ikiwiki, I cannot use of the `img` directive in the first place so I
+don't need to patch `img.pm` and don't want to carry yet another
+delta... But I could sure use upstreaming the CSS fixes. ;)
+
+Thanks! -- [[anarcat]]
