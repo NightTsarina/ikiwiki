@@ -1,0 +1,33 @@
+    diff --git IkiWiki/Plugin/link.pm IkiWiki/Plugin/link.pm
+    index 1ba28eafd..27427b183 100644
+    --- IkiWiki/Plugin/link.pm
+    +++ IkiWiki/Plugin/link.pm
+    @@ -107,7 +107,13 @@ sub linkify (@) {
+        my $page=$params{page};
+        my $destpage=$params{destpage};
+     
+    -   $params{content} =~ s{(\\?)$link_regexp}{
+    +    my $content;
+    +    for my $line ( split /\n/, $params{content} ) {
+    +        if ( $line =~ /^(?:\t|    )/ ) {
+    +            $content .= $line . "\n";
+    +            next;
+    +        }
+    +        $line =~ s{(\\?)$link_regexp}{
+                 defined $2
+                     ? ( $1
+                         ? "[[$2|$3".(defined $4 ? "#$4" : "")."]]"
+    @@ -122,8 +128,10 @@ sub linkify (@) {
+                             : htmllink($page, $destpage, linkpage($3),
+                                 anchor => $4))
+             }eg;
+    +        $content .= $line . "\n";
+    +    }
+     
+    -   return $params{content};
+    +    return $content;
+     }
+     
+     sub scan (@) {
+
+Related to [[bugs/wiki links still processed inside code blocks]] and [[forum/How_to_format___91____91__foobar__93____93___in_code_blocks__63__]].
