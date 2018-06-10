@@ -1,12 +1,12 @@
-    diff --git IkiWiki/Plugin/link.pm IkiWiki/Plugin/link.pm
-    index 1ba28eafd..27427b183 100644
-    --- IkiWiki/Plugin/link.pm
-    +++ IkiWiki/Plugin/link.pm
+    diff --git a/IkiWiki/Plugin/link.pm b/IkiWiki/Plugin/link.pm
+    index 1ba28eafd..61a397bf8 100644
+    --- a/IkiWiki/Plugin/link.pm
+    +++ b/IkiWiki/Plugin/link.pm
     @@ -107,7 +107,13 @@ sub linkify (@) {
         my $page=$params{page};
         my $destpage=$params{destpage};
      
-    -   $params{content} =~ s{(\\?)$link_regexp}{
+    -	$params{content} =~ s{(\\?)$link_regexp}{
     +    my $content;
     +    for my $line ( split /\n/, $params{content} ) {
     +        if ( $line =~ /^(?:\t|    )/ ) {
@@ -20,12 +20,12 @@
     @@ -122,8 +128,10 @@ sub linkify (@) {
                              : htmllink($page, $destpage, linkpage($3),
                                  anchor => $4))
-             }eg;
+                 }eg;
     +        $content .= $line . "\n";
     +    }
      
-    -   return $params{content};
-    +    return $content;
+    -	return $params{content};
+    +	return $content;
      }
      
      sub scan (@) {
