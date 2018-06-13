@@ -33,3 +33,24 @@
 Related to [[bugs/wiki links still processed inside code blocks]] and [[forum/How_to_format___91____91__foobar__93____93___in_code_blocks__63__]].
 
 [[!tag patch]]
+
+> It looks as though this patch would break linkification in any syntactic construct that
+> uses indentation but isn't a code block, for instance a list:
+>
+>     * This is a list
+>         * So is this
+>             * And \[[this is a link|http://example.com]]
+>
+> rendered as:
+>
+> * This is a list
+>     * So is this
+>         * And [[this is a link|http://example.com]]
+>
+> It's also assuming that Markdown is the only language available (trying to use Markdown
+> rules), and even in Markdown it doesn't support Github-style fenced code blocks if enabled.
+>
+> This is not something that can be done correctly by just patching the link plugin.
+> I'm not sure whether it's something that can be done correctly at all, unfortunately.
+>
+> [[!tag reviewed]] --[[smcv]] 
