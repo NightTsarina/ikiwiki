@@ -1,0 +1,65 @@
+[[!meta author="anarcat"]]
+[[!template id=plugin name=bootstrap author="[[anarcat]]"]]
+[[!tag type/chrome]]
+[[!template  id=gitbranch branch=anarcat/bootstrap author="[[anarcat]]"]]
+
+## Rationale
+
+One of the most annoying features of bootstrap and/or the (informal)
+[[bootstrap theme|todo/merge_bootstrap_branch/]] is the lack of styling on tables. It makes
+tables look horrible! Look, for example, as the table in [this
+page](https://web.archive.org/web/20180513200625/https://anarc.at/blog/2018-04-12-terminal-emulators-1/): margins are tiny so everything is jumbled up together, and
+there are very little visual markers to differenciate between cells. I
+don't have a better example handy, but this is particularly bad when a
+cell ends up having long lines of text that are wrapped with multiple
+lines.
+
+Bootstrap has a nice [table](https://getbootstrap.com/docs/4.0/content/tables/) style that is not automatically
+applied to all tables, probably to avoid breaking table-based layout
+and other custom controls like calendars a random site might spew
+out. Unfortunately, the various Ikiwiki output plugins (most notably
+the [[plugins/mdwn]] plugin) do not add that class to generated
+tables.
+
+## Solution
+
+I found there are two ways of fixing that. One is to use raw HTML: the
+[[plugins/htmlscrubber]] plugin will let through `class` elements in
+tables so this will actually work:
+
+    <table class="table"><tr><td>This<td>is<tr>a<tr>table!</table>
+
+But of course, it would be nice if Markdown-formatted tables would
+actually render correctly as well. For this, I have written a [simple
+plugin](https://gitlab.com/anarcat/ikiwiki/blob/bootstrap/IkiWiki/Plugin/bootstrap.pm) that adds that class to empty table tags. It's very dumb, but
+it should generally work, or at least it works for my case. It will
+not touch any `<table>` tag that already has other class elements, so
+it should be safe to use alongside other plugins that generate their
+own `<table>` markup, provided they *do* add some sort of `class`,
+`id` or other attribute. Unfortunately, the [[plugins/contrib/bibtex]]
+plugin does not do that correctly and somewhat looks ugly with this
+plugin. Compare for example, [this old version](https://web.archive.org/web/20170717065911/https://anarc.at/communication/) with [the new
+rendering](https://web.archive.org/web/20180626203321/https://anarc.at/communication/). I'm still unsure which one looks better, actually...
+
+## Discussion
+
+Anyways, I wasn't quite sure where to put this, but it seems like an
+important improvement to make if we're going to 
+[[todo/merge_bootstrap_branch]]. I am not sure of the implementation
+at all: the best way I found to edit only the rendered content (and
+not the whole HTML page with the template) is to use the `sanitize`
+hook, but I'm not sure it's the right way to go. It certainly seems
+backwards to introduce new markup in a "sanitization"
+procedure. Furthermore, I first tried to change *all* `<table>` tags
+even if they had extra attributes, but I found I didn't want to add
+`class` attributes to elements that already had some, soand that ended
+up making the regex work way too messy, so I stuck to the simpler
+way.
+
+Furthermore, there might be other markup elements we want to improve
+upon. This only fixes tables, but maybe other elements would benefit
+from additionnal styling. The [content](https://getbootstrap.com/docs/4.0/content/reboot/) section of the bootstrap
+docs says there are special classes for tags like `img`, `form`,
+`input` and `div` that might be interesting to look at... 
+
+-- [[anarcat]]
