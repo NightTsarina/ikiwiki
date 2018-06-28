@@ -1,0 +1,86 @@
+    From: Chris Lamb <lamby@debian.org>
+    Date: Thu, 28 Jun 2018 19:30:15 +0100
+    Subject: [PATCH] Re-use translated content instead of skipping if previously
+     translated.
+    
+    This fixes an issue where an initial `inline` directive would be translated
+    correctly, but subsequent inlines of the same would result in the raw
+    contents of the `.po` file being inserted into the page instead.
+    
+    For example, given a `index.mdwn` containing:
+    
+        \[[!inline pages="inline" raw="yes"]]
+        \[[!inline pages="inline" raw="yes"]]
+    
+    .. and an `index.de.po` of:
+    
+        msgid "\[[!inline pages=\"inline\" raw=\"yes\"]]\n"
+        msgstr "\[[!inline pages=\"inline.de\" raw=\"yes\"]]\n"
+    
+    .. together with an `inline.mdwn` of:
+    
+       This is inlined content.
+    
+    .. and an `inline.de.po` of:
+    
+        msgid "This is inlined content."
+        msgstr "This is German inlined content."
+    
+    .. would result in the following translation:
+    
+        This is the inlined content.
+        # SOME DESCRIPTIVE TITLE
+        # Copyright (C) YEAR Free Software Foundation, Inc.
+        # This file is distributed under the same license as the PACKAGE package.
+        # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+    
+    .. instead of, of course:
+    
+        This is the inlined content.
+        This is the inlined content.
+    ---
+     IkiWiki/Plugin/po.pm | 15 +++++++++------
+     1 file changed, 9 insertions(+), 6 deletions(-)
+    
+    diff --git a/IkiWiki/Plugin/po.pm b/IkiWiki/Plugin/po.pm
+    index 418e8e58a..ecd1f5499 100644
+    --- a/IkiWiki/Plugin/po.pm
+    +++ b/IkiWiki/Plugin/po.pm
+    @@ -303,9 +303,12 @@ sub filter (@) {
+     	my $page = $params{page};
+     	my $destpage = $params{destpage};
+     	my $content = $params{content};
+    -	if (istranslation($page) && ! alreadyfiltered($page, $destpage)) {
+    -		$content = po_to_markup($page, $content);
+    -		setalreadyfiltered($page, $destpage);
+    +	if (istranslation($page)) {
+    +		if (!defined(alreadyfiltered($page, $destpage))) {
+    +			$content = po_to_markup($page, $content);
+    +			setalreadyfiltered($page, $destpage, $content);
+    +		}
+    +		$content = alreadyfiltered($page, $destpage);
+     	}
+     	return $content;
+     }
+    @@ -747,15 +750,15 @@ sub myisselflink ($$) {
+     		my $page=shift;
+     		my $destpage=shift;
+     
+    -		return exists $filtered{$page}{$destpage}
+    -			 && $filtered{$page}{$destpage} eq 1;
+    +		return $filtered{$page}{$destpage};
+     	}
+     
+     	sub setalreadyfiltered($$) {
+     		my $page=shift;
+     		my $destpage=shift;
+    +		my $content=shift;
+     
+    -		$filtered{$page}{$destpage}=1;
+    +		$filtered{$page}{$destpage}=$content;
+     	}
+     
+     	sub unsetalreadyfiltered($$) {
+    -- 
+    2.18.0
+    
