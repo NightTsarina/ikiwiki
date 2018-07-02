@@ -1,0 +1,33 @@
+Getting this when a git push to git:// runs the pre-receive hook
+which is set up by the `git_test_receive_wrapper`:
+
+	remote: fatal: Not a git repository (or any of the parent directories): .git
+	remote: 'git log --pretty=raw --raw --abbrev=40 --always -c -r 21161ba01a093534ef97188eae098d83554dbcc6..73820a1d7e76318d8b1ac23e1c6d47e50a3e8ca2 --no-renames -- .' failed: 
+	To git://git-annex.branchable.com/
+	 ! [remote rejected]     master -> master (pre-receive hook declined)
+	error: failed to push some refs to 'git://git-annex.branchable.com/'
+
+Relevant code:
+
+                # Avoid chdir when running git here, because the changes
+                # are in the master git repo, not the srcdir repo.
+                # (Also, if a subdir is involved, we don't want to chdir to
+                # it and only see changes in it.)
+                # The pre-receive hook already puts us in the right place.
+                push @rets, git_parse_changes('.', 0, git_commit_info('.', $oldrev."..".$newrev));
+
+This is with  git 1:2.11.0-3+deb9u2 on debian stable, ikiwiki 3.20171002.
+
+Tossing a call to pwd in there, it's at the top of the master (bare) git
+repository, which seems right. I can do a similar git log at that location
+manually (using different revs). Looking at the environment at that point
+(in another wiki that has the same problem), I found only these
+git env vars:
+
+	remote: GIT_ALTERNATE_OBJECT_DIRECTORIES=/home/b-joeyh/source.git/./objects
+	remote: GIT_OBJECT_DIRECTORY=/home/b-joeyh/source.git/./objects/incoming-hVfXvD
+	remote: GIT_QUARANTINE_PATH=/home/b-joeyh/source.git/./objects/incoming-hVfXvD
+
+[[!commit 6fb43c29f63b85c3424520819427903e5a204426]] is relevant to that,
+and I guess it didn't fully solve the problem.
+--[[Joey]]
