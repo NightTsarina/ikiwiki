@@ -1,0 +1,19 @@
+I want to setup a kind of a blog with the help of ikiwiki, which will contain pages in several languages. First I set it up and added some content. Index page contains an inline directive to show just the most recent "post", and it works flawlessly. Then I've enabled po plugin and rebuilt my blog. Unfortunately, I cannot get inline work properly, because it either captures some po/pot file, or not capture any file for a translation. So, how to make inline and po work together?
+
+Say, I have a following structure:
+
+index.mdwn
+
+sidebar.mdwn
+
+p001.mdwn
+
+p002.mdwn[[!inline pages="2019* and tagged(ru)" limit=1 actions=no]]
+
+p003.mdwn
+
+with the corresponding po/pot files. My index.mdwn contain only inline (besides a standard sidebar) to capture the latest (p003.mdwn) file:
+
+\[[!inline pages="p*" limit=1 actions=no]]
+
+I've tried to use many different pagespecs, different pages options (like page, glob and so on), even adding tags and trying to exclude pages without relevant tags (and po files contained different tags). But I'm lost completely. Sometime it worked for the master language, but didn't for translations; sometimes it showed only one translation for all languages.
