@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# vim:ts=8:sts=8:sw=8:noet
 # Copyright 2018 Martín Ferrari
 # Copyright 2011 Blars Blarson
 # Released under GPL version 2
@@ -161,7 +162,7 @@ sub preprocess_osm {
 		$map_opts{lon} = $lon;
 	}
 
-	my $ret = qq(<div id="mapdiv-$divname" style="height: $height");
+	my $ret = qq(<div id="mapdiv-$divname" style="height: $height" );
 	$ret .= qq(class="osm"></div>\n);
 	$ret .= load_geojson_js($map, $dest);
 	$ret .= display_map_js($map, $divname, %map_opts);
