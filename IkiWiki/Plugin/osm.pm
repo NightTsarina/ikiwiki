@@ -51,28 +51,34 @@ sub getsetup () {
 		},
 		osm_leafletjs_url => {
 			type => "string",
-			example => "https://unpkg.com/leaflet@1.3.1/dist/leaflet.js",
+			example =>
+			"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js",
 			description => "Url for the leaflet.js file",
 			safe => 0,
 			rebuild => 1,
 		},
 		osm_leafletcss_url => {
 			type => "string",
-			example => "https://unpkg.com/leaflet@1.3.1/dist/leaflet.css",
+			example =>
+			"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css",
 			description => "Url for the leaflet.css file",
 			safe => 0,
 			rebuild => 1,
 		},
 		osm_tile_source => {
 			type => "string",
-			example => "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-			description => "URL pattern for tile layers. See Leaflet documentation for tileLayer.",
+			example =>
+			"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+			description => "URL pattern for tile layers. " +
+			"See Leaflet documentation for tileLayer.",
 			safe => 0,
 			rebuild => 1,
 		},
 		osm_attribution => {
 			type => "string",
-			example => q(&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors),
+			example =>
+			q(&copy; <a href="http://osm.org/copyright">) +
+			q(OpenStreetMap</a> contributors),
 			description => "Text describing the tile source.",
 			safe => 0,
 			rebuild => 1,
@@ -82,13 +88,17 @@ sub getsetup () {
 sub checkconfig {
 	$config{osm_default_zoom} = 15
 		unless (defined $config{osm_default_zoom});
-	$config{osm_leafletjs_url} = "https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
+	$config{osm_leafletjs_url} =
+	"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
 		unless (defined $config{osm_leafletjs_url});
-	$config{osm_leafletcss_url} = "https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
+	$config{osm_leafletcss_url} =
+	"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
 		unless (defined $config{osm_leafletcss_url});
-	$config{osm_tile_source} = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+	$config{osm_tile_source} =
+	"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
 		unless (defined $config{osm_tile_source});
-	$config{osm_attribution} = q(&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors)
+	$config{osm_attribution} = q(&copy; <a
+	href="http://osm.org/copyright">OpenStreetMap</a> contributors)
 		unless (defined $config{osm_attribution});
 }
 
@@ -118,7 +128,8 @@ sub preprocess_osm {
 	my $divname = $params{'divname'};
 	my $height = scrub($params{'height'} || '300px', $page, $dest);
 	my $width = scrub($params{'width'} || '500px', $page, $dest);
-	my $float = (defined($params{'right'}) && 'right') || (defined($params{'left'}) && 'left');
+	my $float = (defined($params{'right'}) && 'right') || (
+		defined($params{'left'}) && 'left');
 
 	my $showlines = defined($params{'showlines'});
 	my $nolinkpages = defined($params{'nolinkpages'});
@@ -462,10 +473,12 @@ sub map_setup_js(;$) {
 	my $displaymap_link = bestlink($page, OUTPUT_PATH . "/display_map.js");
 	my $displaymap_url = urlto($displaymap_link, $page);
 
-	my $code = qq(<link rel="stylesheet" href="$cssurl" crossorigin=""/>\n);
-	$code .= qq(<script src="$olurl" type="text/javascript" crossorigin="" charset="utf-8"></script>\n);
-	$code .= qq(<script src="$displaymap_url" type="text/javascript" charset="utf-8"></script>\n);
-	return $code;
+	return <<END;
+<link rel="stylesheet" href="$cssurl" crossorigin=""/>
+<script src="$olurl" type="text/javascript" crossorigin="" charset="utf-8"
+></script>
+<script src="$displaymap_url" type="text/javascript" charset="utf-8"></script>
+END
 }
 
 our %json_embedded;
