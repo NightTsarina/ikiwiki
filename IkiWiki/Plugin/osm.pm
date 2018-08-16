@@ -322,11 +322,8 @@ sub scrub_lonlat($$$) {
 	return ($lon + 0.0, $lat + 0.0);
 }
 
-sub changes {
+sub find_waypoints() {
 	my %waypoints = ();
-	my %linestrings = ();
-
-	return unless($waypoint_changed);
 	foreach my $page (keys %pagestate) {
 		next unless (exists $pagestate{$page}{OSM});
 		my $maps = $pagestate{$page}{OSM};
@@ -336,37 +333,57 @@ sub changes {
 			$waypoints{$map}{$page} = $maps->{$map}{'waypoints'};
 		}
 	}
+	return \%waypoints;
+}
 
+sub find_wplines($) {
 	# Draw lines between waypoints whose pages link each other.
-	foreach my $map (keys %waypoints) {
-		foreach my $page (keys %{$waypoints{$map}}) {
-			next unless (exists $links{$page});
-			foreach my $otherpage (@{$links{$page}}) {
-				my $bestlink = bestlink($page, $otherpage);
-				next unless (exists $waypoints{$map}{$bestlink});
-				foreach my $wp (values %{$waypoints{$map}{$page}}) {
-					foreach my $otherwp (values %{$waypoints{$map}{$bestlink}}) {
-						push(@{$linestrings{$map}}, [$wp, $otherwp]);
-					}
+	my $mapwps = shift;
+	my @lines;
+	foreach my $page (sort keys %{$mapwps}) {
+		next unless (exists $links{$page});
+		foreach my $otherpage (@{$links{$page}}) {
+			my $bestlink = bestlink($page, $otherpage);
+			next unless (exists $mapwps->{$bestlink});
+			foreach my $wpid (sort keys %{$mapwps->{$page}}) {
+				my $wp = $mapwps->{$page}{$wpid};
+				foreach my $otherwpid (
+					sort keys %{$mapwps->{$bestlink}}
+				) {
+					my $otherwp =
+						$mapwps->{$bestlink}{$otherwpid};
+					push(@lines, [$wp, $otherwp]);
 				}
 			}
 		}
 	}
-	writejson(\%waypoints, \%linestrings);
+	return \@lines;
+}
+
+sub changes {
+	return unless($waypoint_changed);
+	my $waypoints = find_waypoints();
+	my %lines = ();
+	foreach my $map (keys %$waypoints) {
+		$lines{$map} = find_wplines($waypoints->{$map});
+	}
+	writejson($waypoints, \%lines);
 	$waypoint_changed = 0;
 }
 
 sub writejson($;$) {
 	my %waypoints = %{$_[0]};
-	my %linestrings = %{$_[1]};
+	my %lines = %{$_[1]};
 
 	foreach my $map (keys %waypoints) {
 		my %geojson = (
 			"type" => "FeatureCollection",
 			"features" => [],
 		);
-		foreach my $page (keys %{$waypoints{$map}}) {
-			foreach my $wp (values %{$waypoints{$map}{$page}}) {
+		foreach my $page (sort keys %{$waypoints{$map}}) {
+			foreach my $wpid (sort keys %{$waypoints{$map}{$page}}
+			) {
+				my $wp = $waypoints{$map}{$page}{$wpid};
 				my %marker = (
 					"type" => "Feature",
 					"geometry" => {
@@ -381,15 +398,15 @@ sub writejson($;$) {
 				push @{$geojson{'features'}}, \%marker;
 			}
 		}
-		foreach my $linestring (@{$linestrings{$map}}) {
+		foreach my $lines (@{$lines{$map}}) {
 			my $coord = [
 				[
-					$linestring->[0]->{'lon'} + 0.0,
-					$linestring->[0]->{'lat'} + 0.0,
+					$lines->[0]->{'lon'} + 0.0,
+					$lines->[0]->{'lat'} + 0.0,
 				],
 				[
-					$linestring->[1]->{'lon'} + 0.0,
-					$linestring->[1]->{'lat'} + 0.0,
+					$lines->[1]->{'lon'} + 0.0,
+					$lines->[1]->{'lat'} + 0.0,
 				]
 			];
 			my %json  = (
