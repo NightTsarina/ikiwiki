@@ -102,6 +102,9 @@ sub checkconfig {
 		unless (defined $config{'osm_attribution'});
 }
 
+# Index for ensuring waypoints have unique IDs.
+my %waypointidx = ();
+
 # Idea taken from meta.pm plugin.
 # Make sure cached state is cleaned before rebuilding (and after deleting)
 # pages.
@@ -115,12 +118,19 @@ sub needsbuild {
 		if (exists $touched{$pagesources{$page}}) {
 			delete $pagestate{$page}{OSM};
 		}
+		# Rebuild index.
+		foreach my $map (keys %{$pagestate{$page}{OSM}}) {
+			my $wps = $pagestate{$page}{OSM}{$map}{'waypoints'};
+			foreach my $wp (keys %$wps) {
+				$waypointidx{$map}{$wp} = $wps->{$wp};
+			}
+		}
 	}
 	return $needsbuild;
 }
 
 sub preprocess_osm {
-	my %params=@_;
+	my %params = @_;
 	my $page = $params{'page'};
 	my $dest = $params{'destpage'};
 
@@ -201,40 +211,41 @@ sub preprocess_waypoint {
 
 	error(sprintf(gettext("Invalid map name: %s"), $map)) if (
 		$map !~ JS_IDENTIFIER_RE);
+	error(sprintf(gettext("Duplicate waypoint id: %s"), $id)) if (
+		$id and exists $waypointidx{$map}{$id});
 	error(gettext("Must specify lat and lon (or loc)")) unless (
-		defined $lat && defined $lon);
+		defined $lat and defined $lon);
 	error(sprintf(gettext("Invalid zoom: %s"), $zoom)) if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
 	# Register json file that will be rendered.
 	will_render($page, OUTPUT_PATH . "/${map}.js");
 
-	$pagestate{$page}{OSM}{$map}{'waypoints'} ||= {};
-	my $wpstate = $pagestate{$page}{OSM}{$map}{'waypoints'};
+	return unless defined wantarray;  # Scan mode.
+
+	$waypointidx{$map} ||= {};
+	$id = generate_unique_key($waypointidx{$map}, $page) unless($id);
 
 	# Do not create waypoints from inlined or preview pages; and only
 	# during scan mode.
-	if ($page eq $dest and not defined wantarray) {
-		error(sprintf(gettext("Duplicate waypoint id: %s"), $id)) if (
-			$id && exists $wpstate->{$id});
-		$id = generate_unique_key($wpstate, $page) unless($id);
+	if ($page eq $dest and not $preview) {
+		$waypoint_changed = 1;
 		debug(sprintf(gettext("osm: found waypoint %s/%s"),
 				$map, $id));
-
-		$waypoint_changed = 1;
-		$wpstate->{$id} = {
+		$waypointidx{$map}{$id} =
+		$pagestate{$page}{OSM}{$map}{'waypoints'}{$id} = {
 			id => $id,
 			name => $name,
 			desc => $desc,
 			lat => $lat,
 			lon => $lon,
+			page => $page,
 			# How to link back to the page from the map, must be
 			# absolute.
 			href => urlto($page),
 		};
 	}
 
-	return unless defined wantarray;  # Scan mode.
 	my $output = '';
 	if ($embed) {
 		$output .= preprocess_osm(

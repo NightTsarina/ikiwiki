@@ -176,6 +176,7 @@ check_loc(q{41.40338, 2.17403}, 41.403, 2.174);
 # Parameter validation.
 
 %pagestate = ();
+my $ctx;  # To force non-scan mode.
 
 my %args = (page => 'test', destpage => 'test');
 call_nook('invalid map name', preprocess_waypoint => %args, map => '43');
@@ -185,17 +186,16 @@ call_nook('invalid id', preprocess_osm => %args, map => 'bad-name');
 
 # Repeated id.
 %args = (%args, loc => '40, -79');
-call_ok('repeated id', preprocess_waypoint => %args, id => 'waypoint');
+$ctx = call_ok('repeated id', preprocess_waypoint => %args, id => 'waypoint');
 call_nook('repeated id', preprocess_waypoint => %args, id => 'waypoint');
 
 # Deduplication of default values.
 %pagestate = ();
-call_ok('dedup id', preprocess_waypoint => %args);
-call_ok('dedup id', preprocess_waypoint => %args);
+$ctx = call_ok('dedup id', preprocess_waypoint => %args);
+$ctx = call_ok('dedup id', preprocess_waypoint => %args);
 is_deeply([sort keys %{$pagestate{'test'}{OSM}{'map'}{'waypoints'}}],
 	[qw(test test_1)], 'dedup id');
 
-my $ctx;  # Force non-scan mode.
 $ctx = call_ok('dedup div id', preprocess_osm => %args);
 $ctx = call_ok('dedup div id', preprocess_osm => %args);
 is_deeply([sort keys %{$pagestate{'test'}{OSM}{'map'}{'displays'}}],
@@ -283,59 +283,60 @@ like($page3out, $displaymap_resub->('foo'), 'Render "foo" map');
 
 my %json_expected;
 $json_expected{foo} = {
-	'type' => 'FeatureCollection',
-	'features' => [
+	type => 'FeatureCollection',
+	features => [
 		{
-			'type' => 'Feature',
-			'geometry' => {
-				'type' => 'Point',
-				'coordinates' => ['-6.2701176', '53.3430824'],
+			type => 'Feature',
+			geometry => {
+				type => 'Point',
+				coordinates => ['-6.2701176', '53.3430824'],
 			},
-			'properties' => {
-				'id' => 'page1', 'name' => 'page1',
-				'desc' => '', 'href' => '/page1/',
-				'lat' => '53.3430824', 'lon' => '-6.2701176',
+			properties => {
+				id => 'page1', name => 'page1',
+				desc => '', href => '/page1/', page => 'page1',
+				lat => '53.3430824', lon => '-6.2701176',
 			},
 		},
 		{
-			'type' => 'Feature',
-			'geometry' => {
-				'type' => 'Point',
-				'coordinates' => ['-6.2944638', '53.3424332'],
+			type => 'Feature',
+			geometry => {
+				type => 'Point',
+				coordinates => ['-6.2944638', '53.3424332'],
 			},
-			'properties' => {
-				'id' => 'foowp', 'name' => 'page2',
-				'desc' => 'desc', 'href' => '/page2/',
-				'lat' => '53.3424332', 'lon' => '-6.2944638',
-			},
-		},
-		{
-			'type' => 'Feature',
-			'geometry' => {
-				'type' => 'Point',
-				'coordinates' => ['-6.270098', '53.350934'],
-			},
-			'properties' => {
-				'id' => 'page2', 'name' => 'myname',
-				'desc' => '', 'href' => '/page2/',
-				'lat' => '53.350934', 'lon' => '-6.270098',
+			properties => {
+				id => 'foowp', name => 'page2',
+				desc => 'desc', href => '/page2/',
+				page => 'page2',
+				lat => '53.3424332', lon => '-6.2944638',
 			},
 		},
 		{
-			'type' => 'Feature',
-			'geometry' => {
-				'type' => 'LineString',
-				'coordinates' => [
+			type => 'Feature',
+			geometry => {
+				type => 'Point',
+				coordinates => ['-6.270098', '53.350934'],
+			},
+			properties => {
+				id => 'page2', name => 'myname',
+				desc => '', href => '/page2/', page => 'page2',
+				lat => '53.350934', lon => '-6.270098',
+			},
+		},
+		{
+			type => 'Feature',
+			geometry => {
+				type => 'LineString',
+				coordinates => [
 					['-6.2701176', '53.3430824'],
 					['-6.2944638', '53.3424332'],
 				],
 			},
 		},
 		{
-			'type' => 'Feature',
-			'geometry' => {
-				'type' => 'LineString',
-				'coordinates' => [
+			type => 'Feature',
+			geometry => {
+				type => 'LineString',
+				coordinates => [
 					['-6.2701176', '53.3430824'],
 					['-6.270098', '53.350934'],
 				],
@@ -344,18 +345,18 @@ $json_expected{foo} = {
 	],
 };
 $json_expected{bar} = {
-	'type' => 'FeatureCollection',
-	'features' => [
+	type => 'FeatureCollection',
+	features => [
 		{
-			'type' => 'Feature',
-			'geometry' => {
-				'type' => 'Point',
-				'coordinates' => ['-6.2723297', '53.3469584'],
+			type => 'Feature',
+			geometry => {
+				type => 'Point',
+				coordinates => ['-6.2723297', '53.3469584'],
 			},
-			'properties' => {
-				'id' => 'page1', 'name' => 'page1',
-				'desc' => '', 'href' => '/page1/',
-				'lat' => '53.3469584', 'lon' => '-6.2723297',
+			properties => {
+				id => 'page1', name => 'page1',
+				desc => '', href => '/page1/', page => 'page1',
+				lat => '53.3469584', lon => '-6.2723297',
 			},
 		},
 	],
