@@ -86,20 +86,20 @@ sub getsetup () {
 }
 
 sub checkconfig {
-	$config{osm_default_zoom} = 15
-		unless (defined $config{osm_default_zoom});
-	$config{osm_leafletjs_url} =
+	$config{'osm_default_zoom'} = 15
+		unless (defined $config{'osm_default_zoom'});
+	$config{'osm_leafletjs_url'} =
 	"https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"
-		unless (defined $config{osm_leafletjs_url});
-	$config{osm_leafletcss_url} =
+		unless (defined $config{'osm_leafletjs_url'});
+	$config{'osm_leafletcss_url'} =
 	"https://unpkg.com/leaflet@1.3.1/dist/leaflet.css"
-		unless (defined $config{osm_leafletcss_url});
-	$config{osm_tile_source} =
+		unless (defined $config{'osm_leafletcss_url'});
+	$config{'osm_tile_source'} =
 	"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-		unless (defined $config{osm_tile_source});
-	$config{osm_attribution} = q(&copy; <a
+		unless (defined $config{'osm_tile_source'});
+	$config{'osm_attribution'} = q(&copy; <a
 	href="http://osm.org/copyright">OpenStreetMap</a> contributors)
-		unless (defined $config{osm_attribution});
+		unless (defined $config{'osm_attribution'});
 }
 
 # Idea taken from meta.pm plugin.
@@ -121,8 +121,8 @@ sub needsbuild {
 
 sub preprocess_osm {
 	my %params=@_;
-	my $page = $params{page};
-	my $dest = $params{destpage};
+	my $page = $params{'page'};
+	my $dest = $params{'destpage'};
 
 	my $map = $params{'map'} || 'map';
 	my $divname = $params{'divname'};
@@ -135,9 +135,9 @@ sub preprocess_osm {
 	my $nolinkpages = defined($params{'nolinkpages'});
 	my $highlight = $params{'highlight'} || '';
 
-	my $loc = $params{loc};
-	my $lat = $params{lat};
-	my $lon = $params{lon};
+	my $loc = $params{'loc'};
+	my $lat = $params{'lat'};
+	my $lon = $params{'lon'};
 	my $zoom = $params{'zoom'} // $config{'osm_default_zoom'};
 	($lon, $lat) = scrub_lonlat($loc, $lon, $lat);
 
@@ -169,8 +169,8 @@ sub preprocess_osm {
 		zoom => $zoom,
 	);
 	if (defined $lat and defined $lon) {
-		$map_opts{lat} = $lat;
-		$map_opts{lon} = $lon;
+		$map_opts{'lat'} = $lat;
+		$map_opts{'lon'} = $lon;
 	}
 
 	my $ret = qq(<div id="mapdiv-$divname" style="height: $height" );
@@ -431,7 +431,7 @@ sub writejson($;$) {
 		}
 		debug(sprintf(gettext("osm: building %s"),
                         OUTPUT_PATH .  "/$map.js"));
-		writefile("$map.js", "$config{destdir}/" . OUTPUT_PATH,
+		writefile("$map.js", "$config{'destdir'}/" . OUTPUT_PATH,
 			"var geojson_$map = " . to_json(\%geojson));
 	}
 }
@@ -440,7 +440,7 @@ sub writejson($;$) {
 #
 # code taken from the meta.pm plugin
 sub scrub($$$) {
-	if (IkiWiki::Plugin::htmlscrubber->can("sanitize")) {
+	if (IkiWiki::Plugin::htmlscrubber->can('sanitize')) {
 		return IkiWiki::Plugin::htmlscrubber::sanitize(
 			content => shift, page => shift, destpage => shift);
 	}
@@ -449,10 +449,9 @@ sub scrub($$$) {
 	}
 }
 
-# taken from toggle.pm
 sub format (@) {
 	my %params = @_;
-	my $page = $params{page};
+	my $page = $params{'page'};
 
 	return $params{content} unless (
 	    $params{content} =~ /<div id="mapdiv-/);
@@ -465,19 +464,21 @@ sub format (@) {
 	return $js . $before;
 }
 
-sub map_setup_js(;$) {
+sub map_setup_js($) {
 	my $page = shift;
 
-	my $cssurl = $config{osm_leafletcss_url};
-	my $olurl = $config{osm_leafletjs_url};
+	my $cssurl = $config{'osm_leafletcss_url'};
+	my $olurl = $config{'osm_leafletjs_url'};
 	my $displaymap_link = bestlink($page, OUTPUT_PATH . "/display_map.js");
 	my $displaymap_url = urlto($displaymap_link, $page);
 
 	return <<END;
-<link rel="stylesheet" href="$cssurl" crossorigin=""/>
-<script src="$olurl" type="text/javascript" crossorigin="" charset="utf-8"
-></script>
-<script src="$displaymap_url" type="text/javascript" charset="utf-8"></script>
+<link href="$cssurl"
+ rel="stylesheet" crossorigin=""/>
+<script src="$olurl"
+ type="text/javascript" crossorigin="" charset="utf-8"></script>
+<script src="$displaymap_url"
+ type="text/javascript" charset="utf-8"></script>
 END
 }
 
@@ -501,8 +502,8 @@ sub display_map_js($$;@) {
 	my $divname = shift;
 	my %options = @_;
 
-	$options{'tilesrc'} = $config{osm_tile_source};
-	$options{'attribution'} = $config{osm_attribution};
+	$options{'tilesrc'} = $config{'osm_tile_source'};
+	$options{'attribution'} = $config{'osm_attribution'};
 
 	my $ret = qq(<script type="text/javascript">\n);
 	$ret .= qq{display_map('mapdiv-$divname', geojson_$map, };
