@@ -125,7 +125,6 @@ sub preprocess_osm {
 	my $dest = $params{'destpage'};
 
 	my $map = $params{'map'} || 'map';
-	my $divname = $params{'divname'};
 	my $height = scrub($params{'height'} || '300px', $page, $dest);
 	my $width = scrub($params{'width'} || '500px', $page, $dest);
 	my $float = (defined($params{'right'}) && 'right') || (
@@ -143,23 +142,18 @@ sub preprocess_osm {
 
 	error(sprintf(gettext("Invalid map name: %s"), $map)) if (
 		$map !~ JS_IDENTIFIER_RE);
-	error(sprintf(gettext("Duplicate div name: %s"), $divname)) if (
-		$divname and
-		exists $pagestate{$page}{OSM}{$map}{'displays'}{$divname});
-	error(sprintf(gettext("Invalid div name: %s"), $divname)) if (
-		$divname and $divname !~ /^[\w-]+$/);
 	error(sprintf(gettext("Invalid zoom: %s"), $zoom)) if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
-	# Make sure the divname is unique for this map in this page.
-	$divname = generate_unique_key(
-		$pagestate{$page}{OSM}{$map}{'displays'}, $map
-	) unless($divname);
-	# Register this page is generating a map named $map in a <div> called
-	# $divname.
-	$pagestate{$page}{OSM}{$map}{'displays'}{$divname} = 1;
+	will_render($page, OUTPUT_PATH . "/${map}.js");
+	return unless defined wantarray;  # Scan mode.
 
-	my %map_opts = (
+	# Make sure the div ID is unique in this (dest) page.
+	my $div_id = generate_unique_key(
+		$pagestate{$dest}{OSM}{$map}{'displays'}, "map-$map");
+
+	# Register this page is rendering map $map inside div $id.
+	my $map_opts = $pagestate{$dest}{OSM}{$map}{'displays'}{$div_id} = {
 		height => $height,
 		width => $width,
 		float => $float,
@@ -167,17 +161,13 @@ sub preprocess_osm {
 		nolinkpages => $nolinkpages || 0,
 		highlight => $highlight,
 		zoom => $zoom,
-	);
+	};
 	if (defined $lat and defined $lon) {
-		$map_opts{'lat'} = $lat;
-		$map_opts{'lon'} = $lon;
+		$map_opts->{'lat'} = $lat;
+		$map_opts->{'lon'} = $lon;
 	}
-
-	my $ret = qq(<div id="mapdiv-$divname" style="height: $height" );
-	$ret .= qq(class="osm"></div>\n);
-	$ret .= load_geojson_js($map, $dest);
-	$ret .= display_map_js($map, $divname, %map_opts);
-	return $ret;
+	# Place a <div> shiv that is filled with parameters later.
+	return qq(<div id="$div_id" class="osm"></div>\n);
 }
 
 our $waypoint_changed = 0;
@@ -186,6 +176,7 @@ sub preprocess_waypoint {
 	my %params = @_;
 	my $page = $params{'page'};
 	my $dest = $params{'destpage'};
+	my $preview = $params{'preview'};
 	my $p = IkiWiki::basename($page);
 
 	my $map = $params{'map'} || 'map';
@@ -195,7 +186,6 @@ sub preprocess_waypoint {
 
 	my $embed = defined($params{'embed'});
 	# Passed verbatim to preprocess_osm.
-	my $divname = $params{'divname'};
 	my $height = $params{'height'};
 	my $width = $params{'width'};
 	my $right = $params{'right'};
@@ -211,27 +201,28 @@ sub preprocess_waypoint {
 
 	error(sprintf(gettext("Invalid map name: %s"), $map)) if (
 		$map !~ JS_IDENTIFIER_RE);
-	error(sprintf(gettext("Duplicate waypoint id: %s"), $id)) if (
-		$id && exists $pagestate{$page}{OSM}{$map}{'waypoints'}{$id});
 	error(gettext("Must specify lat and lon (or loc)")) unless (
 		defined $lat && defined $lon);
 	error(sprintf(gettext("Invalid zoom: %s"), $zoom)) if (
 		$zoom !~ /^\d\d?$/ || $zoom < 2 || $zoom > 18);
 
-	$id = generate_unique_key($pagestate{$page}{OSM}{$map}{'waypoints'},
-		$page) unless($id);
-
 	# Register json file that will be rendered.
-	if ($page eq $dest) {
-		will_render($page, OUTPUT_PATH . "/${map}.js");
-	}
-	return unless defined wantarray;  # Scan mode.
+	will_render($page, OUTPUT_PATH . "/${map}.js");
 
-	if ($page eq $dest) {
-		# Do not create waypoints from inlined or preview pages.
-		debug(sprintf(gettext("osm: found waypoint %s"), $id));
+	$pagestate{$page}{OSM}{$map}{'waypoints'} ||= {};
+	my $wpstate = $pagestate{$page}{OSM}{$map}{'waypoints'};
+
+	# Do not create waypoints from inlined or preview pages; and only
+	# during scan mode.
+	if ($page eq $dest and not defined wantarray) {
+		error(sprintf(gettext("Duplicate waypoint id: %s"), $id)) if (
+			$id && exists $wpstate->{$id});
+		$id = generate_unique_key($wpstate, $page) unless($id);
+		debug(sprintf(gettext("osm: found waypoint %s/%s"),
+				$map, $id));
+
 		$waypoint_changed = 1;
-		$pagestate{$page}{OSM}{$map}{'waypoints'}{$id} = {
+		$wpstate->{$id} = {
 			id => $id,
 			name => $name,
 			desc => $desc,
@@ -242,13 +233,14 @@ sub preprocess_waypoint {
 			href => urlto($page),
 		};
 	}
+
+	return unless defined wantarray;  # Scan mode.
 	my $output = '';
 	if ($embed) {
 		$output .= preprocess_osm(
 			page => $page,
 			destpage => $dest,
 			map => $map,
-			divname => $divname,
 			height => $height,
 			width => $width,
 			right => $right,
@@ -339,6 +331,8 @@ sub find_waypoints() {
 		next unless (exists $pagestate{$page}{OSM});
 		my $maps = $pagestate{$page}{OSM};
 		foreach my $map (keys %$maps) {
+			# Make sure a GeoJSON file is generated even if empty.
+			$waypoints{$map} ||= {};
 			next unless (exists $maps->{$map}{'waypoints'} and
 				$maps->{$map}{'waypoints'});
 			$waypoints{$map}{$page} = $maps->{$map}{'waypoints'};
@@ -452,16 +446,42 @@ sub scrub($$$) {
 sub format (@) {
 	my %params = @_;
 	my $page = $params{'page'};
+	my $content = $params{'content'};
 
-	return $params{content} unless (
-	    $params{content} =~ /<div id="mapdiv-/);
+	return $content unless (
+		exists $pagestate{$page}{OSM} and
+		grep { exists $_->{'displays'} }
+		values(%{$pagestate{$page}{OSM}})
+	);
 
-	my $js = map_setup_js($page);
-	my ($before, $after) = split(m(</head>), $params{content}, 2);
-	if (defined $after) {
-		return $before . $js . $after;
+	# Fill map <div> with attributes and javascript code.
+	# Needs to be done here, so htmlscrubber does not remove the tags.
+	my @maps_present = ();
+	foreach my $map (keys %{$pagestate{$page}{OSM}}) {
+		my $displays = $pagestate{$page}{OSM}{$map}{'displays'};
+		next unless($displays and %$displays);
+		foreach my $div_id (keys %$displays) {
+			my $map_opts = $displays->{$div_id};
+			my $height = $map_opts->{'height'};
+			my $orig = qq(<div id="$div_id" class="osm"></div>\n);
+			my $repl = (qq(<div id="$div_id" class="osm" ) .
+				qq(style="height: $height"></div>\n));
+			$repl .= display_map_js($map, $div_id, %$map_opts);
+			$content =~ s(\Q$orig\E)($repl);
+		}
+		push @maps_present, $map;
 	}
-	return $js . $before;
+
+	# Add Leaflet setup code and load GeoJSON files.
+	my $js = map_setup_js($page);
+	foreach my $map (@maps_present) {
+		$js .= load_geojson_js($map, $page);
+	}
+	my ($before, $after) = split(m(</head>), $content, 2);
+	if (defined $after) {
+		return $before . $js . '</head>' . $after;
+	}
+	return $js . $content;
 }
 
 sub map_setup_js($) {
@@ -499,14 +519,14 @@ sub load_geojson_js($$) {
 
 sub display_map_js($$;@) {
 	my $map = shift;
-	my $divname = shift;
+	my $div_id = shift;
 	my %options = @_;
 
 	$options{'tilesrc'} = $config{'osm_tile_source'};
 	$options{'attribution'} = $config{'osm_attribution'};
 
 	my $ret = qq(<script type="text/javascript">\n);
-	$ret .= qq{display_map('mapdiv-$divname', geojson_$map, };
+	$ret .= qq{display_map('$div_id', geojson_$map, };
 	$ret .= to_json(\%options);
 	$ret .= qq{);\n</script>\n};
 	return $ret;

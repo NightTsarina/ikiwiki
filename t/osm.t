@@ -22,7 +22,7 @@ if ($@) {
 	plan(skip_all => "Can't load osm plugin: $@");
 }
 
-plan(tests => 65);
+plan(tests => 82);
 
 my $tmp = 't/tmp';
 my $srcdir = "$tmp/in";
@@ -97,17 +97,23 @@ sub check_lat($$) {
 
 sub call {
 	my($fail, $msg, $func, @args) = @_;
-	# Force list contest for full processing.
-	my @ret = eval {
-		IkiWiki::Plugin::osm::->can($func)->(@args);
-	};
+	my $ret;
+	if (defined wantarray) {
+		$ret = eval {
+			IkiWiki::Plugin::osm::->can($func)->(@args);
+		};
+	} else {
+		eval {
+			IkiWiki::Plugin::osm::->can($func)->(@args);
+		};
+	}
 	if($fail) {
 		ok($@, $msg);
 	} else {
 		print STDERR $@ if($@);
 		ok(! $@, $msg);
 	}
-	return $ret[0];
+	return $ret;
 }
 sub call_ok ($$@) {
 	return call(0, @_);
@@ -182,46 +188,33 @@ call_nook('invalid id', preprocess_osm => %args, map => 'bad-name');
 call_ok('repeated id', preprocess_waypoint => %args, id => 'waypoint');
 call_nook('repeated id', preprocess_waypoint => %args, id => 'waypoint');
 
-call_ok('repeated divname', preprocess_osm => %args, divname => 'div');
-call_nook('repeated divname', preprocess_osm => %args, divname => 'div');
-
 # Deduplication of default values.
-my @keys;
 %pagestate = ();
 call_ok('dedup id', preprocess_waypoint => %args);
 call_ok('dedup id', preprocess_waypoint => %args);
-@keys = sort keys %{$pagestate{'test'}{OSM}{'map'}{'waypoints'}};
-is("@keys", 'test test_1', 'dedup id');
+is_deeply([sort keys %{$pagestate{'test'}{OSM}{'map'}{'waypoints'}}],
+	[qw(test test_1)], 'dedup id');
 
-call_ok('dedup divname', preprocess_osm => %args);
-call_ok('dedup divname', preprocess_osm => %args);
-@keys = sort keys %{$pagestate{'test'}{OSM}{'map'}{'displays'}};
-is("@keys", 'map map_1', 'dedup divname');
+my $ctx;  # Force non-scan mode.
+$ctx = call_ok('dedup div id', preprocess_osm => %args);
+$ctx = call_ok('dedup div id', preprocess_osm => %args);
+is_deeply([sort keys %{$pagestate{'test'}{OSM}{'map'}{'displays'}}],
+	[qw(map-map map-map_1)], 'dedup div id');
 
 # Directive output.
-%args = (page => 'test', destpage => 'test', map => 'foo', height => '400px');
-my $mapdiv_re = (
-	qr(^\Q<div id="mapdiv-foo" style="height: 400px" class="osm">\Q)m .
-	qr(\Q</div>\E\n));
-my $geojson_re = (
-	qr(^\Q<script src="../ikiwiki/osm/foo.js" type="text/javascript" \E)m .
-	qr(\Qcharset="utf-8"></script>\E\n));
-my $displaymap_re = (qr(
-	<script\ type="text/javascript">\n
-	display_map\('mapdiv-foo',\ geojson_foo,\ \{.*\}\);\n
-	</script>$
-	)mx);
-my $expected = qr($mapdiv_re$geojson_re$displaymap_re);
+%args = (page => 'test', destpage => 'test', map => 'foo',
+	height => '400px');
+my $mapdiv = qr(<div id="map-foo" class="osm"></div>\n);
 
 call_cmp('[[!waypoint]] does not render output', qr(^$),
 	preprocess_waypoint => (%args, loc => '40, -79'));
 
 %pagestate = (); %IkiWiki::Plugin::osm::json_embedded = ();
-call_cmp('[[!waypoint embed]] rendering', $expected,
+call_cmp('[[!waypoint embed]] rendering', $mapdiv,
 	preprocess_waypoint => (%args, loc => '40, -79', embed => ''));
 
 %pagestate = (); %IkiWiki::Plugin::osm::json_embedded = ();
-call_cmp('[[!osm]] rendering', $expected, preprocess_osm => %args);
+call_cmp('[[!osm]] rendering', $mapdiv, preprocess_osm => %args);
 
 # Test end-to-end generation of files.
 my $page1 = <<END;
@@ -232,28 +225,64 @@ END
 my $page2 = <<END;
 [[!waypoint map=foo name=myname loc=53.3509340,-6.2700980]]
 [[!waypoint map=foo id=foowp desc=desc loc=53.3424332,-6.2944638]]
+[[!osm map=bar]]
 [[!osm map=baz]]
 END
+my $page3 = <<END;
+[[!inline pages="page1 or page2"]]
+END
 
+ok(! system("rm -rf $tmp"), q(Clean temp dir));
 ok(! system("mkdir -p $srcdir"), q(setup));
 writefile("page1.mdwn", $srcdir, $page1);
 writefile("page2.mdwn", $srcdir, $page2);
+writefile("page3.mdwn", $srcdir, $page3);
 ok(! system(@command), q(build));
 
 my $page1out = readfile("$destdir/page1/index.html");
 my $page2out = readfile("$destdir/page2/index.html");
+my $page3out = readfile("$destdir/page3/index.html");
 
-like($page1out, qr(^<link rel="stylesheet" href=".*/leaflet.css")m,
-	'Include leaflet CSS in output');
-like($page1out, qr(^<script src=".*/leaflet.js" type="text/javascript")m,
-	'Include leaflet JS in output');
+for my $page ($page1out, $page2out, $page3out) {
+	like($page, qr(^<link href="[^"]*/leaflet\.css"\s)m,
+		'Include leaflet CSS in output');
+	like($page, qr(^<script src="[^"].*/leaflet\.js"\s)m,
+		'Include leaflet JS in output');
+	like($page, qr(^<script src=".*/display_map\.js"\s)m,
+		'Include display_map JS in output');
+}
 
-ok(-f "$destdir/ikiwiki/osm/foo.js", 'GeoJSON file created');
-my $foojson = readfile("$destdir/ikiwiki/osm/foo.js");
-like($foojson, qr(^var geojson_foo = ), 'GeoJSON syntax');
-$foojson =~ s(^var geojson_foo = )();
+my $geojson_resub = sub {
+	my $map = shift;
+	return qr(
+		<script\ src="\.\./ikiwiki/osm/$map\.js"\s+
+		type="text/javascript"\ charset="utf-8"></script>\n
+		)x;
+};
+my $displaymap_resub = sub {
+	my $map = shift;
+	my $pre = qq(<div id="map-$map" class="osm" );
+	$pre .= qq(style="height: 300px"></div>\n);
+	$pre .= qq(<script type="text/javascript">\n);
+	$pre .= qq[display_map('map-$map', geojson_$map, {];
+	my $post = qq[});\n</script>\n];
+	return qr(\Q$pre\E.*\Q$post\E);
+};
 
-my $fooexpected = {
+like($page1out, $geojson_resub->('foo'), 'Include "foo" GeoJSON in page');
+unlike($page1out, $geojson_resub->('bar'), 'Exclude "bar" GeoJSON in page');
+like($page1out, $displaymap_resub->('foo'), 'Render "foo" map');
+
+unlike($page2out, $geojson_resub->('foo'), 'Exclude "foo" GeoJSON in page');
+like($page2out, $geojson_resub->('bar'), 'Include "bar" GeoJSON in page');
+like($page2out, $geojson_resub->('baz'), 'Include "baz" GeoJSON in page');
+like($page2out, $displaymap_resub->('bar'), 'Render "bar" map');
+like($page2out, $displaymap_resub->('baz'), 'Render "baz" map');
+
+like($page3out, $displaymap_resub->('foo'), 'Render "foo" map');
+
+my %json_expected;
+$json_expected{foo} = {
 	'type' => 'FeatureCollection',
 	'features' => [
 		{
@@ -314,16 +343,7 @@ my $fooexpected = {
 		},
 	],
 };
-
-is_deeply(JSON::decode_json($foojson), $fooexpected,
-	'Verify GeoJSON structure');
-
-ok(-f "$destdir/ikiwiki/osm/bar.js", 'GeoJSON file created');
-my $barjson = readfile("$destdir/ikiwiki/osm/bar.js");
-like($barjson, qr(^var geojson_bar = ), 'GeoJSON syntax');
-$barjson =~ s(^var geojson_bar = )();
-
-my $barexpected = {
+$json_expected{bar} = {
 	'type' => 'FeatureCollection',
 	'features' => [
 		{
@@ -340,8 +360,20 @@ my $barexpected = {
 		},
 	],
 };
-is_deeply(JSON::decode_json($barjson), $barexpected,
-	'Verify GeoJSON structure');
+$json_expected{baz} = {
+	'type' => 'FeatureCollection',
+	'features' => [],
+};
+
+for my $map (qw(foo bar baz)) {
+	ok(-f "$destdir/ikiwiki/osm/$map.js",
+		qq(GeoJSON file "$map.js" created));
+	my $json = readfile("$destdir/ikiwiki/osm/$map.js");
+	like($json, qr(^var geojson_$map = ), 'GeoJSON syntax');
+	$json =~ s(^var geojson_$map = )();
+	is_deeply(JSON::decode_json($json), $json_expected{$map},
+		'Verify GeoJSON structure');
+}
 
 ok(! system("rm -rf $tmp"), q(teardown));
 
