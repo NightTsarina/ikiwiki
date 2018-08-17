@@ -14,7 +14,7 @@ function display_map(divname, geojson, options) {
 	var bounds = L.latLngBounds();
 	L.geoJSON(geojson, {
 		filter: function(feature, layer) {
-			return feature.type != 'LineString' || options.showlines;
+			return feature.type != 'LineString' || options.autolines;
 		},
 		pointToLayer: function(point, latlng) {
 			if (point.properties &&

@@ -140,7 +140,7 @@ sub preprocess_osm {
 	my $float = (defined($params{'right'}) && 'right') || (
 		defined($params{'left'}) && 'left');
 
-	my $showlines = defined($params{'showlines'});
+	my $autolines = defined($params{'autolines'});
 	my $nolinkpages = defined($params{'nolinkpages'});
 	my $highlight = $params{'highlight'} || '';
 
@@ -167,7 +167,7 @@ sub preprocess_osm {
 		height => $height,
 		width => $width,
 		float => $float,
-		showlines => $showlines || 0,
+		autolines => $autolines || 0,
 		nolinkpages => $nolinkpages || 0,
 		highlight => $highlight,
 		zoom => $zoom,
@@ -200,7 +200,7 @@ sub preprocess_waypoint {
 	my $width = $params{'width'};
 	my $right = $params{'right'};
 	my $left = $params{'left'};
-	my $showlines = $params{'showlines'};
+	my $autolines = $params{'autolines'};
 	my $nolinkpages = $params{'nolinkpages'};
 
 	my $loc = $params{'loc'};
@@ -256,7 +256,7 @@ sub preprocess_waypoint {
 			width => $width,
 			right => $right,
 			left => $left,
-			showlines => $showlines,
+			autolines => $autolines,
 			nolinkpages => $nolinkpages,
 			lat => $lat,
 			lon => $lon,
